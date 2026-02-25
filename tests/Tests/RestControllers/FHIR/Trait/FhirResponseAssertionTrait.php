@@ -16,11 +16,14 @@ trait FhirResponseAssertionTrait
         $fhirBundle = new FHIRBundle();
         $this->assertEquals($fhirBundle->get_fhirElementName(), $contents['resourceType'], "Unexpected resource type in response");
 
-        if (isset($contents['entry'])) {
+        if (isset($contents['entry']) && is_array($contents['entry'])) {
+            /** @var array<string, mixed> $entry */
             foreach ($contents['entry'] as $entry) {
                 $this->assertArrayHasKey('resource', $entry, "Each entry should contain a 'resource'");
-                $this->assertArrayHasKey('id', $entry['resource'], "Each resource should have an 'id'");
-                $this->assertEquals($expectedResourceType, $entry['resource']['resourceType'], "Resource type in entry does not match expected type");
+                $resource = $entry['resource'];
+                $this->assertIsArray($resource);
+                $this->assertArrayHasKey('id', $resource, "Each resource should have an 'id'");
+                $this->assertEquals($expectedResourceType, $resource['resourceType'], "Resource type in entry does not match expected type");
             }
         }
     }

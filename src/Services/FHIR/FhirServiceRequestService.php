@@ -12,7 +12,9 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRServiceRequest;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -21,11 +23,11 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRRequestPriority;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\ProcedureOrderRelationshipService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
-use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;
 use OpenEMR\Services\ProcedureService;
 use OpenEMR\Services\Search\CompositeSearchField;
@@ -65,7 +67,6 @@ class FhirServiceRequestService extends FhirServiceBase implements
     IFhirExportableResourceService,
     IPatientCompartmentResourceService
 {
-    use FhirServiceBaseEmptyTrait;
     use PatientSearchTrait;
     use BulkExportSupportAllOperationsTrait;
     use FhirBulkExportDomainResourceTrait;
@@ -397,7 +398,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
 
         // Occurrence[x] - MUST SUPPORT - when service is to be performed
         // we go off the scheduled start time, then the scheduled date, then date collected of specimen if we have no other option
-        $serviceStartDate = $dataRecord['scheduled_start'] ?? $dataRecord['scheduled_date'] ?? $dataRecord['date_collected'];
+        $serviceStartDate = $dataRecord['scheduled_start'] ?? $dataRecord['scheduled_date'] ?? $dataRecord['date_collected'] ?? null;
         if (!empty($serviceStartDate)) {
             // period takes precedence over dateTime if both start and end are present
             $occurrenceStart = new FHIRDateTime(UtilsService::getLocalDateAsUTC($serviceStartDate));
@@ -814,6 +815,283 @@ class FhirServiceRequestService extends FhirServiceBase implements
         }
 
         return $fhirProvenance;
+    }
+
+    /**
+     * Parses a FHIR ServiceRequest Resource, returning the equivalent OpenEMR record.
+     *
+     * @param FHIRDomainResource $fhirResource The source FHIR resource
+     * @return array a mapped OpenEMR data record (array)
+     */
+    public function parseFhirResource(FHIRDomainResource $fhirResource)
+    {
+        if (!$fhirResource instanceof FHIRServiceRequest) {
+            throw new \BadMethodCallException(
+                "Resource expected to be of type " . FHIRServiceRequest::class
+                . " but instead was of type " . $fhirResource::class
+            );
+        }
+
+        $data = [];
+
+        // Status → order_status + activity
+        $fhirStatus = (string)$fhirResource->getStatus();
+        if ($fhirStatus === 'entered-in-error') {
+            $data['order_status'] = 'canceled';
+            $data['activity'] = 0;
+        } elseif ($fhirStatus !== '') {
+            $data['order_status'] = $this->mapFhirStatusToOrderStatus($fhirStatus);
+            $data['activity'] = 1;
+        }
+
+        // Intent → order_intent
+        $intent = (string)$fhirResource->getIntent();
+        if ($intent !== '') {
+            $data['order_intent'] = $intent;
+        }
+
+        // Category → procedure_order_type
+        $categories = $fhirResource->getCategory();
+        if ($categories !== []) {
+            $data['procedure_order_type'] = $this->mapCategoryToOrderType($categories[0]);
+        }
+
+        // Code → procedure_code, procedure_name
+        $code = $fhirResource->getCode();
+        $codeCodings = $code->getCoding();
+        if ($codeCodings !== []) {
+            $coding = $codeCodings[0];
+            $system = (string)$coding->getSystem();
+            $codeValue = (string)$coding->getCode();
+            if ($system !== '' && $codeValue !== '') {
+                $codesService = new CodeTypesService();
+                /** @var string|null $codeType */
+                $codeType = $codesService->getCodeTypeForSystemUrl($system);
+                if ($codeType !== null && $codeType !== '') {
+                    $data['procedure_code'] = $codeType . ':' . $codeValue;
+                } else {
+                    $data['procedure_code'] = $codeValue;
+                }
+            } elseif ($codeValue !== '') {
+                $data['procedure_code'] = $codeValue;
+            }
+        }
+        $codeText = (string)$code->getText();
+        if ($codeText !== '') {
+            $data['procedure_name'] = $codeText;
+        }
+
+        // Subject → patient_id
+        $patientUuid = UtilsService::getUuidFromReference($fhirResource->getSubject());
+        if (is_string($patientUuid) && $patientUuid !== '') {
+            $patientId = $this->resolveUuidToId('patient_data', 'pid', $patientUuid);
+            if ($patientId !== null) {
+                $data['patient_id'] = $patientId;
+            }
+        }
+
+        // Encounter → encounter_id
+        $encounterUuid = UtilsService::getUuidFromReference($fhirResource->getEncounter());
+        if (is_string($encounterUuid) && $encounterUuid !== '') {
+            $encounterId = $this->resolveUuidToId('form_encounter', 'encounter', $encounterUuid);
+            if ($encounterId !== null) {
+                $data['encounter_id'] = $encounterId;
+            }
+        }
+
+        // Requester → provider_id
+        $providerUuid = UtilsService::getUuidFromReference($fhirResource->getRequester());
+        if (is_string($providerUuid) && $providerUuid !== '') {
+            $providerId = $this->resolveUuidToId('users', 'id', $providerUuid);
+            if ($providerId !== null) {
+                $data['provider_id'] = $providerId;
+            }
+        }
+
+        // Performer → lab_id
+        $performers = $fhirResource->getPerformer();
+        if ($performers !== []) {
+            /** @var string|null $labUuid */
+            $labUuid = UtilsService::getUuidFromReference($performers[0]);
+            if (is_string($labUuid) && $labUuid !== '') {
+                $labId = $this->resolveUuidToId('procedure_providers', 'ppid', $labUuid);
+                if ($labId !== null) {
+                    $data['lab_id'] = $labId;
+                }
+            }
+        }
+
+        // AuthoredOn → date_ordered
+        $authoredOn = (string)$fhirResource->getAuthoredOn();
+        if ($authoredOn !== '') {
+            $data['date_ordered'] = $authoredOn;
+        }
+
+        // Priority → order_priority
+        $priority = (string)$fhirResource->getPriority();
+        if ($priority !== '') {
+            $data['order_priority'] = $this->mapFhirPriorityToOrderPriority($priority);
+        }
+
+        // PatientInstruction → patient_instructions
+        $patientInstruction = (string)$fhirResource->getPatientInstruction();
+        if ($patientInstruction !== '') {
+            $data['patient_instructions'] = $patientInstruction;
+        }
+
+        // Note → clinical_hx
+        $notes = $fhirResource->getNote();
+        if ($notes !== []) {
+            $data['clinical_hx'] = (string)$notes[0]->getText();
+        }
+
+        // ReasonCode → order_diagnosis
+        $reasonCodes = $fhirResource->getReasonCode();
+        if ($reasonCodes !== []) {
+            $diagParts = [];
+            foreach ($reasonCodes as $reasonCode) {
+                $codings = $reasonCode->getCoding();
+                if ($codings !== []) {
+                    $coding = $codings[0];
+                    $system = (string)$coding->getSystem();
+                    $codeValue = (string)$coding->getCode();
+                    if ($system !== '' && $codeValue !== '') {
+                        $codesService = new CodeTypesService();
+                        /** @var string|null $codeType */
+                        $codeType = $codesService->getCodeTypeForSystemUrl($system);
+                        if ($codeType !== null && $codeType !== '') {
+                            $diagParts[] = $codeType . ':' . $codeValue;
+                        }
+                    }
+                }
+            }
+            if ($diagParts !== []) {
+                $data['order_diagnosis'] = implode(';', $diagParts);
+            }
+        }
+
+        // OccurrenceDateTime → date_collected
+        $occurrenceDateTime = (string)$fhirResource->getOccurrenceDateTime();
+        if ($occurrenceDateTime !== '') {
+            $data['date_collected'] = $occurrenceDateTime;
+        }
+
+        return $data;
+    }
+
+    /**
+     * Inserts an OpenEMR record.
+     *
+     * @param mixed $openEmrRecord The OpenEMR record to insert
+     * @return ProcessingResult
+     */
+    protected function insertOpenEMRRecord($openEmrRecord)
+    {
+        /** @var array<string, mixed> $openEmrRecord */
+        return $this->procedureService->insert($openEmrRecord);
+    }
+
+    /**
+     * Updates an existing OpenEMR record.
+     *
+     * @param mixed $fhirResourceId The FHIR resource ID (uuid)
+     * @param array $updatedOpenEMRRecord The updated OpenEMR record
+     * @return ProcessingResult
+     */
+    public function updateOpenEMRRecord($fhirResourceId, $updatedOpenEMRRecord)
+    {
+        /** @var string $fhirResourceId */
+        /** @var array<string, mixed> $updatedOpenEMRRecord */
+        return $this->procedureService->update($fhirResourceId, $updatedOpenEMRRecord);
+    }
+
+    /**
+     * Reverse-map FHIR ServiceRequest status to OpenEMR order_status.
+     *
+     * @param string $fhirStatus FHIR status code
+     * @return string OpenEMR order_status value
+     */
+    private function mapFhirStatusToOrderStatus(string $fhirStatus): string
+    {
+        $statusMap = [
+            'active' => 'pending',
+            'completed' => 'complete',
+            'revoked' => 'canceled',
+            'draft' => 'draft',
+            'on-hold' => 'on-hold',
+            'unknown' => 'pending',
+        ];
+
+        return $statusMap[$fhirStatus] ?? 'pending';
+    }
+
+    /**
+     * Reverse-map FHIR CodeableConcept category to OpenEMR procedure_order_type.
+     *
+     * @param FHIRCodeableConcept $category The FHIR category
+     * @return string OpenEMR procedure_order_type value
+     */
+    private function mapCategoryToOrderType(FHIRCodeableConcept $category): string
+    {
+        $codings = $category->getCoding();
+        if ($codings !== []) {
+            $code = (string)$codings[0]->getCode();
+            foreach (self::CATEGORY_MAP as $orderType => $categoryDef) {
+                if ($categoryDef['code'] === $code) {
+                    return $orderType;
+                }
+            }
+        }
+
+        return self::ORDER_TYPE_LABORATORY;
+    }
+
+    /**
+     * Reverse-map FHIR request priority to OpenEMR order_priority.
+     *
+     * @param string $fhirPriority FHIR priority code
+     * @return string OpenEMR order_priority value
+     */
+    private function mapFhirPriorityToOrderPriority(string $fhirPriority): string
+    {
+        $priorityMap = [
+            'routine' => 'normal',
+            'urgent' => 'urgent',
+            'asap' => 'asap',
+            'stat' => 'stat',
+        ];
+
+        return $priorityMap[$fhirPriority] ?? 'normal';
+    }
+
+    /**
+     * Resolve a FHIR UUID to an internal database ID.
+     *
+     * @param string $table The database table name
+     * @param string $idColumn The column containing the integer ID
+     * @param string $uuid The UUID string to resolve
+     * @return int|null The resolved ID, or null if not found
+     */
+    private function resolveUuidToId(string $table, string $idColumn, string $uuid): ?int
+    {
+        try {
+            $uuidBytes = UuidRegistry::uuidToBytes($uuid);
+        } catch (\Exception $e) {
+            (new SystemLogger())->errorLogCaller(
+                "Invalid UUID format: " . $uuid,
+                ['table' => $table]
+            );
+            return null;
+        }
+
+        $sql = "SELECT `" . \escape_sql_column_name($idColumn, [$table]) . "` FROM `" . \escape_table_name($table)
+            . "` WHERE `uuid` = ?";
+        $id = QueryUtils::fetchSingleValue($sql, $idColumn, [$uuidBytes]);
+        if (is_numeric($id)) {
+            return (int)$id;
+        }
+
+        return null;
     }
 
     /**

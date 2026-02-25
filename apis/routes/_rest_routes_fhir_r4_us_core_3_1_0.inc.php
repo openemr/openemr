@@ -6402,12 +6402,14 @@ return [
      */
 
     "GET /fhir/ServiceRequest" => function (HttpRestRequest $request) {
+        /** @var array<string, mixed> $searchParams */
+        $searchParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
-            $return = (new FhirServiceRequestRestController())->getAll($request->getQueryParams(), $request->getPatientUUIDString());
+            $return = (new FhirServiceRequestRestController())->getAll($searchParams, $request->getPatientUUIDString());
         } else {
             RestConfig::request_authorization_check($request, "patients", "med");
-            $return = (new FhirServiceRequestRestController())->getAll($request->getQueryParams());
+            $return = (new FhirServiceRequestRestController())->getAll($searchParams);
         }
 
         return $return;
@@ -6491,7 +6493,7 @@ return [
      *      security={{"openemr_auth":{}}}
      *  )
      */
-    "GET /fhir/ServiceRequest/:uuid" => function ($uuid, HttpRestRequest $request) {
+    "GET /fhir/ServiceRequest/:uuid" => function (string $uuid, HttpRestRequest $request) {
         if ($request->isPatientRequest()) {
             // only allow access to data of binded patient
             $return = (new FhirServiceRequestRestController())->getOne($uuid, $request->getPatientUUIDString());
@@ -6501,6 +6503,20 @@ return [
         }
 
         return $return;
+    },
+
+    "POST /fhir/ServiceRequest" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        /** @var array<string, mixed> $data */
+        $data = (array) (json_decode((string) file_get_contents("php://input"), true));
+        return (new FhirServiceRequestRestController())->post($data);
+    },
+
+    "PUT /fhir/ServiceRequest/:uuid" => function (string $uuid, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        /** @var array<string, mixed> $data */
+        $data = (array) (json_decode((string) file_get_contents("php://input"), true));
+        return (new FhirServiceRequestRestController())->patch($uuid, $data);
     },
 
     /**
