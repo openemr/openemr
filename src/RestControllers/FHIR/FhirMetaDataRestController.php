@@ -137,34 +137,12 @@ class FhirMetaDataRestController
      */
     #[OA\Get(
         path: "/fhir/metadata",
-        description: "Returns metadata (ie. CapabilityStatement resource) of the FHIR server.",
+        description: "Returns metadata (ie. CapabilityStatement resource) of the fhir server.",
         tags: ["fhir"],
         responses: [
             new OA\Response(
                 response: "200",
-                description: "The FHIR CapabilityStatement",
-                content: new OA\MediaType(
-                    mediaType: "application/json",
-                    schema: new OA\Schema(
-                        properties: [
-                            new OA\Property(
-                                property: "json object",
-                                description: "FHIR CapabilityStatement resource.",
-                                type: "object"
-                            ),
-                        ],
-                        example: [
-                            "resourceType" => "CapabilityStatement",
-                            "status" => "active",
-                            "fhirVersion" => "4.0.1",
-                            "kind" => "instance",
-                            "format" => ["application/json"],
-                            "implementation" => [
-                                "description" => "OpenEMR FHIR API",
-                            ],
-                        ]
-                    )
-                )
+                description: "Return CapabilityStatement resource of the fhir server"
             ),
         ]
     )]
