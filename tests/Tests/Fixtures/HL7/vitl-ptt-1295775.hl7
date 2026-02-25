@@ -1,0 +1,7 @@
+MSH|^~\&|VITLLAB|RRMC|CMSOEMR||20160122095305||ORU^R01|1295775|P|2.3|||AL
+PID|1|990327|990327||ZZZHUBTEST^VITL||19840303|M||||||||||2000638
+PV1|1|O|LABCEN^^^RRMC||||1548374382^Dier^Douglas||||||||||1548374382^Dier^Douglas|OPD||||||||||||||||||||||||||20160121134500
+OBR|1|310137537-L700107|310137537-L700107|L700107^PTT|||20160121135100|||||||20160121135500|Blood|1548374382^Dier^Douglas||||||20160121135606||GLB|F||1
+NTE|1|P|Rutland Regional Medical Center~160 Allen Street~Rutland, VT  05701~Laboratory - 802-747-1771
+OBX|1|NM|L800371^PTT||32.0|second(s)|23.0-37.0|N|||F|||20160121135605||050539^STWENAF^KNGTF
+NTE|1|Interpretive Data|This result is for screening purposes and is not a reliable indicator of anti-coagulation effect.  Utilize anti-Xa testing for heparin monitoring.
