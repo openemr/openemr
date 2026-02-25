@@ -180,7 +180,9 @@ class FhirMediaRestController
                                 "type" => "Patient",
                             ],
                             "content" => [
-                                "contentType" => "image/png",
+                                "contentType" => "application/dicom",
+                                "url" => "/fhir/Binary/a037abc5-7ebb-43a1-9e0f-b57586dc6d25",
+                                "title" => "MR000021.dcm",
                             ],
                         ]
                     )

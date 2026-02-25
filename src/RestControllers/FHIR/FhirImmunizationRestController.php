@@ -131,6 +131,13 @@ class FhirImmunizationRestController
                 schema: new OA\Schema(type: "string")
             ),
             new OA\Parameter(
+                name: "_lastUpdated",
+                in: "query",
+                description: "Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+            new OA\Parameter(
                 name: "patient",
                 in: "query",
                 description: "The uuid for the patient.",

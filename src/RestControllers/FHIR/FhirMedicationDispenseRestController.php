@@ -68,14 +68,14 @@ class FhirMedicationDispenseRestController
             new OA\Parameter(
                 name: "_lastUpdated",
                 in: "query",
-                description: "Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc).",
+                description: "Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
                 required: false,
                 schema: new OA\Schema(type: "string")
             ),
             new OA\Parameter(
                 name: "patient",
                 in: "query",
-                description: "The patient the MedicationDispense is for.",
+                description: "The uuid for the patient.",
                 required: false,
                 schema: new OA\Schema(type: "string")
             ),
@@ -102,11 +102,25 @@ class FhirMedicationDispenseRestController
                     mediaType: "application/json",
                     schema: new OA\Schema(
                         properties: [
-                            new OA\Property(property: "resourceType", type: "string"),
-                            new OA\Property(property: "type", type: "string"),
-                            new OA\Property(property: "total", type: "integer"),
-                            new OA\Property(property: "link", type: "array", items: new OA\Items(type: "object")),
-                            new OA\Property(property: "entry", type: "array", items: new OA\Items(type: "object")),
+                            new OA\Property(
+                                property: "json object",
+                                description: "FHIR Json object.",
+                                type: "object"
+                            ),
+                        ],
+                        example: [
+                            "meta" => [
+                                "lastUpdated" => "2021-09-14T09:13:51",
+                            ],
+                            "resourceType" => "Bundle",
+                            "type" => "collection",
+                            "total" => 0,
+                            "link" => [
+                                [
+                                    "relation" => "self",
+                                    "url" => "https://localhost:9300/apis/default/fhir/MedicationDispense",
+                                ],
+                            ],
                         ]
                     )
                 )
@@ -162,15 +176,57 @@ class FhirMedicationDispenseRestController
                     mediaType: "application/json",
                     schema: new OA\Schema(
                         properties: [
-                            new OA\Property(property: "meta", type: "object"),
-                            new OA\Property(property: "resourceType", type: "string"),
-                            new OA\Property(property: "status", type: "string"),
-                            new OA\Property(property: "medicationCodeableConcept", type: "object"),
-                            new OA\Property(property: "subject", type: "object"),
-                            new OA\Property(property: "context", type: "object"),
-                            new OA\Property(property: "performer", type: "array", items: new OA\Items(type: "object")),
-                            new OA\Property(property: "whenHandedOver", type: "string"),
-                            new OA\Property(property: "dosageInstruction", type: "array", items: new OA\Items(type: "object")),
+                            new OA\Property(
+                                property: "json object",
+                                description: "FHIR Json object.",
+                                type: "object"
+                            ),
+                        ],
+                        example: [
+                            "id" => "946da61d-9cff-4416-8d27-805f19f9d7d8",
+                            "meta" => [
+                                "versionId" => "1",
+                                "lastUpdated" => "2021-09-20T04:03:14+00:00",
+                            ],
+                            "resourceType" => "MedicationDispense",
+                            "status" => "completed",
+                            "medicationCodeableConcept" => [
+                                "coding" => [
+                                    [
+                                        "system" => "http://www.nlm.nih.gov/research/umls/rxnorm",
+                                        "code" => "1738139",
+                                        "display" => "Acetaminophen 325 MG Oral Tablet",
+                                    ],
+                                ],
+                            ],
+                            "subject" => [
+                                "reference" => "Patient/946da617-1a4a-4b2c-ae66-93b84377cb1e",
+                                "type" => "Patient",
+                            ],
+                            "context" => [
+                                "reference" => "Encounter/946da61d-ac5f-4fdc-b3f2-7b58dc49976b",
+                                "type" => "Encounter",
+                            ],
+                            "authorizingPrescription" => [
+                                [
+                                    "reference" => "MedicationRequest/946da61d-ac5f-4fdc-b3f2-7b58dc49976b",
+                                    "type" => "MedicationRequest",
+                                ],
+                            ],
+                            "type" => [
+                                "coding" => [
+                                    [
+                                        "system" => "http://terminology.hl7.org/ValueSet/v3-ActPharmacySupplyType",
+                                        "code" => "FF",
+                                        "display" => "Final Fill",
+                                    ],
+                                ],
+                            ],
+                            "quantity" => [
+                                "value" => 30,
+                                "unit" => "tablet",
+                            ],
+                            "whenHandedOver" => "2021-09-18T00:00:00+00:00",
                         ]
                     )
                 )

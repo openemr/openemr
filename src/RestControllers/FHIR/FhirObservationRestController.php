@@ -158,6 +158,7 @@ class FhirObservationRestController
      */
     #[OA\Get(
         path: "/fhir/Observation",
+        summary: "Returns a list of Observation resources.",
         description: "Returns a list of Observation resources. Returns the following types of Observation resources, Advance Directives, Care Experience Preferences, Occupation, Social Determinants of Health, Laboratory, Simple Observations, Social History, Questionnaire Responses, Treatment Intervention Preferences, Vital Signs.",
         tags: ["fhir"],
         parameters: [

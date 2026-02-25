@@ -95,9 +95,9 @@ class FhirDocumentReferenceRestController
                                 [
                                     "coding" => [
                                         [
-                                            "system" => "https://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category",
-                                            "code" => "clinical-note",
-                                            "display" => "Clinical Note",
+                                            "system" => "https://localhost:9300/apis/default/fhir/ValueSet/openemr-document-types",
+                                            "code" => "openemr-document",
+                                            "display" => "OpenEMR Document",
                                         ],
                                     ],
                                 ],
@@ -106,25 +106,20 @@ class FhirDocumentReferenceRestController
                                 "reference" => "Patient/946da619-c631-431a-a282-487cd6fb7802",
                                 "type" => "Patient",
                             ],
-                            "date" => "2021-09-19T03:17:51+00:00",
+                            "date" => "2021-09-19T03:15:56+00:00",
+                            "author" => [
+                                null,
+                            ],
                             "content" => [
                                 [
                                     "attachment" => [
-                                        "contentType" => "text/plain",
+                                        "contentType" => "image/gif",
                                         "url" => "https://localhost:9300/apis/default/fhir/Binary/7",
                                     ],
                                     "format" => [
                                         "system" => "http://ihe.net/fhir/ValueSet/IHE.FormatCode.codesystem",
                                         "code" => "urn:ihe:iti:xds:2017:mimeTypeSufficient",
                                         "display" => "mimeType Sufficient",
-                                    ],
-                                ],
-                            ],
-                            "context" => [
-                                "encounter" => [
-                                    [
-                                        "reference" => "Encounter/946da61d-6b95-4f8e-abe5-534a25913954",
-                                        "type" => "Encounter",
                                     ],
                                 ],
                             ],
