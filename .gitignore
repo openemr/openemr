@@ -1,3 +1,9 @@
+# Claude
+.claude/tracking
+
+# Firebase
+firebase-debug.log*
+
 # logs
 /logs
 

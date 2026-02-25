@@ -1,0 +1,33 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep CREATE TABLE:*)",
+      "Bash(pdftotext:*)",
+      "Bash(grep:*)",
+      "Bash(tail:*)",
+      "Bash(python:*)",
+      "Bash(python3:*)",
+      "Bash(curl:*)",
+      "Bash(docker build:*)",
+      "Bash(docker compose:*)",
+      "Bash(export:*)",
+      "Bash(cd:*)",
+      "Bash(head:*)",
+      "Bash(find:*)",
+      "Bash(cat:*)",
+      "WebFetch(domain:lhncbc.nlm.nih.gov)"
+    ],
+    "deny": [
+      "Read(agents/clinical-safety/.env)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(sudo:*)",
+      "Bash(rm -rf:*)",
+      "Bash(docker compose down --volumes:*)",
+      "Bash(railway up:*)",
+      "Bash(pip install:* --break-system-packages)",
+      "Bash(docker system prune:*)"
+    ]
+  }
+}
