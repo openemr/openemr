@@ -790,10 +790,9 @@ return [
     },
 
     /**
-     * Schema for the patient request
-     *
      *  @OA\Schema(
      *      schema="api_patient_request",
+     *      description="Schema for the patient request",
      *      @OA\Property(
      *          property="title",
      *          description="The title of patient.",
@@ -955,10 +954,9 @@ return [
     },
 
     /**
-     * Schema for the patient response
-     *
      *  @OA\Schema(
      *      schema="api_patient_response",
+     *      description="Schema for the patient response",
      *      @OA\Property(
      *          property="validationErrors",
      *          description="Validation errors.",
@@ -1263,10 +1261,9 @@ return [
     },
 
     /**
-     * Schema for the encounter request
-     *
      *  @OA\Schema(
      *      schema="api_encounter_request",
+     *      description="Schema for the encounter request",
      *      @OA\Property(
      *          property="date",
      *          description="The date of encounter.",
@@ -1437,10 +1434,9 @@ return [
     },
 
     /**
-     * Schema for the encounter response
-     *
      *  @OA\Schema(
      *      schema="api_encounter_response",
+     *      description="Schema for the encounter response",
      *      @OA\Property(
      *          property="validationErrors",
      *          description="Validation errors.",
@@ -1772,10 +1768,9 @@ return [
     },
 
     /**
-     * Schema for the vital request
-     *
      *  @OA\Schema(
      *      schema="api_vital_request",
+     *      description="Schema for the vital request",
      *      @OA\Property(
      *          property="bps",
      *          description="The bps of vitals.",
@@ -2121,10 +2116,9 @@ return [
     },
 
     /**
-     * Schema for the soap_note request
-     *
      *  @OA\Schema(
      *      schema="api_soap_note_request",
+     *      description="Schema for the soap_note request",
      *      @OA\Property(
      *          property="subjective",
      *          description="The subjective of soap note.",
@@ -3467,10 +3461,9 @@ return [
     },
 
     /**
-     * Schema for the medical_problem request
-     *
      *  @OA\Schema(
      *      schema="api_medical_problem_request",
+     *      description="Schema for the medical_problem request",
      *      @OA\Property(
      *          property="title",
      *          description="The title of medical problem.",
@@ -3841,10 +3834,9 @@ return [
     },
 
     /**
-     * Schema for the allergy request
-     *
      *  @OA\Schema(
      *      schema="api_allergy_request",
+     *      description="Schema for the allergy request",
      *      @OA\Property(
      *          property="title",
      *          description="The title of allergy.",
@@ -4052,10 +4044,9 @@ return [
     },
 
     /**
-     * Schema for the medication request
-     *
      *  @OA\Schema(
      *      schema="api_medication_request",
+     *      description="Schema for the medication request",
      *      @OA\Property(
      *          property="title",
      *          description="The title of medication.",
@@ -4398,10 +4389,9 @@ return [
     },
 
     /**
-     * Schema for the surgery request
-     *
      *  @OA\Schema(
      *      schema="api_surgery_request",
+     *      description="Schema for the surgery request",
      *      @OA\Property(
      *          property="title",
      *          description="The title of surgery.",
@@ -4655,10 +4645,9 @@ return [
     },
 
     /**
-     * Schema for the dental_issue request
-     *
      *  @OA\Schema(
      *      schema="api_dental_issue_request",
+     *      description="Schema for the dental_issue request",
      *      @OA\Property(
      *          property="title",
      *          description="The title of dental issue.",
@@ -5590,10 +5579,9 @@ return [
     },
 
     /**
-     * Schema for the insurance_company request
-     *
      *  @OA\Schema(
      *      schema="api_insurance_company_request",
+     *      description="Schema for the insurance_company request",
      *      @OA\Property(
      *          property="name",
      *          description="The name of insurance company.",
@@ -6108,20 +6096,20 @@ return [
     },
 
     /**
-     * Schema for the insurance request.  Note the following additional validation checks on the request.
-     * If the subscriber_relationship value is of type 'self' then the subscriber_fname and subscriber_lname fields
-     * must match the patient's first and last name or a patient's previous first and last name.
-     *
-     * If the subscriber_relationship value is of type 'self' then the subscriber_ss field must match the patient's
-     * social security number.
-     *
-     * If the subscriber_relationship value is not of type 'self' then the subscriber_ss field MUST not be the current patient's social security number.
-     *
-     * If the system's global configuration permits only a single insurance type option then any insurance request where the type is NOT 'primary' will fail.
-     *
-     * An insurance is considered the current policy for the policy type if the policy date_end field is null.  Only one of these records per policy type can exist for a patient.
      *  @OA\Schema(
      *      schema="api_insurance_request",
+     *      description="Schema for the insurance request.  Note the following additional validation checks on the request.
+If the subscriber_relationship value is of type 'self' then the subscriber_fname and subscriber_lname fields
+must match the patient's first and last name or a patient's previous first and last name.
+
+If the subscriber_relationship value is of type 'self' then the subscriber_ss field must match the patient's
+social security number.
+
+If the subscriber_relationship value is not of type 'self' then the subscriber_ss field MUST not be the current patient's social security number.
+
+If the system's global configuration permits only a single insurance type option then any insurance request where the type is NOT 'primary' will fail.
+
+An insurance is considered the current policy for the policy type if the policy date_end field is null.  Only one of these records per policy type can exist for a patient.",
      *      @OA\Property(
      *          property="provider",
      *          description="The insurance company id.",
@@ -6398,10 +6386,9 @@ return [
         return $return;
     },
     /**
-     * Schema for the message request
-     *
      *  @OA\Schema(
      *      schema="api_message_request",
+     *      description="Schema for the message request",
      *      @OA\Property(
      *          property="body",
      *          description="The body of message.",
@@ -6526,10 +6513,9 @@ return [
     },
 
     /**
-     * Schema for the transaction request
-     *
      *  @OA\Schema(
      *      schema="api_transaction_request",
+     *      description="Schema for the transaction request",
      *      @OA\Property(
      *          property="message",
      *          description="The message of the transaction.",
