@@ -69,10 +69,10 @@ function attr_url($text): string
  * e.g. href="{{ userUrl|safe_href }}". For URL query-string parameters,
  * continue using |attr_url.
  *
- * @param string $url The URL to validate and escape
+ * @param string|null $url The URL to validate and escape
  * @return string The escaped URL, or '#' if the scheme is disallowed
  */
-function safe_href($url): string
+function safe_href(?string $url): string
 {
     $url = trim($url ?? '');
 
@@ -102,7 +102,7 @@ function safe_href($url): string
     }
 
     // Disallowed scheme — log and return safe fallback
-    (new \OpenEMR\Common\Logging\SystemLogger())->debug(
+    \OpenEMR\BC\ServiceContainer::getLogger()->debug(
         "safe_href(): blocked disallowed URL scheme",
         ['scheme' => $scheme]
     );
