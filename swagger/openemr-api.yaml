@@ -9028,7 +9028,6 @@ components:
             example: {  }
   schemas:
     api_allergy_request:
-      description: 'Schema for the allergy request'
       required:
         - title
         - begdate
@@ -9051,7 +9050,6 @@ components:
         begdate: '2010-10-13'
         enddate: null
     api_dental_issue_request:
-      description: 'Schema for the dental_issue request'
       required:
         - title
         - begdate
@@ -9074,7 +9072,6 @@ components:
         begdate: '2015-03-17'
         enddate: null
     api_encounter_request:
-      description: 'Schema for the encounter request'
       required:
         - pc_catid
         - class_code
@@ -9134,7 +9131,6 @@ components:
         provider_id: '1'
         class_code: AMB
     api_encounter_response:
-      description: 'Schema for the encounter response'
       properties:
         validationErrors:
           description: 'Validation errors.'
@@ -9262,7 +9258,6 @@ components:
           pc_catname: 'Office Visit'
           billing_facility_name: 'Owerri General Hospital'
     api_insurance_company_request:
-      description: 'Schema for the insurance_company request'
       required:
         - name
       properties:
@@ -9321,7 +9316,6 @@ components:
         zip: '12245'
         country: USA
     api_insurance_request:
-      description: "Schema for the insurance request.  Note the following additional validation checks on the request.\nIf the subscriber_relationship value is of type 'self' then the subscriber_fname and subscriber_lname fields\nmust match the patient's first and last name or a patient's previous first and last name.\n\nIf the subscriber_relationship value is of type 'self' then the subscriber_ss field must match the patient's\nsocial security number.\n\nIf the subscriber_relationship value is not of type 'self' then the subscriber_ss field MUST not be the current patient's social security number.\n\nIf the system's global configuration permits only a single insurance type option then any insurance request where the type is NOT 'primary' will fail.\n\nAn insurance is considered the current policy for the policy type if the policy date_end field is null.  Only one of these records per policy type can exist for a patient."
       required:
         - provider
         - policy_number
@@ -9455,7 +9449,6 @@ components:
         policy_type: a
         type: primary
     api_medical_problem_request:
-      description: 'Schema for the medical_problem request'
       required:
         - title
         - begdate
@@ -9479,7 +9472,6 @@ components:
         enddate: null
         diagnosis: 'ICD10:H02.839'
     api_medication_request:
-      description: 'Schema for the medication request'
       required:
         - title
         - begdate
@@ -9502,7 +9494,6 @@ components:
         begdate: '2013-04-13'
         enddate: null
     api_message_request:
-      description: 'Schema for the message request'
       required:
         - body
         - groupname
@@ -9538,7 +9529,6 @@ components:
         title: Other
         message_status: New
     api_patient_request:
-      description: 'Schema for the patient request'
       required:
         - fname
         - lname
@@ -9604,7 +9594,6 @@ components:
         race: ''
         ethnicity: ''
     api_patient_response:
-      description: 'Schema for the patient response'
       properties:
         validationErrors:
           description: 'Validation errors.'
@@ -9732,7 +9721,6 @@ components:
           ethnicity: ''
           status: ''
     api_soap_note_request:
-      description: 'Schema for the soap_note request'
       properties:
         subjective:
           description: 'The subjective of soap note.'
@@ -9753,7 +9741,6 @@ components:
         assessment: 'The patient with finger laceration requiring sutures.'
         plan: 'Sutured finger laceration.'
     api_surgery_request:
-      description: 'Schema for the surgery request'
       required:
         - title
         - begdate
@@ -9777,7 +9764,6 @@ components:
         enddate: null
         diagnosis: 'CPT4:15823-50'
     api_transaction_request:
-      description: 'Schema for the transaction request'
       required:
         - message
         - groupname
@@ -9839,7 +9825,6 @@ components:
         validThrough: '2022-01-03'
         body: 'Reason 1'
     api_vital_request:
-      description: 'Schema for the vital request'
       properties:
         bps:
           description: 'The bps of vitals.'

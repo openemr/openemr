@@ -35,18 +35,21 @@ class CreateAPIDocumentationCommand extends Command
     }
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $routesLocation = $GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . "_rest_routes.inc.php";
-        $fileDestinationFolder = $GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . "swagger" . DIRECTORY_SEPARATOR;
+        $fileroot = $GLOBALS['fileroot'];
+        $routesLocation = $fileroot . DIRECTORY_SEPARATOR . "_rest_routes.inc.php";
+        $fileDestinationFolder = $fileroot . DIRECTORY_SEPARATOR . "swagger" . DIRECTORY_SEPARATOR;
         $fileDestinationYaml =  $fileDestinationFolder . "openemr-api.yaml";
         $site = $input->getOption('site') ?? 'default';
 
         $finder = new Finder();
-        $finder->in($GLOBALS['fileroot'] . '/apis/routes')
+        $finder->in($fileroot . '/apis/routes')
             ->name('*.php');
-        $openapi = (new \OpenApi\Generator())->generate([
-            $routesLocation,
-            $finder,
-        ]);
+        $openapi = (new \OpenApi\Generator())
+            ->setAnalyser(new \OpenApi\Analysers\TokenAnalyser())
+            ->generate([
+                $routesLocation,
+                $finder,
+            ]);
 
         if ($openapi === null) {
             $output->writeln("No OpenAPI annotations found");
