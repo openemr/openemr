@@ -25,33 +25,15 @@ class CareTeamFixtureManager
     const FIXTURE_PREFIX = "test-fixture";
 
     /**
-     * @var FixtureManager
-     */
-    private $patientFixtureManager;
-
-    /**
-     * @var FacilityFixtureManager
-     */
-    private $facilityFixtureManager;
-
-    /**
-     * @var PractitionerFixtureManager
-     */
-    private $practitionerFixtureManager;
-
-    /**
      * @var bool
      */
     private $hasInstalledDependencies = false;
 
     public function __construct(
-        ?FixtureManager $patientFixtureManager = null,
-        ?FacilityFixtureManager $facilityFixtureManager = null,
-        ?PractitionerFixtureManager $practitionerFixtureManager = null
+        private readonly FixtureManager $patientFixtureManager = new FixtureManager(),
+        private readonly FacilityFixtureManager $facilityFixtureManager = new FacilityFixtureManager(),
+        private readonly PractitionerFixtureManager $practitionerFixtureManager = new PractitionerFixtureManager()
     ) {
-        $this->patientFixtureManager = $patientFixtureManager ?? new FixtureManager();
-        $this->facilityFixtureManager = $facilityFixtureManager ?? new FacilityFixtureManager();
-        $this->practitionerFixtureManager = $practitionerFixtureManager ?? new PractitionerFixtureManager();
     }
 
     /**
@@ -69,34 +51,34 @@ class CareTeamFixtureManager
         }
 
         // Get the first test patient's pid
-        $patientRow = sqlQuery(
+        $patientRow = QueryUtils::querySingleRow(
             "SELECT pid FROM patient_data WHERE pubpid LIKE ? LIMIT 1",
             [self::FIXTURE_PREFIX . "%"]
         );
         if ($patientRow === false || !isset($patientRow['pid'])) {
             throw new \RuntimeException('Failed to find test patient fixture — did installPatientFixtures() succeed?');
         }
-        $pid = intval($patientRow['pid']);
+        $pid = (int) $patientRow['pid'];
 
         // Get the first test facility's id
-        $facilityRow = sqlQuery(
+        $facilityRow = QueryUtils::querySingleRow(
             "SELECT id FROM facility WHERE name LIKE ? LIMIT 1",
             [self::FIXTURE_PREFIX . "%"]
         );
         if ($facilityRow === false || !isset($facilityRow['id'])) {
             throw new \RuntimeException('Failed to find test facility fixture — did installFacilityFixtures() succeed?');
         }
-        $facilityId = intval($facilityRow['id']);
+        $facilityId = (int) $facilityRow['id'];
 
         // Get the first test practitioner's id
-        $providerRow = sqlQuery(
+        $providerRow = QueryUtils::querySingleRow(
             "SELECT id FROM users WHERE fname LIKE ? LIMIT 1",
             [self::FIXTURE_PREFIX . "%"]
         );
         if ($providerRow === false || !isset($providerRow['id'])) {
             throw new \RuntimeException('Failed to find test practitioner fixture — did installPractitionerFixtures() succeed?');
         }
-        $providerId = intval($providerRow['id']);
+        $providerId = (int) $providerRow['id'];
 
         return ['pid' => $pid, 'facility_id' => $facilityId, 'provider_id' => $providerId];
     }
@@ -111,14 +93,14 @@ class CareTeamFixtureManager
         try {
             // Get care team IDs for our test teams
             $teamIds = [];
-            $select = sqlStatement(
+            $records = QueryUtils::fetchRecords(
                 "SELECT id, uuid FROM care_teams WHERE team_name LIKE ?",
                 [$bindVariable]
             );
-            while ($row = sqlFetchArray($select)) {
+            foreach ($records as $row) {
                 $teamIds[] = $row['id'];
-                if (!empty($row['uuid'])) {
-                    sqlQuery(
+                if ($row['uuid'] !== null && $row['uuid'] !== '') {
+                    QueryUtils::sqlStatementThrowException(
                         "DELETE FROM uuid_registry WHERE table_name = 'care_teams' AND uuid = ?",
                         [$row['uuid']]
                     );
@@ -126,7 +108,7 @@ class CareTeamFixtureManager
             }
 
             // Remove care team members for our test teams
-            if (!empty($teamIds)) {
+            if (count($teamIds) > 0) {
                 $placeholders = implode(',', array_fill(0, count($teamIds), '?'));
                 QueryUtils::sqlStatementThrowException(
                     "DELETE FROM care_team_member WHERE care_team_id IN ($placeholders)",

@@ -143,7 +143,7 @@ class CareTeamServiceTest extends TestCase
             'active'
         );
 
-        $row = sqlQuery(
+        $row = QueryUtils::querySingleRow(
             "SELECT id, team_name, status, pid FROM care_teams WHERE team_name = ?",
             [self::TEST_TEAM_NAME]
         );
@@ -151,7 +151,7 @@ class CareTeamServiceTest extends TestCase
         $this->assertNotEmpty($row);
         $this->assertEquals(self::TEST_TEAM_NAME, $row['team_name']);
         $this->assertEquals('active', $row['status']);
-        $this->assertEquals($this->testPid, intval($row['pid']));
+        $this->assertEquals($this->testPid, (int) $row['pid']);
     }
 
     #[Test]
@@ -165,7 +165,7 @@ class CareTeamServiceTest extends TestCase
             'active'
         );
 
-        $row = sqlQuery(
+        $row = QueryUtils::querySingleRow(
             "SELECT uuid FROM care_teams WHERE team_name = ?",
             [self::TEST_TEAM_NAME]
         );
@@ -202,20 +202,20 @@ class CareTeamServiceTest extends TestCase
         );
 
         // Verify the team was created
-        $teamRow = sqlQuery(
+        $teamRow = QueryUtils::querySingleRow(
             "SELECT id FROM care_teams WHERE team_name = ?",
             [self::TEST_TEAM_NAME]
         );
         $this->assertNotEmpty($teamRow);
 
         // Verify the member was inserted
-        $memberRow = sqlQuery(
+        $memberRow = QueryUtils::querySingleRow(
             "SELECT * FROM care_team_member WHERE care_team_id = ? AND user_id = ?",
             [$teamRow['id'], $this->testProviderId]
         );
         $this->assertNotEmpty($memberRow);
         $this->assertEquals('family_medicine_specialist', $memberRow['role']);
-        $this->assertEquals($this->testFacilityId, intval($memberRow['facility_id']));
+        $this->assertEquals($this->testFacilityId, (int) $memberRow['facility_id']);
         $this->assertEquals('active', $memberRow['status']);
         $this->assertEquals('Primary physician', $memberRow['note']);
     }
@@ -236,11 +236,11 @@ class CareTeamServiceTest extends TestCase
             'active'
         );
 
-        $teamRow = sqlQuery(
+        $teamRow = QueryUtils::querySingleRow(
             "SELECT id FROM care_teams WHERE team_name = ?",
             [self::TEST_TEAM_NAME]
         );
-        $teamId = intval($teamRow['id']);
+        $teamId = (int) $teamRow['id'];
 
         // Update the team name and status
         $this->service->saveCareTeam(
@@ -252,7 +252,7 @@ class CareTeamServiceTest extends TestCase
         );
 
         // Verify the update
-        $updatedRow = sqlQuery(
+        $updatedRow = QueryUtils::querySingleRow(
             "SELECT team_name, status FROM care_teams WHERE id = ?",
             [$teamId]
         );
@@ -260,11 +260,11 @@ class CareTeamServiceTest extends TestCase
         $this->assertEquals('suspended', $updatedRow['status']);
 
         // Verify no duplicate was created
-        $count = sqlQuery(
+        $count = QueryUtils::querySingleRow(
             "SELECT COUNT(*) as cnt FROM care_teams WHERE pid = ? AND (team_name LIKE 'test-fixture%')",
             [$this->testPid]
         );
-        $this->assertEquals(1, intval($count['cnt']));
+        $this->assertEquals(1, (int) $count['cnt']);
     }
 
     #[Test]
@@ -289,25 +289,25 @@ class CareTeamServiceTest extends TestCase
             'active'
         );
 
-        $teamRow = sqlQuery(
+        $teamRow = QueryUtils::querySingleRow(
             "SELECT id FROM care_teams WHERE team_name = ?",
             [self::TEST_TEAM_NAME]
         );
-        $teamId = intval($teamRow['id']);
+        $teamId = (int) $teamRow['id'];
 
         // Verify initial state: one active member
-        $initialCount = sqlQuery(
+        $initialCount = QueryUtils::querySingleRow(
             "SELECT COUNT(*) as cnt FROM care_team_member WHERE care_team_id = ? AND status = 'active'",
             [$teamId]
         );
-        $this->assertEquals(1, intval($initialCount['cnt']));
+        $this->assertEquals(1, (int) $initialCount['cnt']);
 
         // Get a second provider id — the admin user (id=1) should always exist
-        $secondProvider = sqlQuery(
+        $secondProvider = QueryUtils::querySingleRow(
             "SELECT id FROM users WHERE id != ? AND id > 0 AND username IS NOT NULL AND username != '' LIMIT 1",
             [$this->testProviderId]
         );
-        $secondProviderId = intval($secondProvider['id'] ?? 0);
+        $secondProviderId = (int) ($secondProvider['id'] ?? 0);
         $this->assertGreaterThan(0, $secondProviderId, "A second user with positive id must exist for this test");
 
         // Update team with both members
@@ -337,11 +337,11 @@ class CareTeamServiceTest extends TestCase
         );
 
         // Verify two active members exist
-        $memberCount = sqlQuery(
+        $memberCount = QueryUtils::querySingleRow(
             "SELECT COUNT(*) as cnt FROM care_team_member WHERE care_team_id = ? AND status = 'active'",
             [$teamId]
         );
-        $this->assertEquals(2, intval($memberCount['cnt']));
+        $this->assertEquals(2, (int) $memberCount['cnt']);
     }
 
     #[Test]
@@ -366,11 +366,11 @@ class CareTeamServiceTest extends TestCase
             'active'
         );
 
-        $teamRow = sqlQuery(
+        $teamRow = QueryUtils::querySingleRow(
             "SELECT id FROM care_teams WHERE team_name = ?",
             [self::TEST_TEAM_NAME]
         );
-        $teamId = intval($teamRow['id']);
+        $teamId = (int) $teamRow['id'];
 
         // Update team with NO members (removing the provider)
         $this->service->saveCareTeam(
@@ -382,7 +382,7 @@ class CareTeamServiceTest extends TestCase
         );
 
         // Verify the member was marked inactive (not deleted)
-        $memberRow = sqlQuery(
+        $memberRow = QueryUtils::querySingleRow(
             "SELECT status FROM care_team_member WHERE care_team_id = ? AND user_id = ?",
             [$teamId, $this->testProviderId]
         );
@@ -440,9 +440,9 @@ class CareTeamServiceTest extends TestCase
         // Verify first member structure
         $member = $result['members'][0];
         $this->assertEquals('user', $member['member_type']);
-        $this->assertEquals($this->testProviderId, intval($member['user_id']));
+        $this->assertEquals($this->testProviderId, (int) $member['user_id']);
         $this->assertEquals('family_medicine_specialist', $member['role']);
-        $this->assertEquals($this->testFacilityId, intval($member['facility_id']));
+        $this->assertEquals($this->testFacilityId, (int) $member['facility_id']);
         $this->assertEquals('active', $member['status']);
         $this->assertEquals('Test provider note', $member['note']);
     }
@@ -496,11 +496,11 @@ class CareTeamServiceTest extends TestCase
             'active'
         );
 
-        $teamRow = sqlQuery(
+        $teamRow = QueryUtils::querySingleRow(
             "SELECT id FROM care_teams WHERE team_name = ?",
             [self::TEST_TEAM_NAME]
         );
-        $teamId = intval($teamRow['id']);
+        $teamId = (int) $teamRow['id'];
 
         // Remove the member (marks inactive)
         $this->service->saveCareTeam(
@@ -533,7 +533,7 @@ class CareTeamServiceTest extends TestCase
         );
 
         // Get the UUID from the database
-        $row = sqlQuery(
+        $row = QueryUtils::querySingleRow(
             "SELECT uuid FROM care_teams WHERE team_name = ?",
             [self::TEST_TEAM_NAME]
         );
@@ -573,14 +573,14 @@ class CareTeamServiceTest extends TestCase
         );
 
         // Get the care team UUID
-        $teamRow = sqlQuery(
+        $teamRow = QueryUtils::querySingleRow(
             "SELECT uuid FROM care_teams WHERE team_name = ?",
             [self::TEST_TEAM_NAME]
         );
         $teamUuid = UuidRegistry::uuidToString($teamRow['uuid']);
 
         // Get the patient UUID
-        $patientRow = sqlQuery(
+        $patientRow = QueryUtils::querySingleRow(
             "SELECT uuid FROM patient_data WHERE pid = ?",
             [$this->testPid]
         );
@@ -636,7 +636,7 @@ class CareTeamServiceTest extends TestCase
         );
 
         // Get the patient UUID
-        $patientRow = sqlQuery(
+        $patientRow = QueryUtils::querySingleRow(
             "SELECT uuid FROM patient_data WHERE pid = ?",
             [$this->testPid]
         );
@@ -690,7 +690,7 @@ class CareTeamServiceTest extends TestCase
         );
 
         // Get the care team UUID for searching
-        $teamRow = sqlQuery(
+        $teamRow = QueryUtils::querySingleRow(
             "SELECT uuid FROM care_teams WHERE team_name = ?",
             [self::TEST_TEAM_NAME]
         );
@@ -736,7 +736,7 @@ class CareTeamServiceTest extends TestCase
             'active'
         );
 
-        $teamRow = sqlQuery(
+        $teamRow = QueryUtils::querySingleRow(
             "SELECT uuid FROM care_teams WHERE team_name = ?",
             [self::TEST_TEAM_NAME]
         );
