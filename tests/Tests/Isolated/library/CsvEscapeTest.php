@@ -45,7 +45,7 @@ class CsvEscapeTest extends TestCase
             'plain text' => ['Hello World', '"Hello World"'],
             'numeric value' => ['12345', '"12345"'],
             'date with hyphen' => ['2024-01-15', '"2024-01-15"'],
-            'email in middle' => ['user@example.com', '"userexample.com"'], // leading @ stripped
+            'email in middle' => ['user@example.com', '"user@example.com"'], // @ preserved when not leading
             'empty string' => ['', '""'],
         ];
     }
@@ -95,7 +95,8 @@ class CsvEscapeTest extends TestCase
 
     public function testNullInputReturnsEmptyQuoted(): void
     {
-        // csvEscape uses null coalescing on the input
+        // csvEscape uses null coalescing on the input; intentionally testing null handling
+        /** @phpstan-ignore argument.type */
         $this->assertSame('""', csvEscape(null));
     }
 
