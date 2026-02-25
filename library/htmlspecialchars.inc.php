@@ -102,7 +102,10 @@ function safe_href($url): string
     }
 
     // Disallowed scheme — log and return safe fallback
-    error_log("safe_href(): blocked disallowed URL scheme '" . errorLogEscape($scheme) . "'");
+    (new \OpenEMR\Common\Logging\SystemLogger())->debug(
+        "safe_href(): blocked disallowed URL scheme",
+        ['scheme' => $scheme]
+    );
     return '#';
 }
 
