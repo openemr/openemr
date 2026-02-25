@@ -43,10 +43,15 @@ class CreateAPIDocumentationCommand extends Command
         $finder = new Finder();
         $finder->in($GLOBALS['fileroot'] . '/apis/routes')
             ->name('*.php');
-        $openapi = \OpenApi\Generator::scan([
-            $routesLocation
-            ,$finder
+        $openapi = (new \OpenApi\Generator())->generate([
+            $routesLocation,
+            $finder,
         ]);
+
+        if ($openapi === null) {
+            $output->writeln("No OpenAPI annotations found");
+            return Command::FAILURE;
+        }
 
         // To have smaller diffs - we force stable order here
         $data = json_decode($openapi->toJson(), true);
