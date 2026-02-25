@@ -25,26 +25,14 @@ class AppointmentFixtureManager
     const FIXTURE_PREFIX = "test-fixture";
 
     /**
-     * @var FixtureManager
-     */
-    private $patientFixtureManager;
-
-    /**
-     * @var FacilityFixtureManager
-     */
-    private $facilityFixtureManager;
-
-    /**
      * @var bool
      */
     private $hasInstalledDependencies = false;
 
     public function __construct(
-        ?FixtureManager $patientFixtureManager = null,
-        ?FacilityFixtureManager $facilityFixtureManager = null
+        private readonly FixtureManager $patientFixtureManager = new FixtureManager(),
+        private readonly FacilityFixtureManager $facilityFixtureManager = new FacilityFixtureManager()
     ) {
-        $this->patientFixtureManager = $patientFixtureManager ?? new FixtureManager();
-        $this->facilityFixtureManager = $facilityFixtureManager ?? new FacilityFixtureManager();
     }
 
     /**
@@ -62,24 +50,24 @@ class AppointmentFixtureManager
         }
 
         // Get the first test patient's pid
-        $patientRow = sqlQuery(
+        $patientRow = QueryUtils::querySingleRow(
             "SELECT pid FROM patient_data WHERE pubpid LIKE ? LIMIT 1",
             [self::FIXTURE_PREFIX . "%"]
         );
         if ($patientRow === false || !isset($patientRow['pid'])) {
             throw new \RuntimeException('Failed to find test patient fixture — did installPatientFixtures() succeed?');
         }
-        $pid = intval($patientRow['pid']);
+        $pid = (int) $patientRow['pid'];
 
         // Get the first test facility's id
-        $facilityRow = sqlQuery(
+        $facilityRow = QueryUtils::querySingleRow(
             "SELECT id FROM facility WHERE name LIKE ? LIMIT 1",
             [self::FIXTURE_PREFIX . "%"]
         );
         if ($facilityRow === false || !isset($facilityRow['id'])) {
             throw new \RuntimeException('Failed to find test facility fixture — did installFacilityFixtures() succeed?');
         }
-        $facilityId = intval($facilityRow['id']);
+        $facilityId = (int) $facilityRow['id'];
 
         return ['pid' => $pid, 'facility_id' => $facilityId];
     }
@@ -88,7 +76,7 @@ class AppointmentFixtureManager
      * Returns a valid appointment data array for use with AppointmentService::insert().
      *
      * @param int $facilityId The facility ID
-     * @return array
+     * @return array<string, mixed>
      */
     public function getSingleAppointmentFixture(int $facilityId): array
     {
@@ -109,7 +97,7 @@ class AppointmentFixtureManager
      * Returns a second appointment data array with different values.
      *
      * @param int $facilityId The facility ID
-     * @return array
+     * @return array<string, mixed>
      */
     public function getSecondAppointmentFixture(int $facilityId): array
     {
@@ -137,10 +125,10 @@ class AppointmentFixtureManager
         try {
             // Remove uuid_registry entries for our test appointments
             $select = "SELECT `uuid` FROM `openemr_postcalendar_events` WHERE `pc_title` LIKE ?";
-            $sel = sqlStatement($select, [$bindVariable]);
-            while ($row = sqlFetchArray($sel)) {
-                if (!empty($row['uuid'])) {
-                    sqlQuery(
+            $records = QueryUtils::fetchRecords($select, [$bindVariable]);
+            foreach ($records as $row) {
+                if ($row['uuid'] !== null && $row['uuid'] !== '') {
+                    QueryUtils::sqlStatementThrowException(
                         "DELETE FROM `uuid_registry` WHERE `table_name` = 'openemr_postcalendar_events' AND `uuid` = ?",
                         [$row['uuid']]
                     );
