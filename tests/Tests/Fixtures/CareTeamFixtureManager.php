@@ -22,7 +22,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 
 class CareTeamFixtureManager
 {
-    const FIXTURE_TEAM_NAME_PREFIX = "test-fixture";
+    const FIXTURE_PREFIX = "test-fixture";
 
     /**
      * @var FixtureManager
@@ -61,30 +61,41 @@ class CareTeamFixtureManager
      */
     public function installDependencies(): array
     {
-        $this->patientFixtureManager->installPatientFixtures();
-        $this->facilityFixtureManager->installFacilityFixtures();
-        $this->practitionerFixtureManager->installPractitionerFixtures();
-        $this->hasInstalledDependencies = true;
+        if (!$this->hasInstalledDependencies) {
+            $this->patientFixtureManager->installPatientFixtures();
+            $this->facilityFixtureManager->installFacilityFixtures();
+            $this->practitionerFixtureManager->installPractitionerFixtures();
+            $this->hasInstalledDependencies = true;
+        }
 
         // Get the first test patient's pid
         $patientRow = sqlQuery(
             "SELECT pid FROM patient_data WHERE pubpid LIKE ? LIMIT 1",
-            [self::FIXTURE_TEAM_NAME_PREFIX . "%"]
+            [self::FIXTURE_PREFIX . "%"]
         );
+        if ($patientRow === false || !isset($patientRow['pid'])) {
+            throw new \RuntimeException('Failed to find test patient fixture — did installPatientFixtures() succeed?');
+        }
         $pid = intval($patientRow['pid']);
 
         // Get the first test facility's id
         $facilityRow = sqlQuery(
             "SELECT id FROM facility WHERE name LIKE ? LIMIT 1",
-            [self::FIXTURE_TEAM_NAME_PREFIX . "%"]
+            [self::FIXTURE_PREFIX . "%"]
         );
+        if ($facilityRow === false || !isset($facilityRow['id'])) {
+            throw new \RuntimeException('Failed to find test facility fixture — did installFacilityFixtures() succeed?');
+        }
         $facilityId = intval($facilityRow['id']);
 
         // Get the first test practitioner's id
         $providerRow = sqlQuery(
             "SELECT id FROM users WHERE fname LIKE ? LIMIT 1",
-            [self::FIXTURE_TEAM_NAME_PREFIX . "%"]
+            [self::FIXTURE_PREFIX . "%"]
         );
+        if ($providerRow === false || !isset($providerRow['id'])) {
+            throw new \RuntimeException('Failed to find test practitioner fixture — did installPractitionerFixtures() succeed?');
+        }
         $providerId = intval($providerRow['id']);
 
         return ['pid' => $pid, 'facility_id' => $facilityId, 'provider_id' => $providerId];
@@ -95,7 +106,7 @@ class CareTeamFixtureManager
      */
     public function removeFixtures(): void
     {
-        $bindVariable = self::FIXTURE_TEAM_NAME_PREFIX . "%";
+        $bindVariable = self::FIXTURE_PREFIX . "%";
 
         try {
             // Get care team IDs for our test teams
