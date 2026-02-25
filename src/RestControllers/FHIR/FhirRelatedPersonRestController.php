@@ -86,21 +86,69 @@ class FhirRelatedPersonRestController
                             ),
                         ],
                         example: [
-                            "id" => "946da61d-c4f2-4f03-a2a7-b571f6a24b65",
+                            "id" => "c266a919-6b22-4d7b-b169-b96adc5be3ef",
                             "meta" => [
                                 "versionId" => "1",
-                                "lastUpdated" => "2021-09-19T08:14:58+00:00",
+                                "lastUpdated" => "2025-10-25T21:15:11-04:00",
+                                "profile" => [
+                                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson",
+                                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson|7.0.0",
+                                    "http://hl7.org/fhir/us/core/StructureDefinition/us-core-relatedperson|8.0.0",
+                                ],
                             ],
                             "resourceType" => "RelatedPerson",
                             "active" => true,
                             "patient" => [
                                 "reference" => "Patient/96506861-511f-4f6d-bc97-b65a78cf1995",
+                                "type" => "Patient",
+                            ],
+                            "relationship" => [
+                                [
+                                    "coding" => [
+                                        [
+                                            "system" => "http://terminology.hl7.org/CodeSystem/role-code",
+                                            "code" => "FAMMEMB",
+                                            "display" => "Family Member",
+                                        ],
+                                    ],
+                                ],
                             ],
                             "name" => [
                                 [
                                     "use" => "official",
-                                    "family" => "Smith",
-                                    "given" => ["Jane"],
+                                    "family" => "Doe",
+                                    "given" => [
+                                        "John",
+                                    ],
+                                ],
+                            ],
+                            "telecom" => [
+                                [
+                                    "system" => "phone",
+                                    "value" => "(555) 555-5555",
+                                    "use" => "work",
+                                ],
+                                [
+                                    "system" => "phone",
+                                    "value" => "(333) 333-3333",
+                                    "use" => "home",
+                                ],
+                                [
+                                    "system" => "email",
+                                    "value" => "example@open-emr.org",
+                                    "use" => "home",
+                                ],
+                            ],
+                            "address" => [
+                                [
+                                    "line" => [
+                                        "123 example street",
+                                    ],
+                                    "city" => "Somewhere",
+                                    "state" => "CA",
+                                    "period" => [
+                                        "start" => "2024-10-25T21:15:11.737-04:00",
+                                    ],
                                 ],
                             ],
                         ]
@@ -156,6 +204,13 @@ class FhirRelatedPersonRestController
                 required: false,
                 schema: new OA\Schema(type: "string")
             ),
+            new OA\Parameter(
+                name: "patient",
+                in: "query",
+                description: "The uuid for the patient.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
         ],
         responses: [
             new OA\Response(
@@ -173,7 +228,7 @@ class FhirRelatedPersonRestController
                         ],
                         example: [
                             "meta" => [
-                                "lastUpdated" => "2021-09-14T09:13:51",
+                                "lastUpdated" => "2025-09-30T09:13:51",
                             ],
                             "resourceType" => "Bundle",
                             "type" => "collection",

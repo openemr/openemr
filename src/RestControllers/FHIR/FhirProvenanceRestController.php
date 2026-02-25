@@ -62,7 +62,7 @@ class FhirProvenanceRestController
             new OA\Parameter(
                 name: "uuid",
                 in: "path",
-                description: "The id for the Provenance resource. Format is <resource name>:<uuid> (Example: AllergyIntolerance:95ea43f3-1066-4bc7-b224-6c23b985f145).",
+                description: "The id for the Provenance resource. Format is \\<resource name\\>:\\<uuid\\> (Example: AllergyIntolerance:95ea43f3-1066-4bc7-b224-6c23b985f145).",
                 required: true,
                 schema: new OA\Schema(type: "string")
             ),
@@ -92,7 +92,7 @@ class FhirProvenanceRestController
                             ],
                             "recorded" => "2022-03-26T22:43:30+00:00",
                             "agent" => [
-                                [
+                                0 => [
                                     "type" => [
                                         "coding" => [
                                             [
@@ -111,7 +111,7 @@ class FhirProvenanceRestController
                                         "type" => "Organization",
                                     ],
                                 ],
-                                [
+                                1 => [
                                     "type" => [
                                         "coding" => [
                                             [
@@ -121,14 +121,14 @@ class FhirProvenanceRestController
                                             ],
                                         ],
                                     ],
-                                    "who" => [
-                                        "reference" => "Organization/95e8d810-7e55-44aa-bb48-fecd5b0d88c7",
-                                        "type" => "Organization",
-                                    ],
-                                    "onBehalfOf" => [
-                                        "reference" => "Organization/95e8d810-7e55-44aa-bb48-fecd5b0d88c7",
-                                        "type" => "Organization",
-                                    ],
+                                ],
+                                "who" => [
+                                    "reference" => "Organization/95e8d810-7e55-44aa-bb48-fecd5b0d88c7",
+                                    "type" => "Organization",
+                                ],
+                                "onBehalfOf" => [
+                                    "reference" => "Organization/95e8d810-7e55-44aa-bb48-fecd5b0d88c7",
+                                    "type" => "Organization",
                                 ],
                             ],
                         ]
@@ -160,7 +160,7 @@ class FhirProvenanceRestController
             new OA\Parameter(
                 name: "_id",
                 in: "query",
-                description: "The id for the Provenance resource. Format is <resource name>:<uuid> (Example: AllergyIntolerance:95ea43f3-1066-4bc7-b224-6c23b985f145).",
+                description: "The id for the Provenance resource. Format is \\<resource name\\>:\\<uuid\\> (Example: AllergyIntolerance:95ea43f3-1066-4bc7-b224-6c23b985f145).",
                 required: false,
                 schema: new OA\Schema(type: "string")
             ),

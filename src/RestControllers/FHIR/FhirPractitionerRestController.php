@@ -56,7 +56,7 @@ class FhirPractitionerRestController
      */
     #[OA\Post(
         path: "/fhir/Practitioner",
-        description: "Adds a Practitioner resource.",
+        description: "Adds a Practitioner resources.",
         tags: ["fhir"],
         requestBody: new OA\RequestBody(
             required: true,
@@ -64,20 +64,83 @@ class FhirPractitionerRestController
                 mediaType: "application/json",
                 schema: new OA\Schema(
                     description: "The json object for the Practitioner resource.",
-                    required: ["resourceType", "name"],
-                    properties: [
-                        new OA\Property(property: "resourceType", description: "The FHIR resource type.", type: "string", example: "Practitioner"),
-                        new OA\Property(property: "id", description: "The FHIR resource id.", type: "string"),
-                        new OA\Property(property: "active", description: "Whether the practitioner is active.", type: "boolean"),
-                        new OA\Property(property: "name", description: "The names of the practitioner.", type: "array", items: new OA\Items(type: "object")),
-                        new OA\Property(property: "address", description: "The addresses of the practitioner.", type: "array", items: new OA\Items(type: "object")),
-                        new OA\Property(property: "telecom", description: "Contact details for the practitioner.", type: "array", items: new OA\Items(type: "object")),
+                    type: "object"
+                ),
+                example: [
+                    "id" => "9473b0cf-e969-4eaa-8044-51037767fa4f",
+                    "meta" => [
+                        "versionId" => "1",
+                        "lastUpdated" => "2021-09-21T17:41:57+00:00",
                     ],
-                )
+                    "resourceType" => "Practitioner",
+                    "text" => [
+                        "status" => "generated",
+                        "div" => "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <p>Billy Smith</p></div>",
+                    ],
+                    "identifier" => [
+                        [
+                            "system" => "http://hl7.org/fhir/sid/us-npi",
+                            "value" => "11223344554543",
+                        ],
+                    ],
+                    "active" => true,
+                    "name" => [
+                        [
+                            "use" => "official",
+                            "family" => "Smith",
+                            "given" => [
+                                "Danny",
+                            ],
+                        ],
+                    ],
+                ]
             )
         ),
         responses: [
-            new OA\Response(response: "201", ref: "#/components/responses/standard"),
+            new OA\Response(
+                response: "200",
+                description: "Standard Response",
+                content: new OA\MediaType(
+                    mediaType: "application/json",
+                    schema: new OA\Schema(
+                        properties: [
+                            new OA\Property(
+                                property: "json object",
+                                description: "FHIR Json object.",
+                                type: "object"
+                            ),
+                        ],
+                        example: [
+                            "id" => "9473b0cf-e969-4eaa-8044-51037767fa4f",
+                            "meta" => [
+                                "versionId" => "1",
+                                "lastUpdated" => "2021-09-21T17:41:57+00:00",
+                            ],
+                            "resourceType" => "Practitioner",
+                            "text" => [
+                                "status" => "generated",
+                                "div" => "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <p>Billy Smith</p></div>",
+                            ],
+                            "identifier" => [
+                                [
+                                    "system" => "http://hl7.org/fhir/sid/us-npi",
+                                    "value" => "11223344554543",
+                                ],
+                            ],
+                            "active" => true,
+                            "name" => [
+                                [
+                                    "use" => "official",
+                                    "family" => "Smith",
+                                    "given" => [
+                                        "Danny",
+                                    ],
+                                ],
+                            ],
+                        ]
+                    )
+                )
+            ),
             new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
             new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
         ],
@@ -104,7 +167,7 @@ class FhirPractitionerRestController
      */
     #[OA\Put(
         path: "/fhir/Practitioner/{uuid}",
-        description: "Modifies a Practitioner resource.",
+        description: "Modify a Practitioner resource.",
         tags: ["fhir"],
         parameters: [
             new OA\Parameter(
@@ -121,20 +184,52 @@ class FhirPractitionerRestController
                 mediaType: "application/json",
                 schema: new OA\Schema(
                     description: "The json object for the Practitioner resource.",
-                    required: ["resourceType", "id", "name"],
-                    properties: [
-                        new OA\Property(property: "resourceType", description: "The FHIR resource type.", type: "string", example: "Practitioner"),
-                        new OA\Property(property: "id", description: "The FHIR resource id.", type: "string"),
-                        new OA\Property(property: "active", description: "Whether the practitioner is active.", type: "boolean"),
-                        new OA\Property(property: "name", description: "The names of the practitioner.", type: "array", items: new OA\Items(type: "object")),
-                        new OA\Property(property: "address", description: "The addresses of the practitioner.", type: "array", items: new OA\Items(type: "object")),
-                        new OA\Property(property: "telecom", description: "Contact details for the practitioner.", type: "array", items: new OA\Items(type: "object")),
+                    type: "object"
+                ),
+                example: [
+                    "id" => "9473b0cf-e969-4eaa-8044-51037767fa4f",
+                    "meta" => [
+                        "versionId" => "1",
+                        "lastUpdated" => "2021-09-21T17:41:57+00:00",
                     ],
-                )
+                    "resourceType" => "Practitioner",
+                    "text" => [
+                        "status" => "generated",
+                        "div" => "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <p>Billy Smith</p></div>",
+                    ],
+                    "identifier" => [
+                        [
+                            "system" => "http://hl7.org/fhir/sid/us-npi",
+                            "value" => "11223344554543",
+                        ],
+                    ],
+                    "active" => true,
+                    "name" => [
+                        [
+                            "use" => "official",
+                            "family" => "Smith",
+                            "given" => [
+                                "Billy",
+                            ],
+                        ],
+                    ],
+                ]
             )
         ),
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
+            new OA\Response(
+                response: "201",
+                description: "Standard Response",
+                content: new OA\MediaType(
+                    mediaType: "application/json",
+                    schema: new OA\Schema(
+                        example: [
+                            "id" => 5,
+                            "uuid" => "95f294d7-e14c-441d-81a6-309fe369ee21",
+                        ]
+                    )
+                )
+            ),
             new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
             new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
         ],
@@ -172,9 +267,53 @@ class FhirPractitionerRestController
             ),
         ],
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
+            new OA\Response(
+                response: "200",
+                description: "Standard Response",
+                content: new OA\MediaType(
+                    mediaType: "application/json",
+                    schema: new OA\Schema(
+                        properties: [
+                            new OA\Property(
+                                property: "json object",
+                                description: "FHIR Json object.",
+                                type: "object"
+                            ),
+                        ],
+                        example: [
+                            "id" => "9473b0cf-e969-4eaa-8044-51037767fa4f",
+                            "meta" => [
+                                "versionId" => "1",
+                                "lastUpdated" => "2021-09-21T17:41:57+00:00",
+                            ],
+                            "resourceType" => "Practitioner",
+                            "text" => [
+                                "status" => "generated",
+                                "div" => "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <p>Billy Smith</p></div>",
+                            ],
+                            "identifier" => [
+                                [
+                                    "system" => "http://hl7.org/fhir/sid/us-npi",
+                                    "value" => "11223344554543",
+                                ],
+                            ],
+                            "active" => true,
+                            "name" => [
+                                [
+                                    "use" => "official",
+                                    "family" => "Smith",
+                                    "given" => [
+                                        "Billy",
+                                    ],
+                                ],
+                            ],
+                        ]
+                    )
+                )
+            ),
             new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
             new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: "404", ref: "#/components/responses/uuidnotfound"),
         ],
         security: [["openemr_auth" => []]]
     )]
@@ -209,6 +348,13 @@ class FhirPractitionerRestController
                 name: "_id",
                 in: "query",
                 description: "The uuid for the Practitioner resource.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+            new OA\Parameter(
+                name: "_lastUpdated",
+                in: "query",
+                description: "Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
                 required: false,
                 schema: new OA\Schema(type: "string")
             ),
@@ -285,13 +431,42 @@ class FhirPractitionerRestController
             new OA\Parameter(
                 name: "telecom",
                 in: "query",
-                description: "The telecom of the Practitioner resource.",
+                description: "The fax number of the Practitioner resource.",
                 required: false,
                 schema: new OA\Schema(type: "string")
             ),
         ],
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
+            new OA\Response(
+                response: "200",
+                description: "Standard Response",
+                content: new OA\MediaType(
+                    mediaType: "application/json",
+                    schema: new OA\Schema(
+                        properties: [
+                            new OA\Property(
+                                property: "json object",
+                                description: "FHIR Json object.",
+                                type: "object"
+                            ),
+                        ],
+                        example: [
+                            "meta" => [
+                                "lastUpdated" => "2021-09-14T09:13:51",
+                            ],
+                            "resourceType" => "Bundle",
+                            "type" => "collection",
+                            "total" => 0,
+                            "link" => [
+                                [
+                                    "relation" => "self",
+                                    "url" => "https://localhost:9300/apis/default/fhir/Practitioner",
+                                ],
+                            ],
+                        ]
+                    )
+                )
+            ),
             new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
             new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
         ],

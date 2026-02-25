@@ -96,7 +96,82 @@ class FhirPatientRestController
                 schema: new OA\Schema(
                     description: "The json object for the Patient resource.",
                     type: "object"
-                )
+                ),
+                example: [
+                    "id" => "95f22ff4-dd25-4290-8b52-1dd2fedf8e54",
+                    "meta" => [
+                        "versionId" => "1",
+                        "lastUpdated" => "2022-03-31T02:48:28+00:00",
+                    ],
+                    "resourceType" => "Patient",
+                    "text" => [
+                        "status" => "generated",
+                        "div" => "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Brenda Smith</p></div>",
+                    ],
+                    "extension" => [
+                        [
+                            "valueCode" => "F",
+                            "url" => "http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex",
+                        ],
+                        [
+                            "extension" => [
+                                [
+                                    "valueCoding" => [
+                                        "system" => "http://terminology.hl7.org/CodeSystem/v3-NullFlavor",
+                                        "code" => "UNK",
+                                        "display" => "Unknown",
+                                    ],
+                                    "url" => "ombCategory",
+                                ],
+                                [
+                                    "valueString" => "Unknown",
+                                    "url" => "text",
+                                ],
+                            ],
+                            "url" => "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+                        ],
+                    ],
+                    "identifier" => [
+                        [
+                            "use" => "official",
+                            "type" => [
+                                "coding" => [
+                                    [
+                                        "system" => "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                        "code" => "PT",
+                                    ],
+                                ],
+                            ],
+                            "system" => "http://terminology.hl7.org/CodeSystem/v2-0203",
+                            "value" => "1",
+                        ],
+                    ],
+                    "active" => true,
+                    "name" => [
+                        [
+                            "use" => "official",
+                            "family" => "Smith",
+                            "given" => [
+                                "Brenda",
+                            ],
+                        ],
+                    ],
+                    "gender" => "female",
+                    "birthDate" => "2017-03-10",
+                    "communication" => [
+                        [
+                            "language" => [
+                                "coding" => [
+                                    [
+                                        "system" => "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+                                        "code" => "unknown",
+                                        "display" => "Unknown",
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ]
             )
         ),
         responses: [
@@ -112,6 +187,81 @@ class FhirPatientRestController
                                 description: "FHIR Json object.",
                                 type: "object"
                             ),
+                        ],
+                        example: [
+                            "id" => "95f22ff4-dd25-4290-8b52-1dd2fedf8e54",
+                            "meta" => [
+                                "versionId" => "1",
+                                "lastUpdated" => "2022-03-31T02:48:28+00:00",
+                            ],
+                            "resourceType" => "Patient",
+                            "text" => [
+                                "status" => "generated",
+                                "div" => "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Brenda Smith</p></div>",
+                            ],
+                            "extension" => [
+                                [
+                                    "valueCode" => "F",
+                                    "url" => "http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex",
+                                ],
+                                [
+                                    "extension" => [
+                                        [
+                                            "valueCoding" => [
+                                                "system" => "http://terminology.hl7.org/CodeSystem/v3-NullFlavor",
+                                                "code" => "UNK",
+                                                "display" => "Unknown",
+                                            ],
+                                            "url" => "ombCategory",
+                                        ],
+                                        [
+                                            "valueString" => "Unknown",
+                                            "url" => "text",
+                                        ],
+                                    ],
+                                    "url" => "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+                                ],
+                            ],
+                            "identifier" => [
+                                [
+                                    "use" => "official",
+                                    "type" => [
+                                        "coding" => [
+                                            [
+                                                "system" => "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                                "code" => "PT",
+                                            ],
+                                        ],
+                                    ],
+                                    "system" => "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                    "value" => "1",
+                                ],
+                            ],
+                            "active" => true,
+                            "name" => [
+                                [
+                                    "use" => "official",
+                                    "family" => "Smith",
+                                    "given" => [
+                                        "Brenda",
+                                    ],
+                                ],
+                            ],
+                            "gender" => "female",
+                            "birthDate" => "2017-03-10",
+                            "communication" => [
+                                [
+                                    "language" => [
+                                        "coding" => [
+                                            [
+                                                "system" => "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+                                                "code" => "unknown",
+                                                "display" => "Unknown",
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
                         ]
                     )
                 )
@@ -160,7 +310,82 @@ class FhirPatientRestController
                 schema: new OA\Schema(
                     description: "The json object for the Patient resource.",
                     type: "object"
-                )
+                ),
+                example: [
+                    "id" => "95f22ff4-dd25-4290-8b52-1dd2fedf8e54",
+                    "meta" => [
+                        "versionId" => "1",
+                        "lastUpdated" => "2022-03-31T02:48:28+00:00",
+                    ],
+                    "resourceType" => "Patient",
+                    "text" => [
+                        "status" => "generated",
+                        "div" => "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Brenda Smith</p></div>",
+                    ],
+                    "extension" => [
+                        [
+                            "valueCode" => "F",
+                            "url" => "http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex",
+                        ],
+                        [
+                            "extension" => [
+                                [
+                                    "valueCoding" => [
+                                        "system" => "http://terminology.hl7.org/CodeSystem/v3-NullFlavor",
+                                        "code" => "UNK",
+                                        "display" => "Unknown",
+                                    ],
+                                    "url" => "ombCategory",
+                                ],
+                                [
+                                    "valueString" => "Unknown",
+                                    "url" => "text",
+                                ],
+                            ],
+                            "url" => "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+                        ],
+                    ],
+                    "identifier" => [
+                        [
+                            "use" => "official",
+                            "type" => [
+                                "coding" => [
+                                    [
+                                        "system" => "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                        "code" => "PT",
+                                    ],
+                                ],
+                            ],
+                            "system" => "http://terminology.hl7.org/CodeSystem/v2-0203",
+                            "value" => "1",
+                        ],
+                    ],
+                    "active" => true,
+                    "name" => [
+                        [
+                            "use" => "official",
+                            "family" => "Smith",
+                            "given" => [
+                                "Brenda",
+                            ],
+                        ],
+                    ],
+                    "gender" => "female",
+                    "birthDate" => "2017-03-10",
+                    "communication" => [
+                        [
+                            "language" => [
+                                "coding" => [
+                                    [
+                                        "system" => "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+                                        "code" => "unknown",
+                                        "display" => "Unknown",
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ]
             )
         ),
         responses: [
@@ -225,6 +450,103 @@ class FhirPatientRestController
                                 description: "FHIR Json object.",
                                 type: "object"
                             ),
+                        ],
+                        example: [
+                            "id" => "946da617-1a4a-4b2c-ae66-93b84377cb1e",
+                            "meta" => [
+                                "versionId" => "1",
+                                "lastUpdated" => "2021-09-21T17:08:03+00:00",
+                            ],
+                            "resourceType" => "Patient",
+                            "text" => [
+                                "status" => "generated",
+                                "div" => "<div xmlns=\"http://www.w3.org/1999/xhtml\"> <p>Aurore252 Von197</p></div>",
+                            ],
+                            "extension" => [
+                                [
+                                    "valueCode" => "F",
+                                    "url" => "http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex",
+                                ],
+                                [
+                                    "extension" => [
+                                        [
+                                            "valueCoding" => [
+                                                "system" => "urn:oid:2.16.840.1.113883.6.238",
+                                                "code" => "1006-6",
+                                                "display" => "Abenaki",
+                                            ],
+                                            "url" => "ombCategory",
+                                        ],
+                                        [
+                                            "valueString" => "Abenaki",
+                                            "url" => "text",
+                                        ],
+                                    ],
+                                    "url" => "http://hl7.org/fhir/us/core/StructureDefinition/us-core-race",
+                                ],
+                                [
+                                    "extension" => [
+                                        [
+                                            "valueString" => "Declined To Specify",
+                                            "url" => "text",
+                                        ],
+                                    ],
+                                    "url" => "http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity",
+                                ],
+                            ],
+                            "identifier" => [
+                                [
+                                    "use" => "official",
+                                    "type" => [
+                                        "coding" => [
+                                            [
+                                                "system" => "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                                "code" => "PT",
+                                            ],
+                                        ],
+                                    ],
+                                    "system" => "http://terminology.hl7.org/CodeSystem/v2-0203",
+                                    "value" => "1",
+                                ],
+                            ],
+                            "active" => true,
+                            "name" => [
+                                [
+                                    "use" => "official",
+                                    "family" => "Von197",
+                                    "given" => [
+                                        "Aurore252",
+                                    ],
+                                ],
+                            ],
+                            "gender" => "female",
+                            "birthDate" => "1970-07-03",
+                            "address" => [
+                                [
+                                    "line" => [
+                                        "245 Crona Wall",
+                                    ],
+                                    "city" => "Boston",
+                                    "state" => "Massachusetts",
+                                    "postalCode" => "02215",
+                                    "period" => [
+                                        "start" => "2020-09-21T17:08:03.532+00:00",
+                                    ],
+                                ],
+                            ],
+                            "communication" => [
+                                [
+                                    "language" => [
+                                        "coding" => [
+                                            [
+                                                "system" => "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+                                                "code" => "unknown",
+                                                "display" => "Unknown",
+                                            ],
+                                        ],
+                                    ],
+                                ],
+                            ],
                         ]
                     )
                 )
@@ -369,6 +691,7 @@ class FhirPatientRestController
                 required: false,
                 schema: new OA\Schema(type: "string")
             ),
+            new OA\Parameter(ref: "#/components/parameters/_lastUpdated"),
         ],
         responses: [
             new OA\Response(
@@ -383,6 +706,20 @@ class FhirPatientRestController
                                 description: "FHIR Json object.",
                                 type: "object"
                             ),
+                        ],
+                        example: [
+                            "meta" => [
+                                "lastUpdated" => "2021-09-14T09:13:51",
+                            ],
+                            "resourceType" => "Bundle",
+                            "type" => "collection",
+                            "total" => 0,
+                            "link" => [
+                                [
+                                    "relation" => "self",
+                                    "url" => "https://localhost:9300/apis/default/fhir/Patient",
+                                ],
+                            ],
                         ]
                     )
                 )

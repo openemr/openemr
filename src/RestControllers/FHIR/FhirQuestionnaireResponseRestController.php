@@ -63,7 +63,7 @@ class FhirQuestionnaireResponseRestController
             new OA\Parameter(
                 name: "_id",
                 in: "query",
-                description: "The id for the QuestionnaireResponse resource.",
+                description: "The id for the QuestionnaireResponse resource. ",
                 required: false,
                 schema: new OA\Schema(type: "string")
             ),
@@ -137,7 +137,7 @@ class FhirQuestionnaireResponseRestController
             new OA\Parameter(
                 name: "uuid",
                 in: "path",
-                description: "The id for the QuestionnaireResponse resource. Format is <resource name>:<uuid> (Example: AllergyIntolerance:95ea43f3-1066-4bc7-b224-6c23b985f145).",
+                description: "The id for the QuestionnaireResponse resource. Format is \\<resource name\\>:\\<uuid\\> (Example: AllergyIntolerance:95ea43f3-1066-4bc7-b224-6c23b985f145).",
                 required: true,
                 schema: new OA\Schema(type: "string")
             ),
@@ -175,7 +175,6 @@ class FhirQuestionnaireResponseRestController
             ),
             new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
             new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
-            new OA\Response(response: "404", ref: "#/components/responses/uuidnotfound"),
         ],
         security: [["openemr_auth" => []]]
     )]
