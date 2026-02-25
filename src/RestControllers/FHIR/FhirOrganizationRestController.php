@@ -2,6 +2,7 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenApi\Attributes as OA;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
@@ -61,6 +62,89 @@ class FhirOrganizationRestController
      * - telecom (email, phone)
      * @return Response The http response object containing the FHIR bundle with query results, if found
      */
+    #[OA\Get(
+        path: "/fhir/Organization",
+        description: "Returns a list of Organization resources.",
+        tags: ["fhir"],
+        parameters: [
+            new OA\Parameter(
+                name: "_id",
+                in: "query",
+                description: "The uuid for the Organization resource.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+            new OA\Parameter(
+                name: "_lastUpdated",
+                in: "query",
+                description: "Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+            new OA\Parameter(
+                name: "name",
+                in: "query",
+                description: "The name of the Organization resource.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+            new OA\Parameter(
+                name: "email",
+                in: "query",
+                description: "The email of the Organization resource.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+            new OA\Parameter(
+                name: "phone",
+                in: "query",
+                description: "The phone of the Organization resource.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+            new OA\Parameter(
+                name: "telecom",
+                in: "query",
+                description: "The telecom of the Organization resource.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+            new OA\Parameter(
+                name: "address",
+                in: "query",
+                description: "The address of the Organization resource.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+            new OA\Parameter(
+                name: "address-city",
+                in: "query",
+                description: "The address-city of the Organization resource.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+            new OA\Parameter(
+                name: "address-postalcode",
+                in: "query",
+                description: "The address-postalcode of the Organization resource.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+            new OA\Parameter(
+                name: "address-state",
+                in: "query",
+                description: "The address-state of the Organization resource.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+        ],
+        responses: [
+            new OA\Response(response: "200", ref: "#/components/responses/fhir"),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
     public function getAll($searchParams): Response
     {
         $processingResult = $this->fhirOrganizationService->getAll($searchParams);
@@ -85,6 +169,27 @@ class FhirOrganizationRestController
      * @param $puuidBind string|null Optional to restrict visibility of the organization to the one with this puuid.
      * @returns Response 200 if the operation completes successfully
      */
+    #[OA\Get(
+        path: "/fhir/Organization/{uuid}",
+        description: "Returns a single Organization resource.",
+        tags: ["fhir"],
+        parameters: [
+            new OA\Parameter(
+                name: "uuid",
+                in: "path",
+                description: "The uuid for the Organization resource.",
+                required: true,
+                schema: new OA\Schema(type: "string")
+            ),
+        ],
+        responses: [
+            new OA\Response(response: "200", ref: "#/components/responses/fhir"),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: "404", ref: "#/components/responses/uuidnotfound"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
     public function getOne(string $fhirId, ?string $puuidBind = null): Response
     {
         $processingResult = $this->fhirOrganizationService->getOne($fhirId, $puuidBind);
@@ -96,6 +201,27 @@ class FhirOrganizationRestController
      * @param $fhirJson array The FHIR organization resource
      * @returns Response 201 if the resource is created, 400 if the resource is invalid
      */
+    #[OA\Post(
+        path: "/fhir/Organization",
+        description: "Adds a Organization resource.",
+        tags: ["fhir"],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: "application/json",
+                schema: new OA\Schema(
+                    description: "The json object for the Organization resource.",
+                    type: "object"
+                )
+            )
+        ),
+        responses: [
+            new OA\Response(response: "201", ref: "#/components/responses/fhir"),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
     public function post(array $fhirJson): Response
     {
         $fhirValidationService = $this->fhirValidationService->validate($fhirJson);
@@ -114,6 +240,36 @@ class FhirOrganizationRestController
      * @param $fhirJson array The updated FHIR organization resource (complete resource)
      * @returns Response 200 if the resource is created, 400 if the resource is invalid
      */
+    #[OA\Put(
+        path: "/fhir/Organization/{uuid}",
+        description: "Modifies a Organization resource.",
+        tags: ["fhir"],
+        parameters: [
+            new OA\Parameter(
+                name: "uuid",
+                in: "path",
+                description: "The uuid for the organization.",
+                required: true,
+                schema: new OA\Schema(type: "string")
+            ),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: "application/json",
+                schema: new OA\Schema(
+                    description: "The json object for the Organization resource.",
+                    type: "object"
+                )
+            )
+        ),
+        responses: [
+            new OA\Response(response: "200", ref: "#/components/responses/fhir"),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
     public function patch(string $fhirId, array $fhirJson): Response
     {
         $fhirValidationService = $this->fhirValidationService->validate($fhirJson);

@@ -11,6 +11,7 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenApi\Attributes as OA;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Services\FHIR\FhirCareTeamService;
 use OpenEMR\Services\FHIR\FhirDocumentReferenceService;
@@ -41,6 +42,102 @@ class FhirDocumentReferenceRestController
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @returns 200 if the operation completes successfully
      */
+    #[OA\Get(
+        path: "/fhir/DocumentReference/{uuid}",
+        description: "Returns a single DocumentReference resource.",
+        tags: ["fhir"],
+        parameters: [
+            new OA\Parameter(
+                name: "uuid",
+                in: "path",
+                description: "The uuid for the DocumentReference resource.",
+                required: true,
+                schema: new OA\Schema(type: "string")
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: "200",
+                description: "Standard Response",
+                content: new OA\MediaType(
+                    mediaType: "application/json",
+                    schema: new OA\Schema(
+                        properties: [
+                            new OA\Property(
+                                property: "json object",
+                                description: "FHIR Json object.",
+                                type: "object"
+                            ),
+                        ],
+                        example: [
+                            "id" => "946e7553-1aaa-49f8-8f81-ae15ccaa9165",
+                            "meta" => [
+                                "versionId" => "1",
+                                "lastUpdated" => "2021-09-19T03:17:51+00:00",
+                            ],
+                            "resourceType" => "DocumentReference",
+                            "identifier" => [
+                                [
+                                    "value" => "946e7553-1aaa-49f8-8f81-ae15ccaa9165",
+                                ],
+                            ],
+                            "status" => "current",
+                            "type" => [
+                                "coding" => [
+                                    [
+                                        "system" => "http://terminology.hl7.org/CodeSystem/v3-NullFlavor",
+                                        "code" => "UNK",
+                                        "display" => "unknown",
+                                    ],
+                                ],
+                            ],
+                            "category" => [
+                                [
+                                    "coding" => [
+                                        [
+                                            "system" => "https://hl7.org/fhir/us/core/CodeSystem/us-core-documentreference-category",
+                                            "code" => "clinical-note",
+                                            "display" => "Clinical Note",
+                                        ],
+                                    ],
+                                ],
+                            ],
+                            "subject" => [
+                                "reference" => "Patient/946da619-c631-431a-a282-487cd6fb7802",
+                                "type" => "Patient",
+                            ],
+                            "date" => "2021-09-19T03:17:51+00:00",
+                            "content" => [
+                                [
+                                    "attachment" => [
+                                        "contentType" => "text/plain",
+                                        "url" => "https://localhost:9300/apis/default/fhir/Binary/7",
+                                    ],
+                                    "format" => [
+                                        "system" => "http://ihe.net/fhir/ValueSet/IHE.FormatCode.codesystem",
+                                        "code" => "urn:ihe:iti:xds:2017:mimeTypeSufficient",
+                                        "display" => "mimeType Sufficient",
+                                    ],
+                                ],
+                            ],
+                            "context" => [
+                                "encounter" => [
+                                    [
+                                        "reference" => "Encounter/946da61d-6b95-4f8e-abe5-534a25913954",
+                                        "type" => "Encounter",
+                                    ],
+                                ],
+                            ],
+                        ]
+                    )
+                )
+            ),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: "404", ref: "#/components/responses/uuidnotfound"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
     public function getOne($fhirId, $puuidBind = null)
     {
         $processingResult = $this->service->getOne($fhirId, $puuidBind);
@@ -52,6 +149,90 @@ class FhirDocumentReferenceRestController
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return FHIR bundle with query results, if found
      */
+    #[OA\Get(
+        path: "/fhir/DocumentReference",
+        description: "Returns a list of DocumentReference resources.",
+        tags: ["fhir"],
+        parameters: [
+            new OA\Parameter(
+                name: "_id",
+                in: "query",
+                description: "The uuid for the DocumentReference resource.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+            new OA\Parameter(
+                name: "_lastUpdated",
+                in: "query",
+                description: "Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+            new OA\Parameter(
+                name: "patient",
+                in: "query",
+                description: "The uuid for the patient.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+            new OA\Parameter(
+                name: "type",
+                in: "query",
+                description: "The type of the DocumentReference resource.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+            new OA\Parameter(
+                name: "category",
+                in: "query",
+                description: "The category of the DocumentReference resource.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+            new OA\Parameter(
+                name: "date",
+                in: "query",
+                description: "The datetime of the DocumentReference resource.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: "200",
+                description: "Standard Response",
+                content: new OA\MediaType(
+                    mediaType: "application/json",
+                    schema: new OA\Schema(
+                        properties: [
+                            new OA\Property(
+                                property: "json object",
+                                description: "FHIR Json object.",
+                                type: "object"
+                            ),
+                        ],
+                        example: [
+                            "meta" => [
+                                "lastUpdated" => "2021-09-14T09:13:51",
+                            ],
+                            "resourceType" => "Bundle",
+                            "type" => "collection",
+                            "total" => 0,
+                            "link" => [
+                                [
+                                    "relation" => "self",
+                                    "url" => "https://localhost:9300/apis/default/fhir/DocumentReference",
+                                ],
+                            ],
+                        ]
+                    )
+                )
+            ),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
     public function getAll($searchParams, $puuidBind = null)
     {
         $processingResult = $this->service->getAll($searchParams, $puuidBind);

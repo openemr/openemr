@@ -12,6 +12,7 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenApi\Attributes as OA;
 use OpenEMR\Services\FHIR\FhirServiceRequestService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
@@ -35,6 +36,56 @@ class FhirServiceRequestRestController
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @returns 200 if the operation completes successfully
      */
+    #[OA\Get(
+        path: "/fhir/ServiceRequest/{uuid}",
+        description: "Returns a single ServiceRequest resource.",
+        tags: ["fhir"],
+        parameters: [
+            new OA\Parameter(
+                name: "uuid",
+                in: "path",
+                description: "The uuid for the ServiceRequest resource.",
+                required: true,
+                schema: new OA\Schema(type: "string")
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: "200",
+                description: "Standard response",
+                content: new OA\MediaType(
+                    mediaType: "application/json",
+                    schema: new OA\Schema(
+                        example: [
+                            "id" => "95e9d3fb-fe7b-448a-aa60-d40b11b486a5",
+                            "meta" => [
+                                "versionId" => "1",
+                                "lastUpdated" => "2025-03-26T17:20:14+00:00",
+                            ],
+                            "resourceType" => "ServiceRequest",
+                            "status" => "active",
+                            "intent" => "order",
+                            "category" => [
+                                [
+                                    "coding" => [
+                                        [
+                                            "system" => "http://snomed.info/sct",
+                                            "code" => "108252007",
+                                            "display" => "Laboratory procedure",
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ]
+                    )
+                )
+            ),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: "404", ref: "#/components/responses/uuidnotfound"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
     public function getOne($fhirId, $puuidBind = null)
     {
         $processingResult = $this->fhirServiceRequestService->getOne($fhirId, $puuidBind);
@@ -53,6 +104,83 @@ class FhirServiceRequestRestController
      * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return FHIR bundle with query results, if found
      */
+    #[OA\Get(
+        path: "/fhir/ServiceRequest",
+        description: "Returns a list of ServiceRequest resources.",
+        tags: ["fhir"],
+        parameters: [
+            new OA\Parameter(
+                name: "_id",
+                in: "query",
+                description: "The uuid for the ServiceRequest resource.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+            new OA\Parameter(
+                name: "patient",
+                in: "query",
+                description: "The uuid for the patient.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+            new OA\Parameter(
+                name: "category",
+                in: "query",
+                description: "The category/type of the ServiceRequest (laboratory, imaging, etc).",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+            new OA\Parameter(
+                name: "code",
+                in: "query",
+                description: "The code of the ServiceRequest resource.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+            new OA\Parameter(
+                name: "authored",
+                in: "query",
+                description: "The authored date of the ServiceRequest resource.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+            new OA\Parameter(
+                name: "status",
+                in: "query",
+                description: "The status of the ServiceRequest resource.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: "200",
+                description: "Standard response",
+                content: new OA\MediaType(
+                    mediaType: "application/json",
+                    schema: new OA\Schema(
+                        example: [
+                            "meta" => [
+                                "lastUpdated" => "2025-03-26T17:20:14+00:00",
+                            ],
+                            "resourceType" => "Bundle",
+                            "type" => "collection",
+                            "total" => 0,
+                            "link" => [
+                                [
+                                    "relation" => "self",
+                                    "url" => "https://localhost:9300/apis/default/fhir/ServiceRequest",
+                                ],
+                            ],
+                        ]
+                    )
+                )
+            ),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
     public function getAll($searchParams, $puuidBind = null)
     {
         $processingResult = $this->fhirServiceRequestService->getAll($searchParams, $puuidBind);

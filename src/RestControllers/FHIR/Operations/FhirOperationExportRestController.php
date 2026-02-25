@@ -2,6 +2,7 @@
 
 namespace OpenEMR\RestControllers\FHIR\Operations;
 
+use OpenApi\Attributes as OA;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Services\IGlobalsAware;
 use OpenEMR\Common\Http\HttpRestRequest;
@@ -120,6 +121,48 @@ class FhirOperationExportRestController
      * @param $preferHeader The 'Prefer' header which must be set to 'respond-async' for SMART FHIR exports.
      * @return ResponseInterface
      */
+    #[OA\Get(
+        path: "/fhir/\$export",
+        description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
+        tags: ["fhir"],
+        responses: [
+            new OA\Response(response: "200", description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
+    #[OA\Get(
+        path: "/fhir/Patient/\$export",
+        description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
+        tags: ["fhir"],
+        responses: [
+            new OA\Response(response: "200", description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
+    #[OA\Get(
+        path: "/fhir/Group/{id}/\$export",
+        description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
+        tags: ["fhir"],
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                in: "path",
+                description: "The id for the Group resource.",
+                required: true,
+                schema: new OA\Schema(type: "string")
+            ),
+        ],
+        responses: [
+            new OA\Response(response: "200", description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
     public function processExport($exportParams, $exportType, $acceptHeader, $preferHeader)
     {
         if ($this->isExportDisabled) {
@@ -210,6 +253,17 @@ class FhirOperationExportRestController
      * @param $jobUuidString The unique id of the job to retrieve the status report for
      * @return ResponseInterface
      */
+    #[OA\Get(
+        path: "/fhir/\$bulkdata-status",
+        description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
+        tags: ["fhir"],
+        responses: [
+            new OA\Response(response: "200", description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
     public function processExportStatusRequestForJob($jobUuidString)
     {
         if ($this->isExportDisabled) {
@@ -273,6 +327,17 @@ class FhirOperationExportRestController
      * @param $jobUuidString The unique id of the job.
      * @return ResponseInterface
      */
+    #[OA\Delete(
+        path: "/fhir/\$bulkdata-status",
+        description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
+        tags: ["fhir"],
+        responses: [
+            new OA\Response(response: "200", description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
     public function processDeleteExportForJob($jobUuidString)
     {
         if ($this->isExportDisabled) {

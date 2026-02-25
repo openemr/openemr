@@ -15,6 +15,7 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenApi\Attributes as OA;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPerson;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRRelatedPerson;
@@ -57,6 +58,61 @@ class FhirRelatedPersonRestController
      * @param   string $fhirId The FHIR person resource id (uuid)
      * @returns Response 200 if the operation completes successfully
      */
+    #[OA\Get(
+        path: "/fhir/RelatedPerson/{uuid}",
+        description: "Returns a single RelatedPerson resource.",
+        tags: ["fhir"],
+        parameters: [
+            new OA\Parameter(
+                name: "uuid",
+                in: "path",
+                description: "The uuid for the RelatedPerson resource.",
+                required: true,
+                schema: new OA\Schema(type: "string")
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: "200",
+                description: "Standard Response",
+                content: new OA\MediaType(
+                    mediaType: "application/json",
+                    schema: new OA\Schema(
+                        properties: [
+                            new OA\Property(
+                                property: "json object",
+                                description: "FHIR Json object.",
+                                type: "object"
+                            ),
+                        ],
+                        example: [
+                            "id" => "946da61d-c4f2-4f03-a2a7-b571f6a24b65",
+                            "meta" => [
+                                "versionId" => "1",
+                                "lastUpdated" => "2021-09-19T08:14:58+00:00",
+                            ],
+                            "resourceType" => "RelatedPerson",
+                            "active" => true,
+                            "patient" => [
+                                "reference" => "Patient/96506861-511f-4f6d-bc97-b65a78cf1995",
+                            ],
+                            "name" => [
+                                [
+                                    "use" => "official",
+                                    "family" => "Smith",
+                                    "given" => ["Jane"],
+                                ],
+                            ],
+                        ]
+                    )
+                )
+            ),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: "404", ref: "#/components/responses/uuidnotfound"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
     public function getOne(string $fhirId): Response
     {
         $this->logger->debug("FhirPersonRestController->getOne(fhirId)", ["fhirId" => $fhirId]);
@@ -81,6 +137,62 @@ class FhirRelatedPersonRestController
      *
      * @return JsonResponse|Response FHIR bundle with query results, if found
      */
+    #[OA\Get(
+        path: "/fhir/RelatedPerson",
+        description: "Returns a list of RelatedPerson resources.",
+        tags: ["fhir"],
+        parameters: [
+            new OA\Parameter(
+                name: "_id",
+                in: "query",
+                description: "The uuid for the RelatedPerson resource.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+            new OA\Parameter(
+                name: "_lastUpdated",
+                in: "query",
+                description: "Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: "200",
+                description: "Standard Response",
+                content: new OA\MediaType(
+                    mediaType: "application/json",
+                    schema: new OA\Schema(
+                        properties: [
+                            new OA\Property(
+                                property: "json object",
+                                description: "FHIR Json object.",
+                                type: "object"
+                            ),
+                        ],
+                        example: [
+                            "meta" => [
+                                "lastUpdated" => "2021-09-14T09:13:51",
+                            ],
+                            "resourceType" => "Bundle",
+                            "type" => "collection",
+                            "total" => 0,
+                            "link" => [
+                                [
+                                    "relation" => "self",
+                                    "url" => "https://localhost:9300/apis/default/fhir/RelatedPerson",
+                                ],
+                            ],
+                        ]
+                    )
+                )
+            ),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
     public function getAll($searchParams): JsonResponse|Response
     {
         $processingResult = $this->fhirRelatedPersonService->getAll($searchParams);

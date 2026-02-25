@@ -14,6 +14,7 @@
 
 namespace OpenEMR\RestControllers\SMART;
 
+use OpenApi\Attributes as OA;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\Capability;
@@ -30,6 +31,17 @@ class SMARTConfigurationController
         $this->serverConfig = new ServerConfig();
     }
 
+    #[OA\Get(
+        path: "/fhir/.well-known/smart-configuration",
+        description: "Returns smart configuration of the fhir server.",
+        tags: ["fhir"],
+        responses: [
+            new OA\Response(
+                response: "200",
+                description: "Return smart configuration of the fhir server"
+            ),
+        ]
+    )]
     public function getConfig(): array
     {
         // combine all possible supported scopes(OIDC & SMART on FHIR)

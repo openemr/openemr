@@ -13,6 +13,7 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenApi\Attributes as OA;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpRestRouteHandler;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -55,6 +56,26 @@ class FhirQuestionnaireRestController
      * @param  HttpRestRequest $request
      * @return ResponseInterface
      */
+    #[OA\Get(
+        path: "/fhir/Questionnaire",
+        description: "Returns a list of Questionnaire resources.",
+        tags: ["fhir"],
+        parameters: [
+            new OA\Parameter(
+                name: "_id",
+                in: "query",
+                description: "The id for the Questionnaire resource.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+        ],
+        responses: [
+            new OA\Response(response: "200", ref: "#/components/responses/fhir"),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
     public function list(HttpRestRequest $request): ResponseInterface
     {
         if ($request->isPatientRequest()) {
@@ -80,6 +101,26 @@ class FhirQuestionnaireRestController
      * @param  HttpRestRequest $request
      * @return ResponseInterface
      */
+    #[OA\Get(
+        path: "/fhir/Questionnaire/{uuid}",
+        description: "Returns a single Questionnaire resource.",
+        tags: ["fhir"],
+        parameters: [
+            new OA\Parameter(
+                name: "uuid",
+                in: "path",
+                description: "The uuid for the Questionnaire resource.",
+                required: true,
+                schema: new OA\Schema(type: "string")
+            ),
+        ],
+        responses: [
+            new OA\Response(response: "200", ref: "#/components/responses/fhir"),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
     public function one(HttpRestRequest $request, string $id): ResponseInterface
     {
         if ($request->isPatientRequest()) {
@@ -91,11 +132,62 @@ class FhirQuestionnaireRestController
         return RestControllerHelper::getResponseForProcessingResult($processingResult);
     }
 
+    #[OA\Post(
+        path: "/fhir/Questionnaire",
+        description: "Creates a new Questionnaire resource.",
+        tags: ["fhir"],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: "application/json",
+                schema: new OA\Schema(
+                    description: "FHIR Questionnaire resource",
+                    type: "object"
+                )
+            )
+        ),
+        responses: [
+            new OA\Response(response: "201", ref: "#/components/responses/fhir"),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
     public function create(HttpRestRequest $request): ResponseInterface
     {
         return RestControllerHelper::getEmptyResponse();
     }
 
+    #[OA\Put(
+        path: "/fhir/Questionnaire/{uuid}",
+        description: "Updates an existing Questionnaire resource.",
+        tags: ["fhir"],
+        parameters: [
+            new OA\Parameter(
+                name: "uuid",
+                in: "path",
+                description: "The uuid for the Questionnaire resource.",
+                required: true,
+                schema: new OA\Schema(type: "string")
+            ),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: "application/json",
+                schema: new OA\Schema(
+                    description: "FHIR Questionnaire resource",
+                    type: "object"
+                )
+            )
+        ),
+        responses: [
+            new OA\Response(response: "200", ref: "#/components/responses/fhir"),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
     public function update(HttpRestRequest $request, string $id): ResponseInterface
     {
         return RestControllerHelper::getEmptyResponse();
