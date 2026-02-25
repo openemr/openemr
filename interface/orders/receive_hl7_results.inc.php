@@ -973,7 +973,11 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $porow = false;
             $pcrow = false;
             if ($direction != 'R' && $a[2]) {
-                $in_orderid = intval($a[2]);
+                // Extract order ID from compound placer numbers like "11545596-0175"
+                // or "ACME-0042" where the ID follows the last dash (#8130, #7762).
+                $in_orderid = str_contains($a[2], '-')
+                    ? intval(substr($a[2], strrpos($a[2], '-') + 1))
+                    : intval($a[2]);
             }
         } elseif ('TXA' == $a[0] && 'MDM' == $msgtype) {
             $context = $a[0];
@@ -985,7 +989,11 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
             $context = $a[0];
             $arep = [];
             if ($direction != 'R' && $a[2]) {
-                $in_orderid = intval($a[2]);
+                // Extract order ID from compound placer numbers like "11545596-0175"
+                // or "ACME-0042" where the ID follows the last dash (#8130, #7762).
+                $in_orderid = str_contains($a[2], '-')
+                    ? intval(substr($a[2], strrpos($a[2], '-') + 1))
+                    : intval($a[2]);
                 $porow = false;
                 $pcrow = false;
             }
