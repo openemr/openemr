@@ -60,7 +60,8 @@ if (
 if (!$GLOBALS['ptkr_date_range']) {
     $from_date = date('Y-m-d');
 } elseif (!is_null($_REQUEST['form_from_date'] ?? null)) {
-    $from_date = DateToYYYYMMDD($_REQUEST['form_from_date']);
+    $rawFromDate = $_REQUEST['form_from_date'];
+    $from_date = DateToYYYYMMDD(is_string($rawFromDate) ? strip_tags($rawFromDate) : '');
 } elseif (($GLOBALS['ptkr_start_date']) == 'D0') {
     $from_date = date('Y-m-d');
 } elseif (($GLOBALS['ptkr_start_date']) == 'B0') {
@@ -96,7 +97,8 @@ if ($GLOBALS['ptkr_date_range']) {
     }
 
     $to_date = date('Y-m-d', $ptkr_future_time);
-    $to_date = !is_null($_REQUEST['form_to_date'] ?? null) ? DateToYYYYMMDD($_REQUEST['form_to_date']) : $to_date;
+    $rawToDate = $_REQUEST['form_to_date'] ?? null;
+    $to_date = is_string($rawToDate) ? DateToYYYYMMDD(strip_tags($rawToDate)) : $to_date;
 } else {
     $to_date = date('Y-m-d');
 }
