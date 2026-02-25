@@ -232,16 +232,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$EOF on ADORecordSet\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/billing_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$fields on ADORecordSet\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/billing_report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$data on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
@@ -2892,11 +2882,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Note.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$EOF on ADORecordSet\\|false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$date_of_birth on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
@@ -2904,11 +2889,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$federal_drug_id on mixed\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$fields on ADORecordSet\\|false\\.$#',
-    'count' => 12,
     'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
 ];
 $ignoreErrors[] = [

@@ -26,6 +26,7 @@ require_once "$srcdir/options.inc.php";
 use OpenEMR\Billing\BillingReport;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -64,18 +65,12 @@ if (isset($_POST['mode'])) {
 
     if ($_POST['mode'] == 'export') {
         $sql = BillingReport::returnOFXSql();
-        $db = get_db();
-        $results = $db->Execute($sql);
-        $billings = [];
-        if ($results->RecordCount() == 0) {
+        $billings = QueryUtils::fetchRecords($sql);
+        if ($billings === []) {
             echo "<fieldset id='error_info' style='border:1px solid var(--danger) !important; background-color: var(--danger) !important; color: var(--white) !important; font-weight: bold; font-family: sans-serif; border-radius: 5px; padding: 20px 5px !important;'>";
             echo xlt("No Bills Found to Include in OFX Export") . "<br />";
             echo "</fieldset>";
         } else {
-            while (!$results->EOF) {
-                $billings[] = $results->fields;
-                $results->MoveNext();
-            }
             $ofx = new OFX($billings);
             header("Pragma: public");
             header("Expires: 0");
