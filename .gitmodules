@@ -7,3 +7,6 @@
 	url = https://github.com/openemr/inferno-files.git
 [submodule "inferno-files"]
 	shallow = true
+[submodule "agents/safety-sentinel"]
+	path = agents/safety-sentinel
+	url = git@github.com:ryoiwata/safety-sentinel.git
