@@ -20,7 +20,6 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Utils\HttpUtils;
-use OpenEMR\Common\Utils\RandomGenUtils;
 use Psr\Log\LoggerInterface;
 
 class ClientRepository implements ClientRepositoryInterface
@@ -130,12 +129,12 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function generateClientId()
     {
-        return HttpUtils::base64url_encode(RandomGenUtils::produceRandomBytes(32));
+        return HttpUtils::base64url_encode(random_bytes(32));
     }
 
     public function generateClientSecret()
     {
-        return HttpUtils::base64url_encode(RandomGenUtils::produceRandomBytes(64));
+        return HttpUtils::base64url_encode(random_bytes(64));
     }
 
     /**
@@ -278,12 +277,12 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function generateRegistrationAccessToken()
     {
-        return HttpUtils::base64url_encode(RandomGenUtils::produceRandomBytes(32));
+        return HttpUtils::base64url_encode(random_bytes(32));
     }
 
     public function generateRegistrationClientUriPath()
     {
-        return HttpUtils::base64url_encode(RandomGenUtils::produceRandomBytes(16));
+        return HttpUtils::base64url_encode(random_bytes(16));
     }
 
     public function saveSkipEHRLaunchFlow(ClientEntity $client, bool $skipFlow)
