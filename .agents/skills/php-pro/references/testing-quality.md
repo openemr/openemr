@@ -1,466 +1,172 @@
-# Testing & Quality Assurance
+# OpenEMR Testing & Quality
 
-## PHPUnit with Strict Types
+## Running Tests
+
+All tests run inside the Docker dev-easy container unless marked "isolated."
+
+```bash
+# From docker/development-easy/ directory:
+
+# Run all tests
+docker compose exec openemr /root/devtools clean-sweep-tests
+
+# Individual suites
+docker compose exec openemr /root/devtools unit-test
+docker compose exec openemr /root/devtools api-test
+docker compose exec openemr /root/devtools e2e-test
+docker compose exec openemr /root/devtools services-test
+
+# View PHP error log
+docker compose exec openemr /root/devtools php-log
+```
+
+### Isolated Tests (No Docker Required)
+
+These run on the host without a database:
+
+```bash
+composer phpunit-isolated
+```
+
+### Twig Template Tests
+
+```bash
+# Regenerate fixture files after modifying Twig templates
+composer update-twig-fixtures
+
+# Fixtures live in:
+# tests/Tests/Isolated/Common/Twig/fixtures/render/
+```
+
+## Writing PHPUnit Tests for a Custom Module
 
 ```php
 <?php
 
-declare(strict_types=1);
+/**
+ * Tests for Safety Sentinel module integration
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
-namespace Tests\Unit\Service;
+namespace OpenEMR\Tests\Modules\SafetySentinel;
 
-use App\Repository\UserRepositoryInterface;
-use App\Service\UserService;
-use App\Service\EmailService;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 
-final class UserServiceTest extends TestCase
+class SafetyControllerTest extends TestCase
 {
-    private UserRepositoryInterface&MockObject $userRepository;
-    private EmailService&MockObject $emailService;
-    private UserService $userService;
+    private SafetyController $controller;
 
     protected function setUp(): void
     {
-        $this->userRepository = $this->createMock(UserRepositoryInterface::class);
-        $this->emailService = $this->createMock(EmailService::class);
-        $this->userService = new UserService(
-            $this->userRepository,
-            $this->emailService
-        );
+        $this->controller = new SafetyController();
     }
 
-    public function testCreateUserSuccessfully(): void
+    public function testCheckSafetyReturnsResultForValidPatient(): void
     {
-        $email = 'test@example.com';
-        $password = 'SecurePass123!';
+        // Note: this test would need the FastAPI backend running
+        // or mock the curl call
+        $result = $this->controller->checkSafety('patient-003', 'metformin');
 
-        $this->userRepository
-            ->expects($this->once())
-            ->method('findByEmail')
-            ->with($email)
-            ->willReturn(null);
-
-        $this->userRepository
-            ->expects($this->once())
-            ->method('create')
-            ->willReturn($this->createUser($email));
-
-        $this->emailService
-            ->expects($this->once())
-            ->method('sendWelcomeEmail');
-
-        $user = $this->userService->createUser($email, $password);
-
-        $this->assertSame($email, $user->email);
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('severity', $result);
     }
 
-    public function testCreateUserThrowsExceptionWhenEmailExists(): void
+    public function testCheckSafetyHandlesServiceUnavailable(): void
     {
-        $this->expectException(\DomainException::class);
-        $this->expectExceptionMessage('Email already exists');
+        // Point to a non-existent service
+        $GLOBALS['safety_sentinel_url'] = 'http://localhost:99999';
 
-        $this->userRepository
-            ->method('findByEmail')
-            ->willReturn($this->createUser('test@example.com'));
+        $result = $this->controller->checkSafety('patient-001', 'aspirin');
 
-        $this->userService->createUser('test@example.com', 'password');
-    }
-
-    private function createUser(string $email): User
-    {
-        return new User(
-            id: 1,
-            email: $email,
-            password: password_hash('password', PASSWORD_ARGON2ID),
-        );
+        $this->assertArrayHasKey('error', $result);
     }
 }
 ```
 
-## Data Providers
+### Test File Location
 
-```php
-<?php
+For custom modules, tests can go in:
+- `tests/Tests/` (OpenEMR's main test directory) — if contributing to the core test suite
+- Inside your module directory — for module-specific tests during development
 
-declare(strict_types=1);
+## Code Quality Checks
 
-namespace Tests\Unit\Validator;
+Run on the host (requires local PHP and Node):
 
-use App\Validator\EmailValidator;
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\TestCase;
+```bash
+# All PHP quality checks at once
+composer code-quality
 
-final class EmailValidatorTest extends TestCase
-{
-    #[Test]
-    #[DataProvider('validEmailProvider')]
-    public function itValidatesCorrectEmails(string $email): void
-    {
-        $validator = new EmailValidator();
-        $this->assertTrue($validator->isValid($email));
-    }
+# Individual checks
+composer phpstan            # Static analysis
+composer phpcs              # Code style check
+composer phpcbf             # Code style auto-fix
+composer rector-check       # Code modernization (dry-run)
 
-    #[Test]
-    #[DataProvider('invalidEmailProvider')]
-    public function itRejectsInvalidEmails(string $email): void
-    {
-        $validator = new EmailValidator();
-        $this->assertFalse($validator->isValid($email));
-    }
-
-    public static function validEmailProvider(): array
-    {
-        return [
-            ['user@example.com'],
-            ['john.doe@company.co.uk'],
-            ['test+filter@domain.org'],
-        ];
-    }
-
-    public static function invalidEmailProvider(): array
-    {
-        return [
-            ['invalid'],
-            ['@example.com'],
-            ['user@'],
-            ['user space@example.com'],
-        ];
-    }
-}
+# JavaScript/CSS
+npm run lint:js             # ESLint check
+npm run lint:js-fix         # ESLint auto-fix
+npm run stylelint           # CSS/SCSS lint
 ```
 
-## Laravel Feature Tests
+## phpcs (Code Style)
 
-```php
-<?php
+OpenEMR has its own phpcs ruleset. Run it before every commit:
 
-declare(strict_types=1);
+```bash
+composer phpcs
 
-namespace Tests\Feature;
-
-use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
-
-final class UserControllerTest extends TestCase
-{
-    use RefreshDatabase, WithFaker;
-
-    public function testUserCanViewTheirProfile(): void
-    {
-        $user = User::factory()->create();
-
-        $response = $this->actingAs($user)->get('/api/users/me');
-
-        $response->assertOk()
-            ->assertJson([
-                'data' => [
-                    'id' => $user->id,
-                    'email' => $user->email,
-                ],
-            ]);
-    }
-
-    public function testUserCanUpdateTheirProfile(): void
-    {
-        $user = User::factory()->create();
-        $newName = $this->faker->name();
-
-        $response = $this->actingAs($user)->putJson('/api/users/me', [
-            'name' => $newName,
-        ]);
-
-        $response->assertOk();
-
-        $this->assertDatabaseHas('users', [
-            'id' => $user->id,
-            'name' => $newName,
-        ]);
-    }
-
-    public function testUnauthorizedUserCannotAccessProfile(): void
-    {
-        $response = $this->getJson('/api/users/me');
-
-        $response->assertUnauthorized();
-    }
-
-    public function testValidationFailsWithInvalidData(): void
-    {
-        $user = User::factory()->create();
-
-        $response = $this->actingAs($user)->putJson('/api/users/me', [
-            'email' => 'not-an-email',
-        ]);
-
-        $response->assertUnprocessable()
-            ->assertJsonValidationErrors(['email']);
-    }
-}
+# Auto-fix what it can
+composer phpcbf
 ```
 
-## Pest Testing (Modern Alternative)
+Common issues it catches:
+- Wrong indentation (must be 4 spaces)
+- Missing/wrong file headers
+- Line length violations
+- Whitespace issues
 
-```php
-<?php
+## PHPStan (Static Analysis)
 
-declare(strict_types=1);
-
-use App\Models\User;
-use App\Services\UserService;
-
-beforeEach(function () {
-    $this->userService = app(UserService::class);
-});
-
-it('creates a user successfully', function () {
-    $user = $this->userService->createUser(
-        email: 'test@example.com',
-        password: 'SecurePass123!'
-    );
-
-    expect($user)
-        ->toBeInstanceOf(User::class)
-        ->email->toBe('test@example.com');
-});
-
-it('validates email format', function (string $email, bool $valid) {
-    $validator = new EmailValidator();
-
-    expect($validator->isValid($email))->toBe($valid);
-})->with([
-    ['test@example.com', true],
-    ['invalid', false],
-    ['@example.com', false],
-]);
-
-test('authenticated user can view profile', function () {
-    $user = User::factory()->create();
-
-    $this->actingAs($user)
-        ->get('/api/users/me')
-        ->assertOk()
-        ->assertJson(['data' => ['email' => $user->email]]);
-});
-
-test('guest cannot access protected routes', function () {
-    $this->getJson('/api/users/me')
-        ->assertUnauthorized();
-});
+```bash
+composer phpstan
 ```
 
-## PHPStan Configuration
+OpenEMR runs PHPStan but not at the strictest level. Don't add `phpstan.neon` overrides that conflict with the project's configuration.
 
-```neon
-# phpstan.neon
-parameters:
-    level: 9
-    paths:
-        - src
-        - tests
-    excludePaths:
-        - src/bootstrap.php
-        - vendor
-    checkMissingIterableValueType: true
-    checkGenericClassInNonGenericObjectType: true
-    reportUnmatchedIgnoredErrors: true
-    tmpDir: var/cache/phpstan
+## Pre-Commit Hooks
 
-    ignoreErrors:
-        # Ignore specific Laravel magic
-        - '#Call to an undefined method Illuminate\\Database\\Eloquent\\Builder#'
+OpenEMR provides pre-commit hooks via `.pre-commit-config.yaml`:
 
-    type_coverage:
-        return_type: 100
-        param_type: 100
-        property_type: 100
-
-includes:
-    - vendor/phpstan/phpstan-strict-rules/rules.neon
-    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+```bash
+# Install pre-commit hooks
+pip install pre-commit
+pre-commit install
 ```
 
-## PHPStan Annotations
+## Testing Strategy for Safety Sentinel Module
 
-```php
-<?php
+For the OpenEMR module specifically, test at these levels:
 
-declare(strict_types=1);
+| Level | What to Test | How |
+|-------|-------------|-----|
+| Module loading | `openemr.bootstrap.php` doesn't error | Docker devtools |
+| Event subscription | Menu items appear, JS injected | Manual or e2e test |
+| API proxy | PHP controller calls FastAPI correctly | PHPUnit with mocked curl |
+| ACL | Unauthorized users are blocked | PHPUnit |
+| Safety agent (Python) | Drug interactions, allergy checks | Python eval runner (separate) |
 
-namespace App\Repository;
+The PHP module is thin glue — most testing effort should remain on the Python agent side using your existing eval framework.
 
-use App\Entity\User;
-use Doctrine\ORM\EntityRepository;
+## Commit Conventions
 
-/**
- * @extends EntityRepository<User>
- */
-final class UserRepository extends EntityRepository
-{
-    /**
-     * @return User[]
-     */
-    public function findActive(): array
-    {
-        return $this->createQueryBuilder('u')
-            ->where('u.status = :status')
-            ->setParameter('status', 'active')
-            ->getQuery()
-            ->getResult();
-    }
-
-    /**
-     * @param int[] $ids
-     * @return User[]
-     */
-    public function findByIds(array $ids): array
-    {
-        return $this->createQueryBuilder('u')
-            ->where('u.id IN (:ids)')
-            ->setParameter('ids', $ids)
-            ->getQuery()
-            ->getResult();
-    }
-}
-
-/**
- * @template T
- */
-final readonly class Result
-{
-    /**
-     * @param T $data
-     */
-    public function __construct(
-        public mixed $data,
-        public bool $success,
-    ) {}
-
-    /**
-     * @return T
-     */
-    public function getData(): mixed
-    {
-        return $this->data;
-    }
-}
 ```
-
-## Mockery (Advanced Mocking)
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace Tests\Unit\Service;
-
-use App\Repository\UserRepository;
-use App\Service\NotificationService;
-use Mockery;
-use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
-use PHPUnit\Framework\TestCase;
-
-final class NotificationServiceTest extends TestCase
-{
-    use MockeryPHPUnitIntegration;
-
-    public function testSendsNotificationToActiveUsers(): void
-    {
-        $repository = Mockery::mock(UserRepository::class);
-        $repository->shouldReceive('findActive')
-            ->once()
-            ->andReturn([
-                $this->createUser('user1@example.com'),
-                $this->createUser('user2@example.com'),
-            ]);
-
-        $service = new NotificationService($repository);
-        $result = $service->notifyActiveUsers('Important message');
-
-        $this->assertSame(2, $result->count());
-    }
-
-    public function testHandlesEmailServiceFailure(): void
-    {
-        $emailService = Mockery::mock(EmailService::class);
-        $emailService->shouldReceive('send')
-            ->once()
-            ->andThrow(new \RuntimeException('Email service down'));
-
-        $service = new NotificationService($emailService);
-
-        $this->expectException(\RuntimeException::class);
-        $service->sendNotification('test@example.com', 'Hello');
-    }
-
-    private function createUser(string $email): User
-    {
-        return new User(id: 1, email: $email, password: 'hashed');
-    }
-}
+feat(module): add safety sentinel custom module bootstrap
+fix(module): correct ACL check for prescription access
+test(module): add integration test for safety check proxy
+docs(module): add module installation instructions
 ```
-
-## Code Coverage
-
-```xml
-<!-- phpunit.xml -->
-<?xml version="1.0" encoding="UTF-8"?>
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
-         bootstrap="vendor/autoload.php"
-         colors="true"
-         failOnRisky="true"
-         failOnWarning="true"
-         stopOnFailure="false">
-    <testsuites>
-        <testsuite name="Unit">
-            <directory>tests/Unit</directory>
-        </testsuite>
-        <testsuite name="Feature">
-            <directory>tests/Feature</directory>
-        </testsuite>
-    </testsuites>
-    <coverage>
-        <include>
-            <directory suffix=".php">src</directory>
-        </include>
-        <exclude>
-            <directory>src/bootstrap</directory>
-            <file>src/Kernel.php</file>
-        </exclude>
-        <report>
-            <html outputDirectory="coverage/html"/>
-            <clover outputFile="coverage/clover.xml"/>
-        </report>
-    </coverage>
-    <php>
-        <env name="APP_ENV" value="testing"/>
-        <env name="DB_CONNECTION" value="sqlite"/>
-        <env name="DB_DATABASE" value=":memory:"/>
-    </php>
-</phpunit>
-```
-
-## Quick Reference
-
-| Tool | Purpose | Command |
-|------|---------|---------|
-| PHPUnit | Unit/Feature tests | `./vendor/bin/phpunit` |
-| Pest | Modern testing | `./vendor/bin/pest` |
-| PHPStan | Static analysis | `./vendor/bin/phpstan analyse` |
-| Psalm | Alternative static analysis | `./vendor/bin/psalm` |
-| PHP-CS-Fixer | Code style | `./vendor/bin/php-cs-fixer fix` |
-| PHPMD | Mess detector | `./vendor/bin/phpmd src text cleancode` |
-
-| Assertion | PHPUnit | Pest |
-|-----------|---------|------|
-| Equality | `$this->assertSame()` | `expect()->toBe()` |
-| Type | `$this->assertInstanceOf()` | `expect()->toBeInstanceOf()` |
-| Array | `$this->assertContains()` | `expect()->toContain()` |
-| Exception | `$this->expectException()` | `expect()->toThrow()` |
-| Count | `$this->assertCount()` | `expect()->toHaveCount()` |
