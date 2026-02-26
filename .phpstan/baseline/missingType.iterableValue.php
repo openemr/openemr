@@ -4982,11 +4982,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/QrdaControllers/QrdaReportController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:__construct\\(\\) has parameter \\$opts with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Events\\\\Appointments\\\\AppointmentRenderEvent\\:\\:getAppt\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/Appointments/AppointmentRenderEvent.php',

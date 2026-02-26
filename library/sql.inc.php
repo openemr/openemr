@@ -29,7 +29,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 /**
- * Variables set by sqlconf.php or SqlConfigEvent
+ * Variables set by sqlconf.php
  *
  * @var string $host
  * @var string $port
