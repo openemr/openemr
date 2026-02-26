@@ -488,7 +488,7 @@ class Hl7ResultParserIntegrationTest extends TestCase
     }
 
     #[Test]
-    public function testBidirectionalCompoundPlacerMatchesOrder(): void
+    public function testBidirectionalPlainPlacerMatchesOrder(): void
     {
         $orderId = $this->bidirectionalOrderId;
         $paddedOrderId = str_pad((string) $orderId, 4, '0', STR_PAD_LEFT);
@@ -511,14 +511,12 @@ class Hl7ResultParserIntegrationTest extends TestCase
         $sex = ($patient['sex'] === 'Male') ? 'M' : 'F';
         $timestamp = '20260225120000';
 
-        // Build synthetic HL7 ORU^R01 with compound placer number.
-        // The parser extracts intval(substr("TESTFAC-NNNN", last '-' + 1)) = order ID.
-        // Without the #8130/#7762 fix, intval("TESTFAC-NNNN") would return 0.
+        // Build synthetic HL7 ORU^R01 with plain numeric placer number.
         $hl7 = implode("\r", [
             "MSH|^~\\&|TESTFAC|TESTFAC|OPENEMR||{$timestamp}||ORU^R01|TESTMSG001|P|2.3|||AL",
             "PID|1||{$pid}||{$lname}^{$fname}||{$dob}|{$sex}||||||||||{$pid}",
-            "ORC|RE|TESTFAC-{$paddedOrderId}|||||||||||",
-            "OBR|1|TESTFAC-{$paddedOrderId}||CBC^Complete Blood Count|||{$timestamp}|||||||||||||||{$timestamp}||LAB|F||1",
+            "ORC|RE|{$paddedOrderId}|||||||||||",
+            "OBR|1|{$paddedOrderId}||CBC^Complete Blood Count|||{$timestamp}|||||||||||||||{$timestamp}||LAB|F||1",
             "OBX|1|NM|WBC^White Blood Cell Count||7.5|K/uL|4.5-11.0|N|||F|||{$timestamp}",
         ]);
 
@@ -628,10 +626,10 @@ class Hl7ResultParserIntegrationTest extends TestCase
         $hl7 = $this->buildHl7([
             "MSH|^~\\&|TESTFAC|TESTFAC|OPENEMR||{$ts}||ORU^R01|TESTMSGMO|P|2.3|||AL",
             "PID|1||{$pid}||ZZZHUBTEST^VITL||19840303|M||||||||||{$pid}",
-            "ORC|RE|TESTFAC-{$paddedOrderId}|||||||||||",
-            "OBR|1|TESTFAC-{$paddedOrderId}||WBC^White Blood Cell|||{$ts}|||||||||||||||{$ts}||LAB|F||1",
+            "ORC|RE|{$paddedOrderId}|||||||||||",
+            "OBR|1|{$paddedOrderId}||WBC^White Blood Cell|||{$ts}|||||||||||||||{$ts}||LAB|F||1",
             "OBX|1|NM|WBC^White Blood Cell Count||7.5|K/uL|4.5-11.0|N|||F|||{$ts}",
-            "OBR|2|TESTFAC-{$paddedOrderId}||RBC^Red Blood Cell|||{$ts}|||||||||||||||{$ts}||LAB|F||1",
+            "OBR|2|{$paddedOrderId}||RBC^Red Blood Cell|||{$ts}|||||||||||||||{$ts}||LAB|F||1",
             "OBX|1|NM|RBC^Red Blood Cell Count||4.8|M/uL|4.7-6.1|N|||F|||{$ts}",
         ]);
 
@@ -702,8 +700,8 @@ class Hl7ResultParserIntegrationTest extends TestCase
             $hl7 = $this->buildHl7([
                 "MSH|^~\\&|TESTFAC|TESTFAC|OPENEMR||{$ts}||ORU^R01|TESTMSGST{$hl7Status}|P|2.3|||AL",
                 "PID|1||{$pid}||ZZZHUBTEST^VITL||19840303|M||||||||||{$pid}",
-                "ORC|RE|TESTFAC-{$paddedOrderId}|||||||||||",
-                "OBR|1|TESTFAC-{$paddedOrderId}||ST{$hl7Status}^Status {$hl7Status} Test|||{$ts}|||||||||||||||{$ts}||LAB|{$hl7Status}||1",
+                "ORC|RE|{$paddedOrderId}|||||||||||",
+                "OBR|1|{$paddedOrderId}||ST{$hl7Status}^Status {$hl7Status} Test|||{$ts}|||||||||||||||{$ts}||LAB|{$hl7Status}||1",
                 "OBX|1|NM|ST{$hl7Status}^Result||1.0|mg/dL|0-5|N|||F|||{$ts}",
             ]);
 
@@ -750,8 +748,8 @@ class Hl7ResultParserIntegrationTest extends TestCase
             $hl7 = $this->buildHl7([
                 "MSH|^~\\&|TESTFAC|TESTFAC|OPENEMR||{$ts}||ORU^R01|TESTMSGAB{$hl7Flag}|P|2.3|||AL",
                 "PID|1||{$pid}||ZZZHUBTEST^VITL||19840303|M||||||||||{$pid}",
-                "ORC|RE|TESTFAC-{$paddedOrderId}|||||||||||",
-                "OBR|1|TESTFAC-{$paddedOrderId}||AB{$hl7Flag}^Abnormal {$hl7Flag} Test|||{$ts}|||||||||||||||{$ts}||LAB|F||1",
+                "ORC|RE|{$paddedOrderId}|||||||||||",
+                "OBR|1|{$paddedOrderId}||AB{$hl7Flag}^Abnormal {$hl7Flag} Test|||{$ts}|||||||||||||||{$ts}||LAB|F||1",
                 "OBX|1|NM|AB{$hl7Flag}^Result||5.0|mg/dL|1-10|{$hl7Flag}|||F|||{$ts}",
             ]);
 
@@ -802,8 +800,8 @@ class Hl7ResultParserIntegrationTest extends TestCase
         $hl7 = $this->buildHl7([
             "MSH|^~\\&|TESTFAC|TESTFAC|OPENEMR||{$ts}||ORU^R01|TESTMSGPO|P|2.3|||AL",
             "PID|1||{$pid}||ZZZHUBTEST^VITL||19840303|M||||||||||{$pid}",
-            "ORC|RE|TESTFAC-{$paddedOrderId}|||||||||||",
-            "OBR|1|TESTFAC-{$paddedOrderId}||PERFORG^Performing Org Test|||{$ts}|||||||||||||||{$ts}||LAB|F||1",
+            "ORC|RE|{$paddedOrderId}|||||||||||",
+            "OBR|1|{$paddedOrderId}||PERFORG^Performing Org Test|||{$ts}|||||||||||||||{$ts}||LAB|F||1",
             "OBX|1|NM|PERFORG^Performing Org Result||7.5|K/uL|4.5-11.0|N|||F|||{$ts}|||||||||Test Lab|123 Main St^^Anytown^CA^90210^USA|12345^Smith^John^M^III^Dr.",
         ]);
 
@@ -853,8 +851,8 @@ class Hl7ResultParserIntegrationTest extends TestCase
         $hl7 = $this->buildHl7([
             "MSH|^~\\&|TESTFAC|TESTFAC|OPENEMR||{$ts}||ORU^R01|TESTMSGSPM|P|2.3|||AL",
             "PID|1||{$pid}||ZZZHUBTEST^VITL||19840303|M||||||||||{$pid}",
-            "ORC|RE|TESTFAC-{$paddedOrderId}|||||||||||",
-            "OBR|1|TESTFAC-{$paddedOrderId}||SPMTEST^SPM Test|||{$ts}|||||||||||||||{$ts}||LAB|F||1",
+            "ORC|RE|{$paddedOrderId}|||||||||||",
+            "OBR|1|{$paddedOrderId}||SPMTEST^SPM Test|||{$ts}|||||||||||||||{$ts}||LAB|F||1",
             "OBX|1|NM|SPMTEST^SPM Result||7.5|K/uL|4.5-11.0|N|||F|||{$ts}",
             "SPM|1|||119297000^BLD^SCT^BldSpc^Blood^99USA^^^Blood Specimen",
         ]);
@@ -897,8 +895,8 @@ class Hl7ResultParserIntegrationTest extends TestCase
         $hl7 = $this->buildHl7([
             "MSH|^~\\&|TESTFAC|TESTFAC|OPENEMR||{$ts}||ORU^R01|TESTMSGZPS|P|2.3|||AL",
             "PID|1||{$pid}||ZZZHUBTEST^VITL||19840303|M||||||||||{$pid}",
-            "ORC|RE|TESTFAC-{$paddedOrderId}|||||||||||",
-            "OBR|1|TESTFAC-{$paddedOrderId}||ZPSTEST^ZPS Test|||{$ts}|||||||||||||||{$ts}||LAB|F||1",
+            "ORC|RE|{$paddedOrderId}|||||||||||",
+            "OBR|1|{$paddedOrderId}||ZPSTEST^ZPS Test|||{$ts}|||||||||||||||{$ts}||LAB|F||1",
             "OBX|1|NM|ZPSTEST^ZPS Result||7.5|K/uL|4.5-11.0|N|||F|||{$ts}",
             "ZPS|1|LABX001|Test Laboratory|123 Lab St^^Anytown^CA^90210|555-1234||Smith^John^MD||CLIA123",
         ]);
@@ -953,10 +951,10 @@ class Hl7ResultParserIntegrationTest extends TestCase
         $hl7 = $this->buildHl7([
             "MSH|^~\\&|TESTFAC|TESTFAC|OPENEMR||{$ts}||ORU^R01|TESTMSGPC|P|2.3|||AL",
             "PID|1||{$pid}||ZZZHUBTEST^VITL||19840303|M||||||||||{$pid}",
-            "ORC|RE|TESTFAC-{$paddedOrderId}|||||||||||",
-            "OBR|1|TESTFAC-{$paddedOrderId}|FILL001|PANEL1^Panel Test|||{$ts}|||||||||||||||{$ts}||LAB|F||1",
+            "ORC|RE|{$paddedOrderId}|||||||||||",
+            "OBR|1|{$paddedOrderId}|FILL001|PANEL1^Panel Test|||{$ts}|||||||||||||||{$ts}||LAB|F||1",
             "OBX|1|NM|WBC^White Blood Cell||7.5|K/uL|4.5-11.0|N|||F|||{$ts}",
-            "OBR|2|TESTFAC-{$paddedOrderId}|FILL002|CHILDTEST^Child Test|||{$ts}|||||||||||||||{$ts}||LAB|F|WBC&White Blood Cell^|1||^FILL001",
+            "OBR|2|{$paddedOrderId}|FILL002|CHILDTEST^Child Test|||{$ts}|||||||||||||||{$ts}||LAB|F|WBC&White Blood Cell^|1||^FILL001",
             "OBX|1|NM|CHILD^Child Result||99.0|mg/dL|50-150|N|||F|||{$ts}",
         ]);
 
@@ -1020,8 +1018,8 @@ class Hl7ResultParserIntegrationTest extends TestCase
         $hl7 = $this->buildHl7([
             "MSH|^~\\&|TESTFAC|TESTFAC|OPENEMR||{$ts}||ORU^R01|TESTMSGTX|P|2.3|||AL",
             "PID|1||{$pid}||ZZZHUBTEST^VITL||19840303|M||||||||||{$pid}",
-            "ORC|RE|TESTFAC-{$paddedOrderId}|||||||||||",
-            "OBR|1|TESTFAC-{$paddedOrderId}||NOTES^Lab Notes|||{$ts}|||||||||||||||{$ts}||LAB|F||1",
+            "ORC|RE|{$paddedOrderId}|||||||||||",
+            "OBR|1|{$paddedOrderId}||NOTES^Lab Notes|||{$ts}|||||||||||||||{$ts}||LAB|F||1",
             "OBX|1|TX|NOTE^Lab Notes||Line one of text|||||F|||{$ts}",
             "OBX|2|TX|NOTE^Lab Notes||Line two of text|||||F|||{$ts}",
             "OBX|3|TX|NOTE^Lab Notes||Line three of text|||||F|||{$ts}",
@@ -1085,10 +1083,10 @@ class Hl7ResultParserIntegrationTest extends TestCase
         $hl7 = $this->buildHl7([
             "MSH|^~\\&|TESTFAC|TESTFAC|OPENEMR||{$ts}||ORU^R01|TESTMSGDT|P|2.3|||AL",
             "PID|1||{$pid}||ZZZHUBTEST^VITL||19840303|M||||||||||{$pid}",
-            "ORC|RE|TESTFAC-{$paddedOrderId}|||||||||||",
-            "OBR|1|TESTFAC-{$paddedOrderId}||CWETEST^CWE Test|||{$ts}|||||||||||||||{$ts}||LAB|F||1",
+            "ORC|RE|{$paddedOrderId}|||||||||||",
+            "OBR|1|{$paddedOrderId}||CWETEST^CWE Test|||{$ts}|||||||||||||||{$ts}||LAB|F||1",
             "OBX|1|CWE|CWETEST^CWE Result||12345^Coded Value^LN|||N|||F|||{$ts}",
-            "OBR|2|TESTFAC-{$paddedOrderId}||SNTEST^SN Test|||{$ts}|||||||||||||||{$ts}||LAB|F||1",
+            "OBR|2|{$paddedOrderId}||SNTEST^SN Test|||{$ts}|||||||||||||||{$ts}||LAB|F||1",
             "OBX|1|SN|SNTEST^SN Result||>^120|||N|||F|||{$ts}",
         ]);
 
