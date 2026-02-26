@@ -103,7 +103,7 @@ class BoundFilterTest extends TestCase
         $filter = new BoundFilter();
         $clause = '(status = ? OR status = ?) AND created_at > ? AND deleted = ?';
         $filter->setFilterClause($clause);
-        $filter->setBoundValues(['active', 'pending', '2024-01-01', 0]);
+        $filter->setBoundValues(['active', 'pending', '2026-01-01', 0]);
 
         $this->assertSame($clause, $filter->getFilterClause());
         $this->assertCount(4, $filter->getBoundValues());

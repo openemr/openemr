@@ -96,9 +96,9 @@ class AllergyIntoleranceValidatorTest extends TestCase
         $validData = [
             'title' => 'Penicillin Allergy',
             'puuid' => '123e4567-e89b-12d3-a456-426614174000',
-            'begdate' => '2023-01-01 10:00:00',
+            'begdate' => '2026-01-01 10:00:00',
             'diagnosis' => 'Drug allergy',
-            'enddate' => '2023-12-31 23:59:59',
+            'enddate' => '2026-12-31 23:59:59',
             'comments' => 'Patient reported mild rash'
         ];
 
@@ -112,7 +112,7 @@ class AllergyIntoleranceValidatorTest extends TestCase
         $invalidData = [
             'title' => 'Penicillin Allergy',
             'puuid' => '123e4567-e89b-12d3-a456-426614174000',
-            'begdate' => '2023-13-40 25:70:80' // invalid date format
+            'begdate' => '2026-13-40 25:70:80' // invalid date format
         ];
 
         $result = $this->validator->validate($invalidData, BaseValidator::DATABASE_INSERT_CONTEXT);
