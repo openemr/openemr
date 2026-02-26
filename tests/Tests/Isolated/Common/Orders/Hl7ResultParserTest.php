@@ -24,8 +24,10 @@ class Hl7ResultParserTest extends TestCase
 {
     public function testDefaultHl7ResultParserImplementsInterface(): void
     {
-        $this->assertTrue(
-            is_subclass_of(DefaultHl7ResultParser::class, Hl7ResultParserInterface::class),
+        $parser = (new \ReflectionClass(DefaultHl7ResultParser::class));
+        $this->assertContains(
+            Hl7ResultParserInterface::class,
+            $parser->getInterfaceNames(),
             'DefaultHl7ResultParser must implement Hl7ResultParserInterface'
         );
     }
@@ -115,8 +117,10 @@ class Hl7ResultParserTest extends TestCase
     public function testHl7ResultParseExceptionExtendsRuntimeException(): void
     {
         $exception = new Hl7ResultParseException('Test error');
-
-        $this->assertInstanceOf(\RuntimeException::class, $exception);
+        $ref = new \ReflectionClass($exception);
+        $parentClass = $ref->getParentClass();
+        $this->assertNotFalse($parentClass, 'Hl7ResultParseException must extend a class');
+        $this->assertSame(\RuntimeException::class, $parentClass->getName());
         $this->assertSame('Test error', $exception->getMessage());
     }
 }
