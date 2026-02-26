@@ -186,4 +186,3 @@ Preserve existing authors/copyrights when editing files.
 - `API_README.md` - REST API docs
 - `FHIR_README.md` - FHIR implementation
 - `tests/Tests/README.md` - Testing guide
-
