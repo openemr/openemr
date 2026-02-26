@@ -35,21 +35,18 @@ class CreateAPIDocumentationCommand extends Command
             ->setDefinition(
                 new InputDefinition([
                     new InputOption('site', null, InputOption::VALUE_REQUIRED, 'Name of site', 'default'),
-                    new InputOption('skip-globals', null, InputOption::VALUE_NONE, 'Skip requiring globals (for CI)'),
                 ])
             );
     }
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $fileroot = $GLOBALS['fileroot'] ?? dirname(__DIR__, 3);
+        // Use $GLOBALS directly instead of OEGlobalsBag because bin/console
+        // sets up $GLOBALS['fileroot'] before the command runs, but OEGlobalsBag
+        // may not be fully initialized when --skip-globals is used.
+        /** @var string $fileroot */
+        $fileroot = $GLOBALS['fileroot'];
         $fileDestinationFolder = $fileroot . DIRECTORY_SEPARATOR . "swagger" . DIRECTORY_SEPARATOR;
         $fileDestinationYaml =  $fileDestinationFolder . "openemr-api.yaml";
-
-        $sourcePaths = [
-            $fileroot . '/_rest_routes.inc.php',
-            $fileroot . '/apis/routes',
-            $fileroot . '/src/RestControllers',
-        ];
 
         $generator = new Generator();
         // Use only AttributeAnnotationFactory to avoid picking up docblock comments as summaries
@@ -64,7 +61,11 @@ class CreateAPIDocumentationCommand extends Command
 
         $openapi = $generator
             ->setAnalyser($analyser)
-            ->generate(new SourceFinder($sourcePaths));
+            ->generate(new SourceFinder([
+                $fileroot . '/_rest_routes.inc.php',
+                $fileroot . '/apis/routes',
+                $fileroot . '/src/RestControllers',
+            ]));
 
         // To have smaller diffs - we force stable order here
         $data = json_decode($openapi->toJson(), true);
