@@ -6,9 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
- * @author    Joshua Baiad <jbaiad@users.noreply.github.com>
+ * @author    Josh Baiad <josh@joshbaiad.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2026 Joshua Baiad <jbaiad@users.noreply.github.com>
+ * @copyright Copyright (c) 2026 Josh Baiad <josh@joshbaiad.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
