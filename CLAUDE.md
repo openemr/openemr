@@ -187,12 +187,3 @@ Preserve existing authors/copyrights when editing files.
 - `FHIR_README.md` - FHIR implementation
 - `tests/Tests/README.md` - Testing guide
 
-Add this to your `CLAUDE.md` at the OpenEMR repo root:
-
-```markdown
-## File Access Rules
-
-- You may READ any file in this repository to understand OpenEMR's architecture, APIs, and services.
-- You may only WRITE, CREATE, or EDIT files inside `agents/`.
-- Do NOT modify any files outside of `agents/` — the rest of this repo is the upstream OpenEMR codebase.
-```
