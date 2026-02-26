@@ -5,6 +5,11 @@
       "source": "jeffallan/claude-skills",
       "sourceType": "github",
       "computedHash": "1a84b4d57eb7b44100799fd40d7bff74d321b20e42ecb961171f2a17bcd3ed75"
+    },
+    "use-railway": {
+      "source": "railwayapp/railway-skills",
+      "sourceType": "github",
+      "computedHash": "cb99ff7cb24ce7c6136feb65e279a110389e0ee743d2e040f65f618c446c68a2"
     }
   }
 }
