@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "php-pro": {
+      "source": "jeffallan/claude-skills",
+      "sourceType": "github",
+      "computedHash": "1a84b4d57eb7b44100799fd40d7bff74d321b20e42ecb961171f2a17bcd3ed75"
+    }
+  }
+}
