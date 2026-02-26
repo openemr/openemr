@@ -61,27 +61,27 @@ class FhirDocumentRestController
      * @param $documentId  The document we are requesting to access
      */
     #[OA\Get(
-        path: "/fhir/Binary/{id}",
+        path: '/fhir/Binary/{id}',
         description: "Used for downloading binary documents generated either with BULK FHIR Export or with the \$docref CCD export operation.  Documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
-        tags: ["fhir"],
+        tags: ['fhir'],
         parameters: [
             new OA\Parameter(
-                name: "id",
-                in: "path",
-                description: "The id for the Document.",
+                name: 'id',
+                in: 'path',
+                description: 'The id for the Document.',
                 required: true,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
         ],
         responses: [
             new OA\Response(
-                response: "200",
+                response: '200',
                 description: "The documentation for working with BULK FHIR or \$docref document exports can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"
             ),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function downloadDocument($documentId, $patientUuid = null): ResponseInterface
     {

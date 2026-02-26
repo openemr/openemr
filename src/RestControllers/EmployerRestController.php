@@ -31,24 +31,24 @@ class EmployerRestController
      * @param array $searchParams - Search parameters including puuid.
      */
     #[OA\Get(
-        path: "/api/patient/{puuid}/employer",
-        description: "Retrieves all the employer data for a patient. Returns an array of the employer data for the patient.",
-        tags: ["standard"],
+        path: '/api/patient/{puuid}/employer',
+        description: 'Retrieves all the employer data for a patient. Returns an array of the employer data for the patient.',
+        tags: ['standard'],
         parameters: [
             new OA\Parameter(
-                name: "pid",
-                in: "path",
-                description: "The uuid for the patient.",
+                name: 'pid',
+                in: 'path',
+                description: 'The uuid for the patient.',
                 required: true,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
         ],
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => ["user/employer.read", "patient/employer.read"]]]
+        security: [['openemr_auth' => ['user/employer.read', 'patient/employer.read']]]
     )]
     public function getAll($searchParams)
     {

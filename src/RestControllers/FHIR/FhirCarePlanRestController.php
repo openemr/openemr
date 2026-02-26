@@ -41,69 +41,69 @@ class FhirCarePlanRestController
      * @returns 200 if the operation completes successfully
      */
     #[OA\Get(
-        path: "/fhir/CarePlan/{uuid}",
-        description: "Returns a single CarePlan resource.",
-        tags: ["fhir"],
+        path: '/fhir/CarePlan/{uuid}',
+        description: 'Returns a single CarePlan resource.',
+        tags: ['fhir'],
         parameters: [
             new OA\Parameter(
-                name: "uuid",
-                in: "path",
-                description: "The uuid for the CarePlan resource.",
+                name: 'uuid',
+                in: 'path',
+                description: 'The uuid for the CarePlan resource.',
                 required: true,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
         ],
         responses: [
             new OA\Response(
-                response: "200",
-                description: "Standard Response",
+                response: '200',
+                description: 'Standard Response',
                 content: new OA\MediaType(
-                    mediaType: "application/json",
+                    mediaType: 'application/json',
                     schema: new OA\Schema(
                         properties: [
                             new OA\Property(
-                                property: "json object",
-                                description: "FHIR Json object.",
-                                type: "object"
+                                property: 'json object',
+                                description: 'FHIR Json object.',
+                                type: 'object'
                             ),
                         ],
                         example: [
-                            "id" => "94682f08-8fbc-451e-b1ec-f922d765c38f_1",
-                            "meta" => [
-                                "versionId" => "1",
-                                "lastUpdated" => "2021-09-16T00:54:18+00:00",
+                            'id' => '94682f08-8fbc-451e-b1ec-f922d765c38f_1',
+                            'meta' => [
+                                'versionId' => '1',
+                                'lastUpdated' => '2021-09-16T00:54:18+00:00',
                             ],
-                            "resourceType" => "CarePlan",
-                            "text" => [
-                                "status" => "generated",
-                                "div" => "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p>Treat flu.</p></div>",
+                            'resourceType' => 'CarePlan',
+                            'text' => [
+                                'status' => 'generated',
+                                'div' => '<div xmlns="http://www.w3.org/1999/xhtml"><p>Treat flu.</p></div>',
                             ],
-                            "status" => "active",
-                            "intent" => "plan",
-                            "category" => [
+                            'status' => 'active',
+                            'intent' => 'plan',
+                            'category' => [
                                 [
-                                    "coding" => [
+                                    'coding' => [
                                         [
-                                            "system" => "http://hl7.org/fhir/us/core/CodeSystem/careplan-category",
-                                            "code" => "assess-plan",
+                                            'system' => 'http://hl7.org/fhir/us/core/CodeSystem/careplan-category',
+                                            'code' => 'assess-plan',
                                         ],
                                     ],
                                 ],
                             ],
-                            "description" => "Treat flu.",
-                            "subject" => [
-                                "reference" => "Patient/94682ef5-b0e3-4289-b19a-11b9592e9c92",
-                                "type" => "Patient",
+                            'description' => 'Treat flu.',
+                            'subject' => [
+                                'reference' => 'Patient/94682ef5-b0e3-4289-b19a-11b9592e9c92',
+                                'type' => 'Patient',
                             ],
                         ]
                     )
                 )
             ),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
-            new OA\Response(response: "404", ref: "#/components/responses/uuidnotfound"),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '404', ref: '#/components/responses/uuidnotfound'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function getOne($fhirId, $puuidBind = null)
     {
@@ -117,74 +117,74 @@ class FhirCarePlanRestController
      * @return FHIR bundle with query results, if found
      */
     #[OA\Get(
-        path: "/fhir/CarePlan",
-        description: "Returns a list of CarePlan resources.",
-        tags: ["fhir"],
+        path: '/fhir/CarePlan',
+        description: 'Returns a list of CarePlan resources.',
+        tags: ['fhir'],
         parameters: [
             new OA\Parameter(
-                name: "_id",
-                in: "query",
-                description: "The uuid for the CarePlan resource.",
+                name: '_id',
+                in: 'query',
+                description: 'The uuid for the CarePlan resource.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "_lastUpdated",
-                in: "query",
-                description: "Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+                name: '_lastUpdated',
+                in: 'query',
+                description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "patient",
-                in: "query",
-                description: "The uuid for the patient.",
+                name: 'patient',
+                in: 'query',
+                description: 'The uuid for the patient.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "category",
-                in: "query",
-                description: "The category of the CarePlan resource.",
+                name: 'category',
+                in: 'query',
+                description: 'The category of the CarePlan resource.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
         ],
         responses: [
             new OA\Response(
-                response: "200",
-                description: "Standard Response",
+                response: '200',
+                description: 'Standard Response',
                 content: new OA\MediaType(
-                    mediaType: "application/json",
+                    mediaType: 'application/json',
                     schema: new OA\Schema(
                         properties: [
                             new OA\Property(
-                                property: "json object",
-                                description: "FHIR Json object.",
-                                type: "object"
+                                property: 'json object',
+                                description: 'FHIR Json object.',
+                                type: 'object'
                             ),
                         ],
                         example: [
-                            "meta" => [
-                                "lastUpdated" => "2021-09-14T09:13:51",
+                            'meta' => [
+                                'lastUpdated' => '2021-09-14T09:13:51',
                             ],
-                            "resourceType" => "Bundle",
-                            "type" => "collection",
-                            "total" => 0,
-                            "link" => [
+                            'resourceType' => 'Bundle',
+                            'type' => 'collection',
+                            'total' => 0,
+                            'link' => [
                                 [
-                                    "relation" => "self",
-                                    "url" => "https://localhost:9300/apis/default/fhir/CarePlan",
+                                    'relation' => 'self',
+                                    'url' => 'https://localhost:9300/apis/default/fhir/CarePlan',
                                 ],
                             ],
                         ]
                     )
                 )
             ),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function getAll($searchParams, $puuidBind = null)
     {

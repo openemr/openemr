@@ -31,24 +31,24 @@ class ProcedureRestController
      * @param $uuid- The procedure uuid identifier in string format.
      */
     #[OA\Get(
-        path: "/api/procedure/{uuid}",
-        description: "Retrieves a procedure",
-        tags: ["standard"],
+        path: '/api/procedure/{uuid}',
+        description: 'Retrieves a procedure',
+        tags: ['standard'],
         parameters: [
             new OA\Parameter(
-                name: "uuid",
-                in: "path",
-                description: "The uuid for the procedure.",
+                name: 'uuid',
+                in: 'path',
+                description: 'The uuid for the procedure.',
                 required: true,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
         ],
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function getOne($uuid)
     {
@@ -65,15 +65,15 @@ class ProcedureRestController
      * Returns procedure resources which match an optional search criteria.
      */
     #[OA\Get(
-        path: "/api/procedure",
-        description: "Retrieves a list of all procedures",
-        tags: ["standard"],
+        path: '/api/procedure',
+        description: 'Retrieves a list of all procedures',
+        tags: ['standard'],
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function getAll($search = [])
     {

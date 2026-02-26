@@ -33,38 +33,38 @@ class DocumentRestController
      * Retrieves all file information of documents from a category for a patient.
      */
     #[OA\Get(
-        path: "/api/patient/{pid}/document",
-        description: "Retrieves all file information of documents from a category for a patient",
-        tags: ["standard"],
+        path: '/api/patient/{pid}/document',
+        description: 'Retrieves all file information of documents from a category for a patient',
+        tags: ['standard'],
         parameters: [
             new OA\Parameter(
-                name: "pid",
-                in: "path",
-                description: "The pid for the patient.",
+                name: 'pid',
+                in: 'path',
+                description: 'The pid for the patient.',
                 required: true,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "path",
-                in: "query",
-                description: "The category of the documents.",
+                name: 'path',
+                in: 'query',
+                description: 'The category of the documents.',
                 required: true,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "eid",
-                in: "query",
-                description: "The Encounter ID (optional) the document is assigned to",
+                name: 'eid',
+                in: 'query',
+                description: 'The Encounter ID (optional) the document is assigned to',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
         ],
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function getAllAtPath($pid, $path)
     {
@@ -76,47 +76,47 @@ class DocumentRestController
      * Submits a new patient document.
      */
     #[OA\Post(
-        path: "/api/patient/{pid}/document",
-        description: "Submits a new patient document",
-        tags: ["standard"],
+        path: '/api/patient/{pid}/document',
+        description: 'Submits a new patient document',
+        tags: ['standard'],
         parameters: [
             new OA\Parameter(
-                name: "pid",
-                in: "path",
-                description: "The pid for the patient.",
+                name: 'pid',
+                in: 'path',
+                description: 'The pid for the patient.',
                 required: true,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "path",
-                in: "query",
-                description: "The category of the document.",
+                name: 'path',
+                in: 'query',
+                description: 'The category of the document.',
                 required: true,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
         ],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\MediaType(
-                mediaType: "multipart/form-data",
+                mediaType: 'multipart/form-data',
                 schema: new OA\Schema(
                     properties: [
                         new OA\Property(
-                            property: "document",
-                            description: "document",
-                            type: "string",
-                            format: "binary"
+                            property: 'document',
+                            description: 'document',
+                            type: 'string',
+                            format: 'binary'
                         ),
                     ]
                 )
             )
         ),
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function postWithPath($pid, $path, $fileData, $eid)
     {
@@ -128,31 +128,31 @@ class DocumentRestController
      * Downloads a document for a patient.
      */
     #[OA\Get(
-        path: "/api/patient/{pid}/document/{did}",
-        description: "Retrieves a document for a patient",
-        tags: ["standard"],
+        path: '/api/patient/{pid}/document/{did}',
+        description: 'Retrieves a document for a patient',
+        tags: ['standard'],
         parameters: [
             new OA\Parameter(
-                name: "pid",
-                in: "path",
-                description: "The pid for the patient.",
+                name: 'pid',
+                in: 'path',
+                description: 'The pid for the patient.',
                 required: true,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "did",
-                in: "path",
-                description: "The id for the patient document.",
+                name: 'did',
+                in: 'path',
+                description: 'The id for the patient document.',
                 required: true,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
         ],
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function downloadFile($pid, $did)
     {

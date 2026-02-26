@@ -63,116 +63,116 @@ class FhirOrganizationRestController
      * @return Response The http response object containing the FHIR bundle with query results, if found
      */
     #[OA\Get(
-        path: "/fhir/Organization",
-        description: "Returns a list of Organization resources.",
-        tags: ["fhir"],
+        path: '/fhir/Organization',
+        description: 'Returns a list of Organization resources.',
+        tags: ['fhir'],
         parameters: [
             new OA\Parameter(
-                name: "_id",
-                in: "query",
-                description: "The uuid for the Organization resource.",
+                name: '_id',
+                in: 'query',
+                description: 'The uuid for the Organization resource.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "_lastUpdated",
-                in: "query",
-                description: "Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+                name: '_lastUpdated',
+                in: 'query',
+                description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "name",
-                in: "query",
-                description: "The name of the Organization resource.",
+                name: 'name',
+                in: 'query',
+                description: 'The name of the Organization resource.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "email",
-                in: "query",
-                description: "The email of the Organization resource.",
+                name: 'email',
+                in: 'query',
+                description: 'The email of the Organization resource.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "phone",
-                in: "query",
-                description: "The phone of the Organization resource.",
+                name: 'phone',
+                in: 'query',
+                description: 'The phone of the Organization resource.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "telecom",
-                in: "query",
-                description: "The telecom of the Organization resource.",
+                name: 'telecom',
+                in: 'query',
+                description: 'The telecom of the Organization resource.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "address",
-                in: "query",
-                description: "The address of the Organization resource.",
+                name: 'address',
+                in: 'query',
+                description: 'The address of the Organization resource.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "address-city",
-                in: "query",
-                description: "The address-city of the Organization resource.",
+                name: 'address-city',
+                in: 'query',
+                description: 'The address-city of the Organization resource.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "address-postalcode",
-                in: "query",
-                description: "The address-postalcode of the Organization resource.",
+                name: 'address-postalcode',
+                in: 'query',
+                description: 'The address-postalcode of the Organization resource.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "address-state",
-                in: "query",
-                description: "The address-state of the Organization resource.",
+                name: 'address-state',
+                in: 'query',
+                description: 'The address-state of the Organization resource.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
         ],
         responses: [
             new OA\Response(
-                response: "200",
-                description: "Standard Response",
+                response: '200',
+                description: 'Standard Response',
                 content: new OA\MediaType(
-                    mediaType: "application/json",
+                    mediaType: 'application/json',
                     schema: new OA\Schema(
                         properties: [
                             new OA\Property(
-                                property: "json object",
-                                description: "FHIR Json object.",
-                                type: "object"
+                                property: 'json object',
+                                description: 'FHIR Json object.',
+                                type: 'object'
                             ),
                         ],
                         example: [
-                            "meta" => [
-                                "lastUpdated" => "2021-09-14T09:13:51",
+                            'meta' => [
+                                'lastUpdated' => '2021-09-14T09:13:51',
                             ],
-                            "resourceType" => "Bundle",
-                            "type" => "collection",
-                            "total" => 0,
-                            "link" => [
+                            'resourceType' => 'Bundle',
+                            'type' => 'collection',
+                            'total' => 0,
+                            'link' => [
                                 [
-                                    "relation" => "self",
-                                    "url" => "https://localhost:9300/apis/default/fhir/Organization",
+                                    'relation' => 'self',
+                                    'url' => 'https://localhost:9300/apis/default/fhir/Organization',
                                 ],
                             ],
                         ]
                     )
                 )
             ),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function getAll($searchParams): Response
     {
@@ -199,86 +199,86 @@ class FhirOrganizationRestController
      * @returns Response 200 if the operation completes successfully
      */
     #[OA\Get(
-        path: "/fhir/Organization/{uuid}",
-        description: "Returns a single Organization resource.",
-        tags: ["fhir"],
+        path: '/fhir/Organization/{uuid}',
+        description: 'Returns a single Organization resource.',
+        tags: ['fhir'],
         parameters: [
             new OA\Parameter(
-                name: "uuid",
-                in: "path",
-                description: "The uuid for the Organization resource.",
+                name: 'uuid',
+                in: 'path',
+                description: 'The uuid for the Organization resource.',
                 required: true,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
         ],
         responses: [
             new OA\Response(
-                response: "200",
-                description: "Standard Response",
+                response: '200',
+                description: 'Standard Response',
                 content: new OA\MediaType(
-                    mediaType: "application/json",
+                    mediaType: 'application/json',
                     schema: new OA\Schema(
                         properties: [
                             new OA\Property(
-                                property: "json object",
-                                description: "FHIR Json object.",
-                                type: "object"
+                                property: 'json object',
+                                description: 'FHIR Json object.',
+                                type: 'object'
                             ),
                         ],
                         example: [
-                            "id" => "95f0e672-be37-4c73-95c9-649c2d200018",
-                            "meta" => [
-                                "versionId" => "1",
-                                "lastUpdated" => "2022-03-30T07:43:23+00:00",
+                            'id' => '95f0e672-be37-4c73-95c9-649c2d200018',
+                            'meta' => [
+                                'versionId' => '1',
+                                'lastUpdated' => '2022-03-30T07:43:23+00:00',
                             ],
-                            "resourceType" => "Organization",
-                            "text" => [
-                                "status" => "generated",
-                                "div" => "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Your Clinic Name Here</p></div>",
+                            'resourceType' => 'Organization',
+                            'text' => [
+                                'status' => 'generated',
+                                'div' => "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Your Clinic Name Here</p></div>",
                             ],
-                            "identifier" => [
+                            'identifier' => [
                                 [
-                                    "system" => "http://hl7.org/fhir/sid/us-npi",
-                                    "value" => "1234567890",
+                                    'system' => 'http://hl7.org/fhir/sid/us-npi',
+                                    'value' => '1234567890',
                                 ],
                             ],
-                            "active" => true,
-                            "type" => [
+                            'active' => true,
+                            'type' => [
                                 [
-                                    "coding" => [
+                                    'coding' => [
                                         [
-                                            "system" => "http://terminology.hl7.org/CodeSystem/organization-type",
-                                            "code" => "prov",
-                                            "display" => "Healthcare Provider",
+                                            'system' => 'http://terminology.hl7.org/CodeSystem/organization-type',
+                                            'code' => 'prov',
+                                            'display' => 'Healthcare Provider',
                                         ],
                                     ],
                                 ],
                             ],
-                            "name" => "Your Clinic Name Here",
-                            "telecom" => [
+                            'name' => 'Your Clinic Name Here',
+                            'telecom' => [
                                 [
-                                    "system" => "phone",
-                                    "value" => "000-000-0000",
-                                    "use" => "work",
+                                    'system' => 'phone',
+                                    'value' => '000-000-0000',
+                                    'use' => 'work',
                                 ],
                                 [
-                                    "system" => "fax",
-                                    "value" => "000-000-0000",
-                                    "use" => "work",
+                                    'system' => 'fax',
+                                    'value' => '000-000-0000',
+                                    'use' => 'work',
                                 ],
                             ],
-                            "address" => [
+                            'address' => [
                                 null,
                             ],
                         ]
                     )
                 )
             ),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
-            new OA\Response(response: "404", ref: "#/components/responses/uuidnotfound"),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '404', ref: '#/components/responses/uuidnotfound'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function getOne(string $fhirId, ?string $puuidBind = null): Response
     {
@@ -292,60 +292,60 @@ class FhirOrganizationRestController
      * @returns Response 201 if the resource is created, 400 if the resource is invalid
      */
     #[OA\Post(
-        path: "/fhir/Organization",
-        description: "Adds a Organization resource.",
-        tags: ["fhir"],
+        path: '/fhir/Organization',
+        description: 'Adds a Organization resource.',
+        tags: ['fhir'],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\MediaType(
-                mediaType: "application/json",
+                mediaType: 'application/json',
                 schema: new OA\Schema(
-                    description: "The json object for the Organization resource.",
-                    type: "object"
+                    description: 'The json object for the Organization resource.',
+                    type: 'object'
                 ),
                 example: [
-                    "id" => "95f0e672-be37-4c73-95c9-649c2d200018",
-                    "meta" => [
-                        "versionId" => "1",
-                        "lastUpdated" => "2022-03-30T07:43:23+00:00",
+                    'id' => '95f0e672-be37-4c73-95c9-649c2d200018',
+                    'meta' => [
+                        'versionId' => '1',
+                        'lastUpdated' => '2022-03-30T07:43:23+00:00',
                     ],
-                    "resourceType" => "Organization",
-                    "text" => [
-                        "status" => "generated",
-                        "div" => "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Your Clinic Name Here</p></div>",
+                    'resourceType' => 'Organization',
+                    'text' => [
+                        'status' => 'generated',
+                        'div' => "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Your Clinic Name Here</p></div>",
                     ],
-                    "identifier" => [
+                    'identifier' => [
                         [
-                            "system" => "http://hl7.org/fhir/sid/us-npi",
-                            "value" => "1234567890",
+                            'system' => 'http://hl7.org/fhir/sid/us-npi',
+                            'value' => '1234567890',
                         ],
                     ],
-                    "active" => true,
-                    "type" => [
+                    'active' => true,
+                    'type' => [
                         [
-                            "coding" => [
+                            'coding' => [
                                 [
-                                    "system" => "http://terminology.hl7.org/CodeSystem/organization-type",
-                                    "code" => "prov",
-                                    "display" => "Healthcare Provider",
+                                    'system' => 'http://terminology.hl7.org/CodeSystem/organization-type',
+                                    'code' => 'prov',
+                                    'display' => 'Healthcare Provider',
                                 ],
                             ],
                         ],
                     ],
-                    "name" => "Your Clinic Name Here Hey",
-                    "telecom" => [
+                    'name' => 'Your Clinic Name Here Hey',
+                    'telecom' => [
                         [
-                            "system" => "phone",
-                            "value" => "000-000-0000",
-                            "use" => "work",
+                            'system' => 'phone',
+                            'value' => '000-000-0000',
+                            'use' => 'work',
                         ],
                         [
-                            "system" => "fax",
-                            "value" => "000-000-0000",
-                            "use" => "work",
+                            'system' => 'fax',
+                            'value' => '000-000-0000',
+                            'use' => 'work',
                         ],
                     ],
-                    "address" => [
+                    'address' => [
                         null,
                     ],
                 ]
@@ -353,71 +353,71 @@ class FhirOrganizationRestController
         ),
         responses: [
             new OA\Response(
-                response: "200",
-                description: "Standard Response",
+                response: '200',
+                description: 'Standard Response',
                 content: new OA\MediaType(
-                    mediaType: "application/json",
+                    mediaType: 'application/json',
                     schema: new OA\Schema(
                         properties: [
                             new OA\Property(
-                                property: "json object",
-                                description: "FHIR Json object.",
-                                type: "object"
+                                property: 'json object',
+                                description: 'FHIR Json object.',
+                                type: 'object'
                             ),
                         ],
                         example: [
-                            "id" => "95f0e672-be37-4c73-95c9-649c2d200018",
-                            "meta" => [
-                                "versionId" => "1",
-                                "lastUpdated" => "2022-03-30T07:43:23+00:00",
+                            'id' => '95f0e672-be37-4c73-95c9-649c2d200018',
+                            'meta' => [
+                                'versionId' => '1',
+                                'lastUpdated' => '2022-03-30T07:43:23+00:00',
                             ],
-                            "resourceType" => "Organization",
-                            "text" => [
-                                "status" => "generated",
-                                "div" => "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Your Clinic Name Here</p></div>",
+                            'resourceType' => 'Organization',
+                            'text' => [
+                                'status' => 'generated',
+                                'div' => "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Your Clinic Name Here</p></div>",
                             ],
-                            "identifier" => [
+                            'identifier' => [
                                 [
-                                    "system" => "http://hl7.org/fhir/sid/us-npi",
-                                    "value" => "1234567890",
+                                    'system' => 'http://hl7.org/fhir/sid/us-npi',
+                                    'value' => '1234567890',
                                 ],
                             ],
-                            "active" => true,
-                            "type" => [
+                            'active' => true,
+                            'type' => [
                                 [
-                                    "coding" => [
+                                    'coding' => [
                                         [
-                                            "system" => "http://terminology.hl7.org/CodeSystem/organization-type",
-                                            "code" => "prov",
-                                            "display" => "Healthcare Provider",
+                                            'system' => 'http://terminology.hl7.org/CodeSystem/organization-type',
+                                            'code' => 'prov',
+                                            'display' => 'Healthcare Provider',
                                         ],
                                     ],
                                 ],
                             ],
-                            "name" => "Your Clinic Name Here Now",
-                            "telecom" => [
+                            'name' => 'Your Clinic Name Here Now',
+                            'telecom' => [
                                 [
-                                    "system" => "phone",
-                                    "value" => "000-000-0000",
-                                    "use" => "work",
+                                    'system' => 'phone',
+                                    'value' => '000-000-0000',
+                                    'use' => 'work',
                                 ],
                                 [
-                                    "system" => "fax",
-                                    "value" => "000-000-0000",
-                                    "use" => "work",
+                                    'system' => 'fax',
+                                    'value' => '000-000-0000',
+                                    'use' => 'work',
                                 ],
                             ],
-                            "address" => [
+                            'address' => [
                                 null,
                             ],
                         ]
                     )
                 )
             ),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function post(array $fhirJson): Response
     {
@@ -438,69 +438,69 @@ class FhirOrganizationRestController
      * @returns Response 200 if the resource is created, 400 if the resource is invalid
      */
     #[OA\Put(
-        path: "/fhir/Organization/{uuid}",
-        description: "Modifies a Organization resource.",
-        tags: ["fhir"],
+        path: '/fhir/Organization/{uuid}',
+        description: 'Modifies a Organization resource.',
+        tags: ['fhir'],
         parameters: [
             new OA\Parameter(
-                name: "uuid",
-                in: "path",
-                description: "The uuid for the organization.",
+                name: 'uuid',
+                in: 'path',
+                description: 'The uuid for the organization.',
                 required: true,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
         ],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\MediaType(
-                mediaType: "application/json",
+                mediaType: 'application/json',
                 schema: new OA\Schema(
-                    description: "The json object for the Organization resource.",
-                    type: "object"
+                    description: 'The json object for the Organization resource.',
+                    type: 'object'
                 ),
                 example: [
-                    "id" => "95f0e672-be37-4c73-95c9-649c2d200018",
-                    "meta" => [
-                        "versionId" => "1",
-                        "lastUpdated" => "2022-03-30T07:43:23+00:00",
+                    'id' => '95f0e672-be37-4c73-95c9-649c2d200018',
+                    'meta' => [
+                        'versionId' => '1',
+                        'lastUpdated' => '2022-03-30T07:43:23+00:00',
                     ],
-                    "resourceType" => "Organization",
-                    "text" => [
-                        "status" => "generated",
-                        "div" => "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Your Clinic Name Here</p></div>",
+                    'resourceType' => 'Organization',
+                    'text' => [
+                        'status' => 'generated',
+                        'div' => "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Your Clinic Name Here</p></div>",
                     ],
-                    "identifier" => [
+                    'identifier' => [
                         [
-                            "system" => "http://hl7.org/fhir/sid/us-npi",
-                            "value" => "1234567890",
+                            'system' => 'http://hl7.org/fhir/sid/us-npi',
+                            'value' => '1234567890',
                         ],
                     ],
-                    "active" => true,
-                    "type" => [
+                    'active' => true,
+                    'type' => [
                         [
-                            "coding" => [
+                            'coding' => [
                                 [
-                                    "system" => "http://terminology.hl7.org/CodeSystem/organization-type",
-                                    "code" => "prov",
-                                    "display" => "Healthcare Provider",
+                                    'system' => 'http://terminology.hl7.org/CodeSystem/organization-type',
+                                    'code' => 'prov',
+                                    'display' => 'Healthcare Provider',
                                 ],
                             ],
                         ],
                     ],
-                    "name" => "Your Clinic Name Here",
-                    "telecom" => [
+                    'name' => 'Your Clinic Name Here',
+                    'telecom' => [
                         [
-                            "system" => "phone",
-                            "value" => "000-000-0000",
-                            "use" => "work",
+                            'system' => 'phone',
+                            'value' => '000-000-0000',
+                            'use' => 'work',
                         ],
                         [
-                            "system" => "fax",
-                            "value" => "000-000-0000",
-                            "use" => "work",
+                            'system' => 'fax',
+                            'value' => '000-000-0000',
+                            'use' => 'work',
                         ],
                     ],
-                    "address" => [
+                    'address' => [
                         null,
                     ],
                 ]
@@ -508,22 +508,22 @@ class FhirOrganizationRestController
         ),
         responses: [
             new OA\Response(
-                response: "201",
-                description: "Standard Response",
+                response: '201',
+                description: 'Standard Response',
                 content: new OA\MediaType(
-                    mediaType: "application/json",
+                    mediaType: 'application/json',
                     schema: new OA\Schema(
                         example: [
-                            "id" => 14,
-                            "uuid" => "95f217c1-258c-44ca-bf11-909dce369574",
+                            'id' => 14,
+                            'uuid' => '95f217c1-258c-44ca-bf11-909dce369574',
                         ]
                     )
                 )
             ),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function patch(string $fhirId, array $fhirJson): Response
     {

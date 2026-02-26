@@ -55,97 +55,97 @@ class FhirPersonRestController
      * @returns 200 if the operation completes successfully
      */
     #[OA\Get(
-        path: "/fhir/Person/{uuid}",
-        description: "Returns a single Person resource.",
-        tags: ["fhir"],
+        path: '/fhir/Person/{uuid}',
+        description: 'Returns a single Person resource.',
+        tags: ['fhir'],
         parameters: [
             new OA\Parameter(
-                name: "uuid",
-                in: "path",
-                description: "The uuid for the Person resource.",
+                name: 'uuid',
+                in: 'path',
+                description: 'The uuid for the Person resource.',
                 required: true,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
         ],
         responses: [
             new OA\Response(
-                response: "200",
-                description: "Standard Response",
+                response: '200',
+                description: 'Standard Response',
                 content: new OA\MediaType(
-                    mediaType: "application/json",
+                    mediaType: 'application/json',
                     schema: new OA\Schema(
                         properties: [
                             new OA\Property(
-                                property: "json object",
-                                description: "FHIR Json object.",
-                                type: "object"
+                                property: 'json object',
+                                description: 'FHIR Json object.',
+                                type: 'object'
                             ),
                         ],
                         example: [
-                            "id" => "960c7cd6-187a-4119-8cd4-85389d80efb9",
-                            "meta" => [
-                                "versionId" => "1",
-                                "lastUpdated" => "2022-04-13T08:57:32+00:00",
+                            'id' => '960c7cd6-187a-4119-8cd4-85389d80efb9',
+                            'meta' => [
+                                'versionId' => '1',
+                                'lastUpdated' => '2022-04-13T08:57:32+00:00',
                             ],
-                            "resourceType" => "Person",
-                            "text" => [
-                                "status" => "generated",
-                                "div" => "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Administrator Administrator</p></div>",
+                            'resourceType' => 'Person',
+                            'text' => [
+                                'status' => 'generated',
+                                'div' => "<div xmlns='http://www.w3.org/1999/xhtml'> <p>Administrator Administrator</p></div>",
                             ],
-                            "name" => [
+                            'name' => [
                                 [
-                                    "use" => "official",
-                                    "family" => "Administrator",
-                                    "given" => [
-                                        "Administrator",
-                                        "Larry",
+                                    'use' => 'official',
+                                    'family' => 'Administrator',
+                                    'given' => [
+                                        'Administrator',
+                                        'Larry',
                                     ],
                                 ],
                             ],
-                            "telecom" => [
+                            'telecom' => [
                                 [
-                                    "system" => "phone",
-                                    "value" => "1234567890",
-                                    "use" => "home",
+                                    'system' => 'phone',
+                                    'value' => '1234567890',
+                                    'use' => 'home',
                                 ],
                                 [
-                                    "system" => "phone",
-                                    "value" => "1234567890",
-                                    "use" => "work",
+                                    'system' => 'phone',
+                                    'value' => '1234567890',
+                                    'use' => 'work',
                                 ],
                                 [
-                                    "system" => "phone",
-                                    "value" => "1234567890",
-                                    "use" => "mobile",
+                                    'system' => 'phone',
+                                    'value' => '1234567890',
+                                    'use' => 'mobile',
                                 ],
                                 [
-                                    "system" => "email",
-                                    "value" => "hey@hey.com",
-                                    "use" => "home",
-                                ],
-                            ],
-                            "address" => [
-                                [
-                                    "line" => [
-                                        "123 Lane Street",
-                                    ],
-                                    "city" => "Bellevue",
-                                    "state" => "WA",
-                                    "period" => [
-                                        "start" => "2021-04-13T08:57:32.146+00:00",
-                                    ],
+                                    'system' => 'email',
+                                    'value' => 'hey@hey.com',
+                                    'use' => 'home',
                                 ],
                             ],
-                            "active" => true,
+                            'address' => [
+                                [
+                                    'line' => [
+                                        '123 Lane Street',
+                                    ],
+                                    'city' => 'Bellevue',
+                                    'state' => 'WA',
+                                    'period' => [
+                                        'start' => '2021-04-13T08:57:32.146+00:00',
+                                    ],
+                                ],
+                            ],
+                            'active' => true,
                         ]
                     )
                 )
             ),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
-            new OA\Response(response: "404", ref: "#/components/responses/uuidnotfound"),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '404', ref: '#/components/responses/uuidnotfound'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function getOne(string $fhirId, ?string $puuidBind = null)
     {
@@ -171,137 +171,137 @@ class FhirPersonRestController
      * @return FHIR bundle with query results, if found
      */
     #[OA\Get(
-        path: "/fhir/Person",
-        description: "Returns a list of Person resources.",
-        tags: ["fhir"],
+        path: '/fhir/Person',
+        description: 'Returns a list of Person resources.',
+        tags: ['fhir'],
         parameters: [
             new OA\Parameter(
-                name: "_id",
-                in: "query",
-                description: "The uuid for the Person resource.",
+                name: '_id',
+                in: 'query',
+                description: 'The uuid for the Person resource.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "_lastUpdated",
-                in: "query",
-                description: "Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+                name: '_lastUpdated',
+                in: 'query',
+                description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "name",
-                in: "query",
-                description: "The name of the Person resource.",
+                name: 'name',
+                in: 'query',
+                description: 'The name of the Person resource.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "active",
-                in: "query",
-                description: "The active status of the Person resource.",
+                name: 'active',
+                in: 'query',
+                description: 'The active status of the Person resource.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "address",
-                in: "query",
-                description: "The address of the Person resource.",
+                name: 'address',
+                in: 'query',
+                description: 'The address of the Person resource.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "address-city",
-                in: "query",
-                description: "The address-city of the Person resource.",
+                name: 'address-city',
+                in: 'query',
+                description: 'The address-city of the Person resource.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "address-postalcode",
-                in: "query",
-                description: "The address-postalcode of the Person resource.",
+                name: 'address-postalcode',
+                in: 'query',
+                description: 'The address-postalcode of the Person resource.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "address-state",
-                in: "query",
-                description: "The address-state of the Person resource.",
+                name: 'address-state',
+                in: 'query',
+                description: 'The address-state of the Person resource.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "email",
-                in: "query",
-                description: "The email of the Person resource.",
+                name: 'email',
+                in: 'query',
+                description: 'The email of the Person resource.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "family",
-                in: "query",
-                description: "The family name of the Person resource.",
+                name: 'family',
+                in: 'query',
+                description: 'The family name of the Person resource.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "given",
-                in: "query",
-                description: "The given name of the Person resource.",
+                name: 'given',
+                in: 'query',
+                description: 'The given name of the Person resource.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "phone",
-                in: "query",
-                description: "The phone number of the Person resource.",
+                name: 'phone',
+                in: 'query',
+                description: 'The phone number of the Person resource.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "telecom",
-                in: "query",
-                description: "The fax number of the Person resource.",
+                name: 'telecom',
+                in: 'query',
+                description: 'The fax number of the Person resource.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
         ],
         responses: [
             new OA\Response(
-                response: "200",
-                description: "Standard Response",
+                response: '200',
+                description: 'Standard Response',
                 content: new OA\MediaType(
-                    mediaType: "application/json",
+                    mediaType: 'application/json',
                     schema: new OA\Schema(
                         properties: [
                             new OA\Property(
-                                property: "json object",
-                                description: "FHIR Json object.",
-                                type: "object"
+                                property: 'json object',
+                                description: 'FHIR Json object.',
+                                type: 'object'
                             ),
                         ],
                         example: [
-                            "meta" => [
-                                "lastUpdated" => "2021-09-14T09:13:51",
+                            'meta' => [
+                                'lastUpdated' => '2021-09-14T09:13:51',
                             ],
-                            "resourceType" => "Bundle",
-                            "type" => "collection",
-                            "total" => 0,
-                            "link" => [
+                            'resourceType' => 'Bundle',
+                            'type' => 'collection',
+                            'total' => 0,
+                            'link' => [
                                 [
-                                    "relation" => "self",
-                                    "url" => "https://localhost:9300/apis/default/fhir/Person",
+                                    'relation' => 'self',
+                                    'url' => 'https://localhost:9300/apis/default/fhir/Person',
                                 ],
                             ],
                         ]
                     )
                 )
             ),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function getAll($searchParams)
     {

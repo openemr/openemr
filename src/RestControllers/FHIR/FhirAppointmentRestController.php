@@ -36,41 +36,41 @@ class FhirAppointmentRestController
      * @returns 200 if the operation completes successfully
      */
     #[OA\Get(
-        path: "/fhir/Appointment/{uuid}",
-        description: "Returns a single Appointment resource.",
-        tags: ["fhir"],
+        path: '/fhir/Appointment/{uuid}',
+        description: 'Returns a single Appointment resource.',
+        tags: ['fhir'],
         parameters: [
             new OA\Parameter(
-                name: "uuid",
-                in: "path",
-                description: "The uuid for the Appointment resource.",
+                name: 'uuid',
+                in: 'path',
+                description: 'The uuid for the Appointment resource.',
                 required: true,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
         ],
         responses: [
             new OA\Response(
-                response: "200",
-                description: "Standard Response",
+                response: '200',
+                description: 'Standard Response',
                 content: new OA\MediaType(
-                    mediaType: "application/json",
+                    mediaType: 'application/json',
                     schema: new OA\Schema(
                         properties: [
                             new OA\Property(
-                                property: "json object",
-                                description: "FHIR Json object.",
-                                type: "object"
+                                property: 'json object',
+                                description: 'FHIR Json object.',
+                                type: 'object'
                             ),
                         ],
                         example: []
                     )
                 )
             ),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
-            new OA\Response(response: "404", ref: "#/components/responses/uuidnotfound"),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '404', ref: '#/components/responses/uuidnotfound'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function getOne($fhirId, $puuidBind = null)
     {
@@ -86,67 +86,67 @@ class FhirAppointmentRestController
      * @return FHIR bundle with query results, if found
      */
     #[OA\Get(
-        path: "/fhir/Appointment",
-        description: "Returns a list of Appointment resources.",
-        tags: ["fhir"],
+        path: '/fhir/Appointment',
+        description: 'Returns a list of Appointment resources.',
+        tags: ['fhir'],
         parameters: [
             new OA\Parameter(
-                name: "_id",
-                in: "query",
-                description: "The uuid for the Appointment resource.",
+                name: '_id',
+                in: 'query',
+                description: 'The uuid for the Appointment resource.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "_lastUpdated",
-                in: "query",
-                description: "Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+                name: '_lastUpdated',
+                in: 'query',
+                description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "patient",
-                in: "query",
-                description: "The uuid for the patient.",
+                name: 'patient',
+                in: 'query',
+                description: 'The uuid for the patient.',
                 required: false,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
         ],
         responses: [
             new OA\Response(
-                response: "200",
-                description: "Standard Response",
+                response: '200',
+                description: 'Standard Response',
                 content: new OA\MediaType(
-                    mediaType: "application/json",
+                    mediaType: 'application/json',
                     schema: new OA\Schema(
                         properties: [
                             new OA\Property(
-                                property: "json object",
-                                description: "FHIR Json object.",
-                                type: "object"
+                                property: 'json object',
+                                description: 'FHIR Json object.',
+                                type: 'object'
                             ),
                         ],
                         example: [
-                            "meta" => [
-                                "lastUpdated" => "2021-09-14T09:13:51",
+                            'meta' => [
+                                'lastUpdated' => '2021-09-14T09:13:51',
                             ],
-                            "resourceType" => "Bundle",
-                            "type" => "collection",
-                            "total" => 0,
-                            "link" => [
+                            'resourceType' => 'Bundle',
+                            'type' => 'collection',
+                            'total' => 0,
+                            'link' => [
                                 [
-                                    "relation" => "self",
-                                    "url" => "https://localhost:9300/apis/default/fhir/AllergyIntolerance",
+                                    'relation' => 'self',
+                                    'url' => 'https://localhost:9300/apis/default/fhir/AllergyIntolerance',
                                 ],
                             ],
                         ]
                     )
                 )
             ),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function getAll($searchParams, $puuidBind = null)
     {

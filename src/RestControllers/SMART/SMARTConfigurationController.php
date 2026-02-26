@@ -32,13 +32,13 @@ class SMARTConfigurationController
     }
 
     #[OA\Get(
-        path: "/fhir/.well-known/smart-configuration",
-        description: "Returns smart configuration of the fhir server.",
-        tags: ["fhir"],
+        path: '/fhir/.well-known/smart-configuration',
+        description: 'Returns smart configuration of the fhir server.',
+        tags: ['fhir'],
         responses: [
             new OA\Response(
-                response: "200",
-                description: "Return smart configuration of the fhir server"
+                response: '200',
+                description: 'Return smart configuration of the fhir server'
             ),
         ]
     )]

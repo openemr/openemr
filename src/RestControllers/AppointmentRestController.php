@@ -33,24 +33,24 @@ class AppointmentRestController
      * @param $eid - The appointment event id.
      */
     #[OA\Get(
-        path: "/api/appointment/{eid}",
-        description: "Retrieves an appointment",
-        tags: ["standard"],
+        path: '/api/appointment/{eid}',
+        description: 'Retrieves an appointment',
+        tags: ['standard'],
         parameters: [
             new OA\Parameter(
-                name: "eid",
-                in: "path",
-                description: "The eid for the appointment.",
+                name: 'eid',
+                in: 'path',
+                description: 'The eid for the appointment.',
                 required: true,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
         ],
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function getOne($eid)
     {
@@ -64,51 +64,51 @@ class AppointmentRestController
      * @param $patientUuid - The patient uuid.
      */
     #[OA\Get(
-        path: "/api/patient/{pid}/appointment/{eid}",
-        description: "Retrieves a appointment for a patient",
-        tags: ["standard"],
+        path: '/api/patient/{pid}/appointment/{eid}',
+        description: 'Retrieves a appointment for a patient',
+        tags: ['standard'],
         parameters: [
             new OA\Parameter(
-                name: "pid",
-                in: "path",
-                description: "The id for the patient.",
+                name: 'pid',
+                in: 'path',
+                description: 'The id for the patient.',
                 required: true,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "eid",
-                in: "path",
-                description: "The eid for the appointment.",
+                name: 'eid',
+                in: 'path',
+                description: 'The eid for the appointment.',
                 required: true,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
         ],
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     #[OA\Get(
-        path: "/portal/patient/appointment/{auuid}",
-        description: "Returns a selected appointment by its uuid.",
-        tags: ["standard-patient"],
+        path: '/portal/patient/appointment/{auuid}',
+        description: 'Returns a selected appointment by its uuid.',
+        tags: ['standard-patient'],
         parameters: [
             new OA\Parameter(
-                name: "auuid",
-                in: "path",
-                description: "The uuid for the appointment.",
+                name: 'auuid',
+                in: 'path',
+                description: 'The uuid for the appointment.',
                 required: true,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
         ],
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function getOneForPatient($auuid, $patientUuid)
     {
@@ -121,15 +121,15 @@ class AppointmentRestController
      * Retrieves all appointments.
      */
     #[OA\Get(
-        path: "/api/appointment",
-        description: "Retrieves all appointments",
-        tags: ["standard"],
+        path: '/api/appointment',
+        description: 'Retrieves all appointments',
+        tags: ['standard'],
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function getAll()
     {
@@ -138,15 +138,15 @@ class AppointmentRestController
     }
 
     #[OA\Get(
-        path: "/portal/patient/appointment",
-        description: "Retrieves all appointments for a patient",
-        tags: ["standard-patient"],
+        path: '/portal/patient/appointment',
+        description: 'Retrieves all appointments for a patient',
+        tags: ['standard-patient'],
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function getAllForPatientByUuid($puuid)
     {
@@ -162,24 +162,24 @@ class AppointmentRestController
      * @param $pid - The patient id.
      */
     #[OA\Get(
-        path: "/api/patient/{pid}/appointment",
-        description: "Retrieves all appointments for a patient",
-        tags: ["standard"],
+        path: '/api/patient/{pid}/appointment',
+        description: 'Retrieves all appointments for a patient',
+        tags: ['standard'],
         parameters: [
             new OA\Parameter(
-                name: "pid",
-                in: "path",
-                description: "The pid for the patient.",
+                name: 'pid',
+                in: 'path',
+                description: 'The pid for the patient.',
                 required: true,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
         ],
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function getAllForPatient($pid)
     {
@@ -193,57 +193,57 @@ class AppointmentRestController
      * @param $data - The appointment data.
      */
     #[OA\Post(
-        path: "/api/patient/{pid}/appointment",
-        description: "Submits a new appointment",
-        tags: ["standard"],
+        path: '/api/patient/{pid}/appointment',
+        description: 'Submits a new appointment',
+        tags: ['standard'],
         parameters: [
             new OA\Parameter(
-                name: "pid",
-                in: "path",
-                description: "The id for the patient.",
+                name: 'pid',
+                in: 'path',
+                description: 'The id for the patient.',
                 required: true,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
         ],
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\MediaType(
-                mediaType: "application/json",
+                mediaType: 'application/json',
                 schema: new OA\Schema(
-                    required: ["pc_catid", "pc_title", "pc_duration", "pc_hometext", "pc_apptstatus", "pc_eventDate", "pc_startTime", "pc_facility", "pc_billing_location"],
+                    required: ['pc_catid', 'pc_title', 'pc_duration', 'pc_hometext', 'pc_apptstatus', 'pc_eventDate', 'pc_startTime', 'pc_facility', 'pc_billing_location'],
                     properties: [
-                        new OA\Property(property: "pc_catid", description: "The category of the appointment.", type: "string"),
-                        new OA\Property(property: "pc_title", description: "The title of the appointment.", type: "string"),
-                        new OA\Property(property: "pc_duration", description: "The duration of the appointment.", type: "string"),
-                        new OA\Property(property: "pc_hometext", description: "Comments for the appointment.", type: "string"),
-                        new OA\Property(property: "pc_apptstatus", description: "use an option from resource=/api/list/apptstat", type: "string"),
-                        new OA\Property(property: "pc_eventDate", description: "The date of the appointment.", type: "string"),
-                        new OA\Property(property: "pc_startTime", description: "The time of the appointment.", type: "string"),
-                        new OA\Property(property: "pc_facility", description: "The facility id of the appointment.", type: "string"),
-                        new OA\Property(property: "pc_billing_location", description: "The billinag location id of the appointment.", type: "string"),
-                        new OA\Property(property: "pc_aid", description: "The provider id for the appointment.", type: "string"),
+                        new OA\Property(property: 'pc_catid', description: 'The category of the appointment.', type: 'string'),
+                        new OA\Property(property: 'pc_title', description: 'The title of the appointment.', type: 'string'),
+                        new OA\Property(property: 'pc_duration', description: 'The duration of the appointment.', type: 'string'),
+                        new OA\Property(property: 'pc_hometext', description: 'Comments for the appointment.', type: 'string'),
+                        new OA\Property(property: 'pc_apptstatus', description: 'use an option from resource=/api/list/apptstat', type: 'string'),
+                        new OA\Property(property: 'pc_eventDate', description: 'The date of the appointment.', type: 'string'),
+                        new OA\Property(property: 'pc_startTime', description: 'The time of the appointment.', type: 'string'),
+                        new OA\Property(property: 'pc_facility', description: 'The facility id of the appointment.', type: 'string'),
+                        new OA\Property(property: 'pc_billing_location', description: 'The billinag location id of the appointment.', type: 'string'),
+                        new OA\Property(property: 'pc_aid', description: 'The provider id for the appointment.', type: 'string'),
                     ],
                     example: [
-                        "pc_catid" => "5",
-                        "pc_title" => "Office Visit",
-                        "pc_duration" => "900",
-                        "pc_hometext" => "Test",
-                        "pc_apptstatus" => "-",
-                        "pc_eventDate" => "2018-10-19",
-                        "pc_startTime" => "09:00",
-                        "pc_facility" => "9",
-                        "pc_billing_location" => "10",
-                        "pc_aid" => "1",
+                        'pc_catid' => '5',
+                        'pc_title' => 'Office Visit',
+                        'pc_duration' => '900',
+                        'pc_hometext' => 'Test',
+                        'pc_apptstatus' => '-',
+                        'pc_eventDate' => '2018-10-19',
+                        'pc_startTime' => '09:00',
+                        'pc_facility' => '9',
+                        'pc_billing_location' => '10',
+                        'pc_aid' => '1',
                     ]
                 )
             )
         ),
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function post($pid, $data)
     {
@@ -264,31 +264,31 @@ class AppointmentRestController
      * @param $eid - The appointment event id.
      */
     #[OA\Delete(
-        path: "/api/patient/{pid}/appointment/{eid}",
-        description: "Delete a appointment",
-        tags: ["standard"],
+        path: '/api/patient/{pid}/appointment/{eid}',
+        description: 'Delete a appointment',
+        tags: ['standard'],
         parameters: [
             new OA\Parameter(
-                name: "pid",
-                in: "path",
-                description: "The id for the patient.",
+                name: 'pid',
+                in: 'path',
+                description: 'The id for the patient.',
                 required: true,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
             new OA\Parameter(
-                name: "eid",
-                in: "path",
-                description: "The eid for the appointment.",
+                name: 'eid',
+                in: 'path',
+                description: 'The eid for the appointment.',
                 required: true,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
         ],
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function delete($eid)
     {

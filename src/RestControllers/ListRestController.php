@@ -17,40 +17,40 @@ use OpenEMR\Services\ListService;
 use OpenEMR\RestControllers\RestControllerHelper;
 
 #[OA\Schema(
-    schema: "api_dental_issue_request",
-    description: "Schema for the dental_issue request",
-    required: ["title", "begdate"],
+    schema: 'api_dental_issue_request',
+    description: 'Schema for the dental_issue request',
+    required: ['title', 'begdate'],
     properties: [
-        new OA\Property(property: "title", description: "The title of dental issue.", type: "string"),
-        new OA\Property(property: "begdate", description: "The beginning date of dental issue.", type: "string"),
-        new OA\Property(property: "enddate", description: "The end date of dental issue.", type: "string"),
-        new OA\Property(property: "diagnosis", description: "The diagnosis of dental issue. In format `<codetype>:<code>`", type: "string"),
+        new OA\Property(property: 'title', description: 'The title of dental issue.', type: 'string'),
+        new OA\Property(property: 'begdate', description: 'The beginning date of dental issue.', type: 'string'),
+        new OA\Property(property: 'enddate', description: 'The end date of dental issue.', type: 'string'),
+        new OA\Property(property: 'diagnosis', description: 'The diagnosis of dental issue. In format `<codetype>:<code>`', type: 'string'),
     ],
-    example: ["title" => "Halitosis", "begdate" => "2015-03-17", "enddate" => null]
+    example: ['title' => 'Halitosis', 'begdate' => '2015-03-17', 'enddate' => null]
 )]
 #[OA\Schema(
-    schema: "api_medication_request",
-    description: "Schema for the medication request",
-    required: ["title", "begdate"],
+    schema: 'api_medication_request',
+    description: 'Schema for the medication request',
+    required: ['title', 'begdate'],
     properties: [
-        new OA\Property(property: "title", description: "The title of medication.", type: "string"),
-        new OA\Property(property: "begdate", description: "The beginning date of medication.", type: "string"),
-        new OA\Property(property: "enddate", description: "The end date of medication.", type: "string"),
-        new OA\Property(property: "diagnosis", description: "The diagnosis of medication. In format `<codetype>:<code>`", type: "string"),
+        new OA\Property(property: 'title', description: 'The title of medication.', type: 'string'),
+        new OA\Property(property: 'begdate', description: 'The beginning date of medication.', type: 'string'),
+        new OA\Property(property: 'enddate', description: 'The end date of medication.', type: 'string'),
+        new OA\Property(property: 'diagnosis', description: 'The diagnosis of medication. In format `<codetype>:<code>`', type: 'string'),
     ],
-    example: ["title" => "Norvasc", "begdate" => "2013-04-13", "enddate" => null]
+    example: ['title' => 'Norvasc', 'begdate' => '2013-04-13', 'enddate' => null]
 )]
 #[OA\Schema(
-    schema: "api_surgery_request",
-    description: "Schema for the surgery request",
-    required: ["title", "begdate"],
+    schema: 'api_surgery_request',
+    description: 'Schema for the surgery request',
+    required: ['title', 'begdate'],
     properties: [
-        new OA\Property(property: "title", description: "The title of surgery.", type: "string"),
-        new OA\Property(property: "begdate", description: "The beginning date of surgery.", type: "string"),
-        new OA\Property(property: "enddate", description: "The end date of surgery.", type: "string"),
-        new OA\Property(property: "diagnosis", description: "The diagnosis of surgery. In format `<codetype>:<code>`", type: "string"),
+        new OA\Property(property: 'title', description: 'The title of surgery.', type: 'string'),
+        new OA\Property(property: 'begdate', description: 'The beginning date of surgery.', type: 'string'),
+        new OA\Property(property: 'enddate', description: 'The end date of surgery.', type: 'string'),
+        new OA\Property(property: 'diagnosis', description: 'The diagnosis of surgery. In format `<codetype>:<code>`', type: 'string'),
     ],
-    example: ["title" => "Blepharoplasty", "begdate" => "2013-10-14", "enddate" => null, "diagnosis" => "CPT4:15823-50"]
+    example: ['title' => 'Blepharoplasty', 'begdate' => '2013-10-14', 'enddate' => null, 'diagnosis' => 'CPT4:15823-50']
 )]
 class ListRestController
 {
@@ -63,48 +63,48 @@ class ListRestController
 
     // Dental Issue endpoints
     #[OA\Get(
-        path: "/api/patient/{pid}/dental_issue",
-        description: "Retrieves all dental issues for a patient",
-        tags: ["standard"],
+        path: '/api/patient/{pid}/dental_issue',
+        description: 'Retrieves all dental issues for a patient',
+        tags: ['standard'],
         parameters: [
-            new OA\Parameter(name: "pid", in: "path", description: "The pid for the patient.", required: true, schema: new OA\Schema(type: "string")),
+            new OA\Parameter(name: 'pid', in: 'path', description: 'The pid for the patient.', required: true, schema: new OA\Schema(type: 'string')),
         ],
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     // Medication endpoints
     #[OA\Get(
-        path: "/api/patient/{pid}/medication",
-        description: "Retrieves all medications for a patient",
-        tags: ["standard"],
+        path: '/api/patient/{pid}/medication',
+        description: 'Retrieves all medications for a patient',
+        tags: ['standard'],
         parameters: [
-            new OA\Parameter(name: "pid", in: "path", description: "The pid for the patient.", required: true, schema: new OA\Schema(type: "string")),
+            new OA\Parameter(name: 'pid', in: 'path', description: 'The pid for the patient.', required: true, schema: new OA\Schema(type: 'string')),
         ],
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     // Surgery endpoints
     #[OA\Get(
-        path: "/api/patient/{pid}/surgery",
-        description: "Retrieves all surgeries for a patient",
-        tags: ["standard"],
+        path: '/api/patient/{pid}/surgery',
+        description: 'Retrieves all surgeries for a patient',
+        tags: ['standard'],
         parameters: [
-            new OA\Parameter(name: "pid", in: "path", description: "The pid for the patient.", required: true, schema: new OA\Schema(type: "string")),
+            new OA\Parameter(name: 'pid', in: 'path', description: 'The pid for the patient.', required: true, schema: new OA\Schema(type: 'string')),
         ],
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function getAll($pid, $list_type)
     {
@@ -113,49 +113,49 @@ class ListRestController
     }
 
     #[OA\Get(
-        path: "/api/patient/{pid}/dental_issue/{did}",
-        description: "Retrieves a dental issue for a patient",
-        tags: ["standard"],
+        path: '/api/patient/{pid}/dental_issue/{did}',
+        description: 'Retrieves a dental issue for a patient',
+        tags: ['standard'],
         parameters: [
-            new OA\Parameter(name: "pid", in: "path", description: "The id for the patient.", required: true, schema: new OA\Schema(type: "string")),
-            new OA\Parameter(name: "did", in: "path", description: "The id for the dental issue.", required: true, schema: new OA\Schema(type: "string")),
+            new OA\Parameter(name: 'pid', in: 'path', description: 'The id for the patient.', required: true, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'did', in: 'path', description: 'The id for the dental issue.', required: true, schema: new OA\Schema(type: 'string')),
         ],
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     #[OA\Get(
-        path: "/api/patient/{pid}/medication/{mid}",
-        description: "Retrieves a medication for a patient",
-        tags: ["standard"],
+        path: '/api/patient/{pid}/medication/{mid}',
+        description: 'Retrieves a medication for a patient',
+        tags: ['standard'],
         parameters: [
-            new OA\Parameter(name: "pid", in: "path", description: "The id for the patient.", required: true, schema: new OA\Schema(type: "string")),
-            new OA\Parameter(name: "mid", in: "path", description: "The id for the medication.", required: true, schema: new OA\Schema(type: "string")),
+            new OA\Parameter(name: 'pid', in: 'path', description: 'The id for the patient.', required: true, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'mid', in: 'path', description: 'The id for the medication.', required: true, schema: new OA\Schema(type: 'string')),
         ],
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     #[OA\Get(
-        path: "/api/patient/{pid}/surgery/{sid}",
-        description: "Retrieves a surgery for a patient",
-        tags: ["standard"],
+        path: '/api/patient/{pid}/surgery/{sid}',
+        description: 'Retrieves a surgery for a patient',
+        tags: ['standard'],
         parameters: [
-            new OA\Parameter(name: "pid", in: "path", description: "The id for the patient.", required: true, schema: new OA\Schema(type: "string")),
-            new OA\Parameter(name: "sid", in: "path", description: "The id for the surgery.", required: true, schema: new OA\Schema(type: "string")),
+            new OA\Parameter(name: 'pid', in: 'path', description: 'The id for the patient.', required: true, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'sid', in: 'path', description: 'The id for the surgery.', required: true, schema: new OA\Schema(type: 'string')),
         ],
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function getOne($pid, $list_type, $list_id)
     {
@@ -164,24 +164,24 @@ class ListRestController
     }
 
     #[OA\Get(
-        path: "/api/list/{list_name}",
-        description: "Retrieves a list",
-        tags: ["standard"],
+        path: '/api/list/{list_name}',
+        description: 'Retrieves a list',
+        tags: ['standard'],
         parameters: [
             new OA\Parameter(
-                name: "list_name",
-                in: "path",
-                description: "The list_id of the list.",
+                name: 'list_name',
+                in: 'path',
+                description: 'The list_id of the list.',
                 required: true,
-                schema: new OA\Schema(type: "string")
+                schema: new OA\Schema(type: 'string')
             ),
         ],
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function getOptions($list_name)
     {
@@ -190,58 +190,58 @@ class ListRestController
     }
 
     #[OA\Post(
-        path: "/api/patient/{pid}/dental_issue",
-        description: "Submits a new dental issue",
-        tags: ["standard"],
+        path: '/api/patient/{pid}/dental_issue',
+        description: 'Submits a new dental issue',
+        tags: ['standard'],
         parameters: [
-            new OA\Parameter(name: "pid", in: "path", description: "The pid for the patient.", required: true, schema: new OA\Schema(type: "string")),
+            new OA\Parameter(name: 'pid', in: 'path', description: 'The pid for the patient.', required: true, schema: new OA\Schema(type: 'string')),
         ],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\MediaType(mediaType: "application/json", schema: new OA\Schema(ref: "#/components/schemas/api_dental_issue_request"))
+            content: new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: '#/components/schemas/api_dental_issue_request'))
         ),
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     #[OA\Post(
-        path: "/api/patient/{pid}/medication",
-        description: "Submits a new medication",
-        tags: ["standard"],
+        path: '/api/patient/{pid}/medication',
+        description: 'Submits a new medication',
+        tags: ['standard'],
         parameters: [
-            new OA\Parameter(name: "pid", in: "path", description: "The pid for the patient.", required: true, schema: new OA\Schema(type: "string")),
+            new OA\Parameter(name: 'pid', in: 'path', description: 'The pid for the patient.', required: true, schema: new OA\Schema(type: 'string')),
         ],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\MediaType(mediaType: "application/json", schema: new OA\Schema(ref: "#/components/schemas/api_medication_request"))
+            content: new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: '#/components/schemas/api_medication_request'))
         ),
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     #[OA\Post(
-        path: "/api/patient/{pid}/surgery",
-        description: "Submits a new surgery",
-        tags: ["standard"],
+        path: '/api/patient/{pid}/surgery',
+        description: 'Submits a new surgery',
+        tags: ['standard'],
         parameters: [
-            new OA\Parameter(name: "pid", in: "path", description: "The pid for the patient.", required: true, schema: new OA\Schema(type: "string")),
+            new OA\Parameter(name: 'pid', in: 'path', description: 'The pid for the patient.', required: true, schema: new OA\Schema(type: 'string')),
         ],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\MediaType(mediaType: "application/json", schema: new OA\Schema(ref: "#/components/schemas/api_surgery_request"))
+            content: new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: '#/components/schemas/api_surgery_request'))
         ),
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function post($pid, $list_type, $data)
     {
@@ -259,61 +259,61 @@ class ListRestController
     }
 
     #[OA\Put(
-        path: "/api/patient/{pid}/dental_issue/{did}",
-        description: "Edit a dental issue",
-        tags: ["standard"],
+        path: '/api/patient/{pid}/dental_issue/{did}',
+        description: 'Edit a dental issue',
+        tags: ['standard'],
         parameters: [
-            new OA\Parameter(name: "pid", in: "path", description: "The pid for the patient.", required: true, schema: new OA\Schema(type: "string")),
-            new OA\Parameter(name: "did", in: "path", description: "The id for the dental issue.", required: true, schema: new OA\Schema(type: "string")),
+            new OA\Parameter(name: 'pid', in: 'path', description: 'The pid for the patient.', required: true, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'did', in: 'path', description: 'The id for the dental issue.', required: true, schema: new OA\Schema(type: 'string')),
         ],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\MediaType(mediaType: "application/json", schema: new OA\Schema(ref: "#/components/schemas/api_dental_issue_request"))
+            content: new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: '#/components/schemas/api_dental_issue_request'))
         ),
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     #[OA\Put(
-        path: "/api/patient/{pid}/medication/{mid}",
-        description: "Edit a medication",
-        tags: ["standard"],
+        path: '/api/patient/{pid}/medication/{mid}',
+        description: 'Edit a medication',
+        tags: ['standard'],
         parameters: [
-            new OA\Parameter(name: "pid", in: "path", description: "The pid for the patient.", required: true, schema: new OA\Schema(type: "string")),
-            new OA\Parameter(name: "mid", in: "path", description: "The id for the medication.", required: true, schema: new OA\Schema(type: "string")),
+            new OA\Parameter(name: 'pid', in: 'path', description: 'The pid for the patient.', required: true, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'mid', in: 'path', description: 'The id for the medication.', required: true, schema: new OA\Schema(type: 'string')),
         ],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\MediaType(mediaType: "application/json", schema: new OA\Schema(ref: "#/components/schemas/api_medication_request"))
+            content: new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: '#/components/schemas/api_medication_request'))
         ),
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     #[OA\Put(
-        path: "/api/patient/{pid}/surgery/{sid}",
-        description: "Edit a surgery",
-        tags: ["standard"],
+        path: '/api/patient/{pid}/surgery/{sid}',
+        description: 'Edit a surgery',
+        tags: ['standard'],
         parameters: [
-            new OA\Parameter(name: "pid", in: "path", description: "The pid for the patient.", required: true, schema: new OA\Schema(type: "string")),
-            new OA\Parameter(name: "sid", in: "path", description: "The id for the surgery.", required: true, schema: new OA\Schema(type: "string")),
+            new OA\Parameter(name: 'pid', in: 'path', description: 'The pid for the patient.', required: true, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'sid', in: 'path', description: 'The id for the surgery.', required: true, schema: new OA\Schema(type: 'string')),
         ],
         requestBody: new OA\RequestBody(
             required: true,
-            content: new OA\MediaType(mediaType: "application/json", schema: new OA\Schema(ref: "#/components/schemas/api_surgery_request"))
+            content: new OA\MediaType(mediaType: 'application/json', schema: new OA\Schema(ref: '#/components/schemas/api_surgery_request'))
         ),
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function put($pid, $list_id, $list_type, $data)
     {
@@ -333,49 +333,49 @@ class ListRestController
     }
 
     #[OA\Delete(
-        path: "/api/patient/{pid}/dental_issue/{did}",
-        description: "Delete a dental issue",
-        tags: ["standard"],
+        path: '/api/patient/{pid}/dental_issue/{did}',
+        description: 'Delete a dental issue',
+        tags: ['standard'],
         parameters: [
-            new OA\Parameter(name: "pid", in: "path", description: "The id for the patient.", required: true, schema: new OA\Schema(type: "string")),
-            new OA\Parameter(name: "did", in: "path", description: "The id for the dental issue.", required: true, schema: new OA\Schema(type: "string")),
+            new OA\Parameter(name: 'pid', in: 'path', description: 'The id for the patient.', required: true, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'did', in: 'path', description: 'The id for the dental issue.', required: true, schema: new OA\Schema(type: 'string')),
         ],
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     #[OA\Delete(
-        path: "/api/patient/{pid}/medication/{mid}",
-        description: "Delete a medication",
-        tags: ["standard"],
+        path: '/api/patient/{pid}/medication/{mid}',
+        description: 'Delete a medication',
+        tags: ['standard'],
         parameters: [
-            new OA\Parameter(name: "pid", in: "path", description: "The id for the patient.", required: true, schema: new OA\Schema(type: "string")),
-            new OA\Parameter(name: "mid", in: "path", description: "The id for the medication.", required: true, schema: new OA\Schema(type: "string")),
+            new OA\Parameter(name: 'pid', in: 'path', description: 'The id for the patient.', required: true, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'mid', in: 'path', description: 'The id for the medication.', required: true, schema: new OA\Schema(type: 'string')),
         ],
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     #[OA\Delete(
-        path: "/api/patient/{pid}/surgery/{sid}",
-        description: "Delete a surgery",
-        tags: ["standard"],
+        path: '/api/patient/{pid}/surgery/{sid}',
+        description: 'Delete a surgery',
+        tags: ['standard'],
         parameters: [
-            new OA\Parameter(name: "pid", in: "path", description: "The id for the patient.", required: true, schema: new OA\Schema(type: "string")),
-            new OA\Parameter(name: "sid", in: "path", description: "The id for the surgery.", required: true, schema: new OA\Schema(type: "string")),
+            new OA\Parameter(name: 'pid', in: 'path', description: 'The id for the patient.', required: true, schema: new OA\Schema(type: 'string')),
+            new OA\Parameter(name: 'sid', in: 'path', description: 'The id for the surgery.', required: true, schema: new OA\Schema(type: 'string')),
         ],
         responses: [
-            new OA\Response(response: "200", ref: "#/components/responses/standard"),
-            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
-            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
         ],
-        security: [["openemr_auth" => []]]
+        security: [['openemr_auth' => []]]
     )]
     public function delete($pid, $list_id, $list_type)
     {
