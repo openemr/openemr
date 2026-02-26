@@ -72,7 +72,7 @@ if (empty($puuid)) {
 }
 
 // ── Build iframe URL ──────────────────────────────────────────────────────────
-$iframeUrl = $sentinelUrl . '/static/index.html?' . http_build_query([
+$iframeUrl = $sentinelUrl . '/?' . http_build_query([
     'patient_id'   => $puuid,
     'patient_name' => $patientName,
 ]);
