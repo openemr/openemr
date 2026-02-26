@@ -60,6 +60,7 @@ return [
         'username'       => $sqlConf['login'] ?? '',
         'password'       => $sqlConf['pass'] ?? '',
         'driver_options' => $utf8,
+        'adapters'       => [],
     ],
     'service_manager' => [
         'factories' => $factories
