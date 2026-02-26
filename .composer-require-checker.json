@@ -92,8 +92,22 @@
     "sqlStatement",
     "sqlStatementNoLog",
     "sqlStatementThrowException",
+    "default_gen_hl7_order",
+    "default_loadPayerInfo",
+    "default_send_hl7_order",
+    "labcorp_gen_hl7_order",
+    "labcorp_loadPayerInfo",
+    "labcorp_send_hl7_order",
+    "poll_hl7_results",
+    "quest_gen_hl7_order",
+    "quest_loadPayerInfo",
+    "quest_send_hl7_order",
+    "receive_hl7_results",
     "ub04Dispose",
-    "ub04_dispose"
+    "ub04_dispose",
+    "universal_gen_hl7_order",
+    "universal_loadPayerInfo",
+    "universal_send_hl7_order"
   ],
   "php-core-extensions": [
     "Core",

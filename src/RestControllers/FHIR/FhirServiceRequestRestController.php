@@ -26,9 +26,9 @@ use Symfony\Component\HttpFoundation\Response;
 
 class FhirServiceRequestRestController
 {
-    private FhirServiceRequestService $fhirServiceRequestService;
-    private FhirResourcesService $fhirService;
-    private FhirValidationService $fhirValidationService;
+    private readonly FhirServiceRequestService $fhirServiceRequestService;
+    private readonly FhirResourcesService $fhirService;
+    private readonly FhirValidationService $fhirValidationService;
 
     public function __construct()
     {

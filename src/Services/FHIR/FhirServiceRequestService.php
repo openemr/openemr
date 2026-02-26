@@ -867,11 +867,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
                 $codesService = new CodeTypesService();
                 /** @var string|null $codeType */
                 $codeType = $codesService->getCodeTypeForSystemUrl($system);
-                if ($codeType !== null && $codeType !== '') {
-                    $data['procedure_code'] = $codeType . ':' . $codeValue;
-                } else {
-                    $data['procedure_code'] = $codeValue;
-                }
+                $data['procedure_code'] = $codeType !== null && $codeType !== '' ? $codeType . ':' . $codeValue : $codeValue;
             } elseif ($codeValue !== '') {
                 $data['procedure_code'] = $codeValue;
             }
@@ -1076,7 +1072,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
     {
         try {
             $uuidBytes = UuidRegistry::uuidToBytes($uuid);
-        } catch (\Exception $e) {
+        } catch (\Throwable) {
             (new SystemLogger())->errorLogCaller(
                 "Invalid UUID format: " . $uuid,
                 ['table' => $table]
