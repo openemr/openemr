@@ -12,8 +12,8 @@
 
 namespace OpenEMR\RestControllers;
 
-use Nyholm\Psr7\Response;
 use OpenApi\Attributes as OA;
+use Psr\Http\Message\ResponseInterface;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\RestControllers\RestControllerHelper;
@@ -77,7 +77,7 @@ class FacilityRestController
         ],
         security: [["openemr_auth" => []]]
     )]
-    public function getOne($uuid, HttpRestRequest $request): Response
+    public function getOne($uuid, HttpRestRequest $request): ResponseInterface
     {
         $processingResult = $this->facilityService->getOne($uuid);
 
@@ -239,7 +239,7 @@ class FacilityRestController
         ],
         security: [["openemr_auth" => []]]
     )]
-    public function getAll(HttpRestRequest $request, $search = []): Response
+    public function getAll(HttpRestRequest $request, $search = []): ResponseInterface
     {
         $validSearchFields = $this->facilityService->filterData($search, self::WHITELISTED_FIELDS);
         $processingResult = $this->facilityService->getAll($validSearchFields);
@@ -311,7 +311,7 @@ class FacilityRestController
         ],
         security: [["openemr_auth" => []]]
     )]
-    public function post($data, HttpRestRequest $request): Response
+    public function post($data, HttpRestRequest $request): ResponseInterface
     {
         $filteredData = $this->facilityService->filterData($data, self::WHITELISTED_FIELDS);
         $processingResult = $this->facilityService->insert($filteredData);
@@ -391,7 +391,7 @@ class FacilityRestController
         ],
         security: [["openemr_auth" => []]]
     )]
-    public function patch($uuid, $data, HttpRestRequest $request): Response
+    public function patch($uuid, $data, HttpRestRequest $request): ResponseInterface
     {
         $filteredData = $this->facilityService->filterData($data, self::WHITELISTED_FIELDS);
         $processingResult = $this->facilityService->update($uuid, $filteredData);

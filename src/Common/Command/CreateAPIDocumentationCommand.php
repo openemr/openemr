@@ -67,6 +67,11 @@ class CreateAPIDocumentationCommand extends Command
                 $fileroot . '/src/RestControllers',
             ]));
 
+        if ($openapi === null) {
+            $output->writeln("Failed to generate OpenAPI documentation");
+            return Command::FAILURE;
+        }
+
         // To have smaller diffs - we force stable order here
         $data = json_decode($openapi->toJson(), true);
 

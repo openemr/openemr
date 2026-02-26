@@ -13,8 +13,8 @@
 
 namespace OpenEMR\RestControllers;
 
-use Nyholm\Psr7\Response;
 use OpenApi\Attributes as OA;
+use Psr\Http\Message\ResponseInterface;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\RestControllers\RestControllerHelper;
@@ -88,7 +88,7 @@ class PractitionerRestController
         ],
         security: [["openemr_auth" => []]]
     )]
-    public function getOne($uuid, HttpRestRequest $request): Response
+    public function getOne($uuid, HttpRestRequest $request): ResponseInterface
     {
         $processingResult = $this->practitionerService->getOne($uuid);
 
@@ -320,7 +320,7 @@ class PractitionerRestController
         ],
         security: [["openemr_auth" => []]]
     )]
-    public function getAll(HttpRestRequest $request, $search = []): Response
+    public function getAll(HttpRestRequest $request, $search = []): ResponseInterface
     {
         $validSearchFields = $this->practitionerService->filterData($search, self::WHITELISTED_FIELDS);
         $processingResult = $this->practitionerService->getAll($validSearchFields);
@@ -331,7 +331,6 @@ class PractitionerRestController
      * Process a HTTP POST request used to create a practitioner record.
      * @param $data - array of practitioner fields.
      * @param HttpRestRequest $request - The HTTP request object.
-     * @return a 201/Created status code and the practitioner identifier if successful.
      */
     #[OA\Post(
         path: "/api/practitioner",
@@ -454,7 +453,7 @@ class PractitionerRestController
         ],
         security: [["openemr_auth" => []]]
     )]
-    public function post($data, HttpRestRequest $request): Response
+    public function post($data, HttpRestRequest $request): ResponseInterface
     {
         $filteredData = $this->practitionerService->filterData($data, self::WHITELISTED_FIELDS);
         $processingResult = $this->practitionerService->insert($filteredData);
@@ -466,7 +465,6 @@ class PractitionerRestController
      * @param $uuid - The practitioner uuid identifier in string format.
      * @param $data - array of practitioner fields (full resource).
      * @param HttpRestRequest $request - The HTTP request object.
-     * @return a 200/Ok status code and the practitioner resource.
      */
     #[OA\Put(
         path: "/api/practitioner/{pruuid}",
@@ -641,7 +639,7 @@ class PractitionerRestController
         ],
         security: [["openemr_auth" => []]]
     )]
-    public function patch($uuid, $data, HttpRestRequest $request): Response
+    public function patch($uuid, $data, HttpRestRequest $request): ResponseInterface
     {
         $filteredData = $this->practitionerService->filterData($data, self::WHITELISTED_FIELDS);
         $processingResult = $this->practitionerService->update($uuid, $filteredData);
