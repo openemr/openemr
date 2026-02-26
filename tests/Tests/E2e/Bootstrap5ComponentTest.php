@@ -110,11 +110,9 @@ class Bootstrap5ComponentTest extends PantherTestCase
             $closeButton->click();
 
             // Wait for modal to close
-            $this->client->wait(5)->until(function () {
-                return $this->client->executeScript(<<<'JS'
+            $this->client->wait(5)->until(fn() => $this->client->executeScript(<<<'JS'
                     return document.querySelector('.modal.show') === null;
-                JS);
-            });
+                JS));
 
         } catch (\Throwable $e) {
             $this->client->quit();
@@ -157,11 +155,9 @@ class Bootstrap5ComponentTest extends PantherTestCase
             $this->client->executeScript('document.body.click()');
 
             // Wait for dropdown to close
-            $this->client->wait(3)->until(function () {
-                return $this->client->executeScript(<<<'JS'
+            $this->client->wait(3)->until(fn() => $this->client->executeScript(<<<'JS'
                     return document.querySelector('.dropdown-menu.show') === null;
-                JS);
-            });
+                JS));
 
         } catch (\Throwable $e) {
             $this->client->quit();
