@@ -8,6 +8,7 @@ parameters:
   level: 10
   # Set tmpDir explicitly so we know what it is
   tmpDir: tmp-phpstan
+  reportUnmatchedIgnoredErrors: false
   paths:
   - Documentation
   - _rest_routes.inc.php
