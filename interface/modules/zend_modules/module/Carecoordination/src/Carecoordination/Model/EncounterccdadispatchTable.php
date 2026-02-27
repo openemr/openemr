@@ -171,7 +171,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $first = explode('|', (string)$race);
             foreach ($first as $i => $title) {
                 $result = QueryUtils::fetchRecords($query, [$title]);
-                $r = $result->current();
+                $r = $result[0] ?? [];
                 // ensure at least one
                 if ($i == 0) {
                     $option['race']['title'] = $r['title'];
@@ -196,7 +196,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             }
         } elseif (!empty($race)) {
             $result = QueryUtils::fetchRecords($query, [$race]);
-            $r = $result->current();
+            $r = $result[0] ?? [];
             $option['race']['title'] = $r['title'] ?? '';
             $option['race']['code'] = $r['notes'] ?? '';
             $option['race_cat']['title'] = '';
@@ -1304,7 +1304,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         if ($recipients != 'hie') {
             $res = QueryUtils::fetchRecords($query, $field_name);
-            $result = $res->current();
+            $result = $res[0] ?? [];
             if (empty($result['organization'])) {
                 $result['organization'] = $result['facility'];
             }
@@ -3946,13 +3946,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             $referralId = $this->getMostRecentPatientReferral($pid);
 
             $query = "insert into ccda (`uuid`, `pid`, `encounter`, `ccda_data`, `time`, `status`, `user_id`, `couch_docid`, `couch_revid`, `hash`, `view`, `transfer`, `emr_transfer`, `encrypted`, `transaction_id`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                        $result = QueryUtils::fetchRecords($query, [$binaryUuid, $pid, $encounter, $file_path, $time, $status, $user_id, $docid, $revid, $hash, $view, $transfer, $emr_transfer, $encrypted, $referralId]);
+            $moduleInsertId = QueryUtils::sqlInsert($query, [$binaryUuid, $pid, $encounter, $file_path, $time, $status, $user_id, $docid, $revid, $hash, $view, $transfer, $emr_transfer, $encrypted, $referralId]);
 
             // now let's go ahead and log our amc actions for this behavior
             if (!empty($emr_transfer)) {
                 $this->logAmc($pid, $referralId);
             }
-            $moduleInsertId = $result->getGeneratedValue();
 
             // if we have an id, then let's update our document with the foreign key reference
             $document->set_foreign_reference_id($moduleInsertId);
@@ -3986,12 +3985,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         // this query is only true if the referral was inserted as part of the ccda generation process.  This is code migrated from EncountermanagerTable
         $refs = QueryUtils::fetchRecords("select t.id as trans_id from transactions t where t.pid = ? and t.date = NOW() AND t.title = 'LBTref'", [$pid]);
-        if ($refs->count() == 0) {
+        if (count($refs) == 0) {
             // the choose the most recent transaction to link this up...  This could create problems in the
             // future if multiple referrals are created BEFORE sending the CCDA.
             // TODO: is there a way to fix it so we can choose a referral (works for single ccda generation, more problematic for multiple patient select).
             $trans = QueryUtils::fetchRecords("select id from transactions where pid = ? and title = 'LBTref' order by id desc limit 1", [$pid]);
-            $trans_cur = $trans->current();
+            $trans_cur = $trans[0] ?? [];
             $trans_id = $trans_cur['id'] ?? null;
         } else {
             foreach ($refs as $r) {
@@ -4029,8 +4028,8 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public function getCcdaLogDetails($logID = 0)
     {
         $query_ccda_log = "SELECT pid, encounter, ccda_data, time, status, user_id, couch_docid, couch_revid, view, transfer,emr_transfer FROM ccda WHERE id = ?";
-                $res_ccda_log = QueryUtils::fetchRecords($query_ccda_log, [$logID]);
-        return $res_ccda_log->current();
+        $res_ccda_log = QueryUtils::fetchRecords($query_ccda_log, [$logID]);
+        return $res_ccda_log[0] ?? [];
     }
 
     /*
@@ -4112,9 +4111,9 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getProviderId($pid)
     {
-                $query = "SELECT providerID FROM patient_data WHERE `pid`  = ?";
+        $query = "SELECT providerID FROM patient_data WHERE `pid`  = ?";
         $result = QueryUtils::fetchRecords($query, [$pid]);
-        $row = $result->current();
+        $row = $result[0] ?? [];
         return $row['providerID'] ?? null;
     }
 
@@ -4124,10 +4123,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getPatientProviderStatus($pid)
     {
-                $query = "SELECT provider_since_date, care_team_status FROM patient_data WHERE `pid`  = ?";
+        $query = "SELECT provider_since_date, care_team_status FROM patient_data WHERE `pid`  = ?";
         $result = QueryUtils::fetchRecords($query, [$pid]);
-        $row = $result->current();
-        return $row ?? null;
+        $row = $result[0] ?? [];
+        return $row ?: null;
     }
 
     /**
@@ -4186,9 +4185,12 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     {
         // this throws an exception... which is sad
         // TODO: is there a better way to know if the snomed codes are installed instead of using this method?
-        // we set $error=false or else it will display on the screen, which seems counterintuitive... it also suppresses the exception
-        $result = QueryUtils::fetchRecords("Describe `sct_descriptions`", $params = '', $log = true, $error = false);
-        return $result !== false; // will return false if there is an error
+        try {
+            QueryUtils::fetchRecords("Describe `sct_descriptions`");
+            return true;
+        } catch (\Throwable) {
+            return false;
+        }
     }
 
     /**
@@ -4694,10 +4696,10 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function getCareTeamProviderId($pid)
     {
-                $query = "SELECT care_team_provider FROM patient_data WHERE `pid`  = ?";
+        $query = "SELECT care_team_provider FROM patient_data WHERE `pid`  = ?";
         $result = QueryUtils::fetchRecords($query, [$pid]);
-        $row = $result->current();
-        return $row['care_team_provider'];
+        $row = $result[0] ?? [];
+        return $row['care_team_provider'] ?? null;
     }
 
     /**
