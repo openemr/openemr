@@ -20,9 +20,9 @@ require_once dirname(__FILE__, 5) . "/globals.php";
 use OpenEMR\Core\Header;
 
 // ── Safety Sentinel backend URL ──────────────────────────────────────────────
-// Change this to your Railway URL for deployed usage:
-// https://safety-sentinel-production.up.railway.app
-// Or set $GLOBALS['safety_sentinel_url'] in your environment config.
+// Set $GLOBALS['safety_sentinel_url'] in the OpenEMR globals table for deployed usage:
+//   UPDATE globals SET gl_value='http://161.35.61.60:8001' WHERE gl_name='safety_sentinel_url';
+// Falls back to localhost for local development.
 $sentinelUrl = $GLOBALS['safety_sentinel_url'] ?? 'http://localhost:8001';
 
 // ── Current patient from session ─────────────────────────────────────────────
