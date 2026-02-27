@@ -19,9 +19,7 @@ namespace OpenEMR\Tests\Services\FHIR;
 
 use OpenEMR\Services\FHIR\FhirMedicationDispenseService;
 use OpenEMR\Services\FHIR\MedicationDispense\FhirMedicationDispenseLocalDispensaryService;
-use OpenEMR\Services\FHIR\MedicationDispense\FhirMedicationDispenseImmunizationService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationDispense;
-use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Tests\Fixtures\MedicationDispenseFixtureManager;
 use PHPUnit\Framework\TestCase;

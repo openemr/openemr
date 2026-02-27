@@ -35,7 +35,6 @@ use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\LogoService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;

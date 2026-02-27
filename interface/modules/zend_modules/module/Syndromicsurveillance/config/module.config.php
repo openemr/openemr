@@ -3,10 +3,7 @@
 namespace Syndromicsurveillance;
 
 use Interop\Container\ContainerInterface;
-use Laminas\ServiceManager\Factory\InvokableFactory;
-use Laminas\Router\Http\Segment;
 use Laminas\Db\ResultSet\ResultSet;
-use Laminas\Db\TableGateway\TableGateway;
 use Syndromicsurveillance\Controller\SyndromicsurveillanceController;
 use Syndromicsurveillance\Model\Syndromicsurveillance;
 use Syndromicsurveillance\Model\SyndromicsurveillanceTable;

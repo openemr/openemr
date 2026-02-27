@@ -2,7 +2,6 @@
 
 namespace OpenEMR\Tests\Api;
 
-use OpenEMR\RestControllers\FacilityRestController;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;

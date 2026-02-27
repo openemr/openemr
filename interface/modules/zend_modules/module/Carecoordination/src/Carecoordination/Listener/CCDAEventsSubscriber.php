@@ -16,7 +16,6 @@ use Carecoordination\Model\CcdaGenerator;
 use Carecoordination\Model\CcdaGlobalsConfiguration;
 use Carecoordination\Model\CcdaUserPreferencesTransformer;
 use DOMDocument;
-use HTML_TreeNode;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\PatientDocuments\PatientDocumentCreateCCDAEvent;

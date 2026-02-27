@@ -18,12 +18,6 @@ namespace Carecoordination;
 
 use Laminas\ModuleManager\ModuleManager;
 use Laminas\Mvc\MvcEvent;
-use Laminas\View\Helper\Openemr\Emr;
-use Laminas\View\Helper\Openemr\Menu;
-use Carecoordination\Model\Progressnote;
-use Carecoordination\Model\ProgressnoteTable;
-use Carecoordination\Model\Continuitycaredocument;
-use Carecoordination\Model\ContinuitycaredocumentTable;
 use Carecoordination\Listener\CCDAEventsSubscriber;
 use OpenEMR\Common\Acl\AclMain;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

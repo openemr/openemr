@@ -12,7 +12,6 @@
 namespace OpenEMR\Common\Auth\OpenIDConnect\Grant;
 
 use DateInterval;
-use Exception;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\AuthCodeGrant;

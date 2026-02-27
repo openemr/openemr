@@ -14,19 +14,11 @@
 
 namespace OpenEMR\Common\Command;
 
-use OpenEMR\Common\Command\Runner\AclModify;
-use OpenEMR\Common\Command\Runner\CcdaImport;
-use OpenEMR\Common\Command\Runner\CcdaNewpatient;
-use OpenEMR\Common\Command\Runner\CcdaNewpatientImport;
-use OpenEMR\Common\Command\Runner\IOpenEMRCommand;
-use OpenEMR\Common\Command\Runner\Register;
-use OpenEMR\Common\Command\Runner\ZfcModule;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Command\CommandRunnerFilterEvent;
 use OpenEMR\Services\IGlobalsAware;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\Finder;
 

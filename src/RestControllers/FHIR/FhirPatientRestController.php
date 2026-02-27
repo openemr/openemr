@@ -21,8 +21,6 @@ use OpenEMR\Services\FHIR\FhirValidationService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\Services\FHIR\Serialization\FhirPatientSerializer;
-use OpenEMR\Services\Globals\GlobalConnectorsEnum;
-use OpenEMR\Validators\ProcessingResult;
 use Symfony\Component\HttpFoundation\Response;
 
 /**

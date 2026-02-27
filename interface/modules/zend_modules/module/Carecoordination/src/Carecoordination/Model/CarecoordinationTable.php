@@ -19,23 +19,16 @@ use Application\Plugin\CommonPlugin;
 use Documents\Model\DocumentsTable;
 use Documents\Plugin\Documents;
 use DOMDocument;
-use DOMXPath;
 use Exception;
-use Laminas\Config\Reader\ReaderInterface;
-use Laminas\Config\Reader\Xml;
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use OpenEMR\Common\Command\Trait\CommandLineDebugStylerTrait;
 use OpenEMR\Services\Cda\CdaTemplateImportDispose;
 use OpenEMR\Services\Cda\CdaTemplateParse;
 use OpenEMR\Services\Cda\CdaComponentParseHelpers;
-use OpenEMR\Services\Cda\CdaTextParser;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
-use OpenEMR\Services\Cda\ClinicalNoteParser;
 use OpenEMR\Services\Cda\XmlExtended;
 use OpenEMR\Services\CodeTypesService;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
-use function PHPUnit\Framework\throwException;
 
 class CarecoordinationTable extends AbstractTableGateway
 {

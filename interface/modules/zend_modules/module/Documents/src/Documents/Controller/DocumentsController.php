@@ -17,8 +17,6 @@ namespace Documents\Controller;
 use DOMDocument;
 use OpenEMR\Common\Crypto\CryptoGen;
 use Laminas\Mvc\Controller\AbstractActionController;
-use Laminas\View\Model\ViewModel;
-use Laminas\View\Model\JsonModel;
 use Application\Listener\Listener;
 use Documents\Model\DocumentsTable;
 use Document;

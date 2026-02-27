@@ -22,7 +22,6 @@
 namespace OpenEMR\Tests\Unit\Common\Acl;
 
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Services\UserService;
 use PHPUnit\Framework\TestCase;
 

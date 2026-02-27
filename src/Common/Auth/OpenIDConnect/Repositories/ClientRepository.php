@@ -12,15 +12,12 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 
-use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Utils\HttpUtils;
-use Psr\Log\LoggerInterface;
 
 class ClientRepository implements ClientRepositoryInterface
 {

@@ -10,7 +10,6 @@
 require_once('../globals.php');
 require_once("$srcdir/options.inc.php");
 
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 ?>
 <!DOCTYPE html>

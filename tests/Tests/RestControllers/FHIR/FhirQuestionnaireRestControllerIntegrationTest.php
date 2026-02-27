@@ -18,7 +18,6 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\RestControllers\FHIR\FhirQuestionnaireRestController;
 use OpenEMR\Services\FHIR\FhirQuestionnaireService;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
-use OpenEMR\Services\ObservationService;
 use OpenEMR\Services\QuestionnaireService;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;

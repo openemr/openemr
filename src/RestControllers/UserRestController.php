@@ -15,7 +15,6 @@
 namespace OpenEMR\RestControllers;
 
 use OpenEMR\RestControllers\RestControllerHelper;
-use OpenEMR\Services\PractitionerService;
 use OpenEMR\Services\UserService;
 use OpenEMR\Validators\ProcessingResult;
 

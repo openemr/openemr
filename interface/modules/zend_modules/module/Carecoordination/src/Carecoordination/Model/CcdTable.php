@@ -14,13 +14,6 @@ namespace Carecoordination\Model;
 
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use Application\Model\ApplicationTable;
-use Laminas\Db\Adapter\Driver\Pdo\Result;
-use Laminas\XmlRpc\Generator;
-use DOMDocument;
-use DOMXpath;
-use Document;
-use CouchDB;
-use Documents\Model\DocumentsTable;
 
 class CcdTable extends AbstractTableGateway
 {

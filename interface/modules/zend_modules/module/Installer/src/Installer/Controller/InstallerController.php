@@ -17,7 +17,6 @@
 namespace Installer\Controller;
 
 use Application\Listener\Listener;
-use Exception;
 use Installer\Model\InstModule;
 use Installer\Model\InstModuleTable;
 use Laminas\Mvc\Controller\AbstractActionController;

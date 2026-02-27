@@ -144,6 +144,7 @@
         "ramsey/conventional-commits": "^1.5",
         "rector/rector": "^2.1",
         "shipmonk/phpstan-baseline-per-identifier": "^2.3",
+        "slevomat/coding-standard": "^8.28",
         "squizlabs/php_codesniffer": "^4.0",
         "symfony/panther": "^2.0"
     },
@@ -190,6 +191,7 @@
     },
     "config": {
         "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": false,
             "ergebnis/composer-normalize": true,
             "openemr/oe-module-installer-plugin": true,
             "php-http/discovery": false,

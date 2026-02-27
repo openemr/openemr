@@ -17,7 +17,6 @@ namespace OpenEMR\Menu;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\UserService;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use OpenEMR\Menu\PatientMenuEvent;
 
 class PatientMenuRole extends MenuRole
