@@ -21,9 +21,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\UserEntity;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenIDConnectServer\Repositories\IdentityProviderInterface;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class UserRepository implements UserRepositoryInterface, IdentityProviderInterface
 {

@@ -12,7 +12,6 @@
 namespace OpenEMR\Tests\Services\FHIR;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 use PHPUnit\Framework\TestCase;
 

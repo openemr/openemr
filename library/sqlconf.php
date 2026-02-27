@@ -11,7 +11,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\System\MissingSiteException;
 
 $siteDir = $GLOBALS['OE_SITE_DIR'] ?? '';

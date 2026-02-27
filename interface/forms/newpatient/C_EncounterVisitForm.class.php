@@ -31,7 +31,6 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Services\CareTeamService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Events\Core\TemplatePageEvent;

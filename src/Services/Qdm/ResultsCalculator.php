@@ -12,11 +12,7 @@
 
 namespace OpenEMR\Services\Qdm;
 
-use GuzzleHttp\Psr7\LazyOpenStream;
-use GuzzleHttp\Psr7;
-use OpenEMR\Cqm\CqmServiceManager;
 use OpenEMR\Cqm\Qdm\Patient;
-use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 
 class ResultsCalculator
 {

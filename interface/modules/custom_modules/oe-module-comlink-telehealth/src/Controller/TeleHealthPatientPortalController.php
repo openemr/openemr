@@ -12,14 +12,10 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Controller;
 
-use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\CalendarEventCategoryRepository;
-use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthSessionRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
 use OpenEMR\Events\PatientPortal\AppointmentFilterEvent;
 use OpenEMR\Services\AppointmentService;
-use OpenEMR\Services\ListService;
-use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use OpenEMR\Events\PatientPortal\RenderEvent;
 use Symfony\Component\EventDispatcher\GenericEvent;

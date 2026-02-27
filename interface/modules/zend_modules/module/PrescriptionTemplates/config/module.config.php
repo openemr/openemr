@@ -21,7 +21,6 @@
 
 namespace PrescriptionTemplates;
 
-use Laminas\ServiceManager\Factory\InvokableFactory;
 use Laminas\Router\Http\Segment;
 use PrescriptionTemplates\Controller\HtmlTemplatesController;
 use PrescriptionTemplates\Controller\PdfTemplatesController;

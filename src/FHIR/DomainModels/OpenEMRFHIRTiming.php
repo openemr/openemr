@@ -12,7 +12,6 @@
 
 namespace OpenEMR\FHIR\DomainModels;
 
-use OpenEMR\FHIR\R4\FHIRResource\FHIRDosage;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRTiming;
 
 class OpenEMRFHIRTiming extends FHIRTiming

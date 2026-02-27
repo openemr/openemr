@@ -26,7 +26,6 @@ require_once("$srcdir/user.inc.php");
 require_once("$srcdir/pid.inc.php");
 require_once("$srcdir/encounter.inc.php");
 
-use OpenEMR\Billing\MiscBillingOptions;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Core\Header;

@@ -14,7 +14,6 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
@@ -22,11 +21,9 @@ use OpenEMR\Common\Logging\SystemLogger;
 use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\CDADocumentService;
 use OpenEMR\Services\FHIR\Document\BaseDocumentDownloader;
 use OpenEMR\Services\FHIR\Document\IDocumentDownloader;
 use OpenEMR\Services\PatientService;
-use OpenEMR\Services\Search\ReferenceSearchField;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 

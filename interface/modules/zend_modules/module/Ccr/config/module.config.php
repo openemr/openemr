@@ -2,7 +2,6 @@
 
 namespace Ccr;
 
-use Laminas\ServiceManager\Factory\InvokableFactory;
 use Laminas\Router\Http\Segment;
 use Ccr\Controller\CcrController;
 use Ccr\Controller\ModuleconfigController;

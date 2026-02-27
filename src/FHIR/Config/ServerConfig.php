@@ -13,8 +13,6 @@
 
 namespace OpenEMR\FHIR\Config;
 
-use http\Exception\RuntimeException;
-use OpenEMR\Common\Auth\OAuth2KeyConfig;
 
 class ServerConfig
 {

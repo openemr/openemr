@@ -16,17 +16,10 @@
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPerson;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRRelatedPerson;
-use OpenEMR\Services\FHIR\FhirPersonService;
 use OpenEMR\Services\FHIR\FhirRelatedPersonService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
-use OpenEMR\Services\FHIR\FhirPractitionerService;
-use OpenEMR\Services\FHIR\FhirValidationService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
-use OpenEMR\Services\UserService;
-use OpenEMR\Validators\ProcessingResult;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 

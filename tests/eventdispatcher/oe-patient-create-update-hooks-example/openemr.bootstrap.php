@@ -17,8 +17,6 @@
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\PatientCreatedEvent;
 use OpenEMR\Events\Patient\PatientUpdatedEvent;
-use Symfony\Contracts\EventDispatcher\Event;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Get new or updated patient data and do something with it

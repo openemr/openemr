@@ -11,7 +11,6 @@
 namespace OpenEMR\Services\Qdm;
 
 use OpenEMR\Cqm\Qdm\BaseTypes\AbstractType;
-use OpenEMR\Cqm\Qdm\Identifier;
 
 class Measure extends AbstractType
 {

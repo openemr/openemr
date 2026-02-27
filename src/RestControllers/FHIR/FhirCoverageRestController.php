@@ -2,12 +2,10 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
-use OpenEMR\Services\FHIR\FhirValidationService;
 use OpenEMR\Services\FHIR\FhirCoverageService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
-use OpenEMR\Validators\ProcessingResult;
 
 /**
  * FHIR Organization Service

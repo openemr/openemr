@@ -19,7 +19,6 @@
 use Mpdf\Mpdf;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\FacilityService;
-use PHPMailer\PHPMailer\PHPMailer;
 
 $facilityService = new FacilityService();
 
