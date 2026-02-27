@@ -70,12 +70,7 @@ return [
     'service_manager' => [
         'factories' => [
             PatientDataTable::class =>  function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get(\Laminas\Db\Adapter\Adapter::class);
-                $resultSetPrototype = new ResultSet();
-                $resultSetPrototype->setArrayObjectPrototype(new PatientData());
-                $tableGateway = new TableGateway('patient_data', $dbAdapter, null, $resultSetPrototype);
-                $table = new PatientDataTable($tableGateway);
-                return $table;
+                return new PatientDataTable();
             }
         ],
     ]

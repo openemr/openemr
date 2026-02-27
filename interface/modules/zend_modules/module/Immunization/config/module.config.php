@@ -39,13 +39,8 @@ return [
 
     'service_manager' => [
         'factories' => [
-            \Immunization\Model\ImmunizationTable::class =>  function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get(\Laminas\Db\Adapter\Adapter::class);
-                $resultSetPrototype = new ResultSet();
-                $resultSetPrototype->setArrayObjectPrototype(new Immunization());
-                $tableGateway = new TableGateway('module_menu', $dbAdapter, null, $resultSetPrototype);
-                $table = new ImmunizationTable($tableGateway);
-                return $table;
+            ImmunizationTable::class =>  function (ContainerInterface $container, $requestedName) {
+                return new ImmunizationTable();
             }
         ],
     ],
