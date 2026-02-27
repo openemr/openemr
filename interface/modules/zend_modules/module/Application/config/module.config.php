@@ -115,9 +115,9 @@ return [
     ]
     ,'controllers' => [
         'factories' => [
-            IndexController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\IndexController => new IndexController($container->get(ApplicationTable::class)),
+            IndexController::class => InvokableFactory::class,
             SoapController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\SoapController => new SoapController($container->get(\Carecoordination\Controller\EncounterccdadispatchController::class)),
-            SendtoController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\SendtoController => new SendtoController($container->get(ApplicationTable::class), $container->get(SendtoTable::class))
+            SendtoController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\SendtoController => new SendtoController($container->get(ApplicationTable::class), $container->get(SendtoTable::class)),
         ]
     ],
     'service_manager' => [
