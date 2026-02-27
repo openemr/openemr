@@ -14,6 +14,7 @@
 namespace Application\Plugin;
 
 use Application\Listener\Listener;
+use Application\Model\ApplicationTable;
 use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
@@ -67,7 +68,7 @@ class CommonPlugin extends AbstractPlugin
 
     public function date_format($date, $output_format, $input_format)
     {
-        return \DateToYYYYMMDD($date);
+        return ApplicationTable::fixDate($date, $output_format, $input_format);
     }
 
     public static function escapeLimit($val)
