@@ -1,0 +1,61 @@
+<?php
+
+/**
+ * @package   openemr
+ * @link      https://www.open-emr.org
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Core\Migrations;
+
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
+
+/**
+ * Report itemized table
+ */
+final class Version20260000020093 extends AbstractMigration
+{
+    use CreateTableTrait;
+
+    public function getDescription(): string
+    {
+        return 'Create report_itemized table';
+    }
+
+    public function up(Schema $schema): void
+    {
+        $table = new Table('report_itemized');
+        $table->addColumn('report_id', Types::BIGINT);
+        $table->addColumn('itemized_test_id', Types::SMALLINT);
+        $table->addColumn('numerator_label', Types::STRING, [
+            'length' => 25,
+            'default' => '',
+            'comment' => 'Only used in special cases',
+        ]);
+        $table->addColumn('pass', Types::BOOLEAN, ['default' => 0, 'comment' => '0 is fail, 1 is pass, 2 is excluded']);
+        $table->addColumn('pid', Types::BIGINT);
+        $table->addColumn('rule_id', Types::STRING, [
+            'length' => 31,
+            'notnull' => false,
+            'default' => null,
+            'comment' => 'fk to clinical_rules.rule_id',
+        ]);
+        $table->addColumn('item_details', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'JSON with specific sub item results for a clinical rule']);
+
+        $table->addIndex(['report_id', 'itemized_test_id', 'numerator_label', 'pass'], 'report_id');
+
+        $this->createTable($table);
+    }
+
+    public function down(Schema $schema): void
+    {
+        $this->addSql('DROP TABLE report_itemized');
+    }
+}
