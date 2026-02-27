@@ -31,7 +31,6 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
-use OpenEMR\Services\DemographicsRelatedPersonsService;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 

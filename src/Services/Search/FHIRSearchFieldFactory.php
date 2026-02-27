@@ -19,7 +19,6 @@ namespace OpenEMR\Services\Search;
 use Laminas\Mvc\Exception\BadMethodCallException;
 use OpenEMR\Services\FHIR\FhirUrlResolver;
 use OpenEMR\Services\Search\SearchFieldType;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRSearchParameter;
 
 class FHIRSearchFieldFactory
 {

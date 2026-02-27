@@ -13,7 +13,6 @@
 
 namespace OpenEMR\Services\Search;
 
-use OpenEMR\Services\Search\SearchFieldType;
 
 class BasicSearchField implements ISearchField, \Stringable
 {

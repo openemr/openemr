@@ -13,7 +13,6 @@
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Services\FHIR\FhirLocationService;
 use OpenEMR\Services\FHIR\FhirMediaService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;

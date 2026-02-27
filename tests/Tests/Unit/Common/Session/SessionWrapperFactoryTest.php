@@ -19,7 +19,6 @@ namespace OpenEMR\Tests\Unit\Common\Session;
 use OpenEMR\Common\Session\PHPSessionWrapper;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Session\SessionWrapperInterface;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 

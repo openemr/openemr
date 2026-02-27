@@ -16,6 +16,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\DatabaseConnectionFactory;
+use OpenEMR\BC\DatabaseConnectionOptions;
 use OpenEMR\Gacl\GaclApi;
 use Psr\Log\LoggerInterface;
 
@@ -1600,56 +1602,25 @@ $config = 1; /////////////
 
     protected function connect_to_database(string $server, string $user, string $password, int|string $port, string $dbname = ''): mysqli|false
     {
-        $pathToCerts = __DIR__ . "/../../sites/" . $this->site . "/documents/certificates/";
-        $mysqlSsl = false;
-        $mysqli = $this->mysqliInit();
-        if (defined('MYSQLI_CLIENT_SSL') && $this->fileExists($pathToCerts . "mysql-ca")) {
-            $mysqlSsl = true;
-            if (
-                $this->fileExists($pathToCerts . "mysql-key") &&
-                $this->fileExists($pathToCerts . "mysql-cert")
-            ) {
-                // with client side certificate/key
-                $this->mysqliSslSet(
-                    $mysqli,
-                    $pathToCerts . "mysql-key",
-                    $pathToCerts . "mysql-cert",
-                    $pathToCerts . "mysql-ca",
-                    null,
-                    null
-                );
-            } else {
-                // without client side certificate/key
-                $this->mysqliSslSet(
-                    $mysqli,
-                    null,
-                    null,
-                    $pathToCerts . "mysql-ca",
-                    null,
-                    null
-                );
-            }
-        }
+        $siteDir = __DIR__ . "/../../sites/" . $this->site;
+        $ssl = DatabaseConnectionOptions::inferSslPaths($siteDir);
+
+        $options = new DatabaseConnectionOptions(
+            dbname: $dbname,
+            user: $user,
+            password: $password,
+            host: $server,
+            port: (int) $port !== 0 ? (int) $port : 3306,
+            sslCaPath: $ssl['ca'] ?? null,
+            sslClientCert: $ssl['clientCert'] ?? null,
+        );
+
         try {
-            $ok = $this->mysqliRealConnect(
-                $mysqli,
-                $server,
-                $user,
-                $password,
-                $dbname,
-                (int)$port != 0 ? (int)$port : 3306,
-                '',
-                $mysqlSsl ? MYSQLI_CLIENT_SSL : 0
-            );
-        } catch (mysqli_sql_exception $e) {
+            return DatabaseConnectionFactory::createMysqli($options, persistent: false);
+        } catch (RuntimeException $e) {
             $this->error_message = "unable to connect to sql server because of mysql error: " . $e->getMessage();
             return false;
         }
-        if (!$ok) {
-            $this->error_message = 'unable to connect to sql server because of: (' . mysqli_connect_errno() . ') ' . mysqli_connect_error();
-            return false;
-        }
-        return $mysqli;
     }
 
     /**
@@ -2206,18 +2177,6 @@ SETHLP;
     }
 
     /**
-     * Wrapper for mysqli_init to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @return mysqli|false
-     */
-    protected function mysqliInit(): mysqli|false
-    {
-        return mysqli_init();
-    }
-
-    /**
      * Wrapper for mysqli_connect to facilitate unit testing.
      *
      * @codeCoverageIgnore
@@ -2245,26 +2204,6 @@ SETHLP;
     }
 
     /**
-     * Wrapper for mysqli_real_connect to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param mysqli $link
-     * @param string $host
-     * @param string $user
-     * @param string $password
-     * @param string $database
-     * @param int $port
-     * @param string $socket
-     * @param int $flags
-     * @return bool
-     */
-    protected function mysqliRealConnect(mysqli $link, string $host, string $user, string $password, string $database = '', int $port = 0, string $socket = '', int $flags = 0): bool
-    {
-        return mysqli_real_connect($link, $host, $user, $password, $database, $port, $socket, $flags);
-    }
-
-    /**
      * Wrapper for mysqli_connect to facilitate unit testing.
      *
      * @codeCoverageIgnore
@@ -2276,24 +2215,6 @@ SETHLP;
     protected function mysqliSelectDb(mysqli $mysql, string $dbname): bool
     {
         return mysqli_select_db($mysql, $dbname);
-    }
-
-    /**
-     * Wrapper for mysqli_ssl_set to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param mysqli $link
-     * @param ?string $key
-     * @param ?string $cert
-     * @param ?string $ca
-     * @param ?string $capath
-     * @param ?string $cipher
-     * @return bool
-     */
-    protected function mysqliSslSet(mysqli $link, ?string $key, ?string $cert, ?string $ca, ?string $capath, ?string $cipher): bool
-    {
-        return mysqli_ssl_set($link, $key, $cert, $ca, $capath, $cipher);
     }
 
     /**

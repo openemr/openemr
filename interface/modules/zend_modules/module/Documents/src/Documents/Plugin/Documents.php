@@ -17,7 +17,6 @@ use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 use Documents\Model\DocumentsTable;
 
 require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
-use C_Document;
 
 class Documents extends AbstractPlugin
 {

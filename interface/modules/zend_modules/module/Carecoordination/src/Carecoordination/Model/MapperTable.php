@@ -12,7 +12,6 @@
 
 namespace Carecoordination\Model;
 
-use Laminas\Db\Adapter\Driver\Pdo\Result;
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use OpenEMR\Common\Database\QueryUtils;
 

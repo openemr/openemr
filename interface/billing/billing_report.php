@@ -24,7 +24,6 @@ require_once "$srcdir/patient.inc.php";
 require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Billing\BillingReport;
-use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Acl\AclMain;

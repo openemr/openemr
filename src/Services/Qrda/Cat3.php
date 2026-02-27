@@ -10,7 +10,6 @@
 
 namespace OpenEMR\Services\Qrda;
 
-use OpenEMR\Services\Qdm\IndividualResult;
 use OpenEMR\Services\Qdm\Measure;
 use OpenEMR\Services\Qrda\Helpers\Cat3View;
 use OpenEMR\Services\Qrda\Helpers\Date;

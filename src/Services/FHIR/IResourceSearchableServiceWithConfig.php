@@ -11,8 +11,6 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Services\Search\SearchQueryConfig;
-use OpenEMR\Validators\ProcessingResult;
 
 interface IResourceSearchableServiceWithConfig
 {

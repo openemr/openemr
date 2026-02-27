@@ -13,9 +13,6 @@
 namespace OpenEMR\Modules\FaxSMS\EtherFax;
 
 use DateTime;
-use Guzzle\GuzzleHttp\GuzzleException;
-use Guzzle\Http\Client;
-use http\Exception;
 
 class EtherFaxClient
 {

@@ -31,7 +31,6 @@ require_once(__DIR__ . "/clinical_rules.php");
 require_once(__DIR__ . "/maviq_phone_api.php");
 
 //only used in commented out code
-use OpenEMR\Common\Crypto\CryptoGen;
 
 /**
  * Display the patient reminder widget.

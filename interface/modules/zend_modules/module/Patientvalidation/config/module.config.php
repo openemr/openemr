@@ -20,7 +20,6 @@
 namespace Patientvalidation;
 
 use Interop\Container\ContainerInterface;
-use Laminas\ServiceManager\Factory\InvokableFactory;
 use Laminas\Router\Http\Segment;
 use Patientvalidation\Controller\PatientvalidationController;
 use Patientvalidation\Model\PatientDataTable;

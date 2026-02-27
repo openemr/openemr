@@ -46,7 +46,6 @@ use JsonException;
 use DateTime;
 use DateTimeInterface;
 use BadMethodCallException;
-use Exception;
 
 class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IResourceReadableService, IResourceSearchableService, IResourceCreatableService
 {

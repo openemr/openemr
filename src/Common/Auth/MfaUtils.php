@@ -13,7 +13,6 @@
 namespace OpenEMR\Common\Auth;
 
 use OpenEMR\Common\Crypto\CryptoGen;
-use u2flib_server\U2F;
 
 class MfaUtils
 {

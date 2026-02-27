@@ -13,10 +13,7 @@
 
 namespace Carecoordination\Model;
 
-use Carecoordination\Controller\EncountermanagerController;
-use DOMDocument;
 use OpenEMR\Common\Logging\SystemLogger;
-use XSLTProcessor;
 
 class CcdaGenerator
 {

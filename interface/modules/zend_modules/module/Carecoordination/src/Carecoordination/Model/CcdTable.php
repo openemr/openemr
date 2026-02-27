@@ -13,14 +13,7 @@
 namespace Carecoordination\Model;
 
 use Laminas\Db\TableGateway\AbstractTableGateway;
-use Laminas\Db\Adapter\Driver\Pdo\Result;
 use OpenEMR\Common\Database\QueryUtils;
-use Laminas\XmlRpc\Generator;
-use DOMDocument;
-use DOMXpath;
-use Document;
-use CouchDB;
-use Documents\Model\DocumentsTable;
 
 class CcdTable extends AbstractTableGateway
 {

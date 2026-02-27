@@ -16,7 +16,6 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthPersonSettings;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\UserService;
-use OpenEMR\Validators\ProcessingResult;
 
 class TeleHealthProviderRepository
 {
