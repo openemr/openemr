@@ -14,6 +14,7 @@
 
 namespace Carecoordination\Model;
 
+use Application\Model\ApplicationTable;
 use Application\Plugin\CommonPlugin;
 use Documents\Model\DocumentsTable;
 use Documents\Plugin\Documents;

@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Services\Cda;
 
+use Application\Model\ApplicationTable;
 use Carecoordination\Model\CarecoordinationTable;
 use Document;
 use OpenEMR\Common\Command\Trait\CommandLineDebugStylerTrait;
