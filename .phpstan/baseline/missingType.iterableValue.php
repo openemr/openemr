@@ -1597,31 +1597,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTableGateway.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Controller\\\\BaseController\\:\\:getCssFiles\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/BaseController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Controller\\\\BaseController\\:\\:getJsFiles\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/BaseController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Multipledb\\\\Controller\\\\BaseController\\:\\:\\$cssFiles type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/BaseController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Multipledb\\\\Controller\\\\BaseController\\:\\:\\$jsFiles type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/BaseController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Controller\\\\MultipledbController\\:\\:getMultipledbTable\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/MultipledbController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method PatientFilter\\\\Module\\:\\:getBlacklist\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/PatientFilter/Module.php',

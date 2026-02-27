@@ -2266,20 +2266,6 @@ $GLOBALS_METADATA = [
             xl('New form validation')
         ],
 
-        'allow_multiple_databases' => [
-            xl('Allow multiple databases'),
-            'bool',
-            '0',
-            xl('Allow to use with multiple database')
-        ],
-
-        'safe_key_database' => [
-            xl('Safe key database'),
-            'text',                           // data type
-            '',                               // default
-            xl('Key for multiple database credentials encryption')
-        ],
-
         'google_signin_enabled' => [
             xl('Enable Google Sign-In'),
             'bool',

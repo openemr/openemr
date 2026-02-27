@@ -1317,21 +1317,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Controller\\\\BaseController\\:\\:getPostParamsArray\\(\\) should return Multipledb\\\\Controller\\\\post but returns array\\<int\\|string, array\\<mixed\\>\\|string\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/BaseController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Controller\\\\BaseController\\:\\:getUserId\\(\\) should return int but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/BaseController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Controller\\\\MultipledbController\\:\\:indexAction\\(\\) should return Laminas\\\\Stdlib\\\\ResponseInterface but returns Laminas\\\\View\\\\Model\\\\ViewModel\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/MultipledbController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Patientvalidation\\\\Controller\\\\BaseController\\:\\:getPostParamsArray\\(\\) should return Patientvalidation\\\\Controller\\\\post but returns array\\<int\\|string, array\\<mixed\\>\\|string\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Controller/BaseController.php',
