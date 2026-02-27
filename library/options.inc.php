@@ -713,7 +713,8 @@ function generate_form_field($frow, $currvalue): void
             $string_maxlength = "maxlength='" . attr($maxlength) . "'";
         }
 
-        echo "<input type='text'
+        $inputType = (is_array($frow) && ($frow['validation'] ?? '') === 'email') ? 'email' : 'text';
+        echo "<input type='{$inputType}'
             class='form-control{$smallform}'
             name='form_{$field_id_esc}'
             id='form_{$field_id_esc}'

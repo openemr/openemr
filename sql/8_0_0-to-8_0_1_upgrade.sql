@@ -173,3 +173,11 @@ ALTER TABLE `patient_data` CHANGE `interpretter` `interpreter` varchar(255) NOT 
 #IfRow2D layout_options form_id DEM field_id interpretter
 UPDATE `layout_options` SET `field_id` = 'interpreter' WHERE `form_id` = 'DEM' AND `field_id` = 'interpretter';
 #EndIf
+
+#IfRow2D layout_options form_id DEM field_id email
+UPDATE `layout_options` SET `validation` = 'email' WHERE `form_id` = 'DEM' AND `field_id` = 'email';
+#EndIf
+
+#IfRow2D layout_options form_id DEM field_id email_direct
+UPDATE `layout_options` SET `validation` = 'email' WHERE `form_id` = 'DEM' AND `field_id` = 'email_direct';
+#EndIf

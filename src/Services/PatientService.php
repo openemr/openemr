@@ -19,6 +19,7 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Database\QueryPagination;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\TableTypes;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\ORDataObject\Address;
@@ -37,6 +38,7 @@ use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Validators\PatientValidator;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -185,6 +187,16 @@ class PatientService extends BaseService
             $data['pubpid'] = $freshPid;
         }
 
+        // Validate email fields before writing to database
+        if (is_array($data)) {
+            foreach (['email', 'email_direct'] as $emailField) {
+                if (array_key_exists($emailField, $data) && is_string($data[$emailField]) && $data[$emailField] !== '' && !ValidationUtils::isValidEmail($data[$emailField])) {
+                    ServiceContainer::getLogger()->warning("PatientService::databaseInsert: invalid $emailField sanitized", [$emailField => $data[$emailField]]);
+                    $data[$emailField] = '';
+                }
+            }
+        }
+
         // Before a patient is inserted, fire the "before patient created" event so listeners can do extra processing
         $beforePatientCreatedEvent = new BeforePatientCreatedEvent($data);
         OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($beforePatientCreatedEvent, BeforePatientCreatedEvent::EVENT_HANDLE);
@@ -263,6 +275,14 @@ class PatientService extends BaseService
         $updatedBy = $session->get('authUserID'); // we don't let anyone else but the current user be the updatedBy
         $data['updated_by'] = $updatedBy; // for an insert this is the same
         $table = PatientService::TABLE_NAME;
+
+        // Validate email fields before writing to database
+        foreach (['email', 'email_direct'] as $emailField) {
+            if (array_key_exists($emailField, $data) && is_string($data[$emailField]) && $data[$emailField] !== '' && !ValidationUtils::isValidEmail($data[$emailField])) {
+                ServiceContainer::getLogger()->warning("PatientService::databaseUpdate: invalid $emailField sanitized", [$emailField => $data[$emailField]]);
+                $data[$emailField] = '';
+            }
+        }
 
         // Fire the "before patient updated" event so listeners can do extra processing before data is updated
         $beforePatientUpdatedEvent = new BeforePatientUpdatedEvent($data);

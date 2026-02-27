@@ -229,6 +229,51 @@ class PatientValidatorTest extends TestCase
         $this->assertTrue($result->isValid(), 'Empty email should pass validation');
     }
 
+    public function testInsertValidationWithValidEmailDirect(): void
+    {
+        $validData = [
+            'fname' => 'John',
+            'lname' => 'Smith',
+            'sex' => 'Male',
+            'DOB' => '1990-01-15',
+            'email_direct' => 'john.smith@direct.example.com'
+        ];
+
+        $result = $this->validator->validate($validData, BaseValidator::DATABASE_INSERT_CONTEXT);
+
+        $this->assertTrue($result->isValid(), 'Valid data with email_direct should pass validation'); // @phpstan-ignore method.nonObject
+    }
+
+    public function testInsertValidationWithInvalidEmailDirect(): void
+    {
+        $invalidData = [
+            'fname' => 'John',
+            'lname' => 'Smith',
+            'sex' => 'Male',
+            'DOB' => '1990-01-15',
+            'email_direct' => 'invalid-email-direct'
+        ];
+
+        $result = $this->validator->validate($invalidData, BaseValidator::DATABASE_INSERT_CONTEXT);
+
+        $this->assertFalse($result->isValid(), 'Invalid email_direct should fail validation'); // @phpstan-ignore method.nonObject
+    }
+
+    public function testInsertValidationWithEmptyEmailDirect(): void
+    {
+        $validData = [
+            'fname' => 'John',
+            'lname' => 'Smith',
+            'sex' => 'Male',
+            'DOB' => '1990-01-15',
+            'email_direct' => ''
+        ];
+
+        $result = $this->validator->validate($validData, BaseValidator::DATABASE_INSERT_CONTEXT);
+
+        $this->assertTrue($result->isValid(), 'Empty email_direct should pass validation'); // @phpstan-ignore method.nonObject
+    }
+
     public function testInsertValidationFirstNameMinLength(): void
     {
         $validData = [
