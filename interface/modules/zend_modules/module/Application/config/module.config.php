@@ -117,7 +117,7 @@ return [
         'factories' => [
             IndexController::class => InvokableFactory::class,
             SoapController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\SoapController => new SoapController($container->get(\Carecoordination\Controller\EncounterccdadispatchController::class)),
-            SendtoController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\SendtoController => new SendtoController($container->get(ApplicationTable::class), $container->get(SendtoTable::class)),
+            SendtoController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\SendtoController => new SendtoController($container->get(SendtoTable::class)),
         ]
     ],
     'service_manager' => [
@@ -129,7 +129,7 @@ return [
                 return $table;
             },
             SendtoTable::class => fn(ContainerInterface $container, $requestedName): \Application\Model\SendtoTable => new SendtoTable(),
-            SendtoController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\SendtoController => new SendtoController($container->get(ApplicationTable::class), $container->get(SendtoTable::class)),
+            SendtoController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\SendtoController => new SendtoController($container->get(SendtoTable::class)),
             ModuleMenuSubscriber::class => InvokableFactory::class
         ],
     ],
