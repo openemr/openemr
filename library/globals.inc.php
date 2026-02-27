@@ -282,13 +282,6 @@ $GLOBALS_METADATA = [
             xl('Type of columns displayed for patient search results')
         ],
 
-        'gbl_nav_visit_forms' => [
-            xl('Navigation Area Visit Forms'),
-            'bool',                           // data type
-            '1',                              // default = true
-            xl('Navigation area includes encounter forms')
-        ],
-
         GlobalAppearanceEnum::SIMPLIFIED_PRESCRIPTIONS->value  => [
             xl('Simplified Prescriptions'),
             'bool',                           // data type
@@ -444,13 +437,6 @@ $GLOBALS_METADATA = [
             'text',
             'OpenEMR',
             xl('Application name used throughout the user interface.')
-        ],
-
-        'machine_name' => [
-            xl('Application Machine Name'),
-            'text',
-            'openemr',
-            xl('The machine name of the application. Used to identify the EMR in various messaging systems like HL7. Should not contain spaces'),
         ],
 
         'display_main_menu_logo' => [
@@ -2713,13 +2699,6 @@ $GLOBALS_METADATA = [
             xl('Enable Prompting For Automated Measure Calculations (AMC) Required Data')
         ],
 
-        'enable_amc_tracking' => [
-            xl('Enable AMC Tracking'),
-            'bool',                           // data type
-            '1',                               // default
-            xl('Enable Reporting of Tracking Date For Automated Measure Calculations (AMC)')
-        ],
-
         'cdr_report_nice' => [
             xl('CDR Reports Processing Priority'),
             [
@@ -4482,81 +4461,11 @@ $GLOBALS_METADATA = [
 if (!empty($GLOBALS['ippf_specific'])) {
     $GLOBALS['GLOBALS_METADATA']['IPPF Menu'] = [
 
-        'gbl_menu_stats_ippf' => [
-            xl('IPPF Statistics Reporting'),
-            'bool',                           // data type
-            '1',                              // default
-            xl('IPPF statistical reports.')
-        ],
-
-        'gbl_menu_stats_gcac' => [
-            xl('GCAC Statistics Reporting'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('GCAC statistical reports.')
-        ],
-
-        'gbl_menu_stats_ma' => [
-            xl('MA Statistics Reporting'),
-            'bool',                           // data type
-            '1',                              // default
-            xl('MA statistical reports.')
-        ],
-
-        'gbl_menu_stats_cyp' => [
-            xl('CYP Statistics Reporting'),
-            'bool',                           // data type
-            '1',                              // default
-            xl('CYP statistical reports.')
-        ],
-
-        'gbl_menu_stats_daily' => [
-            xl('Daily Statistics Reporting'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Daily statistical reports.')
-        ],
-
         'gbl_menu_stats_c3' => [
             xl('C3 Statistics Reporting'),
             'bool',                           // data type
             '0',                              // default
             xl('C3 statistical reports.')
-        ],
-
-        'gbl_menu_stats_cc' => [
-            xl('Cervical Cancer Reporting'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Cervical cancer statistical reports.')
-        ],
-
-        'gbl_menu_stats_sinadi' => [
-            xl('SINADI Report'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Uruguay SINADI statistical report.')
-        ],
-
-        'gbl_menu_visits_by_item' => [
-            xl('Visits by Item Report'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Visits by Item Report')
-        ],
-
-        'gbl_menu_acct_trans' => [
-            xl('Accounting Transactions Export'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Accounting transactions export to CSV')
-        ],
-
-        'gbl_menu_projects' => [
-            xl('Restricted Projects Reporting'),
-            'bool', // data type
-            '0', // default
-            xl('For IPPF Belize and maybe others')
         ],
 
         'gbl_menu_surinam_insurance' => [
@@ -4571,27 +4480,6 @@ if (!empty($GLOBALS['ippf_specific'])) {
             'bool', // data type
             '0', // default
             xl('For NetSuite financial integration')
-        ],
-
-        'gbl_menu_ive_clients' => [
-            xl('IVE Client List'),
-            'bool',                           // data type
-            '0',                              // default
-            xl('Client List of IVE Activity')
-        ],
-
-        'gbl_menu_shifts' => [
-            xl('Shifts Reporting'),
-            'bool', // data type
-            '0', // default
-            xl('For IPPF Argentina and maybe others')
-        ],
-
-        'gbl_menu_service_and_client_volume' => [
-            xl('Service and Client Volume Report'),
-            'bool', // data type
-            '1', // default
-            xl('Service and Client Volume Report')
         ],
     ];
 
@@ -4683,26 +4571,6 @@ if (!empty($GLOBALS['ippf_specific'])) {
             xl('Present an additional PDF custom receipt after checkout.')
         ],
 
-        'gbl_ma_ippf_code_restriction' => [
-            xl('Allow More than one MA/IPPF code mapping'),
-            'bool',                           // data type
-            '0',                              // default = false
-            xl('Disable the restriction of only one IPPF code per MA code in superbill')
-        ],
-
-        'gbl_uruguay_asse_url' => [
-            xl('Uruguay ASSE URL'),
-            'text',                           // data type
-            '',
-            xl('URL of ASSE SOAP server. Must be blank if not a Uruguay site. Enter "test" for dummy data.')
-        ],
-
-        'gbl_uruguay_asse_token' => [
-            xl('Uruguay ASSE Token'),
-            'text',                           // data type
-            '',
-            xl('Token for connection to ASSE SOAP server')
-        ],
     ];
 } // end if ippf_specific
 
