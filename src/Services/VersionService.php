@@ -12,6 +12,8 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Core\OEGlobalsBag;
+
 class VersionService extends BaseService implements VersionServiceInterface
 {
     /**
@@ -43,7 +45,7 @@ class VersionService extends BaseService implements VersionServiceInterface
      */
     public function asString(bool $includeTag = true, bool $includeRealpatch = true): string
     {
-        $globals = \OpenEMR\Core\OEGlobalsBag::getInstance();
+        $globals = OEGlobalsBag::getInstance();
         $major = (string) $globals->get('v_major', '0');
         $minor = (string) $globals->get('v_minor', '0');
         $patch = (string) $globals->get('v_patch', '0');
