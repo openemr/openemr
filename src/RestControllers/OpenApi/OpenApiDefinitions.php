@@ -156,7 +156,7 @@ use OpenApi\Attributes as OA;
                 'user/vital.crus' => 'Create,Read,Update,Search vitals the user has access to (api:oemr)',
                 'api:port' => 'Standard Patient Portal OpenEMR API',
                 'patient/encounter.read' => 'Read encounters the patient has access to (api:port)',
-                'patient/patient.read' => 'Write encounters the patient has access to (api:port)',
+                'patient/patient.read' => 'Read patient data the patient has access to (api:port)',
                 'patient/appointment.read' => 'Read appointments the patient has access to (api:port)',
             ]
         )

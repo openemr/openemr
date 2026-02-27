@@ -116,7 +116,7 @@ class FhirGoalRestController
      */
     #[OA\Get(
         path: '/fhir/Goal',
-        description: 'Returns a list of Condition resources.',
+        description: 'Returns a list of Goal resources.',
         tags: ['fhir'],
         parameters: [
             new OA\Parameter(
