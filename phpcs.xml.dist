@@ -45,9 +45,13 @@
       <property name="searchAnnotations" value="true" />
     </properties>
   </rule>
-  <rule ref="SlevomatCodingStandard.Namespaces.UseFromSameNamespace" />
-  <rule ref="SlevomatCodingStandard.Namespaces.UseDoesNotStartWithBackslash" />
+  <!-- To add later
   <rule ref="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses" />
+  <rule ref="SlevomatCodingStandard.Namespaces.MultipleUsesPerLine" />
+  <rule ref="SlevomatCodingStandard.Namespaces.UseDoesNotStartWithBackslash" />
+  <rule ref="SlevomatCodingStandard.Namespaces.UseFromSameNamespace" />
+  <rule ref="SlevomatCodingStandard.Namespaces.UselessAlias" />
+  -->
 
   <!-- Default scan target (overridden when paths passed on CLI) -->
   <file>.</file>
