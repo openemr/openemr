@@ -6,9 +6,6 @@ use Laminas\Router\Http\Segment;
 use Immunization\Controller\ImmunizationController;
 use Interop\Container\ContainerInterface;
 use Immunization\Model\ImmunizationTable;
-use Laminas\Db\ResultSet\ResultSet;
-use Laminas\Db\TableGateway\TableGateway;
-use Immunization\Model\Immunization;
 
 return [
     'controllers' => [

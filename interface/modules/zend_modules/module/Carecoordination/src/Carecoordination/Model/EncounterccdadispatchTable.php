@@ -18,7 +18,6 @@
 namespace Carecoordination\Model;
 
 use Application\Listener\Listener;
-use Application\Model\ApplicationTable;
 use Application\Model\SendtoTable;
 use Carecoordination\Model\CarecoordinationTable;
 use Documents\Plugin\Documents;

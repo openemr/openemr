@@ -23,9 +23,6 @@ use Interop\Container\ContainerInterface;
 use Laminas\Router\Http\Segment;
 use Patientvalidation\Controller\PatientvalidationController;
 use Patientvalidation\Model\PatientDataTable;
-use Patientvalidation\Model\PatientData;
-use Laminas\Db\ResultSet\ResultSet;
-use Laminas\Db\TableGateway\TableGateway;
 
 return [
 
