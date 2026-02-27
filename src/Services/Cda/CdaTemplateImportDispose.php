@@ -1798,7 +1798,7 @@ class CdaTemplateImportDispose
             $query_insert = "INSERT INTO transactions(date,title,pid,groupname,user,authorized)VALUES(?,?,?,?,?,?)";
             $trans_id = QueryUtils::sqlInsert($query_insert, [date('Y-m-d H:i:s'), 'LBTref', $pid, $_SESSION["authProvider"] ?? '', $_SESSION["authUser"] ?? '', $_SESSION["userauthorized"] ?? '']);
             if ($trans_id) {
-                QueryUtils::fetchRecords("INSERT INTO lbt_data SET form_id = ?,field_id = ?,field_value = ?", [$trans_id, 'body', $value['body']]);
+                QueryUtils::sqlStatementThrowException("INSERT INTO lbt_data SET form_id = ?,field_id = ?,field_value = ?", [$trans_id, 'body', $value['body']]);
             }
         }
     }
@@ -1828,9 +1828,9 @@ class CdaTemplateImportDispose
 
         $med_rec = QueryUtils::fetchRecords("select * from amc_misc_data where pid = ? and amc_id = 'med_reconc_amc' and map_category = 'form_encounter' and map_id = ?", [$pid, $enc_id]);
         if (count($med_rec) == 0) {
-            QueryUtils::fetchRecords("INSERT INTO amc_misc_data (amc_id,pid,map_category,map_id,date_created,date_completed,soc_provided) values('med_reconc_amc',?,'form_encounter',?,NOW(),NOW(),NOW())", [$pid, $enc_id]);
+            QueryUtils::sqlStatementThrowException("INSERT INTO amc_misc_data (amc_id,pid,map_category,map_id,date_created,date_completed,soc_provided) values('med_reconc_amc',?,'form_encounter',?,NOW(),NOW(),NOW())", [$pid, $enc_id]);
         } else {
-            QueryUtils::fetchRecords("UPDATE amc_misc_data set date_completed = NOW() where pid = ? and amc_id = 'med_reconc_amc' and map_category ='form_encounter' and map_id = ?", [$pid, $enc_id]);
+            QueryUtils::sqlStatementThrowException("UPDATE amc_misc_data set date_completed = NOW() where pid = ? and amc_id = 'med_reconc_amc' and map_category ='form_encounter' and map_id = ?", [$pid, $enc_id]);
         }
     }
 
