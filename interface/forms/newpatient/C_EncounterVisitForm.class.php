@@ -38,10 +38,11 @@ use OpenEMR\OeUI\RenderFormFieldHelper;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\UserService;
 use OpenEMR\Services\ListService;
-use sqlStatement;
-use sqlFetchArray;
 use Twig\Environment;
 use Twig\TwigFunction;
+
+use function sqlFetchArray;
+use function sqlStatement;
 
 class C_EncounterVisitForm
 {
