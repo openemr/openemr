@@ -1283,7 +1283,6 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $field_name = [];
         $details = $this->getDetails('hie_recipient_id');
 
-        
         if ($recipients == 'hie') {
             $details['fname'] = 'MyHealth';
             $details['lname'] = '';
