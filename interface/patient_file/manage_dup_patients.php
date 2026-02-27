@@ -106,7 +106,9 @@ function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
 /** @var string $pubpid */
             $pubpid = $row['pubpid'];
             echo csvEscape($pubpid) . ',';
+/** @var string $highlight_text */
             echo  csvEscape(text($highlight_text))  . ',';
+ /** @var string $ptname */
             echo  csvEscape(text($ptname)) .  ',';
             // rm - format dates by users preference
  /** @var string $date_str */
@@ -121,6 +123,7 @@ function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
 /** @var string $email_addr */
             $email_addr = $row['email'];
             echo csvEscape ($email_addr) .  ',';
+ /** @var string $phones */
             echo csvEscape(text($phones)) .  ',';
              /** @var string $date_str */
             $date_str = $row['regdate'];
@@ -145,37 +148,35 @@ function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
     </td>
     <td class="text-warning" onclick="openNewTopWindow(<?php echo attr_js($row['pid']); ?>)"
         title="<?php echo xla('Click to open in a new window or tab'); ?>" style="cursor:pointer">
-        <?php
-       /**   @var array<string> $row */
-        echo text($row['pid']); ?>
+        <?php    /**   @var array<string> $row */    echo text($row['pid']); ?>
     </td>
     <td>
-        <?php  echo text($row['pubpid']); ?>
+        <?php /** @var string pubpid */) echo text($row['pubpid']); ?>
     </td>
     <td>
-        <?php echo $highlight_text; ?>
+        <?php/** @var string highlight_text */ echo $highlight_text; ?>
     </td>
     <td>
-        <?php echo text($ptname); ?>
+        <?php /** @var string ptname */echo text($ptname); ?>
     </td>
     <td>
         <?php $date_ob = oeFormatShortDate($row['DOB']);    /** @var string $date_ob */  echo text($date_ob); ?>
       ?>
     </td>
     <td>
-        <?php echo text($row['sex']); ?>
+        <?php echo  /**   @var array<string> $row */  text($row['sex']); ?>
     </td>
     <td>
-        <?php echo text($row['email']); ?>
+        <?php  /**   @var array<string> $row */ echo text($row['email']); ?>
     </td>
     <td>
-        <?php echo text($phones); ?>
+        <?php  /**   @var string $phones */ echo text($phones); ?>
     </td>
     <td>
         <?php //echo text(oeFormatShortDate($row['regdate'])); ?>
     </td>
     <td>
-        <?php echo text($row['street']); ?>
+        <?php  /**   @var array<string> $row */ echo text($row['street']); ?>
     </td>
     </tr>
         <?php
