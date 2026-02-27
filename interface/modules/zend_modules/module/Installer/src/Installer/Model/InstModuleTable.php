@@ -148,7 +148,7 @@ class InstModuleTable
                     $query = rtrim("$sqlq");
                     //remove special sql prefix suffix
                     $query = preg_replace($cleanSpecialPattern, $specialReplacement, $query);
-                    if (strlen((string) $query) > 5) {
+                    if ($query !== null && strlen($query) > 5) {
                         try {
                             QueryUtils::sqlStatementThrowException($query);
                         } catch (\Throwable $e) {

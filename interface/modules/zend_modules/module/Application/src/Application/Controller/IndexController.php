@@ -14,7 +14,6 @@ namespace Application\Controller;
 
 use Application\Listener\Listener;
 use Laminas\Mvc\Controller\AbstractActionController;
-use Laminas\Stdlib\Parameters;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\Common\Database\QueryUtils;
@@ -98,7 +97,7 @@ class IndexController extends AbstractActionController
     /**
      * @return array<string, mixed>
      */
-    private function listAutoSuggest(Parameters $post, int $limit): array
+    private function listAutoSuggest($post, $limit)
     {
         $limitEnd = \Application\Plugin\CommonPlugin::escapeLimit($limit);
 

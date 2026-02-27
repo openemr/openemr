@@ -12,9 +12,8 @@
 
 namespace Application\Plugin;
 
-use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 use Application\Listener\Listener;
-use Interop\Container\ContainerInterface;
+use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 
 require_once($GLOBALS['srcdir'] . '/direct_message_check.inc.php');
 
@@ -22,7 +21,7 @@ class Phimail extends AbstractPlugin
 {
     private readonly Listener $listenerObject;
 
-    public function __construct(ContainerInterface $container)
+    public function __construct()
     {
         $this->listenerObject = new Listener();
     }

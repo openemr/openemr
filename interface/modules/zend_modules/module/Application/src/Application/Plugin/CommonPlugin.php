@@ -14,7 +14,6 @@
 namespace Application\Plugin;
 
 use Application\Listener\Listener;
-use Interop\Container\ContainerInterface;
 use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
@@ -23,7 +22,7 @@ class CommonPlugin extends AbstractPlugin
 {
     protected $listenerObject;
 
-    public function __construct(ContainerInterface $container)
+    public function __construct()
     {
         $this->listenerObject = new Listener();
     }
