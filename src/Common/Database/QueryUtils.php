@@ -115,10 +115,7 @@ class QueryUtils
     public static function fetchSingleValue($sqlStatement, $column, $binds = [])
     {
         $records = self::fetchTableColumn($sqlStatement, $column, $binds);
-        if (isset($records[0])) {
-            return $records[0];
-        }
-        return null;
+        return $records[0] ?? null;
     }
 
     /**
