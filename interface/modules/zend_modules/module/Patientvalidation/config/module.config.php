@@ -33,7 +33,7 @@ return [
     /* declare all controllers */
     'controllers' => [
         'factories' => [
-            PatientvalidationController::class =>  fn(ContainerInterface $container, $requestedName): \Patientvalidation\Controller\PatientvalidationController => new PatientvalidationController($container->get(PatientDataTable::class))
+            PatientvalidationController::class =>  fn(ContainerInterface $container, $requestedName): PatientvalidationController => new PatientvalidationController($container->get(PatientDataTable::class))
         ],
     ],
 
@@ -69,9 +69,7 @@ return [
 
     'service_manager' => [
         'factories' => [
-            PatientDataTable::class =>  function (ContainerInterface $container, $requestedName) {
-                return new PatientDataTable();
-            }
+            PatientDataTable::class => fn (ContainerInterface $container, $requestedName) => new PatientDataTable(),
         ],
     ]
 ];

@@ -137,7 +137,7 @@ class InstModuleTable
                     if (strlen($query) > 5) {
                         try {
                             QueryUtils::sqlStatementThrowException($query);
-                        } catch (\Throwable $e) {
+                        } catch (\Throwable) {
                             return false;
                         }
                     }
@@ -151,7 +151,7 @@ class InstModuleTable
                     if ($query !== null && strlen($query) > 5) {
                         try {
                             QueryUtils::sqlStatementThrowException($query);
-                        } catch (\Throwable $e) {
+                        } catch (\Throwable) {
                             return false;
                         }
                     }
@@ -421,7 +421,7 @@ class InstModuleTable
             try {
                 QueryUtils::sqlStatementThrowException($sql, [$id]);
                 return 'success';
-            } catch (\Throwable $e) {
+            } catch (\Throwable) {
                 return 'failure';
             }
         }
