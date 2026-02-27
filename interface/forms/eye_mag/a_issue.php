@@ -24,6 +24,9 @@ TODO: Code cleanup */
 
 $form_folder = "eye_mag";
 require_once('../../globals.php');
+
+use OpenEMR\Common\Session\SessionUtil;
+
 require_once($GLOBALS['srcdir'] . '/lists.inc.php');
 require_once($GLOBALS['srcdir'] . '/patient.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
@@ -71,7 +74,7 @@ $PMSFH = build_PMSFH($pid);
 $patient = getPatientData($pid, "*");
 $providerID = findProvider($pid, $encounter);
 if (!($_SESSION['providerID'] ?? '') && $providerID) {
-    ($_SESSION['providerID'] = $providerID);
+    SessionUtil::setSession('providerID', $providerID);
 }
 
 $irow = [];
