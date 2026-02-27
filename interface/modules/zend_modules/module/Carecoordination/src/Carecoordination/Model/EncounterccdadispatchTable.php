@@ -161,7 +161,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
      */
     public function resolveRace($race)
     {
-                $res_cur = null;
+        $res_cur = null;
         $query = "SELECT title, notes FROM list_options WHERE list_id='race' AND option_id=?";
         $option['race']['title'] = '';
         $option['race']['code'] = '';
@@ -834,7 +834,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         $provider_details = '';
         if (!$encounter) {
             $query_enc = "SELECT encounter FROM form_encounter WHERE pid=? ORDER BY date DESC LIMIT 1";
-                        $res_enc = QueryUtils::fetchRecords($query_enc, [$pid]);
+            $res_enc = QueryUtils::fetchRecords($query_enc, [$pid]);
             foreach ($res_enc as $row_enc) {
                 $encounter = $row_enc['encounter'];
             }
@@ -844,7 +844,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                         JOIN users AS u ON u.id =  fe.provider_id
                         JOIN facility AS f ON f.id = u.facility_id
                         WHERE fe.pid = ? AND fe.encounter = ?";
-                $row = QueryUtils::fetchRecords($query, [$pid, $encounter]);
+        $row = QueryUtils::fetchRecords($query, [$pid, $encounter]);
         foreach ($row as $result) {
             $provider_details = "<encounter_provider>
                 <facility_id>" . xmlEscape($result['id']) . "</facility_id>
@@ -1398,7 +1398,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         if (!empty($getprovider)) {
             $details = $this->getUserDetails($getprovider);
             $provenanceSql = "SELECT updated_by AS provenance_updated_by, date AS date_modified FROM patient_data WHERE pid = ?";
-                        $res = QueryUtils::fetchRecords($provenanceSql, [$pid]);
+            $res = QueryUtils::fetchRecords($provenanceSql, [$pid]);
             foreach ($res as $row) {
                 $provenanceRecord = [
                     'author_id' => $row['provenance_updated_by'],
@@ -1544,7 +1544,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                         LEFT JOIN list_options AS lo ON lo.list_id = ? AND lo.option_id = l.severity_al
                         left join users author ON l.user = author.username
                         WHERE l.type = ? AND l.pid = ?";
-                $res = QueryUtils::fetchRecords($query, ['severity_ccda', 'allergy', $pid]);
+        $res = QueryUtils::fetchRecords($query, ['severity_ccda', 'allergy', $pid]);
 
         $allergies = "<allergies>";
         foreach ($res as $row) {
@@ -1641,7 +1641,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                        left join list_options as l4 on l4.option_id=`interval` AND l4.list_id = ?
                        left join users as u on u.id = l.provider_id
                        where l.patient_id = ? and l.active = 1";
-                $res = QueryUtils::fetchRecords($query, ['drug_units', 'drug_form', 'drug_route', 'drug_interval', $pid]);
+        $res = QueryUtils::fetchRecords($query, ['drug_units', 'drug_form', 'drug_route', 'drug_interval', $pid]);
 
         $medications = "<medications>";
         foreach ($res as $row) {
@@ -1726,7 +1726,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     left join users author ON l.user = author.username
     left join list_options as lo on lo.option_id = l.outcome AND lo.list_id = ?
     where l.type = ? and l.pid = ? AND l.outcome != ?"; // patched out /* AND l.id NOT IN(SELECT list_id FROM issue_encounter WHERE pid = ?)*/
-                $res = QueryUtils::fetchRecords($query, ['outcome', 'medical_problem', $pid, 1]);
+        $res = QueryUtils::fetchRecords($query, ['outcome', 'medical_problem', $pid, 1]);
 
         $problem_lists .= '<problem_lists>';
         foreach ($res as $row) {
@@ -1823,7 +1823,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     left join users author ON l.user = author.username
     left join list_options as lo on lo.option_id = l.outcome AND lo.list_id = ?
     where l.type = ? and l.pid = ? AND l.outcome != ? AND l.id NOT IN(SELECT list_id FROM issue_encounter WHERE pid = ?)";
-                $res = QueryUtils::fetchRecords($query, ['outcome', 'medical_device', $pid, 1, $pid]);
+        $res = QueryUtils::fetchRecords($query, ['outcome', 'medical_device', $pid, 1, $pid]);
 
         $medical_devices .= '<medical_devices>';
         foreach ($res as $row) {
@@ -1906,7 +1906,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
             LEFT JOIN users AS u ON u.id = im.administered_by_id
             LEFT JOIN facility AS f ON f.id = u.facility_id
             WHERE im.patient_id=? AND added_erroneously = 0";
-                $res = QueryUtils::fetchRecords($query, [$pid]);
+        $res = QueryUtils::fetchRecords($query, [$pid]);
 
         $immunizations .= '<immunizations>';
         foreach ($res as $row) {
@@ -1978,7 +1978,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     LEFT JOIN facility AS f ON f.id = fe.facility_id
     WHERE $wherCon b.pid = ? and b.activity = ?";
         array_push($sqlBindArray, $pid, 1);
-                $res = QueryUtils::fetchRecords($query, $sqlBindArray);
+        $res = QueryUtils::fetchRecords($query, $sqlBindArray);
         foreach ($res as $row) {
             $rows[] = $row;
         }
@@ -2098,7 +2098,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         WHERE $wherCon po.patient_id = ? AND prs.result NOT IN ('DNR','TNP')";
         array_push($sqlBindArray, $pid);
 
-                $res = QueryUtils::fetchRecords($query, $sqlBindArray);
+        $res = QueryUtils::fetchRecords($query, $sqlBindArray);
 
         $results_list = [];
         foreach ($res as $row) {
@@ -2213,7 +2213,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
         LEFT JOIN list_options AS lo ON lo.list_id = 'physician_type' AND lo.option_id = u.physician_type
         WHERE $wherCon fe.pid = ? ORDER BY fe.date";
         array_push($sqlBindArray, $pid);
-                $res = QueryUtils::fetchRecords($query, $sqlBindArray);
+        $res = QueryUtils::fetchRecords($query, $sqlBindArray);
 
         $primary_diagnosis = '';
         $results = "<encounter_list>";
@@ -2234,7 +2234,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 JOIN code_types AS ct ON ct.ct_key = ?
                 JOIN codes AS c ON c.code = b.code AND c.code_type = ct.ct_id
                 WHERE b.pid = ? AND b.code_type = ? AND activity = 1 AND b.encounter = ?";
-                        $res_procedures = QueryUtils::fetchRecords($query_procedures, ['CPT4', $pid, 'CPT4', $row['encounter']]);
+            $res_procedures = QueryUtils::fetchRecords($query_procedures, ['CPT4', $pid, 'CPT4', $row['encounter']]);
             $issue_q = "SELECT ll.diagnosis AS encounter_diagnosis, ll.diagnosis as raw_diagnosis,
                 ll.title, ll.begdate, ll.enddate, ie.list_id From issue_encounter AS ie
                 Left JOIN lists AS ll ON ll.id = ie.list_id Where ie.encounter = ?";
@@ -3039,7 +3039,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
                 LEFT JOIN users as u on u.username = fv.user
                 WHERE f.pid = ? AND f.formdir = 'vitals' AND f.deleted=0 $wherCon
                 ORDER BY fe.date DESC";
-                $res = QueryUtils::fetchRecords($query, [$pid]);
+        $res = QueryUtils::fetchRecords($query, [$pid]);
 
         $vitals .= "<vitals_list>";
         foreach ($res as $row) {
