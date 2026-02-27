@@ -567,7 +567,7 @@ class CareTeamService extends BaseService
             WHERE foreign_table_name = 'person'
          ) person_contact ON ctm.contact_id = person_contact.contact_record_id
          LEFT JOIN person p ON person_contact.person_record_id = p.id
-         LEFT JOIN contact_relation cr ON cr.target_id = p.id AND target_table='person' AND cr.active = 1
+         LEFT JOIN contact_relation cr ON cr.target_id = p.id AND cr.target_table='person' AND cr.active = 1
          LEFT JOIN contact patient_contact ON cr.contact_id = patient_contact.id AND patient_contact.foreign_table_name = 'patient_data' AND patient_contact.foreign_id = ct.pid
          LEFT JOIN facility f ON ctm.facility_id = f.id
          LEFT JOIN list_options lo1 ON lo1.option_id = ctm.role AND lo1.list_id = 'care_team_roles'
