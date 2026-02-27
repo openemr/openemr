@@ -179,31 +179,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Laminas\\-DB class "Laminas\\\\Db\\\\TableGateway\\\\TableGateway" is deprecated\\. Use QueryUtils or DatabaseQueryTrait instead\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/config/module.config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Laminas\\-DB class "Laminas\\\\Db\\\\Adapter\\\\Adapter" is deprecated\\. Use QueryUtils or DatabaseQueryTrait instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/MultipledbTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Laminas\\-DB class "Laminas\\\\Db\\\\Sql\\\\Expression" is deprecated\\. Use QueryUtils or DatabaseQueryTrait instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/MultipledbTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Laminas\\-DB class "Laminas\\\\Db\\\\Sql\\\\Predicate" is deprecated\\. Use QueryUtils or DatabaseQueryTrait instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/MultipledbTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Laminas\\-DB class "Laminas\\\\Db\\\\TableGateway\\\\TableGateway" is deprecated\\. Use QueryUtils or DatabaseQueryTrait instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/MultipledbTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Laminas\\-DB class "Laminas\\\\Db\\\\TableGateway\\\\TableGateway" is deprecated\\. Use QueryUtils or DatabaseQueryTrait instead\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/Module.php',
 ];
 $ignoreErrors[] = [

@@ -930,8 +930,6 @@ $config = 1; /////////////
         // xl('Inventory Administration')
         $gacl->add_object('admin', 'ACL Administration', 'acl', 10, 0, 'ACO');
         // xl('ACL Administration')
-        $gacl->add_object('admin', 'Multipledb', 'multipledb', 10, 0, 'ACO');
-        // xl('Multipledb')
         $gacl->add_object('admin', 'Menu', 'menu', 10, 0, 'ACO');
         // xl('Menu')
         $gacl->add_object('admin', 'Manage modules', 'manage_modules', 10, 0, 'ACO');
@@ -1088,7 +1086,7 @@ $config = 1; /////////////
         $gacl->add_acl(
             [
                 'acct' => ['bill', 'disc', 'eob', 'rep', 'rep_a'],
-                'admin' => ['calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'],
+                'admin' => ['calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl', 'menu', 'manage_modules'],
                 'encounters' => ['auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'],
                 'inventory' => ['lots', 'sales', 'purchases', 'transfers', 'adjustments', 'consumption', 'destruction', 'reporting'],
                 'lists' => ['default','state','country','language','ethrace'],
@@ -1361,7 +1359,7 @@ $config = 1; /////////////
         $gacl->add_acl(
             [
                 'acct' => ['bill', 'disc', 'eob', 'rep', 'rep_a'],
-                'admin' => ['calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'],
+                'admin' => ['calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl', 'menu', 'manage_modules'],
                 'encounters' => ['auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'],
                 'inventory' => ['lots', 'sales', 'purchases', 'transfers', 'adjustments', 'consumption', 'destruction', 'reporting'],
                 'lists' => ['default','state','country','language','ethrace'],

@@ -16,7 +16,6 @@
  */
 
 use OpenEMR\BC\DatabaseConnectionFactory;
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\DbUtils;
 
 $tmp = "SET NAMES 'UTF8MB4', sql_mode = '', time_zone = '" . (new DateTime())->format("P") . "'";
@@ -50,35 +49,6 @@ $factories = [
     }
 ];
 
-// This settings can be change in the global settings under security tab
-$adapters = [];
-if (!empty($GLOBALS['allow_multiple_databases'])) {
-    // Open pdo connection
-    $dbh = new PDO(DbUtils::buildMysqlDsn($GLOBALS['dbase'], $GLOBALS['host'], $GLOBALS['port']), $GLOBALS['login'], $GLOBALS['pass']);
-    $res = $dbh->prepare('SELECT * FROM multiple_db');
-    if ($res->execute()) {
-        foreach ($res->fetchAll() as $row) {
-            // Create new adapters using data from database
-            $cryptoGen = new CryptoGen();
-            $adapters[$row['namespace']] = [
-                'driver' => 'Pdo',
-                'dsn' => DbUtils::buildMysqlDsn($row['dbname'], $row['host'], $row['port'] ?? ''),
-                'driver_options' => $utf8,
-                'username' => $row['username'],
-                'password' => ($cryptoGen->cryptCheckStandard($row['password'])) ? $cryptoGen->decryptStandard($row['password']) : my_decrypt($row['password']),
-            ];
-
-            // Create new factories using data from custom database
-            $factories[$row['namespace']] = function ($serviceManager) use ($row) {
-                $adapterAbstractServiceFactory = new Laminas\Db\Adapter\AdapterAbstractServiceFactory();
-                $adapter = $adapterAbstractServiceFactory->createServiceWithName($serviceManager, '', $row['namespace']);
-                return $adapter;
-            };
-        }
-    }
-
-    $dbh = null; // Close pdo connection
-}
 // sites/<site_id>/sqlconf.php stores the database connection settings into a global sqlconf variable
 // we will use that instead of the individual globals set previously.
 $sqlConf = $GLOBALS['sqlconf'] ?? ['dbase' => '', 'host' => '', 'login' => '', 'pass' => '', 'port' => ''];
@@ -90,30 +60,9 @@ return [
         'username'       => $sqlConf['login'] ?? '',
         'password'       => $sqlConf['pass'] ?? '',
         'driver_options' => $utf8,
-        'adapters'       => $adapters
+        'adapters'       => [],
     ],
     'service_manager' => [
         'factories' => $factories
     ]
 ];
-
-
-
-/**
- * DEPRECATED; just keeping this for backward compatibility.
- *
- * Decrypts the string
- * @param $value
- * @return bool|string
- *
- * DEPRECATED; just keeping this for backward compatibility.
- */
-
-function my_decrypt($data)
-{
-    // Remove the base64 encoding from our key
-    $encryption_key = base64_decode((string) $GLOBALS['safe_key_database']);
-    // To decrypt, split the encrypted data from our IV - our unique separator used was "::"
-    [$encrypted_data, $iv] = explode('::', base64_decode((string) $data), 2);
-    return openssl_decrypt($encrypted_data, 'aes-256-cbc', $encryption_key, 0, $iv);
-}

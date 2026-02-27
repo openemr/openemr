@@ -2712,7 +2712,7 @@ class InstallerTest extends TestCase
         // The key test: verify administrator ACL is created correctly
         $expectedAdminAcos = [
             'acct' => ['bill', 'disc', 'eob', 'rep', 'rep_a'],
-            'admin' => ['calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'],
+            'admin' => ['calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl', 'menu', 'manage_modules'],
             'encounters' => ['auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'],
             'inventory' => ['lots', 'sales', 'purchases', 'transfers', 'adjustments', 'consumption', 'destruction', 'reporting'],
             'lists' => ['default','state','country','language','ethrace'],
