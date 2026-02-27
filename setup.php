@@ -1669,7 +1669,6 @@ STP4TOP;
                             . text("}") . "\n\n"
                             . text("location ^~ /bin/ {") . "\n"
                             . text("    deny all;") . "\n"
-                            . text("    return 404;") . "\n"
                             . text("}")
                         . "</code></pre>
 
