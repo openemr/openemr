@@ -173,3 +173,27 @@ ALTER TABLE `patient_data` CHANGE `interpretter` `interpreter` varchar(255) NOT 
 #IfRow2D layout_options form_id DEM field_id interpretter
 UPDATE `layout_options` SET `field_id` = 'interpreter' WHERE `form_id` = 'DEM' AND `field_id` = 'interpretter';
 #EndIf
+
+-- Remove 19 unused global definitions (AI-generated section start)
+DELETE FROM `globals` WHERE `gl_name` IN (
+    'enable_amc_tracking',
+    'gbl_ma_ippf_code_restriction',
+    'gbl_menu_acct_trans',
+    'gbl_menu_ive_clients',
+    'gbl_menu_projects',
+    'gbl_menu_service_and_client_volume',
+    'gbl_menu_shifts',
+    'gbl_menu_stats_cc',
+    'gbl_menu_stats_cyp',
+    'gbl_menu_stats_daily',
+    'gbl_menu_stats_gcac',
+    'gbl_menu_stats_ippf',
+    'gbl_menu_stats_ma',
+    'gbl_menu_stats_sinadi',
+    'gbl_menu_visits_by_item',
+    'gbl_nav_visit_forms',
+    'gbl_uruguay_asse_token',
+    'gbl_uruguay_asse_url',
+    'machine_name'
+);
+-- (AI-generated section end)
