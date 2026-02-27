@@ -151,7 +151,7 @@ function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
         <?php    /**   @var array<string> $row */    echo text($row['pid']); ?>
     </td>
     <td>
-        <?php /** @var string pubpid */) echo text($row['pubpid']); ?>
+        <?php /** @var string pubpid */ echo text($row['pubpid']); ?>
     </td>
     <td>
         <?php/** @var string highlight_text */ echo $highlight_text; ?>
