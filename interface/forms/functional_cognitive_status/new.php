@@ -142,7 +142,7 @@ $check_res = $formid ? $check_res : [];
                         if (!empty($check_res)) {
                             foreach ($check_res as $key => $obj) { ?>
                                 <div class="tb_row" id="tb_row_<?php echo attr($key) + 1; ?>">
-                                    <div class="form-row">
+                                    <div class="row gx-2">
                                         <div class="forms col-md-2">
                                             <label for="code_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Code'); ?>:</label>
                                             <input type="text" id="code_<?php echo attr($key) + 1; ?>"  name="code[]" class="form-control code" value="<?php echo text($obj["code"]); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
@@ -174,7 +174,7 @@ $check_res = $formid ? $check_res : [];
                             }
                         } else { ?>
                             <div class="tb_row" id="tb_row_1">
-                                <div class="form-row">
+                                <div class="row gx-2">
                                         <div class="forms col-md-2">
                                             <label for="code_1" class="h5"><?php echo xlt('Code'); ?>:</label>
                                             <input type="text" id="code_1"  name="code[]" class="form-control code" value="<?php echo text($obj["code"] ?? ''); ?>"  onclick='sel_code(this.parentElement.parentElement.parentElement.id);'>
@@ -210,7 +210,7 @@ $check_res = $formid ? $check_res : [];
                         ?>
                         </div>
                     </fieldset>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <div class="col-sm-12 position-override">
                             <div class="btn-group" role="group">
                                 <button type="submit" onclick="top.restoreSession()" class="btn btn-primary btn-save"><?php echo xlt('Save'); ?></button>

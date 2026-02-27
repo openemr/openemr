@@ -95,19 +95,19 @@ if (!empty($_POST)) {
                                 </div>
                                 <div class="row">
                                     <div class="col-md-4">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <label for="form_orderNumber"><?php echo xlt("Order Number") ?>:</label>
                                             <input type="text" class="form-control" id="form_orderNumber" name="form_orderNumber" value="<?php echo isset($_POST['form_orderNumber']) ? attr($_POST['form_orderNumber']) : '' ?>" />
                                         </div>
                                     </div>
                                     <div class="col-md-4">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <label for="form_startDateTime"><?php echo xlt("Start Date") ?>:</label>
                                             <input type="date" class="form-control datepicker" id="form_startDateTime" name="form_startDateTime" value="<?php echo isset($_POST['form_startDateTime']) ? attr($_POST['form_startDateTime']) : '' ?>" />
                                         </div>
                                     </div>
                                     <div class="col-md-4">
-                                        <div class="form-group">
+                                        <div class="mb-3">
                                             <label for="form_endDateTime"><?php echo xlt("End Date") ?>:</label>
                                             <input type="date" class="form-control datepicker" id="form_endDateTime" name="form_endDateTime" value="<?php echo isset($_POST['form_endDateTime']) ? attr($_POST['form_endDateTime']) : '' ?>" />
                                         </div>

@@ -721,10 +721,10 @@ class SignalWireClient extends AppDispatch
                     $patientRow = QueryUtils::querySingleRow("SELECT fname, lname FROM patient_data WHERE pid = ?", [$patientId]);
                     if ($patientRow) {
                         $patientName = text($patientRow['fname'] . ' ' . $patientRow['lname']);
-                        $messageCol .= "<span class='badge badge-success'>" . xlt('Assigned to') . ": {$patientName}</span>";
+                        $messageCol .= "<span class='badge bg-success'>" . xlt('Assigned to') . ": {$patientName}</span>";
                     }
                 } else {
-                    $messageCol .= "<span class='badge badge-warning'>" . xlt('Unassigned') . "</span> ";
+                    $messageCol .= "<span class='badge bg-warning text-dark'>" . xlt('Unassigned') . "</span> ";
                     // Add assign button
                     $messageCol .= "<button class='btn btn-sm btn-info' onclick='assignFaxToPatient(" . attr($queueId) . ")'>" .
                                    "<i class='fa fa-user-plus'></i> " . xlt('Assign') . "</button>";

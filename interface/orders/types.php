@@ -289,9 +289,9 @@ if ($popup && $_POST['form_save'] ?? '') {
 <body>
     <?php
     if ($GLOBALS['enable_help'] == 1) {
-        $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="oe-pull-away oe-help-redirect" data-bs-target="#myModal" data-bs-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 2) {
-        $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="oe-pull-away oe-help-redirect" data-bs-target="#myModal" data-bs-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 0) {
         $help_icon = '';
     }
@@ -329,12 +329,12 @@ if ($popup && $_POST['form_save'] ?? '') {
                         <table class="table mb-0">
                             <thead>
                                 <tr class='head'>
-                                    <td class='col1 text-left'>&nbsp;&nbsp;<?php echo xlt('Name') ?> <i id="name-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
-                                    <td class='col2 oe-pl0 text-left'><?php echo xlt('Category') ?> <i id="order-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
-                                    <td class='col3 oe-pl0 text-left'><?php echo xlt('Code') ?> <i id="code-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
-                                    <td class='col6 oe-pl0 text-left'><?php echo xlt('Tier') ?> <i id="tier-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
-                                    <td class='col4 oe-pl0 text-left'><?php echo xlt('Description') ?></td>
-                                    <td class='col5 oe-pl0 text-left'><?php echo xlt('Edit') ?></td>
+                                    <td class='col1 text-start'>&nbsp;&nbsp;<?php echo xlt('Name') ?> <i id="name-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
+                                    <td class='col2 oe-pl0 text-start'><?php echo xlt('Category') ?> <i id="order-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
+                                    <td class='col3 oe-pl0 text-start'><?php echo xlt('Code') ?> <i id="code-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
+                                    <td class='col6 oe-pl0 text-start'><?php echo xlt('Tier') ?> <i id="tier-tooltip" class="fa fa-info-circle oe-text-black" aria-hidden="true"></i></td>
+                                    <td class='col4 oe-pl0 text-start'><?php echo xlt('Description') ?></td>
+                                    <td class='col5 oe-pl0 text-start'><?php echo xlt('Edit') ?></td>
                                     <td class='col5 oe-pl0 text-center'><?php echo xlt('Add') ?></td>
                                 </tr>
                             </thead>
@@ -342,8 +342,8 @@ if ($popup && $_POST['form_save'] ?? '') {
                     </div>
                     <div id="con0"></div>
                     <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
-                    <div class="form-group">
-                        <div class="col-sm-12 text-left position-override">
+                    <div class="mb-3">
+                        <div class="col-sm-12 text-start position-override">
                             <div class="btn-group" role="group">
                                 <?php if ($popup) { ?>
                                     <button type="submit" class="btn btn-primary btn-save" name='form_save' value='<?php echo xla('Save'); ?>'>
@@ -371,25 +371,28 @@ if ($popup && $_POST['form_save'] ?? '') {
     ?>
     <script>
         $(function () {
-            $('#name-tooltip').tooltip({
+            // Initialize BS5 tooltips
+            new bootstrap.Tooltip(document.getElementById('name-tooltip'), {
                 title: <?php echo xlj('The actual tests or procedures that can be searched for and ordered are highlighted in yellow'); ?> +  ". "  + <?php echo xlj('Click on the blue plus sign under Name to reveal test names'); ?>,
                 placement: 'right',
             });
-            $('#order-tooltip').tooltip({
+            new bootstrap.Tooltip(document.getElementById('order-tooltip'), {
                 title: <?php echo xlj('The entries highlighted in yellow can be ordered as a test or procedure those highlighted in pink can be ordered as a Custom Group'); ?> +  ". "  + <?php echo xlj('Click on the blue plus sign under Name to reveal test names'); ?>,
                 placement: 'right',
             });
-            $('#code-tooltip').tooltip({
+            new bootstrap.Tooltip(document.getElementById('code-tooltip'), {
                 title: <?php echo xlj('Category - Order, Result and Recommendation need an identifying code');?> + ". " + <?php echo xlj('Red Triangle indicates a required code that is missing')?> + ".",
                 placement: 'right',
             });
-            $('#tier-tooltip').tooltip({
+            new bootstrap.Tooltip(document.getElementById('tier-tooltip'), {
                 title: <?php echo xlj('Shows the hierarchal level of this line');?> + ". " + <?php echo xlj('Tier 1 entries should be of Category Top Group')?> + ".",
                 placement: 'right',
             });
-            $('table td .required-tooltip').tooltip({
-                title: <?php echo xlj('For proper tabulated display of tests and results an identifying code is required'); ?>,
-                placement: 'right',
+            document.querySelectorAll('table td .required-tooltip').forEach(function(el) {
+                new bootstrap.Tooltip(el, {
+                    title: <?php echo xlj('For proper tabulated display of tests and results an identifying code is required'); ?>,
+                    placement: 'right',
+                });
             });
 
             $("table td .required-tooltip").fadeIn(500);

@@ -90,7 +90,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             }
 
             retrieveMsgs();
-            $('#received').tab('show');
+            bootstrap.Tab.getOrCreateInstance(document.getElementById('received')).show();
         });
 
         <?php
@@ -840,29 +840,28 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
     <div class="sticky-top">
         <nav class="navbar navbar-expand-xl navbar-light bg-light">
             <div class="container">
-                <a class="navbar-brand" href="#"><h4><?php echo $title; ?><i class="brand ml-1" id="brand-top"></i></h4></a>
-                <button type="button" class="bg-primary navbar-toggler mr-auto" data-toggle="collapse" data-target="#nav-header-collapse">
+                <a class="navbar-brand" href="#"><h4><?php echo $title; ?><i class="brand ms-1" id="brand-top"></i></h4></a>
+                <button type="button" class="bg-primary navbar-toggler me-auto" data-bs-toggle="collapse" data-bs-target="#nav-header-collapse">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="nav-header-collapse">
-                    <form class="navbar-form navbar-left form-inline" method="GET" role="search">
-                        <div class="form-group">
-                            <label for="fromdate" class="mx-1 font-weight-bolder" for="formdate"><?php echo xlt('Activities From Date') ?>:</label>
-                            <input type="text" id="fromdate" name="fromdate" class="form-control input-sm datepicker" placeholder="YYYY-MM-DD" value=''>
+                    <form class="navbar-form navbar-left" d-flex flex-wrap align-items-center gap-2" method="GET" role="search">
+                        <div class="mb-3">
+                            <label for="fromdate" class="mx-1 fw-bolder" for="formdate"><?php echo xlt('Activities From Date') ?>:</label>
+                            <input type="text" id="fromdate" name="fromdate" class="form-control form-control-sm datepicker" placeholder="YYYY-MM-DD" value=''>
                         </div>
-                        <div class="form-group">
-                            <label class="mx-1 font-weight-bolder" for="todate"><?php echo xlt('To Date') ?>:</label>
-                            <input type="text" id="todate" name="todate" class="form-control input-sm datepicker" placeholder="YYYY-MM-DD" value=''>
+                        <div class="mb-3">
+                            <label class="mx-1 fw-bolder" for="todate"><?php echo xlt('To Date') ?>:</label>
+                            <input type="text" id="todate" name="todate" class="form-control form-control-sm datepicker" placeholder="YYYY-MM-DD" value=''>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <button type="button" class="btn btn-primary btn-search" onclick="retrieveMsgs(event,this)" title="<?php echo xla('Click to get current history.') ?>"></button>
                         </div>
                     </form>
                     <?php if ($clientApp->verifyAcl('patients', 'appt')) { ?>
-                        <div class="nav-item dropdown ml-auto">
-                            <button class="btn btn-lg btn-link dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
-                                <?php echo xlt('Account Actions'); ?><span class="caret"></span>
-                            </button>
+                        <div class="nav-item dropdown ms-auto">
+                            <button class="btn btn-lg btn-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false">
+                                <?php echo xlt('Account Actions'); ?>                            </button>
                             <div class="dropdown-menu" role="menu">
                                 <a class="dropdown-item" href="#" onclick="doSetup(event)"><?php echo xlt('Account Credentials'); ?></a>
                                 <?php if ($serviceType == 'sms') { ?>
@@ -885,32 +884,32 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
     <div class="container-fluid main-container mt-3">
         <div class="row">
             <div class="col-md-10 offset-md-1 content">
-                <h3><?php echo xlt("Activities") ?><i class="brand ml-1" id="brand"></i></h3>
+                <h3><?php echo xlt("Activities") ?><i class="brand ms-1" id="brand"></i></h3>
                 <div id="dashboard" class="card">
                     <!-- Nav tabs -->
                     <ul id="tab-menu" class="nav nav-pills mb-1" role="tablist">
                         <li class="nav-item" role="tab">
-                            <a class="nav-link" href="#received" aria-controls="received" role="tab" data-toggle="tab"><?php echo xlt("Received") ?>
-                                <span class="fa fa-redo ml-1" onclick="retrieveMsgs('', this)"
+                            <a class="nav-link" href="#received" aria-controls="received" role="tab" data-bs-toggle="tab"><?php echo xlt("Received") ?>
+                                <span class="fa fa-redo ms-1" onclick="retrieveMsgs('', this)"
                                     title="<?php echo xla('Click to refresh using current date range. Refreshing just this tab.') ?>">
                                 </span>
                             </a>
                         </li>
                         <li class="nav-item" role="tab">
-                            <a class="nav-link" href="#sent" aria-controls="sent" role="tab" data-toggle="tab"><?php echo xlt("Sent") ?></a>
+                            <a class="nav-link" href="#sent" aria-controls="sent" role="tab" data-bs-toggle="tab"><?php echo xlt("Sent") ?></a>
                         </li>
                         <li class="nav-item rc-fax-hide etherfax-hide email-hide" role="tab">
-                            <a class="nav-link" href="#messages" aria-controls="messages" role="tab" data-toggle="tab"><?php echo xlt("SMS Log") ?></a>
+                            <a class="nav-link" href="#messages" aria-controls="messages" role="tab" data-bs-toggle="tab"><?php echo xlt("SMS Log") ?></a>
                         </li>
                         <li class="nav-item email-hide" role="tab">
-                            <a class="nav-link" href="#logs" aria-controls="logs" role="tab" data-toggle="tab"><?php echo xlt("Call Log") ?></a>
+                            <a class="nav-link" href="#logs" aria-controls="logs" role="tab" data-bs-toggle="tab"><?php echo xlt("Call Log") ?></a>
                         </li>
                         <li class="nav-item etherfax-hide rc-fax-hide" role="tab">
-                            <a class="nav-link" href="#alertlogs" aria-controls="alertlogs" role="tab" data-toggle="tab"><?php echo xlt("Reminder Notifications Log") ?><span class="fa fa-redo ml-1" onclick="getNotificationLog(event, this)"
+                            <a class="nav-link" href="#alertlogs" aria-controls="alertlogs" role="tab" data-bs-toggle="tab"><?php echo xlt("Reminder Notifications Log") ?><span class="fa fa-redo ms-1" onclick="getNotificationLog(event, this)"
                                     title="<?php echo xla('Click to refresh using current date range. Refreshing just this tab.') ?>"></span></a>
                         </li>
                         <li class="nav-item sms-hide email-hide etherfax" role="tab">
-                            <a class="nav-link" href="#upLoad" aria-controls="logs" role="tab" data-toggle="tab"><?php echo xlt("Fax Drop Box") ?></a>
+                            <a class="nav-link" href="#upLoad" aria-controls="logs" role="tab" data-bs-toggle="tab"><?php echo xlt("Fax Drop Box") ?></a>
                         </li>
                         <?php if ($serviceType == 'email') { ?>
                             <?php

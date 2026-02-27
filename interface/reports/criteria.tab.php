@@ -65,7 +65,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < count($TPSCriteriaDataType); $TP
         <div class="card bg-light">
             <div class="card-header pb-0"><h4><?php echo xlt('Choose Criteria'); ?></h4></div>
             <div class="card-body">
-                <div class="form-group px-2">
+                <div class="mb-3 px-2">
                     <label for="choose_this_page_criteria"><?php echo xlt('Select list'); ?>:</label>
                     <select name="choose_this_page_criteria" id="choose_this_page_criteria" title="Choose Criteria" class="form-control" onChange="CriteriaVisible()" size='8'>
                         <?php
@@ -86,7 +86,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < count($TPSCriteriaDataType); $TP
                 if ($TPSCriteriaDataType[$TPSCriteriaIndex] == 'date' || $TPSCriteriaDataType[$TPSCriteriaIndex] == 'datetime') {
                     $DateNamePart = str_replace('.', '_', $TPSCriteriaKey[$TPSCriteriaIndex]);
                     ?>
-                    <div class="form-group px-2" id="table_<?php echo attr($TPSCriteriaKey[$TPSCriteriaIndex]) ?>" style="display: none">
+                    <div class="mb-3 px-2" id="table_<?php echo attr($TPSCriteriaKey[$TPSCriteriaIndex]) ?>" style="display: none">
                         <label for="choose_this_page_criteria"><?php echo text($TPSCriteriaDisplay[$TPSCriteriaIndex]); ?></label>
                         <?php echo generate_select_list(
                             "date_master_criteria_$DateNamePart",
@@ -118,7 +118,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < count($TPSCriteriaDataType); $TP
                     $array_query_drop_down = BillingReport::buildArrayForReport($TPSCriteriaQueryDropDownMaster[$TPSCriteriaQueryDropDown[$TPSCriteriaIndex]]);
                     $QueryDropDownNamePart = str_replace('.', '_', $TPSCriteriaKey[$TPSCriteriaIndex]);
                     ?>
-                    <div class="form-group px-2" id="table_<?php echo attr($TPSCriteriaKey[$TPSCriteriaIndex]) ?>" style="display: none">
+                    <div class="mb-3 px-2" id="table_<?php echo attr($TPSCriteriaKey[$TPSCriteriaIndex]) ?>" style="display: none">
                         <label class="control-label" for="query_drop_down_master_<?php echo attr($QueryDropDownNamePart); ?>"><?php echo text($TPSCriteriaDisplay[$TPSCriteriaIndex]); ?>:</label>
                         <select class="form-control" name="query_drop_down_master_<?php echo attr($QueryDropDownNamePart); ?>" id="query_drop_down_master_<?php echo attr($QueryDropDownNamePart); ?>"
                             onchange="appendOptionRadioCriteria(<?php echo attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]); ?>, <?php echo attr_js($TPSCriteriaKey[$TPSCriteriaIndex]); ?>,this.options[this.selectedIndex].text, this.options[this.selectedIndex].value,' = ', <?php echo attr_js($TPSCriteriaDataType[$TPSCriteriaIndex]); ?>)">
@@ -144,7 +144,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < count($TPSCriteriaDataType); $TP
                 if ($TPSCriteriaDataType[$TPSCriteriaIndex] == 'include') {
                     $IncludeNamePart = str_replace('.', '_', $TPSCriteriaKey[$TPSCriteriaIndex]);
                     ?>
-                    <div class="form-group px-2" id="table_<?php echo attr($TPSCriteriaKey[$TPSCriteriaIndex]) ?>" style="display: none">
+                    <div class="mb-3 px-2" id="table_<?php echo attr($TPSCriteriaKey[$TPSCriteriaIndex]) ?>" style="display: none">
                         <label class="control-label" for=""><?php echo text($TPSCriteriaDisplay[$TPSCriteriaIndex]); ?>:</label>
                         <div <?php //Don't Use class =  'form-control'?>>
                             <?php $FunctionName = $TPSCriteriaIncludeMaster[$TPSCriteriaInclude[$TPSCriteriaIndex]];
@@ -164,7 +164,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < count($TPSCriteriaDataType); $TP
                         $TextSeperator = ' like ';
                     }
                     ?>
-                    <div class="form-group px-2" id="table_<?php echo attr($TPSCriteriaKey[$TPSCriteriaIndex]) ?>" style="display: none">
+                    <div class="mb-3 px-2" id="table_<?php echo attr($TPSCriteriaKey[$TPSCriteriaIndex]) ?>" style="display: none">
                         <label class="control-label" for="text_master_<?php echo attr($TextNamePart);?>"><?php echo text($TPSCriteriaDisplay[$TPSCriteriaIndex]); ?>:</label>
                         <input type="text" name="text_master_<?php echo attr($TextNamePart);?>" id="text_master_<?php echo attr($TextNamePart);?>" value="<?php echo attr($_REQUEST["text_master_$TextNamePart"] ?? '') ?>" onkeyup="appendOptionTextCriteria(<?php echo attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]); ?>, <?php echo attr_js($TPSCriteriaKey[$TPSCriteriaIndex]); ?>, this.value, this.value, <?php echo attr_js($TextSeperator); ?>, <?php echo attr_js($TPSCriteriaDataType[$TPSCriteriaIndex]); ?>)" onchange="appendOptionTextCriteria(<?php echo attr_js($TPSCriteriaDisplay[$TPSCriteriaIndex]); ?>, <?php echo attr_js($TPSCriteriaKey[$TPSCriteriaIndex]); ?>,this.value,this.value,<?php echo attr_js($TextSeperator); ?>, <?php echo attr_js($TPSCriteriaDataType[$TPSCriteriaIndex]); ?>)" class="form-control" autocomplete="off" />
                     </div>
@@ -174,7 +174,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < count($TPSCriteriaDataType); $TP
                 <?php
                 if ($TPSCriteriaDataType[$TPSCriteriaIndex] == 'radio' || $TPSCriteriaDataType[$TPSCriteriaIndex] == 'radio_like') {
                     ?>
-                    <div class="form-group px-2" id="table_<?php echo attr($TPSCriteriaKey[$TPSCriteriaIndex]) ?>" style="display: none">
+                    <div class="mb-3 px-2" id="table_<?php echo attr($TPSCriteriaKey[$TPSCriteriaIndex]) ?>" style="display: none">
                         <label class="control-label" for="radio_<?php echo attr($RadioNamePart ?? ''); ?>"><?php echo text($TPSCriteriaDisplay[$TPSCriteriaIndex]); ?>:</label>
                         <?php
                         if ($TPSCriteriaDataType[$TPSCriteriaIndex] == 'radio') {
@@ -210,9 +210,9 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < count($TPSCriteriaDataType); $TP
         <div class="card bg-light">
             <div class="card-header pb-0"><h4><?php echo xlt('Current Criteria'); ?></h4></div>
             <div class="card-body">
-                <div class="form-group px-2">
+                <div class="mb-3 px-2">
                     <label for="final_this_page_criteria"><?php echo xlt('Criteria Actions') . ':'; ?></label>
-                    <span class="float-right">
+                    <span class="float-end">
                         <i class="fa fa-trash fa-2x text-warning" aria-hidden="true" onclick="removeOptionSelected()" title="<?php echo xla('Click here to delete the selection'); ?>"></i>&nbsp;
                         <i class="fa fa-trash fa-2x text-danger" aria-hidden="true" onclick="removeOptionsAll()" title="<?php echo xla('Click here to delete all options'); ?>"></i>
                     </span>
@@ -249,7 +249,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < count($TPSCriteriaDataType); $TP
     <div class="card bg-light">
         <div class="card-header pb-0"><h4><?php echo xlt('Select Action'); ?></h4></div>
         <div class="card-body">
-            <div class="form-group">
+            <div class="mb-3">
                 <ul class="list-group list-group-flush">
                     <li class="list-group-item bg-light d-flex justify-content-between align-items-center">
                         <a class="link_submit" href="#" onclick="javascript:return SubmitTheScreen();"><strong><?php echo xlt('Update List') ?></strong></a><i id='update-tooltip' class="fa fa-info-circle fa-lg text-primary" aria-hidden="true"></i>
@@ -277,7 +277,7 @@ for ($TPSCriteriaIndex = 0; $TPSCriteriaIndex < count($TPSCriteriaDataType); $TP
                     <?php } ?>
                     </span>
                     <?php if (!file_exists($EXPORT_INC)) { ?>
-                        <li class="list-group-item bg-light"><a href='#' id="view-log-link" data-toggle="modal" data-target="#myModal" class='link_submit' title='<?php echo xla('See messages from the last set of generated claims'); ?>'><strong><?php echo xlt('View Log'); ?></strong></a>
+                        <li class="list-group-item bg-light"><a href='#' id="view-log-link" data-bs-toggle="modal" data-bs-target="#myModal" class='link_submit' title='<?php echo xla('See messages from the last set of generated claims'); ?>'><strong><?php echo xlt('View Log'); ?></strong></a>
                         </li>
                     <?php } ?>
                     <li class="list-group-item bg-light"><a href="<?php echo $webroot ?>/interface/billing/customize_log.php" rel="noopener" target="_blank" onclick="top.restoreSession()"><strong><?php echo xlt('Tab Log') ?></strong></a>

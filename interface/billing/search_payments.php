@@ -360,17 +360,17 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             </div>
         </div>
         <nav class="navbar navbar-nav navbar-expand-md navbar-light text-body bg-light mb-4 p-4">
-            <button class="navbar-toggler icon-bar" data-target="#myNavbar" data-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
+            <button class="navbar-toggler icon-bar" data-bs-target="#myNavbar" data-bs-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
             <div class="collapse navbar-collapse" id="myNavbar">
-                <ul class="navbar-nav mr-auto">
+                <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link font-weight-bold" href='new_payment.php'><?php echo xlt('New Payment'); ?></a>
+                        <a class="nav-link fw-bold" href='new_payment.php'><?php echo xlt('New Payment'); ?></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active font-weight-bold" href='search_payments.php'><?php echo xlt('Search Payment'); ?></a>
+                        <a class="nav-link active fw-bold" href='search_payments.php'><?php echo xlt('Search Payment'); ?></a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link font-weight-bold" href='era_payments.php'><?php echo xlt('ERA Posting'); ?></a>
+                        <a class="nav-link fw-bold" href='era_payments.php'><?php echo xlt('ERA Posting'); ?></a>
                     </li>
                 </ul>
             </div>
@@ -379,7 +379,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <div class="col-sm-12">
                 <form id="new_payment" method='post' name='new_payment'>
                     <fieldset>
-                        <div class="jumbotron py-4">
+                        <div class="bg-body-tertiary rounded-3 py-4">
                             <div class="row h3">
                                 <?php echo xlt('Payment List'); ?>
                             </div>
@@ -446,8 +446,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 </div>
                             </div>
                             <!-- can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets -->
-                            <div class="form-group mt-3">
-                                <div class="col-sm-12 text-left position-override">
+                            <div class="mb-3 mt-3">
+                                <div class="col-sm-12 text-start position-override">
                                     <div class="btn-group" role="group">
                                         <a class="btn btn-primary btn-search" href="#" onclick="javascript:return SearchPayment();"><span><?php echo xlt('Search'); ?></span></a>
                                     </div>
@@ -537,7 +537,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                             <td>
                                                 <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'><?php echo $RowSearch['payer_id'] * 1 > 0 ? text($RowSearch['payer_id']) : '&nbsp;'; ?></a>
                                             </td>
-                                            <td class="text-left">
+                                            <td class="text-start">
                                                 <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>"><?php
                                                 $frow['data_type'] = 1;
                                                 $frow['list_id'] = 'payment_method';
@@ -550,11 +550,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 generate_print_field($frow, $RowSearch['payment_method']);
                                                 ?></a>
                                             </td>
-                                            <td class="text-left">
+                                            <td class="text-start">
                                                 <!--<a class='iframe medium_modal' href="edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>"><?php echo $RowSearch['reference'] == '' ? '&nbsp;' : text($RowSearch['reference']); ?></a>-->
                                                 <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'"><?php echo $RowSearch['reference'] == '' ? '&nbsp;' : text($RowSearch['reference']); ?></a>
                                             </td>
-                                            <td class="text-left">
+                                            <td class="text-start">
                                                 <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'">
                                         <?php
                                                 $rs = sqlStatement("select pay_total,global_amount from ar_session where session_id=?", [$RowSearch['session_id']]);
@@ -571,10 +571,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 $UndistributedAmount = $pay_total - $pay_amount - $global_amount;
                                                 echo $UndistributedAmount * 1 == 0 ? xlt('Fully Paid') : xlt('Unapplied'); ?></a>
                                             </td>
-                                            <td class="text-right">
+                                            <td class="text-end">
                                                 <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'"><?php echo text($RowSearch['pay_total']); ?></a>
                                             </td>
-                                            <td class="<?php echo attr($StringClass ?? ''); ?>right text-right">
+                                            <td class="<?php echo attr($StringClass ?? ''); ?>right text-end">
                                                 <a class="medium_modal" href='edit_payment.php?payment_id=<?php echo attr_url($RowSearch['session_id']); ?>'"><?php echo text(number_format($UndistributedAmount, 2)); ?></a>
                                             </td>
                                         </tr>

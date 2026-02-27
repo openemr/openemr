@@ -301,7 +301,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
     ?>
 <div id="report_results">
 <table class='table'>
-    <thead class='thead-light'>
+    <thead class='table-light'>
     <?php if (!$chk_show_drug_screens && !$chk_show_completed_drug_screens) { # the first part of this block is for the Patient Flow Board report ?>
         <th><a href="nojs.php" onclick="return dosort('doctor')"
         <?php echo ($form_orderby == "doctor") ? " style=\"color: var(--success)\"" : ""; ?>><?php  echo xlt('Provider'); ?>
@@ -533,7 +533,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                     $alert_time = $colorevents['time_alert'];
                     if (is_checkin($track_stat) || is_checkout($track_stat)) {  #bold the check in and check out times in this block.
                         ?>
-            <td class="detail font-weight-bold">
+            <td class="detail fw-bold">
                         <?php
                     } else { ?>
             <td class="detail">
@@ -565,7 +565,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                     }
 
                     if (is_checkin($track_stat) || is_checkout($track_stat)) {  #bold the check in and check out times in this block. ?>
-                <td class="detail font-weight-bold">&nbsp;<?php echo text(substr((string) $next_tracker_time, 11)) ?></td><?php
+                <td class="detail fw-bold">&nbsp;<?php echo text(substr((string) $next_tracker_time, 11)) ?></td><?php
                     } else { ?>
             <td class="detail">&nbsp;<?php echo text(substr((string) $next_tracker_time, 11)) ?></td>
                         <?php # compute the total time of the status
@@ -576,13 +576,13 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                     $timecheck = round(abs(strtotime((string) $start_tracker_time) -  strtotime((string) $next_tracker_time)) / 60, 0);
                     if ($timecheck > $alert_time && ($alert_time != '0')) {
                         if (is_checkin($track_stat) || is_checkout($track_stat)) {  #bold the check in and check out times in this block. ?>
- <td class="detail font-weight-bold" bgcolor='<?php echo attr($alert_color) ?>'>&nbsp;<?php echo text($tracker_time); ?></td><?php
+ <td class="detail fw-bold" bgcolor='<?php echo attr($alert_color) ?>'>&nbsp;<?php echo text($tracker_time); ?></td><?php
                         } else { ?>
             <td class="detail" bgcolor='<?php echo attr($alert_color) ?>'>&nbsp;<?php echo text($tracker_time); ?></td><?php
                         }
                     } else {
                         if (is_checkin($track_stat) || is_checkout($track_stat)) { #bold the check in and check out times in this block. ?>
-                    <td class="detail font-weight-bold">&nbsp;<?php echo text($tracker_time); ?></td><?php
+                    <td class="detail fw-bold">&nbsp;<?php echo text($tracker_time); ?></td><?php
                         } else { ?>
                     <td class="detail">&nbsp;<?php echo text($tracker_time); ?></td><?php
                         }

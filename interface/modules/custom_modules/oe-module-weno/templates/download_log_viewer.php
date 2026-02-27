@@ -144,7 +144,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
             while ($task = sqlFetchArray($backGroundTask)) {
                 $title = $task['name'] === 'WenoExchangePharmacies' ? xlt("Pharmacy Directory") : xlt("Sync Report");
                 $nextRun = $task['next_run'];
-                echo '<span class="mr-5 text-success">' . $title . '  ' . xlt("next run") . ': <span class="text-dark">' . text($nextRun) . '</span></span>';
+                echo '<span class="me-5 text-success">' . $title . '  ' . xlt("next run") . ': <span class="text-dark">' . text($nextRun) . '</span></span>';
             }
             echo '</h6>';
         }
@@ -154,7 +154,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
             <cite class="text-info text-center p-1 mx-1"><?php echo xlt("Use this section to download Weno Pharmacy Directory and Weno Sync Report"); ?></cite>
         </div>
         <div id="alertDiv" class="alert alert-danger d-none">
-            <button type="button" class="close" onclick="window.location.replace(window.location.href);">&times;</button>
+            <button type="button" class="btn-close" onclick="window.location.replace(window.location.href);"></button>
             <strong><?php echo xlt("Error!"); ?></strong>
             <span id="error-msg"></span>
         </div>
@@ -207,7 +207,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
             <span><?php echo xlt("Note: Log only maintains the last 60 days of activity."); ?></span>
         </cite>
         <form method="GET" class="mb-2">
-            <div class="form-row">
+            <div class="row gx-2">
                 <div class="col-md-4 mb-3">
                     <label for="startDate"><?php echo xlt("Start Date"); ?></label>
                     <input type="text" class="form-control datepicker" id="startDate" name="startDate" required value="<?php echo attr($startDate); ?>">

@@ -92,7 +92,7 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
                 <h2><?php echo xlt('Load Lab Compendium'); ?></h2>
             </div>
         </div>
-        <form class="jumbotron py-4" method='post' action='load_compendium.php' enctype='multipart/form-data'>
+        <form class="bg-body-tertiary rounded-3 py-4" method='post' action='load_compendium.php' enctype='multipart/form-data'>
             <table class="table table-borderless">
                 <?php if ($form_step == 0) { ?>
                     <tr>
@@ -145,9 +145,9 @@ $EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
                             <?php echo xlt('File to Upload'); ?>
                         </td>
                         <td>
-                            <div class="custom-file">
-                                <label class="custom-file-label" for="userfile"><?php echo xlt('Choose file'); ?></label>
-                                <input type='hidden' class="custom-file-input" name='MAX_FILE_SIZE' value='4000000' />
+                            <div class="mb-3">
+                                <input type='hidden' name='MAX_FILE_SIZE' value='4000000' />
+                                <label class="form-label" for="userfile"><?php echo xlt('Choose file'); ?></label>
                                 <input class='form-control' type='file' name='userfile' id='userfile' />
                             </div>
                         </td>

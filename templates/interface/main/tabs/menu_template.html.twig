@@ -17,14 +17,14 @@
 <script type="text/html" id="menu-header">
     <i data-bind="css: icon" class="fa closeButton"></i>
     <div class="menuSection dropdown">
-        <div class='menuLabel px-1 dropdown-toggle oe-dropdown-toggle' data-bind="text:label" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></div>
+        <div class='menuLabel px-1 dropdown-toggle oe-dropdown-toggle' data-bind="text:label" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></div>
         <ul class="menuEntries dropdown-menu rounded-0 border-0" name="menuEntries" data-bind="foreach: children">
             <li data-bind="template: {name:header ? 'menu-header' : 'menu-action', data: $data }"></li>
         </ul>
     </div>
 </script>
 <script type="text/html" id="menu-template">
-    <div class='appMenu navbar-nav mr-auto' data-bind="foreach: menu">
+    <div class='appMenu navbar-nav me-auto' data-bind="foreach: menu">
         <div data-bind="template: {name:header ? 'menu-header' : 'menu-action', data: $data }"></div>
     </div>
 </script>

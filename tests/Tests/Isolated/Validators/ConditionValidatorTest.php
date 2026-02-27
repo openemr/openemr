@@ -32,7 +32,7 @@ class ConditionValidatorTest extends TestCase
     {
         $validData = [
             'title' => 'Hypertension',
-            'begdate' => '2023-01-15',
+            'begdate' => '2026-01-15',
             'puuid' => '123e4567-e89b-12d3-a456-426614174000'
         ];
 
@@ -45,7 +45,7 @@ class ConditionValidatorTest extends TestCase
     public function testInsertValidationMissingTitle(): void
     {
         $invalidData = [
-            'begdate' => '2023-01-15',
+            'begdate' => '2026-01-15',
             'puuid' => '123e4567-e89b-12d3-a456-426614174000'
             // missing required 'title'
         ];
@@ -73,7 +73,7 @@ class ConditionValidatorTest extends TestCase
     {
         $invalidData = [
             'title' => 'Hypertension',
-            'begdate' => '2023-01-15'
+            'begdate' => '2026-01-15'
             // missing required 'puuid'
         ];
 
@@ -86,7 +86,7 @@ class ConditionValidatorTest extends TestCase
     {
         $invalidData = [
             'title' => 'H', // too short (less than 2 characters)
-            'begdate' => '2023-01-15',
+            'begdate' => '2026-01-15',
             'puuid' => '123e4567-e89b-12d3-a456-426614174000'
         ];
 
@@ -99,7 +99,7 @@ class ConditionValidatorTest extends TestCase
     {
         $invalidData = [
             'title' => str_repeat('A', 256), // too long (over 255 characters)
-            'begdate' => '2023-01-15',
+            'begdate' => '2026-01-15',
             'puuid' => '123e4567-e89b-12d3-a456-426614174000'
         ];
 
@@ -112,7 +112,7 @@ class ConditionValidatorTest extends TestCase
     {
         $invalidData = [
             'title' => 'Hypertension',
-            'begdate' => '2023-13-40', // invalid date
+            'begdate' => '2026-13-40', // invalid date
             'puuid' => '123e4567-e89b-12d3-a456-426614174000'
         ];
 
@@ -125,10 +125,10 @@ class ConditionValidatorTest extends TestCase
     {
         $validData = [
             'title' => 'Hypertension',
-            'begdate' => '2023-01-15',
+            'begdate' => '2026-01-15',
             'puuid' => '123e4567-e89b-12d3-a456-426614174000',
             'diagnosis' => 'Essential hypertension',
-            'enddate' => '2023-12-31'
+            'enddate' => '2026-12-31'
         ];
 
         $result = $this->validator->validate($validData, BaseValidator::DATABASE_INSERT_CONTEXT);
@@ -140,7 +140,7 @@ class ConditionValidatorTest extends TestCase
     {
         $invalidData = [
             'title' => 'Hypertension',
-            'begdate' => '2023-01-15',
+            'begdate' => '2026-01-15',
             'puuid' => '123e4567-e89b-12d3-a456-426614174000',
             'enddate' => 'invalid-date'
         ];
@@ -154,7 +154,7 @@ class ConditionValidatorTest extends TestCase
     {
         $invalidData = [
             'title' => 'Hypertension',
-            'begdate' => '2023-01-15',
+            'begdate' => '2026-01-15',
             'puuid' => '123e4567-e89b-12d3-a456-426614174000',
             'diagnosis' => 'H' // too short
         ];

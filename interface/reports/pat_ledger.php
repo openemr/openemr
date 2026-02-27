@@ -139,9 +139,9 @@ function PrintEncFooter(): void
     echo "<td class='detail'>" . xlt('Encounter Balance') . ":</td>";
     echo "<td class='detail text-center'>" . text($enc_units) . "</td>";
     echo "<td class='detail text-center'>" . text(oeFormatMoney($enc_chg)) . "</td>";
-    echo "<td class='detail text-right'>" . text(oeFormatMoney($enc_pmt)) . "</td>";
-    echo "<td class='detail text-right'>" . text(oeFormatMoney($enc_adj)) . "</td>";
-    echo "<td class='detail text-right'>" . text(oeFormatMoney($enc_bal)) . "</td>";
+    echo "<td class='detail text-end'>" . text(oeFormatMoney($enc_pmt)) . "</td>";
+    echo "<td class='detail text-end'>" . text(oeFormatMoney($enc_adj)) . "</td>";
+    echo "<td class='detail text-end'>" . text(oeFormatMoney($enc_bal)) . "</td>";
     echo "</tr>\n";
 }
 function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsurances = []): void
@@ -244,9 +244,9 @@ function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsuran
         $print_bal = $uac_bal ? oeFormatMoney($uac_bal) : "";
 
         $print .= "<td class='detail text-center'>" . text($print_appl) . "&nbsp;</td>";
-        $print .= "<td class='detail text-right'>" . text($print_pmt) . "&nbsp;</td>";
-        $print .= "<td class='detail text-right'>" . text($print_adj) . "&nbsp;</td>";
-        $print .= "<td class='detail text-right'>" . text($print_bal) . "&nbsp;</td>";
+        $print .= "<td class='detail text-end'>" . text($print_pmt) . "&nbsp;</td>";
+        $print .= "<td class='detail text-end'>" . text($print_adj) . "&nbsp;</td>";
+        $print .= "<td class='detail text-end'>" . text($print_bal) . "&nbsp;</td>";
         $print .= "</tr>\n";
         echo $print;
         if (!empty($pmt['follow_up_note'])) {
@@ -501,7 +501,7 @@ if ($_REQUEST['form_csvexport']) {
                                     <td width='70%'>
                                         <?php
                                     } ?>
-                                        <div class="float-left">
+                                        <div class="float-start">
                                             <table class='text'>
                                                     <tr>
                                                         <?php
@@ -564,8 +564,8 @@ if ($_REQUEST['form_csvexport']) {
                                             </table>
                                         </div>
                                     </td>
-                                    <td class="align-middle h-100 text-left">
-                                        <table class="w-100 h-100 border-left" >
+                                    <td class="align-middle h-100 text-start">
+                                        <table class="w-100 h-100 border-start" >
                                                 <tr>
                                                     <td>
                                                         <div class="text-center">
@@ -688,10 +688,10 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             <div class="table-responsove">
                 <table class="table border-0">
                     <tr>
-                        <td class='font-weight-bold'><?php echo xlt('Date')?>:
+                        <td class='fw-bold'><?php echo xlt('Date')?>:
                             <?php echo text(date('Y-m-d')); ?>
                         </td>
-                        <td class='font-weight-bold'><?php echo xlt('Patient')?>:
+                        <td class='fw-bold'><?php echo xlt('Patient')?>:
                             <?php
                             if ($type_form == '1') { ?>
                                 <?php echo text($pat_name); ?>
@@ -699,7 +699,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
                                 <?php echo text($form_patient); ?>
                             <?php } ?>
                         </td>
-                        <td class='font-weight-bold'><?php echo xlt('DOB')?>:
+                        <td class='fw-bold'><?php echo xlt('DOB')?>:
                             <?php
                             if ($type_form == '1') { ?>
                                 <?php echo text($pat_dob);?>
@@ -707,7 +707,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
                                 <?php echo text($form_dob); ?>
                             <?php } ?>
                         </td>
-                        <td class='font-weight-bold'> <?php echo xlt('ID')?>:
+                        <td class='fw-bold'> <?php echo xlt('ID')?>:
                             <?php echo text($form_pid);?>
                         </td>
                     </tr>
@@ -715,26 +715,26 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
             </div>
         </div>
 
-        <div id="report_results" class="jumbotron py-4">
+        <div id="report_results" class="bg-body-tertiary rounded-3 py-4">
             <table>
                 <tr>
-                    <td class='font-weight-bold'><?php echo xlt('Code'); ?></td>
-                    <td colspan="2" class='font-weight-bold'><?php echo xlt('Description'); ?></td>
-                    <td class='font-weight-bold'><?php echo xlt('Billed Date'); ?> / <?php echo xlt('Payor'); ?></td>
-                    <td class='font-weight-bold'><?php echo xlt('Type'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <td class='fw-bold'><?php echo xlt('Code'); ?></td>
+                    <td colspan="2" class='fw-bold'><?php echo xlt('Description'); ?></td>
+                    <td class='fw-bold'><?php echo xlt('Billed Date'); ?> / <?php echo xlt('Payor'); ?></td>
+                    <td class='fw-bold'><?php echo xlt('Type'); ?>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <?php echo xlt('Units'); ?></td>
-                    <td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Charge'); ?></td>
-                    <td class='text-right font-weight-bold'>&nbsp;&nbsp;<?php echo xlt('Payment'); ?></td>
-                    <td class='text-right font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Adjustment'); ?></td>
-                    <td class='text-right font-weight-bold'>&nbsp;&nbsp;&nbsp;<?php echo xlt('Balance'); ?></td>
+                    <td class='fw-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Charge'); ?></td>
+                    <td class='text-end fw-bold'>&nbsp;&nbsp;<?php echo xlt('Payment'); ?></td>
+                    <td class='text-end fw-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('Adjustment'); ?></td>
+                    <td class='text-end fw-bold'>&nbsp;&nbsp;&nbsp;<?php echo xlt('Balance'); ?></td>
                 </tr>
                 <tr>
                     <td>&nbsp;&nbsp;&nbsp;</td>
                     <td colspan="2">&nbsp;&nbsp;&nbsp;</td>
                     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-                    <td class='font-weight-bold'>&nbsp;&nbsp;&nbsp;<?php echo xlt('UAC Appl'); ?></td>
-                    <td class='text-right font-weight-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('UAC Tot'); ?></td>
+                    <td class='fw-bold'>&nbsp;&nbsp;&nbsp;<?php echo xlt('UAC Appl'); ?></td>
+                    <td class='text-end fw-bold'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<?php echo xlt('UAC Tot'); ?></td>
                     <td>&nbsp;</td>
                     <td>&nbsp;</td>
                 </tr>
@@ -862,12 +862,12 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     if (!$_REQUEST['form_csvexport'] && $orow) {
         echo "<tr style='background-color: #DDFFFF;'>\n";
         echo " <td colspan='2'>&nbsp;</td>";
-        echo " <td class='font-weight-bold' colspan='2'>" . xlt("Grand Total") . "</td>\n";
-        echo " <td class='font-weight-bold text-center'>" . text($total_units) . "</td>\n";
-        echo " <td class='font-weight-bold text-center'>" . text(oeFormatMoney($total_chg)) . "</td>\n";
-        echo " <td class='font-weight-bold text-right'>" . text(oeFormatMoney($total_pmt)) . "</td>\n";
-        echo " <td class='font-weight-bold text-right'>" . text(oeFormatMoney($total_adj)) . "</td>\n";
-        echo " <td class='font-weight-bold text-right'>" . text(oeFormatMoney($total_bal)) . "</td>\n";
+        echo " <td class='fw-bold' colspan='2'>" . xlt("Grand Total") . "</td>\n";
+        echo " <td class='fw-bold text-center'>" . text($total_units) . "</td>\n";
+        echo " <td class='fw-bold text-center'>" . text(oeFormatMoney($total_chg)) . "</td>\n";
+        echo " <td class='fw-bold text-end'>" . text(oeFormatMoney($total_pmt)) . "</td>\n";
+        echo " <td class='fw-bold text-end'>" . text(oeFormatMoney($total_adj)) . "</td>\n";
+        echo " <td class='fw-bold text-end'>" . text(oeFormatMoney($total_bal)) . "</td>\n";
         echo " </tr>\n";
         ?>
     </table>

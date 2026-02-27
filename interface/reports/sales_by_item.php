@@ -119,13 +119,13 @@ function salesByItemLineItem(int $patient_id, int $encounter_id, string $rowcat,
   &nbsp;
   </td>
     <?php } ?>
-  <td class="text-right">
+  <td class="text-end">
    &nbsp;
   </td>
-  <td class="text-right">
+  <td class="text-end">
                 <?php echo text($productqty); ?>
   </td>
-  <td class="text-right">
+  <td class="text-end">
                 <?php echo text(FormatMoney::getBucks($producttotal)); ?>
   </td>
  </tr>
@@ -149,7 +149,7 @@ function salesByItemLineItem(int $patient_id, int $encounter_id, string $rowcat,
         <td class="detail">
          &nbsp;
         </td>
-        <td class="detail font-weight-bold" colspan="3">
+        <td class="detail fw-bold" colspan="3">
                 <?php echo xlt('Total for category') . ' ';
                 echo text(display_desc($category)); ?>
   </td>
@@ -158,13 +158,13 @@ function salesByItemLineItem(int $patient_id, int $encounter_id, string $rowcat,
    &nbsp;
   </td>
     <?php } ?>
-  <td class="text-right">
+  <td class="text-end">
    &nbsp;
   </td>
-  <td class="text-right font-weight-bold">
+  <td class="text-end fw-bold">
                 <?php echo text($catqty); ?>
   </td>
-  <td class="text-right font-weight-bold">
+  <td class="text-end fw-bold">
                 <?php echo text(FormatMoney::getBucks($cattotal)); ?>
   </td>
  </tr>
@@ -240,10 +240,10 @@ function salesByItemLineItem(int $patient_id, int $encounter_id, string $rowcat,
    &nbsp;
   </td>
         <?php } ?>
-      <td class="text-right">
+      <td class="text-end">
             <?php echo text($qty); ?>
       </td>
-      <td class="text-right">
+      <td class="text-end">
             <?php echo text(FormatMoney::getBucks($rowamount)); ?>
       </td>
      </tr>
@@ -466,7 +466,7 @@ if (!empty($_POST['form_csvexport'])) {
 
 <div id="report_results">
 <table width='98%' id='mymaintable' class='table table-striped mymaintable'>
-<thead class='thead-light'>
+<thead class='table-light'>
  <th>
         <?php echo xlt('Category'); ?>
  </th>
@@ -520,10 +520,10 @@ if (!empty($_POST['form_csvexport'])) {
         }
         ?>
   </th>
-  <th scope="col" class="text-right">
+  <th scope="col" class="text-end">
         <?php echo xlt('Qty'); ?>
   </th>
-  <th scope="col" class="text-right">
+  <th scope="col" class="text-end">
         <?php echo xlt('Amount'); ?>
   </th>
  </thead>
@@ -650,13 +650,13 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
    &nbsp;
   </td>
     <?php } ?>
-  <td class="text-right">
+  <td class="text-end">
    &nbsp;
   </td>
-  <td class="text-right">
+  <td class="text-end">
         <?php echo text($productqty); ?>
   </td>
-  <td class="text-right">
+  <td class="text-end">
         <?php echo text(FormatMoney::getBucks($producttotal)); ?>
   </td>
  </tr>
@@ -665,7 +665,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
   <td class="detail">
    &nbsp;
   </td>
-  <td class="detail font-weight-bold" colspan="3">
+  <td class="detail fw-bold" colspan="3">
         <?php echo xlt('Total for category') . ' ';
         echo text(display_desc($category)); ?>
   </td>
@@ -674,19 +674,19 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
    &nbsp;
   </td>
     <?php } ?>
-  <td class="text-right">
+  <td class="text-end">
    &nbsp;
   </td>
-  <td class="text-right font-weight-bold">
+  <td class="text-end fw-bold">
         <?php echo text($catqty); ?>
   </td>
-  <td class="text-right font-weight-bold">
+  <td class="text-end fw-bold">
         <?php echo text(FormatMoney::getBucks($cattotal)); ?>
   </td>
  </tr>
 
  <tr>
-  <td class="detail font-weight-bold" colspan="4">
+  <td class="detail fw-bold" colspan="4">
         <?php echo xlt('Grand Total'); ?>
   </td>
         <?php if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>
@@ -694,13 +694,13 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
    &nbsp;
   </td>
     <?php } ?>
-  <td class="text-right">
+  <td class="text-end">
    &nbsp;
   </td>
-  <td class="text-right font-weight-bold">
+  <td class="text-end fw-bold">
         <?php echo text($grandqty); ?>
   </td>
-  <td class="text-right font-weight-bold">
+  <td class="text-end fw-bold">
         <?php echo text(FormatMoney::getBucks($grandtotal)); ?>
   </td>
  </tr>

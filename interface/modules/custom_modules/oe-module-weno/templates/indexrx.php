@@ -159,14 +159,14 @@ $urlOut = $newRxUrl . urlencode((string) $provider_info['email']) . "&data=" . u
             // Event handler for double-click on the trigger button
             $('#trigger-debug').dblclick(function () {
                 generateDebugInfo();
-                $('#debugModal').modal('show');
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('debugModal')).show();
             });
             $('#triggerButton').click(function () {
                 generateDebugInfo();
-                $('#debugModal').modal('show');
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('debugModal')).show();
             });
             $('#downloadLink').click(function () {
-                $('#debugModal').modal('hide');
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('debugModal')).hide();
             });
         });
     </script>
@@ -178,9 +178,9 @@ $urlOut = $newRxUrl . urlencode((string) $provider_info['email']) . "&data=" . u
                 <header class="bg-light text-dark text-center">
                     <h3>
                         <a href="<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?resync=true&set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid)) ?>" class="text-primary" title="<?php echo xla("Return to Patient Demographics"); ?>"><?php echo xlt("e-Prescribe"); ?>
-                            <cite class="small font-weight-bold text-primary"><span class="h6"><?php echo xla("Return to Patient"); ?></span></cite>
+                            <cite class="small fw-bold text-primary"><span class="h6"><?php echo xla("Return to Patient"); ?></span></cite>
                         </a>
-                        <button type="submit" id="form_reset_key" name="form_reset_key" class="btn btn-danger btn-sm btn-refresh p-1 m-0 mt-1 mr-2 float-right d-none" value="Save" title="<?php echo xla("The Encryption key did not pass validation. Clicking this button will reset your encryption key so you may continue."); ?>"><?php echo xlt("Session is invalid!. Click to Reset?"); ?></button>
+                        <button type="submit" id="form_reset_key" name="form_reset_key" class="btn btn-danger btn-sm btn-refresh p-1 m-0 mt-1 me-2 float-end d-none" value="Save" title="<?php echo xla("The Encryption key did not pass validation. Clicking this button will reset your encryption key so you may continue."); ?>"><?php echo xlt("Session is invalid!. Click to Reset?"); ?></button>
                     </h3>
                 </header>
             </form>
@@ -227,8 +227,8 @@ $urlOut = $newRxUrl . urlencode((string) $provider_info['email']) . "&data=" . u
             <iframe id="wenoIframe-compose" title="Weno Compose" width="100%" height="900" src="<?php echo attr($urlOut); ?>"></iframe>
         </div>
         <footer>
-            <a href="<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?resync=true&set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid)) ?>" class="btn btn-primary float-right mt-2 mb-4 mr-3"><?php echo xlt("Return to Demographics"); ?></a>
-            <button id="triggerButton" class="btn btn-primary btn-sm m-2 ml-3" title="<?php echo xla("Download debug information to send to Weno support."); ?>"><i class="fa-solid fa-bug"></i></button>
+            <a href="<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?resync=true&set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid)) ?>" class="btn btn-primary float-end mt-2 mb-4 me-3"><?php echo xlt("Return to Demographics"); ?></a>
+            <button id="triggerButton" class="btn btn-primary btn-sm m-2 ms-3" title="<?php echo xla("Download debug information to send to Weno support."); ?>"><i class="fa-solid fa-bug"></i></button>
             <?php $wenoLog->insertWenoLog("eRx Compose Frame", "Rendered Online Compose.", $urlOut); ?>
         </footer>
         <!-- Modal Structure -->
@@ -237,16 +237,14 @@ $urlOut = $newRxUrl . urlencode((string) $provider_info['email']) . "&data=" . u
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="debugModalLabel"><?php echo xlt("Weno Debug Information"); ?></h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <p><?php echo xlt("Debug information has been generated. Click below to download."); ?></p>
                         <a id="downloadLink" class="btn btn-success" download="debug_info_<?php echo md5((string) $provider_info['email']); ?>.txt"><?php echo xlt("Download Debug File"); ?></a>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal"><?php echo xlt("Close"); ?></button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?php echo xlt("Close"); ?></button>
                     </div>
                 </div>
             </div>

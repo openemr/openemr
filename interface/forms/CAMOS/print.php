@@ -28,7 +28,7 @@ formHeader("Form: CAMOS");
     <?php Header::setupHeader(); ?>
 </head>
 
-<body class='ml-1'>
+<body class='ms-1'>
     <form method=post action="<?php echo $rootdir;?>/forms/CAMOS/save.php?mode=new" name="my_form" onsubmit="return top.restoreSession()">
         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
         <h1><?php echo xlt('CAMOS'); ?></h1>

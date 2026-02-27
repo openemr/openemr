@@ -68,8 +68,8 @@ $oNoteService = new ONoteService();
                         $date_string = DateFormatterUtils::oeFormatDateTime($date);
                     }
                     $card = '';
-                    $card .= '<div class="card panel-default">';
-                    $card .= '    <div class="card-heading bg-dark text-light">';
+                    $card .= '<div class="card">';
+                    $card .= '    <div class="card-header bg-dark text-light">';
                     $card .= '        <h6 class="card-title m-0 mt-1 pb-1">' . text($date_string) . ' <strong>(' . text($note['user']) . ')</strong></h6>';
                     $card .= '    </div>';
                     $card .= '    <div class="card-body p-2">';

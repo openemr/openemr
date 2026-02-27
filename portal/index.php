@@ -489,19 +489,19 @@ if (!($session->has('password_update') || (!empty($globalsBag->get('portal_two_p
                 <?php if (isset($redirectUrl)) { ?>
                     <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
                 <?php } ?>
-                <div class="form-row my-3">
+                <div class="row gx-2 my-3">
                     <label class="col-md-2 col-form-label" for="uname"><?php echo xlt('Account Name'); ?></label>
                     <div class="col-md">
                         <input class="form-control" name="uname" id="uname" type="text" readonly autocomplete="none" value="<?php echo attr($session->get('portal_username')); ?>" />
                     </div>
                 </div>
-                <div class="form-row my-3">
+                <div class="row gx-2 my-3">
                     <label class="col-md-2 col-form-label" for="login_uname"><?php echo xlt('Use Username'); ?></label>
                     <div class="col-md">
                         <input class="form-control" name="login_uname" id="login_uname" type="text" autofocus autocomplete="none" title="<?php echo xla('Please enter a username of a minimum of 8 characters. Recommended to include symbols and numbers but not required.'); ?>" placeholder="<?php echo xla('Must be a minimum of 8 characters'); ?>" pattern=".{8,80}" value="<?php echo attr($session->get('portal_login_username')); ?>" onblur="checkUserName()" />
                     </div>
                 </div>
-                <div class="form-row my-3">
+                <div class="row gx-2 my-3">
                     <label class="col-md-2 col-form-label" for="pass"><?php echo empty($session->get('onetime')) ? xlt('Current Password') : ''; ?></label>
                     <div class="col-md">
                         <input class="form-control" name="pass" id="pass" <?php echo ($session->get('onetime')) ? 'type="hidden" ' : 'type="password" '; ?> autocomplete="none" value="<?php echo attr($session->get('onetime') ?? '');
@@ -510,27 +510,27 @@ if (!($session->has('password_update') || (!empty($globalsBag->get('portal_two_p
                     </div>
                 </div>
                 <?php if ($session->get('pin', null)) { ?>
-                    <div class="form-row my-3">
+                    <div class="row gx-2 my-3">
                         <label class="col-md-2 col-form-label" for="token_pin"><?php echo xlt('One Time PIN'); ?></label>
                         <div class="col-md">
                             <input class="form-control" name="token_pin" id="token_pin" type="password" autocomplete="none" value="" required pattern=".{6,20}" />
                         </div>
                     </div>
                 <?php } ?>
-                <div class="form-row my-3">
+                <div class="row gx-2 my-3">
                     <label class="col-md-2 col-form-label" for="pass_new"><?php echo xlt('New Password'); ?></label>
                     <div class="col-md">
                         <input class="form-control" name="pass_new" id="pass_new" type="password" required placeholder="<?php echo xla('Min length is 8 with upper,lowercase,numbers mix'); ?>" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" />
                     </div>
                 </div>
-                <div class="form-row my-3">
+                <div class="row gx-2 my-3">
                     <label class="col-md-2 col-form-label" for="pass_new_confirm"><?php echo xlt('Confirm New Password'); ?></label>
                     <div class="col-md">
                         <input class="form-control" name="pass_new_confirm" id="pass_new_confirm" type="password" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" />
                     </div>
                 </div>
                 <?php if ($globalsBag->get('enforce_signin_email')) { ?>
-                    <div class="form-row my-3">
+                    <div class="row gx-2 my-3">
                         <label class="col-md-2 col-form-label" for="passaddon"><?php echo xlt('Confirm Email Address'); ?></label>
                         <div class="col-md">
                             <input class="form-control" name="passaddon" id="passaddon" required placeholder="<?php echo xla('Current on record trusted email'); ?>" type="email" autocomplete="none" value="" />
@@ -550,26 +550,26 @@ if (!($session->has('password_update') || (!empty($globalsBag->get('portal_two_p
                 <div class="text-center">
                     <fieldset>
                         <legend class='bg-primary text-white pt-2 py-1'><h3><?php echo xlt('Patient Credentials Reset') ?></h3></legend>
-                        <div class="jumbotron jumbotron-fluid px-5 py-3">
-                            <div class="form-row my-3">
+                        <div class="bg-body-tertiary rounded-3 px-5 py-3">
+                            <div class="row gx-2 my-3">
                                 <label class="col-md-2 col-form-label" for="fname"><?php echo xlt('First Name') ?></label>
                                 <div class="col-md">
                                     <input type="text" class="form-control" id="fname" required placeholder="<?php echo xla('First Name'); ?>" />
                                 </div>
                             </div>
-                            <div class="form-row my-3">
+                            <div class="row gx-2 my-3">
                                 <label class="col-md-2 col-form-label" for="lname"><?php echo xlt('Last Name') ?></label>
                                 <div class="col-md">
                                     <input type="text" class="form-control" id="lname" required placeholder="<?php echo xla('Last Name'); ?>" />
                                 </div>
                             </div>
-                            <div class="form-row my-3">
+                            <div class="row gx-2 my-3">
                                 <label class="col-md-2 col-form-label" for="dob"><?php echo xlt('Birth Date') ?></label>
                                 <div class="col-md">
                                     <input id="dob" type="text" required class="form-control datepicker" placeholder="<?php echo xla('YYYY-MM-DD'); ?>" />
                                 </div>
                             </div>
-                            <div class="form-row my-3">
+                            <div class="row gx-2 my-3">
                                 <label class="col-md-2 col-form-label" for="emailInput"><?php echo xlt('Enter E-Mail Address') ?></label>
                                 <div class="col-md">
                                     <input id="emailInput" type="email" class="form-control" required placeholder="<?php echo xla('Current trusted email address on record.'); ?>" maxlength="100" />
@@ -665,12 +665,12 @@ if (!($session->has('password_update') || (!empty($globalsBag->get('portal_two_p
                 } ?>
                 </div>
                 <div class="col col-md col-sm">
-                    <button class="btn btn-success btn-block" type="submit"><?php echo xlt('Log In'); ?></button>
+                    <button class="btn btn-success w-100" type="submit"><?php echo xlt('Log In'); ?></button>
                     <?php if (!empty($globalsBag->get('portal_onsite_two_register')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key'))) { ?>
-                        <button class="btn btn-secondary btn-block" onclick="location.replace('./account/verify.php?site=<?php echo attr_url($session->get('site_id')); ?>')"><?php echo xlt('Register'); ?></button>
+                        <button class="btn btn-secondary w-100" onclick="location.replace('./account/verify.php?site=<?php echo attr_url($session->get('site_id')); ?>')"><?php echo xlt('Register'); ?></button>
                     <?php } ?>
                     <?php if (!empty($globalsBag->get('portal_two_pass_reset')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key')) && isset($_GET['w']) && (isset($_GET['u']) || isset($_GET['p']))) { ?>
-                        <button class="btn btn-danger btn-block" onclick="location.replace('./index.php?requestNew=1&site=<?php echo attr_url($session->get('site_id')); ?><?php if (!empty($redirectUrl)) {
+                        <button class="btn btn-danger w-100" onclick="location.replace('./index.php?requestNew=1&site=<?php echo attr_url($session->get('site_id')); ?><?php if (!empty($redirectUrl)) {
                                 echo "&redirect=" . attr_url($redirectUrl); } ?>')"><?php echo xlt('Reset Credentials'); ?></button>
                     <?php } ?>
                 </div>
@@ -685,9 +685,7 @@ if (!($session->has('password_update') || (!empty($globalsBag->get('portal_two_p
 
     <div id="alertStore" class="d-none">
         <div class="h6 alert alert-warning alert-dismissible fade show my-1 py-1" role="alert">
-            <button type="button" class="close my-1 py-0" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
+            <button type="button" class="btn-close my-1 py-0" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     </div>
 

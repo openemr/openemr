@@ -8,7 +8,7 @@
     </div>
     <div class="row">
         <div class="col-md-2">
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="form-label">{{ "Code"|xlt }}:</label>
                 <input type="text" name="sub_ob_code[]" class="form-control code"
                        value="{{ observation.code|default('')|attr }}"
@@ -18,27 +18,27 @@
             </div>
         </div>
         <div class="col-md-2">
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="form-label">{{ "Value"|xlt }}:</label>
                 <input type="text" name="sub_ob_value[]" class="form-control"
                        value="{{ observation.ob_value|default('')|attr }}">
             </div>
         </div>
         <div class="col-md-2">
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="form-label">{{ "Units"|xlt }}:</label>
                 <input type="text" name="sub_ob_unit[]" class="form-control"
                        value="{{ observation.ob_unit|default('')|attr }}">
             </div>
         </div>
         <div class="col-md-2">
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="form-label">{{ "Status"|xlt }}:</label>
                 {{ selectList('sub_ob_status[]', 'observation-status', observation.ob_status, '') }}
             </div>
         </div>
         <div class="col-md-4">
-            <div class="form-group">
+            <div class="mb-3">
                 <label class="form-label">{{ "Description"|xlt }}:</label>
                 <input id="sub-description-{{ nodeId|attr }}" type="text" name="sub_description[]" class="form-control"
                        value="{{ observation.description|default('')|attr }}">

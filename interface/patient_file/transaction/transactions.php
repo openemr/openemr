@@ -82,7 +82,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </div>
         <br />
         <div class="row">
-            <div class="col-sm-12 text jumbotron py-4">
+            <div class="col-sm-12 text bg-body-tertiary rounded-3 py-4">
                 <?php
                 if ($result = getTransByPid($pid)) {
                     ?>

@@ -423,7 +423,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 <div id="report_results">
 <table class='table'>
 
-    <thead class='thead-light'>
+    <thead class='table-light'>
         <th><a href="nojs.php" onclick="return dosort('doctor')"
         <?php echo ($form_orderby == "doctor") ? " style=\"color: var(--success)\"" : ""; ?>><?php echo xlt('Provider'); ?>
         </a></th>

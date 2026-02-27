@@ -35,7 +35,7 @@
 				<input type="hidden" name="csrf_token_form" value="{$CSRF_TOKEN_FORM|attr}">
 				<fieldset>
 					<legend>{xlt t="Details"}</legend>
-					<div class="form-group mt-3">
+					<div class="mb-3 mt-3">
 						<div class="row">
     					    <div class="col-sm-4">
 							    <label for="prior_auth_number" class="col-form-label">{xlt t="Number"}:</label>
@@ -54,7 +54,7 @@
 				</fieldset>
 				<fieldset>
 					<legend>{xlt t="Comments"}</legend>
-					<div class="form-group mt-3">
+					<div class="mb-3 mt-3">
 						<div class="row">
     					    <div class="col-sm-12">
 								<textarea name="comments" value="{$prior_auth->get_comments()|attr}" wrap="virtual" cols="75" rows="8">{$prior_auth->get_comments()|text}</textarea>
@@ -63,7 +63,7 @@
 						</div>
 					</div>
 				</fieldset>
-				<div class="form-group mt-3">
+				<div class="mb-3 mt-3">
 					<div class="col-sm-12 position-override">
 						<div class="btn-group" role="group">
 							<button type="submit" class="btn btn-primary btn-save" onclick="top.restoreSession();" name="Submit">{xlt t='Save'}</button>

@@ -196,7 +196,7 @@ $(function () {
   });
 
   $(".select-dropdown").select2({
-    theme: "bootstrap4",
+    theme: "bootstrap-5",
     <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
   });
   if (typeof error !== 'undefined') {

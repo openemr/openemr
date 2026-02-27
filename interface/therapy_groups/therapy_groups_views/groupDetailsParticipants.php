@@ -59,7 +59,7 @@ use OpenEMR\Common\Acl\AclMain;
                               <div class="row">
                                   <div class="col-md-5">
                                       <div class="row">
-                                          <label class="col-form-label col-md-4 font-weight-bold"><?php echo xlt("Participant's name"); ?>:</label>
+                                          <label class="col-form-label col-md-4 fw-bold"><?php echo xlt("Participant's name"); ?>:</label>
                                           <div class="col-md-8">
                                               <input type="text" id="participant_name" name="participant_name" class="form-control" value="<?php echo !is_null($participant_data) ? attr($participant_data['participant_name']) : ''?>" readonly />
                                           </div>
@@ -67,7 +67,7 @@ use OpenEMR\Common\Acl\AclMain;
                                   </div>
                                   <div class="col-md-5">
                                       <div class="row">
-                                          <label class="col-form-label col-md-4 font-weight-bold"><?php echo xlt('Date of registration'); ?>:</label>
+                                          <label class="col-form-label col-md-4 fw-bold"><?php echo xlt('Date of registration'); ?>:</label>
                                           <div class="col-md-8">
                                               <input type="text" id="group_patient_start" name="group_patient_start" class="w-100 form-control datepicker" value="<?php echo !is_null($participant_data) ? attr(oeFormatShortDate($participant_data['group_patient_start'])) : oeFormatShortDate(date('Y-m-d'));?>" />
                                           </div>
@@ -75,7 +75,7 @@ use OpenEMR\Common\Acl\AclMain;
                                   </div>
                               </div>
                               <div class="row">
-                                  <label class="col-form-label col-md-2 font-weight-bold"><?php echo xlt('Comment'); ?>:</label>
+                                  <label class="col-form-label col-md-2 fw-bold"><?php echo xlt('Comment'); ?>:</label>
                                   <div class="col-md-8">
                                       <input type="text" id="group_patient_comment" name="group_patient_comment" value="<?php echo !is_null($participant_data) ? attr($participant_data['group_patient_comment']) : ''?>" class="form-control" />
                                   </div>

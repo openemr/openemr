@@ -268,7 +268,7 @@ if ($isNN) {
               <div class="col-md-12">
                 <?php if (!$isNN) { ?>
                 <div id="searchCriteria">
-                    <div class="select-box form-inline mb-1">
+                    <div class="select-box d-flex flex-wrap align-items-center mb-1">
                         <label for="contextId"><?php echo xlt('Context') . ':'; ?></label>
                         <select id="contextSearch" name="contextId" class="form-control form-control-sm w-50">
                             <option value=""></option>
@@ -295,7 +295,7 @@ if ($isNN) {
                 while ($row = sqlFetchArray($res)) { ?>
                     <a href="#" class="btn btn-primary btn-template-insert" data-template-text="<?php echo attr($row['cl_list_item_short']); ?>" title="<?php echo htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES); ?>"><?php echo ucfirst(htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES)); ?></a>
                 <?php } ?>
-                  <a class="btn btn-primary btn-sm btn-transmit float-right" href="#"><?php echo xlt('Insert in Form'); ?></a>
+                  <a class="btn btn-primary btn-sm btn-transmit float-end" href="#"><?php echo xlt('Insert in Form'); ?></a>
               </div>
               <div class="col-md-4">
                 <div class="bg-light">
@@ -355,7 +355,7 @@ if ($isNN) {
               <div class="col-md-8">
                 <textarea class="ckeditor mb-5" cols="100" rows="180"
                           id="textarea1" name="textarea1"></textarea>
-                <span class="float-right my-1"><a href="#" class="btn btn-primary btn-transmit btn-sm btn-save float-right"><?php echo xlt('Insert in Form'); ?></a></span>
+                <span class="float-end my-1"><a href="#" class="btn btn-primary btn-transmit btn-sm btn-save float-end"><?php echo xlt('Insert in Form'); ?></a></span>
               </div>
             </div>
         </form>

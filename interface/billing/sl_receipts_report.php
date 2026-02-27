@@ -178,7 +178,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                 <table>
                 <tr>
                 <td style='width: 660px'>
-                    <div class='float-left'>
+                    <div class='float-start'>
 
                     <table class='text'>
                         <tr>
@@ -291,7 +291,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
 
                 <td class='h-100 align-middle' align='left'>
 
-                    <table class='w-100 h-100 border-left'>
+                    <table class='w-100 h-100 border-start'>
                         <tr>
                             <td>
                                 <div class="text-center">

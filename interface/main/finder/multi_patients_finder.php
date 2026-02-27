@@ -102,17 +102,17 @@ if (isset($_GET['patients'])) {
         <form>
             <div class="row align-items-center">
                 <div class="col-4">
-                    <div class="select-box form-inline">
+                    <div class="select-box" d-flex flex-wrap align-items-center gap-2">
                         <label for="by-name"><?php echo xlt('Patient name') . ':'; ?></label>
-                        <select id="by-name" name="by-name" class="input-sm">
+                        <select id="by-name" name="by-name" class="form-select form-select-sm">
                             <option value=""><?php echo xlt('Enter name'); ?></option>
                         </select>
                     </div>
                 </div>
                 <div class="col-4">
-                    <div class="select-box form-inline">
+                    <div class="select-box" d-flex flex-wrap align-items-center gap-2">
                         <label for="by-id"><?php echo xlt('Patient ID'); ?>:</label>
-                        <select id="by-id" name="by-id" class="input-sm">
+                        <select id="by-id" name="by-id" class="form-select form-select-sm">
                             <option value=""><?php echo xlt('Enter ID'); ?></option>
                         </select>
                     </div>
@@ -170,7 +170,7 @@ $('#results-table').hide();
 
 //Initial select2 library for auto completing using ajax
 $('#by-id, #by-name').select2({
-    theme: "bootstrap4",
+    theme: "bootstrap-5",
     ajax: {
         beforeSend: top.restoreSession,
         url: 'multi_patients_finder_ajax.php',

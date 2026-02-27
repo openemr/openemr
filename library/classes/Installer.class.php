@@ -1987,7 +1987,7 @@ DSTD;
                 <div class="modal-dialog modal-lg">
                     <div class="modal-content  oe-modal-content" style="height:700px">
                         <div class="modal-header clearfix">
-                            <button type="button" class="close" data-dismiss="modal" aria-label=Close>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label=Close>
                             <span aria-hidden="true" style="color:var(--black); font-size:1.5em;">×</span></button>
                         </div>
                         <div class="modal-body" style="height:80%;">
@@ -1995,8 +1995,8 @@ DSTD;
                             allowtransparency="true"></iframe>
                         </div>
                         <div class="modal-footer" style="margin-top:0px;">
-                           <button class="btn btn-link btn-cancel oe-pull-away" data-dismiss="modal" type="button">Close</button>
-                           <!--<button class="btn btn-secondary btn-print oe-pull-away" data-dismiss="modal" id="print-help-href" type="button">Print</button>-->
+                           <button class="btn btn-link btn-cancel oe-pull-away" data-bs-dismiss="modal" type="button">Close</button>
+                           <!--<button class="btn btn-secondary btn-print oe-pull-away" data-bs-dismiss="modal" id="print-help-href" type="button">Print</button>-->
                         </div>
                     </div>
                 </div>

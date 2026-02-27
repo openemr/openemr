@@ -11,9 +11,43 @@
 "use strict";
 
 function ProductRegistrationController() {
+    // Helper to get or create Bootstrap modal instance (compatible with BS5 versions)
+    const _getModalInstance = function (modalEl) {
+        if (!modalEl) {
+            console.error('ProductRegistration: Modal element not found');
+            return null;
+        }
+        if (typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+            console.error('ProductRegistration: Bootstrap Modal not available');
+            return null;
+        }
+        // Bootstrap 5.1+ has getOrCreateInstance
+        if (typeof bootstrap.Modal.getOrCreateInstance === 'function') {
+            return bootstrap.Modal.getOrCreateInstance(modalEl);
+        }
+        // Bootstrap 5.0 has getInstance
+        if (typeof bootstrap.Modal.getInstance === 'function') {
+            return bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+        }
+        // Direct instantiation fallback
+        return new bootstrap.Modal(modalEl);
+    };
+
     const _closeModal = function (closeWaitTimeMilliseconds) {
         setTimeout(function () {
-            $('.product-registration-modal').modal('toggle');
+            var modalEl = document.querySelector('.product-registration-modal');
+            var modalInstance = _getModalInstance(modalEl);
+            if (modalInstance) {
+                modalInstance.hide();
+                // BS5: Ensure backdrop is removed after hide
+                setTimeout(function() {
+                    var backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) { backdrop.remove(); }
+                    document.body.classList.remove('modal-open');
+                    document.body.style.paddingRight = '';
+                    document.body.style.overflow = '';
+                }, 300);
+            }
         }, closeWaitTimeMilliseconds || 0);
     };
     const _registrationFailedHandler = function (error) {
@@ -80,26 +114,32 @@ function ProductRegistrationController() {
         // Update modal header with title
         $('.product-registration-modal .modal-header').text(registrationTranslations.title);
 
-        // Wire up button handlers
-        $('.product-registration-modal .submit').on('click', function (e) {
+        // Wire up button handlers (use off().on() to prevent duplicates)
+        $('.product-registration-modal .submit').off('click').on('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
             _formSubmissionHandler();
-            return false;
         });
 
-        $('.product-registration-modal .nothanks').on('click', function (e) {
+        $('.product-registration-modal .nothanks').off('click').on('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
             _formCancellationHandler();
-            return false;
         });
-
-        // Toggle the modal display
-        $('.product-registration-modal').modal('toggle');
 
         // Handle enter key on the email field
-        $('.product-registration-modal .email').on('keypress', function (event) {
+        $('.product-registration-modal .email').off('keypress').on('keypress', function (event) {
             if (event.which === 13) {
+                event.preventDefault();
                 _formSubmissionHandler();
-                return false;
             }
         });
+
+        // Show the modal
+        var modalEl = document.querySelector('.product-registration-modal');
+        var modalInstance = _getModalInstance(modalEl);
+        if (modalInstance) {
+            modalInstance.show();
+        }
     };
 }

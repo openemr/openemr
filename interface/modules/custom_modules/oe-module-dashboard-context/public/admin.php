@@ -156,7 +156,7 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
         <div class="row mb-3">
             <div class="col-12">
                 <h4>
-                    <i class="fa fa-sliders-h mr-2"></i>
+                    <i class="fa fa-sliders-h me-2"></i>
                     <?php echo xlt('Dashboard Context Manager'); ?>
                 </h4>
                 <p class="text-muted"><?php echo xlt('Manage care contexts and control which dashboard widgets are available to users.'); ?></p>
@@ -166,22 +166,22 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
         <ul class="nav nav-tabs" id="contextTabs" role="tablist">
             <li class="nav-item">
                 <a class="nav-link active" id="contexts-tab" data-tab="contexts" href="#contexts" role="tab">
-                    <i class="fa fa-layer-group mr-1"></i><?php echo xlt('Contexts'); ?>
+                    <i class="fa fa-layer-group me-1"></i><?php echo xlt('Contexts'); ?>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" id="users-tab" data-tab="users" href="#users" role="tab">
-                    <i class="fa fa-users mr-1"></i><?php echo xlt('User Assignments'); ?>
+                    <i class="fa fa-users me-1"></i><?php echo xlt('User Assignments'); ?>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" id="roles-tab" data-tab="roles" href="#roles" role="tab">
-                    <i class="fa fa-user-tag mr-1"></i><?php echo xlt('Role Defaults'); ?>
+                    <i class="fa fa-user-tag me-1"></i><?php echo xlt('Role Defaults'); ?>
                 </a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" id="stats-tab" data-tab="stats" href="#stats" role="tab">
-                    <i class="fa fa-chart-bar mr-1"></i><?php echo xlt('Statistics'); ?>
+                    <i class="fa fa-chart-bar me-1"></i><?php echo xlt('Statistics'); ?>
                 </a>
             </li>
         </ul>
@@ -192,13 +192,13 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                 <div class="row mb-3">
                     <div class="col-12">
                         <button type="button" class="btn btn-primary" id="btnCreateContext">
-                            <i class="fa fa-plus mr-1"></i><?php echo xlt('Create New Context'); ?>
+                            <i class="fa fa-plus me-1"></i><?php echo xlt('Create New Context'); ?>
                         </button>
                         <button type="button" class="btn btn-secondary" id="btnExportContexts">
-                            <i class="fa fa-download mr-1"></i><?php echo xlt('Export'); ?>
+                            <i class="fa fa-download me-1"></i><?php echo xlt('Export'); ?>
                         </button>
                         <button type="button" class="btn btn-secondary" id="btnImportContexts">
-                            <i class="fa fa-upload mr-1"></i><?php echo xlt('Import'); ?>
+                            <i class="fa fa-upload me-1"></i><?php echo xlt('Import'); ?>
                         </button>
                     </div>
                 </div>
@@ -209,30 +209,30 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
             <div class="tab-pane fade" id="users" role="tabpanel">
                 <div class="row mb-3">
                     <div class="col-md-3">
-                        <label class="font-weight-bold"><?php echo xlt('Facility'); ?></label>
+                        <label class="fw-bold"><?php echo xlt('Facility'); ?></label>
                         <select id="filterFacility" class="form-control">
                             <option value=""><?php echo xlt('All Facilities'); ?></option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <label class="font-weight-bold"><?php echo xlt('User Type'); ?></label>
+                        <label class="fw-bold"><?php echo xlt('User Type'); ?></label>
                         <select id="filterUserType" class="form-control">
                             <option value=""><?php echo xlt('All User Types'); ?></option>
                         </select>
                     </div>
                     <div class="col-md-3">
-                        <label class="font-weight-bold"><?php echo xlt('Search'); ?></label>
+                        <label class="fw-bold"><?php echo xlt('Search'); ?></label>
                         <input type="text" id="filterSearch" class="form-control" placeholder="<?php echo xla('Search users...'); ?>">
                     </div>
                     <div class="col-md-3 d-flex align-items-end">
                         <button type="button" class="btn btn-primary" id="btnBulkAssign">
-                            <i class="fa fa-users-cog mr-1"></i><?php echo xlt('Bulk Assign'); ?>
+                            <i class="fa fa-users-cog me-1"></i><?php echo xlt('Bulk Assign'); ?>
                         </button>
                     </div>
                 </div>
                 <div class="table-responsive">
                     <table id="usersTable" class="table table-striped table-hover">
-                        <thead class="thead-light">
+                        <thead class="table-light">
                         <tr>
                             <th style="width:30px;"><input type="checkbox" id="selectAllUsers"></th>
                             <th><?php echo xlt('User'); ?></th>
@@ -251,12 +251,12 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
             <!-- Roles Tab -->
             <div class="tab-pane fade" id="roles" role="tabpanel">
                 <div class="alert alert-info">
-                    <i class="fa fa-info-circle mr-1"></i>
+                    <i class="fa fa-info-circle me-1"></i>
                     <?php echo xlt('Set default contexts for user roles. New users will automatically receive the context assigned to their role.'); ?>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover">
-                        <thead class="thead-light">
+                        <thead class="table-light">
                         <tr>
                             <th><?php echo xlt('Role Type'); ?></th>
                             <th><?php echo xlt('Default Context'); ?></th>
@@ -495,8 +495,8 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                             ),
                             $('<div>', {class: 'dialog-body'}).append(
                                 $('<input>', {type: 'hidden', id: 'contextId', value: isEdit ? contextData.id : ''}),
-                                $('<div>', {class: 'form-group'}).append(
-                                    $('<label>', {class: 'font-weight-bold'}).text(self.xl.contextName + ' *'),
+                                $('<div>', {class: 'mb-3'}).append(
+                                    $('<label>', {class: 'fw-bold'}).text(self.xl.contextName + ' *'),
                                     $('<input>', {
                                         type: 'text',
                                         class: 'form-control',
@@ -504,8 +504,8 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                                         value: isEdit ? jsAttr(contextData.context_name) : ''
                                     })
                                 ),
-                                $('<div>', {class: 'form-group'}).append(
-                                    $('<label>', {class: 'font-weight-bold'}).text(self.xl.contextKey),
+                                $('<div>', {class: 'mb-3'}).append(
+                                    $('<label>', {class: 'fw-bold'}).text(self.xl.contextKey),
                                     $('<input>', {
                                         type: 'text',
                                         class: 'form-control',
@@ -515,16 +515,16 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                                         placeholder: jsAttr(self.xl.autoGenerated)
                                     })
                                 ),
-                                $('<div>', {class: 'form-group'}).append(
-                                    $('<label>', {class: 'font-weight-bold'}).text(self.xl.description),
+                                $('<div>', {class: 'mb-3'}).append(
+                                    $('<label>', {class: 'fw-bold'}).text(self.xl.description),
                                     $('<textarea>', {
                                         class: 'form-control',
                                         id: 'contextDescription',
                                         rows: 2
                                     }).text(isEdit ? (contextData.description || '') : '')
                                 ),
-                                $('<div>', {class: 'form-group'}).append(
-                                    $('<label>', {class: 'font-weight-bold'}).text(self.xl.widgetConfig),
+                                $('<div>', {class: 'mb-3'}).append(
+                                    $('<label>', {class: 'fw-bold'}).text(self.xl.widgetConfig),
                                     $widgetGrid
                                 ),
                                 $('<div>', {class: 'form-check'}).append(
@@ -690,10 +690,10 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                             ),
                             $('<td>').text(user.facility_name || '-'),
                             $('<td>').text(self.config.userTypes[user.user_type] || user.user_type || '-'),
-                            $('<td>').append($('<span>', {class: 'badge badge-info'}).text(contextLabel)),
+                            $('<td>').append($('<span>', {class: 'badge bg-info text-dark'}).text(contextLabel)),
                             $('<td>').append(
                                 isLocked ? $('<i>', {class: 'fa fa-lock text-warning', title: self.xl.locked}) : null,
-                                user.has_custom_config ? $('<i>', {class: 'fa fa-cog text-info ml-1', title: self.xl.customSettings}) : null
+                                user.has_custom_config ? $('<i>', {class: 'fa fa-cog text-info ms-1', title: self.xl.customSettings}) : null
                             ),
                             $('<td>', {class: 'action-btns'}).append(
                                 $('<button>', {
@@ -739,8 +739,8 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                             $('<div>', {class: 'dialog-body'}).append(
                                 $('<input>', {type: 'hidden', id: 'assignUserId', value: userId}),
                                 $('<p>').append($('<strong>').text(self.xl.user + ': '), $('<span>').text(userName)),
-                                $('<div>', {class: 'form-group'}).append(
-                                    $('<label>', {class: 'font-weight-bold'}).text(self.xl.context),
+                                $('<div>', {class: 'mb-3'}).append(
+                                    $('<label>', {class: 'fw-bold'}).text(self.xl.context),
                                     $contextSelect
                                 ),
                                 $('<div>', {class: 'form-check'}).append(
@@ -816,11 +816,11 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                             ),
                             $('<div>', {class: 'dialog-body'}).append(
                                 $('<div>', {class: 'alert alert-info'}).append(
-                                    $('<i>', {class: 'fa fa-info-circle mr-1'}),
+                                    $('<i>', {class: 'fa fa-info-circle me-1'}),
                                     $('<span>').text(selected.length + ' ' + self.xl.usersSelected)
                                 ),
-                                $('<div>', {class: 'form-group'}).append(
-                                    $('<label>', {class: 'font-weight-bold'}).text(self.xl.contextToAssign),
+                                $('<div>', {class: 'mb-3'}).append(
+                                    $('<label>', {class: 'fw-bold'}).text(self.xl.contextToAssign),
                                     $contextSelect
                                 ),
                                 $('<div>', {class: 'form-check'}).append(
@@ -1081,7 +1081,7 @@ $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/c
                     }).text(message).append(
                         $('<button>', {
                             type: 'button',
-                            class: 'close ml-2'
+                            class: 'close ms-2'
                         }).html('&times;').on('click', function () {
                             $(this).parent().remove();
                         })

@@ -283,12 +283,12 @@ class DocumentTemplateRender
                 $this->grp_cnt++;
                 $true = ($formData['ynradio' . $this->grp_cnt] ?? '') == 'Yes' ? "checked" : '';
                 $false = ($formData['ynradio' . $this->grp_cnt] ?? '') == 'No' ? "checked" : '';
-                $sigfld = '<span class="ynuGroup mr-1" id="ynradio' . $this->grp_cnt . '">';
+                $sigfld = '<span class="ynuGroup me-1" id="ynradio' . $this->grp_cnt . '">';
                 $sigfld .= '<label class="mx-1">' .
-                    '<input class="ynRadio mr-1" type="radio" ' . $true . ' name="ynradio' . $this->grp_cnt . '" value="Yes" />' . xlt("Yes") .
+                    '<input class="ynRadio me-1" type="radio" ' . $true . ' name="ynradio' . $this->grp_cnt . '" value="Yes" />' . xlt("Yes") .
                     '</label>';
                 $sigfld .= '<label>' .
-                    '<input class="ynRadio mr-1" type="radio" ' . $false . ' name="ynradio' . $this->grp_cnt . '" value="No" />' . xlt("No") .
+                    '<input class="ynRadio me-1" type="radio" ' . $false . ' name="ynradio' . $this->grp_cnt . '" value="No" />' . xlt("No") .
                     '</label>';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
@@ -297,11 +297,11 @@ class DocumentTemplateRender
                 $true = ($formData['tfradio' . $this->grp_cnt] ?? '') == 'True' ? "checked" : '';
                 $false = ($formData['tfradio' . $this->grp_cnt] ?? '') == 'False' ? "checked" : '';
                 $sigfld = '<span class="tfuGroup mx-1" id="tfradio' . $this->grp_cnt . '">';
-                $sigfld .= '<label class="mr-1">' .
-                    '<input class="tfuRadio mr-1" type="radio" ' . $true . ' name="tfradio' . $this->grp_cnt . '" value="True" />' . xlt("True") .
+                $sigfld .= '<label class="me-1">' .
+                    '<input class="tfuRadio me-1" type="radio" ' . $true . ' name="tfradio' . $this->grp_cnt . '" value="True" />' . xlt("True") .
                     '</label>';
                 $sigfld .= '<label>' .
-                    '<input class="tfuRadio mr-1" type="radio" ' . $false . ' name="tfradio' . $this->grp_cnt . '" value="False" />' . xlt("False") .
+                    '<input class="tfuRadio me-1" type="radio" ' . $false . ' name="tfradio' . $this->grp_cnt . '" value="False" />' . xlt("False") .
                     '</label>';
                 $sigfld .= '</span>';
                 $s = $this->keyReplace($s, $sigfld);
@@ -331,8 +331,8 @@ class DocumentTemplateRender
                 foreach ($matchesArr as $buttonCaption) {
                     $radioCount++;
                     $checked = ($formData['inline_radio' . $this->grp_cnt] ?? '') == attr($buttonCaption) ? "checked" : '';
-                    $sigfld .= '<label class="mr-2 d-inline-flex align-items-center">' .
-                        '<input class="inline_radio mr-1" type="radio" ' . $checked . ' name="inline_radio' . $this->grp_cnt . '" value="' . attr($buttonCaption) . '" />' . xlt($buttonCaption) .
+                    $sigfld .= '<label class="me-2 d-inline-flex align-items-center">' .
+                        '<input class="inline_radio me-1" type="radio" ' . $checked . ' name="inline_radio' . $this->grp_cnt . '" value="' . attr($buttonCaption) . '" />' . xlt($buttonCaption) .
                         '</label>';
                 }
                 $sigfld .= '</span>';

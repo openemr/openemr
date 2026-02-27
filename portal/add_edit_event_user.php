@@ -677,22 +677,22 @@ if ($userid) {
                 <input type="hidden" name="form_action" id="form_action" value="" />
                 <input type='hidden' name='form_title' id='form_title' value='<?php echo ($row['pc_catid'] ?? '') ? attr($row['pc_title']) : xla("Office Visit"); ?>' />
                 <input type='hidden' name='form_apptstatus' id='form_apptstatus' value='<?php echo ($row['pc_apptstatus'] ?? '') ? attr($row['pc_apptstatus'] ?? '') : "^" ?>' />
-                <div class="row form-group">
+                <div class="row mb-3">
                     <div class="input-group col-12 col-md-6">
-                        <label class="mr-2" for="form_category"><?php echo xlt('Visit'); ?>:</label>
+                        <label class="me-2" for="form_category"><?php echo xlt('Visit'); ?>:</label>
                         <select class="form-control mb-1" onchange='set_category()' id='form_category' name='form_category' value='<?php echo (($row['pc_catid'] ?? '') > "") ? attr($row['pc_catid']) : '5'; ?>'>
                             <?php echo $catoptions ?>
                         </select>
                     </div>
                     <div class="input-group col-12 col-md-6">
-                        <label class="mr-2" for="form_date"><?php echo xlt('Date'); ?>:</label>
+                        <label class="me-2" for="form_date"><?php echo xlt('Date'); ?>:</label>
                         <input class="form-control mb-1" type='text' name='form_date' readonly id='form_date' value='<?php echo (isset($eid) && $eid !== 0) ? attr(oeFormatShortDate($row['pc_eventDate'])) : attr($date); ?>' />
                     </div>
                 </div>
                 <div class="row">
-                    <div class="form-group form-inline col-12">
+                    <div class="mb-3 d-flex flex-wrap align-items-center gap-2 col-12">
                         <div class="input-group mb-1">
-                            <label class="mr-2"><?php echo xlt('Time'); ?>:</label>
+                            <label class="me-2"><?php echo xlt('Time'); ?>:</label>
                             <input class="form-control col-2 col-md-3" type='text' name='form_hour' size='2' value='<?php echo ((isset($eid) && $eid !== 0)) ? $starttimeh : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
                             <input class="form-control col-2 col-md-3" type='text' name='form_minute' size='2' value='<?php echo ((isset($eid) && $eid !== 0)) ? $starttimem : ''; ?>' title='<?php echo xla('Event start time'); ?>' readonly />
                             <select class="form-control col-3 col-md-4" name='form_ampm' title='Note: 12:00 noon is PM, not AM' readonly>
@@ -701,24 +701,22 @@ if ($userid) {
                             </select>
                         </div>
                         <div class="input-group">
-                            <label class="mr-2" for="form_duration"><?php echo xlt('Duration'); ?></label>
+                            <label class="me-2" for="form_duration"><?php echo xlt('Duration'); ?></label>
                             <input class="form-control" type='text' size='1' id='form_duration' name='form_duration' value='<?php echo ($row['pc_duration'] ?? '') ? ($row['pc_duration'] * 1 / 60) : attr($thisduration) ?>' readonly />
-                            <span class="input-group-append">
                             <span class="input-group-text"><?php echo "&nbsp;" . xlt('minutes'); ?></span>
-                        </span>
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="input-group col-12 mb-1">
-                        <label class="mr-2" for="form_patient"><?php echo xlt('Patient'); ?>:</label>
+                        <label class="me-2" for="form_patient"><?php echo xlt('Patient'); ?>:</label>
                         <input class="form-control" type='text' id='form_patient' name='form_patient' value='<?php echo attr($patientname); ?>' title='Patient' readonly />
                         <input type='hidden' name='form_pid' value='<?php echo attr($patientid); ?>' />
                     </div>
                 </div>
                 <div class="row">
                     <div class="input-group col-12 mb-1">
-                        <label class="mr-2" for="form_provider_ae"><?php echo xlt('Provider'); ?>:</label>
+                        <label class="me-2" for="form_provider_ae"><?php echo xlt('Provider'); ?>:</label>
                         <select class="form-control" name='form_provider_ae' id='form_provider_ae' onchange='change_provider();'>
                             <?php
                             // present a list of providers to choose from
@@ -736,14 +734,14 @@ if ($userid) {
                             }
                             ?>
                         </select>
-                        <div class="text-right">
+                        <div class="text-end">
                             <input type='button' class='btn btn-success' value='<?php echo xla('See Availability'); ?>' onclick='find_available()' />
                         </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="input-group col-12">
-                        <label class="mr-2"><?php echo xlt('Reason'); ?>:</label>
+                        <label class="me-2"><?php echo xlt('Reason'); ?>:</label>
                         <input class="form-control" type='text' size='40' name='form_comments' value='<?php echo attr($hometext); ?>' title='<?php echo xla('Optional information about this event'); ?>' />
                     </div>
                 </div>

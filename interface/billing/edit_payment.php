@@ -541,7 +541,7 @@ $ResultSearchSub = sqlStatement(
             border-right: 1px solid var(--black);
         }
 
-        .form-group {
+        .mb-3 {
             margin-bottom: 5px;
         }
 
@@ -584,17 +584,17 @@ $ResultSearchSub = sqlStatement(
             <div class="row">
                 <div class="col-sm-12">
                     <nav class="navbar navbar-nav navbar-expand-md navbar-light text-body bg-light static-top">
-                        <button class="navbar-toggler icon-bar" data-target="#myNavbar" data-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
+                        <button class="navbar-toggler icon-bar" data-bs-target="#myNavbar" data-bs-toggle="collapse" type="button"><span class="navbar-toggler-icon"></span></button>
                         <div class="collapse navbar-collapse" id="myNavbar">
-                            <ul class="navbar-nav mr-auto">
+                            <ul class="navbar-nav me-auto">
                                 <li class="nav-item active">
-                                    <a class="nav-link font-weight-bold" href='new_payment.php'><?php echo xlt('New Payment'); ?></a>
+                                    <a class="nav-link fw-bold" href='new_payment.php'><?php echo xlt('New Payment'); ?></a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link font-weight-bold" href='search_payments.php'><?php echo xlt('Search Payment'); ?></a>
+                                    <a class="nav-link fw-bold" href='search_payments.php'><?php echo xlt('Search Payment'); ?></a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link font-weight-bold" href='era_payments.php'><?php echo xlt('ERA Posting'); ?></a>
+                                    <a class="nav-link fw-bold" href='era_payments.php'><?php echo xlt('ERA Posting'); ?></a>
                                 </li>
                             </ul>
                         </div>
@@ -953,20 +953,20 @@ $ResultSearchSub = sqlStatement(
                                     <td align="right" id="RemainderTd<?php echo attr($CountIndex); ?>"> <?php echo text(round($Remainder, 2)); ?> </td>
                                     <input name="HiddenRemainderTd<?php echo attr($CountIndex); ?>" id="HiddenRemainderTd<?php echo attr($CountIndex); ?>" value="<?php echo attr(round($Remainder, 2)); ?>" type="hidden" />
                                     <td>
-                                        <input autocomplete="off" id="Allowed<?php echo attr($CountIndex); ?>" name="Allowed<?php echo attr($CountIndex); ?>" onchange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'Allowed','allowtotal');UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'Payment','paymenttotal');UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'AdjAmount','AdjAmounttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" onkeydown="PreventIt(event)"  class="text-right input-sm w-100" type="text" value="<?php echo attr($AllowedDB); ?>" />
+                                        <input autocomplete="off" id="Allowed<?php echo attr($CountIndex); ?>" name="Allowed<?php echo attr($CountIndex); ?>" onchange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'Allowed','allowtotal');UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'Payment','paymenttotal');UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'AdjAmount','AdjAmounttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" onkeydown="PreventIt(event)"  class="text-end form-control form-control-sm w-100" type="text" value="<?php echo attr($AllowedDB); ?>" />
                                     </td>
 
                                     <td>
-                                        <input autocomplete="off" id="Payment<?php echo attr($CountIndex); ?>" name="Payment<?php echo attr($CountIndex); ?>" onchange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'Payment','paymenttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" onkeydown="PreventIt(event)"  class="text-right  input-sm w-100" type="text" value="<?php echo attr($PaymentDB); ?>" />
+                                        <input autocomplete="off" id="Payment<?php echo attr($CountIndex); ?>" name="Payment<?php echo attr($CountIndex); ?>" onchange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'Payment','paymenttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" onkeydown="PreventIt(event)"  class="text-end  form-control form-control-sm w-100" type="text" value="<?php echo attr($PaymentDB); ?>" />
                                     </td>
                                     <td>
-                                        <input autocomplete="off" id="AdjAmount<?php echo attr($CountIndex); ?>" name="AdjAmount<?php echo attr($CountIndex); ?>" onchange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'AdjAmount','AdjAmounttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" onkeydown="PreventIt(event)"  class="text-right  input-sm w-100" type="text" value="<?php echo attr($AdjAmountDB); ?>" />
+                                        <input autocomplete="off" id="AdjAmount<?php echo attr($CountIndex); ?>" name="AdjAmount<?php echo attr($CountIndex); ?>" onchange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'AdjAmount','AdjAmounttotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" onkeydown="PreventIt(event)"  class="text-end  form-control form-control-sm w-100" type="text" value="<?php echo attr($AdjAmountDB); ?>" />
                                     </td>
                                     <td>
-                                        <input autocomplete="off" id="Deductible<?php echo attr($CountIndex); ?>" name="Deductible<?php echo attr($CountIndex); ?>" onchange="ValidateNumeric(this);UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'Deductible','deductibletotal');" onkeydown="PreventIt(event)"  class="text-right  input-sm w-100" type="text" value="<?php echo attr($DeductibleDB); ?>" />
+                                        <input autocomplete="off" id="Deductible<?php echo attr($CountIndex); ?>" name="Deductible<?php echo attr($CountIndex); ?>" onchange="ValidateNumeric(this);UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'Deductible','deductibletotal');" onkeydown="PreventIt(event)"  class="text-end  form-control form-control-sm w-100" type="text" value="<?php echo attr($DeductibleDB); ?>" />
                                     </td>
                                     <td>
-                                        <input autocomplete="off" id="Takeback<?php echo attr($CountIndex); ?>" name="Takeback<?php echo attr($CountIndex); ?>" onchange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'Takeback','takebacktotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" onkeydown="PreventIt(event)"  class="text-right  input-sm w-100" type="text" value="<?php echo attr($TakebackDB); ?>" />
+                                        <input autocomplete="off" id="Takeback<?php echo attr($CountIndex); ?>" name="Takeback<?php echo attr($CountIndex); ?>" onchange="ValidateNumeric(this);ScreenAdjustment(this,<?php echo attr_js($CountIndex); ?>);UpdateTotalValues(1,<?php echo attr_js($TotalRows); ?>,'Takeback','takebacktotal');RestoreValues(<?php echo attr_js($CountIndex); ?>)" onkeydown="PreventIt(event)"  class="text-end  form-control form-control-sm w-100" type="text" value="<?php echo attr($TakebackDB); ?>" />
                                     </td>
                                     <td align="left">
                                         <input id="HiddenReasonCode<?php echo attr($CountIndex); ?>" name="HiddenReasonCode<?php echo attr($CountIndex); ?>" type="hidden" value="<?php echo attr($ReasonCodeDB); ?>" /><?php echo generate_select_list("ReasonCode$CountIndex", "msp_remit_codes", "$ReasonCodeDB", "MSP", '', 'w-100'); ?>
@@ -975,7 +975,7 @@ $ResultSearchSub = sqlStatement(
                                         <input id="FollowUp<?php echo attr($CountIndex); ?>" name="FollowUp<?php echo attr($CountIndex); ?>" onclick="ActionFollowUp(<?php echo attr_js($CountIndex); ?>)" type="checkbox" value="y" />
                                     </td>
                                     <td>
-                                        <input id="FollowUpReason<?php echo attr($CountIndex); ?>" name="FollowUpReason<?php echo attr($CountIndex); ?>" onkeydown="PreventIt(event)" class=" input-sm w-100" type="text" value="<?php echo attr($FollowUpReasonDB); ?>" readonly>
+                                        <input id="FollowUpReason<?php echo attr($CountIndex); ?>" name="FollowUpReason<?php echo attr($CountIndex); ?>" onkeydown="PreventIt(event)" class=" form-control form-control-sm w-100" type="text" value="<?php echo attr($FollowUpReasonDB); ?>" readonly>
                                     </td>
                                     </tr><?php
                                 }//End of while ($RowSearch = sqlFetchArray($ResultSearch))
@@ -985,7 +985,7 @@ $ResultSearchSub = sqlStatement(
                         } while ($RowSearchSub = sqlFetchArray($ResultSearchSub));
                         if ($Table == 'yes') { ?>
                             <tr>
-                                <td class="text-right text-dark" align="left" colspan="9"><b><?php echo (xlt("Totals") . ": ") ?></b></td>
+                                <td class="text-end text-dark" align="left" colspan="9"><b><?php echo (xlt("Totals") . ": ") ?></b></td>
                                 <td class="bg-dark text-secondary" align="center" id="allowtotal"><?php echo text(number_format($allowedtot, 2)); ?></td>
                                 <td class="bg-dark text-secondary" align="center" id="paymenttotal"><?php echo text(number_format($paymenttot, 2)); ?></td>
                                 <td class="bg-dark text-secondary" align="center" id="AdjAmounttotal"><?php echo text(number_format($adjamttot, 2)); ?></td>
@@ -993,7 +993,7 @@ $ResultSearchSub = sqlStatement(
                                 <td class="bg-dark text-secondary" align="center" id="takebacktotal"><?php echo text(number_format($takebacktot, 2)); ?></td>
                                 <td align="center" colspan="2">&nbsp;</td>
                                 <td align="right">
-                                    <button type="button" class="btn btn-sm btn-secondary btn-refresh pull-right"
+                                    <button type="button" class="btn btn-sm btn-secondary btn-refresh float-end"
                                         onclick="updateAllFormTotals(<?php echo attr_js($TotalRows); ?>);"><?php echo xlt("Recalculate"); ?></button>
                                 </td>
                             </tr>
@@ -1016,8 +1016,8 @@ $ResultSearchSub = sqlStatement(
                 }//End of if($payment_id*1>0)
                 ?>
                 <?php //can change position of buttons by creating a class 'position-override' and adding rule text-align:center or right as the case may be in individual stylesheets ?>
-                <div class="form-group clearfix">
-                    <div class="col-sm-12 text-left position-override">
+                <div class="mb-3 clearfix">
+                    <div class="col-sm-12 text-start position-override">
                         <div class="btn-group" role="group">
                             <a class="btn btn-secondary btn-save" href="#" onclick="return ModifyPayments();"><span><?php echo xlt('Modify Payments'); ?></span></a>
                             <a class="btn btn-secondary btn-save" href="#" onclick="return FinishPayments();"><span><?php echo xlt('Finish Payments'); ?></span></a>

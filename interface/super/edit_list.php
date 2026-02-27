@@ -878,7 +878,7 @@ function writeITLine($it_array): void
     <script>
         $(function () {
             $(".select-dropdown").select2({
-                theme: "bootstrap4",
+                theme: "bootstrap-5",
                 <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
             });
             if (typeof error !== 'undefined') {
@@ -1129,17 +1129,17 @@ function writeITLine($it_array): void
         <input type="hidden" id="list_to" name="list_to" value="<?php echo attr($list_to); ?>" />
         <nav class="navbar navbar-light bg-light navbar-expand-md fixed-top">
             <div class="container-fluid">
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-list" aria-controls="navbar-list" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-list" aria-controls="navbar-list" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <a class="navbar-brand" href="#"><?php echo xlt('Manage Lists'); ?></a>
 
                 <!-- Collect the nav links, forms, and other content for toggling -->
                 <div class="collapse navbar-collapse" id="navbar-list">
                     <ul class="nav navbar-nav">
-                        <li class="nav-item"><a class="nav-link" href="#" data-toggle="modal" data-target="#modal-new-list"><i class="fa fa-plus"></i>&nbsp;<?php echo xlt('New List'); ?></a></li>
+                        <li class="nav-item"><a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-new-list"><i class="fa fa-plus"></i>&nbsp;<?php echo xlt('New List'); ?></a></li>
                         <li class="nav-item"><a class="nav-link deletelist" href="#" id="<?php echo attr($list_id); ?>"><i class="fa fa-trash"></i>&nbsp;<?php echo xlt('Delete List'); ?></a></li>
                     </ul>
                     <input type="hidden" name="formaction" id="formaction" />
-                    <div class="form-inline my-2 my-lg-0 navbar-left">
+                    <div class="d-flex flex-wrap align-items-center gap-2 my-2 my-lg-0 navbar-left">
                         <select name='list_id' class="form-control select-dropdown" id="list_id">
                             <?php
                             /*
@@ -1225,14 +1225,14 @@ function writeITLine($it_array): void
                     $urlFrom = ($list_from > 0 ? $list_from : 1);
                     $urlTo = ($list_to > 0 ? $list_to : $records_per_page);
                     ?>
-                    <div class="blck-filter float-left w-auto my-2 my-lg-0" style="display: none;">
-                        <div id="input-type-from" class="float-left"><?php echo xlt("From"); ?>&nbsp;<input autocomplete="off" id="list-from" value="<?php echo attr($urlFrom); ?>" style="margin-right: 10px; width: 40px;">
+                    <div class="blck-filter float-start w-auto my-2 my-lg-0" style="display: none;">
+                        <div id="input-type-from" class="float-start"><?php echo xlt("From"); ?>&nbsp;<input autocomplete="off" id="list-from" value="<?php echo attr($urlFrom); ?>" style="margin-right: 10px; width: 40px;">
                             <?php echo xlt("To{{Range}}"); ?>&nbsp;<input autocomplete="off" id="list-to" value="<?php echo attr($urlTo); ?>" style=" margin-right: 10px; width: 40px;">
                         </div>
-                        <div class="float-left"><input type="button" value="<?php echo xla('Show records'); ?>" onclick="lister()"></div>
+                        <div class="float-start"><input type="button" value="<?php echo xla('Show records'); ?>" onclick="lister()"></div>
                     </div>
                     <!--Happy end-->
-                    <div class="float-left ml-2 my-2 my-lg-0" id="total-record"></div>
+                    <div class="float-start ms-2 my-2 my-lg-0" id="total-record"></div>
                 </div><!-- /.navbar-collapse -->
             </div>
         </nav>
@@ -1251,7 +1251,7 @@ function writeITLine($it_array): void
                     <th><?php echo xlt('Label'); ?></th>
                     <?php //show translation column if not english and the translation lists flag is set
                     if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
-                        echo "<th class='font-weight-bold'>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
+                        echo "<th class='fw-bold'>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
                     } ?>
                     <th><?php echo xlt('Seq'); ?></th>
                     <th><?php echo xlt('ModLength'); ?></th>
@@ -1485,7 +1485,7 @@ function writeITLine($it_array): void
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                     <div class="modal-header">
                         <h4 class="modal-title"><?php echo xlt('New List'); ?></h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="<?php echo xla('Close'); ?>"><i class="fa fa-times" aria-hidden="true"></i></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?php echo xla('Close'); ?>"></button>
                     </div>
                     <div class="modal-body">
                         <label for="newlistname" class="control-label"><?php echo xlt('List Name'); ?></label>
@@ -1493,9 +1493,9 @@ function writeITLine($it_array): void
                         <input type="hidden" name="formaction" value="addlist">
 
                     </div>
-                    <div class="modal-footer text-right">
+                    <div class="modal-footer text-end">
                         <button type="submit" class="btn btn-secondary btn-save"><?php echo xlt('Save'); ?></button>
-                        <button type="button" class="btn btn-link btn-cancel" data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
+                        <button type="button" class="btn btn-link btn-cancel" data-bs-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
                     </div>
                 </form>
             </div><!-- /.modal-content -->

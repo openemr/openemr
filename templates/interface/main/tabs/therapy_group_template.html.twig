@@ -17,7 +17,7 @@
 <script type="text/html" id="therapy-group-template">
     <div>
         <span class="patientDataColumn">
-            <span class="float-left"><a data-bind="click: viewTgFinder" href="#" class="btn btn-secondary btn-sm">
+            <span class="float-start"><a data-bind="click: viewTgFinder" href="#" class="btn btn-secondary btn-sm">
                 <i class="fa fa-search" aria-hidden="true"></i>
             </a></span>
             <div class="patientInfo">
@@ -59,10 +59,9 @@
             <!-- ko if: encounterArray().length > 0 -->
             <br />
             <div class="btn-group dropdown">
-                <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="pastEncounters" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="pastEncounters" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                     {{ "View Past Encounters"|xlt }}&nbsp;
                     (<span data-bind="text:encounterArray().length"></span>)
-                    <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="pastEncounters">
                     <!-- ko foreach:encounterArray -->

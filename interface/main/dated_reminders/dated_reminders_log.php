@@ -63,7 +63,7 @@ if ($_GET) {
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-striped table-hover" id="logTable">
-                            <thead class="thead-light">
+                            <thead class="table-light">
                                 <tr>
                                     <th>' . xlt('ID') . '</th>
                                     <th>' . xlt('Sent Date') . '</th>
@@ -152,7 +152,7 @@ if ($_GET) {
             <div class="col-12 mb-2">
                 <h2 class="title">
                     <?php echo xlt('Dated Message Log'); ?>
-                    <i id="show_hide" class="fa fa-eye-slash ml-2" data-toggle="tooltip" data-placement="top" title="<?php echo xla('Click to Hide Filters'); ?>"></i>
+                    <i id="show_hide" class="fa fa-eye-slash ms-2" data-bs-toggle="tooltip" data-bs-placement="top" title="<?php echo xla('Click to Hide Filters'); ?>"></i>
                 </h2>
             </div>
             <div class="col-12 filter-section mb-3">
@@ -164,9 +164,9 @@ if ($_GET) {
                         </div>
                         <div class="card-body">
                             <div class="section-header mb-2">
-                                <h6 class="text-muted"><?php echo xlt('Message Date Range');?></h6>
+                                <h6 class="text-body-secondary"><?php echo xlt('Message Date Range');?></h6>
                             </div>
-                            <div class="form-group row">
+                            <div class="mb-3 row">
                                 <div class="col-12 col-md-6">
                                     <label class="col-form-label" for="sd"><?php echo xlt('Start Date') ?>:</label>
                                     <input id="sd" type="text" class='form-control datepicker' name="sd" value="" title='<?php echo attr(DateFormatRead('validateJS')) ?>'>
@@ -178,13 +178,13 @@ if ($_GET) {
                             </div>
 
                             <div class="section-header mt-4 mb-2">
-                                <h6 class="text-muted"><?php echo xlt('Message Participants');?></h6>
+                                <h6 class="text-body-secondary"><?php echo xlt('Message Participants');?></h6>
                             </div>
-                            <div class="form-group row">
+                            <div class="mb-3 row">
                                 <div class="col-12 col-md-6">
                                     <label class="col-form-label" for="sentBy">
                                         <?php echo xlt('Sent By');?>:
-                                        <small class="text-muted"><?php echo xlt('Leave blank for all'); ?></small>
+                                        <small class="text-body-secondary"><?php echo xlt('Leave blank for all'); ?></small>
                                     </label>
                                     <select class="form-control" id="sentBy" name="sentBy[]" multiple="multiple">
                                         <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
@@ -196,14 +196,14 @@ if ($_GET) {
                                         }
                                         ?>
                                     </select>
-                                    <small class="form-text text-muted">
+                                    <small class="form-text text-body-secondary">
                                         <?php echo xlt('([ctrl] + click or [cmd] + click on Mac to select multiple)'); ?>
                                     </small>
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <label class="col-form-label" for="sentTo">
                                         <?php echo xlt('Sent To');?>:
-                                        <small class="text-muted"><?php echo xlt('Leave blank for all'); ?></small>
+                                        <small class="text-body-secondary"><?php echo xlt('Leave blank for all'); ?></small>
                                     </label>
                                     <select class="form-control" id="sentTo" name="sentTo[]" multiple="multiple">
                                         <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
@@ -215,32 +215,32 @@ if ($_GET) {
                                         }
                                         ?>
                                     </select>
-                                    <small class="form-text text-muted">
+                                    <small class="form-text text-body-secondary">
                                         <?php echo xlt('([ctrl] + click or [cmd] + click on Mac to select multiple)'); ?>
                                     </small>
                                 </div>
                             </div>
 
                             <div class="section-header mt-4 mb-2">
-                                <h6 class="text-muted"><?php echo xlt('Message Status');?></h6>
+                                <h6 class="text-body-secondary"><?php echo xlt('Message Status');?></h6>
                             </div>
-                            <div class="form-group">
-                                <div class="custom-control custom-checkbox custom-control-inline">
-                                    <input type="checkbox" class="custom-control-input" name="processed" id="processed">
-                                    <label class="custom-control-label" for="processed"><?php echo xlt('Processed') ?></label>
+                            <div class="mb-3">
+                                <div class="form-check form-check-inline">
+                                    <input type="checkbox" class="form-check-input" name="processed" id="processed">
+                                    <label class="form-check-label" for="processed"><?php echo xlt('Processed') ?></label>
                                 </div>
-                                <div class="custom-control custom-checkbox custom-control-inline">
-                                    <input type="checkbox" class="custom-control-input" name="pending" id="pending">
-                                    <label class="custom-control-label" for="pending"><?php echo xlt('Pending') ?></label>
+                                <div class="form-check form-check-inline">
+                                    <input type="checkbox" class="form-check-input" name="pending" id="pending">
+                                    <label class="form-check-label" for="pending"><?php echo xlt('Pending') ?></label>
                                 </div>
                             </div>
                         </div>
                         <div class="card-footer">
                             <button type="button" id="submitForm" class="btn btn-primary">
-                                <i class="fa fa-refresh mr-1"></i><?php echo xlt('Apply Filters') ?>
+                                <i class="fa fa-refresh me-1"></i><?php echo xlt('Apply Filters') ?>
                             </button>
-                            <button type="reset" class="btn btn-secondary ml-1">
-                                <i class="fa fa-eraser mr-1"></i><?php echo xlt('Reset') ?>
+                            <button type="reset" class="btn btn-secondary ms-1">
+                                <i class="fa fa-eraser me-1"></i><?php echo xlt('Reset') ?>
                             </button>
                         </div>
                     </div>
@@ -267,7 +267,7 @@ if ($_GET) {
             $('#show_hide').prop('title', elementTitle);
         });
         $(function () {
-            $('[data-toggle="tooltip"]').tooltip();
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
         });
     </script>
 </body>

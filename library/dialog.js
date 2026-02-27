@@ -1,5 +1,5 @@
 // Copyright (C) 2005 Rod Roark <rod@sunsetsystems.com>
-// Copyright (C) 2018-2025 Jerry Padgett <sjpadgett@gmail.com>
+// Copyright (C) 2018-2021 Jerry Padgett <sjpadgett@gmail.com>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -56,7 +56,7 @@
             return dlgopen('', '', "modal-md", 0, '', alertTitle, {
                 buttons: [
                     {text: 'Yes', close: true, id: 'confirmYes', style: 'primary'},
-                    {text: '<i class="fa fa-thumbs-down mr-1"></i>No', close: true, id: 'confirmNo', style: 'primary'},
+                    {text: '<i class="fa fa-thumbs-down me-1"></i>No', close: true, id: 'confirmNo', style: 'primary'},
                     {text: 'Nevermind', close: true, style: 'secondary'}
                 ],
                 type: 'Confirm',
@@ -286,14 +286,14 @@ function inDom(dependency, type, remove) {
 }
 
 // test to see if bootstrap theming is loaded (via standard or custom bootstrap library)
-//  Will check for the badge-secondary class
+//  Will check for the bg-secondary class
 //   - if exist, then assume bootstrap loaded
 //   - if not exist, then assume bootstrap not loaded
 function isBootstrapCss() {
     for (let i = 0; i < document.styleSheets.length; i++) {
         let rules = document.styleSheets[i].rules || document.styleSheets[i].cssRules;
         for (let x in rules) {
-            if (rules[x].selectorText == '.badge-secondary') {
+            if (rules[x].selectorText == '.bg-secondary') {
                 return true;
             }
         }
@@ -326,59 +326,38 @@ if (typeof top.set_opener !== "function") {
 // universal alert popup message
 if (typeof alertMsg !== "function") {
     /* eslint-disable-next-line no-inner-declarations */
-    function alertMsg(message, timer = 5000, type = 'danger', size = '', persist = '', hideDismiss = false) {
-        const gotIt   = xl("Dismiss Forever");
-        const title   = xl("Alert");
-        const dismiss = xl("Dismiss");
-
+    function alertMsg(message, timer = 5000, type = 'danger', size = '', persist = '') {
+        // this xl() is just so cool.
+        let gotIt = xl("Got It");
+        let title = xl("Alert");
+        let dismiss = xl("Dismiss");
         $('#alert_box').remove();
-
-        // hidden attribute to hide the "Dismiss Forever" button
-        const hiddenAttr = (hideDismiss || !persist) ? ' hidden' : '';
-
-        const oSize = (size === 'lg') ? 'left:10%;width:80%;' : 'left:30%;width:40%;';
-        const style = `position:fixed;top:25%;${oSize}bottom:0;z-index:9999;`;
-
-        $('body').prepend(`<div class="container text-center" id="alert_box" style="${jsAttr(style)}"></div>`);
-
-        const mHtml = `
-        <div id="alertmsg" class="alert alert-${jsAttr(type)} alert-dismissible" role="alert">
-            <h5 class="alert-heading text-center">${jsText(title)}!</h5>
-            <hr>
-            <p class="text-dark">${jsText(message)}</p>
-
-            <button type="button" class="btn btn-link" id="dontShowAgain" data-dismiss="alert"${hiddenAttr}>
-                ${jsText(gotIt)}
-            </button>
-
-            <button type="button" id="alertDismissButton" class="btn btn-link float-right"
-                data-dismiss="alert" aria-label="${jsAttr(dismiss)}">
-                ${jsText(dismiss)}
-            </button>
-        </div>`;
-
+        let oHidden = '';
+        oHidden = !persist ? "hidden" : '';
+        let oSize = (size == 'lg') ? 'left:10%;width:80%;' : 'left:25%;width:50%;';
+        let style = "position:fixed;top:25%;" + oSize + " bottom:0;z-index:9999;";
+        $("body").prepend("<div class='container text-center' id='alert_box' style='" + style + "'></div>");
+        let mHtml = '<div id="alertmsg" class="alert alert-' + type + ' alert-dismissible">' +
+            '<button type="button" class="btn btn-link ' + oHidden + '" id="dontShowAgain" data-bs-dismiss="alert">' +
+            gotIt + '&nbsp;<i class="fa fa-thumbs-up"></i></button>' +
+            '<h4 class="alert-heading text-center">' + title + '!</h4><hr>' + '<p class="bg-light text-dark">' + message + '</p>' +
+            '<button type="button" id="alertDismissButton" class="float-end btn btn-link" data-bs-dismiss="alert">' + dismiss + '</button><br /></div>';
         $('#alert_box').append(mHtml);
-
         $('#alertmsg').on('closed.bs.alert', function () {
             clearTimeout(AlertMsg);
             $('#alert_box').remove();
             return false;
         });
-
-        $('#dontShowAgain').on('click', function () {
+        $('#dontShowAgain').on('click', function (e) {
             clearTimeout(AlertMsg);
             $('#alert_box').remove();
-            if (persist) {
-                persistUserOption(persist, 1);
-            }
+            persistUserOption(persist, 1);
         });
-
-        $('#alertDismissButton').on('click', function () {
+        $('#alertDismissButton').on('click', function (e) {
             clearTimeout(AlertMsg);
             $('#alert_box').remove();
         });
-
-        const AlertMsg = setTimeout(function () {
+        let AlertMsg = setTimeout(function () {
             $('#alertmsg').fadeOut(800, function () {
                 $('#alert_box').remove();
             });
@@ -448,10 +427,35 @@ if (typeof dlgclose !== "function") {
             if (call) {
                 wframe.setCallBack(call, args); // sets/creates callback function in dialogs scope.
             }
-            dialogModal.modal("hide");
+            var bsRef = (typeof top !== 'undefined' && top.bootstrap && top.bootstrap.Modal) ? top.bootstrap : (typeof bootstrap !== 'undefined' ? bootstrap : null);
+            if (bsRef && bsRef.Modal && typeof bsRef.Modal.getInstance === 'function') {
+                var modalInstance = bsRef.Modal.getInstance(dialogModal[0]);
+                if (modalInstance) {
+                    modalInstance.hide();
+                    // BS5: Ensure backdrop is removed after hide (cross-frame event issues)
+                    setTimeout(function() {
+                        top.jQuery('.modal-backdrop').remove();
+                        top.jQuery('body').removeClass('modal-open').css({'padding-right': '', 'overflow': ''});
+                        dialogModal.remove();
+                    }, 300);
+                }
+            }
         } else {
             // no opener not iframe must be in here
-            $(this.document).find(".dialogModal").modal("hide");
+            var fallbackModal = $(this.document).find(".dialogModal")[0];
+            var bsRef = (typeof top !== 'undefined' && top.bootstrap && top.bootstrap.Modal) ? top.bootstrap : (typeof bootstrap !== 'undefined' ? bootstrap : null);
+            if (bsRef && bsRef.Modal && fallbackModal && typeof bsRef.Modal.getInstance === 'function') {
+                var fallbackInstance = bsRef.Modal.getInstance(fallbackModal);
+                if (fallbackInstance) {
+                    fallbackInstance.hide();
+                    // BS5: Ensure backdrop is removed after hide
+                    setTimeout(function() {
+                        jQuery('.modal-backdrop').remove();
+                        jQuery('body').removeClass('modal-open').css({'padding-right': '', 'overflow': ''});
+                        jQuery(fallbackModal).remove();
+                    }, 300);
+                }
+            }
         }
     }
 }
@@ -496,7 +500,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         // Check for dependencies we will need.
         // webroot_url is a global defined in main_screen.php or main.php.
         let bscss = top.webroot_url + '/public/assets/bootstrap/dist/css/bootstrap.min.css';
-        let bscssRtl = top.webroot_url + '/public/assets/bootstrap-v4-rtl/dist/css/bootstrap-rtl.min.css';
+        // Bootstrap 5 has native RTL support - same CSS file works for both LTR and RTL
         let bsurl = top.webroot_url + '/public/assets/bootstrap/dist/js/bootstrap.bundle.min.js';
 
         let version = jQuery.fn.jquery.split(' ')[0].split('.');
@@ -512,13 +516,9 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
             (async (utilfn) => {
                 await includeScript(utilfn, 'link');
             })(bscss);
-            if (top.jsLanguageDirection == 'rtl') {
-                (async (utilfn) => {
-                    await includeScript(utilfn, 'link');
-                })(bscssRtl);
-            }
+            // BS5: Native RTL support - no separate RTL CSS needed
         }
-        if (typeof jQuery.fn.modal === 'undefined') {
+        if (typeof bootstrap === 'undefined' || typeof bootstrap.Modal === 'undefined') {
             if (!inDom('bootstrap.bundle.min.js', 'script', false)) {
                 (async (utilfn) => {
                     await includeScript(utilfn, 'script');
@@ -623,26 +623,33 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
         '</div>';
 
     var headerhtml =
-        ('<div class="modal-header">%title%<button type="button" class="close" data-dismiss="modal">' +
-            '&times;</button></div>').replace('%title%', mTitle);
-
-    var frameHtml =
-        ('<iframe id="modalframe" class="modalIframe w-100 h-100 border-0" name="%winname%" %url%></iframe>').replace('%winname%', winname).replace('%url%', fullURL ? 'src=' + fullURL : '');
+        ('<div class="modal-header d-flex justify-content-between align-items-center">%title%<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" style="font-size: 1rem;"></button></div>').replace('%title%', mTitle);
 
     var contentStyles = ('style="height:%initHeight%; max-height: 94vh"').replace('%initHeight%', opts.sizeHeight !== 'full' ? mHeight : '90vh');
 
-    var altClose = '<div class="closeDlgIframe" data-dismiss="modal" ></div>';
+    var altClose = '<div class="closeDlgIframe" data-bs-dismiss="modal" ></div>';
 
     var mhtml =
         ('<div id="%id%" class="modal fade dialogModal" tabindex="-1" role="dialog">%sizeStyle%' +
             '<style>.drag-resize {touch-action:none;user-select:none;}</style>' +
             '<div %dialogId% class="modal-dialog %drag-action% %sizeClass%" role="dialog">' +
             '<div class="modal-content %resize-action%" %contentStyles%>' + '%head%' + '%altclose%' + '%wait%' +
-            '<div class="modal-body px-1 h-100">' + '%body%' + '</div></div></div></div>').replace('%id%', winname).replace('%sizeStyle%', msSize ? msSize : '').replace('%dialogId%', opts.dialogId ? ('id=' + opts.dialogId + '"') : '').replace('%sizeClass%', mSize ? mSize : '').replace('%head%', mTitle !== '' ? headerhtml : '').replace('%altclose%', mTitle === '' ? altClose : '').replace('%drag-action%', (opts.allowDrag) ? 'drag-action' : '').replace('%resize-action%', (opts.allowResize) ? 'resize-action' : '').replace('%wait%', '').replace('%contentStyles%', contentStyles).replace('%body%', opts.type === 'iframe' ? frameHtml : '');
+            '<div class="modal-body px-1 overflow-hidden" style="flex: 1 1 auto; min-height: 200px; height: 100%;"></div></div></div></div>').replace('%id%', winname).replace('%sizeStyle%', msSize ? msSize : '').replace('%dialogId%', opts.dialogId ? ('id=' + opts.dialogId + '"') : '').replace('%sizeClass%', mSize ? mSize : '').replace('%head%', mTitle !== '' ? headerhtml : '').replace('%altclose%', mTitle === '' ? altClose : '').replace('%drag-action%', (opts.allowDrag) ? 'drag-action' : '').replace('%resize-action%', (opts.allowResize) ? 'resize-action' : '').replace('%wait%', '').replace('%contentStyles%', contentStyles);
 
     // Write modal template.
     dlgContainer = where.jQuery(mhtml);
     dlgContainer.attr("name", winname);
+
+    // For iframe type, create and append iframe element directly (avoids jQuery HTML parsing issues)
+    if (opts.type === 'iframe' && fullURL) {
+        var iframeEl = where.document.createElement('iframe');
+        iframeEl.id = 'modalframe';
+        iframeEl.className = 'modalIframe border-0';
+        iframeEl.style.cssText = 'width: 100%; height: 100%; min-height: 200px;';
+        iframeEl.name = winname;
+        iframeEl.src = fullURL;
+        dlgContainer.find('.modal-body')[0].appendChild(iframeEl);
+    }
 
     // No url and just iframe content
     if (opts.frameContent && opts.type === 'iframe') {
@@ -713,6 +720,33 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                     resolve(false);
                 });
             }
+            // Fallback click handler for close buttons (in case data-bs-dismiss doesn't work)
+            var closeModal = function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var bsRef = (where.bootstrap && where.bootstrap.Modal) ? where.bootstrap : (typeof bootstrap !== 'undefined' ? bootstrap : null);
+                if (bsRef && bsRef.Modal && typeof bsRef.Modal.getInstance === 'function') {
+                    var modalInstance = bsRef.Modal.getInstance(dlgContainer[0]);
+                    if (modalInstance && typeof modalInstance.hide === 'function') {
+                        modalInstance.hide();
+                        // BS5: Ensure backdrop is removed after hide (cross-frame event issues)
+                        setTimeout(function() {
+                            where.jQuery('.modal-backdrop').remove();
+                            where.jQuery('body').removeClass('modal-open').css({'padding-right': '', 'overflow': ''});
+                            dlgContainer.remove();
+                        }, 300);
+                        return;
+                    }
+                }
+                // Ultimate fallback - remove the modal manually in the correct window context
+                dlgContainer.removeClass('show').hide();
+                where.jQuery('.modal-backdrop').remove();
+                where.jQuery('body').removeClass('modal-open').css({'padding-right': '', 'overflow': ''});
+                dlgContainer.remove();
+            };
+            dlgContainer.find('.closeDlgIframe').on('click', closeModal);
+            dlgContainer.find('.btn-close').on('click', closeModal);
+
             // events chain.
             dlgContainer.on('show.bs.modal', function () {
                 if (opts.allowResize || opts.allowDrag) {
@@ -727,7 +761,13 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                 jQuery(this).parent().find('div.loadProgress').fadeOut(function () {
                     jQuery(this).remove();
                 });
-                dlgContainer.modal('handleUpdate'); // allow for scroll bar
+                var bsRef = (where.bootstrap && where.bootstrap.Modal) ? where.bootstrap : (typeof bootstrap !== 'undefined' ? bootstrap : null);
+                if (bsRef && bsRef.Modal && typeof bsRef.Modal.getInstance === 'function') {
+                    var modalInstance = bsRef.Modal.getInstance(dlgContainer[0]);
+                    if (modalInstance && typeof modalInstance.handleUpdate === 'function') {
+                        modalInstance.handleUpdate();
+                    }
+                }
 
                 if (opts.resolvePromiseOn === 'shown') {
                     resolve(dlgContainer);
@@ -742,6 +782,9 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                 // remove our dialog
                 jQuery(this).remove();
                 document.body.style.cursor = "auto";
+                // Clean up backdrop and body classes (failsafe)
+                where.jQuery('.modal-backdrop').remove();
+                where.jQuery('body').removeClass('modal-open').css({'padding-right': '', 'overflow': ''});
                 // now we can run functions in our window.
                 if (opts.onClosed) {
                     console.log('Doing onClosed:[' + opts.onClosed + ']');
@@ -772,7 +815,19 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                 if (calling) {
                     opts.callBack = {call: calling, args: args};
                 }
-                dlgContainer.modal('hide'); // important to clean up in only one place, hide event....
+                var bsRef = (where.bootstrap && where.bootstrap.Modal) ? where.bootstrap : (typeof bootstrap !== 'undefined' ? bootstrap : null);
+                if (bsRef && bsRef.Modal && typeof bsRef.Modal.getInstance === 'function') {
+                    var modalInstance = bsRef.Modal.getInstance(dlgContainer[0]);
+                    if (modalInstance) {
+                        modalInstance.hide();
+                        // BS5: Ensure backdrop is removed after hide (cross-frame event issues)
+                        setTimeout(function() {
+                            where.jQuery('.modal-backdrop').remove();
+                            where.jQuery('body').removeClass('modal-open').css({'padding-right': '', 'overflow': ''});
+                            dlgContainer.remove();
+                        }, 300);
+                    }
+                }
                 return false;
             };
 
@@ -797,7 +852,12 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                 resolve(dlgContainer);
             }
             // Finally Show Dialog after DOM settles
-            dlgContainer.modal({backdrop: 'static', keyboard: true}, 'show');
+            if (where.bootstrap && where.bootstrap.Modal) {
+                var bsModal = new where.bootstrap.Modal(dlgContainer[0], { backdrop: 'static', keyboard: true });
+                bsModal.show();
+            } else {
+                console.error('Dialog: Bootstrap Modal not available in target window');
+            }
         }); // end events
     }); /* Returning Promise */
 
@@ -860,7 +920,7 @@ function dlgopen(url, winname, width, height, forceNewWindow, title, opts) {
                             case "close":
                                 //add close event
                                 if (btnOp[index]) {
-                                    btn.attr("data-dismiss", "modal");
+                                    btn.attr("data-bs-dismiss", "modal");
                                 }
                                 break;
                             case "click":

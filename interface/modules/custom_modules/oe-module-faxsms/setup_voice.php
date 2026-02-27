@@ -55,7 +55,7 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
                             var messageAlert = 'alert-' + (err !== 0 ? 'danger' : 'success');
                             var messageText = data;
                             var alertBox = '<div class="alert ' + messageAlert + ' alert-dismissable"><button type="button" ' +
-                                'class="close" data-dismiss="alert" aria-hidden="true">&times;</button>' + messageText + '</div>';
+                                'class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' + messageText + '</div>';
                             if (messageAlert && messageText) {
                                 // inject the alert to .messages div in our form
                                 $('#setup-form').find('.messages').html(alertBox);
@@ -120,56 +120,52 @@ echo "<script>var pid=" . js_escape($pid) . "</script>";
             <div class="row">
                 <div class="col-md-12">
                     <div class="checkbox">
-                        <button type="submit" class="btn btn-success float-right m-2" value=""><?php echo xlt("Save Settings") ?></button>
+                        <button type="submit" class="btn btn-success float-end m-2" value=""><?php echo xlt("Save Settings") ?></button>
                         <label>
                             <input id="form_production" type="checkbox" name="production" <?php echo attr($c['production']) ? ' checked' : '' ?>>
                             <?php echo xlt("Production Check") ?>
                         </label>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="form_extension"><?php echo xlt("Extension") ?> *</label>
                         <input id="form_extension" type="text" name="extension" class="form-control" value='<?php echo attr($c['extension']) ?>' required />
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="form_phone"><?php echo xlt("Phone Number") ?> *</label>
                         <input type="tel" class="form-control" id="form_phone" name="phone" value='<?php echo attr($c['phone']) ?>' required />
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="form_smsnumber"><?php echo xlt("Opt Phone Number") ?></label>
                         <input id="form_smsnumber" type="tel" name="smsnumber" class="form-control" value='<?php echo attr($c['smsNumber']) ?>' />
                     </div>
                 </div>
                 <div class="col-md">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="form_key"><?php echo xlt("Client ID") ?> *</label>
                         <div class="input-group">
                             <input id="form_key" type="password" name="key" class="form-control" value='<?php echo attr($c['appKey']) ?>' required />
-                            <div class="input-group-append toggle-password" onclick="togglePasswordVisibility('form_key')">
-                                <span class="input-group-text"><i class="fa fa-eye"></i></span>
-                            </div>
+                            <span class="input-group-text toggle-password" onclick="togglePasswordVisibility('form_key')"><i class="fa fa-eye"></i></span>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="form_secret"><?php echo xlt("Client Secret") ?> *</label>
                         <div class="input-group">
                             <input id="form_secret" type="password" name="secret" class="form-control"
                                 value='<?php echo attr($c['appSecret']) ?>' required />
-                            <div class="input-group-append toggle-password" onclick="togglePasswordVisibility('form_secret')">
-                                <span class="input-group-text"><i class="fa fa-eye"></i></span>
-                            </div>
+                            <span class="input-group-text toggle-password" onclick="togglePasswordVisibility('form_secret')"><i class="fa fa-eye"></i></span>
                         </div>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label for="form_jwt"><?php echo xlt("Copy and Paste JWT") ?> *</label>
-                        <span class="form-group">
-                                <button type="button" class="btn btn-primary btn-download btn-sm mb-1 p-0 px-1 float-right" onclick="openJwtWindow()"><?php echo xlt("Create JWT") ?></button>
+                        <span class="mb-3">
+                                <button type="button" class="btn btn-primary btn-download btn-sm mb-1 p-0 px-1 float-end" onclick="openJwtWindow()"><?php echo xlt("Create JWT") ?></button>
                             </span>
                         <textarea id="form_jwt" type="text" rows="3" name="jwt" class="form-control small" required><?php echo attr($c['jwt']) ?></textarea>
                     </div>
                 </div>
             </div>
-            <p class="text-muted"><strong>*</strong> <?php echo xlt("These fields are required.") ?> </p>
-            <button type="submit" class="btn btn-success float-right m-2" value=""><?php echo xlt("Save Settings") ?></button>
+            <p class="text-body-secondary"><strong>*</strong> <?php echo xlt("These fields are required.") ?> </p>
+            <button type="submit" class="btn btn-success float-end m-2" value=""><?php echo xlt("Save Settings") ?></button>
         </form>
     </div>
 </body>

@@ -63,10 +63,10 @@ $records2 = [];
                 <div class="col-sm-12">
                     <ul class="nav nav-pills" id="pill-list" role="tablist">
                         <li class="nav-item" role="presention">
-                            <a href="#encounters" id="pills-encounters-tab" class="nav-link active" data-toggle="pill" type="button" role="tab" aria-controls="pills-encounters-tab" aria-selected="true"><?php echo xlt('Encounters'); ?></a>
+                            <a href="#encounters" id="pills-encounters-tab" class="nav-link active" data-bs-toggle="pill" type="button" role="tab" aria-controls="pills-encounters-tab" aria-selected="true"><?php echo xlt('Encounters'); ?></a>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <a href="#procedures" id="pills-procedures-tab" class="nav-link" data-toggle="pill" type="button" role="tab" aria-controls="pills-procedures-tab" aria-selected="false"><?php echo xlt('Procedures'); ?></a>
+                            <a href="#procedures" id="pills-procedures-tab" class="nav-link" data-bs-toggle="pill" type="button" role="tab" aria-controls="pills-procedures-tab" aria-selected="false"><?php echo xlt('Procedures'); ?></a>
                         </li>
                     </ul>
                 </div>

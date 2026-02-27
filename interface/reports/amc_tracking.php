@@ -301,7 +301,7 @@ if (!empty($_POST['form_refresh'])) {
 <div id="report_results">
 <table class='table'>
 
-<thead class='thead-light'>
+<thead class='table-light'>
  <th>
     <?php echo xlt('Patient Name'); ?>
  </th>

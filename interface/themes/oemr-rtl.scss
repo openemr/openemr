@@ -1,5 +1,5 @@
-// This file imports rtl
-// It also is the global RTL file to add
-// Overrides to when needed
+// This file imports Bootstrap for RTL builds
+// Bootstrap 5 has native RTL support via CSS logical properties
+// RTL is automatically applied when dir="rtl" is set on the HTML element
 
-@import "../../public/assets/bootstrap-rtl/scss/bootstrap-rtl";
+@import "../../public/assets/bootstrap/scss/bootstrap";

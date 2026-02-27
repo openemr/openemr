@@ -81,7 +81,7 @@ $logtop = isset($_POST['lognext']) && $_POST['lognext'] ? $logstart + $_POST['lo
     <table>
         <tr>
             <td width='470px'>
-                <div class="btn-group float-left" role="group">
+                <div class="btn-group float-start" role="group">
                     <a id='refresh_button' href='#' class='btn btn-secondary btn-refresh' onclick='top.restoreSession(); $("#theform").submit()'>
                         <?php echo xlt('Refresh'); ?>
                     </a>
@@ -104,7 +104,7 @@ $logtop = isset($_POST['lognext']) && $_POST['lognext'] ? $logstart + $_POST['lo
 <div id="report_results">
 <table class='table'>
 
- <thead class='thead-light'>
+ <thead class='table-light'>
 
   <th align='center'>
     <?php echo xlt('ID'); ?>

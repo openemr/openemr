@@ -366,7 +366,7 @@ var page = {
     updateModel: function (live = 0) {
         // reset any previous errors
         $('#modelAlert').html('');
-        $('.form-group').removeClass('error');
+        $('.mb-3').removeClass('error');
         $('.help-inline').html('');
 
         // if this is new then on success we need to add it to the collection
@@ -500,7 +500,21 @@ var page = {
         page.patient.destroy({
             wait: true,
             success: function () {
-                $('#patientDetailDialog').modal('hide');
+                var modalEl = document.getElementById('patientDetailDialog');
+                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    var modalInstance = bootstrap.Modal.getInstance(modalEl);
+                    if (modalInstance) {
+                        modalInstance.hide();
+                        // BS5: Ensure backdrop is removed after hide
+                        setTimeout(function() {
+                            var backdrop = document.querySelector('.modal-backdrop');
+                            if (backdrop) { backdrop.remove(); }
+                            document.body.classList.remove('modal-open');
+                            document.body.style.paddingRight = '';
+                            document.body.style.overflow = '';
+                        }, 300);
+                    }
+                }
                 setTimeout("app.appendAlert('The Patient record was deleted','success',5000,'collectionAlert')", 500);
                 app.hideProgress('modelLoader');
 

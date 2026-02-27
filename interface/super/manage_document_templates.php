@@ -182,17 +182,15 @@ if (!empty($_POST['bn_upload'])) {
                   <div class="card">
                      <h5 class="card-header"><?php echo xlt('Upload a Template'); ?></h5>
                      <div class="card-body">
-                        <div class="custom-file">
+                        <div class="mb-3">
                            <input type="hidden" name="MAX_FILE_SIZE" value="250000000" />
-                           <input type="file" name="form_file" size="40" class="custom-file-input" id="customFile" />
-                           <label class="custom-file-label" for="customFile"><?php echo xlt('Choose file'); ?></label>
+                           <label for="customFile" class="form-label"><?php echo xlt('Choose file'); ?></label>
+                           <input type="file" name="form_file" size="40" class="form-control" id="customFile" />
                         </div>
                         <div class="input-group mt-3">
                           <label for="form_dest_filename"><?php echo xlt('Destination Filename'); ?>:</label>
                           <input type='text' class="form-control" name='form_dest_filename' id='form_dest_filename' size='30' />
-                          <div class="input-group-append">
-                            <input type='submit' class="btn btn-primary" name='bn_upload' value='<?php echo xla('Upload') ?>' />
-                          </div>
+                          <input type='submit' class="btn btn-primary" name='bn_upload' value='<?php echo xla('Upload') ?>' />
                         </div>
                      </div>
                   </div>
@@ -237,12 +235,5 @@ if (!empty($_POST['bn_upload'])) {
           </div>
       </form>
       </div>
-      <script>
-      //display file name
-        $(".custom-file-input").on("change", function() {
-        var fileName = $(this).val().split("\\").pop();
-        $(this).siblings(".custom-file-label").addClass("selected").html(jsText(fileName));
-        });
-        </script>
    </body>
 </html>

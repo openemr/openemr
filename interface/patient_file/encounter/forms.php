@@ -707,9 +707,9 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
             </div>
             <div class='encounter-summary-column'>
                 <?php if ($GLOBALS['enable_amc_prompting']) { ?>
-                    <div class="float-right border border-dark mb-2">
-                        <a class="btn btn-link p-0 m-1 float-right" data-toggle="collapse" data-target="#amc-requires"><?php echo xlt('AMC Requires'); ?></a>
-                        <div id="amc-requires" class="float-left m-2 collapse">
+                    <div class="float-end border border-dark mb-2">
+                        <a class="btn btn-link p-0 m-1 float-end" data-bs-toggle="collapse" data-bs-target="#amc-requires"><?php echo xlt('AMC Requires'); ?></a>
+                        <div id="amc-requires" class="float-start m-2 collapse">
                             <table>
                                 <tr>
                                     <td>
@@ -754,7 +754,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                                     </td>
                                 </tr>
                             </table>
-                            <table class="ml-4">
+                            <table class="ms-4">
                                 <tr>
                                     <td>
                                         <?php if (!(empty($itemAMC['date_completed']))) { ?>
@@ -790,7 +790,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                                     </td>
                                 </tr>
                                 </table>
-                                <table class="ml-4">
+                                <table class="ms-4">
                                     <tr>
                                         <td>
                                             <input type="checkbox" id="med_reconc_perf" disabled />
@@ -827,7 +827,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
         if (!empty($docs_list) && count($docs_list) > 0) {
             ?>
             <div class='enc_docs'>
-                <span class="font-weight-bold"><?php echo xlt("Document(s)"); ?>:</span>
+                <span class="fw-bold"><?php echo xlt("Document(s)"); ?>:</span>
                 <?php
                 $doc = new C_Document();
                 foreach ($docs_list as $doc_iter) {
@@ -933,12 +933,12 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                 $form_text = text($form_name);
                 echo <<<HTML
     <div class="form-header border-bottom border-dark w-100 d-flex align-items-center justify-content-between">
-        <button class="btn btn-sm btn-text" data-toggle="collapse" data-target="#divid_{$div_nums_attr}" title="{$title}">
+        <button class="btn btn-sm btn-text" data-bs-toggle="collapse" data-bs-target="#divid_{$div_nums_attr}" title="{$title}">
             <i class="fa fa-fw {$chevron}"></i>
         </button>
         <div class="form_header flex-fill">
-            <a href="#" data-toggle="collapse" data-target="#divid_{$div_nums_attr}" class="" id="aid_{$div_nums_attr}">
-                <h5 class="mb-0">{$form_text} <small class="text-muted">({$by_text} {$author_text})</small></h5>
+            <a href="#" data-bs-toggle="collapse" data-bs-target="#divid_{$div_nums_attr}" class="" id="aid_{$div_nums_attr}">
+                <h5 class="mb-0">{$form_text} <small class="text-body-secondary">({$by_text} {$author_text})</small></h5>
             </a>
         </div>
         <div>

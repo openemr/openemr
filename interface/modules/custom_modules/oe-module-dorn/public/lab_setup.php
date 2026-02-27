@@ -64,8 +64,8 @@ if (!empty($_POST)) {
                     <hr>
                     <div class="p-2 bg-light text-dark" style="max-height:70vh; overflow-y:auto;" id="eula"></div>
                     <div class="text-center">
-                        <button type="button" id="alertDismissButton" class="btn btn-outline-danger mt-2" data-dismiss="alert">${dismiss}</button>
-                        <button type="button" class="btn btn-outline-success mt-2 ${hiddenAttr}" id="acceptButton" data-dismiss="alert">${gotIt}&nbsp;<i class="fa fa-thumbs-up"></i></button>
+                        <button type="button" id="alertDismissButton" class="btn btn-outline-danger mt-2" data-bs-dismiss="alert">${dismiss}</button>
+                        <button type="button" class="btn btn-outline-success mt-2 ${hiddenAttr}" id="acceptButton" data-bs-dismiss="alert">${gotIt}&nbsp;<i class="fa fa-thumbs-up"></i></button>
                 </div>
                 </div>`;
             // Append the HTML to the notice div
@@ -168,13 +168,13 @@ if (!empty($_POST)) {
                         <legend><?php echo xlt("Search for Labs"); ?></legend>
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="form_labName"><?php echo xlt("Lab Name") ?>:</label>
                                     <input type="text" class="form-control" id="form_labName" name="form_labName" placeholder="<?php echo xla("Search by Lab name"); ?>" value="<?php echo isset($_POST['form_labName']) ? attr($_POST['form_labName']) : '' ?>" />
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="form_labType"><?php echo xlt("Lab Type") ?>:</label>
                                     <input type="text" class="form-control" id="form_labType" name="form_labType" value="<?php echo isset($_POST['form_labType']) ? attr($_POST['form_labType']) : '' ?>" />
                                 </div>
@@ -182,13 +182,13 @@ if (!empty($_POST)) {
                         </div>
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="form_phone"><?php echo xlt("Phone") ?>:</label>
                                     <input type="text" class="form-control" id="form_phone" name="form_phone" value="<?php echo isset($_POST['form_phone']) ? attr($_POST['form_phone']) : '' ?>" />
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="form_fax"><?php echo xlt("Fax") ?>:</label>
                                     <input type="text" class="form-control" id="form_fax" name="form_fax" value="<?php echo isset($_POST['form_fax']) ? attr($_POST['form_fax']) : '' ?>" />
                                 </div>
@@ -196,19 +196,19 @@ if (!empty($_POST)) {
                         </div>
                         <div class="row">
                             <div class="col-md-4">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="form_city"><?php echo xlt("City") ?>:</label>
                                     <input type="text" class="form-control" id="form_city" name="form_city" placeholder="<?php echo xla("Search City for Lab"); ?>" value="<?php echo isset($_POST['form_city']) ? attr($_POST['form_city']) : '' ?>" />
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="form_state"><?php echo xlt("State") ?>:</label>
                                     <input type="text" class="form-control" id="form_state" name="form_state" placeholder="<?php echo xla("Search State for Lab"); ?>" value="<?php echo isset($_POST['form_state']) ? attr($_POST['form_state']) : '' ?>" />
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="form_zip"><?php echo xlt("Zip") ?>:</label>
                                     <input type="text" class="form-control" id="form_zip" name="form_zip" value="<?php echo isset($_POST['form_zip']) ? attr($_POST['form_zip']) : '' ?>" />
                                 </div>
@@ -216,7 +216,7 @@ if (!empty($_POST)) {
                         </div>
                         <div class="row">
                             <div class="col-md-4">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="form_connected"><?php echo xlt("Is Connected") ?>:</label>
                                     <select id="form_connected" name="form_connected">
                                         <option value=""><?php echo xlt("All") ?></option>
@@ -226,7 +226,7 @@ if (!empty($_POST)) {
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label for="form_active"><?php echo xlt("Is Active") ?>:</label>
                                     <select id="form_active" name="form_active">
                                         <option value=""><?php echo xlt("All") ?></option>

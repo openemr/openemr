@@ -119,11 +119,11 @@ function openAddScreen(id){
 function updateme(id){
   refreshInterval = <?php echo attr($updateDelay); ?>;
   if (id > 0) {
-    $(".drTD").html('<p class="text-body font-weight-bold" style="font-size: 3rem; margin-left: 200px;"><?php echo xla("Processing") ?>...</p>');
+    $(".drTD").html('<p class="text-body fw-bold" style="font-size: 3rem; margin-left: 200px;"><?php echo xla("Processing") ?>...</p>');
   }
 
   if (id == 'new') {
-    $(".drTD").html('<p class="text-body font-weight-bold" style="font-size: 3rem; margin-left: 200px;"><?php echo xla("Processing") ?>...</p>');
+    $(".drTD").html('<p class="text-body fw-bold" style="font-size: 3rem; margin-left: 200px;"><?php echo xla("Processing") ?>...</p>');
   }
 
   top.restoreSession();
@@ -141,7 +141,7 @@ function updateme(id){
       alert(<?php echo xlj('Error Removing Message') ?>);
     } else {
       if (id > 0) {
-        $(".drTD").html('<p class="text-body font-weight-bold" style="font-size: 3rem; margin-left: 200px;"><?php echo xla("Refreshing Reminders") ?> ...</p>');
+        $(".drTD").html('<p class="text-body fw-bold" style="font-size: 3rem; margin-left: 200px;"><?php echo xla("Refreshing Reminders") ?> ...</p>');
       }
       $(".drTD").html(data);
     }
@@ -170,7 +170,7 @@ function goPid(pid) {
                       <div class="drHide">' .
                           '<a title="' . xla('View Past and Future Reminders') . '" onclick="openLogScreen()" class="btn btn-secondary  btn-sm btn-show" href="#">' . xlt('View Log') . '</a>&nbsp;' . '<a onclick="openAddScreen(0)" class="btn btn-primary btn-sm btn-add" href="#">' . xlt('Create A Dated Reminder') . '</a>
                       </div>
-                      <div class="pre-scrollable mt-3">
+                      <div class="overflow-auto mt-3" style="max-height:350px">
                       <fieldset>
                       <legend>' . xla('Dated Reminders') . '</legend>
                       <table class="table-sm">

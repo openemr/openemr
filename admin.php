@@ -51,8 +51,8 @@ function adminSqlQuery($statement, $link)
             <div class="col-12">
                 <div class="d-flex justify-content-between align-items-center">
                     <h2>OpenEMR Multi Site Administration</h2>
-                    <a class="text-secondary" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href">
-                        <i class="fa fa-question-circle fa-lg" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Click to view Help"></i>
+                    <a class="text-secondary" data-bs-target="#myModal" data-bs-toggle="modal" href="#" id="help-href" name="help-href">
+                        <i class="fa fa-question-circle fa-lg" aria-hidden="true" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to view Help"></i>
                     </a>
                 </div>
             </div>
@@ -165,8 +165,8 @@ function adminSqlQuery($statement, $link)
                                     echo "  <td><i class='fa fa-check fa-lg text-success' aria-hidden='true' ></i></a></td>\n";
                                 }
                                 if (($v_database == $database_version) && ($v_acl <= $database_acl) && ($v_realpatch == $database_patch)) {
-                                    echo "  <td><a href='interface/login/login.php?site=" . htmlspecialchars(urlencode($sfname), ENT_QUOTES) . "' class='text-decoration-none'><i class='fa fa-sign-in-alt fa-lg' aria-hidden='true' data-toggle='tooltip' data-placement='top' title ='Login to site " . htmlspecialchars($sfname, ENT_QUOTES) . "'></i></a></td>\n";
-                                    echo "  <td><a href='portal/index.php?site=" . htmlspecialchars(urlencode($sfname), ENT_QUOTES) . "' class='text-decoration-none'><i class='fa fa-sign-in-alt fa-lg' aria-hidden='true' data-toggle='tooltip' data-placement='top' title ='Login to site " . htmlspecialchars($sfname, ENT_QUOTES) . "'></i></a></td>\n";
+                                    echo "  <td><a href='interface/login/login.php?site=" . htmlspecialchars(urlencode($sfname), ENT_QUOTES) . "' class='text-decoration-none'><i class='fa fa-sign-in-alt fa-lg' aria-hidden='true' data-bs-toggle='tooltip' data-bs-placement='top' title ='Login to site " . htmlspecialchars($sfname, ENT_QUOTES) . "'></i></a></td>\n";
+                                    echo "  <td><a href='portal/index.php?site=" . htmlspecialchars(urlencode($sfname), ENT_QUOTES) . "' class='text-decoration-none'><i class='fa fa-sign-in-alt fa-lg' aria-hidden='true' data-bs-toggle='tooltip' data-bs-placement='top' title ='Login to site " . htmlspecialchars($sfname, ENT_QUOTES) . "'></i></a></td>\n";
                                 } else {
                                     echo "  <td><i class='fa fa-ban fa-lg text-secondary' aria-hidden='true'></i></td>\n";
                                     echo "  <td><i class='fa fa-ban fa-lg text-secondary' aria-hidden='true'></i></td>\n";
@@ -183,7 +183,7 @@ function adminSqlQuery($statement, $link)
                     </table>
                 </div>
                 <form method='post' action='setup.php'>
-                    <button type='submit' class='btn btn-primary font-weight-bold' name='form_submit' value='Add New Site'>Add New Site</button>
+                    <button type='submit' class='btn btn-primary fw-bold' name='form_submit' value='Add New Site'>Add New Site</button>
                 </form>
             </div>
         </div>
@@ -194,7 +194,7 @@ function adminSqlQuery($statement, $link)
             <div class="modal-dialog modal-lg">
                 <div class="modal-content" style="height:700px">
                     <div class="modal-header clearfix">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true" style="color:var(--black); font-size:1.5em;">×</span>
                         </button>
                     </div>
@@ -203,7 +203,7 @@ function adminSqlQuery($statement, $link)
                                 allowtransparency="true"></iframe>
                         </div>
                     <div class="modal-footer mt-0">
-                        <button class="btn btn-secondary" data-dismiss="modal" type="button">Close</button>
+                        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Close</button>
                     </div>
                 </div>
             </div>
@@ -221,7 +221,7 @@ function adminSqlQuery($statement, $link)
             });
         });
         $(function () {
-            $('[data-toggle="tooltip"]').tooltip();
+            $('[data-bs-toggle="tooltip"]').tooltip();
         });
         // Jquery draggable
         $(".modal-dialog").addClass('drag-action');

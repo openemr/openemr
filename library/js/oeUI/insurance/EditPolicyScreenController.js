@@ -315,7 +315,7 @@ export class EditPolicyScreenController
 
         // setup the bootstrap select fields
         select2Translated("#" + insuranceInfoContainer.id + " .sel2", undefined, {
-            theme: "bootstrap4"
+            theme: "bootstrap-5"
             ,dropdownAutoWidth: true
             ,width: "resolve"
         });

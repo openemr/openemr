@@ -140,9 +140,9 @@ if (!empty($_REQUEST['go'])) { ?>
     //original message.php stuff
 
     if ($GLOBALS['enable_help'] == 1) {
-        $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray)" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="float-end oe-help-redirect" data-bs-target="#myModal" data-bs-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray)" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 2) {
-        $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray300) !important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
+        $help_icon = '<a class="float-end oe-help-redirect" data-bs-target="#myModal" data-bs-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray300) !important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
     } elseif ($GLOBALS['enable_help'] == 0) {
          $help_icon = '';
     }
@@ -180,26 +180,26 @@ if (!empty($_REQUEST['go'])) { ?>
             <div class="col-sm-12">
                 <ul class="nav nav-pills bg-light" id="main-nav-pills" role="tablist">
                     <li class="nav-item" id='li-mess' role="presentation">
-                        <a href='#messages-div' class="active nav-link" id='messages-li' data-toggle="pill" role="tab" aria-controls="<?php echo xla("Message");?>" aria-selected="true"><?php echo xlt('Messages'); ?></a>
+                        <a href='#messages-div' class="active nav-link" id='messages-li' data-bs-toggle="pill" data-bs-target="#messages-div" role="tab" aria-controls="<?php echo xla("Message");?>" aria-selected="true"><?php echo xlt('Messages'); ?></a>
                     </li>
                     <li class="nav-item" id='li-remi' role="presentation">
-                        <a href='#reminders-div' id='reminders-li' class="nav-link" data-toggle="pill" role="tab" aria-controls="<?php echo xla("Reminders");?>" aria-selected="true"><?php echo xlt('Reminders'); ?></a>
+                        <a href='#reminders-div' id='reminders-li' class="nav-link" data-bs-toggle="pill" data-bs-target="#reminders-div" role="tab" aria-controls="<?php echo xla("Reminders");?>" aria-selected="false"><?php echo xlt('Reminders'); ?></a>
                     </li>
                     <?php if ($GLOBALS['disable_rcb'] != '1') { ?>
                     <li class="nav-item" id='li-reca' role="presentation">
-                        <a href='#recalls-div' id='recalls-li' class="nav-link" data-toggle="pill" role="tab" aria-controls="<?php echo xla("Recalls");?>" aria-selected="true"><?php echo xlt('Recalls'); ?></a>
+                        <a href='#recalls-div' id='recalls-li' class="nav-link" data-bs-toggle="pill" data-bs-target="#recalls-div" role="tab" aria-controls="<?php echo xla("Recalls");?>" aria-selected="false"><?php echo xlt('Recalls'); ?></a>
                     </li>
                     <?php }?>
                     <?php if ($logged_in) { ?>
                     <li class="nav-item" id='li-sms' role="presentation">
-                        <a href='#sms-div' id='sms-li' class="nav-link" data-toggle="pill"  role="tab" aria-controls="<?php echo xla("SMS Zone");?>" aria-selected="true"><?php echo xlt('SMS Zone'); ?></a>
+                        <a href='#sms-div' id='sms-li' class="nav-link" data-bs-toggle="pill" data-bs-target="#sms-div" role="tab" aria-controls="<?php echo xla("SMS Zone");?>" aria-selected="false"><?php echo xlt('SMS Zone'); ?></a>
                     </li>
                     <?php }?>
                 </ul>
             </div>
         </div>
         <div class="tab-content" id="content">
-            <div class="row tab-pane active" role="tabpanel" id="messages-div">
+            <div class="row tab-pane fade show active" role="tabpanel" id="messages-div">
                 <div class="col-sm-12">
                     <?php
                     // Check to see if the user has Admin rights, and if so, allow access to See All.
@@ -244,7 +244,7 @@ if (!empty($_REQUEST['go'])) { ?>
                             <?php echo text($messages); ?>
                             <a class='more' href="<?php echo $lnkvar ?? ''; ?>" <?php echo $lnkattributes ?? ''; ?>><?php echo $otherstuff ?? ''; ?></a>
                         </h4>
-                        <ul class="nav text-right">
+                        <ul class="nav text-end">
                         <?php
                         //show the activity links
                         if (empty($task) || $task == "add" || $task == "delete") { ?>
@@ -406,7 +406,7 @@ if (!empty($_REQUEST['go'])) { ?>
                         }
                         ?>
                         <div class='col-md-12'>
-                            <div class="jumbotron jumbotron-fluid p-2">
+                            <div class="bg-body-tertiary p-2">
                                 <h4><?php echo text($message_legend); ?></h4>
                                 <div class="row">
                                     <div class="col-12 oe-custom-line">
@@ -459,7 +459,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 <?php
                                                 if ($task == "addnew" || $result['pid'] == 0) {
                                                     echo "<label class='oe-empty-label' for='clear_patients'></label>";
-                                                    echo '<button type="button" id="clear_patients"  class="btn btn-secondary btn-undo float-left flip" value="' . xla('Clear') . '">' . xlt("Clear") . '</button>';
+                                                    echo '<button type="button" id="clear_patients"  class="btn btn-secondary btn-undo float-start flip" value="' . xla('Clear') . '">' . xlt("Clear") . '</button>';
                                                 } ?>
                                             </div>
                                         </div>
@@ -503,7 +503,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             </div>
                                             <div class="col-6 col-sm-2  d-flex align-items-end flex-wrap">
                                                 <label class="oe-empty-label" for="users"></label>
-                                                <button type="button" name="clear_user" id="clear_user" class="btn btn-secondary btn-undo float-left flip" value="<?php echo xla('Clear'); ?>"><?php echo xlt('Clear'); ?></button>
+                                                <button type="button" name="clear_user" id="clear_user" class="btn btn-secondary btn-undo float-start flip" value="<?php echo xla('Clear'); ?>"><?php echo xlt('Clear'); ?></button>
                                             </div>
                                         </div>
                                     <div class='col-12 oe-margin-t-3'>
@@ -519,7 +519,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                         );
                                         if (sqlNumRows($tmp)) {
                                             echo " <tr>\n";
-                                            echo "  <td class='text'><span class='font-weight-bold'>" . xlt('Linked procedure order') . ":</span>\n";
+                                            echo "  <td class='text'><span class='fw-bold'>" . xlt('Linked procedure order') . ":</span>\n";
                                             while ($gprow = sqlFetchArray($tmp)) {
                                                 echo "   <a href='";
                                                 echo $GLOBALS['webroot'] . "/interface/orders/single_order_results.php?orderid=";
@@ -624,11 +624,11 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 <thead class='table-primary'>
                                                     <tr height='24'>
                                                         <th align='center' width='25'><input type='checkbox' id='checkAll' onclick='selectAll()'></th>
-                                                        <th width='20%' class='font-weight-bold'>&nbsp;" . xlt('From') . " $sortlink[0]</th>
-                                                        <th width='20%' class='font-weight-bold'>&nbsp;" . xlt('Patient') . " $sortlink[1]</th>
-                                                        <th class='font-weight-bold'>&nbsp;" . xlt('Type') . " $sortlink[2]</th>
-                                                        <th width='15%' class='font-weight-bold'>&nbsp;" . xlt($GLOBALS['messages_due_date'] ? 'Due date' : 'Date') . " $sortlink[3]</th>
-                                                        <th width='15%' class='font-weight-bold'>&nbsp;" . xlt('Status') . " $sortlink[4]</th>
+                                                        <th width='20%' class='fw-bold'>&nbsp;" . xlt('From') . " $sortlink[0]</th>
+                                                        <th width='20%' class='fw-bold'>&nbsp;" . xlt('Patient') . " $sortlink[1]</th>
+                                                        <th class='fw-bold'>&nbsp;" . xlt('Type') . " $sortlink[2]</th>
+                                                        <th width='15%' class='fw-bold'>&nbsp;" . xlt($GLOBALS['messages_due_date'] ? 'Due date' : 'Date') . " $sortlink[3]</th>
+                                                        <th width='15%' class='fw-bold'>&nbsp;" . xlt('Status') . " $sortlink[4]</th>
                                                     </tr>
                                                 </thead>";
                         // Display the Messages table body.
@@ -689,7 +689,7 @@ if (!empty($_REQUEST['go'])) { ?>
                             echo "&nbsp; <button class='btn btn-secondary btn-refresh trusted-messages-force-check'>" . xlt("Check New Trusted Messages") . "</button>";
                         }
                         echo "
-                                            <div  class=\"text-right\">$prevlink &nbsp; " . text($end) . " " . xlt('of') . " " . text($total) . " &nbsp; $nextlink</div>
+                                            <div  class=\"text-end\">$prevlink &nbsp; " . text($end) . " " . xlt('of') . " " . text($total) . " &nbsp; $nextlink</div>
                                             </div>
                                         </div>
                                     </td>
@@ -769,7 +769,7 @@ if (!empty($_REQUEST['go'])) { ?>
                     ?>
                 </div>
             </div><!--end of messages div-->
-            <div class="row tab-pane" role="tabpanel" id="reminders-div">
+            <div class="row tab-pane fade" role="tabpanel" id="reminders-div">
                 <div class="col-sm-12">
                     <div class="mb-3">
                         <h4><?php echo xlt('Reminders'); ?></h4>
@@ -778,7 +778,7 @@ if (!empty($_REQUEST['go'])) { ?>
                 </div>
             </div><!--end of reminders div-->
             <?php if ($GLOBALS['disable_rcb'] != '1') { ?>
-            <div class="row tab-pane" role="tabpanel" id="recalls-div">
+            <div class="row tab-pane fade" role="tabpanel" id="recalls-div">
                 <div class="col-sm-6 col-md-6 col-lg-6">
                     <h4><?php echo xlt('Recalls'); ?></h4>
                     <button class="btn btn-primary btn-add" onclick="goReminderRecall('addRecall');"><?php echo xlt('New Recall'); ?></button>
@@ -786,7 +786,7 @@ if (!empty($_REQUEST['go'])) { ?>
                 </div>
             </div><!--end of recalls div-->
             <?php } ?>
-            <div class="row tab-pane" role="tabpanel" id="sms-div">
+            <div class="row tab-pane fade" role="tabpanel" id="sms-div">
                 <div class="col-sm-4 col-md-4 col-lg-4">
                     <?php if ($logged_in) { ?>
                     <h4><?php echo xlt('SMS Zone'); ?></h4>
@@ -857,13 +857,15 @@ if (!empty($_REQUEST['go'])) { ?>
         });
         $(function () {
             $( "ul.navbar-nav" ).children().click(function(){
-                $(".collapse").collapse('hide');
+                document.querySelectorAll(".collapse.show").forEach(el => bootstrap.Collapse.getOrCreateInstance(el).hide());
             });
         });
         $(function () {
-            $('#see-all-tooltip').attr({"title": <?php echo xlj('Click to show messages for all users'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
-            $('#just-mine-tooltip').attr({"title": <?php echo xlj('Click to show messages for only the current user'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
-            $('#open-sms-tooltip').attr({"title": <?php echo xlj('Click to open SMS for patient'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
+            $('#see-all-tooltip').attr({"title": <?php echo xlj('Click to show messages for all users'); ?>, "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"});
+            $('#just-mine-tooltip').attr({"title": <?php echo xlj('Click to show messages for only the current user'); ?>, "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"});
+            $('#open-sms-tooltip').attr({"title": <?php echo xlj('Click to open SMS for patient'); ?>, "data-bs-toggle":"tooltip", "data-bs-placement":"bottom"});
+            // Initialize BS5 tooltips
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
         });
         $(function () {
             var f = $("#smsForm");
@@ -895,7 +897,7 @@ if (!empty($_REQUEST['go'])) { ?>
                 },
                 dropdownAutoWidth: true,
                 placeholder: xl('Search for patient...'),
-                theme: 'bootstrap4'
+                theme: 'bootstrap5'
             })
 
             $('#SMS_patient').on('select2:select', function (e) {
@@ -1130,6 +1132,36 @@ if (!empty($_REQUEST['go'])) { ?>
             });
             return false;
         }
+
+        // Handle Bootstrap 5 tabs/pills manually for better compatibility
+        $(function() {
+            // Initialize tab click handlers
+            $('#main-nav-pills a.nav-link').on('click', function(e) {
+                e.preventDefault();
+                var target = $(this).attr('data-bs-target') || $(this).attr('href');
+                if (target) {
+                    // Remove active class from all tabs and panes
+                    $('#main-nav-pills a.nav-link').removeClass('active').attr('aria-selected', 'false');
+                    $('.tab-content .tab-pane').removeClass('show active');
+
+                    // Add active class to clicked tab and target pane
+                    $(this).addClass('active').attr('aria-selected', 'true');
+                    $(target).addClass('show active');
+
+                    // Update URL hash
+                    history.replaceState(null, null, target);
+                }
+            });
+
+            // Handle URL hash on page load
+            var hash = window.location.hash;
+            if (hash && $(hash).length) {
+                var tabLink = $('#main-nav-pills a.nav-link[data-bs-target="' + hash + '"], #main-nav-pills a.nav-link[href="' + hash + '"]');
+                if (tabLink.length) {
+                    tabLink.trigger('click');
+                }
+            }
+        });
     </script>
     <?php
 }

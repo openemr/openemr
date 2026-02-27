@@ -19,18 +19,18 @@ Partial twig file that represents the insurance edit screen for a patient
         {% for instype in insuranceTypes %}
             {# Need a drop down select with each grouped insurance (by type) #}
             <div data-type="{{ instype|attr }}" class="tab {% if instype == activeType %}current{% endif %} h-auto w-auto">
-                <div class="form-row mb-2"><!-- start nested row -->
+                <div class="row gx-2 mb-2"><!-- start nested row -->
                     <div class="col-md-6 text-align-right">
                         <div class="btn-group">
                             <input type="button" value="{{ 'Save Policy'|xla }}" class="btn btn-primary btn-save-policy" />
-                            <button type="button" class="btn btn-primary btn-saving d-none">{{ "Saving..."|xlt }}<i class="wait fa fa-cog fa-spin ml-2"></i></button>
+                            <button type="button" class="btn btn-primary btn-saving d-none">{{ "Saving..."|xlt }}<i class="wait fa fa-cog fa-spin ms-2"></i></button>
                         </div>
                         <div class="alert-success alert d-none insurance-save-success p-2 mt-2">
                             <p>{{ "Policy saved successfully."|xlt }}</p>
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <div class="form-row insurance-type-selector-row-{{ instype|attr }}">
+                        <div class="row gx-2 insurance-type-selector-row-{{ instype|attr }}">
                             <div class="col-md-3 label_custom pb-3">
                                 <span class='required'>{{ "Selected Policy"|xlt }}</span>
                             </div>
@@ -40,7 +40,7 @@ Partial twig file that represents the insurance edit screen for a patient
 
                             </div>
                         </div>
-                        <div class="form-row mb-2 insurance-type-no-policies insurance-type-no-policies-{{ instype|attr }} d-none">
+                        <div class="row gx-2 mb-2 insurance-type-no-policies insurance-type-no-policies-{{ instype|attr }} d-none">
                             <div class="col-12">
                                 <div class="alert alert-info">
                                     <p>{{ "No insurance policies for this insurance type were found."|xlt }}</p>
@@ -50,9 +50,9 @@ Partial twig file that represents the insurance edit screen for a patient
                         </div>
                     </div>
                 </div>
-                <div class="form-row" id="insurance-info-type-{{ instype|attr }}">
+                <div class="row gx-2" id="insurance-info-type-{{ instype|attr }}">
                     <div class="alert alert-info">
-                        <h3>{{ "Loading insurance information."|xlt }} <i class="wait fa fa-cog fa-spin ml-2"></i></h3>
+                        <h3>{{ "Loading insurance information."|xlt }} <i class="wait fa fa-cog fa-spin ms-2"></i></h3>
                     </div>
                 </div>
             </div>
@@ -66,8 +66,8 @@ Partial twig file that represents the insurance edit screen for a patient
 {% endif %}
 {% if enableSwapSecondaryInsurance %}
     <template id="insurance-swap-template">
-        <button class='btn btn-sm btn-secondary btn-insurance-swap btn-insurance-swap-primary mb-1 d-none' data-type='secondary' data-target-type="primary">{{ "Swap With Primary"|xla }}<i class="wait fa fa-cog fa-spin ml-2 d-none"></i></button>
-        <button class='btn btn-sm btn-secondary btn-insurance-swap btn-insurance-swap-secondary mb-1 d-none' data-type='tertiary' data-target-type="secondary">{{ "Swap With Secondary"|xla }}<i class="wait fa fa-cog fa-spin ml-2 d-none"></i></button>
+        <button class='btn btn-sm btn-secondary btn-insurance-swap btn-insurance-swap-primary mb-1 d-none' data-type='secondary' data-target-type="primary">{{ "Swap With Primary"|xla }}<i class="wait fa fa-cog fa-spin ms-2 d-none"></i></button>
+        <button class='btn btn-sm btn-secondary btn-insurance-swap btn-insurance-swap-secondary mb-1 d-none' data-type='tertiary' data-target-type="secondary">{{ "Swap With Secondary"|xla }}<i class="wait fa fa-cog fa-spin ms-2 d-none"></i></button>
     </template>
 {% endif %}
 {% include "patient/insurance/_insurance_validation_errors.html.twig" %}
@@ -75,7 +75,7 @@ Partial twig file that represents the insurance edit screen for a patient
 <template id="insurance-edit-template">
     <div class="col-md-6"><!-- start left column -->
 
-        <div class="form-row"><!-- start nested row -->
+        <div class="row gx-2"><!-- start nested row -->
             <div class="col-md-3 label_custom pb-3">
                 <span class='required' data-validation-field="provider">{{ "Provider"|xlt }}</span>
             </div>
@@ -89,7 +89,7 @@ Partial twig file that represents the insurance edit screen for a patient
         </div>
         {% for fieldRow in fields.left %}
             {% if fieldRow.skip is not defined or fieldRow.skip %}
-                <div class="form-row"><!-- start nested row -->
+                <div class="row gx-2"><!-- start nested row -->
                     <div class="col-md-3 pb-1 label_custom">
                         <span data-validation-field="{{ fieldRow.field_id|attr }}" class='{%if fieldRow.required is defined and fieldRow.required %}required{% endif %}'>{{ fieldRow.name|text }}</span>
                     </div>
@@ -112,7 +112,7 @@ Partial twig file that represents the insurance edit screen for a patient
     </div><!-- end left column -->
     <div class="col-md-6"><!-- start right column -->
 
-        <div class="form-row"><!-- start nested row -->
+        <div class="row gx-2"><!-- start nested row -->
             <div class="col-md-3 pb-1 label_custom">
                 <span class='required' data-validation-field="subscriber_relationship">{{ 'Relationship'|xlt }}:</span>
             </div>
@@ -124,7 +124,7 @@ Partial twig file that represents the insurance edit screen for a patient
         </div>
         {% for fieldRow in fields.right %}
             {% if fieldRow.skip is not defined or fieldRow.skip %}
-                <div class="form-row"><!-- start nested row -->
+                <div class="row gx-2"><!-- start nested row -->
                     <div class="col-md-3 pb-1 label_custom">
                         <span data-validation-field="{{ fieldRow.field_id|attr }}" class='{%if fieldRow.required is defined and fieldRow.required %}required{% endif %}'>{{ fieldRow.name|text }}</span>
                     </div>
@@ -145,7 +145,7 @@ Partial twig file that represents the insurance edit screen for a patient
             {% endif %}
         {% endfor %}
         {# We don't use generate_form_field because there currently isn't a way to generate a select drop down with an already existing static array #}
-        <div class="form-row">
+        <div class="row gx-2">
             <div class="col-md-3 pb-1 label_custom">
                 <span data-validation-field="policy_type">{{ 'Secondary Medicare Type'|xlt }}:</span>
             </div>

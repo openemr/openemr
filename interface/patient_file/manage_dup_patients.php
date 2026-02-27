@@ -255,7 +255,7 @@ $score_calculate = getDupScoreSQL();
                 <button class="btn btn-sm btn-primary btn-print" type='button' value='Print' onclick='window.print()'><?php echo xla('Print'); ?></button>
             </div>
             <table id='mymaintable' class='table table-sm table-bordered table-hover w-100 table-light'>
-                <thead class="thead-dark text-center">
+                <thead class="table-dark text-center">
                 <tr>
                     <th>
                         <?php echo xlt('Actions'); ?>

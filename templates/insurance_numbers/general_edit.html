@@ -59,7 +59,7 @@
                     {xlt t='Update Provider Number'}
                 {/if}
             </div>
-            <div class="form-row my-sm-2">
+            <div class="row gx-2 my-sm-2">
                 <label for="insurance_company_id" class="col-form-label col-sm-2">{xlt t='Insurance Company'}</label>
                 <div class="col-sm-8">
                     {if $ins->get_id() eq ""}
@@ -73,13 +73,13 @@
                     {/if}
                 </div>
             </div>
-            <div class="form-row my-sm-2">
+            <div class="row gx-2 my-sm-2">
                 <label for="provider_number" class="col-form-label col-sm-2">{xlt t='Provider Number'}</label>
                 <div class="col-sm-8">
                     <input type="text" id="provider_number" name="provider_number" class="form-control" value="{$ins->get_provider_number()|attr}" onKeyDown="PreventIt(event)">
                 </div>
             </div>
-            <div class="form-row my-sm-2">
+            <div class="row gx-2 my-sm-2">
                 <label for="provider_number_type" class="col-form-label col-sm-2">{xlt t='Provider Number (Type)'}</label>
                 <div class="col-sm-8">
                     <select id="provider_number_type" name="provider_number_type" class="form-control">
@@ -87,13 +87,13 @@
                     </select>
                 </div>
             </div>
-            <div class="form-row my-sm-2">
+            <div class="row gx-2 my-sm-2">
                 <label for="rendering_provider_number" class="col-form-label col-sm-2">{xlt t='Rendering Provider Number'}</label>
                 <div class="col-sm-8">
                     <input type="text" id="rendering_provider_number" name="rendering_provider_number" class="form-control" value="{$ins->get_rendering_provider_number()|attr}" onKeyDown="PreventIt(event)">
                 </div>
             </div>
-            <div class="form-row my-sm-2">
+            <div class="row gx-2 my-sm-2">
                 <label for="rendering_provider_number_type" class="col-form-label col-sm-2">{xlt t='Rendering Provider Number (Type)'}</label>
                 <div class="col-sm-8">
                     <select id="rendering_provider_number_type" name="rendering_provider_number_type" class="form-control">
@@ -101,7 +101,7 @@
                     </select>
                 </div>
             </div>
-            <div class="form-row my-sm-2">
+            <div class="row gx-2 my-sm-2">
                 <label for="group_number" class="col-form-label col-sm-2">{xlt t='Group Number'}</label>
                 <div class="col-sm-8">
                     <input type="text" id="group_number" name="group_number" value="{$ins->get_group_number()|attr}" onKeyDown="PreventIt(event)" />

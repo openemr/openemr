@@ -211,7 +211,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                   <table class='table'>
                     <tr>
                       <td width='410px'>
-                        <div class="float-left">
+                        <div class="float-start">
                           <table class="table text">
                             <tr>
                               <td class='label_custom'>
@@ -221,7 +221,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                           </table>
                         </div>
                       </td>
-                      <td class="h-100 text-left align-middle">
+                      <td class="h-100 text-start align-middle">
                         <table class="w-100 h-100">
                           <tr>
                             <td>
@@ -230,13 +230,13 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                  <a id='process_button' href='#' class='btn btn-primary' onclick='return ReminderBatch("process")'><?php echo xlt('Process Reminders'); ?></a>
                                  <a id='process_send_button' href='#' class='btn btn-primary' onclick='return ReminderBatch("process_send")'><?php echo xlt('Process and Send Reminders'); ?></a>
                                  <span id='status_span'></span>
-                                 <div id='processing' style='margin: 10px; display: none;'><div class="spinner-border spinner-border-sm" role="status"><span class="sr-only"><?php echo xlt("Loading"); ?>...</span></div></div>
+                                 <div id='processing' style='margin: 10px; display: none;'><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden"><?php echo xlt("Loading"); ?>...</span></div></div>
                                 <?php } else { ?>
                                 <a href='patient_reminders.php?patient_id=<?php echo attr_url($patient_id); ?>&mode=<?php echo attr_url($mode); ?>' class='btn btn-secondary btn-refresh' onclick='top.restoreSession()'><?php echo xlt('Refresh'); ?></a>
                                 <?php } ?>
                               </div>
                             </td>
-                            <td class="text text-right"><?php echo $prevlink . " " . text($end) . " of " . text($total) . " " . $nextlink; ?></td>
+                            <td class="text text-end"><?php echo $prevlink . " " . text($end) . " of " . text($total) . " " . $nextlink; ?></td>
                           </tr>
                         </table>
                       </td>
@@ -246,7 +246,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                 <div id='report_results'>
                     <table class='table table-bordered'>
-                      <thead class='thead-light'>
+                      <thead class='table-light'>
                         <th><?php echo xlt('Item') . " " . $sortlink[0]; ?></th>
                         <th><?php echo xlt('Patient') . " " . $sortlink[1]; ?></th>
                         <th><?php echo xlt('Due Status') . " " . $sortlink[2]; ?></th>

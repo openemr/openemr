@@ -727,10 +727,10 @@ function writeFieldLine($linedata): void
     echo "<input type='hidden' name='fld[" . attr($fld_line_no) . "][originalid]' value='" .
          attr($linedata['field_id']) . "' />";
 
-    echo "<div class='input-group'><div class='input-group-prepend'><div class='input-group-text'><input type='checkbox' class='selectfield' " .
+    echo "<div class='input-group'><span class='input-group-text'><input type='checkbox' class='selectfield' " .
             "name='"  . attr($linedata['group_id']) . "~" . attr($linedata['field_id']) . "' " .
             "id='"    . attr($linedata['group_id']) . "~" . attr($linedata['field_id']) . "' " .
-            "title='" . xla('Select field') . "' /></div></div>";
+            "title='" . xla('Select field') . "' /></span>";
 
     echo "<input type='text' name='fld[" . attr($fld_line_no) . "][seq]' id='fld[" . attr($fld_line_no) . "][seq]' value='" .
         attr($linedata['seq']) . "' size='2' maxlength='4' class='form-control form-control-sm optin' />";
@@ -750,7 +750,7 @@ function writeFieldLine($linedata): void
     echo "</select>";
     echo "</td>\n";
 
-    echo "  <td class='text-left optcell'>";
+    echo "  <td class='text-start optcell'>";
     echo "<input type='text' name='fld[" . attr($fld_line_no) . "][id]' value='" .
         attr($linedata['field_id']) . "' size='15' maxlength='31' " .
          "class='form-control form-control-sm optin' onclick='FieldIDClicked(this)' />";
@@ -926,7 +926,7 @@ function writeFieldLine($linedata): void
     echo "</td>\n";
 
     // The "?" to click on for yet more field attributes.
-    echo "  <td class='font-weight-bold' id='querytd_" . attr($fld_line_no) . "' style='cursor:pointer;";
+    echo "  <td class='fw-bold' id='querytd_" . attr($fld_line_no) . "' style='cursor:pointer;";
     if (!empty($linedata['conditions']) || !empty($linedata['validation'])) {
         echo "background-color: var(--success);";
     }
@@ -955,7 +955,7 @@ function writeFieldLine($linedata): void
       "z-index: 1000; left:-1000px; top:0; font-size: 0.6875rem;' class='position-absolute'>\n" .
       "<table class='w-100'>\n" .
       " <tr>\n" .
-      "  <th colspan='3' class='text-left font-weight-bold'>" .
+      "  <th colspan='3' class='text-start fw-bold'>" .
       xlt('For') . " " . text($linedata['field_id']) . " " .
       "<select class='form-control form-control-sm' name='fld[" . attr($fld_line_no) . "][action]' onchange='actionChanged(" . attr_js($fld_line_no) . ")'>" .
       "<option value='skip'  " . ($action == 'skip'  ? 'selected' : '') . ">" . xlt('hide this field') . "</option>" .
@@ -965,15 +965,15 @@ function writeFieldLine($linedata): void
       "<input type='text' class='form-control form-control-sm' name='fld[" . attr($fld_line_no) . "][value]' value='" . attr($action_value) . "' size='15' />" .
       " " . xlt('if') .
       "</th>\n" .
-      "  <th colspan='2' class='text-right text'><input class='btn btn-secondary' type='button' " .
+      "  <th colspan='2' class='text-end text'><input class='btn btn-secondary' type='button' " .
       "value='" . xla('Close') . "' onclick='extShow(" . attr_js($fld_line_no) . ", false)' />&nbsp;</th>\n" .
       " </tr>\n" .
-      " <tr class='text-left'>\n" .
-      "  <th class='font-weight-bold'>" . xlt('Field ID') . "</th>\n" .
-      "  <th class='font-weight-bold'>" . xlt('List item ID') . "</th>\n" .
-      "  <th class='font-weight-bold'>" . xlt('Operator') . "</th>\n" .
-      "  <th class='font-weight-bold'>" . xlt('Value if comparing') . "</th>\n" .
-      "  <th class='font-weight-bold'>&nbsp;</th>\n" .
+      " <tr class='text-start'>\n" .
+      "  <th class='fw-bold'>" . xlt('Field ID') . "</th>\n" .
+      "  <th class='fw-bold'>" . xlt('List item ID') . "</th>\n" .
+      "  <th class='fw-bold'>" . xlt('Operator') . "</th>\n" .
+      "  <th class='fw-bold'>" . xlt('Value if comparing') . "</th>\n" .
+      "  <th class='fw-bold'>&nbsp;</th>\n" .
       " </tr>\n";
     // There may be multiple condition lines for each field.
     foreach ($conditions as $i => $condition) {
@@ -982,17 +982,17 @@ function writeFieldLine($linedata): void
         }
         $extra_html .=
         " <tr>\n" .
-        "  <td class='text-left'>\n" .
+        "  <td class='text-start'>\n" .
         "   <select class='form-control form-control-sm' name='fld[" . attr($fld_line_no) . "][condition_id][" . attr($i) . "]' onchange='cidChanged(" . attr_js($fld_line_no) . ", " . attr_js($i) . ")'>" .
         genFieldOptionList($condition['id']) . " </select>\n" .
         "  </td>\n" .
-        "  <td class='text-left'>\n" .
+        "  <td class='text-start'>\n" .
         // List item choices are populated on the client side but will need the current value,
         // so we insert a temporary option here to hold that value.
         "   <select class='form-control form-control-sm' name='fld[" . attr($fld_line_no) . "][condition_itemid][" . attr($i) . "]'><option value='" .
         attr($condition['itemid']) . "'>...</option></select>\n" .
         "  </td>\n" .
-        "  <td class='text-left'>\n" .
+        "  <td class='text-start'>\n" .
         "   <select class='form-control form-control-sm' name='fld[" . attr($fld_line_no) . "][condition_operator][" . attr($i) . "]'>\n";
         foreach (
             [
@@ -1013,18 +1013,18 @@ function writeFieldLine($linedata): void
         $extra_html .=
         "   </select>\n" .
         "  </td>\n" .
-        "  <td class='text-left' title='" . xla('Only for comparisons') . "'>\n" .
+        "  <td class='text-start' title='" . xla('Only for comparisons') . "'>\n" .
         "   <input type='text' class='form-control form-control-sm' name='fld[" . attr($fld_line_no) . "][condition_value][" . attr($i) . "]' value='" .
         attr($condition['value']) . "' size='15' maxlength='63' />\n" .
         "  </td>\n";
         if (!isset($conditions[$i + 1])) {
             $extra_html .=
-            "  <td class='text-right' title='" . xla('Add a condition') . "'>\n" .
+            "  <td class='text-end' title='" . xla('Add a condition') . "'>\n" .
             "   <input type='button' class='btn btn-primary btn-sm' value='+' onclick='extAddCondition(" . attr_js($fld_line_no) . ",this)' />\n" .
             "  </td>\n";
         } else {
             $extra_html .=
-            "  <td class='text-right'>\n" .
+            "  <td class='text-end'>\n" .
             "   <select class='form-control form-control-sm' name='fld[" . attr($fld_line_no) . "][condition_andor][" . attr($i) . "]'>\n";
             foreach (
                 [
@@ -1054,14 +1054,14 @@ function writeFieldLine($linedata): void
 
     $extra_html .=  "<table class='w-100'>\n" .
     " <tr>\n" .
-    "  <td colspan='3' class='text-left font-weight-bold'>\"" . text($linedata['field_id']) . "\" " .
+    "  <td colspan='3' class='text-start fw-bold'>\"" . text($linedata['field_id']) . "\" " .
     xlt('will have the following validation rules') . ":</td>\n" .
     " </tr>\n" .
     " <tr>\n" .
-    "  <td class='text-left font-weight-bold'>" . xlt('Validation rule') . "  </td>\n" .
+    "  <td class='text-start fw-bold'>" . xlt('Validation rule') . "  </td>\n" .
     " </tr>\n" .
     " <tr>\n" .
-    "  <td class='text-left' title='" . xla('Select a validation rule') . "'>\n" .
+    "  <td class='text-start' title='" . xla('Select a validation rule') . "'>\n" .
 
 
     "   <select class='form-control form-control-sm' name='fld[" . attr($fld_line_no) . "][validation]' onchange='valChanged(" . attr_js($fld_line_no) . ")'>\n" .
@@ -1316,15 +1316,15 @@ function extAddCondition(lino, btnelem) {
   // Add the new row.
   var newtrelem = telem.insertRow(i+2);
   newtrelem.innerHTML =
-    "<td class='text-left'>" +
+    "<td class='text-start'>" +
     "<select class='form-control form-control-sm' name='fld[" + lino + "][condition_id][" + i + "]' onchange='cidChanged(" + lino + "," + i + ")'>" +
     <?php echo js_escape(genFieldOptionList()) ?> +
     "</select>" +
     "</td>" +
-    "<td class='text-left'>" +
+    "<td class='text-start'>" +
     "<select class='form-control form-control-sm' name='fld[" + lino + "][condition_itemid][" + i + "]' style='display:none' />" +
     "</td>" +
-    "<td class='text-left'>" +
+    "<td class='text-start'>" +
     "<select class='form-control form-control-sm' name='fld[" + lino + "][condition_operator][" + i + "]'>" +
     "<option value='eq'>" + jsText(<?php echo xlj('Equals') ?>) + "</option>" +
     "<option value='ne'>" + jsText(<?php echo xlj('Does not equal') ?>) + "</option>" +
@@ -1332,10 +1332,10 @@ function extAddCondition(lino, btnelem) {
     "<option value='ns'>" + jsText(<?php echo xlj('Is not selected') ?>) + "</option>" +
     "</select>" +
     "</td>" +
-    "<td class='text-left'>" +
+    "<td class='text-start'>" +
     "<input type='text' class='form-control form-control-sm' name='fld[" + lino + "][condition_value][" + i + "]' value='' size='15' maxlength='63' />" +
     "</td>" +
-    "<td class='text-right'>" +
+    "<td class='text-end'>" +
     "<input type='button' class='btn btn-primary btn-sm' value='+' onclick='extAddCondition(" + lino + ",this)' />" +
     "</td>";
 }
@@ -1481,7 +1481,7 @@ function myChangeCheck() {
 <?php echo xlt('Include inactive'); ?></label>
 
 <?php if ($layout_id) { ?>
-<div class="btn-group ml-auto">
+<div class="btn-group ms-auto">
     <button type='button' class='btn btn-secondary btn-sm' onclick='edit_layout_props("")'><?php echo xla('Layout Properties'); ?></button>
     <button type='button' class='btn btn-secondary btn-sm addgroup' id='addgroup'><?php echo xla('Add Group'); ?></button>
     <button type='button' class="btn btn-primary btn-save btn-sm" name='save' id='save'><?php echo xla('Save Changes'); ?></button>
@@ -1503,7 +1503,7 @@ function myChangeCheck() {
 
 <div id="tips" class="container tips">
   <section class="card bg-light p-3">
-  <header class="card-heading">
+  <header class="card-header">
    <h3 class="card-title"><?php echo xlt('Usage Tips') ?></h3>
   </header>
   <div class="card-body">
@@ -1522,7 +1522,7 @@ function myChangeCheck() {
     echo "<li>" . xlt("Please see http://www.open-emr.org/wiki/index.php/LBV_Forms for more on this topic") . "</li>";
 ?>
    </ul>
-   <button class='btn btn-success btn-sm float-right' onclick='$("#tips").toggle();return false;'><?php echo xlt('Dismiss')?></button>
+   <button class='btn btn-success btn-sm float-end' onclick='$("#tips").toggle();return false;'><?php echo xlt('Dismiss')?></button>
   </div>
 </section></div></div>
 <?php
@@ -1591,14 +1591,14 @@ if ($layout_id) {
             <nav class="navbar navbar-expand-lg navbar-light bg-light sticky-top">
                 <span class="navbar-brand">{$t_vars['translate_layout']}&nbsp;{$t_vars['text_group_name']}</span>
                 <div class="btn-toolbar" role="toolbar" aria-label="Group Toolbar">
-                    <div class="btn-group mr-2" role="group" aria-label="Field Group">
+                    <div class="btn-group me-2" role="group" aria-label="Field Group">
                         <button type="button" class="addfield btn btn-secondary btn-add btn-sm" id="addto~{$group_id_attr}">{$t_vars['xla_add_field']}</button>
                     </div>
-                    <div class="btn-group ml-2 mr-2" role="group" aria-label="Move Group">
+                    <div class="btn-group ms-2 me-2" role="group" aria-label="Move Group">
                         <button type="button" class="movegroup btn btn-secondary btn-sm" id="{$group_id_attr}~up"><i class="fa fa-angle-up"></i>&nbsp;{$t_vars['xla_move_up']}</button>
                         <button type="button" class="movegroup btn btn-secondary btn-sm" id="{$group_id_attr}~down"><i class="fa fa-angle-down"></i>&nbsp;{$t_vars['xla_move_down']}</button>
                     </div>
-                    <div class="btn-group mr-2" role="group" aria-label="Group Options">
+                    <div class="btn-group me-2" role="group" aria-label="Group Options">
                         <button type="button" class="renamegroup btn btn-secondary btn-sm" id="{$group_id_attr}~{$t_vars['attr_gmyname']}">{$t_vars['xla_rename_group']}</button>
                         <button type="button" class="btn btn-secondary btn-sm" onclick="edit_layout_props({$group_id_attr_js})">{$t_vars['xla_group_props']}</button>
                         <button type="button" class="deletegroup btn btn-secondary text-danger btn-sm" id="{$group_id_attr}">{$t_vars['xla_delete_group']}</button>
@@ -1666,11 +1666,11 @@ if ($layout_id) {
 <!-- template DIV that appears when user chooses to rename an existing group -->
 <div id="renamegroupdetail" class="bg-light p-3" style="border: 1px solid black; display: none; visibility: hidden;">
 <input type="hidden" name="renameoldgroupname" id="renameoldgroupname" value="" />
-<div class="form-group">
+<div class="mb-3">
     <label for="renamegroupname"><?php echo xlt('Group Name'); ?>:</label>
     <input type="text" class="form-control form-control-sm" size="20" maxlength="30" name="renamegroupname" id="renamegroupname" />
 </div>
-<div class="form-group">
+<div class="mb-3">
     <label for="renamegroupparent"><?php echo xlt('Parent'); ?>:</label>
     <?php echo genGroupSelector('renamegroupparent', $layout_id); ?>
 </div>
@@ -1682,7 +1682,7 @@ if ($layout_id) {
 
 <!-- template DIV that appears when user chooses to add a new group -->
 <div id="groupdetail" style="border: 1px solid black; padding: 3px; display: none; visibility: hidden; background-color: var(--gray);">
-<span class='font-weight-bold'>
+<span class='fw-bold'>
 <?php echo xlt('Group Name'); ?>:
 <input type="text" size="20" maxlength="30" name="newgroupname" id="newgroupname" />
 &nbsp;&nbsp;

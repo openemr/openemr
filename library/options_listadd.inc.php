@@ -53,7 +53,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
     // state form for input box
     var state   = "\
 <ul class='m-0 p-0 list-unstyled'>\
- <li class='text-center font-weight-bold' style='font-size:120%;'>\
+ <li class='text-center fw-bold' style='font-size:120%;'>\
     <?php echo xlt('Enter new State'); ?></li>\
  <li class='p-0' style='margin-top: 0.5rem;'>\
     <?php echo xlt('Full Name'); ?>:\
