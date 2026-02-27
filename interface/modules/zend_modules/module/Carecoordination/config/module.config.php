@@ -146,10 +146,7 @@ return [
     'service_manager' => [
         'factories' => [
             CarecoordinationTable::class =>  fn(ContainerInterface $container, $requestedName): \Carecoordination\Model\CarecoordinationTable => new CarecoordinationTable(),
-            EncounterccdadispatchTable::class =>  function (ContainerInterface $container, $requestedName) {
-                $applicationTable = $container->get(\Application\Model\ApplicationTable::class);
-                return new EncounterccdadispatchTable($applicationTable);
-            },
+            EncounterccdadispatchTable::class =>  fn(ContainerInterface $container, $requestedName): \Carecoordination\Model\EncounterccdadispatchTable => new EncounterccdadispatchTable(),
             EncountermanagerTable::class =>  fn(ContainerInterface $container, $requestedName): \Carecoordination\Model\EncountermanagerTable => new EncountermanagerTable(),
             SetupTable::class =>  fn(ContainerInterface $container, $requestedName): \Carecoordination\Model\SetupTable => new SetupTable(),
             CcdTable::class =>  fn(ContainerInterface $container, $requestedName): \Carecoordination\Model\CcdTable => new CcdTable(),
