@@ -54,21 +54,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Laminas\\-DB class "Laminas\\\\Db\\\\Adapter\\\\Adapter" is deprecated\\. Use QueryUtils or DatabaseQueryTrait instead\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/config/module.config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Laminas\\-DB class "Laminas\\\\Db\\\\TableGateway\\\\TableGateway" is deprecated\\. Use QueryUtils or DatabaseQueryTrait instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/config/module.config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Laminas\\-DB class "Laminas\\\\Db\\\\TableGateway\\\\TableGateway" is deprecated\\. Use QueryUtils or DatabaseQueryTrait instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/config/module.config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Laminas\\-DB class "Laminas\\\\Db\\\\Adapter\\\\Adapter" is deprecated\\. Use QueryUtils or DatabaseQueryTrait instead\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/config/module.config.php',
 ];
 $ignoreErrors[] = [
@@ -105,11 +90,6 @@ $ignoreErrors[] = [
     'message' => '#^Laminas\\-DB class "Laminas\\\\Db\\\\TableGateway\\\\TableGateway" is deprecated\\. Use QueryUtils or DatabaseQueryTrait instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTableGateway.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Laminas\\-DB class "Laminas\\\\Db\\\\TableGateway\\\\TableGateway" is deprecated\\. Use QueryUtils or DatabaseQueryTrait instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/config/module.config.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];
