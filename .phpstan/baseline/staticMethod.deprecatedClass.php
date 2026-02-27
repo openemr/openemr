@@ -8,6 +8,12 @@ New code should use existing DB tooling and not directly create new connections\
     'path' => __DIR__ . '/../../interface/modules/zend_modules/config/autoload/global.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to method createMysqli\\(\\) of deprecated class OpenEMR\\\\BC\\\\DatabaseConnectionFactory\\:
+New code should use existing DB tooling and not directly create new connections\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/Installer.class.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to method createAdodb\\(\\) of deprecated class OpenEMR\\\\BC\\\\DatabaseConnectionFactory\\:
 New code should use existing DB tooling and not directly create new connections\\.$#',
     'count' => 1,
