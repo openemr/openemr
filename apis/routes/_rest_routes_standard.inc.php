@@ -431,7 +431,6 @@ return [
         return $return;
     },
 
-    // OpenAPI annotation moved to ListRestController::getOptions()
     "GET /api/list/:list_name" => function ($list_name, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "lists", "default");
         $return = (new ListRestController())->getOptions($list_name);
