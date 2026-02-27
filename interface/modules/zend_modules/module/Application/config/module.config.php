@@ -18,7 +18,6 @@ use Application\Controller\SendtoController;
 use Application\Controller\SoapController;
 use Application\Listener\Listener;
 use Application\Listener\ModuleMenuSubscriber;
-use Application\Model\ApplicationTable;
 use Application\Model\SendtoTable;
 use Laminas\Router\Http\Literal;
 use Laminas\Router\Http\Segment;
@@ -123,11 +122,6 @@ return [
     'service_manager' => [
         'factories' => [
             Listener::class => InvokableFactory::class,
-            ApplicationTable::class => function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get(\Laminas\Db\Adapter\Adapter::class);
-                $table = new ApplicationTable();
-                return $table;
-            },
             SendtoTable::class => fn(ContainerInterface $container, $requestedName): \Application\Model\SendtoTable => new SendtoTable(),
             SendtoController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\SendtoController => new SendtoController($container->get(SendtoTable::class)),
             ModuleMenuSubscriber::class => InvokableFactory::class
