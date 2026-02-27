@@ -173,3 +173,8 @@ ALTER TABLE `patient_data` CHANGE `interpretter` `interpreter` varchar(255) NOT 
 #IfRow2D layout_options form_id DEM field_id interpretter
 UPDATE `layout_options` SET `field_id` = 'interpreter' WHERE `form_id` = 'DEM' AND `field_id` = 'interpretter';
 #EndIf
+
+-- AI-generated: hide deprecated care_team_* DEM layout fields for fresh 8.0.0 installs (replaced by care_team_member table)
+#IfRow3D layout_options form_id DEM field_id care_team_provider uor 1
+UPDATE `layout_options` SET `uor` = 0 WHERE `form_id` = 'DEM' AND `field_id` IN ('care_team_facility', 'care_team_provider', 'care_team_status') AND `uor` = 1;
+#EndIf
