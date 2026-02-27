@@ -15,7 +15,6 @@ namespace OpenEMR\RestControllers\FHIR;
 use OpenApi\Attributes as OA;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\Services\FHIR\FhirImmunizationService;
-use OpenEMR\Services\FHIR\FhirValidationService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 

@@ -12,7 +12,6 @@
 
 namespace OpenEMR\Services\Cda;
 
-use DOMDocument;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\CDA\CDAPreParseEvent;
 use OpenEMR\Events\CDA\CDAPostParseEvent;

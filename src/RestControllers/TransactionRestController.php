@@ -16,7 +16,6 @@ namespace OpenEMR\RestControllers;
 use OpenApi\Attributes as OA;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\PatientTransactionService;
-use OpenEMR\Services\TransactionService;
 use OpenEMR\Validators\ProcessingResult;
 
 #[OA\Schema(

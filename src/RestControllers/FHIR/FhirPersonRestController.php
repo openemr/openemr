@@ -16,15 +16,11 @@ namespace OpenEMR\RestControllers\FHIR;
 
 use OpenApi\Attributes as OA;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPerson;
 use OpenEMR\Services\FHIR\FhirPersonService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
-use OpenEMR\Services\FHIR\FhirPractitionerService;
 use OpenEMR\Services\FHIR\FhirValidationService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
-use OpenEMR\Services\UserService;
-use OpenEMR\Validators\ProcessingResult;
 
 /**
  * Supports REST interactions with the FHIR practitioner resource

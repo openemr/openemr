@@ -14,7 +14,6 @@
 namespace OpenEMR\Services\Cda;
 
 use Document;
-use XMLReader;
 
 class CdaValidateDocumentObject
 {

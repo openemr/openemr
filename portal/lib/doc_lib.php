@@ -57,7 +57,6 @@ require_once("$srcdir/classes/Document.class.php");
 require_once("$srcdir/classes/Note.class.php");
 require_once(__DIR__ . "/appsql.class.php");
 
-use Mpdf\Mpdf;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Pdf\PatientPortalPDFDocumentCreator;

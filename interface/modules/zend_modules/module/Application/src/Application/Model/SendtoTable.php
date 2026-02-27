@@ -14,7 +14,6 @@ namespace Application\Model;
 
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use Application\Model\ApplicationTable;
-use Laminas\Db\Adapter\Driver\Pdo\Result;
 
 class SendtoTable extends AbstractTableGateway
 {

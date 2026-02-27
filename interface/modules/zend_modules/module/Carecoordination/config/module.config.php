@@ -15,8 +15,6 @@
 namespace Carecoordination;
 
 use Carecoordination\Model\CcdaGenerator;
-use Documents\Plugin\Documents;
-use Laminas\ServiceManager\Factory\InvokableFactory;
 use Laminas\Router\Http\Segment;
 use Carecoordination\Controller\CarecoordinationController;
 use Carecoordination\Controller\EncounterccdadispatchController;
@@ -33,7 +31,6 @@ use Carecoordination\Factory\EncounterccdadispatchControllerFactory;
 use Carecoordination\Factory\SetupControllerFactory;
 use Carecoordination\Controller\ModuleconfigController;
 use Interop\Container\ContainerInterface;
-use Application\Plugin\CommonPlugin;
 use Documents\Controller\DocumentsController;
 use Carecoordination\Listener\CCDAEventsSubscriber;
 

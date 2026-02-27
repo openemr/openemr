@@ -27,7 +27,6 @@ use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\ListService;
-use u2flib_server\U2F;
 
 ///////////////////////////////////////////////////////////////////////
 // Functions to support MFA.

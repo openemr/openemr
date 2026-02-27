@@ -12,7 +12,6 @@
 
 namespace OpenEMR\RestControllers\FHIR\Operations;
 
-use Google\Service\Iam\Status;
 use OpenApi\Attributes as OA;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
@@ -24,7 +23,6 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueSeverity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueType;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome\FHIROperationOutcomeIssue;
-use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\FhirDocRefService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\Services\Search\SearchFieldException;

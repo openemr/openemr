@@ -19,7 +19,6 @@ if (!$GLOBALS ?? null) {
 use Exception;
 use League\Csv\Reader;
 use League\Csv\Statement;
-use mysqli;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use ZipArchive;
 

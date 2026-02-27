@@ -11,7 +11,6 @@
 
 namespace OpenEMR\Services\Trait;
 
-use OpenEMR\Services\IGlobalsAware;
 use OpenEMR\Core\OEGlobalsBag;
 
 trait GlobalInterfaceTrait

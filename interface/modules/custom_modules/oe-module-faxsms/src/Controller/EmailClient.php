@@ -20,7 +20,6 @@ use OpenEMR\Modules\FaxSMS\Exception\EmailSendFailedException;
 use OpenEMR\Modules\FaxSMS\Exception\InvalidEmailAddressException;
 use OpenEMR\Modules\FaxSMS\Exception\SmtpNotConfiguredException;
 use PHPMailer\PHPMailer\Exception;
-use Symfony\Component\HttpClient\HttpClient;
 
 class EmailClient extends AppDispatch
 {

@@ -15,7 +15,6 @@ use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\RestControllers\SMART\PatientContextSearchController;
 use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
-use OpenEMR\Services\LogoService;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -25,7 +24,6 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorageFactory;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Twig\Environment;
-use Twig\TemplateWrapper;
 
 class SMARTAuthorizationControllerTest extends TestCase
 {

@@ -19,7 +19,6 @@ namespace Installer\Model;
 use Laminas\Db\Adapter\Driver\Pdo\Result;
 use Laminas\Db\TableGateway\TableGateway;
 use Laminas\Db\TableGateway\Feature\GlobalAdapterFeature;
-use Laminas\Config\Reader\Ini;
 use Laminas\Db\ResultSet\ResultSet;
 use Application\Model\ApplicationTable;
 use Interop\Container\ContainerInterface;

@@ -13,8 +13,6 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Uuid\UuidMapping;
-use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Services\FHIR\MedicationDispense\FhirMedicationDispenseLocalDispensaryService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;

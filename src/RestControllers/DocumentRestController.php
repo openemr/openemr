@@ -12,7 +12,6 @@
 
 namespace OpenEMR\RestControllers;
 
-use Nyholm\Psr7\Factory\Psr17Factory;
 use OpenApi\Attributes as OA;
 use OpenEMR\Services\DocumentService;
 use OpenEMR\RestControllers\RestControllerHelper;

@@ -12,7 +12,6 @@
 
 namespace OpenEMR\Modules\FaxSMS\RCVoice;
 
-use Exception;
 use RingCentral\SDK\Http\ApiException;
 use RingCentral\SDK\Platform\Platform;
 

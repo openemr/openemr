@@ -45,7 +45,6 @@ require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/patient.inc.php");
 
-use OpenEMR\Core\Header;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Controllers\Portal\PortalPatientReportController;

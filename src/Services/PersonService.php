@@ -14,7 +14,6 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\ORDataObject\Person;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\BaseService;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 

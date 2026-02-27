@@ -16,7 +16,6 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
-use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Validators\ProcessingResult;
 
 class EmployerService extends BaseService

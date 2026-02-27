@@ -13,12 +13,10 @@
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenApi\Attributes as OA;
-use OpenEMR\Services\FHIR\FhirValidationService;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
+use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\FhirCoverageService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
-use OpenEMR\RestControllers\RestControllerHelper;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
-use OpenEMR\Validators\ProcessingResult;
 
 class FhirCoverageRestController
 {

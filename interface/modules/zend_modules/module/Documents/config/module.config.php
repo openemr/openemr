@@ -12,7 +12,6 @@
 
 namespace Documents;
 
-use Laminas\ServiceManager\Factory\InvokableFactory;
 use Laminas\Router\Http\Segment;
 use Documents\Controller\DocumentsController;
 use Documents\Model\DocumentsTable;

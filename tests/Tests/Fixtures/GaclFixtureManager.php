@@ -2,7 +2,6 @@
 
 namespace OpenEMR\Tests\Fixtures;
 
-use OpenEMR\Common\Database\QueryUtils;
 
 /**
  * Provides GACL Fixtures for testing breakglass user functionality

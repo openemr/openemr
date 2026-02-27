@@ -13,16 +13,9 @@
  */
 
 
-use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\ListAuthorizations;
-use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\AuthorizationService;
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Menu\PatientMenuEvent;
-use OpenEMR\Menu\PatientMenuRole;
-use OpenEMR\Events\PatientDemographics\RenderEvent;
-use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\ModulesClassLoader;
-use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 // AI Generated: registering namespace

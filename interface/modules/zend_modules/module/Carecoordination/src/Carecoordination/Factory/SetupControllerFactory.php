@@ -2,8 +2,6 @@
 
 namespace Carecoordination\Factory;
 
-use Carecoordination\Controller\EncounterccdadispatchController;
-use Carecoordination\Model\EncountermanagerTable;
 use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 use Carecoordination\Controller\SetupController;

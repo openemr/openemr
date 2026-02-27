@@ -31,7 +31,6 @@
 */
 
 use OpenEMR\Core\AbstractModuleActionListener;
-use OpenEMR\Modules\WenoModule\Services\ModuleService;
 
 /* Allows maintenance of background tasks depending on Module Manager action. */
 

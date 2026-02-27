@@ -2,23 +2,11 @@
 
 namespace OpenEMR\RestControllers\Config;
 
-use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
-use League\OAuth2\Server\Exception\OAuthServerException;
-use League\OAuth2\Server\ResourceServer;
-use LogicException;
-use Nyholm\Psr7Server\ServerRequestCreator;
-use Nyholm\Psr7\Factory\Psr17Factory;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\FHIR\Config\ServerConfig;
-use OpenEMR\Services\TrustedUserService;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpException;

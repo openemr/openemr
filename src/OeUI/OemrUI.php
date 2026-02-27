@@ -19,7 +19,6 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\UserInterface\BaseActionButtonHelper;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
 use OpenEMR\Services\Globals\UserSettingsService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 // Special case where not setting up the header for a script, so using setupAssets function,
 //  which does not autoload anything. The actual header is set up in another script.

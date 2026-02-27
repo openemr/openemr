@@ -16,7 +16,6 @@ use Laminas\Mvc\ModuleRouteListener;
 use Laminas\Mvc\MvcEvent;
 use Laminas\ModuleManager\Feature\AutoloaderProviderInterface;
 use Laminas\ModuleManager\ModuleManager;
-use Documents\Model\DocumentsTable;
 
 class Module implements AutoloaderProviderInterface
 {

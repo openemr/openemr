@@ -30,7 +30,6 @@ use OpenEMR\RestControllers\FHIR\FhirDeviceRestController;
 use OpenEMR\RestControllers\FHIR\FhirDiagnosticReportRestController;
 use OpenEMR\RestControllers\FHIR\FhirDocumentReferenceRestController;
 use OpenEMR\RestControllers\FHIR\FhirEncounterRestController;
-use OpenEMR\RestControllers\FHIR\FhirObservationRestController;
 use OpenEMR\RestControllers\FHIR\FhirImmunizationRestController;
 use OpenEMR\RestControllers\FHIR\FhirGoalRestController;
 use OpenEMR\RestControllers\FHIR\FhirGroupRestController;
@@ -62,7 +61,6 @@ use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormSer
 use OpenEMR\RestControllers\FHIR\FhirQuestionnaireResponseRestController;
 use OpenEMR\RestControllers\FHIR\FhirSpecimenRestController;
 use OpenEMR\RestControllers\FHIR\FhirMediaRestController;
-use OpenEMR\RestControllers\FHIR\FhirRelatedPersonRestController;
 use OpenEMR\RestControllers\FHIR\FhirGenericRestController;
 use OpenEMR\Services\FHIR\FhirConditionService;
 use OpenEMR\Services\FHIR\FhirObservationService;
@@ -319,6 +317,81 @@ return [
 
         return $return;
     },
+<<<<<<< HEAD
+=======
+
+    /**
+     *  @OA\Get(
+     *      path="/fhir/Goal",
+     *      description="Returns a list of Goal resources.",
+     *      tags={"fhir"},
+     *      @OA\Parameter(
+     *          name="_id",
+     *          in="query",
+     *          description="The uuid for the Goal resource.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="_lastUpdated",
+     *          in="query",
+     *          description="Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Parameter(
+     *          name="patient",
+     *          in="query",
+     *          description="The uuid for the patient.",
+     *          required=false,
+     *          @OA\Schema(
+     *              type="string"
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="200",
+     *          description="Standard Response",
+     *          @OA\MediaType(
+     *              mediaType="application/json",
+     *              @OA\Schema(
+     *                  @OA\Property(
+     *                      property="json object",
+     *                      description="FHIR Json object.",
+     *                      type="object"
+     *                  ),
+     *                  example={
+     *                      "meta": {
+     *                          "lastUpdated": "2021-09-14T09:13:51"
+     *                      },
+     *                      "resourceType": "Bundle",
+     *                      "type": "collection",
+     *                      "total": 0,
+     *                      "link": {
+     *                          {
+     *                              "relation": "self",
+     *                              "url": "https://localhost:9300/apis/default/fhir/Goal"
+     *                          }
+     *                      }
+     *                  }
+     *              )
+     *          )
+     *      ),
+     *      @OA\Response(
+     *          response="400",
+     *          ref="#/components/responses/badrequest"
+     *      ),
+     *      @OA\Response(
+     *          response="401",
+     *          ref="#/components/responses/unauthorized"
+     *      ),
+     *      security={{"openemr_auth":{}}}
+     *  )
+     */
+>>>>>>> master
     "GET /fhir/Goal" => function (HttpRestRequest $request) {
         $getParams = $request->getQueryParams();
         if ($request->isPatientRequest()) {
