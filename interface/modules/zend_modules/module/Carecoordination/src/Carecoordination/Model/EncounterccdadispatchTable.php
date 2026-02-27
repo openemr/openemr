@@ -3754,7 +3754,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         foreach ($result_dem as $row_dem) {
             $query_insert_patient_data = "INSERT INTO combination_form_locked_data SET pid = ?, encounter = ?, form_dir = ?, field_name = ?, field_value = ?";
-                        $result_dem = QueryUtils::fetchRecords($query_insert_patient_data, [$pid, $encounter, 'DEM', $row_dem['field_id'], $row_patient_data[$row_dem['field_id']]]);
+            QueryUtils::sqlStatementThrowException($query_insert_patient_data, [$pid, $encounter, 'DEM', $row_dem['field_id'], $row_patient_data[$row_dem['field_id']]]);
         }
 
         /*************************************/
@@ -3834,7 +3834,7 @@ class EncounterccdadispatchTable extends AbstractTableGateway
 
         if ($count['count'] == 0) {
             $query_insert = "INSERT INTO combination_form SET pid = ?, encounter = ?, form_dir = ?, form_type = ?, form_id = ?";
-                        $result = QueryUtils::fetchRecords($query_insert, [$pid, $encounter, $formdir, $formtype, $formid]);
+            QueryUtils::sqlStatementThrowException($query_insert, [$pid, $encounter, $formdir, $formtype, $formid]);
         }
     }
 

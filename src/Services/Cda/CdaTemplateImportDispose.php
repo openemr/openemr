@@ -123,7 +123,7 @@ class CdaTemplateImportDispose
                               1
                              )";
                 if ($severity_text) {
-                    QueryUtils::fetchRecords($q_insert_units_option, [$severity_option_id, $severity_text]);
+                    QueryUtils::sqlStatementThrowException($q_insert_units_option, [$severity_option_id, $severity_text]);
                 }
             }
 
@@ -150,7 +150,7 @@ class CdaTemplateImportDispose
                               1
                              )";
                 if ($value['reaction_text']) {
-                    QueryUtils::fetchRecords($q_insert_units_option, [$reaction_option_id, $value['reaction_text']]);
+                    QueryUtils::sqlStatementThrowException($q_insert_units_option, [$reaction_option_id, $value['reaction_text']]);
                 }
             }
 
@@ -210,7 +210,7 @@ class CdaTemplateImportDispose
                                 severity_al=?,
                                 reaction=?
                             WHERE external_id=? AND type='allergy' AND pid=?";
-                QueryUtils::fetchRecords($q_upd_allergies, [$pid,
+                QueryUtils::sqlStatementThrowException($q_upd_allergies, [$pid,
                     date('Y-m-d H:i:s'),
                     $allergy_begdate_value,
                     $allergy_enddate_value,
@@ -284,7 +284,7 @@ class CdaTemplateImportDispose
             }
 
             $query_insert = "INSERT INTO `form_care_plan` (`id`,`pid`,`groupname`,`user`,`encounter`,`activity`,`code`,`codetext`,`description`,`date`,`care_plan_type`, `date_end`, `reason_code`, `reason_description`, `reason_date_low`, `reason_date_high`, `reason_status`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-            $res = QueryUtils::fetchRecords($query_insert, [$newid, $pid, $_SESSION["authProvider"] ?? '', $_SESSION["authUser"] ?? '', $encounter_for_forms, 1, $value['code'], $value['text'], $value['description'], $plan_date_value, $value['plan_type'], $end_date, $value['reason_code'] ?? '', $value['reason_code_text'] ?? '', $low_date, $high_date, $value['reason_status'] ?? null]);
+            QueryUtils::sqlStatementThrowException($query_insert, [$newid, $pid, $_SESSION["authProvider"] ?? '', $_SESSION["authUser"] ?? '', $encounter_for_forms, 1, $value['code'], $value['text'], $value['description'], $plan_date_value, $value['plan_type'], $end_date, $value['reason_code'] ?? '', $value['reason_code_text'] ?? '', $low_date, $high_date, $value['reason_status'] ?? null]);
 
             $forms_encounters[$encounter_for_forms] = ['enc' => $encounter_for_forms, 'form_id' => $newid, 'date' => $plan_date_value];
         }
@@ -292,7 +292,7 @@ class CdaTemplateImportDispose
         if (count($forms_encounters ?? []) > 0) {
             foreach ($forms_encounters as $k => $form) {
                 $query = "INSERT INTO forms(date,encounter,form_name,form_id,pid,user,groupname,formdir) VALUES(?,?,?,?,?,?,?,?)";
-                QueryUtils::fetchRecords($query, [date('Y-m-d'), $k, 'Care Plan Form', $form['form_id'], $pid, $_SESSION["authUser"] ?? '', $_SESSION["authProvider"] ?? '', 'care_plan']);
+                QueryUtils::sqlStatementThrowException($query, [date('Y-m-d'), $k, 'Care Plan Form', $form['form_id'], $pid, $_SESSION["authUser"] ?? '', $_SESSION["authProvider"] ?? '', 'care_plan']);
             }
         }
     }
@@ -335,7 +335,7 @@ class CdaTemplateImportDispose
                 }
             }
             $query_insert = "INSERT INTO `form_clinical_notes` (`form_id`,`pid`,`groupname`,`user`,`encounter`,`activity`,`code`,`codetext`,`description`,`date`,`clinical_notes_type`) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
-            $res = QueryUtils::fetchRecords($query_insert, [$newid, $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $encounter_for_forms, 1, $value['code'], $value['text'], $value['description'], $plan_date_value, $value['plan_type']]);
+            QueryUtils::sqlStatementThrowException($query_insert, [$newid, $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $encounter_for_forms, 1, $value['code'], $value['text'], $value['description'], $plan_date_value, $value['plan_type']]);
 
             $forms_encounters[$encounter_for_forms] = ['enc' => $encounter_for_forms, 'form_id' => $newid, 'date' => $plan_date_value];
         }
@@ -343,7 +343,7 @@ class CdaTemplateImportDispose
         if (count($forms_encounters ?? []) > 0) {
             foreach ($forms_encounters as $k => $form) {
                 $query = "INSERT INTO forms(date,encounter,form_name,form_id,pid,user,groupname,formdir) VALUES(?,?,?,?,?,?,?,?)";
-                QueryUtils::fetchRecords($query, [date('Y-m-d'), $k, 'Clinical Notes Form', $form['form_id'], $pid, $_SESSION["authUser"], $_SESSION["authProvider"], 'clinical_notes']);
+                QueryUtils::sqlStatementThrowException($query, [date('Y-m-d'), $k, 'Clinical Notes Form', $form['form_id'], $pid, $_SESSION["authUser"], $_SESSION["authProvider"], 'clinical_notes']);
             }
         }
     }
@@ -496,7 +496,7 @@ class CdaTemplateImportDispose
             if (count($res) === 0) {
                 // codes
                 $qc_insert = "INSERT INTO codes(code_text,code_text_short,code,code_type,active) VALUES (?,?,?,?,?)";
-                QueryUtils::fetchRecords($qc_insert, [$value['code_text'], $value['code_text'], $value['code'], $value['codeSystemName'], 1]);
+                QueryUtils::sqlStatementThrowException($qc_insert, [$value['code_text'], $value['code_text'], $value['code'], $value['codeSystemName'], 1]);
             }
 
             $query_selectB = "SELECT * FROM external_procedures WHERE ep_code = ? AND ep_code_type = ? AND ep_encounter = ? AND ep_pid = ?";
@@ -504,7 +504,7 @@ class CdaTemplateImportDispose
             if (count($result_selectB) === 0) {
                 //external_procedures
                 $qB_insert = "INSERT INTO external_procedures(ep_date,ep_code,ep_code_type,ep_code_text,ep_pid,ep_encounter,ep_facility_id,ep_external_id) VALUES (?,?,?,?,?,?,?,?)";
-                QueryUtils::fetchRecords($qB_insert, [$procedure_date_value, $value['code'], $value['codeSystemName'], $value['code_text'], $pid, $encounter_for_billing, ($facility_id2 ?? null), $value['extension']]);
+                QueryUtils::sqlStatementThrowException($qB_insert, [$procedure_date_value, $value['code'], $value['codeSystemName'], $value['code_text'], $pid, $encounter_for_billing, ($facility_id2 ?? null), $value['extension']]);
             }
 
             $code = $value['code'];
@@ -547,7 +547,7 @@ class CdaTemplateImportDispose
 
             //procedure_order_code
             $query_insert_poc = 'INSERT INTO procedure_order_code(procedure_order_id,procedure_order_seq,procedure_code,procedure_name,diagnoses,procedure_order_title,procedure_type, `date_end`, `reason_code`, `reason_description`, `reason_date_low`, `reason_date_high`, `reason_status`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)';
-            $result_poc = QueryUtils::fetchRecords($query_insert_poc, [$po_id, 1, $code, $value['code_text'], '', $value['procedure_type'], $value['procedure_type'], $end_date, $value['reason_code'], $value['reason_description'], $low_date, $high_date, $value['reason_status'] ?? null]);
+            QueryUtils::sqlStatementThrowException($query_insert_poc, [$po_id, 1, $code, $value['code_text'], '', $value['procedure_type'], $value['procedure_type'], $end_date, $value['reason_code'], $value['reason_description'], $low_date, $high_date, $value['reason_status'] ?? null]);
 
             $pro_name_enc = $pro_name . '-' . $value['procedure_type'];
             addForm($encounter_for_billing, $pro_name_enc, $po_id, 'procedure_order', $pid, $this->userauthorized);
@@ -741,7 +741,7 @@ class CdaTemplateImportDispose
                                 facility_id=?,
                                 provider_id=?
                             WHERE external_id=? AND pid=?";
-                QueryUtils::fetchRecords($q_upd_encounter, [$pid,
+                QueryUtils::sqlStatementThrowException($q_upd_encounter, [$pid,
                     $encounter_id,
                     $encounter_date_value,
                     $value['represented_organization_name'],
@@ -756,7 +756,7 @@ class CdaTemplateImportDispose
             }
 
             $q_ins_forms = "INSERT INTO forms (date,encounter,form_name,form_id,pid,user,groupname,deleted,formdir) VALUES (?,?,?,?,?,?,?,?,?)";
-            QueryUtils::fetchRecords($q_ins_forms, [$encounter_date_value, $encounter_id, 'New Patient Encounter', $enc_id, $pid, ($_SESSION["authProvider"] ?? null), 'Default', 0, 'newpatient']);
+            QueryUtils::sqlStatementThrowException($q_ins_forms, [$encounter_date_value, $encounter_id, 'New Patient Encounter', $enc_id, $pid, ($_SESSION["authProvider"] ?? null), 'Default', 0, 'newpatient']);
             if (!empty($value['encounter_diagnosis_code'])) {
                 $dcode = explode('|', (string) $value['encounter_diagnosis_code']);
                 $dissue = explode('|', (string) $value['encounter_diagnosis_issue']);
@@ -788,7 +788,7 @@ class CdaTemplateImportDispose
             $this->encounterList[$value["extension"]] = $encounter_id;
             //to external_encounters
             $insertEX = "INSERT INTO external_encounters(ee_date,ee_pid,ee_provider_id,ee_facility_id,ee_encounter_diagnosis,ee_external_id) VALUES (?,?,?,?,?,?)";
-            QueryUtils::fetchRecords($insertEX, [$encounter_date_value, $pid, $provider_id, $facility_id, ($value['encounter_diagnosis_issue'] ?? null), ($value['extension'] ?? null)]);
+            QueryUtils::sqlStatementThrowException($insertEX, [$encounter_date_value, $pid, $provider_id, $facility_id, ($value['encounter_diagnosis_issue'] ?? null), ($value['extension'] ?? null)]);
         }
         $this->currentEncounter = $encounter_id;
     }
@@ -873,7 +873,7 @@ class CdaTemplateImportDispose
             if (count($res) == 0) {
                 //codes
                 $qc_insert = "INSERT INTO codes(code_text,code,code_type) VALUES (?,?,?)";
-                QueryUtils::fetchRecords($qc_insert, [$value['cvx_code_text'], $value['cvx_code'], $ct_id]);
+                QueryUtils::sqlStatementThrowException($qc_insert, [$value['cvx_code_text'], $value['cvx_code'], $ct_id]);
             }
 
             if (!empty(trim($value['amount_administered_unit'] ?? ''))) {
@@ -901,7 +901,7 @@ class CdaTemplateImportDispose
                                 ?,
                                 1
                                )";
-                    QueryUtils::fetchRecords($q_insert_route, [$oid_unit, $value['amount_administered_unit']]);
+                    QueryUtils::sqlStatementThrowException($q_insert_route, [$oid_unit, $value['amount_administered_unit']]);
                 }
             } else {
                 $oid_unit = null; // don't insert anything if the unit administered is an empty value
@@ -928,7 +928,7 @@ class CdaTemplateImportDispose
                             ?,
                             1
                            )";
-                QueryUtils::fetchRecords($q_insert_completion_status, [$value['completion_status'], $value['completion_status']]);
+                QueryUtils::sqlStatementThrowException($q_insert_completion_status, [$value['completion_status'], $value['completion_status']]);
             }
 
             $q1_manufacturer = "SELECT *
@@ -951,7 +951,7 @@ class CdaTemplateImportDispose
                             ?,
                             1
                            )";
-                QueryUtils::fetchRecords($q_insert_completion_status, [$value['manufacturer'], $value['manufacturer']]);
+                QueryUtils::sqlStatementThrowException($q_insert_completion_status, [$value['manufacturer'], $value['manufacturer']]);
             }
             $option = '';
             if (!empty($value['reason_code'])) {
@@ -1025,7 +1025,7 @@ class CdaTemplateImportDispose
                    ?,
                    ?
                   )";
-                QueryUtils::fetchRecords(
+                QueryUtils::sqlStatementThrowException(
                     $query,
                     [$pid,
                         $immunization_date_value,
@@ -1051,7 +1051,7 @@ class CdaTemplateImportDispose
                           manufacturer=?,
                           completion_status=?
                       WHERE external_id=? AND patient_id=?";
-                QueryUtils::fetchRecords($q_upd_imm, [$pid,
+                QueryUtils::sqlStatementThrowException($q_upd_imm, [$pid,
                     $immunization_date_value,
                     $value['cvx_code'],
                     $value['route_code_text'],
@@ -1146,7 +1146,7 @@ class CdaTemplateImportDispose
                                 ?,
                                 1
                                )";
-                    QueryUtils::fetchRecords($q_insert_units_option, [$unit_option_id, $value['rate_unit']]);
+                    QueryUtils::sqlStatementThrowException($q_insert_units_option, [$unit_option_id, $value['rate_unit']]);
                 }
             } else {
                 $unit_option_id = null; // leave it empty as we have no data to import here.
@@ -1184,7 +1184,7 @@ class CdaTemplateImportDispose
                                 ?,
                                 1
                                )";
-                    QueryUtils::fetchRecords($q_insert_route, [$oid_route, $value['route'],
+                    QueryUtils::sqlStatementThrowException($q_insert_route, [$oid_route, $value['route'],
                         $value['route_display']]);
                 }
             } else {
@@ -1196,7 +1196,7 @@ class CdaTemplateImportDispose
             $result = QueryUtils::fetchRecords($query_select_form, ['drug_form', $value['dose_unit']]);
             if (count($result) > 0) {
                 $q_update = "UPDATE list_options SET activity = 1 WHERE list_id = ? AND title = ?";
-                QueryUtils::fetchRecords($q_update, ['drug_form', $value['dose_unit']]);
+                QueryUtils::sqlStatementThrowException($q_update, ['drug_form', $value['dose_unit']]);
                 foreach ($result as $value2) {
                     $oidu_unit = $value2['option_id'];
                 }
@@ -1207,7 +1207,7 @@ class CdaTemplateImportDispose
                 }
 
                 $q_insert = "INSERT INTO list_options (list_id,option_id,title,activity) VALUES (?,?,?,?)";
-                QueryUtils::fetchRecords($q_insert, ['drug_form', $oidu_unit, $value['dose_unit'], 1]);
+                QueryUtils::sqlStatementThrowException($q_insert, ['drug_form', $oidu_unit, $value['dose_unit'], 1]);
             }
 
             $res_q_sel_pres_cnt = $res_q_sel_pres_r_cnt = null; // to avoid php8 warnings
@@ -1302,7 +1302,7 @@ class CdaTemplateImportDispose
                     ?,
                     ?
                  )";
-                QueryUtils::fetchRecords($query, [$pid,
+                QueryUtils::sqlStatementThrowException($query, [$pid,
                     $value['begdate'],
                     $value['enddate'],
                     $active,
@@ -1339,7 +1339,7 @@ class CdaTemplateImportDispose
                            medication=?,
                            request_intent=?
                        WHERE external_id=? AND patient_id=?";
-                QueryUtils::fetchRecords($q_upd_pres, [$pid,
+                QueryUtils::sqlStatementThrowException($q_upd_pres, [$pid,
                     $value['begdate'],
                     $value['enddate'],
                     $active,
@@ -1376,7 +1376,7 @@ class CdaTemplateImportDispose
                     $provider_id,
                     'Default'
                 ];
-                QueryUtils::fetchRecords($sql, $med);
+                QueryUtils::sqlStatementThrowException($sql, $med);
                 $addMedication = false;
             }
         }
@@ -1428,7 +1428,7 @@ class CdaTemplateImportDispose
             $result = QueryUtils::fetchRecords($query_select, ['outcome', $value['observation_text']]);
             if (count($result) > 0) {
                 $q_update = "UPDATE list_options SET activity = 1 WHERE list_id = ? AND title = ? AND codes = ?";
-                QueryUtils::fetchRecords($q_update, ['outcome', $value['observation_text'], 'SNOMED-CT:' . ($value['observation'] ?? '')]);
+                QueryUtils::sqlStatementThrowException($q_update, ['outcome', $value['observation_text'], 'SNOMED-CT:' . ($value['observation'] ?? '')]);
                 foreach ($result as $value1) {
                     $o_id = $value1['option_id'];
                 }
@@ -1439,7 +1439,7 @@ class CdaTemplateImportDispose
                 }
 
                 $q_insert = "INSERT INTO list_options (list_id,option_id,title,codes,activity) VALUES (?,?,?,?,?)";
-                QueryUtils::fetchRecords($q_insert, ['outcome', $o_id, $value['observation_text'], 'SNOMED-CT:' . ($value['observation'] ?? ''), 1]);
+                QueryUtils::sqlStatementThrowException($q_insert, ['outcome', $o_id, $value['observation_text'], 'SNOMED-CT:' . ($value['observation'] ?? ''), 1]);
             }
 
             if (!empty($value['extension'])) {
@@ -1496,7 +1496,7 @@ class CdaTemplateImportDispose
                                enddate=?,
                                outcome=?
                            WHERE external_id=? AND type='medical_problem' AND begdate=? AND diagnosis=? AND pid=?";
-                QueryUtils::fetchRecords($q_upd_med_pblm, [$pid,
+                QueryUtils::sqlStatementThrowException($q_upd_med_pblm, [$pid,
                     date('Y-m-d H:i:s'),
                     $value['list_code'],
                     $value['list_code_text'],
@@ -1612,7 +1612,7 @@ class CdaTemplateImportDispose
                 $query_insert_pt = 'INSERT INTO procedure_type(name,lab_id,procedure_code,procedure_type,activity,procedure_type_name) VALUES (?,?,?,?,?,?)';
                 $res_pt_id = QueryUtils::sqlInsert($query_insert_pt, [$value['proc_text'], $pro_id, $value['proc_code'] ?? '', 'ord', 1, 'laboratory_test']);
                 $query_update_pt = 'UPDATE procedure_type SET parent = ? WHERE procedure_type_id = ?';
-                QueryUtils::fetchRecords($query_update_pt, [$res_pt_id, $res_pt_id]);
+                QueryUtils::sqlStatementThrowException($query_update_pt, [$res_pt_id, $res_pt_id]);
             }
 
             if (!empty($value['results'][0]['result_date']) && empty($date)) {
@@ -1630,7 +1630,7 @@ class CdaTemplateImportDispose
             //procedure_order_code
             $query_insert_poc = 'INSERT INTO procedure_order_code(procedure_order_id,procedure_order_seq,procedure_code,procedure_name,diagnoses,procedure_order_title,procedure_type) VALUES (?,?,?,?,?,?,?)';
 
-            $result_poc = QueryUtils::fetchRecords($query_insert_poc, [$po_id, 1, $value['proc_code'] ?? '', $value['proc_text'], '', 'laboratory_test', 'laboratory_test']);
+            QueryUtils::sqlStatementThrowException($query_insert_poc, [$po_id, 1, $value['proc_code'] ?? '', $value['proc_text'], '', 'laboratory_test', 'laboratory_test']);
             addForm($enc_id, $pro_name . '-' . $po_id, $po_id, 'procedure_order', $pid, $this->userauthorized);
 
             //procedure_report
@@ -1647,10 +1647,10 @@ class CdaTemplateImportDispose
                     $Ures = QueryUtils::fetchRecords($qU_select, ['proc_unit', $unit]);
                     if (count($Ures) == 0) {
                         $qU_insert = "INSERT INTO list_options(list_id,option_id,title,activity) VALUES (?,?,?,?)";
-                        QueryUtils::fetchRecords($qU_insert, ['proc_unit', $unit, $unit, 1]);
+                        QueryUtils::sqlStatementThrowException($qU_insert, ['proc_unit', $unit, $unit, 1]);
                     } else {
                         $qU_update = "UPDATE list_options SET activity = 1 WHERE list_id = ? AND option_id = ?";
-                        QueryUtils::fetchRecords($qU_update, ['proc_unit', $unit]);
+                        QueryUtils::sqlStatementThrowException($qU_update, ['proc_unit', $unit]);
                     }
 
                     $result_pt = QueryUtils::fetchRecords($query_select_pt, [$res['result_code'], 'res', $pro_id]);
@@ -1659,12 +1659,12 @@ class CdaTemplateImportDispose
                         $query_insert_pt = 'INSERT INTO procedure_type(name,lab_id,procedure_code,procedure_type,activity,procedure_type_name) VALUES (?,?,?,?,?,?)';
                         $res_pt_id_res = QueryUtils::sqlInsert($query_insert_pt, [$res['result_text'], $pro_id, $res['result_code'], 'res', 1, 'laboratory_test']);
                         $query_update_pt = 'UPDATE procedure_type SET parent = ? WHERE procedure_type_id = ?';
-                        QueryUtils::fetchRecords($query_update_pt, [($res_pt_id ?? null), $res_pt_id_res]);
+                        QueryUtils::sqlStatementThrowException($query_update_pt, [($res_pt_id ?? null), $res_pt_id_res]);
                     }
 
                     if (!empty($res['result_code'])) {
                         $query_insert_prs = "INSERT INTO procedure_result(procedure_report_id,result_code,date,units,result,`range`,result_text,result_status) VALUES (?,?,?,?,?,?,?,?)";
-                        $result_prs = QueryUtils::fetchRecords($query_insert_prs, [$res_id, $res['result_code'], $result_date, $unit, $res['result_value'], $range, $res['result_text'], 'final']);
+                        QueryUtils::sqlStatementThrowException($query_insert_prs, [$res_id, $res['result_code'], $result_date, $unit, $res['result_value'], $range, $res['result_text'], 'final']);
                     }
                 }
             }
@@ -1712,12 +1712,12 @@ class CdaTemplateImportDispose
             }
 
             $query_insert = "INSERT INTO form_functional_cognitive_status(id,pid,groupname,user,encounter, activity,code,codetext,description,date)VALUES(?,?,?,?,?,?,?,?,?,?)";
-            $res = QueryUtils::fetchRecords($query_insert, [$newid, $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $encounter_for_forms, $value['cognitive'] ?? 0, $value['code'], $value['text'], $value['description'], $date]);
+            QueryUtils::sqlStatementThrowException($query_insert, [$newid, $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $encounter_for_forms, $value['cognitive'] ?? 0, $value['code'], $value['text'], $value['description'], $date]);
         }
 
         if (count($functional_cognitive_status_array) > 0) {
             $query = "INSERT INTO forms(date,encounter,form_name,form_id,pid,user,groupname,formdir)VALUES(?,?,?,?,?,?,?,?)";
-            QueryUtils::fetchRecords($query, [$date, $encounter_for_forms, 'Functional and Cognitive Status Form', $newid, $pid, $_SESSION["authUser"], $_SESSION["authProvider"], 'functional_cognitive_status']);
+            QueryUtils::sqlStatementThrowException($query, [$date, $encounter_for_forms, 'Functional and Cognitive Status Form', $newid, $pid, $_SESSION["authUser"], $_SESSION["authProvider"], 'functional_cognitive_status']);
         }
     }
 
@@ -1769,7 +1769,7 @@ class CdaTemplateImportDispose
                 }
             }
             $query_insert = "INSERT INTO form_functional_cognitive_status(id,pid,groupname,user,encounter, activity,code,codetext,description,date)VALUES(?,?,?,?,?,?,?,?,?,?)";
-            $res = QueryUtils::fetchRecords($query_insert, [$newid, $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $encounter_for_forms, $value['cognitive'] ?? 0, $value['code'], $value['text'], $value['description'], $date]);
+            QueryUtils::sqlStatementThrowException($query_insert, [$newid, $pid, $_SESSION["authProvider"], $_SESSION["authUser"], $encounter_for_forms, $value['cognitive'] ?? 0, $value['code'], $value['text'], $value['description'], $date]);
             $plan_date_value = null; // leaving variable in before in case code relies on key as it was undefined and newer versions of php doesn't like that.
             $forms_encounters[$encounter_for_forms] = ['enc' => $encounter_for_forms, 'form_id' => $newid, 'date' => $plan_date_value];
         }
@@ -1777,7 +1777,7 @@ class CdaTemplateImportDispose
         if (count($forms_encounters ?? []) > 0) {
             foreach ($forms_encounters as $k => $form) {
                 $query = "INSERT INTO forms(date,encounter,form_name,form_id,pid,user,groupname,formdir)VALUES(?,?,?,?,?,?,?,?)";
-                QueryUtils::fetchRecords($query, [$date, $k, 'Functional and Cognitive Status Form', $form['form_id'], $pid, $_SESSION["authUser"], $_SESSION["authProvider"], 'functional_cognitive_status']);
+                QueryUtils::sqlStatementThrowException($query, [$date, $k, 'Functional and Cognitive Status Form', $form['form_id'], $pid, $_SESSION["authUser"], $_SESSION["authProvider"], 'functional_cognitive_status']);
             }
         }
     }
@@ -1930,7 +1930,7 @@ class CdaTemplateImportDispose
                              oxygen_saturation=?,
                              BMI=?
                          WHERE external_id=?";
-                QueryUtils::fetchRecords($q_upd_vitals, [$pid,
+                QueryUtils::sqlStatementThrowException($q_upd_vitals, [$pid,
                     $vitals_date_value,
                     $value['bps'],
                     $value['bpd'],
@@ -1984,7 +1984,7 @@ class CdaTemplateImportDispose
             }
             if (!empty($value['reason_code'] ?? null)) {
                 $detail_query = "INSERT INTO `form_vital_details` (`form_id`, `vitals_column`, `reason_code`, `reason_description`, `reason_status`) VALUES (?,?,?,?,?)";
-                QueryUtils::fetchRecords($detail_query, [
+                QueryUtils::sqlStatementThrowException($detail_query, [
                     $vitals_id,
                     $value['vital_column'] ?? '',
                     $value['reason_code'] ?? '',
@@ -2012,7 +2012,7 @@ class CdaTemplateImportDispose
                   ?,
                   'vitals'
                 )";
-            QueryUtils::fetchRecords($query, [$vitals_date_forms,
+            QueryUtils::sqlStatementThrowException($query, [$vitals_date_forms,
                 $encounter_for_forms,
                 $vitals_id,
                 $pid,
@@ -2068,7 +2068,7 @@ class CdaTemplateImportDispose
             }
 
             // TODO: @adunsulag need to write a test for this code change...
-            $res = QueryUtils::fetchRecords(
+            QueryUtils::sqlStatementThrowException(
                 'INSERT INTO form_observation(
                 form_id,date,pid,groupname,user,encounter, activity,
                              code,
@@ -2106,7 +2106,7 @@ class CdaTemplateImportDispose
             }
             if (count($observation_preformed_array) > 0) {
                 $query = 'INSERT INTO forms(date,encounter,form_name,form_id,pid,user,groupname,formdir) VALUES(?,?,?,?,?,?,?,?)';
-                QueryUtils::fetchRecords($query, [$date, $encounter_for_forms, 'Observation Form', $newid, $pid, $_SESSION['authUser'], $_SESSION['authProvider'], 'observation']);
+                QueryUtils::sqlStatementThrowException($query, [$date, $encounter_for_forms, 'Observation Form', $newid, $pid, $_SESSION['authUser'], $_SESSION['authProvider'], 'observation']);
             }
         }
     }

@@ -56,7 +56,7 @@ class CcdTable extends AbstractTableGateway
                   imported = ?,
                   audit_master_approval_status=?
               WHERE id = ?";
-        QueryUtils::fetchRecords($query, [$audit_master_id,
+        QueryUtils::sqlStatementThrowException($query, [$audit_master_id,
                                     1,
                                     $audit_master_approval_status,
                                     $document_id]);
