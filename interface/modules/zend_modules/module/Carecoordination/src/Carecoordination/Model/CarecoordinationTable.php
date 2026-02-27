@@ -526,6 +526,14 @@ class CarecoordinationTable extends AbstractTableGateway
             }
         }
         foreach ($res as $row) {
+            /**
+             * @var array{
+             *   is_qrda_document: ?boolean,
+             *   is_unstructured_document: ?boolean,
+             *   table_name: string,
+             *   entry_identification: string,
+             * } $row
+             */
             $this->is_qrda_import = $row['is_qrda_document'] ?? false;
             $this->is_unstructured_import = $row['is_unstructured_document'] ?? false;
             if (!empty($audit_master_id)) {
