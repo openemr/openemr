@@ -25,7 +25,7 @@ $application = new Application();
 //
 // Note: this should enable moving the config file to a more conventional
 // location
-$mdf = require 'config/cli-config.php';
-assert($mdf instanceof DependencyFactory);
-ConsoleRunner::addCommands($application, $mdf);
+$migrationsDependencyFactory = require 'config/cli-config.php';
+assert($migrationsDependencyFactory instanceof DependencyFactory);
+ConsoleRunner::addCommands($application, $migrationsDependencyFactory);
 $application->run();
