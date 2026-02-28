@@ -9961,16 +9961,16 @@
         },
         {
             "name": "symfony/finder",
-            "version": "v6.4.33",
+            "version": "v6.4.34",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/finder.git",
-                "reference": "24965ca011dac87431729640feef8bcf7b5523e0"
+                "reference": "9590e86be1d1c57bfbb16d0dd040345378c20896"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/finder/zipball/24965ca011dac87431729640feef8bcf7b5523e0",
-                "reference": "24965ca011dac87431729640feef8bcf7b5523e0",
+                "url": "https://api.github.com/repos/symfony/finder/zipball/9590e86be1d1c57bfbb16d0dd040345378c20896",
+                "reference": "9590e86be1d1c57bfbb16d0dd040345378c20896",
                 "shasum": ""
             },
             "require": {
@@ -10005,7 +10005,7 @@
             "description": "Finds files and directories via an intuitive fluent interface",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/finder/tree/v6.4.33"
+                "source": "https://github.com/symfony/finder/tree/v6.4.34"
             },
             "funding": [
                 {
@@ -10025,7 +10025,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-01-26T13:03:48+00:00"
+            "time": "2026-01-28T15:16:37+00:00"
         },
         {
             "name": "symfony/http-client",
@@ -11535,21 +11535,22 @@
         },
         {
             "name": "symfony/type-info",
-            "version": "v8.0.6",
+            "version": "v7.4.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/type-info.git",
-                "reference": "785992c06d07306f963ded3439036f5da9b292fe"
+                "reference": "4855ceea609b2c09e48ff76e12a97a3955531735"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/type-info/zipball/785992c06d07306f963ded3439036f5da9b292fe",
-                "reference": "785992c06d07306f963ded3439036f5da9b292fe",
+                "url": "https://api.github.com/repos/symfony/type-info/zipball/4855ceea609b2c09e48ff76e12a97a3955531735",
+                "reference": "4855ceea609b2c09e48ff76e12a97a3955531735",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.4",
-                "psr/container": "^1.1|^2.0"
+                "php": ">=8.2",
+                "psr/container": "^1.1|^2.0",
+                "symfony/deprecation-contracts": "^2.5|^3"
             },
             "conflict": {
                 "phpstan/phpdoc-parser": "<1.30"
@@ -11593,7 +11594,7 @@
                 "type"
             ],
             "support": {
-                "source": "https://github.com/symfony/type-info/tree/v8.0.6"
+                "source": "https://github.com/symfony/type-info/tree/v7.4.6"
             },
             "funding": [
                 {
@@ -11613,7 +11614,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-02-20T07:51:53+00:00"
+            "time": "2026-02-17T14:00:31+00:00"
         },
         {
             "name": "symfony/var-dumper",
@@ -11785,16 +11786,16 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v6.4.30",
+            "version": "v6.4.34",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "8207ae83da19ee3748d6d4f567b4d9a7c656e331"
+                "reference": "7bca30dabed7900a08c5ad4f1d6483f881a64d0f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/8207ae83da19ee3748d6d4f567b4d9a7c656e331",
-                "reference": "8207ae83da19ee3748d6d4f567b4d9a7c656e331",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/7bca30dabed7900a08c5ad4f1d6483f881a64d0f",
+                "reference": "7bca30dabed7900a08c5ad4f1d6483f881a64d0f",
                 "shasum": ""
             },
             "require": {
@@ -11837,7 +11838,7 @@
             "description": "Loads and dumps YAML files",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/yaml/tree/v6.4.30"
+                "source": "https://github.com/symfony/yaml/tree/v6.4.34"
             },
             "funding": [
                 {
@@ -11857,7 +11858,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-12-02T11:50:18+00:00"
+            "time": "2026-02-06T18:32:11+00:00"
         },
         {
             "name": "twig/twig",
