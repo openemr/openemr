@@ -12,8 +12,11 @@ declare(strict_types=1);
 
 namespace OpenEMR\BC;
 
+use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\{
+    EntityManager,
     EntityManagerInterface,
+    ORMSetup,
 };
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
@@ -21,6 +24,7 @@ use OpenEMR\Common\Crypto;
 use OpenEMR\Common\Logging;
 use Lcobucci\Clock\SystemClock;
 use OpenEMR\Common\Http\Psr17Factory;
+use OpenEMR\BC\DatabaseConnectionOptions;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\{
     RequestFactoryInterface,
@@ -107,6 +111,22 @@ class ServiceContainer
      */
     public static function getEntityManager(): EntityManagerInterface
     {
+        $override = self::resolve(EntityManagerInterface::class);
+        if ($override !== null) {
+            return $override;
+        }
+
+        $paths = [dirname(__DIR__) . '/Entity'];
+        $isDevMode = getenv('OPENEMR__ENVIRONMENT') === 'dev';
+
+        $config = ORMSetup::createAttributeMetadataConfiguration($paths, $isDevMode);
+
+        $site = $_ENV['OPENEMR_SITE'] ?? 'default';
+        $siteDir = sprintf('sites/%s', $site);
+        $dbConfig = DatabaseConnectionOptions::forSite($siteDir);
+        $connection = DriverManager::getConnection($dbConfig->toDbalParams());
+
+        return new EntityManager($connection, $config);
     }
 
     public static function getLogger(): LoggerInterface
