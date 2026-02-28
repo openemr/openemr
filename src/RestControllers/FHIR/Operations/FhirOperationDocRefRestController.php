@@ -36,7 +36,7 @@ class FhirOperationDocRefRestController
     private readonly FhirDocRefService $fhirDocRefService;
     private readonly FhirResourcesService $fhirService;
 
-    public function __construct(private readonly HttpRestRequest $request)
+    public function __construct(HttpRestRequest $request)
     {
         $this->fhirDocRefService = new FhirDocRefService($request->getApiBaseFullUrl());
         $this->fhirService = new FhirResourcesService();
