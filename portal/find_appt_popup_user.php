@@ -25,7 +25,6 @@
 // Rod mentioned in the previous comment that the code "does not support exception dates for repeating events".
 // This issue no longer exists - epsdky 2019
 
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 

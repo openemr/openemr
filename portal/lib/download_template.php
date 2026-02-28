@@ -9,7 +9,6 @@
  * @link    https://www.open-emr.org
  */
 
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateRender;
 use OpenEMR\Core\OEGlobalsBag;

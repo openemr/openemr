@@ -16,7 +16,6 @@
 
 namespace PatientPortal;
 
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Will start the (patient) portal OpenEMR session/cookie.

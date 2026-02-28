@@ -16,7 +16,6 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 

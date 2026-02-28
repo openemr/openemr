@@ -13,7 +13,6 @@
  */
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 

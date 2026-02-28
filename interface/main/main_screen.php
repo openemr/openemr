@@ -22,7 +22,6 @@ use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionTracker;
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;

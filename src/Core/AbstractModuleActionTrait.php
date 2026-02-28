@@ -10,7 +10,6 @@
 
 namespace OpenEMR\Core;
 
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**

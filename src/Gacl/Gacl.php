@@ -30,8 +30,6 @@ use OpenEMR\Core\OEGlobalsBag;
  * Path to ADODB.
  */
 
-use OpenEMR\Common\Session\SessionWrapperFactory;
-
 if ( !defined('ADODB_DIR') ) {
     define('ADODB_DIR', __DIR__.'/../vendor/adodb/adodb-php');
 }

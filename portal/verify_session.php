@@ -26,7 +26,6 @@
 
 // All of the common initialization steps for the get_* patient portal functions are now in this single include.
 
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 //continue session

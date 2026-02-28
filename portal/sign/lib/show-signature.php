@@ -21,7 +21,6 @@ $isPortal = $data['is_portal'];
 $signer = '';
 $ignoreAuth = false;
 
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // this script is used by both the patient portal and main openemr; below does authorization.

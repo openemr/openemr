@@ -16,7 +16,6 @@
     use OpenEMR\Common\Acl\AclMain;
     use OpenEMR\Common\Csrf\CsrfUtils;
     use OpenEMR\Common\Session\SessionWrapperFactory;
-    use OpenEMR\Common\Twig\TwigContainer;
     use OpenEMR\Core\Header;
     use OpenEMR\Modules\Dorn\ConnectorApi;
 

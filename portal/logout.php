@@ -17,7 +17,6 @@
 require_once("verify_session.php");
 require_once(__DIR__ . "/lib/appsql.class.php");
 
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 $session = SessionWrapperFactory::getInstance()->getPortalSession();
 $logit = new ApplicationTable();

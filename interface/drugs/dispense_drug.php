@@ -14,8 +14,6 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 use PHPMailer\PHPMailer\PHPMailer;
 use OpenEMR\Common\Logging\SystemLogger;

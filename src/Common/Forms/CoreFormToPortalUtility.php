@@ -12,7 +12,6 @@
 
 namespace OpenEMR\Common\Forms;
 
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 

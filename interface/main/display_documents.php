@@ -21,7 +21,6 @@ require_once("$srcdir/patient.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('patients', 'lab')) {
