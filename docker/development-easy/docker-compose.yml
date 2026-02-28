@@ -41,6 +41,7 @@ services:
     - ccdanodemodules:/var/www/localhost/htdocs/openemr/ccdaservice/node_modules:rw
     - logvolume:/var/log
     - couchdbvolume:/couchdb/data
+    - ./openemr.conf:/etc/apache2/conf.d/openemr.conf:ro
     environment:
       DEBUG_COLORS: "true"
       TERM: xterm-256color
