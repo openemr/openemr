@@ -12,6 +12,9 @@ declare(strict_types=1);
 
 namespace OpenEMR\BC;
 
+use Doctrine\ORM\{
+    EntityManagerInterface,
+};
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Crypto;
@@ -97,6 +100,13 @@ class ServiceContainer
     public static function getCrypto(): Crypto\CryptoInterface
     {
         return self::resolve(Crypto\CryptoInterface::class) ?? new Crypto\CryptoGen();
+    }
+
+    /**
+     * @deprecated This is experimental, do not use it.
+     */
+    public static function getEntityManager(): EntityManagerInterface
+    {
     }
 
     public static function getLogger(): LoggerInterface
