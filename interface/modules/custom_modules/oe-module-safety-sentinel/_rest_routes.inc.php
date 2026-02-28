@@ -15,6 +15,7 @@
 
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Modules\SafetySentinel\RestControllers\AuditLogRestController;
+use OpenEMR\Modules\SafetySentinel\RestControllers\ConversationRestController;
 
 return [
     // Literal route must come before the parameterized :puuid route to avoid conflict.
@@ -45,5 +46,38 @@ return [
     "GET /api/safety-sentinel/health" =>
         function (HttpRestRequest $request): array {
             return (new AuditLogRestController())->health();
+        },
+
+    // ── Conversation history endpoints ──────────────────────────────────────
+    // OpenEMR's route parser only pops ONE trailing :param when extracting the
+    // resource name. Routes ending with two consecutive params (e.g. :puuid/:conv_id)
+    // leave ":puuid" as the resource, producing an invalid scope string.
+    // Fix: append a static "/messages" suffix so the resource is always "messages"
+    // and the router sees only one dynamic segment at the path end.
+    //
+    // Scopes: conversations.r (list), messages.s (get), messages.c (save), messages.d (delete)
+    "GET /api/safety-sentinel/conversations/:puuid" =>
+        function (string $puuid, HttpRestRequest $request): array {
+            $limit = (int)($request->getQueryParams()['limit'] ?? 10);
+            return (new ConversationRestController())->listByPatient($puuid, $limit);
+        },
+
+    "GET /api/safety-sentinel/conversations/:puuid/messages" =>
+        function (string $puuid, HttpRestRequest $request): array {
+            $conv_id = $request->getQueryParams()['conv_id'] ?? '';
+            return (new ConversationRestController())->getByConversation($puuid, $conv_id);
+        },
+
+    "POST /api/safety-sentinel/conversations/:puuid/messages" =>
+        function (string $puuid, HttpRestRequest $request): array {
+            $data = json_decode(file_get_contents("php://input"), true) ?? [];
+            $conv_id = $data['conv_id'] ?? '';
+            return (new ConversationRestController())->save($puuid, $conv_id, $data);
+        },
+
+    "DELETE /api/safety-sentinel/conversations/:puuid/messages" =>
+        function (string $puuid, HttpRestRequest $request): array {
+            $conv_id = $request->getQueryParams()['conv_id'] ?? '';
+            return (new ConversationRestController())->delete($puuid, $conv_id);
         },
 ];
