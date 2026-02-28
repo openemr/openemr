@@ -51,6 +51,7 @@
         "digitickets/lalit": "^3.4.0",
         "doctrine/dbal": "^4.4",
         "doctrine/migrations": "^3.9",
+        "doctrine/orm": "^3.6",
         "dompdf/dompdf": "^3.1.4",
         "ezyang/htmlpurifier": "^4.19.0",
         "giggsey/libphonenumber-for-php": "^9.0",
