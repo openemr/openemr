@@ -16,6 +16,7 @@
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Modules\SafetySentinel\RestControllers\AuditLogRestController;
 use OpenEMR\Modules\SafetySentinel\RestControllers\ConversationRestController;
+use OpenEMR\Modules\SafetySentinel\RestControllers\ScribeRestController;
 
 return [
     // Literal route must come before the parameterized :puuid route to avoid conflict.
@@ -79,5 +80,34 @@ return [
         function (string $puuid, HttpRestRequest $request): array {
             $conv_id = $request->getQueryParams()['conv_id'] ?? '';
             return (new ConversationRestController())->delete($puuid, $conv_id);
+        },
+
+    // ── Scribe encounter endpoints ───────────────────────────────────────────
+    // Scopes: user/scribe-encounters.r  (list by patient)
+    //         user/scribe-encounters.c  (create)
+    //         user/scribe-encounters.u  (update)
+    //         user/scribe-encounters.d  (delete draft)
+    "GET /api/safety-sentinel/scribe-encounters/:puuid" =>
+        function (string $puuid, HttpRestRequest $request): array {
+            $limit  = (int)($request->getQueryParams()['limit'] ?? 10);
+            $status = $request->getQueryParams()['status'] ?? '';
+            return (new ScribeRestController())->listByPatient($puuid, $limit, $status);
+        },
+
+    "POST /api/safety-sentinel/scribe-encounters" =>
+        function (HttpRestRequest $request): array {
+            $data = json_decode(file_get_contents("php://input"), true) ?? [];
+            return (new ScribeRestController())->create($data);
+        },
+
+    "PUT /api/safety-sentinel/scribe-encounters/:id" =>
+        function (string $id, HttpRestRequest $request): array {
+            $data = json_decode(file_get_contents("php://input"), true) ?? [];
+            return (new ScribeRestController())->update((int)$id, $data);
+        },
+
+    "DELETE /api/safety-sentinel/scribe-encounters/:id" =>
+        function (string $id, HttpRestRequest $request): array {
+            return (new ScribeRestController())->delete((int)$id);
         },
 ];
