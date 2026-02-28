@@ -84,7 +84,9 @@ class AuditLogService
                 isset($data['covered_alternative']) ? substr($data['covered_alternative'], 0, 255) : null,
             ]
         );
-        $result->setData(['id' => $id]);
+        // Wrap in indexed array: handleProcessingResult expects getData() to return
+        // an array of rows and returns getData()[0] for single-result responses.
+        $result->setData([['id' => $id]]);
         return $result;
     }
 
@@ -104,7 +106,7 @@ class AuditLogService
                 $id,
             ]
         );
-        $result->setData(['id' => $id, 'acknowledged' => true]);
+        $result->setData([['id' => $id, 'acknowledged' => true]]);
         return $result;
     }
 

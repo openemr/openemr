@@ -211,6 +211,8 @@ class ServerScopeListEntity
                 "patient/appointment.read",
                 "patient/encounter.read",
                 "user/allergy.read",
+                "user/audit-log.r",
+                "user/audit-log.c",
                 "user/allergy.write",
                 "user/appointment.read",
                 "user/appointment.write",

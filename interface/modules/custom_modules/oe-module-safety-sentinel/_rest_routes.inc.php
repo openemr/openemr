@@ -32,13 +32,13 @@ return [
 
     "POST /api/safety-sentinel/audit-log" =>
         function (HttpRestRequest $request): array {
-            $data = $request->getRequestBodyJSON() ?? [];
+            $data = json_decode(file_get_contents("php://input"), true) ?? [];
             return (new AuditLogRestController())->create($data);
         },
 
     "PUT /api/safety-sentinel/audit-log/:id/acknowledge" =>
         function (string $id, HttpRestRequest $request): array {
-            $data = $request->getRequestBodyJSON() ?? [];
+            $data = json_decode(file_get_contents("php://input"), true) ?? [];
             return (new AuditLogRestController())->acknowledge((int)$id, $data);
         },
 
