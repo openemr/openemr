@@ -1,0 +1,31 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Doctrine\Migrations\DependencyFactory;
+use Doctrine\Migrations\Tools\Console\ConsoleRunner;
+use Symfony\Component\Console\Application;
+
+require_once __DIR__ . '/bootstrap.php';
+
+if (php_sapi_name() !== 'cli') {
+    echo 'This can only be run from the command line.';
+    exit(1);
+}
+
+file_put_contents(
+    'php://stderr',
+    "WARNING: This CLI tool is experimental and in progress. You probably want bin/console.\n",
+);
+
+$application = new Application();
+
+// Doctrine Migrations integration
+//
+// Note: this should enable moving the config file to a more conventional
+// location
+$migrationsDependencyFactory = require 'config/cli-config.php';
+assert($migrationsDependencyFactory instanceof DependencyFactory);
+ConsoleRunner::addCommands($application, $migrationsDependencyFactory);
+$application->run();
