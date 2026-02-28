@@ -19,11 +19,10 @@ use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\QuestionnaireService;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
-
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 require_once("../interface/globals.php");
 if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
