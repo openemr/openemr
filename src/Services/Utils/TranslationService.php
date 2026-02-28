@@ -14,11 +14,14 @@
 
 namespace OpenEMR\Services\Utils;
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 class TranslationService
 {
     public static function getLanguageDefinitionsForSession()
     {
-        $language = $_SESSION['language_choice'] ?? '1'; // defaults english
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $language = $session->get('language_choice') ?? '1'; // defaults english
         return self::getLanguageDefinitionsForLanguage($language);
     }
 

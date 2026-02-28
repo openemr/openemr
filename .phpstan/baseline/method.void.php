@@ -42,11 +42,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Result of method Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\Session\\:\\:set\\(\\) \\(void\\) is used\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SymfonySessionWrapper.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Result of method OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\EmailClient\\:\\:emailReminder\\(\\) \\(void\\) is used\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/E2e/FaxSmsEmailTest.php',

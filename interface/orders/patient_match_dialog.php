@@ -17,14 +17,19 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 $form_key = $_REQUEST['key'];
 $args = unserialize($form_key, ['allowed_classes' => false]);
-$form_ss = preg_replace('/[^0-9]/', '', (string) $args['ss']);
-$form_fname = $args['fname'];
-$form_lname = $args['lname'];
-$form_DOB = $args['DOB'];
+$form_ss = preg_replace('/[^0-9]/', '', (string) ($args['ss'] ?? ''));
+$argFname = $args['fname'] ?? '';
+$form_fname = is_string($argFname) ? $argFname : '';
+$argLname = $args['lname'] ?? '';
+$form_lname = is_string($argLname) ? $argLname : '';
+$argDOB = $args['DOB'] ?? '';
+$form_DOB = is_string($argDOB) ? $argDOB : '';
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <!DOCTYPE html>
 <html>
@@ -67,7 +72,7 @@ $form_DOB = $args['DOB'];
 
 <body class="body_top">
 <form method='post' action='patient_select.php' onsubmit='return myRestoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 <?php
 if ($form_key) {
     $clarr = [];
@@ -93,7 +98,7 @@ if ($form_key) {
 // SSN match is worth a lot and we allow for matching on last 4 digits.
     if (strlen((string) $form_ss) > 3) {
         $clsql .= " + ((ss IS NOT NULL AND ss LIKE ?) * 10)";
-        $clarr[] = "%$form_ss";
+        $clarr[] = "%" . $form_ss;
     }
 
     $sql = "SELECT $clsql AS closeness, " .

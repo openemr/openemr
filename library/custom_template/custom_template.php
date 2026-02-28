@@ -33,7 +33,9 @@ require_once("$srcdir/user.inc.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 // mdsupport : li code
 function listitemCode($strDisp, $strInsert, $ref = ''): void
 {
@@ -91,7 +93,7 @@ if ($isNN) {
     // note these variables are set on backend server side, leaving comment for server side readers
     const isNationNotes = <?php echo $isNN ? "true" : "false"; ?>;
     const dataAsPlainText = !isNationNotes;
-    const csrfToken = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
+    const csrfToken = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
     const allowTemplateWarning = <?php echo $allowTemplateWarning ? "true" : "false"; ?>;
     function refreshme() {
         top.restoreSession();
@@ -281,7 +283,7 @@ if ($isNN) {
                 <select class="form-control form-control-sm" name="template" id="template" onchange="TemplateSentence(this.value)">
                     <option value=""><?php echo htmlspecialchars(xl('Select category'), ENT_QUOTES); ?></option>
                     <?php
-                    $resTemplates = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE tu.tu_user_id=? AND c.cl_list_type=3 AND cl_list_id=? AND cl_deleted=0 ORDER BY c.cl_list_item_long", [$_SESSION['authUserID'], ($rowContext['cl_list_id'] ?? null)]);
+                    $resTemplates = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE tu.tu_user_id=? AND c.cl_list_type=3 AND cl_list_id=? AND cl_deleted=0 ORDER BY c.cl_list_item_long", [$session->get('authUserID'), ($rowContext['cl_list_id'] ?? null)]);
                     while ($rowTemplates = sqlFetchArray($resTemplates)) {
                         echo "<option value='" . htmlspecialchars((string) $rowTemplates['cl_list_slno'], ENT_QUOTES) . "'>" . htmlspecialchars(xl($rowTemplates['cl_list_item_long']), ENT_QUOTES) . "</option>";
                     }
@@ -291,7 +293,7 @@ if ($isNN) {
               <div class="col-md-8 text mb-1">
                 <div id="share" style="display:none"></div>
                 <?php
-                $res = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS cl ON cl.cl_list_slno = tu.tu_template_id WHERE tu.tu_user_id = ? AND cl.cl_list_type = 6 AND cl.cl_deleted = 0 ORDER BY cl.cl_order", [$_SESSION['authUserID']]);
+                $res = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS cl ON cl.cl_list_slno = tu.tu_template_id WHERE tu.tu_user_id = ? AND cl.cl_list_type = 6 AND cl.cl_deleted = 0 ORDER BY cl.cl_order", [$session->get('authUserID')]);
                 while ($row = sqlFetchArray($res)) { ?>
                     <a href="#" class="btn btn-primary btn-template-insert" data-template-text="<?php echo attr($row['cl_list_item_short']); ?>" title="<?php echo htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES); ?>"><?php echo ucfirst(htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES)); ?></a>
                 <?php } ?>

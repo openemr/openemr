@@ -12,7 +12,7 @@
 
 namespace MedExApi;
 
-use OpenEMR\Services\VersionService;
+use OpenEMR\Common\Session\SessionWrapperFactory;use OpenEMR\Services\VersionService;
 
 error_reporting(0);
 
@@ -1846,6 +1846,7 @@ class Display extends Base
         global $rcb_facility;
         global $rcb_provider;
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         //let's get all the recalls the user requests, or if no dates set use defaults
         $from_date = (!empty($_REQUEST['form_from_date'])) ? DateToYYYYMMDD($_REQUEST['form_from_date']) : date('Y-m-d', strtotime('-6 months'));
         //limit date range for initial Board to keep us sane and not tax the server too much
@@ -1933,13 +1934,15 @@ class Display extends Base
                                         $query = "SELECT id, lname, fname FROM users WHERE " .
                                         "authorized = 1  AND active = 1 ORDER BY lname, fname"; #(CHEMED) facility filter
                                         $ures = sqlStatement($query);
+                                        $userauthorized = $session->get('userauthorized');
+                                        $authUserID = $session->get('authUserID');
                                         //a year ago @matrix-amiel Adding filters to flow board and counting of statuses
                                         while ($urow = sqlFetchArray($ures)) {
                                             $provid = $urow['id'];
                                             echo "<option value='" . attr($provid) . "'";
                                             if (isset($rcb_provider) && $provid == ($_POST['form_provider'] ?? '')) {
                                                 echo " selected";
-                                            } elseif (!isset($_POST['form_provider']) && $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']) {
+                                            } elseif (!isset($_POST['form_provider']) && $userauthorized && $provid == $authUserID) {
                                                 echo " selected";
                                             }
                                             echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
@@ -2511,6 +2514,8 @@ class Display extends Base
     public function display_add_recall($pid = 'new')
     {
         global $result_pat;
+
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         ?>
 
     <div class="container-fluid">
@@ -2591,13 +2596,13 @@ class Display extends Base
                                     <?php
                                     $ures = sqlStatement("SELECT id, username, fname, lname FROM users WHERE authorized != 0 AND active = 1 ORDER BY lname, fname");
                                 //This is an internal practice function so ignore the suffix as extraneous information.  We know who we are.
-                                    $defaultProvider = $_SESSION['authUserID'];
+                                    $defaultProvider = $session->get('authUserID');
+                                    $pc_username = $session->get('pc_username');
                                 // or, if we have chosen a provider in the calendar, default to them
                                 // choose the first one if multiple have been selected
-                                    if (is_countable($_SESSION['pc_username'])) {
-                                        if (count($_SESSION['pc_username']) >= 1) {
+                                    if (is_countable($pc_username)) {
+                                        if (count($pc_username) >= 1) {
                                             // get the numeric ID of the first provider in the array
-                                            $pc_username = $_SESSION['pc_username'];
                                             $firstProvider = sqlFetchArray(sqlStatement("SELECT id FROM users WHERE username=?", [$pc_username[0]]));
                                             $defaultProvider = $firstProvider['id'];
                                         }
@@ -2752,9 +2757,9 @@ class Display extends Base
                 });
             });
                 <?php
-                if ($_SESSION['pid'] > '') {
+                if ($session->get('pid') > '') {
                     ?>
-                setpatient('<?php echo text($_SESSION['pid']); ?>');
+                setpatient('<?php echo text($session->get('pid')); ?>');
                     <?php
                 }
                 ?>
@@ -2880,7 +2885,8 @@ class Display extends Base
             $fields['pid_list'] = $responseA['pid_list'];
             $fields['list_hits']  = $responseA['list_hits'];
         }
-        $fields['providerID'] = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $fields['providerID'] = $session->get('authUserID');
         $fields['token'] = $logged_in['token'];
         $fields['pc_eid'] = $data['pc_eid'];
 

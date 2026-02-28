@@ -25,13 +25,16 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!empty($_GET['id'])) {
     $obj = formFetch("form_sdoh", $_GET["id"]);
     $mode = 'update';
     // if running from patient portal, then below will ensure patient can only see their forms
-    CoreFormToPortalUtility::confirmFormBootstrapPatient($patientPortalSession, $_GET['id'], 'sdoh', $_SESSION['pid']);
+    CoreFormToPortalUtility::confirmFormBootstrapPatient($patientPortalSession, $_GET['id'], 'sdoh', $session->get('pid'));
 } else {
     $mode = 'new';
 }
@@ -184,7 +187,7 @@ if (!empty($_GET['id'])) {
                 <?php } else { // $mode == "update" ?>
                     <form method="post" action="<?php echo $rootdir;?>/forms/sdoh/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?><?php echo ($patientPortalSession) ? '&isPortal=1' : '' ?><?php echo ($patientPortalOther) ? '&formOrigin=' . attr_url($_GET['formOrigin']) : '' ?>" name="my_form" onsubmit="return top.restoreSession()">
                 <?php } ?>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                     <fieldset>
                         <legend><?php echo xlt('What is the highest level of education that you have completed?')?></legend>
                         <div class="container">

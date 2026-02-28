@@ -15,7 +15,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
@@ -25,17 +24,18 @@ use OpenEMR\PaymentProcessing\Recorder;
 require_once(__DIR__ . "/../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
 $v_js_includes = $globalsBag->get('v_js_includes');
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $isPortal = false;
-if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     $isPortal = true;
     require_once(__DIR__ . "/../interface/globals.php");
 } else {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     $ignoreAuth = false;
+    $session = SessionWrapperFactory::getInstance()->getCoreSession();
     require_once(__DIR__ . "/../interface/globals.php");
     if (!$session->has('authUserID')) {
         $landingpage = "index.php";
@@ -357,7 +357,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 url: formURL,
                 type: "POST",
                 data: {
-                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken('messages-portal', $session->getSymfonySession())); ?>,
+                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken('messages-portal', $session)); ?>,
                     'task': 'add',
                     'pid': pid,
                     'inputBody': note,
@@ -924,24 +924,24 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 $sum_copay += (float)$inscopay;
                 $sum_balance += $balance;
                 ?>
-<tr id="tr_<?=$idx?>">
+<tr id="tr_<?=attr($idx)?>">
     <td class="detail"><?=text(oeFormatShortDate($dispdate))?></td>
     <td class="detail" id="<?=attr($dispdate)?>" align='left'><?=text($enc)?>: <?=text($reason)?></td>
-    <td class="detail" align="center" id="td_charges_<?=$idx?>"><?=text(FormatMoney::getBucks($value['charges']))?></td>
-    <td class="detail" align="center" id="td_inspaid_<?=$idx?>"><?=text(FormatMoney::getBucks(($dpayment + $dadjustment) * -1))?></td>
-    <td class="detail" align="center" id="td_ptpaid_<?=$idx?>"><?=text(FormatMoney::getBucks($dpayment_pat * -1))?></td>
-    <td class="detail" align="center" id="td_patient_copay_<?=$idx?>"><?=text(FormatMoney::getBucks($patcopay))?></td>
-    <td class="detail" align="center" id="td_copay_<?=$idx?>"><?=text(FormatMoney::getBucks($inscopay))?></td>
-    <td class="detail" align="center" id="balance_<?=$idx?>"><?=text(FormatMoney::getBucks($balance))?></td>
-    <td class="detail" align="center" id="duept_<?=$idx?>"><?=text(FormatMoney::getBucks($duept))?></td>
+    <td class="detail" align="center" id="td_charges_<?=attr($idx)?>"><?=text(FormatMoney::getBucks($value['charges']))?></td>
+    <td class="detail" align="center" id="td_inspaid_<?=attr($idx)?>"><?=text(FormatMoney::getBucks(($dpayment + $dadjustment) * -1))?></td>
+    <td class="detail" align="center" id="td_ptpaid_<?=attr($idx)?>"><?=text(FormatMoney::getBucks($dpayment_pat * -1))?></td>
+    <td class="detail" align="center" id="td_patient_copay_<?=attr($idx)?>"><?=text(FormatMoney::getBucks($patcopay))?></td>
+    <td class="detail" align="center" id="td_copay_<?=attr($idx)?>"><?=text(FormatMoney::getBucks($inscopay))?></td>
+    <td class="detail" align="center" id="balance_<?=attr($idx)?>"><?=text(FormatMoney::getBucks($balance))?></td>
+    <td class="detail" align="center" id="duept_<?=attr($idx)?>"><?=text(FormatMoney::getBucks($duept))?></td>
     <td class="detail" align="center">
         <input
             class="form-control amount_field"
-            data-encounter-id="<?=$enc?>"
+            data-encounter-id="<?=attr($enc)?>"
             data-code="<?=attr($value['code'])?>"
             data-code-type="<?=attr($value['code_type'])?>"
-            name="form_upay[<?=$enc?>]"
-            id="paying_<?=$idx?>"
+            name="form_upay[<?=attr($enc)?>]"
+            id="paying_<?=attr($idx)?>"
             value=""
             onchange="coloring();calctotal()"
             autocomplete="off"
@@ -1225,7 +1225,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         }
         echo '<script type="text/javascript">';
         echo $twig->render('payments/rainforest.js', [
-            'csrf' => CsrfUtils::collectCsrfToken('rainforest', $session->getSymfonySession()),
+            'csrf' => CsrfUtils::collectCsrfToken('rainforest', $session),
             'endpoint' => 'portal_payment.rainforest.php',
         ]);
         echo '</script>';

@@ -19,7 +19,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\UserService;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 ?>
 
@@ -34,7 +34,7 @@ $session = SessionWrapperFactory::getInstance()->getWrapper();
         $pid = $session->get('pid');
     }
     if ($_POST['form_yesno']) {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
+        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
             CsrfUtils::csrfNotVerified();
         }
 
@@ -95,7 +95,7 @@ $session = SessionWrapperFactory::getInstance()->getWrapper();
         <div class="row">
             <div class="col-12">
                 <form action='advancedirectives.php' method='post' onsubmit='return validate(this)'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                     <div class="form-group">
                         <label for="form_yesno"><?php echo xlt('Completed'); ?></label>
                         <?php generate_form_field(['data_type' => 1,'field_id' => 'yesno','list_id' => 'yesno','empty_title' => 'SKIP'], $form_completedad); ?>

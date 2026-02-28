@@ -22,9 +22,11 @@ $GLOBALS['connection_pooling_off'] = true; // force off database connection pool
 require_once(__DIR__ . '/../../interface/globals.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 // this will ensure that the only script that can use this ajax call is the sql_upgrade.php script
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'sqlupgrade')) {
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'sqlupgrade', $session)) {
     CsrfUtils::csrfNotVerified();
 }
 

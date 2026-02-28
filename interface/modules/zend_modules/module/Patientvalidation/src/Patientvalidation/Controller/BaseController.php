@@ -21,6 +21,7 @@ namespace Patientvalidation\Controller;
 
 use Laminas\Mvc\Controller\AbstractActionController;
 use Application\Listener\Listener;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class BaseController extends AbstractActionController
 {
@@ -74,15 +75,13 @@ class BaseController extends AbstractActionController
      */
     protected function getCssFiles()
     {
-
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         //adding bootstrap rtl for rtl languages
-        if ($_SESSION['language_direction'] == 'rtl') {
+        if ($session->get('language_direction') === 'rtl') {
             $this->cssFiles[] = '/bootstrap-v4-rtl/dist/css/bootstrap-rtl.min.css';
         }
 
-
-                $this->cssFiles[] = '/datatables.net-bs4/css/dataTables.bootstrap4.min.css';
-
+        $this->cssFiles[] = '/datatables.net-bs4/css/dataTables.bootstrap4.min.css';
 
         return $this->cssFiles;
     }
@@ -118,8 +117,8 @@ class BaseController extends AbstractActionController
      */
     protected function getUserId()
     {
-
-        return $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        return $session->get('authUserID');
     }
 
     /**

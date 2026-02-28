@@ -19,6 +19,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\User\UserEditRenderEvent;
@@ -34,6 +35,7 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
 }
 
 $alertmsg = '';
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 ?>
 <html>
@@ -218,7 +220,7 @@ function authorized_clicked() {
 <tr>
 <td valign='top'>
 <form name='new_user' id="new_user" method='post' action="usergroup_admin.php">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
 <input type='hidden' name='mode' value='new_user'>
 <input type='hidden' name='secure_pwd' value="<?php echo attr($GLOBALS['secure_password']); ?>">
@@ -550,7 +552,7 @@ foreach ($list_acl_groups as $value) {
 <td valign='top'>
 <form name='new_group' method='post' action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 <br />
 <input type='hidden' name='mode' value='new_group' />
 <span class="bold"><?php echo xlt('New Group'); ?>:</span>
@@ -582,7 +584,7 @@ foreach ($result as $iter) {
 <td valign='top'>
 <form name='new_group' method='post' action="usergroup_admin.php"
  onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 <input type='hidden' name='mode' value='new_group' />
 <span class="bold"><?php echo xlt('Add User To Group'); ?>:</span>
 </td>
@@ -635,7 +637,7 @@ if (empty($GLOBALS['disable_non_default_groups'])) {
     foreach ($result5 as $iter) {
         $grouplist[$iter["name"]] .= $iter["user"] .
         "(<a class='link_submit' href='usergroup_admin.php?mode=delete_group&id=" .
-        attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) . "' onclick='top.restoreSession()'>" . xlt("Remove") . "</a>), ";
+        attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken(session: $session)) . "' onclick='top.restoreSession()'>" . xlt("Remove") . "</a>), ";
     }
 
     foreach ($grouplist as $groupname => $list) {

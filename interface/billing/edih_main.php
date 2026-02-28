@@ -19,6 +19,7 @@ require_once(__DIR__ . "/../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Access control - same permission required as edih_view.php
 if (!AclMain::aclCheckCore('acct', 'eob')) {
@@ -129,13 +130,14 @@ if (count($_POST)) {
     csv_edihist_log($dbg_str);
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 //
 /* ******* remove functions to separate file ******* */
 /*
  * functions called in the if stanzas are now in edih_io.php
  */
 if (strtolower((string) $_SERVER['REQUEST_METHOD']) == 'post') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -183,7 +185,7 @@ if (strtolower((string) $_SERVER['REQUEST_METHOD']) == 'post') {
     }  // end if (strtolower($_SERVER['REQUEST_METHOD']) == 'post')
     //
 } elseif (strtolower((string) $_SERVER['REQUEST_METHOD']) == 'get') {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 

@@ -16,8 +16,11 @@
 use OpenEMR\ClinicalDecisionRules\Interface\Common;
 use OpenEMR\ClinicalDecisionRules\Interface\Controller\ControllerReview;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$rule = $viewBean->rule ?>
+$rule = $viewBean->rule;
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+?>
 <div class="card">
     <!--         -->
     <!-- summary -->
@@ -82,7 +85,7 @@ $rule = $viewBean->rule ?>
     <div class="card-body">
         <form method="POST" action="index.php?action=review!submit_feedback">
             <input type="hidden" name="rule_id" value="<?php echo attr($rule->id); ?>"/>
-            <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
             <div class="row">
                 <div class="col">
                     <textarea class="form-control" name="feedback" rows="5" cols="50" maxlength="2048"></textarea>

@@ -23,6 +23,7 @@ use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\UserService;
 
 
@@ -31,9 +32,10 @@ header("Cache-Control: no-cache");
 
 //initiate error array
 $error = [];
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 //verify csrf
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
     echo error_xml(xl('Authentication Error'));
     CsrfUtils::csrfNotVerified(false);
 }
@@ -45,15 +47,15 @@ if (!AclMain::aclCheckCore('admin', 'acl')) {
 }
 
 //Display red alert if Emergency Login ACL is activated for a user.
-if ($_POST["action"] == "add") {
+if ($_POST["action"] === "add") {
     if (!empty($_POST["selection"]) && is_array($_POST["selection"]) && in_array("Emergency Login", $_POST["selection"])) {
-        array_push($error, (xl('Emergency Login ACL is chosen. The user is still in active state, please de-activate the user and activate the same when required during emergency situations. Visit Administration->Users for activation or de-activation.') ));
+        $error[] = (xl('Emergency Login ACL is chosen. The user is still in active state, please de-activate the user and activate the same when required during emergency situations. Visit Administration->Users for activation or de-activation.'));
     }
 }
 
 //PROCESS USERNAME REQUESTS
-if ($_POST["control"] == "username") {
-    if ($_POST["action"] == "list") {
+if ($_POST["control"] === "username") {
+    if ($_POST["action"] === "list") {
         //return username list with alert if user is not joined to group
         echo username_listings_xml($error);
     }
@@ -61,42 +63,42 @@ if ($_POST["control"] == "username") {
 
 
 //PROCESS MEMBERSHIP REQUESTS
-if ($_POST["control"] == "membership") {
-    if ($_POST["action"] == "list") {
+if ($_POST["control"] === "membership") {
+    if ($_POST["action"] === "list") {
         //return membership data
         echo user_group_listings_xml($_POST["name"], $error);
     }
 
-    if ($_POST["action"] == "add") {
-        if ($_POST["selection"][0] == "null") {
+    if ($_POST["action"] === "add") {
+        if ($_POST["selection"][0] === "null") {
             //no selection, return soft error, and just return membership data
-            array_push($error, (xl('No group was selected') . "!"));
+            $error[] = (xl('No group was selected') . "!");
             echo user_group_listings_xml($_POST["name"], $error);
             exit;
         }
 
         //add the group, then log it, then return updated membership data
         AclExtended::addUserAros($_POST["name"], $_POST["selection"]);
-        EventAuditLogger::getInstance()->newEvent("security-administration-update", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Added " . $_POST["name"] . " to following access group(s): " . implode(', ', $_POST["selection"]));
+        EventAuditLogger::getInstance()->newEvent("security-administration-update", $session->get('authUser'), $session->get('authProvider'), 1, "Added " . $_POST["name"] . " to following access group(s): " . implode(', ', $_POST["selection"]));
         echo user_group_listings_xml($_POST["name"], $error);
     }
 
-    if ($_POST["action"] == "remove") {
-        if ($_POST["selection"][0] == "null") {
+    if ($_POST["action"] === "remove") {
+        if ($_POST["selection"][0] === "null") {
             //no selection, return soft error, and just return membership data
-            array_push($error, (xl('No group was selected') . "!"));
+            $error[] = (xl('No group was selected') . "!");
             echo user_group_listings_xml($_POST["name"], $error);
             exit;
         }
 
         // check if user is protected. If so, then state message unable to remove from admin group.
         $userNametoID = (new UserService())->getIdByUsername($_POST["name"]);
-        $gacl_protect = checkUserSetting("gacl_protect", "1", $userNametoID) || $_POST["name"] == "admin" ? true : false;
+        $gacl_protect = checkUserSetting("gacl_protect", "1", $userNametoID) || $_POST["name"] === "admin" ? true : false;
 
         if ($gacl_protect && in_array("Administrators", $_POST["selection"])) {
             //unable to remove admin user from administrators group, process remove,
             // send soft error, then return data
-            array_push($error, (xl('Not allowed to remove this user from the Administrators group') . "!"));
+            $error[] = (xl('Not allowed to remove this user from the Administrators group') . "!");
             AclExtended::removeUserAros($_POST["name"], $_POST["selection"]);
             echo user_group_listings_xml($_POST["name"], $error);
             exit;
@@ -104,55 +106,55 @@ if ($_POST["control"] == "membership") {
 
         //remove the group(s), then log it, then return updated membership data
         AclExtended::removeUserAros($_POST["name"], $_POST["selection"]);
-        EventAuditLogger::getInstance()->newEvent("security-administration-update", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Removed " . $_POST["name"] . " from following access group(s): " . implode(', ', $_POST["selection"]));
+        EventAuditLogger::getInstance()->newEvent("security-administration-update", $session->get('authUser'), $session->get('authProvider'), 1, "Removed " . $_POST["name"] . " from following access group(s): " . implode(', ', $_POST["selection"]));
         echo user_group_listings_xml($_POST["name"], $error);
     }
 }
 
 
 //PROCESS ACL REQUESTS
-if ($_POST["control"] == "acl") {
-    if ($_POST["action"] == "list") {
+if ($_POST["control"] === "acl") {
+    if ($_POST["action"] === "list") {
         //return acl titles with return values
         echo AclExtended::aclListingsXml($error);
     }
 
-    if ($_POST["action"] == "add") {
+    if ($_POST["action"] === "add") {
         //validate form data
         $form_error = false;
         if (empty($_POST["title"])) {
             $form_error = true;
-            array_push($error, ("title_" . xl('Need to enter title') . "!"));
+            $error[] = ("title_" . xl('Need to enter title') . "!");
         } elseif (!ctype_alpha(str_replace(' ', '', $_POST["title"]))) {
             $form_error = true;
-            array_push($error, ("title_" . xl('Please only use alphabetic characters') . "!"));
+            $error[] = ("title_" . xl('Please only use alphabetic characters') . "!");
         } elseif (AclExtended::aclExist($_POST["title"], false, $_POST["return_value"])) {
             $form_error = true;
-            array_push($error, ("title_" . xl('Already used, choose another title') . "!"));
+            $error[] = ("title_" . xl('Already used, choose another title') . "!");
         }
 
         if (empty($_POST["identifier"])) {
             $form_error = true;
-            array_push($error, ("identifier_" . xl('Need to enter identifier') . "!"));
+            $error[] = ("identifier_" . xl('Need to enter identifier') . "!");
         } elseif (!ctype_alpha((string) $_POST["identifier"])) {
             $form_error = true;
-            array_push($error, ("identifier_" . xl('Please only use alphabetic characters with no spaces') . "!"));
+            $error[] = ("identifier_" . xl('Please only use alphabetic characters with no spaces') . "!");
         } elseif (AclExtended::aclExist(false, $_POST["identifier"], $_POST["return_value"])) {
             $form_error = true;
-            array_push($error, ("identifier_" . xl('Already used, choose another identifier') . "!"));
+            $error[] = ("identifier_" . xl('Already used, choose another identifier') . "!");
         }
 
         if (empty($_POST["return_value"])) {
             $form_error = true;
-            array_push($error, ("return_" . xl('Need to enter a Return Value') . "!"));
+            $error[] = ("return_" . xl('Need to enter a Return Value') . "!");
         }
 
         if (empty($_POST["description"])) {
             $form_error = true;
-            array_push($error, ("description_" . xl('Need to enter a description') . "!"));
+            $error[] = ("description_" . xl('Need to enter a description') . "!");
         } elseif (!ctype_alpha(str_replace(' ', '', $_POST["description"]))) {
             $form_error = true;
-            array_push($error, ("description_" . xl('Please only use alphabetic characters') . "!"));
+            $error[] = ("description_" . xl('Please only use alphabetic characters') . "!");
         }
 
         //process if data is valid
@@ -167,17 +169,17 @@ if ($_POST["control"] == "acl") {
         }
     }
 
-    if ($_POST["action"] == "remove") {
+    if ($_POST["action"] === "remove") {
         //validate form data
         $form_error = false;
         if (empty($_POST["title"])) {
             $form_error = true;
-            array_push($error, ("aclTitle_" . xl('Need to enter title') . "!"));
+            $error[] = ("aclTitle_" . xl('Need to enter title') . "!");
         }
 
-        if ($_POST["title"] == "Administrators") {
+        if ($_POST["title"] === "Administrators") {
             $form_error = true;
-            array_push($error, ("aclTitle_" . xl('Not allowed to delete the Administrators group') . "!"));
+            $error[] = ("aclTitle_" . xl('Not allowed to delete the Administrators group') . "!");
         }
 
         //process if data is valid
@@ -192,7 +194,7 @@ if ($_POST["control"] == "acl") {
         }
     }
 
-    if ($_POST["action"] == "returns") {
+    if ($_POST["action"] === "returns") {
         //simply return all the possible acl return_values
         echo AclExtended::returnValuesXml($error);
     }
@@ -200,16 +202,16 @@ if ($_POST["control"] == "acl") {
 
 
 //PROCESS ACO REQUESTS
-if ($_POST["control"] == "aco") {
-    if ($_POST["action"] == "list") {
+if ($_POST["control"] === "aco") {
+    if ($_POST["action"] === "list") {
         //send acl data
         echo AclExtended::acoListingsXml($_POST["name"], $_POST["return_value"], $error);
     }
 
-    if ($_POST["action"] == "add") {
-        if ($_POST["selection"][0] == "null") {
+    if ($_POST["action"] === "add") {
+        if ($_POST["selection"][0] === "null") {
             //no selection, return soft error, and just return data
-            array_push($error, (xl('Nothing was selected') . "!"));
+            $error[] = (xl('Nothing was selected') . "!");
             echo AclExtended::acoListingsXml($_POST["name"], $_POST["return_value"], $error);
             exit;
         }
@@ -219,17 +221,17 @@ if ($_POST["control"] == "aco") {
         echo AclExtended::acoListingsXml($_POST["name"], $_POST["return_value"], $error);
     }
 
-    if ($_POST["action"] == "remove") {
-        if ($_POST["selection"][0] == "null") {
+    if ($_POST["action"] === "remove") {
+        if ($_POST["selection"][0] === "null") {
             //no selection, return soft error, and just return data
-            array_push($error, (xl('Nothing was selected') . "!"));
+            $error[] = (xl('Nothing was selected') . "!");
             echo AclExtended::acoListingsXml($_POST["name"], $_POST["return_value"], $error);
             exit;
         }
 
-        if ($_POST["name"] == "Administrators") {
+        if ($_POST["name"] === "Administrators") {
             //will not allow removal of acos from Administrators ACL
-            array_push($error, (xl('Not allowed to inactivate anything from the Administrators ACL') . "!"));
+            $error[] = (xl('Not allowed to inactivate anything from the Administrators ACL') . "!");
             echo AclExtended::acoListingsXml($_POST["name"], $_POST["return_value"], $error);
             exit;
         }

@@ -21,10 +21,13 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Indicates if deactivated layouts are included in the dropdown.
 $form_inactive = !empty($_REQUEST['form_inactive']);
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 function setLayoutTimestamp($layout_id): void
 {
@@ -52,6 +55,7 @@ function collectLayoutNames($condition, $mapping = ''): void
         $layouts[$grow['grp_form_id']] = [$tmp, $grow['grp_title']];
     }
 }
+/** @var array<string, array{string, mixed}> $layouts */
 $layouts = [];
 collectLayoutNames("grp_form_id NOT LIKE 'LBF%' AND grp_form_id NOT LIKE 'LBT%'", xl('Core'));
 collectLayoutNames("grp_form_id LIKE 'LBT%'", xl('Transactions'));
@@ -286,15 +290,23 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
         return;
     }
     // Check if the column currently exists.
-    $tmp = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE'" . add_escape_custom($field_id) . "'");
+    /** @var array{db: \ADOConnection} $adodbConfig */
+    $adodbConfig = $GLOBALS['adodb'];
+    $tmp = sqlQuery(
+        "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = ?",
+        [$adodbConfig['db']->database, $tablename, (string) $field_id]
+    );
     $column_exists = !empty($tmp);
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
     if ($add && !$column_exists) {
-        sqlStatement("ALTER TABLE `" . escape_table_name($tablename) . "` ADD `" . escape_identifier($field_id, 'a-zA-Z0-9_', true) . "` TEXT");
+        $addQuery = "ALTER TABLE `" . escape_table_name($tablename) . "` ADD `" . escape_identifier($field_id, 'a-zA-Z0-9_', true) . "` TEXT";
+        sqlStatement($addQuery);
         EventAuditLogger::getInstance()->newEvent(
             "alter_table",
-            $_SESSION['authUser'],
-            $_SESSION['authProvider'],
+            $session->get('authUser'),
+            $session->get('authProvider'),
             1,
             "$tablename ADD $field_id"
         );
@@ -318,14 +330,13 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
                 );
             }
             if (empty($lotmp['count'])) {
-                sqlStatement(
-                    "ALTER TABLE `" . escape_table_name($tablename) . "` " .
-                    "DROP `" . escape_sql_column_name($field_id, [$tablename]) . "`"
-                );
+                $dropQuery = "ALTER TABLE `" . escape_table_name($tablename) . "` " .
+                    "DROP `" . escape_sql_column_name($field_id, [$tablename]) . "`";
+                sqlStatement($dropQuery);
                 EventAuditLogger::getInstance()->newEvent(
                     "alter_table",
-                    $_SESSION['authUser'],
-                    $_SESSION['authProvider'],
+                    $session->get('authUser'),
+                    $session->get('authProvider'),
                     1,
                     "$tablename DROP $field_id "
                 );
@@ -376,10 +387,11 @@ function renameColumn($layout_id, $old_field_id, $new_field_id)
     }
     $query = "ALTER TABLE `" . escape_table_name($tablename) . "` CHANGE `" . escape_sql_column_name($old_field_id, [$tablename]) . "` `" . escape_identifier($new_field_id, 'a-zA-Z0-9_', true) . "` $colstr";
     sqlStatement($query);
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     EventAuditLogger::getInstance()->newEvent(
         "alter_table",
-        $_SESSION['authUser'],
-        $_SESSION['authProvider'],
+        $session->get('authUser'),
+        $session->get('authProvider'),
         1,
         "$tablename RENAME $old_field_id TO $new_field_id $colstr"
     );
@@ -403,16 +415,21 @@ $sorted_datatypes = $datatypes;
 natsort($sorted_datatypes);
 
 // The layout ID identifies the layout to be edited.
-$layout_id = empty($_REQUEST['layout_id']) ? '' : $_REQUEST['layout_id'];
+// AI/Claude Code change: Validate against known layouts to prevent any tainted user input from propagating.
+$layout_id = empty($_REQUEST['layout_id']) ? '' : (string) $_REQUEST['layout_id'];
+if ($layout_id !== '' && !isset($layouts[$layout_id])) {
+    $layout_id = '';
+}
+// End of AI/Claude Code change
 $layout_tbl = !empty($layout_id) ? tableNameFromLayout($layout_id) : '';
 
 // Tag style for stuff to hide if not an LBF layout. Currently just for the Source column.
-$lbfonly = str_starts_with((string) $layout_id, 'LBF') ? "" : "style='display:none;'";
+$lbfonly = str_starts_with(attr($layout_id), 'LBF') ? "" : "style='display:none;'";
 
 // Handle the Form actions
 
 if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
     // If we are saving, then save.
@@ -448,85 +465,103 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
                     $field_id = $field_id_original;
                 }
             }
-            sqlStatement("UPDATE layout_options SET " .
-                "field_id = '"      . add_escape_custom($field_id)      . "', " .
-                "source = '"        . add_escape_custom(trim((string) $iter['source']))    . "', " .
-                "title = '"         . add_escape_custom($iter['title'])     . "', " .
-                "group_id = '"    . add_escape_custom(trim((string) $iter['group']))     . "', " .
-                "seq = '"           . add_escape_custom(trim((string) $iter['seq']))      . "', " .
-                "uor = '"           . add_escape_custom(trim((string) $iter['uor']))       . "', " .
-                "fld_length = '"    . add_escape_custom(trim((string) $iter['lengthWidth']))    . "', " .
-                "fld_rows = '"    . add_escape_custom(trim((string) $iter['lengthHeight']))    . "', " .
-                "max_length = '"    . add_escape_custom(trim((string) $iter['maxSize']))    . "', "                             .
-                "titlecols = '"     . add_escape_custom(trim((string) $iter['titlecols'])) . "', " .
-                "datacols = '"      . add_escape_custom(trim((string) $iter['datacols']))  . "', " .
-                "data_type= '" . add_escape_custom($data_type) . "', "                                .
-                "list_id= '"        . add_escape_custom($listval)   . "', " .
-                "list_backup_id= '"        . add_escape_custom(trim((string) $iter['list_backup_id']))   . "', " .
-                "edit_options = '"  . add_escape_custom(encodeModifier($iter['edit_options'] ?? null)) . "', " .
-                "default_value = '" . add_escape_custom(trim((string) $iter['default']))   . "', " .
-                "description = '"   . add_escape_custom(trim((string) $iter['desc']))      . "', " .
-                "codes = '"   . add_escape_custom(trim((string) $iter['codes']))      . "', " .
-                "conditions = '"    . add_escape_custom($conditions) . "', " .
-                "validation = '"   . add_escape_custom(trim((string) ($iter['validation'] ?? '')))   . "' " .
-                "WHERE form_id = '" . add_escape_custom($layout_id) . "' AND field_id = '" . add_escape_custom($field_id_original) . "'");
+            // AI/Claude Code change: refactored to use query parameters
+            sqlStatement(
+                "UPDATE layout_options SET " .
+                "field_id = ?, source = ?, title = ?, group_id = ?, " .
+                "seq = ?, uor = ?, fld_length = ?, fld_rows = ?, " .
+                "max_length = ?, titlecols = ?, datacols = ?, data_type = ?, " .
+                "list_id = ?, list_backup_id = ?, edit_options = ?, " .
+                "default_value = ?, description = ?, codes = ?, " .
+                "conditions = ?, validation = ? " .
+                "WHERE form_id = ? AND field_id = ?",
+                [
+                    $field_id,
+                    trim((string) $iter['source']),
+                    $iter['title'],
+                    trim((string) $iter['group']),
+                    trim((string) $iter['seq']),
+                    trim((string) $iter['uor']),
+                    trim((string) $iter['lengthWidth']),
+                    trim((string) $iter['lengthHeight']),
+                    trim((string) $iter['maxSize']),
+                    trim((string) $iter['titlecols']),
+                    trim((string) $iter['datacols']),
+                    $data_type,
+                    $listval,
+                    trim((string) $iter['list_backup_id']),
+                    encodeModifier($iter['edit_options'] ?? null),
+                    trim((string) $iter['default']),
+                    trim((string) $iter['desc']),
+                    trim((string) $iter['codes']),
+                    $conditions,
+                    trim((string) ($iter['validation'] ?? '')),
+                    $layout_id,
+                    $field_id_original,
+                ]
+            );
+            // End of AI/Claude Code changes
 
               setLayoutTimestamp($layout_id);
         }
     }
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "addfield") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
     // Add a new field to a specific group
     $data_type = trim((string) $_POST['newdatatype']);
     $max_length = $data_type == 3 ? 3 : 255;
     $listval = $data_type == 34 ? trim((string) $_POST['contextName']) : trim((string) $_POST['newlistid']);
-    sqlStatement("INSERT INTO layout_options (" .
-      " form_id, source, field_id, title, group_id, seq, uor, fld_length, fld_rows" .
-      ", titlecols, datacols, data_type, edit_options, default_value, codes, description" .
-      ", max_length, list_id, list_backup_id " .
-      ") VALUES ( " .
-      "'"  . add_escape_custom(trim((string) $_POST['layout_id'])) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newsource'])) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newid'])) . "'" .
-      ",'" . add_escape_custom($_POST['newtitle']) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newfieldgroupid'])) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newseq'])) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newuor'])) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newlengthWidth'])) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newlengthHeight'])) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newtitlecols'])) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newdatacols'])) . "'" .
-      ",'" . add_escape_custom($data_type) . "'"                                  .
-        ",'" . add_escape_custom(encodeModifier($_POST['newedit_options'] ?? null)) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newdefault'])) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newcodes'])) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newdesc'])) . "'" .
-      ",'"    . add_escape_custom(trim((string) $_POST['newmaxSize']))    . "'"  .
-      ",'" . add_escape_custom($listval) . "'" .
-      ",'" . add_escape_custom(trim((string) $_POST['newbackuplistid'])) . "'" .
-      " )");
+    // AI/Claude Code change: refactored to use query parameters
+    sqlStatement(
+        "INSERT INTO layout_options (" .
+        " form_id, source, field_id, title, group_id, seq, uor, fld_length, fld_rows" .
+        ", titlecols, datacols, data_type, edit_options, default_value, codes, description" .
+        ", max_length, list_id, list_backup_id " .
+        ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [
+            trim((string) $_POST['layout_id']),
+            trim((string) $_POST['newsource']),
+            trim((string) $_POST['newid']),
+            $_POST['newtitle'],
+            trim((string) $_POST['newfieldgroupid']),
+            trim((string) $_POST['newseq']),
+            trim((string) $_POST['newuor']),
+            trim((string) $_POST['newlengthWidth']),
+            trim((string) $_POST['newlengthHeight']),
+            trim((string) $_POST['newtitlecols']),
+            trim((string) $_POST['newdatacols']),
+            $data_type,
+            encodeModifier($_POST['newedit_options'] ?? null),
+            trim((string) $_POST['newdefault']),
+            trim((string) $_POST['newcodes']),
+            trim((string) $_POST['newdesc']),
+            trim((string) $_POST['newmaxSize']),
+            $listval,
+            trim((string) $_POST['newbackuplistid']),
+        ]
+    );
+    // End of AI/Claude Code changes
     addOrDeleteColumn($layout_id, trim((string) $_POST['newid']), true);
     setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "movefields") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
     // Move field(s) to a new group in the layout
-    $sqlstmt = "UPDATE layout_options SET " .
-                " group_id = '" . add_escape_custom($_POST['targetgroup']) . "' " .
-                " WHERE " .
-                " form_id = '" . add_escape_custom($_POST['layout_id']) . "' " .
-                " AND field_id IN (";
-    $comma = "";
-    foreach (explode(" ", (string) $_POST['selectedfields']) as $onefield) {
-        $sqlstmt .= $comma . "'" . add_escape_custom($onefield) . "'";
-        $comma = ", ";
-    }
-    $sqlstmt .= ")";
-    //echo $sqlstmt;
-    sqlStatement($sqlstmt);
+    // AI/Claude Code change: refactored to use query parameters
+    $fields = explode(" ", (string) $_POST['selectedfields']);
+    $placeholders = implode(", ", array_fill(0, count($fields), "?"));
+    $params = array_merge(
+        [$_POST['targetgroup'], $_POST['layout_id']],
+        $fields
+    );
+    sqlStatement(
+        "UPDATE layout_options SET group_id = ? WHERE form_id = ? AND field_id IN ($placeholders)",
+        $params
+    );
+    // End of AI/Claude Code changes
     setLayoutTimestamp($layout_id);
 } elseif (($_POST['formaction'] ?? '') == "copytolayout" && $layout_id && !empty($_POST['targetlayout'])) {
     // Copy field(s) to the specified group in another layout.
@@ -566,32 +601,32 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         setLayoutTimestamp($tlayout);
     }
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "deletefields") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
     // Delete a field from a specific group
-    $sqlstmt = "DELETE FROM layout_options WHERE " .
-                " form_id = '" . add_escape_custom($_POST['layout_id']) . "' " .
-                " AND field_id IN (";
-    $comma = "";
-    $cntr = 0;
+    // AI/Claude Code change: refactored to use query parameters
+    $fieldsToDelete = [];
     foreach (explode(" ", (string) $_POST['selectedfields']) as $onefield) {
         if (!isColumnReserved(tableNameFromLayout($_POST['layout_id']), $onefield)) {
-            $sqlstmt .= $comma . "'" . add_escape_custom($onefield) . "'";
-            $comma = ", ";
-            $cntr++;
+            $fieldsToDelete[] = $onefield;
         }
     }
-    $sqlstmt .= ")";
-    if (!empty($cntr)) {
-        sqlStatement($sqlstmt);
+    if (!empty($fieldsToDelete)) {
+        $placeholders = implode(", ", array_fill(0, count($fieldsToDelete), "?"));
+        $params = array_merge([$_POST['layout_id']], $fieldsToDelete);
+        sqlStatement(
+            "DELETE FROM layout_options WHERE form_id = ? AND field_id IN ($placeholders)",
+            $params
+        );
         foreach (explode(" ", (string) $_POST['selectedfields']) as $onefield) {
             addOrDeleteColumn($layout_id, $onefield, false);
         }
         setLayoutTimestamp($layout_id);
     }
+    // End of AI/Claude Code changes
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "addgroup") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
     // Generate new value for layout_items.group_id.
@@ -605,7 +640,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     );
     setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && $_POST['formaction'] == "deletegroup" && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
     // drop the fields from the related table (this is critical)
@@ -630,7 +665,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     );
     setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "movegroup") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
     // Note that in some cases below the swapGroups() call will do nothing.
@@ -659,7 +694,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "renamegroup") && $layout_id) {
     // Renaming a group. This might include moving to a different parent group.
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
     $newparent = $_POST['renamegroupparent'];  // this is an ID
@@ -716,6 +751,7 @@ function writeFieldLine($linedata): void
     ++$fld_line_no;
     $checked = $linedata['default_value'] ? " checked" : "";
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     //echo " <tr bgcolor='$bgcolor'>\n";
     echo " <tr id='fld[" . attr($fld_line_no) . "]' class='" . ($fld_line_no % 2 ? 'even' : 'odd') . "'>\n";
 
@@ -762,7 +798,7 @@ function writeFieldLine($linedata): void
     echo "</td>\n";
 
     // if not english and set to translate layout labels, then show the translation
-    if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
+    if ($GLOBALS['translate_layout'] && $session->get('language_choice') > 1) {
         echo "<td class='text-center translation'>" . xlt($linedata['title']) . "</td>\n";
     }
 
@@ -917,7 +953,7 @@ function writeFieldLine($linedata): void
         attr($linedata['default_value']) . "' />";
         echo "</td>\n";
       // if not english and showing layout labels, then show the translation of Description
-        if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
+        if ($GLOBALS['translate_layout'] && $session->get('language_choice') > 1) {
             echo "<td class='text-center translation'>" . xlt($linedata['description']) . "</td>\n";
         }
     }
@@ -1380,7 +1416,7 @@ function setListItemOptions(lino, seq, init) {
   // This happens asynchronously so the generated code needs to stand alone.
   f[target].style.display = '';
   const params = new URLSearchParams({
-    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
     current: current,
     listid: list_id,
     target: target
@@ -1452,7 +1488,7 @@ function myChangeCheck() {
 
 <body class="body_top admin-layout">
 <form method='post' name='theform' id='theform' action='edit_layout.php'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 <input type="hidden" name="formaction" id="formaction" value="" />
 <!-- elements used to identify a field to delete -->
 <input type="hidden" name="deletefieldid" id="deletefieldid" value="" />
@@ -1546,8 +1582,9 @@ if ($layout_id) {
         "ORDER BY p.grp_group_id, l.seq, l.field_id",
         [$layout_id]
     );
+    $language_choice = $session->get('language_choice');
     while ($row = sqlFetchArray($res)) {
-        $group_id = $row['grp_group_id'];
+        $group_id = (string) $row['grp_group_id'];
         // Skip if this is the top level layout and (as expected) it has no fields.
         if ($group_id === '' && empty($row['form_id'])) {
             continue;
@@ -1555,22 +1592,26 @@ if ($layout_id) {
         if ($group_id != $prevgroup) {
             if ($firstgroup == false) {
                 echo "</tbody></table></div>\n";
-                echo "<div id='" . attr($group_id) . "' class='group'>";
+                ?>
+                <div id='<?php echo attr($group_id); ?>' class='group'>
+                <?php
             } else {
                 // making first group flag useful for maintaining top fixed nav bar.
-                echo "<div id='" . attr($group_id) . "' class='group' style='padding-top:80px'>";
+                ?>
+                <div id='<?php echo attr($group_id); ?>' class='group' style='padding-top:80px'>
+                <?php
             }
-
-            // echo "<div id='" . $group_id . "' class='group'>";
-            echo "<div class='text bold layouts_title'>";
+            ?>
+            <div class='text bold layouts_title'>
+            <?php
 
             // Get the fully qualified descriptive name of this group (i.e. including ancestor names).
             $gdispname = '';
-            for ($i = 1; $i <= strlen((string) $group_id); ++$i) {
+            for ($i = 1, $iMax = strlen($group_id); $i <= $iMax; ++$i) {
                 if ($gdispname) {
                     $gdispname .= ' / ';
                 }
-                $gdispname .= $grparr[substr((string) $group_id, 0, $i)]['grp_title'];
+                $gdispname .= $grparr[substr($group_id, 0, $i)]['grp_title'];
             }
             $gmyname = $grparr[$group_id]['grp_title'];
 
@@ -1584,7 +1625,7 @@ if ($layout_id) {
                 "xla_move_down" => xla("Move Down"),
                 "xla_group_props" => xla("Group Properties"),
                 'text_group_name' => text($gdispname),
-                'translate_layout' => ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) ? xlt($gdispname) : "",
+                'translate_layout' => ($GLOBALS['translate_layout'] && $language_choice > 1) ? xlt($gdispname) : "",
                 'attr_gmyname' => attr($gmyname),
             ];
             echo <<<HTML
@@ -1620,7 +1661,7 @@ if ($layout_id) {
         <th><?php echo xlt('ID'); ?>&nbsp;<span class="help" title='<?php echo xla('A unique value to identify this field, not visible to the user'); ?>' >(?)</span></th>
         <th><?php echo xlt('Label'); ?>&nbsp;<span class="help" title='<?php echo xla('The label that appears to the user on the form'); ?>' >(?)</span></th>
                 <?php // if not english and showing layout label translations, then show translation header for title
-                if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
+                if ($GLOBALS['translate_layout'] && $language_choice > 1) {
                     echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translated label that will appear on the form in current language') . "'>&nbsp;(?)</span></th>";
                 } ?>
           <th><?php echo xlt('UOR'); ?></th>
@@ -1634,9 +1675,9 @@ if ($layout_id) {
           <th><?php echo xlt('Options'); ?></th>
           <th><?php echo xlt('Description'); ?></th>
                 <?php // if not english and showing layout label translations, then show translation header for description
-                if ($GLOBALS['translate_layout'] && $_SESSION['language_choice'] > 1) {
-                    echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translation of description in current language') . "'>&nbsp;(?)</span></th>";
-                } ?>
+                if ($GLOBALS['translate_layout'] && $language_choice > 1) { ?>
+                    <th><?php echo xlt('Translation'); ?><span class='help' title='<?php echo xla('The translation of description in current language'); ?>'>&nbsp;(?)</span></th>
+                <?php } ?>
           <th><?php echo xlt('Code(s)'); ?></th>
           <th style='width:1%'><?php echo xlt('?'); ?></th>
        </tr>
@@ -1823,7 +1864,7 @@ echo "{id: 'EP',text:" . xlj('Exclude in Portal') . "},
     {id: '2',text:" . xlj('Billing Code Descriptions') . "}];\n";
 
 // Language direction for select2
-echo 'var langDirection = ' . js_escape($_SESSION['language_direction']) . ';';
+echo 'var langDirection = ' . js_escape($session->get('language_direction')) . ';';
 ?>
 
 // used when selecting a list-name for a field
@@ -1920,7 +1961,7 @@ $(function () {
             minimumResultsForSearch: 'Infinity',
             containerCssClass: ':all:',
             allowClear: false,
-            <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->getString('srcdir') . '/js/xl/select2.js.php'); ?>
         });
     });
       // Populate field option selects
@@ -2298,7 +2339,7 @@ function elemFromPart(part) {
 }
 
 function FieldIDClicked(elem) {
-<?php if (str_starts_with((string) $layout_id, 'LBF')) { ?>
+<?php if (str_starts_with($layout_id, 'LBF')) { ?>
   fieldselectfield = elem;
   var srcval = elemFromPart('source').value;
   // If the field ID is for the local form, allow direct entry.

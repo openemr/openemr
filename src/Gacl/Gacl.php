@@ -29,6 +29,7 @@ use OpenEMR\Core\OEGlobalsBag;
 /*
  * Path to ADODB.
  */
+
 if ( !defined('ADODB_DIR') ) {
     define('ADODB_DIR', __DIR__.'/../vendor/adodb/adodb-php');
 }
@@ -74,12 +75,21 @@ class Gacl {
     /** The time for the cache to expire in seconds - 600 == Ten Minutes */
     private int $_cache_expire_time=600;
 
+    /** @var int Number of items to display per page */
+    protected int $_items_per_page = 100;
+
+    /** @var int Maximum number of items to display in a select box */
+    protected int $_max_select_box_items = 100;
+
+    /** @var int Maximum number of items to return in a search */
+    protected int $_max_search_return_items = 100;
+
     /** A switch to put acl_check into '_group_' mode */
     private string $_group_switch = '_group_';
 
     /**
      * Constructor
-     * @param array $options An array of options to override the class defaults
+     * @param array<string, mixed>|null $options An array of options to override the class defaults
      */
     function __construct($options = NULL) {
         $available_options = ['db','debug','items_per_page','max_select_box_items','max_search_return_items','db_table_prefix','caching','force_cache_expire','cache_dir','cache_expire_time'];
@@ -89,7 +99,7 @@ class Gacl {
                 $config = parse_ini_file($this->config_file);
 
             if ( is_array($config) ) {
-                    $gacl_options = array_merge($config, $options);
+                    $gacl_options = array_merge($config, $options ?? []);
             }
 
                 unset($config);
@@ -101,8 +111,22 @@ class Gacl {
 
                 if (in_array($key, $available_options) ) {
                     $this->debug_text("Valid Config options: $key");
-                    $property = '_'.$key;
-                    $this->$property = $value;
+                    // AI / Claude Code refactored to solve phpstan reported issue
+                    $stringVal = is_scalar($value) ? (string) $value : '';
+                    $intVal = is_numeric($value) ? (int) $value : 0;
+                    match ($key) {
+                        'db' => $value instanceof \ADOConnection ? $this->_db = $value : null,
+                        'debug' => $this->_debug = (bool) $value,
+                        'items_per_page' => $this->_items_per_page = $intVal,
+                        'max_select_box_items' => $this->_max_select_box_items = $intVal,
+                        'max_search_return_items' => $this->_max_search_return_items = $intVal,
+                        'db_table_prefix' => $this->_db_table_prefix = $stringVal,
+                        'caching' => $this->_caching = (bool) $value,
+                        'force_cache_expire' => $this->_force_cache_expire = (bool) $value,
+                        'cache_dir' => $this->_cache_dir = $stringVal,
+                        default => $this->_cache_expire_time = $intVal,
+                    };
+                    // End of AI / Claude Code refactor
                 } else {
                     $this->debug_text("ERROR: Config option: $key is not a valid option");
                 }
@@ -524,7 +548,7 @@ class Gacl {
     */
     function acl_get_groups($section_value, $value, $root_group=NULL, $group_type='ARO') {
 
-        switch(strtolower((string) $group_type)) {
+        switch(strtolower(is_scalar($group_type) ? (string) $group_type : '')) {
             case 'axo':
                 $group_type = 'axo';
                 $object_table = $this->_db_table_prefix .'axo';

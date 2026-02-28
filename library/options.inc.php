@@ -149,7 +149,7 @@ function generate_select_list(
     $include_inactive = false,
     $tabIndex = false
 ) {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $attributes = [];
     $_options = [];
     $_metadata = [];
@@ -582,7 +582,7 @@ function generate_form_field($frow, $currvalue): void
 {
     global $rootdir, $date_init, $ISSUE_TYPES, $code_types, $membership_group_number;
 
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
     $currescaped = htmlspecialchars($currvalue ?? '', ENT_QUOTES);
 
@@ -1685,7 +1685,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
 {
     global $rootdir, $date_init, $ISSUE_TYPES;
 
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
     $currescaped = htmlspecialchars((string) $currvalue, ENT_QUOTES);
 
@@ -2348,7 +2348,7 @@ function generate_display_field($frow, $currvalue)
 {
     global $ISSUE_TYPES, $facilityService;
 
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
     $data_type  = $frow['data_type'];
     $field_id   = $frow['field_id'] ?? null;
@@ -3448,7 +3448,7 @@ function display_layout_rows($formtype, $result1, $result2 = ''): void
 {
     global $item_count, $cell_count, $last_group, $CPR;
 
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
     if ('HIS' == $formtype) {
         $formtype .= '%'; // TBD: DEM also?
@@ -4555,7 +4555,7 @@ function dropdown_facility(
  */
 function expand_collapse_widget($title, $label, $buttonLabel, $buttonLink, $buttonClass, $linkMethod, $bodyClass, $auth, $fixedWidth, $forceExpandAlways = false): void
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     if ($fixedWidth) {
         echo "<div class='section-header'>";
     } else {

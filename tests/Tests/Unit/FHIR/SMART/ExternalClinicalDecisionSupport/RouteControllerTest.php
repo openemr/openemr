@@ -108,7 +108,6 @@ class RouteControllerTest extends TestCase
     public function testSaveAction(): void
     {
         $id = "1";
-//        CsrfUtils::setupCsrfKey(); // setup the key
         $this->setupDSIServiceForClientEntity($id, "Test Client");
         $this->session->set('authUserID', 1);
         $request = new Request(['action' => 'external-cdr/save/' . $id]);

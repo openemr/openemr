@@ -30,7 +30,6 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\ModulesApplication;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -65,8 +64,8 @@ $GLOBALS['debug_ssl_mysql_connection'] = false;
  * - OPENEMR_SETTING_http_verify_ssl (true/false/1/0/yes/no)
  * - OPENEMR_SETTING_http_ca_cert (path to CA certificate file, e.g., /var/www/certs/ca-cert.pem)
  *
- * @var bool $GLOBALS['http_verify_ssl'] - Verify SSL certificates for third-party web servers (external APIs) and non-loopback internal addresses
- * @var string|false $GLOBALS['http_ca_cert'] - Path to custom CA certificate file (PEM format) for verifying self-signed certificates
+ * $GLOBALS['http_verify_ssl'] (bool) - Verify SSL certificates for third-party web servers (external APIs) and non-loopback internal addresses
+ * $GLOBALS['http_ca_cert'] (string|false) - Path to custom CA certificate file (PEM format) for verifying self-signed certificates
  *
  * SSL Verification Logic:
  * - Loopback addresses (localhost, 127.x.x.x, ::1) → SSL verification always disabled
@@ -227,19 +226,15 @@ $globalsBag->set('webserver_root', $webserver_root);
 $globalsBag->set('web_root', $web_root);
 // Absolute path to the location of documentroot directory for use with include statements:
 $globalsBag->set('webroot', $web_root);
-$globalsBag->set('vendor_dir', $GLOBALS['vendor_dir'] ?? "$webserver_root/vendor");
+$globalsBag->set('vendor_dir', $GLOBALS['vendor_dir'] ?? "$webserver_root/vendor"); // @phpstan-ignore nullCoalesce.offset ($GLOBALS key may not exist yet)
 $globalsBag->set('restRequest', $restRequest);
-$globalsBag->set('OE_SITES_BASE', $GLOBALS['OE_SITES_BASE'] ?? "$webserver_root/sites");
-$globalsBag->set('debug_ssl_mysql_connection', $GLOBALS['debug_ssl_mysql_connection'] ?? false);
+$globalsBag->set('OE_SITES_BASE', $GLOBALS['OE_SITES_BASE'] ?? "$webserver_root/sites"); // @phpstan-ignore nullCoalesce.offset
+$globalsBag->set('debug_ssl_mysql_connection', $GLOBALS['debug_ssl_mysql_connection'] ?? false); // @phpstan-ignore nullCoalesce.offset
 $globalsBag->set('eventDispatcher', $eventDispatcher ?? null);
 $globalsBag->set('ignoreAuth_onsite_portal', $ignoreAuth_onsite_portal);
 $read_only = empty($sessionAllowWrite);
-$session = SessionWrapperFactory::getInstance()->getWrapper();
-if (session_status() === PHP_SESSION_NONE && !$session->isSymfonySession()) {
-    //error_log("1. LOCK ".GetCallingScriptName()); // debug start lock
-    SessionUtil::coreSessionStart($web_root, $read_only);
-    //error_log("2. FREE ".GetCallingScriptName()); // debug unlocked
-}
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // Set the site ID if required.  This must be done before any database
 // access is attempted.
@@ -494,8 +489,8 @@ if (!empty($glrow)) {
                 [$session->get('pid') ?? 0, 'portal_theme']
             )['setting_value'] ?? null;
             $gl_value = $current_theme ?? null ?: $gl_value;
-            $GLOBALS[$gl_name] = $web_root . '/public/themes/' . attr($gl_value) . '?v=' . $v_js_includes;
-            $portal_css_header = $GLOBALS[$gl_name];
+            $GLOBALS[(string) $gl_name] = $web_root . '/public/themes/' . attr($gl_value) . '?v=' . $v_js_includes;
+            $portal_css_header = $GLOBALS[(string) $gl_name];
             $portal_temp_css_theme_name = $gl_value;
         } elseif ($gl_name == 'weekend_days') {
             $globalsBag->set($gl_name, explode(',', (string) $gl_value));
@@ -773,12 +768,12 @@ if (!empty($checkModulesTableExists)) {
 $encounter = empty($session->get('encounter')) ? 0 : $session->get('encounter');
 
 if (!empty($_GET['pid']) && empty($session->get('pid'))) {
-    SessionUtil::setSession('pid', $_GET['pid']);
+    $session->set('pid', $_GET['pid']);
 } elseif (!empty($_POST['pid']) && empty($session->get('pid'))) {
-    SessionUtil::setSession('pid', $_POST['pid']);
+    $session->set('pid', $_POST['pid']);
 }
 
-$pid = empty($session->get('pid')) ? 0 : $session->get('pid');
+$pid = $session->get('pid', 0);
 $userauthorized = empty($session->get('userauthorized')) ? 0 : $session->get('userauthorized');
 $groupname = empty($session->get('authProvider')) ? 0 : $session->get('authProvider');
 
@@ -793,10 +788,10 @@ $globalsBag->set('attendant_type', $attendant_type);
 $globalsBag->set('groupname', $groupname);
 
 // global interface function to format text length using ellipses
-function strterm($string, $length)
+function strterm(string $string, int $length)
 {
-    if (strlen((string) $string) >= ($length - 3)) {
-        return substr((string) $string, 0, $length - 3) . "...";
+    if (strlen($string) >= ($length - 3)) {
+        return substr($string, 0, $length - 3) . "...";
     } else {
         return $string;
     }
@@ -806,7 +801,7 @@ function strterm($string, $length)
 function UrlIfImageExists($filename, $append = true)
 {
     global $webserver_root, $web_root;
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $path = "sites/" . $session->get('site_id') . "/images/$filename";
     // @ in next line because a missing file is not an error.
     if ($stat = @stat("$webserver_root/$path")) {

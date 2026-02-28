@@ -21,6 +21,7 @@ require_once('../interface/globals.php');
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -37,7 +38,8 @@ if ($web_path) {
     if ($d->get_mimetype() == 'application/dicom+zip') {
         $type = '.zip';
     }
-    $csrf = attr(CsrfUtils::collectCsrfToken());
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $csrf = attr(CsrfUtils::collectCsrfToken(session: $session));
     $state_url = $GLOBALS['web_root'] . "/library/ajax/upload.php";
     $web_path = attr($web_path) . '&retrieve&patient_id=' . attr_url($patid) . '&document_id=' . attr_url($docid) . '&as_file=false&type=' . attr_url($type);
 }

@@ -20,7 +20,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $feid = $_GET['feid'] + 0; // id from form_encounter table
 
@@ -38,7 +38,7 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
 <body>
     <?php
     if (!empty($_POST['form_submit']) || !empty($_POST['form_cancel'])) {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
+        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
             CsrfUtils::csrfNotVerified();
         }
 
@@ -72,7 +72,7 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
         <h2><?php echo xlt('Billing Note'); ?></h2>
         <form method='post' action='edit_billnote.php?feid=<?php echo attr_url($feid); ?>' onsubmit='return top.restoreSession()'>
             <div class="form-group">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                 <textarea class='form-control' name='form_note'><?php echo text($fenote); ?></textarea>
             </div>
             <div class="form-group">

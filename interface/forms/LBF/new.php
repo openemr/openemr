@@ -21,9 +21,11 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once __DIR__ . "/../../../vendor/autoload.php";
 $patientPortalSession = CoreFormToPortalUtility::isPatientPortalSession($_GET);
-$session = SessionWrapperFactory::getInstance()->getWrapper();
 if ($patientPortalSession) {
+    $session = SessionWrapperFactory::getInstance()->getPortalSession();
     $ignoreAuth_onsite_portal = true;
+} else {
+    $session = SessionWrapperFactory::getInstance()->getCoreSession();
 }
 
 require_once "../../globals.php";
@@ -131,7 +133,7 @@ if ($patientPortalSession && !empty($formid)) {
     $pidForm = sqlQuery("SELECT `pid` FROM `forms` WHERE `form_id` = ? AND `formdir` = ?", [$formid, $formname])['pid'];
     if (empty($pidForm) || ($pidForm != $session->get('pid'))) {
         echo xlt("illegal Action");
-        OpenEMR\Common\Session\SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         exit;
     }
 }
@@ -595,7 +597,7 @@ if (
                     const params = new URLSearchParams({
                         code: code,
                         codetype: codetype,
-                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>,
                         pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "",
                         selector: selector
                     });
@@ -816,7 +818,7 @@ if (
             const params = new URLSearchParams({
                 code: a[1],
                 codetype: a[0],
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>,
                 pricelevel: f.form_fs_pricelevel.value
             });
             $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
@@ -844,7 +846,7 @@ if (
             const params = new URLSearchParams({
                 code: a[1],
                 codetype: a[0],
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>,
                 pricelevel: f.form_fs_pricelevel.value,
                 selector: a[2]
             });
@@ -873,7 +875,7 @@ if (
             const params = new URLSearchParams({
                 code: a[1],
                 codetype: a[0],
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>,
                 pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : ""
             });
             $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
@@ -885,7 +887,7 @@ if (
             // The option value is an encoded string of code types and codes.
             if (sel.value) {
                 const params = new URLSearchParams({
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>,
                     list: sel.value,
                     pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : ""
                 });
@@ -1884,7 +1886,7 @@ if (
 
                 <input type='hidden' name='from_issue_form' value='<?php echo attr($from_issue_form); ?>' />
                 <?php if (!$is_core) {
-                    echo '<input type="hidden" name="csrf_token_form" value="' . CsrfUtils::collectCsrfToken('default', $session->getSymfonySession()) . '" />';
+                    echo '<input type="hidden" name="csrf_token_form" value="' . CsrfUtils::collectCsrfToken('default', $session) . '" />';
                     echo "\n<input type='hidden' name='bn_save_continue' value='set' />\n";
                 } ?>
 

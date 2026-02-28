@@ -38,7 +38,7 @@ use OpenEMR\MedicalDevice\MedicalDevice;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\FacilityService;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!AclMain::aclCheckCore('patients', 'pat_rep')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/pat_rep: Custom Report", xl("Custom Report"));

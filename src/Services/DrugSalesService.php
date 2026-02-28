@@ -12,6 +12,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
@@ -218,6 +219,8 @@ class DrugSalesService extends BaseService
         $selector = ''
     ) {
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
         if (empty($patient_id)) {
             $patient_id   = $GLOBALS['pid'];
         }
@@ -227,8 +230,8 @@ class DrugSalesService extends BaseService
         }
 
         if (empty($user)) {
-            $user         = $_SESSION['authUser'];
-            $userId       = $_SESSION['authUserID'];
+            $user         = $session->get('authUser');
+            $userId       = $session->get('authUserID');
         } else {
             $userService = new UserService();
             $userRecord = $userService->getUserByUsername($user);

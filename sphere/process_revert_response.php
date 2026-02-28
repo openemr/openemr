@@ -18,11 +18,13 @@ require_once(__DIR__ . "/../interface/globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\PaymentProcessing\PaymentProcessing;
 use OpenEMR\PaymentProcessing\Sphere\SphereRevert;
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token"], 'sphere_revert')) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token"], 'sphere_revert', $session)) {
     CsrfUtils::csrfNotVerified();
 }
 

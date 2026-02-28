@@ -16,12 +16,13 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
-
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'ip_tracker')) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'ip_tracker', $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -65,7 +66,7 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
             request = new FormData;
             request.append("function", func);
             request.append("ipId", ipId);
-            request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('counter')); ?>);
+            request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('counter', $session)); ?>);
             fetch("<?php echo $GLOBALS["webroot"]; ?>/library/ajax/login_counter_ip_tracker.php", {
                 method: 'POST',
                 credentials: 'same-origin',
@@ -84,7 +85,7 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
             request = new FormData;
             request.append("function", func);
             request.append("ipId", ipId);
-            request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('counter')); ?>);
+            request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('counter', $session)); ?>);
             fetch("<?php echo $GLOBALS["webroot"]; ?>/library/ajax/login_counter_ip_tracker.php", {
                 method: 'POST',
                 credentials: 'same-origin',
@@ -97,7 +98,7 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
             request = new FormData;
             request.append("function", "resetIpCounter");
             request.append("ipId", ipId);
-            request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('counter')); ?>);
+            request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('counter', $session)); ?>);
             fetch("<?php echo $GLOBALS["webroot"]; ?>/library/ajax/login_counter_ip_tracker.php", {
                 method: 'POST',
                 credentials: 'same-origin',
@@ -132,7 +133,7 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
 <span class='title'><?php echo xlt('IP Tracker'); ?></span>
 
 <form method='post' name='theform' id='theform' action='ip_tracker.php' onsubmit='return top.restoreSession()'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('ip_tracker')); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('ip_tracker', $session)); ?>" />
 
     <div id="report_parameters">
 

@@ -24,6 +24,7 @@ use Documents\Controller\DocumentsController;
 use Carecoordination\Model\CarecoordinationTable;
 use Document;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
 
 class CarecoordinationController extends AbstractActionController
@@ -136,8 +137,9 @@ class CarecoordinationController extends AbstractActionController
                 $this->importZipUpload($request);
             } else {
                 $cdoc = $obj_doc->uploadAction($request);
+                $session = SessionWrapperFactory::getInstance()->getActiveSession();
                 $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(
-                    ['user' => $_SESSION['authUserID'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]
+                    ['user' => $session->get('authUserID'), 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]
                 );
                 if ($uploaded_documents[0]['id'] > 0) {
                     $_REQUEST["document_id"] = $uploaded_documents[0]['id'];

@@ -18,8 +18,11 @@ require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -35,19 +38,23 @@ $code_des = $_POST["description"];
 $code_activity = $_POST["activity1"];
 
 if ($id && $id != 0) {
-    sqlStatement("DELETE FROM `form_functional_cognitive_status` WHERE id=? AND pid = ? AND encounter = ?", [$id, $_SESSION["pid"], $_SESSION["encounter"]]);
+    sqlStatement("DELETE FROM `form_functional_cognitive_status` WHERE id=? AND pid = ? AND encounter = ?", [$id, $session->get('pid'), $session->get('encounter')]);
     $newid = $id;
 } else {
     $res2 = sqlStatement("SELECT MAX(id) as largestId FROM `form_functional_cognitive_status`");
     $getMaxid = sqlFetchArray($res2);
     $newid = $getMaxid['largestId'] ? $getMaxid['largestId'] + 1 : 1;
 
-    addForm($encounter, "Functional and Cognitive Status Form", $newid, "functional_cognitive_status", $_SESSION["pid"], $userauthorized);
+    addForm($encounter, "Functional and Cognitive Status Form", $newid, "functional_cognitive_status", $session->get('pid'), $userauthorized);
 }
 
 $code_text = array_filter($code_text);
 
 if (!empty($code_text)) {
+    $pid = $session->get('pid');
+    $authProvider = $session->get('authProvider');
+    $authUser = $session->get('authUser');
+    $encounter = $session->get('encounter');
     foreach ($code_text as $key => $codeval) :
         $sets = "id = ?,
             pid = ?,
@@ -64,10 +71,10 @@ if (!empty($code_text)) {
             "INSERT INTO form_functional_cognitive_status SET $sets",
             [
                 $newid,
-                $_SESSION["pid"],
-                $_SESSION["authProvider"],
-                $_SESSION["authUser"],
-                $_SESSION["encounter"],
+                $pid,
+                $authProvider,
+                $authUser,
+                $encounter,
                 $userauthorized,
                 $code_activity[$key],
                 $code[$key],

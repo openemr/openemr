@@ -31,7 +31,7 @@ if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     exit;
 }
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // Service
 $eventDispatcher = $globalsBag->get('kernel')->getEventDispatcher();
@@ -353,7 +353,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             let delok = confirm(<?php echo xlj('You are about to delete a template'); ?> +
                 ": " + "\n" + <?php echo xlj('Is this Okay?'); ?>);
             if (delok === true) {
-                handleTemplate(id, 'delete', '', false, template, <?php echo js_escape(CsrfUtils::collectCsrfToken('import-template-delete', $session->getSymfonySession())); ?>)
+                handleTemplate(id, 'delete', '', false, template, <?php echo js_escape(CsrfUtils::collectCsrfToken('import-template-delete', $session)); ?>)
             }
             return false;
         };
@@ -680,7 +680,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 <div class='col col-12'>
                     <?php if ($authUploadTemplates) { ?>
                         <form id='form_upload' class='form-inline row' action='import_template.php' method='post' enctype='multipart/form-data'>
-                            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('import-template-upload', $session->getSymfonySession())); ?>" />
+                            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('import-template-upload', $session)); ?>" />
                             <hr />
                             <div class='col'>
                                 <div id='upload_scope_category'></div>

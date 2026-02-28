@@ -23,6 +23,9 @@ require_once 'includes/pnAPI.php';
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // these will be used in below SessionUtil::setSession to set applicable session variables
 $sessionSetArray = [];
@@ -50,7 +53,7 @@ $sessionSetArray['pc_facility'] = 0;
 if ($_POST['pc_facility'])  $_SESSION['pc_facility'] = $_POST['pc_facility'];
 *********************************************************************/
 if ($GLOBALS['login_into_facility']) {
-    $sessionSetArray['pc_facility'] = $_SESSION['facilityId'];
+    $sessionSetArray['pc_facility'] = $session->get('facilityId');
 } else {
     if (isset($_COOKIE['pc_facility']) && $GLOBALS['set_facility_cookie']) {
         $sessionSetArray['pc_facility'] = $_COOKIE['pc_facility'];
@@ -58,8 +61,8 @@ if ($GLOBALS['login_into_facility']) {
 }
 
 // override the cookie if the user doesn't have access to that facility any more
-if ($_SESSION['userauthorized'] != 1 && $GLOBALS['restrict_user_facility']) {
-    $facilities = getUserFacilities($_SESSION['authUserID']);
+if ($session->get('userauthorized') != 1 && $GLOBALS['restrict_user_facility']) {
+    $facilities = getUserFacilities($session->get('authUserID'));
     // use the first facility the user has access to, unless...
     $sessionSetArray['pc_facility'] = $facilities[0]['id'];
     // if the cookie is in the users' facilities, use that.
@@ -81,10 +84,11 @@ if (isset($_GET['pc_facility'])) {
 }
 
 if ($GLOBALS['set_facility_cookie']) {
-    if (!$GLOBALS['login_into_facility'] && ($_SESSION['pc_facility'] ?? 0) > 0) {
+    $pc_facility = $session->get('pc_facility');
+    if (!$GLOBALS['login_into_facility'] && ($pc_facility ?? 0) > 0) {
         // If login_into_facility is turn on $_COOKIE['pc_facility'] was saved in the login process.
         // In the case that login_into_facility is turn on you don't want to save different facility than the selected in the login screen.
-        setcookie("pc_facility", (string) $_SESSION['pc_facility'], ['expires' => time() + (3600 * 365)]);
+        setcookie("pc_facility", (string) $pc_facility, ['expires' => time() + (3600 * 365)]);
     }
 }
 

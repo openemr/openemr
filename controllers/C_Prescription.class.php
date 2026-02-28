@@ -21,6 +21,7 @@ require_once($GLOBALS['fileroot'] . "/library/options.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Http\oeHttp;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Rx\RxList;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -65,7 +66,8 @@ class C_Prescription extends Controller
         $this->assign("RXNORMS_AVAILABLE", !empty($rxn));
         $this->assign("RXCUI_AVAILABLE", !empty($rxcui));
         // Assign the CSRF_TOKEN_FORM
-        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken(session: $session));
 
         if ($GLOBALS['inhouse_pharmacy']) {
             // Make an array of drug IDs and selectors for the template.
@@ -147,6 +149,8 @@ class C_Prescription extends Controller
             $this->prescriptions[0]->set_patient_id($patient_id);
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
         $urlCodes = $this->getCodeTypesService()->collectCodeTypes("diagnosis", "csv");
         $url = $GLOBALS['webroot'] . '/interface/patient_file/encounter/select_codes.php?codetype=' . urlencode((string) $urlCodes);
         $this->assign('diagnosisCodes', $this->getDiagnosisCodesList($this->prescriptions[0]));
@@ -159,7 +163,7 @@ class C_Prescription extends Controller
         if (! $this->getTemplateVars('DISP_QUANTITY')) {
             $this->assign('DISP_QUANTITY', $this->prescriptions[0]->quantity);
         }
-        $defaultEncounterId = $this->prescriptions[0]->get_encounter() ?? $_SESSION['encounter'] ?? '';
+        $defaultEncounterId = $this->prescriptions[0]->get_encounter() ?? $session->get('encounter') ?? '';
         $this->assign("defaultEncounterId", $defaultEncounterId);
 
         // Track whether this is a new prescription (no ID yet) - affects dispense behavior
@@ -662,7 +666,8 @@ class C_Prescription extends Controller
     function current_user_has_signature()
     {
         if (!empty($this->pconfig['signature'])) {
-            $sigfile = str_replace('{userid}', $_SESSION["authUser"], $this->pconfig['signature']);
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $sigfile = str_replace('{userid}', $session->get("authUser"), $this->pconfig['signature']);
             if (file_exists($sigfile)) {
                 return true;
             }
@@ -677,7 +682,8 @@ class C_Prescription extends Controller
             && $this->current_user_has_signature()
             && ( $this->is_faxing || $this->is_print_to_fax )
         ) {
-            $sigfile = str_replace('{userid}', $_SESSION["authUser"], $this->pconfig['signature']);
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $sigfile = str_replace('{userid}', $session->get('authUser'), $this->pconfig['signature']);
             if (file_exists($sigfile)) {
                 $pdf->ezText(xl('Signature') . ": ", 12);
                 $width = 0; // set to 0 so it uses the image width

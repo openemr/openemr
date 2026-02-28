@@ -17,10 +17,11 @@ require_once(__DIR__ . "/../../../../custom/code_types.inc.php");
 require_once(__DIR__ . "/../../../../library/options.inc.php");
 global $PMSFH;
 
-    use OpenEMR\Common\Acl\AclMain;
-    use OpenEMR\Services\FacilityService;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\FacilityService;
 
-    $facilityService = new FacilityService();
+$facilityService = new FacilityService();
 
 /**
  *  This function returns HTML old record selector widget when needed (4 input values)
@@ -210,7 +211,8 @@ function display_PRIOR_section($zone, $orig_id, $id_to_show, $pid, $report = '0'
                 where PEZONE='PREFS' AND id=?
                 ORDER BY ZONE_ORDER,ordering";
 
-    $result = sqlStatement($query, [$_SESSION['authUserID']]);
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $result = sqlStatement($query, [$session->get('authUserID')]);
     while ($prefs = sqlFetchArray($result)) {
         ${$prefs['LOCATION']} = $prefs['GOVALUE'];
     }
@@ -3649,7 +3651,8 @@ function copy_forward($zone, $copy_from, $copy_to, $pid): void
         $result = $objQuery;
         $count_rx = '0';
         $query1 = "select * from form_eye_mag_wearing where PID=? and ENCOUNTER=? and FORM_ID >'0' ORDER BY RX_NUMBER";
-        $wear = sqlStatement($query1, [$pid,$_SESSION['encounter']]);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $wear = sqlStatement($query1, [$pid,$session->get('encounter')]);
         while ($wearing = sqlFetchArray($wear)) {
             ${"display_W_$count_rx"}        = '';
                   ${"ODSPH_$count_rx"}            = $wearing['ODSPH'];
@@ -4245,12 +4248,9 @@ function report_header($pid, $direction = 'shell')
     *******************************************************************/
     //$titleres = getPatientData($pid, "fname,lname,providerID,DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS");
     $titleres = getPatientData($pid, "fname,lname,providerID,DOB");
-    $facility = null;
-    if ($_SESSION['pc_facility']) {
-        $facility = $facilityService->getById($_SESSION['pc_facility']);
-    } else {
-        $facility = $facilityService->getPrimaryBillingLocation();
-    }
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $pc_facility = $session->get('pc_facility');
+    $facility = $pc_facility ? $facilityService->getById($pc_facility) : $facilityService->getPrimaryBillingLocation();
 
     $DOB = oeFormatShortDate($titleres['DOB']);
     /******************************************************************/
@@ -6101,7 +6101,8 @@ function findProvider($pid, $encounter)
         $find_provider3 = sqlQuery($query, [$pid,$visit_date]);
         $new_providerid = $find_provider3['pc_aid'] ?? '';
         if (($new_providerid < '1') || (!$new_providerid)) {
-            $get_authorized = $_SESSION['userauthorized'];
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $get_authorized = $session->get('userauthorized');
             if ($get_authorized == 1) {
                 $find_provider2 = sqlQuery("SELECT providerID FROM patient_data WHERE pid = ? ", [$pid]);
                 $new_providerid = $find_provider2['providerID'];

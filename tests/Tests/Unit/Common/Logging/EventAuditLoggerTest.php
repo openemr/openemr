@@ -17,9 +17,11 @@ namespace OpenEMR\Tests\Unit\Common\Logging;
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionClass;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * Interface for mocking ADODB connection in tests
@@ -48,9 +50,9 @@ final class EventAuditLoggerTest extends TestCase
     private $eventAuditLogger;
 
     /**
-     * @var array<string, mixed> Original $_SESSION backup
+     * @var SessionInterface
      */
-    private array $originalSession;
+    private SessionInterface $session;
 
     /**
      * @var array<string, mixed> Original $_SERVER backup
@@ -85,12 +87,9 @@ final class EventAuditLoggerTest extends TestCase
     {
         parent::setUp();
 
-        // Backup original superglobals
-        /**
-         * @var array<string, mixed> $session
-         */
-        $session = $_SESSION ?? [];
-        $this->originalSession = $session;
+        // Initialize the Symfony session
+        $this->session = SessionWrapperFactory::getInstance()->getActiveSession();
+
         /**
          * @var array<string, mixed> $server
          */
@@ -116,8 +115,9 @@ final class EventAuditLoggerTest extends TestCase
 
     protected function tearDown(): void
     {
-        // Restore original superglobals
-        $_SESSION = $this->originalSession;
+        // Clear the session
+        $this->session->clear();
+
         $_SERVER = $this->originalServer;
 
         // Restore original $GLOBALS values and unset any we added
@@ -137,12 +137,10 @@ final class EventAuditLoggerTest extends TestCase
      */
     private function setupTestEnvironment(): void
     {
-        // Setup default $_SESSION values
-        $_SESSION = [
-            'authUser' => 'testuser',
-            'authProvider' => 'testprovider',
-            'pid' => '123'
-        ];
+        // Setup default session values using Symfony session
+        $this->session->set('authUser', 'testuser');
+        $this->session->set('authProvider', 'testprovider');
+        $this->session->set('pid', '123');
 
         // Setup default $_SERVER values
         $_SERVER = [
@@ -229,9 +227,9 @@ final class EventAuditLoggerTest extends TestCase
      */
     private function setupTestSession(string $user = 'test_user', string $provider = 'test_provider', int $pid = 123): void
     {
-        $_SESSION['authUser'] = $user;
-        $_SESSION['authProvider'] = $provider;
-        $_SESSION['pid'] = $pid;
+        $this->session->set('authUser', $user);
+        $this->session->set('authProvider', $provider);
+        $this->session->set('pid', $pid);
     }
 
     /**
@@ -650,9 +648,9 @@ final class EventAuditLoggerTest extends TestCase
         $_SERVER['QUERY_STRING'] = 'format=json&debug=true'; // Line 876: $comment .= '?' . $_SERVER['QUERY_STRING'];
 
         // Set up session variables
-        $_SESSION['authUser'] = 'api_user';
-        $_SESSION['authProvider'] = 'api_provider';
-        $_SESSION['pid'] = 456;
+        $this->session->set('authUser', 'api_user');
+        $this->session->set('authProvider', 'api_provider');
+        $this->session->set('pid', 456);
 
         // Create mock to verify newEvent is called with correct parameters
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
@@ -693,9 +691,9 @@ final class EventAuditLoggerTest extends TestCase
         $_SERVER['SCRIPT_NAME'] = '/test/path';
         unset($_SERVER['QUERY_STRING']); // Test without query string
 
-        $_SESSION['authUser'] = 'test_user';
-        $_SESSION['authProvider'] = 'test_provider';
-        unset($_SESSION['pid']); // Test with no patient ID
+        $this->session->set('authUser', 'test_user');
+        $this->session->set('authProvider', 'test_provider');
+        $this->session->remove('pid'); // Test with no patient ID
 
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['newEvent'])
@@ -1012,8 +1010,8 @@ final class EventAuditLoggerTest extends TestCase
     public function testAuditSQLAuditTamperBreakglassLogging(): void
     {
         // Set up session variables
-        $_SESSION['authUser'] = 'testuser';
-        $_SESSION['authProvider'] = 'testprovider';
+        $this->session->set('authUser', 'testuser');
+        $this->session->set('authProvider', 'testprovider');
 
         // Mock recordLogItem method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
@@ -1041,8 +1039,8 @@ final class EventAuditLoggerTest extends TestCase
     public function testAuditSQLAuditTamperCustomSetting(): void
     {
         // Set up session variables
-        $_SESSION['authUser'] = 'testuser';
-        $_SESSION['authProvider'] = 'testprovider';
+        $this->session->set('authUser', 'testuser');
+        $this->session->set('authProvider', 'testprovider');
 
         // Mock recordLogItem method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
@@ -1070,8 +1068,8 @@ final class EventAuditLoggerTest extends TestCase
     public function testAuditSQLAuditTamperDisabled(): void
     {
         // Set up session variables
-        $_SESSION['authUser'] = 'testuser';
-        $_SESSION['authProvider'] = 'testprovider';
+        $this->session->set('authUser', 'testuser');
+        $this->session->set('authProvider', 'testprovider');
 
         // Mock recordLogItem method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
@@ -1262,7 +1260,7 @@ final class EventAuditLoggerTest extends TestCase
 
         try {
             // Clear session data to test default handling
-            $_SESSION = [];
+            $this->session->clear();
 
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
@@ -1535,7 +1533,7 @@ final class EventAuditLoggerTest extends TestCase
         unset($GLOBALS['gbl_force_log_breakglass']);
 
         // 3. Set a regular user (not breakglass)
-        $_SESSION['authUser'] = 'regular_user';
+        $this->session->set('authUser', 'regular_user');
 
         // Create a mock to verify recordLogItem is NOT called (due to early return)
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
@@ -1569,10 +1567,10 @@ final class EventAuditLoggerTest extends TestCase
         unset($GLOBALS['gbl_force_log_breakglass']);
 
         // 4. Set a regular user (not breakglass)
-        $_SESSION['authUser'] = 'regular_user';
+        $this->session->set('authUser', 'regular_user');
 
         // 5. Set up patient session to trigger patient-record event detection
-        $_SESSION['pid'] = '123';
+        $this->session->set('pid', '123');
 
         // Create a mock to verify recordLogItem is NOT called (due to early return)
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
@@ -2028,9 +2026,9 @@ final class EventAuditLoggerTest extends TestCase
         $_SERVER['QUERY_STRING'] = 'pid=123&set_pid=123';
 
         // Set up session variables
-        $_SESSION['authUser'] = 'test_user';
-        $_SESSION['authProvider'] = 'test_provider';
-        $_SESSION['pid'] = 123;
+        $this->session->set('authUser', 'test_user');
+        $this->session->set('authProvider', 'test_provider');
+        $this->session->set('pid', 123);
 
         try {
             // Create mock with newEvent mocked to verify the call
@@ -2089,9 +2087,9 @@ final class EventAuditLoggerTest extends TestCase
         unset($_SERVER['QUERY_STRING']); // No query string
 
         // Set up session variables
-        $_SESSION['authUser'] = 'admin';
-        $_SESSION['authProvider'] = 'administrator';
-        $_SESSION['pid'] = 456;
+        $this->session->set('authUser', 'admin');
+        $this->session->set('authProvider', 'administrator');
+        $this->session->set('pid', 456);
 
         try {
             // Create mock with newEvent mocked to verify the call
@@ -2149,9 +2147,9 @@ final class EventAuditLoggerTest extends TestCase
         unset($_SERVER['QUERY_STRING']);
 
         // Set up session variables
-        $_SESSION['authUser'] = 'api_user';
-        $_SESSION['authProvider'] = 'api';
-        unset($_SESSION['pid']); // No patient context
+        $this->session->set('authUser', 'api_user');
+        $this->session->set('authProvider', 'api');
+        $this->session->remove('pid'); // No patient context
 
         try {
             // Create mock with newEvent mocked to verify the call
@@ -2204,9 +2202,9 @@ final class EventAuditLoggerTest extends TestCase
         unset($_SERVER['QUERY_STRING']);
 
         // Set up minimal session
-        $_SESSION['authUser'] = 'test_user';
-        unset($_SESSION['authProvider']);
-        unset($_SESSION['pid']);
+        $this->session->set('authUser', 'test_user');
+        $this->session->remove('authProvider');
+        $this->session->remove('pid');
 
         try {
             // Create mock with newEvent mocked to verify the call
@@ -2260,9 +2258,9 @@ final class EventAuditLoggerTest extends TestCase
         $_SERVER['QUERY_STRING'] = 'format=json';
 
         // No session variables set
-        unset($_SESSION['authUser']);
-        unset($_SESSION['authProvider']);
-        unset($_SESSION['pid']);
+        $this->session->remove('authUser');
+        $this->session->remove('authProvider');
+        $this->session->remove('pid');
 
         try {
             // Create mock with newEvent mocked to verify the call
@@ -2320,9 +2318,9 @@ final class EventAuditLoggerTest extends TestCase
         unset($_SERVER['QUERY_STRING']);
 
         // Set up session variables
-        $_SESSION['authUser'] = 'patch_user';
-        $_SESSION['authProvider'] = 'physician';
-        $_SESSION['pid'] = 789;
+        $this->session->set('authUser', 'patch_user');
+        $this->session->set('authProvider', 'physician');
+        $this->session->set('pid', 789);
 
         try {
             // Create mock with newEvent mocked to verify the call

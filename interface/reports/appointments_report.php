@@ -39,13 +39,14 @@ use OpenEMR\Common\{
     Acl\AclMain,
     Csrf\CsrfUtils,
     Logging\SystemLogger,
+    Session\SessionWrapperFactory,
 };
 use OpenEMR\Core\Header;
 use OpenEMR\Services\SpreadSheetService;
 
-
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -58,8 +59,8 @@ if (!AclMain::aclCheckCore('patients', 'appt')) {
 # This session will hold array of patients that are listed in this
 # report, which is then used by the 'Superbills' and 'Address Labels'
 # features on this report.
-unset($_SESSION['pidList']);
-unset($_SESSION['apptdateList']);
+$session->remove('pidList');
+$session->remove('apptdateList');
 
 $alertmsg = ''; // not used yet but maybe later
 $patient = $_REQUEST['patient'] ?? null;
@@ -234,7 +235,7 @@ if (empty($_POST['form_csvexport'])) {
 </div>
 
 <form method='post' name='theform' id='theform' action='appointments_report.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
 <div id="report_parameters">
 
@@ -499,13 +500,15 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         $appointments = array_merge($appointments, $availableSlots);
     }
 
+    /** @var array<int, array<string, mixed>> $appointments */
     $appointments = sortAppointments($appointments, $form_orderby);
     if (!empty($_POST['form_csvexport'])) {
         // include provider as well
         // RM generate csv file with same column headers row as used in the report itself
         $fields = ['Provider','Date', 'Time', 'Patient', 'Address','DOB', 'Type', 'Status'];
         $csvfields = [];
-        for ($i = 0; $i < count($appointments); ++$i) {
+        $iMax = count($appointments);
+        for ($i = 0; $i < $iMax; ++$i) {
               $appointments[$i]["Provider"] = $appointments[$i]["ulname"] . ',' . $appointments[$i]["ufname"] . ' ' .  $appointments[$i]["umname"] ;
               $csvfields[$i]["Provider"] = $appointments[$i]["Provider"] ;
               $csvfields[$i]["Date"] = $appointments[$i]["pc_eventDate"] ;
@@ -645,8 +648,8 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                 $lastdocname = $docname;
         }
     // assign the session key with the $pid_list array - note array might be empty -- handle on the printed_fee_sheet.php page.
-        $_SESSION['pidList'] = $pid_list;
-        $_SESSION['apptdateList'] = $apptdate_list;
+        $session->set('pidList', $pid_list);
+        $session->set('apptdateList', $apptdate_list);
     } // end not form_csvexport
 
     if (empty($_POST['form_csvexport'])) { ?>

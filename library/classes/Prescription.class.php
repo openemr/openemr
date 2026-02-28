@@ -92,6 +92,7 @@ require_once(__DIR__ . "/../lists.inc.php");
 
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\FHIR\Enum\FHIRMedicationIntentEnum;
 use OpenEMR\Services\ListService;
 
@@ -206,6 +207,8 @@ class Prescription extends ORDataObject
             $id = "";
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authUserID = $session->get('authUserID');
         //$this->unit = UNIT_MG;
         //$this->route = ROUTE_PER_ORIS;
         //$this->quantity = 1;
@@ -218,15 +221,15 @@ class Prescription extends ORDataObject
             $this->pharmacy = new Pharmacy();
             $this->pharmacist = new Person();
             // default provider is the current user
-            $this->provider = new Provider($_SESSION['authUserID']);
+            $this->provider = new Provider($authUserID);
             $this->patient = new PrescriptionPatient();
             $this->start_date = date("Y-m-d");
             $this->date_added = date("Y-m-d H:i:s");
             $this->date_modified = date("Y-m-d H:i:s");
-            $this->created_by = $_SESSION['authUserID'];
-            $this->updated_by = $_SESSION['authUserID'];
+            $this->created_by = $authUserID;
+            $this->updated_by = $authUserID;
             $this->per_refill = 0;
-            $this->encounter = $_SESSION['encounter'];
+            $this->encounter = $session->get('encounter');
             $this->note = "";
             $this->request_intent = FHIRMedicationIntentEnum::ORDER->value;
             $this->usage_category = "outpatient";
@@ -336,6 +339,7 @@ class Prescription extends ORDataObject
         // END AI-GENERATED CODE: Enhanced medication list lookup with prescription_id priority
         // ===============================================================================================
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if ($this->medication && !isset($dataRow['id'])) {
             // ===============================================================================================
             // BEGIN AI-GENERATED CODE: Enhanced inactive medication lookup with prescription_id priority
@@ -374,13 +378,13 @@ class Prescription extends ORDataObject
                 $medListId = QueryUtils::sqlInsert(
                     "insert into lists(date,begdate,type,activity,pid,user,groupname,title) "
                     . " values (now(),cast(now() as date),'medication',1,?,?,?,?)",
-                    [$this->patient->id, $_SESSION['authUser'], $_SESSION['authProvider'], $this->drug]
+                    [$this->patient->id, $session->get('authUser'), $session->get('authProvider'), $this->drug]
                 );
                 $this->gen_lists_medication($medListId);
             } else {
                 QueryUtils::sqlStatementThrowException(
                     'update lists set activity = 1,user = ?, groupname = ? where id = ?',
-                    [$_SESSION['authUser'], $_SESSION['authProvider'], $inactiveDataRow['id']]
+                    [$session->get('authUser'), $session->get('authProvider'), $inactiveDataRow['id']]
                 );
                 $this->gen_lists_medication($inactiveDataRow["id"]);
             }
@@ -388,7 +392,7 @@ class Prescription extends ORDataObject
             //remove the drug from the medication list if it exists
             QueryUtils::sqlStatementThrowException(
                 'update lists set activity = 0,user = ?, groupname = ? where id = ?',
-                [$_SESSION['authUser'], $_SESSION['authProvider'], $dataRow['id']]
+                [$session->get('authUser'), $session->get('authProvider'), $dataRow['id']]
             );
         } elseif ($this->medication && isset($dataRow['id'])) {
             $this->gen_lists_medication($dataRow["id"]);
@@ -437,10 +441,11 @@ class Prescription extends ORDataObject
             // ===============================================================================================
 
             if (isset($dataRow['id'])) {
+                $session = SessionWrapperFactory::getInstance()->getActiveSession();
                 QueryUtils::sqlStatementThrowException(
                     'update lists set activity = 1'
                     . " ,user = ?, groupname = ?, title = ? where id = ?",
-                    [$_SESSION['authUser'], $_SESSION['authProvider'], $this->drug, $dataRow['id']]
+                    [$session->get('authUser'), $session->get('authProvider'), $this->drug, $dataRow['id']]
                 );
                 $this->gen_lists_medication($dataRow["id"]);
             }
@@ -832,7 +837,7 @@ class Prescription extends ORDataObject
 
     function set_provider($pobj)
     {
-        if ($pobj::class == "provider") {
+        if ($pobj::class === "provider") {
             $this->provider = $pobj;
         }
     }

@@ -10,7 +10,7 @@
 
 namespace OpenEMR\Core;
 
-use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
  * Some useful functions.
@@ -22,7 +22,8 @@ trait AbstractModuleActionTrait
      */
     public static function getLoggedInUser(): array
     {
-        $id = $_SESSION['authUserID'] ?? 1;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $id = $session->get('authUserID', 1);
         $query = "SELECT fname, lname, fax, facility, username FROM users WHERE id = ?";
         $result = sqlQuery($query, [$id]);
 
@@ -72,17 +73,18 @@ trait AbstractModuleActionTrait
     }
 
     /**
-     * @param $param
-     * @param $default
+     * @param string|null $param
+     * @param mixed|null $default
      * @return mixed|null
      */
-    public function getSession($param = null, $default = null): mixed
+    public function getSession(string $param = null, mixed $default = null): mixed
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if ($param) {
-            return $_SESSION[$param] ?? $default;
+            return $session->get($param, $default);
         }
 
-        return $this->_session;
+        return $session;
     }
 
     /**
@@ -119,14 +121,15 @@ trait AbstractModuleActionTrait
     }
 
     /**
-     * @param $key
+     * @param string $key
      * @param $value
      * @return $this
      */
-    public function setSession($key, $value): static
+    public function setSession(string $key, $value): static
     {
-        // ensure write is allowed by using utility.
-        SessionUtil::setSession($key, $value);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        // ensure writing is allowed by using utility.
+        $session->set($key, $value);
         return $this;
     }
 }

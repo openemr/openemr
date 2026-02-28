@@ -16,9 +16,11 @@ require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 function writeRow($method, $name, $allowEdit = false): void
 {
     echo "        <tr><td>&nbsp;";
@@ -40,12 +42,12 @@ function writeRow($method, $name, $allowEdit = false): void
     echo "</td></tr>\n";
 }
 
-$userid = $_SESSION['authUserID'];
+$userid = $session->get('authUserID');
 $user_name = getUserIDInfo($userid);
 $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 $message = '';
 if (!empty($_POST['form_delete_method'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
     // Delete the indicated MFA instance.
@@ -133,7 +135,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         <div class="row">
             <div class="col-sm-12">
                 <form method='post' action='mfa_registrations.php' onsubmit='return top.restoreSession()'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                     <div>
                         <fieldset>
                             <legend><?php echo xlt('Current Authentication Method for') . " " . text($user_full_name); ?></legend>

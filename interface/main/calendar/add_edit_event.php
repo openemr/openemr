@@ -53,6 +53,7 @@ require_once($GLOBALS['srcdir'] . '/group.inc.php');
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -64,6 +65,8 @@ use OpenEMR\Events\Appointments\AppointmentSetEvent;
 if (!AclMain::aclCheckCore('patients', 'appt', '', ['write','wsome'])) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/appt: Edit/Add Event", xl("Edit/Add Event"));
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 /* Things that might be passed by our opener. */
 $eid           = $_GET['eid'] ?? null; // only for existing events
@@ -217,6 +220,7 @@ function DOBandEncounter($pc_eid): void
                                 "pid = ?", [$patient_dob,$_POST['form_pid']]);
     }
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     // Manage tracker status.
     // And auto-create a new encounter if appropriate.
     if (!empty($_POST['form_pid'])) {
@@ -241,12 +245,12 @@ function DOBandEncounter($pc_eid): void
                 // parameter is actually erroneous(is eid of the recurrent appt and not the new separated appt), so need to use the
                 // temporary-eid-for-manage-tracker global instead.
                 $temp_eid = $GLOBALS['temporary-eid-for-manage-tracker'] ?? $_GET['eid'];
-                manage_tracker_status($event_date, $appttime, $temp_eid, $_POST['form_pid'], $_SESSION["authUser"], $_POST['form_apptstatus'], $_POST['form_room'], $encounter);
+                manage_tracker_status($event_date, $appttime, $temp_eid, $_POST['form_pid'], $session->get('authUser'), $_POST['form_apptstatus'], $_POST['form_room'], $encounter);
             }
         } else {
             # Capture the appt status and room number for patient tracker.
             if (!empty($_GET['eid'])) {
-                manage_tracker_status($event_date, $appttime, $_GET['eid'], $_POST['form_pid'], $_SESSION["authUser"], $_POST['form_apptstatus'], $_POST['form_room'], $is_tracker);
+                manage_tracker_status($event_date, $appttime, $_GET['eid'], $_POST['form_pid'], $session->get('authUser'), $_POST['form_apptstatus'], $_POST['form_room'], $is_tracker);
             }
         }
     }
@@ -312,8 +316,8 @@ if ($eid) {
         $e2f_name = $min_name;
     } else {
           // not edit event
-        if (!$facility['pc_facility'] && $_SESSION['pc_facility']) {
-            $e2f = $_SESSION['pc_facility'];
+        if (!$facility['pc_facility'] && $session->get('pc_facility')) {
+            $e2f = $session->get('pc_facility');
         } elseif (!$facility['pc_facility'] && $_COOKIE['pc_facility'] && $GLOBALS['set_facility_cookie']) {
                 $e2f = $_COOKIE['pc_facility'];
         } else {
@@ -603,6 +607,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
                     sqlQuery("UPDATE form_groups_encounter SET appt_id = ? WHERE appt_id = ?", [$new_eid, $old_eid['pc_eid']]);
                 }
 
+                $authUserID = $session->get('authUserID');
                 // after the two diffs above, we must update for remaining providers
                 // those who are intersected in $providers_current and $providers_new
                 foreach ($_POST['form_provider'] as $provider) {
@@ -613,7 +618,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
                     "pc_time = NOW(), " .
                     "pc_hometext = '" . add_escape_custom($_POST['form_comments']) . "', " .
                     "pc_room = '" . add_escape_custom($_POST['form_room']) . "', " .
-                    "pc_informant = '" . add_escape_custom($_SESSION['authUserID']) . "', " .
+                    "pc_informant = '" . add_escape_custom($authUserID) . "', " .
                     "pc_eventDate = '" . add_escape_custom($event_date) . "', " .
                     "pc_endDate = '" . add_escape_custom($_POST['form_enddate']) . "', " .
                     "pc_duration = '" . add_escape_custom(($duration * 60)) . "', " .
@@ -709,7 +714,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
                 "pc_time = NOW(), " .
                 "pc_hometext = '" . add_escape_custom($_POST['form_comments']) . "', " .
                 "pc_room = '" . add_escape_custom($_POST['form_room']) . "', " .
-                "pc_informant = '" . add_escape_custom($_SESSION['authUserID']) . "', " .
+                "pc_informant = '" . add_escape_custom($session->get('authUserID')) . "', " .
                 "pc_eventDate = '" . add_escape_custom($event_date) . "', " .
                 "pc_endDate = '" . add_escape_custom($_POST['form_enddate']) . "', " .
                 "pc_duration = '" . add_escape_custom(($duration * 60)) . "', " .
@@ -793,8 +798,8 @@ if (!empty($_POST['form_action'])) {
     $patientid = '';
 if (!empty($_REQUEST['patientid'])) {
     $patientid = $_REQUEST['patientid'];
-} elseif (!empty($_SESSION['pid'])) {
-    $patientid = ($_SESSION['pid']);
+} elseif (!empty($session->get('pid'))) {
+    $patientid = $session->get('pid');
 }
     $patientname = null;
     $patienttitle = [];
@@ -860,7 +865,8 @@ if ($eid) {
       //(CHEMED)
       //Set default facility for a new event based on the given 'userid'
     if ($userid) {
-        if ($_SESSION['pc_facility']) {
+        $pc_facility = $session->get('pc_facility');
+        if ($pc_facility) {
             $pref_facility = sqlFetchArray(sqlStatement(
                 "
 		        SELECT f.id as facility_id,
@@ -868,7 +874,7 @@ if ($eid) {
 		        FROM facility f
 		        WHERE f.id = ?
 	          ",
-                [$_SESSION['pc_facility']]
+                [$pc_facility]
             ));
         } else {
             $pref_facility = sqlFetchArray(sqlStatement("
@@ -1393,10 +1399,10 @@ $classpati = '';
         <label for="facility"><?php echo xlt('Facility'); ?>:</label>
         <select class="form-control" name="facility" id="facility">
             <?php
-            $facils = getUserFacilities($_SESSION['authUserID']);
+            $facils = getUserFacilities($session->get('authUserID'));
             $qsql = sqlStatement("SELECT id, name FROM facility WHERE service_location != 0");
             while ($facrow = sqlFetchArray($qsql)) {
-                if (!empty($_SESSION['authorizedUser']) || in_array($facrow, $facils)) {
+                if (!empty($session->get('authorizedUser')) || in_array($facrow, $facils)) {
                     $selected = ($facrow['id'] == $e2f) ? 'selected="selected"' : '';
                     echo "<option value='" . attr($facrow['id']) . "' $selected>" . text($facrow['name']) . "</option>";
                 } else {
@@ -1541,13 +1547,13 @@ if ($_GET['group'] === true && $have_group_global_enabled) { ?>
             $defaultProvider = $provider['pc_aid'];
         } else {
           // default to the currently logged-in user
-            $defaultProvider = $_SESSION['authUserID'];
+            $defaultProvider = $session->get('authUserID');
+            $pc_username = $session->get('pc_username');
           // or, if we have chosen a provider in the calendar, default to them
           // choose the first one if multiple have been selected
-            if (is_array($_SESSION['pc_username'] ?? null)) {
-                if (count($_SESSION['pc_username']) >= 1) {
+            if (is_array($pc_username ?? null)) {
+                if (count($pc_username) >= 1) {
                     // get the numeric ID of the first provider in the array
-                    $pc_username = $_SESSION['pc_username'];
                     $firstProvider = sqlFetchArray(sqlStatement("select id from users where username=?", [$pc_username[0]]));
                     $defaultProvider = $firstProvider['id'] ?? '';
                 }

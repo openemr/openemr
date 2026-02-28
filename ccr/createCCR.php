@@ -12,7 +12,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // check if using the patient portal
@@ -24,14 +23,14 @@ if (isset($_GET['portal_auth'])) {
     // Will start the (patient) portal OpenEMR session/cookie.
     //  Need access to classes, so run autoloader now instead of in globals.php.
     require_once(__DIR__ . "/../vendor/autoload.php");
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-    if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+    if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
         $pid = $session->get('pid');
         $ignoreAuth = true;
         global $ignoreAuth;
     } else {
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         header('Location: ' . $landingpage . '?w');
         exit;
     }

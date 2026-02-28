@@ -17,6 +17,7 @@ namespace OpenEMR\Modules\WenoModule;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\Patient\PatientBeforeCreatedAuxEvent;
 use OpenEMR\Events\Patient\PatientUpdatedEventAux;
@@ -394,7 +395,8 @@ class Bootstrap
     public function isWenoUser()
     {
         if (empty($id)) {
-            $id = $_SESSION['authUserID'] ?? '';
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $id = $session->get('authUserID') ?? '';
         }
         // get the Weno User id from the user table (weno_prov_id)
         $provider = sqlQuery("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);

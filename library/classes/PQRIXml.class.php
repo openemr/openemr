@@ -10,6 +10,8 @@
  // This program implements the XML Writer to generate PQRI 2009 XML.
 
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 class PQRIXml extends XmlWriterOemr
 {
     function __construct($indent = '  ')
@@ -32,8 +34,8 @@ class PQRIXml extends XmlWriterOemr
 
     function add_file_audit_data()
     {
-
-        $res = sqlQuery("select * from users where username=?", [$_SESSION["authUser"]]);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $res = sqlQuery("select * from users where username=?", [$session->get('authUser')]);
 
 
         $this->push('file_audit_data');

@@ -30,6 +30,9 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 use OpenEMR\PaymentProcessing\Recorder;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: Confirm Payment", xl("Confirm Payment"));
@@ -87,7 +90,7 @@ if (isset($_POST["mode"])) {
             $updatedValues['patient_id'] = trimPost('hidden_type_code');
         }
 
-        $user_id = $_SESSION['authUserID'];
+        $user_id = $session->get('authUserID');
         $closed = 0;
         $modified_time = date('Y-m-d H:i:s');
         $check_date = DateToYYYYMMDD(trimPost('check_date'));
@@ -132,7 +135,7 @@ if (isset($_POST["mode"])) {
         $CountIndexAbove = $_REQUEST['CountIndexAbove'];
         $CountIndexBelow = $_REQUEST['CountIndexBelow'];
         $hidden_patient_code = $_REQUEST['hidden_patient_code'];
-        $user_id = $_SESSION['authUserID'];
+        $user_id = $session->get('authUserID');
         $created_time = date('Y-m-d H:i:s');
         //==================================================================
         //UPDATION

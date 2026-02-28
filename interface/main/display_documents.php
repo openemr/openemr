@@ -20,11 +20,14 @@ require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('patients', 'lab')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/lab: Lab Documents", xl("Lab Documents"));
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $curdate = date_create(date("Y-m-d"));
 date_sub($curdate, date_interval_create_from_date_string("7 days"));
@@ -168,7 +171,7 @@ $display_div = "style='display:block;'";
 
     <div class='col-12' id='docdiv' <?php echo $display_div; ?>>
         <?php
-        $current_user = $_SESSION['authUserID'];
+        $current_user = $session->get('authUserID');
         $date_filter = '';
             $query_array = [];
         if ($form_from_doc_date) {

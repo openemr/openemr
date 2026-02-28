@@ -199,7 +199,7 @@ class PatientController extends AppBasePortalController
     public function Create()
     {
         try {
-            $session = SessionWrapperFactory::getInstance()->getWrapper();
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             $json = json_decode(RequestUtil::GetBody());
             if (empty($json)) {
                 throw new Exception('The request body does not contain valid JSON');
@@ -329,7 +329,8 @@ class PatientController extends AppBasePortalController
             $patient = $this->Phreezer->Get('Patient', $pk);
 
             // Ensure user can only update their own profile
-            $sessionPid = $_SESSION['pid'] ?? null;
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $sessionPid = $session->get('pid');
             if (!$sessionPid || $patient->Pid != $sessionPid) {
                 throw new Exception('Unauthorized: You can only update your own profile');
             }
@@ -399,7 +400,7 @@ class PatientController extends AppBasePortalController
     }
     public function CloseAudit($p)
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $appsql = new ApplicationTable();
         $ja = $p->GetArray();
         try {

@@ -43,7 +43,7 @@ $globalsBag = OEGlobalsBag::getInstance();
 SessionUtil::setAppCookie(SessionUtil::PORTAL_SESSION_ID);
 // Ensure that the cookie is there when we select session wrapper on first page load of login page
 $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getPortalSession();
 
 //don't require standard openemr authorization in globals.php
 $ignoreAuth_onsite_portal = true;
@@ -105,13 +105,13 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
         $token = $_GET['service_auth'];
         $ot = $oneTime->decodePortalOneTime($token, null, false);
         $pin_required = $ot['actions']['enforce_auth_pin'] ? 1 : 0;
-        CsrfUtils::setupCsrfKey($session->getSymfonySession());
+        CsrfUtils::setupCsrfKey($session);
         $twig = new TwigContainer(null, $globalsBag->get('kernel'));
         echo $twig->getTwig()->render('portal/login/autologin.html.twig', [
             'action' => $globalsBag->getString('web_root') . '/portal/index.php',
-            'service_auth' => $_GET['service_auth'],
-            'target' => $_GET['target'] ?? null,
-            'csrf_token' => CsrfUtils::collectCsrfToken('autologin', $session->getSymfonySession()),
+            'service_auth' => text($_GET['service_auth']),
+            'target' => text($_GET['target'] ?? null),
+            'csrf_token' => CsrfUtils::collectCsrfToken('autologin', $session),
             'pagetitle' => xl("OpenEMR Patient Portal"),
             'images_static_relative' => $globalsBag->get('images_static_relative') ?? '',
             'pin_required' => $pin_required,
@@ -122,7 +122,7 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
         $redirect_token = $_POST['target'] ?? null;
         $csrfToken = $_POST['csrf_token'] ?? null;
         try {
-            if (!CsrfUtils::verifyCsrfToken($csrfToken, 'autologin', $session->getSymfonySession())) {
+            if (!CsrfUtils::verifyCsrfToken($csrfToken, 'autologin', $session)) {
                 throw new OneTimeAuthException('Invalid CSRF token');
             }
             $auth = $oneTime->processOnetime($token, $redirect_token);
@@ -446,7 +446,7 @@ if (!($session->has('password_update') || (!empty($globalsBag->get('portal_two_p
             }
         </script>
         <?php // add csrf mechanism for the password reset ui
-        CsrfUtils::setupCsrfKey($session->getSymfonySession());
+        CsrfUtils::setupCsrfKey($session);
         ?>
     <?php } ?>
     <style>
@@ -543,7 +543,7 @@ if (!($session->has('password_update') || (!empty($globalsBag->get('portal_two_p
             </form>
         <?php } elseif (!empty($globalsBag->get('portal_two_pass_reset')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key')) && isset($_GET['requestNew'])) { ?>
             <form id="resetPass" action="#" method="post">
-                <input type='hidden' id='csrf_token_form' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('passwordResetCsrf', $session->getSymfonySession())); ?>' />
+                <input type='hidden' id='csrf_token_form' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('passwordResetCsrf', $session)); ?>' />
                 <?php if (isset($redirectUrl)) { ?>
                     <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
                 <?php } ?>
@@ -643,19 +643,21 @@ if (!($session->has('password_update') || (!empty($globalsBag->get('portal_two_p
                         echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
                             text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";
                         foreach ($result3 as $iter) {
+                            /** @var string $transLangDesc */
+                            $transLangDesc = $iter['trans_lang_description'];
                             if ($globalsBag->get('language_menu_showall')) {
                                 if (!$globalsBag->get('allow_debug_language') && $iter['lang_description'] == 'dummy') {
                                     continue; // skip the dummy language
                                 }
                                 echo "<option value='" . attr($iter['lang_id']) . "'>" .
-                                    text($iter['trans_lang_description']) . "</option>\n";
+                                    text($transLangDesc) . "</option>\n";
                             } else {
                                 if (in_array($iter['lang_description'], $globalsBag->get('language_menu_show'))) {
                                     if (!$globalsBag->get('allow_debug_language') && $iter['lang_description'] == 'dummy') {
                                         continue; // skip the dummy language
                                     }
                                     echo "<option value='" . attr($iter['lang_id']) . "'>" .
-                                        text($iter['trans_lang_description']) . "</option>\n";
+                                        text($transLangDesc) . "</option>\n";
                                 }
                             }
                         }

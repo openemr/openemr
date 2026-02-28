@@ -17,8 +17,11 @@ require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -55,9 +58,9 @@ if ($_GET["mode"] == "new") {
             ankle_plan = ?,
             ankle_additional_diagnisis = ? where id = ?",
         [
-            $_SESSION["pid"],
-            $_SESSION["authProvider"],
-            $_SESSION["authUser"],
+            $session->get('pid'),
+            $session->get('authProvider'),
+            $session->get('authUser'),
             $userauthorized,
             $_POST["ankle_date_of_injuary"],
             $_POST["ankle_work_related"],

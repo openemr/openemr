@@ -14,7 +14,9 @@
 
 namespace OpenEMR\Tests\Unit\Portal;
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * Test class for Portal Patient Controller authorization
@@ -28,13 +30,17 @@ class PatientControllerSecurityTest extends TestCase
     private $testPatientId1 = 1;
     private $testPatientId2 = 2;
 
+    private SessionInterface $session;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         // Save original session state
-        if (isset($_SESSION['pid'])) {
-            $this->originalSessionPid = $_SESSION['pid'];
+        $this->session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $pid = $this->session->get('pid');
+        if ($pid !== null) {
+            $this->originalSessionPid = $pid;
         }
     }
 
@@ -42,9 +48,9 @@ class PatientControllerSecurityTest extends TestCase
     {
         // Restore original session state
         if ($this->originalSessionPid !== null) {
-            $_SESSION['pid'] = $this->originalSessionPid;
+            $this->session->set('pid', $this->originalSessionPid);
         } else {
-            unset($_SESSION['pid']);
+            $this->session->remove('pid');
         }
 
         parent::tearDown();
@@ -69,8 +75,8 @@ class PatientControllerSecurityTest extends TestCase
         }
 
         // Set up session for patient ID 1
-        $_SESSION['pid'] = $this->testPatientId1;
-        $_SESSION['patient_portal_onsite_two'] = true;
+        $this->session->set('pid', $this->testPatientId1);
+        $this->session->set('patient_portal_onsite_two', true);
 
         // Create a mock JSON request attempting to update patient ID 2's profile
         $unauthorizedJson = json_encode([
@@ -100,8 +106,8 @@ class PatientControllerSecurityTest extends TestCase
     public function testPidAndPubpidCannotBeModifiedByUser(): void
     {
         // Set up session for legitimate patient
-        $_SESSION['pid'] = $this->testPatientId1;
-        $_SESSION['patient_portal_onsite_two'] = true;
+        $this->session->set('pid', $this->testPatientId1);
+        $this->session->set('patient_portal_onsite_two', true);
 
         // Attempt to modify own pid (which should also be rejected)
         $jsonWithModifiedPid = json_encode([
@@ -126,20 +132,20 @@ class PatientControllerSecurityTest extends TestCase
     public function testAuthorizationCheckValidatesSessionPid(): void
     {
         // Test case 1: No session PID (user not logged in)
-        unset($_SESSION['pid']);
+        $this->session->remove('pid');
 
         // Should reject: No authenticated user
         $this->assertAuthorizationFails('No session PID should fail authorization');
 
         // Test case 2: Session PID doesn't match patient record
-        $_SESSION['pid'] = $this->testPatientId1;
+        $this->session->set('pid', $this->testPatientId1);
 
         // Attempting to update patient 2's record while logged in as patient 1
         // Should reject: PID mismatch
         $this->assertAuthorizationFails('PID mismatch should fail authorization');
 
         // Test case 3: Session PID matches patient record
-        $_SESSION['pid'] = $this->testPatientId1;
+        $this->session->set('pid', $this->testPatientId1);
 
         // Updating own record while logged in as patient 1
         // Should succeed: PID matches
@@ -154,8 +160,8 @@ class PatientControllerSecurityTest extends TestCase
     public function testIDORAttackPrevention(): void
     {
         // Setup: User is logged in as patient 1
-        $_SESSION['pid'] = $this->testPatientId1;
-        $_SESSION['patient_portal_onsite_two'] = true;
+        $this->session->set('pid', $this->testPatientId1);
+        $this->session->set('patient_portal_onsite_two', true);
 
         // Test scenario:
         // 1. User intercepts their own profile update request
@@ -216,9 +222,9 @@ class PatientControllerSecurityTest extends TestCase
     public function testCompleteAttackScenarioFromAdvisory(): void
     {
         // Step 1: User A logs in
-        $_SESSION['pid'] = 5;
-        $_SESSION['patient_portal_onsite_two'] = true;
-        $_SESSION['portal_username'] = 'user.a';
+        $this->session->set('pid', 5);
+        $this->session->set('patient_portal_onsite_two', true);
+        $this->session->set('portal_username', 'user.a');
 
         // Step 2: User A navigates to profile edit page
         // Step 3: User A modifies the request to target User B

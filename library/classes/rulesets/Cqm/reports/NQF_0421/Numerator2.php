@@ -63,7 +63,7 @@ class NQF_0421_Numerator2 implements CqmFilterIF
                 $return = true;
                 break;
             }
-        } while (false);
+        } while (false); // @phpstan-ignore doWhile.alwaysFalse (intentional breakable-block pattern)
 
         return $return;
     }

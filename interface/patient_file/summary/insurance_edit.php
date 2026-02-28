@@ -30,7 +30,7 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // make sure permissions are checked before we allow this page to be accessed.
 if (!AclMain::aclCheckCore('patients', 'demo', '', 'write')) {

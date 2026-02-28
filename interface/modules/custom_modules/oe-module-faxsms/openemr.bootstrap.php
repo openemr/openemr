@@ -24,6 +24,7 @@
 
 
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Events\Messaging\SendSmsEvent;
 use OpenEMR\Events\PatientDocuments\PatientDocumentEvent;
 use OpenEMR\Events\PatientReport\PatientReportEvent;
@@ -82,6 +83,8 @@ $allowSMS = $GLOBALS['oefax_enable_sms'];
 $allowEmail = $GLOBALS['oe_enable_email'];
 $allowVoice = $GLOBALS['oe_enable_voice'];
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 function getTwigNamespaces(): array
 {
     return [
@@ -92,6 +95,8 @@ function getTwigNamespaces(): array
 // Add menu items
 function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
 {
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
     $allowFax = ($GLOBALS['oefax_enable_fax'] ?? null);
     $allowSMS = ($GLOBALS['oefax_enable_sms'] ?? null);
     $allowEmail = ($GLOBALS['oe_enable_email'] ?? null);
@@ -146,7 +151,7 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
     $menuItem3->target = 'fax';
     $menuItem3->menu_id = 'mod1';
     $menuItem3->label = xlt("Test Email Reminders");
-    $menuItem3->url = "/interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php?dryrun=1&alert=0&type=email&site=" . $_SESSION['site_id'];
+    $menuItem3->url = "/interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php?dryrun=1&alert=0&type=email&site=" . $session->get('site_id');
     $menuItem3->children = [];
     $menuItem3->acl_req = ["patients", "demo"];
     $menuItem3->global_req = ["oe_enable_email"];
@@ -156,7 +161,7 @@ function oe_module_faxsms_add_menu_item(MenuEvent $event): MenuEvent
     $menuItem4->target = 'fax';
     $menuItem4->menu_id = 'mod1';
     $menuItem4->label = xlt("Send Email Reminders");
-    $menuItem4->url = "/interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php?alert=1&type=email&site=" . $_SESSION['site_id'];
+    $menuItem4->url = "/interface/modules/custom_modules/oe-module-faxsms/library/rc_sms_notification.php?alert=1&type=email&site=" . $session->get('site_id');
     $menuItem4->children = [];
     $menuItem4->acl_req = ["patients", "demo"];
     $menuItem4->global_req = ["oe_enable_email"];
@@ -331,6 +336,6 @@ if ($allowSMSButtons) {
     $eventDispatcher->addListener(SendSmsEvent::JAVASCRIPT_READY_SMS_POST, 'oe_module_faxsms_sms_render_javascript_post_load');
 }
 
-if (!(empty($_SESSION['authUserID'] ?? null) && ($_SESSION['pid'] ?? null)) && ($allowSMS || $allowEmail || $allowVoice)) {
+if (!(empty($session->get('authUserID')) && $session->get('pid')) && ($allowSMS || $allowEmail || $allowVoice)) {
     (new NotificationEventListener($eventDispatcher, OEGlobalsBag::getInstance()->getKernel()))->subscribeToEvents();
 }

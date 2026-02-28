@@ -37,6 +37,7 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
  * Return listing of report results.
@@ -471,6 +472,7 @@ function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $a
     $dataSheet = (json_decode((string) $data, true)) ?? [];
     $formatted = [];
     $main_pass_filter = 0;
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     foreach ($dataSheet as $row) {
         $row['type'] = $type_report;
         $row['total_patients'] ??= 0;
@@ -516,7 +518,7 @@ function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $a
         }
 
         if (isset($row['itemized_test_id'])) {
-            $csrf_token = CsrfUtils::collectCsrfToken();
+            $csrf_token = CsrfUtils::collectCsrfToken(session: $session);
 
             $base_link = sprintf(
                 "../main/finder/patient_select.php?from_page=cdr_report&report_id=%d"

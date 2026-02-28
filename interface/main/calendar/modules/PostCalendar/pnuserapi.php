@@ -12,6 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\UserService;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Appointments\CalendarFilterEvent;
@@ -118,7 +119,8 @@ function postcalendar_userapi_buildView($args)
     //  grab the for post variable
     //=================================================================
     // $pc_username = pnVarCleanFromInput('pc_username');
-    $pc_username = $_SESSION['pc_username'] ?? ''; // from Michael Brinson 2006-09-19
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $pc_username = $session->get('pc_username') ?? ''; // from Michael Brinson 2006-09-19
     $category = pnVarCleanFromInput('pc_category');
     $topic    = pnVarCleanFromInput('pc_topic');
 
@@ -320,10 +322,11 @@ function postcalendar_userapi_buildView($args)
                 //==================================
                 //FACILITY FILTERING (CHEMED)
         $userService = new UserService();
-        if ($_SESSION['pc_facility']) {
-            $provinfo = $userService->getUsersForCalendar($_SESSION['pc_facility']);
+        $pc_facility = $session->get('pc_facility');
+        if ($pc_facility) {
+            $provinfo = $userService->getUsersForCalendar($pc_facility);
             if (!$provinfo) {
-                $provinfo = $userService->getUserForCalendar($_SESSION['authUserID']);
+                $provinfo = $userService->getUserForCalendar($session->get('authUserID'));
             }
         } else {
             $provinfo = $userService->getUsersForCalendar();
@@ -838,7 +841,8 @@ function &postcalendar_userapi_pcQueryEvents($args)
   // echo "<!-- args = "; print_r($args); echo " -->\n"; // debugging
 
   // $pc_username = pnVarCleanFromInput('pc_username');
-    $pc_username = $_SESSION['pc_username'] ?? ''; // from Michael Brinson 2006-09-19
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $pc_username = $session->get('pc_username') ?? ''; // from Michael Brinson 2006-09-19
     if (empty($pc_username) || is_array($pc_username)) {
         $pc_username = "__PC_ALL__";
     }
@@ -909,8 +913,9 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
   //==================================
   //FACILITY FILTERING (lemonsoftware)(CHEMED)
-    if ($_SESSION['pc_facility']) {
-            $pc_facility = $_SESSION['pc_facility'];
+    $sessionPcFacility = $session->get('pc_facility');
+    if ($sessionPcFacility) {
+            $pc_facility = $sessionPcFacility;
             $sql .= " AND a.pc_facility = '" . pnVarPrepForStore($pc_facility) . "' "; /*
                       AND u.facility_id = $pc_facility
                       AND u2.facility_id = $pc_facility "; */
@@ -958,7 +963,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
         }
     } else {
         // get all events for logged in user plus global events
-        $sql .= "AND (a.pc_aid IN (0," . pnVarPrepForStore($_SESSION['authUserID']) . ") OR a.pc_sharing = '" . pnVarPrepForStore(SHARING_GLOBAL) . "') ";
+        $sql .= "AND (a.pc_aid IN (0," . pnVarPrepForStore($session->get('authUserID')) . ") OR a.pc_sharing = '" . pnVarPrepForStore(SHARING_GLOBAL) . "') ";
     }
 
   //======================================================================

@@ -25,6 +25,8 @@
  * @link       https://www.open-emr.org
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 require_once(__DIR__ . '/../globals.php');
 require_once($GLOBALS['fileroot'] . '/interface/eRxGlobals.php');
 require_once($GLOBALS['fileroot'] . '/interface/eRxStore.php');
@@ -36,11 +38,12 @@ require_once($GLOBALS['fileroot'] . '/interface/eRx_xml.php');
 
 set_time_limit(0);
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $eRxSOAP = new eRxSOAP();
 $GLOBALS_REF = $GLOBALS;
 $eRxSOAP->setGlobals(new eRxGlobals($GLOBALS_REF))
     ->setStore(new eRxStore())
-    ->setAuthUserId($_SESSION['authUserID']);
+    ->setAuthUserId($session->get('authUserID'));
 
 if (array_key_exists('patient', $_REQUEST)) {
     $eRxSOAP->setPatientId($_REQUEST['patient']);

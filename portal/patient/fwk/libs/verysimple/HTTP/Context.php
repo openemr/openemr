@@ -43,7 +43,7 @@ class Context
      */
     public function Get($var, $default = null)
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         return $session->has($this->GUID . "_" . $var) ? unserialize($session->get($this->GUID . "_" . $var)) : null;
     }
 
@@ -59,7 +59,7 @@ class Context
      */
     public function Set($var, $val)
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $session->set($this->GUID . "_" . $var, serialize($val));
     }
 }

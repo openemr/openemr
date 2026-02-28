@@ -12,11 +12,13 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\PatientService;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $message = '';
 if (isset($_REQUEST['message_code'])) {
     $message_code = $_REQUEST['message_code'] ?? null;
@@ -30,11 +32,12 @@ if (isset($_REQUEST['message_code'])) {
 // check if we have a selected patient already
 $pid = "";
 $patientName = "";
-if (!empty($_SESSION['pid'])) {
+$sessionPid = $session->get('pid');
+if (!empty($sessionPid)) {
     $patientService = new PatientService();
-    $patientArray = $patientService->findByPid($_SESSION['pid']);
+    $patientArray = $patientService->findByPid($sessionPid);
     if (!empty($patientArray)) {
-        $pid = $_SESSION['pid'];
+        $pid = $sessionPid;
         // if things are empty this ends up being blank.
         $patientName = trim(($patientArray['fname'] ?? '') . ' ' . ($patientArray['lname'] ?? ''));
     }
@@ -207,7 +210,7 @@ $verifyMessageReceivedChecked = $GLOBALS['phimail_verifyrecipientreceived_enable
                             <div class="col-12 oe-custom-line">
                                 <div class="row">
                                     <div class="col-12">
-                                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                                         <input id='message-submit' type="submit" class="btn-transmit btn btn-primary" name="submit" value="<?php echo xla("Send"); ?>" />
                                         <i id='message-spinner' class="fa fa-spinner d-none"></i>
                                     </div>

@@ -17,7 +17,10 @@ require_once(__DIR__ . '/../globals.php');
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 //
 if (!AclMain::aclCheckCore('acct', 'eob')) {
@@ -31,7 +34,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
 <head>
     <title><?php echo xlt("EDI History"); ?></title>
     <?php Header::setupHeader(['datetime-picker', 'datatables', 'datatables-dt', 'datatables-bs', 'datatables-scroller']); ?>
-    <?php if ($_SESSION['language_direction'] == "rtl") { ?>
+    <?php if ($session->get('language_direction') === 'rtl') { ?>
       <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rtl_edi_history_v2.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
     <?php } else { ?>
       <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/edi_history_v2.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
@@ -83,7 +86,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                         <div class="row">
                             <div class="col-sm-12 col-md-6">
                                 <form id="formupl" name="form_upl" action="edih_main.php" method="POST" enctype="multipart/form-data">
-                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                                     <h4><?php echo xlt("Select one or more files to upload"); ?></h4>
                                     <div class="custom-file">
                                         <label class="custom-file-label"><?php echo xlt("Choose file"); ?></label>
@@ -100,7 +103,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                             </div>
                             <div class="col-sm-12 col-md-6">
                                 <form id="processnew" name="process_new" action="edih_main.php" method="GET">
-                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                                     <h4><?php echo xlt("Process new files for CSV records"); ?>:</h4>
                                     <input type="checkbox" id="processhtml" name="process_html" form="processnew"  value="htm" checked /> <?php echo xlt("HTML Output?"); ?>
                                     <input type="checkbox" id="processerr" name="process_err" form="processnew"  value="err" checked /> <?php echo xlt("Show Errors Only?"); ?> &nbsp;&nbsp;<br />
@@ -131,7 +134,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                         <div class="row">
                             <div class="col-sm-12 col-md-8">
                                 <form id="formcsvtables" name="form_csvtables" action="edih_main.php" method="GET">
-                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                                     <h4><?php echo xlt("View CSV tables"); ?>:</h4>
                                     <table>
                                         <tr>
@@ -176,7 +179,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                             </div>
                             <div class="col-sm-12 col-md-4">
                                 <form id="formcsvhist" name="hist_csv" action="edih_main.php" method="get">
-                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                                     <h4><?php echo xlt("Per Encounter"); ?></h4>
                                     <table>
                                         <tr>
@@ -215,7 +218,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                         <div class="row">
                             <div class="col-12">
                                 <form id="x12view" name="x12_view" action="edih_main.php" enctype="multipart/form-data" method="post">
-                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                                     <h4><?php echo xlt("View EDI x12 file"); ?>:</h4>
                                     <table>
                                         <tr>
@@ -262,7 +265,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                             </div>
                             <div class="col-sm-12 col-md-6">
                                 <form id="formlog" name="form_log" action="edih_main.php" enctype="multipart/form-data" method="post">
-                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                                     <h4><?php echo xlt("Inspect the log"); ?></h4>
                                     <label for="logfile"><?php echo xlt("View Log"); ?></label>
                                     <select class="custom-select" id="logselect" name="log_select"></select>
@@ -282,7 +285,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                             </div>
                             <div class="col-sm-12 col-md-6">
                                 <form id="formnotes" name="form_notes" action="edih_main.php" enctype="multipart/form-data" method="post">
-                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                                     <h4><?php echo xlt("Notes"); ?></h4>
                                     <label for="notesget"><?php echo xlt("Notes"); ?></label>
                                     <div class="btn-group ml-2">
@@ -315,7 +318,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                             </div>
                             <div class="col-sm-12 col-md-6">
                                 <form id="formarchive" name="form_archive" action="edih_main.php" enctype="multipart/form-data" method="POST">
-                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                                     <h4><?php echo xlt("Archive old files"); ?></h4>
                                     <label for="archive_sel"><?php echo xlt("Older than"); ?>:</label>
                                     <select class="custom-select" id="archiveselect" name="archive_sel">
@@ -336,7 +339,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                             </div>
                             <div class="col-sm-12 col-md-6">
                                 <form id="formarchrestore" name="form_archrestore" action="edih_main.php" enctype="multipart/form-data" method="POST">
-                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                                     <h4><?php echo xlt("Restore Archive"); ?></h4>
                                     <label for="archrestore_sel"><?php echo xlt("Restore"); ?>:</label>
                                     <select class="custom-select" id="archrestoresel" name="archrestore_sel"> </select>
@@ -400,7 +403,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
             url: 'edih_main.php',
             data: {
                 srvinfo: 'yes',
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
             },
             dataType: 'json',
             success: function(rsp){ phpserver = rsp }
@@ -416,7 +419,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
             url: 'edih_main.php',
             data: {
                 csvtbllist: 'yes',
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
             },
             dataType: 'json',
             success: function(data) {
@@ -443,7 +446,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
             url: 'edih_main.php',
             data: {
                 loglist: 'yes',
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
             },
             dataType: 'json',
             success: function(data) {
@@ -467,7 +470,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
             url: 'edih_main.php',
             data: {
                 archlist: 'yes',
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
             },
             dataType: 'json',
             success: function(data) {
@@ -809,7 +812,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
             url: $('#formlog').attr('action'),
             data: {
                 archivelog: 'yes',
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
             },
             dataType: "json",
             success: function(data) {
@@ -872,7 +875,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
             url: $('#formnotes').attr('action'),
             data: {
                 getnotes: "yes",
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
             },
             dataType: "text",
             success: function(data){
@@ -891,7 +894,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
         e.preventDefault();
         var notetxt = $('#txtnotes').val();
         var noteURL = $('#formnotes').attr('action');
-        $.post(noteURL, { putnotes: 'yes', tnotes: notetxt, csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?> },
+        $.post(noteURL, { putnotes: 'yes', tnotes: notetxt, csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?> },
             function(data){ $('#notesrsp').append(data); });
     });
 
@@ -950,7 +953,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
             type: 'GET',
             //cache: false,
             dataType: 'html',
-            data: { archivereport: 'yes', period: sprd, csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?> },
+            data: { archivereport: 'yes', period: sprd, csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?> },
 
             success: function(data) {
                 //rspElem.html(data);

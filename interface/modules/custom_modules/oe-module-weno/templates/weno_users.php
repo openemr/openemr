@@ -15,16 +15,17 @@ require_once(dirname(__DIR__, 4) . "/globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
-
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!AclMain::aclCheckCore('admin', 'super')) {
     // a recheck as was checked in setup script that calls this script in an iframe.
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Weno Users", xl("Weno Users"));
 }
 if ($_POST) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -36,7 +37,7 @@ while ($row = sqlFetchArray($fetch)) {
     $usersData[] = $row;
 }
 
-$defaultUserFacility = sqlQuery("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 AND `username` > '' and id = ?", [$_SESSION['authUserID'] ?? 0]);
+$defaultUserFacility = sqlQuery("SELECT id,username,lname,fname,weno_prov_id,facility,facility_id FROM `users` WHERE active = 1 AND `username` > '' and id = ?", [$session->get('authUserID') ?? 0]);
 $list = sqlStatement("SELECT id, name, street, city, weno_id FROM facility WHERE inactive != 1 AND weno_id IS NOT NULL ORDER BY name");
 $facilities = [];
 while ($row = sqlFetchArray($list)) {
@@ -89,7 +90,7 @@ if (($_POST['save'] ?? false) == 'true') {
     <div class="container-fluid">
         <h6 class="text-center"><small><cite><?php echo xlt("Auto Save On for Weno UID."); ?></cite></small></h6>
         <form method="POST">
-            <input type="hidden" id="csrf_token_form" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>">
+            <input type="hidden" id="csrf_token_form" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>">
             <table class="table table-sm table-hover table-striped table-borderless">
                 <thead>
                 <tr>

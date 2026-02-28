@@ -27,7 +27,7 @@ class EncounterSessionUtil
 
         $formsService = new FormService();
 
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
         $attendant_id = $attendant_type === 'pid' ? $pid : $session->get('therapy_group');
 
@@ -40,7 +40,7 @@ class EncounterSessionUtil
                 : 0;
         }
 
-        SessionUtil::setSession('encounter', $enc);
+        $session->set('encounter', $enc);
         $encounter = $enc;
 
         // returns 1 on successful global set, or 0 if there was no

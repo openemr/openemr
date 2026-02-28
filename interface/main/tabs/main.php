@@ -24,6 +24,7 @@ require_once $GLOBALS['srcdir'] . '/ESign/Api.php';
 use ESign\Api;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -36,12 +37,14 @@ use Symfony\Component\Filesystem\Path;
 
 const ENV_DISABLE_TELEMETRY = 'OPENEMR_DISABLE_TELEMETRY';
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 $logoService = new LogoService();
 $menuLogo = $logoService->getLogo('core/menu/primary/');
 // Registration status and options.
 $productRegistration = new ProductRegistrationService();
 $product_row = $productRegistration->getProductDialogStatus();
-$allowRegisterDialog = $product_row['allowRegisterDialog'] ?? 0;
+$allowRegisterDialog = $product_row['allowRegisterDialog'] ?? false;
 $allowTelemetry = $product_row['allowTelemetry'] ?? null; // for dialog
 $allowEmail = $product_row['allowEmail'] ?? null; // for dialog
 
@@ -58,7 +61,7 @@ if ($disableTelemetry) {
 }
 
 // If running unit tests, then disable the registration dialog
-if ($_SESSION['testing_mode'] ?? false) {
+if ($session->get('testing_mode', false)) {
     $allowRegisterDialog = false;
 }
 // If the user is not a super admin, then disable the registration dialog
@@ -68,10 +71,11 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
 // Ensure token_main matches so this script can not be run by itself
 //  If tokens do not match, then destroy the session and go back to log in screen
+$token_main_php = $session->get('token_main_php');
 if (
-    (empty($_SESSION['token_main_php'])) ||
-    (empty($_GET['token_main'])) ||
-    ($_GET['token_main'] != $_SESSION['token_main_php'])
+    $token_main_php === null ||
+    (!array_key_exists('token_main', $_GET) || $_GET['token_main'] === '') ||
+    $_GET['token_main'] !== $token_main_php
 ) {
 // Below functions are from auth.inc, which is included in globals.php
     authCloseSession();
@@ -80,7 +84,7 @@ if (
 // this will not allow copy/paste of the link to this main.php page or a refresh of this main.php page
 //  (default behavior, however, this behavior can be turned off in the prevent_browser_refresh global)
 if ($GLOBALS['prevent_browser_refresh'] > 1) {
-    unset($_SESSION['token_main_php']);
+    $session->remove('token_main_php');
 }
 
 $esignApi = new Api();
@@ -121,10 +125,10 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
         // only use var
         var isPortalEnabled = "<?php echo $GLOBALS['portal_onsite_two_enable'] ?>";
         // Set the csrf_token_js token that is used in the below js/tabs_view_model.js script
-        var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
+        var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>;
         var userDebug = <?php echo js_escape($GLOBALS['user_debug']); ?>;
         var webroot_url = <?php echo js_escape($web_root); ?>;
-        var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']); ?> ||
+        var jsLanguageDirection = <?php echo js_escape($session->get('language_direction')); ?> ||
         'ltr';
         var jsGlobals = {};
         // used in tabs_view_model.js.
@@ -156,7 +160,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
          */
         async function getSessionValue(key) {
             restoreSession();
-            let csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken('default')); ?>;
+            let csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session)); ?>;
             const config = {
                 url: `${webroot_url}/library/ajax/set_pt.php?csrf_token_form=${csrf_token_js}`,
                 method: 'POST',
@@ -313,7 +317,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
             })
         }
 
-        setupI18n(<?php echo js_escape($_SESSION['language_choice']); ?>).then(translationsJson => {
+        setupI18n(<?php echo js_escape($session->get('language_choice')); ?>).then(translationsJson => {
             i18next.init({
                 lng: 'selected',
                 debug: false,
@@ -357,7 +361,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
     // Below code block is to prepare certain elements for deciding what links to show on the menu
     // prepare Ensora eRx globals that are used in creating the menu
     if ($GLOBALS['erx_enable']) {
-        $newcrop_user_role_sql = sqlQuery("SELECT `newcrop_user_role` FROM `users` WHERE `username` = ?", [$_SESSION['authUser']]);
+        $newcrop_user_role_sql = sqlQuery("SELECT `newcrop_user_role` FROM `users` WHERE `username` = ?", [$session->get('authUser')]);
         $GLOBALS['newcrop_user_role'] = $newcrop_user_role_sql['newcrop_user_role'];
         if ($GLOBALS['newcrop_user_role'] === 'erxadmin') {
             $GLOBALS['newcrop_user_role_erxadmin'] = 1;
@@ -391,17 +395,19 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
     $menu_restrictions = $menuMain->getMenu();
     echo $twig->render("interface/main/tabs/menu_json.html.twig", ['menu_restrictions' => $menu_restrictions]);
     ?>
-    <?php $userQuery = sqlQuery("select * from users where username = ?", [$_SESSION['authUser']]); ?>
+    <?php $userQuery = sqlQuery("select * from users where username = ?", [$session->get('authUser')]); ?>
 
     <script>
         <?php
-        if ($_SESSION['default_open_tabs']) :
+        if ($session->get('default_open_tabs')) :
             // For now, only the first tab is visible, this could be improved upon by further customizing the list options in a future feature request
             $visible = "true";
-            foreach ($_SESSION['default_open_tabs'] as $i => $tab) :
+            $default_open_tabs = $session->get('default_open_tabs');
+            foreach ($default_open_tabs as $i => $tab) :
                 $_unsafe_url = preg_replace('/(\?.*)/m', '', Path::canonicalize($fileroot . DIRECTORY_SEPARATOR . $tab['notes']));
                 if (realpath($_unsafe_url) === false || !str_starts_with($_unsafe_url, (string) $fileroot)) {
-                    unset($_SESSION['default_open_tabs'][$i]);
+                    unset($default_open_tabs[$i]);
+                    $session->set('default_open_tabs', $default_open_tabs);
                     continue;
                 }
                 $url = json_encode($webroot . "/" . $tab['notes']);
@@ -414,10 +420,10 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
         endif;
         ?>
 
-        app_view_model.application_data.user(new user_data_view_model(<?php echo json_encode($_SESSION["authUser"])
+        app_view_model.application_data.user(new user_data_view_model(<?php echo json_encode($session->get("authUser"))
             . ',' . json_encode($userQuery['fname'])
             . ',' . json_encode($userQuery['lname'])
-            . ',' . json_encode($_SESSION['authProvider']); ?>));
+            . ',' . json_encode($session->get('authProvider')); ?>));
     </script>
     <style>
       html,
@@ -445,10 +451,11 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
     <iframe name="logoutinnerframe" id="logoutinnerframe" style="visibility:hidden; position:absolute; left:0; top:0; height:0; width:0; border:none;" src="about:blank"></iframe>
     <?php // mdsupport - app settings
     $disp_mainBox = '';
-    if (isset($_SESSION['app1'])) {
+    $app1 = $session->get('app1');
+    if (!empty($app1)) {
         $rs = sqlquery(
             "SELECT title app_url FROM list_options WHERE activity=1 AND list_id=? AND option_id=?",
-            ['apps', $_SESSION['app1']]
+            ['apps', $app1]
         );
         if ($rs['app_url'] != "main/main_screen.php") {
             echo '<iframe name="app1" src="../../' . attr($rs['app_url']) . '"
@@ -532,7 +539,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
     // fire off an event here
     $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_POST);
 
-    if (!empty($allowRegisterDialog)) { // disable if running unit tests.
+    if ($allowRegisterDialog !== false) { // disable if running unit tests.
         // Include the product registration js, telemetry and usage data reporting dialog
         echo $twig->render("product_registration/product_reg.js.twig", ['webroot' => $webroot]);
     }

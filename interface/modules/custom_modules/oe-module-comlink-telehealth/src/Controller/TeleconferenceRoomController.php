@@ -37,6 +37,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\EncounterSessionUtil;
 use OpenEMR\Common\Session\PatientSessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\EncounterService;
@@ -304,7 +305,8 @@ class TeleconferenceRoomController
         // verify the patient has the portal setup and a valid email
         try {
             $csrfToken = $queryVars['csrf_token'] ?? null;
-            if (empty($csrfToken) || !CsrfUtils::verifyCsrfToken($csrfToken, 'api')) {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            if (empty($csrfToken) || !CsrfUtils::verifyCsrfToken($csrfToken, 'api', $session)) {
                 throw new InvalidArgumentException("csrf_token was missing or invalid in request");
             }
 

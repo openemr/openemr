@@ -14,6 +14,7 @@ namespace OpenEMR\Tests\Services\FHIR\Observation;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\Services\EmployerService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationEmployerService;
@@ -21,6 +22,7 @@ use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * Integration test for FhirObservationPatientService
@@ -43,8 +45,7 @@ class FhirObservationEmployerServiceTest extends TestCase
     private array $testPatientData;
     private array $testUserData;
     private array $testEmployerData;
-
-    private array $backupSession;
+    private SessionInterface $session;
 
     protected function setUp(): void
     {
@@ -56,15 +57,15 @@ class FhirObservationEmployerServiceTest extends TestCase
         $this->ensureRequiredListOptions();
         $this->createTestPatientAndUser();
         $this->createTestEmployerData();
-        $this->backupSession = $_SESSION;
-        $_SESSION['authUserID'] = $this->testUserData['id'];
+        $this->session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->session->set('authUserID', $this->testUserData['id']);
     }
 
     protected function tearDown(): void
     {
         $this->cleanupEmployerData();
         $this->cleanupTestPatientAndUser();
-        $_SESSION = $this->backupSession;
+        $this->session->clear();
         parent::tearDown();
     }
 

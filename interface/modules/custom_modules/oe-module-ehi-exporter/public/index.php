@@ -4,6 +4,7 @@ namespace OpenEMR\Modules\EhiExporter;
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . "/../../../../globals.php");
@@ -29,7 +30,8 @@ $errorMessage = "";
 $twig = $bootstrap->getTwig();
 if (isset($_POST['submit'])) {
     try {
-        if (!CsrfUtils::verifyCsrfToken($_POST['_token'] ?? '')) {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        if (!CsrfUtils::verifyCsrfToken($_POST['_token'] ?? '', session: $session)) {
             throw new \InvalidArgumentException(xl("Invalid CSRF token"));
         }
         $memoryLimitUpdated = ini_set("memory_limit", "-1"); // set the memory limit to be unlimited so we can run the export.

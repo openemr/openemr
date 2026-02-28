@@ -8,6 +8,7 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpSessionFactory;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\FHIR\Config\ServerConfig;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -137,6 +138,7 @@ class SiteSetupListener implements EventSubscriberInterface
             $session = $sessionFactory->createSession();
             $request->setSession($session);
             $session->set('site_id', $siteId); // set the site id in the session
+            SessionWrapperFactory::getInstance()->setActiveSession($session); // set active session to be in use in standalone/shared files
         }
 
         // Set $sessionAllowWrite to true here for following reasons:
@@ -163,7 +165,6 @@ class SiteSetupListener implements EventSubscriberInterface
                 $webroot,
                 HttpSessionFactory::SESSION_TYPE_CORE
             );
-            $sessionFactory->setUseExistingSessionBridge(true);
             $session = $sessionFactory->createSession();
             $request->setSession($session);
         }

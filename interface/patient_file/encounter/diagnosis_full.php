@@ -17,13 +17,13 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $mode = $_GET['mode'];
 $id   = $_GET['id'];
 
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'default', $session->getSymfonySession())) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -89,13 +89,13 @@ if ($result = BillingUtilities::getBillingByEncounter($pid, $encounter, "*")) {
             $billing_html[$iter["code_type"]] .= "</span></td>";
             $billing_html[$iter["code_type"]] .= "<td>" .
                 "<a class=\"link_submit\" href='diagnosis_full.php?mode=clear&id=" .
-                attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())) . "' class='link' onclick='top.restoreSession()'>[" . xlt('Clear Justification') .
+                attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken(session: $session)) . "' class='link' onclick='top.restoreSession()'>[" . xlt('Clear Justification') .
                 "]</a></td>";
         }
 
         $billing_html[$iter["code_type"]] .= "<td>" .
             "<a class=\"link_submit\" href='diagnosis_full.php?mode=delete&id=" .
-            attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())) . "' class='link' onclick='top.restoreSession()'>[Delete]</a></td>";
+            attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken(session: $session)) . "' class='link' onclick='top.restoreSession()'>[Delete]</a></td>";
         $billing_html[$iter["code_type"]] .= "</tr>\n";
     }
 

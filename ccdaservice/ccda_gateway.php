@@ -14,7 +14,6 @@
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\CDADocumentService;
@@ -22,28 +21,31 @@ use OpenEMR\Services\CDADocumentService;
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once __DIR__ . "/../vendor/autoload.php";
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $sessionAllowWrite = true;
-if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $pid = $session->get('pid');
     $ignoreAuth = true;
     require_once __DIR__ . "/../interface/globals.php";
     define('IS_DASHBOARD', false);
     define('IS_PORTAL', $session->get('pid'));
 } else {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     $ignoreAuth = false;
+    $session = SessionWrapperFactory::getInstance()->getCoreSession();
+    $authUserID = $session->get('authUserID');
     require_once __DIR__ . "/../interface/globals.php";
-    if (empty($session->get('authUserID'))) {
+    if (empty($authUserID)) {
         header('Location: index.php');
         exit;
     }
-    define('IS_DASHBOARD', $session->get('authUserID'));
+
+    define('IS_DASHBOARD', $authUserID);
     define('IS_PORTAL', false);
 }
 
-if (!CsrfUtils::verifyCsrfToken(($_GET["csrf_token_form"] ?? ''), 'default' , $session->getSymfonySession())) {
+if (!CsrfUtils::verifyCsrfToken(($_GET["csrf_token_form"] ?? ''), 'default' , $session)) {
     CsrfUtils::csrfNotVerified();
 }
 

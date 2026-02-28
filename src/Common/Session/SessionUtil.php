@@ -70,7 +70,6 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
 use Symfony\Component\HttpFoundation\Cookie;
 use SessionHandlerInterface;
-use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 
 class SessionUtil
 {
@@ -81,6 +80,8 @@ class SessionUtil
 
     public const PORTAL_SESSION_ID = 'PortalOpenEMR';
 
+    public const SETUP_SESSION_ID = 'setupOpenEMR';
+
     public const APP_COOKIE_NAME = 'App';
 
     public const API_WEBROOT = '/apis/';
@@ -88,8 +89,6 @@ class SessionUtil
     public const OAUTH_WEBROOT = '/oauth2/';
 
     public const DEFAULT_GC_MAXLIFETIME = 14400; // 4 hours
-
-    private static array $SESSION_INSTANCES = [];
 
     private static ?SessionHandlerInterface $sessionHandler;
 
@@ -117,143 +116,71 @@ class SessionUtil
         return session_start($settings);
     }
 
-    public static function switchToCoreSession($web_root, $read_only = true): void
+    /**
+     * @param string|array<string, mixed> $session_key_or_array
+     */
+    public static function setSession(string|array $session_key_or_array, $session_value = null): void
     {
-        session_write_close();
-        session_id($_COOKIE[self::CORE_SESSION_ID] ?? '');
-        self::coreSessionStart($web_root, $read_only);
-        (new SystemLogger())->debug("SessionUtil: switched to core session");
-    }
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-    public static function coreSessionStart($web_root, $read_only = true): void
-    {
-        $settings = SessionConfigurationBuilder::forCore($web_root, $read_only);
-        self::sessionStartWrapper($settings);
-        (new SystemLogger())->debug("SessionUtil: started core session");
-    }
-
-    public static function setSession($session_key_or_array, $session_value = null): void
-    {
-        // Since our default is read_and_close the session shouldn't be active here.
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            // ensure the session file is written from a previous
-            // session open for write.
-            session_write_close();
-        }
-        self::coreSessionStart($GLOBALS['webroot'], false);
         if (is_array($session_key_or_array)) {
             foreach ($session_key_or_array as $key => $value) {
-                $_SESSION[$key] = $value;
-                foreach (self::$SESSION_INSTANCES as $symfonySessionInstance) {
-                    $symfonySessionInstance->set($key, $value);
-                }
+                $session->set($key, $value);
             }
         } else {
-            $_SESSION[$session_key_or_array] = $session_value;
-            foreach (self::$SESSION_INSTANCES as $symfonySessionInstance) {
-                $symfonySessionInstance->set($session_key_or_array, $session_value);
-            }
+            $session->set($session_key_or_array, $session_value);
+
         }
-        session_write_close();
-        foreach (self::$SESSION_INSTANCES as $symfonySessionInstance) {
-            $symfonySessionInstance->save();
-        }
+
         (new SystemLogger())->debug("SessionUtil: set session value", [
             'session_key_or_array' => $session_key_or_array,
             'session_value' => $session_value
         ]);
     }
 
-    public static function unsetSession($session_key_or_array): void
+    /**
+     * @param string|array<int, string> $session_key_or_array
+     */
+    public static function unsetSession(string|array $session_key_or_array): void
     {
-        // Since our default is read_and_close the session shouldn't be active here.
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            // ensure the session file is written from a previous
-            // session open for write.
-            session_write_close();
-        }
-        self::coreSessionStart($GLOBALS['webroot'], false);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
         if (is_array($session_key_or_array)) {
             foreach ($session_key_or_array as $value) {
-                unset($_SESSION[$value]);
-                foreach (self::$SESSION_INSTANCES as $symfonySessionInstance) {
-                    $symfonySessionInstance->remove($value);
-                }
+                $session->remove($value);
             }
         } else {
-            unset($_SESSION[$session_key_or_array]);
-            foreach (self::$SESSION_INSTANCES as $symfonySessionInstance) {
-                $symfonySessionInstance->remove($session_key_or_array);
-            }
+            $session->remove($session_key_or_array);
         }
-        session_write_close();
+
         (new SystemLogger())->debug("SessionUtil: unset session value", [
             'session_key_or_array' => $session_key_or_array
         ]);
     }
 
-    public static function setUnsetSession($setArray, $unsetArray): void
+    /**
+     * @param array<string, mixed> $setArray
+     * @param array<int, string> $unsetArray
+     */
+    public static function setUnsetSession(array $setArray = [], array $unsetArray = []): void
     {
-        // Since our default is read_and_close the session shouldn't be active here.
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            // ensure the session file is written from a previous
-            // session open for write.
-            session_write_close();
-        }
-        self::coreSessionStart($GLOBALS['webroot'], false);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         foreach ($setArray as $key => $value) {
-            $_SESSION[$key] = $value;
-            foreach (self::$SESSION_INSTANCES as $symfonySessionInstance) {
-                $symfonySessionInstance->set($key, $value);
-            }
+            $session->set($key, $value);
         }
+
         foreach ($unsetArray as $value) {
-            unset($_SESSION[$value]);
-            foreach (self::$SESSION_INSTANCES as $symfonySessionInstance) {
-                $symfonySessionInstance->remove($value);
-            }
+            $session->remove($value);
         }
-        session_write_close();
+
         (new SystemLogger())->debug("SessionUtil: set numerous session values", $setArray);
         (new SystemLogger())->debug("SessionUtil: unset numerous session values", $unsetArray);
     }
 
-    public static function coreSessionDestroy(): void
-    {
-        self::standardSessionCookieDestroy();
-        (new SystemLogger())->debug("SessionUtil: destroyed core session");
-    }
-
-    public static function portalSessionStart(): Session
-    {
-        if (array_key_exists(self::PORTAL_SESSION_ID, self::$SESSION_INSTANCES)) {
-            (new SystemLogger())->debug("SessionUtil: started portal session");
-            return self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID];
-        }
-
-        $settings = SessionConfigurationBuilder::forPortal();
-        $storage = self::getSessionStorage($settings);
-        $session = new Session($storage);
-        if (!$session->isStarted()) {
-            $session->start();
-        }
-
-        self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID] = $session;
-
-        (new SystemLogger())->debug("SessionUtil: started portal session");
-
-        return $session;
-    }
-
     public static function portalSessionCookieDestroy(): void
     {
-        if (array_key_exists(self::PORTAL_SESSION_ID, self::$SESSION_INSTANCES)) {
-            $session = self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID];
-            if ($session) {
-                $session->invalidate();
-                unset(self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID]);
-            }
-        }
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
+
         (new SystemLogger())->debug("SessionUtil: destroyed portal session");
     }
 
@@ -281,13 +208,17 @@ class SessionUtil
     public static function setupScriptSessionStart(): void
     {
         $settings = SessionConfigurationBuilder::forSetup();
-        self::sessionStartWrapper($settings);
+        $handler = self::getSessionHandler();
+        $storage = new NativeSessionStorage($settings, $handler);
+        $session = new Session($storage);
+        $session->start();
+        SessionWrapperFactory::getInstance()->setActiveSession($session);
         (new SystemLogger())->debug("SessionUtil: started setup script session");
     }
 
     public static function setupScriptSessionCookieDestroy(): void
     {
-        self::standardSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroySetupSession();
         (new SystemLogger())->debug("SessionUtil: destroyed setup script session");
     }
 
@@ -336,16 +267,6 @@ class SessionUtil
     public static function getAppCookie(): string
     {
         return $_COOKIE['App'] ?? '';
-    }
-
-    /**
-     * Get the session storage instance based on environment settings.
-     * @param array $sessionSettings
-     * @return SessionStorageInterface The session storage instance to use.
-     */
-    private static function getSessionStorage(array $sessionSettings): SessionStorageInterface {
-        // return the Symfony NativeSessionStorage with appropriate handler
-        return new NativeSessionStorage($sessionSettings, self::getSessionHandler());
     }
 
     /**

@@ -18,16 +18,18 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
 
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -40,18 +42,6 @@ if (!AclMain::aclCheckCore('admin', 'users')) {
 $ppid = $_REQUEST['ppid'];
 
 $info_msg = "";
-
-function proc_provider_invalue(string $name): string
-{
-    $fld = add_escape_custom(trim((string) $_POST[$name]));
-    return "'$fld'";
-}
-
-function onvalue($name)
-{
-    $fld = ($_POST[$name] == 'on') ? '1' : '0';
-    return "'$fld'";
-}
 
 ?>
 <!DOCTYPE html>
@@ -111,31 +101,29 @@ function onvalue($name)
             $org_res = sqlQuery($org_qry, [$ppid]);
             $org_name = $org_res['name'];
         }
-        $sets =
-            "name = '" . add_escape_custom($org_name) . "', " .
-            "lab_director = " . proc_provider_invalue('form_name') . ", " .
-            "npi = " . proc_provider_invalue('form_npi') . ", " .
-            "send_app_id = " . proc_provider_invalue('form_send_app_id') . ", " .
-            "send_fac_id = " . proc_provider_invalue('form_send_fac_id') . ", " .
-            "recv_app_id = " . proc_provider_invalue('form_recv_app_id') . ", " .
-            "recv_fac_id = " . proc_provider_invalue('form_recv_fac_id') . ", " .
-            "DorP = " . proc_provider_invalue('form_DorP') . ", " .
-            "direction = " . proc_provider_invalue('form_direction') . ", " .
-            "protocol = " . proc_provider_invalue('form_protocol') . ", " .
-            "remote_host = " . proc_provider_invalue('form_remote_host') . ", " .
-            "login = " . proc_provider_invalue('form_login') . ", " .
-            "password = " . proc_provider_invalue('form_password') . ", " .
-            "orders_path = " . proc_provider_invalue('form_orders_path') . ", " .
-            "results_path = " . proc_provider_invalue('form_results_path') . ", " .
-            "notes = " . proc_provider_invalue('form_notes') . ", " .
-            "active = " . onvalue('form_active');
+        $sets = "name = ?, lab_director = ?, npi = ?, send_app_id = ?, " .
+            "send_fac_id = ?, recv_app_id = ?, recv_fac_id = ?, DorP = ?, " .
+            "direction = ?, protocol = ?, remote_host = ?, login = ?, " .
+            "password = ?, orders_path = ?, results_path = ?, notes = ?, active = ?";
+        $params = [$org_name];
+        $postFields = [
+            'form_name', 'form_npi', 'form_send_app_id', 'form_send_fac_id',
+            'form_recv_app_id', 'form_recv_fac_id', 'form_DorP', 'form_direction',
+            'form_protocol', 'form_remote_host', 'form_login', 'form_password',
+            'form_orders_path', 'form_results_path', 'form_notes',
+        ];
+        foreach ($postFields as $field) {
+            $val = $_POST[$field] ?? '';
+            $params[] = is_string($val) ? trim($val) : '';
+        }
+        $params[] = (($_POST['form_active'] ?? '') == 'on') ? '1' : '0';
 
         if ($ppid) {
-            $query = "UPDATE procedure_providers SET $sets " .
-                "WHERE ppid = '" . add_escape_custom($ppid) . "'";
-            sqlStatement($query);
+            $params[] = $ppid;
+            $query = "UPDATE procedure_providers SET $sets WHERE ppid = ?";
+            sqlStatement($query, $params);
         } else {
-            $ppid = sqlInsert("INSERT INTO `procedure_providers` SET $sets");
+            $ppid = sqlInsert("INSERT INTO `procedure_providers` SET $sets", $params);
         }
     } elseif (!empty($_POST['form_delete'])) {
         if ($ppid) {
@@ -193,8 +181,8 @@ function onvalue($name)
     </div>
     <div class="row">
         <div class="col-sm-12">
-            <form method='post' name='theform' action="procedure_provider_edit.php?ppid=<?php echo attr_url($ppid); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <form method='post' name='theform' action="procedure_provider_edit.php?ppid=<?php echo attr_url($ppid); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken(session: $session)); ?>">
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                 <div class="form-check-inline">
                     <label class='form-check-label mr-2' for="form_active"><?php echo xlt('Active'); ?></label>
                     <input type='checkbox' class='form-check-input' name='form_active' id='form_active'

@@ -17,6 +17,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\HttpUtils;
 
 class ClientRepository implements ClientRepositoryInterface
@@ -51,7 +52,8 @@ class ClientRepository implements ClientRepositoryInterface
     // TODO: @adunsulag this function needs to be updated to remove usage of $_SESSION and other superglobals
     public function insertNewClient($clientId, $info, $site): bool
     {
-        $user = $_SESSION['authUserID'] ?? null; // future use for provider client.
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $user = $session->get('authUserID'); // future use for provider client.
         $is_confidential_client = empty($info['client_secret']) ? 0 : 1;
         $skip_ehr_launch_authorization_flow = ($info['skip_ehr_launch_authorization_flow'] ?? false) == true ? 1 : 0;
 

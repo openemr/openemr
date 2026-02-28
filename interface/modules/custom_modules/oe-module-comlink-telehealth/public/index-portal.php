@@ -30,7 +30,9 @@ require_once "../../../../../portal/verify_session.php";
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\Bootstrap;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $kernel = OEGlobalsBag::getInstance()->getKernel();
 $bootstrap = new Bootstrap($kernel->getEventDispatcher(), $kernel);
 $roomController = $bootstrap->getTeleconferenceRoomController(true);
@@ -39,6 +41,6 @@ if (!empty($_SERVER['HTTP_APICSRFTOKEN'])) {
 }
 $action = $_GET['action'] ?? '';
 $queryVars = $_GET ?? [];
-$queryVars['pid'] = $_SESSION['pid']; // we overwrite any pid value to make sure we only grab this patient.
+$queryVars['pid'] = $session->get('pid'); // we overwrite any pid value to make sure we only grab this patient.
 $roomController->dispatch($action, $queryVars);
 exit;

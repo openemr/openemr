@@ -14,6 +14,7 @@ require_once(__DIR__ . "/../../../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -23,7 +24,8 @@ if (!AclMain::aclCheckCore('admin', 'super') && !AclMain::aclCheckCore('admin', 
     exit;
 }
 
-$csrfToken = CsrfUtils::collectCsrfToken();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$csrfToken = CsrfUtils::collectCsrfToken(session: $session);
 $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/custom_modules/oe-module-dashboard-context';
 ?>
 <!DOCTYPE html>

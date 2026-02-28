@@ -27,6 +27,7 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpRestRouteHandler;
 use OpenEMR\Common\Http\HttpSessionFactory;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle;
@@ -35,7 +36,7 @@ use OpenEMR\RestControllers\FHIR\Finder\FhirRouteFinder;
 use OpenEMR\Services\FHIR\FhirEncounterService;
 use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 
-
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 ?>
 <html>
@@ -49,7 +50,7 @@ use Symfony\Component\HttpKernel\Controller\ControllerResolver;
                 url: '../../apis/default/fhir/Patient',
                 dataType: 'json',
                 headers: {
-                    'apicsrftoken': <?php echo js_escape(CsrfUtils::collectCsrfToken('api')); ?>
+                    'apicsrftoken': <?php echo js_escape(CsrfUtils::collectCsrfToken('api', $session)); ?>
                 },
                 success: function(thedata){
                     let thedataJSON = JSON.stringify(thedata);
@@ -65,7 +66,7 @@ use Symfony\Component\HttpKernel\Controller\ControllerResolver;
                 credentials: 'same-origin',
                 method: 'GET',
                 headers: new Headers({
-                    'apicsrftoken': <?php echo js_escape(CsrfUtils::collectCsrfToken('api')); ?>
+                    'apicsrftoken': <?php echo js_escape(CsrfUtils::collectCsrfToken('api', $session)); ?>
                 })
             })
             .then(response => response.json())
@@ -109,7 +110,6 @@ try {
     $restRequest = HttpRestRequest::create('/fhir/Organization', 'GET');
     $restRequest->setRequestUserRole("users");
     $sessionFactory = new HttpSessionFactory($restRequest, $globalsBag->get('webroot'), HttpSessionFactory::SESSION_TYPE_CORE);
-    $sessionFactory->setUseExistingSessionBridge(true);
     $restRequest->setSession($sessionFactory->createSession());
     $getParams = $restRequest->getQueryParams();
     $kernel = new OEHttpKernel($globalsBag->get('kernel')->getEventDispatcher(), new ControllerResolver());
