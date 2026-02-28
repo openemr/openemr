@@ -1838,7 +1838,7 @@ function make_insurance() {
 
         <?php
         if ($GLOBALS['payment_gateway'] == 'Sphere') {
-            echo (new SpherePayment('clinic', $pid))->renderSphereJs();
+            echo (new SpherePayment('clinic', (int) $pid))->renderSphereJs();
         }
         if ($globalsBag->get('payment_gateway') === 'Rainforest') {
             if ($globalsBag->getBoolean('gateway_mode_production')) {
