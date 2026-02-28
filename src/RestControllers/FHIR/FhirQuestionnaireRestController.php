@@ -13,6 +13,7 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenApi\Attributes as OA;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpRestRouteHandler;
 use Psr\Log\LoggerInterface;
@@ -54,6 +55,55 @@ class FhirQuestionnaireRestController
      * @param  HttpRestRequest $request
      * @return ResponseInterface
      */
+    #[OA\Get(
+        path: '/fhir/Questionnaire',
+        description: 'Returns a list of Questionnaire resources.',
+        tags: ['fhir'],
+        parameters: [
+            new OA\Parameter(
+                name: '_id',
+                in: 'query',
+                description: 'The id for the Questionnaire resource. ',
+                required: false,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: '200',
+                description: 'Standard Response',
+                content: new OA\MediaType(
+                    mediaType: 'application/json',
+                    schema: new OA\Schema(
+                        properties: [
+                            new OA\Property(
+                                property: 'json object',
+                                description: 'FHIR Json object.',
+                                type: 'object'
+                            ),
+                        ],
+                        example: [
+                            'meta' => [
+                                'lastUpdated' => '2021-09-14T09:13:51',
+                            ],
+                            'resourceType' => 'Bundle',
+                            'type' => 'collection',
+                            'total' => 0,
+                            'link' => [
+                                [
+                                    'relation' => 'self',
+                                    'url' => 'https://localhost:9300/apis/default/fhir/Questionnaire',
+                                ],
+                            ],
+                        ]
+                    )
+                )
+            ),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function list(HttpRestRequest $request): ResponseInterface
     {
         if ($request->isPatientRequest()) {

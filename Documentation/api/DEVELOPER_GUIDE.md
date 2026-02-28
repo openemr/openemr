@@ -587,6 +587,7 @@ class MyResourceService extends BaseService
 <?php
 namespace OpenEMR\RestControllers;
 
+use OpenApi\Attributes as OA;
 use OpenEMR\Services\MyResourceService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Validators\MyResourceValidator;
@@ -600,18 +601,67 @@ class MyResourceRestController
         $this->myResourceService = new MyResourceService();
     }
 
+    #[OA\Get(
+        path: "/api/myresource",
+        description: "Retrieves a list of my resources",
+        tags: ["standard"],
+        responses: [
+            new OA\Response(response: "200", ref: "#/components/responses/standard"),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
     public function getAll($search = array())
     {
         $serviceResult = $this->myResourceService->getAll($search);
         return RestControllerHelper::handleProcessingResult($serviceResult, 200);
     }
 
+    #[OA\Get(
+        path: "/api/myresource/{uuid}",
+        description: "Retrieves a single my resource by uuid",
+        tags: ["standard"],
+        parameters: [
+            new OA\Parameter(
+                name: "uuid",
+                in: "path",
+                description: "The uuid of the resource.",
+                required: true,
+                schema: new OA\Schema(type: "string")
+            ),
+        ],
+        responses: [
+            new OA\Response(response: "200", ref: "#/components/responses/standard"),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
     public function getOne($uuid)
     {
         $serviceResult = $this->myResourceService->getOne($uuid);
         return RestControllerHelper::handleProcessingResult($serviceResult, 200);
     }
 
+    #[OA\Post(
+        path: "/api/myresource",
+        description: "Creates a new my resource",
+        tags: ["standard"],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: "application/json",
+                schema: new OA\Schema(ref: "#/components/schemas/api_myresource_request")
+            )
+        ),
+        responses: [
+            new OA\Response(response: "201", ref: "#/components/responses/standard"),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
     public function post($data)
     {
         // Validate input
@@ -627,6 +677,33 @@ class MyResourceRestController
         return RestControllerHelper::handleProcessingResult($serviceResult, 201);
     }
 
+    #[OA\Put(
+        path: "/api/myresource/{uuid}",
+        description: "Updates a my resource",
+        tags: ["standard"],
+        parameters: [
+            new OA\Parameter(
+                name: "uuid",
+                in: "path",
+                description: "The uuid of the resource.",
+                required: true,
+                schema: new OA\Schema(type: "string")
+            ),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\MediaType(
+                mediaType: "application/json",
+                schema: new OA\Schema(ref: "#/components/schemas/api_myresource_request")
+            )
+        ),
+        responses: [
+            new OA\Response(response: "200", ref: "#/components/responses/standard"),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
     public function put($uuid, $data)
     {
         // Validate input
@@ -642,6 +719,21 @@ class MyResourceRestController
         return RestControllerHelper::handleProcessingResult($serviceResult, 200);
     }
 }
+```
+
+The OpenAPI attributes (`#[OA\Get]`, `#[OA\Post]`, etc.) document the API endpoints. These attributes are processed to generate the Swagger/OpenAPI documentation at `/swagger/`. Key elements:
+
+- **path**: The API endpoint path
+- **description**: Human-readable description shown in Swagger UI
+- **tags**: Groups endpoints in the documentation (use `"standard"` for standard API, `"fhir"` for FHIR)
+- **parameters**: Query or path parameters
+- **requestBody**: For POST/PUT, defines the expected request body schema
+- **responses**: Maps HTTP status codes to response schemas (use refs to reusable components)
+- **security**: Authentication requirements (usually `[["openemr_auth" => []]]`)
+
+To regenerate the Swagger documentation after changes:
+```bash
+php bin/console openemr:create-api-documentation --skip-globals
 ```
 
 **Step 3: Add Routes**
@@ -793,6 +885,7 @@ class FhirMyResourceService extends FhirServiceBase
 <?php
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenApi\Attributes as OA;
 use OpenEMR\Services\FHIR\FhirMyResourceService;
 use OpenEMR\RestControllers\RestControllerHelper;
 
@@ -805,12 +898,83 @@ class FhirMyResourceRestController
         $this->fhirService = new FhirMyResourceService();
     }
 
+    #[OA\Get(
+        path: "/fhir/MyResource",
+        description: "Returns a list of MyResource resources.",
+        tags: ["fhir"],
+        parameters: [
+            new OA\Parameter(
+                name: "_id",
+                in: "query",
+                description: "The uuid for the MyResource resource.",
+                required: false,
+                schema: new OA\Schema(type: "string")
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: "200",
+                description: "Standard Response",
+                content: new OA\MediaType(
+                    mediaType: "application/json",
+                    schema: new OA\Schema(
+                        properties: [
+                            new OA\Property(
+                                property: "json object",
+                                description: "FHIR Json object.",
+                                type: "object"
+                            ),
+                        ]
+                    )
+                )
+            ),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
     public function getAll($search)
     {
         $processingResult = $this->fhirService->getAll($search);
         return RestControllerHelper::handleFhirProcessingResult($processingResult, 200);
     }
 
+    #[OA\Get(
+        path: "/fhir/MyResource/{uuid}",
+        description: "Returns a single MyResource resource.",
+        tags: ["fhir"],
+        parameters: [
+            new OA\Parameter(
+                name: "uuid",
+                in: "path",
+                description: "The uuid for the MyResource resource.",
+                required: true,
+                schema: new OA\Schema(type: "string")
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: "200",
+                description: "Standard Response",
+                content: new OA\MediaType(
+                    mediaType: "application/json",
+                    schema: new OA\Schema(
+                        properties: [
+                            new OA\Property(
+                                property: "json object",
+                                description: "FHIR Json object.",
+                                type: "object"
+                            ),
+                        ]
+                    )
+                )
+            ),
+            new OA\Response(response: "400", ref: "#/components/responses/badrequest"),
+            new OA\Response(response: "401", ref: "#/components/responses/unauthorized"),
+            new OA\Response(response: "404", ref: "#/components/responses/uuidnotfound"),
+        ],
+        security: [["openemr_auth" => []]]
+    )]
     public function getOne($uuid)
     {
         $processingResult = $this->fhirService->getOne($uuid);
@@ -818,6 +982,11 @@ class FhirMyResourceRestController
     }
 }
 ```
+
+The FHIR controller uses the same OpenAPI attributes pattern. For FHIR resources:
+- Use `tags: ["fhir"]` to group under the FHIR section
+- Response schemas typically use the `"json object"` property pattern for FHIR JSON
+- Include `404` response for single-resource endpoints
 
 **Step 3: Add FHIR Routes**
 

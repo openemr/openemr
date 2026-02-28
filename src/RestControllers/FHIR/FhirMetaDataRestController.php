@@ -11,6 +11,7 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenApi\Attributes as OA;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCapabilityStatementKind;
@@ -133,8 +134,18 @@ class FhirMetaDataRestController
 
     /**
      * Returns Metadata in CapabilityStatement FHIR resource format
-     *
      */
+    #[OA\Get(
+        path: '/fhir/metadata',
+        description: 'Returns metadata (ie. CapabilityStatement resource) of the fhir server.',
+        tags: ['fhir'],
+        responses: [
+            new OA\Response(
+                response: '200',
+                description: 'Return CapabilityStatement resource of the fhir server'
+            ),
+        ]
+    )]
     public function getMetaData(): FHIRCapabilityStatement
     {
         return $this->buildCapabilityStatement();
