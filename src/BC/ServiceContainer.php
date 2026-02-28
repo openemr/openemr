@@ -117,7 +117,7 @@ class ServiceContainer
             return $override;
         }
 
-        $paths = [dirname(__DIR__) . '/Entity'];
+        $paths = ['src/Entity'];
         $isDevMode = getenv('OPENEMR__ENVIRONMENT') === 'dev';
 
         $config = ORMSetup::createAttributeMetadataConfiguration($paths, $isDevMode);
