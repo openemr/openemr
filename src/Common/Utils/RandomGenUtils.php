@@ -77,6 +77,6 @@ class RandomGenUtils
         // Something is seriously wrong since 1000 tries have not created a valid password
         $error_message = "OpenEMR Error: OpenEMR is not working because unable to create a valid password in $max_tries attempts.";
         error_log($error_message);
-        die($error_message);
+        throw new \RuntimeException($error_message);
     }
 }
