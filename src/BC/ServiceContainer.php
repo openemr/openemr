@@ -16,6 +16,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\ORM\{
     EntityManager,
     EntityManagerInterface,
+    Mapping\UnderscoreNamingStrategy,
     ORMSetup,
 };
 use InvalidArgumentException;
@@ -120,6 +121,8 @@ class ServiceContainer
         $isDevMode = getenv('OPENEMR__ENVIRONMENT') === 'dev';
 
         $config = ORMSetup::createAttributeMetadataConfiguration($paths, $isDevMode);
+        $config->setNamingStrategy(new UnderscoreNamingStrategy(case: CASE_LOWER));
+        // Customize TypedFieldMapper when we need it for custom types?
 
         $site = $_ENV['OPENEMR_SITE'] ?? 'default';
         $siteDir = sprintf('sites/%s', $site);
