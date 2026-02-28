@@ -31,3 +31,8 @@ ini_set('log_errors', '1');
 error_reporting(E_ALL);
 
 require_once 'vendor/autoload.php';
+
+// Load a dotenv file, if it exists
+if (file_exists('./.env')) {
+    Dotenv\Dotenv::createImmutable('.')->load();
+}
