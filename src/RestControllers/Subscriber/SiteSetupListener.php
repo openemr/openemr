@@ -165,7 +165,6 @@ class SiteSetupListener implements EventSubscriberInterface
                 $webroot,
                 HttpSessionFactory::SESSION_TYPE_CORE
             );
-            $sessionFactory->setUseExistingSessionBridge(true);
             $session = $sessionFactory->createSession();
             $request->setSession($session);
         }

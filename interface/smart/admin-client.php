@@ -32,7 +32,6 @@ try {
     // TODO: @adunsulag at some point we'd like to have a CoreApplication like the ApiApplication that will dispatch controllers, refactor this once we have that
     $request = HttpRestRequest::createFromGlobals();
     $sessionFactory = new HttpSessionFactory($request, $oeGlobals->getString('web_root'), HttpSessionFactory::SESSION_TYPE_CORE);
-    $sessionFactory->setUseExistingSessionBridge(true);
     $session = $sessionFactory->createSession();
     $request = Request::createFromGlobals();
     $router = new ClientAdminController(

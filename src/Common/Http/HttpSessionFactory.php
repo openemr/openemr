@@ -36,19 +36,6 @@ class HttpSessionFactory implements SessionFactoryInterface
         $this->sessionType = $sessionType;
     }
 
-    /**
-     * Set whether to use an existing session bridge where a session already exists and was created in globals.php.
-     *
-     * @param bool $useBridge
-     * @return void
-     * @TODO @zmilan see how we safely remove this from code
-     */
-    public function setUseExistingSessionBridge(bool $useBridge): void
-    {
-        // Intentionally left empty – the bridge logic has been removed but
-        // callers still invoke this method during the migration period.
-    }
-
     public function createSession(): SessionInterface
     {
         $settings = $this->getSessionSettings();

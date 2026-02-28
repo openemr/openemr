@@ -110,7 +110,6 @@ try {
     $restRequest = HttpRestRequest::create('/fhir/Organization', 'GET');
     $restRequest->setRequestUserRole("users");
     $sessionFactory = new HttpSessionFactory($restRequest, $globalsBag->get('webroot'), HttpSessionFactory::SESSION_TYPE_CORE);
-    $sessionFactory->setUseExistingSessionBridge(true);
     $restRequest->setSession($sessionFactory->createSession());
     $getParams = $restRequest->getQueryParams();
     $kernel = new OEHttpKernel($globalsBag->get('kernel')->getEventDispatcher(), new ControllerResolver());

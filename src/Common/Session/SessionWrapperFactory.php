@@ -102,9 +102,6 @@ class SessionWrapperFactory
         $request = HttpRestRequest::createFromGlobals();
         if (!$request->hasSession()) {
             $sessionFactory = new HttpSessionFactory($request, $web_root, HttpSessionFactory::SESSION_TYPE_PORTAL);
-            if (session_status() === PHP_SESSION_ACTIVE) {
-                $sessionFactory->setUseExistingSessionBridge(true);
-            }
             $this->activeSession = $sessionFactory->createSession();
         } else {
             $this->activeSession = $request->getSession();
@@ -118,9 +115,6 @@ class SessionWrapperFactory
         $request = HttpRestRequest::createFromGlobals();
         if (!$request->hasSession()) {
             $sessionFactory = new HttpSessionFactory($request, $web_root, HttpSessionFactory::SESSION_TYPE_CORE);
-            if (session_status() === PHP_SESSION_ACTIVE) {
-                $sessionFactory->setUseExistingSessionBridge(true);
-            }
             $this->activeSession = $sessionFactory->createSession();
         } else {
             $this->activeSession = $request->getSession();

@@ -810,7 +810,7 @@ if (!($_REQUEST['flb_table'] ?? null)) { ?>
 
 
 exit;
-// TODO @zmilan: Check what is with this code here
+// TODO @zmilan: Check why we do not totally remove this code under
 function myLocalJS(): void
 {
     ?>

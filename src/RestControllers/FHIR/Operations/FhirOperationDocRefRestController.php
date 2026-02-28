@@ -95,14 +95,6 @@ class FhirOperationDocRefRestController
     public function getAll($searchParams, $puuidBind = null)
     {
         try {
-            // TODO: figure out how to get the session storage down into the CCDA service
-            $sessionBag = $this->request->getSession()->all();
-            foreach ($sessionBag as $key => $value) {
-                if (str_starts_with((string) $key, "_")) {
-                    continue; // skip internal session keys
-                }
-                // $_SESSION[$key] = $value; // TODO do we need this, since it seems it migrate from Symfony to PHP Session
-            }
             $processingResult = $this->fhirDocRefService->getAll($searchParams, $puuidBind);
             $bundleEntries = [];
             foreach ($processingResult->getData() as $searchResult) {
