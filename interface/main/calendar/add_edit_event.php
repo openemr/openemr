@@ -934,6 +934,8 @@ if ($groupid) {
  var durations = new Array();
 
  const IN_OFFICE_CAT_ID = '2';
+ const OUT_OF_OFFICE_CAT_ID = '3';
+ const OFFICE_VISIT_CAT_ID = '5';
 <?php
  // Read the event categories, generate their options list, and get
  // the default event duration from them if this is a new event.
@@ -1055,8 +1057,8 @@ function set_display() {
             style_prefcat.display = '';
             f.form_apptstatus.style.display = 'none';
             f.form_prefcat.style.display = '';
-            f.form_duration.disabled = false;
-            f.form_duration.value = 0;
+            f.form_duration.disabled = true;
+            f.form_duration.value = '';
             document.getElementById('tdallday4').style.color = 'var(--gray)';
         } else {
             style_prefcat.display = 'none';
@@ -1112,7 +1114,7 @@ function set_allday() {
     f.form_hour.disabled = timeDisabled;
     f.form_minute.disabled = timeDisabled;
     <?php if ($GLOBALS['time_display_format'] == 1) { ?>
-        f.form_ampm.disabled = durationDisabled;
+        f.form_ampm.disabled = timeDisabled;
     <?php } ?>
     f.form_duration.disabled = durationDisabled;
 }
@@ -1867,6 +1869,7 @@ function are_days_checked(){
 var collectvalidation = <?php echo $collectthis; ?>;
 function validateform(event,value){
     let allDay = document.getElementById('rballday1').checked;
+    let isInOffice = document.forms[0].form_category.value == IN_OFFICE_CAT_ID;
     collectvalidation.form_hour = {
         numericality: {
             onlyInteger: true,
@@ -1893,7 +1896,7 @@ function validateform(event,value){
         }
     };
 
-    if ( allDay == true) {
+    if ( allDay == true || isInOffice == true) {
         collectvalidation.form_duration ={};
     } else {
     collectvalidation.form_duration = {
