@@ -3,31 +3,29 @@
 
 declare(strict_types=1);
 
-use Psr\Container\ContainerInterface;
-use Symfony\Component\Console\{
-    Application,
-    CommandLoader\ContainerCommandLoader,
-};
+use Doctrine\Migrations\DependencyFactory;
+use Doctrine\Migrations\Tools\Console\ConsoleRunner;
+use Symfony\Component\Console\Application;
 
-require_once __DIR__ . '/../bootstrap.php';
+require_once __DIR__ . '/bootstrap.php';
 
-// Set up CLI commands through the lazy-loaded ContainerCommandLoader.
-$commandMap = [];
-
-$mm = getModuleManager();
-foreach ($mm->getEnabledModules() as $moduleInfo) {
-    foreach ($moduleInfo->getCliCommands() as $commandClass) {
-        $commandMap[readCommandName($commandClass)] = $commandClass;
-    }
+if (php_sapi_name() !== 'cli') {
+    echo 'This can only be run from the command line.';
+    exit(1);
 }
 
-
-$container = require 'di.php';
-assert($container instanceof ContainerInterface);
-
-$loader = new ContainerCommandLoader($container, $commandMap);
+file_put_contents(
+    'php://stderr',
+    "WARNING: This CLI tool is experimental and in progress. You probably want bin/console.\n",
+);
 
 $application = new Application();
-// Future: add specific library-bundled commands here?
-$application->setCommandLoader($loader);
+
+// Doctrine Migrations integration
+//
+// Note: this should enable moving the config file to a more conventional
+// location
+$mdf = require 'config/cli-config.php';
+assert($mdf instanceof DependencyFactory);
+ConsoleRunner::addCommands($application, $mdf);
 $application->run();
