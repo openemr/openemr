@@ -99,7 +99,8 @@ $iframeUrl = $sentinelUrl . '/?' . http_build_query([
     id="safety-sentinel-frame"
     src="<?php echo attr($iframeUrl); ?>"
     title="<?php echo xla('Safety Sentinel Clinical Safety Check'); ?>"
-    sandbox="allow-scripts allow-same-origin allow-forms"
+    sandbox="allow-scripts allow-same-origin allow-forms allow-modals"
+    allow="microphone"
 ></iframe>
 </body>
 </html>
