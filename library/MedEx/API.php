@@ -2324,8 +2324,22 @@ class Display extends Base
         $show['progression'] .= $show['EMAIL']['text'] . $show['SMS']['text'] . $show['AVM']['text'];
 
         $camps = '0';
-        if (is_countable($events)) {
-            foreach ($events as $event) {
+        // BEGIN AI-GENERATED CODE (GitHub Copilot)
+        // Normalize $events: callers may pass either a single event array or a list of event arrays.
+        // If a single event array is iterated as-is, foreach() yields scalar values and breaks lookups
+        // like $event['M_group'].
+        $eventList = [];
+        if (is_array($events)) {
+            if (isset($events['M_group']) || isset($events['M_type']) || isset($events['C_UID'])) {
+                $eventList = [$events];
+            } else {
+                $eventList = $events;
+            }
+        }
+        // END AI-GENERATED CODE (GitHub Copilot)
+
+        if (!empty($eventList) && is_array($eventList)) {
+            foreach ($eventList as $event) {
                 if ($event['M_group'] != "RECALL") {
                     continue;
                 }
