@@ -935,7 +935,7 @@ class PatientService extends BaseService
 
         $query = "SELECT patients FROM recent_patients WHERE user_id = ?";
         $row = sqlQuery($query, $curUser['id']);
-        $rp = ($row) ? unserialize($row['patients']) : [];
+        $rp = ($row) ? unserialize($row['patients'], ['allowed_classes' => false]) : [];
 
         // In case we are returning to an already recently viewed patient, drop them from the current position
         foreach ($rp as $k => $p) {
@@ -987,7 +987,7 @@ class PatientService extends BaseService
         // We only want the pid value so we can fetch the data from patient_data...
         //
         $pids = [];
-        foreach (($res) ? unserialize($res['patients']) : [] as $v) {
+        foreach (($res) ? unserialize($res['patients'], ['allowed_classes' => false]) : [] as $v) {
             $pids[]['pid'] = $v['pid'];
         }
         return($pids);
