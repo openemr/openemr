@@ -654,8 +654,9 @@ function checkBackgroundServices(): void
                                                         ['card_abrev' => attr('card_care_team'), 'card_name' => xlt('Care Team')],
                                                         ['card_abrev' => attr('card_care_experience'), 'card_name' => xlt('Care Experience Preferences')],
                                                         ['card_abrev' => attr('card_treatment_preferences'), 'card_name' => xlt('Treatment Intervention Preferences')],
+                                                        ['card_abrev' => attr('card_patient_relationships'), 'card_name' => xlt('Patient Relationships')],
                                                     ];
-                                                    echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='13'>\n";
+                                                    echo "  <select multiple class='form-control' name='form_{$i}[]' id='form_{$i}[]' size='14'>\n";
                                                     foreach ($res as $row) {
                                                         echo "   <option value='" . attr($row['card_abrev']) . "'";
                                                         foreach ($glarr as $glrow) {
