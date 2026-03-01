@@ -115,6 +115,14 @@ npm run dev          # Development with file watching
 npm run gulp-build   # Build only (no watch)
 ```
 
+## Branching Strategy
+
+- **Never commit directly to master.** All work must be done in feature branches.
+- **Branch naming:** When addressing a specific issue, use `issuenumber/brief-description`
+  - Example: `1234/fix-calendar-date-parsing`
+  - Example: `5678/add-patient-search-api`
+- Create PRs from your feature branch into `master`
+
 ## Coding Standards
 
 - **Indentation:** 4 spaces
@@ -137,6 +145,14 @@ Follow [Conventional Commits](https://www.conventionalcommits.org/):
 - `feat(api): add PATCH support for patient resource`
 - `fix(calendar): correct date parsing for recurring events`
 - `chore(deps): bump monolog/monolog to 3.10.0`
+
+## Pull Requests
+
+When opening PRs, follow the template in `.github/PULL_REQUEST_TEMPLATE.md`:
+- Link to the issue being fixed (e.g., `Fixes #1234`)
+- Provide a short description of what the PR resolves
+- List the changes proposed
+- Disclose any AI-generated code and mark it appropriately in the source
 
 ## Service Layer Pattern
 
@@ -173,6 +189,17 @@ When modifying PHP files, ensure proper docblock:
 ```
 
 Preserve existing authors/copyrights when editing files.
+
+## Translation Files
+
+- **Translation files are append-only.** Never remove entries from translation files.
+
+## PHPStan Baseline
+
+- **Do not manually edit the PHPStan baseline file.**
+- To regenerate the baseline, run: `composer phpstan-baseline`
+- Changes should not increase the baseline error count (except when adding new rules).
+- "Trades" are acceptable during refactors where an error moves from one file to another (e.g., moving a function causes the same error to appear in the new location).
 
 ## Common Gotchas
 
