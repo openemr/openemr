@@ -95,6 +95,8 @@ $N = $PDF_OUTPUT ? 4 : 6;
 
 $first_issue = 1;
 
+
+
 function getContent()
 {
     global $web_root, $webserver_root;
@@ -152,6 +154,72 @@ function getContent()
         max-width: 700px;
       }
     </style>
+
+    /** AI generated code by google-labs-jules starts */
+    <style>
+        /* Enhanced styling for Future Appointments section only */
+        .future-appointments-section {
+            font-family: Arial, sans-serif !important;
+            font-size: 11pt !important;
+            line-height: 1.4 !important;
+            color: #000000 !important;
+            margin: 20px 0 !important;
+        }
+
+        .future-appointments-section h2 {
+            color: #000000 !important;
+            margin-bottom: 15px !important;
+            page-break-after: avoid !important;
+            font-weight: bold !important;
+            font-size: 14pt !important;
+            border-bottom: none !important;
+            text-decoration: none !important;
+        }
+
+        .future-appointments-section table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            margin: 15px 0 !important;
+            page-break-inside: avoid !important;
+            border: none !important;
+        }
+
+        .future-appointments-section table th {
+            background-color: #f5f5f5 !important;
+            text-align: left !important;
+            padding: 10px !important;
+            border: none !important;
+            border-bottom: 1px solid #e0e0e0 !important;
+            font-weight: bold !important;
+            color: #333333 !important;
+        }
+
+        .future-appointments-section table td {
+            padding: 10px !important;
+            border: none !important;
+            border-bottom: 1px solid #e0e0e0 !important;
+        }
+
+        .future-appointments-section table tr:last-child td {
+            border-bottom: none !important;
+        }
+
+        .future-appointments-section .summary-section {
+            margin-top: 20px !important;
+            padding: 12px !important;
+            background-color: #f5f5f5 !important;
+            border-left: 3px solid #888888 !important;
+        }
+
+        .future-appointments-section .text-bold {
+            font-weight: bold !important;
+        }
+
+        .future-appointments-section .no-break {
+            page-break-inside: avoid !important;
+        }
+    </style>
+    /** AI generated code by google-labs-jules ends */
 
     <?php if (!$PDF_OUTPUT) { ?>
         <?php // if the track_anything form exists, then include the styling
@@ -335,6 +403,106 @@ function getContent()
                         }
 
                         echo "</div><br />";
+                                        /** AI generated code by google-labs-jules starts */
+                    } elseif ($val == "future_appointments") {
+                        echo "<hr style='border-top: 1px solid #e0e0e0; margin: 20px 0;' />";
+                        echo "<div class='text no-break future-appointments-section' id='future_appointments'>\n";
+                        print "<h2>" . xlt('Your Future Appointments') . "</h2>";
+
+                        // Fetch future appointments for the patient
+                        $current_date = date('Y-m-d');
+                        // Set end date to a reasonable future date (e.g., 2 years from now)
+                        $end_date = date('Y-m-d', strtotime('+2 years'));
+                        // Try to fetch appointments without status filtering first
+                        $future_appointments = fetchAppointments($current_date, $end_date, $pid, null, null, null, null, null, null, false, 0, null);
+
+                        // If no appointments found, try without any status filtering
+                        if (empty($future_appointments)) {
+                            // Try with explicit status parameter to include all statuses
+                            $future_appointments = fetchAppointments($current_date, $end_date, $pid, null, null, '', null, null, null, false, 0, null);
+                        }
+
+                        // Debug: Check if appointments are being fetched
+                        if (empty($future_appointments)) {
+                            // Try a direct database query to see if appointments exist
+                            $debug_sql = "SELECT COUNT(*) as count FROM openemr_postcalendar_events WHERE pc_pid = ? AND pc_eventDate >= ?";
+                            $debug_result = sqlQuery($debug_sql, array($pid, $current_date));
+                            $appointment_count = $debug_result['count'];
+
+                            // Also check for any appointments regardless of date
+                            $debug_sql2 = "SELECT COUNT(*) as count FROM openemr_postcalendar_events WHERE pc_pid = ?";
+                            $debug_result2 = sqlQuery($debug_sql2, array($pid));
+                            $total_appointment_count = $debug_result2['count'];
+
+                            // If we have appointments but fetchAppointments didn't return them, try direct query
+                            if ($appointment_count > 0) {
+                                $direct_sql = "SELECT e.pc_eventDate, e.pc_startTime, e.pc_endTime,
+                                              u.fname AS ufname, u.lname AS ulname
+                                              FROM openemr_postcalendar_events AS e
+                                              LEFT OUTER JOIN users AS u ON u.id = e.pc_aid
+                                              WHERE e.pc_pid = ? AND e.pc_eventDate >= ?
+                                              ORDER BY e.pc_eventDate, e.pc_startTime";
+                                $direct_result = sqlStatement($direct_sql, array($pid, $current_date));
+                                $future_appointments = array();
+                                while ($row = sqlFetchArray($direct_result)) {
+                                    $future_appointments[] = $row;
+                                }
+                            }
+                        }
+
+                        if (empty($future_appointments)) {
+                            echo "<div style='text-align: center; padding: 30px 20px; background-color: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 4px; margin: 20px 0;'>";
+                            echo "<span style='font-size: 1.1em; color: #333333;'>" . xlt('No future appointments scheduled') . "</span>";
+                            if (isset($appointment_count) && isset($total_appointment_count)) {
+                                echo "<br /><span style='color: #666666; font-size: 0.9em; margin-top: 10px; display: block;'>Debug: Found " . $appointment_count . " future appointments and " . $total_appointment_count . " total appointments for this patient.</span>";
+                            }
+                            echo "</div>";
+                        } else {
+                            echo "<table style='width:100%; border-collapse:collapse; margin:15px 0;'>";
+                            echo "<thead><tr style='background-color:#f5f5f5;'>";
+                            echo "<th style='padding:10px; text-align:left; border-bottom:1px solid #e0e0e0;'>" . xlt('Date') . "</th>";
+                            echo "<th style='padding:10px; text-align:left; border-bottom:1px solid #e0e0e0;'>" . xlt('Time') . "</th>";
+                            echo "<th style='padding:10px; text-align:left; border-bottom:1px solid #e0e0e0;'>" . xlt('Provider') . "</th>";
+                            echo "</tr></thead><tbody>";
+
+                            $row_count = 0;
+                            foreach ($future_appointments as $appointment) {
+                                $row_count++;
+                                // Format the date and time
+                                $appointment_date = oeFormatShortDate($appointment['pc_eventDate']);
+                                $start_time = $appointment['pc_startTime'];
+                                $end_time = $appointment['pc_endTime'];
+
+                                // Format time for display
+                                $start_display = date('g:i A', strtotime($start_time));
+                                $end_display = date('g:i A', strtotime($end_time));
+                                $time_display = $start_display . " - " . $end_display;
+
+                                // Get provider name
+                                $provider_name = trim($appointment['ufname'] . ' ' . $appointment['ulname']);
+                                if (empty($provider_name)) {
+                                    $provider_name = xlt('Not assigned');
+                                }
+
+                                echo "<tr>";
+                                echo "<td style='padding:10px; border-bottom:1px solid #e0e0e0;'>" . text($appointment_date) . "</td>";
+                                echo "<td style='padding:10px; border-bottom:1px solid #e0e0e0;'>" . text($time_display) . "</td>";
+                                echo "<td style='padding:10px; border-bottom:1px solid #e0e0e0;'>" . text($provider_name) . "</td>";
+                                echo "</tr>";
+                            }
+
+                            echo "</tbody></table>";
+
+                            // Add summary section
+                            $appointment_count = count($future_appointments);
+                            echo "<div class='summary-section'>";
+                            echo "<div class='text-bold'>" . xlt('Summary') . ":</div>";
+                            echo "<div>" . xlt('Total future appointments') . ": <span class='text-bold'>" . $appointment_count . "</span></div>";
+                            echo "</div>";
+                        }
+
+                        echo "</div><br />";
+                    /** AI generated code by google-labs-jules ends */
                     } elseif ($val == "demographics") {
                         echo "<hr />";
                         echo "<div class='text demographics' id='DEM'>\n";
