@@ -5,10 +5,10 @@
             {% if auth %}
                 <span>
                 {% if card.canAdd() or btnLabel == "Add" %}
-                    <a class="{{ btnClass|attr }}" href="{{ linkMethod == "html" ? btnLink : "#" }}" {{ (linkMethod == "html" and requireRestore == true) ? "onclick=\"top.restoreSession()\"" : ""}} {{ linkMethod == "javascript" ? "onclick=\"" ~ btnLink ~ "\"" : ''}}><i class="fa fa-plus">&nbsp;</i></a>
+                    <a class="{{ btnClass|attr }}" href="{{ (linkMethod == "html" ? btnLink : "#")|safe_href }}" {{ (linkMethod == "html" and requireRestore == true) ? "onclick=\"top.restoreSession()\"" : ""}} {{ linkMethod == "javascript" ? "onclick=\"" ~ btnLink ~ "\"" : ''}}><i class="fa fa-plus">&nbsp;</i></a>
                 {% endif %}
                 {% if card.canEdit() or btnLabel == "Edit" %}
-                    <a class="{{ btnClass|attr }}" href="{{ linkMethod == "html" ? btnLink : "#" }}" {{ (linkMethod == "html" and requireRestore == true) ? "onclick=\"top.restoreSession()\"" : ""}} {{ linkMethod == "javascript" ? "onclick=\"" ~ btnLink ~ "\"" : ''}}><i class="fa fa-pencil-alt">&nbsp;</i></a>
+                    <a class="{{ btnClass|attr }}" href="{{ (linkMethod == "html" ? btnLink : "#")|safe_href }}" {{ (linkMethod == "html" and requireRestore == true) ? "onclick=\"top.restoreSession()\"" : ""}} {{ linkMethod == "javascript" ? "onclick=\"" ~ btnLink ~ "\"" : ''}}><i class="fa fa-pencil-alt">&nbsp;</i></a>
                 {% endif %}
                 </span>
             {% endif %}
