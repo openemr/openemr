@@ -1,0 +1,4 @@
+# Deny web access to all files in this directory.
+# These are CLI-only tools and must not be accessible via the web server.
+order deny,allow
+Deny From All
