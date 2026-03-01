@@ -12,6 +12,8 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Core\OEGlobalsBag;
+
 class VersionService extends BaseService implements VersionServiceInterface
 {
     /**
@@ -31,19 +33,29 @@ class VersionService extends BaseService implements VersionServiceInterface
     }
 
     /**
-     * Return the compounded major, minor, patch and tag versions as a string
+     * Return the compounded major, minor, patch and tag versions as a string.
      *
-     * @var $includeTag bool Include the tag
-     * @var $includeRealpatch bool Include the realpatch
-     * @returns string Dot separated major, minor, patch version string (tag at end, if included)
+     * Reads the software version from version.php globals (set via globals.php)
+     * instead of the database, so the displayed version always matches the
+     * running code without requiring a database migration.
+     *
+     * @param bool $includeTag Include the tag
+     * @param bool $includeRealpatch Include the realpatch
+     * @return string Dot separated major, minor, patch version string (tag at end, if included)
      */
     public function asString(bool $includeTag = true, bool $includeRealpatch = true): string
     {
-        $v = $this->fetch();
-        $string = "{$v['v_major']}.{$v['v_minor']}.{$v['v_patch']}";
-        $string = ($includeTag == true) ? $string . "{$v['v_tag']}" : $string;
-        if ($includeRealpatch && (!empty($v['v_realpatch']))) {
-            $string .= " (" . $v['v_realpatch'] . ")";
+        $globals = OEGlobalsBag::getInstance();
+        $major = (string) $globals->get('v_major', '0');
+        $minor = (string) $globals->get('v_minor', '0');
+        $patch = (string) $globals->get('v_patch', '0');
+        $tag = (string) $globals->get('v_tag', '');
+        $realpatch = (string) $globals->get('v_realpatch', '');
+
+        $string = "{$major}.{$minor}.{$patch}";
+        $string = ($includeTag == true) ? $string . $tag : $string;
+        if ($includeRealpatch && $realpatch !== '') {
+            $string .= " (" . $realpatch . ")";
         }
         return $string;
     }
