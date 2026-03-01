@@ -178,6 +178,17 @@ services:
       # Docker host (port 8300 → OpenEMR). Direct container-to-container
       # routing via "http://openemr" breaks OAuth2 client auth.
       OPENEMR_BASE_URL: http://host.docker.internal:8300
+      # Whisper.cpp local transcription — bind-mounted from the host build.
+      WHISPER_CPP_BINARY: /whisper-build/bin/whisper-cli
+      WHISPER_CPP_MODEL: /whisper-models/ggml-base.en.bin
+      WHISPER_CPP_MODEL_NAME: base
+      # Shared libraries needed by whisper-cli (libwhisper, libggml, libggml-cpu, libggml-base).
+      LD_LIBRARY_PATH: /whisper-build/src:/whisper-build/ggml/src
+    volumes:
+      # whisper.cpp build output (binary + shared libs) — read-only
+      - /home/riwata/Documents/projects/ai_engineering/gauntlet-curriculum/projects/week_2/whisper.cpp/build:/whisper-build:ro
+      # Downloaded model files — read-only
+      - /home/riwata/Documents/projects/ai_engineering/gauntlet-curriculum/projects/week_2/whisper.cpp/models:/whisper-models:ro
     depends_on:
       openemr:
         condition: service_healthy
