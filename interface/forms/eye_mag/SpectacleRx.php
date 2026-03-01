@@ -1256,7 +1256,11 @@ if ($REFTYPE == "CTL") {
                     : <?php echo text($prov_data['fname']); ?> <?php echo text($prov_data['lname']);
                     if ($prov_data['suffix']) {
                         echo ", " . $prov_data['suffix'];
-                    } ?><br/>
+                    } ?>
+                    <?php if (isset($prov_data['state_license_number']) && $prov_data['state_license_number'] !== '') { ?>
+                        <br/><?php echo xlt('State License Number'); ?>: <?php echo text($prov_data['state_license_number']); ?>
+                    <?php } ?>
+
                     <small><?php echo xlt('e-signed'); ?> <input type="checkbox" checked="checked" disabled></small>
                 </td>
             </tr>
