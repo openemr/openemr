@@ -64,11 +64,7 @@ return [
     ],
     'service_manager' => [
         'factories' => [
-            Model\AclTable::class =>  function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get(\Laminas\Db\Adapter\Adapter::class);
-                $table = new Model\AclTable($dbAdapter);
-                return $table;
-            },
+            Model\AclTable::class =>  fn(ContainerInterface $container, $requestedName) => new Model\AclTable(),
         ]
     ]
 ];

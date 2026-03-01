@@ -17,7 +17,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/login/login.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'items\' on array\\{group_name\\: mixed, group_id\\: mixed, items\\: non\\-empty\\-list\\} in empty\\(\\) always exists and is not falsy\\.$#',
+    'message' => '#^Offset \'items\' on array\\{group_name\\: mixed, group_id\\: mixed, items\\: non\\-empty\\-list\\<array\\<string, mixed\\>\\>\\} in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Controller/AclController.php',
 ];

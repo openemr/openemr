@@ -13,7 +13,7 @@
 namespace Carecoordination\Model;
 
 use Laminas\Db\TableGateway\AbstractTableGateway;
-use Application\Model\ApplicationTable;
+use OpenEMR\Common\Database\QueryUtils;
 
 class CcdTable extends AbstractTableGateway
 {
@@ -51,13 +51,12 @@ class CcdTable extends AbstractTableGateway
 
     public function update_document_table($document_id, $audit_master_id, $audit_master_approval_status)
     {
-        $appTable   = new ApplicationTable();
         $query = "UPDATE documents
               SET audit_master_id = ?,
                   imported = ?,
                   audit_master_approval_status=?
               WHERE id = ?";
-        $appTable->zQuery($query, [$audit_master_id,
+        QueryUtils::sqlStatementThrowException($query, [$audit_master_id,
                                     1,
                                     $audit_master_approval_status,
                                     $document_id]);

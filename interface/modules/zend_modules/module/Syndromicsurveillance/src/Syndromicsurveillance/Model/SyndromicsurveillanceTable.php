@@ -12,10 +12,9 @@
 
 namespace Syndromicsurveillance\Model;
 
-use Laminas\Db\TableGateway\AbstractTableGateway;
-use Application\Model\ApplicationTable;
+use OpenEMR\Common\Database\QueryUtils;
 
-class SyndromicsurveillanceTable extends AbstractTableGateway
+class SyndromicsurveillanceTable
 {
     /*
     * Fetch the reportable ICD9 codes
@@ -24,16 +23,8 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
     */
     function non_reported_codes()
     {
-        $query      = "select id, concat('ICD9:',code) as name from codes where reportable = 1 ORDER BY name";
-        $appTable   = new ApplicationTable();
-        $result     = $appTable->zQuery($query);
-
-        $codes      = [];
-        foreach ($result as $row) {
-            $codes[] = $row;
-        }
-
-        return $codes;
+        $query = "select id, concat('ICD9:',code) as name from codes where reportable = 1 ORDER BY name";
+        return QueryUtils::fetchRecords($query);
     }
 
     /*
@@ -45,10 +36,9 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
     {
         global $encounter;
         global $pid;
-        $appTable   = new ApplicationTable();
 
-        $sqlSelctProvider       = "SELECT * FROM form_encounter WHERE encounter = ? AND pid = ?";
-        $resultSelctProvider    = $appTable->zQuery($sqlSelctProvider, [$encounter, $pid]);
+        $sqlSelctProvider = "SELECT * FROM form_encounter WHERE encounter = ? AND pid = ?";
+        $resultSelctProvider = QueryUtils::fetchRecords($sqlSelctProvider, [$encounter, $pid]);
         foreach ($resultSelctProvider as $resultSelctProvider_row) {
             $provider = $resultSelctProvider_row['provider_id'];
         }
@@ -58,7 +48,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 			AND authorized = 1
 			ORDER BY lname, fname";
 
-        $result = $appTable->zQuery($query, []);
+        $result = QueryUtils::fetchRecords($query, []);
         $rows[0] =  [
             'value' => '',
             'label' => 'Unassigned',
@@ -154,24 +144,13 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         $query_string[] = $toDate;
 
         if ($get_count) {
-            $appTable   = new ApplicationTable();
-            $result     = $appTable->zQuery($query, $query_string);
-            foreach ($result as $row) {
-                $records[] = $row;
-            }
-
-            return count($records);
+            $result = QueryUtils::fetchRecords($query, $query_string);
+            return count($result);
         }
 
         $query      .= " LIMIT " . \Application\Plugin\CommonPlugin::escapeLimit($start) . "," . \Application\Plugin\CommonPlugin::escapeLimit($end);
 
-        $appTable   = new ApplicationTable();
-        $result     = $appTable->zQuery($query, $query_string);
-        foreach ($result as $row) {
-            $records[] = $row;
-        }
-
-        return $records;
+        return QueryUtils::fetchRecords($query, $query_string);
     }
 
     /*
@@ -257,8 +236,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 
         $content = '';
 
-        $appTable   = new ApplicationTable();
-        $result     = $appTable->zQuery($query, $query_string);
+        $result = QueryUtils::fetchRecords($query, $query_string);
 
         $D = "\r";
         $nowdate    = date('YmdHis');
@@ -269,7 +247,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
         foreach ($result as $r) {
             $fac_name = $race_code = $ethnicity_code = $county_code = '';
             $o_query        = "SELECT * FROM `form_observation` WHERE `encounter` =  ? AND `pid` = ? AND `activity` = ?" ;
-            $o_result       = $appTable->zQuery($o_query, [$r['encounter'],$r['patientid'],1]);
+            $o_result       = QueryUtils::fetchRecords($o_query, [$r['encounter'], $r['patientid'], 1]);
             $fac_name       = preg_replace('/\s+/', '', (string) $r['name']);
             $race_code      = $this->getCodes($r['race'], 'race');
             $ethnicity_code = $this->getCodes($r['ethnicity'], 'ethnicity');
@@ -488,7 +466,7 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
 
             //mark if issues generated/sent
             $query_insert = "insert into syndromic_surveillance(lists_id,submission_date,filename) values (?, ?, ?)";
-            $appTable->zQuery($query_insert, [$r['issueid'], $now1, $filename]);
+            QueryUtils::sqlStatementThrowException($query_insert, [$r['issueid'], $now1, $filename]);
         }
 
         //send the header here
@@ -547,17 +525,16 @@ class SyndromicsurveillanceTable extends AbstractTableGateway
     {
         return (str_replace(' ', '^', $a));
     }
+
     public function getCodes($option_id, $list_id)
     {
-        $appTable  = new ApplicationTable();
         if ($option_id) {
             $query   = "SELECT notes
                     FROM list_options
                     WHERE list_id=? AND option_id=?";
-            $result  = $appTable->zQuery($query, [$list_id,$option_id]);
-            $res_cur = $result->current();
+            $res_cur = QueryUtils::querySingleRow($query, [$list_id, $option_id]);
         }
 
-        return $res_cur['notes'];
+        return $res_cur['notes'] ?? null;
     }
 }

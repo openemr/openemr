@@ -13,50 +13,35 @@
 namespace Application\Model;
 
 use Laminas\Db\TableGateway\AbstractTableGateway;
-use Application\Model\ApplicationTable;
+use OpenEMR\Common\Database\QueryUtils;
 
 class SendtoTable extends AbstractTableGateway
 {
-    /*
-    * getFacility
-    * @return array facility
-    *
-    **/
-    public function getFacility()
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public function getFacility(): array
     {
-        $appTable   = new ApplicationTable();
-        $sql        = "SELECT * FROM facility ORDER BY name";
-        $result     = $appTable->zQuery($sql);
-        return $result;
+        $sql = "SELECT * FROM facility ORDER BY name";
+        return QueryUtils::fetchRecords($sql);
     }
 
-
-    /*
-    * getUsers
-    * @param String $type
-    * @return array
-    *
-    **/
-    public function getUsers($type)
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public function getUsers(string $type): array
     {
-        $appTable   = new ApplicationTable();
-        $sql        = "SELECT * FROM users WHERE abook_type = ?";
-        $result     = $appTable->zQuery($sql, [$type]);
-        return $result;
+        $sql = "SELECT * FROM users WHERE abook_type = ?";
+        return QueryUtils::fetchRecords($sql, [$type]);
     }
 
-
-    /*
-    * getFaxRecievers
-    * @return array fax receiver types
-    *
-    **/
-    public function getFaxRecievers()
+    /**
+     * @return list<array<string, mixed>>
+     */
+    public function getFaxRecievers(): array
     {
-        $appTable   = new ApplicationTable();
-        $sql        = "SELECT option_id, title FROM list_options WHERE list_id = 'abook_type'";
-        $result     = $appTable->zQuery($sql);
-        return $result;
+        $sql = "SELECT option_id, title FROM list_options WHERE list_id = 'abook_type'";
+        return QueryUtils::fetchRecords($sql);
     }
 
     /*

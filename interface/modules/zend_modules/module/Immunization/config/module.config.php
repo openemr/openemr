@@ -6,9 +6,6 @@ use Laminas\Router\Http\Segment;
 use Immunization\Controller\ImmunizationController;
 use Interop\Container\ContainerInterface;
 use Immunization\Model\ImmunizationTable;
-use Laminas\Db\ResultSet\ResultSet;
-use Laminas\Db\TableGateway\TableGateway;
-use Immunization\Model\Immunization;
 
 return [
     'controllers' => [
@@ -38,14 +35,7 @@ return [
 
     'service_manager' => [
         'factories' => [
-            \Immunization\Model\ImmunizationTable::class =>  function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get(\Laminas\Db\Adapter\Adapter::class);
-                $resultSetPrototype = new ResultSet();
-                $resultSetPrototype->setArrayObjectPrototype(new Immunization());
-                $tableGateway = new TableGateway('module_menu', $dbAdapter, null, $resultSetPrototype);
-                $table = new ImmunizationTable($tableGateway);
-                return $table;
-            }
+            ImmunizationTable::class => fn (ContainerInterface $container, $requestedName) => new ImmunizationTable(),
         ],
     ],
 
