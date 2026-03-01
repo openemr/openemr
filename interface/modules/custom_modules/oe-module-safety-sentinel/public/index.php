@@ -70,9 +70,11 @@ if (empty($puuid)) {
 }
 
 // ── Build iframe URL ──────────────────────────────────────────────────────────
+// _v forces the browser to re-fetch the iframe when the UI is redeployed.
 $iframeUrl = $sentinelUrl . '/?' . http_build_query([
     'patient_id'   => $puuid,
     'patient_name' => $patientName,
+    '_v'           => '20260301',
 ]);
 
 ?>

@@ -174,9 +174,10 @@ services:
     - ../../agents/safety-sentinel/.env
     environment:
       PORT: 8000
-      # Inside the Docker network OpenEMR is reachable via its service name on port 80.
-      # This overrides the https://localhost:9300 value in .env which only works on the host.
-      OPENEMR_BASE_URL: http://openemr
+      # Use host.docker.internal so OAuth2 token requests route through the
+      # Docker host (port 8300 → OpenEMR). Direct container-to-container
+      # routing via "http://openemr" breaks OAuth2 client auth.
+      OPENEMR_BASE_URL: http://host.docker.internal:8300
     depends_on:
       openemr:
         condition: service_healthy
