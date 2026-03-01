@@ -31,12 +31,14 @@ class ScribeEncounterService
     {
         $result = new ProcessingResult();
 
+        $validationMessages = [];
         foreach (['patient_uuid', 'encounter_date', 'soap_note'] as $field) {
             if (empty($data[$field])) {
-                $result->addValidationError($field, "Field '$field' is required");
+                $validationMessages[$field] = "Field '$field' is required";
             }
         }
-        if ($result->hasErrors()) {
+        if (!empty($validationMessages)) {
+            $result->setValidationMessages($validationMessages);
             return $result;
         }
 
@@ -52,7 +54,7 @@ class ScribeEncounterService
         $instructions = $soapArray['patient_instructions'] ?? ($data['patient_instructions'] ?? null);
         $status      = $data['status'] ?? 'draft';
 
-        sqlStatement(
+        $id = sqlInsert(
             "INSERT INTO `" . self::TABLE . "`
              (patient_uuid, encounter_date, status, transcript, transcript_word_count,
               transcript_duration_s, soap_note, soap_subjective_preview,
@@ -78,8 +80,6 @@ class ScribeEncounterService
                 $data['confidence_overall'] ?? null,
             ]
         );
-
-        $id = sqlLastInsertId();
         $result->setData([['id' => $id, 'status' => $status]]);
         return $result;
     }
@@ -138,13 +138,13 @@ class ScribeEncounterService
 
         $row = sqlQuery("SELECT status FROM `" . self::TABLE . "` WHERE id = ?", [$id]);
         if (!$row) {
-            $result->addValidationError('id', "Encounter $id not found");
+            $result->setValidationMessages(['id' => "Encounter $id not found"]);
             return $result;
         }
 
         // Immutability: finalized encounters cannot be changed
         if ($row['status'] === 'finalized') {
-            $result->addValidationError('status', 'Finalized encounters cannot be modified');
+            $result->setValidationMessages(['status' => 'Finalized encounters cannot be modified']);
             return $result;
         }
 
@@ -196,11 +196,11 @@ class ScribeEncounterService
 
         $row = sqlQuery("SELECT status FROM `" . self::TABLE . "` WHERE id = ?", [$id]);
         if (!$row) {
-            $result->addValidationError('id', "Encounter $id not found");
+            $result->setValidationMessages(['id' => "Encounter $id not found"]);
             return $result;
         }
         if ($row['status'] === 'finalized') {
-            $result->addValidationError('status', 'Finalized encounters cannot be deleted');
+            $result->setValidationMessages(['status' => 'Finalized encounters cannot be deleted']);
             return $result;
         }
 

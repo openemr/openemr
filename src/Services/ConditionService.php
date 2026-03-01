@@ -130,6 +130,9 @@ class ConditionService extends BaseService
         }
 
         foreach ($search as $key => $value) {
+            if (array_key_exists($key, $newSearch)) {
+                continue; // already converted (e.g. puuid → TokenSearchField above)
+            }
             if (!$value instanceof ISearchField) {
                 $newSearch[$key] = new StringSearchField($key, [$value], SearchModifier::EXACT);
             } else {

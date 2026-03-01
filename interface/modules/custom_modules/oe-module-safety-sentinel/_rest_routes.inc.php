@@ -110,4 +110,20 @@ return [
         function (string $id, HttpRestRequest $request): array {
             return (new ScribeRestController())->delete((int)$id);
         },
+
+    // ── Billing endpoints ────────────────────────────────────────────────────
+    // Scope: user/billing.c — create billing entries for a finalized encounter
+    "POST /api/safety-sentinel/billing" =>
+        function (HttpRestRequest $request): array {
+            $data = json_decode(file_get_contents("php://input"), true) ?? [];
+            return (new \OpenEMR\Modules\SafetySentinel\RestControllers\BillingRestController())->create($data);
+        },
+
+    // ── Prescription draft endpoints ─────────────────────────────────────────
+    // Scope: user/prescriptions.c — create draft prescriptions (request_intent='proposal')
+    "POST /api/safety-sentinel/prescriptions/draft" =>
+        function (HttpRestRequest $request): array {
+            $data = json_decode(file_get_contents("php://input"), true) ?? [];
+            return (new \OpenEMR\Modules\SafetySentinel\RestControllers\PrescriptionDraftRestController())->createBatch($data);
+        },
 ];

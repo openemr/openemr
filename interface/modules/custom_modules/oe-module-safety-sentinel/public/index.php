@@ -17,8 +17,6 @@
 // Path depth: public/ → oe-module-safety-sentinel/ → custom_modules/ → modules/ → interface/ → openemr root
 require_once dirname(__FILE__, 5) . "/globals.php";
 
-use OpenEMR\Core\Header;
-
 // ── Safety Sentinel backend URL ──────────────────────────────────────────────
 // Set $GLOBALS['safety_sentinel_url'] in the OpenEMR globals table for deployed usage:
 //   UPDATE globals SET gl_value='http://161.35.61.60:8001' WHERE gl_name='safety_sentinel_url';
@@ -83,7 +81,6 @@ $iframeUrl = $sentinelUrl . '/?' . http_build_query([
 <head>
     <meta charset="UTF-8">
     <title><?php echo xla('Safety Check'); ?></title>
-    <?php Header::setupHeader(); ?>
     <style>
         html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
         #safety-sentinel-frame {
