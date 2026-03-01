@@ -1,0 +1,115 @@
+name: Release Please
+
+on:
+  push:
+    branches:
+    - master
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+      version: ${{ steps.release.outputs.version }}
+      major: ${{ steps.release.outputs.major }}
+      minor: ${{ steps.release.outputs.minor }}
+      patch: ${{ steps.release.outputs.patch }}
+      pr: ${{ steps.release.outputs.pr }}
+    steps:
+    - name: Run release-please
+      uses: googleapis/release-please-action@v4
+      id: release
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        config-file: release-please-config.json
+        manifest-file: .release-please-manifest.json
+
+    - name: Output release info
+      if: ${{ steps.release.outputs.release_created }}
+      run: |
+        echo "Release created: ${{ steps.release.outputs.release_created }}"
+        echo "Tag: ${{ steps.release.outputs.tag_name }}"
+        echo "Version: ${{ steps.release.outputs.version }}"
+
+  # Increment docker-version files after release is created
+  increment-docker-version:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: master
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Increment docker-version files
+      run: |
+        # Read current docker-version
+        CURRENT_VERSION=$(cat docker-version)
+        NEW_VERSION=$((CURRENT_VERSION + 1))
+
+        echo "Incrementing docker-version from $CURRENT_VERSION to $NEW_VERSION"
+
+        # Update both docker-version files
+        echo "$NEW_VERSION" > docker-version
+        echo "$NEW_VERSION" > sites/default/docker-version
+
+    - name: Commit docker-version changes
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add docker-version sites/default/docker-version
+        git commit -m "chore: increment docker-version after release ${{ needs.release-please.outputs.version }}"
+        git push
+
+  # Restore -dev tag to version.php after release
+  restore-dev-tag:
+    needs: [release-please, increment-docker-version]
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        ref: master
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Restore -dev tag in version.php
+      run: |
+        # Add -dev back to $v_tag
+        sed -i "s/\(\$v_tag[[:space:]]*=[[:space:]]*'\)'/\1-dev'/" version.php
+
+    - name: Commit version.php changes
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add version.php
+        git commit -m "chore: restore -dev tag after release ${{ needs.release-please.outputs.version }}"
+        git push
+
+  # Trigger Docker image build in openemr-devops repo
+  trigger-docker-build:
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Trigger Docker build in openemr-devops
+      uses: peter-evans/repository-dispatch@v3
+      with:
+        token: ${{ secrets.DEVOPS_REPO_TOKEN }}
+        repository: openemr/openemr-devops
+        event-type: release-published
+        client-payload: |
+          {
+            "version": "${{ needs.release-please.outputs.version }}",
+            "tag_name": "${{ needs.release-please.outputs.tag_name }}",
+            "major": "${{ needs.release-please.outputs.major }}",
+            "minor": "${{ needs.release-please.outputs.minor }}",
+            "patch": "${{ needs.release-please.outputs.patch }}"
+          }

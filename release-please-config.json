@@ -1,0 +1,39 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    ".": {
+      "release-type": "simple",
+      "bump-minor-pre-major": true,
+      "bump-patch-for-minor-pre-major": true,
+      "include-v-in-tag": true,
+      "tag-separator": "_",
+      "changelog-path": "RELEASE_NOTES.md",
+      "pull-request-title-pattern": "chore: release ${version}",
+      "extra-files": [
+        {
+          "type": ".github/release-please/version-php-updater.cjs",
+          "path": "version.php"
+        },
+        {
+          "type": "json",
+          "path": "ccdaservice/package.json",
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "yaml",
+          "path": "swagger/openemr-api.yaml",
+          "jsonpath": "$.info.version"
+        },
+        {
+          "type": "generic",
+          "path": "_rest_routes.inc.php"
+        },
+        {
+          "type": "generic",
+          "path": "docker/production/docker-compose.yml"
+        }
+      ],
+      "versioning": "default"
+    }
+  }
+}
