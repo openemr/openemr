@@ -50153,7 +50153,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'puuid\' on mixed\\.$#',
-    'count' => 2,
+    'count' => 3,
     'path' => __DIR__ . '/../../src/Services/ConditionService.php',
 ];
 $ignoreErrors[] = [
@@ -57600,6 +57600,39 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'uuid\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Validators/PatientValidatorTest.php',
+];
+
+
+
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'data\' on mixed\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PatientAllergyConditionApiTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'uuid\' on mixed\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PatientAllergyConditionApiTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'title\' on mixed\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PatientAllergyConditionApiTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on mixed\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PatientAllergyConditionApiTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'fname\' on mixed\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PatientAllergyConditionApiTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'lname\' on mixed\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PatientAllergyConditionApiTest.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

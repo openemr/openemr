@@ -12617,4 +12617,47 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/eventdispatcher/RestApiEventHookExample/Module.php',
 ];
 
+
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method removePatientFixtures\(\) on mixed\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PatientAllergyConditionApiTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method removeAllergyIntoleranceFixtures\(\) on mixed\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PatientAllergyConditionApiTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method cleanupRevokeAuth\(\) on mixed\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PatientAllergyConditionApiTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method cleanupClient\(\) on mixed\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PatientAllergyConditionApiTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method post\(\) on mixed\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PatientAllergyConditionApiTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getStatusCode\(\) on mixed\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PatientAllergyConditionApiTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getBody\(\) on mixed\.$#',
+    'count' => 12,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PatientAllergyConditionApiTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method get\(\) on mixed\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PatientAllergyConditionApiTest.php',
+];
+
+
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

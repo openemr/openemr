@@ -31592,4 +31592,21 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Validators/ProcessingResultTest.php',
 ];
 
+
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\PatientAllergyConditionApiTest\\:\\:\\$testClient has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PatientAllergyConditionApiTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\PatientAllergyConditionApiTest\\:\\:\\$fixtureManager has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PatientAllergyConditionApiTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\PatientAllergyConditionApiTest\\:\\:\\$patientRecord has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Api/PatientAllergyConditionApiTest.php',
+];
+
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];
