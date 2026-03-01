@@ -5,8 +5,10 @@
  *
  * @package MedEx
  * @author MedEx <support@MedExBank.com>
+ * @author Michael A. Smith <michael@opencoreemr.com>
  * @link http://www.MedExBank.com
  * @copyright Copyright (c) 2018 MedEx <support@MedExBank.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -1864,8 +1866,10 @@ class Display extends Base
         //prevSetting to_date?
 
         $to_date = (!empty($_REQUEST['form_to_date'])) ? DateToYYYYMMDD($_REQUEST['form_to_date']) : $to_date;
+        $patient_id = $_REQUEST['form_patient_id'] ?? '';
+        $patient_name = $_REQUEST['form_patient_name'] ?? '';
 
-        $recalls = $this->get_recalls($from_date, $to_date);
+        $recalls = $this->get_recalls($from_date, $to_date, $rcb_facility, $rcb_provider, $patient_id, $patient_name);
 
         $processed = $this->recall_board_process($logged_in, $recalls, $events ?? '');
         ob_start();
@@ -1885,13 +1889,16 @@ class Display extends Base
                         $last_col_width = "nodisplay";
                     }
                     ?>
-
                     <form name="rcb" id="rcb" method="post">
                         <input type="hidden" name="go" value="Recalls" />
-                        <div class="text-center row align-items-center">
-                            <div class="col-sm-4 text-center mt-3">
-                                <div class="form-group row justify-content-center mx-sm-1">
-                                    <select class="form-control form-control-sm" id="form_facility" name="form_facility"
+                        <div class="text-center mb-4">
+                            <button class="btn btn-primary btn-add" style="width: 200px;" onclick="goReminderRecall('addRecall');return false;"><?php echo xlt('New Recall'); ?></button>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <select class="form-control" id="form_facility" name="form_facility"
                                         <?php
                                         $fac_sql = sqlStatement("SELECT * FROM facility ORDER BY id");
                                         $select_facs = '';
@@ -1909,13 +1916,18 @@ class Display extends Base
                                         <?php echo $select_facs; ?>
                                     </select>
                                 </div>
-                                <div class="form-group row mx-sm-1">
-                                    <input placeholder="<?php echo xla('Patient ID'); ?>" class="form-control form-control-sm text-center" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo (!empty($form_patient_id)) ? attr($form_patient_id) : ""; ?>" onKeyUp="show_this();" />
+
+                                <div class="form-group">
+                                    <input placeholder="<?php echo xla('Patient ID'); ?>"
+                                        class="form-control text-center"
+                                        type="text"
+                                        id="form_patient_id"
+                                        name="form_patient_id"
+                                        value="<?php echo (!empty($_REQUEST['form_patient_id'])) ? attr($_REQUEST['form_patient_id']) : ((!empty($form_patient_id)) ? attr($form_patient_id) : ""); ?>" onKeyUp="show_this();" />
                                 </div>
                             </div>
-
-                            <div class="col-sm-4 text-center mt-3">
-                                <div class="form-group row mx-sm-1 justify-content-center">
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
                                     <?php
                                     # Build a drop-down list of providers.
                                     $query = "SELECT id, lname, fname FROM users WHERE " .
@@ -1925,7 +1937,7 @@ class Display extends Base
                                     $c = sqlFetchArray($ures);
                                     $count_provs = count($c ?: []);
                                     ?>
-                                    <select class="form-control form-control-sm" id="form_provider" name="form_provider" <?php if ($count_provs < '2') {
+                                    <select class="form-control" id="form_provider" name="form_provider" <?php if ($count_provs < '2') {
                                         echo "disabled"; } ?> onchange="show_this();">
                                         <option value="" selected><?php echo xlt('All Providers'); ?></option>
                                         <?php
@@ -1947,35 +1959,34 @@ class Display extends Base
                                         ?>
                                     </select>
                                 </div>
-                                <div class="form-group row mx-sm-1">
-                                    <input type="text" placeholder="<?php echo xla('Patient Name'); ?>" class="form-control form-control-sm text-center" id="form_patient_name" name="form_patient_name" value="<?php echo (!empty($form_patient_name)) ? attr($form_patient_name) : ""; ?>" onKeyUp="show_this();" />
+
+                                <div class="form-group">
+                                    <input type="text"
+                                        placeholder="<?php echo xla('Patient Name'); ?>"
+                                        class="form-control text-center"
+                                        id="form_patient_name"
+                                        name="form_patient_name"
+                                        value="<?php echo (!empty($_REQUEST['form_patient_name'])) ? attr($_REQUEST['form_patient_name']) : ((!empty($form_patient_name)) ? attr($form_patient_name) : ""); ?>" onKeyUp="show_this();" />
                                 </div>
                             </div>
-
-                            <div class="col-sm-4">
-                                <div class="input-append">
-                                    <div class="form-group row mt-md-5">
-                                        <label for="flow_from" class="col"><?php echo xlt('From'); ?>:</label>
-                                        <div class="col">
-                                            <input id="form_from_date" name="form_from_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($from_date)); ?>" style="max-width: 140px; min-width: 85px;" />
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group row">
-                                        <label for="flow_to" class="col">&nbsp;&nbsp;<?php echo xlt('To{{Range}}'); ?>:</label>
-                                        <div class="col">
-                                            <input id="form_to_date" name="form_to_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($to_date)); ?>" style="max-width:140px;min-width:85px;">
-                                        </div>
-                                    </div>
-                                    <div class="form-group row" role="group">
-                                        <div class="col text-right">
-                                            <button class="btn btn-primary btn-filter" type="submit" id="filter_submit" value="<?php echo xla('Filter'); ?>"><?php echo xlt('Filter'); ?></button>
-                                            <button class="btn btn-primary btn-add" onclick="goReminderRecall('addRecall');return false;"><?php echo xlt('New Recall'); ?></button>
-                                        </div>
-                                    </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <label for="form_from_date"><?php echo xlt('From'); ?>:</label>
+                                    <input id="form_from_date" name="form_from_date" class="datepicker form-control text-center"
+                                        value="<?php echo attr(oeFormatShortDate($from_date)); ?>" />
                                 </div>
                             </div>
-
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <label for="form_to_date"><?php echo xlt('To{{Range}}'); ?>:</label>
+                                    <input id="form_to_date" name="form_to_date" class="datepicker form-control text-center"
+                                        value="<?php echo attr(oeFormatShortDate($to_date)); ?>" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-4 mb-2">
+                            <button class="btn btn-primary btn-filter" type="submit" id="filter_submit"
+                                style="width: 200px;" value="<?php echo xla('Filter'); ?>"><?php echo xlt('Filter'); ?></button>
                         </div>
                         <div name="message" id="message" class="warning">
                         </div>
@@ -2005,9 +2016,12 @@ class Display extends Base
                 <div class="tab-content">
                    <div class="tab-pane active" id="tab-all">
                         <?php
-                            $this->recall_board_top();
-                            echo $processed['ALL'] ?? '';
+                        $has_recall = !empty($processed['ALL']);
+                        $this->recall_board_top($has_recall);
+                        if ($has_recall) {
+                            echo $processed['ALL'];
                             $this->recall_board_bot();
+                        }
                         ?>
                     </div>
                 </div>
@@ -2064,22 +2078,46 @@ class Display extends Base
         $content = ob_get_clean();
         echo $content;
     }
-    public function get_recalls($from_date = '', $to_date = '')
+    public function get_recalls($from_date = '', $to_date = '', $rcb_facility = '', $rcb_provider = '', $patient_id = '', $patient_name = '')
     {
-        // Recalls are requests to schedule a future appointment.
-        // Thus there is no r_appt_time (NULL) but there is a DATE set.
-        $query = "SELECT * FROM medex_recalls,patient_data AS pat
-                    WHERE pat.pid=medex_recalls.r_pid AND
-                    r_eventDate >= ? AND
-                    r_eventDate <= ? AND
-                    IFNULL(pat.deceased_date,0) = 0
-                    ORDER BY r_eventDate ASC";
-        $result = sqlStatement($query, [$from_date,$to_date]);
+        $recalls = [];
+
+        $query = "SELECT * FROM medex_recalls JOIN patient_data AS pat ON pat.pid=medex_recalls.r_pid
+                  WHERE r_eventDate >= ? AND r_eventDate <= ? AND IFNULL(pat.deceased_date,0) = 0";
+
+        $params = [$from_date, $to_date];
+
+        if (!empty($rcb_facility)) {
+            $query .= " AND r_facility = ?";
+            $params[] = $rcb_facility;
+        }
+
+        if (!empty($rcb_provider)) {
+            $query .= " AND r_provider = ?";
+            $params[] = $rcb_provider;
+        }
+
+        if (!empty($patient_id)) {
+            $query .= " AND r_pid = ?";
+            $params[] = $patient_id;
+        }
+
+        if (!empty($patient_name)) {
+            $query .= " AND (CONCAT(pat.fname, ' ', pat.lname) LIKE ? OR CONCAT(pat.lname, ', ', pat.fname) LIKE ?)";
+            $params[] = "%$patient_name%";
+            $params[] = "%$patient_name%";
+        }
+
+        $query .= " ORDER BY r_eventDate ASC";
+
+        $result = sqlStatement($query, $params);
         while ($recall = sqlFetchArray($result)) {
             $recalls[] = $recall;
         }
-        return $recalls ?? null;
+
+        return $recalls;
     }
+
     private function recall_board_process($logged_in, $recalls, $events = '')
     {
         global $MedEx;
@@ -2118,6 +2156,7 @@ class Display extends Base
                  data-provider="' . attr($recall['r_provider']) . '"
                  data-pname="' . attr($recall['fname'] . " " . $recall['lname']) . '"
                  data-pid="' . attr($recall['pid']) . '"
+                 data-date="' . attr($recall['r_eventDate']) . '"
                  id="recall_' . attr($recall['pid']) . '" style="display:none;">';
 
             $query = "SELECT cal.pc_eventDate,pat.DOB FROM openemr_postcalendar_events AS cal JOIN patient_data AS pat ON cal.pc_pid=pat.pid WHERE cal.pc_pid =? ORDER BY cal.pc_eventDate DESC LIMIT 1";
@@ -2461,8 +2500,13 @@ class Display extends Base
         }
         return $pat;
     }
-    private function recall_board_top()
+    private function recall_board_top($has_recall = false)
     {
+        if (!$has_recall) {
+            echo '<div id="no_recalls_message" class="alert alert-info text-center">' . xlt('No Recalls Found') . '</div>';
+            return;
+        }
+
         ?>
         <div class="table-responsive">
             <table class="table table-bordered">
@@ -2525,7 +2569,7 @@ class Display extends Base
                 <input type="hidden" name="action" id="go" value="addRecall" />
                 <div class="col-4 divTable m-2 ml-auto">
                     <div class="row divTableBody prefs">
-                            <div class="divTableCell divTableHeading text-right form-group col-4 col-md-4"><label><?php echo xlt('Name'); ?></label></div>
+                            <div class="divTableCell divTableHeading text-right form-group col-4 col-md-4"><label><?php echo xlt('Name'); ?><span class="text-danger">*</span></label></div>
                             <div class="divTableCell indent20 form-group col-8 col-md-8">
                                 <input type="text" name="new_recall_name" id="new_recall_name" class="form-control"
                                         onclick="recall_name_click(this)"
@@ -2569,7 +2613,7 @@ class Display extends Base
                                 <label for="new_recall_when_3yr" class="input-helper input-helper--checkbox">
                                 <input type="radio" name="new_recall_when" id="new_recall_when_3yr" value="1095" /> <?php echo xlt('plus 3 years'); ?></label>
                             </div>
-                            <span class="font-weight-bold"> <?php echo xlt('Date'); ?>:</span>
+                            <span class="font-weight-bold"> <?php echo xlt('Date'); ?>:<span class="text-danger">*</span></span>
                             <input class="datepicker form-control-sm text-center" type="text" id="form_recall_date" name="form_recall_date" value="" />
                         </div>
 
@@ -2585,7 +2629,7 @@ class Display extends Base
                     </div>
                     <div class="row divTableBody prefs">
                             <div class="text-right form-group col-4 col-md-4 divTableCell divTableHeading">
-                                <label><?php echo xlt('Provider'); ?></label>
+                                <label><?php echo xlt('Provider'); ?><span class="text-danger">*</span></label>
                             </div>
                             <div class="form-group col-8 col-md-8 divTableCell indent20">
                                     <?php
@@ -2625,7 +2669,7 @@ class Display extends Base
                     </div>
                     <div class="row divTableBody prefs">
                             <div class="text-right form-group col-4 col-md-4 divTableCell divTableHeading">
-                                <label><?php echo xlt('Facility'); ?></label>
+                                <label><?php echo xlt('Facility'); ?><span class="text-danger">*</span></label>
                             </div>
                             <div class="form-group col-8 col-md-8 divTableCell indent20">
                                 <select class="form-control ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all" name="new_facility" id="new_facility" style="width: 95%;">
@@ -2760,6 +2804,15 @@ class Display extends Base
                 ?>
             var xljs_NOTE = '<?php echo xl("NOTE"); ?>';
             var xljs_PthsApSched = '<?php echo xl("This patient already has an appointment scheduled for"); ?>';
+
+            var translations = {
+                patient_required: <?php echo xlj('Please select a patient'); ?>,
+                date_required: <?php echo xlj('Please select a recall date'); ?>,
+                provider_required: <?php echo xlj('Please select a provider'); ?>,
+                facility_required: <?php echo xlj('Please select a facility'); ?>,
+                no_recalls_found: <?php echo xlj('No Recalls Found'); ?>
+            };
+
 
         </script>
             <?php

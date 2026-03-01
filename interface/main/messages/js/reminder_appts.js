@@ -4,7 +4,9 @@
  * @package MedEx
  * @link    http://www.MedExbank.com
  * @author  MedEx <support@MedExBank.com>
+ * @author  Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017 MedEx <support@MedExBank.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -95,26 +97,49 @@ function setpatient(pid, lname='', fname='', dob='') {
  *  This function is called with pressing Submit on the Add a Recall page
  */
 function add_this_recall(e) {
-    if ($('#form_recall_date').val() === '') {
-        alert(xljs_PlsDecRecDate);
-        $("#form_recall_date").focus();
-        //e.defaultPrevented();
-        e.preventDefault();
-        return false;
-    } else {
-        var url = "save.php";
-        formData = JSON.stringify($("form#addRecall").serialize());
-        top.restoreSession();
-        $.ajax({
-            type: 'POST',
-            url: url,
-            dataType: 'json',
-            action: 'add_recall',
-            data: formData
-        }).done(function (result) {
-            goReminderRecall('Recalls');
-        });
+    let isValid = true;
+    let errorMessage = '';
+
+    if ($('#new_recall_name').val() === '' || $('#new_pid').val() === '') {
+        errorMessage += '- ' + translations.patient_required + '\n';
+        isValid = false;
     }
+
+    if ($('#form_recall_date').val() === '') {
+        errorMessage += '- ' + translations.date_required + '\n';
+        isValid = false;
+    }
+
+    if ($('#new_provider').val() === '' || $('#new_provider').val() === null) {
+        errorMessage += '- ' + translations.provider_required + '\n';
+        isValid = false;
+    }
+
+    if ($('#new_facility').val() === '' || $('#new_facility').val() === null) {
+        errorMessage += '- ' + translations.facility_required + '\n';
+        isValid = false;
+    }
+
+    if (!isValid) {
+        alert(errorMessage);
+        if (e && e.preventDefault) {
+            e.preventDefault();
+        }
+        return false;
+    }
+
+    var url = "save.php";
+    formData = JSON.stringify($("form#addRecall").serialize());
+    top.restoreSession();
+    $.ajax({
+        type: 'POST',
+        url: url,
+        dataType: 'json',
+        action: 'add_recall',
+        data: formData
+    }).done(function (result) {
+        goReminderRecall('Recalls');
+    });
 }
 
 /**
@@ -324,6 +349,30 @@ function goMedEx() {
 
 /****  END FUNCTIONS RELATED TO NAVIGATION *****/
 
+/**
+ * Convert a datepicker form value to ISO YYYY-MM-DD using the global date format.
+ *
+ * @param {string} val - Date string from a form field
+ * @return {string|null} ISO date string or null if empty/invalid
+ */
+function toISODate(val) {
+    if (!val) {
+        return null;
+    }
+    var fmt = window.top.jsGlobals.date_display_format || '0';
+    var parts;
+    switch (fmt) {
+        case '1': // MM/DD/YYYY
+            parts = val.split('/');
+            return parts[2] + '-' + parts[0] + '-' + parts[1];
+        case '2': // DD/MM/YYYY
+            parts = val.split('/');
+            return parts[2] + '-' + parts[1] + '-' + parts[0];
+        default: // 0 = YYYY-MM-DD (already ISO)
+            return val;
+    }
+}
+
 function show_this(colorish='') {
     var facV = $("#form_facility").val();
     var provV = $("#form_provider").val();
@@ -331,22 +380,53 @@ function show_this(colorish='') {
     var pidRE = new RegExp(pidV, 'i');
     var pnameV = $("#form_patient_name").val();
     var pnameRE = new RegExp(pnameV, 'i');
+    var fromISO = toISODate($("#form_from_date").val());
+    var toISO = toISODate($("#form_to_date").val());
 
-    $('.ALL').hide().filter(function () {
+    $('.ALL').hide();
+
+    var visibleRows = $('.ALL').filter(function () {
         var d = $(this).data();
-        meets_fac = (facV === '') || (facV == d.facility);
-        meets_prov = (provV === '') || (provV == d.provider);
-        meets_pid = pidV === '';
-        if ((pidV > '') && pidRE.test(d.pid)) {
-            meets_pid = true;
+        var meets_fac = (facV === '') || (facV == d.facility);
+        var meets_prov = (provV === '') || (provV == d.provider);
+        var meets_pid = (pidV === '') || pidRE.test(d.pid);
+        var meets_pname = (pnameV === '') || pnameRE.test(d.pname);
+        var meets_color = (colorish === '') || (colorish == d.status);
+        var meets_date = true;
+
+        if (fromISO || toISO) {
+            var rowDate = d.date; // ISO YYYY-MM-DD from data-date attribute
+            if (rowDate) {
+                if (fromISO && rowDate < fromISO) {
+                    meets_date = false;
+                }
+                if (toISO && rowDate > toISO) {
+                    meets_date = false;
+                }
+            }
         }
-        meets_pname = pnameV === '';
-        if ((pnameV > '') && pnameRE.test(d.pname)) {
-            meets_pname = true;
+
+        return meets_fac && meets_prov && meets_pid && meets_pname && meets_color && meets_date;
+    });
+
+    visibleRows.show('400', 'linear');
+
+    if (visibleRows.length === 0) {
+        if ($("#no_recalls_message").length > 0) {
+            $("#no_recalls_message").show();
+        } else {
+            $("#show_recalls").prepend(
+                '<div id="no_recalls_message" class="alert alert-info text-center">' +
+                translations.no_recalls_found +
+                '</div>'
+            );
         }
-        meets_color = (colorish === '') || (colorish == d.status );
-        return meets_fac && meets_prov && meets_pid && meets_pname && meets_color;
-    }).show('4000', 'linear');
+
+        $(".table-responsive").hide();
+    } else {
+        $("#no_recalls_message").hide();
+        $(".table-responsive").show();
+    }
 }
 
 //in bootstrap_menu.js
@@ -425,4 +505,7 @@ $(function () {
         }
     });
 
+    $("#form_from_date, #form_to_date").on('change', function() {
+        show_this();
+    });
 });
