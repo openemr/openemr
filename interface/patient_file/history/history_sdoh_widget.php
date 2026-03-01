@@ -189,12 +189,12 @@ $totalScore = (string) (($info['instrument_score'] ?? '') !== '' ? (int)$info['i
                     <span class="font-weight-bold"><?php echo xlt("SDOH (USCDI v3)"); ?></span>
                     <span class="btn-group btn-group-sm">
                     <?php
-                    $newUrl  = $self_form . '?' . http_build_query(['pid' => $pid, 'new' => 1]);
-                    $listUrl = $list_url  . '?' . http_build_query(['pid' => $pid]);
+                    $newUrl  = $self_form . '?' . http_build_query(['pid' => $pid, 'new' => 1, 'site' => $_SESSION['site_id']]);
+                    $listUrl = $list_url  . '?' . http_build_query(['pid' => $pid, 'site' => $_SESSION['site_id']]);
                     ?>
                     <a class="btn btn-outline-primary" href="<?php echo attr($newUrl); ?>"><?php echo xlt("New Assessment"); ?></a>
                     <?php if (!empty($info['id'])) :
-                        $editUrl = $self_form . '?' . http_build_query(['pid' => $pid, 'id' => (int)$info['id']]);
+                        $editUrl = $self_form . '?' . http_build_query(['pid' => $pid, 'id' => (int)$info['id'], 'site' => $_SESSION['site_id']]);
                         ?>
                         <a class="btn btn-primary" href="<?php echo attr($editUrl); ?>"><?php echo xlt("Edit"); ?></a>
                     <?php endif; ?>
