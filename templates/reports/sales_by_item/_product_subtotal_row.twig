@@ -1,0 +1,7 @@
+<tr class="product-total-row">
+    <td colspan="{% if show_details %}3{% else %}2{% endif %}">
+        {{ 'Total for' | xlt }} <strong>{{ row.product | xlt }}</strong>
+    </td>
+    <td class="text-right"><strong>{{ row.quantity }}</strong></td>
+    <td class="text-right currency"><strong>${{ "%.2f" | format(row.total) }}</strong></td>
+</tr>
