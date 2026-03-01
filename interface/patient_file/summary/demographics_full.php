@@ -205,9 +205,20 @@ $CPR = 4; // cells per row
             });
 
             // Support for beforeunload handler.
-            $('.tab input, .tab select, .tab textarea').change(function () {
+            // AI-generated code start - GitHub Copilot: Fixed selector to match actual form ID
+            // Enable debug logging: window.DEBUG_TAB_CHANGES = true or localStorage.setItem('DEBUG_TAB_CHANGES', 'true');
+            if (typeof window.DEBUG_TAB_CHANGES === 'undefined') {
+                window.DEBUG_TAB_CHANGES = localStorage.getItem('DEBUG_TAB_CHANGES') === 'true';
+            }
+            if (window.DEBUG_TAB_CHANGES) console.log('[demographics] Initializing change detection');
+            if (window.DEBUG_TAB_CHANGES) console.log('[demographics] Form elements found:', $('#DEM input, #DEM select, #DEM textarea').length);
+            
+            $('#DEM input, #DEM select, #DEM textarea').change(function () {
+                if (window.DEBUG_TAB_CHANGES) console.log('[demographics] Change detected on element:', this);
                 somethingChanged = true;
+                if (window.DEBUG_TAB_CHANGES) console.log('[demographics] somethingChanged set to:', somethingChanged);
             });
+            // AI-generated code end
             window.addEventListener("beforeunload", function (e) {
                 if (somethingChanged && !top.timed_out) {
                     var msg = <?php echo xlj('You have unsaved changes.'); ?>;
