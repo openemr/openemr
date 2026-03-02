@@ -587,7 +587,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         }
     }
 
-    protected function parseOpenEMRGenderIdentity(FhirPatient $patientResource, array $dataRecord): void
+    protected function parseOpenEMRGenderIdentity(FHIRPatient $patientResource, array $dataRecord): void
     {
         if (!empty($dataRecord['gender_identity'])) {
             $genderIdentityExtension = new FHIRExtension();
