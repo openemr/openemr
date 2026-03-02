@@ -39,16 +39,6 @@ if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
     }
 }
 
-// Sets default factory using the default database
-$factories = [
-    \Laminas\Db\Adapter\Adapter::class => function ($containerInterface, $requestedName) {
-        $adapterFactory = new Laminas\Db\Adapter\AdapterServiceFactory();
-        $adapter = $adapterFactory($containerInterface, $requestedName);
-        \Laminas\Db\TableGateway\Feature\GlobalAdapterFeature::setStaticAdapter($adapter);
-        return $adapter;
-    }
-];
-
 // sites/<site_id>/sqlconf.php stores the database connection settings into a global sqlconf variable
 // we will use that instead of the individual globals set previously.
 $sqlConf = $GLOBALS['sqlconf'] ?? ['dbase' => '', 'host' => '', 'login' => '', 'pass' => '', 'port' => ''];
@@ -62,7 +52,4 @@ return [
         'driver_options' => $utf8,
         'adapters'       => [],
     ],
-    'service_manager' => [
-        'factories' => $factories
-    ]
 ];
