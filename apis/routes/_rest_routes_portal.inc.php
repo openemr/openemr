@@ -27,7 +27,7 @@ use OpenEMR\Common\Http\HttpRestRequest;
 //  (there is a mechanism in place to ensure only patient role can access the portal (api) route)
 return [
     "GET /portal/patient" => function (HttpRestRequest $request) {
-        $return = (new PatientRestController())->getOne($request->getPatientUUIDString());
+        $return = (new PatientRestController())->getOne($request->getPatientUUIDString(), $request);
         return $return;
     },
     "GET /portal/patient/encounter" => function (HttpRestRequest $request) {
