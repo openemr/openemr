@@ -90,7 +90,14 @@ function safe_href(?string $url): string
     $scheme = parse_url($url, PHP_URL_SCHEME);
 
     // No explicit scheme means a relative URL — safe
-    if ($scheme === null || $scheme === false) {
+    if ($scheme === null) {
+        return attr($url);
+    }
+
+    // Block malformed URLs that parse_url can't handle
+    if ($scheme === false) {
+        return '#';
+    }
         return attr($url);
     }
 
