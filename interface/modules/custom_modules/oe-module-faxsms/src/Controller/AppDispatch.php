@@ -18,6 +18,7 @@ use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
+use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
 use OpenEMR\Services\PhoneNumberService;
 
 /**
@@ -86,7 +87,10 @@ abstract class AppDispatch
                 );
             } else {
                 $this->setHeader("HTTP/1.0 404 Not Found");
-                die(xlt("Requested") . ' ' . text($action) . ' ' . xlt("or service is not found.") . '<br />' . xlt("Install or turn service on!"));
+                throw new \RuntimeException(
+                    xlt("Requested") . ' ' . text($action) . ' '
+                    . xlt("or service is not found.") . ' ' . xlt("Install or turn service on!")
+                );
             }
         } else {
             // Not an internal route so pass on to current service index action.
@@ -256,20 +260,20 @@ abstract class AppDispatch
 
         $factoryMap = [
             'sms' => [
-                1 => fn(): RCFaxClient => new RCFaxClient(),
-                2 => fn(): TwilioSMSClient => new TwilioSMSClient(),
-                5 => fn(): ClickatellSMSClient => new ClickatellSMSClient(),
+                ServiceType::RINGCENTRAL->value => fn(): RCFaxClient => new RCFaxClient(),
+                ServiceType::TWILIO_SMS->value => fn(): TwilioSMSClient => new TwilioSMSClient(),
+                ServiceType::CLICKATELL_SMS->value => fn(): ClickatellSMSClient => new ClickatellSMSClient(),
             ],
             'fax' => [
-                1 => fn(): RCFaxClient => new RCFaxClient(),
-                3 => fn(): EtherFaxActions => new EtherFaxActions(),
-                6 => fn(): SignalWireClient => new SignalWireClient(),
+                ServiceType::RINGCENTRAL->value => fn(): RCFaxClient => new RCFaxClient(),
+                ServiceType::ETHERFAX->value => fn(): EtherFaxActions => new EtherFaxActions(),
+                ServiceType::SIGNALWIRE->value => fn(): SignalWireClient => new SignalWireClient(),
             ],
             'email' => [
-                4 => fn(): EmailClient => new EmailClient(),
+                ServiceType::EMAIL->value => fn(): EmailClient => new EmailClient(),
             ],
             'voice' => [
-                9 => fn(): VoiceClient => new VoiceClient(),
+                ServiceType::VOICE->value => fn(): VoiceClient => new VoiceClient(),
             ],
         ];
 
@@ -278,8 +282,10 @@ abstract class AppDispatch
             return $factory();
         }
 
-        http_response_code(404);
-        die(xlt("Requested") . ' ' . text($type) . ' ' . xlt("service is not found.") . '<br />' . xlt("Install or turn service on!"));
+        throw new \RuntimeException(
+            xlt("Requested") . ' ' . text($type) . ' '
+            . xlt("service is not found.") . ' ' . xlt("Install or turn service on!")
+        );
     }
 
     /**
@@ -306,8 +312,10 @@ abstract class AppDispatch
             return $GLOBALS['oe_enable_voice'] ?? null;
         }
 
-        http_response_code(404);
-        die(xlt("Requested") . ' ' . text(self::$_apiModule) . ' ' . xlt("service is not found.") . '<br />' . xlt("Install or turn service on!") . '<br />');
+        throw new \RuntimeException(
+            xlt("Requested") . ' ' . text(self::$_apiModule) . ' '
+            . xlt("service is not found.") . ' ' . xlt("Install or turn service on!")
+        );
     }
 
     /**
@@ -458,16 +466,8 @@ abstract class AppDispatch
      */
     static function getModuleVendor(): ?string
     {
-        return match ((string)self::getServiceType()) {
-            '1' => '_ringcentral',
-            '2' => '_twilio',
-            '3' => '_etherfax',
-            '4' => '_email',
-            '5' => '_clickatell',
-            '6' => '_signalwire',
-            '9' => '_voice',
-            default => null,
-        };
+        $service = ServiceType::fromValue(self::getServiceType());
+        return $service->getVendorKey() ?: null;
     }
 
     public function getEmailSetup(): mixed
