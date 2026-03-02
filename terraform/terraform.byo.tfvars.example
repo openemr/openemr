@@ -1,0 +1,36 @@
+deployment_preset      = "byo"
+create_acm_certificate = false
+create_db              = false
+create_monitoring      = true
+
+name_prefix = "openemr"
+aws_region  = "us-east-2"
+
+network_reference = {
+  vpc_id             = "vpc-0123456789abcdef0"
+  public_subnet_ids  = ["subnet-public-a", "subnet-public-b"]
+  private_subnet_ids = ["subnet-private-a", "subnet-private-b"]
+  db_subnet_ids      = ["subnet-db-a", "subnet-db-b"]
+}
+
+load_balancer_reference = {
+  alb_arn                  = "arn:aws:elasticloadbalancing:us-east-2:123456789012:loadbalancer/app/example/abc123"
+  alb_security_group_id    = "sg-0123456789abcdef0"
+  https_listener_arn       = "arn:aws:elasticloadbalancing:us-east-2:123456789012:listener/app/example/abc123/ghi789"
+  http_listener_arn        = "arn:aws:elasticloadbalancing:us-east-2:123456789012:listener/app/example/abc123/def456"
+  openemr_target_group_arn = "arn:aws:elasticloadbalancing:us-east-2:123456789012:targetgroup/openemr/xyz123"
+}
+
+database_reference = {
+  endpoint            = "mydb.abc.us-east-2.rds.amazonaws.com"
+  port                = 3306
+  db_name             = "openemr_primary"
+  username            = "openemr_admin"
+  password_secret_arn = "arn:aws:secretsmanager:us-east-2:123456789012:secret:external-db"
+}
+
+existing_certificate_arn = "arn:aws:acm:us-east-2:123456789012:certificate/00000000-1111-2222-3333-444444444444"
+hosted_zone_name         = "example.com"
+openemr_hostname         = "openemr.example.com"
+openemr_allowed_cidrs    = ["203.0.113.10/32"]
+openemr_image            = "openemr/openemr:8.0.1"
