@@ -12,10 +12,9 @@
 
 namespace Carecoordination\Model;
 
-use Laminas\Db\TableGateway\AbstractTableGateway;
 use OpenEMR\Common\Database\QueryUtils;
 
-class SetupTable extends AbstractTableGateway
+class SetupTable
 {
     /*
     * This function will return an array of CCDA components and its sections, which will be displayed in the configuration screen.

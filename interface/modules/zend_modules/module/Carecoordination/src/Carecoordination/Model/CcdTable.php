@@ -12,10 +12,9 @@
 
 namespace Carecoordination\Model;
 
-use Laminas\Db\TableGateway\AbstractTableGateway;
 use OpenEMR\Common\Database\QueryUtils;
 
-class CcdTable extends AbstractTableGateway
+class CcdTable
 {
     protected $ccd_data_array;
 

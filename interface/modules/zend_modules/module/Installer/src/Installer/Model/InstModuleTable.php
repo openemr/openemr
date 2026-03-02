@@ -17,10 +17,6 @@
 namespace Installer\Model;
 
 use Interop\Container\ContainerInterface;
-use Laminas\Db\Adapter\Driver\Pdo\Result;
-use Laminas\Db\ResultSet\ResultSet;
-use Laminas\Db\TableGateway\Feature\GlobalAdapterFeature;
-use Laminas\Db\TableGateway\TableGateway;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -28,10 +24,6 @@ use OpenEMR\Services\Utils\SQLUpgradeService;
 
 class InstModuleTable
 {
-    protected $tableGateway;
-    protected $adapter;
-    protected $resultSetPrototype;
-
     /**
      * The path for the zend modules locations
      *
@@ -42,18 +34,9 @@ class InstModuleTable
     public const MODULE_TYPE_ZEND = 1;
     public const MODULE_TYPE_CUSTOM = 0;
 
-    /**
-     * @param TableGateway $tableGateway
-     * @param ContainerInterface $container We have to create and populate some classes so we use the service container to load them
-     */
     public function __construct(
-        TableGateway $tableGateway,
         private readonly ContainerInterface $container
     ) {
-        $this->tableGateway = $tableGateway;
-        $adapter = GlobalAdapterFeature::getStaticAdapter();
-        $this->adapter = $adapter;
-        $this->resultSetPrototype = new ResultSet();
         $this->module_zend_path = $GLOBALS['srcdir'] . DIRECTORY_SEPARATOR
             . ".." . DIRECTORY_SEPARATOR . $GLOBALS['baseModDir'] . $GLOBALS['zendModDir'] . DIRECTORY_SEPARATOR . "module";
     }
@@ -61,7 +44,7 @@ class InstModuleTable
     /**
      * Get All Modules Configuration Settings
      *
-     * @return Result
+     * @return array
      */
     public function getConfigSettings($id)
     {

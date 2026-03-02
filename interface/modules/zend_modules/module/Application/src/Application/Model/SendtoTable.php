@@ -12,10 +12,9 @@
 
 namespace Application\Model;
 
-use Laminas\Db\TableGateway\AbstractTableGateway;
 use OpenEMR\Common\Database\QueryUtils;
 
-class SendtoTable extends AbstractTableGateway
+class SendtoTable
 {
     /**
      * @return list<array<string, mixed>>

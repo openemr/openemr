@@ -1547,19 +1547,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:loadModuleConfigFile\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:getConfigSettings\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Installer\\\\Model\\\\InstModuleTableGateway\\:\\:__construct\\(\\) has parameter \\$resultSetPrototype with no value type specified in iterable type Laminas\\\\Db\\\\ResultSet\\\\ResultSetInterface\\.$#',
+    'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:loadModuleConfigFile\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTableGateway.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Installer\\\\Model\\\\InstModuleTableGateway\\:\\:__construct\\(\\) has parameter \\$table with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTableGateway.php',
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method PatientFilter\\\\Module\\:\\:getBlacklist\\(\\) return type has no value type specified in iterable type array\\.$#',
