@@ -29,7 +29,6 @@ class Documents extends AbstractPlugin
    **/
     public function __construct($sm)
     {
-        $sm->get(\Laminas\Db\Adapter\Adapter::class);
         $this->documentsTable = new DocumentsTable();
     }
 
