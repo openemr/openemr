@@ -109,9 +109,16 @@ class NotificationEventListener implements EventSubscriberInterface
 
     private function getRCCredentials($serviceType = 'voice'): array
     {
-        // Set the module type for AppDispatch i.e. voice, fax, sms, email
         AppDispatch::setModuleType($serviceType);
-        $clientApp = AppDispatch::getApiService($serviceType);
+        try {
+            $clientApp = AppDispatch::getApiService($serviceType);
+        } catch (\Throwable $e) {
+            \OpenEMR\BC\ServiceContainer::getLogger()->warning(
+                "FaxSMS: failed to load service",
+                ['type' => $serviceType, 'message' => $e->getMessage()]
+            );
+            return ['appKey' => '', 'appSecret' => '', 'jwt' => ''];
+        }
         return $clientApp->getCredentials();
     }
 
