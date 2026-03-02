@@ -28,6 +28,10 @@
 // any questions contact Daniel Pflieger at daniel@growlingflea.com
 
 require_once("../globals.php");
+
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionUtil;
+
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/appointments.inc.php");
 require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
@@ -75,16 +79,14 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
 
     function is_auth_portal($pid = 0)
     {
-        if ($pData = sqlQuery("SELECT id, allow_patient_portal, fname, lname FROM `patient_data` WHERE `pid` = ?", [$pid])) {
-            if ($pData['allow_patient_portal'] != "YES") {
-                return false;
-            } else {
-                $_SESSION['portalUser'] = strtolower((string) $pData['fname']) . $pData['id'];
-                return true;
-            }
-        } else {
-            return false;
+        $rows = QueryUtils::fetchRecords("SELECT id, allow_patient_portal, fname FROM `patient_data` WHERE `pid` = ?", [$pid]);
+        $pData = $rows[0] ?? null;
+        if ($pData !== null && $pData['allow_patient_portal'] === "YES") {
+            SessionUtil::setSession('portalUser', strtolower((string) $pData['fname']) . $pData['id']);
+            return true;
         }
+
+        return false;
     }
 
     function notify_portal($thispid, array $invoices, $template, $invid)
@@ -196,7 +198,7 @@ function emailLogin(int $patient_id, string $message): void
         throw new InvalidArgumentException('Statement message has no text content');
     }
 
-    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", [$patient_id]);
+    $patientData = QueryUtils::querySingleRow("SELECT * FROM `patient_data` WHERE `pid`=?", [$patient_id]);
     if ($patientData['hipaa_allowemail'] != "YES" || ($patientData['email'] ?? '') === '' || ($GLOBALS['patient_reminder_sender_email'] ?? '') === '') {
         throw new RuntimeException(xl('Email is not allowed or not configured for this patient'));
     }
@@ -210,11 +212,9 @@ function emailLogin(int $patient_id, string $message): void
     }
 
     if ($_SESSION['pc_facility']) {
-        $sql = "select * from facility where id=?";
-        $facility = sqlQuery($sql, [$_SESSION['pc_facility']]);
+        $facility = QueryUtils::querySingleRow("select * from facility where id=?", [$_SESSION['pc_facility']]);
     } else {
-        $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
-        $facility = sqlQuery($sql);
+        $facility = QueryUtils::querySingleRow("SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1");
     }
 
     $mail = new MyMailer();
@@ -496,7 +496,7 @@ if (
         // Recompute age at each invoice.
         $stmt['age'] = round((strtotime($today) - strtotime((string) $stmt['duedate'])) / (24 * 60 * 60));
         // grab last bill date from billing
-        $bdrow = sqlQuery("select bill_date from billing where pid = ? AND encounter = ? limit 1", [$row['pid'], $row['encounter']]);
+        $bdrow = QueryUtils::querySingleRow("select bill_date from billing where pid = ? AND encounter = ? limit 1", [$row['pid'], $row['encounter']]);
 
         $invlines = InvoiceSummary::arGetInvoiceSummary($row['pid'], $row['encounter'], true);
         foreach ($invlines as $key => $value) {
@@ -570,7 +570,7 @@ if (
                     $d = new Document();
                     $doc_pid = $inv_pid[$inv_count];
                     $invoice_category_id = 0;
-                    $catrow = sqlQuery("SELECT id FROM categories WHERE name = ?", ['Invoices']);
+                    $catrow = QueryUtils::querySingleRow("SELECT id FROM categories WHERE name = ?", ['Invoices']);
                     if (!empty($catrow['id'])) {
                         $invoice_category_id = $catrow['id'];
                     }
@@ -1189,7 +1189,7 @@ if (
                                     <?php } ?>
                                     <td class="detail text-left">
                                         <?php
-                                        $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", [$row['pid']]);
+                                        $patientData = QueryUtils::querySingleRow("SELECT * FROM `patient_data` WHERE `pid`=?", [$row['pid']]);
                                         if ($patientData['hipaa_allowemail'] == "YES" && $patientData['allow_patient_portal'] == "YES" && $patientData['hipaa_notice'] == "YES" && ValidationUtils::isValidEmail($patientData['email'])) {
                                             echo xlt("YES");
                                         } else {

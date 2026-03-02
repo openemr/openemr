@@ -3517,7 +3517,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'bill_date\' on array\\|false\\.$#',
+    'message' => '#^Cannot access offset \'bill_date\' on array\\<mixed\\>\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
@@ -3602,7 +3602,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'hipaa_allowemail\' on array\\|false\\.$#',
+    'message' => '#^Cannot access offset \'hipaa_allowemail\' on array\\<mixed\\>\\|false\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
@@ -3647,7 +3647,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'name\' on array\\|false\\.$#',
+    'message' => '#^Cannot access offset \'name\' on array\\<mixed\\>\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
 ];
