@@ -17422,31 +17422,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/templates/weno_users.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'dbase\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/config/autoload/global.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'host\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/config/autoload/global.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'login\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/config/autoload/global.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pass\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/config/autoload/global.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'port\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/config/autoload/global.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'allowed\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Controller/AclController.php',
