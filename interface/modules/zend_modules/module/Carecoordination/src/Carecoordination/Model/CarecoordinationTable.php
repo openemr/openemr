@@ -20,7 +20,6 @@ use Documents\Model\DocumentsTable;
 use Documents\Plugin\Documents;
 use DOMDocument;
 use Exception;
-use Laminas\Db\TableGateway\AbstractTableGateway;
 use OpenEMR\Common\Command\Trait\CommandLineDebugStylerTrait;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\Cda\CdaTemplateImportDispose;
@@ -31,7 +30,7 @@ use OpenEMR\Services\Cda\XmlExtended;
 use OpenEMR\Services\CodeTypesService;
 
 
-class CarecoordinationTable extends AbstractTableGateway
+class CarecoordinationTable
 {
     use CommandLineDebugStylerTrait;
 

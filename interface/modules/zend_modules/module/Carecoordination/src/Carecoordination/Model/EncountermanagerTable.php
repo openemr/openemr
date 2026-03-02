@@ -21,14 +21,13 @@ use Application\Plugin\CommonPlugin;
 use CouchDB;
 use DOMDocument;
 use Dompdf\Dompdf;
-use Laminas\Db\TableGateway\AbstractTableGateway;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\DirectMessaging\ErrorConstants;
 use OpenEMR\Common\Logging\SystemLogger;
 use XSLTProcessor;
 
-class EncountermanagerTable extends AbstractTableGateway
+class EncountermanagerTable
 {
     public function getEncounters($data, $getCount = null)
     {

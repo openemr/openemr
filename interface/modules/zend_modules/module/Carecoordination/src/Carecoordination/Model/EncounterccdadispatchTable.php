@@ -21,7 +21,6 @@ use Application\Listener\Listener;
 use Application\Model\SendtoTable;
 use Carecoordination\Model\CarecoordinationTable;
 use Documents\Plugin\Documents;
-use Laminas\Db\TableGateway\AbstractTableGateway;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\ORDataObject\ContactAddress;
@@ -51,7 +50,7 @@ require_once(__DIR__ . "/../../../../../../../../custom/code_types.inc.php");
 require_once(__DIR__ . "/../../../../../../../forms/vitals/report.php");
 require_once($GLOBALS['fileroot'] . '/library/amc.php');
 
-class EncounterccdadispatchTable extends AbstractTableGateway
+class EncounterccdadispatchTable
 {
     const CCDA_DOCUMENT_FOLDER = "CCDA";
     public $amc_num_result = [
@@ -65,7 +64,6 @@ class EncounterccdadispatchTable extends AbstractTableGateway
     public $searchFiltered = false;
     private $encounterFilterList = [];
 
-    protected $adapter;
     private readonly SessionWrapperInterface $session;
 
     public function __construct()
