@@ -149,7 +149,7 @@ return [
             CcdTable::class =>  fn(ContainerInterface $container, $requestedName): \Carecoordination\Model\CcdTable => new CcdTable(),
             ModuleconfigForm::class => fn(ContainerInterface $container, $requestedName): \Carecoordination\Form\ModuleconfigForm => new ModuleconfigForm(),
             // so this isn't really a 'controller' class used as a route 'controller' but more to reuse component code for other modules...
-            ModuleconfigController::class => fn(ContainerInterface $container, $requestedName): \Carecoordination\Controller\ModuleconfigController => new ModuleconfigController($container->get(\Laminas\Db\Adapter\Adapter::class)),
+            ModuleconfigController::class => fn(ContainerInterface $container, $requestedName): \Carecoordination\Controller\ModuleconfigController => new ModuleconfigController(),
             SetupController::class => SetupControllerFactory::class,
             EncounterccdadispatchController::class => EncounterccdadispatchControllerFactory::class,
             CCDAEventsSubscriber::class => fn(ContainerInterface $container, $requestedName): \Carecoordination\Listener\CCDAEventsSubscriber => new CCDAEventsSubscriber($container->get(CcdaGenerator::class)),
