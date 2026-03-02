@@ -4,7 +4,7 @@
  * Log Viewer.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2017-2019 Brady Miller <brady.g.miller@gmail.com>
@@ -20,6 +20,7 @@ use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: Logs Viewer", xl("Logs Viewer"));
@@ -136,11 +137,11 @@ if (!empty($_GET)) {
                                 <div class="form-row">
                                     <label class="col-sm-1 col-form-label" for="start_date"><?php echo xlt('Start Date'); ?>:</label>
                                     <div class="col-sm-3">
-                                        <input class="datetimepicker form-control" type="text" size="18" name="start_date" id="start_date" value="<?php echo attr(oeFormatDateTime($start_date, 0)); ?>" title="<?php echo xla('Start Date'); ?>" />
+                                        <input class="datetimepicker form-control" type="text" size="18" name="start_date" id="start_date" value="<?php echo attr(DateFormatterUtils::oeFormatDateTime($start_date, 0)); ?>" title="<?php echo xla('Start Date'); ?>" />
                                     </div>
                                     <label class="col-sm-1 col-form-label" for="end_date"><?php echo xlt('End Date'); ?>:</label>
                                     <div class="col-sm-3">
-                                        <input class="datetimepicker form-control" type="text" size="18" name="end_date" id="end_date" value="<?php echo attr(oeFormatDateTime($end_date, 0)); ?>" title="<?php echo xla('End Date'); ?>" />
+                                        <input class="datetimepicker form-control" type="text" size="18" name="end_date" id="end_date" value="<?php echo attr(DateFormatterUtils::oeFormatDateTime($end_date, 0)); ?>" title="<?php echo xla('End Date'); ?>" />
                                     </div>
                                     <label class="col-sm-1 col-form-label" for="end_date"><?php echo xlt('Patient'); ?>:</label>
                                     <div class="col-sm-3">
@@ -367,7 +368,7 @@ if (!empty($_GET)) {
                                                 }
                                                 ?>
                                                 <tr>
-                                                    <td><?php echo text(oeFormatDateTime($iter["date"], 'global', true)); ?></td>
+                                                    <td><?php echo text(DateFormatterUtils::oeFormatDateTime($iter["date"], 'global', true)); ?></td>
                                                     <td><?php echo text(preg_replace('/select$/', 'Query', (string) $iter["event"])); //Convert select term to Query for MU2 requirements ?></td>
                                                     <td><?php echo text($iter["category"]); ?></td>
                                                     <td><?php echo text($iter["user"]); ?></td>
@@ -399,7 +400,7 @@ if (!empty($_GET)) {
                                                     $comments = xl('Recipient Name') . ":" . $iter["recipient"] . ";" . xl('Disclosure Info') . ":" . $iter["description"];
                                                     ?>
                                                     <tr>
-                                                        <td><?php echo text(oeFormatDateTime($iter["date"], 'global', true)); ?></td>
+                                                        <td><?php echo text(DateFormatterUtils::oeFormatDateTime($iter["date"], 'global', true)); ?></td>
                                                         <td><?php echo xlt($iter["event"]); ?></td>
                                                         <td><?php echo xlt($iter["category"] ?? ''); ?></td>
                                                         <td><?php echo text($iter["user"]); ?></td>

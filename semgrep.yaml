@@ -55,8 +55,11 @@ rules:
   - pattern: xmlEscape(...)
   - pattern: csvEscape(...)
   - pattern: errorLogEscape(...)
-      # OpenEMR display function (library/options.inc.php) - uses htmlspecialchars internally
+      # OpenEMR display functions (library/options.inc.php) - use htmlspecialchars internally
   - pattern: generate_display_field(...)
+  - pattern: generate_select_list(...)
+      # JSON encoding - safe for HTML context (encodes special chars)
+  - pattern: json_encode(...)
   fix: echo attr($...VARS);
   metadata:
     technology:
@@ -136,8 +139,11 @@ rules:
   - pattern: xmlEscape(...)
   - pattern: csvEscape(...)
   - pattern: errorLogEscape(...)
-      # OpenEMR display function (library/options.inc.php) - uses htmlspecialchars internally
+      # OpenEMR display functions (library/options.inc.php) - use htmlspecialchars internally
   - pattern: generate_display_field(...)
+  - pattern: generate_select_list(...)
+      # JSON encoding - safe for HTML context (encodes special chars)
+  - pattern: json_encode(...)
   fix: print attr($...VARS);
   metadata:
     technology:

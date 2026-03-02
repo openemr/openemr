@@ -6,7 +6,7 @@
  * Sponsored by David Eschelbacher, MD
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -20,7 +20,6 @@ require_once(__DIR__ . "/../../globals.php");
 require_once "$srcdir/user.inc.php";
 require_once "$srcdir/options.inc.php";
 
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;

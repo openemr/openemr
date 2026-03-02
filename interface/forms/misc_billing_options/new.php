@@ -4,7 +4,7 @@
  * This program creates the misc_billing_form
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Terry Hill <terry@lilysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
@@ -26,7 +26,6 @@ require_once("$srcdir/user.inc.php");
 require_once("$srcdir/pid.inc.php");
 require_once("$srcdir/encounter.inc.php");
 
-use OpenEMR\Billing\MiscBillingOptions;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Core\Header;

@@ -5,21 +5,18 @@
  * Manages relationships between contacts and other entities
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services;
 
-use League\Csv\Exception;
 use OpenEMR\Common\ORDataObject\ContactRelation;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Services\ListService;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
-use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Common\Session\SessionWrapperFactory;

@@ -4,7 +4,7 @@
  * SignalWire Fax Client
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    SignalWire Integration
  * @copyright Copyright (c) 2024
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -17,11 +17,8 @@ use Exception;
 use MyMailer;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Http\oeHttp;
-use OpenEMR\Common\Http\oeHttpRequest;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Exception\FaxDocumentException;
-use OpenEMR\Modules\FaxSMS\Exception\FaxNotFoundException;
 use SignalWire\Rest\Client;
 
 class SignalWireClient extends AppDispatch

@@ -588,7 +588,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$text on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 1,
+    'count' => 6,
     'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
 ];
 $ignoreErrors[] = [
@@ -760,11 +760,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$records on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/UserService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$DateValue on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Utils/DateFormatterUtils.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

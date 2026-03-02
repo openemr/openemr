@@ -2,7 +2,7 @@
 
 /**
  * @package   OpenEMR Care Team
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
@@ -16,7 +16,6 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Utils\ValidationUtils;
-use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
 use OpenEMR\Services\CareTeamService;

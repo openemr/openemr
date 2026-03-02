@@ -4,7 +4,7 @@
  * Front payment gui.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@open-emr.org>
@@ -39,7 +39,6 @@ use OpenEMR\OeUI\OemrUI;
 use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 use OpenEMR\Services\FacilityService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -462,7 +461,8 @@ function toencounter(enc, datestr, topframe) {
         width: 100%;
     }
     table.mini_table>tbody>tr>th {
-        background-color: var(--secondary);
+        background-color: var(--light);
+        color: var(--dark);
         text-align: center;
     }
     body>table.mini_table>tbody>tr>td {
@@ -472,16 +472,18 @@ function toencounter(enc, datestr, topframe) {
         border: 1px solid #fff;
     }
     body>table.mini_table>tbody>tr>th {
-        border: 1px solid var(--secondary);
+        border: 1px solid var(--light);
     }
     .bg-color {
-        background-color: var(--secondary);
+        background-color: var(--light);
+        color: var(--dark);
         padding: 2px;
         font-weight: 600;
         -webkit-print-color-adjust: exact;
     }
     .bg-color-w {
-        background-color: var(--secondary);
+        background-color: var(--light);
+        color: var(--dark);
         font-weight: 600;
         -webkit-print-color-adjust: exact!important; }
     @media print {
@@ -490,11 +492,13 @@ function toencounter(enc, datestr, topframe) {
         }
 
         tr.bg-color-w{
-            background-color: var(--secondary)!important;
+            background-color: var(--light)!important;
+            color: var(--dark)!important;
             -webkit-print-color-adjust: exact;
         }
         tr.bg-color{
-            background-color: var(--secondary) !important;
+            background-color: var(--light) !important;
+            color: var(--dark)!important;
             -webkit-print-color-adjust: exact;
         }
     }

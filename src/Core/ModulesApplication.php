@@ -4,7 +4,7 @@
  * ModulesApplication class.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <stephen@nielson.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -15,7 +15,6 @@
 
 namespace OpenEMR\Core;
 
-use Exception;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Events\Core\ModuleLoadEvents;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

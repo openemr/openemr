@@ -8,19 +8,17 @@
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
  * @license   GNU General Public License 3
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  */
 
 declare(strict_types=1);
 
 namespace OpenEMR\Tests\Unit\Common\Crypto;
 
-use Error;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Crypto\KeyVersion;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionMethod;

@@ -14,6 +14,9 @@
 
 /**
  * Escape a javascript literal.
+ *
+ * @param string $text
+ * @return string
  */
 function js_escape($text)
 {
@@ -22,6 +25,9 @@ function js_escape($text)
 
 /**
  * Escape a javascript literal with a protected string
+ *
+ * @param string $text
+ * @return string
  */
 function js_escape_protected($text, string $protected = '\r\n')
 {
@@ -34,22 +40,29 @@ function js_escape_protected($text, string $protected = '\r\n')
 
 /**
  * Escape a javascript literal within html onclick attribute.
+ *
+ * @param string $text
  */
-function attr_js($text)
+function attr_js($text): string
 {
     return attr(json_encode($text));
 }
 
 /**
  * Escape html and url encode a url item.
+ *
+ * @param string $text
  */
-function attr_url($text)
+function attr_url($text): string
 {
     return attr(urlencode($text ?? ''));
 }
 
 /**
  * Escape js and url encode a url item.
+ *
+ * @param string $text
+ * @return string
  */
 function js_url($text)
 {
@@ -58,8 +71,10 @@ function js_url($text)
 
 /**
  * Escape variables that are outputted into the php error log.
+ *
+ * @param string $text
  */
-function errorLogEscape($text)
+function errorLogEscape($text): string
 {
     return attr($text);
 }
@@ -74,15 +89,16 @@ function errorLogEscape($text)
  *  4. Surround with double quotes (no reference link, but seems very reasonable, which will prevent commas from breaking things).
  * If needed in future, will add a second parameter called 'options' which will be an array of option tokens that will allow
  * less stringent (or more stringent) mechanisms to escape for csv.
+ * @param string $text
  */
-function csvEscape($text)
+function csvEscape($text): string
 {
     // 1. Remove all the following characters:  = + " |
     $text = preg_replace('/[=+"|]/', '', $text ?? '');
 
     // 2. Only remove leading - characters (since need in dates)
     // 3. Only remove leading @ characters (since need in email addresses)
-    $text = preg_replace('/^[\-@]+/', '', $text);
+    $text = preg_replace('/^[\-@]+/', '', (string) $text);
 
     // 4. Surround with double quotes (no reference link, but seems very reasonable, which will prevent commas from breaking things).
     return '"' . $text . '"';
@@ -97,8 +113,9 @@ function csvEscape($text)
  *
  * Escapes & < > ' "
  * TODO: not sure if need to escape ' and ", which are escaping for now (via the ENT_QUOTES flag)
+ * @param string $text
  */
-function xmlEscape($text)
+function xmlEscape($text): string
 {
     return htmlspecialchars(($text ?? ''), ENT_XML1 | ENT_QUOTES);
 }
@@ -147,7 +164,7 @@ function javascriptStringCheck(?string $text): bool
  *                     or ">".
  * @return string The string, with "&", "<", and ">" escaped.
  */
-function text($text)
+function text($text): string
 {
     return htmlspecialchars(($text ?? ''), ENT_NOQUOTES);
 }
@@ -202,11 +219,9 @@ function textArray(array $arr, $depth = 0)
  * be done when embedded other languages (like JavaScript) inside HTML /
  * XML documents.
  *
- * @param string $text The string to escape, possibly including (&), (<),
- *                     (>), ('), and (").
- * @return string The string, with (&), (<), (>), ("), and (') escaped.
+ * @param string $text The string to escape
  */
-function attr($text)
+function attr($text): string
 {
     return htmlspecialchars(($text ?? ''), ENT_QUOTES);
 }
@@ -218,6 +233,7 @@ function attr($text)
  * TODO: Hide this function so it can be called from this file but not from
  * PHP that includes / requires this file.  Either that, or write reasonable
  * documentation and clean up the name.
+ * @return string
  */
 function hsc_private_xl_or_warn($key)
 {

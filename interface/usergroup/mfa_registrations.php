@@ -4,7 +4,7 @@
  * Multi-Factor Authentication Management
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Rod Roark <rod@sunsetsystems.com>

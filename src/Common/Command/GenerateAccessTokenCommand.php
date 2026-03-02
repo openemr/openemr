@@ -4,7 +4,7 @@
  * GenerateAccessTokenTestCommand is a command that generates an access token for a test client
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2023 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -28,11 +28,9 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
-use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\Services\Trait\GlobalInterfaceTrait;
 use OpenEMR\Common\Http\Psr17Factory;
-use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\IGlobalsAware;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Services\PatientService;
@@ -49,7 +47,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorage;
-use Exception;
 use DateTimeImmutable;
 use DateInterval;
 use RuntimeException;

@@ -2,7 +2,7 @@
 /*
  * PlaceOfServiceEnum.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright (C) 2016 Sherwin Gaddis <sherwingaddis@gmail.com>

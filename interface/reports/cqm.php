@@ -4,7 +4,7 @@
  * CDR reports.  Handles the generation and display of CQM/AMC/patient_alerts/standard reports
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2010-2018 Brady Miller <brady.g.miller@gmail.com>
@@ -28,6 +28,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PractitionerService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Report", xl("Report"));
@@ -123,7 +124,7 @@ $twig = $twigContainer->getTwig();
 $formData = [
     'type_report' => $type_report
     ,'heading_title' => $heading_title
-    ,'date_report' => isset($date_report) ? oeFormatDateTime($date_report, "global", true) : ''
+    ,'date_report' => isset($date_report) ? DateFormatterUtils::oeFormatDateTime($date_report, "global", true) : ''
     ,'report_id' => $report_id ?? null
     ,'show_help' => $show_help
     ,'oemrUiSettings' =>  [
@@ -141,8 +142,8 @@ $formData = [
     ,'widthDyn' => '610px'
     ,'is_amc_report' => $is_amc_report
     ,'dis_text' => (!empty($report_id) ? "disabled='disabled'" : "")
-    ,'begin_date' => isset($begin_date) ? oeFormatDateTime($begin_date, 0, true) : ""
-    ,'target_date' => oeFormatDateTime($target_date, 0, true)
+    ,'begin_date' => isset($begin_date) ? DateFormatterUtils::oeFormatDateTime($begin_date, 0, true) : ""
+    ,'target_date' => DateFormatterUtils::oeFormatDateTime($target_date, 0, true)
     ,'target_date_label' => ($is_amc_report ? xl('End Date') : xl('Target Date'))
     ,'rule_filters' => []
     ,'show_plans' => !$is_amc_report

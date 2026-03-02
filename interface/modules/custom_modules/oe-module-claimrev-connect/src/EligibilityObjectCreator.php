@@ -3,7 +3,7 @@
 /**
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
@@ -15,9 +15,6 @@
 namespace OpenEMR\Modules\ClaimRevConnector;
 
 use OpenEMR\Modules\ClaimRevConnector\EligibilityData;
-use OpenEMR\Modules\ClaimRevConnector\EligibilityInquiryRequest;
-use OpenEMR\Modules\ClaimRevConnector\InformationReceiver;
-use OpenEMR\Modules\ClaimRevConnector\SubscriberPatientEligibilityRequest;
 use OpenEMR\Modules\ClaimRevConnector\RevenueToolsRequest;
 use OpenEMR\Modules\ClaimRevConnector\RevenueToolsPayer;
 

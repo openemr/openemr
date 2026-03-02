@@ -2,7 +2,7 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023 Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -19,7 +19,6 @@ if (!$GLOBALS ?? null) {
 use Exception;
 use League\Csv\Reader;
 use League\Csv\Statement;
-use mysqli;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use ZipArchive;
 

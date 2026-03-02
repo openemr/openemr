@@ -3,7 +3,7 @@
 /*
  * FhirObservationPatientServiceTest.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -11,20 +11,14 @@
 
 namespace OpenEMR\Tests\Services\FHIR\Observation;
 
-use Monolog\Level;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
-use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\Services\EmployerService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationEmployerService;
-use OpenEMR\Services\FHIR\Observation\FhirObservationPatientService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
-use OpenEMR\Services\ListService;
-use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 

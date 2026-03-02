@@ -3,17 +3,9 @@
 namespace OpenEMR\Tests\Integration\RestControllers\Subscriber;
 
 use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Core\Kernel;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\RestControllers\Subscriber\SiteSetupListener;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\HttpFoundation\HeaderBag;
-use Symfony\Component\HttpFoundation\ParameterBag;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\ServerBag;
-use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class SiteSetupListenerTest extends TestCase

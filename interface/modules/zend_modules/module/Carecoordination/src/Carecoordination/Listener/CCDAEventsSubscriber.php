@@ -4,7 +4,7 @@
  * CCDAEventsSubscriber.php  Listens to events to retrieve, generate, manipulate CCD-A documents.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,7 +16,6 @@ use Carecoordination\Model\CcdaGenerator;
 use Carecoordination\Model\CcdaGlobalsConfiguration;
 use Carecoordination\Model\CcdaUserPreferencesTransformer;
 use DOMDocument;
-use HTML_TreeNode;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\PatientDocuments\PatientDocumentCreateCCDAEvent;

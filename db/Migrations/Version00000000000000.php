@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace OpenEMR\Core\Migrations;
 
 use Doctrine\DBAL\Schema\Schema;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\Migrations\AbstractMigration;
 
 /**

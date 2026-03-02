@@ -3,7 +3,7 @@
 /**
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022-2025 Brad Sharp <brad.sharp@claimrev.com>
@@ -336,13 +336,13 @@ class ConnectorApi
     }
 
 
-    public static function canConnectToClaimRev()
+    public static function canConnectToClaimRev(): bool
     {
         try {
             ClaimRevApi::makeFromGlobals();
-            return "Yes";
+            return true;
         } catch (ClaimRevAuthenticationException) {
-            return "No";
+            return false;
         }
     }
 

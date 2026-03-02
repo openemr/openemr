@@ -3,7 +3,7 @@
 /**
  * FHIR Person Service.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Yash Bothra <yashrajbothra786@gmail.com>
  * @author    Stephen Nielson <stephen@nielson.org>
@@ -16,8 +16,6 @@ namespace OpenEMR\Services\FHIR;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPerson;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;

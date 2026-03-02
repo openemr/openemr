@@ -4,7 +4,7 @@
  * lab.inc
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2016-2023 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2010 OpenEMR Support LLC

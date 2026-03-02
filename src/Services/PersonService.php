@@ -5,7 +5,7 @@
  * Manages Person entities with complete CRUD operations and relationship awareness
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -14,7 +14,6 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\ORDataObject\Person;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\BaseService;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 

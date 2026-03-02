@@ -4,7 +4,7 @@
  * The outside frame that holds all of the OpenEMR User Interface.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
@@ -27,7 +27,6 @@ use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\ListService;
-use u2flib_server\U2F;
 
 ///////////////////////////////////////////////////////////////////////
 // Functions to support MFA.

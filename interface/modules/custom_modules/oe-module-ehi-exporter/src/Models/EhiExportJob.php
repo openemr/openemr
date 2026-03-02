@@ -4,7 +4,7 @@
  * Represents the export job that is being processed and stored in the database.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com
  * @copyright Copyright (c) 2023 OpenEMR Foundation, Inc
@@ -13,8 +13,6 @@
 
 namespace OpenEMR\Modules\EhiExporter\Models;
 
-use OpenEMR\Services\Utils\DateFormatterUtils;
-use Ramsey\Uuid\Rfc4122\UuidV4;
 
 class EhiExportJob
 {

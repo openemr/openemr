@@ -4,7 +4,7 @@
  * Encounter form for entering procedure orders
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -1777,7 +1777,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                 $ptid = $oprow['procedure_type_id'];
                             }
                             ?>
-                            <table class="table table-sm proc-table proc-table-main" id="procedures_item_<?php echo (string)attr($i) ?>">
+                            <table class="table table-sm proc-table proc-table-main" id="procedures_item_<?php echo attr($i) ?>">
                                 <?php if ($i < 1) { ?>
                                     <thead class="thead-dark">
                                     <tr>

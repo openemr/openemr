@@ -1,22 +1,23 @@
 <?php
 
+/**
+ * FHIR PractitionerRole Service
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Yash Bothra <yashrajbothra786@gmail.com>
+ * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenApi\Attributes as OA;
 use OpenEMR\Services\FHIR\FhirPractitionerRoleService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 
-/**
- * FHIR PractitionerRole Service
- *
- * @package   OpenEMR
- * @link      http://www.open-emr.org
- * @author    Yash Bothra <yashrajbothra786@gmail.com>
- * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- *
- */
 class FhirPractitionerRoleRestController
 {
     private $fhirPractitionerRoleService;
@@ -35,6 +36,76 @@ class FhirPractitionerRoleRestController
      * - practitioner
      * @return FHIR bundle with query results, if found
      */
+    #[OA\Get(
+        path: '/fhir/PractitionerRole',
+        description: 'Returns a list of PractitionerRole resources.',
+        tags: ['fhir'],
+        parameters: [
+            new OA\Parameter(
+                name: '_id',
+                in: 'query',
+                description: 'The uuid for the PractitionerRole resource.',
+                required: false,
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: '_lastUpdated',
+                in: 'query',
+                description: 'Allows filtering resources by the _lastUpdated field. A FHIR Instant value in the format YYYY-MM-DDThh:mm:ss.sss+zz:zz.  See FHIR date/time modifiers for filtering options (ge,gt,le, etc)',
+                required: false,
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: 'specialty',
+                in: 'query',
+                description: 'The specialty of the PractitionerRole resource.',
+                required: false,
+                schema: new OA\Schema(type: 'string')
+            ),
+            new OA\Parameter(
+                name: 'practitioner',
+                in: 'query',
+                description: 'The practitioner of the PractitionerRole resource.',
+                required: false,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: '200',
+                description: 'Standard Response',
+                content: new OA\MediaType(
+                    mediaType: 'application/json',
+                    schema: new OA\Schema(
+                        properties: [
+                            new OA\Property(
+                                property: 'json object',
+                                description: 'FHIR Json object.',
+                                type: 'object'
+                            ),
+                        ],
+                        example: [
+                            'meta' => [
+                                'lastUpdated' => '2021-09-14T09:13:51',
+                            ],
+                            'resourceType' => 'Bundle',
+                            'type' => 'collection',
+                            'total' => 0,
+                            'link' => [
+                                [
+                                    'relation' => 'self',
+                                    'url' => 'https://localhost:9300/apis/default/fhir/PractitionerRole',
+                                ],
+                            ],
+                        ]
+                    )
+                )
+            ),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function getAll($searchParams)
     {
         $processingResult = $this->fhirPractitionerRoleService->getAll($searchParams);
@@ -58,6 +129,72 @@ class FhirPractitionerRoleRestController
      * @param $fhirId The FHIR practitionerRole resource id (uuid)
      * @returns 200 if the operation completes successfully
      */
+    #[OA\Get(
+        path: '/fhir/PractitionerRole/{uuid}',
+        description: 'Returns a single PractitionerRole resource.',
+        tags: ['fhir'],
+        parameters: [
+            new OA\Parameter(
+                name: 'uuid',
+                in: 'path',
+                description: 'The uuid for the PractitionerRole resource.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(
+                response: '200',
+                description: 'Standard Response',
+                content: new OA\MediaType(
+                    mediaType: 'application/json',
+                    schema: new OA\Schema(
+                        properties: [
+                            new OA\Property(
+                                property: 'json object',
+                                description: 'FHIR Json object.',
+                                type: 'object'
+                            ),
+                        ],
+                        example: [
+                            'id' => '960c806f-9463-482e-b228-67b5be1fed55',
+                            'meta' => [
+                                'versionId' => '1',
+                                'lastUpdated' => '2022-04-13T06:18:17+00:00',
+                            ],
+                            'resourceType' => 'PractitionerRole',
+                            'practitioner' => [
+                                'reference' => 'Practitioner/960c7cd6-187a-4119-8cd4-85389d80efb9',
+                                'display' => 'Administrator Administrator',
+                            ],
+                            'organization' => [
+                                'reference' => 'Organization/960c7cc6-b4ae-49bc-877b-1a2913271c43',
+                                'display' => 'Your Clinic Name Here',
+                            ],
+                            'code' => [
+                                [
+                                    'coding' => [
+                                        '102L00000X',
+                                    ],
+                                    'text' => 'Psychoanalyst',
+                                ],
+                                [
+                                    'coding' => [
+                                        '101Y00000X',
+                                    ],
+                                    'text' => 'Counselor',
+                                ],
+                            ],
+                        ]
+                    )
+                )
+            ),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '404', ref: '#/components/responses/uuidnotfound'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function getOne($fhirId)
     {
         $processingResult = $this->fhirPractitionerRoleService->getOne($fhirId);

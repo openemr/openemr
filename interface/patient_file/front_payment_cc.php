@@ -4,7 +4,7 @@
  *  Front Payment CC and Terminal Readers support.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2021 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -15,11 +15,9 @@ require_once(__DIR__ . "/../globals.php");
 
 use OpenEMR\Billing\PaymentGateway;
 use OpenEMR\Common\Crypto\CryptoGen;
-use Stripe\Customer;
 use Stripe\PaymentIntent;
 use Stripe\Stripe;
 use Stripe\Terminal\ConnectionToken;
-use Stripe\Terminal\Location;
 
 if ($_POST['mode'] == 'AuthorizeNet') {
     $form_pid = $_POST['form_pid'];

@@ -5,7 +5,7 @@
  * Manages Contact entities with a 1:1 relationship to foreign entities
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -14,7 +14,6 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\ORDataObject\Contact;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\BaseService;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Validators\ProcessingResult;
 
 class ContactService extends BaseService

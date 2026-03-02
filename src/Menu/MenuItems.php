@@ -6,7 +6,7 @@
  * This class extends ArrayObject and ensures
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2023 Providence Healthtech

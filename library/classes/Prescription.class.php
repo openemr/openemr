@@ -1038,14 +1038,16 @@ class Prescription extends ORDataObject
                 break;
         }
 
-        $sql = "SELECT * FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" . add_escape_custom($this->provider->id) . "'";
-        $db = get_db();
-        $results = $db->Execute($sql);
-        if (!$results->EOF) {
-            $string = $results->fields['name'] . "\n"
-                    . $results->fields['street'] . "\n"
-                    . $results->fields['city'] . ", " . $results->fields['state'] . " " . $results->fields['postal_code'] . "\n"
-                    . $results->fields['phone'] . "\n\n";
+        $records = QueryUtils::fetchRecords(
+            "SELECT * FROM users JOIN facility AS f ON f.name = users.facility WHERE users.id = ?",
+            [$this->provider->id]
+        );
+        if ($records !== []) {
+            $row = $records[0];
+            $string = $row['name'] . "\n"
+                    . $row['street'] . "\n"
+                    . $row['city'] . ", " . $row['state'] . " " . $row['postal_code'] . "\n"
+                    . $row['phone'] . "\n\n";
         }
 
         $string .= ""
@@ -1069,8 +1071,6 @@ class Prescription extends ORDataObject
 
     function get_prescription_florida_display()
     {
-
-        $db = get_db();
         $ntt = new NumberToText($this->quantity);
         $ntt2 = new NumberToText($this->per_refill);
         $ntt3 = new NumberToText($this->refills);
@@ -1085,20 +1085,23 @@ class Prescription extends ORDataObject
 
         $string .= $gnd . $this->provider->federal_drug_id . "\n";
 
-        $sql = "SELECT * FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" . add_escape_custom($this->provider->id) . "'";
-        $results = $db->Execute($sql);
+        $records = QueryUtils::fetchRecords(
+            "SELECT * FROM users JOIN facility AS f ON f.name = users.facility WHERE users.id = ?",
+            [$this->provider->id]
+        );
 
-        if (!$results->EOF) {
-            $rfn = $results->fields['name'];
+        if ($records !== []) {
+            $row = $records[0];
+            $rfn = $row['name'];
 
             while (strlen((string) $rfn) < 31) {
                 $rfn .= " ";
             }
 
             $string .= $rfn . $this->provider->get_provider_number_default() . "\n"
-                    . $results->fields['street'] . "\n"
-                    . $results->fields['city'] . ", " . $results->fields['state'] . " " . $results->fields['postal_code'] . "\n"
-                    . $results->fields['phone'] . "\n";
+                    . $row['street'] . "\n"
+                    . $row['city'] . ", " . $row['state'] . " " . $row['postal_code'] . "\n"
+                    . $row['phone'] . "\n";
         }
 
         $string .= "\n";

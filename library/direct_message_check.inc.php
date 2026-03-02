@@ -21,7 +21,7 @@
  *
  * @package OpenEMR
  * @author  EMR Direct <https://www.emrdirect.com/>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 require_once(__DIR__ . "/pnotes.inc.php");

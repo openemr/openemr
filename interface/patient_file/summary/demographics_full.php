@@ -4,7 +4,7 @@
  * Edit demographics.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -31,7 +31,6 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
-use OpenEMR\Services\DemographicsRelatedPersonsService;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 

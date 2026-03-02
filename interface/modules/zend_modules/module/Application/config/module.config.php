@@ -23,10 +23,7 @@ use Application\Model\SendtoTable;
 use Laminas\Router\Http\Literal;
 use Laminas\Router\Http\Segment;
 use Laminas\ServiceManager\Factory\InvokableFactory;
-use Laminas\Mvc\I18n\TranslatorFactory;
 use Interop\Container\ContainerInterface;
-use OpenEMR\Core\Kernel;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 //
 return [

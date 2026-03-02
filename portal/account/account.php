@@ -4,7 +4,7 @@
  * Ajax Handler for Register
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017-2020 Jerry Padgett <sjpadgett@gmail.com>

@@ -16,7 +16,6 @@ try {
 
 namespace OpenEMR\Tests\Rector\Fixture;
 
-use Exception;
 
 try {
     doSomething();

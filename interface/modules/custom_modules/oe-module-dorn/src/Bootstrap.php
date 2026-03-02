@@ -3,7 +3,7 @@
 /**
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -24,12 +24,9 @@ use OpenEMR\Events\Core\TwigEnvironmentEvent;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Events\RestApiExtend\RestApiResourceServiceEvent;
-use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
 use OpenEMR\Modules\Dorn\EventSubscriber\DornLabSubscriber;
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Menu\MenuEvent;
-use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
-use OpenEMR\Events\PatientDemographics\RenderEvent as pRenderEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Error\LoaderError;
 use Twig\Loader\FilesystemLoader;

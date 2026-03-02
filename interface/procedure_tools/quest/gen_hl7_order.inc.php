@@ -4,7 +4,7 @@
  * Functions to support HL7 order generation
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2012-2013 Rod Roark <rod@sunsetsystems.com>

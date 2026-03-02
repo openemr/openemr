@@ -3,7 +3,7 @@
 --
 -- Keep v_database in sync with $v_database in version.php.
 -- CI will fail if they don't match.
--- v_database: 533
+-- v_database: 534
 --
 
 --
@@ -3774,7 +3774,7 @@ INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`dat
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'monthly_income', '5', 'Monthly Income', 7, 2, 1, 20, 63, '', 1, 1, '', '', 'Monthly Income', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'homeless', '5', 'Homeless, etc.', 8, 2, 1, 20, 63, '', 1, 1, '', '', 'Homeless or similar?', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'interpreter_needed', '5', 'Interpreter', 9, 1, 1, 0, 0, 'yes_no_unknown', 1, 1, '', '', 'Interpreter needed?', 0);
-INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'interpretter', '5', 'Interpreter Comments', 10, 2, 1, 20, 63, '', 1, 1, '', '', 'Additional notes about interpretation needs', 0);
+INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'interpreter', '5', 'Interpreter Comments', 10, 2, 1, 20, 63, '', 1, 1, '', '', 'Additional notes about interpretation needs', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'migrantseasonal', '5', 'Migrant/Seasonal', 11, 2, 1, 20, 63, '', 1, 1, '', '', 'Migrant or seasonal worker?', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'contrastart', '5', 'Contraceptives Start',12,4,0,10,10,'',1,1,'','','Date contraceptive services initially provided', 0);
 INSERT INTO `layout_options` (`form_id`,`field_id`,`group_id`,`title`,`seq`,`data_type`,`uor`,`fld_length`,`max_length`,`list_id`,`titlecols`,`datacols`,`default_value`,`edit_options`,`description`,`fld_rows`) VALUES ('DEM', 'referral_source', '5', 'Referral Source',13, 26, 1, 0, 0, 'refsource', 1, 1, '', '[\"EP\"]', 'How did they hear about us', 0);
@@ -8367,7 +8367,7 @@ CREATE TABLE `patient_data` (
   `race` varchar(255) NOT NULL default '',
   `ethnicity` varchar(255) NOT NULL default '',
   `religion` varchar(40) NOT NULL default '',
-  `interpretter` varchar(255) NOT NULL default '' COMMENT 'original field used for determining if patient needs an interpreter, now used for additional notes about need for interpreter',
+  `interpreter` varchar(255) NOT NULL default '' COMMENT 'original field used for determining if patient needs an interpreter, now used for additional notes about need for interpreter',
   `interpreter_needed` TEXT COMMENT 'fk to list_options.option_id where list_id=yes_no_unknown used to determine if patient needs an interpreter',
   `migrantseasonal` varchar(255) NOT NULL default '',
   `family_size` varchar(255) NOT NULL default '',
@@ -13265,26 +13265,6 @@ CREATE TABLE `codes_history` (
 ) ENGINE=InnoDB;
 
 -- ---------------------------------------------------------
-
---
--- Table structure for table 'multiple_db' to store multiple db connection details
---
-
-DROP TABLE IF EXISTS `multiple_db`;
-CREATE TABLE `multiple_db` (
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `namespace` varchar(255) NOT NULL,
-    `username` varchar(255) NOT NULL,
-    `password` text,
-    `dbname` varchar(255) NOT NULL,
-    `host` varchar(255) NOT NULL DEFAULT 'localhost',
-    `port` smallint(4) NOT NULL DEFAULT '3306',
-    `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-     UNIQUE KEY `namespace` (namespace),
-     PRIMARY KEY (id)
-  ) ENGINE=InnoDB;
-
--- -- ---------------------------------------------------------
 
 --
 -- Table structure for `therapy_groups`

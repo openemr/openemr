@@ -8,7 +8,7 @@
  * module and the EventDispatcher.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2020 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,8 +16,6 @@
 
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\PatientMenuEvent;
-use Symfony\Contracts\EventDispatcher\Event;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @param PatientMenuEvent $menuEvent

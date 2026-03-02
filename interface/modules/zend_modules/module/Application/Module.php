@@ -12,8 +12,6 @@
 
 namespace Application;
 
-use Application\Model\ApplicationTable;
-use Application\Model\SendtoTable;
 use Laminas\Mvc\ModuleRouteListener;
 use Laminas\Mvc\MvcEvent;
 use Application\Listener\ModuleMenuSubscriber;

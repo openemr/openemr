@@ -22,11 +22,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncounterccdadispatchController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Return type \\(Laminas\\\\Stdlib\\\\ResponseInterface\\) of method Multipledb\\\\Controller\\\\MultipledbController\\:\\:indexAction\\(\\) should be covariant with return type \\(Laminas\\\\View\\\\Model\\\\ViewModel\\) of method Laminas\\\\Mvc\\\\Controller\\\\AbstractActionController\\:\\:indexAction\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/MultipledbController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Return type \\(array\\<string, mixed\\>\\) of method OpenEMR\\\\ZendModules\\\\PatientFlowBoard\\\\Listener\\\\PatientFlowBoardEventsSubscriber\\:\\:getSubscribedEvents\\(\\) should be covariant with return type \\(array\\<string, list\\<array\\{0\\: string, 1\\?\\: int\\}\\|int\\|string\\>\\|string\\>\\) of method Symfony\\\\Component\\\\EventDispatcher\\\\EventSubscriberInterface\\:\\:getSubscribedEvents\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/PatientFlowBoard/src/PatientFlowBoard/Listener/PatientFlowBoardEventsSubscriber.php',
@@ -35,6 +30,11 @@ $ignoreErrors[] = [
     'message' => '#^Return type \\(Laminas\\\\Stdlib\\\\ResponseInterface\\) of method Patientvalidation\\\\Controller\\\\PatientvalidationController\\:\\:indexAction\\(\\) should be covariant with return type \\(Laminas\\\\View\\\\Model\\\\ViewModel\\) of method Laminas\\\\Mvc\\\\Controller\\\\AbstractActionController\\:\\:indexAction\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Controller/PatientvalidationController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Return type \\(mysqli\\) of method DataDriverMySQLi\\:\\:Open\\(\\) should be covariant with return type \\(connection\\) of method IDataDriver\\:\\:Open\\(\\)$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Return type \\(OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ClientEntity\\|false\\) of method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\ClientRepository\\:\\:getClientEntity\\(\\) should be covariant with return type \\(League\\\\OAuth2\\\\Server\\\\Entities\\\\ClientEntityInterface\\|null\\) of method League\\\\OAuth2\\\\Server\\\\Repositories\\\\ClientRepositoryInterface\\:\\:getClientEntity\\(\\)$#',

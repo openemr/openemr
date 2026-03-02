@@ -4,7 +4,7 @@
  * module.config.php handles the dependency injection configuration, routes, and other config settings needed by the module.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2014 Z&H Consultancy Services Private Limited <sam@zhservices.com>
@@ -15,8 +15,6 @@
 namespace Carecoordination;
 
 use Carecoordination\Model\CcdaGenerator;
-use Documents\Plugin\Documents;
-use Laminas\ServiceManager\Factory\InvokableFactory;
 use Laminas\Router\Http\Segment;
 use Carecoordination\Controller\CarecoordinationController;
 use Carecoordination\Controller\EncounterccdadispatchController;
@@ -33,7 +31,6 @@ use Carecoordination\Factory\EncounterccdadispatchControllerFactory;
 use Carecoordination\Factory\SetupControllerFactory;
 use Carecoordination\Controller\ModuleconfigController;
 use Interop\Container\ContainerInterface;
-use Application\Plugin\CommonPlugin;
 use Documents\Controller\DocumentsController;
 use Carecoordination\Listener\CCDAEventsSubscriber;
 

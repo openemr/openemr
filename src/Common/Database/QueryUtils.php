@@ -4,7 +4,7 @@
  * QueryUtils.php  Is a helper class for commonly used database functions.  Eventually everything in the sql.inc.php file
  * could be migrated to this file or at least contained in this namespace.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
@@ -115,12 +115,7 @@ class QueryUtils
     public static function fetchSingleValue($sqlStatement, $column, $binds = [])
     {
         $records = self::fetchTableColumn($sqlStatement, $column, $binds);
-        // note if $records[0] is actually the value 0 then the value returned is null...
-        // do we want that behavior?
-        if (!empty($records[0])) {
-            return $records[0];
-        }
-        return null;
+        return $records[0] ?? null;
     }
 
     /**

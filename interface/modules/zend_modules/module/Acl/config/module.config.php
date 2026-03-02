@@ -13,7 +13,6 @@
 
 namespace Acl;
 
-use Laminas\ServiceManager\Factory\InvokableFactory;
 use Laminas\Router\Http\Segment;
 use Interop\Container\ContainerInterface;
 

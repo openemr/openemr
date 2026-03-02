@@ -4,12 +4,11 @@
  * Email Controller
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
- * @link      https://opencoreemr.com
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2023 Jerry Padgett <sjpadgett@gmail.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -21,7 +20,6 @@ use OpenEMR\Modules\FaxSMS\Exception\EmailSendFailedException;
 use OpenEMR\Modules\FaxSMS\Exception\InvalidEmailAddressException;
 use OpenEMR\Modules\FaxSMS\Exception\SmtpNotConfiguredException;
 use PHPMailer\PHPMailer\Exception;
-use Symfony\Component\HttpClient\HttpClient;
 
 class EmailClient extends AppDispatch
 {

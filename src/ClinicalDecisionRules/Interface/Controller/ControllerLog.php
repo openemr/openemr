@@ -10,8 +10,8 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ControllerLog extends BaseController
 {
@@ -100,7 +100,7 @@ class ControllerLog extends BaseController
             $row['category_title'] = $category_title;
             $row['all_alerts'] = $all_alerts;
             $row['new_alerts'] = $new_alerts;
-            $row['date_formatted'] = oeFormatDateTime($row['date'], "global", true);
+            $row['date_formatted'] = DateFormatterUtils::oeFormatDateTime($row['date'], "global", true);
             $row['formatted_all_alerts'] = $this->getFormattedAlerts($all_alerts, $row);
             $row['formatted_new_alerts'] = $this->getFormattedAlerts($new_alerts, $row);
             $records[] = $row;

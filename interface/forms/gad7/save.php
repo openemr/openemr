@@ -4,7 +4,7 @@
  * Gad-7 save.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ruth Moulton <moulton ruth@muswell.me.uk>
  * @copyright Copyright (c) 2021 ruth moulton <ruth@muswell.me.uk>
  *
@@ -16,6 +16,7 @@ require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -62,7 +63,7 @@ if ($_GET["mode"] == "new") {
     );
 }
 
-$_SESSION["encounter"] = $encounter;
+SessionUtil::setSession('encounter', $encounter);
 formHeader("Redirecting....");
 formJump();
 formFooter();

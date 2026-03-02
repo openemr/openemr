@@ -18,7 +18,7 @@
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Ken Chapple <ken@mi-squared.com>
  * @author  Tony McCormick <tony@mi-squared.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 // Code for search & Highlight

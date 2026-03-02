@@ -2,7 +2,6 @@
 
 namespace Immunization;
 
-use Laminas\ServiceManager\Factory\InvokableFactory;
 use Laminas\Router\Http\Segment;
 use Immunization\Controller\ImmunizationController;
 use Interop\Container\ContainerInterface;

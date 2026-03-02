@@ -4,7 +4,7 @@
  * Main class for EhiExporter for exporting data from the db
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com
  * @copyright Copyright (c) 2023 OpenEMR Foundation, Inc
@@ -16,7 +16,6 @@ namespace OpenEMR\Modules\EhiExporter\Services;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FileUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\Export\ExportException;
@@ -26,7 +25,6 @@ use OpenEMR\Modules\EhiExporter\Models\EhiExportJob;
 use OpenEMR\Modules\EhiExporter\Models\EhiExportJobTask;
 use OpenEMR\Modules\EhiExporter\Models\ExportResult;
 use OpenEMR\Modules\EhiExporter\Services\EhiExportJobService;
-use OpenEMR\Modules\EhiExporter\Services\EhiExportJobTaskResultService;
 use OpenEMR\Modules\EhiExporter\Services\EhiExportJobTaskService;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportClinicalNotesFormTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportContactTableDefinition;
@@ -37,9 +35,7 @@ use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportOnsiteMessagesTableDefini
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportPersonTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTrackAnythingFormTableDefinition;
 use OpenEMR\Services\DocumentService;
-use OpenEMR\Services\ListService;
 use OpenEMR\Modules\EhiExporter\Models\ExportState;
-use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition;
 use OpenEMR\Modules\EhiExporter\Models\ExportKeyDefinition;
 use Ramsey\Uuid\Rfc4122\UuidV4;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -755,6 +751,8 @@ class EhiExporter
 
     private function createExportTasksFromJobWithoutDocuments(EhiExportJob $job, array &$jobPatientIds, int $jobPatientIdsCount)
     {
+        $tasks = [];
+        $currentDocumentSize = 0;
         $task = new EhiExportJobTask();
         $task->ehi_export_job_id = $job->getId();
         $task->ehiExportJob = $job;

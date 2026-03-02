@@ -4,7 +4,7 @@
  * Standalone AJAX handler for reporting period updates
  *
  * @package   OpenEMR Module
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,6 +14,7 @@
 require_once("../../../../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 
 header('Content-Type: application/json');
@@ -60,7 +61,7 @@ function handleUpdateReportingPeriod()
 
     if ($result['count'] > 0) {
         // Update session
-        $_SESSION['selected_ecqm_period'] = $period;
+        SessionUtil::setSession('selected_ecqm_period', $period);
 
         // Update global
         $GLOBALS['cqm_performance_period'] = $period;

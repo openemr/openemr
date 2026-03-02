@@ -8,7 +8,7 @@
  * TODO: investigate moving this into the src/ folder.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -31,7 +31,6 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Services\CareTeamService;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Events\Core\TemplatePageEvent;
@@ -39,10 +38,11 @@ use OpenEMR\OeUI\RenderFormFieldHelper;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\UserService;
 use OpenEMR\Services\ListService;
-use sqlStatement;
-use sqlFetchArray;
 use Twig\Environment;
 use Twig\TwigFunction;
+
+use function sqlFetchArray;
+use function sqlStatement;
 
 class C_EncounterVisitForm
 {

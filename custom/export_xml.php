@@ -4,7 +4,7 @@
  * Exports patient demographics to a custom XML format
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2005 Rod Roark <rod@sunsetsystems.com>
@@ -175,7 +175,7 @@ foreach (['primary','secondary','tertiary'] as $value) {
  custom_xml_Add("email", $row['email']);
  custom_xml_Add("language", $row['language']);
  custom_xml_Add("ethnoracial", $row['ethnoracial']);
- custom_xml_Add("interpreter", $row['interpretter']);
+ custom_xml_Add("interpreter", $row['interpreter']);
  custom_xml_Add("migrantseasonal", $row['migrantseasonal']);
  custom_xml_Add("family_size", $row['family_size']);
  custom_xml_Add("monthly_income", $row['monthly_income']);

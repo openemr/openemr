@@ -15,7 +15,7 @@
  *    When add support for a new table uuid, need to add it to the populateAllMissingUuids function.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Gerhard Brink <gjdbrink@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Gerhard Brink <gjdbrink@gmail.com>
@@ -25,7 +25,6 @@
 
 namespace OpenEMR\Common\Uuid;
 
-use Exception;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Uuid\UuidMapping;

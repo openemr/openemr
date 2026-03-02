@@ -128,7 +128,7 @@
         "twilio/sdk": "^8.10.0",
         "vlucas/phpdotenv": "^5.6.3",
         "yubico/u2flib-server": "^1.0.2",
-        "zircote/swagger-php": "^3.0"
+        "zircote/swagger-php": "^6.0"
     },
     "require-dev": {
         "ergebnis/composer-normalize": "^2.48",
@@ -144,6 +144,7 @@
         "ramsey/conventional-commits": "^1.5",
         "rector/rector": "^2.1",
         "shipmonk/phpstan-baseline-per-identifier": "^2.3",
+        "slevomat/coding-standard": "^8.28",
         "squizlabs/php_codesniffer": "^4.0",
         "symfony/panther": "^2.0"
     },
@@ -190,6 +191,7 @@
     },
     "config": {
         "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": false,
             "ergebnis/composer-normalize": true,
             "openemr/oe-module-installer-plugin": true,
             "php-http/discovery": false,
@@ -283,7 +285,7 @@
         "php-syntax-check": "git ls-files -z '*.php' | xargs -0 php -l | grep -vF 'No syntax errors detected in'",
         "phpcbf": "phpcbf",
         "phpcs": "phpcs",
-        "phpstan": "phpstan analyze --memory-limit=4G",
+        "phpstan": "phpstan analyze --memory-limit=4G --configuration=phpstan.neon.dist",
         "phpstan-baseline": [
             "phpstan analyze --memory-limit=8G --configuration=phpstan.neon.dist --generate-baseline=.phpstan/baseline/loader.php",
             "php -d memory_limit=1g vendor/bin/split-phpstan-baseline .phpstan/baseline/loader.php --no-error-count"

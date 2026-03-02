@@ -12,9 +12,7 @@
  */
 
 use Interop\Container\ContainerInterface;
-use Laminas\ServiceManager\Factory\InvokableFactory;
 use Laminas\Router\Http\Segment;
-use Laminas\ServiceManager\AbstractPluginManager;
 use Laminas\Db\ResultSet\ResultSet;
 use Installer\Model\InstModule;
 use Laminas\Db\Adapter\Adapter;

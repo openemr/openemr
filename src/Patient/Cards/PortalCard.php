@@ -6,7 +6,7 @@
  * A class representing the Patient Portal card displayed on the MRD.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2022 Robert Down <robertdown@live.com
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -17,7 +17,6 @@ namespace OpenEMR\Patient\Cards;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use OpenEMR\Events\Patient\Card\Card;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\SectionEvent;
 

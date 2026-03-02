@@ -4,7 +4,7 @@
  * Encounter form save script.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
@@ -16,7 +16,6 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/encounter.inc.php");
 
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\EncounterService;
@@ -24,7 +23,6 @@ use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\PatientIssuesService;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {

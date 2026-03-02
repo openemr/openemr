@@ -5,7 +5,7 @@
  * Manages telecom records (phone, email, fax, etc.) for contacts
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -14,7 +14,6 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\ORDataObject\Contact;
 use OpenEMR\Common\ORDataObject\ContactTelecom;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Services\Utils\DateFormatterUtils;

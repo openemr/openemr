@@ -13,11 +13,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Class DOMXPath referenced with incorrect case\\: DOMXpath\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Class DOMXPath referenced with incorrect case\\: DOMXpath\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
 ];

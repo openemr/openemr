@@ -6,7 +6,7 @@
  * information as well as the xml concrete table information.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com
  * @copyright Copyright (c) 2023 OpenEMR Foundation, Inc
@@ -28,7 +28,6 @@ use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportOpenEmrPostCalendarEvents
 use OpenEMR\Modules\EhiExporter\Services\ExportTableDataFilterer;
 use OpenEMR\Modules\EhiExporter\Models\ExportTableResult;
 use OpenEMR\Modules\EhiExporter\Models;
-use OpenEMR\Modules\EhiExporter\Models\ExportResult;
 use OpenEMR\Modules\EhiExporter\Models\ExportKeyDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportPersonTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition;
