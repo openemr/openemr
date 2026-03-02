@@ -74,7 +74,7 @@ if (empty($puuid)) {
 $iframeUrl = $sentinelUrl . '/?' . http_build_query([
     'patient_id'   => $puuid,
     'patient_name' => $patientName,
-    '_v'           => '20260301c',
+    '_v'           => '20260301d',
 ]);
 
 ?>
