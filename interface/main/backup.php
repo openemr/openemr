@@ -36,6 +36,7 @@ require_once("../globals.php");
 require_once("$srcdir/layout.inc.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\BC\DatabaseConnectionOptions;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -62,6 +63,8 @@ if (!function_exists('gzopen') && function_exists('gzopen64')) {
 if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Backup", xl("Backup"));
 }
+
+$dbOptions = DatabaseConnectionOptions::forSite((string) $GLOBALS['OE_SITE_DIR']);
 
 // When automatically including lists used in selected layouts, these lists are not included.
 $excluded_lists = [
@@ -449,16 +452,11 @@ $cmdarr = [];
 $mysql_cmd = $MYSQL_PATH . DIRECTORY_SEPARATOR . 'mysql';
 $mysql_dump_cmd = $mysql_cmd . 'dump';
 $mysql_ssl = '';
-if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
-    // Support for mysql SSL encryption
-    $mysql_ssl = " --ssl-ca=" . escapeshellarg($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca") . " ";
-    if (
-        file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
-        file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")
-    ) {
-        // Support for mysql SSL client based cert authentication
-        $mysql_ssl .= "--ssl-cert=" . escapeshellarg($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert") . " ";
-        $mysql_ssl .= "--ssl-key=" . escapeshellarg($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") . " ";
+if ($dbOptions->sslCaPath !== null) {
+    $mysql_ssl = " --ssl-ca=" . escapeshellarg($dbOptions->sslCaPath) . " ";
+    if ($dbOptions->sslClientCert !== null) {
+        $mysql_ssl .= "--ssl-cert=" . escapeshellarg($dbOptions->sslClientCert['cert']) . " ";
+        $mysql_ssl .= "--ssl-key=" . escapeshellarg($dbOptions->sslClientCert['key']) . " ";
     }
 }
 
@@ -517,13 +515,13 @@ if ($form_step == 1) {
 
     $file_to_compress = "$BACKUP_DIR/openemr.sql";   // gzip this file after creation
 
-    $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg((string) $sqlconf["login"]) .
-    " -p" . escapeshellarg((string) $sqlconf["pass"]) .
-    " -h " . escapeshellarg((string) $sqlconf["host"]) .
-    " --port=" . escapeshellarg((string) $sqlconf["port"]) .
-    " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
+    $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg($dbOptions->user) .
+    " -p" . escapeshellarg($dbOptions->password) .
+    " -h " . escapeshellarg((string) $dbOptions->host) .
+    " --port=" . escapeshellarg((string) $dbOptions->port) .
+    " --ignore-table=" . escapeshellarg($dbOptions->dbname . ".onsite_activity_view") .
     " --hex-blob --opt --quote-names --no-tablespaces -r " . escapeshellarg($file_to_compress) . " $mysql_ssl " .
-    escapeshellarg((string) $sqlconf["dbase"]);
+    escapeshellarg($dbOptions->dbname);
 
     $auto_continue = true;
 }
@@ -703,21 +701,21 @@ if ($form_step == 102) {
 
         if ($tables) {
             if (IS_WINDOWS) {
-                $cmd .= escapeshellcmd('"' . $mysql_dump_cmd . '"') . " -u " . escapeshellarg((string) $sqlconf["login"]) .
-                    " -p" . escapeshellarg((string) $sqlconf["pass"]) .
-                    " -h " . escapeshellarg((string) $sqlconf["host"]) .
-                    " --port=" . escapeshellarg((string) $sqlconf["port"]) .
-                    " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
+                $cmd .= escapeshellcmd('"' . $mysql_dump_cmd . '"') . " -u " . escapeshellarg($dbOptions->user) .
+                    " -p" . escapeshellarg($dbOptions->password) .
+                    " -h " . escapeshellarg((string) $dbOptions->host) .
+                    " --port=" . escapeshellarg((string) $dbOptions->port) .
+                    " --ignore-table=" . escapeshellarg($dbOptions->dbname . ".onsite_activity_view") .
                     " --hex-blob --opt --quote-names --skip-comments --no-tablespaces $mysql_ssl " .
-                    escapeshellarg((string) $sqlconf["dbase"]) . " $tables";
+                    escapeshellarg($dbOptions->dbname) . " $tables";
             } else {
-                $cmd .= escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg((string) $sqlconf["login"]) .
-                    " -p" . escapeshellarg((string) $sqlconf["pass"]) .
-                    " -h " . escapeshellarg((string) $sqlconf["host"]) .
-                    " --port=" . escapeshellarg((string) $sqlconf["port"]) .
-                    " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
+                $cmd .= escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg($dbOptions->user) .
+                    " -p" . escapeshellarg($dbOptions->password) .
+                    " -h " . escapeshellarg((string) $dbOptions->host) .
+                    " --port=" . escapeshellarg((string) $dbOptions->port) .
+                    " --ignore-table=" . escapeshellarg($dbOptions->dbname . ".onsite_activity_view") .
                     " --hex-blob --opt --quote-names --skip-comments --no-tablespaces $mysql_ssl " .
-                    escapeshellarg((string) $sqlconf["dbase"]) . " $tables";
+                    escapeshellarg($dbOptions->dbname) . " $tables";
             }
             if (IS_WINDOWS) {
                 # The Perl script differs in windows also.
@@ -729,11 +727,11 @@ if ($form_step == 102) {
             }
         }
 
-        $dumppfx = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg((string) $sqlconf["login"]) .
-                 " -p" . escapeshellarg((string) $sqlconf["pass"]) .
-                 " -h " . escapeshellarg((string) $sqlconf["host"]) .
-                 " --port=" . escapeshellarg((string) $sqlconf["port"]) .
-                 " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
+        $dumppfx = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg($dbOptions->user) .
+                 " -p" . escapeshellarg($dbOptions->password) .
+                 " -h " . escapeshellarg((string) $dbOptions->host) .
+                 " --port=" . escapeshellarg((string) $dbOptions->port) .
+                 " --ignore-table=" . escapeshellarg($dbOptions->dbname . ".onsite_activity_view") .
                  " --hex-blob --skip-opt --quote-names --no-tablespaces --complete-insert" .
                  " --no-create-info --skip-comments $mysql_ssl";
 
@@ -776,7 +774,7 @@ if ($form_step == 102) {
                     # windows uses the & to join statements.
                     $cmd .= $dumppfx . " --where=\"list_id = 'lists' AND option_id = '$listid' OR list_id = '$listid' " .
                         "ORDER BY list_id != 'lists', seq, title\" " .
-                        escapeshellarg((string) $sqlconf["dbase"]) . " list_options";
+                        escapeshellarg($dbOptions->dbname) . " list_options";
                     $cmd .=  " >> " . escapeshellarg($EXPORT_FILE) . " & ";
                 } else {
                     $cmdarr[] = "echo 'DELETE FROM list_options WHERE list_id = \"" .
@@ -786,7 +784,7 @@ if ($form_step == 102) {
                         $dumppfx . " --where='list_id = \"lists\" AND option_id = \"" .
                         add_escape_custom($listid) . "\" OR list_id = \"" .
                         add_escape_custom($listid) . "\" " . "ORDER BY list_id != \"lists\", seq, title' " .
-                        escapeshellarg((string) $sqlconf["dbase"]) . " list_options" .
+                        escapeshellarg($dbOptions->dbname) . " list_options" .
                         " >> " . escapeshellarg($EXPORT_FILE) . ";";
                 }
             }
@@ -825,17 +823,17 @@ if ($form_step == 102) {
                 if (IS_WINDOWS) {
                     # windows uses the & to join statements.
                     $cmd .= $dumppfx . ' --where="grp_form_id = \'' . add_escape_custom($layoutid) . "'\" " .
-                        escapeshellarg((string) $sqlconf["dbase"]) . " layout_group_properties";
+                        escapeshellarg($dbOptions->dbname) . " layout_group_properties";
                     $cmd .= " >> " . escapeshellarg($EXPORT_FILE) . " & ";
                     $cmd .= $dumppfx . ' --where="form_id = \'' . add_escape_custom($layoutid) . '\' ORDER BY group_id, seq, title" '  .
-                        escapeshellarg((string) $sqlconf["dbase"]) . " layout_options" ;
+                        escapeshellarg($dbOptions->dbname) . " layout_options" ;
                     $cmd .= " >> " . escapeshellarg($EXPORT_FILE) . " & ";
                 } else {
                     $cmd .= $dumppfx . " --where='grp_form_id = \"" . add_escape_custom($layoutid) . "\"' " .
-                        escapeshellarg((string) $sqlconf["dbase"]) . " layout_group_properties";
+                        escapeshellarg($dbOptions->dbname) . " layout_group_properties";
                     $cmd .= " >> " . escapeshellarg($EXPORT_FILE) . ";";
                     $cmd .= $dumppfx . " --where='form_id = \"" . add_escape_custom($layoutid) . "\" ORDER BY group_id, seq, title' " .
-                        escapeshellarg((string) $sqlconf["dbase"]) . " layout_options" ;
+                        escapeshellarg($dbOptions->dbname) . " layout_options" ;
                     $cmd .= " >> " . escapeshellarg($EXPORT_FILE) . ";";
                 }
                 // History and demographics exports will get special treatment.
@@ -940,12 +938,12 @@ if ($form_step == 202) {
         if (move_uploaded_file($_FILES['userfile']['tmp_name'], $EXPORT_FILE)) {
             $form_status .= xl('Applying') . "...||br-placeholder||";
             echo brCustomPlaceholder(text($form_status));
-            $cmd = escapeshellcmd($mysql_cmd) . " -u " . escapeshellarg((string) $sqlconf["login"]) .
-            " -p" . escapeshellarg((string) $sqlconf["pass"]) .
-            " -h " . escapeshellarg((string) $sqlconf["host"]) .
-            " --port=" . escapeshellarg((string) $sqlconf["port"]) .
+            $cmd = escapeshellcmd($mysql_cmd) . " -u " . escapeshellarg($dbOptions->user) .
+            " -p" . escapeshellarg($dbOptions->password) .
+            " -h " . escapeshellarg((string) $dbOptions->host) .
+            " --port=" . escapeshellarg((string) $dbOptions->port) .
             " $mysql_ssl " .
-            escapeshellarg((string) $sqlconf["dbase"]) .
+            escapeshellarg($dbOptions->dbname) .
             " < " . escapeshellarg($EXPORT_FILE);
         } else {
             echo xlt('Internal error accessing uploaded file!');
@@ -987,13 +985,13 @@ if ($form_step == 301) {
     $res = sqlStatement("create table if not exists api_log_new like api_log");
     $res = sqlStatement("rename table api_log to api_log_backup, api_log_new to api_log");
     echo "<br />";
-    $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg((string) $sqlconf["login"]) .
-    " -p" . escapeshellarg((string) $sqlconf["pass"]) .
-    " -h " . escapeshellarg((string) $sqlconf["host"]) .
-    " --port=" . escapeshellarg((string) $sqlconf["port"]) .
-    " --ignore-table=" . escapeshellarg($sqlconf["dbase"] . ".onsite_activity_view") .
+    $cmd = escapeshellcmd($mysql_dump_cmd) . " -u " . escapeshellarg($dbOptions->user) .
+    " -p" . escapeshellarg($dbOptions->password) .
+    " -h " . escapeshellarg((string) $dbOptions->host) .
+    " --port=" . escapeshellarg((string) $dbOptions->port) .
+    " --ignore-table=" . escapeshellarg($dbOptions->dbname . ".onsite_activity_view") .
     " --hex-blob --opt --quote-names --no-tablespaces -r " . escapeshellarg($BACKUP_EVENTLOG_FILE) . " $mysql_ssl " .
-    escapeshellarg((string) $sqlconf["dbase"]) . " --tables log_comment_encrypt_backup log_backup api_log_backup";
+    escapeshellarg($dbOptions->dbname) . " --tables log_comment_encrypt_backup log_backup api_log_backup";
 # Set Eventlog Flag when it is done
     $eventlog = 1;
 // 301 If ends here.
