@@ -547,16 +547,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to method get\\(\\) on an unknown class Documents\\\\Plugin\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Plugin/Documents.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$sm of method Documents\\\\Plugin\\\\Documents\\:\\:__construct\\(\\) has invalid type Documents\\\\Plugin\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Plugin/Documents.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Immunization\\\\Controller\\\\ImmunizationController\\:\\:format_cvx_code\\(\\) has invalid return type Immunization\\\\Controller\\\\type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ImmunizationController.php',
@@ -625,16 +615,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\$dir of method Installer\\\\Model\\\\InstModuleTable\\:\\:installSQL\\(\\) has invalid type Installer\\\\Model\\\\type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$features of method Installer\\\\Model\\\\InstModuleTableGateway\\:\\:__construct\\(\\) has invalid type Installer\\\\Model\\\\Feature\\\\AbstractFeature\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTableGateway.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$features of method Installer\\\\Model\\\\InstModuleTableGateway\\:\\:__construct\\(\\) has invalid type Installer\\\\Model\\\\Feature\\\\FeatureSet\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTableGateway.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Patientvalidation\\\\Controller\\\\BaseController\\:\\:getPostParamsArray\\(\\) has invalid return type Patientvalidation\\\\Controller\\\\post\\.$#',
