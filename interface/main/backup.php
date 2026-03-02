@@ -31,17 +31,20 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-set_time_limit(0);
-require_once("../globals.php");
-require_once("$srcdir/layout.inc.php");
-require_once("$srcdir/patient.inc.php");
-
 use OpenEMR\BC\DatabaseConnectionOptions;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+
+set_time_limit(0);
+$globalsBag = require_once("../globals.php");
+assert($globalsBag instanceof OEGlobalsBag);
+
+require_once("$srcdir/layout.inc.php");
+require_once("$srcdir/patient.inc.php");
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -64,7 +67,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Backup", xl("Backup"));
 }
 
-$dbOptions = DatabaseConnectionOptions::forSite((string) $GLOBALS['OE_SITE_DIR']);
+$dbOptions = DatabaseConnectionOptions::forSite($globalsBag->getString('OE_SITE_DIR'));
 
 // When automatically including lists used in selected layouts, these lists are not included.
 $excluded_lists = [
