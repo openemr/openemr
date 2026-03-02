@@ -16,7 +16,6 @@ namespace Application\Plugin;
 use Application\Listener\Listener;
 use Application\Model\ApplicationTable;
 use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 
 class CommonPlugin extends AbstractPlugin
@@ -26,18 +25,6 @@ class CommonPlugin extends AbstractPlugin
     public function __construct()
     {
         $this->listenerObject = new Listener();
-    }
-
-    /**
-     * Function checkACL
-     * Plugin functions are easily access from any where in the project
-     *
-     * @param int    $useID
-     * @param string $sectionID
-     */
-    public function checkACL($useID, $sectionID): bool
-    {
-        return AclMain::zhAclCheck($useID, $sectionID);
     }
 
     /**
