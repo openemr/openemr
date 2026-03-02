@@ -310,7 +310,7 @@ function sel_related(e) {
 function deleteme() {
 // onclick='return deleteme()'
  const params = new URLSearchParams({
-  transaction: <?php echo js_escape($transid); ?>,
+  transaction: <?php echo js_escape((string) $transid); ?>,
   csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
  });
  dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 450);
@@ -398,7 +398,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 </head>
 <body onload="<?php echo $body_onload_code; ?>" >
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?> mt-3">
-        <form name='new_transaction' method='post' action='add_transaction.php?transid=<?php echo attr_url($transid); ?>' onsubmit='return validate(this)'>
+        <form name='new_transaction' method='post' action='add_transaction.php?transid=<?php echo attr_url((string) $transid); ?>' onsubmit='return validate(this)'>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
             <input type='hidden' name='mode' value='add' />
             <div class="row">
@@ -543,12 +543,6 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             if (!$currvalue && !$transid && $form_id == 'LBTref') {
                                 if ($field_id == 'refer_date') {
                                     $currvalue = date('Y-m-d');
-                                } elseif ($field_id == 'body' && $transid > 0) {
-                                     $tmp = sqlQuery("SELECT reason FROM form_encounter WHERE " .
-                                      "pid = ? ORDER BY date DESC LIMIT 1", [$pid]);
-                                    if (!empty($tmp)) {
-                                        $currvalue = $tmp['reason'];
-                                    }
                                 }
                             }
 
