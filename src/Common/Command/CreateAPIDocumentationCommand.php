@@ -11,12 +11,17 @@
 
 namespace OpenEMR\Common\Command;
 
+use OpenApi\Analysers\AttributeAnnotationFactory;
+use OpenApi\Analysers\ReflectionAnalyser;
+use OpenApi\Generator;
+use OpenApi\Processors\DocBlockDescriptions;
+use OpenApi\Processors\OperationId;
+use OpenApi\SourceFinder;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Yaml;
 
 class CreateAPIDocumentationCommand extends Command
@@ -35,18 +40,37 @@ class CreateAPIDocumentationCommand extends Command
     }
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $routesLocation = $GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . "_rest_routes.inc.php";
-        $fileDestinationFolder = $GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . "swagger" . DIRECTORY_SEPARATOR;
+        // Use $GLOBALS directly instead of OEGlobalsBag because bin/console
+        // sets up $GLOBALS['fileroot'] before the command runs, but OEGlobalsBag
+        // may not be fully initialized when --skip-globals is used.
+        /** @var string $fileroot */
+        $fileroot = $GLOBALS['fileroot'];
+        $fileDestinationFolder = $fileroot . DIRECTORY_SEPARATOR . "swagger" . DIRECTORY_SEPARATOR;
         $fileDestinationYaml =  $fileDestinationFolder . "openemr-api.yaml";
-        $site = $input->getOption('site') ?? 'default';
 
-        $finder = new Finder();
-        $finder->in($GLOBALS['fileroot'] . '/apis/routes')
-            ->name('*.php');
-        $openapi = \OpenApi\Generator::scan([
-            $routesLocation
-            ,$finder
+        $generator = new Generator();
+        // Use only AttributeAnnotationFactory to avoid picking up docblock comments as summaries
+        $analyser = new ReflectionAnalyser([
+            new AttributeAnnotationFactory(),
         ]);
+        $analyser->setGenerator($generator);
+
+        // Remove processors that add fields not in the original swagger output
+        $generator->getProcessorPipeline()->remove(DocBlockDescriptions::class);
+        $generator->getProcessorPipeline()->remove(OperationId::class);
+
+        $openapi = $generator
+            ->setAnalyser($analyser)
+            ->generate(new SourceFinder([
+                $fileroot . '/_rest_routes.inc.php',
+                $fileroot . '/apis/routes',
+                $fileroot . '/src/RestControllers',
+            ]));
+
+        if ($openapi === null) {
+            $output->writeln("Failed to generate OpenAPI documentation");
+            return Command::FAILURE;
+        }
 
         // To have smaller diffs - we force stable order here
         $data = json_decode($openapi->toJson(), true);
