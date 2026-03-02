@@ -247,15 +247,33 @@ if ($layout_id) {
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 <center>
 
-<table class='w-100 border-0'>
+<table class='table table-sm w-100 table-striped table-borderless'>
+ <tr>
+  <td valign='top' width='1%' nowrap>
+    <?php echo xlt('Layout Type'); ?>
+  </td>
+  <td>
+<?php if (empty($layout_id)) { ?>
+    <select name='layout_type' id='layout_type' class='form-control' onchange='updateLayoutId()'>
+      <option value='LBF' selected><?php echo xlt('Encounter'); ?></option>
+      <option value='LBT'><?php echo xlt('Patient'); ?></option>
+    </select>
+<?php } else { ?>
+    <?php echo text(substr($layout_id, 0, 3) === 'LBT' ? xlt('Patient') : xlt('Encounter')); ?>
+<?php } ?>
+  </td>
+ </tr>
+
  <tr>
   <td valign='top' width='1%' nowrap>
     <?php echo xlt('Layout ID'); ?>
   </td>
   <td>
 <?php if (empty($layout_id)) { ?>
-   <input type='text' class='form-control' size='31' maxlength='31' name='form_form_id' value='' /><br />
-    <?php echo xlt('Visit form ID must start with LBF. Transaction form ID must start with LBT.') ?>
+   <input type='hidden' name='form_form_id' id='form_form_id' value='' />
+   <input type='text' class='form-control' size='31' maxlength='27' name='layout_name' id='layout_name'
+     value='' oninput='updateLayoutId()' />
+   <small id='layout_name_error' class='text-danger d-none'><?php echo xlt('Layout name cannot be blank.'); ?></small>
 <?php } else { ?>
     <?php echo text($layout_id); ?>
 <?php } ?>
@@ -294,17 +312,13 @@ if ($layout_id) {
  </tr>
 
 <?php if (empty($group_id)) { ?>
-<tr>
-    <td></td>
-    <td><?php echo xlt('For transactions, change category to Transactions'); ?></td>
-</tr>
  <tr>
   <td valign='top' width='1%' nowrap>
     <?php echo xlt('Category'); ?>
   </td>
   <td>
 
-   <input type='text' class='form-control' size='40' name='form_mapping' value='<?php echo attr($row['grp_mapping']); ?>' />
+   <input type='text' class='form-control' size='40' id='form_mapping' name='form_mapping' value='<?php echo attr($row['grp_mapping']); ?>' />
   </td>
  </tr>
 
@@ -458,7 +472,10 @@ for ($cols = 2; $cols <= 12; ++$cols) {
     <?php echo xlt('Show Services Section'); ?>
   </td>
   <td>
-   <input type='text' class='form-control' size='40' name='form_services_codes' onclick='sel_related(this, "MA")' value='<?php echo ($row['grp_services'] != '*') ? attr($row['grp_services']) : ""; ?>' />
+   <input type='text' class='form-control' size='40' name='form_services_codes' 
+   placeholder='<?php echo xla('Select frequently used services'); ?>' 
+   onclick='sel_related(this, "MA")' 
+   value='<?php echo ($row['grp_services'] != '*') ? attr($row['grp_services']) : ""; ?>' />
   </td>
  </tr>
 
@@ -468,7 +485,10 @@ for ($cols = 2; $cols <= 12; ++$cols) {
     <?php echo xlt('Show Products Section'); ?>
   </td>
   <td>
-   <input type='text' class='form-control' size='40' name='form_products_codes' onclick='sel_related(this, "PROD")' value='<?php echo ($row['grp_products'] != '*') ? attr($row['grp_products']) : ""; ?>' />
+   <input type='text' class='form-control' size='40' name='form_products_codes' 
+   placeholder='<?php echo xla('Select frequently used products'); ?>' 
+   onclick='sel_related(this, "PROD")' 
+   value='<?php echo ($row['grp_products'] != '*') ? attr($row['grp_products']) : ""; ?>' />
   </td>
  </tr>
 
@@ -478,7 +498,10 @@ for ($cols = 2; $cols <= 12; ++$cols) {
     <?php echo xlt('Show Diagnoses Section'); ?>
   </td>
   <td>
-   <input type='text' class='form-control' size='40' name='form_diags_codes' onclick='sel_related(this, "ICD10")' value='<?php echo ($row['grp_diags'] != '*') ? attr($row['grp_diags']) : ""; ?>' />
+   <input type='text' class='form-control' size='40' name='form_diags_codes' 
+   placeholder='<?php echo xla('Select frequently used diagnosis codes'); ?>' 
+   onclick='sel_related(this, "ICD10")' 
+   value='<?php echo ($row['grp_diags'] != '*') ? attr($row['grp_diags']) : ""; ?>' />
   </td>
  </tr>
 
@@ -530,6 +553,70 @@ for ($cols = 2; $cols <= 12; ++$cols) {
 <input type='button' class='btn btn-secondary' value='<?php echo xla('Cancel'); ?>' onclick='window.close()' />
 </center>
 </form>
+<?php if (empty($layout_id)) { ?>
+<script>
+function updateLayoutId() {
+    var typeEl = document.getElementById('layout_type');
+    var nameEl = document.getElementById('layout_name');
+    var formIdEl = document.getElementById('form_form_id');
+    var mappingField = document.getElementById('form_mapping');
+    var errorEl = document.getElementById('layout_name_error');
+
+    if (!typeEl || !nameEl || !formIdEl) return;
+
+    var layoutType = typeEl.value;
+    var layoutName = nameEl.value.trim();
+    // Strip any LBF/LBT prefix the user may have typed
+    if (/^LB[FT]/i.test(layoutName)) {
+        nameEl.value = layoutName.replace(/^LB[FT]/i, '');
+        layoutName = nameEl.value.trim();
+    }
+
+    if (errorEl) {
+        if (layoutName === '') {
+            errorEl.classList.remove('d-none');
+        } else {
+            errorEl.classList.add('d-none');
+        }
+    }
+
+    formIdEl.value = layoutName !== '' ? layoutType + layoutName : '';
+
+    if (mappingField) {
+        if (layoutType === 'LBT') {
+            mappingField.value = 'Transactions';
+            mappingField.disabled = true;
+        } else {
+            mappingField.disabled = false;
+            if (mappingField.value === 'Transactions') {
+                mappingField.value = 'Clinical';
+            }
+        }
+    }
+}
+
+// Also validate on form submit
+(function() {
+    var form = document.getElementById('layout_name').closest('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            var layoutName = document.getElementById('form_form_id').value.trim();
+            if (layoutName === '') {
+                e.preventDefault();
+                document.getElementById('layout_name_error').classList.remove('d-none');
+                document.getElementById('layout_name').focus();
+            }
+        });
+    }
+})();
+
+// Run once on page load to set initial state
+document.addEventListener('DOMContentLoaded', function() {
+    updateLayoutId();
+});
+</script>
+<?php } ?>
+
 <script>
 <?php
 if ($alertmsg) {
