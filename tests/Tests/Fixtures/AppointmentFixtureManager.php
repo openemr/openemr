@@ -16,9 +16,9 @@
 
 namespace OpenEMR\Tests\Fixtures;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
 
 class AppointmentFixtureManager
 {
@@ -54,7 +54,7 @@ class AppointmentFixtureManager
             "SELECT pid FROM patient_data WHERE pubpid LIKE ? LIMIT 1",
             [self::FIXTURE_PREFIX . "%"]
         );
-        if ($patientRow === false || !isset($patientRow['pid'])) {
+        if ($patientRow === false || !isset($patientRow['pid']) || !is_numeric($patientRow['pid'])) {
             throw new \RuntimeException('Failed to find test patient fixture — did installPatientFixtures() succeed?');
         }
         $pid = (int) $patientRow['pid'];
@@ -64,7 +64,7 @@ class AppointmentFixtureManager
             "SELECT id FROM facility WHERE name LIKE ? LIMIT 1",
             [self::FIXTURE_PREFIX . "%"]
         );
-        if ($facilityRow === false || !isset($facilityRow['id'])) {
+        if ($facilityRow === false || !isset($facilityRow['id']) || !is_numeric($facilityRow['id'])) {
             throw new \RuntimeException('Failed to find test facility fixture — did installFacilityFixtures() succeed?');
         }
         $facilityId = (int) $facilityRow['id'];
@@ -141,7 +141,7 @@ class AppointmentFixtureManager
                 [$bindVariable]
             );
         } catch (SqlQueryException $exception) {
-            (new SystemLogger())->error(
+            ServiceContainer::getLogger()->error(
                 "Failed to delete appointment fixture data",
                 ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
             );

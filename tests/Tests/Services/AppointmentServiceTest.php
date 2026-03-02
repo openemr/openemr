@@ -18,6 +18,7 @@ namespace OpenEMR\Tests\Services;
 
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Tests\Fixtures\AppointmentFixtureManager;
+use Particle\Validator\ValidationResult;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 
@@ -44,7 +45,7 @@ class AppointmentServiceTest extends TestCase
     private int $testFacilityId;
 
     /**
-     * @var array Appointment data template for tests
+     * @var array<string, mixed> Appointment data template for tests
      */
     private array $appointmentData;
 
@@ -71,6 +72,7 @@ class AppointmentServiceTest extends TestCase
     public function testValidateSuccess(): void
     {
         $result = $this->appointmentService->validate($this->appointmentData);
+        $this->assertInstanceOf(ValidationResult::class, $result);
         $this->assertTrue($result->isValid(), "Validation should pass with complete appointment data");
     }
 
@@ -79,6 +81,7 @@ class AppointmentServiceTest extends TestCase
     {
         // Empty data should fail validation for all required fields
         $result = $this->appointmentService->validate([]);
+        $this->assertInstanceOf(ValidationResult::class, $result);
         $this->assertFalse($result->isValid(), "Validation should fail with empty data");
 
         $messages = $result->getMessages();
@@ -101,6 +104,7 @@ class AppointmentServiceTest extends TestCase
         $data['pc_title'] = 'A'; // Too short — minimum is 2 characters
 
         $result = $this->appointmentService->validate($data);
+        $this->assertInstanceOf(ValidationResult::class, $result);
         $this->assertFalse($result->isValid(), "Validation should fail when title is too short");
         $messages = $result->getMessages();
         $this->assertArrayHasKey('pc_title', $messages);
@@ -113,6 +117,7 @@ class AppointmentServiceTest extends TestCase
         $data['pc_eventDate'] = '13/25/2026'; // Invalid format — expects Y-m-d
 
         $result = $this->appointmentService->validate($data);
+        $this->assertInstanceOf(ValidationResult::class, $result);
         $this->assertFalse($result->isValid(), "Validation should fail with invalid date format");
         $messages = $result->getMessages();
         $this->assertArrayHasKey('pc_eventDate', $messages);
@@ -125,6 +130,7 @@ class AppointmentServiceTest extends TestCase
         $data['pc_startTime'] = '10:00:00'; // 8 chars — expects exactly 5 (HH:MM)
 
         $result = $this->appointmentService->validate($data);
+        $this->assertInstanceOf(ValidationResult::class, $result);
         $this->assertFalse($result->isValid(), "Validation should fail when start time is not exactly 5 characters");
         $messages = $result->getMessages();
         $this->assertArrayHasKey('pc_startTime', $messages);
@@ -139,11 +145,14 @@ class AppointmentServiceTest extends TestCase
 
         // Verify the appointment was actually created
         $appointment = $this->appointmentService->getAppointment($insertId);
+        $this->assertIsArray($appointment);
         $this->assertNotEmpty($appointment, "Should retrieve the inserted appointment");
-        $this->assertEquals($this->testPid, $appointment[0]['pid']);
-        $this->assertEquals($this->appointmentData['pc_title'], $appointment[0]['pc_title']);
-        $this->assertEquals($this->appointmentData['pc_eventDate'], $appointment[0]['pc_eventDate']);
-        $this->assertEquals($this->appointmentData['pc_duration'], $appointment[0]['pc_duration']);
+        $row = $appointment[0];
+        $this->assertIsArray($row);
+        $this->assertEquals($this->testPid, $row['pid']);
+        $this->assertEquals($this->appointmentData['pc_title'], $row['pc_title']);
+        $this->assertEquals($this->appointmentData['pc_eventDate'], $row['pc_eventDate']);
+        $this->assertEquals($this->appointmentData['pc_duration'], $row['pc_duration']);
     }
 
     #[Test]
@@ -152,11 +161,14 @@ class AppointmentServiceTest extends TestCase
         $insertId = $this->appointmentService->insert($this->testPid, $this->appointmentData);
         $appointment = $this->appointmentService->getAppointment($insertId);
 
+        $this->assertIsArray($appointment);
         $this->assertNotEmpty($appointment);
+        $row = $appointment[0];
+        $this->assertIsArray($row);
         // pc_startTime should be the formatted time value
-        $this->assertEquals('10:00:00', $appointment[0]['pc_startTime']);
+        $this->assertEquals('10:00:00', $row['pc_startTime']);
         // pc_endTime should be startTime + duration (900s = 15min => 10:15:00)
-        $this->assertEquals('10:15:00', $appointment[0]['pc_endTime']);
+        $this->assertEquals('10:15:00', $row['pc_endTime']);
     }
 
     #[Test]
@@ -168,8 +180,11 @@ class AppointmentServiceTest extends TestCase
         $insertId = $this->appointmentService->insert($this->testPid, $data);
         $appointment = $this->appointmentService->getAppointment($insertId);
 
+        $this->assertIsArray($appointment);
         $this->assertNotEmpty($appointment);
-        $this->assertEquals('https://example.com/telehealth', $appointment[0]['pc_website']);
+        $row = $appointment[0];
+        $this->assertIsArray($row);
+        $this->assertEquals('https://example.com/telehealth', $row['pc_website']);
     }
 
     #[Test]
@@ -229,11 +244,11 @@ class AppointmentServiceTest extends TestCase
     public function testGetCalendarCategories(): void
     {
         $categories = $this->appointmentService->getCalendarCategories();
-        $this->assertIsArray($categories);
         $this->assertNotEmpty($categories, "Should return at least one calendar category");
 
         // Every category should have required fields
         $firstCategory = $categories[0];
+        $this->assertIsArray($firstCategory);
         $this->assertArrayHasKey('pc_catid', $firstCategory);
         $this->assertArrayHasKey('pc_catname', $firstCategory);
         $this->assertArrayHasKey('pc_constant_id', $firstCategory);
@@ -253,8 +268,10 @@ class AppointmentServiceTest extends TestCase
         // pc_catid 5 = office_visit in default install
         $result = $this->appointmentService->getOneCalendarCategory(5);
         $this->assertNotEmpty($result);
-        $this->assertEquals('office_visit', $result[0]['pc_constant_id']);
-        $this->assertEquals('Office Visit', $result[0]['pc_catname']);
+        $row = $result[0];
+        $this->assertIsArray($row);
+        $this->assertEquals('office_visit', $row['pc_constant_id']);
+        $this->assertEquals('Office Visit', $row['pc_catname']);
     }
 
     #[Test]
@@ -268,7 +285,6 @@ class AppointmentServiceTest extends TestCase
     public function testGetAppointmentStatuses(): void
     {
         $statuses = $this->appointmentService->getAppointmentStatuses();
-        $this->assertIsArray($statuses);
         $this->assertNotEmpty($statuses, "Should return appointment statuses");
 
         // Check that common statuses are present
@@ -376,8 +392,11 @@ class AppointmentServiceTest extends TestCase
 
         // Verify the status was updated
         $appointment = $this->appointmentService->getAppointment($insertId);
+        $this->assertIsArray($appointment);
         $this->assertNotEmpty($appointment);
-        $this->assertEquals('@', $appointment[0]['pc_apptstatus']);
+        $row = $appointment[0];
+        $this->assertIsArray($row);
+        $this->assertEquals('@', $row['pc_apptstatus']);
     }
 
     #[Test]
@@ -393,9 +412,12 @@ class AppointmentServiceTest extends TestCase
         $insertId = $this->appointmentService->insert($this->testPid, $this->appointmentData);
         $appointment = $this->appointmentService->getAppointment($insertId);
 
+        $this->assertIsArray($appointment);
         $this->assertNotEmpty($appointment);
-        $this->assertArrayHasKey('pc_uuid', $appointment[0]);
-        $this->assertNotEmpty($appointment[0]['pc_uuid'], "Appointment should have a UUID");
+        $row = $appointment[0];
+        $this->assertIsArray($row);
+        $this->assertArrayHasKey('pc_uuid', $row);
+        $this->assertNotEmpty($row['pc_uuid'], "Appointment should have a UUID");
     }
 
     #[Test]
@@ -404,11 +426,14 @@ class AppointmentServiceTest extends TestCase
         $insertId = $this->appointmentService->insert($this->testPid, $this->appointmentData);
         $appointment = $this->appointmentService->getAppointment($insertId);
 
+        $this->assertIsArray($appointment);
         $this->assertNotEmpty($appointment);
-        $this->assertArrayHasKey('fname', $appointment[0]);
-        $this->assertArrayHasKey('lname', $appointment[0]);
-        $this->assertArrayHasKey('pid', $appointment[0]);
-        $this->assertEquals($this->testPid, $appointment[0]['pid']);
+        $row = $appointment[0];
+        $this->assertIsArray($row);
+        $this->assertArrayHasKey('fname', $row);
+        $this->assertArrayHasKey('lname', $row);
+        $this->assertArrayHasKey('pid', $row);
+        $this->assertEquals($this->testPid, $row['pid']);
     }
 
     #[Test]
@@ -417,8 +442,11 @@ class AppointmentServiceTest extends TestCase
         $insertId = $this->appointmentService->insert($this->testPid, $this->appointmentData);
         $appointment = $this->appointmentService->getAppointment($insertId);
 
+        $this->assertIsArray($appointment);
         $this->assertNotEmpty($appointment);
-        $this->assertArrayHasKey('facility_name', $appointment[0]);
-        $this->assertNotEmpty($appointment[0]['facility_name'], "Appointment should include facility name");
+        $row = $appointment[0];
+        $this->assertIsArray($row);
+        $this->assertArrayHasKey('facility_name', $row);
+        $this->assertNotEmpty($row['facility_name'], "Appointment should include facility name");
     }
 }
