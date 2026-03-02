@@ -12,6 +12,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CarecoordinationController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Comparison operation "\\>" between 0\\|0\\.0 and 0 is always false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/transaction/add_transaction.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Comparison operation "\\>" between 0 and 0 is always false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/super/edit_list.php',

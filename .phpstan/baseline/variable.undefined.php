@@ -14117,11 +14117,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/transaction/add_transaction.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$newid might not be defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/transaction/add_transaction.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$pid might not be defined\\.$#',
     'count' => 13,
     'path' => __DIR__ . '/../../interface/patient_file/transaction/add_transaction.php',
@@ -15809,11 +15804,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Variable \\$car_cmb_unique might not be defined\\.$#',
     'count' => 3,
-    'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$h might not be defined\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
 ];
 $ignoreErrors[] = [
