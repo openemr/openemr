@@ -55,7 +55,9 @@ class AppointmentFixtureManager
             [self::FIXTURE_PREFIX . "%"]
         );
         if ($patientRow === false || !isset($patientRow['pid']) || !is_numeric($patientRow['pid'])) {
+            // @codeCoverageIgnoreStart Defensive check — only fires if test infrastructure is broken.
             throw new \RuntimeException('Failed to find test patient fixture — did installPatientFixtures() succeed?');
+            // @codeCoverageIgnoreEnd
         }
         $pid = (int) $patientRow['pid'];
 
@@ -65,7 +67,9 @@ class AppointmentFixtureManager
             [self::FIXTURE_PREFIX . "%"]
         );
         if ($facilityRow === false || !isset($facilityRow['id']) || !is_numeric($facilityRow['id'])) {
+            // @codeCoverageIgnoreStart Defensive check — only fires if test infrastructure is broken.
             throw new \RuntimeException('Failed to find test facility fixture — did installFacilityFixtures() succeed?');
+            // @codeCoverageIgnoreEnd
         }
         $facilityId = (int) $facilityRow['id'];
 
@@ -140,12 +144,14 @@ class AppointmentFixtureManager
                 "DELETE FROM openemr_postcalendar_events WHERE pc_title LIKE ?",
                 [$bindVariable]
             );
+        // @codeCoverageIgnoreStart Defensive catch — only fires on unexpected DB errors during cleanup.
         } catch (SqlQueryException $exception) {
             ServiceContainer::getLogger()->error(
                 "Failed to delete appointment fixture data",
                 ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
             );
         }
+        // @codeCoverageIgnoreEnd
 
         // Remove dependency fixtures
         if ($this->hasInstalledDependencies) {
