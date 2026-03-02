@@ -259,7 +259,7 @@ if ($layout_id) {
       <option value='LBT'><?php echo xlt('Patient'); ?></option>
     </select>
 <?php } else { ?>
-    <?php echo text(substr($layout_id, 0, 3) === 'LBT' ? xlt('Patient') : xlt('Encounter')); ?>
+    <?php echo (substr($layout_id, 0, 3) === 'LBT' ? xlt('Patient') : xlt('Encounter')); ?>
 <?php } ?>
   </td>
  </tr>
@@ -585,9 +585,9 @@ function updateLayoutId() {
     if (mappingField) {
         if (layoutType === 'LBT') {
             mappingField.value = 'Transactions';
-            mappingField.disabled = true;
+            mappingField.readOnly = true;
         } else {
-            mappingField.disabled = false;
+            mappingField.readOnly = false;
             if (mappingField.value === 'Transactions') {
                 mappingField.value = 'Clinical';
             }
