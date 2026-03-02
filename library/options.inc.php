@@ -712,7 +712,9 @@ function generate_form_field($frow, $currvalue): void
             $string_maxlength = "maxlength='" . attr($maxlength) . "'";
         }
 
-        echo "<input type='text'
+        // Use type="email" for fields with email validation for native browser validation
+        $inputType = (($frow['validation'] ?? '') === 'email') ? 'email' : 'text';
+        echo "<input type='{$inputType}'
             class='form-control{$smallform}'
             name='form_{$field_id_esc}'
             id='form_{$field_id_esc}'
