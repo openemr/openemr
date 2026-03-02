@@ -4,7 +4,10 @@
 declare(strict_types=1);
 
 use Doctrine\Migrations\DependencyFactory;
-use Doctrine\Migrations\Tools\Console\ConsoleRunner;
+use Doctrine\Migrations\Tools\Console\ConsoleRunner as MigrationsConsoleRunner;
+use Doctrine\ORM\Tools\Console\ConsoleRunner as ORMConsoleRunner;
+use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
+use OpenEMR\BC\ServiceContainer;
 use Symfony\Component\Console\Application;
 
 require_once __DIR__ . '/bootstrap.php';
@@ -27,5 +30,12 @@ $application = new Application();
 // location
 $migrationsDependencyFactory = require 'config/cli-config.php';
 assert($migrationsDependencyFactory instanceof DependencyFactory);
-ConsoleRunner::addCommands($application, $migrationsDependencyFactory);
+MigrationsConsoleRunner::addCommands($application, $migrationsDependencyFactory);
+
+// Doctrine ORM integration
+ORMConsoleRunner::addCommands(
+    $application,
+    new SingleManagerProvider(ServiceContainer::getEntityManager()),
+);
+
 $application->run();
