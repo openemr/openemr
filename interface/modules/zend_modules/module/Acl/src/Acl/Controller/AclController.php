@@ -143,8 +143,8 @@ class AclController extends AbstractActionController
             $denied_users = array_unique($denied_users);
 
                         // Delete Saved ACL Data
-                        $data   = $this->getAclTable()->deleteGroupACL($selected_componet_arr[0], $selected_componet_arr[1]);
-                        $data   = $this->getAclTable()->deleteUserACL($selected_componet_arr[0], $selected_componet_arr[1]);
+                        $this->getAclTable()->deleteGroupACL($selected_componet_arr[0], $selected_componet_arr[1]);
+                        $this->getAclTable()->deleteUserACL($selected_componet_arr[0], $selected_componet_arr[1]);
 
                         // Allowed
             foreach ($allowed_users as $allowed_user) {
@@ -152,9 +152,9 @@ class AclController extends AbstractActionController
                 $arr_id = explode("-", $id);
 
                 if ($arr_id[1] == 0) {
-                    $data   = $this->getAclTable()->insertGroupACL($selected_componet_arr[0], $arr_id[0], $selected_componet_arr[1], 1);
+                    $this->getAclTable()->insertGroupACL($selected_componet_arr[0], $arr_id[0], $selected_componet_arr[1], 1);
                 } else {
-                                        $data   = $this->getAclTable()->insertUserACL($selected_componet_arr[0], $arr_id[1], $selected_componet_arr[1], 1);
+                    $this->getAclTable()->insertUserACL($selected_componet_arr[0], $arr_id[1], $selected_componet_arr[1], 1);
                 }
             }
 
@@ -164,9 +164,9 @@ class AclController extends AbstractActionController
                 $arr_id = explode("-", $id);
 
                 if ($arr_id[1] == 0) {
-                                        $data   = $this->getAclTable()->insertGroupACL($selected_componet_arr[0], $arr_id[0], $selected_componet_arr[1], 0);
+                    $this->getAclTable()->insertGroupACL($selected_componet_arr[0], $arr_id[0], $selected_componet_arr[1], 0);
                 } else {
-                                        $data   = $this->getAclTable()->insertuserACL($selected_componet_arr[0], $arr_id[1], $selected_componet_arr[1], 0);
+                    $this->getAclTable()->insertuserACL($selected_componet_arr[0], $arr_id[1], $selected_componet_arr[1], 0);
                 }
             }
         } elseif ($ajax_mode == "rebuild") {

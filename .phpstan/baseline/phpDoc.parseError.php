@@ -955,11 +955,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/LogProperties.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(\\)\\: Unexpected token "\\\\n     ", expected type at offset 123 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Model/DocumentsTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return has invalid value \\(multitype\\:\\)\\: Unexpected token "\\:", expected TOKEN_HORIZONTAL_WS at offset 70 on line 4$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',

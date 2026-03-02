@@ -13,7 +13,6 @@
 namespace Immunization\Controller;
 
 use Application\Listener\Listener;
-use Application\Model\ApplicationTable;
 use Immunization\Form\ImmunizationForm;
 use Immunization\Model\ImmunizationTable;
 use Laminas\Mvc\Controller\AbstractActionController;
@@ -29,11 +28,8 @@ class ImmunizationController extends AbstractActionController
 
     protected $date_format;
 
-    protected $appTable;
-
     public function __construct(ImmunizationTable $table)
     {
-        $this->appTable = new ApplicationTable();
         $this->immunizationTable = $table;
         $this->listenerObject = new Listener();
     }

@@ -52,16 +52,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Controller/AclController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#2 \\$params \\(string\\) of method Application\\\\Model\\\\ApplicationTable\\:\\:zQuery\\(\\) is incompatible with type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#3 \\$binds \\(string\\) of method Application\\\\Model\\\\ApplicationTable\\:\\:errorHandler\\(\\) is incompatible with type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#3 \\$adapter \\(string\\) of method Installer\\\\Model\\\\InstModuleTable\\:\\:getObject\\(\\) is incompatible with type Installer\\\\Model\\\\type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',

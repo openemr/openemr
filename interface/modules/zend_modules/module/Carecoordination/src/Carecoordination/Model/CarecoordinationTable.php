@@ -22,6 +22,7 @@ use DOMDocument;
 use Exception;
 use Laminas\Db\TableGateway\AbstractTableGateway;
 use OpenEMR\Common\Command\Trait\CommandLineDebugStylerTrait;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\Cda\CdaTemplateImportDispose;
 use OpenEMR\Services\Cda\CdaTemplateParse;
 use OpenEMR\Services\Cda\CdaComponentParseHelpers;
@@ -76,17 +77,10 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function fetch_cat_id($title): array
     {
-        $appTable = new ApplicationTable();
         $query = "SELECT *
                    FROM categories
                    WHERE name = ?";
-        $result = $appTable->zQuery($query, [$title]);
-        $records = [];
-        foreach ($result as $row) {
-            $records[] = $row;
-        }
-
-        return $records;
+        return QueryUtils::fetchRecords($query, [$title]);
     }
 
     /*
@@ -108,14 +102,7 @@ class CarecoordinationTable extends AbstractTableGateway
                    FROM categories_to_documents AS cat_doc
                    JOIN documents AS doc
                    ON doc.id = cat_doc.document_id AND doc.owner = ? AND doc.date BETWEEN ? AND ?";
-        $appTable = new ApplicationTable();
-        $result = $appTable->zQuery($query, [$data['user'], $data['time_start'], $data['time_end']]);
-        $records = [];
-        foreach ($result as $row) {
-            $records[] = $row;
-        }
-
-        return $records;
+        return QueryUtils::fetchRecords($query, [$data['user'], $data['time_start'], $data['time_end']]);
     }
 
     /*
@@ -173,14 +160,7 @@ class CarecoordinationTable extends AbstractTableGateway
         LEFT JOIN users AS u ON u.id = d.owner
         WHERE d.audit_master_approval_status = 1 AND am.id >= 0
         ORDER BY date " . escape_sort_order($direction); // DESC is default
-        $appTable = new ApplicationTable();
-        $result = $appTable->zQuery($query, [$data['cat_title'], $data['type']]);
-        $records = [];
-        foreach ($result as $row) {
-            $records[] = $row;
-        }
-
-        return $records;
+        return QueryUtils::fetchRecords($query, [$data['cat_title'], $data['type']]);
     }
 
     /*
@@ -516,14 +496,12 @@ class CarecoordinationTable extends AbstractTableGateway
         $arr_observation_preformed = [];
         $arr_clinical_note = [];
 
-        $appTable = new ApplicationTable();
-
-        $pres = $appTable->zQuery("SELECT IFNULL(MAX(pid)+1,1) AS pid FROM patient_data");
+        $pres = QueryUtils::fetchRecords("SELECT IFNULL(MAX(pid)+1,1) AS pid FROM patient_data");
         foreach ($pres as $prow) {
             $pid = $prow['pid'];
         }
         if (!empty($audit_master_id)) {
-            $res = $appTable->zQuery("SELECT DISTINCT am.is_qrda_document, am.is_unstructured_document, ad.table_name, entry_identification
+            $res = QueryUtils::fetchRecords("SELECT DISTINCT am.is_qrda_document, am.is_unstructured_document, ad.table_name, entry_identification
                                      FROM audit_master as am,audit_details as ad
                                      WHERE am.id=ad.audit_master_id AND
                                      am.approval_status = '1' AND
@@ -541,10 +519,18 @@ class CarecoordinationTable extends AbstractTableGateway
             }
         }
         foreach ($res as $row) {
+            /**
+             * @var array{
+             *   is_qrda_document: ?boolean,
+             *   is_unstructured_document: ?boolean,
+             *   table_name: string,
+             *   entry_identification: string,
+             * } $row
+             */
             $this->is_qrda_import = $row['is_qrda_document'] ?? false;
             $this->is_unstructured_import = $row['is_unstructured_document'] ?? false;
             if (!empty($audit_master_id)) {
-                $resfield = $appTable->zQuery(
+                $resfield = QueryUtils::fetchRecords(
                     "SELECT *
                              FROM audit_details
                              WHERE audit_master_id=? AND
@@ -823,7 +809,7 @@ class CarecoordinationTable extends AbstractTableGateway
                           ?,
                           ?
                          )";
-                $appTable->zQuery($query_insert, [$pid,
+                QueryUtils::sqlStatementThrowException($query_insert, [$pid,
                     $alcohol_value,
                     $smoking_value,
                     date('Y-m-d H:i:s')]);
@@ -981,13 +967,13 @@ class CarecoordinationTable extends AbstractTableGateway
         $this->importService->InsertImportedFiles(($arr_files['import_file'] ?? null), $pid, $this);
 
         if (!empty($audit_master_id)) {
-            $appTable->zQuery("UPDATE audit_master
+            QueryUtils::sqlStatementThrowException("UPDATE audit_master
                        SET approval_status=2
                        WHERE id=?", [$audit_master_id]);
-            $appTable->zQuery("UPDATE documents
+            QueryUtils::sqlStatementThrowException("UPDATE documents
                        SET audit_master_approval_status=2
                        WHERE audit_master_id=?", [$audit_master_id]);
-            $appTable->zQuery("UPDATE documents
+            QueryUtils::sqlStatementThrowException("UPDATE documents
                        SET foreign_id = ?
                        WHERE id =? ", [$pid,
                 $document_id]);
@@ -1024,22 +1010,21 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function getOptionId($list_id, $title, $codes = null)
     {
-        $appTable = new ApplicationTable();
         $res_cur = null;
         if ($title) {
             $query = "SELECT option_id
                 FROM list_options
                 WHERE list_id=? AND title=?";
-            $result = $appTable->zQuery($query, [$list_id, $title]);
-            $res_cur = $result->current();
+            $result = QueryUtils::fetchRecords($query, [$list_id, $title]);
+            $res_cur = $result[0] ?? null;
         }
 
         if (!empty($codes && empty($res_cur))) {
             $query = "SELECT option_id
                   FROM list_options
                   WHERE list_id=? AND (codes=? || notes=?)";
-            $result = $appTable->zQuery($query, [$list_id, $codes, $codes]);
-            $res_cur = $result->current();
+            $result = QueryUtils::fetchRecords($query, [$list_id, $codes, $codes]);
+            $res_cur = $result[0] ?? null;
         }
 
         return ($res_cur['option_id'] ?? null);
@@ -1053,22 +1038,21 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function getListTitle(?string $option_id, $list_id, $codes = '')
     {
-        $appTable = new ApplicationTable();
         $res_cur = null;
         if ($option_id) {
             $query = "SELECT title
                   FROM list_options
                   WHERE list_id=? AND option_id=? AND activity=?";
-            $result = $appTable->zQuery($query, [$list_id, $option_id, 1]);
-            $res_cur = $result->current();
+            $result = QueryUtils::fetchRecords($query, [$list_id, $option_id, 1]);
+            $res_cur = $result[0] ?? null;
         }
 
         if (!empty($codes) && empty($res_cur)) {
             $query = "SELECT title
                   FROM list_options
                   WHERE list_id=? AND (codes=? OR option_id=?) AND activity=?";
-            $result = $appTable->zQuery($query, [$list_id, $codes, $option_id, 1]);
-            $res_cur = $result->current();
+            $result = QueryUtils::fetchRecords($query, [$list_id, $codes, $option_id, 1]);
+            $res_cur = $result[0] ?? null;
         }
 
         return ($res_cur['title'] ?? null);
@@ -1147,14 +1131,13 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function update_document_table($document_id, $audit_master_id, $audit_master_approval_status, $documentationOf): void
     {
-        $appTable = new ApplicationTable();
         $query = "UPDATE documents
               SET audit_master_id = ?,
                   imported = ?,
                   audit_master_approval_status=?,
                   documentationOf=?
               WHERE id = ?";
-        $appTable->zQuery($query, [$audit_master_id,
+        QueryUtils::sqlStatementThrowException($query, [$audit_master_id,
             1,
             $audit_master_approval_status,
             $documentationOf,
@@ -1197,7 +1180,6 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function getDemographics($data): array
     {
-        $appTable = new ApplicationTable();
         $query = "SELECT ad.id as adid,
                           table_name,
                           field_name,
@@ -1206,13 +1188,7 @@ class CarecoordinationTable extends AbstractTableGateway
                    JOIN audit_details ad ON ad.audit_master_id = am.id
                    WHERE am.id = ? AND ad.table_name = 'patient_data'
                    ORDER BY ad.id";
-        $result = $appTable->zQuery($query, [$data['audit_master_id']]);
-        $records = [];
-        foreach ($result as $row) {
-            $records[] = $row;
-        }
-
-        return $records;
+        return QueryUtils::fetchRecords($query, [$data['audit_master_id']]);
     }
 
     /**
@@ -1221,17 +1197,10 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function getDemographicsOld($data)
     {
-        $appTable = new ApplicationTable();
         $query = "SELECT *
                    FROM patient_data
                    WHERE pid = ?";
-        $result = $appTable->zQuery($query, [$data['pid']]);
-        $records = [];
-        foreach ($result as $row) {
-            $records[] = $row;
-        }
-
-        return $records;
+        return QueryUtils::fetchRecords($query, [$data['pid']]);
     }
 
     /**
@@ -1240,17 +1209,10 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function getProblems($data): array
     {
-        $appTable = new ApplicationTable();
         $query = "SELECT *
                    FROM lists
                    WHERE pid = ? AND TYPE = 'medical_problem'";
-        $result = $appTable->zQuery($query, [$data['pid']]);
-        $records = [];
-        foreach ($result as $row) {
-            $records[] = $row;
-        }
-
-        return $records;
+        return QueryUtils::fetchRecords($query, [$data['pid']]);
     }
 
     /**
@@ -1259,17 +1221,10 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function getAllergies($data): array
     {
-        $appTable = new ApplicationTable();
         $query = "SELECT *
                    FROM lists
                    WHERE pid = ? AND TYPE = 'allergy'";
-        $result = $appTable->zQuery($query, [$data['pid']]);
-        $records = [];
-        foreach ($result as $row) {
-            $records[] = $row;
-        }
-
-        return $records;
+        return QueryUtils::fetchRecords($query, [$data['pid']]);
     }
 
     /**
@@ -1278,17 +1233,10 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function getMedications($data): array
     {
-        $appTable = new ApplicationTable();
         $query = "SELECT *
                    FROM prescriptions
                    WHERE patient_id = ?";
-        $result = $appTable->zQuery($query, [$data['pid']]);
-        $records = [];
-        foreach ($result as $row) {
-            $records[] = $row;
-        }
-
-        return $records;
+        return QueryUtils::fetchRecords($query, [$data['pid']]);
     }
 
     /**
@@ -1297,17 +1245,10 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function getImmunizations($data): array
     {
-        $appTable = new ApplicationTable();
         $query = "SELECT *
                    FROM immunizations
                    WHERE patient_id = ?"; //removed the field 'added_erroneously' from where condition
-        $result = $appTable->zQuery($query, [$data['pid']]);
-        $records = [];
-        foreach ($result as $row) {
-            $records[] = $row;
-        }
-
-        return $records;
+        return QueryUtils::fetchRecords($query, [$data['pid']]);
     }
 
     /**
@@ -1316,7 +1257,6 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function getLabResults($data): array
     {
-        $appTable = new ApplicationTable();
         $query = "SELECT CONCAT_WS('',po.procedure_order_id,poc.`procedure_order_seq`) AS tcode,
                           prs.result AS result_value,
                           prs.units, prs.range,
@@ -1333,13 +1273,7 @@ class CarecoordinationTable extends AbstractTableGateway
                         AND pr.`procedure_order_seq`=poc.`procedure_order_seq`
                    JOIN procedure_result AS prs ON prs.procedure_report_id = pr.procedure_report_id
                    WHERE po.patient_id = ? AND prs.result NOT IN ('DNR','TNP')";
-        $result = $appTable->zQuery($query, [$data['pid']]);
-        $records = [];
-        foreach ($result as $row) {
-            $records[] = $row;
-        }
-
-        return $records;
+        return QueryUtils::fetchRecords($query, [$data['pid']]);
     }
 
     /**
@@ -1348,17 +1282,10 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function getVitals($data): array
     {
-        $appTable = new ApplicationTable();
         $query = "SELECT *
                    FROM form_vitals
                    WHERE pid = ? AND activity=?";
-        $result = $appTable->zQuery($query, [$data['pid'], 1]);
-        $records = [];
-        foreach ($result as $row) {
-            $records[] = $row;
-        }
-
-        return $records;
+        return QueryUtils::fetchRecords($query, [$data['pid'], 1]);
     }
 
     /**
@@ -1367,18 +1294,11 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function getSocialHistory($data): array
     {
-        $appTable = new ApplicationTable();
         $query = "SELECT *
                    FROM history_data
                    WHERE pid=?
                    ORDER BY id DESC LIMIT 1";
-        $result = $appTable->zQuery($query, [$data['pid']]);
-        $records = [];
-        foreach ($result as $row) {
-            $records[] = $row;
-        }
-
-        return $records;
+        return QueryUtils::fetchRecords($query, [$data['pid']]);
     }
 
     /**
@@ -1387,19 +1307,12 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function getEncounterData($data): array
     {
-        $appTable = new ApplicationTable();
         $query = "SELECT form_encounter.*,u.fname AS provider_name
                    FROM form_encounter
                    LEFT JOIN users AS u
                    ON form_encounter.provider_id=u.id
                    WHERE pid = ?";
-        $result = $appTable->zQuery($query, [$data['pid']]);
-        $records = [];
-        foreach ($result as $row) {
-            $records[] = $row;
-        }
-
-        return $records;
+        return QueryUtils::fetchRecords($query, [$data['pid']]);
     }
 
     /**
@@ -1408,17 +1321,10 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function getProcedure($data): array
     {
-        $appTable = new ApplicationTable();
         $query = "SELECT *
                  FROM billing
                  WHERE pid=? AND code_type=?";
-        $result = $appTable->zQuery($query, [$data['pid'], 'CPT4']);
-        $records = [];
-        foreach ($result as $row) {
-            $records[] = $row;
-        }
-
-        return $records;
+        return QueryUtils::fetchRecords($query, [$data['pid'], 'CPT4']);
     }
 
     /**
@@ -1427,17 +1333,10 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function getCarePlan($data): array
     {
-        $appTable = new ApplicationTable();
         $query = "SELECT *
                    FROM form_care_plan
                    WHERE pid = ? AND activity=?";
-        $result = $appTable->zQuery($query, [$data['pid'], 1]);
-        $records = [];
-        foreach ($result as $row) {
-            $records[] = $row;
-        }
-
-        return $records;
+        return QueryUtils::fetchRecords($query, [$data['pid'], 1]);
     }
 
     /**
@@ -1446,17 +1345,10 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function getFunctionalCognitiveStatus($data): array
     {
-        $appTable = new ApplicationTable();
         $query = "SELECT *
                    FROM form_functional_cognitive_status
                    WHERE pid = ? AND activity=?";
-        $result = $appTable->zQuery($query, [$data['pid'], 1]);
-        $records = [];
-        foreach ($result as $row) {
-            $records[] = $row;
-        }
-
-        return $records;
+        return QueryUtils::fetchRecords($query, [$data['pid'], 1]);
     }
 
     /**
@@ -1466,7 +1358,6 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function createAuditArray($am_id, $table_name): array
     {
-        $appTable = new ApplicationTable();
         if (strpos((string) $table_name, ',')) {
             $tables = explode(',', (string) $table_name);
             $arr = [$am_id];
@@ -1484,7 +1375,7 @@ class CarecoordinationTable extends AbstractTableGateway
                      AND ad.table_name IN ($table_qry)
                      WHERE am.id = ? AND am.type = 12 AND am.approval_status = 1
                      ORDER BY ad.entry_identification,ad.field_name";
-            $result = $appTable->zQuery($query, $arr);
+            $result = QueryUtils::fetchRecords($query, $arr);
         } else {
             $query = "SELECT *
                        FROM audit_master am
@@ -1493,7 +1384,7 @@ class CarecoordinationTable extends AbstractTableGateway
                        AND ad.table_name = ?
                        WHERE am.id = ? AND am.type = 12 AND am.approval_status = 1
                        ORDER BY ad.entry_identification,ad.field_name";
-            $result = $appTable->zQuery($query, [$table_name, $am_id]);
+            $result = QueryUtils::fetchRecords($query, [$table_name, $am_id]);
         }
 
         $records = [];
@@ -1510,7 +1401,6 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function insertApprovedData($data)
     {
-        $appTable = new ApplicationTable();
         $patient_data_fields = '';
         $patient_data_values = [];
         $j = 1;
@@ -1664,7 +1554,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                               ?,
                                               ?
                                             )";
-                                $appTable->zQuery($query, [$data['pid'],
+                                QueryUtils::sqlStatementThrowException($query, [$data['pid'],
                                     $tobacco,
                                     $alcohol,
                                     date('Y-m-d H:i:s')]);
@@ -1760,21 +1650,21 @@ class CarecoordinationTable extends AbstractTableGateway
                                 }
 
                                 $query_select = "SELECT * FROM list_options WHERE list_id = ? AND title = ?";
-                                $result = $appTable->zQuery($query_select, ['outcome', $data['lists1-observation_text-con'][$i]]);
-                                if ($result->count() > 0) {
+                                $result = QueryUtils::fetchRecords($query_select, ['outcome', $data['lists1-observation_text-con'][$i]]);
+                                if (count($result) > 0) {
                                     $q_update = "UPDATE list_options SET activity = 1 WHERE list_id = ? AND title = ? AND codes = ?";
-                                    $appTable->zQuery($q_update, ['outcome', $data['lists1-observation_text-con'][$i], 'SNOMED-CT:' . $data['lists1-observation-con'][$i]]);
+                                    QueryUtils::sqlStatementThrowException($q_update, ['outcome', $data['lists1-observation_text-con'][$i], 'SNOMED-CT:' . $data['lists1-observation-con'][$i]]);
                                     foreach ($result as $value1) {
                                         $o_id = $value1['option_id'];
                                     }
                                 } else {
-                                    $lres = $appTable->zQuery("SELECT IFNULL(MAX(CONVERT(SUBSTRING_INDEX(option_id,'-',-1),UNSIGNED INTEGER))+1,1) AS option_id FROM list_options WHERE list_id = ?", ['outcome']);
+                                    $lres = QueryUtils::fetchRecords("SELECT IFNULL(MAX(CONVERT(SUBSTRING_INDEX(option_id,'-',-1),UNSIGNED INTEGER))+1,1) AS option_id FROM list_options WHERE list_id = ?", ['outcome']);
                                     foreach ($lres as $lrow) {
                                         $o_id = $lrow['option_id'];
                                     }
 
                                     $q_insert = "INSERT INTO list_options (list_id,option_id,title,codes,activity) VALUES (?,?,?,?,?)";
-                                    $appTable->zQuery($q_insert, ['outcome', $o_id, $data['lists1-observation_text-con'][$i], 'SNOMED-CT:' . $data['lists1-observation-con'][$i], 1]);
+                                    QueryUtils::sqlStatementThrowException($q_insert, ['outcome', $o_id, $data['lists1-observation_text-con'][$i], 'SNOMED-CT:' . $data['lists1-observation-con'][$i], 1]);
                                 }
 
                                 $query = "UPDATE lists
@@ -1784,7 +1674,7 @@ class CarecoordinationTable extends AbstractTableGateway
                             enddate = ?,
                             outcome = ?
                         WHERE pid=? AND id=?";
-                                $appTable->zQuery($query, [$data['lists1-title-con'][$i],
+                                QueryUtils::sqlStatementThrowException($query, [$data['lists1-title-con'][$i],
                                     'SNOMED-CT:' . $data['lists1-diagnosis-con'][$i],
                                     ApplicationTable::fixDate($data['lists1-begdate-con'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy'),
                                     ApplicationTable::fixDate($data['lists1-enddate-con'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy'),
@@ -1794,20 +1684,20 @@ class CarecoordinationTable extends AbstractTableGateway
 
                                 if ($p1_arr[$i] == 1) {
                                     $query7 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
-                                    $appTable->zQuery($query7, [date('Y-m-d'), $data['pid'], $data['lists1-old-id-con'][$i]]);
+                                    QueryUtils::sqlStatementThrowException($query7, [date('Y-m-d'), $data['pid'], $data['lists1-old-id-con'][$i]]);
                                 } elseif ($p1_arr[$i] == 0) {
                                     $query7 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
-                                    $appTable->zQuery($query7, [(null), $data['pid'], $data['lists1-old-id-con'][$i]]);
+                                    QueryUtils::sqlStatementThrowException($query7, [(null), $data['pid'], $data['lists1-old-id-con'][$i]]);
                                 }
                             }
 
                             if (substr((string) $key, 0, -4) == 'lists1_exist') {
                                 if ($p2_arr[$i] == 1) {
                                     $query4 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
-                                    $appTable->zQuery($query4, [date('Y-m-d'), $data['pid'], $data['lists1_exist-list_id'][$i]]);
+                                    QueryUtils::sqlStatementThrowException($query4, [date('Y-m-d'), $data['pid'], $data['lists1_exist-list_id'][$i]]);
                                 } elseif ($p2_arr[$i] == 0) {
                                     $query4 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
-                                    $appTable->zQuery($query4, [(null), $data['pid'], $data['lists1_exist-list_id'][$i]]);
+                                    QueryUtils::sqlStatementThrowException($query4, [(null), $data['pid'], $data['lists1_exist-list_id'][$i]]);
                                 }
                             } elseif (substr((string) $key, 0, -4) == 'lists2-con') {
                                 if (!empty($data['lists2-begdate-con'][$i])) {
@@ -1824,9 +1714,9 @@ class CarecoordinationTable extends AbstractTableGateway
                                     $q_max_option_id = "SELECT MAX(CAST(option_id AS SIGNED))+1 AS option_id
                                                     FROM list_options
                                                     WHERE list_id=?";
-                                    $res_max_option_id = $appTable->zQuery($q_max_option_id, ['severity_ccda']);
-                                    $res_max_option_id_cur = $res_max_option_id->current();
-                                    $severity_option_id = $res_max_option_id_cur['option_id'];
+                                    $res_max_option_id = QueryUtils::fetchRecords($q_max_option_id, ['severity_ccda']);
+                                    $res_max_option_id_cur = $res_max_option_id[0] ?? null;
+                                    $severity_option_id = $res_max_option_id_cur['option_id'] ?? null;
                                     $q_insert_units_option = "INSERT INTO list_options
                                                  (
                                                   list_id,
@@ -1842,7 +1732,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                                   1
                                                  )";
                                     if ($severity_text) {
-                                        $appTable->zQuery($q_insert_units_option, [$severity_option_id, $severity_text]);
+                                        QueryUtils::sqlStatementThrowException($q_insert_units_option, [$severity_option_id, $severity_text]);
                                     }
                                 }
 
@@ -1851,9 +1741,9 @@ class CarecoordinationTable extends AbstractTableGateway
                                     $q_max_option_id = "SELECT MAX(CAST(option_id AS SIGNED))+1 AS option_id
                                                     FROM list_options
                                                     WHERE list_id=?";
-                                    $res_max_option_id = $appTable->zQuery($q_max_option_id, ['Reaction']);
-                                    $res_max_option_id_cur = $res_max_option_id->current();
-                                    $reaction_option_id = $res_max_option_id_cur['option_id'];
+                                    $res_max_option_id = QueryUtils::fetchRecords($q_max_option_id, ['Reaction']);
+                                    $res_max_option_id_cur = $res_max_option_id[0] ?? null;
+                                    $reaction_option_id = $res_max_option_id_cur['option_id'] ?? null;
                                     $q_insert_units_option = "INSERT INTO list_options
                                                  (
                                                   list_id,
@@ -1869,7 +1759,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                                   1
                                                  )";
                                     if ($value['reaction_text']) {
-                                        $appTable->zQuery($q_insert_units_option, [$reaction_option_id, $data['lists2-reaction_text-con'][$i]]);
+                                        QueryUtils::sqlStatementThrowException($q_insert_units_option, [$reaction_option_id, $data['lists2-reaction_text-con'][$i]]);
                                     }
                                 }
 
@@ -1881,7 +1771,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                         severity_al=?,
                                         reaction=?
                                     WHERE pid = ? AND id=?";
-                                $appTable->zQuery($q_upd_allergies, [
+                                QueryUtils::sqlStatementThrowException($q_upd_allergies, [
                                     date('y-m-d H:i:s'),
                                     $allergy_begdate_value,
                                     $data['lists2-title-con'][$i],
@@ -1893,20 +1783,20 @@ class CarecoordinationTable extends AbstractTableGateway
 
                                 if ($a1_arr[$i] == 1) {
                                     $query5 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
-                                    $appTable->zQuery($query5, [date('Y-m-d'), $data['pid'], $data['lists2-list_id-con'][$i]]);
+                                    QueryUtils::sqlStatementThrowException($query5, [date('Y-m-d'), $data['pid'], $data['lists2-list_id-con'][$i]]);
                                 } elseif ($a1_arr[$i] == 0) {
                                     $query5 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
-                                    $appTable->zQuery($query5, [(null), $data['pid'], $data['lists2-list_id-con'][$i]]);
+                                    QueryUtils::sqlStatementThrowException($query5, [(null), $data['pid'], $data['lists2-list_id-con'][$i]]);
                                 }
                             }
 
                             if (substr((string) $key, 0, -4) == 'lists2_exist') {
                                 if ($a2_arr[$i] == 1) {
                                     $query5 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
-                                    $appTable->zQuery($query5, [date('Y-m-d'), $data['pid'], $data['lists2_exist-list_id'][$i]]);
+                                    QueryUtils::sqlStatementThrowException($query5, [date('Y-m-d'), $data['pid'], $data['lists2_exist-list_id'][$i]]);
                                 } elseif ($a2_arr[$i] == 0) {
                                     $query5 = "UPDATE lists SET enddate = ? WHERE pid = ? AND id = ?";
-                                    $appTable->zQuery($query5, [(null), $data['pid'], $data['lists2_exist-list_id'][$i]]);
+                                    QueryUtils::sqlStatementThrowException($query5, [(null), $data['pid'], $data['lists2_exist-list_id'][$i]]);
                                 }
                             } elseif (substr((string) $key, 0, -4) == 'lists3-con') {
                                 $oid_route = $unit_option_id = $oidu_unit = '';
@@ -1914,8 +1804,8 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $query_sel_users = "SELECT *
                                                       FROM users
                                                       WHERE npi=?";// abook_type='external_provider' AND
-                                $res_query_sel_users = $appTable->zQuery($query_sel_users, [$data['lists3-provider_npi-con'][$i]]);
-                                if ($res_query_sel_users->count() > 0) {
+                                $res_query_sel_users = QueryUtils::fetchRecords($query_sel_users, [$data['lists3-provider_npi-con'][$i]]);
+                                if (count($res_query_sel_users) > 0) {
                                     foreach ($res_query_sel_users as $value1) {
                                         $provider_id = $value1['id'];
                                     }
@@ -1935,13 +1825,13 @@ class CarecoordinationTable extends AbstractTableGateway
                                 $q1_route = "SELECT *
                                                FROM list_options
                                                WHERE list_id='drug_route' AND notes=?";
-                                $res_q1_route = $appTable->zQuery($q1_route, [$data['lists3-route-con'][$i]]);
+                                $res_q1_route = QueryUtils::fetchRecords($q1_route, [$data['lists3-route-con'][$i]]);
                                 foreach ($res_q1_route as $val1) {
                                     $oid_route = $val1['option_id'];
                                 }
 
-                                if ($res_q1_route->count() == 0) {
-                                    $lres = $appTable->zQuery("SELECT IFNULL(MAX(CONVERT(SUBSTRING_INDEX(option_id,'-',-1),UNSIGNED INTEGER))+1,1) AS option_id FROM list_options WHERE list_id = ?", ['drug_route']);
+                                if (count($res_q1_route) == 0) {
+                                    $lres = QueryUtils::fetchRecords("SELECT IFNULL(MAX(CONVERT(SUBSTRING_INDEX(option_id,'-',-1),UNSIGNED INTEGER))+1,1) AS option_id FROM list_options WHERE list_id = ?", ['drug_route']);
                                     foreach ($lres as $lrow) {
                                         $oid_route = $lrow['option_id'];
                                     }
@@ -1962,27 +1852,27 @@ class CarecoordinationTable extends AbstractTableGateway
                                                     ?,
                                                     1
                                                    )";
-                                    $appTable->zQuery($q_insert_route, [$oid_route, $data['lists3-route-con'][$i],
+                                    QueryUtils::sqlStatementThrowException($q_insert_route, [$oid_route, $data['lists3-route-con'][$i],
                                         $data['lists3-route_display-con'][$i]]);
                                 }
 
                                 //drug form
                                 $query_select_form = "SELECT * FROM list_options WHERE list_id = ? AND title = ?";
-                                $result = $appTable->zQuery($query_select_form, ['drug_form', $data['lists3-dose_unit-con'][$i]]);
-                                if ($result->count() > 0) {
+                                $result = QueryUtils::fetchRecords($query_select_form, ['drug_form', $data['lists3-dose_unit-con'][$i]]);
+                                if (count($result) > 0) {
                                     $q_update = "UPDATE list_options SET activity = 1 WHERE list_id = ? AND title = ?";
-                                    $appTable->zQuery($q_update, ['drug_form', $data['lists3-dose_unit-con'][$i]]);
+                                    QueryUtils::sqlStatementThrowException($q_update, ['drug_form', $data['lists3-dose_unit-con'][$i]]);
                                     foreach ($result as $value2) {
                                         $oidu_unit = $value2['option_id'];
                                     }
                                 } else {
-                                    $lres = $appTable->zQuery("SELECT IFNULL(MAX(CONVERT(SUBSTRING_INDEX(option_id,'-',-1),UNSIGNED INTEGER))+1,1) AS option_id FROM list_options WHERE list_id = ?", ['drug_form']);
+                                    $lres = QueryUtils::fetchRecords("SELECT IFNULL(MAX(CONVERT(SUBSTRING_INDEX(option_id,'-',-1),UNSIGNED INTEGER))+1,1) AS option_id FROM list_options WHERE list_id = ?", ['drug_form']);
                                     foreach ($lres as $lrow) {
                                         $oidu_unit = $lrow['option_id'];
                                     }
 
                                     $q_insert = "INSERT INTO list_options (list_id,option_id,title,activity) VALUES (?,?,?,?)";
-                                    $appTable->zQuery($q_insert, ['drug_form', $oidu_unit, $data['lists3-dose_unit-con'][$i], 1]);
+                                    QueryUtils::sqlStatementThrowException($q_insert, ['drug_form', $oidu_unit, $data['lists3-dose_unit-con'][$i], 1]);
                                 }
 
                                 if (empty($data['lists3-enddate-con'][$i])) {
@@ -2004,7 +1894,7 @@ class CarecoordinationTable extends AbstractTableGateway
                                             rxnorm_drugcode=?,
                                             provider_id=?
                                         WHERE id=? AND patient_id=?";
-                                $appTable->zQuery($q_upd_pres, [
+                                QueryUtils::sqlStatementThrowException($q_upd_pres, [
                                     ApplicationTable::fixDate($data['lists3-date_added-con'][$i], 'yyyy-mm-dd', 'dd/mm/yyyy'),
                                     $data['lists3-drug-con'][$i],
                                     $data['lists3-size-con'][$i],
@@ -2021,20 +1911,20 @@ class CarecoordinationTable extends AbstractTableGateway
                                     $data['pid']]);
                                 if ($m1_arr[$i] == 1) {
                                     $query6 = "UPDATE prescriptions SET end_date = ?,active = ? WHERE patient_id = ? AND id = ?";
-                                    $appTable->zQuery($query6, [date('Y-m-d'), '-1', $data['pid'], $data['lists3-id-con'][$i]]);
+                                    QueryUtils::sqlStatementThrowException($query6, [date('Y-m-d'), '-1', $data['pid'], $data['lists3-id-con'][$i]]);
                                 } elseif ($m1_arr[$i] == 0) {
                                     $query6 = "UPDATE prescriptions SET end_date = ?,active = ? WHERE patient_id = ? AND id = ?";
-                                    $appTable->zQuery($query6, [(null), '1', $data['pid'], $data['lists3-id-con'][$i]]);
+                                    QueryUtils::sqlStatementThrowException($query6, [(null), '1', $data['pid'], $data['lists3-id-con'][$i]]);
                                 }
                             }
 
                             if (substr((string) $key, 0, -4) == 'lists3_exist') {
                                 if ($m2_arr[$i] == 1) {
                                     $query6 = "UPDATE prescriptions SET end_date = ?,active = ? WHERE patient_id = ? AND id = ?";
-                                    $appTable->zQuery($query6, [date('Y-m-d'), '-1', $data['pid'], $data['lists3_exist-id'][$i]]);
+                                    QueryUtils::sqlStatementThrowException($query6, [date('Y-m-d'), '-1', $data['pid'], $data['lists3_exist-id'][$i]]);
                                 } elseif ($m2_arr[$i] == 0) {
                                     $query6 = "UPDATE prescriptions SET end_date = ?,active = ? WHERE patient_id = ? AND id = ?";
-                                    $appTable->zQuery($query6, [(null), '1', $data['pid'], $data['lists3_exist-id'][$i]]);
+                                    QueryUtils::sqlStatementThrowException($query6, [(null), '1', $data['pid'], $data['lists3_exist-id'][$i]]);
                                 }
                             }
                         }
@@ -2054,17 +1944,17 @@ class CarecoordinationTable extends AbstractTableGateway
             array_push($patient_data_values, $data['pid']);
             $patient_data_fields = substr($patient_data_fields, 0, -1);
             $query = "UPDATE patient_data SET $patient_data_fields WHERE pid=?";
-            $appTable->zQuery($query, $patient_data_values);
+            QueryUtils::sqlStatementThrowException($query, $patient_data_values);
         }
 
-        $appTable->zQuery("UPDATE documents
+        QueryUtils::sqlStatementThrowException("UPDATE documents
                        SET foreign_id = ?
                        WHERE id =? ", [$data['pid'],
             $data['document_id']]);
-        $appTable->zQuery("UPDATE audit_master
+        QueryUtils::sqlStatementThrowException("UPDATE audit_master
                        SET approval_status = '2'
                        WHERE id=?", [$data['amid']]);
-        $appTable->zQuery("UPDATE documents
+        QueryUtils::sqlStatementThrowException("UPDATE documents
                        SET audit_master_approval_status=2
                        WHERE audit_master_id=?", [$data['amid']]);
         $this->importService->InsertReconcilation($data['pid'], $data['document_id']);
@@ -2090,12 +1980,11 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function discardCCDAData($data)
     {
-        $appTable = new ApplicationTable();
         $query = "UPDATE audit_master
                    SET approval_status = '3'
                    WHERE id=?";
-        $appTable->zQuery($query, [$data['audit_master_id']]);
-        $appTable->zQuery("UPDATE documents
+        QueryUtils::sqlStatementThrowException($query, [$data['audit_master_id']]);
+        QueryUtils::sqlStatementThrowException("UPDATE documents
                       SET audit_master_approval_status='3'
                       WHERE audit_master_id=?", [$data['audit_master_id']]);
     }
@@ -2108,19 +1997,18 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function deleteImportAuditData($data)
     {
-        $appTable = new ApplicationTable();
-        $appTable->zQuery("DELETE FROM audit_details WHERE audit_master_id=?", [$data['audit_master_id']]);
-        $appTable->zQuery("DELETE FROM audit_master WHERE id=?", [$data['audit_master_id']]);
-        $result = $appTable->zQuery("SELECT url FROM documents WHERE audit_master_id=?", [$data['audit_master_id']]);
-        $res_cur = $result->current();
-        if (is_file($res_cur['url'])) {
+        QueryUtils::sqlStatementThrowException("DELETE FROM audit_details WHERE audit_master_id=?", [$data['audit_master_id']]);
+        QueryUtils::sqlStatementThrowException("DELETE FROM audit_master WHERE id=?", [$data['audit_master_id']]);
+        $result = QueryUtils::fetchRecords("SELECT url FROM documents WHERE audit_master_id=?", [$data['audit_master_id']]);
+        $res_cur = $result[0] ?? null;
+        if ($res_cur && is_file($res_cur['url'])) {
             unlink($res_cur['url']);
         }
-        $file_c = pathinfo((string) $res_cur['url']);
-        if (is_dir($file_c['dirname'])) {
+        $file_c = pathinfo((string) ($res_cur['url'] ?? ''));
+        if (!empty($file_c['dirname']) && is_dir($file_c['dirname'])) {
             rmdir($file_c['dirname']);
         }
-        $appTable->zQuery("DELETE FROM documents WHERE audit_master_id=?", [$data['audit_master_id']]);
+        QueryUtils::sqlStatementThrowException("DELETE FROM documents WHERE audit_master_id=?", [$data['audit_master_id']]);
     }
 
     /**
@@ -2130,16 +2018,16 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function getCodes($option_id, $list_id)
     {
-        $appTable = new ApplicationTable();
+        $res_cur = null;
         if ($option_id) {
             $query = "SELECT codes
                   FROM list_options
                   WHERE list_id=? AND option_id=?";
-            $result = $appTable->zQuery($query, [$list_id, $option_id]);
-            $res_cur = $result->current();
+            $result = QueryUtils::fetchRecords($query, [$list_id, $option_id]);
+            $res_cur = $result[0] ?? null;
         }
 
-        return $res_cur['codes'];
+        return $res_cur['codes'] ?? null;
     }
 
     /*
@@ -2154,15 +2042,8 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function getList($list)
     {
-        $appTable = new ApplicationTable();
         $query = "SELECT title,option_id,notes,codes FROM list_options WHERE list_id = ?";
-        $result = $appTable->zQuery($query, [$list]);
-        $records = [];
-        foreach ($result as $row) {
-            $records[] = $row;
-        }
-
-        return $records;
+        return QueryUtils::fetchRecords($query, [$list]);
     }
 
     /*
@@ -2178,17 +2059,10 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function getReferralReason($data)
     {
-        $appTable = new ApplicationTable();
         $query = "SELECT *
                    FROM transactions
                    WHERE pid = ?";
-        $result = $appTable->zQuery($query, [$data['pid']]);
-        $records = [];
-        foreach ($result as $row) {
-            $records[] = $row;
-        }
-
-        return $records;
+        return QueryUtils::fetchRecords($query, [$data['pid']]);
     }
 
     /*
@@ -2202,9 +2076,9 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function getdocumentationOf($audit_master_id)
     {
-        $appTable = new ApplicationTable();
         $query = "SELECT documentationOf FROM documents WHERE audit_master_id = ?";
-        $result = $appTable->zQuery($query, [$audit_master_id]);
+        $result = QueryUtils::fetchRecords($query, [$audit_master_id]);
+        $documentationOf = null;
         foreach ($result as $row) {
             $documentationOf = $row['documentationOf'];
         }
@@ -2226,8 +2100,7 @@ class CarecoordinationTable extends AbstractTableGateway
     {
         $components = ['schematron' => 'Errors'];
         $query = "select * from ccda_components where ccda_type = ?";
-        $appTable = new ApplicationTable();
-        $result = $appTable->zQuery($query, [$type]);
+        $result = QueryUtils::fetchRecords($query, [$type]);
 
         foreach ($result as $row) {
             $components[$row['ccda_components_field']] = $row['ccda_components_name'];
@@ -2277,13 +2150,13 @@ class CarecoordinationTable extends AbstractTableGateway
      */
     public function getListCodes($option_id, $list_id)
     {
-        $appTable = new ApplicationTable();
+        $res_cur = null;
         if ($option_id) {
             $query = "SELECT codes
                   FROM list_options
                   WHERE list_id=? AND option_id=?";
-            $result = $appTable->zQuery($query, [$list_id, $option_id]);
-            $res_cur = $result->current();
+            $result = QueryUtils::fetchRecords($query, [$list_id, $option_id]);
+            $res_cur = $result[0] ?? null;
         }
 
         return $res_cur['codes'] ?? '';
