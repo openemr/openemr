@@ -164,7 +164,7 @@ return [
     // TODO: Note this is a weird dependency used in the CarecoordinationController class that should be revisited
     ,'controller_plugins' => [
         'factories' => [
-            'Documents' => fn(ContainerInterface $container, $requestedName): \Documents\Plugin\Documents => new \Documents\Plugin\Documents($container)
+            'Documents' => fn(ContainerInterface $container, $requestedName): \Documents\Plugin\Documents => new \Documents\Plugin\Documents()
         ]
     ]
     ,'module_dependencies' => [

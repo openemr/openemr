@@ -25,9 +25,8 @@ class Documents extends AbstractPlugin
   /**
    *
    * Documents Table Object
-   * @param type $sm Service Manager
    **/
-    public function __construct($sm)
+    public function __construct()
     {
         $this->documentsTable = new DocumentsTable();
     }
