@@ -98,8 +98,6 @@ function safe_href(?string $url): string
     if ($scheme === false) {
         return '#';
     }
-        return attr($url);
-    }
 
     // Allowlist of safe URL schemes
     $allowedSchemes = ['http', 'https', 'mailto', 'tel', 'ftp', 'ftps'];
