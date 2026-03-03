@@ -165,12 +165,11 @@ final readonly class DatabaseConnectionOptions
      */
     private static function loadSqlconf(string $siteDir): array
     {
-        $configFile = 'sqlconf.php';
-        $sqlconfPath = $siteDir . '/' . $configFile;
+        $sqlconfPath = $siteDir . '/sqlconf.php';
         if (!file_exists($sqlconfPath)) {
             throw new RuntimeException(sprintf(
                 '%s not found in %s. Is the site configured?',
-                $configFile,
+                'sqlconf.php',
                 $siteDir,
             ));
         }
