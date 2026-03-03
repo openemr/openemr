@@ -169,6 +169,9 @@ class Hcfa1500
         return $this->hcfa_data;
     }
 
+    /**
+     * @param Claim $claim
+     */
     private function genHcfa1500Page($pid, $encounter, &$log, $claim)
     {
 
