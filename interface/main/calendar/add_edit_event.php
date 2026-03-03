@@ -106,7 +106,7 @@ $g_view = AclMain::aclCheckCore("groups", "gcalendar", false, 'view');
 
 
 /**
- * @var EventDispatcherInterface $eventDispatcher
+ * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher
  */
 $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 

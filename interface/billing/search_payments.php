@@ -35,7 +35,7 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCor
 }
 
 /**
- * @var EventDispatcherInterface $eventDispatcher
+ * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher
  */
 $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 
