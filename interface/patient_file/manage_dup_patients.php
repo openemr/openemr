@@ -48,6 +48,8 @@ function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
 {
  //   global $first_time, $group;
 /** @var array<string> $row */
+/** @var string $pid */
+
     if (empty($pid)) {
         $pid = $row['pid'];
     }
@@ -72,6 +74,7 @@ function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
 
     $first_time = false;
     $ptname = $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'];
+     /** @var array < string>  $phones */
     $phones = [];
     if (trim((string) $row['phone_home'])) {
         $phones[] = trim((string) $row['phone_home']);
@@ -96,52 +99,37 @@ function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
         $highlight_class = 'highlight-master';
         $highlight_text = xlt('Merge To');
     }
+    // rm get date in user's desired format
+/** @var string $date_str */
+    $date_str = oeFormatShortDate(substr($row['DOB'], 0, 10));
+/** @var string $regdate_str */
+    $regdate_str = oeFormatShortDate($row['regdate']);
     if ($_POST['form_csvexport'] == "CSV" ) {   // rm out put the line to csv file
           echo csvEscape(text(strval($group))) . ',' ;
  /** @var string $myscore */
-          echo  csvEscape(text($myscore)) . ','  ;
-/**  @var string $pat_pid */
-            $pat_pid = $row['pid'];
-            echo  csvEscape($pat_pid) . ',';
-/** @var string $ptname_pid */
-/* * @ var array<string> $row */
-            $ptname_pid = $row['ptnamepid'];
-            echo csvEscape($ptname_pid) . ',';
-            echo  csvEscape(text($highlight_text))  . ',';
-            echo  csvEscape(text($ptname)) .  ',';
-            // rm - format dates by users preference
- /** @var string $date_str */
-            $date_str = $row['DOB'];
-            $date_str = oeFormatShortDate(substr($date_str, 0, 10));
-/** @var string $date_str */
-           echo csvEscape($date_str) . ',' ;
-   //        echo csvEscape(oeFormatShortDate(substr($date_ob, 0, 10))) . ',';
+        echo  csvEscape(text($myscore)) . ','  ;
+        echo  csvEscape($row['pid']) . ',';
+        echo csvEscape($row['pubpid']) . ',';
+        echo  csvEscape(text($highlight_text))  . ',';
+        echo  csvEscape(text($ptname)) .  ',';
+        echo csvEscape($date_str) . ',' ;
+  //      echo csvEscape(oeFormatShortDate(substr($row['DOB'], 0, 10))) . ',';
 /** @var string $sex */
             $sex = $row['sex'];
             echo csvEscape($sex) .  ',';
-/** @var string $email_addr */
-            $email_addr = $row['email'];
-            echo csvEscape ($email_addr) .  ',';
- /** @var string $phones */
+            echo csvEscape ($row['email']) .  ',';
             echo csvEscape(text($phones)) .  ',';
-             /** @var string $date_str */
-            $date_str = $row['regdate'];
-            $date_str = oeFormatShortDate(substr($date_str, 0, 10));
-/** @var string $date_str */
+            echo csvEscape($regdate_str) . ',' ;
+/* * @ var string $date_str */
            echo csvEscape($date_str) . ',' ;
-         //   echo csvEscape(text($fac_name)) . ',';
-/** @var string $street_name */
-            $street_name = $row['street'];
-             echo csvEscape($street_name) . "\n";
+           echo csvEscape($row['street']) . "\n";
     } else {  // rm otherwise output the line to the html page
         echo "<tr class='$highlight_class'>";
         ?>
     <td>
-        <select onchange='selectChange(this, <?php  /**  @var string $pat_pid */
-            $pat_pid = $row['pid'];  echo attr_js($row[$pat_pid]); ?> style='width:100%'>
-            <?php echo $options; // this is html and already escaped as required
-            ?>
-        </select>
+       <select onchange='selchange(this, <?php echo attr_js($pid); ?>, <?php echo attr_js($row['pid']); ?>)' style='width:100%'>
+        <?php echo $options; // this is html and already escaped as required ?>
+   </select>
     </td>
     <td>
         <?php  /** @var string $myscore */ echo text($myscore); ?>
@@ -151,7 +139,7 @@ function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
         <?php  echo text($row['pid']); ?>
     </td>
     <td>
-        <?php echo text($row['ptnamepid']); ?>
+        <?php echo text($row['pubpid']); ?>
     </td>
     <td>
         <?php/** @var string $highlight_text */ echo $highlight_text; ?>
@@ -160,8 +148,7 @@ function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
         <?php echo text($ptname); ?>
     </td>
     <td>
-        <?php $date_ob = oeFormatShortDate($row['DOB']);    /** @var string $date_ob */  echo text($date_ob); ?>
-      ?>
+        <?php  echo text($date_str); ?>
     </td>
     <td>
         <?php echo text($row['sex']); ?>
@@ -170,10 +157,10 @@ function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
         <?php echo text($row['email']); ?>
     </td>
     <td>
-        <?php  /**   @var string $phones */ echo text($phones); ?>
+        <?php  echo text($phones); ?>
     </td>
     <td>
-        <?php //echo text(oeFormatShortDate($row['regdate'])); ?>
+        <?php echo text($regdate_str);  ?>
     </td>
     <td>
         <?php  echo text($row['street']); ?>
