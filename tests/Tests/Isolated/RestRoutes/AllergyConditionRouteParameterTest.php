@@ -29,14 +29,16 @@ use PHPUnit\Framework\TestCase;
 
 class AllergyConditionRouteParameterTest extends TestCase
 {
-    private string $routeFile;
+    private string $routeFile = '';
 
     protected function setUp(): void
     {
-        $this->routeFile = realpath(__DIR__ . '/../../../../apis/routes/_rest_routes_standard.inc.php');
-        if ($this->routeFile === false) {
+        $resolved = realpath(__DIR__ . '/../../../../apis/routes/_rest_routes_standard.inc.php');
+        if (!is_string($resolved)) {
             $this->markTestSkipped('Route file not found');
+            return;
         }
+        $this->routeFile = $resolved;
     }
 
     /**
@@ -45,7 +47,7 @@ class AllergyConditionRouteParameterTest extends TestCase
      */
     public function testPatientAllergyListRouteUsesPuuid(): void
     {
-        $content = file_get_contents($this->routeFile);
+        $content = (string) file_get_contents($this->routeFile);
 
         // Find the per-patient allergy list route
         $pattern = '/GET \/api\/patient\/:puuid\/allergy".*?getAll\(\[([^\]]+)\]\)/s';
@@ -64,7 +66,7 @@ class AllergyConditionRouteParameterTest extends TestCase
      */
     public function testPatientSingleAllergyRouteUsesUuidKeys(): void
     {
-        $content = file_get_contents($this->routeFile);
+        $content = (string) file_get_contents($this->routeFile);
 
         // Find the per-patient single allergy route
         $pattern = '/GET \/api\/patient\/:puuid\/allergy\/:auuid".*?getAll\(\[([^\]]+)\]\)/s';
@@ -84,7 +86,7 @@ class AllergyConditionRouteParameterTest extends TestCase
      */
     public function testPatientConditionListRouteUsesPuuid(): void
     {
-        $content = file_get_contents($this->routeFile);
+        $content = (string) file_get_contents($this->routeFile);
 
         // Find the per-patient condition list route (medical_problem)
         $pattern = '/GET \/api\/patient\/:puuid\/medical_problem".*?ConditionRestController.*?getAll\(\[([^\]]+)\]\)/s';
@@ -102,7 +104,7 @@ class AllergyConditionRouteParameterTest extends TestCase
      */
     public function testPatientSingleConditionRouteUsesUuidKeys(): void
     {
-        $content = file_get_contents($this->routeFile);
+        $content = (string) file_get_contents($this->routeFile);
 
         // Find the per-patient single condition route
         $pattern = '/GET \/api\/patient\/:puuid\/medical_problem\/:muuid".*?ConditionRestController.*?getAll\(\[([^\]]+)\]\)/s';
