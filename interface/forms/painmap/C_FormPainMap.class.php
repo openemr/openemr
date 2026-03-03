@@ -25,13 +25,13 @@ class C_FormPainMap extends C_AbstractClickmap
     /**
      * The title of the form, used when calling addform().
      *
-     * @var FORM_TITLE
+     * @var string
      */
     static $FORM_TITLE = "Graphical Pain Map";
     /**
      * The 'code' of the form, also used when calling addform().
      *
-     * @var FORM_CODE
+     * @var string
      */
     static $FORM_CODE = "painmap";
 

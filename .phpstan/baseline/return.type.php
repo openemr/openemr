@@ -387,36 +387,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/group_attendance/functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method C_FormPainMap\\:\\:createModel\\(\\) should return Model but returns FormPainMap\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/painmap/C_FormPainMap.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method C_FormPainMap\\:\\:getImage\\(\\) should return The but returns string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/painmap/C_FormPainMap.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method C_FormPainMap\\:\\:getOptionList\\(\\) should return A but returns array\\<int, string\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/painmap/C_FormPainMap.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method C_FormPainMap\\:\\:getOptionsLabel\\(\\) should return The but returns string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/painmap/C_FormPainMap.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method FormPainMap\\:\\:getCode\\(\\) should return A but returns FORM_CODE\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/painmap/FormPainMap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method FormPainMap\\:\\:getTitle\\(\\) should return The but returns FORM_TITLE\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/painmap/FormPainMap.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function get_lab_name\\(\\) should return string but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/procedure_order/common.php',
@@ -1022,24 +992,49 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/Acl.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Controller\\\\IndexController\\:\\:getApplicationTable\\(\\) should return Application\\\\Controller\\\\type but returns Application\\\\Model\\\\ApplicationTable\\.$#',
+    'message' => '#^Method Acl\\\\Model\\\\AclTable\\:\\:aclSections\\(\\) should return list\\<array\\<string, mixed\\>\\> but returns list\\<array\\<mixed\\>\\>\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Acl\\\\Model\\\\AclTable\\:\\:aclUserGroupMapping\\(\\) should return list\\<array\\<string, mixed\\>\\> but returns list\\<array\\<mixed\\>\\>\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/IndexController.php',
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Acl\\\\Model\\\\AclTable\\:\\:getAclDataGroups\\(\\) should return list\\<array\\<string, mixed\\>\\> but returns list\\<array\\<mixed\\>\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Acl\\\\Model\\\\AclTable\\:\\:getAclDataUsers\\(\\) should return list\\<array\\<string, mixed\\>\\> but returns list\\<array\\<mixed\\>\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Acl\\\\Model\\\\AclTable\\:\\:getActiveModules\\(\\) should return list\\<array\\<string, mixed\\>\\> but returns list\\<array\\<mixed\\>\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Acl\\\\Model\\\\AclTable\\:\\:getGroupAcl\\(\\) should return list\\<array\\<string, mixed\\>\\> but returns list\\<array\\<mixed\\>\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Acl\\\\Model\\\\AclTable\\:\\:getGroups\\(\\) should return list\\<array\\<string, mixed\\>\\> but returns list\\<array\\<mixed\\>\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Acl\\\\Model\\\\AclTable\\:\\:getModuleSections\\(\\) should return list\\<array\\<string, mixed\\>\\> but returns list\\<array\\<mixed\\>\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Application\\\\Controller\\\\IndexController\\:\\:searchAction\\(\\) should return string but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/IndexController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Controller\\\\SendtoController\\:\\:getApplicationTable\\(\\) should return Application\\\\Controller\\\\type but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Controller\\\\SendtoController\\:\\:getSendtoTable\\(\\) should return Application\\\\Controller\\\\type but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Application\\\\Helper\\\\SendToHieHelper\\:\\:__invoke\\(\\) should return array but returns string\\.$#',
@@ -1057,19 +1052,19 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Model\\\\ApplicationTable\\:\\:quoteValue\\(\\) should return Application\\\\Model\\\\type but returns mixed\\.$#',
+    'message' => '#^Method Application\\\\Model\\\\SendtoTable\\:\\:getFacility\\(\\) should return list\\<array\\<string, mixed\\>\\> but returns list\\<array\\<mixed\\>\\>\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/SendtoTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Model\\\\ApplicationTable\\:\\:zQuery\\(\\) should return Application\\\\Model\\\\type but returns mixed\\.$#',
+    'message' => '#^Method Application\\\\Model\\\\SendtoTable\\:\\:getFaxRecievers\\(\\) should return list\\<array\\<string, mixed\\>\\> but returns list\\<array\\<mixed\\>\\>\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/SendtoTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Plugin\\\\CommonPlugin\\:\\:checkACL\\(\\) should return Application\\\\Plugin\\\\type but returns mixed\\.$#',
+    'message' => '#^Method Application\\\\Model\\\\SendtoTable\\:\\:getUsers\\(\\) should return list\\<array\\<string, mixed\\>\\> but returns list\\<array\\<mixed\\>\\>\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/CommonPlugin.php',
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/SendtoTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Carecoordination\\\\Controller\\\\CarecoordinationController\\:\\:getCarecoordinationTable\\(\\) should return Carecoordination\\\\Model\\\\CarecoordinationTable but returns Carecoordination\\\\Controller\\\\Carecoordination\\\\Model\\\\CarecoordinationTable\\.$#',
@@ -1097,7 +1092,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncountermanagerController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Carecoordination\\\\Controller\\\\MapperController\\:\\:getMapperTable\\(\\) should return Carecoordination\\\\Controller\\\\type but returns mixed\\.$#',
+    'message' => '#^Method Carecoordination\\\\Controller\\\\MapperController\\:\\:getMapperTable\\(\\) should return Carecoordination\\\\Model\\\\MapperTable but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/MapperController.php',
 ];
@@ -1107,7 +1102,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Carecoordination\\\\Model\\\\CarecoordinationTable\\:\\:getCCDAComponents\\(\\) should return array\\<string\\> but returns array\\.$#',
+    'message' => '#^Method Carecoordination\\\\Model\\\\CarecoordinationTable\\:\\:getCCDAComponents\\(\\) should return array\\<string\\> but returns array\\<mixed\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];
@@ -1152,11 +1147,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Carecoordination\\\\Model\\\\EncounterccdadispatchTable\\:\\:getDetails\\(\\) should return array\\|null but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Carecoordination\\\\Model\\\\EncounterccdadispatchTable\\:\\:getDocumentAuthorRecord\\(\\) should return null but returns array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
@@ -1182,22 +1172,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Carecoordination\\\\Model\\\\EncounterccdadispatchTable\\:\\:getRepresentedOrganization\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Carecoordination\\\\Model\\\\EncounterccdadispatchTable\\:\\:getSettings\\(\\) should return string\\|null but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Carecoordination\\\\Model\\\\EncounterccdadispatchTable\\:\\:getUserDetails\\(\\) should return array\\|null but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Ccr\\\\Controller\\\\CcrController\\:\\:getCcrTable\\(\\) should return Ccr\\\\Controller\\\\type but returns mixed\\.$#',
+    'message' => '#^Method Ccr\\\\Controller\\\\CcrController\\:\\:getCcrTable\\(\\) should return Ccr\\\\Model\\\\CcrTable but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
 ];
@@ -1212,7 +1192,22 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Model/Documents.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Documents\\\\Model\\\\DocumentsTable\\:\\:getDocument\\(\\) should return array but returns mixed\\.$#',
+    'message' => '#^Method Documents\\\\Model\\\\DocumentsTable\\:\\:getCategories\\(\\) should return array\\<int, array\\{category_id\\: mixed, category_name\\: mixed\\}\\> but returns array\\<array\\{category_id\\: mixed, category_name\\: mixed\\}\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Model/DocumentsTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Documents\\\\Model\\\\DocumentsTable\\:\\:getCategoryIDs\\(\\) should return array\\<string, mixed\\> but returns array\\<mixed\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Model/DocumentsTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Documents\\\\Model\\\\DocumentsTable\\:\\:getCategory\\(\\) should return list\\<array\\<string, mixed\\>\\> but returns list\\<array\\<mixed\\>\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Model/DocumentsTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Documents\\\\Model\\\\DocumentsTable\\:\\:getDocument\\(\\) should return array\\<string, mixed\\>\\|false but returns array\\<mixed\\>\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Model/DocumentsTable.php',
 ];
@@ -1222,13 +1217,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Plugin/Documents.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Immunization\\\\Controller\\\\ImmunizationController\\:\\:format_cvx_code\\(\\) should return Immunization\\\\Controller\\\\type but returns string\\.$#',
+    'message' => '#^Method Immunization\\\\Controller\\\\ImmunizationController\\:\\:format_cvx_code\\(\\) should return string but returns int\\<10, max\\>\\|string\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ImmunizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Immunization\\\\Controller\\\\ImmunizationController\\:\\:format_ethnicity\\(\\) should return Immunization\\\\Controller\\\\type but returns string\\.$#',
-    'count' => 3,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ImmunizationController.php',
 ];
 $ignoreErrors[] = [
@@ -1237,13 +1227,18 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/Immunization.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Immunization\\\\Model\\\\ImmunizationTable\\:\\:getImmunizationObservationResultsData\\(\\) should return Immunization\\\\Model\\\\type but returns list\\.$#',
+    'message' => '#^Method Immunization\\\\Model\\\\ImmunizationTable\\:\\:codeslist\\(\\) should return list\\<array\\<string, mixed\\>\\> but returns list\\<array\\<mixed\\>\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Immunization\\\\Model\\\\ImmunizationTable\\:\\:immunizedPatientDetails\\(\\) should return Immunization\\\\Model\\\\type but returns mixed\\.$#',
-    'count' => 2,
+    'message' => '#^Method Immunization\\\\Model\\\\ImmunizationTable\\:\\:getImmunizationObservationResultsData\\(\\) should return list\\<array\\<string, mixed\\>\\> but returns list\\<array\\<mixed\\>\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Immunization\\\\Model\\\\ImmunizationTable\\:\\:immunizedPatientDetails\\(\\) should return int\\|list\\<array\\<string, mixed\\>\\> but returns list\\<array\\<mixed\\>\\>\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php',
 ];
 $ignoreErrors[] = [
@@ -1287,16 +1282,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModule.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:getConfigSettings\\(\\) should return Laminas\\\\Db\\\\Adapter\\\\Driver\\\\Pdo\\\\Result but returns Application\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:getObject\\(\\) should return Installer\\\\Model\\\\type but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:installSQL\\(\\) should return bool but returns mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
@@ -1307,12 +1292,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:register\\(\\) should return bool but returns mixed\\.$#',
+    'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:register\\(\\) should return bool but returns int\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:validateNickName\\(\\) should return bool but returns mixed\\.$#',
+    'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:validateNickName\\(\\) should return bool but returns int\\<0, max\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
 ];
@@ -1335,6 +1320,11 @@ $ignoreErrors[] = [
     'message' => '#^Method Patientvalidation\\\\Model\\\\PatientData\\:\\:getInputFilter\\(\\) should return Laminas\\\\InputFilter\\\\InputFilterInterface but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Model/PatientData.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Patientvalidation\\\\Model\\\\PatientDataTable\\:\\:getPatients\\(\\) should return list\\<array\\<string, mixed\\>\\> but returns list\\<array\\<mixed\\>\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Model/PatientDataTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Syndromicsurveillance\\\\Model\\\\Syndromicsurveillance\\:\\:getInputFilter\\(\\) should return Laminas\\\\InputFilter\\\\InputFilterInterface\\<mixed\\> but returns mixed\\.$#',
@@ -1495,16 +1485,6 @@ $ignoreErrors[] = [
     'message' => '#^Method Installer\\:\\:mysqliNumRows\\(\\) should return int but returns int\\<0, max\\>\\|string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Installer.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NumberToText\\:\\:convert\\(\\) should return The but returns string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/classes/NumberToText.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NumberToText\\:\\:n2t_convertthree\\(\\) should return The but returns string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/NumberToText.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method POSRef\\:\\:get_pos_ref\\(\\) should return array but returns mixed\\.$#',
@@ -1947,19 +1927,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function getImmunizationList\\(\\) should return recordset but returns ADORecordSet\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/immunization_helper.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getLabProviders\\(\\) should return array\\|null but returns array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/lab.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getEmployerData\\(\\) should return OpenEMR\\\\Common\\\\Database\\\\recordset but returns array\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function getFacilities\\(\\) should return array\\|int but returns mixed\\.$#',
@@ -2272,11 +2242,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function sqlQ\\(\\) should return recordset but returns ADORecordSet\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function xl\\(\\) should return string but returns string\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/translation.inc.php',
@@ -2302,17 +2267,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/user.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method xmltoarray_parser_htmlfix\\:\\:_struct_to_array\\(\\) should return The but returns array\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/xmltoarray_parser_htmlfix.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method xmltoarray_parser_htmlfix\\:\\:createArray\\(\\) should return The but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/xmltoarray_parser_htmlfix.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method xmltoarray_parser_htmlfix\\:\\:fix_html_entities\\(\\) should return A but returns \\(array\\<string\\>\\|string\\)\\.$#',
+    'message' => '#^Method xmltoarray_parser_htmlfix\\:\\:createArray\\(\\) should return array but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/xmltoarray_parser_htmlfix.php',
 ];
@@ -2335,11 +2290,6 @@ $ignoreErrors[] = [
     'message' => '#^Function getPidHolder\\(\\) should return int but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/account/account.lib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ApplicationTable\\:\\:zQuery\\(\\) should return type but returns ADORecordSet\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/appsql.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method GlobalConfig\\:\\:GetContext\\(\\) should return Context but returns mixed\\.$#',
@@ -3057,9 +3007,19 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\HCFAInfo\\:\\:getPosition\\(\\) should return OpenEMR\\\\Billing\\\\type but returns mixed\\.$#',
+    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:providerNumberType\\(\\) should return string but returns mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/HCFAInfo.php',
+    'path' => __DIR__ . '/../../src/Billing/Claim.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:x12Clean\\(\\) should return string but returns string\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/Claim.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:x12Zip\\(\\) should return string but returns string\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\MiscBillingOptions\\:\\:qual_id_to_description\\(\\) should return string\\|null but returns mixed\\.$#',
@@ -3250,11 +3210,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Acl\\\\AclExtended\\:\\:getAclVersion\\(\\) should return int but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Acl/AclExtended.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\AuthUtils\\:\\:collectIpLoginFailsSql\\(\\) should return recordset\\|false but returns ADORecordSet\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\AuthUtils\\:\\:rehashPassword\\(\\) should return s\\|string\\|void but returns mixed\\.$#',
@@ -10643,16 +10598,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\PatientService\\:\\:databaseInsert\\(\\) should return int\\|false but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PatientService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\PatientService\\:\\:getChartTrackerInformationActivity\\(\\) should return OpenEMR\\\\Services\\\\recordset but returns ADORecordSet\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PatientService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\PatientService\\:\\:getChartTrackerInformation\\(\\) should return OpenEMR\\\\Services\\\\recordset but returns ADORecordSet\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientService.php',
 ];

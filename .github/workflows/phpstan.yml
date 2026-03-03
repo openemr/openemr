@@ -109,7 +109,7 @@ jobs:
     # debugging and isn't actively used by GH workflows.
     - name: Upload PHPStan Baseline
       if: failure()
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: phpstan-baseline-php${{ matrix.php-version }}
         path: .phpstan/baseline/*.php

@@ -247,6 +247,46 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/profiler.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Property AbstractClickmapModel\\:\\:\\$activity has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property AbstractClickmapModel\\:\\:\\$authorized has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property AbstractClickmapModel\\:\\:\\$data has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property AbstractClickmapModel\\:\\:\\$date has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property AbstractClickmapModel\\:\\:\\$groupname has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property AbstractClickmapModel\\:\\:\\$id has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property AbstractClickmapModel\\:\\:\\$pid has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property AbstractClickmapModel\\:\\:\\$user has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property eRxGlobals\\:\\:\\$configuration has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxGlobals.php',
@@ -2517,26 +2557,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/Acl.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Application\\\\Controller\\\\IndexController\\:\\:\\$listenerObject has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/IndexController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Application\\\\Controller\\\\SendtoController\\:\\:\\$applicationTable has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Application\\\\Controller\\\\SendtoController\\:\\:\\$listenerObject has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Application\\\\Controller\\\\SendtoController\\:\\:\\$sendtoTable has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Application\\\\Controller\\\\SoapController\\:\\:\\$encounterCCDADispatchController has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SoapController.php',
@@ -2557,19 +2577,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/Application.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Application\\\\Plugin\\\\CommonPlugin\\:\\:\\$application has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/CommonPlugin.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Application\\\\Plugin\\\\CommonPlugin\\:\\:\\$listenerObject has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/CommonPlugin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Application\\\\Plugin\\\\Phimail\\:\\:\\$application has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/Phimail.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property Carecoordination\\\\Controller\\\\CcdController\\:\\:\\$carecoordinationTable has no type specified\\.$#',
@@ -2672,11 +2682,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/SetupController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Carecoordination\\\\Form\\\\ModuleconfigForm\\:\\:\\$application has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Form/ModuleconfigForm.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Carecoordination\\\\Form\\\\ModuleconfigForm\\:\\:\\$zListener has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Form/ModuleconfigForm.php',
@@ -2757,11 +2762,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Carecoordination\\\\Model\\\\EncounterccdadispatchTable\\:\\:\\$applicationTable has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Carecoordination\\\\Model\\\\EncounterccdadispatchTable\\:\\:\\$encounterFilterList has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
@@ -2827,11 +2827,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Plugin/Documents.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Immunization\\\\Controller\\\\ImmunizationController\\:\\:\\$appTable has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ImmunizationController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Immunization\\\\Controller\\\\ImmunizationController\\:\\:\\$date_format has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ImmunizationController.php',
@@ -2850,16 +2845,6 @@ $ignoreErrors[] = [
     'message' => '#^Property Immunization\\\\Model\\\\Immunization\\:\\:\\$inputFilter has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/Immunization.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Immunization\\\\Model\\\\ImmunizationTable\\:\\:\\$applicationTable has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Immunization\\\\Model\\\\ImmunizationTable\\:\\:\\$tableGateway has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property Installer\\\\Controller\\\\InstallerController\\:\\:\\$listenerObject has no type specified\\.$#',
@@ -3032,21 +3017,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModule.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Installer\\\\Model\\\\InstModuleTable\\:\\:\\$adapter has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Installer\\\\Model\\\\InstModuleTable\\:\\:\\$resultSetPrototype has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Installer\\\\Model\\\\InstModuleTable\\:\\:\\$tableGateway has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Patientvalidation\\\\Model\\\\PatientData\\:\\:\\$DOB has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Model/PatientData.php',
@@ -3080,16 +3050,6 @@ $ignoreErrors[] = [
     'message' => '#^Property Patientvalidation\\\\Model\\\\PatientData\\:\\:\\$sex has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Model/PatientData.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Patientvalidation\\\\Model\\\\PatientDataTable\\:\\:\\$adapter has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Model/PatientDataTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Patientvalidation\\\\Model\\\\PatientDataTable\\:\\:\\$tableGateway has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Model/PatientDataTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property PrescriptionTemplates\\\\Controller\\\\PdfTemplatesController\\:\\:\\$renderer has no type specified\\.$#',

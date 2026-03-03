@@ -27,18 +27,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/ub04_helpers.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(id
- The index of a row in the given table to initialize form contents from\\.\\)\\: Unexpected token "\\\\n     \\* ", expected variable at offset 182 on line 7$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(table
- The sql table to persist form contents from/to\\.\\)\\: Unexpected token "\\\\n     \\* ", expected variable at offset 102 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(associative array \\$PMSFH if it exists\\)\\: Unexpected token "array", expected variable at offset 217 on line 5$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
@@ -953,11 +941,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @var has invalid value \\(\\)\\: Unexpected token "\\\\n     ", expected type at offset 15 on line 2$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/LogProperties.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(\\)\\: Unexpected token "\\\\n     ", expected type at offset 123 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Model/DocumentsTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return has invalid value \\(multitype\\:\\)\\: Unexpected token "\\:", expected TOKEN_HORIZONTAL_WS at offset 70 on line 4$#',

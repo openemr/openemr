@@ -2,11 +2,6 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Class User referenced with incorrect case\\: user\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Class ZipArchive referenced with incorrect case\\: ZIPARCHIVE\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/backup.php',

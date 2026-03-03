@@ -825,10 +825,12 @@ class AuthUtils
         return $this->patientId;
     }
 
-    // Ensure user hash remains valid (for example, if user is deactivated or password is changed, then
-    //  this will not allow the same user in another session continue to use OpenEMR)
-    // This function is static since requires no class specific defines
     /**
+     * Ensure user hash remains valid (for example, if user is deactivated or password is changed, then
+     * this will not allow the same user in another session continue to use OpenEMR)
+     *
+     * This function is static since requires no class specific defines
+     *
      * @return bool
      */
     public static function authCheckSession()
@@ -857,9 +859,11 @@ class AuthUtils
         }
     }
 
-    // Check if the current or a specified user logs in with LDAP.
-    // This function is static since requires no class specific defines
     /**
+     * Check if the current or a specified user logs in with LDAP.
+     *
+     * This function is static since requires no class specific defines
+     *
      * @param $user
      * @return bool
      */
@@ -881,9 +885,11 @@ class AuthUtils
         return true;
     }
 
-    // Validation of user and password using LDAP.
-    // - $pass passed by reference to prevent storage of pass in memory
     /**
+     * Validation of user and password using LDAP.
+     *
+     * $pass passed by reference to prevent storage of pass in memory
+     *
      * @param $user
      * @param $pass
      * @return bool
@@ -968,10 +974,12 @@ class AuthUtils
         return false;
     }
 
-    // Function to centralize the rehash process
-    // It will return the new hash
-    // - $password passed by reference to prevent storage of pass in memory
     /**
+     * Function to centralize the rehash process
+     * It will return the new hash
+     *
+     * $password passed by reference to prevent storage of pass in memory
+     *
      * @param $username
      * @param $password
      * @return \s|string|void
@@ -1098,7 +1106,7 @@ class AuthUtils
      * @param bool $showOnlyWithCount
      * @param bool $showOnlyManuallyBlocked
      * @param bool $showOnlyAutoBlocked
-     * @return false|\recordset
+     * @return false|\ADORecordSet
      */
     public static function collectIpLoginFailsSql(bool $showOnlyWithCount, bool $showOnlyManuallyBlocked, bool $showOnlyAutoBlocked)
     {
@@ -1386,10 +1394,12 @@ class AuthUtils
         }
     }
 
-    // Function to prevent timing attacks
-    //  For standard authentication, simulating a call to passwordVerify() run using the same hashing algorithm.
-    //  For ldap authentication, simulating a call to ldap server.
     /**
+     * Function to prevent timing attacks
+     *
+     * For standard authentication, simulating a call to passwordVerify() run using the same hashing algorithm.
+     * For ldap authentication, simulating a call to ldap server.
+     *
      * @return void
      */
     private function preventTimingAttack()
@@ -1404,9 +1414,11 @@ class AuthUtils
         }
     }
 
-    // Function to support clearing password from memory
-    // - $password passed by reference to prevent storage of pass in memory
     /**
+     * Function to support clearing password from memory
+     *
+     * $password passed by reference to prevent storage of pass in memory
+     *
      * @param $password
      * @return void
      * @throws SodiumException

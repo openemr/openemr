@@ -63,7 +63,7 @@ jobs:
 
     - name: Upload updated API docs
       if: failure()
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: openemr-api-yaml
         path: swagger/openemr-api.yaml

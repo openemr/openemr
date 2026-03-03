@@ -16,6 +16,7 @@ require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -62,7 +63,7 @@ if ($_GET["mode"] == "new") {
     );
 }
 
-$_SESSION["encounter"] = $encounter;
+SessionUtil::setSession('encounter', $encounter);
 formHeader("Redirecting....");
 formJump();
 formFooter();

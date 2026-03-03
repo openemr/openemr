@@ -2,9 +2,9 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\PatientRestController\\:\\:getOne\\(\\) invoked with 1 parameter, 2 required\\.$#',
+    'message' => '#^Method Symfony\\\\Contracts\\\\EventDispatcher\\\\EventDispatcherInterface\\:\\:dispatch\\(\\) invoked with 3 parameters, 1\\-2 required\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../apis/routes/_rest_routes_portal.inc.php',
+    'path' => __DIR__ . '/../../interface/billing/search_payments.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function build_PMSFH invoked with 0 parameters, 1 required\\.$#',
@@ -15,11 +15,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\PatientAccessOnsiteService\\:\\:saveCredentials\\(\\) invoked with 4 parameters, 5 required\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleconferenceRoomController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Class Ccr\\\\Model\\\\CcrTable constructor invoked with 1 parameter, 0 required\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/config/module.config.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Class OpenEMR\\\\Menu\\\\PatientMenuRole constructor invoked with 1 parameter, 0 required\\.$#',

@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Modules\FaxSMS\RCVoice;
 
+use OpenEMR\Common\Session\SessionUtil;
 use RingCentral\SDK\Http\ApiException;
 use RingCentral\SDK\Platform\Platform;
 
@@ -143,7 +144,7 @@ trait VoiceFunctionsTrait
             if ($token == 'changeme') {
                 // Generate secure token
                 $token = bin2hex(random_bytes(16));
-                $_SESSION['ringcentral_voice_token'] = $token;
+                SessionUtil::setSession('ringcentral_voice_token', $token);
             }
             // Webhook endpoint
             $this->webhookUrl = $this->getWebhookUrl($token);

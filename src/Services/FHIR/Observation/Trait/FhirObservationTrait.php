@@ -217,7 +217,7 @@ trait FhirObservationTrait
         }
     }
 
-    protected function setObservationValueWithDetails(FhirObservation $observation, ?string $value, ?string $valueUnit, ?string $codeDescription, array $children = []): void
+    protected function setObservationValueWithDetails(FHIRObservation $observation, ?string $value, ?string $valueUnit, ?string $codeDescription, array $children = []): void
     {
         $valueType = "string";
         if (is_string($value) && !empty($codeDescription) && str_contains($value, ':')) {

@@ -12,9 +12,9 @@
 
 namespace Documents\Plugin;
 
+use OpenEMR\Common\Database\QueryUtils;
 use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 use Documents\Model\DocumentsTable;
-use Application\Model\ApplicationTable;
 
 require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
 
@@ -25,11 +25,9 @@ class Documents extends AbstractPlugin
   /**
    *
    * Documents Table Object
-   * @param type $sm Service Manager
    **/
-    public function __construct($sm)
+    public function __construct()
     {
-        $sm->get(\Laminas\Db\Adapter\Adapter::class);
         $this->documentsTable = new DocumentsTable();
     }
 
@@ -50,12 +48,11 @@ class Documents extends AbstractPlugin
 
     public static function fetchXmlDocuments()
     {
-        $obj = new ApplicationTable();
         $query = "SELECT doc.id
 	    FROM categories_to_documents AS cat_doc
 	    JOIN documents AS doc ON doc.imported = 0 AND doc.id = cat_doc.document_id AND doc.mimetype = 'text/xml'
 	    WHERE cat_doc.category_id = 1";
-        $result = $obj->zQuery($query);
+        $result = QueryUtils::fetchRecords($query);
         $count  = 0;
         $module = [];
         foreach ($result as $row) {

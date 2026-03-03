@@ -52,7 +52,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/qrda_category1_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset 7 does not exist on array\\{0\\: array\\{\\}, 2\\: mixed, 4\\: mixed, 8\\: non\\-falsy\\-string, 10\\: non\\-falsy\\-string, 3\\: non\\-falsy\\-string, 6\\: mixed\\}\\.$#',
+    'message' => '#^Offset 7 does not exist on array\\{0\\: array\\{\\}, 2\\: string, 4\\: string, 8\\: non\\-falsy\\-string, 10\\: non\\-falsy\\-string, 3\\: non\\-falsy\\-string, 6\\: mixed\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/ub04_dispose.php',
 ];
@@ -192,11 +192,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'dirname\' might not exist on array\\{dirname\\?\\: string, basename\\: string, extension\\?\\: string, filename\\: string\\}\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'encounter\' might not exist on array\\{\\}\\|array\\{encounter\\?\\: non\\-empty\\-array\\<int\\<1, max\\>, array\\{extension\\: mixed, root\\: mixed, date\\: mixed, provider_npi\\: mixed, provider_name\\: mixed, provider_address\\: mixed, provider_city\\: mixed, provider_state\\: mixed, \\.\\.\\.\\}\\>\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
@@ -257,37 +252,37 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'field_name_value_array\' might not exist on array\\{approval_status\\: 1, type\\: 11, ip_address\\: mixed, field_name_value_array\\?\\: non\\-empty\\-array\\<non\\-empty\\-array\\<array\\<mixed\\>\\>\\>, entry_identification_array\\?\\: non\\-empty\\-array\\<non\\-empty\\-array\\<mixed\\>\\>\\}\\.$#',
+    'message' => '#^Offset \'field_name_value_array\' might not exist on array\\{approval_status\\: 1, type\\: 11, ip_address\\: mixed, field_name_value_array\\?\\: non\\-empty\\-array\\<non\\-empty\\-array\\<array\\>\\>, entry_identification_array\\?\\: non\\-empty\\-array\\<non\\-empty\\-array\\>\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'documents\' might not exist on array\\{\\}\\|array\\{documents\\?\\: non\\-empty\\-array, misc_address_book\\?\\: non\\-empty\\-array, procedure_type\\?\\: non\\-empty\\-array, procedure_result\\?\\: non\\-empty\\-array, immunizations\\?\\: non\\-empty\\-array, prescriptions\\?\\: non\\-empty\\-array, lists2\\?\\: non\\-empty\\-array, lists1\\?\\: non\\-empty\\-array, \\.\\.\\.\\}\\.$#',
+    'message' => '#^Offset \'documents\' might not exist on array\\{\\}\\|array\\{documents\\?\\: non\\-empty\\-array\\<mixed\\>, misc_address_book\\?\\: non\\-empty\\-array\\<mixed\\>, procedure_type\\?\\: non\\-empty\\-array\\<mixed\\>, procedure_result\\?\\: non\\-empty\\-array\\<mixed\\>, immunizations\\?\\: non\\-empty\\-array\\<mixed\\>, prescriptions\\?\\: non\\-empty\\-array\\<mixed\\>, lists2\\?\\: non\\-empty\\-array\\<mixed\\>, lists1\\?\\: non\\-empty\\-array\\<mixed\\>, \\.\\.\\.\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'immunizations\' might not exist on array\\{\\}\\|array\\{documents\\?\\: non\\-empty\\-array, misc_address_book\\?\\: non\\-empty\\-array, procedure_type\\?\\: non\\-empty\\-array, procedure_result\\?\\: non\\-empty\\-array, immunizations\\?\\: non\\-empty\\-array, prescriptions\\?\\: non\\-empty\\-array, lists2\\?\\: non\\-empty\\-array, lists1\\?\\: non\\-empty\\-array, \\.\\.\\.\\}\\.$#',
+    'message' => '#^Offset \'immunizations\' might not exist on array\\{\\}\\|array\\{documents\\?\\: non\\-empty\\-array\\<mixed\\>, misc_address_book\\?\\: non\\-empty\\-array\\<mixed\\>, procedure_type\\?\\: non\\-empty\\-array\\<mixed\\>, procedure_result\\?\\: non\\-empty\\-array\\<mixed\\>, immunizations\\?\\: non\\-empty\\-array\\<mixed\\>, prescriptions\\?\\: non\\-empty\\-array\\<mixed\\>, lists2\\?\\: non\\-empty\\-array\\<mixed\\>, lists1\\?\\: non\\-empty\\-array\\<mixed\\>, \\.\\.\\.\\}\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'lists1\' might not exist on array\\{\\}\\|array\\{documents\\?\\: non\\-empty\\-array, misc_address_book\\?\\: non\\-empty\\-array, procedure_type\\?\\: non\\-empty\\-array, procedure_result\\?\\: non\\-empty\\-array, immunizations\\?\\: non\\-empty\\-array, prescriptions\\?\\: non\\-empty\\-array, lists2\\?\\: non\\-empty\\-array, lists1\\?\\: non\\-empty\\-array, \\.\\.\\.\\}\\.$#',
+    'message' => '#^Offset \'lists1\' might not exist on array\\{\\}\\|array\\{documents\\?\\: non\\-empty\\-array\\<mixed\\>, misc_address_book\\?\\: non\\-empty\\-array\\<mixed\\>, procedure_type\\?\\: non\\-empty\\-array\\<mixed\\>, procedure_result\\?\\: non\\-empty\\-array\\<mixed\\>, immunizations\\?\\: non\\-empty\\-array\\<mixed\\>, prescriptions\\?\\: non\\-empty\\-array\\<mixed\\>, lists2\\?\\: non\\-empty\\-array\\<mixed\\>, lists1\\?\\: non\\-empty\\-array\\<mixed\\>, \\.\\.\\.\\}\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'lists2\' might not exist on array\\{\\}\\|array\\{documents\\?\\: non\\-empty\\-array, misc_address_book\\?\\: non\\-empty\\-array, procedure_type\\?\\: non\\-empty\\-array, procedure_result\\?\\: non\\-empty\\-array, immunizations\\?\\: non\\-empty\\-array, prescriptions\\?\\: non\\-empty\\-array, lists2\\?\\: non\\-empty\\-array, lists1\\?\\: non\\-empty\\-array, \\.\\.\\.\\}\\.$#',
+    'message' => '#^Offset \'lists2\' might not exist on array\\{\\}\\|array\\{documents\\?\\: non\\-empty\\-array\\<mixed\\>, misc_address_book\\?\\: non\\-empty\\-array\\<mixed\\>, procedure_type\\?\\: non\\-empty\\-array\\<mixed\\>, procedure_result\\?\\: non\\-empty\\-array\\<mixed\\>, immunizations\\?\\: non\\-empty\\-array\\<mixed\\>, prescriptions\\?\\: non\\-empty\\-array\\<mixed\\>, lists2\\?\\: non\\-empty\\-array\\<mixed\\>, lists1\\?\\: non\\-empty\\-array\\<mixed\\>, \\.\\.\\.\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'patient_data\' might not exist on array\\{\\}\\|array\\{documents\\?\\: non\\-empty\\-array, misc_address_book\\?\\: non\\-empty\\-array, procedure_type\\?\\: non\\-empty\\-array, procedure_result\\?\\: non\\-empty\\-array, immunizations\\?\\: non\\-empty\\-array, prescriptions\\?\\: non\\-empty\\-array, lists2\\?\\: non\\-empty\\-array, lists1\\?\\: non\\-empty\\-array, \\.\\.\\.\\}\\.$#',
+    'message' => '#^Offset \'patient_data\' might not exist on array\\{\\}\\|array\\{documents\\?\\: non\\-empty\\-array\\<mixed\\>, misc_address_book\\?\\: non\\-empty\\-array\\<mixed\\>, procedure_type\\?\\: non\\-empty\\-array\\<mixed\\>, procedure_result\\?\\: non\\-empty\\-array\\<mixed\\>, immunizations\\?\\: non\\-empty\\-array\\<mixed\\>, prescriptions\\?\\: non\\-empty\\-array\\<mixed\\>, lists2\\?\\: non\\-empty\\-array\\<mixed\\>, lists1\\?\\: non\\-empty\\-array\\<mixed\\>, \\.\\.\\.\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'prescriptions\' might not exist on array\\{\\}\\|array\\{documents\\?\\: non\\-empty\\-array, misc_address_book\\?\\: non\\-empty\\-array, procedure_type\\?\\: non\\-empty\\-array, procedure_result\\?\\: non\\-empty\\-array, immunizations\\?\\: non\\-empty\\-array, prescriptions\\?\\: non\\-empty\\-array, lists2\\?\\: non\\-empty\\-array, lists1\\?\\: non\\-empty\\-array, \\.\\.\\.\\}\\.$#',
+    'message' => '#^Offset \'prescriptions\' might not exist on array\\{\\}\\|array\\{documents\\?\\: non\\-empty\\-array\\<mixed\\>, misc_address_book\\?\\: non\\-empty\\-array\\<mixed\\>, procedure_type\\?\\: non\\-empty\\-array\\<mixed\\>, procedure_result\\?\\: non\\-empty\\-array\\<mixed\\>, immunizations\\?\\: non\\-empty\\-array\\<mixed\\>, prescriptions\\?\\: non\\-empty\\-array\\<mixed\\>, lists2\\?\\: non\\-empty\\-array\\<mixed\\>, lists1\\?\\: non\\-empty\\-array\\<mixed\\>, \\.\\.\\.\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
 ];

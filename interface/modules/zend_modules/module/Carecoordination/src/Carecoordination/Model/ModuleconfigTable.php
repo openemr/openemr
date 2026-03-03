@@ -25,9 +25,7 @@
 // +------------------------------------------------------------------------------+
 namespace Carecoordination\Model;
 
-use Laminas\Db\TableGateway\AbstractTableGateway;
-
-class ModuleconfigTable extends AbstractTableGateway
+class ModuleconfigTable
 {
     public function getUsers()
     {
