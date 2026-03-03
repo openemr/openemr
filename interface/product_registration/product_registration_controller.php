@@ -4,7 +4,7 @@
  * ProductRegistrationController
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @license     https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -59,7 +59,7 @@ if ($method === 'POST') {
                 ['trace' => $e->getTraceAsString()]
             );
             exit;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             // Handle any other exceptions
             http_response_code(500);
             echo json_encode(["message" => xlt("An internal error occurred while processing your request.")]);

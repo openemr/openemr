@@ -21,7 +21,7 @@
  * @license http://www.gnu.org/licenses/licenses.html#GPL GNU GPL V3+
  * @author  Sharon Cohen <sharonco@matrix.co.il>
  * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 require_once($GLOBALS['srcdir'] . "/validation/LBF_Validation.php");

@@ -4,7 +4,7 @@
  * PatientMenuRole class.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Eyal Wolanowski <eyal.wolanowski@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
@@ -15,8 +15,8 @@
 namespace OpenEMR\Menu;
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\UserService;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use OpenEMR\Menu\PatientMenuEvent;
 
 class PatientMenuRole extends MenuRole
@@ -38,7 +38,7 @@ class PatientMenuRole extends MenuRole
         //   to functions in this class.
         parent::__construct();
         $this->menu_update_map["Modules"] = "updateModulesDemographicsMenu";
-        $this->dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $this->dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     }
 
     /**

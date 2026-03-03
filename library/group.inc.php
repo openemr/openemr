@@ -22,7 +22,7 @@
  * @package OpenEMR
  * @author  Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 require_once(__DIR__ . "/../interface/therapy_groups/therapy_groups_models/therapy_groups_model.php");

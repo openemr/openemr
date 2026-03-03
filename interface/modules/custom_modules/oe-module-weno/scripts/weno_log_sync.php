@@ -2,7 +2,7 @@
 
 /**
  * @package    OpenEMR
- * @link       http://www.open-emr.org
+ * @link       https://www.open-emr.org
  * @author     Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author     Jerry Padgett <sjpadgett@gmail.com>
  * @copyright  Copyright (c) 2021 Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -81,7 +81,7 @@ function downloadWenoPrescriptionLog(): void
     try {
         $logSync = new LogProperties();
         $rtn = $logSync->logSync('background');
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         $rtn = false;
         $wenoLog->insertWenoLog("Sync Report", $e->getMessage());
         error_log('Error syncing log: ' . errorLogEscape($e->getMessage()));

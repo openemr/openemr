@@ -4,7 +4,7 @@
  * Standalone AJAX handler for reporting period updates
  *
  * @package   OpenEMR Module
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,6 +14,7 @@
 require_once("../../../../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 
 header('Content-Type: application/json');
@@ -31,7 +32,7 @@ try {
         'get_measures_for_period' => handleGetMeasuresForPeriod(),
         default => ['success' => false, 'message' => 'Unknown action: ' . $action],
     };
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     error_log("Reporting period AJAX error: " . $e->getMessage());
     $response = ['success' => false, 'message' => 'Server error occurred'];
 }
@@ -60,7 +61,7 @@ function handleUpdateReportingPeriod()
 
     if ($result['count'] > 0) {
         // Update session
-        $_SESSION['selected_ecqm_period'] = $period;
+        SessionUtil::setSession('selected_ecqm_period', $period);
 
         // Update global
         $GLOBALS['cqm_performance_period'] = $period;
@@ -80,7 +81,7 @@ function handleUpdateReportingPeriod()
                     [$period]
                 );
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             // Log error but don't fail the request
             error_log("Could not update global setting: " . $e->getMessage());
         }
@@ -129,7 +130,7 @@ function handleGetMeasuresForPeriod()
                         'description' => $measure['description'] ?? ''
                     ];
                 }
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 error_log("Could not load measures from QrdaReportController: " . $e->getMessage());
             }
         }
@@ -140,7 +141,7 @@ function handleGetMeasuresForPeriod()
             'period' => $period,
             'count' => count($measures)
         ];
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         // Restore original period on error
         if ($originalPeriod !== null) {
             $GLOBALS['cqm_performance_period'] = $originalPeriod;

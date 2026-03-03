@@ -29,7 +29,6 @@ class HhMainMenuLinksTest extends PantherTestCase
     use BaseTrait;
     use LoginTrait;
 
-    private $client;
     private $crawler;
 
     #[DataProvider('menuLinkProvider')]

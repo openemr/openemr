@@ -8,7 +8,7 @@
  *  which join on a documents id and categories which do the same.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Unknown -- No ownership was listed on this document prior to February 5th 2021
  * @author    Stephen Nielson <stephen@nielson.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -28,6 +28,7 @@ use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\PatientDocuments\PatientDocumentStoreOffsite;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use OpenEMR\Core\OEGlobalsBag;
 
 class Document extends ORDataObject
 {
@@ -249,7 +250,7 @@ class Document extends ORDataObject
             $this->populate();
         }
 
-        $this->eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $this->eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     }
 
     /**

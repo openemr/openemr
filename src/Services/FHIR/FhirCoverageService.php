@@ -12,7 +12,6 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMoney;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPositiveInt;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCoverage;
@@ -36,7 +35,7 @@ use OpenEMR\Validators\ProcessingResult;
  * FHIR Coverage Service - US Core 8.0 / USCDI v5 Compliant
  *
  * @package            OpenEMR
- * @link               http://www.open-emr.org
+ * @link               https://www.open-emr.org
  * @author             Vishnu Yarmaneni <vardhanvishnu@gmail.com>
  * @author             Jerry Padgett <sjpadgett@gmail.com>
  * @copyright          Copyright (c) 2021 Vishnu Yarmaneni <vardhanvishnu@gmail.com>

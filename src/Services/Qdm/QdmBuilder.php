@@ -2,7 +2,7 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
@@ -112,7 +112,7 @@ class QdmBuilder
                         } else {
                             error_log("QDM Builder Warning: NULL returned by makeQdmModel() on `$serviceClass` for PID = `{$qdmRecord->getPid()}`... Continuing execution.");
                         }
-                    } catch (\Exception $e) {
+                    } catch (\Throwable $e) {
                         // There was an error creating the model, such as passing a parameter that is not a member of a QDM Object
                         // TODO improve error handling
                         error_log($e->getMessage());

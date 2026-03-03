@@ -16,6 +16,7 @@
  */
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\FacilityService;
 
 /**
  * Reads $_POST and trims the value. New code should NOT use this function.
@@ -660,4 +661,160 @@ function getListItem($listid, $value)
     }
 
     return $tmp;
+}
+
+// ============================================================================
+// Tax Calculation Functions
+// ============================================================================
+
+/**
+ * Compute taxes from a tax rate string and a possibly taxable amount.
+ *
+ * @param array $row Row containing 'taxrates' field (colon-separated rate IDs)
+ * @param float $amount The taxable amount
+ * @return float The total tax amount
+ */
+function calcTaxes($row, $amount)
+{
+    $total = 0;
+    if (empty($row['taxrates'])) {
+        return $total;
+    }
+
+    $arates = explode(':', (string) $row['taxrates']);
+    if (empty($arates)) {
+        return $total;
+    }
+
+    foreach ($arates as $value) {
+        if (empty($value)) {
+            continue;
+        }
+
+        $trow = sqlQuery(
+            "SELECT option_value FROM list_options WHERE " .
+            "list_id = 'taxrate' AND option_id = ? AND activity = 1 LIMIT 1",
+            [$value]
+        );
+        if (empty($trow['option_value'])) {
+            echo "<!-- Missing tax rate '" . text($value) . "'! -->\n";
+            continue;
+        }
+
+        $tax = sprintf("%01.2f", $amount * $trow['option_value']);
+        $total += $tax;
+    }
+
+    return $total;
+}
+
+/**
+ * Mark the tax rates that are referenced in an invoice.
+ *
+ * @param string $taxrates Colon-separated tax rate IDs
+ * @return void
+ * @global array $taxes The taxes array (key=tax id, value=[description, rate, indicator])
+ */
+function markTaxes($taxrates): void
+{
+    global $taxes;
+    $arates = explode(':', (string) $taxrates);
+    if (empty($arates)) {
+        return;
+    }
+    foreach ($arates as $value) {
+        if (!empty($taxes[$value])) {
+            $taxes[$value][2] = '1';
+        }
+    }
+}
+
+/**
+ * Get facilities data and build facility-to-message and facility-to-phone maps.
+ *
+ * @return array{msg_map: array<int, string>, phone_map: array<int, string>}
+ */
+function cron_getFacilitiesMap(FacilityService $facilityService)
+{
+    $message_map = $GLOBALS['phone_appt_message'];
+    $facility_msg_map = [];
+    $facility_phone_map = [];
+
+    $facilities = $facilityService->getAllFacility();
+    foreach ($facilities as $row) {
+        $facility_msg_map[$row['id']] = $message_map[$row['name']];
+        $facility_phone_map[$row['id']] = $row['phone'];
+    }
+
+    return [
+        'msg_map' => $facility_msg_map,
+        'phone_map' => $facility_phone_map
+    ];
+}
+
+/**
+ * Get notification settings from the database.
+ *
+ * @return array|false The notification settings row, or false if not found
+ */
+function cron_GetNotificationSettings(): array|false
+{
+    return sqlFetchArray(sqlStatement(
+        "SELECT * FROM notification_settings WHERE type = 'SMS/Email Settings'"
+    ));
+}
+
+/**
+ * Update calendar event to mark that an alert was sent to the patient.
+ *
+ * @param string $type The notification type ('SMS', 'Email', or 'Phone')
+ * @param int|string $pid The patient ID
+ * @param int|string $pc_eid The calendar event ID
+ */
+function cron_updateentry(string $type, $pid, $pc_eid): void
+{
+    $query = "UPDATE openemr_postcalendar_events SET ";
+
+    if ($type === 'SMS' || $type === 'Phone') {
+        $query .= "pc_sendalertsms = 'YES'";
+    } elseif ($type === 'Email') {
+        $query .= "pc_sendalertemail = 'YES'";
+    }
+
+    $query .= " WHERE pc_pid = ? AND pc_eid = ?";
+    sqlStatement($query, [$pid, $pc_eid]);
+}
+
+// ============================================================================
+// Layout Options Functions
+// ============================================================================
+
+/**
+ * Get layout options for the demographics form.
+ *
+ * @param bool $shortForm Whether to filter for short form mode (only required fields or those with 'N' edit option)
+ * @return ADORecordSet_mysqli
+ */
+function getLayoutRes(bool $shortForm)
+{
+    $sql = "SELECT * FROM layout_options WHERE form_id = 'DEM' AND uor > 0 AND field_id != ''";
+    if ($shortForm) {
+        $sql .= " AND (uor > 1 OR edit_options LIKE '%N%')";
+    }
+    $sql .= " ORDER BY group_id, seq";
+    return sqlStatement($sql);
+}
+
+/**
+ * Get the UOR (Use, Optional, Required) value for a layout field.
+ *
+ * @param string $form_id The form ID
+ * @param string $field_id The field ID
+ * @return int The UOR value (0=unused, 1=optional, 2=required)
+ */
+function getLayoutUOR($form_id, $field_id)
+{
+    $crow = sqlQuery("SELECT uor FROM layout_options WHERE " .
+        "form_id = ? AND field_id = ? LIMIT 1", [$form_id, $field_id]);
+    return 0 + $crow['uor'];
 }

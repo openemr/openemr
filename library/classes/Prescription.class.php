@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -217,7 +219,7 @@ class Prescription extends ORDataObject
             $this->pharmacist = new Person();
             // default provider is the current user
             $this->provider = new Provider($_SESSION['authUserID']);
-            $this->patient = new Patient();
+            $this->patient = new PrescriptionPatient();
             $this->start_date = date("Y-m-d");
             $this->date_added = date("Y-m-d H:i:s");
             $this->date_modified = date("Y-m-d H:i:s");
@@ -733,7 +735,7 @@ class Prescription extends ORDataObject
     function set_patient_id($id)
     {
         if (is_numeric($id)) {
-            $this->patient = new Patient($id);
+            $this->patient = new PrescriptionPatient($id);
         }
     }
     function get_patient_id()
@@ -1036,14 +1038,16 @@ class Prescription extends ORDataObject
                 break;
         }
 
-        $sql = "SELECT * FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" . add_escape_custom($this->provider->id) . "'";
-        $db = get_db();
-        $results = $db->Execute($sql);
-        if (!$results->EOF) {
-            $string = $results->fields['name'] . "\n"
-                    . $results->fields['street'] . "\n"
-                    . $results->fields['city'] . ", " . $results->fields['state'] . " " . $results->fields['postal_code'] . "\n"
-                    . $results->fields['phone'] . "\n\n";
+        $records = QueryUtils::fetchRecords(
+            "SELECT * FROM users JOIN facility AS f ON f.name = users.facility WHERE users.id = ?",
+            [$this->provider->id]
+        );
+        if ($records !== []) {
+            $row = $records[0];
+            $string = $row['name'] . "\n"
+                    . $row['street'] . "\n"
+                    . $row['city'] . ", " . $row['state'] . " " . $row['postal_code'] . "\n"
+                    . $row['phone'] . "\n\n";
         }
 
         $string .= ""
@@ -1067,8 +1071,6 @@ class Prescription extends ORDataObject
 
     function get_prescription_florida_display()
     {
-
-        $db = get_db();
         $ntt = new NumberToText($this->quantity);
         $ntt2 = new NumberToText($this->per_refill);
         $ntt3 = new NumberToText($this->refills);
@@ -1083,20 +1085,23 @@ class Prescription extends ORDataObject
 
         $string .= $gnd . $this->provider->federal_drug_id . "\n";
 
-        $sql = "SELECT * FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" . add_escape_custom($this->provider->id) . "'";
-        $results = $db->Execute($sql);
+        $records = QueryUtils::fetchRecords(
+            "SELECT * FROM users JOIN facility AS f ON f.name = users.facility WHERE users.id = ?",
+            [$this->provider->id]
+        );
 
-        if (!$results->EOF) {
-            $rfn = $results->fields['name'];
+        if ($records !== []) {
+            $row = $records[0];
+            $rfn = $row['name'];
 
             while (strlen((string) $rfn) < 31) {
                 $rfn .= " ";
             }
 
             $string .= $rfn . $this->provider->get_provider_number_default() . "\n"
-                    . $results->fields['street'] . "\n"
-                    . $results->fields['city'] . ", " . $results->fields['state'] . " " . $results->fields['postal_code'] . "\n"
-                    . $results->fields['phone'] . "\n";
+                    . $row['street'] . "\n"
+                    . $row['city'] . ", " . $row['state'] . " " . $row['postal_code'] . "\n"
+                    . $row['phone'] . "\n";
         }
 
         $string .= "\n";
@@ -1137,17 +1142,88 @@ class Prescription extends ORDataObject
         return $string;
     }
 
+    private const SORTABLE_COLUMNS = [
+        'active',
+        'created_by',
+        'date_added',
+        'date_modified',
+        'datetime',
+        'diagnosis',
+        'dosage',
+        'drug',
+        'drug_dosage_instructions',
+        'drug_id',
+        'encounter',
+        'end_date',
+        'erx_source',
+        'erx_uploaded',
+        'external_id',
+        'filled_by_id',
+        'filled_date',
+        'form',
+        'id',
+        'indication',
+        'interval',
+        'medication',
+        'note',
+        'ntx',
+        'patient_id',
+        'per_refill',
+        'pharmacy_id',
+        'prescriptionguid',
+        'prn',
+        'provider_id',
+        'quantity',
+        'refills',
+        'request_intent',
+        'request_intent_title',
+        'route',
+        'rtx',
+        'rxnorm_drugcode',
+        'site',
+        'size',
+        'start_date',
+        'substitute',
+        'txDate',
+        'unit',
+        'updated_by',
+        'usage_category',
+        'usage_category_title',
+        'user',
+    ];
+
     static function prescriptions_factory(
         $patient_id,
         $order_by = "active DESC, date_modified DESC, date_added DESC"
     ) {
+        $default_order = 'active DESC, date_modified DESC, date_added DESC';
+
+        // Validate each comma-separated ORDER BY part against the allowlist.
+        $sanitized_parts = [];
+        foreach (explode(',', (string) $order_by) as $part) {
+            $tokens = preg_split('/\s+/', trim($part), -1, PREG_SPLIT_NO_EMPTY);
+            if ($tokens === []) {
+                continue;
+            }
+            $column = strtolower($tokens[0]);
+            if (!in_array($column, self::SORTABLE_COLUMNS, true)) {
+                continue;
+            }
+            $direction = 'DESC';
+            if (isset($tokens[1]) && strtoupper($tokens[1]) === 'ASC') {
+                $direction = 'ASC';
+            }
+            $sanitized_parts[] = $column . ' ' . $direction;
+        }
+
+        $sanitized_order = $sanitized_parts !== [] ? implode(', ', $sanitized_parts) : $default_order;
 
         $prescriptions = [];
         $p = new Prescription();
         $sql = "SELECT id FROM " . escape_table_name($p->_table) . " WHERE patient_id = ? " .
-                "ORDER BY " . add_escape_custom($order_by);
-        $results = sqlQ($sql, [$patient_id]);
-        while ($row = sqlFetchArray($results)) {
+                "ORDER BY " . $sanitized_order;
+        $records = QueryUtils::fetchRecords($sql, [$patient_id]);
+        foreach ($records as $row) {
             $prescriptions[] = new Prescription($row['id']);
         }
 

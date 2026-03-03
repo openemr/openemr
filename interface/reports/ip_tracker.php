@@ -12,11 +12,12 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 
 if (!empty($_POST)) {
@@ -26,8 +27,7 @@ if (!empty($_POST)) {
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("IP Tracker")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: IP Tracker", xl("IP Tracker"));
 }
 
 $showOnlyWithCount = !empty($_POST['showOnlyWithCount']) ? true : false;
@@ -229,7 +229,7 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
                             }
                             ?>
                         </td>
-                        <td class="detail" id="last-fail-<?php echo attr($row['id']) ?>"><?php echo (!empty($row['ip_last_login_fail'])) ? text(oeFormatDateTime($row['ip_last_login_fail'])) : xlt("Not Applicable"); ?></td>
+                        <td class="detail" id="last-fail-<?php echo attr($row['id']) ?>"><?php echo (!empty($row['ip_last_login_fail'])) ? text(DateFormatterUtils::oeFormatDateTime($row['ip_last_login_fail'])) : xlt("Not Applicable"); ?></td>
                         <td class="detail" id="autoblock-<?php echo attr($row['id']) ?>">
                             <?php
                             $autoBlocked = false;
@@ -247,7 +247,7 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
                             if ($autoBlocked) {
                                 echo xlt("Yes");
                                 if (!empty($autoBlockEnd)) {
-                                    echo ' (' . xlt("Autoblock ends on") . ' ' . text(oeFormatDateTime($autoBlockEnd)) . ')';
+                                    echo ' (' . xlt("Autoblock ends on") . ' ' . text(DateFormatterUtils::oeFormatDateTime($autoBlockEnd)) . ')';
                                 }
                             } else {
                                 echo xlt("No");

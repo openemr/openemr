@@ -4,7 +4,7 @@
  * Twilio Fax SMS Controller
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2019-2023 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,7 +13,6 @@
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use DateTime;
-use Exception;
 use OpenEMR\Common\Crypto\CryptoGen;
 use RuntimeException;
 use Twilio\Rest\Client;
@@ -101,7 +100,7 @@ class TwilioSMSClient extends AppDispatch
                     "from" => attr($from)
                 ]
             );
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $message = $e->getMessage();
             return text('Error: ' . $message);
         }
@@ -149,7 +148,7 @@ class TwilioSMSClient extends AppDispatch
                     "dateSentAfter" => $dateFrom,
                     "dateSentBefore" => $dateTo
                 ], 100);
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 $message = $e->getMessage();
                 $emsg = xlt('Report to Administration');
                 return json_encode(['error' => $message . " : " . $emsg]);
@@ -188,7 +187,7 @@ class TwilioSMSClient extends AppDispatch
                     $responseMsgs[1] .= "<tr><td>" . text($updateDate) . "</td><td>" . text($messageStore->direction) . "</td><td>" . text($messageStore->body) . "</td><td>" . text($from) . "</td><td>" . text($to) . "</td><td>" . ($status) . "</td><<td>" . $vreply . "</td></tr>";
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $message = $e->getMessage();
             $responseMsgs = "<tr><td>" . text($message) . " : " . xlt('Report to Administration') . "</td></tr>";
             echo json_encode(['error' => $responseMsgs]);
@@ -245,7 +244,7 @@ class TwilioSMSClient extends AppDispatch
                 $responseMsgs .= "<tr><td>" . text($value["pc_eid"]) . "</td><td>" . text($value["dSentDateTime"]) .
                     "</td><td>" . text($adate) . "</td><td>" . text($pinfo) . "</td><td>" . text($value["message"]) . "</td></tr>";
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $message = $e->getMessage();
             return 'Error: ' . text($message) . PHP_EOL;
         }

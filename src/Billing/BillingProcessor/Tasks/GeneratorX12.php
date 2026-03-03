@@ -4,7 +4,7 @@
  * This class represents the task that compiles claims into an X12 batch file
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Daniel Pflieger <daniel@growlingflea.com>

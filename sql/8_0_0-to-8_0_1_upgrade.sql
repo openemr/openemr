@@ -112,3 +112,82 @@
 --  #IfMBOEncounterNeeded
 --    desc: Add encounter to the form_misc_billing_options table
 --    arguments: none
+
+--
+-- Organization Type list (HL7 Value Set: OrganizationType)
+-- See: https://github.com/openemr/openemr/issues/6826
+--
+
+#IfNotRow2D list_options list_id lists option_id organization-type
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('lists', 'organization-type', 'Organization Type', 1);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'prov', 'Healthcare Provider', 10);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'dept', 'Hospital Department', 20);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'team', 'Organizational team', 30);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'govt', 'Government', 40);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'ins', 'Insurance Company', 50);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'pay', 'Payer', 60);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'edu', 'Educational Institute', 70);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'reli', 'Religious Institution', 80);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'crs', 'Clinical Research Sponsor', 90);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'cg', 'Community Group', 100);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'bus', 'Non-Healthcare Business or Corporation', 110);
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`) VALUES ('organization-type', 'other', 'Other', 120);
+#EndIf
+
+#IfMissingColumn facility organization_type
+ALTER TABLE `facility` ADD `organization_type` VARCHAR(50) NOT NULL DEFAULT 'prov' COMMENT 'Organization type as defined by HL7 Value Set: OrganizationType';
+#EndIf
+
+--
+-- Rename the misspelled list_options option_id from 'declne_to_specfy' to 'decline_to_specify',
+-- and update any patient_data.race records that reference the old value.
+-- See: https://github.com/openemr/openemr/issues/10385
+--
+
+#IfColumn patient_data race
+UPDATE `patient_data` SET `race` = 'decline_to_specify' WHERE `race` = 'declne_to_specfy';
+#EndIf
+
+#IfRow2D list_options list_id race option_id declne_to_specfy
+UPDATE `list_options` SET `option_id` = 'decline_to_specify' WHERE `list_id` = 'race' AND `option_id` = 'declne_to_specfy';
+#EndIf
+
+#IfRow2D list_options list_id language option_id declne_to_specfy
+UPDATE `list_options` SET `option_id` = 'decline_to_specify' WHERE `list_id` = 'language' AND `option_id` = 'declne_to_specfy';
+#EndIf
+
+#IfRow2D list_options list_id ethrace option_id declne_to_specfy
+UPDATE `list_options` SET `option_id` = 'decline_to_specify' WHERE `list_id` = 'ethrace' AND `option_id` = 'declne_to_specfy';
+#EndIf
+
+--
+-- Rename the misspelled 'interpretter' column to 'interpreter' in patient_data,
+-- and update the layout_options field_id to match.
+-- See: https://github.com/openemr/openemr/issues/10351
+--
+
+#IfColumn patient_data interpretter
+ALTER TABLE `patient_data` CHANGE `interpretter` `interpreter` varchar(255) NOT NULL default '' COMMENT 'original field used for determining if patient needs an interpreter, now used for additional notes about need for interpreter';
+#EndIf
+
+#IfRow2D layout_options form_id DEM field_id interpretter
+UPDATE `layout_options` SET `field_id` = 'interpreter' WHERE `form_id` = 'DEM' AND `field_id` = 'interpretter';
+#EndIf
+
+--
+-- Remove the unused Multipledb module infrastructure.
+-- The module has been removed and will be replaced by Doctrine's
+-- native multi-connection support if ever needed.
+--
+
+#IfTable multiple_db
+DROP TABLE `multiple_db`;
+#EndIf
+
+#IfRow globals gl_name allow_multiple_databases
+DELETE FROM `globals` WHERE `gl_name` = 'allow_multiple_databases';
+#EndIf
+
+#IfRow globals gl_name safe_key_database
+DELETE FROM `globals` WHERE `gl_name` = 'safe_key_database';
+#EndIf

@@ -4,7 +4,7 @@
  * This report lists  patient immunizations for a given date range.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Stephen Waite <stephen.waite@open-emr.org>
@@ -18,22 +18,14 @@
 require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\PhoneNumberService;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    echo (
-        new TwigContainer(
-            null,
-            $GLOBALS['kernel']
-        ))->getTwig()->render(
-            'core/unauthorized.html.twig',
-            ['pageTitle' => xl("Immunization Registry")]
-        );
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Immunization Registry", xl("Immunization Registry"));
 }
 
 if (!empty($_POST)) {

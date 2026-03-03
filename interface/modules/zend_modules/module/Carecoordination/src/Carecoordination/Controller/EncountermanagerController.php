@@ -16,7 +16,6 @@
 namespace Carecoordination\Controller;
 
 use Application\Listener\Listener;
-use Carecoordination\Model\CcdaDocumentTemplateOids;
 use Carecoordination\Model\CcdaGlobalsConfiguration;
 use Carecoordination\Model\CcdaUserPreferencesTransformer;
 use Carecoordination\Model\EncountermanagerTable;
@@ -27,13 +26,12 @@ use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\Services\Qrda\QrdaReportService;
-use OpenEMR\Services\UserService;
 use OpenEMR\Validators\ProcessingResult;
-use Symfony\Component\EventDispatcher\GenericEvent;
 use XSLTProcessor;
 
 class EncountermanagerController extends AbstractActionController
@@ -237,7 +235,7 @@ class EncountermanagerController extends AbstractActionController
 
         $document = new \Document($docId);
         try {
-            $twig = new TwigContainer(null, $GLOBALS['kernel']);
+            $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
             // can_access will check session if no params are passed.
             if (!$document->can_access()) {
                 echo $twig->getTwig()->render("templates/error/400.html.twig", ['statusCode' => 401, 'errorMessage' => 'Access Denied']);
@@ -276,7 +274,7 @@ class EncountermanagerController extends AbstractActionController
             $proc->importStylesheet($ss);
             $updatedContent = $proc->transformToXml($xmlDom);
             echo $updatedContent;
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             echo "Failed to generate preview for docId " . text($docId);
             (new SystemLogger())->errorLogCaller(
                 "Failed to generate preview for ccda document",

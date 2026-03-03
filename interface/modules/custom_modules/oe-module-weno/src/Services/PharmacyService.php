@@ -4,7 +4,7 @@
  * WenoPharmacyService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kofi Appiah <kkappiah@medsov.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023-2024 Jerry Padgett <sjpadgett@gmail.com>
@@ -14,7 +14,6 @@
 
 namespace OpenEMR\Modules\WenoModule\Services;
 
-use Exception;
 
 class PharmacyService
 {
@@ -37,7 +36,7 @@ class PharmacyService
                 $data['alternate_pharmacy'],
                 $data['search_persist'],
             ]);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return $e->getMessage();
         }
     }
@@ -61,7 +60,7 @@ class PharmacyService
                 $data['search_persist'],
                 $pid
             ]);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return $e->getMessage();
         }
     }

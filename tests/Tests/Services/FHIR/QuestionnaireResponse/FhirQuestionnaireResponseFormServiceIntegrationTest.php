@@ -4,7 +4,7 @@
  * FhirQuestionnaireResponseFormServiceIntegrationTest
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Public Domain for sections that were generated with Claude.AI on September 3rd 2025
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

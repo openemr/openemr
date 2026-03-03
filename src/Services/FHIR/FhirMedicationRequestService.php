@@ -2,10 +2,8 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\FHIR\DomainModels\OpenEMRFHIRDateTime;
 use OpenEMR\FHIR\DomainModels\OpenEMRFHIRDosage;
 use OpenEMR\FHIR\DomainModels\OpenEMRFHIRTiming;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationRequest;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;

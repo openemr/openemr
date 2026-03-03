@@ -4,7 +4,7 @@
  * new_comprehensive_save.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2009-2017 Rod Roark <rod@sunsetsystems.com>
@@ -96,7 +96,7 @@ if (!empty($addressFieldsToSave)) {
                 $contactAddressService->saveAddressesForContact($contact->get_id(), $addressFieldData);
             }
         }
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         (new SystemLogger())->error("Fatal error in address processing", [
             'pid' => $pid,
             'error' => $e->getMessage(),

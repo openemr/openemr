@@ -16,7 +16,7 @@
  *
  * @package OpenEMR
  * @author  Matthew Vita <matthewvita48@gmail.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 class GenericProductRegistrationException extends Exception

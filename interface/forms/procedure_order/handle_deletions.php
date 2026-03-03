@@ -4,7 +4,7 @@
  * AJAX handler for real-time deletions of procedures and specimens
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -37,7 +37,7 @@ try {
         default:
             $response['error'] = 'Invalid action';
     }
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     $response['error'] = $e->getMessage();
 }
 
@@ -102,7 +102,7 @@ function deleteProcedure()
             'success' => true,
             'orderEmpty' => ($remaining['cnt'] == 0)
         ];
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         sqlRollbackTrans();
         throw $e;
     }
@@ -128,7 +128,7 @@ function deleteSpecimen()
         );
 
         return ['success' => true];
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         return ['success' => false, 'error' => $e->getMessage()];
     }
 }

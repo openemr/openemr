@@ -4,13 +4,18 @@
  * Saves and retrieves from the database TeleHealth user objects.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Repository;
+
+if (!defined('OPENEMR_GLOBALS_LOADED')) {
+    http_response_code(404);
+    exit();
+}
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser;
 use OpenEMR\Common\Crypto\CryptoGen;

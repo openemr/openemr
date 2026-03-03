@@ -4,7 +4,7 @@
  * FacilityService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -19,6 +19,7 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
@@ -214,7 +215,7 @@ class FacilityService extends BaseService
         );
 
         $facilityUpdatedEvent = new FacilityUpdatedEvent($dataBeforeUpdate, $data);
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($facilityUpdatedEvent, FacilityUpdatedEvent::EVENT_HANDLE, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($facilityUpdatedEvent, FacilityUpdatedEvent::EVENT_HANDLE);
 
         return $result;
     }
@@ -230,7 +231,7 @@ class FacilityService extends BaseService
         );
 
         $facilityCreatedEvent = new FacilityCreatedEvent(array_merge($data, ['id' => $facilityId]));
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($facilityCreatedEvent, FacilityCreatedEvent::EVENT_HANDLE, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($facilityCreatedEvent, FacilityCreatedEvent::EVENT_HANDLE);
 
         return $facilityId;
     }

@@ -4,7 +4,7 @@
  * Contains all of the Weno global settings and configuration
  *
  * @package   openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kofi Appiah <kkappiah@medsov.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023 Omega Systems Group <https://omegasystemsgroup.com/>

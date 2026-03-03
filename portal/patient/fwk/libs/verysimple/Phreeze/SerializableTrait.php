@@ -9,9 +9,8 @@
  *
  * @package verysimple::Phreeze
  * @link https://www.open-emr.org
- * @link https://opencoreemr.com
  * @author Michael A. Smith <michael@opencoreemr.com>
- * @copyright 2026 OpenCoreEMR Inc
+ * @copyright 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license http://www.gnu.org/licenses/lgpl.html LGPL
  */
 trait SerializableTrait

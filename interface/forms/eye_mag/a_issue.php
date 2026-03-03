@@ -6,15 +6,17 @@
  *
  * Originally culled from /interface/patient_file/summary and adapted...
  *
- * @packageOpenEMR
- * @linkhttp://www.open-emr.org
- * @authorRod Roark <rod@sunsetsystems.com>
- * @authorRay Magauran <magauran@MedFetch.com>
- * @authorBrady Miller <brady.g.miller@gmail.com>
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Ray Magauran <magauran@MedFetch.com>
+ * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2005-2011 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2015-2016 Ray Magauran <magauran@MedFetch.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
- * @licensehttps://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 /*
@@ -22,6 +24,9 @@ TODO: Code cleanup */
 
 $form_folder = "eye_mag";
 require_once('../../globals.php');
+
+use OpenEMR\Common\Session\SessionUtil;
+
 require_once($GLOBALS['srcdir'] . '/lists.inc.php');
 require_once($GLOBALS['srcdir'] . '/patient.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
@@ -29,6 +34,7 @@ require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
 require_once("../../forms/" . $form_folder . "/php/" . $form_folder . "_functions.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 
@@ -52,7 +58,7 @@ $form_type = $_REQUEST['form_type'];
 $uniqueID = $_REQUEST['uniqueID'];
 
 if ($issue && !AclMain::aclCheckCore('patients', 'med', '', 'write')) {
-    die(xlt("Edit is not authorized!"));
+    AccessDeniedHelper::deny('Editing eye exam issue is not authorized');
 }
 
 if (
@@ -61,14 +67,14 @@ if (
     'addonly'
     ])
 ) {
-    die(xlt("Add is not authorized!"));
+    AccessDeniedHelper::deny('Adding eye exam issue is not authorized');
 }
 
 $PMSFH = build_PMSFH($pid);
 $patient = getPatientData($pid, "*");
 $providerID = findProvider($pid, $encounter);
 if (!($_SESSION['providerID'] ?? '') && $providerID) {
-    ($_SESSION['providerID'] = $providerID);
+    SessionUtil::setSession('providerID', $providerID);
 }
 
 $irow = [];

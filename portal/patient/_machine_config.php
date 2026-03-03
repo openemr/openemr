@@ -60,13 +60,7 @@ GlobalConfig::$CONNECTION_SETTING->DBName = $globalsBag->get('dbase');
 GlobalConfig::$CONNECTION_SETTING->Username = $globalsBag->get('login');
 GlobalConfig::$CONNECTION_SETTING->Password = $globalsBag->get('pass');
 GlobalConfig::$CONNECTION_SETTING->Type = "MySQLi";
-if (!$disable_utf8_flag) {
-    if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
-        GlobalConfig::$CONNECTION_SETTING->Charset = "utf8mb4";
-    } else {
-        GlobalConfig::$CONNECTION_SETTING->Charset = "utf8";
-    }
-}
+GlobalConfig::$CONNECTION_SETTING->Charset = "utf8mb4";
 
 GlobalConfig::$CONNECTION_SETTING->Multibyte = true;
 // Turn off STRICT SQL

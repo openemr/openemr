@@ -3,7 +3,7 @@
 /**
  * RestConfigCaseSensitivityTest tests case-sensitive endpoint checking
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    GitHub Copilot AI-generated code
  * @copyright Copyright (c) 2025 OpenEMR Foundation
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

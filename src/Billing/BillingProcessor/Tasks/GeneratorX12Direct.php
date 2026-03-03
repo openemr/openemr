@@ -8,7 +8,7 @@
  * the global is enabled "Generate X-12 Based On Insurance Company"
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Daniel Pflieger <daniel@mi-squared.com>, <daniel@growlingflea.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>

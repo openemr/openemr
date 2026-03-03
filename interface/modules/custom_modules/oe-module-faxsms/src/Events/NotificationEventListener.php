@@ -4,7 +4,7 @@
  * Fax SMS Module Member
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General public License 3
@@ -20,7 +20,6 @@ use OpenEMR\Core\Kernel;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
-use PHPMailer\PHPMailer\Exception;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -110,9 +109,16 @@ class NotificationEventListener implements EventSubscriberInterface
 
     private function getRCCredentials($serviceType = 'voice'): array
     {
-        // Set the module type for AppDispatch i.e. voice, fax, sms, email
         AppDispatch::setModuleType($serviceType);
-        $clientApp = AppDispatch::getApiService($serviceType);
+        try {
+            $clientApp = AppDispatch::getApiService($serviceType);
+        } catch (\Throwable $e) {
+            \OpenEMR\BC\ServiceContainer::getLogger()->warning(
+                "FaxSMS: failed to load service",
+                ['type' => $serviceType, 'message' => $e->getMessage()]
+            );
+            return ['appKey' => '', 'appSecret' => '', 'jwt' => ''];
+        }
         return $clientApp->getCredentials();
     }
 
@@ -374,7 +380,7 @@ class NotificationEventListener implements EventSubscriberInterface
             if (!$send) {
                 error_log("Failed to send email: " . $mail->ErrorInfo);
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             error_log("Failed to send email: " . $e->getMessage());
         }
         return $send ? xlt("Email sent.") : xlt("Email failed to send.");

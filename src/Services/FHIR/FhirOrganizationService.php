@@ -14,7 +14,6 @@ use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
-use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -25,7 +24,7 @@ use OpenEMR\Validators\ProcessingResult;
  * FHIR Organization Service
  *
  * @package            OpenEMR
- * @link               http://www.open-emr.org
+ * @link               https://www.open-emr.org
  * @author             Yash Bothra <yashrajbothra786@gmail.com>
  * @author             Stephen Nielson <stephen@nielson.org>
  * @copyright          Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>

@@ -5,7 +5,7 @@
  * Manages telecom records (phone, email, fax, etc.) for contacts
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -14,7 +14,6 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\ORDataObject\Contact;
 use OpenEMR\Common\ORDataObject\ContactTelecom;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
@@ -186,7 +185,7 @@ class ContactTelecomService extends BaseService
             ]);
 
             return $savedRecords;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error saving telecoms for contact", [
                 'contact_id' => $contactId,
                 'error' => $e->getMessage(),
@@ -264,7 +263,7 @@ class ContactTelecomService extends BaseService
             QueryUtils::sqlStatementThrowException($sql, [$contactTelecomId, $contactId]);
 
             return true;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error setting primary telecom", ['error' => $e->getMessage()]);
             return false;
         }
@@ -292,7 +291,7 @@ class ContactTelecomService extends BaseService
             }
 
             return $contactTelecom->persist();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error deactivating telecom", ['error' => $e->getMessage()]);
             return false;
         }
@@ -311,7 +310,7 @@ class ContactTelecomService extends BaseService
             $sql = "DELETE FROM contact_telecom WHERE id = ?";
             QueryUtils::sqlStatementThrowException($sql, [$contactTelecomId]);
             return true;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error deleting telecom", ['error' => $e->getMessage()]);
             return false;
         }
@@ -513,7 +512,7 @@ class ContactTelecomService extends BaseService
             }
 
             return null;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error copying telecom", ['error' => $e->getMessage()]);
             return null;
         }

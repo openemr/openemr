@@ -4,7 +4,7 @@
  * CAMOS view.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Mark Leeds <drleeds@gmail.com>
  * @author    fndtn357 <fndtn357@gmail.com>
  * @author    cornfeed <jdough823@gmail.com>

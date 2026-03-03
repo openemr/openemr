@@ -13,6 +13,7 @@
 */
 
 use OpenEMR\Services\UserService;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Appointments\CalendarFilterEvent;
 use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
 use OpenEMR\Events\Core\ScriptFilterEvent;
@@ -537,11 +538,11 @@ function postcalendar_userapi_buildView($args)
         // we fire off events to grab any additional module scripts or css files that desire to adjust the calendar
         $scriptFilterEvent = new ScriptFilterEvent('pnuserapi.php');
         $scriptFilterEvent->setContextArgument('viewtype', $viewtype);
-        $calendarScripts = $GLOBALS['kernel']->getEventDispatcher()->dispatch($scriptFilterEvent, ScriptFilterEvent::EVENT_NAME);
+        $calendarScripts = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($scriptFilterEvent, ScriptFilterEvent::EVENT_NAME);
 
         $styleFilterEvent = new StyleFilterEvent('pnuserapi.php');
         $styleFilterEvent->setContextArgument('viewtype', $viewtype);
-        $calendarStyles = $GLOBALS['kernel']->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
+        $calendarStyles = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
 
         $tpl->assign('HEADER_SCRIPTS', $calendarScripts->getScripts());
         $tpl->assign('HEADER_STYLES', $calendarStyles->getStyles());
@@ -620,7 +621,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
 
     [$sy, $sm, $sd] = explode('-', (string) $start);
 
-    [$dbconn] = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
   // link to the events tables
     $table      =  $pntable['postcalendar_events'];
@@ -688,25 +689,21 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
   //  END SEARCH FUNCTIONALITY
   //======================================================================
   //echo "<Br />sql: $sql<br />";
-    $result = $dbconn->Execute($sql);
-    if ($dbconn->ErrorNo() != 0) {
-        die(text($dbconn->ErrorMsg()));
+    try {
+        $result = $conn->executeQuery($sql);
+    } catch (Doctrine\DBAL\Exception $e) {
+        die(text($e->getMessage()));
     }
 
   // put the information into an array for easy access
     $events = [];
-  // return an empty array if we don't have any results
-    if (!isset($result)) {
-        return $events;
-    }
 
-    for ($i = 0; !$result->EOF; $result->MoveNext()) {
+    $i = 0;
+    foreach ($result->iterateNumeric() as $row) {
         // get the results from the query
         //RM include address
-        if (isset($tmp)) {
-            unset($tmp);
-        } $tmp = [];
-        [$tmp['eid'], $tmp['uname'], $tmp['catid'], $tmp['title'], $tmp['time'], $tmp['hometext'], $tmp['eventDate'], $tmp['duration'], $tmp['endDate'], $tmp['startTime'], $tmp['recurrtype'], $tmp['recurrfreq'], $tmp['recurrspec'], $tmp['topic'], $tmp['alldayevent'], $tmp['location'], $tmp['conttel'], $tmp['contname'], $tmp['contemail'], $tmp['website'], $tmp['fee'], $tmp['sharing'], $tmp['prefcatid'], $tmp['catcolor'], $tmp['catname'], $tmp['catdesc'], $tmp['pid'], $tmp['aid'], $tmp['provider_name'], $tmp['patient_name'], $tmp['owner_name'], $tmp['patient_address'], $tmp['patient_dob'], $tmp['facility']]   = $result->fields;
+        $tmp = [];
+        [$tmp['eid'], $tmp['uname'], $tmp['catid'], $tmp['title'], $tmp['time'], $tmp['hometext'], $tmp['eventDate'], $tmp['duration'], $tmp['endDate'], $tmp['startTime'], $tmp['recurrtype'], $tmp['recurrfreq'], $tmp['recurrspec'], $tmp['topic'], $tmp['alldayevent'], $tmp['location'], $tmp['conttel'], $tmp['contname'], $tmp['contemail'], $tmp['website'], $tmp['fee'], $tmp['sharing'], $tmp['prefcatid'], $tmp['catcolor'], $tmp['catname'], $tmp['catdesc'], $tmp['pid'], $tmp['aid'], $tmp['provider_name'], $tmp['patient_name'], $tmp['owner_name'], $tmp['patient_address'], $tmp['patient_dob'], $tmp['facility']] = $row;
 
         // grab the name of the topic
         $topicname = pcGetTopicName($tmp['topic']);
@@ -817,8 +814,6 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
         $i++;
     }
 
-    unset($tmp);
-    $result->Close();
     return $events;
 }
 
@@ -876,7 +871,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
     [$sy, $sm, $sd] = explode('-', (string) $start);
 
-    [$dbconn] = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
   // link to the events tables
     $table      =  $pntable['postcalendar_events'];
@@ -908,7 +903,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
     // Custom filtering
     $calFilterEvent = new CalendarFilterEvent();
-    $calFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($calFilterEvent, CalendarFilterEvent::EVENT_HANDLE, 10);
+    $calFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($calFilterEvent, CalendarFilterEvent::EVENT_HANDLE);
     $calFilter = $calFilterEvent->getCustomWhereFilter();
     $sql .= " AND $calFilter ";
 
@@ -1005,25 +1000,21 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
   // echo "<!-- " . $sql . " -->\n"; // debugging
 
-    $result = $dbconn->Execute($sql);
-    if ($dbconn->ErrorNo() != 0) {
-        die(text($dbconn->ErrorMsg()));
+    try {
+        $result = $conn->executeQuery($sql);
+    } catch (Doctrine\DBAL\Exception $e) {
+        die(text($e->getMessage()));
     }
 
   // put the information into an array for easy access
     $events = [];
-  // return an empty array if we don't have any results
-    if (!isset($result)) {
-        return $events;
-    }
 
-    for ($i = 0; !$result->EOF; $result->MoveNext()) {
+    $i = 0;
+    foreach ($result->iterateNumeric() as $row) {
         // WHY are we using an array for intermediate storage???  -- Rod
 
         // get the results from the query
-        if (isset($tmp)) {
-            unset($tmp);
-        } $tmp = [];
+        $tmp = [];
         [
             $tmp['eid'],
             $tmp['uname'],
@@ -1066,7 +1057,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
             $tmp['group_name'],
             $tmp['group_type'],
             $tmp['group_status'],
-        ] = $result->fields;
+        ] = $row;
 
         // grab the name of the topic
         $topicname = pcGetTopicName($tmp['topic']);
@@ -1179,8 +1170,6 @@ function &postcalendar_userapi_pcQueryEvents($args)
         $i++;
     }
 
-    unset($tmp);
-    $result->Close();
     return $events;
 }
 
@@ -1293,11 +1282,8 @@ function &postcalendar_userapi_pcGetEvents($args)
     $event->setEndDate($end_date);
     $event->setProviderID($providerID ?? $provider_id ?? null);
 
-    $result = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, CalendarUserGetEventsFilter::EVENT_NAME);
-    if ($result instanceof CalendarUserGetEventsFilter) {
-        $days = $result->getEventsByDays();
-    }
-    return $days;
+    $result = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($event, CalendarUserGetEventsFilter::EVENT_NAME);
+    return $result->getEventsByDays();
 }
 
 //===========================
@@ -1494,7 +1480,7 @@ function calculateEvents($days, $events, $viewtype)
                             foreach (explode(",", (string) $exdate) as $exception) {
                                 // occurrence format == yyyy-mm-dd
                                 // exception format == yyyymmdd
-                                if (preg_replace("/-/", "", $occurance) == $exception) {
+                                if (preg_replace("/-/", "", (string) $occurance) == $exception) {
                                     $excluded = true;
                                 }
                             }

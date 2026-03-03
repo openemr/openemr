@@ -11,7 +11,7 @@ use Ramsey\Uuid\Exception\InvalidUuidStringException;
  * Base class for OpenEMR object validation.
  * Validation processes are implemented using Particle (https://github.com/particle-php/Validator)
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>

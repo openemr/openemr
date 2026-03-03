@@ -4,7 +4,7 @@
  * Functions to globally validate and prepare data for sql database insertion.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    MMF Systems, Inc
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>

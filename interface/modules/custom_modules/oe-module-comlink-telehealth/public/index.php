@@ -4,7 +4,7 @@
  * API index page for receiving requests from the OpenEMR clinician requests.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,8 +14,9 @@
 require_once "../../../../globals.php";
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\Bootstrap;
+use OpenEMR\Core\OEGlobalsBag;
 
-$kernel = $GLOBALS['kernel'];
+$kernel = OEGlobalsBag::getInstance()->getKernel();
 $bootstrap = new Bootstrap($kernel->getEventDispatcher(), $kernel);
 $roomController = $bootstrap->getTeleconferenceRoomController(false);
 

@@ -4,7 +4,7 @@
  * EncounterSessionUtil refactored from encounter.inc.php handles setting the encounter in the session
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    <Unknown> Authorship was not listed in encounter.inc.php
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>

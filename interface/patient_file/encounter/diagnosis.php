@@ -4,7 +4,7 @@
  * diagnosis.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,6 +16,7 @@ require_once("$srcdir/patient.inc.php");
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
@@ -130,7 +131,7 @@ if (isset($mode)) {
 
         if (!empty($sql)) {
             foreach ($sql as $q) {
-                $results = sqlQ($q);
+                QueryUtils::sqlStatementThrowException($q);
             }
         }
 

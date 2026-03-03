@@ -4,7 +4,7 @@
  * Edit layouts gui
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -17,10 +17,10 @@
 require_once("../globals.php");
 require_once("$srcdir/layout.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // Indicates if deactivated layouts are included in the dropdown.
@@ -395,8 +395,7 @@ function encodeModifier($jsonArray)
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('admin', 'super');
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Layout Editor")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Layout Editor", xl("Layout Editor"));
 }
 
 // Make a sorted version of the $datatypes array.

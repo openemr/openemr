@@ -3,7 +3,7 @@
 /**
  * DeviceService.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -87,7 +87,7 @@ class DeviceService extends BaseService
         }
 
         try {
-            $dataSet = json_decode($json, JSON_THROW_ON_ERROR);
+            $dataSet = json_decode((string) $json, JSON_THROW_ON_ERROR);
             $standardElements = $dataSet['standard_elements'] ?? [];
             unset($record['udi_data']); // don't send back the JSON array
             $record['udi_di'] = $standardElements['di'] ?? null;

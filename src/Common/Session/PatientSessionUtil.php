@@ -4,7 +4,7 @@
  * PatientSessionUtil refactored from pid.inc.php handles clearing and setting the session for a patient.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>

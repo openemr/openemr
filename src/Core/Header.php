@@ -99,11 +99,11 @@ class Header
         // we fire off events to grab any additional module scripts or css files that desire to adjust the currently executed script
         $scriptFilterEvent = new ScriptFilterEvent(basename((string) $scriptName));
         $scriptFilterEvent->setContextArgument(ScriptFilterEvent::CONTEXT_ARGUMENT_SCRIPT_NAME, $scriptName);
-        $apptScripts = $GLOBALS['kernel']->getEventDispatcher()->dispatch($scriptFilterEvent, ScriptFilterEvent::EVENT_NAME);
+        $apptScripts = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($scriptFilterEvent, ScriptFilterEvent::EVENT_NAME);
 
         $styleFilterEvent = new StyleFilterEvent($scriptName);
         $styleFilterEvent->setContextArgument(StyleFilterEvent::CONTEXT_ARGUMENT_SCRIPT_NAME, $scriptName);
-        $apptStyles = $GLOBALS['kernel']->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
+        $apptStyles = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($styleFilterEvent, StyleFilterEvent::EVENT_NAME);
         // note these scripts have been filtered to be in the same origin as the current site in pnadmin.php & pnuserapi.php {
 
         if (!empty($apptScripts->getScripts())) {

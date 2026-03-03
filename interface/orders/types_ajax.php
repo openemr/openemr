@@ -4,7 +4,7 @@
  * types_ajax.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
@@ -16,10 +16,11 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 
 if (!AclMain::aclCheckCore('admin', 'super') && !AclMain::aclCheckCore('patients', 'lab')) {
-    die(xlt('Not authorized'));
+    AccessDeniedHelper::deny('Unauthorized access to order types');
 }
 
 $id = ($_GET['id'] ?? '') + 0;

@@ -4,7 +4,7 @@
  * Dashboard Context Manager Module Bootstrap Class
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -105,7 +105,7 @@ class Bootstrap
         try {
             $controller = new ContextWidgetController();
             echo $controller->renderWidget();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->logger->error("DashboardContext: Error rendering widget", ['error' => $e->getMessage()]);
         }
     }
@@ -145,7 +145,7 @@ class Bootstrap
             // This will appear between the page title and the action buttons
             // Let modules be modules ...
             $event->appendTitleNavContent($navHtml);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->logger->error("DashboardContext: Error rendering navbar widget", ['error' => $e->getMessage()]);
         }
 

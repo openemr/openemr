@@ -3,7 +3,7 @@
 /*
  * FhirObservationHistorySdohServiceTest.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    AI Assistant (GitHub Claude.Ai)
  * @copyright Elements marked with AI GENERATED CODE - are in the public domain
  * @author    Stephen Nielson <snielson@discoverandchange.com>
@@ -26,7 +26,6 @@ use OpenEMR\Services\FHIR\Observation\FhirObservationHistorySdohService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\SDOH\HistorySdohService;
 use OpenEMR\Services\UserService;
-use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -70,7 +69,7 @@ class FhirObservationHistorySdohServiceTest extends TestCase
                     "DELETE FROM form_history_sdoh WHERE id = ?",
                     [$recordId]
                 );
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // Log but don't fail cleanup
                 error_log("Failed to cleanup SDOH record {$recordId}: " . $e->getMessage());
             }
@@ -143,7 +142,7 @@ class FhirObservationHistorySdohServiceTest extends TestCase
                     "DELETE FROM patient_data WHERE pid = ?",
                     [$this->testPatientData['pid']]
                 );
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 error_log("Failed to cleanup test patient: " . $e->getMessage());
             }
         }
@@ -154,7 +153,7 @@ class FhirObservationHistorySdohServiceTest extends TestCase
                     "DELETE FROM users WHERE id = ?",
                     [$this->testUserData['id']]
                 );
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 error_log("Failed to cleanup test user: " . $e->getMessage());
             }
         }

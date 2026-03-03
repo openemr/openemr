@@ -5,7 +5,7 @@
  * Available from Administration->Addr Book in the concurrent layout.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    tony@mi-squared.com
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -18,14 +18,13 @@
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('admin', 'practice')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Address Book")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/practice: Address Book", xl("Address Book"));
 }
 
 if (!empty($_POST)) {

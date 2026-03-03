@@ -14,7 +14,6 @@
 
 use OpenEMR\Modules\ClaimRevConnector\ClaimUpload;
 use OpenEMR\Modules\ClaimRevConnector\ReportDownload;
-use OpenEMR\Common\Crypto\CryptoGen;
 
 //require_once "ClaimUpload.php";
 /**

@@ -16,7 +16,6 @@ use Exception;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaire;
-use OpenEMR\FHIR\R4\FHIRElement;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;

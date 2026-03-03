@@ -5,7 +5,7 @@
  * parses the provided http request against that route definition.  Validates the route definition and extracts the
  * resource name as well as any route parameters defined in the route definition.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

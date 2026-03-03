@@ -49,10 +49,9 @@ class NumberToText
     * @param bool $currency    True to convert as a dollar amount
     * @param bool $capitalize  True to capitalize every word (except "and")
     * @param bool $and         True to use "and"  (ie. "one hundred AND six")
-    * @return The textual description of the number, as a string.
+    * @return string The textual description of the number.
     * @package NumberToText
     */
-
     function convert()
     {
         $number = $this->number;
@@ -188,7 +187,7 @@ class NumberToText
     * @param  bool $and        True to put the "and" in the string
     * @param  bool $preceding  True if there are preceding members, puts an
     *                          explicit and in (ie 1001 => one thousand AND one)
-    * @return The textual description of the number, as a string
+    * @return string The textual description of the number.
     * @package NumberToText
     */
     function n2t_convertthree($number, $and, $preceding)

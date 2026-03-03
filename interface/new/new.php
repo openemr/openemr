@@ -4,7 +4,7 @@
  * new.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -18,14 +18,6 @@ use OpenEMR\Core\Header;
 if ($GLOBALS['full_new_patient_form']) {
     require("new_comprehensive.php");
     exit;
-}
-
-// For a layout field return 0=unused, 1=optional, 2=mandatory.
-function getLayoutUOR($form_id, $field_id)
-{
-    $crow = sqlQuery("SELECT uor FROM layout_options WHERE " .
-    "form_id = ? AND field_id = ? LIMIT 1", [$form_id, $field_id]);
-    return 0 + $crow['uor'];
 }
 
 // Determine if the registration date should be requested.

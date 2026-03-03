@@ -4,7 +4,7 @@
  * Fax and SMS Module UI Member
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -17,6 +17,7 @@ $sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../globals.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
@@ -27,7 +28,7 @@ $serviceType = $_REQUEST['type'] ?? '';
 $clientApp = AppDispatch::getApiService($serviceType);
 $service = $clientApp::getServiceType();
 $serviceEnum = ServiceType::fromValue($service);
-$title = $serviceEnum?->getTranslatedDisplayName() ?? '';
+$title = $serviceEnum->getTranslatedDisplayName();
 $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt('Email') : xlt('FAX'));
 ?>
 <!DOCTYPE html>
@@ -44,6 +45,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
     Header::setupHeader(['opener', 'datetime-picker', 'jspdf', 'jstiff']);
     echo "<script>let pid=" . js_escape($pid ?? 0) . ";let portalUrl=" . js_escape($clientApp->portalUrl ?? '') .
         ";let currentService=" . js_escape($service) . ";let serviceType=" . js_escape($serviceType) . "</script>";
+    echo ServiceType::renderJsConstants();
     ?>
     <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/dropzone/dist/dropzone.js"></script>
 
@@ -62,25 +64,14 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             $("#todate").val(new Date().toJSON().slice(0, 10));
 
             $(".other").hide();
-            if (currentService == '1' && serviceType == 'fax') {
-                $(".rc-hide").hide();
-                $(".rc-fax-hide").hide();
-            } else if (currentService == '1' && serviceType == 'sms') {
-                $(".rc-hide").hide();
-            } else if (currentService == '2') {
-                $(".etherfax").hide();
-                $(".signalwire").hide();
-            } else if (currentService == '3') {
-                $(".twilio").hide();
-                $(".etherfax-hide").hide();
-                $(".etherfax").show();
-                $(".signalwire").hide();
-            } else if (currentService == '6') {
-                $(".twilio").hide();
-                $(".etherfax").hide();
-                $(".rc-hide").hide();
-                $(".signalwire").show();
-            }
+            const {hide = [], show = []} = {
+                [ServiceType.RINGCENTRAL]: {hide: ['.rc-hide'].concat(serviceType === 'fax' ? ['.rc-fax-hide'] : [])},
+                [ServiceType.TWILIO_SMS]: {hide: ['.etherfax', '.signalwire']},
+                [ServiceType.ETHERFAX]: {hide: ['.twilio', '.etherfax-hide', '.signalwire'], show: ['.etherfax']},
+                [ServiceType.SIGNALWIRE]: {hide: ['.twilio', '.etherfax', '.rc-hide'], show: ['.signalwire']},
+            }[currentService] ?? {};
+            hide.forEach(s => $(s).hide());
+            show.forEach(s => $(s).show());
             if (serviceType == 'sms') {
                 $(".sms-hide").hide();
             }
@@ -100,7 +91,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             'modal_size_height' => 'full',
             'type' => 'email'
         ];
-        $GLOBALS['kernel']->getEventDispatcher()->dispatch(
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(
             new SendNotificationEvent($pid ?? 0, $param),
             SendNotificationEvent::JAVASCRIPT_READY_NOTIFICATION_POST
         );
@@ -156,10 +147,8 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                 console.log('Session restore failed!');
             }
             e.preventDefault();
-            let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/setup.php';
-            if (currentService === '1') {
-                url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/setup_rc.php';
-            }
+            let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/' +
+                (currentService === ServiceType.RINGCENTRAL ? 'setup_rc.php' : 'setup.php');
             let msg = <?php echo xlj('Credentials and Notifications') ?>;
             dlgopen('', 'setup', 'modal-md', 700, '', msg, {
                 buttons: [
@@ -516,14 +505,11 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                 e.stopPropagation();
             }
 
-            let actionUrl = (serviceType === 'fax') ? 'getPending?type=fax' : '';
-            if (serviceType === 'sms' && currentService == '1') { //RC
-                actionUrl = 'getPending?type=sms';
-            } else if (serviceType === 'sms') {
-                actionUrl = 'fetchSMSList?type=sms';
-            } else if (serviceType === 'email') {
-                actionUrl = 'fetchEmailList?type=email';
-            }
+            const actionUrl = {
+                fax: 'getPending?type=fax',
+                sms: currentService === ServiceType.RINGCENTRAL ? 'getPending?type=sms' : 'fetchSMSList?type=sms',
+                email: 'fetchEmailList?type=email',
+            }[serviceType] ?? '';
 
             const datefrom = $('#fromdate').val();
             const dateto = $('#todate').val();
@@ -768,7 +754,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
         Dropzone.autoDiscover = false;
         $(function () {
             var fileTypes = '';
-            if (currentService === '3') {
+            if (currentService === ServiceType.ETHERFAX) {
                 fileTypes = "application/pdf, image/*";
             }
             const faxQueue = new Dropzone("#faxQueue", {
@@ -914,7 +900,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                         <?php if ($serviceType == 'email') { ?>
                             <?php
                             $param = ['is_universal' => 1, 'type' => 'email'];
-                            $GLOBALS['kernel']->getEventDispatcher()->
+                            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->
                             dispatch(
                                 new SendNotificationEvent($pid ?? 0, $param),
                                 SendNotificationEvent::ACTIONS_RENDER_NOTIFICATION_POST

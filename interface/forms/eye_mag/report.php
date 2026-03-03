@@ -496,7 +496,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                 echo "<img src='" . $filetoshow . "' style='width:220px;'>";
                             }
                         }
-                    } catch (Exception $ex) {
+                    } catch (\Throwable $ex) {
                         echo "No patient photo " . $ex;
                     }
                 }

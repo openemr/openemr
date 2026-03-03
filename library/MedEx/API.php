@@ -900,7 +900,7 @@ class Events extends Base
                                 ORDER BY cal.pc_eventDate,cal.pc_startTime";
                 try {
                     $result = sqlStatement($sql_GOGREEN, $escapedArr);
-                } catch (\Exception) {
+                } catch (\Throwable) {
                     $this->MedEx->logging->log_this($sql_GOGREEN);
                     exit;
                 }
@@ -1472,7 +1472,7 @@ class Logging extends Base
             } else {
                 fwrite($std_log, "\nDATA= " . $data . "\n");
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             fwrite($std_log, $e->getMessage() . "\n");
         }
         fclose($std_log);

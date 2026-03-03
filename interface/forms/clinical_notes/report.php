@@ -4,7 +4,7 @@
  * Clinical Notes form report.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jacob T Paul <jacob@zhservices.com>
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -18,6 +18,7 @@
  */
 
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\ClinicalNotesService;
 
 require_once(__DIR__ . "/../../globals.php");
@@ -34,7 +35,7 @@ function clinical_notes_report($pid, $encounter, $cols, $id): void
         'notes' => $data
     ];
 
-    $twig = new TwigContainer(__DIR__, $GLOBALS['kernel']);
+    $twig = new TwigContainer(__DIR__, OEGlobalsBag::getInstance()->getKernel());
     $t = $twig->getTwig();
     echo $t->render('templates/report.html.twig', $viewArgs);
 }

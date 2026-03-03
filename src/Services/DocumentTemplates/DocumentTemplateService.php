@@ -72,7 +72,7 @@ class DocumentTemplateService extends QuestionnaireService
      *
      * @param int    $pid
      * @param string $category
-     * @param false  $is_portal
+     * @param bool  $is_portal
      * @return array
      */
     public function getPortalAssignedTemplates($pid = 0, $category = '', $is_portal = false): array
@@ -164,7 +164,7 @@ class DocumentTemplateService extends QuestionnaireService
                     }
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
         }
         return $results;
@@ -349,7 +349,7 @@ class DocumentTemplateService extends QuestionnaireService
                     $rtn = sqlInsert($sql, [$profile, $session->get('authUserID'), $group['group'] ?? '', $group['active']]);
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
         }
         sqlStatementNoLog('COMMIT');
@@ -371,7 +371,7 @@ class DocumentTemplateService extends QuestionnaireService
             foreach ($patients as $id => $groups) {
                 $rtn = sqlQuery('UPDATE `patient_data` SET `patient_groups` = ? WHERE `pid` = ?', [$groups, $id]);
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
         }
         sqlStatementNoLog('COMMIT');
@@ -380,7 +380,7 @@ class DocumentTemplateService extends QuestionnaireService
     }
 
     /**
-     * @param false $patients_only
+     * @param bool $patients_only
      * @return array|string[][]
      */
     public function fetchPortalAuthUsers($patients_only = false): array
@@ -653,7 +653,7 @@ class DocumentTemplateService extends QuestionnaireService
                     }
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
         }
         sqlStatementNoLog('COMMIT');
@@ -685,7 +685,7 @@ class DocumentTemplateService extends QuestionnaireService
                     $result = $this->insertTemplate($pid, $destination_category, $name, $content, $template['mime'], $profile);
                 }
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
         }
         sqlStatementNoLog('COMMIT');
@@ -760,7 +760,7 @@ class DocumentTemplateService extends QuestionnaireService
                         $form_data['recurring'] ? 1 : 0, $form_data['when'] ?? '', $form_data['days'] ?? '', $form_data['notify_when'] ?? '', $form_data['notify_days'] ?? '']
                 );
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
         }
         sqlStatementNoLog('COMMIT');

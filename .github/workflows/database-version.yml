@@ -1,0 +1,102 @@
+# Ensures v_database is aligned between version.php and sql/database.sql
+#
+# The v_database value must be:
+# 1. Declared in version.php as: $v_database = NNN;
+# 2. Declared in sql/database.sql header as: -- v_database: NNN
+# 3. Both values must match
+#
+# This prevents database migrations from being silently skipped on upgrades.
+name: Database Version Check
+
+on:
+  pull_request:
+    branches:
+    - master
+    - rel-*
+    paths:
+    - version.php
+    - sql/database.sql
+    - sql/patch.sql
+    - sql/*-to-*_upgrade.sql
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  check-v-database:
+    name: Check v_database alignment
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v6
+
+    - name: Setup PHP
+      uses: ./.github/actions/setup-php-composer
+      with:
+        php-version: '8.2'
+
+    - name: Check v_database alignment
+      run: |
+        # Extract v_database from version.php using AST parser
+        php_version=$(php bin/get-v-database.php version.php)
+
+        # Extract v_database from database.sql header comment
+        sql_version=$(awk '/^-- v_database:/ { print $3; exit }' sql/database.sql)
+
+        # Check if database.sql has the v_database comment
+        if [[ -z "$sql_version" ]]; then
+          {
+            echo '## ❌ Missing v_database in database.sql'
+            echo
+            echo 'The `sql/database.sql` file must declare the database version in its header:'
+            echo
+            echo '```sql'
+            echo '--'
+            echo '-- Database: `openemr`'
+            printf '%s\n' "-- v_database: $php_version"
+            echo '--'
+            echo '```'
+            echo
+            printf 'This should match the %s value in %s (currently %s).\n' '`$v_database`' '`version.php`' "$php_version"
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+        fi
+
+        # Check if versions match
+        if [[ "$php_version" != "$sql_version" ]]; then
+          {
+            echo '## ❌ v_database mismatch'
+            echo
+            echo 'The database version numbers do not match:'
+            echo
+            echo '| File | Value |'
+            echo '|------|-------|'
+            printf '| `version.php` | %s |\n' "$php_version"
+            printf '| `sql/database.sql` | %s |\n' "$sql_version"
+            echo
+            echo '### How to fix'
+            echo
+            echo 'Both files must have the same v_database value. Update whichever is incorrect:'
+            echo
+            echo '**version.php:**'
+            echo '```php'
+            printf '$v_database = %s;\n' "$php_version"
+            echo '```'
+            echo
+            echo '**sql/database.sql** (in header):'
+            echo '```sql'
+            printf '%s\n' "-- v_database: $php_version"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+        fi
+
+        {
+          echo '## ✅ v_database is aligned'
+          echo
+          printf 'Both `version.php` and `sql/database.sql` declare v_database = %s\n' "$php_version"
+        } >> "$GITHUB_STEP_SUMMARY"

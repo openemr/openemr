@@ -4,7 +4,7 @@
  * Testing script for the local/internal use of the api
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -24,9 +24,6 @@ use OpenEMR\Common\Http\HttpSessionFactory;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEHttpKernel;
-use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle;
-use OpenEMR\RestControllers\FHIR\Finder\FhirRouteFinder;
 use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\RestControllers\FacilityRestController;
@@ -128,7 +125,7 @@ try {
     echo "<b>api via route handler call returning json:</b><br />";
     $contents = $response->getBody()->getContents();
     echo $contents;
-} catch (\Exception $e) {
+} catch (\Throwable $e) {
     echo "<b>api via route handler call returned error:</b><br />";
     echo "Error Message: " . $e->getMessage() . "<br />";
 }

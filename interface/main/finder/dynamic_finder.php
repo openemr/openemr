@@ -6,7 +6,7 @@
  * Sponsored by David Eschelbacher, MD
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -20,10 +20,10 @@ require_once(__DIR__ . "/../../globals.php");
 require_once "$srcdir/user.inc.php";
 require_once "$srcdir/options.inc.php";
 
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
 use OpenEMR\Menu\BaseMenuItem;
 use OpenEMR\OeUI\OemrUI;
@@ -356,7 +356,7 @@ $loading = "";
 </script>
 <?php
     /** @var EventDispatcher */
-    $eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+    $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     $arrOeUiSettings = [
     'heading_title' => xl('Patient Finder'),
     'include_patient_name' => false,
@@ -469,7 +469,7 @@ $templateVars = [
     'rp' => $rp['rp'],
 ];
 
-$twig = new TwigContainer(null, $GLOBALS['kernel']);
+$twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
 $t = $twig->getTwig();
 echo $t->render('patient_finder/finder.html.twig', $templateVars);
 

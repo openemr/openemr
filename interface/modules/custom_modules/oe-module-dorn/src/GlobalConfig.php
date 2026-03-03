@@ -3,7 +3,7 @@
 /**
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022-2025 Brad Sharp <brad.sharp@claimrev.com>
@@ -87,23 +87,6 @@ class GlobalConfig
     public function getApiServer()
     {
         return $this->getGlobalSetting(self::CONFIG_OPTION_API_URL);
-    }
-
-
-    public function getTextOption()
-    {
-        return $this->getGlobalSetting(self::CONFIG_OPTION_TEXT);
-    }
-
-    /**
-     * Returns our decrypted value if we have one, or false if the value could not be decrypted or is empty.
-     *
-     * @return bool|string
-     */
-    public function getEncryptedOption()
-    {
-        $encryptedValue = $this->getGlobalSetting(self::CONFIG_OPTION_ENCRYPTED);
-        return $this->cryptoGen->decryptStandard($encryptedValue);
     }
 
     public function getGlobalSetting($settingKey)

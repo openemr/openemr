@@ -4,13 +4,16 @@
  * Front payment gui.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@open-emr.org>
+ * @author    Meghana Chowdary Ainampudi <33152427+ameghana@users.noreply.github.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2006-2020 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2024 Stephen Waite <stephen.waite@open-emr.org>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -23,6 +26,7 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
 
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -35,7 +39,6 @@ use OpenEMR\OeUI\OemrUI;
 use OpenEMR\PaymentProcessing\Recorder;
 use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 use OpenEMR\Services\FacilityService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -44,14 +47,12 @@ $twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
 
 if (!empty($_REQUEST['receipt']) && empty($_POST['form_save'])) {
     if (!AclMain::aclCheckCore('acct', 'bill') && !AclMain::aclCheckCore('acct', 'rep_a') && !AclMain::aclCheckCore('patients', 'rx')) {
-        echo $twig->render('core/unauthorized.html.twig', ['pageTitle' => xl("Receipt for Payment")]);
-        exit;
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/rep_a or patients/rx: Receipt for Payment", xl("Receipt for Payment"));
     }
 } else {
     if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
         $pageTitle = !empty($_POST['form_save']) ? xl("Receipt for Payment") : xl("Record Payment");
-        echo $twig->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
-        exit;
+        AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill/write: " . $pageTitle, $pageTitle);
     }
 }
 
@@ -78,40 +79,6 @@ $recorder = new Recorder();
     <?php } ?>
 <?php
 
-// Compute taxes from a tax rate string and a possibly taxable amount.
-//
-function calcTaxes($row, $amount)
-{
-    $total = 0;
-    if (empty($row['taxrates'])) {
-        return $total;
-    }
-
-    $arates = explode(':', (string) $row['taxrates']);
-    if (empty($arates)) {
-        return $total;
-    }
-
-    foreach ($arates as $value) {
-        if (empty($value)) {
-            continue;
-        }
-
-        $trow = sqlQuery("SELECT option_value FROM list_options WHERE " .
-                "list_id = 'taxrate' AND option_id = ? AND activity = 1 LIMIT 1", [$value]);
-        if (empty($trow['option_value'])) {
-            echo "<!-- Missing tax rate '" . text($value) . "'! -->\n";
-            continue;
-        }
-
-        $tax = sprintf("%01.2f", $amount * $trow['option_value']);
-        // echo "<!-- Rate = '$value', amount = '$amount', tax = '$tax' -->\n";
-        $total += $tax;
-    }
-
-    return $total;
-}
-
 $now = time();
 $today = date('Y-m-d', $now);
 $timestamp = date('Y-m-d H:i:s', $now);
@@ -136,16 +103,24 @@ if (!empty($_POST['form_save'])) {
     $form_pid = $_POST['form_pid'];
     $form_method = trim((string) $_POST['form_method']);
     $form_source = trim($_POST['form_source'] ?? ''); // check number not always entered
-    $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
-    $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
 
-    //Update the invoice_refno
-    sqlStatement(
-        "update form_encounter set invoice_refno=? where encounter=? and pid=? ",
-        [$invoice_refno, $encounter, $form_pid]
-    );
+    // Server-side validation: require check/reference number for check and bank draft payments
+    if (($form_method === 'check_payment' || $form_method === 'bank_draft') && $form_source === '') {
+        $alertmsg = xl('Check or Reference Number is required for this payment method.');
+    }
 
-    if ($_REQUEST['radio_type_of_payment'] == 'pre_payment') {
+    if ($alertmsg === '') {
+        $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
+        $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
+
+        //Update the invoice_refno
+        sqlStatement(
+            "update form_encounter set invoice_refno=? where encounter=? and pid=? ",
+            [$invoice_refno, $encounter, $form_pid]
+        );
+    }
+
+    if ($alertmsg === '' && $_REQUEST['radio_type_of_payment'] == 'pre_payment') {
             $payment_id = sqlInsert(
                 "insert into ar_session set " .
                 "payer_id = ?" .
@@ -166,7 +141,7 @@ if (!empty($_POST['form_save'])) {
          frontPayment($form_pid, 0, $form_method, $form_source, $_REQUEST['form_prepayment'], 0, $timestamp);//insertion to 'payments' table.
     }
 
-    if ($_POST['form_upay'] && $_REQUEST['radio_type_of_payment'] != 'pre_payment') {
+    if ($alertmsg === '' && $_POST['form_upay'] && $_REQUEST['radio_type_of_payment'] != 'pre_payment') {
         foreach ($_POST['form_upay'] as $enc => $payment) {
             $payment = floatval($payment);
             if ($amount = $payment) {
@@ -348,17 +323,15 @@ if (!empty($_POST['form_save'])) {
     }//if ($_POST['form_upay'])
 }//if ($_POST['form_save'])
 
-if (!empty($_POST['form_save']) || !empty($_REQUEST['receipt'])) {
+if ($alertmsg === '' && (!empty($_POST['form_save']) || !empty($_REQUEST['receipt']))) {
     if (!empty($_REQUEST['receipt'])) {
         $form_pid = $_GET['patient'];
         $timestamp = decorateString('....-..-.. ..:..:..', $_GET['time']);
+        $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
     }
 
     // Get details for what we guess is the primary facility.
     $frow = $facilityService->getPrimaryBusinessEntity(["useLegacyImplementation" => true]);
-
-    // Get the patient's name and chart number.
-    $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
 
     // Re-fetch payment info.
     $payrow = sqlQuery("SELECT " .
@@ -488,7 +461,8 @@ function toencounter(enc, datestr, topframe) {
         width: 100%;
     }
     table.mini_table>tbody>tr>th {
-        background-color: var(--secondary);
+        background-color: var(--light);
+        color: var(--dark);
         text-align: center;
     }
     body>table.mini_table>tbody>tr>td {
@@ -498,16 +472,18 @@ function toencounter(enc, datestr, topframe) {
         border: 1px solid #fff;
     }
     body>table.mini_table>tbody>tr>th {
-        border: 1px solid var(--secondary);
+        border: 1px solid var(--light);
     }
     .bg-color {
-        background-color: var(--secondary);
+        background-color: var(--light);
+        color: var(--dark);
         padding: 2px;
         font-weight: 600;
         -webkit-print-color-adjust: exact;
     }
     .bg-color-w {
-        background-color: var(--secondary);
+        background-color: var(--light);
+        color: var(--dark);
         font-weight: 600;
         -webkit-print-color-adjust: exact!important; }
     @media print {
@@ -516,11 +492,13 @@ function toencounter(enc, datestr, topframe) {
         }
 
         tr.bg-color-w{
-            background-color: var(--secondary)!important;
+            background-color: var(--light)!important;
+            color: var(--dark)!important;
             -webkit-print-color-adjust: exact;
         }
         tr.bg-color{
-            background-color: var(--secondary) !important;
+            background-color: var(--light) !important;
+            color: var(--dark)!important;
             -webkit-print-color-adjust: exact;
         }
     }
@@ -1080,6 +1058,13 @@ function make_insurance() {
     ];
     $oemr_ui = new OemrUI($arrOeUiSettings);
     ?>
+    <?php if ($alertmsg !== '') { ?>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        alert(<?php echo js_escape($alertmsg); ?>);
+    });
+    </script>
+    <?php } ?>
 </head>
 <body>
     <div class="container mt-3"><!--begin container div for form-->
@@ -1875,5 +1860,5 @@ function make_insurance() {
 } // forms else close
 ?>
 </body>
-<?php $GLOBALS['kernel']->getEventDispatcher()->dispatch(new PostFrontPayment(), PostFrontPayment::ACTION_POST_FRONT_PAYMENT, 10); ?>
+<?php OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new PostFrontPayment(), PostFrontPayment::ACTION_POST_FRONT_PAYMENT); ?>
 </html>

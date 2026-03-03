@@ -8,7 +8,7 @@
  * <http://www.nucc.org/index.php?option=com_content&view=article&id=186&Itemid=138>
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>

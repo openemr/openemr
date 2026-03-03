@@ -4,7 +4,7 @@
  * Patient Service
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Victor Kofia <victor.kofia@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -18,8 +18,8 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryPagination;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\ORDataObject\Address;
+use OpenEMR\Common\Database\TableTypes;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\ORDataObject\ContactAddress;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -34,10 +34,12 @@ use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
-use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\PatientValidator;
 use OpenEMR\Validators\ProcessingResult;
 
+/**
+ * @phpstan-import-type PatientDataRow from TableTypes
+ */
 class PatientService extends BaseService
 {
     public const TABLE_NAME = 'patient_data';
@@ -103,7 +105,7 @@ class PatientService extends BaseService
      * TODO: This should go in the ChartTrackerService and doesn't have to be static.
      *
      * @param  $pid unique patient id
-     * @return recordset
+     * @return \ADORecordSet
      */
     public static function getChartTrackerInformationActivity($pid)
     {
@@ -124,7 +126,7 @@ class PatientService extends BaseService
     /**
      * TODO: This should go in the ChartTrackerService and doesn't have to be static.
      *
-     * @return recordset
+     * @return \ADORecordSet
      */
     public static function getChartTrackerInformation()
     {
@@ -182,7 +184,7 @@ class PatientService extends BaseService
 
         // Before a patient is inserted, fire the "before patient created" event so listeners can do extra processing
         $beforePatientCreatedEvent = new BeforePatientCreatedEvent($data);
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($beforePatientCreatedEvent, BeforePatientCreatedEvent::EVENT_HANDLE, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($beforePatientCreatedEvent, BeforePatientCreatedEvent::EVENT_HANDLE);
         $data = $beforePatientCreatedEvent->getPatientData();
 
         $query = $this->buildInsertColumns($data);
@@ -194,7 +196,7 @@ class PatientService extends BaseService
 
         // Tell subscribers that a new patient has been created
         $patientCreatedEvent = new PatientCreatedEvent($data);
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientCreatedEvent, PatientCreatedEvent::EVENT_HANDLE, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientCreatedEvent, PatientCreatedEvent::EVENT_HANDLE);
 
         // If we have a result-set from our insert, return the PID,
         // otherwise return false
@@ -248,7 +250,9 @@ class PatientService extends BaseService
     {
         $session = SessionWrapperFactory::getInstance()->getWrapper();
         // Get the data before update to send to the event listener
-        $dataBeforeUpdate = $this->findByPid($data['pid']);
+        /** @var int $pid */
+        $pid = $data['pid'];
+        $dataBeforeUpdate = $this->findByPid($pid);
 
         // The `date` column is treated as an updated_date
         $data['date'] = date("Y-m-d H:i:s");
@@ -259,7 +263,7 @@ class PatientService extends BaseService
 
         // Fire the "before patient updated" event so listeners can do extra processing before data is updated
         $beforePatientUpdatedEvent = new BeforePatientUpdatedEvent($data);
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($beforePatientUpdatedEvent, BeforePatientUpdatedEvent::EVENT_HANDLE, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($beforePatientUpdatedEvent, BeforePatientUpdatedEvent::EVENT_HANDLE);
         $data = $beforePatientUpdatedEvent->getPatientData();
 
         $query = $this->buildUpdateColumns($data);
@@ -273,7 +277,7 @@ class PatientService extends BaseService
         if ($sqlResult) {
             // Tell subscribers that a new patient has been updated
             $patientUpdatedEvent = new PatientUpdatedEvent($dataBeforeUpdate, $data);
-            $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE, 10);
+            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE);
 
             return $data;
         } else {
@@ -305,7 +309,7 @@ class PatientService extends BaseService
 
         // Fire the "before patient updated" event so listeners can do extra processing before data is updated
         $beforePatientUpdatedEvent = new BeforePatientUpdatedEvent($data);
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch($beforePatientUpdatedEvent, BeforePatientUpdatedEvent::EVENT_HANDLE, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($beforePatientUpdatedEvent, BeforePatientUpdatedEvent::EVENT_HANDLE);
         $data = $beforePatientUpdatedEvent->getPatientData();
 
         $query = $this->buildUpdateColumns($data);
@@ -336,11 +340,15 @@ class PatientService extends BaseService
                 $originalData['uuid'] = UuidRegistry::uuidToBytes($originalData['uuid']);
             }
             $patientUpdatedEvent = new PatientUpdatedEvent($originalData, $processingResult->getData());
-            $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE, 10);
+            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE);
         }
         return $processingResult;
     }
 
+    /**
+     * @param array<string, mixed> $record
+     * @return array<string, mixed>
+     */
     protected function createResultRecordFromDatabaseResult($record)
     {
         if (!empty($record['uuid'])) {
@@ -630,11 +638,13 @@ class PatientService extends BaseService
     /**
      * Given a pid, find the patient record
      *
-     * @param $pid
+     * @param int $pid
+     * @return PatientDataRow
      */
     public function findByPid($pid)
     {
         $table = PatientService::TABLE_NAME;
+        /** @var PatientDataRow $patientRow */
         $patientRow = self::selectHelper("SELECT * FROM `$table`", [
             'where' => 'WHERE pid = ?',
             'limit' => 1,
@@ -690,8 +700,8 @@ class PatientService extends BaseService
     /**
      * Returns a string to be used to display a patient's age
      *
-     * @param type $dobYMD
-     * @param type $asOfYMD
+     * @param string $dobYMD
+     * @param ?string $asOfYMD
      * @return string suitable for displaying patient's age based on preferences
      */
     public function getPatientAgeDisplay($dobYMD, $asOfYMD = null)
@@ -762,9 +772,8 @@ class PatientService extends BaseService
 
 
     /**
-     *
-     * @param type $dob
-     * @param type $date
+     * @param string $dob
+     * @param ?string $date
      * @return array containing
      *      age - decimal age in years
      *      age_in_months - decimal age in months
@@ -779,6 +788,7 @@ class PatientService extends BaseService
             $datenow = $yearnow . $monthnow . $daynow;
         } else {
             $datenow = preg_replace("/-/", "", $date);
+            assert(is_string($datenow));
             $yearnow = substr($datenow, 0, 4);
             $monthnow = substr($datenow, 4, 2);
             $daynow = substr($datenow, 6, 2);
@@ -786,6 +796,7 @@ class PatientService extends BaseService
         }
 
         $dob = preg_replace("/-/", "", $dob);
+        assert(is_string($dob));
         $dobyear = substr($dob, 0, 4);
         $dobmonth = substr($dob, 4, 2);
         $dobday = substr($dob, 6, 2);

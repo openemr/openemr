@@ -6,9 +6,6 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointSystem;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointUse;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
@@ -41,7 +38,7 @@ use OpenEMR\Validators\ProcessingResult;
  * FHIR Patient Service
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Dixon Whitmire <dixonwh@gmail.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
@@ -434,7 +431,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
 
         if (!empty($race)) {
             $record = $this->getCachedListOption('race', $race);
-            if ($race === 'declne_to_specfy') { // TODO: we should rename this misspelled value in the database
+            if ($race === 'decline_to_specify' || $race === 'declne_to_specfy') {
                 // @see https://www.hl7.org/fhir/us/core/ValueSet-omb-race-category.html
                 $code = "ASKU";
                 $display = xlt("Asked but no answer");
@@ -474,7 +471,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
             if (!empty($record)) {
                 $textExtension->setValueString($record['title']);
                 // the only possible options for ombCategory are hispanic or not hispanic
-                if ($record['option_id'] != 'declne_to_specfy') {
+                if ($record['option_id'] != 'decline_to_specify' && $record['option_id'] != 'declne_to_specfy') {
                     $coding = new FHIRCoding();
                     $coding->setSystem(new FHIRUri("http://terminology.hl7.org/CodeSystem/v3-Ethnicity"));
                     $coding->setCode($record['notes']);
@@ -590,7 +587,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         }
     }
 
-    protected function parseOpenEMRGenderIdentity(FhirPatient $patientResource, array $dataRecord): void
+    protected function parseOpenEMRGenderIdentity(FHIRPatient $patientResource, array $dataRecord): void
     {
         if (!empty($dataRecord['gender_identity'])) {
             $genderIdentityExtension = new FHIRExtension();

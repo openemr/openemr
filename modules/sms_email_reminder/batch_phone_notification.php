@@ -47,7 +47,7 @@ $phone_token = $cryptoGen->decryptStandard($GLOBALS['phone_gateway_password']);
 $phone_time_range = $GLOBALS['phone_time_range'];
 
 //get the facility_id-message map
-$facilities = cron_getFacilitiesMap();
+$facilities = cron_getFacilitiesMap($facilityService);
 //print_r($facilities);
 $fac_phone_map = $facilities['phone_map'];
 $fac_msg_map = $facilities['msg_map'];
@@ -100,46 +100,19 @@ for ($p = 0; $p < count($db_patient); $p++) {
         $strMsg = "\n========================" . $type . " || " . date("Y-m-d H:i:s") . "=========================";
         $strMsg .= "\nPhone reminder sent successfully: {$prow['fname']} | {$prow['lname']} |	| {$prow['phone_home']} | {$appt_date} | {$appt_time} ";
         // insert entry in notification_log table
-        cron_InsertNotificationLogEntry($prow, $greeting, $phone_url);
+        cron_InsertNotificationLogEntrySmsEmail($prow, $greeting, $phone_url);
 
     //update entry >> pc_sendalertsms='Yes'
         cron_updateentry($type, $prow['pid'], $prow['pc_eid']);
     }
 
     //echo $strMsg;
-    WriteLog($strMsg);
+    sms_reminder_WriteLog($strMsg);
 }
 
 sqlClose();
 
-////////////////////////////////////////////////////////////////////
-// Function:    cron_updateentry
-// Purpose: update status yes if alert send to patient
-////////////////////////////////////////////////////////////////////
-function cron_updateentry($type, $pid, $pc_eid): void
-{
-
-    $query = "update openemr_postcalendar_events set ";
-
-    // larry :: and here again same story - this time for sms pc_sendalertsms - no such field in the table
-    if ($type == 'SMS') {
-        $query .= " pc_sendalertsms='YES' ";
-    } elseif ($type == 'Email') {
-        $query .= " pc_sendalertemail='YES' ";
-    } elseif ($type == 'Phone') { // Added by Yijin for phone reminder.. Uses the same field as SMS.
-        $query .= " pc_sendalertsms='YES' ";
-    }
-
-    $query .= " where pc_pid=? and pc_eid=? ";
-    // echo "<br />".$query;
-    $db_sql = (sqlStatement($query, [$pid, $pc_eid]));
-}
-
-////////////////////////////////////////////////////////////////////
-// Function:    cron_InsertNotificationLogEntry
-// Purpose: insert log entry in table
-////////////////////////////////////////////////////////////////////
-function cron_InsertNotificationLogEntry($prow, $phone_msg, $phone_gateway): void
+function cron_InsertNotificationLogEntrySmsEmail($prow, $phone_msg, $phone_gateway): void
 {
     $patient_info = $prow['title'] . " " . $prow['fname'] . " " . $prow['mname'] . " " . $prow['lname'] . "|||" . $prow['phone_home'];
 
@@ -150,11 +123,12 @@ function cron_InsertNotificationLogEntry($prow, $phone_msg, $phone_gateway): voi
     $db_loginsert = ( sqlStatement($sql_loginsert, [$prow['pid'], $prow['pc_eid'], $message, $patient_info, $phone_gateway, $prow['pc_eventDate'], $prow['pc_endDate'], $prow['pc_startTime'], $prow['pc_endTime'], date("Y-m-d H:i:s")]));
 }
 
-////////////////////////////////////////////////////////////////////
-// Function:    WriteLog
-// Purpose: written log into file
-////////////////////////////////////////////////////////////////////
-function WriteLog($data): void
+/**
+ * Write log into file.
+ *
+ * @param string $data
+ */
+function sms_reminder_WriteLog($data): void
 {
     $log_file = $GLOBALS['phone_reminder_log_dir'];
 
@@ -173,31 +147,4 @@ function WriteLog($data): void
             fclose($fp);
         }
     }
-}
-////////////////////////////////////////////////////////////////////
-// Function:    cron_getFacilities
-// Purpose: get facilities data once and store in map
-////////////////////////////////////////////////////////////////////
-function cron_getFacilitiesMap()
-{
-    global $facilityService;
-
-    //get the facility_name-message map from Globals
-    $message_map = $GLOBALS['phone_appt_message'];
-    //create a new array to store facility_id to message map
-    $facility_msg_map = [];
-    $facility_phone_map = [];
-    //get facilities from the database
-    $fres = $facilityService->getAllFacility();
-    foreach ($fres as $frow) {
-        $facility_msg_map[$frow['id']] = $message_map[$frow['name']];
-        $facility_phone_map[$frow['id']] = $frow['phone'];
-    }
-
-    $facility_map = [
-      'msg_map' => $facility_msg_map,
-      'phone_map' => $facility_phone_map
-    ];
-
-    return $facility_map;
 }

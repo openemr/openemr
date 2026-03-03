@@ -150,9 +150,9 @@
     "sex": "Male",
     "status": "single",
     "drivers_license": "45678910923",
-    "race": "declne_to_specfy",
+    "race": "decline_to_specify",
     "ethnicity": "hisp_or_latin",
-    "language": "declne_to_specfy",
+    "language": "decline_to_specify",
     "deceased_date": null
   },
   {
@@ -334,7 +334,7 @@
     "drivers_license": "12943276589",
     "race": "black_or_afri_amer",
     "ethnicity": "not_hisp_or_latin",
-    "language": "declne_to_specfy",
+    "language": "decline_to_specify",
     "deceased_date": null
   }
 ]

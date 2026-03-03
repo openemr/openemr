@@ -16,13 +16,11 @@
  *
  * @package OpenEMR
  * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 namespace PrescriptionTemplates\Controller;
 
-use Interop\Container\ContainerInterface;
-use Laminas\View\Model\ViewModel;
 
 /**
  * Class HtmlTemplatesController

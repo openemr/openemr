@@ -3,7 +3,7 @@
  * TokenIntrospectionRestController.php  handles OAuth2 token introspection requests as per RFC 7662 and SMART on FHIR v2.2 specifications.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
@@ -38,7 +38,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Exception;
 
 class TokenIntrospectionRestController {
 
@@ -441,7 +440,7 @@ class TokenIntrospectionRestController {
                 $result['exp'] = $result['exp']->getTimestamp();
             }
         }
-        catch (Exception $exception) {
+        catch (\Throwable $exception) {
             // something else went wrong
             $this->getSystemLogger()->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'client_id' => $clientId]);
             // something else went wrong

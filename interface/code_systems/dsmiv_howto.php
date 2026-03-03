@@ -19,7 +19,7 @@
  * @package OpenEMR
  * @author  (Mac) Kevin McAloon <mcaloon@patienthealthcareanalytics.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 require_once("../../interface/globals.php");

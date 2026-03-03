@@ -4,7 +4,7 @@
  * Display, enter, modify and manage patient notes.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,12 +16,14 @@ require_once($GLOBALS['srcdir'] . '/patient.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
 require_once($GLOBALS['srcdir'] . '/gprelations.inc.php');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\UserService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -50,12 +52,12 @@ if ($docid) {
 
 // Check authorization.
 if (!AclMain::aclCheckCore('patients', 'notes', '', ['write','addonly'])) {
-    die(xlt('Not authorized'));
+    AccessDeniedHelper::deny('Unauthorized access to patient notes');
 }
 
 $tmp = getPatientData($patient_id, "squad");
 if ($tmp['squad'] && ! AclMain::aclCheckCore('squads', $tmp['squad'])) {
-    die(xlt('Not authorized for this squad.'));
+    AccessDeniedHelper::deny('Not authorized for squad: ' . $tmp['squad']);
 }
 
 //the number of records to display per screen
@@ -518,7 +520,7 @@ function restoreSession() {
                                 echo getListItemTitle("message_status", $iter['message_status']);
                                 echo "  </td>\n";
                                 echo "  <td class='notecell'>";
-                                echo text(oeFormatDateTime($iter['update_date']));
+                                echo text(DateFormatterUtils::oeFormatDateTime($iter['update_date']));
                                 echo "  </td>\n";
                                 echo "  <td class='notecell'>";
                                 $updateBy = $userService->getUser($iter['update_by']);

@@ -6,7 +6,7 @@
  * TODO: @adunsulag we should twigify this file.
  *
  * @package OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Kevin Yeh <kevin.y@integralemr.com>
@@ -26,7 +26,6 @@
 use OpenEMR\Core\Header;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\FHIR\Config\ServerConfig;
-use OpenEMR\RestControllers\AuthorizationController;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Services\DecisionSupportInterventionService;
 

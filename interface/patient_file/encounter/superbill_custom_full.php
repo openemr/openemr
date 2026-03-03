@@ -4,7 +4,7 @@
  * Provides manual administration of codes
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -20,12 +20,12 @@ require_once("../../globals.php");
 require_once("../../../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Common\Utils\PaginationUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
@@ -35,8 +35,7 @@ $thisauthview = AclMain::aclCheckCore('admin', 'superbill', false, 'view');
 $thisauthwrite = AclMain::aclCheckCore('admin', 'superbill', false, 'write');
 
 if (!($thisauthwrite || $thisauthview)) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Codes")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/superbill: Codes", xl("Codes"));
 }
 // For revenue codes
 $institutional = $GLOBALS['ub04_support'] == "1" ? true : false;

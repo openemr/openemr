@@ -4,7 +4,7 @@
  * Open websearch for patient education materials
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Tony McCormick <tony@mi-squared.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>

@@ -62,7 +62,7 @@ class PatientData implements InputFilterAwareInterface
 'race', 'varchar(255)', 'NO', '', '', ''
 'ethnicity', 'varchar(255)', 'NO', '', '', ''
 'religion', 'varchar(40)', 'NO', '', '', ''
-'interpretter', 'varchar(255)', 'NO', '', '', ''
+'interpreter', 'varchar(255)', 'NO', '', '', ''
 'migrantseasonal', 'varchar(255)', 'NO', '', '', ''
 'family_size', 'varchar(255)', 'NO', '', '', ''
 'monthly_income', 'varchar(255)', 'NO', '', '', ''

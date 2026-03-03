@@ -24,7 +24,7 @@
  * @license http://www.gnu.org/licenses/licenses.html#GPL GNU GPL V3+
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2013-2021 Rod Roark <rod@sunsetsystems.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 // Get a list item's title, translated if appropriate.

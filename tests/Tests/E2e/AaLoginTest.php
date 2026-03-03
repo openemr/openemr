@@ -23,14 +23,12 @@ use OpenEMR\Tests\E2e\Login\LoginTestData;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use PHPUnit\Framework\Attributes\Test;
 use Symfony\Component\Panther\PantherTestCase;
-use Symfony\Component\Panther\Client;
 
 class AaLoginTest extends PantherTestCase
 {
     use BaseTrait;
     use LoginTrait;
 
-    private $client;
     private $crawler;
 
     #[Test]

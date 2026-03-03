@@ -18,7 +18,7 @@ use Particle\Validator\Validator;
  * Supports Insurance Coverage Record Validation.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Vishnu Yarmaneni <vardhanvishnu@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2021 Vishnu Yarmaneni <vardhanvishnu@gmail.com>

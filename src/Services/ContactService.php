@@ -5,7 +5,7 @@
  * Manages Contact entities with a 1:1 relationship to foreign entities
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -14,7 +14,6 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\ORDataObject\Contact;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\BaseService;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Validators\ProcessingResult;
 
 class ContactService extends BaseService
@@ -139,7 +138,7 @@ class ContactService extends BaseService
 
             $this->getLogger()->info("Contact deleted", ['id' => $contactId]);
             $processingResult->addData(['deleted' => true, 'id' => $contactId]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error deleting contact", [
                 'id' => $contactId,
                 'error' => $e->getMessage()
@@ -243,7 +242,7 @@ class ContactService extends BaseService
             ]);
 
             $processingResult->addData($contact->toArray());
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error transferring contact", ['error' => $e->getMessage()]);
             $processingResult->addProcessingError($e->getMessage());
         }
@@ -293,7 +292,7 @@ class ContactService extends BaseService
                 'source_id' => $sourceContactId,
                 'target_id' => $targetContactId
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error merging contacts", ['error' => $e->getMessage()]);
             $processingResult->addProcessingError($e->getMessage());
         }
@@ -402,7 +401,7 @@ class ContactService extends BaseService
                     'deleted_count' => $deletedCount
                 ]);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error cleaning up orphaned contacts", ['error' => $e->getMessage()]);
             $processingResult->addProcessingError($e->getMessage());
         }

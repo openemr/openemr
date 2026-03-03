@@ -18,11 +18,16 @@
  *
  * @package OpenEMR
  * @author  Garden State Health Systems <http://www.gshsys.com/>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
     $result = getProcedureData();
     $row = sqlFetchArray($result);
+
+/**
+ * @var \DOMDocument $ccr (created in createCCR.php)
+ * @var \DOMDocument $e_Procedures (created in createCCR.php)
+ */
 
 do {
     $e_Procedure = $ccr->createElement('Procedure');

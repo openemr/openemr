@@ -4,7 +4,7 @@
  * FhirEncounterService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Vishnu Yarmaneni <vardhanvishnu@gmail.com>
@@ -20,7 +20,6 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use DateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIREncounter\FHIREncounterHospitalization;

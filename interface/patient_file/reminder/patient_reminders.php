@@ -4,7 +4,7 @@
  * patient reminders gui
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ensofttek, LLC
  * @copyright Copyright (c) 2011-2019 Brady Miller <brady.g.miller@gmail.com>
@@ -18,10 +18,10 @@ require_once("$srcdir/reminders.php");
 require_once("$srcdir/clinical_rules.php");
 require_once "$srcdir/report_database.inc.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\OeUI\OemrUI;
 
 $thisauth = true;
@@ -32,8 +32,7 @@ if (($_GET['mode'] != 'admin') && !AclMain::aclCheckCore('patients', 'reminder',
     $thisauth = false;
 }
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Patient Reminders")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super or patients/reminder: Patient Reminders", xl("Patient Reminders"));
 }
 
 ?>

@@ -27,6 +27,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/newpatient/C_EncounterVisitForm.class.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$patient in empty\\(\\) always exists and is not falsy\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/newpatient/save.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$formid in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/save.php',
@@ -37,39 +42,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/add_edit_event.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$pcTemplate in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_filter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$pcTemplate in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_view_select.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$newnam in empty\\(\\) is never defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$pc_category in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$pc_topic in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$s_category in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$s_topic in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$sqlKeywords in empty\\(\\) always exists and is not falsy\\.$#',
@@ -77,24 +52,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$submit in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$category in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$pc_username in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$topic in empty\\(\\) always exists and is not falsy\\.$#',
+    'message' => '#^Variable \\$patientArray in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+    'path' => __DIR__ . '/../../interface/main/finder/document_select.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$where in empty\\(\\) always exists and is not falsy\\.$#',
@@ -115,6 +80,26 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$enc_list in empty\\(\\) always exists and is always falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/messages/templates/linked_documents.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$patient in empty\\(\\) always exists and is not falsy\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/messages/trusted-messages-ajax.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$patientArray in empty\\(\\) always exists and is not falsy\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/messages/trusted-messages.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$patient in empty\\(\\) always exists and is not falsy\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleconferenceRoomController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$relatedPatient in empty\\(\\) always exists and is not falsy\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Repository/TeleHealthSessionRepository.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$setup in empty\\(\\) always exists and is not falsy\\.$#',
@@ -152,6 +137,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/WenoValidate.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$patientRecord in empty\\(\\) always exists and is not falsy\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaServiceRequestModelGenerator.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$details in empty\\(\\) always exists and is always falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
@@ -163,6 +153,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$getprovider in empty\\(\\) always exists and is always falsy\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$patient in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
@@ -189,17 +184,7 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Variable \\$arates in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/front_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$arates in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_ippf.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$arates in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/pos_checkout_normal.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$arr_report in empty\\(\\) always exists and is always falsy\\.$#',
@@ -262,6 +247,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/contraception_billing_scan.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$arates in empty\\(\\) always exists and is not falsy\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$encounterResult in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/options.inc.php',
@@ -305,11 +295,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$owner in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/messaging/handle_note.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$arates in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/portal_payment.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$config in empty\\(\\) always exists and is always falsy\\.$#',

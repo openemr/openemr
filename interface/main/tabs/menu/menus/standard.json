@@ -1183,32 +1183,6 @@
         ]
       },
       {
-        "label": "De Identification",
-        "menu_id": "adm0",
-        "target": "adm",
-        "url": "/interface/de_identification_forms/de_identification_screen1.php",
-        "children": [],
-        "requirement": 0,
-        "acl_req": [
-          "admin",
-          "super"
-        ],
-        "global_req": "include_de_identification"
-      },
-      {
-        "label": "Re Identification",
-        "menu_id": "adm0",
-        "target": "adm",
-        "url": "/interface/de_identification_forms/re_identification_input_screen.php",
-        "children": [],
-        "requirement": 0,
-        "acl_req": [
-          "admin",
-          "super"
-        ],
-        "global_req": "include_de_identification"
-      },
-      {
         "label": "Export",
         "menu_id": "adm0",
         "target": "adm",

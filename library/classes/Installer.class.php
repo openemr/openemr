@@ -16,7 +16,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\DatabaseConnectionFactory;
+use OpenEMR\BC\DatabaseConnectionOptions;
 use OpenEMR\Gacl\GaclApi;
+use Psr\Log\LoggerInterface;
 
 class Installer
 {
@@ -60,8 +63,9 @@ class Installer
      * Initialize the Installer with configuration variables.
      *
      * @param array $cgi_variables Configuration array containing installation parameters
+     * @param LoggerInterface $logger Logger instance for error reporting
      */
-    public function __construct(array $cgi_variables)
+    public function __construct(array $cgi_variables, private readonly LoggerInterface $logger)
     {
         // Installation variables
         // For a good explanation of these variables, see documentation in
@@ -722,14 +726,11 @@ class Installer
         $it_died = 0;   //fmg: variable keeps running track of any errors
 
         $this->writeToFile($fd, $string) or $it_died++;
-        $this->writeToFile($fd, "global \$disable_utf8_flag;\n") or $it_died++;
-        $this->writeToFile($fd, "\$disable_utf8_flag = false;\n\n") or $it_died++;
         $this->writeToFile($fd, "\$host\t= '$this->server';\n") or $it_died++;
         $this->writeToFile($fd, "\$port\t= '$this->port';\n") or $it_died++;
         $this->writeToFile($fd, "\$login\t= '$this->login';\n") or $it_died++;
         $this->writeToFile($fd, "\$pass\t= '$this->pass';\n") or $it_died++;
         $this->writeToFile($fd, "\$dbase\t= '$this->dbname';\n") or $it_died++;
-        $this->writeToFile($fd, "\$db_encoding\t= 'utf8mb4';\n") or $it_died++;
 
         $string = '
 $sqlconf = array();
@@ -739,7 +740,6 @@ $sqlconf["port"] = $port;
 $sqlconf["login"] = $login;
 $sqlconf["pass"] = $pass;
 $sqlconf["dbase"] = $dbase;
-$sqlconf["db_encoding"] = $db_encoding;
 
 //////////////////////////
 //////////////////////////
@@ -932,8 +932,6 @@ $config = 1; /////////////
         // xl('Inventory Administration')
         $gacl->add_object('admin', 'ACL Administration', 'acl', 10, 0, 'ACO');
         // xl('ACL Administration')
-        $gacl->add_object('admin', 'Multipledb', 'multipledb', 10, 0, 'ACO');
-        // xl('Multipledb')
         $gacl->add_object('admin', 'Menu', 'menu', 10, 0, 'ACO');
         // xl('Menu')
         $gacl->add_object('admin', 'Manage modules', 'manage_modules', 10, 0, 'ACO');
@@ -1090,7 +1088,7 @@ $config = 1; /////////////
         $gacl->add_acl(
             [
                 'acct' => ['bill', 'disc', 'eob', 'rep', 'rep_a'],
-                'admin' => ['calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'],
+                'admin' => ['calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl', 'menu', 'manage_modules'],
                 'encounters' => ['auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'],
                 'inventory' => ['lots', 'sales', 'purchases', 'transfers', 'adjustments', 'consumption', 'destruction', 'reporting'],
                 'lists' => ['default','state','country','language','ethrace'],
@@ -1363,7 +1361,7 @@ $config = 1; /////////////
         $gacl->add_acl(
             [
                 'acct' => ['bill', 'disc', 'eob', 'rep', 'rep_a'],
-                'admin' => ['calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl','multipledb','menu','manage_modules'],
+                'admin' => ['calendar', 'database', 'forms', 'practice', 'superbill', 'users', 'batchcom', 'language', 'super', 'drugs', 'acl', 'menu', 'manage_modules'],
                 'encounters' => ['auth_a', 'auth', 'coding_a', 'coding', 'notes_a', 'notes', 'date_a', 'relaxed'],
                 'inventory' => ['lots', 'sales', 'purchases', 'transfers', 'adjustments', 'consumption', 'destruction', 'reporting'],
                 'lists' => ['default','state','country','language','ethrace'],
@@ -1450,7 +1448,7 @@ $config = 1; /////////////
             //  add this try/catch clause for PHP 8.1).
             try {
                 $checkUserDatabaseConnection = @$this->user_database_connection();
-            } catch (Exception) {
+            } catch (\Throwable) {
                 $checkUserDatabaseConnection = false;
             }
             if (! $checkUserDatabaseConnection) {
@@ -1588,7 +1586,7 @@ $config = 1; /////////////
                 if ($showError) {
                     $error_mes = $this->mysqliError($this->dbh);
                     $this->error_message = "unable to execute SQL: '$sql' due to: " . $error_mes;
-                    error_log("ERROR IN OPENEMR INSTALL: Unable to execute SQL: " . htmlspecialchars($sql, ENT_QUOTES) . " due to: " . htmlspecialchars($error_mes, ENT_QUOTES));
+                    $this->logger->error("ERROR IN OPENEMR INSTALL: Unable to execute SQL: {sql} due to: {error}", ['sql' => $sql, 'error' => $error_mes]);
                 }
                 return false;
             }
@@ -1596,7 +1594,7 @@ $config = 1; /////////////
         } catch (\mysqli_sql_exception $exception) {
             if ($showError) {
                 $this->error_message = "unable to execute SQL: '$sql' due to: " . $exception->getMessage();
-                error_log("ERROR IN OPENEMR INSTALL: Unable to execute SQL: " . htmlspecialchars($sql, ENT_QUOTES) . " due to: " . htmlspecialchars($exception->getMessage(), ENT_QUOTES));
+                $this->logger->error("ERROR IN OPENEMR INSTALL: Unable to execute SQL: {sql} due to: {message}", ['sql' => $sql, 'message' => $exception->getMessage(), 'exception' => $exception]);
             }
             return false;
         }
@@ -1604,56 +1602,25 @@ $config = 1; /////////////
 
     protected function connect_to_database(string $server, string $user, string $password, int|string $port, string $dbname = ''): mysqli|false
     {
-        $pathToCerts = __DIR__ . "/../../sites/" . $this->site . "/documents/certificates/";
-        $mysqlSsl = false;
-        $mysqli = $this->mysqliInit();
-        if (defined('MYSQLI_CLIENT_SSL') && $this->fileExists($pathToCerts . "mysql-ca")) {
-            $mysqlSsl = true;
-            if (
-                $this->fileExists($pathToCerts . "mysql-key") &&
-                $this->fileExists($pathToCerts . "mysql-cert")
-            ) {
-                // with client side certificate/key
-                $this->mysqliSslSet(
-                    $mysqli,
-                    $pathToCerts . "mysql-key",
-                    $pathToCerts . "mysql-cert",
-                    $pathToCerts . "mysql-ca",
-                    null,
-                    null
-                );
-            } else {
-                // without client side certificate/key
-                $this->mysqliSslSet(
-                    $mysqli,
-                    null,
-                    null,
-                    $pathToCerts . "mysql-ca",
-                    null,
-                    null
-                );
-            }
-        }
+        $siteDir = __DIR__ . "/../../sites/" . $this->site;
+        $ssl = DatabaseConnectionOptions::inferSslPaths($siteDir);
+
+        $options = new DatabaseConnectionOptions(
+            dbname: $dbname,
+            user: $user,
+            password: $password,
+            host: $server,
+            port: (int) $port !== 0 ? (int) $port : 3306,
+            sslCaPath: $ssl['ca'] ?? null,
+            sslClientCert: $ssl['clientCert'] ?? null,
+        );
+
         try {
-            $ok = $this->mysqliRealConnect(
-                $mysqli,
-                $server,
-                $user,
-                $password,
-                $dbname,
-                (int)$port != 0 ? (int)$port : 3306,
-                '',
-                $mysqlSsl ? MYSQLI_CLIENT_SSL : 0
-            );
-        } catch (mysqli_sql_exception $e) {
+            return DatabaseConnectionFactory::createMysqli($options, persistent: false);
+        } catch (RuntimeException $e) {
             $this->error_message = "unable to connect to sql server because of mysql error: " . $e->getMessage();
             return false;
         }
-        if (!$ok) {
-            $this->error_message = 'unable to connect to sql server because of: (' . mysqli_connect_errno() . ') ' . mysqli_connect_error();
-            return false;
-        }
-        return $mysqli;
     }
 
     /**
@@ -2210,18 +2177,6 @@ SETHLP;
     }
 
     /**
-     * Wrapper for mysqli_init to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @return mysqli|false
-     */
-    protected function mysqliInit(): mysqli|false
-    {
-        return mysqli_init();
-    }
-
-    /**
      * Wrapper for mysqli_connect to facilitate unit testing.
      *
      * @codeCoverageIgnore
@@ -2249,26 +2204,6 @@ SETHLP;
     }
 
     /**
-     * Wrapper for mysqli_real_connect to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param mysqli $link
-     * @param string $host
-     * @param string $user
-     * @param string $password
-     * @param string $database
-     * @param int $port
-     * @param string $socket
-     * @param int $flags
-     * @return bool
-     */
-    protected function mysqliRealConnect(mysqli $link, string $host, string $user, string $password, string $database = '', int $port = 0, string $socket = '', int $flags = 0): bool
-    {
-        return mysqli_real_connect($link, $host, $user, $password, $database, $port, $socket, $flags);
-    }
-
-    /**
      * Wrapper for mysqli_connect to facilitate unit testing.
      *
      * @codeCoverageIgnore
@@ -2280,24 +2215,6 @@ SETHLP;
     protected function mysqliSelectDb(mysqli $mysql, string $dbname): bool
     {
         return mysqli_select_db($mysql, $dbname);
-    }
-
-    /**
-     * Wrapper for mysqli_ssl_set to facilitate unit testing.
-     *
-     * @codeCoverageIgnore
-     *
-     * @param mysqli $link
-     * @param ?string $key
-     * @param ?string $cert
-     * @param ?string $ca
-     * @param ?string $capath
-     * @param ?string $cipher
-     * @return bool
-     */
-    protected function mysqliSslSet(mysqli $link, ?string $key, ?string $cert, ?string $ca, ?string $capath, ?string $cipher): bool
-    {
-        return mysqli_ssl_set($link, $key, $cert, $ca, $capath, $cipher);
     }
 
     /**

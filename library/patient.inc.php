@@ -4,15 +4,17 @@
  * patient.inc.php includes functions for manipulating patient information.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Sherwin Gaddis <sherwingaddis@gmail.com>
  * @copyright Copyright (c) 2018-2025 Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2021-2022 Rod Roark <rod@sunsetsystems.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -24,6 +26,7 @@ use OpenEMR\Billing\InsurancePolicyTypes;
 use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\EmployerService;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 require_once(__DIR__ . "/dupscore.inc.php");
 
@@ -435,7 +438,7 @@ function getInsuranceNameByDate(
  * @deprecated use EmployerService->getMostRecentEmployerData()
  * @param $pid
  * @param $given
- * @return \OpenEMR\Common\Database\recordset
+ * @return array|false
  */
 function getEmployerData($pid, $given = "*")
 {
@@ -459,7 +462,7 @@ function genPatientHeaderFooter($pid, $DOS = null)
 
     // Footer
     $s .= '<htmlpagefooter name="PageFooter1"><div style="text-align: right; font-weight: bold;">';
-    $s .= '<div style="float: right; width:33%; text-align: left;">' . oeFormatDateTime(date("Y-m-d H:i:s")) . '</div>';
+    $s .= '<div style="float: right; width:33%; text-align: left;">' . DateFormatterUtils::oeFormatDateTime(date("Y-m-d H:i:s")) . '</div>';
     $s .= '<div style="float: right; width:33%; text-align: center;">{PAGENO}/{nbpg}</div>';
     $s .= '<div style="float: right; width:33%; text-align: right;">' . text($patient_name) . '</div>';
     $s .= '</div></htmlpagefooter>';
@@ -1007,7 +1010,7 @@ function newPatientData(
     $email = "",
     $language = "",
     $ethnoracial = "",
-    $interpretter = "",
+    $interpreter = "",
     $migrantseasonal = "",
     $family_size = "",
     $monthly_income = "",
@@ -1078,7 +1081,7 @@ function newPatientData(
         email='" . add_escape_custom($email) . "',
         language='" . add_escape_custom($language) . "',
         ethnoracial='" . add_escape_custom($ethnoracial) . "',
-        interpretter='" . add_escape_custom($interpretter) . "',
+        interpreter='" . add_escape_custom($interpreter) . "',
         migrantseasonal='" . add_escape_custom($migrantseasonal) . "',
         family_size='" . add_escape_custom($family_size) . "',
         monthly_income='" . add_escape_custom($monthly_income) . "',
@@ -1185,7 +1188,7 @@ function pdValueOrNull($key, $value)
  *
  * @param $pid
  * @param $new
- * @param false $create
+ * @param bool $create
  * @return mixed
  */
 function updatePatientData($pid, $new, $create = false)
@@ -1232,9 +1235,9 @@ function newEmployerData(
         ");
 }
 
-// Create or update employer data from an array.
-//
 /**
+ * Create or update employer data from an array.
+ *
  * @param $pid
  * @param $new
  * @param $create
@@ -1450,9 +1453,8 @@ function parseAgeInfo($dob, $target)
 }
 
 /**
- *
- * @param type $dob
- * @param type $date
+ * @param string $dob
+ * @param ?string $date
  * @return array containing
  *      age - decimal age in years
  *      age_in_months - decimal age in months
@@ -1501,8 +1503,8 @@ function getPatientAgeInDays($dobYMD, $nowYMD = null)
 /**
  * Returns a string to be used to display a patient's age
  *
- * @param type $dobYMD
- * @param type $asOfYMD
+ * @param string $dobYMD
+ * @param ?string $asOfYMD
  * @return string suitable for displaying patient's age based on preferences
  */
 function getPatientAgeDisplay($dobYMD, $asOfYMD = null)
@@ -1719,14 +1721,17 @@ function is_patient_deceased($pid, $date = '')
     }
 }
 
-// This computes, sets and returns the dup score for the given patient.
-//
+// Compute dupscore for a single patient using symmetric comparison (p2.pid != p1.pid).
+// This is required for single-patient updates (e.g., after demographics change) to detect
+// matches with higher-PID patients. Batch operations in dupscore.cli.php and calculateScores()
+// intentionally use asymmetric comparison (p2.pid < p1.pid) as a performance optimization
+// that works correctly when processing all patients.
 function updateDupScore($pid)
 {
     $row = sqlQuery(
         "SELECT MAX(" . getDupScoreSQL() . ") AS dupscore " .
         "FROM patient_data AS p1, patient_data AS p2 WHERE " .
-        "p1.pid = ? AND p2.pid < p1.pid",
+        "p1.pid = ? AND p2.pid != p1.pid AND p2.dupscore != -1",
         [$pid]
     );
     $dupscore = empty($row['dupscore']) ? 0 : $row['dupscore'];

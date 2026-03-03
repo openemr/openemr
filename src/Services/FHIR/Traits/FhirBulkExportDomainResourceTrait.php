@@ -5,7 +5,7 @@
  * allow FHIR bulk export of resources.  Advanced searching or filtering on the exported resources is not supported and
  * should be implemented directly in the class rather than using this trait.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -22,11 +22,7 @@ use OpenEMR\FHIR\Export\ExportWillShutdownException;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\IResourceReadableService;
-use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
-use OpenEMR\Services\Search\ISearchField;
-use OpenEMR\Services\Search\SearchComparator;
-use OpenEMR\Services\Search\TokenSearchField;
 
 trait FhirBulkExportDomainResourceTrait
 {

@@ -45,7 +45,6 @@ require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/patient.inc.php");
 
-use OpenEMR\Core\Header;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Controllers\Portal\PortalPatientReportController;
@@ -138,7 +137,7 @@ try {
 } catch (SyntaxError $exception) {
     (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'file' => $exception->getFile()]);
     echo $twig->render("error/general_http_error.html.twig", []);
-} catch (\Exception $exception) {
+} catch (\Throwable $exception) {
     (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
     echo $twig->render("error/general_http_error.html.twig", []);
 }

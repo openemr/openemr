@@ -3,7 +3,6 @@
 namespace OpenEMR\Validators;
 
 use Particle\Validator\Validator;
-use Particle\Validator\Exception\InvalidValueException;
 
 /**
  * Supports Encounter Record Validation.

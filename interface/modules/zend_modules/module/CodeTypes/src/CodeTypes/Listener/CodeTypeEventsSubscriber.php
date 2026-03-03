@@ -4,7 +4,7 @@
  * CodeTypeEventsSubscriber  Handles the mapping of code systems to our list options.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change, Inc. <snielson@discoverandchange.com>
@@ -238,10 +238,10 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
                 }
             }
             \sqlCommitTrans();
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             if (!empty($logger) && is_callable($logger)) {
-                $logger(xl('Failed') . ' - (sql=`"' . $sql . '`, values=`' . var_export($values, true) . "`)");
+                $logger(xl('Failed') . ' - (sql=`"' . ($sql ?? 'N/A') . '`, values=`' . var_export($values ?? [], true) . "`)");
             }
             \sqlRollbackTrans();
         }
@@ -269,7 +269,7 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
                 QueryUtils::sqlStatementThrowException($sql, $values);
             }
             \sqlCommitTrans();
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             \sqlRollbackTrans();
         }

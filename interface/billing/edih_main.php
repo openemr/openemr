@@ -4,7 +4,7 @@
  * edi_history_main.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kevin McCormick Longview, Texas
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
@@ -16,13 +16,13 @@
 
 require_once(__DIR__ . "/../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 // Access control - same permission required as edih_view.php
 if (!AclMain::aclCheckCore('acct', 'eob')) {
-    http_response_code(403);
-    die(xlt('Access denied'));
+    AccessDeniedHelper::deny('Unauthorized access to EDI history');
 }
 
 /**

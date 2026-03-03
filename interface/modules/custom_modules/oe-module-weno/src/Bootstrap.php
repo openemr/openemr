@@ -4,7 +4,7 @@
  * Contains all of the Weno global settings and configuration
  *
  * @package   openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kofi Appiah <kkappiah@medsov.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023 Omega Systems Group <https://omegasystemsgroup.com/>
@@ -27,7 +27,6 @@ use OpenEMR\Modules\WenoModule\Services\ModuleService;
 use OpenEMR\Modules\WenoModule\Services\SelectedPatientPharmacy;
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Utils\SQLUpgradeService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 

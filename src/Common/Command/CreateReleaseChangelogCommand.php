@@ -9,7 +9,7 @@
  * such as api, code refactoring, etc.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2023 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -110,7 +110,7 @@ class CreateReleaseChangelogCommand extends Command
             }
             echo "Error getting issues from github. Exception message was: " . $exception->getMessage() . "\n";
             return Command::FAILURE;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             echo "Error getting issues from github. Exception message was: " . $e->getMessage() . "\n";
             return Command::FAILURE;
         }
@@ -242,7 +242,7 @@ class CreateReleaseChangelogCommand extends Command
             }
             echo "Error getting milestones from github. Exception message was: " . $exception->getMessage() . "\n";
             throw $exception;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             echo "Error getting milestones from github. Exception message was: " . $e->getMessage() . "\n";
             throw $e;
         }

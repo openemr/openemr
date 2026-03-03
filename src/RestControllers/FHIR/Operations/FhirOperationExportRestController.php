@@ -2,6 +2,7 @@
 
 namespace OpenEMR\RestControllers\FHIR\Operations;
 
+use OpenApi\Attributes as OA;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Services\IGlobalsAware;
 use OpenEMR\Common\Http\HttpRestRequest;
@@ -20,7 +21,6 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueSeverity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueType;
 use OpenEMR\FHIR\R4\FHIRResource\FHIROperationOutcome\FHIROperationOutcomeIssue;
 use OpenEMR\RestControllers\FHIR\Operations\InvalidExportHeaderException;
-use OpenEMR\Services\BaseService;
 use OpenEMR\Services\FHIR\FhirExportJobService;
 use OpenEMR\Services\FHIR\FhirExportServiceLocator;
 use OpenEMR\Services\FHIR\FhirGroupService;
@@ -120,6 +120,48 @@ class FhirOperationExportRestController
      * @param $preferHeader The 'Prefer' header which must be set to 'respond-async' for SMART FHIR exports.
      * @return ResponseInterface
      */
+    #[OA\Get(
+        path: '/fhir/$export',
+        description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
+        tags: ['fhir'],
+        responses: [
+            new OA\Response(response: '200', description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    #[OA\Get(
+        path: '/fhir/Patient/$export',
+        description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
+        tags: ['fhir'],
+        responses: [
+            new OA\Response(response: '200', description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    #[OA\Get(
+        path: '/fhir/Group/{id}/$export',
+        description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
+        tags: ['fhir'],
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                in: 'path',
+                description: 'The id for the Group resource.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(response: '200', description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function processExport($exportParams, $exportType, $acceptHeader, $preferHeader)
     {
         if ($this->isExportDisabled) {
@@ -189,7 +231,7 @@ class FhirOperationExportRestController
             $response = $this->createResponseForCode(StatusCode::BAD_REQUEST);
             $operationOutcome = $this->createOperationOutcomeError($header->getMessage());
             $response->getBody()->write(json_encode($operationOutcome));
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->error(
                 "FhirExportRestController->processExport() failed to process job",
                 ['exception' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
@@ -210,6 +252,17 @@ class FhirOperationExportRestController
      * @param $jobUuidString The unique id of the job to retrieve the status report for
      * @return ResponseInterface
      */
+    #[OA\Get(
+        path: '/fhir/$bulkdata-status',
+        description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
+        tags: ['fhir'],
+        responses: [
+            new OA\Response(response: '200', description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function processExportStatusRequestForJob($jobUuidString)
     {
         if ($this->isExportDisabled) {
@@ -254,7 +307,7 @@ class FhirOperationExportRestController
             $operationOutcome = $this->createOperationOutcomeError(xlt("The job id you submitted was not found"));
             $response->getBody()->write(json_encode($operationOutcome));
             return $response;
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->logger->error(
                 "FhirExportRestController->processExport() failed to process job",
                 ['jobUuid' => $jobUuidString, 'exception' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
@@ -273,6 +326,17 @@ class FhirOperationExportRestController
      * @param $jobUuidString The unique id of the job.
      * @return ResponseInterface
      */
+    #[OA\Delete(
+        path: '/fhir/$bulkdata-status',
+        description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>",
+        tags: ['fhir'],
+        responses: [
+            new OA\Response(response: '200', description: "The BULK FHIR Exports documentation can be found at <a href='https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API' target='_blank' rel='noopener'>https://www.open-emr.org/wiki/index.php/OpenEMR_Wiki_Home_Page#API</a>"),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function processDeleteExportForJob($jobUuidString)
     {
         if ($this->isExportDisabled) {
@@ -307,7 +371,7 @@ class FhirOperationExportRestController
             $operationOutcome = $this->createOperationOutcomeError(xlt("The job id you submitted was not found"));
             $response->getBody()->write(json_encode($operationOutcome));
             return $response;
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->logger->error(
                 "FhirExportRestController->processDeleteExportForJob failed to delete job and documents",
                 ['job' => $jobUuidString, 'exception' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()]
@@ -392,7 +456,7 @@ class FhirOperationExportRestController
                     . "maximum execution time.", [
                     'exception' => $exception->getMessage(),
                     'trace' => $exception->getTraceAsString(), 'job' => $job->getUuidString(), 'resource' => $resource]);
-            } catch (\Exception $exception) {
+            } catch (\Throwable $exception) {
                 $errorMessage = xlt("An unknown system error occurred during the export for resource") . ' ' . $resource;
                 $errorOutcome = $this->createOperationOutcomeError($errorMessage);
                 $error = $this->createErrorResultForOutcomeOperation($job, $errorOutcome);

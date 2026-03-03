@@ -16,7 +16,7 @@ use function register_shutdown_function;
 /**
  * Code Coverage Helper responsible for managing php code coverage for the code base.
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *

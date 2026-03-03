@@ -5,7 +5,7 @@
  * namespace OnsitePortal
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -92,40 +92,6 @@ if ($edata) {
     $ccdata = json_decode($cryptoGen->decryptStandard($edata['checksum']), true);
     $invdata = json_decode((string) $edata['table_args'], true);
     echo "<script>var jsondata='" . $edata['table_args'] . "';var ccdata='" . $edata['checksum'] . "'</script>";
-}
-
-// Compute taxes from a tax rate string and a possibly taxable amount.
-//
-function calcTaxes($row, $amount)
-{
-    $total = 0;
-    if (empty($row['taxrates'])) {
-        return $total;
-    }
-
-    $arates = explode(':', (string) $row['taxrates']);
-    if (empty($arates)) {
-        return $total;
-    }
-
-    foreach ($arates as $value) {
-        if (empty($value)) {
-            continue;
-        }
-
-        $trow = sqlQuery("SELECT option_value FROM list_options WHERE " . "list_id = 'taxrate' AND option_id = ? LIMIT 1", [$value
-        ]);
-        if (empty($trow['option_value'])) {
-            echo "<!-- Missing tax rate '" . text($value) . "'! -->\n";
-            continue;
-        }
-
-        $tax = sprintf("%01.2f", $amount * $trow['option_value']);
-// echo "<!-- Rate = '$value', amount = '$amount', tax = '$tax' -->\n";
-        $total += $tax;
-    }
-
-    return $total;
 }
 
 $now = time();

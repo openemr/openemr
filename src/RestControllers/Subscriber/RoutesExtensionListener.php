@@ -9,14 +9,11 @@ use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\RestControllers\FHIR\Finder\FhirRouteFinder;
 use OpenEMR\RestControllers\Finder\PortalRouteFinder;
 use OpenEMR\RestControllers\Finder\StandardRouteFinder;
-use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\Utils\FhirServiceLocator;
 use OpenEMR\Services\FHIR\Utils\SearchRequestNormalizer;
-use OpenEMR\Services\FHIR\UtilsService;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Throwable;
@@ -56,7 +53,7 @@ class RoutesExtensionListener implements EventSubscriberInterface
                 (new SearchRequestNormalizer($this->getSystemLogger()))->normalizeSearchRequest($request);
             }
             $response = $this->processFhirRequest($request, $kernel);
-        } else if ($request->isPatientRequest()) {
+        } else if ($request->isPortalRequest()) {
             $response = $this->processPatientPortalRequest($request, $kernel);
         } else {
             $response = $this->processStandardRequest($request, $kernel);

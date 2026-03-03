@@ -5,7 +5,7 @@
  * browser for download.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2008-2010 Rod Roark <rod@sunsetsystems.com>
@@ -16,15 +16,14 @@
 require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Backup")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Backup", xl("Backup"));
 }
 
 $facilityService = new FacilityService();
@@ -60,23 +59,6 @@ function AddIfPresent($tag, $text): void
     if (isset($text) && $text !== '') {
         Add($tag, $text);
     }
-}
-
-// Translate sex.
-function Sex($field)
-{
-  /*******************************************************************
-  $sex = strtoupper(substr(trim($field), 0, 1));
-  if ($sex != "M" && $sex != "F") $sex = "U";
-  return $sex;
-  *******************************************************************/
-    return mappedOption('sex', $field);
-}
-
-// Translate a date.
-function LWDate($field)
-{
-    return fixDate($field);
 }
 
 function xmlTime($str, $default = '9999-12-31T23:59:59')
@@ -474,7 +456,7 @@ if (!empty($form_submit)) {
     "fe.pid, " .
     "p.regdate, p.date AS last_update, p.contrastart, p.DOB, p.sex, " .
     "p.city, p.state, p.occupation, p.status, p.ethnoracial, " .
-    "p.interpretter, p.monthly_income, p.referral_source, p.pricelevel, " .
+    "p.interpreter, p.monthly_income, p.referral_source, p.pricelevel, " .
     "p.userlist1, p.userlist3, p.userlist4, p.userlist5, " .
     "p.usertext11, p.usertext12, p.usertext13, p.usertext14, p.usertext15, " .
     "p.usertext16, p.usertext17, p.usertext18, p.usertext19, p.usertext20, " .
@@ -571,7 +553,7 @@ if (!empty($form_submit)) {
         Add('Children', 0 + getTextListValue($hrow['genobshist'], 'nlc'));   // number of living children
         Add('Abortions', 0 + getTextListValue($hrow['genabohist'], 'nia'));   // number of induced abortions
         Add('Education', $education);
-        Add('Demo5', Sex($row['sex']));
+        Add('Demo5', mappedOption('sex', $row['sex']));
 
         // Things included if they are present (July 2010)
         AddIfPresent('City', $row['city']);
@@ -579,7 +561,7 @@ if (!empty($form_submit)) {
         AddIfPresent('Occupation', mappedOption('occupations', $row['occupation'], ''));
         AddIfPresent('MaritalStatus', mappedOption('marital', $row['status'], ''));
         AddIfPresent('Ethnoracial', mappedOption('ethrace', $row['ethnoracial'], ''));
-        AddIfPresent('Interpreter', $row['interpretter']);
+        AddIfPresent('Interpreter', $row['interpreter']);
         AddIfPresent('MonthlyIncome', $row['monthly_income']);
         AddIfPresent('ReferralSource', mappedOption('refsource', $row['referral_source'], ''));
         AddIfPresent('PriceLevel', mappedOption('pricelevel', $row['pricelevel'], ''));

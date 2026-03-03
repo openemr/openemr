@@ -20,6 +20,12 @@
 
 namespace OpenEMR\Gacl;
 
+use OpenEMR\BC\{
+    DatabaseConnectionFactory,
+    DatabaseConnectionOptions,
+};
+use OpenEMR\Core\OEGlobalsBag;
+
 /*
  * Path to ADODB.
  */
@@ -27,82 +33,56 @@ if ( !defined('ADODB_DIR') ) {
     define('ADODB_DIR', __DIR__.'/../vendor/adodb/adodb-php');
 }
 
-//openemr configuration file - bm - 05-2009
-// to collect sql database login info and the utf8 flag
-// also collect the adodb libraries to support mysqli_mod that is needed for mysql ssl support
-require_once(__DIR__ . "/../../library/sqlconf.php");
-require_once(__DIR__ . "/../../vendor/adodb/adodb-php/adodb.inc.php");
-require_once(__DIR__ . "/../../vendor/adodb/adodb-php/drivers/adodb-mysqli.inc.php");
-
 class Gacl {
     /*
     --- phpGACL Configuration path/file ---
     */
-    public $config_file = '';
+    private $config_file = '';
 
     /*
     --- Private properties ---
     */
-    /** @var boolean Enables Debug output if true */
-    public $_debug = FALSE;
+    /** Enables Debug output if true */
+    private bool $_debug = FALSE;
 
     /*
     --- Database configuration. ---
     */
-    /** @var string Prefix for all the phpgacl tables in the database */
-    public $_db_table_prefix = 'gacl_';
+    /**  Prefix for all the phpgacl tables in the database */
+    public string $_db_table_prefix = 'gacl_';
 
-    /** @var string The database type, based on available ADODB connectors - mysql, postgres7, sybase, oci8po See here for more: http://php.weblogs.com/adodb_manual#driverguide */
-    public $_db_type = 'mysqli';
+    /** @var \ADOConnection An ADODB database connector object */
+    private $_db;
 
-    /** @var string The database server */
-    public $_db_host = '';
-
-    /** @var string The database user name */
-    public $_db_user = '';
-
-    /** @var string The database user password */
-    public $_db_password = '';
-
-    /** @var string The database name */
-    public $_db_name = '';
-
-    /** @var object An ADODB database connector object */
-    public $_db = '';
-
-    /** @var boolean The utf8 encoding flag */
-    public $_db_encoding_setting = '';
-
-    /** @var object An ADODB database connector object */
-    public $db;
+    /** @var \ADOConnection An ADODB database connector object */
+    protected $db;
 
     /*
      * NOTE:    This cache must be manually cleaned each time ACL's are modified.
      *      Alternatively you could wait for the cache to expire.
      */
 
-    /** @var boolean Caches queries if true */
-    public $_caching = FALSE;
+    /** Caches queries if true */
+    protected bool $_caching = FALSE;
 
-    /** @var boolean Force cache to expire */
-    public $_force_cache_expire = TRUE;
+    /** Force cache to expire */
+    protected bool $_force_cache_expire = TRUE;
 
-    /** @var string The directory for cache file to eb written (ensure write permission are set) */
-    public $_cache_dir = '/tmp/phpgacl_cache'; // NO trailing slash
+    /** The directory for cache file to eb written (ensure write permission are set) */
+    private string $_cache_dir = '/tmp/phpgacl_cache'; // NO trailing slash
 
-    /** @var int The time for the cache to expire in seconds - 600 == Ten Minutes */
-    public $_cache_expire_time=600;
+    /** The time for the cache to expire in seconds - 600 == Ten Minutes */
+    private int $_cache_expire_time=600;
 
-    /** @var string A switch to put acl_check into '_group_' mode */
-    public $_group_switch = '_group_';
+    /** A switch to put acl_check into '_group_' mode */
+    private string $_group_switch = '_group_';
 
     /**
      * Constructor
-     * @param array An array of options to override the class defaults
+     * @param array $options An array of options to override the class defaults
      */
     function __construct($options = NULL) {
-
-        $available_options = ['db','debug','items_per_page','max_select_box_items','max_search_return_items','db_table_prefix','db_type','db_host','db_user','db_password','db_name','caching','force_cache_expire','cache_dir','cache_expire_time'];
+        $available_options = ['db','debug','items_per_page','max_select_box_items','max_search_return_items','db_table_prefix','caching','force_cache_expire','cache_dir','cache_expire_time'];
 
         //Values supplied in $options array overwrite those in the config file.
         if ( file_exists($this->config_file) ) {
@@ -129,80 +109,20 @@ class Gacl {
             }
         }
 
-        //collect openemr sql info from include at top of script - bm 05-2009
-        global $sqlconf, $disable_utf8_flag;
-        $this->_db_host = $sqlconf["host"];
-        $this->_db_user = $sqlconf["login"];
-        $this->_db_password = $sqlconf["pass"];
-        $this->_db_name = $sqlconf["dbase"];
-        if (!$disable_utf8_flag) {
-            if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
-                $this->_db_encoding_setting = "utf8mb4";
-            } else {
-                $this->_db_encoding_setting = "utf8";
-            }
-        } else {
-            $this->_db_encoding_setting = "";
-        }
+        $bag = OEGlobalsBag::getInstance();
+        $site = $bag->getString('OE_SITE_DIR');
+        $dbConfig = DatabaseConnectionOptions::forSite($site);
 
-        require_once( ADODB_DIR .'/adodb.inc.php');
-        require_once( ADODB_DIR .'/adodb-pager.inc.php');
+        $persistent = DatabaseConnectionFactory::detectConnectionPersistenceFromGlobalState();
+        $db = DatabaseConnectionFactory::createAdodb($dbConfig, persistent: $persistent);
 
+        // fixme: just read this straight out of $options arg
         if (is_object($this->_db)) {
             $this->db = &$this->_db;
         } else {
-            $this->db = ADONewConnection($this->_db_type);
+            $this->db = $db;
             //Use NUM for slight performance/memory reasons.
             $this->db->SetFetchMode(ADODB_FETCH_NUM);
-
-            // Set mysql to use ssl, if applicable.
-            // Can support basic encryption by including just the mysql-ca pem (this is mandatory for ssl)
-            // Can also support client based certificate if also include mysql-cert and mysql-key (this is optional for ssl)
-            if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-ca")) {
-                if (defined('MYSQLI_CLIENT_SSL')) {
-                    if (
-                        file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-key") &&
-                        file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/mysql-cert")
-                    ) {
-                        // with client side certificate/key
-                        $this->db->ssl_key = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-key";
-                        $this->db->ssl_cert = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-cert";
-                        $this->db->ssl_ca = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
-                    } else {
-                        // without client side certificate/key
-                        $this->db->ssl_ca = "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/mysql-ca";
-                    }
-                    $this->db->clientFlags = MYSQLI_CLIENT_SSL;
-                }
-            }
-
-            // Port to be used in connection
-            $this->db->port = $sqlconf["port"];
-
-            if ((!empty($GLOBALS["enable_database_connection_pooling"]) || !empty($_SESSION["enable_database_connection_pooling"])) && empty($GLOBALS['connection_pooling_off'])) {
-                $this->db->PConnect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
-            } else {
-                $this->db->connect($this->_db_host, $this->_db_user, $this->_db_password, $this->_db_name);
-            }
-            // Modified 5/2009 by BM for UTF-8 project
-            if ($this->_db_encoding_setting == "utf8mb4") {
-                $success_flag = $this->db->Execute("SET NAMES 'utf8mb4'");
-                if (!$success_flag) {
-                    error_log("PHP custom error: from gacl src/Gacl/Gacl.php - Unable to set up UTF8MB4 encoding with mysql database" . htmlspecialchars($this->db->ErrorMsg(), ENT_QUOTES), 0);
-                }
-            } elseif ($this->_db_encoding_setting == "utf8") {
-                $success_flag = $this->db->Execute("SET NAMES 'utf8'");
-                if (!$success_flag) {
-                    error_log("PHP custom error: from gacl src/Gacl/Gacl.php - Unable to set up UTF8 encoding with mysql database" . htmlspecialchars($this->db->ErrorMsg(), ENT_QUOTES), 0);
-                }
-            }
-                // ---------------------------------------
-
-            //Turn off STRICT SQL
-            $sql_strict_set_success = $this->db->Execute("SET sql_mode = ''");
-            if (!$sql_strict_set_success) {
-                error_log("Unable to set strict sql setting: " . htmlspecialchars($this->db->ErrorMsg(), ENT_QUOTES), 0);
-            }
 
             if (!empty($GLOBALS['debug_ssl_mysql_connection'])) {
                 error_log("CHECK SSL CIPHER IN GACL ADODB: " . htmlspecialchars(print_r($this->db->Execute("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true), ENT_QUOTES));
@@ -313,7 +233,7 @@ class Gacl {
     * @param string The ACO value
     * @param array An named array of arrays, each element in the format aro_section_value=>array(aro_value1,aro_value1,...)
     * @return mixed The same data format as inputted.
-    \*======================================================================*/
+     */
     function acl_check_array($aco_section_value, $aco_value, $aro_array) {
         /*
             Input Array:
@@ -436,7 +356,7 @@ class Gacl {
             //AND   ac.acl_id=a.id
             $query .= '
 					WHERE		a.enabled=1
-						AND		(ac.section_value='. $this->db->quote($aco_section_value) .' AND ac.value='. $this->db->quote($aco_value) .')';
+						AND		(ac.section_value='. $this->db->Quote($aco_section_value) .' AND ac.value='. $this->db->Quote($aco_value) .')';
 
             // if we are querying an aro group
             if ($aro_section_value == $this->_group_switch) {
@@ -452,7 +372,7 @@ class Gacl {
                 $order_by[] = '(rg.rgt-rg.lft) ASC';
             } else {
                 $query .= '
-						AND		((ar.section_value='. $this->db->quote($aro_section_value) .' AND ar.value='. $this->db->quote($aro_value) .')';
+						AND		((ar.section_value='. $this->db->Quote($aro_section_value) .' AND ar.value='. $this->db->Quote($aro_value) .')';
 
                 if ( isset ($sql_aro_group_ids) ) {
                     $query .= ' OR rg.id IN ('. $sql_aro_group_ids .')';
@@ -484,7 +404,7 @@ class Gacl {
                 if ($axo_section_value == '' AND $axo_value == '') {
                     $query .= '(ax.section_value IS NULL AND ax.value IS NULL)';
                 } else {
-                    $query .= '(ax.section_value='. $this->db->quote($axo_section_value) .' AND ax.value='. $this->db->quote($axo_value) .')';
+                    $query .= '(ax.section_value='. $this->db->Quote($axo_section_value) .' AND ax.value='. $this->db->Quote($axo_value) .')';
                 }
 
                 if (isset($sql_axo_group_ids)) {
@@ -637,13 +557,13 @@ class Gacl {
 					FROM		' . $group_table . ' g1,' . $group_table . ' g2';
 
                 $where = '
-					WHERE		g1.value=' . $this->db->quote( $value );
+					WHERE		g1.value=' . $this->db->Quote( $value );
             } else {
                 $query .= '
 					FROM		'. $object_table .' o,'. $group_map_table .' gm,'. $group_table .' g1,'. $group_table .' g2';
 
                 $where = '
-					WHERE		(o.section_value='. $this->db->quote($section_value) .' AND o.value='. $this->db->quote($value) .')
+					WHERE		(o.section_value='. $this->db->Quote($section_value) .' AND o.value='. $this->db->Quote($value) .')
 						AND		gm.'. $group_type .'_id=o.id
 						AND		g1.id=gm.group_id';
             }
@@ -660,7 +580,7 @@ class Gacl {
                 $query .= ','. $group_table .' g3';
 
                 $where .= '
-						AND		g3.value='. $this->db->quote( $root_group ) .'
+						AND		g3.value='. $this->db->Quote( $root_group ) .'
 						AND		((g2.lft BETWEEN g3.lft AND g1.lft) AND (g2.rgt BETWEEN g1.rgt AND g3.rgt))';
             } else {
                 $where .= '
@@ -735,4 +655,3 @@ class Gacl {
         }
     }
 }
-?>

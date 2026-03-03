@@ -4,7 +4,7 @@
  * Patient Portal
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,7 +12,6 @@
 
 require_once(__DIR__ . '/../../interface/globals.php');
 
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -36,7 +35,7 @@ class ApplicationTable
      *            Logging True / False
      * @param boolean $error
      *            Error Display True / False
-     * @return type
+     * @return mixed
      */
     public function zQuery($sql, $params = '', $log = false, $error = true)
     {
@@ -46,7 +45,7 @@ class ApplicationTable
         try {
             $return = sqlStatement($sql, $params);
             $result = true;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             if ($error) {
                 $this->errorHandler($e, $sql, $params);
             }
@@ -67,7 +66,7 @@ class ApplicationTable
             $sql = "Select * From onsite_portal_activity Where  id = ?";
             $return = sqlStatementNoLog($sql, $recid);
             $result = true;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $this->errorHandler($e, $sql);
         }
         if ($result === true) {
@@ -93,7 +92,7 @@ class ApplicationTable
                                     "And pa.status = ? And  pa.pending_action = ? ORDER BY pa.date ASC LIMIT 1";
             $return = sqlStatementNoLog($sql, $audit);
             $result = true;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             if ($error) {
                 $this->errorHandler($e, $sql, $audit);
             }
@@ -186,7 +185,7 @@ class ApplicationTable
 
             $return = sqlStatementNoLog($logsql, $audit);
             $result = true;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             if ($error) {
                 $this->errorHandler($e, $logsql, $audit);
             }
@@ -240,7 +239,7 @@ class ApplicationTable
      * Same behavior of HelpfulDie function in OpenEMR
      * Path /library/sql.inc.php
      *
-     * @param type $e
+     * @param \Throwable $e
      * @param string $sql
      * @param array $binds
      */
@@ -332,8 +331,8 @@ class ApplicationTable
         $temp = explode(' ', (string) $input_date); // split using space and consider the first portion, in case of date with time
         $input_date = $temp[0];
 
-        $output_format = ApplicationTable::dateFormat($output_format);
-        $input_format = ApplicationTable::dateFormat($input_format);
+        $output_format = $this->dateFormat($output_format);
+        $input_format = $this->dateFormat($input_format);
 
         preg_match("/[^ymd]/", (string) $output_format, $date_seperator_output);
         $seperator_output = $date_seperator_output[0];

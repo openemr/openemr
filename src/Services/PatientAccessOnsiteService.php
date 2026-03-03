@@ -31,6 +31,7 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\Kernel;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\PortalCredentialsTemplateDataFilterEvent;
 use OpenEMR\Events\Patient\Summary\PortalCredentialsUpdatedEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
@@ -60,7 +61,7 @@ class PatientAccessOnsiteService
     {
         $this->authUser = $_SESSION['authUser'];
         $this->authProvider = $_SESSION['authProvider'];
-        $this->kernel = $GLOBALS['kernel'];
+        $this->kernel = OEGlobalsBag::getInstance()->getKernel();
         $this->twig = (new TwigContainer(null, $this->kernel))->getTwig();
         $this->logger = new SystemLogger();
     }

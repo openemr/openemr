@@ -16,6 +16,7 @@ require_once("../../library/classes/rulesets/Amc/AmcReportFactory.php");
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 
 function formatPatientReportData($report_id, &$data, $type_report, $amc_report_types = [])
 {
@@ -173,7 +174,7 @@ function getRuleObjectForId($ruleId)
         $rule = ReportTypes::getClassName($ruleId);
         $report = $reportManager->createReport($rule, ['id' => $ruleId], [], [], []);
         return $report;
-    } catch (\Exception $error) {
+    } catch (\Throwable $error) {
         (new SystemLogger())->errorLogCaller("Failed to instantiate rule class for rule", ['rule_id' => $ruleId
             , 'message' => $error->getTraceAsString()]);
     }
@@ -184,7 +185,7 @@ $report_id = (isset($_GET['report_id'])) ? trim((string) $_GET['report_id']) : "
 
 // Collect the back variable, if pertinent
 $back_link = (isset($_GET['back'])) ? trim((string) $_GET['back']) : "";
-$twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+$twigContainer = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
 $twig = $twigContainer->getTwig();
 $report_view = collectReportDatabase($report_id);
 if (!empty($report_view)) {
@@ -205,6 +206,9 @@ if (!empty($report_view)) {
         // grab the provider
         $userService = new \OpenEMR\Services\UserService();
         $provider = $userService->getUser($report_view['provider']);
+        if ($provider === false) {
+            throw new \RuntimeException("Provider not found: " . json_encode($report_view['provider']));
+        }
         $providerTitle = ($provider['lname'] ?? '') . ',' . ($provider['fname'] ?? '')
             . ' (' . xl('NPI') . ':' . ($provider['npi'] ?? '') . ')';
         $subTitle = xl("Individual Calculation Method") . ' - ' . trim($providerTitle);

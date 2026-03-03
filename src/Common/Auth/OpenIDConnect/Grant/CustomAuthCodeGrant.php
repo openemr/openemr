@@ -3,7 +3,7 @@
 /**
  * CustomAuthCodeGrant.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,7 +12,6 @@
 namespace OpenEMR\Common\Auth\OpenIDConnect\Grant;
 
 use DateInterval;
-use Exception;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
@@ -106,7 +105,7 @@ class CustomAuthCodeGrant extends AuthCodeGrant
             try {
                 // check to see if we can deserialize the launch token
                 SMARTLaunchToken::deserializeToken($launch);
-            } catch (Exception $exception) {
+            } catch (\Throwable $exception) {
                 $this->getSystemLogger()->errorLogCaller("CustomAuthCodeGrant::validateAuthorizationRequest:Failed to deserialize launch token", ['launch' => $launch, 'message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
                 throw OAuthServerException::invalidRequest('launch', "launch parameter was incorrectly formatted or did not originate from this server");
             }

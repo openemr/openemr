@@ -3,7 +3,7 @@
 /*
  * FhirObservationObservationFormService.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -11,19 +11,14 @@
 
 namespace OpenEMR\Services\FHIR\Observation;
 
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\Observation\Trait\FhirObservationTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
-use OpenEMR\Services\ObservationService;
 use OpenEMR\Services\SDOH\HistorySdohService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
-use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;

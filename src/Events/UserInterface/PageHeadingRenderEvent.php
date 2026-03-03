@@ -5,7 +5,7 @@
  * event listeners to render action buttons into the list with limited UI flexibility.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Robert Down <robertdown@live.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>

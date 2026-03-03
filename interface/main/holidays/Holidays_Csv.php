@@ -4,7 +4,7 @@
  * interface/main/holidays/Holidays_Csv.php shared helpers for holiday CSV parsing.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    sharonco <sharonco@matrix.co.il>
  * @copyright Copyright (c) 2016 Sharon Cohen <sharonco@matrix.co.il>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

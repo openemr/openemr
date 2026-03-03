@@ -3,10 +3,8 @@
 namespace OpenEMR\Common\Http;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Utils;
 use OpenEMR\Common\System\System;
 use Psr\Http\Message\ResponseInterface;
-use Symfony\Component\Process\Process;
 
 abstract class HttpClient
 {

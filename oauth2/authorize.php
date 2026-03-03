@@ -4,16 +4,12 @@
  * Authorization Server Member
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\RestControllers\AuthorizationController;
 
 require_once "../vendor/autoload.php";
 

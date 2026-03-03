@@ -4,7 +4,7 @@
  * SDOH (USCDI v3) SDOH list page (all assessments for a patient)
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -22,6 +22,7 @@ $srcdir = dirname(__FILE__, 4) . "/library";
 require_once("../../globals.php");
 require_once($srcdir . "/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 
@@ -30,7 +31,7 @@ if (!$pid) {
     die(xlt("Missing patient id.")); }
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
-    die(xlt("Not authorized"));
+    AccessDeniedHelper::deny('Unauthorized access to SDOH list');
 }
 
 // Pull rows newest first

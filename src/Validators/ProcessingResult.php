@@ -14,7 +14,7 @@ use OpenEMR\Common\Database\QueryPagination;
  * - data: the return value of the operation/process (array)
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>

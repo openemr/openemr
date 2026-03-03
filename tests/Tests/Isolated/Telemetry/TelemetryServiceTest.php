@@ -7,7 +7,7 @@
  * Uses stubs and mocks to test business logic in isolation.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,9 +16,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Telemetry;
 
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 use OpenEMR\Services\VersionServiceInterface;
-use OpenEMR\Telemetry\GeoTelemetry;
 use OpenEMR\Telemetry\GeoTelemetryInterface;
 use OpenEMR\Telemetry\TelemetryRepository;
 use OpenEMR\Telemetry\TelemetryService;

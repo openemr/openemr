@@ -122,7 +122,7 @@ class OnsiteActivityViewController extends AppBasePortalController
             }
 
             $this->RenderJSON($output, $this->JSONPCallback());
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -136,7 +136,7 @@ class OnsiteActivityViewController extends AppBasePortalController
             $pk = $this->GetRouter()->GetUrlParam('id');
             $onsiteactivityview = $this->Phreezer->Get('OnsiteActivityView', $pk);
             $this->RenderJSON($onsiteactivityview, $this->JSONPCallback(), true, $this->SimpleObjectParams());
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }
@@ -192,7 +192,7 @@ class OnsiteActivityViewController extends AppBasePortalController
   users On patient_data.providerID = users.id ";
         try {
             $this->Phreezer->DataAdapter->Execute($sql);
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             $this->RenderExceptionJSON($ex);
         }
     }

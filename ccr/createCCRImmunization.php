@@ -18,11 +18,16 @@
  *
  * @package OpenEMR
  * @author  Garden State Health Systems <http://www.gshsys.com/>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
     $result = getImmunizationData();
     $row = sqlFetchArray($result);
+
+/**
+ * @var \DOMDocument $ccr (created in createCCR.php)
+ * @var \DOMDocument $e_Immunizations (created in createCCR.php)
+ */
 
 do {
     $e_Immunization = $ccr->createElement('Immunization');

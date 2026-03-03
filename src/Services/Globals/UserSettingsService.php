@@ -4,7 +4,7 @@
  * UserSettingService manage user global settings. Originally refactored from user.inc.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2010 Brady Miller <brady.g.miller@gmail.com>

@@ -2,7 +2,7 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
@@ -14,8 +14,6 @@ use GuzzleHttp\Psr7\LazyOpenStream;
 use GuzzleHttp\Psr7;
 use OpenEMR\Cqm\CqmServiceManager;
 use OpenEMR\Cqm\Qdm\BaseTypes\Code;
-use OpenEMR\Cqm\Qdm\Diagnosis;
-use OpenEMR\Cqm\Qdm\Identifier;
 use OpenEMR\Cqm\Qdm\MedicationOrder;
 use OpenEMR\Cqm\Qdm\SubstanceOrder;
 use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;

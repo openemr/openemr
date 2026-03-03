@@ -4,7 +4,7 @@
  * Pending orders.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010-2013 Rod Roark <rod@sunsetsystems.com>
@@ -16,14 +16,13 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 require_once "$srcdir/options.inc.php";
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('patients', 'lab')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Pending Orders")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/lab: Pending Orders", xl("Pending Orders"));
 }
 
 /**

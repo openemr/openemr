@@ -4,7 +4,7 @@
  * C_Prescription class
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -22,9 +22,9 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Rx\RxList;
-use PHPMailer\PHPMailer\PHPMailer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\DrugSalesService;
 use OpenEMR\Services\PatientIssuesService;
@@ -133,7 +133,7 @@ class C_Prescription extends Controller
             $vars['amcCollectReturnFormulary'] = amcCollect('e_prescribe_chk_formulary_amc', $prescription->patient->id, 'prescriptions', $prescription->id);
             $vars['amcCollectReturnControlledSubstances'] = amcCollect('e_prescribe_cont_subst_amc', $prescription->patient->id, 'prescriptions', $prescription->id);
         }
-        $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+        $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
         echo $twig->render("prescription/" . $this->template_mod . "_edit.html.twig", $vars);
     }
 
@@ -249,7 +249,7 @@ class C_Prescription extends Controller
         }
         // Pass prescription ID to auto-print on page load (used by Save and Print workflow)
         $vars['printPrescriptionId'] = $printPrescriptionId;
-        $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+        $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
         echo $twig->render("prescription/" . $this->template_mod . "_list.html.twig", $vars);
     }
 

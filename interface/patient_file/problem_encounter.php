@@ -4,7 +4,7 @@
  * This script add and delete Issues and Encounters relationships.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -18,9 +18,9 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/lists.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\PatientIssuesService;
@@ -42,8 +42,7 @@ if ($patdata['squad'] && ! AclMain::aclCheckCore('squads', $patdata['squad'])) {
 }
 
 if (!$thisauth) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Issues and Encounters")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for encounters/notes or patients/med: Issues and Encounters", xl("Issues and Encounters"));
 }
 
 $alertmsg = ""; // anything here pops up in an alert box

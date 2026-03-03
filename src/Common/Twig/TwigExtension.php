@@ -27,8 +27,8 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
-use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\LogoService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
@@ -272,6 +272,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('js_escape', js_escape(...)),
             new TwigFilter('attr_js', attr_js(...)),
             new TwigFilter('attr_url', attr_url(...)),
+            new TwigFilter('safe_href', safe_href(...)),
             new TwigFilter('js_url', js_url(...)),
             new TwigFilter('javascriptStringRemove', javascriptStringRemove(...)),
             new TwigFilter('xl', xl(...)),
@@ -282,7 +283,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('shortDate', oeFormatShortDate(...)),
             new TwigFilter(
                 'oeFormatDateTime',
-                fn($string, $formatTime = "global", $seconds = false) => oeFormatDateTime($string, $formatTime, $seconds)
+                fn($string, $formatTime = "global", bool $seconds = false) => DateFormatterUtils::oeFormatDateTime($string, $formatTime, $seconds)
             ),
             new TwigFilter('xlLayoutLabel', xl_layout_label(...)),
             new TwigFilter('xlListLabel', xl_list_label(...)),

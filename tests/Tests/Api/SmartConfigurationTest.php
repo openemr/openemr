@@ -2,8 +2,6 @@
 
 namespace OpenEMR\Tests\Api;
 
-use OpenEMR\RestControllers\AuthorizationController;
-use OpenEMR\RestControllers\FHIR\FhirMetaDataRestController;
 use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Api\ApiTestClient;
 
@@ -11,7 +9,7 @@ use OpenEMR\Tests\Api\ApiTestClient;
  * Capability FHIR Endpoint Test Cases.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */

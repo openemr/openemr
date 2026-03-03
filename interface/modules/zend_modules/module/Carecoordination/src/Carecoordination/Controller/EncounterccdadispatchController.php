@@ -22,7 +22,6 @@ use DOMDocument;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
 use Exception;
-use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -321,7 +320,7 @@ class EncounterccdadispatchController extends AbstractActionController
                 echo $content;
             }
             exit;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             die($e->getMessage());
         }
     }
@@ -351,7 +350,7 @@ class EncounterccdadispatchController extends AbstractActionController
 
             // Use the enhanced downloadQrdaIII method with consolidated flag
             $xmlController->downloadQrdaIII($pids, $measures, [], true); // true = consolidated
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log("Consolidated QRDA III download failed: " . $e->getMessage());
 
             // Follow your existing error handling pattern
@@ -394,7 +393,7 @@ class EncounterccdadispatchController extends AbstractActionController
             );
 
             return $content;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             (new SystemLogger())->errorLogCaller("Error generating consolidated QRDA III content", [
                 'message' => $e->getMessage()
             ]);

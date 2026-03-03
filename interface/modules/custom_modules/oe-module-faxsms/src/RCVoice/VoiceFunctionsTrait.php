@@ -4,7 +4,7 @@
  * Voice Module Member
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,7 +12,7 @@
 
 namespace OpenEMR\Modules\FaxSMS\RCVoice;
 
-use Exception;
+use OpenEMR\Common\Session\SessionUtil;
 use RingCentral\SDK\Http\ApiException;
 use RingCentral\SDK\Platform\Platform;
 
@@ -61,7 +61,7 @@ trait VoiceFunctionsTrait
 
             header('Content-Type: application/json');
             return json_encode($sipInfo);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             http_response_code(500);
             header('Content-Type: application/json');
             return json_encode(['error' => $e->getMessage()]);
@@ -109,7 +109,7 @@ trait VoiceFunctionsTrait
             $response = $this->platform->post('/restapi/v1.0/account/~/extension/~/ring-out', $body);
             $result = ['msg' => 'RingOut call status: ' . $response->json()->status->callStatus];
             return json_encode($result);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $result = ['error' => 'RingOut Error: ' . $e->getMessage()];
             return json_encode($result);
         }
@@ -132,7 +132,7 @@ trait VoiceFunctionsTrait
             $endpoint = "/restapi/v1.0/account/~/extension/~/message-store/{$messageId}/content";
             $response = $this->platform->get($endpoint);
             return $response->raw(); // binary content for WAV/MP3
-        } catch (Exception) {
+        } catch (\Throwable) {
             return false;
         }
     }
@@ -144,14 +144,14 @@ trait VoiceFunctionsTrait
             if ($token == 'changeme') {
                 // Generate secure token
                 $token = bin2hex(random_bytes(16));
-                $_SESSION['ringcentral_voice_token'] = $token;
+                SessionUtil::setSession('ringcentral_voice_token', $token);
             }
             // Webhook endpoint
             $this->webhookUrl = $this->getWebhookUrl($token);
             $this->token = $token;
             // Create webhook
             $response = $this->createSubscription();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log("Installation failed: " . $e->getMessage());
         }
         return  json_encode($response);

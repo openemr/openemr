@@ -4,7 +4,7 @@
  * Viewing and modification/creation of office notes.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
@@ -14,16 +14,16 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\ONoteService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 // Control access
 if (!AclMain::aclCheckCore('encounters', 'notes')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Office Notes")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for encounters/notes: Office Notes", xl("Office Notes"));
 }
 
 $oNoteService = new ONoteService();
@@ -161,7 +161,7 @@ function renderPaginationControls($currentPage, $totalPages, $active): string
                         </form>
                     </td>
                     <td class="text-left">
-                        <?php echo oeFormatDateTime((new DateTime($note['date']))->format('Y-m-d H:i:s')) . " (" . text($note['user']) . ")"; ?>
+                        <?php echo text(DateFormatterUtils::oeFormatDateTime((new DateTime($note['date']))->format('Y-m-d H:i:s'))) . " (" . text($note['user']) . ")"; ?>
                     </td>
                     <td class="text-left"><?php echo nl2br(text($note['body'])); ?></td>
                     <td class="text-center">

@@ -77,7 +77,7 @@ class FhirRelatedPersonService extends FhirServiceBase implements IResourceUSCIG
         }
     }
 
-    public function populateMeta(FhirRelatedPerson $fhirRelatedPerson, array $dataRecord): void
+    public function populateMeta(FHIRRelatedPerson $fhirRelatedPerson, array $dataRecord): void
     {
         $meta = new FHIRMeta();
         $meta->setVersionId('1');

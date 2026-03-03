@@ -4,7 +4,7 @@
  * DocumentService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Matthew Vita <matthewvita48@gmail.com>
@@ -16,7 +16,6 @@ namespace OpenEMR\Services;
 
 require_once(__DIR__ . "/../../controllers/C_Document.class.php");
 
-use Document;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
@@ -62,7 +61,7 @@ class DocumentService extends BaseService
         $lastParent = null;
         $isValidPath = true;
         foreach ($docPathParts as $index => $part) {
-            $categoryResults = sqlQuery($categoriesSql, str_replace("_", "", $part));
+            $categoryResults = sqlQuery($categoriesSql, [str_replace("_", "", $part)]);
 
             if ($index === 1) {
                 $lastParent = $categoryResults["id"];
@@ -89,7 +88,7 @@ class DocumentService extends BaseService
         $sql .= "    FROM categories";
         $sql .= "    WHERE replace(LOWER(name), ' ', '') = ?";
 
-        $results = sqlQuery($sql, str_replace("_", "", $lastInPath));
+        $results = sqlQuery($sql, [str_replace("_", "", $lastInPath)]);
         return $results['id'];
     }
 

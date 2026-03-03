@@ -4,7 +4,7 @@
  * Patient Portal Signer Modal Dynamic Template
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2016-2019 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -57,7 +57,7 @@ $twigVars = [
 $twigContainer = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
 try {
     $modal = $twigContainer->render("portal/partial/_signer_modal.html.twig", $twigVars);
-} catch (Exception $exception) {
+} catch (\Throwable $exception) {
     (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
     // we want the json to fail
     die(json_encode(['error' => 'Server died']));

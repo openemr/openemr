@@ -4,7 +4,7 @@
  * Message and Reminder Center UI
  *
  * @Package OpenEMR
- * @link http://www.open-emr.org
+ * @link https://www.open-emr.org
  * @author OpenEMR Support LLC
  * @author Roberto Vasquez <robertogagliotta@gmail.com>
  * @author Rod Roark <rod@sunsetsystems.com>
@@ -31,6 +31,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 //Gets validation rules from Page Validation list.
 $collectthis = collectValidationPageRules("/interface/main/messages/messages.php");
@@ -666,7 +667,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                         <div>" .
                                             xlt($myrow['title']) . "</div>
                                     <td>
-                                        <div>" . text(oeFormatDateTime($myrow['date'])) . "</div>
+                                        <div>" . text(DateFormatterUtils::oeFormatDateTime($myrow['date'])) . "</div>
                                     </td>
                                     <td>
                                         <div>" . text(getListItemTitle('message_status', $myrow['message_status'])) . "</div>

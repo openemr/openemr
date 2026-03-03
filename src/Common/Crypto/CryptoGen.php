@@ -33,7 +33,6 @@
 namespace OpenEMR\Common\Crypto;
 
 use Exception;
-use OpenEMR\Common\Utils\RandomGenUtils;
 
 class CryptoGen implements CryptoInterface
 {
@@ -273,7 +272,7 @@ class CryptoGen implements CryptoInterface
             try {
                 // throw an exception
                 throw new Exception("OpenEMR Error: Decryption failed HMAC Authentication!");
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 /**
                  * log the exception message and call stack then return legacy null as false for
                  * those evaluating the return value as $return == false which with legacy will eval as false.
@@ -370,7 +369,7 @@ class CryptoGen implements CryptoInterface
             try {
                 // throw an exception
                 throw new Exception("OpenEMR Error: Decryption failed hmac authentication!");
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 /**
                  * log the exception message and call stack then return legacy null as false for
                  * those evaluating the return value as $return == false which with legacy will eval as false.
@@ -590,11 +589,12 @@ class CryptoGen implements CryptoInterface
      *
      * @codeCoverageIgnore
      *
+     * @param int<1, max> $length
      * @return string
      */
     protected function getRandomBytes(int $length): string
     {
-        return RandomGenUtils::produceRandomBytes($length);
+        return random_bytes($length);
     }
 
     /**

@@ -109,12 +109,6 @@ $logger = new SystemLogger();
 $formLocator = new FormLocator($logger);
 $formReportRenderer = new FormReportRenderer($formLocator, $logger);
 
-function getContent()
-{
-    $content = ob_get_clean();
-    return $content;
-}
-
 function postToGet($arin)
 {
     $getstring = "";
@@ -856,7 +850,7 @@ if ($printable) {
 
 <?php
 if ($PDF_OUTPUT) {
-    $content = getContent();
+    $content = ob_get_clean();
     $ptd = report_basename($pid);
     $fn = $ptd['base'] . ".pdf";
     $pdf->SetTitle(ucfirst((string) $ptd['fname']) . ' ' . $ptd['lname'] . ' ' . xl('Id') . ':' . $pid . ' ' . xl('Report'));
@@ -872,14 +866,14 @@ if ($PDF_OUTPUT) {
 
     try {
         $pdf->writeHTML($content); // convert html
-    } catch (Exception $exception) {
+    } catch (\Throwable $exception) {
         die(text($exception));
     }
 
     if ($PDF_OUTPUT == 1) {
         try {
             $pdf->Output($fn, $globalsBag->get('pdf_output')); // D = Download, I = Inline
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             die(text($exception));
         }
     }

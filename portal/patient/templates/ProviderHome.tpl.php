@@ -4,7 +4,7 @@
  * Patient Portal
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2016-2022 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,13 +13,13 @@
 $this->assign('title', xlt("Portal Dashboard") . " | " . xlt("Home"));
 $this->assign('nav', 'home');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('patientportal', 'portal')) {
-    die(xlt("Unauthorized"));
-    exit;
+    AccessDeniedHelper::deny('Unauthorized access to provider home');
 }
 $globalsBag = OEGlobalsBag::getInstance();
 $web_root = $globalsBag->getString('web_root');

@@ -13,7 +13,7 @@ use OpenEMR\Tools\OAuth2\ClientCredentialsAssertionGenerator;
  * BulkAPITestClient is a test client for the OpenEMR Bulk API.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com
  * @copyright Copyright (c) 2025 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

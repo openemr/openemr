@@ -13,18 +13,15 @@
 namespace Carecoordination\Form;
 
 use Laminas\Form\Form;
-use Application\Model\ApplicationTable;
 use Application\Listener\Listener;
+use OpenEMR\Common\Database\QueryUtils;
 
 class ModuleconfigForm extends Form
 {
     protected $zListener;
 
-    protected $application;
-
     public function __construct()
     {
-        $this->application  = new ApplicationTable();
         $this->zListener = new Listener();
         parent::__construct('configuration');
         $this->setAttribute('method', 'post');
@@ -262,7 +259,7 @@ class ModuleconfigForm extends Form
     public function getUsers()
     {
         $users = ['0' => ''];
-        $res = $this->application->zQuery(("SELECT id, fname, lname, street, city, state, zip  FROM users WHERE authorized=1 AND active='1' "));
+        $res = QueryUtils::fetchRecords("SELECT id, fname, lname, street, city, state, zip  FROM users WHERE authorized=1 AND active='1' ");
         foreach ($res as $row) {
             $users[$row['id']] = $row['fname'] . " " . $row['lname'];
         }
@@ -273,7 +270,7 @@ class ModuleconfigForm extends Form
     public function getFacilities()
     {
         $users = ['0' => ''];
-        $res = $this->application->zQuery(("SELECT `id`,`name` FROM `facility`"));
+        $res = QueryUtils::fetchRecords("SELECT `id`,`name` FROM `facility`");
         foreach ($res as $row) {
             $users[$row['id']] = $row['name'];
         }
@@ -284,7 +281,7 @@ class ModuleconfigForm extends Form
     public function getProviders()
     {
         $users = ['0' => ''];
-        $res = $this->application->zQuery(("SELECT id, fname, lname FROM users WHERE authorized=1 AND active ='1'"));
+        $res = QueryUtils::fetchRecords("SELECT id, fname, lname FROM users WHERE authorized=1 AND active ='1'");
         foreach ($res as $row) {
             $users[$row['id']] = $row['fname'] . " " . $row['lname'];
         }
@@ -295,7 +292,7 @@ class ModuleconfigForm extends Form
     public function getUsersList()
     {
         $users = ['0' => ''];
-        $res = $this->application->zQuery(("SELECT id, fname, lname FROM users WHERE active ='1' AND `username` IS NOT NULL AND `password` IS NOT NULL"));
+        $res = QueryUtils::fetchRecords("SELECT id, fname, lname FROM users WHERE active ='1' AND `username` IS NOT NULL AND `password` IS NOT NULL");
         foreach ($res as $row) {
             $users[$row['id']] = $row['fname'] . " " . $row['lname'];
         }

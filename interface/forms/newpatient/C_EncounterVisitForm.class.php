@@ -8,7 +8,7 @@
  * TODO: investigate moving this into the src/ folder.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -23,13 +23,14 @@
 namespace OpenEMR\Forms\NewPatient;
 
 use OpenEMR\Billing\MiscBillingOptions;
-use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\CareTeamService;
+use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Events\Core\TemplatePageEvent;
@@ -37,10 +38,11 @@ use OpenEMR\OeUI\RenderFormFieldHelper;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\UserService;
 use OpenEMR\Services\ListService;
-use sqlStatement;
-use sqlFetchArray;
 use Twig\Environment;
 use Twig\TwigFunction;
+
+use function sqlFetchArray;
+use function sqlStatement;
 
 class C_EncounterVisitForm
 {
@@ -67,7 +69,7 @@ class C_EncounterVisitForm
         private readonly string $pageName = 'newpatient/common.php'
     ) {
         // Initialize Twig
-        $twig = new TwigContainer($templatePath . '/templates/', $GLOBALS['kernel']);
+        $twig = new TwigContainer($templatePath . '/templates/', OEGlobalsBag::getInstance()->getKernel());
         $this->twig = $twig->getTwig();
         // add a local twig function so we can make this work properly w/o too many modifications in the twig file
         $this->twig->addFunction(new TwigFunction('displayOptionClass', $this->displayOption(...)));
@@ -520,9 +522,12 @@ class C_EncounterVisitForm
                 $parentEncounterId = $encounter['id'];
             }
 
-            if ($encounter['sensitivity'] && !AclMain::aclCheckCore('sensitivities', $encounter['sensitivity'])) {
-                $this->twig->render("newpatient/unauthorized.html.twig");
-                exit();
+            $sensitivity = $encounter['sensitivity'];
+            if (is_string($sensitivity) && $sensitivity !== '' && !AclMain::aclCheckCore('sensitivities', $sensitivity)) {
+                AccessDeniedHelper::denyWithTemplate(
+                    "ACL check failed for sensitivities/$sensitivity: Patient Encounter",
+                    xl("Patient Encounter")
+                );
             }
         }
 

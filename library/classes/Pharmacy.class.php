@@ -17,6 +17,7 @@ define("TRANSMIT_EMAIL", 2);
 define("TRANSMIT_FAX", 3);
 define("TRANSMIT_ERX", 4);
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\ORDataObject\Address;
 use OpenEMR\Common\ValueObjects\TypedPhoneNumber;
@@ -231,8 +232,8 @@ class Pharmacy extends ORDataObject
         $pharmacy_array = [];
         $sql = "SELECT p.id, p.name, a.city, a.state " .
             "FROM " . escape_table_name($this->_table) . " AS p INNER JOIN addresses AS a ON  p.id = a.foreign_id";
-        $res = sqlQ($sql);
-        while ($row = sqlFetchArray($res)) {
+        $records = QueryUtils::fetchRecords($sql);
+        foreach ($records as $row) {
             $d_string = $row['city'];
             if (($row['city'] ?? '') !== '' && ($row['state'] ?? '') !== '') {
                 $d_string .= ", ";

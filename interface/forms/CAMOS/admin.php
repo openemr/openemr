@@ -4,7 +4,7 @@
  * CAMOS admin.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Mark Leeds <drleeds@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (C) 2006-2009 Mark Leeds <drleeds@gmail.com>
@@ -14,16 +14,15 @@
 
 require_once('../../globals.php');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 
 ?>
 <?php
 // Check authorization.
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("admin")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: CAMOS admin", xl("admin"));
 }
 
 

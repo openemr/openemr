@@ -3,7 +3,7 @@
 /*
  * history_sdoh_health_concerns.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,7 +14,7 @@
  * Allows provider to select relevant health concerns after SDOH assessment
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    System Architect
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -23,6 +23,7 @@ $srcdir = dirname(__FILE__, 4) . "/library";
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -47,8 +48,7 @@ if (!$pid || !$sdoh_id) {
 }
 
 if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
-    $logger->errorLogCaller("Unauthorized access attempt to SDOH health concerns", ['pid' => $pid, "sdoh_id" => $sdoh_id]);
-    die(xlt("Not authorized"));
+    AccessDeniedHelper::deny('Unauthorized access to SDOH health concerns');
 }
 
 $sdohService = new HistorySdohService();

@@ -169,9 +169,7 @@ class parseCSV
     /**
      * Constructor
      *
-     * @param
-     *          input CSV file or string
-     * @return nothing
+     * @param string|null $input CSV file or string
      */
     function __construct($input = null, $offset = null, $limit = null, $conditions = null)
     {
@@ -199,9 +197,8 @@ class parseCSV
     /**
      * Parse CSV file or string
      *
-     * @param
-     *          input CSV file or string
-     * @return nothing
+     * @param string|null $input CSV file or string
+     * @return bool
      */
     function parse($input = null, $offset = null, $limit = null, $conditions = null)
     {
@@ -297,13 +294,10 @@ class parseCSV
     /**
      * Convert character encoding
      *
-     * @param
-     *          input input character encoding, uses default if left blank
-     * @param
-     *          output output character encoding, uses default if left blank
-     * @return nothing
+     * @param string|null $input input character encoding, uses default if left blank
+     * @param string|null $output output character encoding, uses default if left blank
      */
-    function encoding($input = null, $output = null)
+    function encoding($input = null, $output = null): void
     {
         $this->convert_encoding = true;
         if ($input !== null) {
@@ -886,7 +880,7 @@ class parseCSV
      * Check if passed info might be delimiter
      * - only used by find_delimiter()
      *
-     * @return special string used for delimiter selection, or false
+     * @return string|false|null string used for delimiter selection, or false
      */
     function _check_count($char, $array, $depth, $preferred)
     {
