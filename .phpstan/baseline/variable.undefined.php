@@ -11327,11 +11327,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/backup.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$sqlconf might not be defined\\.$#',
-    'count' => 40,
-    'path' => __DIR__ . '/../../interface/main/backup.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/main/backup.php',
