@@ -541,6 +541,11 @@ if ($form_step == 3) {
 
     // Select the files and directories to archive.  Basically everything
     // except site-specific data for other sites.
+    $exclude_from_backup = [
+        // This should never exist in prod, but it makes testing backups
+        // locally a lot faster.
+        'tmp-phpstan',
+    ];
     $file_list = [];
     $dh = opendir($webserver_root);
     if (!$dh) {
@@ -549,6 +554,9 @@ if ($form_step == 3) {
 
     while (false !== ($filename = readdir($dh))) {
         if ($filename == '.' || $filename == '..') {
+            continue;
+        }
+        if (in_array($filename, $exclude_from_backup)) {
             continue;
         }
 
