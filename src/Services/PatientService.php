@@ -788,16 +788,18 @@ class PatientService extends BaseService
             $datenow = $yearnow . $monthnow . $daynow;
         } else {
             $datenow = preg_replace("/-/", "", $date);
-            $yearnow = substr((string) $datenow, 0, 4);
-            $monthnow = substr((string) $datenow, 4, 2);
-            $daynow = substr((string) $datenow, 6, 2);
+            assert(is_string($datenow));
+            $yearnow = substr($datenow, 0, 4);
+            $monthnow = substr($datenow, 4, 2);
+            $daynow = substr($datenow, 6, 2);
             $datenow = $yearnow . $monthnow . $daynow;
         }
 
         $dob = preg_replace("/-/", "", $dob);
-        $dobyear = substr((string) $dob, 0, 4);
-        $dobmonth = substr((string) $dob, 4, 2);
-        $dobday = substr((string) $dob, 6, 2);
+        assert(is_string($dob));
+        $dobyear = substr($dob, 0, 4);
+        $dobmonth = substr($dob, 4, 2);
+        $dobday = substr($dob, 6, 2);
         $dob = $dobyear . $dobmonth . $dobday;
 
         //to compensate for 30, 31, 28, 29 days/month
