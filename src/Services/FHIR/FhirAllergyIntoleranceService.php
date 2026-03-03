@@ -2,23 +2,11 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use Google\Service;
-use OpenEMR\FHIR\Export\ExportCannotEncodeException;
-use OpenEMR\FHIR\Export\ExportException;
-use OpenEMR\FHIR\Export\ExportJob;
-use OpenEMR\FHIR\Export\ExportStreamWriter;
-use OpenEMR\FHIR\Export\ExportWillShutdownException;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRAllergyIntolerance\FHIRAllergyIntoleranceReaction;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\AllergyIntoleranceService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAllergyIntolerance;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRProvenance\FHIRProvenanceAgent;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceCategory;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAllergyIntoleranceCriticality;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -29,15 +17,11 @@ use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
-use OpenEMR\Services\PractitionerService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
-use OpenEMR\Services\Search\ReferenceSearchValue;
 use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Validators\ProcessingResult;
-use OpenEMR\Common\Uuid;
-use OpenEMR\Common\Uuid\UuidRegistry;
 
 /**
  * FHIR AllergyIntolerance Service

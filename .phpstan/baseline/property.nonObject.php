@@ -232,16 +232,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$EOF on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/billing_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$fields on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/billing_report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$data on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
@@ -2357,18 +2347,23 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/WenoLogService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$leading on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/IndexController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$msg on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/IndexController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$page on mixed\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/IndexController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$queryString on mixed\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/IndexController.php',
 ];
 $ignoreErrors[] = [
@@ -2383,7 +2378,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$searchType on mixed\\.$#',
-    'count' => 1,
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/IndexController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access property \\$trailing on mixed\\.$#',
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/IndexController.php',
 ];
 $ignoreErrors[] = [
@@ -2395,36 +2395,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$menu_id on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Listener/ModuleMenuSubscriber.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$leading on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$page on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$queryString on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$searchEleNo on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$searchType on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$trailing on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$components on mixed\\.$#',
@@ -2892,11 +2862,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Note.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$EOF on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$date_of_birth on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
@@ -2904,11 +2869,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$federal_drug_id on mixed\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$fields on mixed\\.$#',
-    'count' => 12,
     'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
 ];
 $ignoreErrors[] = [
@@ -3462,42 +3422,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_image.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$clientFlags on ADOConnection\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$close on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$fields on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$port on ADOConnection\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ssl_ca on ADOConnection\\|false\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ssl_cert on ADOConnection\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$ssl_key on ADOConnection\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$user on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
@@ -4795,11 +4720,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$ez on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/Tasks/GeneratorHCFA_PDF_IMG.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$billing_options on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Hcfa1500.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$_appRoot on mixed\\.$#',

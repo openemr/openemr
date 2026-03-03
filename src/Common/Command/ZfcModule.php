@@ -27,7 +27,7 @@ class ZfcModule extends Command
         $this
             ->setName('openemr:zfc-module')
             ->setDescription('Module maintenance (install_sql, install_acl, upgrade_acl, upgrade_sql, install, enable, disable, unregister)')
-            ->addUsage('--site=default --modname=Multipledb --modaction=install')
+            ->addUsage('--site=default --modname=Carecoordination --modaction=install')
             ->setDefinition(
                 new InputDefinition([
                     new InputOption('modname', null, InputOption::VALUE_REQUIRED, 'Name of module'),

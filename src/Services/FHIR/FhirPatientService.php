@@ -6,9 +6,6 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointSystem;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointUse;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
@@ -590,7 +587,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         }
     }
 
-    protected function parseOpenEMRGenderIdentity(FhirPatient $patientResource, array $dataRecord): void
+    protected function parseOpenEMRGenderIdentity(FHIRPatient $patientResource, array $dataRecord): void
     {
         if (!empty($dataRecord['gender_identity'])) {
             $genderIdentityExtension = new FHIRExtension();

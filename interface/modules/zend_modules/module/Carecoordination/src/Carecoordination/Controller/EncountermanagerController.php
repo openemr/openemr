@@ -16,7 +16,6 @@
 namespace Carecoordination\Controller;
 
 use Application\Listener\Listener;
-use Carecoordination\Model\CcdaDocumentTemplateOids;
 use Carecoordination\Model\CcdaGlobalsConfiguration;
 use Carecoordination\Model\CcdaUserPreferencesTransformer;
 use Carecoordination\Model\EncountermanagerTable;
@@ -32,9 +31,7 @@ use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PractitionerService;
 use OpenEMR\Services\Qrda\QrdaReportService;
-use OpenEMR\Services\UserService;
 use OpenEMR\Validators\ProcessingResult;
-use Symfony\Component\EventDispatcher\GenericEvent;
 use XSLTProcessor;
 
 class EncountermanagerController extends AbstractActionController

@@ -2524,12 +2524,12 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Part \\$limitEnd \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/IndexController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$limitStart \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/IndexController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$GLOBALS\\[\'srcdir\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
@@ -4967,11 +4967,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/spreadsheet.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$GLOBALS\\[\'OE_SITE_DIR\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$authorized \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/transactions.inc.php',
@@ -5287,17 +5282,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/BillingReport.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$tmp \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$encounter \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Billing/Hcfa1500.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$ndc \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Billing/Hcfa1500.php',
 ];
@@ -5327,11 +5312,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/X125010837I.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$ndc \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/X125010837I.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$pid \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/X125010837I.php',
@@ -5340,11 +5320,6 @@ $ignoreErrors[] = [
     'message' => '#^Part \\$tmpdate \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/X125010837I.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$ndc \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/X125010837P.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$file \\(mixed\\) of encapsed string cannot be cast to string\\.$#',

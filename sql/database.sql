@@ -8758,6 +8758,7 @@ DROP TABLE IF EXISTS `codes_history`;
 -- ---------------------------------------------------------
 
 --
+<<<<<<< HEAD
 -- Table structure for table 'multiple_db' to store multiple db connection details
 --
 
@@ -8766,6 +8767,8 @@ DROP TABLE IF EXISTS `multiple_db`;
 -- -- ---------------------------------------------------------
 
 --
+=======
+>>>>>>> master
 -- Table structure for `therapy_groups`
 --
 

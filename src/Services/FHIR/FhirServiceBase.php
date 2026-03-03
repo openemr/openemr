@@ -14,7 +14,6 @@ use OpenEMR\Services\FHIR\Traits\ResourceServiceSearchTrait;
 use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Services\SessionAwareInterface;
 use OpenEMR\Validators\ProcessingResult;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**

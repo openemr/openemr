@@ -442,14 +442,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Laminas\\\\Stdlib\\\\RequestInterface\\:\\:getPost\\(\\)\\.$#',
-    'count' => 3,
+    'message' => '#^Call to an undefined method Application\\\\Model\\\\SendtoTable\\:\\:getCombinationFormComponents\\(\\)\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Laminas\\\\Db\\\\Adapter\\\\AdapterInterface\\:\\:query\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
+    'message' => '#^Call to an undefined method Laminas\\\\Stdlib\\\\RequestInterface\\:\\:getPost\\(\\)\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method Carecoordination\\\\Controller\\\\CarecoordinationController\\:\\:CommonPlugin\\(\\)\\.$#',
@@ -615,21 +615,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to an undefined method Laminas\\\\Stdlib\\\\RequestInterface\\:\\:isPost\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Laminas\\\\Stdlib\\\\RequestInterface\\:\\:getQuery\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/BaseController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Laminas\\\\Stdlib\\\\ResponseInterface\\:\\:setStatusCode\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/BaseController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Laminas\\\\Mvc\\\\Controller\\\\Plugin\\\\Layout\\|Laminas\\\\View\\\\Model\\\\ModelInterface\\:\\:setVariable\\(\\)\\.$#',
-    'count' => 11,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/MultipledbController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method Laminas\\\\Stdlib\\\\RequestInterface\\:\\:getQuery\\(\\)\\.$#',
@@ -1233,7 +1218,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method PHPUnit\\\\Framework\\\\MockObject\\\\MockObject\\:\\:root_database_connection\\(\\)\\.$#',
-    'count' => 9,
+    'count' => 4,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/library/classes/InstallerTest.php',
 ];
 $ignoreErrors[] = [
@@ -1253,7 +1238,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method PHPUnit\\\\Framework\\\\MockObject\\\\MockObject\\:\\:user_database_connection\\(\\)\\.$#',
-    'count' => 8,
+    'count' => 5,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/library/classes/InstallerTest.php',
 ];
 $ignoreErrors[] = [

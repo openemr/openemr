@@ -249,7 +249,7 @@ class RestControllerHelper
         return $httpResponseBody;
     }
 
-    public static function createProcessingResultResponse(HttpRestRequest $request, ProcessingResult $processingResult, $successStatusCode = Response::HTTP_OK, $isMultipleResultResponse = false)
+    public static function createProcessingResultResponse(HttpRestRequest $request, ProcessingResult $processingResult, $successStatusCode = Response::HTTP_OK, $isMultipleResultResponse = false): ResponseInterface
     {
         $httpResponseBody = [
             "validationErrors" => [],

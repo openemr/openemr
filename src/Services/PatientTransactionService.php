@@ -13,16 +13,9 @@
 
 namespace OpenEMR\Services;
 
-use MongoDB\Driver\Query;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\Search\DateSearchField;
-use OpenEMR\Services\Search\TokenSearchField;
-use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
-use Particle\Validator\Exception\InvalidValueException;
 use Particle\Validator\Validator;
-use OpenEMR\Validators\BaseValidator;
 
 class PatientTransactionService extends BaseService
 {

@@ -20,7 +20,6 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRSpecimen\FHIRSpecimenCollection;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRSpecimen\FHIRSpecimenContainer;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;

@@ -24,7 +24,6 @@ use OpenEMR\Events\PatientDemographics\RenderEvent;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\PatientService;
-use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use OpenEMR\FHIR\Config\ServerConfig;
 

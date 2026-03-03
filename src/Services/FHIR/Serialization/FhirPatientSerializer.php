@@ -13,7 +13,6 @@ namespace OpenEMR\Services\FHIR\Serialization;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAddress;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;

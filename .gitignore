@@ -28,8 +28,9 @@ ccdaservice/node_modules
 # testing
 .phpunit.result.cache
 
-# phpcs local overrides
+# dev tool local overrides
 phpcs.xml
+phpstan.neon
 coverage/js-unit
 
 # phpstan

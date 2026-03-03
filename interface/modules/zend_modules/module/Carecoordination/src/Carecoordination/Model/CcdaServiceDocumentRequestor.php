@@ -13,7 +13,6 @@
 
 namespace Carecoordination\Model;
 
-use Exception;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\System\System;
 

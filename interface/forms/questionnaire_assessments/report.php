@@ -12,7 +12,6 @@
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
 use OpenEMR\Services\QuestionnaireResponseService;
-use OpenEMR\Services\QuestionnaireService;
 
 /**
  * @throws Exception

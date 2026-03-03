@@ -15,7 +15,6 @@ namespace Ccr\Controller;
 
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
-use Laminas\View\Model\JsonModel;
 use Application\Listener\Listener;
 use Documents\Controller\DocumentsController;
 use Documents\Plugin\Documents;
@@ -301,7 +300,7 @@ class CcrController extends AbstractActionController
     /**
     * Table Gateway
     *
-    * @return type
+    * @return CcrTable
     */
     public function getCcrTable()
     {

@@ -11,13 +11,11 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\JWT;
 
-use Exception;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use League\OAuth2\Server\CryptTrait;
-use LogicException;
 
 class JsonWebKeyParser
 {

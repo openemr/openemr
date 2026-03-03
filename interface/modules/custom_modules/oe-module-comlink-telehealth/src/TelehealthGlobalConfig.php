@@ -12,7 +12,6 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule;
 
-use Comlink\OpenEMR\Module\GlobalConfig;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;

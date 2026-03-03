@@ -13,10 +13,8 @@
 
 namespace Carecoordination\Model;
 
-use Carecoordination\Controller\EncountermanagerController;
-use DOMDocument;
 use OpenEMR\Common\Logging\SystemLogger;
-use XSLTProcessor;
+use OpenEMR\Common\Session\SessionUtil;
 
 class CcdaGenerator
 {
@@ -82,7 +80,7 @@ class CcdaGenerator
                 , 'referral_reason' => (empty($referral_reason) ? "No referral reason" : "Has referral reason")
                 , 'date_options' => $date_options]);
         if ($sent_by != '') {
-            $_SESSION['authUserID'] = $sent_by;
+            SessionUtil::setSession('authUserID', $sent_by);
         }
 
         if (!$sections) {

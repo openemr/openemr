@@ -2,19 +2,16 @@
 
 namespace OpenEMR\RestControllers\Authorization;
 
-use Google\Service\Bigquery\SessionInfo;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\ResourceServer;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
-use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Validators\ScopeValidatorFactory;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Logging\SystemLogger;
 use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Core\OEGlobalsBag;

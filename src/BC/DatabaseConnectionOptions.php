@@ -135,7 +135,7 @@ final readonly class DatabaseConnectionOptions
      *
      * @return SslConfig
      */
-    private static function inferSslPaths(string $siteDir): array
+    public static function inferSslPaths(string $siteDir): array
     {
         $config = [];
 

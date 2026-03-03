@@ -38,19 +38,16 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRDocumentReference\FHIRDocumentReferenceContent;
 use OpenEMR\Services\FHIR\DocumentReference\Enum\DocumentReferenceCategoryEnum;
 use OpenEMR\Services\FHIR\DocumentReference\Enum\DocumentReferenceAdvancedDirectiveCodeEnum;
 use OpenEMR\Services\FHIR\DocumentReference\FhirDocumentReferenceAdvanceCareDirectiveService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\UtilsService;
-use OpenEMR\Services\PatientAdvanceDirectiveService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Ramsey\Uuid\Rfc4122\UuidV4;
-use Ramsey\Uuid\Uuid;
 
 // AI GENERATED CODE - Start
 class FhirDocumentReferenceAdvanceCareDirectiveServiceUSCore8Test extends TestCase

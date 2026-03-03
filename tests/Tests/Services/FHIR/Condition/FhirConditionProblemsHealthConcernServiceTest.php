@@ -12,8 +12,6 @@
 namespace OpenEMR\Tests\Services\FHIR\Condition;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
-use OpenEMR\Services\FHIR\Condition\FhirConditionEncounterDiagnosisService;
 use OpenEMR\Services\FHIR\Condition\FhirConditionProblemListItemService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\UtilsService;

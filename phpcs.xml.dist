@@ -15,6 +15,9 @@
   <arg name="parallel" value="20" />
   <arg value="p" /> <!-- progressbar-->
 
+  <!-- Register Slevomat Coding Standard -->
+  <config name="installed_paths" value="vendor/slevomat/coding-standard" />
+
   <!-- Checks that the opening PHP tag is the first content in a file. -->
   <rule ref="Generic.PHP.CharacterBeforePHPOpeningTag"/>
 
@@ -34,6 +37,20 @@
   <rule ref="PSR12">
     <include-pattern>src/*</include-pattern>
   </rule>
+  -->
+
+  <!-- Use statement rules -->
+  <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses">
+    <properties>
+      <property name="searchAnnotations" value="true" />
+    </properties>
+  </rule>
+  <!-- To add later
+  <rule ref="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses" />
+  <rule ref="SlevomatCodingStandard.Namespaces.MultipleUsesPerLine" />
+  <rule ref="SlevomatCodingStandard.Namespaces.UseDoesNotStartWithBackslash" />
+  <rule ref="SlevomatCodingStandard.Namespaces.UseFromSameNamespace" />
+  <rule ref="SlevomatCodingStandard.Namespaces.UselessAlias" />
   -->
 
   <!-- Default scan target (overridden when paths passed on CLI) -->

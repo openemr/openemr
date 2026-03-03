@@ -3,7 +3,6 @@
 namespace OpenEMR\Tests\Fixtures;
 
 use OpenEMR\Tests\Fixtures\BaseFixtureManager;
-use Ramsey\Uuid\Uuid;
 
 /**
  * Provides OpenEMR Fixtures/Sample Records to test cases as Objects or Database Records.

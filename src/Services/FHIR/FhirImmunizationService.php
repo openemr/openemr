@@ -19,7 +19,6 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRImmunizationStatusCodes;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRQuantity;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRImmunization\FHIRImmunizationEducation;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;

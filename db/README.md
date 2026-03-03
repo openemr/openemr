@@ -3,7 +3,7 @@
 This tooling is built on top of [`doctrine/migrations`](https://www.doctrine-project.org/projects/doctrine-migrations/en/3.9/reference/introduction.html#introduction).
 
 The tool's built-in help system (passing `--help` to any of the commands) is ground truth.
-Use `vendor/bin/doctrine-migrations list` to show all available commands.
+Use `./cli list migrations` to show all available migrations commands.
 
 We are in the process of overhauling CLI and module-related tooling, so this covers the current state of things.
 
@@ -13,7 +13,7 @@ We are in the process of overhauling CLI and module-related tooling, so this cov
 
 ## Creating a Migration Script
 
-Run `vendor/bin/doctrine-migrations migration:generate`.
+Run `./cli migration:generate`.
 Edit the file it creates.
 
 Migrations will automatically have a timestamp applied to the file name, and will be run in sequential order.
@@ -29,7 +29,7 @@ Exercise good judgment when to make mode widespread changes within a single migr
 > This will result in schema changes to your database.
 > Certain changes may take a long time to execute, which could lead to service interruptions.
 
-Run `vendor/bin/doctrine-migrations migrate`, and follow the prompts.
+Run `./cli migrate`, and follow the prompts.
 
 ### Reverting a Migration
 
@@ -39,7 +39,7 @@ Run `vendor/bin/doctrine-migrations migrate`, and follow the prompts.
 Under some circumstances, you may need to roll back a migration.
 This is _mostly_ used during development where you are iterating on the final schema changes, and should be very rare in production environments.
 
-Run `vendor/bin/doctrine-migrations migrate prev` to run the "down" path of the most recent migration.
+Run `./cli migrate prev` to run the "down" path of the most recent migration.
 
 > [!NOTE]
 > Not all migrations will support a roll back procedure.

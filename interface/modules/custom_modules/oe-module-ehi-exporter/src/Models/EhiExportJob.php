@@ -13,8 +13,6 @@
 
 namespace OpenEMR\Modules\EhiExporter\Models;
 
-use OpenEMR\Services\Utils\DateFormatterUtils;
-use Ramsey\Uuid\Rfc4122\UuidV4;
 
 class EhiExportJob
 {

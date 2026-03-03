@@ -12,7 +12,6 @@
 
 namespace OpenEMR\Modules\Dorn;
 
-use OpenEMR\Modules\Dorn\Bootstrap;
 
 class DisplayHelper
 {

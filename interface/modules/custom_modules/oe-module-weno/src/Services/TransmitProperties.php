@@ -18,8 +18,6 @@ namespace OpenEMR\Modules\WenoModule\Services;
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PhoneNumberService;
 

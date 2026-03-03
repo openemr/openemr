@@ -15,7 +15,6 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
-use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
 use OpenEMR\Services\FHIR\Traits\PatientSearchTrait;

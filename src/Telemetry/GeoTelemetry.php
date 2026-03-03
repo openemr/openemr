@@ -25,7 +25,6 @@
 namespace OpenEMR\Telemetry;
 
 use OpenEMR\Common\Utils\ValidationUtils;
-use OpenEMR\Services\Globals\GlobalSetting;
 
 class GeoTelemetry implements GeoTelemetryInterface
 {

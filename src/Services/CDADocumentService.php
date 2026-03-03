@@ -12,7 +12,6 @@
 
 namespace OpenEMR\Services;
 
-use Application\Model\ApplicationTable;
 use Carecoordination\Model\CcdaGenerator;
 use Carecoordination\Model\EncounterccdadispatchTable;
 use CouchDB;
@@ -112,7 +111,7 @@ class CDADocumentService extends BaseService
      */
     public function generateCCDXml($pid): string
     {
-        $dispatchTable = new EncounterccdadispatchTable(new ApplicationTable());
+        $dispatchTable = new EncounterccdadispatchTable();
         $ccdaGenerator = new CcdaGenerator($dispatchTable);
         $result = $ccdaGenerator->generate(
             $pid,

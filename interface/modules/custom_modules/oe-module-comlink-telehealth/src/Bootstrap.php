@@ -29,7 +29,6 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthParticipantInvit
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthProvisioningService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TelehealthRegistrationCodeService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthRemoteRegistrationService;
-use Laminas\Form\Element\Tel;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\CacheUtils;
@@ -38,7 +37,6 @@ use OpenEMR\Events\Appointments\AppointmentSetEvent;
 use OpenEMR\Events\Core\TwigEnvironmentEvent;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
-use OpenEMR\Services\Globals\GlobalSetting;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;

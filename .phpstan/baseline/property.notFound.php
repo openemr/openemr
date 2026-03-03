@@ -32,6 +32,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/profiler.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Access to an undefined property AbstractClickmapModel\\:\\:\\$hideNav\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Access to an undefined property eRxPage\\:\\:\\$prescriptions\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxPage.php',
@@ -160,11 +165,6 @@ $ignoreErrors[] = [
     'message' => '#^Access to an undefined property OpenEMR\\\\Modules\\\\FaxSMS\\\\EtherFax\\\\FaxAccount\\:\\:\\$TimeZone\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/EtherFax/EtherFaxClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property Laminas\\\\Db\\\\Adapter\\\\AdapterInterface\\:\\:\\$platform\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Access to an undefined property DOMNameSpaceNode\\|DOMNode\\:\\:\\$childElementCount\\.$#',
@@ -688,7 +688,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Access to an undefined property PHPUnit\\\\Framework\\\\MockObject\\\\MockObject\\:\\:\\$dbh\\.$#',
-    'count' => 22,
+    'count' => 19,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/library/classes/InstallerTest.php',
 ];
 $ignoreErrors[] = [
@@ -698,7 +698,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Access to an undefined property PHPUnit\\\\Framework\\\\MockObject\\\\MockObject\\:\\:\\$error_message\\.$#',
-    'count' => 46,
+    'count' => 42,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/library/classes/InstallerTest.php',
 ];
 $ignoreErrors[] = [

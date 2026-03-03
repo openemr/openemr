@@ -14,15 +14,9 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\Entities;
 
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
-use OpenEMR\Common\Auth\AuthUtils;
-use OpenEMR\Common\Auth\MfaUtils;
 use OpenEMR\Common\Auth\OpenIDConnect\FhirUserClaim;
 use OpenEMR\Common\Auth\UuidUserAccount;
-use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Utils\ValidationUtils;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\PractitionerService;
 use OpenIDConnectServer\Entities\ClaimSetInterface;
 
 class UserEntity implements ClaimSetInterface, UserEntityInterface

@@ -7,7 +7,6 @@ use Symfony\Component\HttpFoundation\Response;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\SystemLogger;
 use Psr\Log\LoggerInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\HttpFoundation\Request;

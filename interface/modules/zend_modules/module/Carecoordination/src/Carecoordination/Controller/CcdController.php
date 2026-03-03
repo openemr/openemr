@@ -14,16 +14,11 @@ namespace Carecoordination\Controller;
 
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
-use Laminas\View\Model\JsonModel;
 use Application\Listener\Listener;
 use Documents\Controller\DocumentsController;
 use Carecoordination\Model\CcdTable;
 use Carecoordination\Model\CarecoordinationTable;
 use Documents\Model\DocumentsTable;
-use C_Document;
-use Document;
-use CouchDB;
-use xmltoarray_parser_htmlfix;
 
 class CcdController extends AbstractActionController
 {

@@ -15,8 +15,6 @@
 namespace Carecoordination;
 
 use Carecoordination\Model\CcdaGenerator;
-use Documents\Plugin\Documents;
-use Laminas\ServiceManager\Factory\InvokableFactory;
 use Laminas\Router\Http\Segment;
 use Carecoordination\Controller\CarecoordinationController;
 use Carecoordination\Controller\EncounterccdadispatchController;
@@ -33,7 +31,6 @@ use Carecoordination\Factory\EncounterccdadispatchControllerFactory;
 use Carecoordination\Factory\SetupControllerFactory;
 use Carecoordination\Controller\ModuleconfigController;
 use Interop\Container\ContainerInterface;
-use Application\Plugin\CommonPlugin;
 use Documents\Controller\DocumentsController;
 use Carecoordination\Listener\CCDAEventsSubscriber;
 
@@ -146,16 +143,13 @@ return [
     'service_manager' => [
         'factories' => [
             CarecoordinationTable::class =>  fn(ContainerInterface $container, $requestedName): \Carecoordination\Model\CarecoordinationTable => new CarecoordinationTable(),
-            EncounterccdadispatchTable::class =>  function (ContainerInterface $container, $requestedName) {
-                $applicationTable = $container->get(\Application\Model\ApplicationTable::class);
-                return new EncounterccdadispatchTable($applicationTable);
-            },
+            EncounterccdadispatchTable::class =>  fn(ContainerInterface $container, $requestedName): \Carecoordination\Model\EncounterccdadispatchTable => new EncounterccdadispatchTable(),
             EncountermanagerTable::class =>  fn(ContainerInterface $container, $requestedName): \Carecoordination\Model\EncountermanagerTable => new EncountermanagerTable(),
             SetupTable::class =>  fn(ContainerInterface $container, $requestedName): \Carecoordination\Model\SetupTable => new SetupTable(),
             CcdTable::class =>  fn(ContainerInterface $container, $requestedName): \Carecoordination\Model\CcdTable => new CcdTable(),
             ModuleconfigForm::class => fn(ContainerInterface $container, $requestedName): \Carecoordination\Form\ModuleconfigForm => new ModuleconfigForm(),
             // so this isn't really a 'controller' class used as a route 'controller' but more to reuse component code for other modules...
-            ModuleconfigController::class => fn(ContainerInterface $container, $requestedName): \Carecoordination\Controller\ModuleconfigController => new ModuleconfigController($container->get(\Laminas\Db\Adapter\Adapter::class)),
+            ModuleconfigController::class => fn(ContainerInterface $container, $requestedName): \Carecoordination\Controller\ModuleconfigController => new ModuleconfigController(),
             SetupController::class => SetupControllerFactory::class,
             EncounterccdadispatchController::class => EncounterccdadispatchControllerFactory::class,
             CCDAEventsSubscriber::class => fn(ContainerInterface $container, $requestedName): \Carecoordination\Listener\CCDAEventsSubscriber => new CCDAEventsSubscriber($container->get(CcdaGenerator::class)),
@@ -170,7 +164,7 @@ return [
     // TODO: Note this is a weird dependency used in the CarecoordinationController class that should be revisited
     ,'controller_plugins' => [
         'factories' => [
-            'Documents' => fn(ContainerInterface $container, $requestedName): \Documents\Plugin\Documents => new \Documents\Plugin\Documents($container)
+            'Documents' => fn(ContainerInterface $container, $requestedName): \Documents\Plugin\Documents => new \Documents\Plugin\Documents()
         ]
     ]
     ,'module_dependencies' => [

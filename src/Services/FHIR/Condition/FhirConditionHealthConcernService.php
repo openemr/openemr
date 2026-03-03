@@ -29,7 +29,6 @@ use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceCategoryTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
 use OpenEMR\Services\FHIR\UtilsService;
-use OpenEMR\Services\SDOH\HistorySdohService;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;

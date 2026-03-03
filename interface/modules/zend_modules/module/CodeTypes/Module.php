@@ -14,7 +14,6 @@
 
 namespace CodeTypes;
 
-use Laminas\Mvc\ModuleRouteListener;
 use Laminas\Mvc\MvcEvent;
 use OpenEMR\ZendModules\CodeTypes\Listener\CodeTypeEventsSubscriber;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

@@ -22,11 +22,7 @@ use OpenEMR\FHIR\Export\ExportWillShutdownException;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\IResourceReadableService;
-use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
-use OpenEMR\Services\Search\ISearchField;
-use OpenEMR\Services\Search\SearchComparator;
-use OpenEMR\Services\Search\TokenSearchField;
 
 trait FhirBulkExportDomainResourceTrait
 {

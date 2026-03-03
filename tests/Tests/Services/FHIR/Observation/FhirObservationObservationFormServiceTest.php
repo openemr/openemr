@@ -14,7 +14,6 @@ namespace OpenEMR\Tests\Services\FHIR\Observation;
 
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;

@@ -208,6 +208,12 @@ https\\://github\\.com/sebastianbergmann/phpunit/issues/6052$#',
     'path' => __DIR__ . '/../../tests/Tests/Common/Auth/OpenIDConnect/SMARTSessionTokenContextIntegrationTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to deprecated method produceRandomBytes\\(\\) of class OpenEMR\\\\Common\\\\Utils\\\\RandomGenUtils\\:
+Use random_bytes\\(\\) directly$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Utils/RandomGenUtilsTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to deprecated method isType\\(\\) of class PHPUnit\\\\Framework\\\\Assert\\:
 https\\://github\\.com/sebastianbergmann/phpunit/issues/6052$#',
     'count' => 1,

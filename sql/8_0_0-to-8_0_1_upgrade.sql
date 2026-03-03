@@ -173,3 +173,21 @@ ALTER TABLE `patient_data` CHANGE `interpretter` `interpreter` varchar(255) NOT 
 #IfRow2D layout_options form_id DEM field_id interpretter
 UPDATE `layout_options` SET `field_id` = 'interpreter' WHERE `form_id` = 'DEM' AND `field_id` = 'interpretter';
 #EndIf
+
+--
+-- Remove the unused Multipledb module infrastructure.
+-- The module has been removed and will be replaced by Doctrine's
+-- native multi-connection support if ever needed.
+--
+
+#IfTable multiple_db
+DROP TABLE `multiple_db`;
+#EndIf
+
+#IfRow globals gl_name allow_multiple_databases
+DELETE FROM `globals` WHERE `gl_name` = 'allow_multiple_databases';
+#EndIf
+
+#IfRow globals gl_name safe_key_database
+DELETE FROM `globals` WHERE `gl_name` = 'safe_key_database';
+#EndIf

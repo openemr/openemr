@@ -28,7 +28,6 @@ use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportOpenEmrPostCalendarEvents
 use OpenEMR\Modules\EhiExporter\Services\ExportTableDataFilterer;
 use OpenEMR\Modules\EhiExporter\Models\ExportTableResult;
 use OpenEMR\Modules\EhiExporter\Models;
-use OpenEMR\Modules\EhiExporter\Models\ExportResult;
 use OpenEMR\Modules\EhiExporter\Models\ExportKeyDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportPersonTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition;

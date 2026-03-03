@@ -20,7 +20,6 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPeriod;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRRequestPriority;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\ProcedureOrderRelationshipService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;

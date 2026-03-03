@@ -17,7 +17,6 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Validators;
 
 use OpenEMR\Validators\OpenEMRChain;
-use OpenEMR\Validators\Rules\ListOptionRule;
 use Particle\Validator\Chain;
 use PHPUnit\Framework\TestCase;
 

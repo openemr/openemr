@@ -12,35 +12,27 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\System\System;
 use OpenEMR\FHIR\Export\ExportCannotEncodeException;
 use OpenEMR\FHIR\Export\ExportException;
 use OpenEMR\FHIR\Export\ExportJob;
 use OpenEMR\FHIR\Export\ExportStreamWriter;
 use OpenEMR\FHIR\Export\ExportWillShutdownException;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRProvenance\FHIRProvenanceAgent;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
-use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\Utils\FhirServiceLocator;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
-use OpenEMR\Services\Search\ReferenceSearchValue;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;
-use OpenEMR\Services\Search\ServiceField;
-use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\SessionAwareInterface;
 use OpenEMR\Validators\ProcessingResult;
-use Exception;
 
 class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGProfileService, IFhirExportableResourceService
 {

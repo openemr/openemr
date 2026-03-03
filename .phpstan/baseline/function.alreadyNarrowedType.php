@@ -62,14 +62,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/templates/weno_fragment.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_array\\(\\) with array will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function method_exists\\(\\) with ModuleManagerListener and \'moduleManagerAction\' will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_array\\(\\) with non\\-empty\\-array\\<mixed\\> will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_numeric\\(\\) with int will always evaluate to true\\.$#',

@@ -12,7 +12,6 @@
 
 namespace Documents;
 
-use Laminas\ServiceManager\Factory\InvokableFactory;
 use Laminas\Router\Http\Segment;
 use Documents\Controller\DocumentsController;
 use Documents\Model\DocumentsTable;
@@ -69,7 +68,7 @@ return [
     // @see https://olegkrivtsov.github.io/using-zend-framework-3-book/html/en/Model_View_Controller/Controller_Plugins.html for more details.
     'controller_plugins' => [
         'factories' => [
-            'Documents' => fn(ContainerInterface $container, $requestedName): \Documents\Plugin\Documents => new Plugin\Documents($container)
+            'Documents' => fn(ContainerInterface $container, $requestedName): \Documents\Plugin\Documents => new Plugin\Documents()
         ]
     ],
     'service_manager' => [

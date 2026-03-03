@@ -189,26 +189,10 @@ class OAuth2KeyConfig
         $this->deleteKeys();
 
         // Generate encryption key
-        $this->oaEncryptionKey = RandomGenUtils::produceRandomBytes(32);
-        if (empty($this->oaEncryptionKey)) {
-            // if empty, then log and force exit
-            EventAuditLogger::getInstance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 0, $logLabel . "random generator broken during oauth2 encryption key generation");
-            throw new OAuth2KeyException("random generator broken during oauth2 encryption key generation");
-        }
-        $this->oaEncryptionKey = base64_encode($this->oaEncryptionKey);
-        if (empty($this->oaEncryptionKey)) {
-            // if empty, then log and force exit
-            EventAuditLogger::getInstance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 0, $logLabel . "base64 encoding broken during oauth2 encryption key generation");
-            throw new OAuth2KeyException("base64 encoding broken during oauth2 encryption key generation");
-        }
+        $this->oaEncryptionKey = base64_encode(random_bytes(32));
 
         // Generate passphrase and public/private keys
         $this->passphrase = RandomGenUtils::produceRandomString(60, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-        if (empty($this->passphrase)) {
-            // if empty, then log and force exit
-            EventAuditLogger::getInstance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 0, $logLabel . "random generator broken during oauth2 key passphrase generation");
-            throw new OAuth2KeyException("random generator broken during oauth2 key passphrase generation");
-        }
         $keysConfig = [
             "default_md" => "sha256",
             "private_key_type" => OPENSSL_KEYTYPE_RSA,

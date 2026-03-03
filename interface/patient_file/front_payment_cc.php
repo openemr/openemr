@@ -15,11 +15,9 @@ require_once(__DIR__ . "/../globals.php");
 
 use OpenEMR\Billing\PaymentGateway;
 use OpenEMR\Common\Crypto\CryptoGen;
-use Stripe\Customer;
 use Stripe\PaymentIntent;
 use Stripe\Stripe;
 use Stripe\Terminal\ConnectionToken;
-use Stripe\Terminal\Location;
 
 if ($_POST['mode'] == 'AuthorizeNet') {
     $form_pid = $_POST['form_pid'];
