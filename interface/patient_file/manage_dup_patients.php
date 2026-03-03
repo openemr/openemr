@@ -47,7 +47,7 @@ $session = SessionWrapperFactory::getInstance()->getWrapper();
 function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
 {
  //   global $first_time, $group;
-
+/** @var array<string> $row */
     if (empty($pid)) {
         $pid = $row['pid'];
     }
@@ -96,20 +96,18 @@ function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
         $highlight_class = 'highlight-master';
         $highlight_text = xlt('Merge To');
     }
-
     if ($_POST['form_csvexport'] == "CSV" ) {   // rm out put the line to csv file
-            echo csvEscape(text(strval($group))) . ',' ;
+          echo csvEscape(text(strval($group))) . ',' ;
  /** @var string $myscore */
           echo  csvEscape(text($myscore)) . ','  ;
 /**  @var string $pat_pid */
             $pat_pid = $row['pid'];
             echo  csvEscape($pat_pid) . ',';
-/** @var string $pubpid */
-            $pubpid = $row['pubpid'];
-            echo csvEscape($pubpid) . ',';
-/** @var string $highlight_text */
+/** @var string $ptname_pid */
+/* * @ var array<string> $row */
+            $ptname_pid = $row['ptnamepid'];
+            echo csvEscape($ptname_pid) . ',';
             echo  csvEscape(text($highlight_text))  . ',';
- /** @var string $ptname */
             echo  csvEscape(text($ptname)) .  ',';
             // rm - format dates by users preference
  /** @var string $date_str */
@@ -139,7 +137,8 @@ function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
         echo "<tr class='$highlight_class'>";
         ?>
     <td>
-        <select onchange='selectChange(this, <?php echo attr_js($pid); ?>, <?php echo attr_js($row['pid']); ?>)' style='width:100%'>
+        <select onchange='selectChange(this, <?php  /**  @var string $pat_pid */
+            $pat_pid = $row['pid'];  echo attr_js($row[$pat_pid]); ?> style='width:100%'>
             <?php echo $options; // this is html and already escaped as required
             ?>
         </select>
@@ -149,26 +148,26 @@ function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
     </td>
     <td class="text-warning" onclick="openNewTopWindow(<?php echo attr_js($row['pid']); ?>)"
         title="<?php echo xla('Click to open in a new window or tab'); ?>" style="cursor:pointer">
-        <?php    /**   @var array<string> $row */    echo text($row['pid']); ?>
+        <?php  echo text($row['pid']); ?>
     </td>
     <td>
-        <?php /** @var string pubpid */ echo text($row['pubpid']); ?>
+        <?php echo text($row['ptnamepid']); ?>
     </td>
     <td>
-        <?php/** @var string highlight_text */ echo $highlight_text; ?>
+        <?php/** @var string $highlight_text */ echo $highlight_text; ?>
     </td>
     <td>
-        <?php /** @var string ptname */echo text($ptname); ?>
+        <?php echo text($ptname); ?>
     </td>
     <td>
         <?php $date_ob = oeFormatShortDate($row['DOB']);    /** @var string $date_ob */  echo text($date_ob); ?>
       ?>
     </td>
     <td>
-        <?php echo  /**   @var array<string> $row */  text($row['sex']); ?>
+        <?php echo text($row['sex']); ?>
     </td>
     <td>
-        <?php  /**   @var array<string> $row */ echo text($row['email']); ?>
+        <?php echo text($row['email']); ?>
     </td>
     <td>
         <?php  /**   @var string $phones */ echo text($phones); ?>
@@ -177,7 +176,7 @@ function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
         <?php //echo text(oeFormatShortDate($row['regdate'])); ?>
     </td>
     <td>
-        <?php  /**   @var array<string> $row */ echo text($row['street']); ?>
+        <?php  echo text($row['street']); ?>
     </td>
     </tr>
         <?php
@@ -236,11 +235,11 @@ $calc_count = calculateScores();
 $score_calculate = getDupScoreSQL();
 // rm - In the case of CSV export only, a file download will be forced. set up parameters
 if ($_POST['form_csvexport'] == "CSV" ) {
-    header("Pragma: public");
+    header("Pragma: ptnamelic");
     header("Expires: 0");
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
     header("Content-Type: application/force-download");
-    $today = getdate()['year']  . getdate()['mon'] . getdate()['mday'] ;
+    $today = getdate()['year']  . getdate()['mon'] . getdate()['mday']  . getdate()['hours'] . getdate()['minutes'];
  //   $filename = "duplicate_patients" . "_" . $GLOBALS['openemr_name'] . "_" .  $today . ".csv" ;
     $instance_name = OEGlobalsBag::getInstance()->get('openemr_name');
     /** @var string $instance_name */
