@@ -744,14 +744,12 @@ class ImmunizationController extends AbstractActionController
      */
     public function format_ethnicity($ethnicity)
     {
-        switch ($ethnicity) {
-            case "hisp_or_latin":
-                return ("H^Hispanic or Latino^HL70189");
-            case "not_hisp_or_latin":
-                return ("N^not Hispanic or Latino^HL70189");
-            default: // Unknown
-                return ("U^Unknown^HL70189");
-        }
+        return match ($ethnicity) {
+            "hisp_or_latin" => "H^Hispanic or Latino^HL70189",
+            "not_hisp_or_latin" => "N^not Hispanic or Latino^HL70189",
+            // Unknown
+            default => "U^Unknown^HL70189",
+        };
     }
 
     /**
