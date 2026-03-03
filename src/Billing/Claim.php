@@ -207,8 +207,9 @@ class Claim
         return $orderer_id ?? '';
     }
 
-    // This enforces the X12 Basic Character Set. Page A2.
     /**
+     * This enforces the X12 Basic Character Set. Page A2.
+     *
      * @param string $str
      * @return string
      */
@@ -227,9 +228,10 @@ class Claim
         return preg_replace('/[^0-9]/', '', (string) $zip);
     }
 
-    // Make sure dates have no formatting and zero filled becomes blank
-    // Handles date time stamp formats as well
     /**
+     * Make sure dates have no formatting and zero filled becomes blank
+     * Handles date time stamp formats as well
+     *
      * @param string|null $date_field
      * @return string
      */
@@ -1378,9 +1380,10 @@ class Claim
         return strtoupper(substr((string) $this->patient_data['status'], 0, 1));
     }
 
-  // This should be UNEMPLOYED, STUDENT, PT STUDENT, or anything else to
-  // indicate employed.
     /**
+     * This should be UNEMPLOYED, STUDENT, PT STUDENT, or anything else to
+     * indicate employed.
+     *
      * @return string
      */
     public function patientOccupation()
@@ -1420,8 +1423,9 @@ class Claim
         return $this->x12Clean(trim((string) $this->procs[$prockey]['notecodes']));
     }
 
-  // Returns the procedure code, followed by ":modifier" if there is one.
     /**
+     * Returns the procedure code, followed by ":modifier" if there is one.
+     *
      * @return string
      */
     public function cptKey($prockey)
@@ -1450,8 +1454,9 @@ class Claim
         return $this->x12Clean(trim((string) $this->procs[$prockey]['units']));
     }
 
-  // NDC drug ID.
     /**
+     * NDC drug ID.
+     *
      * @return string
      */
     public function cptNDCID($prockey)
@@ -1469,8 +1474,9 @@ class Claim
         return '';
     }
 
-  // NDC drug unit of measure code.
     /**
+     * NDC drug unit of measure code.
+     *
      * @return string
      */
     public function cptNDCUOM($prockey)
@@ -1483,8 +1489,9 @@ class Claim
         return '';
     }
 
-  // NDC drug number of units.
     /**
+     * NDC drug number of units.
+     *
      * @return string
      */
     public function cptNDCQuantity($prockey)

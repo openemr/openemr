@@ -1235,9 +1235,9 @@ function newEmployerData(
         ");
 }
 
-// Create or update employer data from an array.
-//
 /**
+ * Create or update employer data from an array.
+ *
  * @param $pid
  * @param $new
  * @param $create
