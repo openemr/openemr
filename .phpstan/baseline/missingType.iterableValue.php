@@ -32,6 +32,21 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/code_types.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function define_external_table\\(\\) has parameter \\$filter_clauses with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../custom/code_types.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function define_external_table\\(\\) has parameter \\$joins with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../custom/code_types.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function define_external_table\\(\\) has parameter \\$results with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../custom/code_types.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function main_code_set_search\\(\\) has parameter \\$filter_elements with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/code_types.inc.php',
@@ -110,6 +125,11 @@ $ignoreErrors[] = [
     'message' => '#^Function notify_portal\\(\\) has parameter \\$invoices with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_search.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method C_AbstractClickmap\\:\\:getOptionList\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function inventory_mergeData\\(\\) has parameter \\$d1 with no value type specified in iterable type array\\.$#',
@@ -325,6 +345,11 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Forms\\\\NewPatient\\\\C_EncounterVisitForm\\:\\:__construct\\(\\) has parameter \\$issueTypes with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/newpatient/C_EncounterVisitForm.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method C_FormPainMap\\:\\:getOptionList\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/painmap/C_FormPainMap.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property C_FormPriorAuth\\:\\:\\$template_dir type has no value type specified in iterable type array\\.$#',
@@ -2602,6 +2627,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function getEmployerData\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/patient.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function getFacilities\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/patient.inc.php',
@@ -3005,6 +3035,21 @@ $ignoreErrors[] = [
     'message' => '#^Function getUserIDInfo\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/user.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method xmltoarray_parser_htmlfix\\:\\:_struct_to_array\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/xmltoarray_parser_htmlfix.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method xmltoarray_parser_htmlfix\\:\\:_struct_to_array\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/xmltoarray_parser_htmlfix.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method xmltoarray_parser_htmlfix\\:\\:createArray\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/xmltoarray_parser_htmlfix.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function buildNav\\(\\) return type has no value type specified in iterable type array\\.$#',
@@ -3790,11 +3835,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:getLineItemAdjustments\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\Hcfa1500\\:\\:addDiagnosis\\(\\) has parameter \\$hcfa_entries with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Hcfa1500.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\MiscBillingOptions\\:\\:generateDateQualifierSelect\\(\\) has parameter \\$obj with no value type specified in iterable type array\\.$#',

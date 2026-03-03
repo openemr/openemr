@@ -19,7 +19,13 @@ use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 
 class SendtoController extends AbstractActionController
 {
+    /**
+     * @var \Application\Model\SendtoTable
+     */
     protected $sendtoTable;
+    /**
+     * @var Listener
+     */
     protected $listenerObject;
 
     public function __construct(\Application\Model\SendtoTable $sendToTable)
@@ -123,7 +129,7 @@ class SendtoController extends AbstractActionController
     /**
      * Table Gateway
      *
-     * @return type
+     * @return \Application\Model\SendtoTable
      */
     public function getSendtoTable()
     {

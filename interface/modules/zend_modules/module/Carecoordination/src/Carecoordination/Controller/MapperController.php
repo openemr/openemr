@@ -120,7 +120,7 @@ class MapperController extends AbstractActionController
     /**
     * Table Gateway
     *
-    * @return type
+    * @return MapperTable
     */
     public function getMapperTable()
     {

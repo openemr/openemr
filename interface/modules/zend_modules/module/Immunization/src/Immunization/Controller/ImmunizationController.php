@@ -739,26 +739,22 @@ class ImmunizationController extends AbstractActionController
     }
 
     /**
-     *
-     * @param type $ethnicity
-     * @return type
+     * @param string $ethnicity
+     * @return string
      */
     public function format_ethnicity($ethnicity)
     {
-        switch ($ethnicity) {
-            case "hisp_or_latin":
-                return ("H^Hispanic or Latino^HL70189");
-            case "not_hisp_or_latin":
-                return ("N^not Hispanic or Latino^HL70189");
-            default: // Unknown
-                return ("U^Unknown^HL70189");
-        }
+        return match ($ethnicity) {
+            "hisp_or_latin" => "H^Hispanic or Latino^HL70189",
+            "not_hisp_or_latin" => "N^not Hispanic or Latino^HL70189",
+            // Unknown
+            default => "U^Unknown^HL70189",
+        };
     }
 
     /**
-     *
-     * @param type $a
-     * @return type
+     * @param string $a
+     * @return string
      */
     public function tr($a)
     {
@@ -766,9 +762,8 @@ class ImmunizationController extends AbstractActionController
     }
 
     /**
-     *
-     * @param type $cvx_code
-     * @return type
+     * @param int|string $cvx_code
+     * @return string
      */
     public function format_cvx_code($cvx_code)
     {

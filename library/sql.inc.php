@@ -426,7 +426,7 @@ function generate_id(): int
 * @deprecated
 * @param  string  $statement  query
 * @param  array   $binds      binded variables array (optional)
-* @return recordset
+* @return ADORecordSet
 */
 function sqlQ($statement, $binds = false)
 {
