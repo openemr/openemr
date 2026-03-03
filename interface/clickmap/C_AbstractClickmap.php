@@ -32,7 +32,7 @@ abstract class C_AbstractClickmap extends Controller
     /**
      * the directory to find our template file in.
      *
-     * @var template_dir
+     * @var string
      */
     public $template_dir;
 
@@ -55,32 +55,29 @@ abstract class C_AbstractClickmap extends Controller
     /**
      * @brief Override this abstract function with your implementation of createModel.
      *
-     * @param $form_id
-     *  An optional id of a form, to populate data from.
-     *
-     * @return Model
-     *  An AbstractClickmapModel derived Object.
+     * @param string $form_id An optional id of a form, to populate data from.
+     * @return AbstractClickmapModel An AbstractClickmapModel derived Object.
      */
     abstract public function createModel($form_id = "");
 
     /**
      * @brief Override this abstract function with your implementation of getImage
      *
-     * @return The path to the image backing this form relative to the webroot.
+     * @return string The path to the image backing this form relative to the webroot.
      */
     abstract function getImage();
 
     /**
      * @brief Override this abstract function to return the label of the optionlists on this form.
      *
-     * @return The label used for all dropdown boxes on this form.
+     * @return string The label used for all dropdown boxes on this form.
      */
     abstract function getOptionsLabel();
 
     /**
      * @brief Override this abstract function to return a hash of the optionlist (key=>value pairs).
      *
-     * @return A hash of key=>value pairs, representing all the possible options in the dropdown boxes on this form.
+     * @return array A hash of key=>value pairs, representing all the possible options in the dropdown boxes on this form.
      */
     abstract function getOptionList();
 

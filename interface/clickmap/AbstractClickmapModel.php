@@ -32,67 +32,57 @@ abstract class AbstractClickmapModel extends ORDataObject
     /**
      * The row to persist information to/from.
      *
-     * @var id
+     * @var int
      */
     public $id;
     /**
-     *
      * FIXME: either last modification date OR creation date?
      *
-     * @var date
+     * @var ?string
      */
     public $date;
     /**
-     *
      * The unique identifier of the patient this form belongs to.
      *
-     * @var pid
+     * @var ?int
      */
     public $pid;
     /**
-     *
      * required field in database table. not used, always defaulted to NULL.
      *
-     * @var user
+     * @var ?string
      */
     public $user;
     /**
-     *
      * required field in database table. not used, always defaulted to NULL.
      *
-     * @var groupname
+     * @var ?string
      */
     public $groupname;
     /**
-     *
      * required field in the database table. always defaulted to NULL.
      *
-     * @var authorized
+     * @var ?int
      */
     public $authorized;
     /**
-     *
      * required field in the database table. always defaulted to NULL.
      *
-     * @var activity
+     * @var ?int
      */
     public $activity;
     /**
-     *
      * The contents of our form, in one field.
      *
-     * @var data
+     * @var ?string
      */
     public $data;
 
     /**
      * @brief Initialize a newly created object belonging to this class
      *
-     * @param table
-     *  The sql table to persist form contents from/to.
-     *
-     * @param id
-     *  The index of a row in the given table to initialize form contents from.
+     * @param string $table The sql table to persist form contents from/to.
+     * @param string $id The index of a row in the given table to initialize form contents from.
      */
     public function __construct($table, $id = "")
     {
@@ -117,14 +107,14 @@ abstract class AbstractClickmapModel extends ORDataObject
     /**
      * @brief Override this abstract function with your implementation of getTitle.
      *
-     * @return The title of this form.
+     * @return string The title of this form.
      */
     abstract function getTitle();
 
     /**
      * @brief Override this abstract function with your implementation of getCode.
      *
-     * @return A string that's a 'code' for this form.
+     * @return string A string that's a 'code' for this form.
      */
     abstract function getCode();
 
