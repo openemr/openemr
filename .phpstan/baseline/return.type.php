@@ -1037,11 +1037,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/IndexController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Controller\\\\SendtoController\\:\\:getSendtoTable\\(\\) should return Application\\\\Controller\\\\type but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Application\\\\Helper\\\\SendToHieHelper\\:\\:__invoke\\(\\) should return array but returns string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Helper/SendToHieHelper.php',
@@ -1097,7 +1092,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncountermanagerController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Carecoordination\\\\Controller\\\\MapperController\\:\\:getMapperTable\\(\\) should return Carecoordination\\\\Controller\\\\type but returns mixed\\.$#',
+    'message' => '#^Method Carecoordination\\\\Controller\\\\MapperController\\:\\:getMapperTable\\(\\) should return Carecoordination\\\\Model\\\\MapperTable but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/MapperController.php',
 ];
@@ -1182,7 +1177,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Ccr\\\\Controller\\\\CcrController\\:\\:getCcrTable\\(\\) should return Ccr\\\\Controller\\\\type but returns mixed\\.$#',
+    'message' => '#^Method Ccr\\\\Controller\\\\CcrController\\:\\:getCcrTable\\(\\) should return Ccr\\\\Model\\\\CcrTable but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
 ];
@@ -1222,7 +1217,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Plugin/Documents.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Immunization\\\\Controller\\\\ImmunizationController\\:\\:format_cvx_code\\(\\) should return Immunization\\\\Controller\\\\type but returns string\\.$#',
+    'message' => '#^Method Immunization\\\\Controller\\\\ImmunizationController\\:\\:format_cvx_code\\(\\) should return string but returns int\\<10, max\\>\\|string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ImmunizationController.php',
 ];
@@ -3012,9 +3007,19 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\HCFAInfo\\:\\:getPosition\\(\\) should return OpenEMR\\\\Billing\\\\type but returns mixed\\.$#',
+    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:providerNumberType\\(\\) should return string but returns mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/HCFAInfo.php',
+    'path' => __DIR__ . '/../../src/Billing/Claim.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:x12Clean\\(\\) should return string but returns string\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/Claim.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Billing\\\\Claim\\:\\:x12Zip\\(\\) should return string but returns string\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Billing/Claim.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Billing\\\\MiscBillingOptions\\:\\:qual_id_to_description\\(\\) should return string\\|null but returns mixed\\.$#',

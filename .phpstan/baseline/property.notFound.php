@@ -32,6 +32,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/profiler.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Access to an undefined property AbstractClickmapModel\\:\\:\\$hideNav\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Access to an undefined property eRxPage\\:\\:\\$prescriptions\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxPage.php',

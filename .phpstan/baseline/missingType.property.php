@@ -2557,16 +2557,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/Acl.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Application\\\\Controller\\\\SendtoController\\:\\:\\$listenerObject has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Application\\\\Controller\\\\SendtoController\\:\\:\\$sendtoTable has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Application\\\\Controller\\\\SoapController\\:\\:\\$encounterCCDADispatchController has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SoapController.php',

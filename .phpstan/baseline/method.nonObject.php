@@ -2482,11 +2482,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method z_xlt\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getVariables\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Helper/SendToHieHelper.php',
@@ -2922,9 +2917,24 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ImmunizationController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method getAclConfig\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method z_xlt\\(\\) on mixed\\.$#',
     'count' => 36,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getAclConfig\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method getHookConfig\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getTitle\\(\\) on mixed\\.$#',
