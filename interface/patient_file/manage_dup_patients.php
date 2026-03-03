@@ -26,12 +26,11 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Services\FacilityService;
+//use OpenEMR\Services\FacilityService;
 
 
 $first_time = true;
 $group = 1;
-
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -113,14 +112,12 @@ function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
         echo  csvEscape(text($highlight_text))  . ',';
         echo  csvEscape(text($ptname)) .  ',';
         echo csvEscape($date_str) . ',' ;
-  //      echo csvEscape(oeFormatShortDate(substr($row['DOB'], 0, 10))) . ',';
 /** @var string $sex */
             $sex = $row['sex'];
             echo csvEscape($sex) .  ',';
             echo csvEscape ($row['email']) .  ',';
             echo csvEscape(text($phones)) .  ',';
             echo csvEscape($regdate_str) . ',' ;
-/* * @ var string $date_str */
            echo csvEscape($date_str) . ',' ;
            echo csvEscape($row['street']) . "\n";
     } else {  // rm otherwise output the line to the html page
@@ -420,7 +417,7 @@ while ($row1 = sqlFetchArray($res1)) {
 }
 if ($_POST['form_csvexport'] != "CSV") { //rm - only output html if not generating csv file
     ?>
-                </tbody>
+        </tbody>
             </table>
             <input type='hidden' name='form_action' value='' />
             <input type='hidden' name='form_toppid' value='0' />
