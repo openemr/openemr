@@ -47,7 +47,7 @@ final class Version20260000020022 extends AbstractMigration
             'comment' => 'How link was created: manual, auto_detected, migrated, import',
         ]);
         $table->addColumn('notes', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'Optional notes about why/how they were linked']);
-        $table->addColumn('active', Types::BOOLEAN, ['default' => 1, 'comment' => 'Whether link is active (allows soft delete)']);
+        $this->addBooleanColumn($table, 'active', default: true, comment: 'Whether link is active (allows soft delete)');
         $this->addPrimaryKey($table, 'id');
         $table->addIndex(['person_id'], 'idx_ppl_person');
         $table->addIndex(['patient_id'], 'idx_ppl_patient');

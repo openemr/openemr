@@ -48,7 +48,7 @@ final class Version20260000020123 extends AbstractMigration
             'default' => '',
             'comment' => 'descriptive text for question_code',
         ]);
-        $table->addColumn('required', Types::BOOLEAN, ['default' => 0, 'comment' => '1 = required, 0 = not']);
+        $this->addBooleanColumn($table, 'required', default: false, comment: '1 = required, 0 = not');
         $table->addColumn('maxsize', Types::INTEGER, ['default' => 0, 'comment' => 'maximum length if text input field']);
         $table->addColumn('fldtype', Types::STRING, ['fixed' => true, 
             'length' => 1,
@@ -61,7 +61,7 @@ final class Version20260000020123 extends AbstractMigration
             'default' => '',
             'comment' => 'Additional instructions for answering the question',
         ]);
-        $table->addColumn('activity', Types::BOOLEAN, ['default' => 1, 'comment' => '1 = active, 0 = inactive']);
+        $this->addBooleanColumn($table, 'activity', default: true, comment: '1 = active, 0 = inactive');
         $this->addPrimaryKey($table, 'lab_id', 'procedure_code', 'question_code');
         $this->createTable($table);
     }

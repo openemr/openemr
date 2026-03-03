@@ -59,9 +59,9 @@ final class Version20260000010053 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('pn_admin_capable', Types::BOOLEAN, ['default' => 0]);
-        $table->addColumn('pn_user_capable', Types::BOOLEAN, ['default' => 0]);
-        $table->addColumn('pn_state', Types::BOOLEAN, ['default' => 0]);
+        $this->addBooleanColumn($table, 'pn_admin_capable', default: false);
+        $this->addBooleanColumn($table, 'pn_user_capable', default: false);
+        $this->addBooleanColumn($table, 'pn_state', default: false);
         $this->addPrimaryKey($table, 'pn_id');
         $this->createTable($table);
     }

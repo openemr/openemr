@@ -40,7 +40,7 @@ final class Version20260000020055 extends AbstractMigration
         $table->addColumn('ICD9_04', Types::STRING, ['notnull' => false, 'length' => 5]);
         $table->addColumn('ICD9_05', Types::STRING, ['notnull' => false, 'length' => 5]);
         $table->addColumn('ICD9_06', Types::STRING, ['notnull' => false, 'length' => 5]);
-        $table->addColumn('active', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
+        $this->addBooleanColumn($table, 'active', default: false, notnull: false);
         $table->addColumn('revision', Types::INTEGER, ['notnull' => false, 'default' => 0]);
 
         $this->addPrimaryKey($table, 'map_id');

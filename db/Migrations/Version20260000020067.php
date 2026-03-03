@@ -82,10 +82,7 @@ final class Version20260000020067 extends AbstractMigration
             'default' => null,
             'comment' => 'fk to prescriptions.prescription_id to link medication to prescription record',
         ]);
-        $table->addColumn('is_primary_record', Types::BOOLEAN, [
-            'default' => 1,
-            'comment' => 'Indicates if this medication is a primary record(1) or a reported record(0)',
-        ]);
+        $this->addBooleanColumn($table, 'is_primary_record', default: true, comment: 'Indicates if this medication is a primary record(1) or a reported record(0)');
         $table->addColumn('reporting_source_record_id', Types::BIGINT, [
             'notnull' => false,
             'default' => null,

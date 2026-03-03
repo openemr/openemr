@@ -42,4 +42,27 @@ trait CreateTableTrait
                 ->create()
         );
     }
+
+    /**
+     * Adds a boolean column as TINYINT(1) for MySQL compatibility.
+     */
+    private function addBooleanColumn(
+        Table $table,
+        string $name,
+        ?bool $default = null,
+        bool $notnull = true,
+        string $comment = '',
+    ): void {
+        $sql = 'BOOLEAN';
+        if ($notnull) {
+            $sql .= ' NOT NULL';
+        }
+        if ($default !== null) {
+            $sql .= ' DEFAULT ' . ($default ? '1' : '0');
+        }
+        if ($comment !== '') {
+            $sql .= ' COMMENT ' . $this->connection->quote($comment);
+        }
+        $table->addColumn($name, 'integer', ['columnDefinition' => $sql]);
+    }
 }

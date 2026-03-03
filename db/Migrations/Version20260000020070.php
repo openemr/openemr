@@ -34,7 +34,7 @@ final class Version20260000020070 extends AbstractMigration
         $table->addColumn('module_id', Types::INTEGER);
         $table->addColumn('group_id', Types::INTEGER);
         $table->addColumn('section_id', Types::INTEGER);
-        $table->addColumn('allowed', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $this->addBooleanColumn($table, 'allowed', default: null, notnull: false);
         $this->addPrimaryKey($table, 'module_id', 'group_id', 'section_id');
         $this->createTable($table);
     }

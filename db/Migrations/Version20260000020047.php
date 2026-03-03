@@ -34,7 +34,7 @@ final class Version20260000020047 extends AbstractMigration
         $table->addColumn('dx_id', Types::BIGINT, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('dx_code', Types::STRING, ['notnull' => false, 'length' => 5]);
         $table->addColumn('long_desc', Types::STRING, ['notnull' => false, 'length' => 300]);
-        $table->addColumn('active', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
+        $this->addBooleanColumn($table, 'active', default: false, notnull: false);
         $table->addColumn('revision', Types::INTEGER, ['notnull' => false, 'default' => 0]);
 
         $this->addPrimaryKey($table, 'dx_id');

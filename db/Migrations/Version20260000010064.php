@@ -43,7 +43,7 @@ final class Version20260000010064 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('password', Types::TEXT, ['notnull' => false]);
-        $table->addColumn('authorized', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $this->addBooleanColumn($table, 'authorized', default: null, notnull: false);
         $table->addColumn('info', Types::TEXT, ['notnull' => false]);
         $table->addColumn('source', Types::SMALLINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('fname', Types::STRING, [
@@ -88,7 +88,7 @@ final class Version20260000010064 extends AbstractMigration
         ]);
         $table->addColumn('facility_id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('see_auth', Types::INTEGER, ['default' => 1]);
-        $table->addColumn('active', Types::BOOLEAN, ['default' => 1]);
+        $this->addBooleanColumn($table, 'active', default: true);
         $table->addColumn('npi', Types::STRING, [
             'length' => 15,
             'notnull' => false,
@@ -220,7 +220,7 @@ final class Version20260000010064 extends AbstractMigration
         $table->addColumn('notes', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('cal_ui', Types::SMALLINT, ['default' => 1]);
         $table->addColumn('taxonomy', Types::STRING, ['length' => 30, 'default' => '207Q00000X']);
-        $table->addColumn('calendar', Types::BOOLEAN, ['default' => 0, 'comment' => '1 = appears in calendar']);
+        $this->addBooleanColumn($table, 'calendar', default: false, comment: '1 = appears in calendar');
         $table->addColumn('abook_type', Types::STRING, ['length' => 31, 'default' => '']);
         $table->addColumn('default_warehouse', Types::STRING, ['length' => 31, 'default' => '']);
         $table->addColumn('irnpool', Types::STRING, ['length' => 31, 'default' => '']);
@@ -239,7 +239,7 @@ final class Version20260000010064 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('cpoe', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $this->addBooleanColumn($table, 'cpoe', default: null, notnull: false);
         $table->addColumn('physician_type', Types::STRING, [
             'length' => 50,
             'notnull' => false,
@@ -247,7 +247,7 @@ final class Version20260000010064 extends AbstractMigration
         ]);
         $table->addColumn('main_menu_role', Types::STRING, ['length' => 50, 'default' => 'standard']);
         $table->addColumn('patient_menu_role', Types::STRING, ['length' => 50, 'default' => 'standard']);
-        $table->addColumn('portal_user', Types::BOOLEAN, ['default' => 0]);
+        $this->addBooleanColumn($table, 'portal_user', default: false);
         $table->addColumn('supervisor_id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('billing_facility', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('billing_facility_id', Types::INTEGER, ['default' => 0]);

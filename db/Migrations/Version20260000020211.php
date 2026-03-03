@@ -68,7 +68,7 @@ final class Version20260000020211 extends AbstractMigration
             'comment' => 'fk to preference_value_sets.answer_display',
         ]);
         $table->addColumn('value_text', Types::TEXT, ['notnull' => false, 'length' => 65535]);
-        $table->addColumn('value_boolean', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $this->addBooleanColumn($table, 'value_boolean', default: null, notnull: false);
         $table->addColumn('effective_datetime', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('status', Types::STRING, ['notnull' => false, 
             'length' => 20,

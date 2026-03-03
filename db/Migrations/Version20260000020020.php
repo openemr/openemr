@@ -105,7 +105,7 @@ final class Version20260000020020 extends AbstractMigration
             'default' => null,
             'comment' => 'Should be encrypted in application',
         ]);
-        $table->addColumn('active', Types::BOOLEAN, ['notnull' => false, 'default' => 1, 'comment' => '1=active, 0=inactive']);
+        $this->addBooleanColumn($table, 'active', default: true, notnull: false, comment: '1=active, 0=inactive');
         $table->addColumn('inactive_reason', Types::STRING, [
             'length' => 255,
             'notnull' => false,

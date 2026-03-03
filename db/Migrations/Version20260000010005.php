@@ -48,9 +48,9 @@ final class Version20260000010005 extends AbstractMigration
         $table->addColumn('related_code', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('taxrates', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('cyp_factor', Types::SMALLFLOAT, ['default' => 0, 'comment' => 'quantity representing a years supply']);
-        $table->addColumn('active', Types::BOOLEAN, ['notnull' => false, 'default' => 1, 'comment' => '0 = inactive, 1 = active']);
-        $table->addColumn('reportable', Types::BOOLEAN, ['notnull' => false, 'default' => 0, 'comment' => '0 = non-reportable, 1 = reportable']);
-        $table->addColumn('financial_reporting', Types::BOOLEAN, ['notnull' => false, 'default' => 0, 'comment' => '0 = negative, 1 = considered important code in financial reporting']);
+        $this->addBooleanColumn($table, 'active', default: true, notnull: false, comment: '0 = inactive, 1 = active');
+        $this->addBooleanColumn($table, 'reportable', default: false, notnull: false, comment: '0 = non-reportable, 1 = reportable');
+        $this->addBooleanColumn($table, 'financial_reporting', default: false, notnull: false, comment: '0 = negative, 1 = considered important code in financial reporting');
         $table->addColumn('revenue_code', Types::STRING, [
             'length' => 6,
             'default' => '',

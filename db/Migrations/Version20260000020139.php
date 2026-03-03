@@ -36,7 +36,7 @@ final class Version20260000020139 extends AbstractMigration
         $table->addColumn('table', Types::STRING, ['length' => 255, 'comment' => 'table name for the signature']);
         $table->addColumn('uid', Types::INTEGER, ['comment' => 'user id for the signing user']);
         $table->addColumn('datetime', Types::DATETIME_MUTABLE, ['comment' => 'datetime of the signature action']);
-        $table->addColumn('is_lock', Types::BOOLEAN, ['default' => 0, 'comment' => 'sig, lock or amendment']);
+        $this->addBooleanColumn($table, 'is_lock', default: false, comment: 'sig, lock or amendment');
         $table->addColumn('amendment', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'amendment text, if any']);
         $table->addColumn('hash', Types::STRING, ['length' => 255, 'comment' => 'hash of signed data']);
         $table->addColumn('signature_hash', Types::STRING, ['length' => 255, 'comment' => 'hash of signature itself']);

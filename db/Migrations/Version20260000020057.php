@@ -90,7 +90,7 @@ final class Version20260000020057 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('added_erroneously', Types::BOOLEAN, ['default' => 0]);
+        $this->addBooleanColumn($table, 'added_erroneously', default: false);
         $table->addColumn('external_id', Types::STRING, [
             'length' => 20,
             'notnull' => false,

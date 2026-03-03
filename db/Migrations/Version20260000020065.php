@@ -37,7 +37,7 @@ final class Version20260000020065 extends AbstractMigration
         $table->addColumn('title', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('seq', Types::INTEGER, ['default' => 0]);
         $table->addColumn('data_type', Types::SMALLINT, ['default' => 0]);
-        $table->addColumn('uor', Types::BOOLEAN, ['default' => 1]);
+        $this->addBooleanColumn($table, 'uor', default: true);
         $table->addColumn('fld_length', Types::INTEGER, ['default' => 15]);
         $table->addColumn('max_length', Types::INTEGER, ['default' => 0]);
         $table->addColumn('list_id', Types::STRING, ['length' => 100, 'default' => '']);

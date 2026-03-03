@@ -55,12 +55,12 @@ final class Version20260000020033 extends AbstractMigration
             'comment' => 'may reference a related codes.code',
         ]);
         $table->addColumn('cyp_factor', Types::SMALLFLOAT, ['default' => 0, 'comment' => 'quantity representing a years supply']);
-        $table->addColumn('active', Types::BOOLEAN, ['notnull' => false, 'default' => 1, 'comment' => '0 = inactive, 1 = active']);
-        $table->addColumn('allow_combining', Types::BOOLEAN, ['default' => 0, 'comment' => '1 = allow filling an order from multiple lots']);
-        $table->addColumn('allow_multiple', Types::BOOLEAN, ['default' => 1, 'comment' => '1 = allow multiple lots at one warehouse']);
+        $this->addBooleanColumn($table, 'active', default: true, notnull: false, comment: '0 = inactive, 1 = active');
+        $this->addBooleanColumn($table, 'allow_combining', default: false, comment: '1 = allow filling an order from multiple lots');
+        $this->addBooleanColumn($table, 'allow_multiple', default: true, comment: '1 = allow multiple lots at one warehouse');
         $table->addColumn('drug_code', Types::STRING, ['length' => 25, 'notnull' => false]);
-        $table->addColumn('consumable', Types::BOOLEAN, ['default' => 0, 'comment' => '1 = will not show on the fee sheet']);
-        $table->addColumn('dispensable', Types::BOOLEAN, ['default' => 1, 'comment' => '0 = pharmacy elsewhere, 1 = dispensed here']);
+        $this->addBooleanColumn($table, 'consumable', default: false, comment: '1 = will not show on the fee sheet');
+        $this->addBooleanColumn($table, 'dispensable', default: true, comment: '0 = pharmacy elsewhere, 1 = dispensed here');
         $table->addColumn('date_created', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $this->addPrimaryKey($table, 'drug_id');

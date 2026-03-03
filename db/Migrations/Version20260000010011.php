@@ -44,41 +44,41 @@ final class Version20260000010011 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('authorized', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
-        $table->addColumn('activity', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
-        $table->addColumn('employment_related', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
-        $table->addColumn('auto_accident', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $this->addBooleanColumn($table, 'authorized', default: null, notnull: false);
+        $this->addBooleanColumn($table, 'activity', default: null, notnull: false);
+        $this->addBooleanColumn($table, 'employment_related', default: null, notnull: false);
+        $this->addBooleanColumn($table, 'auto_accident', default: null, notnull: false);
         $table->addColumn('accident_state', Types::STRING, [
             'length' => 2,
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('other_accident', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $this->addBooleanColumn($table, 'other_accident', default: null, notnull: false);
         $table->addColumn('medicaid_referral_code', Types::STRING, [
             'length' => 2,
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('epsdt_flag', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $this->addBooleanColumn($table, 'epsdt_flag', default: null, notnull: false);
         $table->addColumn('provider_qualifier_code', Types::STRING, [
             'length' => 2,
             'notnull' => false,
             'default' => null,
         ]);
         $table->addColumn('provider_id', Types::INTEGER, ['notnull' => false, 'default' => null]);
-        $table->addColumn('outside_lab', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $this->addBooleanColumn($table, 'outside_lab', default: null, notnull: false);
         $table->addColumn('lab_amount', Types::DECIMAL, [
             'precision' => 5,
             'scale' => 2,
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('is_unable_to_work', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $this->addBooleanColumn($table, 'is_unable_to_work', default: null, notnull: false);
         $table->addColumn('onset_date', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('date_initial_treatment', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('off_work_from', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('off_work_to', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('is_hospitalized', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $this->addBooleanColumn($table, 'is_hospitalized', default: null, notnull: false);
         $table->addColumn('hospitalization_date_from', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('hospitalization_date_to', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('medicaid_resubmission_code', Types::STRING, [
@@ -101,7 +101,7 @@ final class Version20260000010011 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('replacement_claim', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
+        $this->addBooleanColumn($table, 'replacement_claim', default: false, notnull: false);
         $table->addColumn('icn_resubmission_number', Types::STRING, [
             'length' => 35,
             'notnull' => false,

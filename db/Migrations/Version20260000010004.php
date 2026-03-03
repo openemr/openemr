@@ -51,11 +51,11 @@ final class Version20260000010004 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('authorized', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $this->addBooleanColumn($table, 'authorized', default: null, notnull: false);
         $table->addColumn('encounter', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('code_text', Types::TEXT, ['notnull' => false]);
-        $table->addColumn('billed', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
-        $table->addColumn('activity', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $this->addBooleanColumn($table, 'billed', default: null, notnull: false);
+        $this->addBooleanColumn($table, 'activity', default: null, notnull: false);
         $table->addColumn('payer_id', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('bill_process', Types::SMALLINT, ['default' => 0]);
         $table->addColumn('bill_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);

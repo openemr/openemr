@@ -54,7 +54,7 @@ final class Version20260000020146 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('user_id', Types::INTEGER, ['notnull' => false, 'default' => null]);
-        $table->addColumn('deleted', Types::BOOLEAN, ['default' => 0]);
+        $this->addBooleanColumn($table, 'deleted', default: false);
         $table->addColumn('timestamp', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $this->addPrimaryKey($table, 'id');
         $this->createTable($table);

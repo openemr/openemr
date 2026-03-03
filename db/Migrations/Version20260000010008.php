@@ -88,9 +88,9 @@ final class Version20260000010008 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('service_location', Types::BOOLEAN, ['default' => 1]);
-        $table->addColumn('billing_location', Types::BOOLEAN, ['default' => 1]);
-        $table->addColumn('accepts_assignment', Types::BOOLEAN, ['default' => 1]);
+        $this->addBooleanColumn($table, 'service_location', default: true);
+        $this->addBooleanColumn($table, 'billing_location', default: true);
+        $this->addBooleanColumn($table, 'accepts_assignment', default: true);
         $table->addColumn('pos_code', Types::SMALLINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('x12_sender_id', Types::STRING, [
             'length' => 25,
@@ -125,7 +125,7 @@ final class Version20260000010008 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('extra_validation', Types::BOOLEAN, ['default' => 1]);
+        $this->addBooleanColumn($table, 'extra_validation', default: true);
         $table->addColumn('mail_street', Types::STRING, [
             'length' => 30,
             'notnull' => false,
@@ -167,7 +167,7 @@ final class Version20260000010008 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('inactive', Types::BOOLEAN, ['default' => 0]);
+        $this->addBooleanColumn($table, 'inactive', default: false);
         $table->addColumn('date_created', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('organization_type', Types::STRING, [

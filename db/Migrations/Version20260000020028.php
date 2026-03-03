@@ -73,7 +73,7 @@ final class Version20260000020028 extends AbstractMigration
             'default' => null,
             'comment' => '0-Yes 1-No',
         ]);
-        $table->addColumn('dlm_upload_type', Types::BOOLEAN, ['notnull' => false, 'default' => 0, 'comment' => '0-Provider Uploaded,1-Patient Uploaded']);
+        $this->addBooleanColumn($table, 'dlm_upload_type', default: false, notnull: false, comment: '0-Provider Uploaded,1-Patient Uploaded');
         $this->addPrimaryKey($table, 'dlm_document_id');
         $this->createTable($table);
     }

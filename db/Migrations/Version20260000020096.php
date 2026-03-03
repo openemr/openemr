@@ -47,7 +47,7 @@ final class Version20260000020096 extends AbstractMigration
             'comment' => 'Custom html link in clinical reminder widget',
         ]);
         $table->addColumn('reminder_message', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'Custom message in patient reminder']);
-        $table->addColumn('custom_flag', Types::BOOLEAN, ['default' => 0, 'comment' => '1 indexed to rule_patient_data, 0 indexed within main schema']);
+        $this->addBooleanColumn($table, 'custom_flag', default: false, comment: '1 indexed to rule_patient_data, 0 indexed within main schema');
         $this->addPrimaryKey($table, 'category', 'item');
         $this->createTable($table);
     }
