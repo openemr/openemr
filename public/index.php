@@ -1,5 +1,7 @@
 <?php
 
+// Future: include bootstrap.php here. It may have unsafe assumptions for
+// legacy code.
 require_once __DIR__ . '/../vendor/autoload.php';
 
 use OpenEMR\BC\{
