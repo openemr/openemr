@@ -14,6 +14,7 @@ require_once(__DIR__ . "/../../../globals.php");
 
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
+use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
 
 $serviceType = $_REQUEST['type'] ?? $_SESSION["oefax_current_module_type"] ?? '';
 // kick off app endpoints controller
@@ -23,10 +24,8 @@ if (!$clientApp->verifyAcl()) {
     die("<h3>" . xlt("Not Authorised!") . "</h3>");
 }
 $c = $clientApp->getCredentials();
-$title = xlt('SMS');
-$title = $service == "2" ? xlt('Twilio SMS') : $title;
-$title = $service == "3" ? xlt('etherFAX') : $title;
-$title = $service == "5" ? xlt('Clickatell') : $title;
+$serviceEnum = ServiceType::fromValue($service);
+$title = $serviceEnum->getTranslatedDisplayName();
 $module_config = $_REQUEST['module_config'] ?? 0;
 $mode = $_REQUEST['mode'] ?? null;
 ?>
@@ -37,6 +36,7 @@ $mode = $_REQUEST['mode'] ?? null;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php Header::setupHeader();
     echo "<script>let currentService=" . js_escape($service) . "</script>";
+    echo ServiceType::renderJsConstants();
     ?>
     <script>
         $(function () {
@@ -79,18 +79,13 @@ $mode = $_REQUEST['mode'] ?? null;
                 }
             });
 
-            if (currentService == '2') {
-                $(".etherfax").hide();
-                $(".signalwire").hide();
-            } else if (currentService == '3') {
-                $(".twilio").hide();
-                $(".etherfax").show();
-                $(".signalwire").hide();
-            } else if (currentService == '6') {
-                $(".twilio").hide();
-                $(".etherfax").hide();
-                $(".signalwire").show();
-            }
+            const {hide = [], show = []} = {
+                [ServiceType.TWILIO_SMS]: {hide: ['.etherfax', '.signalwire']},
+                [ServiceType.ETHERFAX]: {hide: ['.twilio', '.signalwire'], show: ['.etherfax']},
+                [ServiceType.SIGNALWIRE]: {hide: ['.twilio', '.etherfax'], show: ['.signalwire']},
+            }[currentService] ?? {};
+            hide.forEach(s => $(s).hide());
+            show.forEach(s => $(s).show());
         });
     </script>
 </head>
@@ -103,8 +98,8 @@ $mode = $_REQUEST['mode'] ?? null;
             <div class="messages"></div>
             <div class="row">
                 <div class="col">
-                    <?php if ($service == '5') {
-                        ?> <!-- Clickatell -->
+                    <?php switch ($serviceEnum) {
+                        case ServiceType::CLICKATELL_SMS: ?> <!-- Clickatell -->
                         <div class="form-group">
                             <label for="form_extension"><?php echo xlt("Account Sending Number") ?> *</label>
                             <input id="form_extension" type="text" name="phone" class="form-control" value='<?php echo attr($c['phone']) ?>' placeholder="<?php echo xla('') ?>" required />
@@ -127,8 +122,8 @@ $mode = $_REQUEST['mode'] ?? null;
                             <textarea id="form_message" type="text" rows="3" name="smsmessage" class="form-control"
                                 value='<?php echo attr($c['smsMessage']) ?>'><?php echo text($c['smsMessage']) ?></textarea>
                         </div>
-                    <?php } elseif ($service == '3') {
-                        ?> <!-- etherFAX -->
+                    <?php break;
+                        case ServiceType::ETHERFAX: ?> <!-- etherFAX -->
                         <div class="checkbox">
                             <label>
                                 <input id="form_production" type="checkbox" name="production" <?php echo attr($c['production']) ? ' checked' : '' ?> />
@@ -157,8 +152,8 @@ $mode = $_REQUEST['mode'] ?? null;
                             <label for="form_key"><?php echo xlt("Account API Key - Recommended") ?></label>
                             <input id="form_key" type="password" name="key" class="form-control" value='<?php echo attr($c['appKey']) ?>' placeholder="<?php echo xla('Most secure! Use only your API Key and Account Id.') ?>" />
                         </div>
-                    <?php } elseif ($service == '2') {
-                        ?> <!-- Twilio -->
+                    <?php break;
+                        case ServiceType::TWILIO_SMS: ?> <!-- Twilio -->
                         <div class="checkbox">
                             <label>
                                 <input id="form_production" type="checkbox" name="production" <?php echo attr($c['production']) ? ' checked' : '' ?>>
@@ -204,8 +199,8 @@ $mode = $_REQUEST['mode'] ?? null;
                             <textarea id="form_message" type="text" rows="3" name="smsmessage" class="form-control"
                                 value='<?php echo attr($c['smsMessage']) ?>'><?php echo text($c['smsMessage']) ?></textarea>
                         </div>
-                    <?php } elseif ($service == '1') {
-                        ?> <!-- RC -->
+                    <?php break;
+                        case ServiceType::RINGCENTRAL: ?> <!-- RC -->
                         <div class="checkbox">
                             <label>
                                 <input id="form_production" type="checkbox" name="production" <?php echo attr($c['production']) ? ' checked' : '' ?>>
@@ -251,8 +246,8 @@ $mode = $_REQUEST['mode'] ?? null;
                             <textarea id="form_message" type="text" rows="3" name="smsmessage" class="form-control"
                                 value='<?php echo attr($c['smsMessage']) ?>'><?php echo text($c['smsMessage']) ?></textarea>
                         </div>
-                    <?php } elseif ($service == '6') {
-                        ?> <!-- SignalWire -->
+                    <?php break;
+                        case ServiceType::SIGNALWIRE: ?> <!-- SignalWire -->
                         <div class="checkbox">
                             <label>
                                 <input id="form_production" type="checkbox" name="production" <?php echo attr($c['production']) ? ' checked' : '' ?>>
@@ -285,7 +280,9 @@ $mode = $_REQUEST['mode'] ?? null;
                                 required="required" value='<?php echo attr($c['fax_number'] ?? '') ?>' />
                             <small class="form-text text-muted"><?php echo xlt("Your SignalWire fax number in E.164 format") ?></small>
                         </div>
-                    <?php } ?>
+                    <?php break;
+                        default: break;
+                    } ?>
                     <div>
                         <span class="text-muted"><strong>*</strong> <?php echo xlt("These fields are required.") ?> </span>
                         <button type="submit" class="btn btn-success float-right" value=""><?php echo xlt("Save") ?></button>

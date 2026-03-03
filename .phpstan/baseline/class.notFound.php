@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-// total 22 errors
+// total 25 errors
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
@@ -19,9 +19,24 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/models/OrderStatusViewModel.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to static method getInstance\\(\\) on an unknown class OEGlobalsBag\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/openemr.bootstrap.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to static method getLogger\\(\\) on an unknown class OpenEMR\\\\BC\\\\ServiceContainer\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/openemr.bootstrap.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Caught class OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\Exception not found\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/AppDispatch.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to static method getLogger\\(\\) on an unknown class OpenEMR\\\\BC\\\\ServiceContainer\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Events/NotificationEventListener.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Instantiated class QuestResultClient not found\\.$#',

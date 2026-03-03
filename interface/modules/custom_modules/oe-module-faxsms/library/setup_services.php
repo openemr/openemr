@@ -17,6 +17,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
 use OpenEMR\Modules\FaxSMS\Controller\NotificationTaskManager;
+use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
 
 $module_config = 1;
 
@@ -205,16 +206,13 @@ $vendors = $boot->getVendorGlobals();
     $isVoiceEnable = $vendors['oe_enable_voice'] > 0 ? 'voice' : '';
     $services = [$isSmsEnabled, $isEmailEnable];
 
-    $isRCSMS = $vendors['oefax_enable_sms'] == 1 ? '1' : '0';
-    $isEMAIL = $vendors['oe_enable_email'] == 4 ? '1' : '0';
-    $isRCFax = $vendors['oefax_enable_fax'] == 1 ? '1' : '0';
-    $isVOICE = $vendors['oe_enable_voice'] == 9 ? '1' : '0';
-    $isSWFax = $vendors['oefax_enable_fax'] == 6 ? '1' : '0';
+    $smsVendor = ServiceType::fromValue($vendors['oefax_enable_sms']);
+    $faxVendor = ServiceType::fromValue($vendors['oefax_enable_fax']);
+    $emailVendor = ServiceType::fromValue($vendors['oe_enable_email']);
+    $voiceVendor = ServiceType::fromValue($vendors['oe_enable_voice']);
 
-    $setupUrl = './../setup.php';
-    if ($isRCFax || $isRCSMS) {
-        $setupUrl = './../setup_rc.php';
-    }
+    $setupUrl = ($faxVendor === ServiceType::RINGCENTRAL || $smsVendor === ServiceType::RINGCENTRAL)
+        ? './../setup_rc.php' : './../setup.php';
     Header::setupHeader();
     ?>
     <script>
@@ -251,11 +249,12 @@ $vendors = $boot->getVendorGlobals();
             });
         }
     </script>
+    <?php echo ServiceType::renderJsConstants(); ?>
     <script>
-        let ServiceFax = <?php echo js_escape($isRCFax) ?>;
-        let ServiceSMS = <?php echo js_escape($isRCSMS); ?>;
-        let ServiceEmail = <?php echo js_escape($isEMAIL); ?>;
-        let ServiceVoice = <?php echo js_escape($isVOICE); ?>;
+        let ServiceFax = <?php echo js_escape($faxVendor->stringValue()); ?>;
+        let ServiceSMS = <?php echo js_escape($smsVendor->stringValue()); ?>;
+        let ServiceEmail = <?php echo js_escape($emailVendor->stringValue()); ?>;
+        let ServiceVoice = <?php echo js_escape($voiceVendor->stringValue()); ?>;
 
         function toggleHelpCard() {
             const helpCard = document.getElementById('helpCard');
@@ -263,11 +262,8 @@ $vendors = $boot->getVendorGlobals();
         }
 
         function toggleSetup(id, type = 'single') {
-            let url = '../setup.php';
-            if (ServiceFax === '1') {
-                url = '../setup_rc.php';
-            }
-            if (ServiceVoice === '9') {
+            let url = ServiceFax === ServiceType.RINGCENTRAL ? '../setup_rc.php' : '../setup.php';
+            if (ServiceVoice === ServiceType.VOICE) {
                 url = '../setup_voice.php';
             }
             let dialog = $("#dialog").is(':checked');
@@ -278,7 +274,7 @@ $vendors = $boot->getVendorGlobals();
             }
             if (id === 'set-fax') {
                 let url = './../setup.php';
-                if (ServiceSMS === '1') {
+                if (ServiceSMS === ServiceType.RINGCENTRAL) {
                     url = './../setup_rc.php';
                 }
                 let title = 'Fax Module Credentials';
@@ -445,10 +441,7 @@ $vendors = $boot->getVendorGlobals();
                         <label for="sms_vendor" class="col-sm-6"><?php echo xlt("Enable SMS Module"); ?></label>
                         <div class="col-sm-6" title="Enable SMS Support. Remember to setup credentials.">
                             <select class="form-control persist" name="sms_vendor" id="sms_vendor">
-                                <option value="0" <?php echo $vendors['oefax_enable_sms'] == '0' ? 'selected' : ''; ?>><?php echo xlt("Disabled"); ?></option>
-                                <option value="1" <?php echo $vendors['oefax_enable_sms'] == '1' ? 'selected' : ''; ?>><?php echo xlt("RingCentral SMS"); ?></option>
-                                <option value="2" <?php echo $vendors['oefax_enable_sms'] == '2' ? 'selected' : ''; ?>><?php echo xlt("Twilio SMS"); ?></option>
-                                <option value="5" <?php echo $vendors['oefax_enable_sms'] == '5' ? 'selected' : ''; ?>><?php echo xlt("Clickatell"); ?></option>
+                                <?php echo ServiceType::renderSelectOptions('sms', $smsVendor); ?>
                             </select>
                         </div>
                     </div>
@@ -456,10 +449,7 @@ $vendors = $boot->getVendorGlobals();
                         <label for="fax_vendor" class="col-sm-6"><?php echo xlt("Enable Fax Module") ?></label>
                         <div class="col-sm-6" title="Enable Fax Support. Remember to setup credentials.">
                             <select class="form-control persist" name="fax_vendor" id="fax_vendor">
-                                <option value="0" <?php echo $vendors['oefax_enable_fax'] == '0' ? 'selected' : ''; ?>><?php echo xlt("Disabled"); ?></option>
-                                <option value="1" <?php echo $vendors['oefax_enable_fax'] == '1' ? 'selected' : ''; ?>><?php echo xlt("RingCentral Fax"); ?></option>
-                                <option value="3" <?php echo $vendors['oefax_enable_fax'] == '3' ? 'selected' : ''; ?>><?php echo xlt("etherFAX"); ?></option>
-                                <option value="6" <?php echo $vendors['oefax_enable_fax'] == '6' ? 'selected' : ''; ?>><?php echo xlt("SignalWire Fax"); ?></option>
+                                <?php echo ServiceType::renderSelectOptions('fax', $faxVendor); ?>
                             </select>
                         </div>
                     </div>
@@ -467,8 +457,7 @@ $vendors = $boot->getVendorGlobals();
                         <label for="email_vendor" class="col-sm-6"><?php echo xlt("Enable Mail Client") ?></label>
                         <div class="col-sm-6" title="Enable Email Client Support.">
                             <select class="form-control persist" name="email_vendor" id="email_vendor">
-                                <option value="0" <?php echo $vendors['oe_enable_email'] == '0' ? 'selected' : ''; ?>><?php echo xlt("Disabled"); ?></option>
-                                <option value="4" <?php echo $vendors['oe_enable_email'] == '4' ? 'selected' : ''; ?>><?php echo xlt("Enabled"); ?></option>
+                                <?php echo ServiceType::renderSelectOptions('email', $emailVendor); ?>
                             </select>
                         </div>
                     </div>
@@ -476,8 +465,7 @@ $vendors = $boot->getVendorGlobals();
                         <label for="voice_vendor" class="col-sm-6"><?php echo xlt("Enable Voice Widgets") ?></label>
                         <div class="col-sm-6" title="Enable Voice Widgets Support.">
                             <select class="form-control persist" name="voice_vendor" id="voice_vendor">
-                                <option value="0" <?php echo $vendors['oe_enable_voice'] == '0' ? 'selected' : ''; ?>><?php echo xlt("Disabled"); ?></option>
-                                <option value="9" <?php echo $vendors['oe_enable_voice'] == '9' ? 'selected' : ''; ?>><?php echo xlt("Enabled"); ?></option>
+                                <?php echo ServiceType::renderSelectOptions('voice', $voiceVendor); ?>
                             </select>
                         </div>
                     </div>
@@ -559,10 +547,7 @@ $vendors = $boot->getVendorGlobals();
             <div id="set-fax" class="frame d-none">
                 <h3 class="text-center"><?php echo xlt("Setup Fax Account"); ?></h3>
                 <iframe src="<?php
-                $setupUrl = './../setup.php';
-                if ($isRCFax) {
-                    $setupUrl = './../setup_rc.php';
-                }
+                $setupUrl = $faxVendor === ServiceType::RINGCENTRAL ? './../setup_rc.php' : './../setup.php';
                 echo attr($setupUrl . '?type=fax&module_config=1&mode=flat'); ?>" style="border:none;height:100vh;width:100%;"></iframe>
             </div>
         <?php }
@@ -570,10 +555,7 @@ $vendors = $boot->getVendorGlobals();
             <div id="set-sms" class="frame d-none">
                 <h3 class="text-center"><?php echo xlt("Setup SMS Account"); ?></h3>
                 <iframe src="<?php
-                $setupUrl = './../setup.php';
-                if ($isRCSMS) {
-                    $setupUrl = './../setup_rc.php';
-                }
+                $setupUrl = $smsVendor === ServiceType::RINGCENTRAL ? './../setup_rc.php' : './../setup.php';
                 echo attr($setupUrl . '?type=sms&module_config=1&mode=flat'); ?>" style="border:none;height:100vh;width:100%;"></iframe>
             </div>
         <?php } ?>
