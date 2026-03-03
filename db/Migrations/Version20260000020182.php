@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -51,11 +50,7 @@ final class Version20260000020182 extends AbstractMigration
         $table->addColumn('ODLT', Types::STRING, ['length' => 20, 'notnull' => false, 'default' => null]);
         $table->addColumn('OSLT', Types::STRING, ['length' => 20, 'notnull' => false, 'default' => null]);
 
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['id', 'pid'], 'id_pid');
 
         $this->createTable($table);

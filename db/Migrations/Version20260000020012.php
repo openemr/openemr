@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -53,11 +52,7 @@ final class Version20260000020012 extends AbstractMigration
         ]);
         $table->addColumn('x12_partner_id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('submitted_claim', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'This claims form claim data']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('patient_id', 'encounter_id', 'version')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'patient_id', 'encounter_id', 'version');
         $this->createTable($table);
     }
 

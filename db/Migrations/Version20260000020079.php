@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -44,11 +43,7 @@ final class Version20260000020079 extends AbstractMigration
             'comment' => 'who sent id',
         ]);
         $table->addColumn('recip_id', Types::STRING, ['length' => 255, 'comment' => 'who to id array']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $this->createTable($table);
     }
 

@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -254,11 +253,7 @@ final class Version20260000010064 extends AbstractMigration
         $table->addColumn('billing_facility_id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('date_created', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $table->addIndex(['abook_type'], 'abook_type');
         $table->addUniqueIndex(['uuid'], 'uuid');
 

@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -36,11 +35,7 @@ final class Version20260000020118 extends AbstractMigration
         $table->addColumn('form_id', Types::INTEGER, ['autoincrement' => true, 'comment' => 'references forms.form_id']);
         $table->addColumn('field_id', Types::STRING, ['length' => 31, 'comment' => 'references layout_options.field_id']);
         $table->addColumn('field_value', Types::TEXT, ['notnull' => false]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('form_id', 'field_id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'form_id', 'field_id');
         $this->createTable($table);
     }
 

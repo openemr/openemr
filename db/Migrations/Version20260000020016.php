@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -44,11 +43,7 @@ final class Version20260000020016 extends AbstractMigration
         $table->addColumn('value', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('new_value', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('facility_id', Types::INTEGER, ['notnull' => false, 'default' => 0, 'comment' => 'facility where the rule was executed, 0 if unknown']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $table->addIndex(['pid'], 'pid');
         $table->addIndex(['uid'], 'uid');
         $table->addIndex(['category'], 'category');

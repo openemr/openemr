@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -58,11 +57,7 @@ final class Version20260000020109 extends AbstractMigration
         $table->addColumn('other_info', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'for checkout,receipt the old invoice refno']);
         $table->addColumn('reason', Types::STRING, ['notnull' => false, 'length' => 31, 'default' => '']);
         $table->addColumn('notes', Types::STRING, ['notnull' => false, 'length' => 255, 'default' => '']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('void_id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'void_id');
         $table->addIndex(['date_voided'], 'datevoided');
         $table->addIndex(['patient_id', 'encounter_id'], 'pidenc');
 

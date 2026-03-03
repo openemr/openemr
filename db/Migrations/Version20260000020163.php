@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -46,11 +45,7 @@ final class Version20260000020163 extends AbstractMigration
         $table->addColumn('prices', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('action_type', Types::STRING, ['notnull' => false, 'length' => 25]);
         $table->addColumn('update_by', Types::STRING, ['notnull' => false, 'length' => 255]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('log_id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'log_id');
         $this->createTable($table);
     }
 

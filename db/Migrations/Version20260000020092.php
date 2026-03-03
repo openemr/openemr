@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -44,11 +43,7 @@ final class Version20260000020092 extends AbstractMigration
         $table->addColumn('error', Types::FLOAT, ['comment' => 'Standard error for the score']);
         $table->addColumn('created_at', Types::DATETIME_MUTABLE, ['comment' => 'timestamp recording the creation time of this assessment']);
         $table->addColumn('updated_at', Types::DATETIME_MUTABLE, ['comment' => 'this field indicates the completion time when the status is completed']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $this->createTable($table);
     }
 

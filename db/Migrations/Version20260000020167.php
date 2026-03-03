@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -36,11 +35,7 @@ final class Version20260000020167 extends AbstractMigration
         $table->addColumn('pid', Types::BIGINT);
         $table->addColumn('meeting_patient_comment', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('meeting_patient_status', Types::STRING, ['notnull' => false, 'length' => 15]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('form_id', 'pid')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'form_id', 'pid');
         $this->createTable($table);
     }
 

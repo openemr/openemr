@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -45,11 +44,7 @@ final class Version20260000020206 extends AbstractMigration
         $table->addColumn('first_event', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addColumn('last_event', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addColumn('label_count', Types::INTEGER, ['unsigned' => true, 'default' => 1]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['event_label', 'event_url'], 'unique_event_label_target', ['lengths' => [null, 255]]);
 
         $this->createTable($table);

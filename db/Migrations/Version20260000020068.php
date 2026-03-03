@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -35,11 +34,7 @@ final class Version20260000020068 extends AbstractMigration
         $table->addColumn('pid', Types::BIGINT, ['default' => 0]);
         $table->addColumn('type', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('pid', 'type')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'pid', 'type');
         $this->createTable($table);
     }
 

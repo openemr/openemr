@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -52,11 +51,7 @@ final class Version20260000020005 extends AbstractMigration
         $table->addColumn('scope', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'json encoded']);
         $table->addColumn('revoked', Types::BOOLEAN, ['default' => 0, 'comment' => '1=revoked,0=not revoked']);
         $table->addColumn('context', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'context values that change/govern how access token are used']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['token'], 'token');
 
         $this->createTable($table);

@@ -10,6 +10,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
+use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Table;
 
 /**
@@ -27,5 +28,18 @@ trait CreateTableTrait
         foreach ($platform->getCreateTableSQL($table) as $sql) {
             $this->addSql($sql);
         }
+    }
+
+    /**
+     * @param non-empty-string $column
+     * @param non-empty-string ...$otherColumns
+     */
+    private function addPrimaryKey(Table $table, string $column, string ...$otherColumns): void
+    {
+        $table->addPrimaryKeyConstraint(
+            PrimaryKeyConstraint::editor()
+                ->setUnquotedColumnNames($column, ...$otherColumns)
+                ->create()
+        );
     }
 }

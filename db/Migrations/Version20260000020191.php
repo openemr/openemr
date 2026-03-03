@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -73,11 +72,7 @@ final class Version20260000020191 extends AbstractMigration
             'default' => null,
             'comment' => 'The status of the reason ie completed, in progress, etc',
         ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $table->addIndex(['form_id'], 'fk_form_id');
         $table->addIndex(['interpretation_list_id', 'interpretation_option_id'], 'fk_list_options_id');
 

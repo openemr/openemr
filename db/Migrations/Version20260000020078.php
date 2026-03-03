@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -98,11 +97,7 @@ final class Version20260000020078 extends AbstractMigration
         $table->addColumn('mail_chain', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('reply_mail_chain', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('is_msg_encrypted', Types::SMALLINT, ['notnull' => false, 'default' => 0, 'comment' => 'Whether messsage encrypted 0-Not encrypted, 1-Encrypted']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $table->addIndex(['owner'], 'pid');
 
         $this->createTable($table);

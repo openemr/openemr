@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -45,11 +44,7 @@ final class Version20260000020213 extends AbstractMigration
             'notnull' => false,
             'comment' => 'FK to users.id',
         ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['sdoh_history_id', 'health_concern_id'], 'unique_sdoh_concern');
         $table->addIndex(['sdoh_history_id'], 'idx_sdoh_history');
         $table->addIndex(['health_concern_id'], 'idx_health_concern');

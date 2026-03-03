@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -42,11 +41,7 @@ final class Version20260000020008 extends AbstractMigration
             'default' => 1,
             'comment' => 'Used when multiple entry occurs from the same table.1 means no multiple entry',
         ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $table->addIndex(['audit_master_id'], 'audit_master_id');
 
         $this->createTable($table);

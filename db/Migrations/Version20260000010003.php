@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -47,11 +46,7 @@ final class Version20260000010003 extends AbstractMigration
         ]);
         $table->addColumn('msg_text', Types::TEXT, ['notnull' => false, 'length' => 16777215]);
         $table->addColumn('msg_date_sent', Types::DATETIME_MUTABLE, ['notnull' => false]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $this->createTable($table);
     }
 

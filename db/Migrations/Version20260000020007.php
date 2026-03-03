@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -43,11 +42,7 @@ final class Version20260000020007 extends AbstractMigration
         $table->addColumn('type', Types::SMALLINT, ['comment' => '1-new patient,2-existing patient,3-change is only in the document,4-Patient upload,5-random key,10-Appointment']);
         $table->addColumn('is_qrda_document', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
         $table->addColumn('is_unstructured_document', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $this->createTable($table);
     }
 

@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -38,11 +37,7 @@ final class Version20260000010026 extends AbstractMigration
         $table->addColumn('rgt', Types::INTEGER, ['default' => 0]);
         $table->addColumn('name', Types::STRING, ['length' => 255]);
         $table->addColumn('value', Types::STRING, ['length' => 150]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id', 'value')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id', 'value');
         $table->addIndex(['parent_id'], 'gacl_parent_id_aro_groups');
         $table->addIndex(['lft', 'rgt'], 'gacl_lft_rgt_aro_groups');
         $table->addUniqueIndex(['value'], 'gacl_value_aro_groups');

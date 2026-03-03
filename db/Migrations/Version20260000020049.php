@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -41,11 +40,7 @@ final class Version20260000020049 extends AbstractMigration
         $table->addColumn('active', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
         $table->addColumn('revision', Types::INTEGER, ['notnull' => false, 'default' => 0]);
 
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('dx_id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'dx_id');
         $table->addIndex(['formatted_dx_code'], 'formatted_dx_code');
         $table->addIndex(['active'], 'active');
 

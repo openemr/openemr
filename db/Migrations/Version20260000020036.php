@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -49,11 +48,7 @@ final class Version20260000020036 extends AbstractMigration
             'default' => null,
             'comment' => 'The folder prefix and base filename (w/o extension) of the twig template file to use for this email',
         ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $table->addIndex(['sent'], 'sent');
         $table->addOption('engine', 'InnoDb');
 

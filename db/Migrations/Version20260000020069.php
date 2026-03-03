@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -56,11 +55,7 @@ final class Version20260000020069 extends AbstractMigration
         $table->addColumn('type', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('sql_version', Types::STRING, ['length' => 150]);
         $table->addColumn('acl_version', Types::STRING, ['length' => 150]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('mod_id', 'mod_directory')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'mod_id', 'mod_directory');
         $this->createTable($table);
     }
 

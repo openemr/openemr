@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -61,11 +60,7 @@ final class Version20260000020214 extends AbstractMigration
             'default' => 0,
             'comment' => 'Display order for components',
         ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['fvc_uuid', 'vitals_column'], 'unq_fvc_component');
         $table->addIndex(['vitals_column'], 'idx_vitals_column');
         $table->addIndex(['fvc_uuid', 'component_order'], 'idx_component_order');

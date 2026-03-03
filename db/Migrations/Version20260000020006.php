@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -47,11 +46,7 @@ final class Version20260000020006 extends AbstractMigration
         $table->addColumn('token', Types::STRING, ['length' => 128]);
         $table->addColumn('expiry', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('revoked', Types::BOOLEAN, ['default' => 0, 'comment' => '1=revoked,0=not revoked']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $table->addIndex(['client_id', 'user_id'], 'api_refresh_token_usr_client_idx');
         $table->addUniqueIndex(['token'], 'token');
 

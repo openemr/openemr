@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -69,11 +68,7 @@ final class Version20260000020127 extends AbstractMigration
             'comment' => 'pending review status: received,reviewed',
         ]);
         $table->addColumn('report_notes', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'notes from the lab']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('procedure_report_id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'procedure_report_id');
         $table->addIndex(['procedure_order_id'], 'procedure_order_id');
         $table->addUniqueIndex(['uuid'], 'uuid');
 

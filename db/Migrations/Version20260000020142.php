@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -44,11 +43,7 @@ final class Version20260000020142 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('ccda_type', Types::INTEGER, ['comment' => '0=>sections,1=>components']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('ccda_components_id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'ccda_components_id');
         $this->createTable($table);
     }
 

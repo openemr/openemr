@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -85,11 +84,7 @@ final class Version20260000020187 extends AbstractMigration
             'default' => 1,
             'comment' => '0=none, 1=evidence-based,2=predictive',
         ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('client_id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'client_id');
         $this->createTable($table);
     }
 

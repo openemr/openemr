@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -166,11 +165,7 @@ final class Version20260000010044 extends AbstractMigration
         $table->addColumn('subscriber_street_line_2', Types::TEXT, ['notnull' => false, 'length' => 255]);
         $table->addColumn('subscriber_employer_street_line_2', Types::TEXT, ['notnull' => false, 'length' => 255]);
         $table->addColumn('date_end', Types::DATE_MUTABLE, ['notnull' => false]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['uuid'], 'uuid');
         $table->addUniqueIndex(['pid', 'type', 'date'], 'pid_type_date');
 

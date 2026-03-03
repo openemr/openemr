@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -124,11 +123,7 @@ final class Version20260000020129 extends AbstractMigration
         $table->addColumn('created_by', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('updated_by', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('deleted', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('procedure_specimen_id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'procedure_specimen_id');
         $table->addIndex(['procedure_order_id', 'procedure_order_seq'], 'idx_order_line');
         $table->addIndex(['specimen_identifier'], 'idx_identifier');
         $table->addIndex(['accession_identifier'], 'idx_accession');

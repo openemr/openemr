@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -64,11 +63,7 @@ final class Version20260000010054 extends AbstractMigration
         $table->addColumn('pc_seq', Types::INTEGER, ['default' => 0]);
         $table->addColumn('aco_spec', Types::STRING, ['length' => 63, 'default' => 'encounters|notes']);
         $table->addColumn('pc_last_updated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('pc_catid')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'pc_catid');
         $table->addIndex(['pc_catname', 'pc_catcolor'], 'basic_cat');
         $table->addUniqueIndex(['pc_constant_id'], 'pc_constant_id');
 

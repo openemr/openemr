@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -108,11 +107,7 @@ final class Version20260000020122 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('procedure_type_name', Types::STRING, ['length' => 64, 'notnull' => false]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('procedure_type_id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'procedure_type_id');
         $table->addIndex(['parent'], 'parent');
         $table->addIndex(['procedure_code'], 'ptype_procedure_code');
 

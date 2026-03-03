@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -39,11 +38,7 @@ final class Version20260000020162 extends AbstractMigration
         $table->addColumn('telemetry_disabled', Types::BOOLEAN, ['notnull' => false, 'comment' => '1 opted out, disabled. NULL ask. 0 use option scopes']);
         $table->addColumn('last_ask_date', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addColumn('options', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'JSON array of scope options']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $this->createTable($table);
     }
 

@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -46,11 +45,7 @@ final class Version20260000020002 extends AbstractMigration
         $table->addColumn('modified_by', Types::INTEGER, ['notnull' => false, 'comment' => 'references users.id for session owner']);
         $table->addColumn('created_time', Types::DATETIME_MUTABLE, ['notnull' => false, 'comment' => 'created time']);
         $table->addColumn('modified_time', Types::DATETIME_MUTABLE, ['notnull' => false, 'comment' => 'modified time']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('amendment_id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'amendment_id');
         $table->addIndex(['pid'], 'amendment_pid');
 
         $this->createTable($table);

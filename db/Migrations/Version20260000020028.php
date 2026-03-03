@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -75,11 +74,7 @@ final class Version20260000020028 extends AbstractMigration
             'comment' => '0-Yes 1-No',
         ]);
         $table->addColumn('dlm_upload_type', Types::BOOLEAN, ['notnull' => false, 'default' => 0, 'comment' => '0-Provider Uploaded,1-Patient Uploaded']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('dlm_document_id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'dlm_document_id');
         $this->createTable($table);
     }
 

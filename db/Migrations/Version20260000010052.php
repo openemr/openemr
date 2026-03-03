@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -44,11 +43,7 @@ final class Version20260000010052 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('pn_value', Types::TEXT, ['notnull' => false]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('pn_id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'pn_id');
         $table->addIndex(['pn_modname'], 'pn_modname');
         $table->addIndex(['pn_name'], 'pn_name');
 

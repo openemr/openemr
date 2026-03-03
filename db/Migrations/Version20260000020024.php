@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -42,11 +41,7 @@ final class Version20260000020024 extends AbstractMigration
         $table->addColumn('message_processed', Types::BOOLEAN, ['default' => 0]);
         $table->addColumn('processed_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('dr_processed_by', Types::INTEGER);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('dr_id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'dr_id');
         $table->addIndex(['dr_from_ID', 'dr_message_due_date'], 'dr_from_ID');
 
         $this->createTable($table);

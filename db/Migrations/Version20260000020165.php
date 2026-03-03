@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -41,11 +40,7 @@ final class Version20260000020165 extends AbstractMigration
         $table->addColumn('group_status', Types::INTEGER);
         $table->addColumn('group_notes', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('group_guest_counselors', Types::STRING, ['notnull' => false, 'length' => 255]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('group_id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'group_id');
         $this->createTable($table);
     }
 

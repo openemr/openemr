@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -47,11 +46,7 @@ final class Version20260000020112 extends AbstractMigration
         $table->addColumn('pc_startTime', Types::TIME_MUTABLE);
         $table->addColumn('pc_endTime', Types::TIME_MUTABLE);
         $table->addColumn('dSentDateTime', Types::DATETIME_MUTABLE);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('iLogId')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'iLogId');
         $this->createTable($table);
     }
 

@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -40,11 +39,7 @@ final class Version20260000020107 extends AbstractMigration
         $table->addColumn('document_drive', Types::SMALLINT, ['default' => 0]);
         $table->addColumn('mapped', Types::SMALLINT, ['default' => 0]);
         $table->addColumn('created', Types::DATETIME_MUTABLE, ['notnull' => false]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('uuid')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'uuid');
         $this->createTable($table);
     }
 

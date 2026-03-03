@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -62,11 +61,7 @@ final class Version20260000020086 extends AbstractMigration
         $table->addColumn('sms_status', Types::BOOLEAN, ['default' => 0, 'comment' => '0 if not sent and 1 if sent']);
         $table->addColumn('email_status', Types::BOOLEAN, ['default' => 0, 'comment' => '0 if not sent and 1 if sent']);
         $table->addColumn('mail_status', Types::BOOLEAN, ['default' => 0, 'comment' => '0 if not sent and 1 if sent']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $table->addIndex(['pid'], 'pid');
         $table->addIndex(['category', 'item'], 'category');
 

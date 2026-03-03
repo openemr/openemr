@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -79,11 +78,7 @@ final class Version20260000020192 extends AbstractMigration
             'comment' => 'Unit for this component value',
         ]);
         $table->addColumn('component_order', Types::INTEGER, ['default' => 0, 'comment' => 'Display order for components']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $table->addIndex(['pid'], 'idx_pid');
         $table->addIndex(['encounter'], 'idx_encounter');
         $table->addIndex(['calculation_id'], 'idx_calculation_id');

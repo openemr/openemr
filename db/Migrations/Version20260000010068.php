@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -43,11 +42,7 @@ final class Version20260000010068 extends AbstractMigration
             'default' => null,
             'comment' => 'Username who created the link',
         ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $table->addIndex(['clinical_note_id'], 'idx_clinical_note_id');
         $table->addIndex(['document_id'], 'idx_document_id');
         $table->addIndex(['created_at'], 'idx_created_at');

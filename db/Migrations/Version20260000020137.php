@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -36,11 +35,7 @@ final class Version20260000020137 extends AbstractMigration
         $table->addColumn('pw_warehouse', Types::STRING, ['length' => 31]);
         $table->addColumn('pw_min_level', Types::SMALLFLOAT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('pw_max_level', Types::SMALLFLOAT, ['notnull' => false, 'default' => 0]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('pw_drug_id', 'pw_warehouse')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'pw_drug_id', 'pw_warehouse');
         $this->createTable($table);
     }
 

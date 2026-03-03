@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -46,11 +45,7 @@ final class Version20260000010002 extends AbstractMigration
             'comment' => 'include file (if necessary)',
         ]);
         $table->addColumn('sort_order', Types::INTEGER, ['default' => 100, 'comment' => 'lower numbers will be run first']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('name')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'name');
         $this->createTable($table);
     }
 

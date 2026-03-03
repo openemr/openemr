@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -51,11 +50,7 @@ final class Version20260000020153 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('nqf_code', 'code', 'valueset')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'nqf_code', 'code', 'valueset');
         $this->createTable($table);
     }
 

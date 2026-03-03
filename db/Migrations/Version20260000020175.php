@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -44,11 +43,7 @@ final class Version20260000020175 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('r_created', Types::DATETIME_MUTABLE, ['default' => '0000-00-00 00:00:00']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('r_ID')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'r_ID');
         $table->addUniqueIndex(['r_PRACTID', 'r_pid'], 'r_PRACTID');
 
         $this->createTable($table);

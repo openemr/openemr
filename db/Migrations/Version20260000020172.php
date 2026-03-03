@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -38,11 +37,7 @@ final class Version20260000020172 extends AbstractMigration
         $table->addColumn('i_description', Types::STRING, ['notnull' => false, 'length' => 255]);
         $table->addColumn('i_html', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('i_blob', Types::TEXT, ['notnull' => false]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('i_UID')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'i_UID');
         $this->createTable($table);
     }
 

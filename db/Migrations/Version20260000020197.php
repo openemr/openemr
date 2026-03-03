@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -50,11 +49,7 @@ final class Version20260000020197 extends AbstractMigration
         $table->addColumn('period', Types::INTEGER);
         $table->addColumn('notify_trigger', Types::STRING, ['length' => 31]);
         $table->addColumn('notify_period', Types::INTEGER);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['profile', 'template_id', 'member_of'], 'location');
 
         $this->createTable($table);

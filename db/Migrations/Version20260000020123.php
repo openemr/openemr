@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -63,11 +62,7 @@ final class Version20260000020123 extends AbstractMigration
             'comment' => 'Additional instructions for answering the question',
         ]);
         $table->addColumn('activity', Types::BOOLEAN, ['default' => 1, 'comment' => '1 = active, 0 = inactive']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('lab_id', 'procedure_code', 'question_code')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'lab_id', 'procedure_code', 'question_code');
         $this->createTable($table);
     }
 

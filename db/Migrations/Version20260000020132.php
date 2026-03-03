@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -62,11 +61,7 @@ final class Version20260000020132 extends AbstractMigration
         $table->addColumn('ct_term', Types::BOOLEAN, ['default' => 0, 'comment' => '1 if this is a clinical term']);
         $table->addColumn('ct_problem', Types::BOOLEAN, ['default' => 0, 'comment' => '1 if this code type is used as a medical problem']);
         $table->addColumn('ct_drug', Types::BOOLEAN, ['default' => 0, 'comment' => '1 if this code type is used as a medication']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('ct_key')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'ct_key');
         $table->addUniqueIndex(['ct_id'], 'ct_id');
         $this->createTable($table);
     }

@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -77,11 +76,7 @@ final class Version20260000020018 extends AbstractMigration
             'default' => null,
             'comment' => 'users.id',
         ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $table->addIndex(['contact_id'], 'contact_id');
         $table->addIndex(['address_id'], 'address_id');
         $table->addIndex(['contact_id', 'address_id'], 'contact_address_idx');

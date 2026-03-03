@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -38,11 +37,7 @@ final class Version20260000020166 extends AbstractMigration
         $table->addColumn('group_patient_start', Types::DATE_MUTABLE);
         $table->addColumn('group_patient_end', Types::DATE_MUTABLE, ['notnull' => false]);
         $table->addColumn('group_patient_comment', Types::TEXT, ['notnull' => false, 'length' => 65535]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('group_id', 'pid')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'group_id', 'pid');
         $this->createTable($table);
     }
 

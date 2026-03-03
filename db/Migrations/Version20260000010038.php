@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -34,11 +33,7 @@ final class Version20260000010038 extends AbstractMigration
         $table = new Table('gacl_groups_aro_map');
         $table->addColumn('group_id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('aro_id', Types::INTEGER, ['default' => 0]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('group_id', 'aro_id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'group_id', 'aro_id');
         $table->addIndex(['aro_id'], 'gacl_aro_id');
 
         $this->createTable($table);

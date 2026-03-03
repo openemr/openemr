@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -48,11 +47,7 @@ final class Version20260000020032 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('pkgqty', Types::SMALLFLOAT, ['default' => 1.0, 'comment' => 'Number of product items per template item']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('drug_id', 'selector')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'drug_id', 'selector');
         $this->createTable($table);
     }
 

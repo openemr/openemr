@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -63,11 +62,7 @@ final class Version20260000010053 extends AbstractMigration
         $table->addColumn('pn_admin_capable', Types::BOOLEAN, ['default' => 0]);
         $table->addColumn('pn_user_capable', Types::BOOLEAN, ['default' => 0]);
         $table->addColumn('pn_state', Types::BOOLEAN, ['default' => 0]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('pn_id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'pn_id');
         $this->createTable($table);
     }
 

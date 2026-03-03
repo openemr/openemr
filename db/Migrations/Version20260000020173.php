@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -45,11 +44,7 @@ final class Version20260000020173 extends AbstractMigration
         ]);
         $table->addColumn('msg_extra_text', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('medex_uid', Types::INTEGER, ['notnull' => false]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('msg_uid')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'msg_uid');
         $table->addUniqueIndex(['msg_uid', 'msg_pc_eid', 'medex_uid'], 'msg_eid');
 
         $this->createTable($table);

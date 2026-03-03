@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -35,11 +34,7 @@ final class Version20260000010036 extends AbstractMigration
         $table->addColumn('acl_id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('section_value', Types::STRING, ['length' => 150, 'default' => 0]);
         $table->addColumn('value', Types::STRING, ['length' => 150]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('acl_id', 'section_value', 'value')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'acl_id', 'section_value', 'value');
         $this->createTable($table);
     }
 

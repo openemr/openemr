@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -42,11 +41,7 @@ final class Version20260000020061 extends AbstractMigration
         $table->addColumn('force_show', Types::BOOLEAN, ['default' => 0]);
         $table->addColumn('ordering', Types::INTEGER, ['default' => 0]);
         $table->addColumn('aco_spec', Types::STRING, ['length' => 63, 'default' => 'patients|med']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('category', 'type')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'category', 'type');
         $this->createTable($table);
     }
 

@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -41,11 +40,7 @@ final class Version20260000020085 extends AbstractMigration
         ]);
         $table->addColumn('menu_order', Types::SMALLINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('menu_status', Types::SMALLINT, ['notnull' => false, 'default' => 1]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('patient_portal_menu_id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'patient_portal_menu_id');
 
         $table->addOption('engine', 'INNODB');
 

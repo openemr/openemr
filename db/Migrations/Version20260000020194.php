@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -35,11 +34,7 @@ final class Version20260000020194 extends AbstractMigration
         $table->addOption('comment', 'Join table between form_vitals_calculation and form_vitals table representing the derivative observation relationship between the calculation and the source records');
         $table->addColumn('fvc_uuid', Types::BINARY, ['fixed' => true, 'length' => 16, 'comment' => 'fk to form_vitals_calculation.uuid']);
         $table->addColumn('vitals_id', Types::BIGINT, ['comment' => 'fk to form_vitals.id']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('fvc_uuid', 'vitals_id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'fvc_uuid', 'vitals_id');
         $this->createTable($table);
     }
 

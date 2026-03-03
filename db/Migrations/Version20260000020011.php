@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -34,11 +33,7 @@ final class Version20260000020011 extends AbstractMigration
         $table = new Table('categories_to_documents');
         $table->addColumn('category_id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('document_id', Types::INTEGER, ['default' => 0]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('category_id', 'document_id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'category_id', 'document_id');
         $this->createTable($table);
     }
 

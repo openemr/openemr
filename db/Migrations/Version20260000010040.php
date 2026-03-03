@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -34,11 +33,7 @@ final class Version20260000010040 extends AbstractMigration
         $table = new Table('gacl_phpgacl');
         $table->addColumn('name', Types::STRING, ['length' => 230]);
         $table->addColumn('value', Types::STRING, ['length' => 150]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('name')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'name');
         $this->createTable($table);
     }
 

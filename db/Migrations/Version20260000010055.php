@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -115,11 +114,7 @@ final class Version20260000010055 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('pc_eid')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'pc_eid');
         $table->addIndex(['pc_catid', 'pc_aid', 'pc_eventDate', 'pc_endDate', 'pc_eventstatus', 'pc_sharing', 'pc_topic'], 'basic_event');
         $table->addIndex(['pc_eventDate'], 'pc_eventDate');
         $table->addUniqueIndex(['uuid'], 'uuid');

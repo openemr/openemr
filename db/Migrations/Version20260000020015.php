@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -115,11 +114,7 @@ final class Version20260000020015 extends AbstractMigration
         $table->addColumn('patient_sex_usage', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'Description of how patient birth sex information is used by this rule']);
         $table->addColumn('patient_sexual_orientation_usage', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'Description of how patient sexual orientation is used by this rule']);
         $table->addColumn('patient_sodh_usage', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'Description of how patient social determinants of health are used by this rule']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id', 'pid')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id', 'pid');
         $this->createTable($table);
     }
 

@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -62,11 +61,7 @@ final class Version20260000020081 extends AbstractMigration
         $table->addColumn('action_user', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('action_taken_time', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('checksum', Types::TEXT, ['notnull' => false]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $table->addIndex(['date'], 'date');
 
         $this->createTable($table);

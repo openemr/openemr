@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -36,11 +35,7 @@ final class Version20260000020101 extends AbstractMigration
         $table->addColumn('created', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addColumn('number_scripts', Types::BIGINT, ['notnull' => false, 'default' => 1]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('uuid')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'uuid');
         $this->createTable($table);
     }
 

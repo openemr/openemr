@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -55,11 +54,7 @@ final class Version20260000020135 extends AbstractMigration
         $table->addColumn('cl_order', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('cl_deleted', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
         $table->addColumn('cl_creator', Types::INTEGER, ['notnull' => false, 'default' => null]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('cl_list_slno')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'cl_list_slno');
         $this->createTable($table);
     }
 

@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -69,11 +68,7 @@ final class Version20260000020027 extends AbstractMigration
         $table->addColumn('dld_denial_reason', Types::TEXT, ['notnull' => false]);
         $table->addColumn('dld_moved', Types::BOOLEAN, ['default' => 0]);
         $table->addColumn('dld_patient_comments', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'Patient comments stored here']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('dld_id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'dld_id');
         $this->createTable($table);
     }
 

@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -49,11 +48,7 @@ final class Version20260000020022 extends AbstractMigration
         ]);
         $table->addColumn('notes', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'Optional notes about why/how they were linked']);
         $table->addColumn('active', Types::BOOLEAN, ['default' => 1, 'comment' => 'Whether link is active (allows soft delete)']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $table->addIndex(['person_id'], 'idx_ppl_person');
         $table->addIndex(['patient_id'], 'idx_ppl_patient');
         $table->addIndex(['active'], 'idx_ppl_active');

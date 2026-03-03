@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -55,11 +54,7 @@ final class Version20260000020060 extends AbstractMigration
         ]);
         $table->addColumn('created_at', Types::DATETIME_MUTABLE, ['notnull' => false, 'comment' => 'timestamp when this issue encounter record was created', 'default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('updated_at', Types::DATETIME_MUTABLE, ['notnull' => false, 'comment' => 'timestamp when this issue encounter record was last updated', 'default' => 'CURRENT_TIMESTAMP']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['pid', 'list_id', 'encounter'], 'uniq_issue_key');
         $table->addUniqueIndex(['uuid'], 'uuid_unique');
 

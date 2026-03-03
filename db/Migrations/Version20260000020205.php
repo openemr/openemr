@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -47,11 +46,7 @@ final class Version20260000020205 extends AbstractMigration
         $table->addColumn('last_updated_by', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('created_at', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addColumn('last_updated_at', Types::DATETIME_MUTABLE, ['notnull' => false]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['list_id', 'option_id', 'client_id'], 'list_id');
 
         $this->createTable($table);

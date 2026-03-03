@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -49,11 +48,7 @@ final class Version20260000020096 extends AbstractMigration
         ]);
         $table->addColumn('reminder_message', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'Custom message in patient reminder']);
         $table->addColumn('custom_flag', Types::BOOLEAN, ['default' => 0, 'comment' => '1 indexed to rule_patient_data, 0 indexed within main schema']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('category', 'item')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'category', 'item');
         $this->createTable($table);
     }
 

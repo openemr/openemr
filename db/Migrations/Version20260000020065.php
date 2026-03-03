@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -61,11 +60,7 @@ final class Version20260000020065 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('codes', Types::STRING, ['length' => 255, 'default' => '']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('form_id', 'field_id', 'seq')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'form_id', 'field_id', 'seq');
         $this->createTable($table);
     }
 

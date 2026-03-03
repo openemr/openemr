@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -45,11 +44,7 @@ final class Version20260000020091 extends AbstractMigration
             'default' => 0.00,
             'comment' => 'price in local currency',
         ]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('pr_id', 'pr_selector', 'pr_level')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'pr_id', 'pr_selector', 'pr_level');
         $this->createTable($table);
     }
 

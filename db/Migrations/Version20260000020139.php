@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -41,11 +40,7 @@ final class Version20260000020139 extends AbstractMigration
         $table->addColumn('amendment', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'amendment text, if any']);
         $table->addColumn('hash', Types::STRING, ['length' => 255, 'comment' => 'hash of signed data']);
         $table->addColumn('signature_hash', Types::STRING, ['length' => 255, 'comment' => 'hash of signature itself']);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $table->addIndex(['tid'], 'tid');
         $table->addIndex(['table'], 'table');
 

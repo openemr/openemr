@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Core\Migrations;
 
-use Doctrine\DBAL\Schema\PrimaryKeyConstraint;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
@@ -40,11 +39,7 @@ final class Version20260000020059 extends AbstractMigration
         $table->addColumn('ip_auto_block_emailed', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
         $table->addColumn('ip_force_block', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
         $table->addColumn('ip_no_prevent_timing_attack', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
-        $table->addPrimaryKeyConstraint(
-            PrimaryKeyConstraint::editor()
-                ->setUnquotedColumnNames('id')
-                ->create()
-        );
+        $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['ip_string'], 'ip_string');
         $table->addOption('engine', 'InnoDb');
 
