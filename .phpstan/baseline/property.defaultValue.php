@@ -7,21 +7,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Static property C_FormPainMap\\:\\:\\$FORM_CODE \\(FORM_CODE\\) does not accept default value of type string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/painmap/C_FormPainMap.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Static property C_FormPainMap\\:\\:\\$FORM_TITLE \\(FORM_TITLE\\) does not accept default value of type string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/painmap/C_FormPainMap.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Static property FormPainMap\\:\\:\\$TABLE_NAME \\(TABLE_NAME\\) does not accept default value of type string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/painmap/FormPainMap.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Smarty_Legacy\\:\\:\\$_cache_including \\(string\\) does not accept default value of type false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',

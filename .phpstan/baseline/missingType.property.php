@@ -247,6 +247,46 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/profiler.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Property AbstractClickmapModel\\:\\:\\$activity has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property AbstractClickmapModel\\:\\:\\$authorized has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property AbstractClickmapModel\\:\\:\\$data has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property AbstractClickmapModel\\:\\:\\$date has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property AbstractClickmapModel\\:\\:\\$groupname has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property AbstractClickmapModel\\:\\:\\$id has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property AbstractClickmapModel\\:\\:\\$pid has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property AbstractClickmapModel\\:\\:\\$user has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property eRxGlobals\\:\\:\\$configuration has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxGlobals.php',

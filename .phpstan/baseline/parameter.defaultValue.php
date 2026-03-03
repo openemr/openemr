@@ -17,21 +17,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/code_types.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#7 \\$filter_clauses \\(array\\) of function define_external_table\\(\\) is incompatible with type type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#8 \\$version_order \\(string\\) of function define_external_table\\(\\) is incompatible with type type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#9 \\$joins \\(array\\) of function define_external_table\\(\\) is incompatible with type type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#1 \\$group \\(false\\) of method Hashed_Cache_Lite\\:\\:clean\\(\\) is incompatible with type string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/Cache_Lite/Hashed_Cache_Lite.php',
@@ -50,11 +35,6 @@ $ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#4 \\$prevLevel \\(int\\) of method Acl\\\\Controller\\\\AclController\\:\\:createTreeView\\(\\) is incompatible with type string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Controller/AclController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#3 \\$adapter \\(string\\) of method Installer\\\\Model\\\\InstModuleTable\\:\\:getObject\\(\\) is incompatible with type Installer\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#4 \\$formseq \\(int\\) of function generate_qoe_html\\(\\) is incompatible with type string\\.$#',
@@ -345,11 +325,6 @@ $ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#3 \\$params \\(string\\) of method PortalController\\:\\:Redirect\\(\\) is incompatible with type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Default value of the parameter \\#5 \\$strip \\(string\\) of method OpenEMR\\\\Billing\\\\Hcfa1500\\:\\:putHcfa\\(\\) is incompatible with type OpenEMR\\\\Billing\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Hcfa1500.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#1 \\$fhirResource \\(array\\) of method OpenEMR\\\\Services\\\\FHIR\\\\Condition\\\\FhirConditionEncounterDiagnosisService\\:\\:parseFhirResource\\(\\) is incompatible with type OpenEMR\\\\FHIR\\\\R4\\\\FHIRResource\\\\FHIRDomainResource\\.$#',

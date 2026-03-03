@@ -52,7 +52,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/qrda_category1_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset 7 does not exist on array\\{0\\: array\\{\\}, 2\\: mixed, 4\\: mixed, 8\\: non\\-falsy\\-string, 10\\: non\\-falsy\\-string, 3\\: non\\-falsy\\-string, 6\\: mixed\\}\\.$#',
+    'message' => '#^Offset 7 does not exist on array\\{0\\: array\\{\\}, 2\\: string, 4\\: string, 8\\: non\\-falsy\\-string, 10\\: non\\-falsy\\-string, 3\\: non\\-falsy\\-string, 6\\: mixed\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/ub04_dispose.php',
 ];
@@ -252,7 +252,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'field_name_value_array\' might not exist on array\\{approval_status\\: 1, type\\: 11, ip_address\\: mixed, field_name_value_array\\?\\: non\\-empty\\-array\\<non\\-empty\\-array\\<array\\<mixed\\>\\>\\>, entry_identification_array\\?\\: non\\-empty\\-array\\<non\\-empty\\-array\\<mixed\\>\\>\\}\\.$#',
+    'message' => '#^Offset \'field_name_value_array\' might not exist on array\\{approval_status\\: 1, type\\: 11, ip_address\\: mixed, field_name_value_array\\?\\: non\\-empty\\-array\\<non\\-empty\\-array\\<array\\>\\>, entry_identification_array\\?\\: non\\-empty\\-array\\<non\\-empty\\-array\\>\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
 ];
