@@ -82,7 +82,6 @@ class CareTeamServiceTest extends TestCase
     public function testGetUuidFieldsReturnsExpectedFields(): void
     {
         $fields = $this->service->getUuidFields();
-        $this->assertIsArray($fields);
         $this->assertContains('uuid', $fields);
         $this->assertContains('puuid', $fields);
     }
@@ -143,14 +142,17 @@ class CareTeamServiceTest extends TestCase
             'active'
         );
 
+        /** @var array<string, mixed>|false $row */
         $row = QueryUtils::querySingleRow(
             "SELECT id, team_name, status, pid FROM care_teams WHERE team_name = ?",
             [self::TEST_TEAM_NAME]
         );
 
         $this->assertNotEmpty($row);
+        $this->assertIsArray($row);
         $this->assertEquals(self::TEST_TEAM_NAME, $row['team_name']);
         $this->assertEquals('active', $row['status']);
+        // @phpstan-ignore cast.int
         $this->assertEquals($this->testPid, (int) $row['pid']);
     }
 
@@ -165,12 +167,15 @@ class CareTeamServiceTest extends TestCase
             'active'
         );
 
+        /** @var array<string, mixed>|false $row */
         $row = QueryUtils::querySingleRow(
             "SELECT uuid FROM care_teams WHERE team_name = ?",
             [self::TEST_TEAM_NAME]
         );
 
+        $this->assertIsArray($row);
         $this->assertNotEmpty($row['uuid']);
+        // @phpstan-ignore argument.type
         $uuidString = UuidRegistry::uuidToString($row['uuid']);
         $this->assertNotEmpty($uuidString);
         $this->assertMatchesRegularExpression(
@@ -202,19 +207,24 @@ class CareTeamServiceTest extends TestCase
         );
 
         // Verify the team was created
+        /** @var array<string, mixed>|false $teamRow */
         $teamRow = QueryUtils::querySingleRow(
             "SELECT id FROM care_teams WHERE team_name = ?",
             [self::TEST_TEAM_NAME]
         );
+        $this->assertIsArray($teamRow);
         $this->assertNotEmpty($teamRow);
 
         // Verify the member was inserted
+        /** @var array<string, mixed>|false $memberRow */
         $memberRow = QueryUtils::querySingleRow(
             "SELECT * FROM care_team_member WHERE care_team_id = ? AND user_id = ?",
             [$teamRow['id'], $this->testProviderId]
         );
+        $this->assertIsArray($memberRow);
         $this->assertNotEmpty($memberRow);
         $this->assertEquals('family_medicine_specialist', $memberRow['role']);
+        // @phpstan-ignore cast.int
         $this->assertEquals($this->testFacilityId, (int) $memberRow['facility_id']);
         $this->assertEquals('active', $memberRow['status']);
         $this->assertEquals('Primary physician', $memberRow['note']);
@@ -236,10 +246,13 @@ class CareTeamServiceTest extends TestCase
             'active'
         );
 
+        /** @var array<string, mixed>|false $teamRow */
         $teamRow = QueryUtils::querySingleRow(
             "SELECT id FROM care_teams WHERE team_name = ?",
             [self::TEST_TEAM_NAME]
         );
+        $this->assertIsArray($teamRow);
+        // @phpstan-ignore cast.int
         $teamId = (int) $teamRow['id'];
 
         // Update the team name and status
@@ -252,18 +265,23 @@ class CareTeamServiceTest extends TestCase
         );
 
         // Verify the update
+        /** @var array<string, mixed>|false $updatedRow */
         $updatedRow = QueryUtils::querySingleRow(
             "SELECT team_name, status FROM care_teams WHERE id = ?",
             [$teamId]
         );
+        $this->assertIsArray($updatedRow);
         $this->assertEquals(self::TEST_TEAM_NAME_ALT, $updatedRow['team_name']);
         $this->assertEquals('suspended', $updatedRow['status']);
 
         // Verify no duplicate was created
+        /** @var array<string, mixed>|false $count */
         $count = QueryUtils::querySingleRow(
             "SELECT COUNT(*) as cnt FROM care_teams WHERE pid = ? AND (team_name LIKE 'test-fixture%')",
             [$this->testPid]
         );
+        $this->assertIsArray($count);
+        // @phpstan-ignore cast.int
         $this->assertEquals(1, (int) $count['cnt']);
     }
 
@@ -289,24 +307,33 @@ class CareTeamServiceTest extends TestCase
             'active'
         );
 
+        /** @var array<string, mixed>|false $teamRow */
         $teamRow = QueryUtils::querySingleRow(
             "SELECT id FROM care_teams WHERE team_name = ?",
             [self::TEST_TEAM_NAME]
         );
+        $this->assertIsArray($teamRow);
+        // @phpstan-ignore cast.int
         $teamId = (int) $teamRow['id'];
 
         // Verify initial state: one active member
+        /** @var array<string, mixed>|false $initialCount */
         $initialCount = QueryUtils::querySingleRow(
             "SELECT COUNT(*) as cnt FROM care_team_member WHERE care_team_id = ? AND status = 'active'",
             [$teamId]
         );
+        $this->assertIsArray($initialCount);
+        // @phpstan-ignore cast.int
         $this->assertEquals(1, (int) $initialCount['cnt']);
 
         // Get a second provider id — the admin user (id=1) should always exist
+        /** @var array<string, mixed>|false $secondProvider */
         $secondProvider = QueryUtils::querySingleRow(
             "SELECT id FROM users WHERE id != ? AND id > 0 AND username IS NOT NULL AND username != '' LIMIT 1",
             [$this->testProviderId]
         );
+        $this->assertIsArray($secondProvider);
+        // @phpstan-ignore cast.int
         $secondProviderId = (int) ($secondProvider['id'] ?? 0);
         $this->assertGreaterThan(0, $secondProviderId, "A second user with positive id must exist for this test");
 
@@ -337,10 +364,13 @@ class CareTeamServiceTest extends TestCase
         );
 
         // Verify two active members exist
+        /** @var array<string, mixed>|false $memberCount */
         $memberCount = QueryUtils::querySingleRow(
             "SELECT COUNT(*) as cnt FROM care_team_member WHERE care_team_id = ? AND status = 'active'",
             [$teamId]
         );
+        $this->assertIsArray($memberCount);
+        // @phpstan-ignore cast.int
         $this->assertEquals(2, (int) $memberCount['cnt']);
     }
 
@@ -366,10 +396,13 @@ class CareTeamServiceTest extends TestCase
             'active'
         );
 
+        /** @var array<string, mixed>|false $teamRow */
         $teamRow = QueryUtils::querySingleRow(
             "SELECT id FROM care_teams WHERE team_name = ?",
             [self::TEST_TEAM_NAME]
         );
+        $this->assertIsArray($teamRow);
+        // @phpstan-ignore cast.int
         $teamId = (int) $teamRow['id'];
 
         // Update team with NO members (removing the provider)
@@ -382,10 +415,12 @@ class CareTeamServiceTest extends TestCase
         );
 
         // Verify the member was marked inactive (not deleted)
+        /** @var array<string, mixed>|false $memberRow */
         $memberRow = QueryUtils::querySingleRow(
             "SELECT status FROM care_team_member WHERE care_team_id = ? AND user_id = ?",
             [$teamId, $this->testProviderId]
         );
+        $this->assertIsArray($memberRow);
         $this->assertNotEmpty($memberRow);
         $this->assertEquals('inactive', $memberRow['status']);
     }
@@ -399,10 +434,8 @@ class CareTeamServiceTest extends TestCase
     {
         $result = $this->service->getCareTeamData($this->testPid);
 
-        $this->assertIsArray($result);
         $this->assertEmpty($result['team_name']);
         $this->assertEquals('active', $result['team_status']);
-        $this->assertIsArray($result['members']);
         $this->assertEmpty($result['members']);
         $this->assertEquals(0, $result['member_count']);
     }
@@ -431,7 +464,6 @@ class CareTeamServiceTest extends TestCase
 
         $result = $this->service->getCareTeamData($this->testPid);
 
-        $this->assertIsArray($result);
         $this->assertEquals(self::TEST_TEAM_NAME, $result['team_name']);
         $this->assertEquals('active', $result['team_status']);
         $this->assertGreaterThanOrEqual(1, $result['member_count']);
@@ -440,8 +472,10 @@ class CareTeamServiceTest extends TestCase
         // Verify first member structure
         $member = $result['members'][0];
         $this->assertEquals('user', $member['member_type']);
+        // @phpstan-ignore cast.int
         $this->assertEquals($this->testProviderId, (int) $member['user_id']);
         $this->assertEquals('family_medicine_specialist', $member['role']);
+        // @phpstan-ignore cast.int
         $this->assertEquals($this->testFacilityId, (int) $member['facility_id']);
         $this->assertEquals('active', $member['status']);
         $this->assertEquals('Test provider note', $member['note']);
@@ -496,10 +530,13 @@ class CareTeamServiceTest extends TestCase
             'active'
         );
 
+        /** @var array<string, mixed>|false $teamRow */
         $teamRow = QueryUtils::querySingleRow(
             "SELECT id FROM care_teams WHERE team_name = ?",
             [self::TEST_TEAM_NAME]
         );
+        $this->assertIsArray($teamRow);
+        // @phpstan-ignore cast.int
         $teamId = (int) $teamRow['id'];
 
         // Remove the member (marks inactive)
@@ -533,21 +570,25 @@ class CareTeamServiceTest extends TestCase
         );
 
         // Get the UUID from the database
+        /** @var array<string, mixed>|false $row */
         $row = QueryUtils::querySingleRow(
             "SELECT uuid FROM care_teams WHERE team_name = ?",
             [self::TEST_TEAM_NAME]
         );
+        $this->assertIsArray($row);
+        // @phpstan-ignore argument.type
         $uuidString = UuidRegistry::uuidToString($row['uuid']);
 
         $result = $this->service->getOne($uuidString);
 
-        $this->assertNotNull($result);
         $this->assertCount(0, $result->getValidationMessages());
-        $this->assertNotEmpty($result->getData());
 
-        $data = $result->getData()[0];
-        $this->assertEquals($uuidString, $data['uuid']);
-        $this->assertEquals(self::TEST_TEAM_NAME, $data['team_name']);
+        /** @var array<int, array<string, mixed>> $data */
+        $data = $result->getData();
+        $this->assertNotEmpty($data);
+
+        $this->assertEquals($uuidString, $data[0]['uuid']);
+        $this->assertEquals(self::TEST_TEAM_NAME, $data[0]['team_name']);
     }
 
     #[Test]
@@ -555,7 +596,6 @@ class CareTeamServiceTest extends TestCase
     {
         $result = $this->service->getOne("not-a-valid-uuid");
 
-        $this->assertNotNull($result);
         $this->assertNotEmpty($result->getValidationMessages());
         $this->assertArrayHasKey('uuid', $result->getValidationMessages());
         $this->assertEmpty($result->getData());
@@ -573,24 +613,31 @@ class CareTeamServiceTest extends TestCase
         );
 
         // Get the care team UUID
+        /** @var array<string, mixed>|false $teamRow */
         $teamRow = QueryUtils::querySingleRow(
             "SELECT uuid FROM care_teams WHERE team_name = ?",
             [self::TEST_TEAM_NAME]
         );
+        $this->assertIsArray($teamRow);
+        // @phpstan-ignore argument.type
         $teamUuid = UuidRegistry::uuidToString($teamRow['uuid']);
 
         // Get the patient UUID
+        /** @var array<string, mixed>|false $patientRow */
         $patientRow = QueryUtils::querySingleRow(
             "SELECT uuid FROM patient_data WHERE pid = ?",
             [$this->testPid]
         );
+        $this->assertIsArray($patientRow);
+        // @phpstan-ignore argument.type
         $patientUuid = UuidRegistry::uuidToString($patientRow['uuid']);
 
         $result = $this->service->getOne($teamUuid, $patientUuid);
 
-        $this->assertNotNull($result);
-        $this->assertNotEmpty($result->getData());
-        $this->assertEquals($teamUuid, $result->getData()[0]['uuid']);
+        /** @var array<int, array<string, mixed>> $data */
+        $data = $result->getData();
+        $this->assertNotEmpty($data);
+        $this->assertEquals($teamUuid, $data[0]['uuid']);
     }
 
     // =========================================================================
@@ -610,12 +657,13 @@ class CareTeamServiceTest extends TestCase
 
         $result = $this->service->getAll();
 
-        $this->assertNotNull($result);
-        $this->assertNotEmpty($result->getData());
+        /** @var array<int, array<string, mixed>> $data */
+        $data = $result->getData();
+        $this->assertNotEmpty($data);
 
         // Verify at least one of the results is our test team
         $found = false;
-        foreach ($result->getData() as $record) {
+        foreach ($data as $record) {
             if ($record['team_name'] === self::TEST_TEAM_NAME) {
                 $found = true;
                 break;
@@ -636,19 +684,23 @@ class CareTeamServiceTest extends TestCase
         );
 
         // Get the patient UUID
+        /** @var array<string, mixed>|false $patientRow */
         $patientRow = QueryUtils::querySingleRow(
             "SELECT uuid FROM patient_data WHERE pid = ?",
             [$this->testPid]
         );
+        $this->assertIsArray($patientRow);
+        // @phpstan-ignore argument.type
         $patientUuid = UuidRegistry::uuidToString($patientRow['uuid']);
 
         $result = $this->service->getAll([], true, $patientUuid);
 
-        $this->assertNotNull($result);
-        $this->assertNotEmpty($result->getData());
+        /** @var array<int, array<string, mixed>> $data */
+        $data = $result->getData();
+        $this->assertNotEmpty($data);
 
         // All returned records should belong to our test patient
-        foreach ($result->getData() as $record) {
+        foreach ($data as $record) {
             $this->assertEquals($patientUuid, $record['puuid']);
         }
     }
@@ -658,8 +710,6 @@ class CareTeamServiceTest extends TestCase
     {
         $result = $this->service->getAll([], true, "not-a-valid-uuid");
 
-        // Should return a ProcessingResult with validation errors
-        $this->assertNotNull($result);
         // BaseValidator returns ProcessingResult with validation messages for invalid UUID
         $this->assertNotEmpty($result->getValidationMessages());
     }
@@ -690,25 +740,31 @@ class CareTeamServiceTest extends TestCase
         );
 
         // Get the care team UUID for searching
+        /** @var array<string, mixed>|false $teamRow */
         $teamRow = QueryUtils::querySingleRow(
             "SELECT uuid FROM care_teams WHERE team_name = ?",
             [self::TEST_TEAM_NAME]
         );
+        $this->assertIsArray($teamRow);
+        // @phpstan-ignore argument.type
         $teamUuid = UuidRegistry::uuidToString($teamRow['uuid']);
 
         $search = ['uuid' => new TokenSearchField('uuid', $teamUuid, true)];
         $result = $this->service->search($search);
 
-        $this->assertNotNull($result);
-        $this->assertNotEmpty($result->getData());
+        /** @var array<int, array<string, mixed>> $data */
+        $data = $result->getData();
+        $this->assertNotEmpty($data);
 
-        $record = $result->getData()[0];
+        $record = $data[0];
 
         // Verify providers are populated
         $this->assertArrayHasKey('providers', $record);
+        $this->assertIsArray($record['providers']);
         $this->assertNotEmpty($record['providers']);
 
         $provider = $record['providers'][0];
+        $this->assertIsArray($provider);
         $this->assertArrayHasKey('provider_uuid', $provider);
         $this->assertArrayHasKey('provider_name', $provider);
         $this->assertArrayHasKey('role', $provider);
@@ -736,25 +792,31 @@ class CareTeamServiceTest extends TestCase
             'active'
         );
 
+        /** @var array<string, mixed>|false $teamRow */
         $teamRow = QueryUtils::querySingleRow(
             "SELECT uuid FROM care_teams WHERE team_name = ?",
             [self::TEST_TEAM_NAME]
         );
+        $this->assertIsArray($teamRow);
+        // @phpstan-ignore argument.type
         $teamUuid = UuidRegistry::uuidToString($teamRow['uuid']);
 
         $search = ['uuid' => new TokenSearchField('uuid', $teamUuid, true)];
         $result = $this->service->search($search);
 
-        $this->assertNotNull($result);
-        $this->assertNotEmpty($result->getData());
+        /** @var array<int, array<string, mixed>> $data */
+        $data = $result->getData();
+        $this->assertNotEmpty($data);
 
-        $record = $result->getData()[0];
+        $record = $data[0];
 
         // Verify facilities are populated
         $this->assertArrayHasKey('facilities', $record);
+        $this->assertIsArray($record['facilities']);
         $this->assertNotEmpty($record['facilities']);
 
         $facility = $record['facilities'][0];
+        $this->assertIsArray($facility);
         $this->assertArrayHasKey('uuid', $facility);
         $this->assertArrayHasKey('name', $facility);
     }
@@ -767,7 +829,6 @@ class CareTeamServiceTest extends TestCase
         $search = ['uuid' => new TokenSearchField('uuid', $fakeUuid, true)];
         $result = $this->service->search($search);
 
-        $this->assertNotNull($result);
         $this->assertEmpty($result->getData());
     }
 
@@ -791,11 +852,8 @@ class CareTeamServiceTest extends TestCase
         $this->assertEquals('', $result['team_name']);
         $this->assertEquals('active', $result['care_team_status']);
         $this->assertNull($result['date']);
-        $this->assertIsArray($result['providers']);
         $this->assertEmpty($result['providers']);
-        $this->assertIsArray($result['facilities']);
         $this->assertEmpty($result['facilities']);
-        $this->assertIsArray($result['contacts']);
         $this->assertEmpty($result['contacts']);
     }
 }

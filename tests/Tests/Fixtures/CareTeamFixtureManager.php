@@ -16,9 +16,9 @@
 
 namespace OpenEMR\Tests\Fixtures;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
 
 class CareTeamFixtureManager
 {
@@ -58,6 +58,7 @@ class CareTeamFixtureManager
         if ($patientRow === false || !isset($patientRow['pid'])) {
             throw new \RuntimeException('Failed to find test patient fixture — did installPatientFixtures() succeed?');
         }
+        /** @var array{pid: string|int} $patientRow */
         $pid = (int) $patientRow['pid'];
 
         // Get the first test facility's id
@@ -68,6 +69,7 @@ class CareTeamFixtureManager
         if ($facilityRow === false || !isset($facilityRow['id'])) {
             throw new \RuntimeException('Failed to find test facility fixture — did installFacilityFixtures() succeed?');
         }
+        /** @var array{id: string|int} $facilityRow */
         $facilityId = (int) $facilityRow['id'];
 
         // Get the first test practitioner's id
@@ -78,6 +80,7 @@ class CareTeamFixtureManager
         if ($providerRow === false || !isset($providerRow['id'])) {
             throw new \RuntimeException('Failed to find test practitioner fixture — did installPractitionerFixtures() succeed?');
         }
+        /** @var array{id: string|int} $providerRow */
         $providerId = (int) $providerRow['id'];
 
         return ['pid' => $pid, 'facility_id' => $facilityId, 'provider_id' => $providerId];
@@ -122,7 +125,7 @@ class CareTeamFixtureManager
                 [$bindVariable]
             );
         } catch (SqlQueryException $exception) {
-            (new SystemLogger())->error(
+            ServiceContainer::getLogger()->error(
                 "Failed to delete care team fixture data",
                 ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
             );
