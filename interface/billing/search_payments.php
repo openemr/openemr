@@ -34,9 +34,6 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCor
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: Search Payment", xl("Search Payment"));
 }
 
-/**
- * @var \Symfony\Component\EventDispatcher\EventDispatcherInterface $eventDispatcher
- */
 $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 
 //===============================================================================
