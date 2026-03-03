@@ -438,7 +438,7 @@ function getInsuranceNameByDate(
  * @deprecated use EmployerService->getMostRecentEmployerData()
  * @param $pid
  * @param $given
- * @return \OpenEMR\Common\Database\recordset
+ * @return array|false
  */
 function getEmployerData($pid, $given = "*")
 {

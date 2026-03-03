@@ -105,7 +105,7 @@ class PatientService extends BaseService
      * TODO: This should go in the ChartTrackerService and doesn't have to be static.
      *
      * @param  $pid unique patient id
-     * @return recordset
+     * @return \ADORecordSet
      */
     public static function getChartTrackerInformationActivity($pid)
     {
@@ -126,7 +126,7 @@ class PatientService extends BaseService
     /**
      * TODO: This should go in the ChartTrackerService and doesn't have to be static.
      *
-     * @return recordset
+     * @return \ADORecordSet
      */
     public static function getChartTrackerInformation()
     {

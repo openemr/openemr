@@ -1098,7 +1098,7 @@ class AuthUtils
      * @param bool $showOnlyWithCount
      * @param bool $showOnlyManuallyBlocked
      * @param bool $showOnlyAutoBlocked
-     * @return false|\recordset
+     * @return false|\ADORecordSet
      */
     public static function collectIpLoginFailsSql(bool $showOnlyWithCount, bool $showOnlyManuallyBlocked, bool $showOnlyAutoBlocked)
     {
