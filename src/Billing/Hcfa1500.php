@@ -24,13 +24,6 @@ class Hcfa1500
     protected $hcfa_curr_col;
     protected $hcfa_data;
     protected $hcfa_proc_index;
-    /**
-     * Hcfa1500 constructor.
-     * @param int $hcfa_curr_line
-     * @param int $hcfa_curr_col
-     * @param type $hcfa_data
-     * @param int $hcfa_proc_index
-     */
     public function __construct()
     {
         $this->hcfa_curr_line = 1;
@@ -42,14 +35,11 @@ class Hcfa1500
     /**
      * take the data element and place it at the correct coordinates on the page
      *
-     * @global int $hcfa_curr_line
-     * @global int $hcfa_curr_col
-     * @global type $hcfa_data
-     * @param type $line
-     * @param type $col
-     * @param type $maxlen
-     * @param type $data
-     * @param type $strip   regular expression for what to strip from the data. period and has are the defaults
+     * @param int $line
+     * @param int $col
+     * @param int $maxlen
+     * @param string $data
+     * @param string $strip regular expression for what to strip from the data. period and hash are the defaults.
      *                      02/12 version needs to include periods in the diagnoses hence the need to override
      */
     private function putHcfa($line, $col, $maxlen, $data, $strip = '/[.#]/')
@@ -82,7 +72,7 @@ class Hcfa1500
     /**
      * Process the diagnoses for a given claim. log any errors
      *
-     * @param type $claim
+     * @param Claim $claim
      * @param string $log
      */
     private function processDiagnoses0212($claim, &$log)
@@ -126,9 +116,9 @@ class Hcfa1500
     /**
      * calculate where on the form a given diagnosis belongs and add it to the entries
      *
-     * @param array $hcfa_entries
-     * @param type $number
-     * @param type $diag
+     * @param HCFAInfo[] $hcfa_entries
+     * @param int $number
+     * @param string $diag
      */
     private function addDiagnosis(&$hcfa_entries, $number, $diag)
     {

@@ -35,7 +35,7 @@ class ApplicationTable
      *            Logging True / False
      * @param boolean $error
      *            Error Display True / False
-     * @return type
+     * @return mixed
      */
     public function zQuery($sql, $params = '', $log = false, $error = true)
     {
@@ -239,7 +239,7 @@ class ApplicationTable
      * Same behavior of HelpfulDie function in OpenEMR
      * Path /library/sql.inc.php
      *
-     * @param type $e
+     * @param \Throwable $e
      * @param string $sql
      * @param array $binds
      */

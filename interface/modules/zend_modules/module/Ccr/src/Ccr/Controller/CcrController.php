@@ -300,7 +300,7 @@ class CcrController extends AbstractActionController
     /**
     * Table Gateway
     *
-    * @return type
+    * @return CcrTable
     */
     public function getCcrTable()
     {

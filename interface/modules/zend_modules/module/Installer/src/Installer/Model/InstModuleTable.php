@@ -55,8 +55,7 @@ class InstModuleTable
     }
 
     /**
-     *
-     * @param type $dir
+     * @param string $dir
      * @return boolean
      */
     public function installSQL($modId, $mod_type, $dir)
@@ -988,8 +987,8 @@ class InstModuleTable
      *
      * @param string $moduleDirectory Module Directory Name
      * @param string $option          Controller / Form / Setup to create an Object
-     * @param type   $adapter
-     * @return type
+     * @param mixed $adapter
+     * @return mixed
      */
     public function getObject($moduleDirectory, $option = 'Controller', $adapter = '')
     {

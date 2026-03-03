@@ -1453,9 +1453,8 @@ function parseAgeInfo($dob, $target)
 }
 
 /**
- *
- * @param type $dob
- * @param type $date
+ * @param string $dob
+ * @param ?string $date
  * @return array containing
  *      age - decimal age in years
  *      age_in_months - decimal age in months
@@ -1504,8 +1503,8 @@ function getPatientAgeInDays($dobYMD, $nowYMD = null)
 /**
  * Returns a string to be used to display a patient's age
  *
- * @param type $dobYMD
- * @param type $asOfYMD
+ * @param string $dobYMD
+ * @param ?string $asOfYMD
  * @return string suitable for displaying patient's age based on preferences
  */
 function getPatientAgeDisplay($dobYMD, $asOfYMD = null)

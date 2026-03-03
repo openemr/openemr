@@ -123,7 +123,7 @@ class SendtoController extends AbstractActionController
     /**
      * Table Gateway
      *
-     * @return type
+     * @return \Application\Model\SendtoTable
      */
     public function getSendtoTable()
     {

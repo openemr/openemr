@@ -739,9 +739,8 @@ class ImmunizationController extends AbstractActionController
     }
 
     /**
-     *
-     * @param type $ethnicity
-     * @return type
+     * @param string $ethnicity
+     * @return string
      */
     public function format_ethnicity($ethnicity)
     {
@@ -756,9 +755,8 @@ class ImmunizationController extends AbstractActionController
     }
 
     /**
-     *
-     * @param type $a
-     * @return type
+     * @param string $a
+     * @return string
      */
     public function tr($a)
     {
@@ -766,9 +764,8 @@ class ImmunizationController extends AbstractActionController
     }
 
     /**
-     *
-     * @param type $cvx_code
-     * @return type
+     * @param int|string $cvx_code
+     * @return string
      */
     public function format_cvx_code($cvx_code)
     {
