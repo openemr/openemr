@@ -9,6 +9,8 @@ use OpenEMR\BC\{
     ServiceContainer,
 };
 
+const FRONT_CONTROLLER_USED = true;
+
 // Future scope: Put a router ahead of the fallback routing; any well-formed
 // new routes will be executed without touching the existing systems. Such new
 // routes must rely only on modern conventions (DI, no reliance on globals,
