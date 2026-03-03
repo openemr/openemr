@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -70,7 +71,7 @@ final class Version20260000020057 extends AbstractMigration
         ]);
         $table->addColumn('note', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('create_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('update_date', Types::DATETIME_MUTABLE);
+        $table->addColumn('update_date', CustomTypes::TIMESTAMP);
         $table->addColumn('created_by', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('updated_by', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('amount_administered', Types::SMALLFLOAT, ['notnull' => false, 'default' => null]);

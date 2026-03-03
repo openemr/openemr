@@ -44,7 +44,7 @@ final class Version20260000020209 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('created_at', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
-        $table->addColumn('updated_at', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('updated_at', 'datetime', ['columnDefinition' => 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP', 'comment' => 'Pregnancy Intent Over Next Year (codes from PregnancyIntent list)']);
         $table->addColumn('created_by', Types::INTEGER, [
             'unsigned' => true,
             'notnull' => false,

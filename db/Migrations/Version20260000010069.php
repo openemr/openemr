@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -35,7 +36,7 @@ final class Version20260000010069 extends AbstractMigration
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
         $table->addColumn('clinical_note_id', Types::BIGINT, ['comment' => 'Foreign key to form_clinical_notes.id']);
         $table->addColumn('procedure_result_id', Types::BIGINT, ['comment' => 'Foreign key to procedure_result.procedure_result_id']);
-        $table->addColumn('created_at', Types::DATETIME_MUTABLE, ['comment' => 'When the link was created', 'default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('created_at', CustomTypes::TIMESTAMP, ['comment' => 'When the link was created', 'default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('created_by', Types::STRING, [
             'length' => 255,
             'notnull' => false,

@@ -43,34 +43,4 @@ trait CreateTableTrait
         );
     }
 
-    /**
-     * Adds a TIMESTAMP column (distinct from DATETIME in MySQL).
-     */
-    private function addTimestampColumn(
-        Table $table,
-        string $name,
-        bool $notnull = true,
-        bool $defaultCurrentTimestamp = false,
-        bool $onUpdateCurrentTimestamp = false,
-        string $comment = '',
-    ): void {
-        $sql = 'TIMESTAMP';
-        if (!$notnull) {
-            $sql .= ' NULL';
-        } else {
-            $sql .= ' NOT NULL';
-        }
-        if ($defaultCurrentTimestamp) {
-            $sql .= ' DEFAULT CURRENT_TIMESTAMP';
-        } elseif (!$notnull) {
-            $sql .= ' DEFAULT NULL';
-        }
-        if ($onUpdateCurrentTimestamp) {
-            $sql .= ' ON UPDATE CURRENT_TIMESTAMP';
-        }
-        if ($comment !== '') {
-            $sql .= ' COMMENT ' . $this->connection->quote($comment);
-        }
-        $table->addColumn($name, 'datetime', ['columnDefinition' => $sql]);
-    }
 }

@@ -252,7 +252,7 @@ final class Version20260000010064 extends AbstractMigration
         $table->addColumn('billing_facility', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('billing_facility_id', Types::INTEGER, ['default' => 0]);
         $table->addColumn('date_created', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
-        $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('last_updated', 'datetime', ['columnDefinition' => 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP', 'comment' => 'ISO 3166-1 alpha-2 country code for address but can take entire country name for now']);
         $this->addPrimaryKey($table, 'id');
         $table->addIndex(['abook_type'], 'abook_type');
         $table->addUniqueIndex(['uuid'], 'uuid');

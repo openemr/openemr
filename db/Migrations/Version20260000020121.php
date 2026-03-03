@@ -84,7 +84,7 @@ final class Version20260000020121 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('date_created', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
-        $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('last_updated', 'datetime', ['columnDefinition' => 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP', 'comment' => 'Sending application ID (MSH-3.1)']);
         $this->addPrimaryKey($table, 'ppid');
         $table->addUniqueIndex(['uuid'], 'uuid');
 

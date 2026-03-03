@@ -74,7 +74,7 @@ final class Version20260000020019 extends AbstractMigration
             'default' => null,
             'comment' => 'users.id',
         ]);
-        $table->addColumn('updated_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('updated_date', 'datetime', ['columnDefinition' => 'DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP', 'comment' => 'Specify preferred order of use (1 = highest)']);
         $table->addColumn('updated_by', Types::BIGINT, [
             'notnull' => false,
             'default' => null,

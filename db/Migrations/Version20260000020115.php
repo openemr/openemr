@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -47,7 +48,7 @@ final class Version20260000020115 extends AbstractMigration
             'scale' => 2,
             'default' => 0,
         ]);
-        $table->addColumn('created_time', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('created_time', CustomTypes::TIMESTAMP, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('modified_time', Types::DATETIME_MUTABLE);
         $table->addColumn('global_amount', Types::DECIMAL, ['precision' => 12, 'scale' => 2]);
         $table->addColumn('payment_type', Types::STRING, ['length' => 50]);

@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -44,7 +45,7 @@ final class Version20260000020188 extends AbstractMigration
         ]);
         $table->addColumn('scope', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('persist_login', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
-        $table->addColumn('time', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
+        $table->addColumn('time', CustomTypes::TIMESTAMP, ['notnull' => false, 'default' => null]);
         $table->addColumn('code', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('session_cache', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('grant_type', Types::STRING, [

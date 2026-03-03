@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -36,14 +37,14 @@ final class Version20260000010006 extends AbstractMigration
         $table->addColumn('msg_id', Types::STRING, ['length' => 127]);
         $table->addColumn('sender', Types::STRING, ['length' => 255]);
         $table->addColumn('recipient', Types::STRING, ['length' => 255]);
-        $table->addColumn('create_ts', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('create_ts', CustomTypes::TIMESTAMP, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('status', Types::STRING, ['fixed' => true, 'length' => 1, 'comment' => 'Q=queued,D=dispatched,R=received,F=failed']);
         $table->addColumn('status_info', Types::STRING, [
             'length' => 511,
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('status_ts', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
+        $table->addColumn('status_ts', CustomTypes::TIMESTAMP, ['notnull' => false, 'default' => null]);
         $table->addColumn('patient_id', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('user_id', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $this->addPrimaryKey($table, 'id');

@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -52,7 +53,7 @@ final class Version20260000020077 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('create_date', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('create_date', CustomTypes::TIMESTAMP, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('doc_type', Types::STRING, ['length' => 255]);
         $table->addColumn('patient_signed_status', Types::SMALLINT, ['unsigned' => true]);
         $table->addColumn('patient_signed_time', Types::DATETIME_MUTABLE, ['notnull' => false]);

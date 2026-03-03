@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -45,8 +46,8 @@ final class Version20260000020066 extends AbstractMigration
         $table->addColumn('activity', Types::BOOLEAN, ['default' => 1]);
         $table->addColumn('subtype', Types::STRING, ['length' => 31, 'default' => '']);
         $table->addColumn('edit_options', Types::BOOLEAN, ['default' => 1]);
-        $table->addColumn('timestamp', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
-        $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('timestamp', CustomTypes::TIMESTAMP, ['default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('last_updated', 'datetime', ['columnDefinition' => 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP']);
         $this->addPrimaryKey($table, 'list_id', 'option_id');
         $this->createTable($table);
     }

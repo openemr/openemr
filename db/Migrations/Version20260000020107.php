@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -38,7 +39,7 @@ final class Version20260000020107 extends AbstractMigration
         $table->addColumn('couchdb', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('document_drive', Types::SMALLINT, ['default' => 0]);
         $table->addColumn('mapped', Types::SMALLINT, ['default' => 0]);
-        $table->addColumn('created', Types::DATETIME_MUTABLE, ['notnull' => false]);
+        $table->addColumn('created', CustomTypes::TIMESTAMP, ['notnull' => false]);
         $this->addPrimaryKey($table, 'uuid');
         $this->createTable($table);
     }

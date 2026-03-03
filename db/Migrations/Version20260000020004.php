@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -41,7 +42,7 @@ final class Version20260000020004 extends AbstractMigration
         $table->addColumn('request_url', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('request_body', Types::TEXT, ['notnull' => false]);
         $table->addColumn('response', Types::TEXT, ['notnull' => false]);
-        $table->addColumn('created_time', Types::DATETIME_MUTABLE, ['notnull' => false]);
+        $table->addColumn('created_time', CustomTypes::TIMESTAMP, ['notnull' => false]);
         $this->addPrimaryKey($table, 'id');
         $this->createTable($table);
     }

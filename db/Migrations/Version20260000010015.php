@@ -151,7 +151,7 @@ final class Version20260000010015 extends AbstractMigration
             'scale' => 2,
             'default' => 0.00,
         ]);
-        $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('last_updated', 'datetime', ['columnDefinition' => 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP']);
         $this->addPrimaryKey($table, 'id');
         $table->addIndex(['pid'], 'pid');
         $table->addUniqueIndex(['uuid'], 'uuid');

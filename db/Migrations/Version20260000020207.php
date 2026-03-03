@@ -50,7 +50,7 @@ final class Version20260000020207 extends AbstractMigration
         ]);
         $table->addColumn('note', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('date_created', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => 'CURRENT_TIMESTAMP']);
-        $table->addColumn('date_updated', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('date_updated', 'datetime', ['columnDefinition' => 'DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP', 'comment' => 'fk to patient_data.pid']);
         $table->addColumn('created_by', Types::BIGINT, ['notnull' => false, 'comment' => 'fk to users.id for user who created this record']);
         $table->addColumn('updated_by', Types::BIGINT, ['notnull' => false, 'comment' => 'fk to users.id for user who last updated this record']);
         $this->addPrimaryKey($table, 'id');

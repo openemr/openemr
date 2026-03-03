@@ -42,7 +42,7 @@ final class Version20260000020041 extends AbstractMigration
         $table->addColumn('field_id', Types::STRING, ['length' => 31, 'comment' => 'references layout_options.field_id']);
         $table->addColumn('field_value', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('date_created', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
-        $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('last_updated', 'datetime', ['columnDefinition' => 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP', 'comment' => 'references layout_options.field_id']);
         $this->addPrimaryKey($table, 'id');
         $table->addIndex(['uid', 'facility_id', 'field_id'], 'uid');
         $table->addIndex(['uuid'], 'uuid');

@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -35,7 +36,7 @@ final class Version20260000020173 extends AbstractMigration
         $table->addColumn('msg_pid', Types::INTEGER);
         $table->addColumn('msg_pc_eid', Types::STRING, ['length' => 11]);
         $table->addColumn('campaign_uid', Types::INTEGER, ['default' => 0]);
-        $table->addColumn('msg_date', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('msg_date', CustomTypes::TIMESTAMP, ['default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('msg_type', Types::STRING, ['length' => 50]);
         $table->addColumn('msg_reply', Types::STRING, [
             'length' => 50,

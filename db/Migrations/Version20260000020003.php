@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -39,7 +40,7 @@ final class Version20260000020003 extends AbstractMigration
             'comment' => 'Amendment Request Status',
         ]);
         $table->addColumn('created_by', Types::INTEGER, ['comment' => 'references users.id for session owner']);
-        $table->addColumn('created_time', Types::DATETIME_MUTABLE, ['notnull' => false, 'comment' => 'created time']);
+        $table->addColumn('created_time', CustomTypes::TIMESTAMP, ['notnull' => false, 'comment' => 'created time']);
 
         $table->addIndex(['amendment_id'], 'amendment_history_id');
 

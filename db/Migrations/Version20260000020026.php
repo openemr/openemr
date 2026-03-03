@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -62,7 +63,7 @@ final class Version20260000020026 extends AbstractMigration
         ]);
         $table->addColumn('pages', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('owner', Types::INTEGER, ['notnull' => false, 'default' => null]);
-        $table->addColumn('revision', Types::DATETIME_MUTABLE);
+        $table->addColumn('revision', CustomTypes::TIMESTAMP);
         $table->addColumn('foreign_id', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('docdate', Types::DATE_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('hash', Types::STRING, [

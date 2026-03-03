@@ -80,7 +80,7 @@ final class Version20260000020044 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('note_related_to', Types::TEXT, ['notnull' => false, 'length' => 65535]);
-        $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('last_updated', 'datetime', ['columnDefinition' => 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP']);
         $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['uuid'], 'uuid');
 

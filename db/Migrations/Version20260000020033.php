@@ -62,7 +62,7 @@ final class Version20260000020033 extends AbstractMigration
         $table->addColumn('consumable', Types::BOOLEAN, ['default' => 0, 'comment' => '1 = will not show on the fee sheet']);
         $table->addColumn('dispensable', Types::BOOLEAN, ['default' => 1, 'comment' => '0 = pharmacy elsewhere, 1 = dispensed here']);
         $table->addColumn('date_created', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
-        $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('last_updated', 'datetime', ['columnDefinition' => 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP', 'comment' => 'may reference a related codes.code']);
         $this->addPrimaryKey($table, 'drug_id');
         $table->addUniqueIndex(['uuid'], 'uuid');
 

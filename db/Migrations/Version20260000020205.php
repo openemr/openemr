@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -44,8 +45,8 @@ final class Version20260000020205 extends AbstractMigration
         $table->addColumn('source_value', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('created_by', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('last_updated_by', Types::BIGINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('created_at', Types::DATETIME_MUTABLE, ['notnull' => false]);
-        $table->addColumn('last_updated_at', Types::DATETIME_MUTABLE, ['notnull' => false]);
+        $table->addColumn('created_at', CustomTypes::TIMESTAMP, ['notnull' => false, 'default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('last_updated_at', 'datetime', ['columnDefinition' => 'TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP']);
         $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['list_id', 'option_id', 'client_id'], 'list_id');
 

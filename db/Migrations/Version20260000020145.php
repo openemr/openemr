@@ -46,7 +46,7 @@ final class Version20260000020145 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('status', Types::SMALLINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('updated_date', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('updated_date', 'datetime', ['columnDefinition' => 'TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP', 'comment' => '0->No,1->Yes']);
         $table->addColumn('user_id', Types::STRING, ['length' => 50, 'notnull' => false]);
         $table->addColumn('couch_docid', Types::STRING, ['length' => 100, 'notnull' => false]);
         $table->addColumn('couch_revid', Types::STRING, ['length' => 100, 'notnull' => false]);

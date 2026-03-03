@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -40,7 +41,7 @@ final class Version20260000020215 extends AbstractMigration
             'length' => 80,
             'comment' => 'FK oauth2_clients.client_id',
         ]);
-        $table->addColumn('jti_exp', Types::DATETIME_MUTABLE, [
+        $table->addColumn('jti_exp', CustomTypes::TIMESTAMP, [
             'notnull' => false,
             'comment' => 'jwt exp claim when the jwt expires',
         ]);

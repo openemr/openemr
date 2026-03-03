@@ -38,7 +38,7 @@ final class Version20260000020164 extends AbstractMigration
         $table->addColumn('dbname', Types::STRING, ['length' => 255]);
         $table->addColumn('host', Types::STRING, ['length' => 255, 'default' => 'localhost']);
         $table->addColumn('port', Types::SMALLINT, ['default' => 3306]);
-        $table->addColumn('date', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('date', 'datetime', ['columnDefinition' => 'TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP']);
         $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['namespace'], 'namespace');
 

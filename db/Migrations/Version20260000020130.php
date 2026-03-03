@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -42,7 +43,7 @@ final class Version20260000020130 extends AbstractMigration
             'default' => null,
             'comment' => 'Type of relationship',
         ]);
-        $table->addColumn('created_at', Types::DATETIME_MUTABLE, ['notnull' => false]);
+        $table->addColumn('created_at', CustomTypes::TIMESTAMP, ['notnull' => false, 'default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('created_by', Types::BIGINT, [
             'notnull' => false,
             'default' => null,

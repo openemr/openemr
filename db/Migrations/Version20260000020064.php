@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -66,7 +67,7 @@ final class Version20260000020064 extends AbstractMigration
         $table->addColumn('grp_services', Types::STRING, ['length' => 4095, 'default' => '']);
         $table->addColumn('grp_products', Types::STRING, ['length' => 4095, 'default' => '']);
         $table->addColumn('grp_diags', Types::STRING, ['length' => 4095, 'default' => '']);
-        $table->addColumn('grp_last_update', Types::DATETIME_MUTABLE, ['notnull' => false]);
+        $table->addColumn('grp_last_update', CustomTypes::TIMESTAMP, ['notnull' => false]);
         $this->addPrimaryKey($table, 'grp_form_id', 'grp_group_id');
         $this->createTable($table);
     }

@@ -62,7 +62,7 @@ final class Version20260000010054 extends AbstractMigration
         $table->addColumn('pc_active', Types::BOOLEAN, ['default' => 1]);
         $table->addColumn('pc_seq', Types::INTEGER, ['default' => 0]);
         $table->addColumn('aco_spec', Types::STRING, ['length' => 63, 'default' => 'encounters|notes']);
-        $table->addColumn('pc_last_updated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('pc_last_updated', 'datetime', ['columnDefinition' => 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP', 'comment' => 'Used in grouping categories']);
         $this->addPrimaryKey($table, 'pc_catid');
         $table->addIndex(['pc_catname', 'pc_catcolor'], 'basic_cat');
         $table->addUniqueIndex(['pc_constant_id'], 'pc_constant_id');

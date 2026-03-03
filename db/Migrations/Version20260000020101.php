@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -32,8 +33,8 @@ final class Version20260000020101 extends AbstractMigration
     {
         $table = new Table('session_tracker');
         $table->addColumn('uuid', Types::BINARY, ['fixed' => true, 'length' => 16, 'default' => '']);
-        $table->addColumn('created', Types::DATETIME_MUTABLE, ['notnull' => false]);
-        $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['notnull' => false]);
+        $table->addColumn('created', CustomTypes::TIMESTAMP, ['notnull' => false]);
+        $table->addColumn('last_updated', CustomTypes::TIMESTAMP, ['notnull' => false]);
         $table->addColumn('number_scripts', Types::BIGINT, ['notnull' => false, 'default' => 1]);
         $this->addPrimaryKey($table, 'uuid');
         $this->createTable($table);

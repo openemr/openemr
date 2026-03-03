@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -43,8 +44,8 @@ final class Version20260000020002 extends AbstractMigration
         $table->addColumn('amendment_desc', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'Amendment Details']);
         $table->addColumn('created_by', Types::INTEGER, ['comment' => 'references users.id for session owner']);
         $table->addColumn('modified_by', Types::INTEGER, ['notnull' => false, 'comment' => 'references users.id for session owner']);
-        $table->addColumn('created_time', Types::DATETIME_MUTABLE, ['notnull' => false, 'comment' => 'created time']);
-        $table->addColumn('modified_time', Types::DATETIME_MUTABLE, ['notnull' => false, 'comment' => 'modified time']);
+        $table->addColumn('created_time', CustomTypes::TIMESTAMP, ['notnull' => false, 'comment' => 'created time']);
+        $table->addColumn('modified_time', CustomTypes::TIMESTAMP, ['notnull' => false, 'comment' => 'modified time']);
         $this->addPrimaryKey($table, 'amendment_id');
         $table->addIndex(['pid'], 'amendment_pid');
 

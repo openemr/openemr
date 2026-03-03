@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -39,7 +40,7 @@ final class Version20260000020024 extends AbstractMigration
         $table->addColumn('pid', Types::BIGINT);
         $table->addColumn('message_priority', Types::BOOLEAN);
         $table->addColumn('message_processed', Types::BOOLEAN, ['default' => 0]);
-        $table->addColumn('processed_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
+        $table->addColumn('processed_date', CustomTypes::TIMESTAMP, ['notnull' => false, 'default' => null]);
         $table->addColumn('dr_processed_by', Types::INTEGER);
         $this->addPrimaryKey($table, 'dr_id');
         $table->addIndex(['dr_from_ID', 'dr_message_due_date'], 'dr_from_ID');

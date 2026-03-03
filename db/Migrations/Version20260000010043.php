@@ -77,7 +77,7 @@ final class Version20260000010043 extends AbstractMigration
             'comment' => 'HL7 Source of Payment for eCQMs',
         ]);
         $table->addColumn('date_created', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
-        $table->addColumn('last_updated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('last_updated', 'datetime', ['columnDefinition' => 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP', 'comment' => 'HL7 Source of Payment for eCQMs']);
         $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['uuid'], 'uuid');
 

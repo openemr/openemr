@@ -53,7 +53,7 @@ final class Version20260000020060 extends AbstractMigration
             'comment' => 'fk to users.id for the user that last updated the issue encounter data',
         ]);
         $table->addColumn('created_at', Types::DATETIME_MUTABLE, ['notnull' => false, 'comment' => 'timestamp when this issue encounter record was created', 'default' => 'CURRENT_TIMESTAMP']);
-        $table->addColumn('updated_at', Types::DATETIME_MUTABLE, ['notnull' => false, 'comment' => 'timestamp when this issue encounter record was last updated', 'default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('updated_at', 'datetime', ['columnDefinition' => 'DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP', 'comment' => 'timestamp when this issue encounter record was last updated']);
         $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['pid', 'list_id', 'encounter'], 'uniq_issue_key');
         $table->addUniqueIndex(['uuid'], 'uuid_unique');

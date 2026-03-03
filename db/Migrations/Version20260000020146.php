@@ -55,7 +55,7 @@ final class Version20260000020146 extends AbstractMigration
         ]);
         $table->addColumn('user_id', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('deleted', Types::BOOLEAN, ['default' => 0]);
-        $table->addColumn('timestamp', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
+        $table->addColumn('timestamp', 'datetime', ['columnDefinition' => 'TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP']);
         $this->addPrimaryKey($table, 'id');
         $this->createTable($table);
     }
