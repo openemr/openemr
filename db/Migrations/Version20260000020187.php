@@ -69,7 +69,7 @@ final class Version20260000020187 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $this->addBooleanColumn($table, 'is_confidential', default: true);
+        $table->addColumn('is_confidential', Types::BOOLEAN, ['default' => 1]);
         $table->addColumn('logout_redirect_uris', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('jwks_uri', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('jwks', Types::TEXT, ['notnull' => false, 'length' => 65535]);
@@ -77,8 +77,8 @@ final class Version20260000020187 extends AbstractMigration
         $table->addColumn('endorsements', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('policy_uri', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('tos_uri', Types::TEXT, ['notnull' => false, 'length' => 65535]);
-        $this->addBooleanColumn($table, 'is_enabled', default: false);
-        $this->addBooleanColumn($table, 'skip_ehr_launch_authorization_flow', default: false);
+        $table->addColumn('is_enabled', Types::BOOLEAN, ['default' => 0]);
+        $table->addColumn('skip_ehr_launch_authorization_flow', Types::BOOLEAN, ['default' => 0]);
         $table->addColumn('dsi_type', Types::SMALLINT, [
             'unsigned' => true,
             'default' => 1,

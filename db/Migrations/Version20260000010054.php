@@ -53,13 +53,13 @@ final class Version20260000010054 extends AbstractMigration
         $table->addColumn('pc_recurrspec', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('pc_recurrfreq', Types::INTEGER, ['default' => 0]);
         $table->addColumn('pc_duration', Types::BIGINT, ['default' => 0]);
-        $this->addBooleanColumn($table, 'pc_end_date_flag', default: false);
+        $table->addColumn('pc_end_date_flag', Types::BOOLEAN, ['default' => 0]);
         $table->addColumn('pc_end_date_type', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('pc_end_date_freq', Types::INTEGER, ['default' => 0]);
-        $this->addBooleanColumn($table, 'pc_end_all_day', default: false);
+        $table->addColumn('pc_end_all_day', Types::BOOLEAN, ['default' => 0]);
         $table->addColumn('pc_dailylimit', Types::INTEGER, ['default' => 0]);
         $table->addColumn('pc_cattype', Types::INTEGER, ['comment' => 'Used in grouping categories']);
-        $this->addBooleanColumn($table, 'pc_active', default: true);
+        $table->addColumn('pc_active', Types::BOOLEAN, ['default' => 1]);
         $table->addColumn('pc_seq', Types::INTEGER, ['default' => 0]);
         $table->addColumn('aco_spec', Types::STRING, ['length' => 63, 'default' => 'encounters|notes']);
         $table->addColumn('pc_last_updated', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);

@@ -61,7 +61,7 @@ final class Version20260000020199 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $this->addBooleanColumn($table, 'active', default: true);
+        $table->addColumn('active', Types::BOOLEAN, ['default' => 1]);
         $table->addColumn('status', Types::STRING, [
             'length' => 31,
             'notnull' => false,

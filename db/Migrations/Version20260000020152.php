@@ -45,7 +45,7 @@ final class Version20260000020152 extends AbstractMigration
         ]);
         $table->addColumn('instruction', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
-        $this->addBooleanColumn($table, 'activity', default: true, notnull: false);
+        $table->addColumn('activity', Types::BOOLEAN, ['notnull' => false, 'default' => 1]);
         $this->addPrimaryKey($table, 'id');
         $this->createTable($table);
     }

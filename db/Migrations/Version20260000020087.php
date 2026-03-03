@@ -48,8 +48,12 @@ final class Version20260000020087 extends AbstractMigration
             'default' => '',
             'comment' => 'The element file should contain this number of elements',
         ]);
-        $this->addBooleanColumn($table, 'random_drug_test', default: null, notnull: false, comment: 'NULL if not randomized. If randomized, 0 is no, 1 is yes');
-        $this->addBooleanColumn($table, 'drug_screen_completed', default: false);
+        $table->addColumn('random_drug_test', Types::BOOLEAN, [
+            'notnull' => false,
+            'default' => null,
+            'comment' => 'NULL if not randomized. If randomized, 0 is no, 1 is yes',
+        ]);
+        $table->addColumn('drug_screen_completed', Types::BOOLEAN, ['default' => 0]);
         $this->addPrimaryKey($table, 'id');
         $table->addIndex(['eid'], 'eid');
         $table->addIndex(['pid'], 'pid');

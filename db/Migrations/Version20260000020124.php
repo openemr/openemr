@@ -53,7 +53,7 @@ final class Version20260000020124 extends AbstractMigration
             'comment' => 'pending,routed,complete,canceled',
         ]);
         $table->addColumn('patient_instructions', Types::TEXT, ['notnull' => false, 'length' => 65535]);
-        $this->addBooleanColumn($table, 'activity', default: true, comment: '0 if deleted');
+        $table->addColumn('activity', Types::BOOLEAN, ['default' => 1, 'comment' => '0 if deleted']);
         $table->addColumn('control_id', Types::STRING, [
             'length' => 255,
             'default' => '',

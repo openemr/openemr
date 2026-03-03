@@ -122,7 +122,7 @@ final class Version20260000020129 extends AbstractMigration
         $table->addColumn('updated_at', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => 'CURRENT_TIMESTAMP']);
         $table->addColumn('created_by', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('updated_by', Types::BIGINT, ['notnull' => false, 'default' => null]);
-        $this->addBooleanColumn($table, 'deleted', default: false, notnull: false);
+        $table->addColumn('deleted', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
         $this->addPrimaryKey($table, 'procedure_specimen_id');
         $table->addIndex(['procedure_order_id', 'procedure_order_seq'], 'idx_order_line');
         $table->addIndex(['specimen_identifier'], 'idx_identifier');

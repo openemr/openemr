@@ -91,7 +91,7 @@ final class Version20260000020026 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $this->addBooleanColumn($table, 'storagemethod', default: false, comment: '0->Harddisk,1->CouchDB');
+        $table->addColumn('storagemethod', Types::BOOLEAN, ['default' => 0, 'comment' => '0->Harddisk,1->CouchDB']);
         $table->addColumn('path_depth', Types::SMALLINT, ['notnull' => false, 'default' => 1, 'comment' => 'Depth of path to use in url to find document. Not applicable for CouchDB.']);
         $table->addColumn('imported', Types::SMALLINT, [
             'notnull' => false,
@@ -99,7 +99,7 @@ final class Version20260000020026 extends AbstractMigration
             'comment' => 'Parsing status for CCR/CCD/CCDA importing',
         ]);
         $table->addColumn('encounter_id', Types::BIGINT, ['default' => 0, 'comment' => 'Encounter id if tagged']);
-        $this->addBooleanColumn($table, 'encounter_check', default: false, comment: 'If encounter is created while tagging');
+        $table->addColumn('encounter_check', Types::BOOLEAN, ['default' => 0, 'comment' => 'If encounter is created while tagging']);
         $table->addColumn('audit_master_approval_status', Types::SMALLINT, ['default' => 1, 'comment' => 'approval_status from audit_master table']);
         $table->addColumn('audit_master_id', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('documentationOf', Types::STRING, [
@@ -107,9 +107,9 @@ final class Version20260000020026 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $this->addBooleanColumn($table, 'encrypted', default: false, comment: '0->No,1->Yes');
+        $table->addColumn('encrypted', Types::BOOLEAN, ['default' => 0, 'comment' => '0->No,1->Yes']);
         $table->addColumn('document_data', Types::TEXT, ['notnull' => false, 'length' => 16777215]);
-        $this->addBooleanColumn($table, 'deleted', default: false);
+        $table->addColumn('deleted', Types::BOOLEAN, ['default' => 0]);
         $table->addColumn('foreign_reference_id', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('foreign_reference_table', Types::STRING, [
             'length' => 40,

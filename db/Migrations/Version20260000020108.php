@@ -64,7 +64,7 @@ final class Version20260000020108 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $this->addBooleanColumn($table, 'active', default: true);
+        $table->addColumn('active', Types::BOOLEAN, ['default' => 1]);
         $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['email'], 'email');
 

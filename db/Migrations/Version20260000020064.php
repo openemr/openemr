@@ -53,16 +53,16 @@ final class Version20260000020064 extends AbstractMigration
             'comment' => 'the form category',
         ]);
         $table->addColumn('grp_seq', Types::INTEGER, ['default' => 0, 'comment' => 'optional order within mapping']);
-        $this->addBooleanColumn($table, 'grp_activity', default: true);
+        $table->addColumn('grp_activity', Types::BOOLEAN, ['default' => 1]);
         $table->addColumn('grp_repeats', Types::INTEGER, ['default' => 0]);
         $table->addColumn('grp_columns', Types::INTEGER, ['default' => 0]);
         $table->addColumn('grp_size', Types::INTEGER, ['default' => 0]);
         $table->addColumn('grp_issue_type', Types::STRING, ['length' => 75, 'default' => '']);
         $table->addColumn('grp_aco_spec', Types::STRING, ['length' => 63, 'default' => '']);
-        $this->addBooleanColumn($table, 'grp_save_close', default: false);
-        $this->addBooleanColumn($table, 'grp_init_open', default: false);
-        $this->addBooleanColumn($table, 'grp_referrals', default: false);
-        $this->addBooleanColumn($table, 'grp_unchecked', default: false);
+        $table->addColumn('grp_save_close', Types::BOOLEAN, ['default' => 0]);
+        $table->addColumn('grp_init_open', Types::BOOLEAN, ['default' => 0]);
+        $table->addColumn('grp_referrals', Types::BOOLEAN, ['default' => 0]);
+        $table->addColumn('grp_unchecked', Types::BOOLEAN, ['default' => 0]);
         $table->addColumn('grp_services', Types::STRING, ['length' => 4095, 'default' => '']);
         $table->addColumn('grp_products', Types::STRING, ['length' => 4095, 'default' => '']);
         $table->addColumn('grp_diags', Types::STRING, ['length' => 4095, 'default' => '']);

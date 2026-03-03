@@ -49,7 +49,7 @@ final class Version20260000020005 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('scope', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'json encoded']);
-        $this->addBooleanColumn($table, 'revoked', default: false, comment: '1=revoked,0=not revoked');
+        $table->addColumn('revoked', Types::BOOLEAN, ['default' => 0, 'comment' => '1=revoked,0=not revoked']);
         $table->addColumn('context', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'context values that change/govern how access token are used']);
         $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['token'], 'token');

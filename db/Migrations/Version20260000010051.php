@@ -44,7 +44,7 @@ final class Version20260000010051 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $this->addBooleanColumn($table, 'activity', default: null, notnull: false);
+        $table->addColumn('activity', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
         $this->addPrimaryKey($table, 'id');
         $this->createTable($table);
     }

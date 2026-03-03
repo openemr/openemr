@@ -44,25 +44,33 @@ trait CreateTableTrait
     }
 
     /**
-     * Adds a boolean column as TINYINT(1) for MySQL compatibility.
+     * Adds a TIMESTAMP column (distinct from DATETIME in MySQL).
      */
-    private function addBooleanColumn(
+    private function addTimestampColumn(
         Table $table,
         string $name,
-        ?bool $default = null,
         bool $notnull = true,
+        bool $defaultCurrentTimestamp = false,
+        bool $onUpdateCurrentTimestamp = false,
         string $comment = '',
     ): void {
-        $sql = 'BOOLEAN';
-        if ($notnull) {
+        $sql = 'TIMESTAMP';
+        if (!$notnull) {
+            $sql .= ' NULL';
+        } else {
             $sql .= ' NOT NULL';
         }
-        if ($default !== null) {
-            $sql .= ' DEFAULT ' . ($default ? '1' : '0');
+        if ($defaultCurrentTimestamp) {
+            $sql .= ' DEFAULT CURRENT_TIMESTAMP';
+        } elseif (!$notnull) {
+            $sql .= ' DEFAULT NULL';
+        }
+        if ($onUpdateCurrentTimestamp) {
+            $sql .= ' ON UPDATE CURRENT_TIMESTAMP';
         }
         if ($comment !== '') {
             $sql .= ' COMMENT ' . $this->connection->quote($comment);
         }
-        $table->addColumn($name, 'integer', ['columnDefinition' => $sql]);
+        $table->addColumn($name, 'datetime', ['columnDefinition' => $sql]);
     }
 }

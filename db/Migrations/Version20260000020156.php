@@ -45,8 +45,8 @@ final class Version20260000020156 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $this->addBooleanColumn($table, 'authorized', default: null, notnull: false);
-        $this->addBooleanColumn($table, 'activity', default: null, notnull: false);
+        $table->addColumn('authorized', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $table->addColumn('activity', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
         $table->addColumn('REFDATE', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('REFTYPE', Types::STRING, [
             'length' => 10,

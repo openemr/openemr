@@ -38,7 +38,7 @@ final class Version20260000020102 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('pid', Types::BIGINT);
-        $this->addBooleanColumn($table, 'success', default: false, notnull: false);
+        $table->addColumn('success', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
         $table->addColumn('action_name', Types::STRING, [
             'length' => 50,
             'notnull' => false,

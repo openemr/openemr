@@ -35,7 +35,7 @@ final class Version20260000020021 extends AbstractMigration
         $table->addColumn('contact_id', Types::BIGINT);
         $table->addColumn('target_table', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('target_id', Types::BIGINT);
-        $this->addBooleanColumn($table, 'active', default: true, notnull: false);
+        $table->addColumn('active', Types::BOOLEAN, ['notnull' => false, 'default' => 1]);
         $table->addColumn('role', Types::STRING, [
             'length' => 63,
             'notnull' => false,
@@ -47,10 +47,10 @@ final class Version20260000020021 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('contact_priority', Types::INTEGER, ['notnull' => false, 'default' => 1, 'comment' => '1=highest priority']);
-        $this->addBooleanColumn($table, 'is_primary_contact', default: false, notnull: false);
-        $this->addBooleanColumn($table, 'is_emergency_contact', default: false, notnull: false);
-        $this->addBooleanColumn($table, 'can_make_medical_decisions', default: false, notnull: false);
-        $this->addBooleanColumn($table, 'can_receive_medical_info', default: false, notnull: false);
+        $table->addColumn('is_primary_contact', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('is_emergency_contact', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('can_make_medical_decisions', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('can_receive_medical_info', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
         $table->addColumn('start_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('end_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('notes', Types::TEXT, ['notnull' => false, 'length' => 65535]);

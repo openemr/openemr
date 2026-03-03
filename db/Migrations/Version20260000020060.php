@@ -41,7 +41,7 @@ final class Version20260000020060 extends AbstractMigration
         $table->addColumn('pid', Types::BIGINT);
         $table->addColumn('list_id', Types::INTEGER);
         $table->addColumn('encounter', Types::INTEGER);
-        $this->addBooleanColumn($table, 'resolved');
+        $table->addColumn('resolved', Types::BOOLEAN);
         $table->addColumn('created_by', Types::BIGINT, [
             'notnull' => false,
             'default' => null,

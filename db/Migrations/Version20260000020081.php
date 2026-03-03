@@ -39,7 +39,7 @@ final class Version20260000020081 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $this->addBooleanColumn($table, 'require_audit', default: true, notnull: false);
+        $table->addColumn('require_audit', Types::BOOLEAN, ['notnull' => false, 'default' => 1]);
         $table->addColumn('pending_action', Types::STRING, [
             'length' => 255,
             'notnull' => false,

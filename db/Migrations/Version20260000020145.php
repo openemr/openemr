@@ -55,10 +55,10 @@ final class Version20260000020145 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $this->addBooleanColumn($table, 'view', default: false);
-        $this->addBooleanColumn($table, 'transfer', default: false);
-        $this->addBooleanColumn($table, 'emr_transfer', default: false);
-        $this->addBooleanColumn($table, 'encrypted', default: false, comment: '0->No,1->Yes');
+        $table->addColumn('view', Types::BOOLEAN, ['default' => 0]);
+        $table->addColumn('transfer', Types::BOOLEAN, ['default' => 0]);
+        $table->addColumn('emr_transfer', Types::BOOLEAN, ['default' => 0]);
+        $table->addColumn('encrypted', Types::BOOLEAN, ['default' => 0, 'comment' => '0->No,1->Yes']);
         $table->addColumn('transaction_id', Types::BIGINT, ['notnull' => false, 'comment' => 'fk to transaction referral record']);
         $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['uuid'], 'uuid');

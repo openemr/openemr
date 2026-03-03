@@ -36,9 +36,9 @@ final class Version20260000020170 extends AbstractMigration
         $table->addColumn('group_id', Types::INTEGER, ['notnull' => false]);
         $table->addColumn('user', Types::STRING, ['notnull' => false, 'length' => 255]);
         $table->addColumn('groupname', Types::STRING, ['notnull' => false, 'length' => 255]);
-        $this->addBooleanColumn($table, 'authorized', notnull: false);
+        $table->addColumn('authorized', Types::BOOLEAN, ['notnull' => false]);
         $table->addColumn('encounter_id', Types::INTEGER, ['notnull' => false]);
-        $this->addBooleanColumn($table, 'activity', notnull: false);
+        $table->addColumn('activity', Types::BOOLEAN, ['notnull' => false]);
         $this->addPrimaryKey($table, 'id');
         $this->createTable($table);
     }

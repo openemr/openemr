@@ -43,7 +43,7 @@ final class Version20260000020188 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('scope', Types::TEXT, ['notnull' => false, 'length' => 65535]);
-        $this->addBooleanColumn($table, 'persist_login', default: false, notnull: false);
+        $table->addColumn('persist_login', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
         $table->addColumn('time', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('code', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('session_cache', Types::TEXT, ['notnull' => false, 'length' => 65535]);

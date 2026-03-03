@@ -47,7 +47,7 @@ final class Version20260000020054 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $this->addBooleanColumn($table, 'active', default: false, notnull: false);
+        $table->addColumn('active', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
         $table->addColumn('revision', Types::INTEGER, ['notnull' => false, 'default' => 0]);
 
         $this->addPrimaryKey($table, 'map_id');

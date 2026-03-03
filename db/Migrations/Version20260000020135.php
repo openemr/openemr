@@ -52,7 +52,7 @@ final class Version20260000020135 extends AbstractMigration
             'comment' => 'Flow level for List Designation',
         ]);
         $table->addColumn('cl_order', Types::INTEGER, ['notnull' => false, 'default' => null]);
-        $this->addBooleanColumn($table, 'cl_deleted', default: false, notnull: false);
+        $table->addColumn('cl_deleted', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
         $table->addColumn('cl_creator', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $this->addPrimaryKey($table, 'cl_list_slno');
         $this->createTable($table);

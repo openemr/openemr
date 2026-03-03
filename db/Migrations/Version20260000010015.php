@@ -49,8 +49,8 @@ final class Version20260000010015 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $this->addBooleanColumn($table, 'authorized', default: false, notnull: false);
-        $this->addBooleanColumn($table, 'activity', default: false, notnull: false);
+        $table->addColumn('authorized', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('activity', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
         $table->addColumn('bps', Types::STRING, [
             'length' => 40,
             'notnull' => false,

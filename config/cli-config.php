@@ -23,6 +23,9 @@ use Doctrine\Migrations\Configuration\Migration\PhpFile;
 use Doctrine\Migrations\DependencyFactory;
 use Doctrine\Migrations\Configuration\Connection\ExistingConnection;
 use OpenEMR\BC\DatabaseConnectionOptions;
+use OpenEMR\Core\Database\Types\CustomTypes;
+
+CustomTypes::register();
 
 $configLoader = new PhpFile('db/migration-config.php');
 
