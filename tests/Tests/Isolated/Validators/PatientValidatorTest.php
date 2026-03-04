@@ -17,6 +17,7 @@ namespace OpenEMR\Tests\Isolated\Validators;
 
 use OpenEMR\Validators\PatientValidator;
 use OpenEMR\Validators\BaseValidator;
+use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\TestCase;
 
 class PatientValidatorTest extends TestCase
@@ -26,6 +27,12 @@ class PatientValidatorTest extends TestCase
     protected function setUp(): void
     {
         $this->validator = new PatientValidatorStub();
+    }
+
+    private function assertValidationIsValid(mixed $result, bool $expected, string $message): void
+    {
+        $this->assertInstanceOf(ProcessingResult::class, $result);
+        $this->assertSame($expected, $result->isValid(), $message);
     }
 
     public function testInsertValidationRequiredFields(): void
@@ -229,6 +236,83 @@ class PatientValidatorTest extends TestCase
         $this->assertTrue($result->isValid(), 'Empty email should pass validation');
     }
 
+    public function testInsertValidationWithValidEmailDirect(): void
+    {
+        $validData = [
+            'fname' => 'John',
+            'lname' => 'Smith',
+            'sex' => 'Male',
+            'DOB' => '1990-01-15',
+            'email_direct' => 'john.smith@direct.example.com'
+        ];
+
+        $result = $this->validator->validate($validData, BaseValidator::DATABASE_INSERT_CONTEXT);
+
+        $this->assertValidationIsValid($result, true, 'Valid data with email_direct should pass validation');
+    }
+
+    public function testInsertValidationWithInvalidEmailDirect(): void
+    {
+        $invalidData = [
+            'fname' => 'John',
+            'lname' => 'Smith',
+            'sex' => 'Male',
+            'DOB' => '1990-01-15',
+            'email_direct' => 'not-a-valid-email'
+        ];
+
+        $result = $this->validator->validate($invalidData, BaseValidator::DATABASE_INSERT_CONTEXT);
+
+        $this->assertValidationIsValid($result, false, 'Invalid email_direct should fail validation');
+    }
+
+    public function testInsertValidationWithEmptyEmailDirect(): void
+    {
+        $validData = [
+            'fname' => 'John',
+            'lname' => 'Smith',
+            'sex' => 'Male',
+            'DOB' => '1990-01-15',
+            'email_direct' => '' // empty email_direct should be allowed
+        ];
+
+        $result = $this->validator->validate($validData, BaseValidator::DATABASE_INSERT_CONTEXT);
+
+        $this->assertValidationIsValid($result, true, 'Empty email_direct should pass validation');
+    }
+
+    public function testInsertValidationWithBothEmailFields(): void
+    {
+        $validData = [
+            'fname' => 'John',
+            'lname' => 'Smith',
+            'sex' => 'Male',
+            'DOB' => '1990-01-15',
+            'email' => 'john@example.com',
+            'email_direct' => 'john@direct.example.com'
+        ];
+
+        $result = $this->validator->validate($validData, BaseValidator::DATABASE_INSERT_CONTEXT);
+
+        $this->assertValidationIsValid($result, true, 'Both valid email fields should pass validation');
+    }
+
+    public function testInsertValidationWithValidEmailAndInvalidEmailDirect(): void
+    {
+        $invalidData = [
+            'fname' => 'John',
+            'lname' => 'Smith',
+            'sex' => 'Male',
+            'DOB' => '1990-01-15',
+            'email' => 'john@example.com',
+            'email_direct' => 'bad-email'
+        ];
+
+        $result = $this->validator->validate($invalidData, BaseValidator::DATABASE_INSERT_CONTEXT);
+
+        $this->assertValidationIsValid($result, false, 'Invalid email_direct should fail even with valid email');
+    }
+
     public function testInsertValidationFirstNameMinLength(): void
     {
         $validData = [
@@ -281,6 +365,18 @@ class PatientValidatorTest extends TestCase
         $result = $this->validator->validate($updateData, BaseValidator::DATABASE_UPDATE_CONTEXT);
 
         $this->assertTrue($result->isValid(), 'Update with valid fields should pass');
+    }
+
+    public function testUpdateValidationWithInvalidEmailDirect(): void
+    {
+        $invalidData = [
+            'uuid' => '987fcdeb-51a2-43d1-9f12-345678901234',
+            'email_direct' => 'not-valid-email'
+        ];
+
+        $result = $this->validator->validate($invalidData, BaseValidator::DATABASE_UPDATE_CONTEXT);
+
+        $this->assertValidationIsValid($result, false, 'Update with invalid email_direct should fail');
     }
 
     public function testIsExistingUuidWithValidUuid(): void
