@@ -113,6 +113,7 @@ final class Version20260000010066 extends AbstractMigration
         $table->addColumn('ODREDDESAT', Types::STRING, ['length' => 20, 'notnull' => false, 'default' => null]);
         $table->addColumn('OSREDDESAT', Types::STRING, ['length' => 20, 'notnull' => false, 'default' => null]);
 
+        $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['id', 'pid'], 'id_pid');
 
         $this->createTable($table);

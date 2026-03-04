@@ -171,6 +171,7 @@ final class Version20260000020184 extends AbstractMigration
         ]);
         $table->addColumn('ANTSEG_COMMENTS', Types::TEXT, ['notnull' => false, 'length' => 65535]);
 
+        $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['id', 'pid'], 'id_pid');
 
         $this->createTable($table);

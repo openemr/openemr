@@ -57,6 +57,7 @@ final class Version20260000010065 extends AbstractMigration
         $table->addColumn('CYCLOGYL', Types::STRING, ['length' => 25]);
         $table->addColumn('NEO25', Types::STRING, ['length' => 25]);
 
+        $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['id', 'pid'], 'id_pid');
 
         $this->createTable($table);

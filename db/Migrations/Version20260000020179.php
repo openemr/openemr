@@ -83,6 +83,7 @@ final class Version20260000020179 extends AbstractMigration
         $table->addColumn('OSVF3', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
         $table->addColumn('OSVF4', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
 
+        $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['id', 'pid'], 'id_pid');
 
         $this->createTable($table);

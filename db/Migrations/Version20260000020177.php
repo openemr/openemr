@@ -115,6 +115,7 @@ final class Version20260000020177 extends AbstractMigration
         $table->addColumn('ASSOCIATED3', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('LOCATION3', Types::TEXT, ['notnull' => false, 'length' => 65535]);
 
+        $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['id', 'pid'], 'id_pid');
 
         $this->createTable($table);

@@ -47,6 +47,7 @@ final class Version20260000020178 extends AbstractMigration
         $table->addColumn('ROSENDOCRINE', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('ROSCOMMENTS', Types::TEXT, ['notnull' => false, 'length' => 65535]);
 
+        $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['id', 'pid'], 'id_pid');
 
         $this->createTable($table);
