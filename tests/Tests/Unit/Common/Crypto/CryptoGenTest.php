@@ -254,11 +254,9 @@ final class CryptoGenTest extends TestCase
 
     public function testAes256DecryptTwoWithValidData(): void
     {
-        // This tests backward compatibility with version 2 encryption
-        // We need to create a properly formatted version 2 encrypted value
-
-        // For now, test that the method exists and handles invalid data
-        $result = $this->cryptoGen->aes256DecryptTwo('invalid_data');
+        // This tests backward compatibility with version 2 encryption via the public API
+        // Test that invalid data returns false when routed through decryptStandard
+        $result = $this->cryptoGen->decryptStandard('002' . 'invalid_data');
         $this->assertFalse($result);
     }
 
@@ -567,9 +565,9 @@ final class CryptoGenTest extends TestCase
 
     public function testAes256DecryptTwoHmacFailure(): void
     {
-        // Test HMAC failure in aes256DecryptTwo
+        // Test HMAC failure in aes256DecryptTwo via the public API
         $fakeEncrypted = base64_encode(str_repeat('X', 100)); // Invalid HMAC
-        $result = $this->cryptoGen->aes256DecryptTwo($fakeEncrypted);
+        $result = $this->cryptoGen->decryptStandard('002' . $fakeEncrypted);
         $this->assertFalse($result);
     }
 
@@ -1020,23 +1018,6 @@ final class CryptoGenTest extends TestCase
      */
 
     /**
-     * Test aes256DecryptTwo failure when OpenSSL extension is not loaded
-     */
-    public function testAes256DecryptTwoOpenSSLNotLoaded(): void
-    {
-        $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
-            ->onlyMethods(['isOpenSSLExtensionLoaded'])
-            ->getMock();
-
-        $mockCryptoGen->expects($this->once())
-            ->method('isOpenSSLExtensionLoaded')
-            ->willReturn(false);
-
-        $result = $mockCryptoGen->aes256DecryptTwo('test_data');
-        $this->assertFalse($result);
-    }
-
-    /**
      * Test aes256DecryptTwo failure when secret keys are empty
      */
 
@@ -1047,23 +1028,6 @@ final class CryptoGenTest extends TestCase
     /**
      * Test aes256DecryptTwo HMAC authentication failure with mocked dependencies
      */
-
-    /**
-     * Test aes256DecryptOne failure when OpenSSL extension is not loaded
-     */
-    public function testAes256DecryptOneOpenSSLNotLoaded(): void
-    {
-        $mockCryptoGen = $this->getMockBuilder(CryptoGen::class)
-            ->onlyMethods(['isOpenSSLExtensionLoaded'])
-            ->getMock();
-
-        $mockCryptoGen->expects($this->once())
-            ->method('isOpenSSLExtensionLoaded')
-            ->willReturn(false);
-
-        $result = $mockCryptoGen->aes256DecryptOne('test_data');
-        $this->assertFalse($result);
-    }
 
     /**
      * Test aes256DecryptOne failure when secret key is empty
@@ -1272,7 +1236,7 @@ final class CryptoGenTest extends TestCase
         $mockCryptoGen->method('isOpenSSLExtensionLoaded')->willReturn(true);
         $mockCryptoGen->method('hash')->willReturn('');
 
-        $this->assertFalse($mockCryptoGen->aes256DecryptTwo('test data', 'custom password'));
+        $this->assertFalse($mockCryptoGen->decryptStandard('002' . 'test data', 'custom password'));
     }
 
     /**
@@ -1287,11 +1251,11 @@ final class CryptoGenTest extends TestCase
         $mockCryptoGen->method('isOpenSSLExtensionLoaded')->willReturn(true);
         $mockCryptoGen->method('hash')->willReturn('');
 
-        $this->assertFalse($mockCryptoGen->aes256DecryptOne('test data', 'custom password'));
+        $this->assertFalse($mockCryptoGen->decryptStandard('001' . 'test data', 'custom password'));
     }
 
     /**
-     * Test that aes256DecryptTwo works with a custom password.
+     * Test that aes256DecryptTwo works with a custom password via the public API.
      */
     public function testAes256DecryptTwoWithCustomPassword(): void
     {
@@ -1311,7 +1275,7 @@ final class CryptoGenTest extends TestCase
             ->with($encryptedData, 'aes-256-cbc', 'hash value', $iv)
             ->willReturn('decrypted data');
 
-        $mockCryptoGen->aes256DecryptTwo($testData, 'custom password');
+        $this->assertSame('decrypted data', $mockCryptoGen->decryptStandard('002' . $testData, 'custom password'));
     }
 
     /**

@@ -322,7 +322,7 @@ class CryptoGen implements CryptoInterface
      * @param  ?string $customPassword If null, uses standard key. If provided, derives key from this password
      * @return false|string The decrypted data, or false if decryption fails
      */
-    public function aes256DecryptTwo(?string $sValue, ?string $customPassword = null): false|string
+    private function aes256DecryptTwo(?string $sValue, ?string $customPassword = null): false|string
     {
         if (!$this->isOpenSSLExtensionLoaded()) {
             error_log("OpenEMR Error : Decryption is not working because missing openssl extension.");
@@ -392,7 +392,7 @@ class CryptoGen implements CryptoInterface
      * @param  ?string $customPassword If null, uses standard key. If provided, derives key from this password
      * @return false|string The decrypted data
      */
-    public function aes256DecryptOne(?string $sValue, ?string $customPassword = null): false|string
+    private function aes256DecryptOne(?string $sValue, ?string $customPassword = null): false|string
     {
         if (!$this->isOpenSSLExtensionLoaded()) {
             error_log("OpenEMR Error : Decryption is not working because missing openssl extension.");
