@@ -17,6 +17,7 @@ namespace OpenEMR\Tests\Isolated\Validators;
 
 use OpenEMR\Validators\PatientValidator;
 use OpenEMR\Validators\BaseValidator;
+use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\TestCase;
 
 class PatientValidatorTest extends TestCase
@@ -26,6 +27,12 @@ class PatientValidatorTest extends TestCase
     protected function setUp(): void
     {
         $this->validator = new PatientValidatorStub();
+    }
+
+    private function assertValidationIsValid(mixed $result, bool $expected, string $message): void
+    {
+        $this->assertInstanceOf(ProcessingResult::class, $result);
+        $this->assertSame($expected, $result->isValid(), $message);
     }
 
     public function testInsertValidationRequiredFields(): void
@@ -241,7 +248,7 @@ class PatientValidatorTest extends TestCase
 
         $result = $this->validator->validate($validData, BaseValidator::DATABASE_INSERT_CONTEXT);
 
-        $this->assertTrue($result->isValid(), 'Valid data with email_direct should pass validation');
+        $this->assertValidationIsValid($result, true, 'Valid data with email_direct should pass validation');
     }
 
     public function testInsertValidationWithInvalidEmailDirect(): void
@@ -256,7 +263,7 @@ class PatientValidatorTest extends TestCase
 
         $result = $this->validator->validate($invalidData, BaseValidator::DATABASE_INSERT_CONTEXT);
 
-        $this->assertFalse($result->isValid(), 'Invalid email_direct should fail validation');
+        $this->assertValidationIsValid($result, false, 'Invalid email_direct should fail validation');
     }
 
     public function testInsertValidationWithEmptyEmailDirect(): void
@@ -271,7 +278,7 @@ class PatientValidatorTest extends TestCase
 
         $result = $this->validator->validate($validData, BaseValidator::DATABASE_INSERT_CONTEXT);
 
-        $this->assertTrue($result->isValid(), 'Empty email_direct should pass validation');
+        $this->assertValidationIsValid($result, true, 'Empty email_direct should pass validation');
     }
 
     public function testInsertValidationWithBothEmailFields(): void
@@ -287,7 +294,7 @@ class PatientValidatorTest extends TestCase
 
         $result = $this->validator->validate($validData, BaseValidator::DATABASE_INSERT_CONTEXT);
 
-        $this->assertTrue($result->isValid(), 'Both valid email fields should pass validation');
+        $this->assertValidationIsValid($result, true, 'Both valid email fields should pass validation');
     }
 
     public function testInsertValidationWithValidEmailAndInvalidEmailDirect(): void
@@ -303,7 +310,7 @@ class PatientValidatorTest extends TestCase
 
         $result = $this->validator->validate($invalidData, BaseValidator::DATABASE_INSERT_CONTEXT);
 
-        $this->assertFalse($result->isValid(), 'Invalid email_direct should fail even with valid email');
+        $this->assertValidationIsValid($result, false, 'Invalid email_direct should fail even with valid email');
     }
 
     public function testInsertValidationFirstNameMinLength(): void
@@ -369,7 +376,7 @@ class PatientValidatorTest extends TestCase
 
         $result = $this->validator->validate($invalidData, BaseValidator::DATABASE_UPDATE_CONTEXT);
 
-        $this->assertFalse($result->isValid(), 'Update with invalid email_direct should fail');
+        $this->assertValidationIsValid($result, false, 'Update with invalid email_direct should fail');
     }
 
     public function testIsExistingUuidWithValidUuid(): void

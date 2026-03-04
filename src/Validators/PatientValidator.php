@@ -70,7 +70,7 @@ class PatientValidator extends BaseValidator
                     return true;
                 });
                 $context->optional("email_direct", "Trusted Email")
-                ->required(fn($values): bool => array_key_exists('email_direct', $values) && $values['email_direct'] !== '' && $values['email_direct'] !== null)
+                ->required(fn($values): bool => is_array($values) && array_key_exists('email_direct', $values) && $values['email_direct'] !== '' && $values['email_direct'] !== null)
                 ->string()
                 ->callback(function (string $value) {
                     if (!ValidationUtils::isValidEmail($value)) {
