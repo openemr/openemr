@@ -17,7 +17,7 @@ use OpenEMR\Common\Crypto\CryptoInterface;
 
 class GlobalConfig
 {
-    private CryptoInterface $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
 
     public function __construct(private array $globalsArray)
     {

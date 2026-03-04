@@ -46,7 +46,7 @@ class LogProperties
      * @var false|string
      */
     private $weno_admin_password;
-    private CryptoInterface $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
     /**
      * @var string
      */

@@ -42,7 +42,7 @@ class GlobalConfig
     public const CONFIG_OPTION_DEV_SCOPE = 'oe_claimrev_config_dev_scope';
     public const CONFIG_OPTION_DEV_AUTHORITY = 'oe_claimrev_config_dev_authority';
 
-    private CryptoInterface $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
 
     public function __construct(private array $globalsArray)
     {

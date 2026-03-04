@@ -32,7 +32,7 @@ class WenoGlobalConfig
 
     const GLOBAL_SECTION_NAME = 'Weno';
 
-    private CryptoInterface $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
 
     public function __construct()
     {

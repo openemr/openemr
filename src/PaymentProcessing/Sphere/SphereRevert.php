@@ -52,7 +52,7 @@ class SphereRevert
      */
     private $returnUrl;
 
-    private CryptoInterface $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
 
     /**
      * @var SystemLogger

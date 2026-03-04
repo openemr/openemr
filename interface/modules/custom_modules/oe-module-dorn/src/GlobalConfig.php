@@ -27,7 +27,7 @@ class GlobalConfig
 
     public const CONFIG_ENABLE_MENU = "oe_dorn_config_add_menu_button";
 
-    private CryptoInterface $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
 
     public function __construct(private array $globalsArray)
     {

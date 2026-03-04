@@ -65,7 +65,7 @@ class TelehealthGlobalConfig
     const LOCALE_TIMEZONE_DEFAULT = "Unassigned";
     const LOCALE_TIMEZONE = "gbl_time_zone";
 
-    private CryptoInterface $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
 
     /**
      * @var publicWebPath
