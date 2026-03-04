@@ -13,3 +13,7 @@ parameters:
   excludePaths:
     - ../sites/default/documents/smarty
     - ../tests/Rector
+  ignoreErrors:
+    # Doctrine entities have properties set via reflection, not constructors
+    - identifier: property.uninitializedReadonly
+      path: ../src/Entities/*
