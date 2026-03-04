@@ -48927,6 +48927,41 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Rules/ListOptionRuleTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Tests\\\\Isolated\\\\Services\\\\Qrda\\\\Helpers\\\\FrequencyHost\\:\\:institution_not_specified_point_frequency\\(\\) has parameter \\$frequency_code_entry with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/Qrda/Helpers/FrequencyTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Tests\\\\Isolated\\\\Services\\\\Qrda\\\\Helpers\\\\FrequencyHost\\:\\:institution_not_specified_range_frequency\\(\\) has parameter \\$frequency_code_entry with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/Qrda/Helpers/FrequencyTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Tests\\\\Isolated\\\\Services\\\\Qrda\\\\Helpers\\\\FrequencyHost\\:\\:institution_specified_point_frequency\\(\\) has parameter \\$frequency_code_entry with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/Qrda/Helpers/FrequencyTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Tests\\\\Isolated\\\\Services\\\\Qrda\\\\Helpers\\\\FrequencyHost\\:\\:institution_specified_range_frequency\\(\\) has parameter \\$frequency_code_entry with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/Qrda/Helpers/FrequencyTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Tests\\\\Isolated\\\\Services\\\\Qrda\\\\Helpers\\\\PopulationSelectorsHost\\:\\:population_count\\(\\) has parameter \\$population_id with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/Qrda/Helpers/PopulationSelectorsTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Tests\\\\Isolated\\\\Services\\\\Qrda\\\\Helpers\\\\PopulationSelectorsHost\\:\\:population_count\\(\\) has parameter \\$population_type with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/Qrda/Helpers/PopulationSelectorsTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Tests\\\\Isolated\\\\Services\\\\Qrda\\\\Helpers\\\\PopulationSelectorsHost\\:\\:population_id\\(\\) has parameter \\$population_type with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/Qrda/Helpers/PopulationSelectorsTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Isolated\\\\Telemetry\\\\BackgroundTaskManagerStub\\:\\:setMockFetchSingleValue\\(\\) has parameter \\$value with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Telemetry/BackgroundTaskManagerTest.php',

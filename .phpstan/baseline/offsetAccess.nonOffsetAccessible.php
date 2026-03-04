@@ -55082,6 +55082,36 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Billing/BillingLoggerTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'396125000\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/Qrda/Helpers/FrequencyTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'high\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/Qrda/Helpers/FrequencyTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'institution_specified\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/Qrda/Helpers/FrequencyTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'low\' on mixed\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/Qrda/Helpers/FrequencyTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'unit\' on mixed\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/Qrda/Helpers/FrequencyTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset mixed on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/Qrda/Helpers/FrequencyTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'count\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Telemetry/TelemetryRepositoryTest.php',
