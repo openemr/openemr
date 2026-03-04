@@ -15,7 +15,6 @@ namespace OpenEMR\Common\Auth;
 
 use DateInterval;
 use DateTime;
-use MyMailer;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
 use OpenEMR\Common\Crypto\CryptoGen;

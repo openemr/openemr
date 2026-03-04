@@ -12,7 +12,6 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ControllerLog extends BaseController
 {

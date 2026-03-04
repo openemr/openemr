@@ -22,7 +22,6 @@ use OpenEMR\Services\FHIR\Observation\FhirObservationPatientService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
 use OpenEMR\Services\ListService;
-use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\TestCase;
 
 /**

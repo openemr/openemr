@@ -11,15 +11,12 @@
 
 namespace OpenEMR\Services;
 
-use League\Csv\Exception;
 use OpenEMR\Common\ORDataObject\ContactRelation;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Services\ListService;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
-use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Common\Session\SessionWrapperFactory;

@@ -27,7 +27,6 @@ require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Services\ClinicalNotesService;

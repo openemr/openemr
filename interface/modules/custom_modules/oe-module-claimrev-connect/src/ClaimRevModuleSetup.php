@@ -10,9 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-    namespace OpenEMR\Modules\ClaimRevConnector;
-
-    use OpenEMR\Modules\ClaimRevConnector\Bootstrap;
+namespace OpenEMR\Modules\ClaimRevConnector;
 
 class ClaimRevModuleSetup
 {

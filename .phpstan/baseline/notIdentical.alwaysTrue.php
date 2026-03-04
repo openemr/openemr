@@ -7,7 +7,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/edit_payment.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\!\\=\\= between null and mixed will always evaluate to true\\.$#',
+    'message' => '#^Strict comparison using \\!\\=\\= between null and non\\-falsy\\-string will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/ub04_dispose.php',
 ];
@@ -50,11 +50,6 @@ $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between int and false will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaServiceDocumentRequestor.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\!\\=\\= between Application\\\\Model\\\\type and false will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between non\\-falsy\\-string and false will always evaluate to true\\.$#',

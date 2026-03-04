@@ -15,12 +15,10 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Unit\Common\Crypto;
 
-use Error;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Crypto\KeyVersion;
-use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use ReflectionMethod;

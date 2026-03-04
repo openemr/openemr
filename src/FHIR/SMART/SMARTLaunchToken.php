@@ -14,7 +14,6 @@ namespace OpenEMR\FHIR\SMART;
 
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Uuid\UuidRegistry;
 
 class SMARTLaunchToken
 {

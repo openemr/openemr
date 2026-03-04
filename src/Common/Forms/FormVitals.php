@@ -21,12 +21,10 @@ namespace OpenEMR\Common\Forms;
  *
  */
 
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\BmiCategory;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Utils\MeasurementUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\FHIR\Observation\FhirObservationVitalsService;
 
 class FormVitals extends ORDataObject
 {

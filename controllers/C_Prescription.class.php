@@ -22,7 +22,6 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Rx\RxList;
-use PHPMailer\PHPMailer\PHPMailer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;

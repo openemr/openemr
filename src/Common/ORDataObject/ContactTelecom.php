@@ -229,36 +229,36 @@ class ContactTelecom extends ORDataObject implements \JsonSerializable
         return $this;
     }
 
-    public function get_created_date(): Datetime
+    public function get_created_date(): DateTime
     {
         return $this->createdDate;
     }
 
-    public function set_created_date(Datetime $createdDate): ContactTelecom
+    public function set_created_date(DateTime $createdDate): ContactTelecom
     {
         $this->createdDate = $createdDate;
         $this->setIsObjectModified(true);
         return $this;
     }
 
-    public function get_period_start(): Datetime
+    public function get_period_start(): DateTime
     {
         return $this->periodStart;
     }
 
-    public function set_period_start(Datetime $periodStart): ContactTelecom
+    public function set_period_start(DateTime $periodStart): ContactTelecom
     {
         $this->periodStart = $periodStart;
         $this->setIsObjectModified(true);
         return $this;
     }
 
-    public function get_period_end(): ?Datetime
+    public function get_period_end(): ?DateTime
     {
         return $this->periodEnd;
     }
 
-    public function set_period_end(?Datetime $periodEnd): ContactTelecom
+    public function set_period_end(?DateTime $periodEnd): ContactTelecom
     {
         $this->periodEnd = $periodEnd;
         $this->setIsObjectModified(true);

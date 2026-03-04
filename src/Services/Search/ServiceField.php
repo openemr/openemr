@@ -11,7 +11,6 @@
 
 namespace OpenEMR\Services\Search;
 
-use OpenEMR\Common\Uuid\UuidRegistry;
 
 class ServiceField
 {

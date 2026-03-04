@@ -14,7 +14,6 @@
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Validators\ProcessingResult;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;

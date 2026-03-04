@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Services\Address;
 
 use OpenEMR\Services\Address\AddressData;
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class AddressDataTest extends TestCase

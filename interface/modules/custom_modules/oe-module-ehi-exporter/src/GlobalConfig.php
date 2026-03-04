@@ -14,7 +14,6 @@
 namespace OpenEMR\Modules\EhiExporter;
 
 use OpenEMR\Common\Crypto\CryptoGen;
-use OpenEMR\Services\Globals\GlobalSetting;
 
 class GlobalConfig
 {

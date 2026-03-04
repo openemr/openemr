@@ -26,7 +26,6 @@
 use OpenEMR\Core\Header;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\FHIR\Config\ServerConfig;
-use OpenEMR\RestControllers\AuthorizationController;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Services\DecisionSupportInterventionService;
 

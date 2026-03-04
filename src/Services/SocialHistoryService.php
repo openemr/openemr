@@ -13,11 +13,9 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Forms\Types\SmokingStatusType;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Services\ServiceSaveEvent;
-use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Traits\ServiceEventTrait;

@@ -23,7 +23,6 @@ use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\FHIR\Condition\Enum\FhirConditionCategory;
-use Exception;
 use DateTime;
 use DateTimeZone;
 

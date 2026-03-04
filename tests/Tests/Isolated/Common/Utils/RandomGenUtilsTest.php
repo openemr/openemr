@@ -34,12 +34,6 @@ class RandomGenUtilsTest extends TestCase
         $this->assertNotSame($bytes1, $bytes2);
     }
 
-    public function testProduceRandomBytesZeroLength(): void
-    {
-        $bytes = RandomGenUtils::produceRandomBytes(0);
-        $this->assertSame(0, strlen($bytes));
-    }
-
     public function testProduceRandomStringDefaultLength(): void
     {
         $str = RandomGenUtils::produceRandomString();

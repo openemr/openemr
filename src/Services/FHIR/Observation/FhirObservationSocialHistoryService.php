@@ -20,8 +20,6 @@ use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\FHIR\IPatientCompartmentResourceService;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
 use OpenEMR\Services\FHIR\Observation\Trait\FhirObservationTrait;
-use OpenEMR\Services\FHIR\OpenEMR;
-use OpenEMR\Services\FHIR\openEMRSearchParameters;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
 use OpenEMR\Services\Search\SearchFieldType;

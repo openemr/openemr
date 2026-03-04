@@ -20,22 +20,13 @@ use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Events\Core\TwigEnvironmentEvent;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
-use OpenEMR\Events\Main\Tabs\RenderEvent;
-use OpenEMR\Events\RestApiExtend\RestApiResourceServiceEvent;
-use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
 use OpenEMR\Modules\EhiExporter\Services\EhiExporter;
-use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Menu\MenuEvent;
-use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
 
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
-use Twig\Error\LoaderError;
-use Twig\Loader\FilesystemLoader;
 
 // we import our own classes here.. although this use statement is unnecessary it forces the autoloader to be tested.
-use OpenEMR\Modules\CustomModuleSkeleton\TaskRestController;
 
 
 class Bootstrap

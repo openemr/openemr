@@ -16,7 +16,6 @@ namespace OpenEMR\Services;
 
 require_once(__DIR__ . "/../../controllers/C_Document.class.php");
 
-use Document;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;

@@ -22,9 +22,8 @@ class FormPainMap extends AbstractClickmapModel
     /**
      * The database table to place form data in/read form data from.
      *
-     * @var TABLE_NAME
+     * @var string
      */
-
     static $TABLE_NAME = "form_painmap";
 
     /* Initializer. just calls parent's initializer. */

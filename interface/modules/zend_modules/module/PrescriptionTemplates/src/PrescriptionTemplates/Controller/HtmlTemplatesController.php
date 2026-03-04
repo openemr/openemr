@@ -21,8 +21,6 @@
 
 namespace PrescriptionTemplates\Controller;
 
-use Interop\Container\ContainerInterface;
-use Laminas\View\Model\ViewModel;
 
 /**
  * Class HtmlTemplatesController

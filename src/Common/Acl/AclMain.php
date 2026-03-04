@@ -23,7 +23,6 @@
  *   language    Language Interface Tool
  *   drugs       Pharmacy Dispensary
  *   acl         ACL Administration
- *   multipledb  Multipledb
  *   menu        Menu
  *   manage_modules Manage modules
  *

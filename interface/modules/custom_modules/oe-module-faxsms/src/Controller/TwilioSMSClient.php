@@ -13,7 +13,6 @@
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use DateTime;
-use Exception;
 use OpenEMR\Common\Crypto\CryptoGen;
 use RuntimeException;
 use Twilio\Rest\Client;

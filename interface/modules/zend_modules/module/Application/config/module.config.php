@@ -18,15 +18,11 @@ use Application\Controller\SendtoController;
 use Application\Controller\SoapController;
 use Application\Listener\Listener;
 use Application\Listener\ModuleMenuSubscriber;
-use Application\Model\ApplicationTable;
 use Application\Model\SendtoTable;
 use Laminas\Router\Http\Literal;
 use Laminas\Router\Http\Segment;
 use Laminas\ServiceManager\Factory\InvokableFactory;
-use Laminas\Mvc\I18n\TranslatorFactory;
 use Interop\Container\ContainerInterface;
-use OpenEMR\Core\Kernel;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 //
 return [
@@ -109,27 +105,22 @@ return [
     // @see https://olegkrivtsov.github.io/using-zend-framework-3-book/html/en/Model_View_Controller/Controller_Plugins.html for more details.
     ,'controller_plugins' => [
         'factories' => [
-            'CommonPlugin' => fn(ContainerInterface $container, $requestedName): \Application\Plugin\CommonPlugin => new Plugin\CommonPlugin($container)
-            ,'Phimail' => fn(ContainerInterface $container): \Application\Plugin\Phimail => new Plugin\Phimail($container)
+            'CommonPlugin' => fn(ContainerInterface $container, $requestedName): \Application\Plugin\CommonPlugin => new Plugin\CommonPlugin()
+            ,'Phimail' => fn(ContainerInterface $container): \Application\Plugin\Phimail => new Plugin\Phimail()
         ]
     ]
     ,'controllers' => [
         'factories' => [
-            IndexController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\IndexController => new IndexController($container->get(ApplicationTable::class)),
+            IndexController::class => InvokableFactory::class,
             SoapController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\SoapController => new SoapController($container->get(\Carecoordination\Controller\EncounterccdadispatchController::class)),
-            SendtoController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\SendtoController => new SendtoController($container->get(ApplicationTable::class), $container->get(SendtoTable::class))
+            SendtoController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\SendtoController => new SendtoController($container->get(SendtoTable::class)),
         ]
     ],
     'service_manager' => [
         'factories' => [
             Listener::class => InvokableFactory::class,
-            ApplicationTable::class => function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get(\Laminas\Db\Adapter\Adapter::class);
-                $table = new ApplicationTable();
-                return $table;
-            },
             SendtoTable::class => fn(ContainerInterface $container, $requestedName): \Application\Model\SendtoTable => new SendtoTable(),
-            SendtoController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\SendtoController => new SendtoController($container->get(ApplicationTable::class), $container->get(SendtoTable::class)),
+            SendtoController::class => fn(ContainerInterface $container, $requestedName): \Application\Controller\SendtoController => new SendtoController($container->get(SendtoTable::class)),
             ModuleMenuSubscriber::class => InvokableFactory::class
         ],
     ],

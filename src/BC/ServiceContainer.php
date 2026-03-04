@@ -18,7 +18,6 @@ use OpenEMR\Common\Crypto;
 use OpenEMR\Common\Logging;
 use Lcobucci\Clock\SystemClock;
 use OpenEMR\Common\Http\Psr17Factory;
-use OpenEMR\Core\OEGlobalsBag;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\{
     RequestFactoryInterface,

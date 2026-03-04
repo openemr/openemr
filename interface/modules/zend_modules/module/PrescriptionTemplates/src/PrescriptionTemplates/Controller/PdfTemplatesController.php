@@ -22,9 +22,7 @@
 namespace PrescriptionTemplates\Controller;
 
 use Interop\Container\ContainerInterface;
-use Laminas\View\Model\ViewModel;
 use Mpdf\Mpdf;
-use Laminas\View\Renderer\PhpRenderer;
 
 /**
  * Class PdfTemplatesController

@@ -55,7 +55,9 @@ dc() {
 
 _exec() {
     if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
-        # Set XDEBUG_MODE for xdebug coverage (ignored if using pcov)
+        # Set XDEBUG_MODE env var for xdebug coverage (ignored if using pcov).
+        # NOTE: This env var is ignored when xdebug.mode is set in php.ini.
+        # PHPUnit invocations also pass -d xdebug.mode=coverage for reliability.
         dc exec --env XDEBUG_MODE=coverage --workdir "${OPENEMR_DIR?}" openemr "$@"
     else
         dc exec --workdir "${OPENEMR_DIR?}" openemr "$@"
@@ -293,8 +295,15 @@ build_test_e2e() {
     dc exec selenium chromedriver --version
 
     echo 'Running E2E tests…'
+    # When coverage is enabled, ensure xdebug.mode=coverage via -d flag.
+    # The XDEBUG_MODE env var (set by _exec) is ignored when xdebug.mode
+    # is already configured in php.ini, so -d is needed as an override.
+    local -a php_args=( -d memory_limit=8G )
+    if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+        php_args+=( -d xdebug.mode=coverage )
+    fi
     set +e
-    _exec php -d memory_limit=8G ./vendor/bin/phpunit \
+    _exec php "${php_args[@]}" ./vendor/bin/phpunit \
         --log-junit junit-e2e.xml \
         --testsuite e2e \
         --testdox \
@@ -366,7 +375,14 @@ phpunit() {
         shift
     done
     [[ -n "${testsuite_arg}" ]] && args+=( --log-junit "junit-${testsuite_arg}.xml" )
-    _exec php -d memory_limit=8G ./vendor/bin/phpunit --testdox "${args[@]}"
+    # When coverage is enabled, ensure xdebug.mode=coverage via -d flag.
+    # The XDEBUG_MODE env var (set by _exec) is ignored when xdebug.mode
+    # is already configured in php.ini, so -d is needed as an override.
+    local -a php_args=( -d memory_limit=8G )
+    if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
+        php_args+=( -d xdebug.mode=coverage )
+    fi
+    _exec php "${php_args[@]}" ./vendor/bin/phpunit --testdox "${args[@]}"
 }
 
 ##

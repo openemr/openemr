@@ -14,7 +14,6 @@
 
 namespace FHIR;
 
-use Laminas\Mvc\ModuleRouteListener;
 use Laminas\Mvc\MvcEvent;
 use OpenEMR\ZendModules\FHIR\Listener\UuidMappingEventsSubscriber;
 use OpenEMR\ZendModules\FHIR\Listener\CalculatedObservationEventsSubscriber;

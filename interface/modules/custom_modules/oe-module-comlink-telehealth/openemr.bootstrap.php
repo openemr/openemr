@@ -12,7 +12,6 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule;
 
-use OpenEMR\Core\ModulesClassLoader;
 use OpenEMR\Core\OEGlobalsBag;
 
 /**

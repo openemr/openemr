@@ -14,13 +14,11 @@
 
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 
-use OpenEMR\Core\Header;
 
 $ignoreAuth_onsite_portal = $ignoreAuth = false;
 // Will start the (patient) portal OpenEMR session/cookie.

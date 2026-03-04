@@ -7,7 +7,6 @@
  *
  */
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 require_once(__DIR__ . "/../../vendor/autoload.php");

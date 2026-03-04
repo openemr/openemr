@@ -122,16 +122,17 @@ define('SKIP_TOTAL_TABLE_COUNT', 'skip_total_table_count');
 /**
  * This is a helper function for defining the metadata that describes the tables
  *
- * @param type $results             A reference to the global array which stores all the metadata
- * @param int $index               The external table ID.  This corresponds to the value in the code_types table in the ct_external column
- * @param type $table_name          The name of the table which stores the code informattion (e.g. icd9_dx_code
- * @param type $col_code            The name of the column which is the code
- * @param type $col_description     The name of the column which is the description
- * @param type $col_description_brief The name of the column which is the brief description
- * @param type $filter_clauses      An array of clauses to be included in the search "WHERE" clause that limits results
- * @param type $version_order       How to choose between different revisions of codes
- * @param type $joins               An array which describes additional tables to join as part of a code search.
- * @param array $extraColumns       An array of extra columns to be included in the table definition
+ * @param array $results A reference to the global array which stores all the metadata
+ * @param int $index The external table ID. This corresponds to the value in the code_types table in the ct_external column
+ * @param string $table_name The name of the table which stores the code information (e.g. icd9_dx_code)
+ * @param string $col_code The name of the column which is the code
+ * @param string $col_description The name of the column which is the description
+ * @param string $col_description_brief The name of the column which is the brief description
+ * @param array $filter_clauses An array of clauses to be included in the search "WHERE" clause that limits results
+ * @param string $version_order How to choose between different revisions of codes
+ * @param array $joins An array which describes additional tables to join as part of a code search.
+ * @param string $display_desc
+ * @param array $extraColumns An array of extra columns to be included in the table definition
  */
 function define_external_table(&$results, int $index, $table_name, $col_code, $col_description, $col_description_brief, $filter_clauses = [], $version_order = "", $joins = [], $display_desc = "", $extraColumns = []): void
 {

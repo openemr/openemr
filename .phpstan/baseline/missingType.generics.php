@@ -122,21 +122,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModule.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Model\\\\Multipledb\\:\\:getInputFilter\\(\\) return type with generic interface Laminas\\\\InputFilter\\\\InputFilterInterface does not specify its types\\: TFilteredValues$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/Multipledb.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Model\\\\Multipledb\\:\\:setInputFilter\\(\\) has parameter \\$inputFilter with generic interface Laminas\\\\InputFilter\\\\InputFilterInterface but does not specify its types\\: TFilteredValues$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/Multipledb.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Multipledb\\\\Model\\\\Multipledb\\:\\:\\$inputFilter with generic interface Laminas\\\\InputFilter\\\\InputFilterInterface does not specify its types\\: TFilteredValues$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/Multipledb.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Patientvalidation\\\\Model\\\\PatientData\\:\\:getInputFilter\\(\\) return type with generic interface Laminas\\\\InputFilter\\\\InputFilterInterface does not specify its types\\: TFilteredValues$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Model/PatientData.php',

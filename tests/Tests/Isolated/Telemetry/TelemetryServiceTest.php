@@ -16,9 +16,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Telemetry;
 
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 use OpenEMR\Services\VersionServiceInterface;
-use OpenEMR\Telemetry\GeoTelemetry;
 use OpenEMR\Telemetry\GeoTelemetryInterface;
 use OpenEMR\Telemetry\TelemetryRepository;
 use OpenEMR\Telemetry\TelemetryService;

@@ -12,6 +12,7 @@
 
 namespace OpenEMR\RestControllers;
 
+use OpenApi\Attributes as OA;
 use OpenEMR\Services\PrescriptionService;
 use OpenEMR\RestControllers\RestControllerHelper;
 
@@ -28,6 +29,26 @@ class PrescriptionRestController
      * Fetches a single prescription resource by id.
      * @param $uuid- The prescription uuid identifier in string format.
      */
+    #[OA\Get(
+        path: '/api/prescription/{uuid}',
+        description: 'Retrieves a prescription',
+        tags: ['standard'],
+        parameters: [
+            new OA\Parameter(
+                name: 'uuid',
+                in: 'path',
+                description: 'The uuid for the prescription.',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function getOne($uuid)
     {
         $processingResult = $this->prescriptionService->getOne($uuid);
@@ -42,6 +63,17 @@ class PrescriptionRestController
     /**
      * Returns prescription resources which match an optional search criteria.
      */
+    #[OA\Get(
+        path: '/api/prescription',
+        description: 'Retrieves a list of all prescriptions',
+        tags: ['standard'],
+        responses: [
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
     public function getAll($search = [])
     {
         $processingResult = $this->prescriptionService->getAll($search);

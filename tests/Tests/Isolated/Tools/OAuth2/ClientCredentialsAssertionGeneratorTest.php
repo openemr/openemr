@@ -19,7 +19,6 @@ namespace OpenEMR\Tests\Isolated\Tools\OAuth2;
 
 use OpenEMR\Tools\OAuth2\ClientCredentialsAssertionGenerator;
 use PHPUnit\Framework\TestCase;
-use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Token\Parser;
 use Lcobucci\JWT\UnencryptedToken;

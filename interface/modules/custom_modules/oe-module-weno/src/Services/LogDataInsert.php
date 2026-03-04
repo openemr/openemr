@@ -12,7 +12,6 @@
 
 namespace OpenEMR\Modules\WenoModule\Services;
 
-use Exception;
 
 class LogDataInsert
 {

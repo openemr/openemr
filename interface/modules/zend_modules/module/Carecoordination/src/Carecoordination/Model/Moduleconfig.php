@@ -25,17 +25,11 @@
 // +------------------------------------------------------------------------------+
 namespace Carecoordination\Model;
 
-use Laminas\Db\TableGateway\TableGateway;
-use Laminas\Db\TableGateway\AbstractTableGateway;
-use Laminas\Db\Adapter\Adapter;
-use Laminas\Db\ResultSet\ResultSet;
-use Laminas\Db\Sql\Select;
 use Laminas\InputFilter\Factory as InputFactory;
 use Laminas\InputFilter\InputFilter;
-use Laminas\InputFilter\InputFilterAwareInterface;
 use Laminas\InputFilter\InputFilterInterface;
 
-class Moduleconfig extends AbstractTableGateway
+class Moduleconfig
 {
     protected $inputFilter;
 

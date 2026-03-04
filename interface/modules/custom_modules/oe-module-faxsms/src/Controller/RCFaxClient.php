@@ -18,7 +18,6 @@ use OpenEMR\Common\Utils\FileUtils;
 use OpenEMR\Modules\FaxSMS\RCVoice\VoiceFunctionsTrait;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
 use RingCentral\SDK\Http\ApiException;
-use RingCentral\SDK\SDK;
 
 class RCFaxClient extends AppDispatch
 {

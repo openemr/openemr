@@ -127,6 +127,7 @@ repos:
     entry: composer phpstan --
     language: system
     files: \.php$
+    pass_filenames: false
 
   - id: rector
     name: Rector

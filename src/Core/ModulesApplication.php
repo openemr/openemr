@@ -15,7 +15,6 @@
 
 namespace OpenEMR\Core;
 
-use Exception;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Events\Core\ModuleLoadEvents;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;

@@ -29,7 +29,6 @@ use OpenEMR\Common\Http\HttpSessionFactory;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEHttpKernel;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle;
 use OpenEMR\RestControllers\FHIR\FhirEncounterRestController;
 use OpenEMR\RestControllers\FHIR\Finder\FhirRouteFinder;
