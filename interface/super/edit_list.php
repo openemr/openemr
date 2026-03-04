@@ -524,7 +524,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
         [$apptstat_color, $apptstat_timealert] = explode("|", (string) $notes);
         echo "  <td>";
         echo "<input type='text' class='optin' data-jscolor='' name='opt[" . attr($opt_line_no) . "][apptstat_color]' value='" .
-            attr($apptstat_color) . "' size='6' maxlength='6' />";
+            attr($apptstat_color) . "' size='7' maxlength='7' />";
         echo "</td>\n";
         echo "  <td>";
         echo "<input type='text' name='opt[" . attr($opt_line_no) . "][apptstat_timealert]' value='" .
