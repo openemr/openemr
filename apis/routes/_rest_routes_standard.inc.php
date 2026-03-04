@@ -138,14 +138,14 @@ return [
 
     "POST /api/patient/:pid/encounter/:eid/vital" => function ($pid, $eid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "encounters", "notes");
-        $data = json_decode(file_get_contents("php://input"), true) ?? [];
+        $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new EncounterRestController($request->getSession()))->postVital($pid, $eid, $data);
 
         return $return;
     },
     "PUT /api/patient/:pid/encounter/:eid/vital/:vid" => function ($pid, $eid, $vid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "encounters", "notes");
-        $data = json_decode(file_get_contents("php://input"), true) ?? [];
+        $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new EncounterRestController($request->getSession()))->putVital($pid, $eid, $vid, $data);
 
         return $return;
