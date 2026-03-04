@@ -35,6 +35,22 @@ class FrequencyTest extends TestCase
         $this->host = new FrequencyHost();
     }
 
+    /**
+     * @return array{low: int, high: ?int, unit: string, institution_specified: bool, code_system: string, code_system_name: string, display_name: string}
+     */
+    private function freqEntry(int $low, ?int $high, string $unit): array
+    {
+        return [
+            'low' => $low,
+            'high' => $high,
+            'unit' => $unit,
+            'institution_specified' => false,
+            'code_system' => '',
+            'code_system_name' => '',
+            'display_name' => '',
+        ];
+    }
+
     private function makeContext(string $code): Mustache_Context
     {
         $context = $this->createMock(Mustache_Context::class);
@@ -73,32 +89,28 @@ class FrequencyTest extends TestCase
 
     public function testInstitutionNotSpecifiedPointFrequency(): void
     {
-        $entry = ['low' => 4, 'high' => null, 'unit' => 'h'];
-        /** @var string $result */
+        $entry = $this->freqEntry(low: 4, high: null, unit: 'h');
         $result = $this->host->institution_not_specified_point_frequency($entry);
         $this->assertPointFrequency($result, $entry, false);
     }
 
     public function testInstitutionNotSpecifiedRangeFrequency(): void
     {
-        $entry = ['low' => 2, 'high' => 4, 'unit' => 'h'];
-        /** @var string $result */
+        $entry = $this->freqEntry(low: 2, high: 4, unit: 'h');
         $result = $this->host->institution_not_specified_range_frequency($entry);
         $this->assertRangeFrequency($result, $entry, false);
     }
 
     public function testInstitutionSpecifiedPointFrequency(): void
     {
-        $entry = ['low' => 24, 'high' => null, 'unit' => 'h'];
-        /** @var string $result */
+        $entry = $this->freqEntry(low: 24, high: null, unit: 'h');
         $result = $this->host->institution_specified_point_frequency($entry);
         $this->assertPointFrequency($result, $entry, true);
     }
 
     public function testInstitutionSpecifiedRangeFrequency(): void
     {
-        $entry = ['low' => 12, 'high' => 24, 'unit' => 'h'];
-        /** @var string $result */
+        $entry = $this->freqEntry(low: 12, high: 24, unit: 'h');
         $result = $this->host->institution_specified_range_frequency($entry);
         $this->assertRangeFrequency($result, $entry, true);
     }
@@ -107,7 +119,6 @@ class FrequencyTest extends TestCase
     {
         // 225756002: every 4 hours, institution_specified=false, no high
         $context = $this->makeContext('225756002');
-        /** @var string $result */
         $result = $this->host->medication_frequency($context);
 
         $this->assertStringContainsString("value='4'", $result);
@@ -119,7 +130,6 @@ class FrequencyTest extends TestCase
     {
         // 225752000: every 2-4 hours, institution_specified=false, has high
         $context = $this->makeContext('225752000');
-        /** @var string $result */
         $result = $this->host->medication_frequency($context);
 
         $this->assertStringContainsString("<low value='2'", $result);
@@ -131,7 +141,6 @@ class FrequencyTest extends TestCase
     {
         // 229797004: once daily, institution_specified=true, no high
         $context = $this->makeContext('229797004');
-        /** @var string $result */
         $result = $this->host->medication_frequency($context);
 
         $this->assertStringContainsString("institutionSpecified='true'", $result);
@@ -143,7 +152,6 @@ class FrequencyTest extends TestCase
     {
         // 396107007: 1-2 times/day, institution_specified=true, has high
         $context = $this->makeContext('396107007');
-        /** @var string $result */
         $result = $this->host->medication_frequency($context);
 
         $this->assertStringContainsString("institutionSpecified='true'", $result);
@@ -155,7 +163,6 @@ class FrequencyTest extends TestCase
     {
         // Unknown code falls back to 396125000 (every 24h, not institution_specified)
         $context = $this->makeContext('unknown-code');
-        /** @var string $result */
         $result = $this->host->medication_frequency($context);
 
         $this->assertStringContainsString("value='24'", $result);

@@ -21123,7 +21123,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'\\<effectiveTime xsi…\' and mixed results in an error\\.$#',
-    'count' => 7,
+    'count' => 3,
     'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
 ];
 $ignoreErrors[] = [
@@ -21173,7 +21173,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 25,
+    'count' => 17,
     'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
 ];
 $ignoreErrors[] = [
@@ -21985,16 +21985,6 @@ $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Utils/PaginationUtilsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'\\<effectiveTime xsi…\' and mixed results in an error\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/Qrda/Helpers/FrequencyTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Services/Qrda/Helpers/FrequencyTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'value \' and mixed results in an error\\.$#',

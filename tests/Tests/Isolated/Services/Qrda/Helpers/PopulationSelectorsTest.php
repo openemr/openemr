@@ -16,6 +16,16 @@ use OpenEMR\Services\Qrda\Helpers\PopulationSelectors;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
+class PopulationRecord
+{
+    public function __construct(
+        public readonly string $type,
+        public readonly string $id = '',
+        public readonly int $value = 0,
+    ) {
+    }
+}
+
 /**
  * Concrete class to host the PopulationSelectors trait for testing.
  */
@@ -23,7 +33,7 @@ class PopulationSelectorsHost
 {
     use PopulationSelectors;
 
-    /** @param list<object> $populations */
+    /** @param list<PopulationRecord> $populations */
     public function __construct(public array $populations)
     {
     }
@@ -32,15 +42,15 @@ class PopulationSelectorsHost
 #[Group('isolated')]
 class PopulationSelectorsTest extends TestCase
 {
-    /** @param list<object> $populations */
+    /** @param list<PopulationRecord> $populations */
     private function makeHost(array $populations): PopulationSelectorsHost
     {
         return new PopulationSelectorsHost($populations);
     }
 
-    private function pop(string $type, string $id = '', int $value = 0): object
+    private function pop(string $type, string $id = '', int $value = 0): PopulationRecord
     {
-        return (object) ['type' => $type, 'id' => $id, 'value' => $value];
+        return new PopulationRecord($type, $id, $value);
     }
 
     public function testNumeratorReturnsTrueWhenPresent(): void
