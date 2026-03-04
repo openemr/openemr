@@ -37,8 +37,8 @@ final class Version20260000020107 extends AbstractMigration
         $table->addColumn('table_id', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('table_vertical', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('couchdb', Types::STRING, ['length' => 255, 'default' => '']);
-        $table->addColumn('document_drive', Types::SMALLINT, ['default' => 0]);
-        $table->addColumn('mapped', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('document_drive', CustomTypes::TINYINT, ['default' => 0]);
+        $table->addColumn('mapped', CustomTypes::TINYINT, ['default' => 0]);
         $table->addColumn('created', CustomTypes::TIMESTAMP, ['notnull' => false]);
         $this->addPrimaryKey($table, 'uuid');
         $this->createTable($table);

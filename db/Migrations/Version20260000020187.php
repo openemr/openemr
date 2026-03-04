@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -79,7 +80,7 @@ final class Version20260000020187 extends AbstractMigration
         $table->addColumn('tos_uri', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('is_enabled', Types::BOOLEAN, ['default' => 0]);
         $table->addColumn('skip_ehr_launch_authorization_flow', Types::BOOLEAN, ['default' => 0]);
-        $table->addColumn('dsi_type', Types::SMALLINT, [
+        $table->addColumn('dsi_type', CustomTypes::TINYINT, [
             'unsigned' => true,
             'default' => 1,
             'comment' => '0=none, 1=evidence-based,2=predictive',

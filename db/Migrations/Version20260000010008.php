@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -91,7 +92,7 @@ final class Version20260000010008 extends AbstractMigration
         $table->addColumn('service_location', Types::BOOLEAN, ['default' => 1]);
         $table->addColumn('billing_location', Types::BOOLEAN, ['default' => 1]);
         $table->addColumn('accepts_assignment', Types::BOOLEAN, ['default' => 1]);
-        $table->addColumn('pos_code', Types::SMALLINT, ['notnull' => false, 'default' => null]);
+        $table->addColumn('pos_code', CustomTypes::TINYINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('x12_sender_id', Types::STRING, [
             'length' => 25,
             'notnull' => false,

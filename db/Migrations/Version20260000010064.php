@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -43,9 +44,9 @@ final class Version20260000010064 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('password', Types::TEXT, ['notnull' => false]);
-        $table->addColumn('authorized', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $table->addColumn('authorized', CustomTypes::TINYINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('info', Types::TEXT, ['notnull' => false]);
-        $table->addColumn('source', Types::SMALLINT, ['notnull' => false, 'default' => null]);
+        $table->addColumn('source', CustomTypes::TINYINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('fname', Types::STRING, [
             'length' => 255,
             'notnull' => false,
@@ -218,7 +219,7 @@ final class Version20260000010064 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('notes', Types::TEXT, ['notnull' => false, 'length' => 65535]);
-        $table->addColumn('cal_ui', Types::SMALLINT, ['default' => 1]);
+        $table->addColumn('cal_ui', CustomTypes::TINYINT, ['default' => 1]);
         $table->addColumn('taxonomy', Types::STRING, ['length' => 30, 'default' => '207Q00000X']);
         $table->addColumn('calendar', Types::BOOLEAN, ['default' => 0, 'comment' => '1 = appears in calendar']);
         $table->addColumn('abook_type', Types::STRING, ['length' => 31, 'default' => '']);

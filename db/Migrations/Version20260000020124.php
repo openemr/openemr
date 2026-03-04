@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -111,7 +112,7 @@ final class Version20260000020124 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('order_psc', Types::SMALLINT, ['notnull' => false, 'default' => null]);
+        $table->addColumn('order_psc', CustomTypes::TINYINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('order_abn', Types::STRING, ['length' => 31, 'default' => 'not_required']);
         $table->addColumn('collector_id', Types::BIGINT, ['default' => 0]);
         $table->addColumn('account', Types::STRING, [

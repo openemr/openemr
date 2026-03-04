@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -35,7 +36,7 @@ final class Version20260000020083 extends AbstractMigration
         $table->addColumn('pid', Types::BIGINT, ['notnull' => false]);
         $table->addColumn('portal_username', Types::STRING, ['notnull' => false, 'length' => 100]);
         $table->addColumn('portal_pwd', Types::STRING, ['notnull' => false, 'length' => 255]);
-        $table->addColumn('portal_pwd_status', Types::SMALLINT, ['notnull' => false, 'default' => 1, 'comment' => '0=>Password Created Through Demographics by The provider or staff. Patient Should Change it at first time it.1=>Pwd updated or created by patient itself']);
+        $table->addColumn('portal_pwd_status', CustomTypes::TINYINT, ['notnull' => false, 'default' => 1, 'comment' => '0=>Password Created Through Demographics by The provider or staff. Patient Should Change it at first time it.1=>Pwd updated or created by patient itself']);
         $table->addColumn('portal_login_username', Types::STRING, [
             'length' => 100,
             'notnull' => false,

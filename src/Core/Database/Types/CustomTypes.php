@@ -21,6 +21,7 @@ use Doctrine\DBAL\Types\Types;
 final class CustomTypes
 {
     public const TIMESTAMP = 'timestamp';
+    public const TINYINT = 'tinyint';
 
     /**
      * Register custom types and override built-in types.
@@ -32,7 +33,8 @@ final class CustomTypes
         // Override built-in boolean to produce BOOLEAN (TINYINT(1))
         Type::overrideType(Types::BOOLEAN, BooleanType::class);
 
-        // Add timestamp as a new type
+        // Add custom types
         Type::addType(self::TIMESTAMP, TimestampType::class);
+        Type::addType(self::TINYINT, TinyintType::class);
     }
 }

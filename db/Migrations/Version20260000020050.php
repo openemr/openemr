@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -36,7 +37,7 @@ final class Version20260000020050 extends AbstractMigration
         $table->addColumn('valid_for_coding', Types::STRING, ['fixed' => true, 'notnull' => false, 'length' => 1]);
         $table->addColumn('short_desc', Types::STRING, ['notnull' => false, 'length' => 60]);
         $table->addColumn('long_desc', Types::TEXT, ['notnull' => false, 'length' => 65535]);
-        $table->addColumn('active', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('active', CustomTypes::TINYINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('revision', Types::INTEGER, ['notnull' => false, 'default' => 0]);
 
         $this->addPrimaryKey($table, 'pcs_id');

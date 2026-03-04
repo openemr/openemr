@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -36,13 +37,13 @@ final class Version20260000020065 extends AbstractMigration
         $table->addColumn('group_id', Types::STRING, ['length' => 31, 'default' => '']);
         $table->addColumn('title', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('seq', Types::INTEGER, ['default' => 0]);
-        $table->addColumn('data_type', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('data_type', CustomTypes::TINYINT, ['default' => 0]);
         $table->addColumn('uor', Types::BOOLEAN, ['default' => 1]);
         $table->addColumn('fld_length', Types::INTEGER, ['default' => 15]);
         $table->addColumn('max_length', Types::INTEGER, ['default' => 0]);
         $table->addColumn('list_id', Types::STRING, ['length' => 100, 'default' => '']);
-        $table->addColumn('titlecols', Types::SMALLINT, ['default' => 1]);
-        $table->addColumn('datacols', Types::SMALLINT, ['default' => 1]);
+        $table->addColumn('titlecols', CustomTypes::TINYINT, ['default' => 1]);
+        $table->addColumn('datacols', CustomTypes::TINYINT, ['default' => 1]);
         $table->addColumn('default_value', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('edit_options', Types::STRING, ['length' => 36, 'default' => '']);
         $table->addColumn('description', Types::TEXT, ['notnull' => false, 'length' => 65535]);

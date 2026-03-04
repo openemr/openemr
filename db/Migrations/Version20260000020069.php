@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -39,7 +40,7 @@ final class Version20260000020069 extends AbstractMigration
         $table->addColumn('mod_active', Types::INTEGER, ['unsigned' => true, 'default' => 0]);
         $table->addColumn('mod_ui_name', Types::STRING, ['length' => 64, 'default' => '']);
         $table->addColumn('mod_relative_link', Types::STRING, ['length' => 64, 'default' => '']);
-        $table->addColumn('mod_ui_order', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('mod_ui_order', CustomTypes::TINYINT, ['default' => 0]);
         $table->addColumn('mod_ui_active', Types::INTEGER, ['unsigned' => true, 'default' => 0]);
         $table->addColumn('mod_description', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('mod_nick_name', Types::STRING, ['length' => 25, 'default' => '']);
@@ -51,8 +52,8 @@ final class Version20260000020069 extends AbstractMigration
         ]);
         $table->addColumn('directory', Types::STRING, ['length' => 255]);
         $table->addColumn('date', Types::DATETIME_MUTABLE);
-        $table->addColumn('sql_run', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
-        $table->addColumn('type', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('sql_run', CustomTypes::TINYINT, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('type', CustomTypes::TINYINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('sql_version', Types::STRING, ['length' => 150]);
         $table->addColumn('acl_version', Types::STRING, ['length' => 150]);
         $this->addPrimaryKey($table, 'mod_id', 'mod_directory');

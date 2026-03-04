@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -39,7 +40,7 @@ final class Version20260000020085 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('menu_order', Types::SMALLINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('menu_status', Types::SMALLINT, ['notnull' => false, 'default' => 1]);
+        $table->addColumn('menu_status', CustomTypes::TINYINT, ['notnull' => false, 'default' => 1]);
         $this->addPrimaryKey($table, 'patient_portal_menu_id');
 
         $table->addOption('engine', 'INNODB');

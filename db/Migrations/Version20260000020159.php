@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -65,7 +66,7 @@ final class Version20260000020159 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('IMPPLAN_order', Types::SMALLINT, ['notnull' => false, 'default' => null]);
+        $table->addColumn('IMPPLAN_order', CustomTypes::TINYINT, ['notnull' => false, 'default' => null]);
         $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['form_id', 'pid', 'title', 'plan'], 'second_index', ['lengths' => [null, null, null, 20]]);
 

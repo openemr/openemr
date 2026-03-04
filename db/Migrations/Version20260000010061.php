@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -36,15 +37,15 @@ final class Version20260000010061 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('state', Types::SMALLINT, ['notnull' => false, 'default' => null]);
+        $table->addColumn('state', CustomTypes::TINYINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('directory', Types::STRING, [
             'length' => 255,
             'notnull' => false,
             'default' => null,
         ]);
         $table->addColumn('id', Types::BIGINT, ['autoincrement' => true]);
-        $table->addColumn('sql_run', Types::SMALLINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('unpackaged', Types::SMALLINT, ['notnull' => false, 'default' => null]);
+        $table->addColumn('sql_run', CustomTypes::TINYINT, ['notnull' => false, 'default' => null]);
+        $table->addColumn('unpackaged', CustomTypes::TINYINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('priority', Types::INTEGER, ['notnull' => false, 'default' => 0]);
         $table->addColumn('category', Types::STRING, [
@@ -57,8 +58,8 @@ final class Version20260000010061 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('patient_encounter', Types::SMALLINT, ['default' => 1]);
-        $table->addColumn('therapy_group_encounter', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('patient_encounter', CustomTypes::TINYINT, ['default' => 1]);
+        $table->addColumn('therapy_group_encounter', CustomTypes::TINYINT, ['default' => 0]);
         $table->addColumn('aco_spec', Types::STRING, ['length' => 63, 'default' => 'encounters|notes']);
         $table->addColumn('form_foreign_id', Types::BIGINT, [
             'notnull' => false,

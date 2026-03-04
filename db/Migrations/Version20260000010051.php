@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -44,7 +45,7 @@ final class Version20260000010051 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('activity', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $table->addColumn('activity', CustomTypes::TINYINT, ['notnull' => false, 'default' => null]);
         $this->addPrimaryKey($table, 'id');
         $this->createTable($table);
     }

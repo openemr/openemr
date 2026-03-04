@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -111,8 +112,8 @@ final class Version20260000010060 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('erx_source', Types::SMALLINT, ['default' => 0, 'comment' => '0-OpenEMR 1-External']);
-        $table->addColumn('erx_uploaded', Types::SMALLINT, ['default' => 0, 'comment' => '0-Pending NewCrop upload 1-Uploaded to NewCrop']);
+        $table->addColumn('erx_source', CustomTypes::TINYINT, ['default' => 0, 'comment' => '0-OpenEMR 1-External']);
+        $table->addColumn('erx_uploaded', CustomTypes::TINYINT, ['default' => 0, 'comment' => '0-Pending NewCrop upload 1-Uploaded to NewCrop']);
         $table->addColumn('drug_info_erx', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('external_id', Types::STRING, [
             'length' => 20,

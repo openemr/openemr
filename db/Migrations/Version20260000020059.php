@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -36,9 +37,9 @@ final class Version20260000020059 extends AbstractMigration
         $table->addColumn('total_ip_login_fail_counter', Types::BIGINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('ip_login_fail_counter', Types::BIGINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('ip_last_login_fail', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('ip_auto_block_emailed', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
-        $table->addColumn('ip_force_block', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
-        $table->addColumn('ip_no_prevent_timing_attack', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('ip_auto_block_emailed', CustomTypes::TINYINT, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('ip_force_block', CustomTypes::TINYINT, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('ip_no_prevent_timing_attack', CustomTypes::TINYINT, ['notnull' => false, 'default' => 0]);
         $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['ip_string'], 'ip_string');
         $table->addOption('engine', 'InnoDb');

@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -54,7 +55,7 @@ final class Version20260000020146 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('user_id', Types::INTEGER, ['notnull' => false, 'default' => null]);
-        $table->addColumn('deleted', Types::BOOLEAN, ['default' => 0]);
+        $table->addColumn('deleted', CustomTypes::TINYINT, ['default' => 0]);
         $table->addColumn('timestamp', 'datetime', ['columnDefinition' => 'TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP']);
         $this->addPrimaryKey($table, 'id');
         $this->createTable($table);

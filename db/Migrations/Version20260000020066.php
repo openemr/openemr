@@ -43,7 +43,7 @@ final class Version20260000020066 extends AbstractMigration
         $table->addColumn('codes', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('toggle_setting_1', Types::BOOLEAN, ['default' => 0]);
         $table->addColumn('toggle_setting_2', Types::BOOLEAN, ['default' => 0]);
-        $table->addColumn('activity', Types::BOOLEAN, ['default' => 1]);
+        $table->addColumn('activity', CustomTypes::TINYINT, ['default' => 1]);
         $table->addColumn('subtype', Types::STRING, ['length' => 31, 'default' => '']);
         $table->addColumn('edit_options', Types::BOOLEAN, ['default' => 1]);
         $table->addColumn('timestamp', CustomTypes::TIMESTAMP, ['default' => 'CURRENT_TIMESTAMP']);

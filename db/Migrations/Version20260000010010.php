@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -65,7 +66,7 @@ final class Version20260000010010 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('pos_code', Types::SMALLINT, ['notnull' => false, 'default' => null]);
+        $table->addColumn('pos_code', CustomTypes::TINYINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('parent_encounter_id', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('class_code', Types::STRING, ['length' => 10, 'default' => 'AMB']);
         $table->addColumn('shift', Types::STRING, ['length' => 31, 'default' => '']);

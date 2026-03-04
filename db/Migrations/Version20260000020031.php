@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -66,7 +67,7 @@ final class Version20260000020031 extends AbstractMigration
             'default' => '',
             'comment' => 'references drug_templates.selector',
         ]);
-        $table->addColumn('trans_type', Types::SMALLINT, ['default' => 1, 'comment' => '1=sale, 2=purchase, 3=return, 4=transfer, 5=adjustment']);
+        $table->addColumn('trans_type', CustomTypes::TINYINT, ['default' => 1, 'comment' => '1=sale, 2=purchase, 3=return, 4=transfer, 5=adjustment']);
         $table->addColumn('chargecat', Types::STRING, ['notnull' => false, 'length' => 31, 'default' => '']);
         $table->addColumn('pharmacy_supply_type', Types::STRING, [
             'length' => 50,

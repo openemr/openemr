@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -35,8 +36,8 @@ final class Version20260000020165 extends AbstractMigration
         $table->addColumn('group_name', Types::STRING, ['length' => 255]);
         $table->addColumn('group_start_date', Types::DATE_MUTABLE);
         $table->addColumn('group_end_date', Types::DATE_MUTABLE, ['notnull' => false]);
-        $table->addColumn('group_type', Types::SMALLINT);
-        $table->addColumn('group_participation', Types::SMALLINT);
+        $table->addColumn('group_type', CustomTypes::TINYINT);
+        $table->addColumn('group_participation', CustomTypes::TINYINT);
         $table->addColumn('group_status', Types::INTEGER);
         $table->addColumn('group_notes', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('group_guest_counselors', Types::STRING, ['notnull' => false, 'length' => 255]);

@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -37,9 +38,9 @@ final class Version20260000020036 extends AbstractMigration
         $table->addColumn('subject', Types::STRING, ['notnull' => false, 'length' => 255, 'default' => '']);
         $table->addColumn('body', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('datetime_queued', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('sent', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('sent', CustomTypes::TINYINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('datetime_sent', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('error', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('error', CustomTypes::TINYINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('error_message', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('datetime_error', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('template_name', Types::STRING, [

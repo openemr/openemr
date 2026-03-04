@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -33,14 +34,14 @@ final class Version20260000020056 extends AbstractMigration
         $table = new Table('icd10_reimbr_pcs_9_10');
         $table->addColumn('map_id', Types::BIGINT, ['unsigned' => true, 'autoincrement' => true]);
         $table->addColumn('code', Types::STRING, ['notnull' => false, 'length' => 8]);
-        $table->addColumn('code_cnt', Types::SMALLINT, ['notnull' => false]);
+        $table->addColumn('code_cnt', CustomTypes::TINYINT, ['notnull' => false]);
         $table->addColumn('ICD9_01', Types::STRING, ['notnull' => false, 'length' => 5]);
         $table->addColumn('ICD9_02', Types::STRING, ['notnull' => false, 'length' => 5]);
         $table->addColumn('ICD9_03', Types::STRING, ['notnull' => false, 'length' => 5]);
         $table->addColumn('ICD9_04', Types::STRING, ['notnull' => false, 'length' => 5]);
         $table->addColumn('ICD9_05', Types::STRING, ['notnull' => false, 'length' => 5]);
         $table->addColumn('ICD9_06', Types::STRING, ['notnull' => false, 'length' => 5]);
-        $table->addColumn('active', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('active', CustomTypes::TINYINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('revision', Types::INTEGER, ['notnull' => false, 'default' => 0]);
 
         $this->addPrimaryKey($table, 'map_id');

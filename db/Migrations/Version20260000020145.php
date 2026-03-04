@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -55,10 +56,10 @@ final class Version20260000020145 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('view', Types::BOOLEAN, ['default' => 0]);
-        $table->addColumn('transfer', Types::BOOLEAN, ['default' => 0]);
-        $table->addColumn('emr_transfer', Types::BOOLEAN, ['default' => 0]);
-        $table->addColumn('encrypted', Types::BOOLEAN, ['default' => 0, 'comment' => '0->No,1->Yes']);
+        $table->addColumn('view', CustomTypes::TINYINT, ['default' => 0]);
+        $table->addColumn('transfer', CustomTypes::TINYINT, ['default' => 0]);
+        $table->addColumn('emr_transfer', CustomTypes::TINYINT, ['default' => 0]);
+        $table->addColumn('encrypted', CustomTypes::TINYINT, ['default' => 0, 'comment' => '0->No,1->Yes']);
         $table->addColumn('transaction_id', Types::BIGINT, ['notnull' => false, 'comment' => 'fk to transaction referral record']);
         $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['uuid'], 'uuid');

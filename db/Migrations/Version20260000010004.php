@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -57,7 +58,7 @@ final class Version20260000010004 extends AbstractMigration
         $table->addColumn('billed', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
         $table->addColumn('activity', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
         $table->addColumn('payer_id', Types::INTEGER, ['notnull' => false, 'default' => null]);
-        $table->addColumn('bill_process', Types::SMALLINT, ['default' => 0]);
+        $table->addColumn('bill_process', CustomTypes::TINYINT, ['default' => 0]);
         $table->addColumn('bill_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('process_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('process_file', Types::STRING, [

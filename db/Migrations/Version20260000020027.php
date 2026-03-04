@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -66,7 +67,7 @@ final class Version20260000020027 extends AbstractMigration
         $table->addColumn('dld_content', Types::STRING, ['length' => 50, 'comment' => 'Layout sign position']);
         $table->addColumn('dld_file_for_pdf_generation', Types::BLOB, ['length' => 65535, 'comment' => 'The filled details in the fdf file is stored here.Patient Registration Screen']);
         $table->addColumn('dld_denial_reason', Types::TEXT, ['notnull' => false]);
-        $table->addColumn('dld_moved', Types::BOOLEAN, ['default' => 0]);
+        $table->addColumn('dld_moved', CustomTypes::TINYINT, ['default' => 0]);
         $table->addColumn('dld_patient_comments', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'Patient comments stored here']);
         $this->addPrimaryKey($table, 'dld_id');
         $this->createTable($table);

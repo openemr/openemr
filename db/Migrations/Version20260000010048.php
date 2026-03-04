@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -38,7 +39,7 @@ final class Version20260000010048 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('lang_is_rtl', Types::BOOLEAN, ['notnull' => false, 'default' => 0, 'comment' => 'Set this to 1 for RTL languages Arabic, Farsi, Hebrew, Urdu etc.']);
+        $table->addColumn('lang_is_rtl', CustomTypes::TINYINT, ['notnull' => false, 'default' => 0, 'comment' => 'Set this to 1 for RTL languages Arabic, Farsi, Hebrew, Urdu etc.']);
 
         $table->addUniqueIndex(['lang_id'], 'lang_id');
 

@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -45,8 +46,8 @@ final class Version20260000010059 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('activity', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
-        $table->addColumn('authorized', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
+        $table->addColumn('activity', CustomTypes::TINYINT, ['notnull' => false, 'default' => null]);
+        $table->addColumn('authorized', CustomTypes::TINYINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('title', Types::STRING, [
             'length' => 255,
             'notnull' => false,
@@ -57,10 +58,10 @@ final class Version20260000010059 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('deleted', Types::BOOLEAN, ['notnull' => false, 'default' => 0, 'comment' => 'flag indicates note is deleted']);
+        $table->addColumn('deleted', CustomTypes::TINYINT, ['notnull' => false, 'default' => 0, 'comment' => 'flag indicates note is deleted']);
         $table->addColumn('message_status', Types::STRING, ['length' => 20, 'default' => 'New']);
         $table->addColumn('portal_relation', Types::STRING, ['length' => 100, 'notnull' => false]);
-        $table->addColumn('is_msg_encrypted', Types::SMALLINT, ['notnull' => false, 'default' => 0, 'comment' => 'Whether messsage encrypted 0-Not encrypted, 1-Encrypted']);
+        $table->addColumn('is_msg_encrypted', CustomTypes::TINYINT, ['notnull' => false, 'default' => 0, 'comment' => 'Whether messsage encrypted 0-Not encrypted, 1-Encrypted']);
         $table->addColumn('update_by', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('update_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $this->addPrimaryKey($table, 'id');

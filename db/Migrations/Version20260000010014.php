@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -44,8 +45,8 @@ final class Version20260000010014 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('authorized', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
-        $table->addColumn('activity', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('authorized', CustomTypes::TINYINT, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('activity', CustomTypes::TINYINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('subjective', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('objective', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('assessment', Types::TEXT, ['notnull' => false, 'length' => 65535]);

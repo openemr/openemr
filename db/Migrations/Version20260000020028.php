@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -73,7 +74,7 @@ final class Version20260000020028 extends AbstractMigration
             'default' => null,
             'comment' => '0-Yes 1-No',
         ]);
-        $table->addColumn('dlm_upload_type', Types::BOOLEAN, ['notnull' => false, 'default' => 0, 'comment' => '0-Provider Uploaded,1-Patient Uploaded']);
+        $table->addColumn('dlm_upload_type', CustomTypes::TINYINT, ['notnull' => false, 'default' => 0, 'comment' => '0-Provider Uploaded,1-Patient Uploaded']);
         $this->addPrimaryKey($table, 'dlm_document_id');
         $this->createTable($table);
     }

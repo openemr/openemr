@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -49,7 +50,7 @@ final class Version20260000020104 extends AbstractMigration
         $table->addColumn('total_login_fail_counter', Types::BIGINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('login_fail_counter', Types::INTEGER, ['notnull' => false, 'default' => 0]);
         $table->addColumn('last_login_fail', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
-        $table->addColumn('auto_block_emailed', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('auto_block_emailed', CustomTypes::TINYINT, ['notnull' => false, 'default' => 0]);
         $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['id', 'username'], 'USERNAME_ID');
         $table->addOption('engine', 'InnoDb');

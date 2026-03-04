@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -43,7 +44,7 @@ final class Version20260000020143 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('ccda_sections_req_mapping', Types::SMALLINT, ['default' => 1]);
+        $table->addColumn('ccda_sections_req_mapping', CustomTypes::TINYINT, ['default' => 1]);
         $this->addPrimaryKey($table, 'ccda_sections_id');
         $this->createTable($table);
     }

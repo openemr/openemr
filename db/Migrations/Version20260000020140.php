@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -39,7 +40,7 @@ final class Version20260000020140 extends AbstractMigration
         ]);
         $table->addColumn('checksum', Types::TEXT, ['notnull' => false]);
         $table->addColumn('checksum_api', Types::TEXT, ['notnull' => false]);
-        $table->addColumn('version', Types::SMALLINT, ['default' => 0, 'comment' => '0 for mycrypt and 1 for openssl']);
+        $table->addColumn('version', CustomTypes::TINYINT, ['default' => 0, 'comment' => '0 for mycrypt and 1 for openssl']);
         $this->addPrimaryKey($table, 'id');
         $this->createTable($table);
     }

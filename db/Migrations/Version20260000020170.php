@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -36,9 +37,9 @@ final class Version20260000020170 extends AbstractMigration
         $table->addColumn('group_id', Types::INTEGER, ['notnull' => false]);
         $table->addColumn('user', Types::STRING, ['notnull' => false, 'length' => 255]);
         $table->addColumn('groupname', Types::STRING, ['notnull' => false, 'length' => 255]);
-        $table->addColumn('authorized', Types::BOOLEAN, ['notnull' => false]);
+        $table->addColumn('authorized', CustomTypes::TINYINT, ['notnull' => false]);
         $table->addColumn('encounter_id', Types::INTEGER, ['notnull' => false]);
-        $table->addColumn('activity', Types::BOOLEAN, ['notnull' => false]);
+        $table->addColumn('activity', CustomTypes::TINYINT, ['notnull' => false]);
         $this->addPrimaryKey($table, 'id');
         $this->createTable($table);
     }

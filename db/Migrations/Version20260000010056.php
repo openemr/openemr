@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -144,7 +145,7 @@ final class Version20260000010056 extends AbstractMigration
         $table->addColumn('allow_patient_portal', Types::STRING, ['length' => 31, 'default' => '']);
         $table->addColumn('deceased_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('deceased_reason', Types::STRING, ['length' => 255, 'default' => '']);
-        $table->addColumn('soap_import_status', Types::SMALLINT, [
+        $table->addColumn('soap_import_status', CustomTypes::TINYINT, [
             'notnull' => false,
             'default' => null,
             'comment' => '1-Prescription Press 2-Prescription Import 3-Allergy Press 4-Allergy Import',

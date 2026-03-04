@@ -80,7 +80,7 @@ final class Version20260000020174 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('combine_time', Types::SMALLINT, ['notnull' => false, 'default' => null]);
+        $table->addColumn('combine_time', CustomTypes::TINYINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('postcard_top', Types::STRING, [
             'length' => 255,
             'notnull' => false,

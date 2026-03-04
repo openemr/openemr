@@ -13,6 +13,7 @@ namespace OpenEMR\Core\Migrations;
 use Doctrine\DBAL\Schema\Schema;
 use Doctrine\DBAL\Schema\Table;
 use Doctrine\DBAL\Types\Types;
+use OpenEMR\Core\Database\Types\CustomTypes;
 use Doctrine\Migrations\AbstractMigration;
 use OpenEMR\Core\Migrations\CreateTableTrait;
 
@@ -38,7 +39,7 @@ final class Version20260000020102 extends AbstractMigration
             'default' => null,
         ]);
         $table->addColumn('pid', Types::BIGINT);
-        $table->addColumn('success', Types::BOOLEAN, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('success', CustomTypes::TINYINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('action_name', Types::STRING, [
             'length' => 50,
             'notnull' => false,
@@ -71,7 +72,7 @@ final class Version20260000020102 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('reverted', Types::SMALLINT, ['notnull' => false, 'default' => 0]);
+        $table->addColumn('reverted', CustomTypes::TINYINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('revert_action_name', Types::STRING, [
             'length' => 50,
             'notnull' => false,
