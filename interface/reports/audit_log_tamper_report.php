@@ -279,7 +279,7 @@ $check_sum = isset($_GET['check_sum']);
             $encryptVersion = !empty($iter['version']) ? $iter['version'] : 0;
 
             if ($commentEncrStatus == "Yes") {
-                if ($encryptVersion == 0) {
+                if ($encryptVersion === 0) {
                     // The old mcrypt method is no longer supported
                     $trans_comments = xl("Unable to decrypt these comments since the PHP mycrypt module is no longer available.");
                 } else {

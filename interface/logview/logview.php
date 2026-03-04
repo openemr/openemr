@@ -324,7 +324,7 @@ if (!empty($_GET)) {
 
                                                 // Decrypt comment data if encrypted
                                                 if ($commentEncrStatus == "Yes") {
-                                                    if ($encryptVersion == 0) {
+                                                    if ($encryptVersion === 0) {
                                                         // The old mcrypt method is no longer supported
                                                         $trans_comments = xl("Unable to decrypt these comments since the PHP mycrypt module is no longer available.");
                                                     } else {
