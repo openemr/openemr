@@ -36,9 +36,9 @@ final class Version20260000020012 extends AbstractMigration
         $table->addColumn('encounter_id', Types::INTEGER);
         $table->addColumn('version', Types::INTEGER, ['unsigned' => true, 'comment' => 'Claim version, incremented in code']);
         $table->addColumn('payer_id', Types::INTEGER, ['default' => 0]);
-        $table->addColumn('status', CustomTypes::TINYINT, ['default' => 0]);
+        $table->addColumn('status', CustomTypes::TINYINT, ['length' => 2, 'default' => 0]);
         $table->addColumn('payer_type', CustomTypes::TINYINT, ['default' => 0]);
-        $table->addColumn('bill_process', CustomTypes::TINYINT, ['default' => 0]);
+        $table->addColumn('bill_process', CustomTypes::TINYINT, ['length' => 2, 'default' => 0]);
         $table->addColumn('bill_time', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('process_time', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('process_file', Types::STRING, [

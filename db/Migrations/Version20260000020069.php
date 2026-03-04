@@ -40,7 +40,7 @@ final class Version20260000020069 extends AbstractMigration
         $table->addColumn('mod_active', Types::INTEGER, ['unsigned' => true, 'default' => 0]);
         $table->addColumn('mod_ui_name', Types::STRING, ['length' => 64, 'default' => '']);
         $table->addColumn('mod_relative_link', Types::STRING, ['length' => 64, 'default' => '']);
-        $table->addColumn('mod_ui_order', CustomTypes::TINYINT, ['default' => 0]);
+        $table->addColumn('mod_ui_order', CustomTypes::TINYINT, ['length' => 3, 'default' => 0]);
         $table->addColumn('mod_ui_active', Types::INTEGER, ['unsigned' => true, 'default' => 0]);
         $table->addColumn('mod_description', Types::STRING, ['length' => 255, 'default' => '']);
         $table->addColumn('mod_nick_name', Types::STRING, ['length' => 25, 'default' => '']);

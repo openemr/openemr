@@ -80,7 +80,7 @@ final class Version20260000020187 extends AbstractMigration
         $table->addColumn('tos_uri', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('is_enabled', Types::BOOLEAN, ['default' => 0]);
         $table->addColumn('skip_ehr_launch_authorization_flow', Types::BOOLEAN, ['default' => 0]);
-        $table->addColumn('dsi_type', CustomTypes::TINYINT, [
+        $table->addColumn('dsi_type', CustomTypes::TINYINT, ['length' => 3, 
             'unsigned' => true,
             'default' => 1,
             'comment' => '0=none, 1=evidence-based,2=predictive',

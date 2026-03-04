@@ -58,7 +58,7 @@ final class Version20260000010004 extends AbstractMigration
         $table->addColumn('billed', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
         $table->addColumn('activity', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
         $table->addColumn('payer_id', Types::INTEGER, ['notnull' => false, 'default' => null]);
-        $table->addColumn('bill_process', CustomTypes::TINYINT, ['default' => 0]);
+        $table->addColumn('bill_process', CustomTypes::TINYINT, ['length' => 2, 'default' => 0]);
         $table->addColumn('bill_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('process_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('process_file', Types::STRING, [

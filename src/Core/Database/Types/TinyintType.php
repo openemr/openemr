@@ -20,7 +20,8 @@ class TinyintType extends SmallIntType
 {
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
-        $sql = 'TINYINT';
+        $length = $column['length'] ?? 4;
+        $sql = "TINYINT($length)";
         if (!empty($column['unsigned'])) {
             $sql .= ' UNSIGNED';
         }

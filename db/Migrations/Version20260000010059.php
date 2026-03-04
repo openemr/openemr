@@ -61,7 +61,7 @@ final class Version20260000010059 extends AbstractMigration
         $table->addColumn('deleted', CustomTypes::TINYINT, ['notnull' => false, 'default' => 0, 'comment' => 'flag indicates note is deleted']);
         $table->addColumn('message_status', Types::STRING, ['length' => 20, 'default' => 'New']);
         $table->addColumn('portal_relation', Types::STRING, ['length' => 100, 'notnull' => false]);
-        $table->addColumn('is_msg_encrypted', CustomTypes::TINYINT, ['notnull' => false, 'default' => 0, 'comment' => 'Whether messsage encrypted 0-Not encrypted, 1-Encrypted']);
+        $table->addColumn('is_msg_encrypted', CustomTypes::TINYINT, ['length' => 2, 'notnull' => false, 'default' => 0, 'comment' => 'Whether messsage encrypted 0-Not encrypted, 1-Encrypted']);
         $table->addColumn('update_by', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('update_date', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $this->addPrimaryKey($table, 'id');

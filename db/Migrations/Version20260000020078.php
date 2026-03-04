@@ -97,7 +97,7 @@ final class Version20260000020078 extends AbstractMigration
         $table->addColumn('message_status', Types::STRING, ['length' => 20, 'default' => 'New']);
         $table->addColumn('mail_chain', Types::INTEGER, ['notnull' => false, 'default' => null]);
         $table->addColumn('reply_mail_chain', Types::INTEGER, ['notnull' => false, 'default' => null]);
-        $table->addColumn('is_msg_encrypted', CustomTypes::TINYINT, ['notnull' => false, 'default' => 0, 'comment' => 'Whether messsage encrypted 0-Not encrypted, 1-Encrypted']);
+        $table->addColumn('is_msg_encrypted', CustomTypes::TINYINT, ['length' => 2, 'notnull' => false, 'default' => 0, 'comment' => 'Whether messsage encrypted 0-Not encrypted, 1-Encrypted']);
         $this->addPrimaryKey($table, 'id');
         $table->addIndex(['owner'], 'pid');
 
