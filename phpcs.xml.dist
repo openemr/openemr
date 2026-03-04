@@ -40,17 +40,17 @@
   -->
 
   <!-- Use statement rules -->
+  <rule ref="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses" />
+  <rule ref="SlevomatCodingStandard.Namespaces.UselessAlias" />
   <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses">
     <properties>
       <property name="searchAnnotations" value="true" />
     </properties>
   </rule>
   <!-- To add later
-  <rule ref="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses" />
   <rule ref="SlevomatCodingStandard.Namespaces.MultipleUsesPerLine" />
   <rule ref="SlevomatCodingStandard.Namespaces.UseDoesNotStartWithBackslash" />
   <rule ref="SlevomatCodingStandard.Namespaces.UseFromSameNamespace" />
-  <rule ref="SlevomatCodingStandard.Namespaces.UselessAlias" />
   -->
 
   <!-- Default scan target (overridden when paths passed on CLI) -->
