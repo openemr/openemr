@@ -7,7 +7,10 @@ namespace OpenEMR\Entities;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping;
-use Ramsey\Uuid\UuidInterface;
+use Ramsey\Uuid\{
+    Uuid,
+    UuidInterface,
+};
 
 #[Mapping\Entity]
 #[Mapping\Table(name: 'facility')]
@@ -134,4 +137,11 @@ class Facility
 
     #[Mapping\Column(length: 50, options: ['default' => 'prov', 'comment' => 'Organization type as defined by HL7 Value Set: OrganizationType'])]
     public string $organizationType = 'prov';
+
+    public function __construct()
+    {
+        $this->uuid = Uuid::uuid4();
+        $this->dateCreated = new DateTimeImmutable();
+        $this->lastUpdated = new DateTimeImmutable();
+    }
 }
