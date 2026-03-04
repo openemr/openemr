@@ -13,14 +13,11 @@
 
 namespace OpenEMR\Modules\EhiExporter;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 
 class GlobalConfig
 {
-    /**
-     * @var CryptoGen
-     */
-    private $cryptoGen;
+    private CryptoInterface $cryptoGen;
 
     public function __construct(private array $globalsArray)
     {

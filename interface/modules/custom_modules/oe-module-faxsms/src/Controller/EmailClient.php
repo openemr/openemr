@@ -15,7 +15,7 @@
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use MyMailer;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Modules\FaxSMS\Exception\EmailSendFailedException;
 use OpenEMR\Modules\FaxSMS\Exception\InvalidEmailAddressException;
 use OpenEMR\Modules\FaxSMS\Exception\SmtpNotConfiguredException;
@@ -29,7 +29,7 @@ class EmailClient extends AppDispatch
     public $serverUrl;
     public $credentials;
     public string $portalUrl;
-    protected CryptoGen $crypto;
+    protected CryptoInterface $crypto;
     private readonly bool $smtpEnabled;
 
     public function __construct()

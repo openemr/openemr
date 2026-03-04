@@ -12,7 +12,7 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Utils\ValidationUtils;
@@ -65,10 +65,7 @@ class TelehealthGlobalConfig
     const LOCALE_TIMEZONE_DEFAULT = "Unassigned";
     const LOCALE_TIMEZONE = "gbl_time_zone";
 
-    /**
-     * @var CryptoGen
-     */
-    private $cryptoGen;
+    private CryptoInterface $cryptoGen;
 
     /**
      * @var publicWebPath

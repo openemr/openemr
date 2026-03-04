@@ -13,7 +13,7 @@
 namespace OpenEMR\Modules\WenoModule\Services;
 
 use Exception;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 class LogProperties
@@ -46,10 +46,7 @@ class LogProperties
      * @var false|string
      */
     private $weno_admin_password;
-    /**
-     * @var CryptoGen
-     */
-    private $cryptoGen;
+    private CryptoInterface $cryptoGen;
     /**
      * @var string
      */

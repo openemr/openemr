@@ -13,7 +13,7 @@
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use DateTime;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use RuntimeException;
 use Twilio\Rest\Client;
 
@@ -23,7 +23,7 @@ class TwilioSMSClient extends AppDispatch
     public $uriDir;
     public $serverUrl;
     public $credentials;
-    protected CryptoGen $crypto;
+    protected CryptoInterface $crypto;
     private $sid;
     private $appKey;
     private $appSecret;

@@ -16,7 +16,7 @@ namespace OpenEMR\PaymentProcessing\Sphere;
 use Exception;
 use GuzzleHttp\Client;
 use OpenEMR\Common\Auth\AuthGlobal;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 
@@ -52,10 +52,7 @@ class SphereRevert
      */
     private $returnUrl;
 
-    /**
-     * @var CryptoGen
-     */
-    private $cryptoGen;
+    private CryptoInterface $cryptoGen;
 
     /**
      * @var SystemLogger

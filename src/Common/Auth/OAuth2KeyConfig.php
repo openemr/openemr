@@ -16,7 +16,7 @@
 
 namespace OpenEMR\Common\Auth;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
@@ -42,7 +42,7 @@ class OAuth2KeyConfig
      */
     private $publicKey;
 
-    private readonly CryptoGen $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
 
     private readonly OAuth2KeyMissing $oauth2KeyMissing;
 

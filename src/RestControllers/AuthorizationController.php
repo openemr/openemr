@@ -49,7 +49,7 @@ use OpenEMR\RestControllers\SMART\ScopePermissionParser;
 use OpenEMR\Services\JWTClientAuthenticationService;
 use OpenEMR\Common\Auth\OpenIDConnect\SMARTSessionTokenContextBuilder;
 use OpenEMR\Common\Auth\UuidUserAccount;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
@@ -114,7 +114,7 @@ class AuthorizationController
     private string $oaEncryptionKey;
     private string $grantType;
     private string $authRequestSerial;
-    private CryptoGen $cryptoGen;
+    private CryptoInterface $cryptoGen;
     private int|string|null $userId = null;
 
     /**

@@ -14,7 +14,7 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Utils\HttpUtils;
@@ -23,26 +23,22 @@ class ClientRepository implements ClientRepositoryInterface
 {
     use SystemLoggerAwareTrait;
 
-    private $cryptoGen;
+    private CryptoInterface $cryptoGen;
 
     public function __construct()
     {
         $this->cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
     }
 
-    /**
-     * @return CryptoGen
-     */
-    public function getCryptoGen(): CryptoGen
+    public function getCryptoGen(): CryptoInterface
     {
         return $this->cryptoGen;
     }
 
     /**
-     * @param CryptoGen $cryptoGen
      * @return ClientRepository
      */
-    public function setCryptoGen(CryptoGen $cryptoGen): ClientRepository
+    public function setCryptoGen(CryptoInterface $cryptoGen): ClientRepository
     {
         $this->cryptoGen = $cryptoGen;
         return $this;

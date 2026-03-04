@@ -2,7 +2,7 @@
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 
 class VoiceClient extends AppDispatch
@@ -20,7 +20,7 @@ class VoiceClient extends AppDispatch
     public $apiBase;
     protected $platform;
     protected $rcsdk;
-    protected CryptoGen $crypto;
+    protected CryptoInterface $crypto;
     private VoiceClient $client;
     public function __construct()
     {

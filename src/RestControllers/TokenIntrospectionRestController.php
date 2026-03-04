@@ -23,7 +23,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
@@ -51,7 +51,7 @@ class TokenIntrospectionRestController {
 
     protected ?JsonWebKeyParser $jsonWebKeyParser = null;
 
-    protected ?CryptoGen $cryptoGen = null;
+    protected ?CryptoInterface $cryptoGen = null;
 
     protected ?TrustedUserService $trustedUserService = null;
 
@@ -167,14 +167,14 @@ class TokenIntrospectionRestController {
         $this->trustedUserService = $trustedUserService;
     }
 
-    public function getCryptoGen(): CryptoGen {
+    public function getCryptoGen(): CryptoInterface {
         if (!isset($this->cryptoGen)) {
             $this->cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
         }
         return $this->cryptoGen;
     }
 
-    public function setCryptoGen(CryptoGen $cryptoGen): void {
+    public function setCryptoGen(CryptoInterface $cryptoGen): void {
         $this->cryptoGen = $cryptoGen;
     }
 

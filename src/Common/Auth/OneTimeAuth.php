@@ -17,7 +17,7 @@ use DateInterval;
 use DateTime;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -31,7 +31,7 @@ use RuntimeException;
 
 class OneTimeAuth
 {
-    private readonly CryptoGen $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
     private readonly SystemLogger $systemLogger;
     private readonly SessionWrapperInterface $session;
     private readonly OEGlobalsBag $globalsBag;

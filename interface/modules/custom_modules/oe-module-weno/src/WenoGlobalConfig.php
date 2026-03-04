@@ -14,7 +14,7 @@
 
 namespace OpenEMR\Modules\WenoModule;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\Globals\GlobalSetting;
 
 class WenoGlobalConfig
@@ -32,10 +32,7 @@ class WenoGlobalConfig
 
     const GLOBAL_SECTION_NAME = 'Weno';
 
-    /**
-     * @var CryptoGen
-     */
-    private $cryptoGen;
+    private CryptoInterface $cryptoGen;
 
     public function __construct()
     {

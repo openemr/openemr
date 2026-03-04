@@ -13,7 +13,7 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 use Document;
 use Exception;
 use MyMailer;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Utils\FileUtils;
 use OpenEMR\Modules\FaxSMS\RCVoice\VoiceFunctionsTrait;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
@@ -35,7 +35,7 @@ class RCFaxClient extends AppDispatch
     public $apiService;
     protected $platform;
     protected $rcsdk;
-    protected CryptoGen $crypto;
+    protected CryptoInterface $crypto;
 
     private const AUTH_RATE_LIMIT = 5; // Max attempts per minute
 

@@ -14,7 +14,7 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use MyMailer;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
@@ -33,7 +33,7 @@ abstract class AppDispatch
     static mixed $_apiModule;
     public string $authErrorDefault;
     public static $timeZone;
-    protected CryptoGen $crypto;
+    protected CryptoInterface $crypto;
     protected $_currentAction;
     protected $credentials;
     private $_request, $_response, $_query, $_post, $_server, $_cookies, $_session;
