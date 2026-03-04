@@ -168,4 +168,17 @@ class FrequencyTest extends TestCase
         $this->assertStringContainsString("value='24'", $result);
         $this->assertStringNotContainsString('institutionSpecified', $result);
     }
+
+    public function testMedicationFrequencyHandlesNonStringCode(): void
+    {
+        $context = $this->createMock(Mustache_Context::class);
+        $context->method('find')
+            ->with('code')
+            ->willReturn(null);
+        $result = $this->host->medication_frequency($context);
+
+        // Falls back to default (every 24h)
+        $this->assertStringContainsString("value='24'", $result);
+        $this->assertStringNotContainsString('institutionSpecified', $result);
+    }
 }
