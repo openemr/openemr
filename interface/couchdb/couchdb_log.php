@@ -12,6 +12,7 @@
 
 require_once("../globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 
 $filename = $GLOBALS['OE_SITE_DIR'] . '/documents/couchdb/log.txt';
 

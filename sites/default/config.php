@@ -1,5 +1,6 @@
 <?php
 
+use OpenEMR\BC\ServiceContainer;
 
 // globals that require more security
 //  The set of globals below can only be modified directly in this script (ie. can not be set while using OpenEMR) and
