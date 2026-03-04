@@ -7,8 +7,6 @@ namespace OpenEMR\Entities;
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping;
-use OpenEMR\Entities\Attributes\CreatedAt;
-use OpenEMR\Entities\Attributes\UpdatedAt;
 use Ramsey\Uuid\{
     Uuid,
     UuidInterface,
@@ -132,11 +130,11 @@ class Facility
     public bool $inactive = false;
 
     #[Mapping\Column(name: 'date_created', options: ['default' => 'CURRENT_TIMESTAMP'])]
-    #[CreatedAt]
+    #[Attributes\CreatedAt]
     public DateTimeImmutable $createdAt;
 
     #[Mapping\Column(name: 'last_updated')]
-    #[UpdatedAt]
+    #[Attributes\UpdatedAt]
     public DateTimeImmutable $updatedAt;
 
     #[Mapping\Column(length: 50, options: ['default' => 'prov', 'comment' => 'Organization type as defined by HL7 Value Set: OrganizationType'])]
