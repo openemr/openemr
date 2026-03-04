@@ -50,11 +50,9 @@ switch ($search_any_type) {
         <div class="flex-fill">
             <div class="float-left mx-2">
                 <!-- ko if: patient -->
-                <div data-bind="with: patient" class="patientPicture">
-                    <img data-bind="attr: {src: patient_picture}"
+                <div data-bind="with: patient" class="patientPicture" style="cursor: pointer;" title="<?php echo xla('Click to view or take photo'); ?>">
+                    <img data-bind="attr: {src: patient_picture}, click: $root.handlePatientPictureClick"
                         class="img-thumbnail"
-                        width="75"
-                        height="75"
                         onError="this.src = '<?php echo $GLOBALS['images_static_relative']; ?>/patient-picture-default.png'" />
                 </div>
                 <!-- /ko -->
@@ -246,3 +244,41 @@ switch ($search_any_type) {
         </div>
     </div>
 </script>
+
+<!-- Webcam Capture Modal for Patient Photo -->
+<div class="modal fade" id="webcamModal" tabindex="-1" role="dialog" aria-labelledby="webcamModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="webcamModalLabel"><?php echo xlt('Capture Patient Photo'); ?></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="<?php echo xla('Close'); ?>">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="webcamError" class="alert alert-danger d-none"></div>
+                <div id="webcamContainer">
+                    <video id="webcamVideo" autoplay playsinline class="img-fluid border" style="max-height: 400px; background: #000;"></video>
+                    <canvas id="webcamCanvas" class="d-none"></canvas>
+                </div>
+                <div id="capturedImageContainer" class="d-none">
+                    <img id="capturedImage" src="" class="img-fluid border" style="max-height: 400px;" alt="<?php echo xla('Captured Photo'); ?>" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <?php echo xlt('Cancel'); ?>
+                </button>
+                <button type="button" class="btn btn-warning d-none" id="btnRetake">
+                    <i class="fa fa-redo mr-1"></i><?php echo xlt('Retake'); ?>
+                </button>
+                <button type="button" class="btn btn-primary" id="btnCapture">
+                    <i class="fa fa-camera mr-1"></i><?php echo xlt('Capture'); ?>
+                </button>
+                <button type="button" class="btn btn-success d-none" id="btnUsePhoto">
+                    <i class="fa fa-check mr-1"></i><?php echo xlt('Use Photo'); ?>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

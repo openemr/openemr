@@ -15,9 +15,10 @@
 require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ContactAddressService;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\PatientPhotoService;
 use OpenEMR\Events\Patient\PatientBeforeCreatedAuxEvent;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -111,6 +112,12 @@ if (!empty($addressFieldsToSave)) {
  */
 $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new PatientBeforeCreatedAuxEvent($pid, $_POST), PatientBeforeCreatedAuxEvent::EVENT_HANDLE, 10);
 
+// Save patient photo if provided via webcam capture
+$photoBase64 = $_POST['patient_photo_base64'] ?? '';
+if (!empty($photoBase64)) {
+    $photoService = new PatientPhotoService();
+    $photoService->saveFromBase64($pid, $photoBase64);
+}
 
 $i1dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i1subscriber_DOB"));
 $i1date = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date"));

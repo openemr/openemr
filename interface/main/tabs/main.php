@@ -346,6 +346,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
     <script src="js/custom_bindings.js?v=<?php echo $v_js_includes; ?>"></script>
     <script src="js/user_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
     <script src="js/patient_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="<?php echo attr(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot')); ?>/library/js/webcam-capture.js"></script>
     <script src="js/therapy_group_data_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
     <script src="js/tabs_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
     <script src="js/application_view_model.js?v=<?php echo $v_js_includes; ?>"></script>
