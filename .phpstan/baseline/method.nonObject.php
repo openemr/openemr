@@ -11513,7 +11513,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method isValid\\(\\) on mixed\\.$#',
-    'count' => 24,
+    'count' => 18,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Validators/PatientValidatorTest.php',
 ];
 $ignoreErrors[] = [

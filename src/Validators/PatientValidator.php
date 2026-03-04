@@ -60,7 +60,8 @@ class PatientValidator extends BaseValidator
                 // callback functions are not called for optional parameters unless allowEmpty is false
                 $context->optional("email", "Email")
                 ->required(fn($values): bool => array_key_exists('email', $values) && $values['email'] !== '' && $values['email'] !== null)
-                ->callback(function ($value) {
+                ->string()
+                ->callback(function (string $value) {
                     // Validator->email() does not cover unicode characters in the local part so we use
                     // the OpenEMR email validator for this.
                     if (!ValidationUtils::isValidEmail($value)) {
@@ -70,9 +71,10 @@ class PatientValidator extends BaseValidator
                 });
                 $context->optional("email_direct", "Trusted Email")
                 ->required(fn($values): bool => array_key_exists('email_direct', $values) && $values['email_direct'] !== '' && $values['email_direct'] !== null)
-                ->callback(function ($value) {
+                ->string()
+                ->callback(function (string $value) {
                     if (!ValidationUtils::isValidEmail($value)) {
-                        throw new InvalidValueException("Trusted Email " . (string) $value . " is not a valid email", "email_direct");
+                        throw new InvalidValueException("Trusted Email " . $value . " is not a valid email", "email_direct");
                     }
                     return true;
                 });
