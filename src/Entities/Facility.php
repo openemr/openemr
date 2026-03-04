@@ -129,7 +129,7 @@ class Facility
 
     #[Mapping\Column(name: 'date_created', options: ['default' => 'CURRENT_TIMESTAMP'])]
     #[Attributes\CreatedAt]
-    public DateTimeImmutable $createdAt;
+    public readonly DateTimeImmutable $createdAt;
 
     #[Mapping\Column(name: 'last_updated')]
     #[Attributes\UpdatedAt]
@@ -137,5 +137,4 @@ class Facility
 
     #[Mapping\Column(length: 50, options: ['default' => 'prov', 'comment' => 'Organization type as defined by HL7 Value Set: OrganizationType'])]
     public string $organizationType = 'prov';
-
 }
