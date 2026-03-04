@@ -13,11 +13,9 @@
 namespace OpenEMR\Tests\Isolated\Billing;
 
 use OpenEMR\Billing\X125010837I;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(X125010837I::class)]
 #[Group('isolated')]
 class X125010837IDateTest extends TestCase
 {

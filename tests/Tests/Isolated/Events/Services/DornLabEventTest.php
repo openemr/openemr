@@ -13,11 +13,9 @@
 namespace OpenEMR\Tests\Isolated\Events\Services;
 
 use OpenEMR\Events\Services\DornLabEvent;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(DornLabEvent::class)]
 #[Group('isolated')]
 class DornLabEventTest extends TestCase
 {

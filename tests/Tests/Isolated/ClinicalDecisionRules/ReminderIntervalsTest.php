@@ -17,11 +17,9 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\ReminderIntervalRange;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\ReminderIntervals;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\ReminderIntervalType;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\TimeUnit;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(ReminderIntervals::class)]
 #[Group('isolated')]
 class ReminderIntervalsTest extends TestCase
 {

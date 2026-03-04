@@ -13,11 +13,9 @@
 namespace OpenEMR\Tests\Isolated\Events\PatientDocuments;
 
 use OpenEMR\Events\PatientDocuments\PatientDocumentViewCCDAEvent;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(PatientDocumentViewCCDAEvent::class)]
 #[Group('isolated')]
 class PatientDocumentViewCCDAEventTest extends TestCase
 {

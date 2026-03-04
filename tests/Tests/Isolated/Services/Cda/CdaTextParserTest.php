@@ -13,11 +13,9 @@
 namespace OpenEMR\Tests\Isolated\Services\Cda;
 
 use OpenEMR\Services\Cda\CdaTextParser;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(CdaTextParser::class)]
 #[Group('isolated')]
 class CdaTextParserTest extends TestCase
 {

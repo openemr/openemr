@@ -14,7 +14,6 @@ namespace OpenEMR\Tests\Isolated\Services\Qrda\Helpers;
 
 use Mustache_Context;
 use OpenEMR\Services\Qrda\Helpers\Frequency;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
@@ -26,7 +25,6 @@ class FrequencyHost
     use Frequency;
 }
 
-#[CoversClass(Frequency::class)]
 #[Group('isolated')]
 class FrequencyTest extends TestCase
 {

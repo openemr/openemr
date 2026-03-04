@@ -13,7 +13,6 @@
 namespace OpenEMR\Tests\Isolated\Services\Qrda\Helpers;
 
 use OpenEMR\Services\Qrda\Helpers\PopulationSelectors;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
@@ -30,7 +29,6 @@ class PopulationSelectorsHost
     }
 }
 
-#[CoversClass(PopulationSelectors::class)]
 #[Group('isolated')]
 class PopulationSelectorsTest extends TestCase
 {
