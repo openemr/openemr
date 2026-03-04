@@ -12,10 +12,14 @@ declare(strict_types=1);
 
 namespace OpenEMR\BC;
 
-use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\{
+    DriverManager,
+    Types\Type,
+};
 use Doctrine\ORM\{
     EntityManager,
     EntityManagerInterface,
+    Mapping\DefaultTypedFieldMapper,
     Mapping\UnderscoreNamingStrategy,
     ORMSetup,
 };
@@ -34,6 +38,10 @@ use Psr\Http\Message\{
     StreamFactoryInterface,
     UploadedFileFactoryInterface,
     UriFactoryInterface,
+};
+use Ramsey\Uuid\{
+    Doctrine\UuidBinaryType,
+    UuidInterface,
 };
 
 /**
@@ -122,7 +130,11 @@ class ServiceContainer
 
         $config = ORMSetup::createAttributeMetadataConfiguration($paths, $isDevMode);
         $config->setNamingStrategy(new UnderscoreNamingStrategy(case: CASE_LOWER));
-        // Customize TypedFieldMapper when we need it for custom types?
+
+        Type::addType(UuidBinaryType::NAME, UuidBinaryType::class);
+        $config->setTypedFieldMapper(new DefaultTypedFieldMapper([
+            UuidInterface::class => UuidBinaryType::NAME,
+        ]));
 
         $site = $_ENV['OPENEMR_SITE'] ?? 'default';
         $siteDir = sprintf('sites/%s', $site);
