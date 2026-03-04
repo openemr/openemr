@@ -5173,7 +5173,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#',
-    'count' => 42,
+    'count' => 40,
     'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
 ];
 $ignoreErrors[] = [

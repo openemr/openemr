@@ -17,7 +17,8 @@ use Mustache_Context;
 trait Frequency
 {
     // note the ruby makes this a readonly constant... but we can't do that in a trait.
-    protected $FREQUENCY_CODE_MAP = [
+    /** @var array<string, array{low: int, high: ?int, unit: string, institution_specified: bool, code_system: string, code_system_name: string, display_name: string, code_system_version?: string}> */
+    protected $FREQUENCY_CODE_MAP = [ // @phpstan-ignore property.defaultValue (PHPStan can't verify large literal against declared shape)
         '396107007' => [ "low" => 12, "high" => 24, "unit" => 'h', "institution_specified" => true, "code_system" => '2.16.840.1.113883.6.96', "code_system_name" => 'SNOMEDCT', "display_name" => 'One to two times a day (qualifier value)' ],
         '396108002' => [ "low" => 8, "high" => 24, "unit" => 'h', "institution_specified" => true, "code_system" => '2.16.840.1.113883.6.96', "code_system_name" => 'SNOMEDCT', "display_name" => 'One to three times a day (qualifier value)' ],
         '396109005' => [ "low" => 6, "high" => 24, "unit" => 'h', "institution_specified" => true, "code_system" => '2.16.840.1.113883.6.96', "code_system_name" => 'SNOMEDCT', "display_name" => 'One to four times a day (qualifier value)' ],
@@ -43,34 +44,37 @@ trait Frequency
         '396131002' => [ "low" => 48, "high" => null, "unit" => 'h', "institution_specified" => false, "code_system" => '2.16.840.1.113883.6.96', "code_system_name" => 'SNOMEDCT', "code_system_version" => '2018-03', "display_name" => 'Every forty eight hours (qualifier value)' ],
         '396143001' => [ "low" => 72, "high" => null, "unit" => 'h', "institution_specified" => false, "code_system" => '2.16.840.1.113883.6.96', "code_system_name" => 'SNOMEDCT', "code_system_version" => '2018-03', "display_name" => 'Every seventy two hours (qualifier value)' ]
     ];
-    public function medication_frequency(Mustache_Context $context)
+    public function medication_frequency(Mustache_Context $context): string
     {
         // If the code matches one of the known Direct Reference Codes, export that time in hours. Otherwise default to "every twenty four hours" code
         $code = $context->find('code');
-        $frequency_code_entry = $this->FREQUENCY_CODE_MAP[$code] ?? $this->FREQUENCY_CODE_MAP['396125000'];
-        if (!$frequency_code_entry['institution_specified']) {
-            if (empty($frequency_code_entry['high'])) {
-                return $this->institution_not_specified_point_frequency($frequency_code_entry);
-            } else {
-                return $this->institution_not_specified_range_frequency($frequency_code_entry);
-            }
-        } else {
-            if (empty($frequency_code_entry['high'])) {
-                return $this->institution_specified_point_frequency($frequency_code_entry);
-            } else {
-                return $this->institution_specified_range_frequency($frequency_code_entry);
-            }
+        if (!is_string($code)) {
+            $code = '';
         }
+        $default = ['low' => 24, 'high' => null, 'unit' => 'h', 'institution_specified' => false, 'code_system' => '2.16.840.1.113883.6.96', 'code_system_name' => 'SNOMEDCT', 'code_system_version' => '2018-03', 'display_name' => 'Every twenty four hours (qualifier value)'];
+        $frequency_code_entry = $this->FREQUENCY_CODE_MAP[$code] ?? $default;
+        if ($frequency_code_entry['institution_specified']) {
+            if ($frequency_code_entry['high'] === null) {
+                return $this->institution_specified_point_frequency($frequency_code_entry);
+            }
+            return $this->institution_specified_range_frequency($frequency_code_entry);
+        }
+        if ($frequency_code_entry['high'] === null) {
+            return $this->institution_not_specified_point_frequency($frequency_code_entry);
+        }
+        return $this->institution_not_specified_range_frequency($frequency_code_entry);
     }
 
-    public function institution_not_specified_point_frequency($frequency_code_entry)
+    /** @param array{low: int, high: ?int, unit: string, institution_specified: bool, code_system: string, code_system_name: string, display_name: string, code_system_version?: string} $frequency_code_entry */
+    public function institution_not_specified_point_frequency(array $frequency_code_entry): string
     {
         return "<effectiveTime xsi:type='PIVL_TS' operator='A'>"
             . "<period value='" . $frequency_code_entry['low'] . "' unit='" . $frequency_code_entry['unit'] . "'/>"
             . "</effectiveTime>";
     }
 
-    public function institution_not_specified_range_frequency($frequency_code_entry)
+    /** @param array{low: int, high: ?int, unit: string, institution_specified: bool, code_system: string, code_system_name: string, display_name: string, code_system_version?: string} $frequency_code_entry */
+    public function institution_not_specified_range_frequency(array $frequency_code_entry): string
     {
         return "<effectiveTime xsi:type='PIVL_TS' operator='A'>"
             . "<period xsi:type='IVL_PQ'>"
@@ -79,13 +83,17 @@ trait Frequency
             . "</period>"
             . "</effectiveTime>";
     }
-    public function institution_specified_point_frequency($frequency_code_entry)
+
+    /** @param array{low: int, high: ?int, unit: string, institution_specified: bool, code_system: string, code_system_name: string, display_name: string, code_system_version?: string} $frequency_code_entry */
+    public function institution_specified_point_frequency(array $frequency_code_entry): string
     {
         return "<effectiveTime xsi:type='PIVL_TS' institutionSpecified='true' operator='A'>"
             . "<period value='" . $frequency_code_entry['low'] . "' unit='" . $frequency_code_entry['unit'] . "'/>"
             . "</effectiveTime>";
     }
-    public function institution_specified_range_frequency($frequency_code_entry)
+
+    /** @param array{low: int, high: ?int, unit: string, institution_specified: bool, code_system: string, code_system_name: string, display_name: string, code_system_version?: string} $frequency_code_entry */
+    public function institution_specified_range_frequency(array $frequency_code_entry): string
     {
         return "<effectiveTime xsi:type='PIVL_TS' institutionSpecified='true' operator='A'>"
             . "<period xsi:type='IVL_PQ'>"
