@@ -61,5 +61,6 @@
   <exclude-pattern>*/public/assets/*</exclude-pattern>
   <exclude-pattern>*/sites/default/documents/*</exclude-pattern>
   <exclude-pattern>/tmp-phpstan/*</exclude-pattern>
+  <exclude-pattern>/.phpstan/baseline/*</exclude-pattern>
   <exclude-pattern>/vendor/*</exclude-pattern>
 </ruleset>
