@@ -189,7 +189,9 @@ Preserve existing authors/copyrights when editing files.
 
 - Multiple template engines: check extension (.twig, .html, .php)
 - Event system uses Symfony EventDispatcher
-- Pre-commit hooks available via `.pre-commit-config.yaml`
+- **Pre-commit hooks:** Install with `prek install` (or `pre-commit install` if
+  prek is unavailable). Run `prek run --all-files` before committing to catch
+  issues early — the hooks run phpstan, rector, phpcs, codespell, and more.
 - Custom PHPStan rules in `tests/PHPStan/Rules/` enforce project conventions
   (forbidden globals, forbidden direct instantiations, namespace rules, etc.)
 - Commit messages are validated against Conventional Commits format in CI
