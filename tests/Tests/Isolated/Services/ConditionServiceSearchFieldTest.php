@@ -39,14 +39,12 @@ class ConditionServiceSearchFieldTest extends TestCase
         $resolvedCondition = realpath(__DIR__ . '/../../../../src/Services/ConditionService.php');
         if (!is_string($resolvedCondition)) {
             $this->markTestSkipped('ConditionService.php not found');
-            return;
         }
         $this->conditionServiceFile = $resolvedCondition;
 
         $resolvedAllergy = realpath(__DIR__ . '/../../../../src/Services/AllergyIntoleranceService.php');
         if (!is_string($resolvedAllergy)) {
             $this->markTestSkipped('AllergyIntoleranceService.php not found');
-            return;
         }
         $this->allergyServiceFile = $resolvedAllergy;
     }

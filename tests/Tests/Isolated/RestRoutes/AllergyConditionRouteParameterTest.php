@@ -36,7 +36,6 @@ class AllergyConditionRouteParameterTest extends TestCase
         $resolved = realpath(__DIR__ . '/../../../../apis/routes/_rest_routes_standard.inc.php');
         if (!is_string($resolved)) {
             $this->markTestSkipped('Route file not found');
-            return;
         }
         $this->routeFile = $resolved;
     }
