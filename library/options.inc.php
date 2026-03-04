@@ -713,9 +713,9 @@ function generate_form_field($frow, $currvalue): void
         }
 
         // Use type="email" for fields with email validation for native browser validation
-        $fieldValidation = '';
-        if (is_array($frow) && array_key_exists('validation', $frow)) {
-            $fieldValidation = (string) $frow['validation'];
+        $fieldValidation = null;
+        if (is_array($frow) && array_key_exists('validation', $frow) && is_string($frow['validation'])) {
+            $fieldValidation = $frow['validation'];
         }
         $inputType = ($fieldValidation === 'email') ? 'email' : 'text';
         echo "<input type='{$inputType}'
