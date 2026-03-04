@@ -257,6 +257,7 @@ final class Version20260000010064 extends AbstractMigration
         $this->addPrimaryKey($table, 'id');
         $table->addIndex(['abook_type'], 'abook_type');
         $table->addUniqueIndex(['uuid'], 'uuid');
+        $table->addUniqueIndex(['google_signin_email'], 'google_signin_email');
 
         $this->createTable($table);
     }

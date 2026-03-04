@@ -38,7 +38,7 @@ final class Version20260000020103 extends AbstractMigration
         $table->addColumn('load_filename', Types::STRING, ['length' => 256, 'default' => '']);
         $table->addColumn('load_checksum', Types::STRING, ['length' => 32, 'default' => '']);
 
-        $this->addPrimaryKey($table, 'load_id');
+        $table->addUniqueIndex(['load_id'], 'load_id');
         $this->createTable($table);
     }
 

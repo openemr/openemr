@@ -40,7 +40,7 @@ final class Version20260000020045 extends AbstractMigration
         $table->addColumn('active', CustomTypes::TINYINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('revision', Types::INTEGER, ['notnull' => false, 'default' => 0]);
 
-        $this->addPrimaryKey($table, 'dx_id');
+        $table->addUniqueIndex(['dx_id'], 'dx_id');
         $table->addIndex(['dx_code'], 'dx_code');
         $table->addIndex(['formatted_dx_code'], 'formatted_dx_code');
         $table->addIndex(['active'], 'active');

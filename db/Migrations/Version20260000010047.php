@@ -37,7 +37,6 @@ final class Version20260000010047 extends AbstractMigration
         $table->addColumn('definition', Types::TEXT, ['notnull' => false, 'length' => 16777215]);
 
         $table->addIndex(['cons_id'], 'cons_id');
-        $table->addIndex(['lang_id', 'cons_id'], 'lang_cons');
         $table->addUniqueIndex(['def_id'], 'def_id');
 
         $this->createTable($table);

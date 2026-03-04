@@ -45,7 +45,7 @@ final class Version20260000020206 extends AbstractMigration
         $table->addColumn('last_event', Types::DATETIME_MUTABLE, ['notnull' => false]);
         $table->addColumn('label_count', Types::INTEGER, ['unsigned' => true, 'default' => 1]);
         $this->addPrimaryKey($table, 'id');
-        $table->addUniqueIndex(['event_label', 'event_url'], 'unique_event_label_target', ['lengths' => [null, 255]]);
+        $table->addUniqueIndex(['event_label', 'event_url', 'event_target'], 'unique_event_label_target', ['lengths' => [null, 255, 255]]);
 
         $this->createTable($table);
     }

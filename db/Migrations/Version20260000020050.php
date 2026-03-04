@@ -40,7 +40,6 @@ final class Version20260000020050 extends AbstractMigration
         $table->addColumn('active', CustomTypes::TINYINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('revision', Types::INTEGER, ['notnull' => false, 'default' => 0]);
 
-        $this->addPrimaryKey($table, 'pcs_id');
         $table->addUniqueIndex(['pcs_id'], 'pcs_id');
         $table->addIndex(['pcs_code'], 'pcs_code');
         $table->addIndex(['active'], 'active');

@@ -50,6 +50,7 @@ final class Version20260000020190 extends AbstractMigration
         $table->addColumn('errors', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('access_token_id', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $this->addPrimaryKey($table, 'id');
+        $table->addUniqueIndex(['uuid'], 'uuid');
         $this->createTable($table);
     }
 

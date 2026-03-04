@@ -51,7 +51,7 @@ final class Version20260000020051 extends AbstractMigration
         $table->addColumn('active', CustomTypes::TINYINT, ['notnull' => false, 'default' => 0]);
         $table->addColumn('revision', Types::INTEGER, ['notnull' => false, 'default' => 0]);
 
-        $this->addPrimaryKey($table, 'map_id');
+        $table->addUniqueIndex(['map_id'], 'map_id');
         $this->createTable($table);
     }
 
