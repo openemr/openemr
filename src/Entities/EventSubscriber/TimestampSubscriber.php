@@ -15,8 +15,8 @@ namespace OpenEMR\Entities\EventSubscriber;
 use DateTimeImmutable;
 use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
-use OpenEMR\Entities\Attributes\CreatedAt;
-use OpenEMR\Entities\Attributes\UpdatedAt;
+use OpenEMR\Entities\Attributes;
+use Ramsey\Uuid\Uuid;
 use ReflectionObject;
 
 /**
@@ -43,8 +43,10 @@ class TimestampSubscriber
         $entity = $args->getObject();
         $now = new DateTimeImmutable();
 
-        $this->setPropertiesWithAttribute($entity, CreatedAt::class, $now);
-        $this->setPropertiesWithAttribute($entity, UpdatedAt::class, $now);
+        $this->setPropertiesWithAttribute($entity, Attributes\CreatedAt::class, $now);
+        $this->setPropertiesWithAttribute($entity, Attributes\UpdatedAt::class, $now);
+
+        $this->generateUuid($entity);
     }
 
     public function preUpdate(PreUpdateEventArgs $args): void
@@ -52,7 +54,7 @@ class TimestampSubscriber
         $entity = $args->getObject();
         $now = new DateTimeImmutable();
 
-        $this->setPropertiesWithAttribute($entity, UpdatedAt::class, $now);
+        $this->setPropertiesWithAttribute($entity, Attributes\UpdatedAt::class, $now);
     }
 
     /**
@@ -66,6 +68,17 @@ class TimestampSubscriber
             $attributes = $property->getAttributes($attributeClass);
             if ($attributes !== []) {
                 $property->setValue($entity, $value);
+            }
+        }
+    }
+
+    private function generateUuid(object $entity): void
+    {
+        $reflection = new ReflectionObject($entity);
+        foreach ($reflection->getProperties() as $property) {
+            $attributes = $property->getAttributes(Attributes\Uuid::class);
+            if ($attributes !== []) {
+                $property->setValue($entity, Uuid::uuid4()); // Future: other variants based on attribute?
             }
         }
     }
