@@ -3,8 +3,8 @@
 namespace OpenEMR\Tests\Api;
 
 use OpenEMR\FHIR\SMART\Capability;
-use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Api\ApiTestClient;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Capability FHIR Endpoint Test Cases.

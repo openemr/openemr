@@ -10,11 +10,11 @@
 
 namespace OpenEMR\Tests\Services\Qrda;
 
+use DOMDocument;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Qrda\QrdaReportService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\TestCase;
-use DOMDocument;
 
 class QrdaReportServiceTest extends TestCase {
 
