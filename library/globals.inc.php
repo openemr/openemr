@@ -457,7 +457,7 @@ $GLOBALS_METADATA = [
             xl('Display main menu logo'),
             'bool',
             '1',
-            xl('Dislay main menu logo'),
+            xl('Display main menu logo'),
         ],
 
         'online_support_link' => [
