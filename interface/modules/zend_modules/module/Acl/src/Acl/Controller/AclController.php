@@ -13,9 +13,9 @@
 
 namespace Acl\Controller;
 
+use Application\Listener\Listener;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
-use Application\Listener\Listener;
 
 class AclController extends AbstractActionController
 {

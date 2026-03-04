@@ -20,9 +20,9 @@ use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\PatientDocuments\PatientDocumentCreateCCDAEvent;
 use OpenEMR\Events\PatientDocuments\PatientDocumentTreeViewFilterEvent;
+use OpenEMR\Events\PatientDocuments\PatientDocumentViewCCDAEvent;
 use OpenEMR\Services\CDADocumentService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use OpenEMR\Events\PatientDocuments\PatientDocumentViewCCDAEvent;
 use XSLTProcessor;
 
 class CCDAEventsSubscriber implements EventSubscriberInterface

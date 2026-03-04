@@ -15,12 +15,12 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/immunization_helper.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\Types\EncounterListOptionType;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
-use OpenEMR\Common\Forms\Types\EncounterListOptionType;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 

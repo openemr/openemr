@@ -26,9 +26,9 @@ use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDocuments\PatientDocumentStoreOffsite;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use OpenEMR\Core\OEGlobalsBag;
 
 class Document extends ORDataObject
 {

@@ -18,8 +18,8 @@ require_once("$srcdir/report_database.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Core\Header;
-use OpenEMR\Events\PatientSelect\PatientSelectFilterEvent;
 use OpenEMR\Events\BoundFilter;
+use OpenEMR\Events\PatientSelect\PatientSelectFilterEvent;
 
 if (!empty($_REQUEST)) {
     if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {

@@ -19,9 +19,9 @@
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\Migrations\Configuration\Connection\ExistingConnection;
 use Doctrine\Migrations\Configuration\Migration\PhpFile;
 use Doctrine\Migrations\DependencyFactory;
-use Doctrine\Migrations\Configuration\Connection\ExistingConnection;
 use OpenEMR\BC\DatabaseConnectionOptions;
 
 $configLoader = new PhpFile('db/migration-config.php');

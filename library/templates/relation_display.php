@@ -12,14 +12,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Services\ContactService;
-use OpenEMR\Services\ContactRelationService;
-use OpenEMR\Services\PersonService;
-use OpenEMR\Services\ContactAddressService;
-use OpenEMR\Services\ContactTelecomService;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\ContactAddressService;
+use OpenEMR\Services\ContactRelationService;
+use OpenEMR\Services\ContactService;
+use OpenEMR\Services\ContactTelecomService;
+use OpenEMR\Services\PersonService;
 
 $logger = new SystemLogger();
 

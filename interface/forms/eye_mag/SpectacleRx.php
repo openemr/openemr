@@ -20,8 +20,8 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/report.inc.php");
 
-use OpenEMR\Services\FacilityService;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
 

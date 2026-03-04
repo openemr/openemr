@@ -12,9 +12,9 @@
 
 namespace Application\Controller;
 
-use Laminas\Mvc\Controller\AbstractActionController;
 use Application\Listener\Listener;
 use Carecoordination\Controller\EncounterccdadispatchController;
+use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\Soap\Server;
 
 class SoapController extends AbstractActionController

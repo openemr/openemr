@@ -12,10 +12,10 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Repository;
 
+use InvalidArgumentException;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\PatientService;
-use InvalidArgumentException;
 
 class TeleHealthSessionRepository
 {

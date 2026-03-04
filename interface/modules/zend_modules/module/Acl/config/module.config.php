@@ -13,8 +13,8 @@
 
 namespace Acl;
 
-use Laminas\Router\Http\Segment;
 use Interop\Container\ContainerInterface;
+use Laminas\Router\Http\Segment;
 
 return [
     'controllers' => [
