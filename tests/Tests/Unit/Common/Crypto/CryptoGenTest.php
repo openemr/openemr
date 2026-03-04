@@ -1275,7 +1275,7 @@ final class CryptoGenTest extends TestCase
             ->with($encryptedData, 'aes-256-cbc', 'hash value', $iv)
             ->willReturn('decrypted data');
 
-        $mockCryptoGen->decryptStandard('002' . $testData, 'custom password');
+        $this->assertSame('decrypted data', $mockCryptoGen->decryptStandard('002' . $testData, 'custom password'));
     }
 
     /**
