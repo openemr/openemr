@@ -17,6 +17,7 @@ require_once("../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
@@ -278,40 +279,20 @@ $check_sum = isset($_GET['check_sum']);
             $encryptVersion = !empty($iter['version']) ? $iter['version'] : 0;
 
             if ($commentEncrStatus == "Yes") {
-                if ($encryptVersion >= 3) {
-                    // Use new openssl method
-                    if (extension_loaded('openssl')) {
-                        $trans_comments = $cryptoGen->decryptStandard($iter["comments"]);
-                        if ($trans_comments !== false) {
-                            $trans_comments = preg_replace($patterns, $replace, trim($trans_comments));
-                        } else {
-                            $trans_comments = xl("Unable to decrypt these comments since decryption failed.");
-                        }
-                    } else {
-                        $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
-                    }
-                } elseif ($encryptVersion == 2) {
-                    // Use new openssl method
-                    if (extension_loaded('openssl')) {
-                        $trans_comments = $cryptoGen->aes256DecryptTwo($iter["comments"]);
-                        if ($trans_comments !== false) {
-                            $trans_comments = preg_replace($patterns, $replace, trim($trans_comments));
-                        } else {
-                            $trans_comments = xl("Unable to decrypt these comments since decryption failed.");
-                        }
-                    } else {
-                        $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
-                    }
-                } elseif ($encryptVersion == 1) {
-                    // Use new openssl method
-                    if (extension_loaded('openssl')) {
-                        $trans_comments = preg_replace($patterns, $replace, trim($cryptoGen->aes256DecryptOne($iter["comments"])));
-                    } else {
-                        $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
-                    }
-                } else { //$encryptVersion == 0
+                if ($encryptVersion == 0) {
                     // The old mcrypt method is no longer supported
                     $trans_comments = xl("Unable to decrypt these comments since the PHP mycrypt module is no longer available.");
+                } else {
+                    // For v1/v2, prepend version prefix. For v3+, data already has it.
+                    $comments = $encryptVersion < 3
+                        ? KeyVersion::from($encryptVersion)->toPaddedString() . $iter["comments"]
+                        : $iter["comments"];
+                    $trans_comments = $cryptoGen->decryptStandard($comments);
+                    if ($trans_comments !== false) {
+                        $trans_comments = preg_replace($patterns, $replace, trim($trans_comments));
+                    } else {
+                        $trans_comments = xl("Unable to decrypt these comments since decryption failed.");
+                    }
                 }
             } else {
                 // base64 decode if applicable (note the $encryptVersion is a misnomer here, we have added in base64 encoding
