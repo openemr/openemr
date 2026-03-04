@@ -46,14 +46,16 @@ $session = SessionWrapperFactory::getInstance()->getWrapper();
 function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
 {
  //   global $first_time, $group;
-/** @var array<string> $row */
+/** @var array<string, string> $row */
 /** @var string $pid */
+
 
     if (empty($pid)) {
         $pid = $row['pid'];
     }
 
     if (isset($row['myscore'])) {
+/** @var string $myscore */
         $myscore = $row['myscore'];
         $options = "<option value=''></option>" .
             "<option value='MK'>" . xlt('Merge and Keep') . "</option>" .
@@ -73,7 +75,7 @@ function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
 
     $first_time = false;
     $ptname = $row['lname'] . ', ' . $row['fname'] . ' ' . $row['mname'];
-     /** @var array < string>  $phones */
+     /** @var string[]  $phones */
     $phones = [];
     if (trim((string) $row['phone_home'])) {
         $phones[] = trim((string) $row['phone_home']);
@@ -104,32 +106,29 @@ function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
 /** @var string $regdate_str */
     $regdate_str = oeFormatShortDate($row['regdate']);
     if ($_POST['form_csvexport'] == "CSV" ) {   // rm out put the line to csv file
-          echo csvEscape(text(strval($group))) . ',' ;
- /** @var string $myscore */
+        echo csvEscape(text(strval($group))) . ',' ;
         echo  csvEscape(text($myscore)) . ','  ;
         echo  csvEscape($row['pid']) . ',';
         echo csvEscape($row['pubpid']) . ',';
         echo  csvEscape(text($highlight_text))  . ',';
         echo  csvEscape(text($ptname)) .  ',';
         echo csvEscape($date_str) . ',' ;
-/** @var string $sex */
-            $sex = $row['sex'];
-            echo csvEscape($sex) .  ',';
-            echo csvEscape ($row['email']) .  ',';
-            echo csvEscape(text($phones)) .  ',';
-            echo csvEscape($regdate_str) . ',' ;
-           echo csvEscape($date_str) . ',' ;
-           echo csvEscape($row['street']) . "\n";
+        echo csvEscape($row['sex']) .  ',';
+        echo csvEscape ($row['email']) .  ',';
+        echo csvEscape(text($phones)) .  ',';
+        echo csvEscape($regdate_str) . ',' ;
+        echo csvEscape($date_str) . ',' ;
+        echo csvEscape($row['street']) . "\n";
     } else {  // rm otherwise output the line to the html page
         echo "<tr class='$highlight_class'>";
         ?>
     <td>
-       <select onchange='selchange(this, <?php echo attr_js($pid); ?>, <?php echo attr_js($row['pid']); ?>)' style='width:100%'>
+       <select onchange='selectChange(this, <?php echo attr_js($pid); ?>, <?php echo attr_js($row['pid']); ?>)' style='width:100%'>
         <?php echo $options; // this is html and already escaped as required ?>
    </select>
     </td>
     <td>
-        <?php  /** @var string $myscore */ echo text($myscore); ?>
+        <?php  echo text($myscore); ?>
     </td>
     <td class="text-warning" onclick="openNewTopWindow(<?php echo attr_js($row['pid']); ?>)"
         title="<?php echo xla('Click to open in a new window or tab'); ?>" style="cursor:pointer">
@@ -139,7 +138,7 @@ function displayRow(bool & $first_time, int &$group, $row, $pid = ''): void
         <?php echo text($row['pubpid']); ?>
     </td>
     <td>
-        <?php/** @var string $highlight_text */ echo $highlight_text; ?>
+        <?php  echo $highlight_text; ?>
     </td>
     <td>
         <?php echo text($ptname); ?>
