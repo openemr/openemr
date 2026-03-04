@@ -53,6 +53,45 @@ function arrayCopy(input)
 	return output;
 }
 
+function treeMenuInvokeEventHandler(handler, eventName)
+{
+	if (typeof handler === 'function') {
+		handler();
+		return;
+	}
+
+	if (typeof handler !== 'string') {
+		return;
+	}
+
+	var handlerName = handler.replace(/^\s+|\s+$/g, '');
+
+	if (handlerName.slice(-2) === '()') {
+		handlerName = handlerName.slice(0, -2);
+	}
+
+	if (!/^[A-Za-z_$][\w$]*(\.[A-Za-z_$][\w$]*)*$/.test(handlerName)) {
+		console.warn('TreeMenu: unsupported ' + eventName + ' handler format:', handler);
+		return;
+	}
+
+	var context = window;
+	var parts = handlerName.split('.');
+
+	for (var i = 0; i < parts.length; i++) {
+		if (context == null) {
+			break;
+		}
+		context = context[parts[i]];
+	}
+
+	if (typeof context === 'function') {
+		context();
+	} else {
+		console.warn('TreeMenu: handler not found for ' + eventName + ':', handlerName);
+	}
+}
+
 /**
 * TreeMenu class
 */
@@ -314,25 +353,13 @@ function arrayCopy(input)
 				nodeObject = this.nodeRefs[layerID];
 	
 				if (nodeObject.ontoggle != null) {
-					if (typeof nodeObject.ontoggle === 'function') {
-						nodeObject.ontoggle();
-					} else {
-						Function(nodeObject.ontoggle)();
-					}
+					treeMenuInvokeEventHandler(nodeObject.ontoggle, 'ontoggle');
 				}
 
 				if (newDisplay == 'none' && nodeObject.oncollapse != null) {
-					if (typeof nodeObject.oncollapse === 'function') {
-						nodeObject.oncollapse();
-					} else {
-						Function(nodeObject.oncollapse)();
-					}
+					treeMenuInvokeEventHandler(nodeObject.oncollapse, 'oncollapse');
 				} else if (newDisplay == 'inline' && nodeObject.onexpand != null){
-					if (typeof nodeObject.onexpand === 'function') {
-						nodeObject.onexpand();
-					} else {
-						Function(nodeObject.onexpand)();
-					}
+					treeMenuInvokeEventHandler(nodeObject.onexpand, 'onexpand');
 				}
 			}
 

@@ -241,7 +241,13 @@ function sendFileToServer(formData,status,progress_bar,success_function)
 				status.setProgress(100);
 			}
 			if (typeof window[success_function] === 'function') {
-				window[success_function](typeof data === 'string' ? JSON.parse(data) : data);
+				try {
+					window[success_function](typeof data === 'string' ? JSON.parse(data) : data);
+				} catch (error) {
+					console.warn('file_uploader: callback failed:', success_function, error);
+				}
+			} else {
+				console.warn('file_uploader: callback not found on window:', success_function);
 			}
 		}
 	});
