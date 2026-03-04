@@ -7,6 +7,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/eRxXMLBuilder.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Parameter \\#2 \\$out of method OpenEMR\\\\Modules\\\\Dorn\\\\DornGenHl7Order\\:\\:genHl7Order\\(\\) is passed by reference, so it expects variables only\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dorn/src/EventSubscriber/DornLabSubscriber.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$array of function array_pop is passed by reference, so it expects variables only\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/download_template.php',

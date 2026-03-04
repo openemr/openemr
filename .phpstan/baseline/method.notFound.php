@@ -902,6 +902,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/JWT/Validation/UniqueID.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to an undefined method OpenApi\\\\Generator\\:\\:getProcessorPipeline\\(\\)\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/Common/Command/CreateAPIDocumentationCommand.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to an undefined method GuzzleHttp\\\\Exception\\\\GuzzleException\\:\\:getResponse\\(\\)\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Common/Command/CreateReleaseChangelogCommand.php',

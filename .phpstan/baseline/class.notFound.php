@@ -797,6 +797,26 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/Exception/OneTimeAuthExpiredException.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to method setGenerator\\(\\) on an unknown class OpenApi\\\\Analysers\\\\ReflectionAnalyser\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Command/CreateAPIDocumentationCommand.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Analysers\\\\AttributeAnnotationFactory not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Command/CreateAPIDocumentationCommand.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Analysers\\\\ReflectionAnalyser not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Command/CreateAPIDocumentationCommand.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\SourceFinder not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Command/CreateAPIDocumentationCommand.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Compatibility\\\\Checker\\:\\:checkPhpVersion\\(\\) has invalid return type OpenEMR\\\\Common\\\\Compatibility\\\\warning\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Compatibility/Checker.php',
@@ -897,6 +917,96 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Menu/MainMenuRole.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/AllergyIntoleranceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 15,
+    'path' => __DIR__ . '/../../src/RestControllers/AllergyIntoleranceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/RestControllers/AllergyIntoleranceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\RequestBody not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/AllergyIntoleranceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 21,
+    'path' => __DIR__ . '/../../src/RestControllers/AllergyIntoleranceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 17,
+    'path' => __DIR__ . '/../../src/RestControllers/AllergyIntoleranceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/AppointmentRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 8,
+    'path' => __DIR__ . '/../../src/RestControllers/AppointmentRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 10,
+    'path' => __DIR__ . '/../../src/RestControllers/AppointmentRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\RequestBody not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/AppointmentRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 24,
+    'path' => __DIR__ . '/../../src/RestControllers/AppointmentRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 9,
+    'path' => __DIR__ . '/../../src/RestControllers/AppointmentRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/ConditionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 15,
+    'path' => __DIR__ . '/../../src/RestControllers/ConditionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/RestControllers/ConditionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\RequestBody not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/ConditionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 21,
+    'path' => __DIR__ . '/../../src/RestControllers/ConditionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 17,
+    'path' => __DIR__ . '/../../src/RestControllers/ConditionRestController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\RestControllers\\\\Config\\\\RestConfig\\:\\:\\$APP_ROOT has unknown class OpenEMR\\\\RestControllers\\\\Config\\\\app as its type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Config/RestConfig.php',
@@ -932,6 +1042,101 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/Config/RestConfig.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/DocumentRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/DocumentRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/DocumentRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\RequestBody not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/DocumentRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 9,
+    'path' => __DIR__ . '/../../src/RestControllers/DocumentRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 8,
+    'path' => __DIR__ . '/../../src/RestControllers/DocumentRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/DrugRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/DrugRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/DrugRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/EmployerRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/RestControllers/EmployerRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/EmployerRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Items not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 9,
+    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 27,
+    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 63,
+    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\RequestBody not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 39,
+    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 36,
+    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\EncounterRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\a\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
@@ -952,9 +1157,59 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirAllergyIntoleranceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirAllergyIntoleranceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirAllergyIntoleranceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirAllergyIntoleranceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirAllergyIntoleranceRestController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirAllergyIntoleranceRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirAllergyIntoleranceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirAppointmentRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirAppointmentRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirAppointmentRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirAppointmentRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirAppointmentRestController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirAppointmentRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
@@ -962,9 +1217,59 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirAppointmentRestController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirCarePlanRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirCarePlanRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirCarePlanRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirCarePlanRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirCarePlanRestController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirCarePlanRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirCarePlanRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirCareTeamRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirCareTeamRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirCareTeamRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirCareTeamRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 8,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirCareTeamRestController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirCareTeamRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
@@ -972,9 +1277,84 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirCareTeamRestController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirConditionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirConditionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirConditionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirConditionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirConditionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirCoverageRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirCoverageRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirCoverageRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirCoverageRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirCoverageRestController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirCoverageRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirCoverageRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirDeviceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirDeviceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirDeviceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirDeviceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirDeviceRestController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirDeviceRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
@@ -982,9 +1362,59 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirDeviceRestController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirDiagnosticReportRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirDiagnosticReportRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirDiagnosticReportRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirDiagnosticReportRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 9,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirDiagnosticReportRestController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirDiagnosticReportRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirDiagnosticReportRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirDocumentReferenceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirDocumentReferenceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirDocumentReferenceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirDocumentReferenceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 9,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirDocumentReferenceRestController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirDocumentReferenceRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
@@ -992,9 +1422,99 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirDocumentReferenceRestController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirDocumentRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirDocumentRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirDocumentRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirEncounterRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirEncounterRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirEncounterRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirEncounterRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirEncounterRestController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirEncounterRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirEncounterRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGoalRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGoalRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGoalRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGoalRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGoalRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGroupRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGroupRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGroupRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGroupRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGroupRestController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirGroupRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
@@ -1002,9 +1522,59 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGroupRestController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirImmunizationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirImmunizationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirImmunizationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirImmunizationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirImmunizationRestController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirImmunizationRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirImmunizationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirLocationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirLocationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirLocationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirLocationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirLocationRestController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirLocationRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
@@ -1012,9 +1582,109 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirLocationRestController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirMediaRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirMediaRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirMediaRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirMediaRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 8,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirMediaRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirMedicationDispenseRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirMedicationDispenseRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirMedicationDispenseRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirMedicationDispenseRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 8,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirMedicationDispenseRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirMedicationRequestRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirMedicationRequestRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirMedicationRequestRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirMedicationRequestRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 8,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirMedicationRequestRestController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirMedicationRequestRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirMedicationRequestRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirMedicationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirMedicationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirMedicationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirMedicationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirMedicationRestController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirMedicationRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
@@ -1022,9 +1692,124 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirMedicationRestController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirMetaDataRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirObservationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirObservationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirObservationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirObservationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 9,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirObservationRestController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirObservationRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirObservationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirOrganizationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 12,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirOrganizationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirOrganizationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\RequestBody not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirOrganizationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 13,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirOrganizationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 18,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirOrganizationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPatientRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 18,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPatientRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPatientRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\RequestBody not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPatientRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 13,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPatientRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 23,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPatientRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPersonRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 14,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPersonRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPersonRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPersonRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 16,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPersonRestController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirPersonRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
@@ -1032,9 +1817,89 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPersonRestController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPractitionerRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 15,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPractitionerRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPractitionerRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\RequestBody not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPractitionerRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 13,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPractitionerRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 21,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPractitionerRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPractitionerRoleRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPractitionerRoleRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPractitionerRoleRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPractitionerRoleRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPractitionerRoleRestController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirPractitionerRoleRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirPractitionerRoleRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirProcedureRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirProcedureRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirProcedureRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirProcedureRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirProcedureRestController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirProcedureRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
@@ -1042,14 +1907,189 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirProcedureRestController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirProvenanceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirProvenanceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirProvenanceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirProvenanceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirProvenanceRestController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirProvenanceRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirProvenanceRestController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirQuestionnaireResponseRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirQuestionnaireResponseRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirQuestionnaireResponseRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirQuestionnaireResponseRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirQuestionnaireResponseRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirQuestionnaireRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirQuestionnaireRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirQuestionnaireRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirQuestionnaireRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirQuestionnaireRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirRelatedPersonRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirRelatedPersonRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirRelatedPersonRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirRelatedPersonRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirRelatedPersonRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirServiceRequestRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 8,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirServiceRequestRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirServiceRequestRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirServiceRequestRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 10,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirServiceRequestRestController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirServiceRequestRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirServiceRequestRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirSpecimenRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirSpecimenRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirSpecimenRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirSpecimenRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 9,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirSpecimenRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirValueSetRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirValueSetRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirValueSetRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirValueSetRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirValueSetRestController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirValueSetRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
@@ -1059,6 +2099,31 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Call to method getBody\\(\\) on an unknown class OpenEMR\\\\RestControllers\\\\FHIR\\\\Operations\\\\ResponseInterface\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationDefinitionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationDefinitionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationDefinitionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationDefinitionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationDefinitionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 2,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationDefinitionRestController.php',
 ];
 $ignoreErrors[] = [
@@ -1077,6 +2142,26 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationDocRefRestController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\ExternalDocumentation not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationDocRefRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationDocRefRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationDocRefRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationDocRefRestController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\Operations\\\\FhirOperationDocRefRestController\\:\\:createResponseForCode\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\Operations\\\\ResponseInterface\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationDocRefRestController.php',
@@ -1087,9 +2172,374 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationDocRefRestController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationExportRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 15,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationExportRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationExportRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FacilityRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 21,
+    'path' => __DIR__ . '/../../src/RestControllers/FacilityRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 38,
+    'path' => __DIR__ . '/../../src/RestControllers/FacilityRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\RequestBody not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/FacilityRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 12,
+    'path' => __DIR__ . '/../../src/RestControllers/FacilityRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 23,
+    'path' => __DIR__ . '/../../src/RestControllers/FacilityRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 29,
+    'path' => __DIR__ . '/../../src/RestControllers/ImmunizationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/ImmunizationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 29,
+    'path' => __DIR__ . '/../../src/RestControllers/ImmunizationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/InsuranceCompanyRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/InsuranceCompanyRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 13,
+    'path' => __DIR__ . '/../../src/RestControllers/InsuranceCompanyRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\RequestBody not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/InsuranceCompanyRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 15,
+    'path' => __DIR__ . '/../../src/RestControllers/InsuranceCompanyRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/RestControllers/InsuranceCompanyRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/InsuranceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 8,
+    'path' => __DIR__ . '/../../src/RestControllers/InsuranceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 29,
+    'path' => __DIR__ . '/../../src/RestControllers/InsuranceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\RequestBody not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/InsuranceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 15,
+    'path' => __DIR__ . '/../../src/RestControllers/InsuranceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 10,
+    'path' => __DIR__ . '/../../src/RestControllers/InsuranceRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/ListRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 25,
+    'path' => __DIR__ . '/../../src/RestControllers/ListRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 12,
+    'path' => __DIR__ . '/../../src/RestControllers/ListRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\RequestBody not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/ListRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 48,
+    'path' => __DIR__ . '/../../src/RestControllers/ListRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 31,
+    'path' => __DIR__ . '/../../src/RestControllers/ListRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/MessageRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../src/RestControllers/MessageRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/MessageRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\RequestBody not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/MessageRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 9,
+    'path' => __DIR__ . '/../../src/RestControllers/MessageRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../src/RestControllers/MessageRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Flow not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/OpenApi/OpenApiDefinitions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Items not found\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/RestControllers/OpenApi/OpenApiDefinitions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/RestControllers/OpenApi/OpenApiDefinitions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 9,
+    'path' => __DIR__ . '/../../src/RestControllers/OpenApi/OpenApiDefinitions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/OpenApi/OpenApiDefinitions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Items not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/PatientRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/PatientRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 21,
+    'path' => __DIR__ . '/../../src/RestControllers/PatientRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 47,
+    'path' => __DIR__ . '/../../src/RestControllers/PatientRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\RequestBody not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/PatientRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 11,
+    'path' => __DIR__ . '/../../src/RestControllers/PatientRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 26,
+    'path' => __DIR__ . '/../../src/RestControllers/PatientRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Items not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/PractitionerRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/RestControllers/PractitionerRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 31,
+    'path' => __DIR__ . '/../../src/RestControllers/PractitionerRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 98,
+    'path' => __DIR__ . '/../../src/RestControllers/PractitionerRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\RequestBody not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/PractitionerRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 10,
+    'path' => __DIR__ . '/../../src/RestControllers/PractitionerRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 35,
+    'path' => __DIR__ . '/../../src/RestControllers/PractitionerRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/PrescriptionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/PrescriptionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/PrescriptionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/ProcedureRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/ProcedureRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/ProcedureRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/RestControllers/ProductRegistrationRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTConfigurationController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\MediaType not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/TransactionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/RestControllers/TransactionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Property not found\\.$#',
+    'count' => 13,
+    'path' => __DIR__ . '/../../src/RestControllers/TransactionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\RequestBody not found\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/RestControllers/TransactionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 9,
+    'path' => __DIR__ . '/../../src/RestControllers/TransactionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../src/RestControllers/TransactionRestController.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\TransactionRestController\\:\\:CreateTransaction\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\a\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/TransactionRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Parameter not found\\.$#',
+    'count' => 31,
+    'path' => __DIR__ . '/../../src/RestControllers/UserRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 6,
+    'path' => __DIR__ . '/../../src/RestControllers/UserRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Schema not found\\.$#',
+    'count' => 31,
+    'path' => __DIR__ . '/../../src/RestControllers/UserRestController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Instantiated class OpenApi\\\\Attributes\\\\Response not found\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../src/RestControllers/VersionRestController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\DiagnosticReport\\\\FhirDiagnosticReportClinicalNotesService\\:\\:createProvenanceResource\\(\\) has invalid return type OpenEMR\\\\Services\\\\FHIR\\\\DiagnosticReport\\\\the\\.$#',
