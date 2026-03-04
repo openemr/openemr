@@ -41,7 +41,7 @@ class EventAuditLogger
     protected static function createInstance(): static
     {
         return new self(
-            new CryptoGen(),
+            \OpenEMR\BC\ServiceContainer::getCrypto(),
         );
     }
 

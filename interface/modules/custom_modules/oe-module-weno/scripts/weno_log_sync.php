@@ -36,7 +36,7 @@ function downloadWenoPharmacy(): void
     }
     $wenoLog = new WenoLogService();
     $wenoValidate = new WenoValidate();
-    $localPharmacyJson = new WenoPharmaciesJson(new CryptoGen());
+    $localPharmacyJson = new WenoPharmaciesJson(\OpenEMR\BC\ServiceContainer::getCrypto());
 
     $isKey = $wenoValidate->validateAdminCredentials(true, "Pharmacy Directory");
     if ((int)$isKey >= 998) {

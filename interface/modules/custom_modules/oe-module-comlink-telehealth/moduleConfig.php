@@ -37,7 +37,7 @@ if (!empty($_GET['setup']) ?? null) {
 
     $content = trim(file_get_contents("php://input"));
     $credentials = json_decode($content, true);
-    $cryptoGen = new CryptoGen();
+    $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
     $items[TelehealthGlobalConfig::COMLINK_VIDEO_REGISTRATION_API] = $credentials['registrationUri'] ?? '';
     $items[TelehealthGlobalConfig::COMLINK_VIDEO_TELEHEALTH_API] = $credentials['videoApiUri'] ?? '';
     $items[TelehealthGlobalConfig::COMLINK_VIDEO_API_USER_ID] = $credentials['ctsiOrgUid'] ?? '';

@@ -43,7 +43,7 @@ class OneTimeAuth
      */
     public function __construct(private $context = 'portal', private $scope = 'redirect', private $profile = 'default')
     {
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
         $this->systemLogger = new SystemLogger();
         $this->session = SessionWrapperFactory::getInstance()->getWrapper();
         $this->globalsBag = OEGlobalsBag::getInstance();

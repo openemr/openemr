@@ -55,7 +55,7 @@ abstract class AppDispatch
         if (empty(self::$_apiModule)) {
             self::$_apiModule = $_REQUEST['type'] ?? $_SESSION["oefax_current_module_type"] ?? null;
         }
-        $this->crypto = new CryptoGen();
+        $this->crypto = \OpenEMR\BC\ServiceContainer::getCrypto();
         $this->dispatchActions();
         $this->render();
     }

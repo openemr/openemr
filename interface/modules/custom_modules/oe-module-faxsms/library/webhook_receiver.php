@@ -71,7 +71,7 @@ function downloadAndStoreFaxMedia(
             return;
         }
 
-        $crypto = new CryptoGen();
+        $crypto = \OpenEMR\BC\ServiceContainer::getCrypto();
         $decrypted = $crypto->decryptStandard($credentials['credentials']);
         $creds = json_decode($decrypted, true);
 

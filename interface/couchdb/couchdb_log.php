@@ -23,7 +23,7 @@ if (!file_exists($filename)) {
 
 $fh = file_get_contents($filename);
 
-$cryptoGen = new CryptoGen();
+$cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
 if ($cryptoGen->cryptCheckStandard($fh)) {
     $fh = $cryptoGen->decryptStandard($fh, null, 'database');
 }

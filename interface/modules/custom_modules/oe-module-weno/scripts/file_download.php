@@ -16,7 +16,7 @@ use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 $wenoValidate = new WenoValidate();
 $isKey = $wenoValidate->validateAdminCredentials(true, "Pharmacy Directory");
 
-$cryptoGen = new CryptoGen();
+$cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
 $weno_username = $GLOBALS['weno_admin_username'] ?? '';
 $weno_password = $cryptoGen->decryptStandard($GLOBALS['weno_admin_password'] ?? '');
 $encryption_key = $cryptoGen->decryptStandard($GLOBALS['weno_encryption_key'] ?? '');

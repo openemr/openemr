@@ -55,7 +55,7 @@ if (isset($_GET['form_reset_key'])) {
     $isKey = $wenoValidate->validateAdminCredentials(true);
 */
 
-$cryptoGen = new CryptoGen();
+$cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
 
 // set up the dependencies for the page.
 $pharmacyService = new PharmacyService();

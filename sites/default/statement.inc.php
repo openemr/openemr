@@ -32,7 +32,7 @@ use OpenEMR\Common\Crypto\CryptoGen;
 
 $STMT_TEMP_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_statements.txt";
 $STMT_TEMP_FILE_PDF = $GLOBALS['temporary_files_dir'] . "/openemr_statements.pdf";
-$STMT_PRINT_CMD = (new CryptoGen())->decryptStandard($GLOBALS['more_secure']['print_command']);
+$STMT_PRINT_CMD = (\OpenEMR\BC\ServiceContainer::getCrypto())->decryptStandard($GLOBALS['more_secure']['print_command']);
 
 /** There are two options to print a batch of PDF statements:
  *  1.  The original statement, a text based statement, using CezPDF

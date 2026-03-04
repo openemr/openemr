@@ -168,7 +168,7 @@ class EncountermanagerTable
                 $couch = new CouchDB();
                 $resp = $couch->retrieve_doc($row['couch_docid']);
                 if ($row['encrypted']) {
-                    $cryptoGen = new CryptoGen();
+                    $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
                     $content = $cryptoGen->decryptStandard($resp->data, null, 'database');
                 } else {
                     $content = base64_decode((string) $resp->data);
@@ -179,7 +179,7 @@ class EncountermanagerTable
                 }
                 $fccda = fopen($row['ccda_data'], "r");
                 if ($row['encrypted']) {
-                    $cryptoGen = new CryptoGen();
+                    $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
                     $content = $cryptoGen->decryptStandard(fread($fccda, filesize($row['ccda_data'])), null, 'database');
                 } else {
                     $content = fread($fccda, filesize($row['ccda_data']));

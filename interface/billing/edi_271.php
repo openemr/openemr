@@ -48,7 +48,7 @@ if (isset($_FILES) && !empty($_FILES)) {
         $message .= xlt('Invalid file type.') . "<br />";
     }
     if (!isset($message)) {
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
         $uploadedFile = file_get_contents($_FILES['uploaded']['tmp_name']);
         if ($GLOBALS['drive_encryption']) {
             $uploadedFile = $cryptoGen->encryptStandard($uploadedFile, null, 'database');

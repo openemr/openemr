@@ -27,7 +27,7 @@ class VoiceClient extends AppDispatch
         if (empty($GLOBALS['oe_enable_voice'] ?? null)) {
             throw new \RuntimeException(xlt("Access denied! Module not enabled"));
         }
-        $this->crypto = new CryptoGen();
+        $this->crypto = \OpenEMR\BC\ServiceContainer::getCrypto();
         $this->baseDir = $GLOBALS['temporary_files_dir'];
         $this->uriDir = $GLOBALS['OE_SITE_WEBROOT'];
         $this->cacheDir = $GLOBALS['OE_SITE_DIR'] . '/documents/logs_and_misc/_cache';

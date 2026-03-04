@@ -53,7 +53,7 @@ if (!empty($_POST['bn_save'])) {
 
         $fileData = file_get_contents($_FILES['form_education']['tmp_name']);
         if ($GLOBALS['drive_encryption']) {
-            $fileData = (new Cryptogen())->encryptStandard($fileData, null, 'database');
+            $fileData = (\OpenEMR\BC\ServiceContainer::getCrypto())->encryptStandard($fileData, null, 'database');
         }
         if (file_put_contents($educationpath, $fileData) === false) {
             die(text(xl('Unable to create') . " '$educationpath'"));

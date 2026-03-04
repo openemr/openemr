@@ -59,7 +59,7 @@ function processRecaptcha($gRecaptchaResponse): bool
         (new SystemLogger())->error("processRecaptcha function: google_recaptcha_secret_key is empty, so unable to verify recaptcha");
         return false;
     }
-    $googleRecaptchaSecretKey = (new CryptoGen())->decryptStandard($globalsBag->get('google_recaptcha_secret_key'));
+    $googleRecaptchaSecretKey = (\OpenEMR\BC\ServiceContainer::getCrypto())->decryptStandard($globalsBag->get('google_recaptcha_secret_key'));
     if (empty($googleRecaptchaSecretKey)) {
         (new SystemLogger())->error("processRecaptcha function: decrypted google_recaptcha_secret_key global is empty, so unable to verify recaptcha");
         return false;
@@ -139,7 +139,7 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
             $expiry = new DateTime('NOW');
             $expiry->add(new DateInterval('PT01H'));
             $token_raw = RandomGenUtils::createUniqueToken(32);
-            $token_encrypt = (new CryptoGen())->encryptStandard($token_raw);
+            $token_encrypt = (\OpenEMR\BC\ServiceContainer::getCrypto())->encryptStandard($token_raw);
             if (empty($token_encrypt)) {
                 // Serious issue if this is case, so return that something bad happened.
                 (new SystemLogger())->error("OpenEMR Error : Portal email verification token encryption broken - exiting");
@@ -393,7 +393,7 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
     }
 
     // Will send a link to user with encrypted token
-    $token = (new CryptoGen())->encryptStandard($token_new);
+    $token = (\OpenEMR\BC\ServiceContainer::getCrypto())->encryptStandard($token_new);
     if (empty($token)) {
         // Serious issue if this is case, so exit.
         if ($resetPass) {

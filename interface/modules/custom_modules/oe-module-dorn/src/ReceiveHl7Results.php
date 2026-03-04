@@ -1658,7 +1658,7 @@ class ReceiveHl7Results
     private function hl7Crypt($content)
     {
         if ($GLOBALS['drive_encryption']) {
-            $content = (new CryptoGen())->encryptStandard($content, null, 'database');
+            $content = (\OpenEMR\BC\ServiceContainer::getCrypto())->encryptStandard($content, null, 'database');
         }
 
         return $content;

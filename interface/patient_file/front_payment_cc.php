@@ -103,7 +103,7 @@ if ($_POST['mode'] == 'Stripe') {
 }
 
 if ($_GET['mode'] == 'terminal_token') {
-    $cryptoGen = new CryptoGen();
+    $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
     $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
     Stripe::setApiKey($apiKey);
 
@@ -118,7 +118,7 @@ if ($_GET['mode'] == 'terminal_token') {
     }
 }
 if ($_GET['mode'] == 'cancel_intent') {
-    $cryptoGen = new CryptoGen();
+    $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
     $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
     Stripe::setApiKey($apiKey);
 
@@ -139,7 +139,7 @@ if ($_GET['mode'] == 'cancel_intent') {
 }
 
 if ($_GET['mode'] == 'terminal_capture') {
-    $cryptoGen = new CryptoGen();
+    $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
     $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
     Stripe::setApiKey($apiKey);
 
@@ -161,7 +161,7 @@ if ($_GET['mode'] == 'terminal_capture') {
 }
 
 if ($_GET['mode'] == 'terminal_create') {
-    $cryptoGen = new CryptoGen();
+    $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
     $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
     Stripe::setApiKey($apiKey);
 

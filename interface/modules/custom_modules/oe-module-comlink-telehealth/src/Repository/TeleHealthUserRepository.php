@@ -144,7 +144,7 @@ class TeleHealthUserRepository extends BaseService
     {
         $factory = new UuidFactory();
         $uuidString = $factory->uuid4()->toString();
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
         // we could make this even stronger by using the API password for the encryption password...
         // but this is probably good enough
         return $cryptoGen->encryptStandard($uuidString);
@@ -152,7 +152,7 @@ class TeleHealthUserRepository extends BaseService
 
     public function decryptPassword($password)
     {
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
         return $cryptoGen->decryptStandard($password);
     }
 }

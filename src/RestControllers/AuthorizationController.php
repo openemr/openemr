@@ -178,7 +178,7 @@ class AuthorizationController
         // used for session stash
         $this->authRequestSerial = $this->session->get('authRequestSerial', '');
         // Create a crypto object that will be used for for encryption/decryption
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
         // verify and/or setup our key pairs.
         $this->configKeyPairs($this->session);
         $this->trustedUserService = new TrustedUserService();

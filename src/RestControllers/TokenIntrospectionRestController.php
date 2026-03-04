@@ -169,7 +169,7 @@ class TokenIntrospectionRestController {
 
     public function getCryptoGen(): CryptoGen {
         if (!isset($this->cryptoGen)) {
-            $this->cryptoGen = new CryptoGen();
+            $this->cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
         }
         return $this->cryptoGen;
     }

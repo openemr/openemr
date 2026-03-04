@@ -82,7 +82,7 @@ if (!empty($_POST['bn_submit'])) {
             $fileData = file_get_contents($filepath);
 
             // Decrypt file, if applicable.
-            $cryptoGen = new CryptoGen();
+            $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
             if ($cryptoGen->cryptCheckStandard($fileData)) {
                 $fileData = $cryptoGen->decryptStandard($fileData, null, 'database');
             }

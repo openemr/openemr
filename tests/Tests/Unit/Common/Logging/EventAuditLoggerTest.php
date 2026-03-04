@@ -107,7 +107,7 @@ final class EventAuditLoggerTest extends TestCase
 
         // Get EventAuditLogger instance (works with existing singleton)
         $this->eventAuditLogger = new EventAuditLogger(
-            new CryptoGen(),
+            \OpenEMR\BC\ServiceContainer::getCrypto(),
         );
 
         // Setup default test environment

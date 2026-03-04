@@ -23,7 +23,7 @@ use OpenEMR\Core\Header;
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // Set up crypto object
-$cryptoGen = new CryptoGen();
+$cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
 
 $template_dir = $GLOBALS['OE_SITE_DIR'] . "/documents/letter_templates";
 

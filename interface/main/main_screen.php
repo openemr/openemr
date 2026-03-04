@@ -188,7 +188,7 @@ if (isset($_POST['new_login_session_management'])) {
 
                 // Decrypt the secret
                 // First, try standard method that uses standard key
-                $cryptoGen = new CryptoGen();
+                $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
                 $secret = $cryptoGen->decryptStandard($registrationSecret);
                 if (empty($secret)) {
                     // Second, try the password hash, which was setup during install and is temporary

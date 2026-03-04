@@ -917,7 +917,7 @@ class Document extends ORDataObject
         // and leave it empty. Logically, documents are not tied to encounters.
 
         // Create a crypto object that will be used for for encryption/decryption
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
 
         if ($GLOBALS['generate_doc_thumb']) {
             $thumb_size = ($GLOBALS['thumb_doc_max_size'] > 0) ? $GLOBALS['thumb_doc_max_size'] : null;
@@ -1156,7 +1156,7 @@ class Document extends ORDataObject
      */
     public function decrypt_content($data)
     {
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
         $decryptedData = $cryptoGen->decryptStandard($data, null, 'database');
         if ($decryptedData === false) {
             throw new RuntimeException("Failed to decrypt the data");

@@ -34,7 +34,7 @@ function getErxCredentials()
     $cred = [];
     $cred[] = $GLOBALS['erx_account_partner_name'];
     $cred[] = $GLOBALS['erx_account_name'];
-    $cryptoGen = new CryptoGen();
+    $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
     $cred[] = $cryptoGen->decryptStandard($GLOBALS['erx_account_password']);
 
     return $cred;

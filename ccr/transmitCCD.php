@@ -58,7 +58,7 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
     }
 
     $phimail_username = $GLOBALS['phimail_username'];
-    $cryptoGen = new CryptoGen();
+    $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
     $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
     if ($ret !== true) {
@@ -188,7 +188,7 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
     }
 
     $phimail_username = $GLOBALS['phimail_username'];
-    $cryptoGen = new CryptoGen();
+    $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
     $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
     if ($ret !== true) {

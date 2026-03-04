@@ -2078,7 +2078,7 @@ SETHLP;
      */
     protected function encryptTotpSecret(string $secret, string $hash): string
     {
-        $cryptoGen = new \OpenEMR\Common\Crypto\CryptoGen();
+        $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
         return $cryptoGen->encryptStandard($secret, $hash);
     }
 

@@ -36,7 +36,7 @@ if ($mid === '') {
     throw new InvalidArgumentException('rainforest_merchant_id config is missing.');
 }
 
-$crypto = new CryptoGen();
+$crypto = \OpenEMR\BC\ServiceContainer::getCrypto();
 $whv = new Verifier(
     clock: SystemClock::fromSystemTimezone(),
     webhookSecret: $crypto->decryptStandard($gb->getString('rainforest_webhook_secret'))

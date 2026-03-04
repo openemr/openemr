@@ -74,7 +74,7 @@ class EhiExporter
         $this->taskService = new EhiExportJobTaskService();
         $this->jobService = new EhiExportJobService();
         $this->twig = $twig;
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
     }
 
     public function setSession(Session $session): void

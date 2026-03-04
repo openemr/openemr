@@ -29,7 +29,7 @@ class Easipro
     // Package authentication
     private static function packageAuth()
     {
-        return base64_encode($GLOBALS['easipro_name'] . ":" . (new CryptoGen())->decryptStandard($GLOBALS['easipro_pass']));
+        return base64_encode($GLOBALS['easipro_name'] . ":" . (\OpenEMR\BC\ServiceContainer::getCrypto())->decryptStandard($GLOBALS['easipro_pass']));
     }
 
     // Collect list of forms (returns json)

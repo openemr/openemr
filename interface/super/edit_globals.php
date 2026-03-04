@@ -37,7 +37,7 @@ use Ramsey\Uuid\Uuid;
 
 
 // Set up crypto object
-$cryptoGen = new CryptoGen();
+$cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
 
 $userMode = (array_key_exists('mode', $_GET) && $_GET['mode'] == 'user');
 

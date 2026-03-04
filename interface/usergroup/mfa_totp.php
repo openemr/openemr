@@ -154,7 +154,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                 $secret = false;
                                 $doesExist = false;
                             } else {
-                                $cryptoGen = new CryptoGen();
+                                $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
                                 $secret = $cryptoGen->decryptStandard($existingSecret['var1']);
                                 $doesExist = true;
                             }
@@ -233,7 +233,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 
 
                             if (empty($row['count']) && isset($_SESSION['totpSecret'])) {
-                                $cryptoGen = new CryptoGen();
+                                $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
                                 privStatement(
                                     "INSERT INTO login_mfa_registrations " .
                                     "(`user_id`, `method`, `name`, `var1`, `var2`) VALUES " .

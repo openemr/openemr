@@ -39,7 +39,7 @@ class WenoGlobalConfig
 
     public function __construct()
     {
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
     }
 
     /**

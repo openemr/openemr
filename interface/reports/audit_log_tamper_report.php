@@ -221,7 +221,7 @@ $check_sum = isset($_GET['check_sum']);
     $icnt = 1;
     if ($ret = EventAuditLogger::getInstance()->getEvents(['sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => ($_GET['sortby'] ?? null), 'levent' => $gev, 'tevent' => $tevent])) {
         // Set up crypto object (object will increase performance since caches used keys)
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
 
         while ($iter = sqlFetchArray($ret)) {
             if (empty($iter["id"])) {

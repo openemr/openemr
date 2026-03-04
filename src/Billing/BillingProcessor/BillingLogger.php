@@ -65,7 +65,7 @@ class BillingLogger
 
     public function __construct()
     {
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
 
         if ($GLOBALS['billing_log_option'] == 1) {
             if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log")) {

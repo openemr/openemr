@@ -78,7 +78,7 @@ class C_Document extends Controller
         $this->Document = new Document();
 
         // Create a crypto object that will be used for for encryption/decryption
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
         $this->templateService = new DocumentTemplateService();
     }
 

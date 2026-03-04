@@ -778,7 +778,7 @@ class EDI270
         }
         $boundary = RandomGenUtils::createUniqueToken(12);
 
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
         $decrypted_password = $cryptoGen->decryptStandard($X12info['x12_sftp_pass']);
         $rt_password = $decrypted_password;
         $rt_user = $X12info['x12_sftp_login'];

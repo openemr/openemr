@@ -47,7 +47,7 @@ if ($session->get('portal_init') !== true) {
 $session->set('portal_init', false);
 
 if ($_POST['mode'] == 'Sphere') {
-    $cryptoGen = new CryptoGen();
+    $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
     $dataTrans = $cryptoGen->decryptStandard($_POST['enc_data']);
     $dataTrans = json_decode($dataTrans, true);
 
@@ -192,7 +192,7 @@ function SaveAudit($pid, $amts, $cc)
         $audit['table_args'] = $amts;
         $audit['action_user'] = "0";
         $audit['action_taken_time'] = "";
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
         $audit['checksum'] = $cryptoGen->encryptStandard($cc);
 
         $edata = $appsql->getPortalAudit($pid, 'review', 'payment');
@@ -226,7 +226,7 @@ function CloseAudit($pid, $amts, $cc, $action = 'payment posted', $paction = 'no
         $audit['table_args'] = $amts;
         $audit['action_user'] = $session->get('authUserID', "0");
         $audit['action_taken_time'] = date("Y-m-d H:i:s");
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
         $audit['checksum'] = $cryptoGen->encryptStandard($cc);
 
         $edata = $appsql->getPortalAudit($pid, 'review', 'payment');

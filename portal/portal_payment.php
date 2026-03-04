@@ -62,7 +62,7 @@ use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 
 $twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
 
-$cryptoGen = new CryptoGen();
+$cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
 
 $recorder = new Recorder();
 

@@ -74,7 +74,7 @@ class SphereRevert
 
         $this->authGlobalPin = new AuthGlobal('sphere_credit_void_confirm_pin');
 
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
         if ($front == 'patient') {
             $this->custid = $this->cryptoGen->decryptStandard($GLOBALS['sphere_patientfront_trxcustid']);
             $this->custpass = $this->cryptoGen->decryptStandard($GLOBALS['sphere_ecomm_tc_link_pass']);

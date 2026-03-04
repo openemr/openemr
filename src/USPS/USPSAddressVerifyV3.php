@@ -40,7 +40,7 @@ class USPSAddressVerifyV3
      */
     public function __construct()
     {
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
 
         $globals = OEGlobalsBag::getInstance();
         $encryptedClientId = $globals->get('usps_apiv3_client_id');

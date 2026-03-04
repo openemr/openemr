@@ -41,7 +41,7 @@ class RCFaxClient extends AppDispatch
 
     public function __construct()
     {
-        $this->crypto = new CryptoGen();
+        $this->crypto = \OpenEMR\BC\ServiceContainer::getCrypto();
         $this->baseDir = $GLOBALS['temporary_files_dir'];
         $this->uriDir = $GLOBALS['OE_SITE_WEBROOT'];
         $this->cacheDir = $GLOBALS['OE_SITE_DIR'] . '/documents/logs_and_misc/_cache';

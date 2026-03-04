@@ -54,7 +54,7 @@ class OAuth2KeyConfig
         }
 
         // Create a crypto object that will be used for encryption/decryption
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
         // verify and/or setup our key pairs.
         $this->privateKey = $siteDir . '/documents/certificates/oaprivate.key';
         $this->publicKey = $siteDir . '/documents/certificates/oapublic.key';

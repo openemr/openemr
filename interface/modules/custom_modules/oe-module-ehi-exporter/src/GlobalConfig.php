@@ -24,7 +24,7 @@ class GlobalConfig
 
     public function __construct(private array $globalsArray)
     {
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
     }
 
     /**

@@ -28,7 +28,7 @@ class PaymentGateway
     {
         $this->production = !$GLOBALS['gateway_mode_production'];
 
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
         $this->apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
         $this->transactionKey = $cryptoGen->decryptStandard($GLOBALS['gateway_transaction_key']);
 

@@ -43,7 +43,7 @@ class SignalWireClient extends AppDispatch
     {
         // Initialize properties before calling parent (like other controllers)
         $globals = OEGlobalsBag::getInstance();
-        $this->crypto = new CryptoGen();
+        $this->crypto = \OpenEMR\BC\ServiceContainer::getCrypto();
         $this->baseDir = $globals->get('temporary_files_dir');
         $this->uriDir = $globals->get('OE_SITE_WEBROOT');
 

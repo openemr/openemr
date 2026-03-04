@@ -35,7 +35,7 @@ class CouchDB
     {
         $this->host = $GLOBALS['couchdb_host'];
         $this->user = ($GLOBALS['couchdb_user'] != '') ? $GLOBALS['couchdb_user'] : null;
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
         $this->pass = ($cryptoGen->decryptStandard($GLOBALS['couchdb_pass']) != '') ? $cryptoGen->decryptStandard($GLOBALS['couchdb_pass']) : null;
         $this->port = $GLOBALS['couchdb_port'];
         $this->dbase = $GLOBALS['couchdb_dbase'];

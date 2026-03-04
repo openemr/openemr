@@ -138,7 +138,7 @@ class eRxGlobals
      */
     public function getAccountPassword()
     {
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
         return $cryptoGen->decryptStandard($this->getGlobalValue('erx_account_password'));
     }
 

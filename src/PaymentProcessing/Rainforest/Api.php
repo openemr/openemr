@@ -145,7 +145,7 @@ readonly class Api
      */
     public static function makeFromGlobals(OEGlobalsBag $bag): Api
     {
-        $crypto = new CryptoGen();
+        $crypto = \OpenEMR\BC\ServiceContainer::getCrypto();
         $apiKey = $crypto->decryptStandard($bag->getString('rainforest_api_key'));
         if ($apiKey === false) {
             throw new \RuntimeException('Failed to decrypt rainforest_api_key');

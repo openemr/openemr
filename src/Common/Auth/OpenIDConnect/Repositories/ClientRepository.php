@@ -27,7 +27,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function __construct()
     {
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
     }
 
     /**
@@ -195,7 +195,7 @@ class ClientRepository implements ClientRepositoryInterface
 
             // Validate client if is_confidential
             if (!empty($clientSecret) && !empty($client['is_confidential'])) {
-                $secret = (new CryptoGen())->decryptStandard($client['client_secret']);
+                $secret = (\OpenEMR\BC\ServiceContainer::getCrypto())->decryptStandard($client['client_secret']);
                 if (empty($secret)) {
                     return false;
                 }

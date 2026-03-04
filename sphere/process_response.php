@@ -75,7 +75,7 @@ if ($GLOBALS['payment_gateway'] != 'Sphere') {
         // Success!
         PaymentProcessing::saveAudit('sphere', $_GET['patient_id_cc'], 1, $auditData, $_POST['ticket'], $_POST['transid'], $_POST['action_name'], $_POST['amount']);
         if ($_GET['front'] == 'patient') {
-            echo "<script>opener.sphereSuccess(" . js_escape((new CryptoGen())->encryptStandard(json_encode($auditData))) . ");dlgclose();</script>";
+            echo "<script>opener.sphereSuccess(" . js_escape((\OpenEMR\BC\ServiceContainer::getCrypto())->encryptStandard(json_encode($auditData))) . ");dlgclose();</script>";
         } else { // $_GET['front'] == 'clinic-phone' || $_GET['front'] == 'clinic-retail'
             echo "<script>opener.sphereSuccess(" . js_escape($_POST['transid']) . ");dlgclose();</script>";
         }

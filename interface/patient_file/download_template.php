@@ -393,7 +393,7 @@ if ($ext != 'dotx') {
 $fileData = file_get_contents($templatepath);
 
 // Decrypt file, if applicable.
-$cryptoGen = new CryptoGen();
+$cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
 if ($cryptoGen->cryptCheckStandard($fileData)) {
     $fileData = $cryptoGen->decryptStandard($fileData, null, 'database');
 }

@@ -78,7 +78,7 @@ class TelehealthGlobalConfig
 
     public function __construct($publicWebPath, private readonly Environment $twig)
     {
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
         $this->publicWebPath = $publicWebPath;
     }
 
