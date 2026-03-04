@@ -56,36 +56,11 @@ final class Version20260000020192 extends AbstractMigration
             'default' => null,
             'comment' => 'application identifier representing calculation e.g., bp-MeanLast5, bp-Mean3Day, bp-MeanEncounter',
         ]);
-        $table->addColumn('fvc_uuid', Types::BINARY, ['length' => 16, 'comment' => 'fk to form_vitals_calculation.uuid']);
-        $table->addColumn('vitals_column', Types::STRING, ['length' => 64, 'comment' => 'Component type: bps, bpd, pulse, etc.']);
-        $table->addColumn('value', Types::DECIMAL, [
-            'precision' => 12,
-            'scale' => 6,
-            'notnull' => false,
-            'default' => null,
-            'comment' => 'Calculated numeric component value',
-        ]);
-        $table->addColumn('value_string', Types::STRING, [
-            'length' => 255,
-            'notnull' => false,
-            'default' => null,
-            'comment' => 'Calculated non-numeric component value',
-        ]);
-        $table->addColumn('value_unit', Types::STRING, [
-            'length' => 16,
-            'notnull' => false,
-            'default' => null,
-            'comment' => 'Unit for this component value',
-        ]);
-        $table->addColumn('component_order', Types::INTEGER, ['default' => 0, 'comment' => 'Display order for components']);
         $this->addPrimaryKey($table, 'id');
+        $table->addUniqueIndex(['uuid'], 'unq_uuid');
         $table->addIndex(['pid'], 'idx_pid');
         $table->addIndex(['encounter'], 'idx_encounter');
         $table->addIndex(['calculation_id'], 'idx_calculation_id');
-        $table->addIndex(['vitals_column'], 'idx_vitals_column');
-        $table->addIndex(['fvc_uuid', 'component_order'], 'idx_component_order');
-        $table->addUniqueIndex(['uuid'], 'unq_uuid');
-        $table->addUniqueIndex(['fvc_uuid', 'vitals_column'], 'unq_fvc_component');
 
         $this->createTable($table);
     }
