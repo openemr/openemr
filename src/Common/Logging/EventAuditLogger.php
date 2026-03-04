@@ -17,8 +17,8 @@ namespace OpenEMR\Common\Logging;
 use DateTime;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Crypto\CryptoInterface;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Traits\SingletonTrait;
 
 class EventAuditLogger

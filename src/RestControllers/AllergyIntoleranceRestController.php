@@ -13,8 +13,8 @@
 namespace OpenEMR\RestControllers;
 
 use OpenApi\Attributes as OA;
-use OpenEMR\Services\AllergyIntoleranceService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\AllergyIntoleranceService;
 
 #[OA\Schema(
     schema: 'api_allergy_request',

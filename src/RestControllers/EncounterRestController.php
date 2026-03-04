@@ -14,8 +14,8 @@ namespace OpenEMR\RestControllers;
 
 use OpenApi\Attributes as OA;
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Services\EncounterService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\EncounterService;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 #[OA\Schema(

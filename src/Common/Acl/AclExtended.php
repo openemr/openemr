@@ -19,10 +19,10 @@
 
 namespace OpenEMR\Common\Acl;
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Gacl\GaclApi;
 use OpenEMR\Services\UserService;
 use OpenEMR\Services\VersionService;
-use OpenEMR\Common\Acl\AclMain;
 
 class AclExtended
 {

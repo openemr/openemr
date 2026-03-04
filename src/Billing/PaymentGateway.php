@@ -12,8 +12,8 @@
 
 namespace OpenEMR\Billing;
 
-use Omnipay\Omnipay;
 use Omnipay\Common\CreditCard;
+use Omnipay\Omnipay;
 use OpenEMR\Common\Crypto\CryptoGen;
 
 class PaymentGateway

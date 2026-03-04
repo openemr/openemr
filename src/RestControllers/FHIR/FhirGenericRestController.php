@@ -10,6 +10,7 @@
 
 namespace OpenEMR\RestControllers\FHIR;
 
+use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
@@ -17,10 +18,9 @@ use OpenEMR\FHIR\SMART\ResourceConstraintFilterer;
 use OpenEMR\RestControllers\Config\RestConfig;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\FhirResourcesService;
-use OpenEMR\Services\Trait\GlobalInterfaceTrait;
-use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Services\FHIR\FhirServiceBase;
 use OpenEMR\Services\IGlobalsAware;
+use OpenEMR\Services\Trait\GlobalInterfaceTrait;
 use OpenEMR\Validators\ProcessingResult;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;

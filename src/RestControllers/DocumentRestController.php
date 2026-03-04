@@ -13,8 +13,8 @@
 namespace OpenEMR\RestControllers;
 
 use OpenApi\Attributes as OA;
-use OpenEMR\Services\DocumentService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\DocumentService;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;

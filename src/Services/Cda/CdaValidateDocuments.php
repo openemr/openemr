@@ -17,9 +17,9 @@ use DOMDocument;
 use Exception;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\System\System;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 
 class CdaValidateDocuments
 {

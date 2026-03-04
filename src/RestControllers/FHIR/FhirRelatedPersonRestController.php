@@ -17,10 +17,10 @@ namespace OpenEMR\RestControllers\FHIR;
 
 use OpenApi\Attributes as OA;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
+use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\FhirRelatedPersonService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
-use OpenEMR\RestControllers\RestControllerHelper;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
