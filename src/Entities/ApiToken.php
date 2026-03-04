@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Entity;
+namespace OpenEMR\Entities;
 
 use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
