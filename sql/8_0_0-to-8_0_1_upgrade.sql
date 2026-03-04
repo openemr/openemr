@@ -191,3 +191,7 @@ DELETE FROM `globals` WHERE `gl_name` = 'allow_multiple_databases';
 #IfRow globals gl_name safe_key_database
 DELETE FROM `globals` WHERE `gl_name` = 'safe_key_database';
 #EndIf
+
+#IfRow3D layout_options form_id DEM field_id care_team_provider uor 1
+UPDATE `layout_options` SET `uor` = 0 WHERE `form_id` = 'DEM' AND `field_id` IN ('care_team_facility', 'care_team_provider', 'care_team_status') AND `uor` = 1;
+#EndIf
