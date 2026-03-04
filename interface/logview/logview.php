@@ -333,7 +333,7 @@ if (!empty($_GET)) {
                                                             ? KeyVersion::from($encryptVersion)->toPaddedString() . $iter["comments"]
                                                             : $iter["comments"];
                                                         $trans_comments = $cryptoGen->decryptStandard($comments);
-                                                        if ($trans_comments !== false) {
+                                                        if (is_string($trans_comments)) {
                                                             $trans_comments = preg_replace($patterns, $replace, $trans_comments);
                                                         } else {
                                                             $trans_comments = xl("Unable to decrypt these comments since decryption failed.");

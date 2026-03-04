@@ -288,7 +288,7 @@ $check_sum = isset($_GET['check_sum']);
                         ? KeyVersion::from($encryptVersion)->toPaddedString() . $iter["comments"]
                         : $iter["comments"];
                     $trans_comments = $cryptoGen->decryptStandard($comments);
-                    if ($trans_comments !== false) {
+                    if (is_string($trans_comments)) {
                         $trans_comments = preg_replace($patterns, $replace, trim($trans_comments));
                     } else {
                         $trans_comments = xl("Unable to decrypt these comments since decryption failed.");
