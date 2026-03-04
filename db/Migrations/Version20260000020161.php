@@ -35,11 +35,18 @@ final class Version20260000020161 extends AbstractMigration
         $table->addColumn('REQ_DATE', Types::DATETIME_MUTABLE);
         $table->addColumn('FROM_ID', Types::BIGINT);
         $table->addColumn('TO_ID', Types::BIGINT);
-        $table->addColumn('PATIENT_ID', Types::BIGINT, ['default' => null]);
+        $table->addColumn('PATIENT_ID', Types::BIGINT);
+        $table->addColumn('DOC_TYPE', Types::STRING, [
+            'length' => 20,
+            'notnull' => false,
+            'default' => null,
+        ]);
         $table->addColumn('DOC_ID', Types::BIGINT, ['notnull' => false, 'default' => null]);
         $table->addColumn('ENC_ID', Types::BIGINT, ['notnull' => false, 'default' => null]);
-        $table->addColumn('METHOD', Types::STRING, [
-            'length' => 20,
+        $table->addColumn('METHOD', Types::STRING, ['length' => 20]);
+        $table->addColumn('COMPLETED', Types::STRING, [
+            'length' => 1,
+            'notnull' => false,
             'default' => null,
             'comment' => '1 = completed',
         ]);
