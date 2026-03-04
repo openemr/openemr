@@ -12,6 +12,7 @@
  */
 
 namespace OpenEMR\Modules\EhiExporter\Services;
+use OpenEMR\BC\ServiceContainer;
 
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
@@ -74,7 +75,7 @@ class EhiExporter
         $this->taskService = new EhiExportJobTaskService();
         $this->jobService = new EhiExportJobService();
         $this->twig = $twig;
-        $this->cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+        $this->cryptoGen = ServiceContainer::getCrypto();
     }
 
     public function setSession(Session $session): void

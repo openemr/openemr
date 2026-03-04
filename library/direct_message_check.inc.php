@@ -28,7 +28,7 @@ require_once(__DIR__ . "/pnotes.inc.php");
 require_once(__DIR__ . "/documents.php");
 require_once(__DIR__ . "/gprelations.inc.php");
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
@@ -50,7 +50,7 @@ function phimail_connect(&$phimail_error)
 
     $phimail_server = @parse_url((string) $GLOBALS['phimail_server_address']);
     $phimail_username = $GLOBALS['phimail_username'];
-    $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+    $cryptoGen = ServiceContainer::getCrypto();
     $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
 
     // if test mode is disabled we use the production cert, otherwise we use the test certificate.
@@ -163,7 +163,7 @@ function phimail_check(): void
     }
 
     $phimail_username = $GLOBALS['phimail_username'];
-    $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+    $cryptoGen = ServiceContainer::getCrypto();
     $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
 
     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");

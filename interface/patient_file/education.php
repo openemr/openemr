@@ -15,7 +15,7 @@
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -82,7 +82,7 @@ if (!empty($_POST['bn_submit'])) {
             $fileData = file_get_contents($filepath);
 
             // Decrypt file, if applicable.
-            $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+            $cryptoGen = ServiceContainer::getCrypto();
             if ($cryptoGen->cryptCheckStandard($fileData)) {
                 $fileData = $cryptoGen->decryptStandard($fileData, null, 'database');
             }

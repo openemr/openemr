@@ -16,9 +16,9 @@
 
 require_once('../globals.php');
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -27,7 +27,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 }
 
 // Set up crypto object
-$cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+$cryptoGen = ServiceContainer::getCrypto();
 
 $form_filename = convert_safe_file_dir_name($_REQUEST['form_filename'] ?? '');
 

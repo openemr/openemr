@@ -13,8 +13,8 @@
 $ignoreAuth = false;
 require_once(__DIR__ . "/../globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\PaymentGateway;
-use OpenEMR\Common\Crypto\CryptoGen;
 use Stripe\PaymentIntent;
 use Stripe\Stripe;
 use Stripe\Terminal\ConnectionToken;
@@ -103,7 +103,7 @@ if ($_POST['mode'] == 'Stripe') {
 }
 
 if ($_GET['mode'] == 'terminal_token') {
-    $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+    $cryptoGen = ServiceContainer::getCrypto();
     $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
     Stripe::setApiKey($apiKey);
 
@@ -118,7 +118,7 @@ if ($_GET['mode'] == 'terminal_token') {
     }
 }
 if ($_GET['mode'] == 'cancel_intent') {
-    $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+    $cryptoGen = ServiceContainer::getCrypto();
     $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
     Stripe::setApiKey($apiKey);
 
@@ -139,7 +139,7 @@ if ($_GET['mode'] == 'cancel_intent') {
 }
 
 if ($_GET['mode'] == 'terminal_capture') {
-    $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+    $cryptoGen = ServiceContainer::getCrypto();
     $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
     Stripe::setApiKey($apiKey);
 
@@ -161,7 +161,7 @@ if ($_GET['mode'] == 'terminal_capture') {
 }
 
 if ($_GET['mode'] == 'terminal_create') {
-    $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+    $cryptoGen = ServiceContainer::getCrypto();
     $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
     Stripe::setApiKey($apiKey);
 

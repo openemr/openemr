@@ -11,6 +11,7 @@
  */
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
+use OpenEMR\BC\ServiceContainer;
 
 use Document;
 use Exception;
@@ -43,7 +44,7 @@ class SignalWireClient extends AppDispatch
     {
         // Initialize properties before calling parent (like other controllers)
         $globals = OEGlobalsBag::getInstance();
-        $this->crypto = \OpenEMR\BC\ServiceContainer::getCrypto();
+        $this->crypto = ServiceContainer::getCrypto();
         $this->baseDir = $globals->get('temporary_files_dir');
         $this->uriDir = $globals->get('OE_SITE_WEBROOT');
 

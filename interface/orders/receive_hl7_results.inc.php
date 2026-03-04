@@ -26,7 +26,7 @@
 require_once($GLOBALS['srcdir'] . "/forms.inc.php");
 require_once($GLOBALS['srcdir'] . "/pnotes.inc.php");
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use phpseclib3\Net\SFTP;
@@ -1939,7 +1939,7 @@ function poll_hl7_results(&$info, $labs = 0)
 function hl7Crypt($content)
 {
     if ($GLOBALS['drive_encryption']) {
-        $content = (\OpenEMR\BC\ServiceContainer::getCrypto())->encryptStandard($content, null, 'database');
+        $content = (ServiceContainer::getCrypto())->encryptStandard($content, null, 'database');
     }
 
     return $content;

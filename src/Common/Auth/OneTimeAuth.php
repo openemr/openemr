@@ -12,6 +12,7 @@
  */
 
 namespace OpenEMR\Common\Auth;
+use OpenEMR\BC\ServiceContainer;
 
 use DateInterval;
 use DateTime;
@@ -43,7 +44,7 @@ class OneTimeAuth
      */
     public function __construct(private $context = 'portal', private $scope = 'redirect', private $profile = 'default')
     {
-        $this->cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+        $this->cryptoGen = ServiceContainer::getCrypto();
         $this->systemLogger = new SystemLogger();
         $this->session = SessionWrapperFactory::getInstance()->getWrapper();
         $this->globalsBag = OEGlobalsBag::getInstance();

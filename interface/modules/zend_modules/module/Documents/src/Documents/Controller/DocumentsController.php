@@ -13,9 +13,9 @@
  */
 
 namespace Documents\Controller;
+use OpenEMR\BC\ServiceContainer;
 
 use DOMDocument;
-use OpenEMR\Common\Crypto\CryptoGen;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Application\Listener\Listener;
 use Documents\Model\DocumentsTable;
@@ -105,7 +105,7 @@ class DocumentsController extends AbstractActionController
 
                 // Decrypt Encrypted File
                 if ($encrypted_file == '1') {
-                    $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+                    $cryptoGen = ServiceContainer::getCrypto();
                     $plaintext = $cryptoGen->decryptStandard($filetext, $encryption_key);
                     if ($plaintext === false) {
                         error_log("OpenEMR Error: Unable to decrypt a document since decryption failed.");

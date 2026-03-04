@@ -11,8 +11,8 @@
  */
 
 namespace OpenEMR\FHIR\SMART;
+use OpenEMR\BC\ServiceContainer;
 
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\SystemLogger;
 
 class SMARTLaunchToken
@@ -127,7 +127,7 @@ class SMARTLaunchToken
         // no security is really needed here... just need to be able to wrap
         // the current context into some kind of opaque id that the app will pass to the server and we can then
         // return to system
-        $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+        $cryptoGen = ServiceContainer::getCrypto();
         $jsonEncoded = json_encode($context);
         (new SystemLogger())->debug(self::class . "->serialize() Context before encryption", ['context' => $context, 'json' => $jsonEncoded]);
         $launchParams = $cryptoGen->encryptStandard($jsonEncoded);
@@ -153,7 +153,7 @@ class SMARTLaunchToken
      */
     public function deserialize($serialized)
     {
-        $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+        $cryptoGen = ServiceContainer::getCrypto();
         $jsonEncrypted = base64_decode((string) $serialized);
         if ($jsonEncrypted === false) {
             throw new \InvalidArgumentException("serialized token is not valid base64");

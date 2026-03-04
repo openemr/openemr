@@ -13,6 +13,7 @@
  */
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
+use OpenEMR\BC\ServiceContainer;
 
 use MyMailer;
 use OpenEMR\Common\Crypto\CryptoInterface;
@@ -37,7 +38,7 @@ class EmailClient extends AppDispatch
         if (empty($GLOBALS['oe_enable_email'] ?? null)) {
             throw new \RuntimeException(xlt("Access denied! Module not enabled"));
         }
-        $this->crypto = \OpenEMR\BC\ServiceContainer::getCrypto();
+        $this->crypto = ServiceContainer::getCrypto();
         $this->baseDir = $GLOBALS['temporary_files_dir'];
         $this->uriDir = $GLOBALS['OE_SITE_WEBROOT'];
         $this->smtpEnabled = !empty($GLOBALS['SMTP_HOST'] ?? null);

@@ -18,9 +18,9 @@
  */
 
 namespace OpenEMR\Easipro;
+use OpenEMR\BC\ServiceContainer;
 
 use MyMailer;
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
@@ -29,7 +29,7 @@ class Easipro
     // Package authentication
     private static function packageAuth()
     {
-        return base64_encode($GLOBALS['easipro_name'] . ":" . (\OpenEMR\BC\ServiceContainer::getCrypto())->decryptStandard($GLOBALS['easipro_pass']));
+        return base64_encode($GLOBALS['easipro_name'] . ":" . (ServiceContainer::getCrypto())->decryptStandard($GLOBALS['easipro_pass']));
     }
 
     // Collect list of forms (returns json)

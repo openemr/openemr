@@ -18,6 +18,7 @@ header('Content-type: text/plain');
 $ignoreAuth_onsite_portal = true;
 require_once 'interface/globals.php';
 
+use OpenEMR\BC\ServiceContainer;
 use Http\Discovery\Psr17Factory;
 use Lcobucci\Clock\SystemClock;
 use Monolog\Logger;
@@ -26,7 +27,6 @@ use OpenEMR\PaymentProcessing\Rainforest\Webhooks\{
     RecordPayment,
     Verifier,
 };
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Core\OEGlobalsBag;
 
 $gb = OEGlobalsBag::getInstance();
@@ -36,7 +36,7 @@ if ($mid === '') {
     throw new InvalidArgumentException('rainforest_merchant_id config is missing.');
 }
 
-$crypto = \OpenEMR\BC\ServiceContainer::getCrypto();
+$crypto = ServiceContainer::getCrypto();
 $whv = new Verifier(
     clock: SystemClock::fromSystemTimezone(),
     webhookSecret: $crypto->decryptStandard($gb->getString('rainforest_webhook_secret'))

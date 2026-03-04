@@ -5,7 +5,7 @@
 
 require_once dirname(__DIR__, 4) . "/globals.php";
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Modules\WenoModule\Services\DownloadWenoPharmacies;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
@@ -16,7 +16,7 @@ use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 $wenoValidate = new WenoValidate();
 $isKey = $wenoValidate->validateAdminCredentials(true, "Pharmacy Directory");
 
-$cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+$cryptoGen = ServiceContainer::getCrypto();
 $weno_username = $GLOBALS['weno_admin_username'] ?? '';
 $weno_password = $cryptoGen->decryptStandard($GLOBALS['weno_admin_password'] ?? '');
 $encryption_key = $cryptoGen->decryptStandard($GLOBALS['weno_encryption_key'] ?? '');

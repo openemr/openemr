@@ -14,7 +14,7 @@
 
 require_once dirname(__FILE__, 4) . '/globals.php';
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 
@@ -37,7 +37,7 @@ if (!empty($_GET['setup']) ?? null) {
 
     $content = trim(file_get_contents("php://input"));
     $credentials = json_decode($content, true);
-    $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+    $cryptoGen = ServiceContainer::getCrypto();
     $items[TelehealthGlobalConfig::COMLINK_VIDEO_REGISTRATION_API] = $credentials['registrationUri'] ?? '';
     $items[TelehealthGlobalConfig::COMLINK_VIDEO_TELEHEALTH_API] = $credentials['videoApiUri'] ?? '';
     $items[TelehealthGlobalConfig::COMLINK_VIDEO_API_USER_ID] = $credentials['ctsiOrgUid'] ?? '';

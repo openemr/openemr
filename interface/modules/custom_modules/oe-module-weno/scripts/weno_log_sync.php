@@ -10,7 +10,7 @@
  * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Modules\WenoModule\Services\LogProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
@@ -36,7 +36,7 @@ function downloadWenoPharmacy(): void
     }
     $wenoLog = new WenoLogService();
     $wenoValidate = new WenoValidate();
-    $localPharmacyJson = new WenoPharmaciesJson(\OpenEMR\BC\ServiceContainer::getCrypto());
+    $localPharmacyJson = new WenoPharmaciesJson(ServiceContainer::getCrypto());
 
     $isKey = $wenoValidate->validateAdminCredentials(true, "Pharmacy Directory");
     if ((int)$isKey >= 998) {

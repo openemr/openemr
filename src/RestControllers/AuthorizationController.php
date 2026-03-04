@@ -13,6 +13,7 @@
  */
 
 namespace OpenEMR\RestControllers;
+use OpenEMR\BC\ServiceContainer;
 
 use DateInterval;
 use DateTimeImmutable;
@@ -178,7 +179,7 @@ class AuthorizationController
         // used for session stash
         $this->authRequestSerial = $this->session->get('authRequestSerial', '');
         // Create a crypto object that will be used for for encryption/decryption
-        $this->cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+        $this->cryptoGen = ServiceContainer::getCrypto();
         // verify and/or setup our key pairs.
         $this->configKeyPairs($this->session);
         $this->trustedUserService = new TrustedUserService();

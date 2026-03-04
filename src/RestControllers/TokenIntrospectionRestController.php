@@ -14,6 +14,7 @@
  */
 
 namespace OpenEMR\RestControllers;
+use OpenEMR\BC\ServiceContainer;
 
 use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
@@ -169,7 +170,7 @@ class TokenIntrospectionRestController {
 
     public function getCryptoGen(): CryptoInterface {
         if (!isset($this->cryptoGen)) {
-            $this->cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+            $this->cryptoGen = ServiceContainer::getCrypto();
         }
         return $this->cryptoGen;
     }

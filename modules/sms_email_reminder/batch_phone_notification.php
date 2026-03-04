@@ -30,7 +30,7 @@ chdir($current_dir);
 require_once("../../interface/globals.php");
 require_once("$srcdir/maviq_phone_api.php");
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
@@ -42,7 +42,7 @@ $before_trigger_hours = $GLOBALS['phone_notification_hour'];
 //set up the phone notification settings for external phone service
 $phone_url =    $GLOBALS['phone_gateway_url'] ;
 $phone_id = $GLOBALS['phone_gateway_username'];
-$cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+$cryptoGen = ServiceContainer::getCrypto();
 $phone_token = $cryptoGen->decryptStandard($GLOBALS['phone_gateway_password']);
 $phone_time_range = $GLOBALS['phone_time_range'];
 

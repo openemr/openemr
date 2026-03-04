@@ -11,6 +11,7 @@
  */
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule;
+use OpenEMR\BC\ServiceContainer;
 
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
@@ -75,7 +76,7 @@ class TelehealthGlobalConfig
 
     public function __construct($publicWebPath, private readonly Environment $twig)
     {
-        $this->cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+        $this->cryptoGen = ServiceContainer::getCrypto();
         $this->publicWebPath = $publicWebPath;
     }
 

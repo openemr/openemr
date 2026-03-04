@@ -11,6 +11,7 @@
  */
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
+use OpenEMR\BC\ServiceContainer;
 
 use MyMailer;
 use OpenEMR\Common\Acl\AclMain;
@@ -55,7 +56,7 @@ abstract class AppDispatch
         if (empty(self::$_apiModule)) {
             self::$_apiModule = $_REQUEST['type'] ?? $_SESSION["oefax_current_module_type"] ?? null;
         }
-        $this->crypto = \OpenEMR\BC\ServiceContainer::getCrypto();
+        $this->crypto = ServiceContainer::getCrypto();
         $this->dispatchActions();
         $this->render();
     }

@@ -12,6 +12,7 @@
  */
 
 namespace Carecoordination\Model;
+use OpenEMR\BC\ServiceContainer;
 
 // TODO: we need to refactor all of this so it can go into a class for this functionality
 require_once($GLOBALS['fileroot'] . '/ccr/transmitCCD.php');
@@ -21,7 +22,6 @@ use Application\Plugin\CommonPlugin;
 use CouchDB;
 use DOMDocument;
 use Dompdf\Dompdf;
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\DirectMessaging\ErrorConstants;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -168,7 +168,7 @@ class EncountermanagerTable
                 $couch = new CouchDB();
                 $resp = $couch->retrieve_doc($row['couch_docid']);
                 if ($row['encrypted']) {
-                    $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+                    $cryptoGen = ServiceContainer::getCrypto();
                     $content = $cryptoGen->decryptStandard($resp->data, null, 'database');
                 } else {
                     $content = base64_decode((string) $resp->data);
@@ -179,7 +179,7 @@ class EncountermanagerTable
                 }
                 $fccda = fopen($row['ccda_data'], "r");
                 if ($row['encrypted']) {
-                    $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+                    $cryptoGen = ServiceContainer::getCrypto();
                     $content = $cryptoGen->decryptStandard(fread($fccda, filesize($row['ccda_data'])), null, 'database');
                 } else {
                     $content = fread($fccda, filesize($row['ccda_data']));

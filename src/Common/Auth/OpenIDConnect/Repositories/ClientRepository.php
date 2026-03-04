@@ -11,6 +11,7 @@
  */
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
+use OpenEMR\BC\ServiceContainer;
 
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
@@ -27,7 +28,7 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function __construct()
     {
-        $this->cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+        $this->cryptoGen = ServiceContainer::getCrypto();
     }
 
     public function getCryptoGen(): CryptoInterface
@@ -191,7 +192,7 @@ class ClientRepository implements ClientRepositoryInterface
 
             // Validate client if is_confidential
             if (!empty($clientSecret) && !empty($client['is_confidential'])) {
-                $secret = (\OpenEMR\BC\ServiceContainer::getCrypto())->decryptStandard($client['client_secret']);
+                $secret = (ServiceContainer::getCrypto())->decryptStandard($client['client_secret']);
                 if (empty($secret)) {
                     return false;
                 }

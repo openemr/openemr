@@ -15,6 +15,7 @@
  */
 
 namespace OpenEMR\Common\Auth;
+use OpenEMR\BC\ServiceContainer;
 
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -54,7 +55,7 @@ class OAuth2KeyConfig
         }
 
         // Create a crypto object that will be used for encryption/decryption
-        $this->cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+        $this->cryptoGen = ServiceContainer::getCrypto();
         // verify and/or setup our key pairs.
         $this->privateKey = $siteDir . '/documents/certificates/oaprivate.key';
         $this->publicKey = $siteDir . '/documents/certificates/oapublic.key';

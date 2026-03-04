@@ -13,7 +13,7 @@
 
 require_once(dirname(__DIR__, 4) . "/globals.php");
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Common\Http\oeHttpRequest;
@@ -71,7 +71,7 @@ function downloadAndStoreFaxMedia(
             return;
         }
 
-        $crypto = \OpenEMR\BC\ServiceContainer::getCrypto();
+        $crypto = ServiceContainer::getCrypto();
         $decrypted = $crypto->decryptStandard($credentials['credentials']);
         $creds = json_decode($decrypted, true);
 

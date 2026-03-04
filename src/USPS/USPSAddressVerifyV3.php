@@ -13,11 +13,11 @@
  */
 
 namespace OpenEMR\USPS;
+use OpenEMR\BC\ServiceContainer;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Core\OEGlobalsBag;
 
 class USPSAddressVerifyV3
@@ -40,7 +40,7 @@ class USPSAddressVerifyV3
      */
     public function __construct()
     {
-        $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+        $cryptoGen = ServiceContainer::getCrypto();
 
         $globals = OEGlobalsBag::getInstance();
         $encryptedClientId = $globals->get('usps_apiv3_client_id');

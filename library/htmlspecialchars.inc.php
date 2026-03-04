@@ -107,7 +107,7 @@ function safe_href(?string $url): string
     }
 
     // Disallowed scheme — log and return safe fallback
-    \OpenEMR\BC\ServiceContainer::getLogger()->warning(
+    ServiceContainer::getLogger()->warning(
         "safe_href(): blocked disallowed URL scheme",
         ['scheme' => $scheme]
     );

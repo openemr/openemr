@@ -11,8 +11,8 @@
  */
 
 namespace OpenEMR\Modules\WenoModule\Services;
+use OpenEMR\BC\ServiceContainer;
 
-use OpenEMR\Common\Crypto\CryptoGen;
 
 /**
  * Companion to event bootstrapping
@@ -81,7 +81,7 @@ class ModuleService
             $this->saveVendorGlobals($vendors, 'user');
         }
         if ($decrypt) {
-            $crypt = \OpenEMR\BC\ServiceContainer::getCrypto();
+            $crypt = ServiceContainer::getCrypto();
             $vendors['weno_encryption_key'] = $crypt->decryptStandard($vendors['weno_encryption_key']);
             $vendors['weno_admin_password'] = $crypt->decryptStandard($vendors['weno_admin_password']);
             $vendors['weno_provider_password'] = $crypt->decryptStandard($vendors['weno_provider_password']);
@@ -96,7 +96,7 @@ class ModuleService
      */
     public function saveVendorGlobals($items, $which = null): void
     {
-        $crypt = \OpenEMR\BC\ServiceContainer::getCrypto();
+        $crypt = ServiceContainer::getCrypto();
         if (!empty($items['weno_encryption_key'])) {
             $items['weno_encryption_key'] = $crypt->encryptStandard($items['weno_encryption_key']);
         }

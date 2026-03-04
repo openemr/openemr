@@ -17,6 +17,7 @@
  */
 
 namespace OpenEMR\Modules\ClaimRevConnector;
+use OpenEMR\BC\ServiceContainer;
 
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\Globals\GlobalSetting;
@@ -46,7 +47,7 @@ class GlobalConfig
 
     public function __construct(private array $globalsArray)
     {
-        $this->cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+        $this->cryptoGen = ServiceContainer::getCrypto();
     }
 
     /**

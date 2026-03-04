@@ -13,6 +13,7 @@
  */
 
 namespace OpenEMR\Modules\WenoModule;
+use OpenEMR\BC\ServiceContainer;
 
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\Globals\GlobalSetting;
@@ -36,7 +37,7 @@ class WenoGlobalConfig
 
     public function __construct()
     {
-        $this->cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+        $this->cryptoGen = ServiceContainer::getCrypto();
     }
 
     /**

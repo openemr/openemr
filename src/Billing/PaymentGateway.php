@@ -11,10 +11,10 @@
  */
 
 namespace OpenEMR\Billing;
+use OpenEMR\BC\ServiceContainer;
 
 use Omnipay\Omnipay;
 use Omnipay\Common\CreditCard;
-use OpenEMR\Common\Crypto\CryptoGen;
 
 class PaymentGateway
 {
@@ -28,7 +28,7 @@ class PaymentGateway
     {
         $this->production = !$GLOBALS['gateway_mode_production'];
 
-        $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+        $cryptoGen = ServiceContainer::getCrypto();
         $this->apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
         $this->transactionKey = $cryptoGen->decryptStandard($GLOBALS['gateway_transaction_key']);
 

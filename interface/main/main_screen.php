@@ -18,8 +18,8 @@
 $sessionAllowWrite = true;
 require_once('../globals.php');
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthUtils;
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionTracker;
 use OpenEMR\Common\Session\SessionUtil;
@@ -188,7 +188,7 @@ if (isset($_POST['new_login_session_management'])) {
 
                 // Decrypt the secret
                 // First, try standard method that uses standard key
-                $cryptoGen = \OpenEMR\BC\ServiceContainer::getCrypto();
+                $cryptoGen = ServiceContainer::getCrypto();
                 $secret = $cryptoGen->decryptStandard($registrationSecret);
                 if (empty($secret)) {
                     // Second, try the password hash, which was setup during install and is temporary
