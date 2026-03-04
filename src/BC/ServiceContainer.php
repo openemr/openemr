@@ -139,6 +139,7 @@ class ServiceContainer
         ]));
 
         $site = $_ENV['OPENEMR_SITE'] ?? 'default';
+        assert(is_string($site));
         $siteDir = sprintf('sites/%s', $site);
         $dbConfig = DatabaseConnectionOptions::forSite($siteDir);
         $connection = DriverManager::getConnection($dbConfig->toDbalParams());
@@ -146,7 +147,7 @@ class ServiceContainer
         $em = new EntityManager($connection, $config);
         $em->getEventManager()->addEventListener(
             [Events::prePersist, Events::preUpdate],
-            new TimestampSubscriber(),
+            new TimestampSubscriber(clock: self::getClock()),
         );
 
         return $em;

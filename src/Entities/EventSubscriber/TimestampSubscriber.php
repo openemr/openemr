@@ -16,6 +16,7 @@ use DateTimeImmutable;
 use Doctrine\ORM\Event\PrePersistEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use OpenEMR\Entities\Attributes;
+use Psr\Clock\ClockInterface;
 use Ramsey\Uuid\Uuid;
 use ReflectionObject;
 
@@ -36,12 +37,17 @@ use ReflectionObject;
  * @see CreatedAt
  * @see UpdatedAt
  */
-class TimestampSubscriber
+readonly class TimestampSubscriber
 {
+    public function __construct(
+        private ClockInterface $clock,
+    ) {
+    }
+
     public function prePersist(PrePersistEventArgs $args): void
     {
         $entity = $args->getObject();
-        $now = new DateTimeImmutable();
+        $now = $this->clock->now();
 
         $this->setPropertiesWithAttribute($entity, Attributes\CreatedAt::class, $now);
         $this->setPropertiesWithAttribute($entity, Attributes\UpdatedAt::class, $now);
@@ -52,7 +58,7 @@ class TimestampSubscriber
     public function preUpdate(PreUpdateEventArgs $args): void
     {
         $entity = $args->getObject();
-        $now = new DateTimeImmutable();
+        $now = $this->clock->now();
 
         $this->setPropertiesWithAttribute($entity, Attributes\UpdatedAt::class, $now);
     }
