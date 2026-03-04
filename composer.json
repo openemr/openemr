@@ -106,6 +106,7 @@
         "psr/http-message": "^1.1",
         "psr/log": "^3.0.2",
         "ramsey/uuid": "^4.9.2",
+        "ramsey/uuid-doctrine": "^2.1",
         "ringcentral/ringcentral-php": "^3.0.4",
         "robthree/twofactorauth": "^3.0.2",
         "rospdf/pdf-php": "^0.12.67",
