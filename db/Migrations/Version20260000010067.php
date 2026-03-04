@@ -57,6 +57,7 @@ final class Version20260000010067 extends AbstractMigration
             'default' => null,
         ]);
 
+        $this->addPrimaryKey($table, 'id');
         $table->addUniqueIndex(['id', 'pid'], 'id_pid');
 
         $this->createTable($table);
