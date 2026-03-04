@@ -19,10 +19,12 @@ use Doctrine\DBAL\{
 use Doctrine\ORM\{
     EntityManager,
     EntityManagerInterface,
+    Events,
     Mapping\DefaultTypedFieldMapper,
     Mapping\UnderscoreNamingStrategy,
     ORMSetup,
 };
+use OpenEMR\Entities\EventSubscriber\TimestampSubscriber;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Crypto;
@@ -141,7 +143,13 @@ class ServiceContainer
         $dbConfig = DatabaseConnectionOptions::forSite($siteDir);
         $connection = DriverManager::getConnection($dbConfig->toDbalParams());
 
-        return new EntityManager($connection, $config);
+        $em = new EntityManager($connection, $config);
+        $em->getEventManager()->addEventListener(
+            [Events::prePersist, Events::preUpdate],
+            new TimestampSubscriber(),
+        );
+
+        return $em;
     }
 
     public static function getLogger(): LoggerInterface
