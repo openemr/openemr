@@ -38,13 +38,13 @@ final class Version20260000020104 extends AbstractMigration
             'notnull' => false,
             'default' => null,
         ]);
-        $table->addColumn('password', Types::STRING, ['length' => 255]);
+        $table->addColumn('password', Types::STRING, ['length' => 255, 'notnull' => false, 'default' => null]);
         $table->addColumn('last_update_password', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('last_update', 'datetime', ['columnDefinition' => 'TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP']);
-        $table->addColumn('password_history1', Types::STRING, ['length' => 255]);
-        $table->addColumn('password_history2', Types::STRING, ['length' => 255]);
-        $table->addColumn('password_history3', Types::STRING, ['length' => 255]);
-        $table->addColumn('password_history4', Types::STRING, ['length' => 255]);
+        $table->addColumn('password_history1', Types::STRING, ['length' => 255, 'notnull' => false, 'default' => null]);
+        $table->addColumn('password_history2', Types::STRING, ['length' => 255, 'notnull' => false, 'default' => null]);
+        $table->addColumn('password_history3', Types::STRING, ['length' => 255, 'notnull' => false, 'default' => null]);
+        $table->addColumn('password_history4', Types::STRING, ['length' => 255, 'notnull' => false, 'default' => null]);
         $table->addColumn('last_challenge_response', Types::DATETIME_MUTABLE, ['notnull' => false, 'default' => null]);
         $table->addColumn('login_work_area', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('total_login_fail_counter', Types::BIGINT, ['notnull' => false, 'default' => 0]);

@@ -177,7 +177,7 @@ final class Version20260000010056 extends AbstractMigration
         $table->addColumn('birth_fname', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('birth_lname', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('birth_mname', Types::TEXT, ['notnull' => false, 'length' => 65535]);
-        $table->addColumn('dupscore', Types::INTEGER);
+        $table->addColumn('dupscore', Types::INTEGER, ['default' => -9]);
         $table->addColumn('name_history', Types::TEXT, ['notnull' => false, 'length' => 255]);
         $table->addColumn('suffix', Types::TEXT, ['notnull' => false, 'length' => 255]);
         $table->addColumn('street_line_2', Types::TEXT, ['notnull' => false, 'length' => 255]);
@@ -199,7 +199,6 @@ final class Version20260000010056 extends AbstractMigration
         $table->addColumn('last_updated', 'datetime', ['columnDefinition' => 'DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP', 'comment' => 'Sex at birth']);
         $table->addColumn('tribal_affiliations', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('sex_identified', Types::TEXT, ['notnull' => false, 'length' => 65535, 'comment' => 'Patient reported current sex']);
-        $table->addColumn('pronoun', Types::TEXT, ['notnull' => false, 'length' => 65535]);
 
         $table->addIndex(['lname', 'fname'], 'idx_patient_name');
         $table->addIndex(['DOB'], 'idx_patient_dob');

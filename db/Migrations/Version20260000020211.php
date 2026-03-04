@@ -53,27 +53,24 @@ final class Version20260000020211 extends AbstractMigration
             'length' => 50,
             'notnull' => false,
             'default' => null,
-            'comment' => 'fk to preference_value_sets.answer_code',
         ]);
         $table->addColumn('value_code_system', Types::STRING, [
             'length' => 255,
             'notnull' => false,
             'default' => null,
-            'comment' => 'fk to preference_value_sets.answer_system',
         ]);
         $table->addColumn('value_display', Types::STRING, [
             'length' => 255,
             'notnull' => false,
             'default' => null,
-            'comment' => 'fk to preference_value_sets.answer_display',
         ]);
         $table->addColumn('value_text', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $table->addColumn('value_boolean', Types::BOOLEAN, ['notnull' => false, 'default' => null]);
         $table->addColumn('effective_datetime', Types::DATETIME_MUTABLE, ['default' => 'CURRENT_TIMESTAMP']);
-        $table->addColumn('status', Types::STRING, ['notnull' => false, 
+        $table->addColumn('status', Types::STRING, [
             'length' => 20,
+            'notnull' => false,
             'default' => 'final',
-            'comment' => 'valid options are final,amended,preliminary',
         ]);
         $table->addColumn('note', Types::TEXT, ['notnull' => false, 'length' => 65535]);
         $this->addPrimaryKey($table, 'id');
