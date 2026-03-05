@@ -24,6 +24,7 @@ Header("Content-Security-Policy: frame-ancestors 'none'");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
+use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
 use OpenEMR\Common\Auth\OneTimeAuth;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -174,7 +175,7 @@ if (!empty($_GET['forward_email_verify'])) {
         exit();
     }
 
-    $token_one_time = $crypto->decryptStandard($_GET['forward_email_verify'], null, 'drive', 6);
+    $token_one_time = $crypto->decryptStandard($_GET['forward_email_verify'], null, KeySource::Drive, 6);
     if (empty($token_one_time)) {
         (new SystemLogger())->debug("unable to decrypt token, so stopped attempt to use forward_email_verify token");
         SessionUtil::portalSessionCookieDestroy();
@@ -254,7 +255,7 @@ if (!empty($_GET['forward_email_verify'])) {
     if (strlen($_GET['forward']) >= 64) {
         $crypto = ServiceContainer::getCrypto();
         if ($crypto->cryptCheckStandard($_GET['forward'])) {
-            $one_time = $crypto->decryptStandard($_GET['forward'], null, 'drive', 6);
+            $one_time = $crypto->decryptStandard($_GET['forward'], null, KeySource::Drive, 6);
             if (!empty($one_time)) {
                 $auth = sqlQueryNoLog("Select * From patient_access_onsite Where portal_onetime Like BINARY ?", [$one_time . '%']);
             }
