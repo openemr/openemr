@@ -16,6 +16,8 @@ use OpenApi\Attributes as OA;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\EncounterService;
+use OpenEMR\Validators\ProcessingResult;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 #[OA\Schema(
@@ -174,26 +176,13 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 )]
 class EncounterRestController
 {
-    private $encounterService;
-
-    /**
-     * White list of patient search fields
-     */
-    private const SUPPORTED_SEARCH_FIELDS = [
-        "pid",
-        "provider_id"
-    ];
-
-    public function __construct(private readonly SessionInterface $session)
+    public function __construct(private readonly SessionInterface $session, private readonly EncounterService $encounterService = new EncounterService())
     {
-        $this->encounterService = new EncounterService();
     }
 
     /**
-     * Process a HTTP POST request used to create a encounter record.
-     * @param $puuid - The patient identifier used to lookup the existing record.
-     * @param $data - array of encounter fields.
-     * @return a 201/Created status code and the encounter identifier if successful.
+     * @param array<mixed, mixed> $data
+     * @return array<mixed, mixed>
      */
     #[OA\Post(
         path: '/api/patient/{puuid}/encounter',
@@ -270,7 +259,7 @@ class EncounterRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function post($puuid, $data, HttpRestRequest $request)
+    public function post($puuid, array $data, HttpRestRequest $request): array
     {
         $session = $request->getSession();
         $data['user'] = $session->get('authUser');
@@ -280,11 +269,8 @@ class EncounterRestController
     }
 
     /**
-     * Processes a HTTP PUT request used to update an existing encounter record.
-     * @param $puuid - The patient identifier used to lookup the existing record.
-     * @param $euuid - The encounter identifier used to lookup the existing record.
-     * @param $data - array of encounter fields (full resource).
-     * @return a 200/Ok status code and the encounter resource.
+     * @param array<mixed, mixed> $data
+     * @return array<mixed, mixed>
      */
     #[OA\Put(
         path: '/api/patient/{puuid}/encounter/{euuid}',
@@ -326,18 +312,13 @@ class EncounterRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function put($puuid, $euuid, $data)
+    public function put($puuid, $euuid, array $data): array
     {
         $processingResult = $this->encounterService->updateEncounter($puuid, $euuid, $data);
         return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
 
-    /**
-     * Fetches a single encounter resource by pid and eid.
-     * @param $puuid The patient identifier used to lookup the existing record.
-     * @param $euuid The encounter identifier to fetch.
-     * @return a 200/Ok status code and the encounter resource.
-     */
+    /** @return array<mixed, mixed> */
     #[OA\Get(
         path: '/api/patient/{puuid}/encounter/{euuid}',
         description: 'Retrieves a single encounter for a patient',
@@ -391,7 +372,7 @@ class EncounterRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function getOne($puuid, $euuid)
+    public function getOne($puuid, $euuid): array
     {
         $processingResult = $this->encounterService->getEncounter($euuid, $puuid);
 
@@ -402,11 +383,7 @@ class EncounterRestController
         return RestControllerHelper::handleProcessingResult($processingResult, 200);
     }
 
-    /**
-     * Returns all encounter resources which match (pid) patient identifier.
-     * @param $puuid The patient identifier used to lookup the existing record.
-     * @return a 200/Ok status code and the encounter resource.
-     */
+    /** @return array<mixed, mixed> */
     #[OA\Get(
         path: '/api/patient/{puuid}/encounter',
         description: 'Retrieves a list of encounters for a single patient',
@@ -438,8 +415,10 @@ class EncounterRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function getAll($puuid)
+    public function getAll($puuid): array
     {
+        /** @var string $puuid Route parameter is always a UUID string */
+        /** @var ProcessingResult $processingResult */
         $processingResult = $this->encounterService->search([], true, $puuid);
 
         if (!$processingResult->hasErrors() && count($processingResult->getData()) == 0) {
@@ -449,6 +428,10 @@ class EncounterRestController
         return RestControllerHelper::handleProcessingResult($processingResult, 200, true);
     }
 
+    /**
+     * @param array<mixed, mixed> $data
+     * @return Response|array<mixed, mixed>
+     */
     #[OA\Post(
         path: '/api/patient/{pid}/encounter/{eid}/vital',
         description: 'Submits a new vitals form',
@@ -483,7 +466,7 @@ class EncounterRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function postVital($pid, $eid, $data)
+    public function postVital($pid, $eid, array $data): Response|array
     {
         $validationResult = $this->encounterService->validateVital($data);
 
@@ -492,6 +475,7 @@ class EncounterRestController
             return $validationHandlerResult;
         }
 
+        /** @var array{0: int, 1: int} $serviceResult */
         $serviceResult = $this->encounterService->insertVital($pid, $eid, $data);
         return RestControllerHelper::responseHandler(
             $serviceResult,
@@ -503,6 +487,10 @@ class EncounterRestController
         );
     }
 
+    /**
+     * @param array<mixed, mixed> $data
+     * @return Response|array<mixed, mixed>
+     */
     #[OA\Put(
         path: '/api/patient/{pid}/encounter/{eid}/vital/{vid}',
         description: 'Edit a vitals form',
@@ -544,7 +532,7 @@ class EncounterRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function putVital($pid, $eid, $vid, $data)
+    public function putVital($pid, $eid, $vid, array $data): Response|array
     {
         $validationResult = $this->encounterService->validateVital($data);
 
@@ -584,7 +572,7 @@ class EncounterRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function getVitals($pid, $eid)
+    public function getVitals($pid, $eid): Response
     {
         $serviceResult = $this->encounterService->getVitals($pid, $eid);
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
@@ -624,7 +612,7 @@ class EncounterRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function getVital($pid, $eid, $vid)
+    public function getVital($pid, $eid, $vid): Response
     {
         $serviceResult = $this->encounterService->getVital($pid, $eid, $vid);
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
@@ -657,7 +645,7 @@ class EncounterRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function getSoapNotes($pid, $eid)
+    public function getSoapNotes($pid, $eid): Response
     {
         $serviceResult = $this->encounterService->getSoapNotes($pid, $eid);
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
@@ -697,12 +685,16 @@ class EncounterRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function getSoapNote($pid, $eid, $sid)
+    public function getSoapNote($pid, $eid, $sid): Response
     {
         $serviceResult = $this->encounterService->getSoapNote($pid, $eid, $sid);
         return RestControllerHelper::responseHandler($serviceResult, null, 200);
     }
 
+    /**
+     * @param array<mixed, mixed> $data
+     * @return Response|array<mixed, mixed>
+     */
     #[OA\Post(
         path: '/api/patient/{pid}/encounter/{eid}/soap_note',
         description: 'Submits a new soap note',
@@ -737,7 +729,7 @@ class EncounterRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function postSoapNote($pid, $eid, $data)
+    public function postSoapNote($pid, $eid, array $data): Response|array
     {
         $validationResult = $this->encounterService->validateSoapNote($data);
 
@@ -746,6 +738,7 @@ class EncounterRestController
             return $validationHandlerResult;
         }
 
+        /** @var array{0: int, 1: int} $serviceResult */
         $serviceResult = $this->encounterService->insertSoapNote($pid, $eid, $data);
         return RestControllerHelper::responseHandler(
             $serviceResult,
@@ -757,6 +750,10 @@ class EncounterRestController
         );
     }
 
+    /**
+     * @param array<mixed, mixed> $data
+     * @return Response|array<mixed, mixed>
+     */
     #[OA\Put(
         path: '/api/patient/{pid}/encounter/{eid}/soap_note/{sid}',
         description: 'Edit a soap note',
@@ -798,7 +795,7 @@ class EncounterRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function putSoapNote($pid, $eid, $sid, $data)
+    public function putSoapNote($pid, $eid, $sid, array $data): Response|array
     {
         $validationResult = $this->encounterService->validateSoapNote($data);
 
