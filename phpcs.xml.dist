@@ -24,6 +24,10 @@
   <!-- Indenting -->
   <!-- Code MUST use an indent of 4 spaces, and MUST NOT use tabs for indenting. -->
   <rule ref="Generic.WhiteSpace.DisallowTabIndent"/>
+  <rule ref="Squiz.WhiteSpace.SuperfluousWhitespace">
+    <exclude name="Squiz.WhiteSpace.SuperfluousWhitespace.EndFile"/>
+    <exclude name="Squiz.WhiteSpace.SuperfluousWhitespace.EmptyLines"/>
+  </rule>
   <rule ref="Generic.WhiteSpace.ScopeIndent">
     <properties>
       <property name="ignoreIndentationTokens" type="array">
