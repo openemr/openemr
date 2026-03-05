@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Unit\Common\Logging;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -107,7 +108,7 @@ final class EventAuditLoggerTest extends TestCase
 
         // Get EventAuditLogger instance (works with existing singleton)
         $this->eventAuditLogger = new EventAuditLogger(
-            new CryptoGen(),
+            ServiceContainer::getCrypto(),
         );
 
         // Setup default test environment

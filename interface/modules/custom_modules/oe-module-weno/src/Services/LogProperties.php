@@ -13,7 +13,8 @@
 namespace OpenEMR\Modules\WenoModule\Services;
 
 use Exception;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
 
 class LogProperties
@@ -46,10 +47,7 @@ class LogProperties
      * @var false|string
      */
     private $weno_admin_password;
-    /**
-     * @var CryptoGen
-     */
-    private $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
     /**
      * @var string
      */
@@ -68,7 +66,7 @@ class LogProperties
      */
     public function __construct()
     {
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = ServiceContainer::getCrypto();
         $this->method = "aes-256-cbc";
         $this->rxsynclog = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/logsync.csv";
         $logDir = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno";

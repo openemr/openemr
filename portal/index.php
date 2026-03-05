@@ -22,10 +22,10 @@ Header("Content-Security-Policy: frame-ancestors 'none'");
 
 //setting the session & other config options
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
 use OpenEMR\Common\Auth\OneTimeAuth;
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -166,7 +166,7 @@ if (!empty($_GET['forward_email_verify'])) {
         exit();
     }
 
-    $crypto = new CryptoGen();
+    $crypto = ServiceContainer::getCrypto();
     if (!$crypto->cryptCheckStandard($_GET['forward_email_verify'])) {
         (new SystemLogger())->debug("illegal token, so stopped attempt to use forward_email_verify token");
         SessionUtil::portalSessionCookieDestroy();
@@ -252,7 +252,7 @@ if (!empty($_GET['forward_email_verify'])) {
     }
     $auth = false;
     if (strlen($_GET['forward']) >= 64) {
-        $crypto = new CryptoGen();
+        $crypto = ServiceContainer::getCrypto();
         if ($crypto->cryptCheckStandard($_GET['forward'])) {
             $one_time = $crypto->decryptStandard($_GET['forward'], null, 'drive', 6);
             if (!empty($one_time)) {

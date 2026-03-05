@@ -15,7 +15,7 @@
 namespace OpenEMR\Common\Logging;
 
 use DateTime;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -41,7 +41,7 @@ class EventAuditLogger
     protected static function createInstance(): static
     {
         return new self(
-            new CryptoGen(),
+            ServiceContainer::getCrypto(),
         );
     }
 

@@ -13,6 +13,7 @@
 namespace OpenEMR\Modules\FaxSMS\Events;
 
 use MyMailer;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OneTimeAuth;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -113,7 +114,7 @@ class NotificationEventListener implements EventSubscriberInterface
         try {
             $clientApp = AppDispatch::getApiService($serviceType);
         } catch (\Throwable $e) {
-            \OpenEMR\BC\ServiceContainer::getLogger()->warning(
+            ServiceContainer::getLogger()->warning(
                 "FaxSMS: failed to load service",
                 ['type' => $serviceType, 'message' => $e->getMessage()]
             );

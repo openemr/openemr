@@ -13,7 +13,7 @@
 namespace OpenEMR\Modules\Dorn;
 
 use Document;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Modules\Dorn\ConnectorApi;
@@ -1658,7 +1658,7 @@ class ReceiveHl7Results
     private function hl7Crypt($content)
     {
         if ($GLOBALS['drive_encryption']) {
-            $content = (new CryptoGen())->encryptStandard($content, null, 'database');
+            $content = (ServiceContainer::getCrypto())->encryptStandard($content, null, 'database');
         }
 
         return $content;

@@ -15,7 +15,7 @@
 require_once("../globals.php");
 require_once($GLOBALS['srcdir'] . "/patient.inc.php");
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -23,7 +23,7 @@ use OpenEMR\Core\Header;
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // Set up crypto object
-$cryptoGen = new CryptoGen();
+$cryptoGen = ServiceContainer::getCrypto();
 
 $template_dir = $GLOBALS['OE_SITE_DIR'] . "/documents/letter_templates";
 

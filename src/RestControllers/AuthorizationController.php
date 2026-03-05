@@ -25,6 +25,7 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
 use Nyholm\Psr7\Stream;
 use Nyholm\Psr7Server\ServerRequestCreator;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Auth\MfaUtils;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
@@ -46,7 +47,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\UserRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\SMARTSessionTokenContextBuilder;
 use OpenEMR\Common\Auth\UuidUserAccount;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
@@ -114,7 +115,7 @@ class AuthorizationController
     private string $oaEncryptionKey;
     private string $grantType;
     private string $authRequestSerial;
-    private CryptoGen $cryptoGen;
+    private CryptoInterface $cryptoGen;
     private int|string|null $userId = null;
 
     /**
@@ -178,7 +179,7 @@ class AuthorizationController
         // used for session stash
         $this->authRequestSerial = $this->session->get('authRequestSerial', '');
         // Create a crypto object that will be used for for encryption/decryption
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = ServiceContainer::getCrypto();
         // verify and/or setup our key pairs.
         $this->configKeyPairs($this->session);
         $this->trustedUserService = new TrustedUserService();

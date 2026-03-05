@@ -28,7 +28,7 @@
 require_once(__DIR__ . "/../library/patient.inc.php");
 require_once(__DIR__ . "/../library/direct_message_check.inc.php");
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\DirectMessaging\ErrorConstants;
 use OpenEMR\Common\Logging\EventAuditLogger;
 
@@ -58,7 +58,7 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
     }
 
     $phimail_username = $GLOBALS['phimail_username'];
-    $cryptoGen = new CryptoGen();
+    $cryptoGen = ServiceContainer::getCrypto();
     $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
     if ($ret !== true) {
@@ -188,7 +188,7 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
     }
 
     $phimail_username = $GLOBALS['phimail_username'];
-    $cryptoGen = new CryptoGen();
+    $cryptoGen = ServiceContainer::getCrypto();
     $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
     if ($ret !== true) {

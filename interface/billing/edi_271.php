@@ -20,8 +20,8 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/report.inc.php");
 require_once("$srcdir/calendar.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\EDI270;
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -48,7 +48,7 @@ if (isset($_FILES) && !empty($_FILES)) {
         $message .= xlt('Invalid file type.') . "<br />";
     }
     if (!isset($message)) {
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = ServiceContainer::getCrypto();
         $uploadedFile = file_get_contents($_FILES['uploaded']['tmp_name']);
         if ($GLOBALS['drive_encryption']) {
             $uploadedFile = $cryptoGen->encryptStandard($uploadedFile, null, 'database');

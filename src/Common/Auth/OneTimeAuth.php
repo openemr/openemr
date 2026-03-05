@@ -15,9 +15,10 @@ namespace OpenEMR\Common\Auth;
 
 use DateInterval;
 use DateTime;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -31,7 +32,7 @@ use RuntimeException;
 
 class OneTimeAuth
 {
-    private readonly CryptoGen $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
     private readonly SystemLogger $systemLogger;
     private readonly SessionWrapperInterface $session;
     private readonly OEGlobalsBag $globalsBag;
@@ -43,7 +44,7 @@ class OneTimeAuth
      */
     public function __construct(private $context = 'portal', private $scope = 'redirect', private $profile = 'default')
     {
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = ServiceContainer::getCrypto();
         $this->systemLogger = new SystemLogger();
         $this->session = SessionWrapperFactory::getInstance()->getWrapper();
         $this->globalsBag = OEGlobalsBag::getInstance();

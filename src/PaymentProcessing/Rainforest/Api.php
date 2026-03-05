@@ -12,9 +12,9 @@ declare(strict_types=1);
 
 namespace OpenEMR\PaymentProcessing\Rainforest;
 
+use OpenEMR\BC\ServiceContainer;
 use GuzzleHttp\{Client, ClientInterface};
 use Money\Money;
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Core\OEGlobalsBag;
 use Psr\Http\Message\ResponseInterface;
 use Ramsey\Uuid\Uuid;
@@ -145,7 +145,7 @@ readonly class Api
      */
     public static function makeFromGlobals(OEGlobalsBag $bag): Api
     {
-        $crypto = new CryptoGen();
+        $crypto = ServiceContainer::getCrypto();
         $apiKey = $crypto->decryptStandard($bag->getString('rainforest_api_key'));
         if ($apiKey === false) {
             throw new \RuntimeException('Failed to decrypt rainforest_api_key');
