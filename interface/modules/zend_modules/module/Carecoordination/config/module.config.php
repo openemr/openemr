@@ -14,25 +14,25 @@
 
 namespace Carecoordination;
 
-use Carecoordination\Model\CcdaGenerator;
-use Laminas\Router\Http\Segment;
 use Carecoordination\Controller\CarecoordinationController;
+use Carecoordination\Controller\CcdController;
 use Carecoordination\Controller\EncounterccdadispatchController;
 use Carecoordination\Controller\EncountermanagerController;
+use Carecoordination\Controller\ModuleconfigController;
 use Carecoordination\Controller\SetupController;
-use Carecoordination\Controller\CcdController;
+use Carecoordination\Factory\EncounterccdadispatchControllerFactory;
+use Carecoordination\Factory\SetupControllerFactory;
+use Carecoordination\Form\ModuleconfigForm;
+use Carecoordination\Listener\CCDAEventsSubscriber;
 use Carecoordination\Model\CarecoordinationTable;
+use Carecoordination\Model\CcdaGenerator;
+use Carecoordination\Model\CcdTable;
 use Carecoordination\Model\EncounterccdadispatchTable;
 use Carecoordination\Model\EncountermanagerTable;
 use Carecoordination\Model\SetupTable;
-use Carecoordination\Model\CcdTable;
-use Carecoordination\Form\ModuleconfigForm;
-use Carecoordination\Factory\EncounterccdadispatchControllerFactory;
-use Carecoordination\Factory\SetupControllerFactory;
-use Carecoordination\Controller\ModuleconfigController;
-use Interop\Container\ContainerInterface;
 use Documents\Controller\DocumentsController;
-use Carecoordination\Listener\CCDAEventsSubscriber;
+use Interop\Container\ContainerInterface;
+use Laminas\Router\Http\Segment;
 
 return [
     'controllers' => [

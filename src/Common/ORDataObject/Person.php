@@ -15,8 +15,8 @@
 namespace OpenEMR\Common\ORDataObject;
 
 use DateTime;
-use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Uuid\UuidRegistry;
 
 class Person extends ORDataObject implements \JsonSerializable, \Stringable
 {

@@ -18,9 +18,9 @@ use InsuranceCompany;
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Services\EncounterService;
-use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\UserService;
 
 class Claim

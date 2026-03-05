@@ -2,10 +2,10 @@
 
 namespace OpenEMR\Tests\Validators;
 
-use PHPUnit\Framework\TestCase;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Tests\Fixtures\FixtureManager;
 use OpenEMR\Validators\PatientValidator;
-use OpenEMR\Common\Uuid\UuidRegistry;
+use PHPUnit\Framework\TestCase;
 
 class PatientValidatorTest extends TestCase
 {

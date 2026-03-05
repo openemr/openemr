@@ -14,13 +14,13 @@
 
 require_once("../globals.php");
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\RequestException;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AccessDeniedResponseFormat;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use GuzzleHttp\Client as Client;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\ConnectException;
 
 // Check authorization
 if (!AclMain::aclCheckCore('admin', 'practice')) {

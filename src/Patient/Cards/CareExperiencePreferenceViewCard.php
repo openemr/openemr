@@ -12,12 +12,12 @@
 
 namespace OpenEMR\Patient\Cards;
 
-use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Services\CareExperiencePreferenceService;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
+use OpenEMR\Services\CareExperiencePreferenceService;
 
 class CareExperiencePreferenceViewCard extends CardModel
 {

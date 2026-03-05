@@ -11,8 +11,8 @@
 
 namespace OpenEMR\Services\FHIR\Observation;
 
-use InvalidArgumentException;
 use BadMethodCallException;
+use InvalidArgumentException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;

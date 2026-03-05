@@ -2,11 +2,11 @@
 
 namespace OpenEMR\Tests\Unit\ClinicalDecisionRules;
 
+use OpenEMR\ClinicalDecisionRules\Interface\ActionRouter;
+use OpenEMR\ClinicalDecisionRules\Interface\ControllerRouter;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use OpenEMR\ClinicalDecisionRules\Interface\ControllerRouter;
-use OpenEMR\ClinicalDecisionRules\Interface\ActionRouter;
 
 class ControllerRouterTest extends TestCase
 {

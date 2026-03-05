@@ -15,10 +15,16 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
+use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
@@ -52,13 +58,6 @@ require_once("$srcdir/forms.inc.php");
 require_once("../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
-
-use OpenEMR\Billing\BillingUtilities;
-use OpenEMR\Common\Crypto\CryptoGen;
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Common\Utils\FormatMoney;
-use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 
 $twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
 

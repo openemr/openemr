@@ -24,10 +24,10 @@ use OpenEMR\Common\Http\HttpSessionFactory;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEHttpKernel;
-use Symfony\Component\HttpKernel\Controller\ControllerResolver;
-use OpenEMR\Services\FacilityService;
 use OpenEMR\RestControllers\FacilityRestController;
 use OpenEMR\RestControllers\Finder\StandardRouteFinder;
+use OpenEMR\Services\FacilityService;
+use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 
 ?>
 <html>

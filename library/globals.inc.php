@@ -79,10 +79,10 @@
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\OeUI\RenderFormFieldHelper;
-use OpenEMR\Services\Globals\GlobalsService;
-use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Services\Globals\GlobalAppearanceEnum;
+use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Services\Globals\GlobalFeaturesEnum;
+use OpenEMR\Services\Globals\GlobalsService;
 
 // OS-dependent stuff.
 if (stristr(PHP_OS, 'WIN')) {

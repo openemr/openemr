@@ -3,10 +3,10 @@
 namespace OpenEMR\RestControllers\Authorization;
 
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClaimRepository;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use Symfony\Component\HttpFoundation\Response;
 
 class OAuth2DiscoveryController

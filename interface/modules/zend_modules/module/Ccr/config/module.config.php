@@ -2,12 +2,12 @@
 
 namespace Ccr;
 
-use Laminas\Router\Http\Segment;
 use Ccr\Controller\CcrController;
 use Ccr\Controller\ModuleconfigController;
-use Interop\Container\ContainerInterface;
 use Ccr\Model\CcrTable;
 use Documents\Controller\DocumentsController;
+use Interop\Container\ContainerInterface;
+use Laminas\Router\Http\Segment;
 
 return [
     'controllers' => [

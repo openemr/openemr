@@ -2,8 +2,8 @@
 
 namespace OpenEMR\Tests\Common\Uuid;
 
-use PHPUnit\Framework\TestCase;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\UuidFactory;
 
 /**

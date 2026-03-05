@@ -20,8 +20,8 @@ require_once(__DIR__ . "/../../globals.php");
 require_once($GLOBALS['srcdir'] . "/options.inc.php");
 
 use OpenEMR\Events\BoundFilter;
-use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 use OpenEMR\Events\PatientFinder\ColumnFilter;
+use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 
 // Not checking csrf since it breaks when opening up a patient in a new frame.
 //  Also note that csrf checking is not needed in this script because of following 2 reasons.

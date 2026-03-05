@@ -12,21 +12,21 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 
+use InvalidArgumentException;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
+use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Repositories\ScopeRepositoryInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ResourceScopeEntityList;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Validators\ScopeValidatorFactory;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenIDConnectServer\Repositories\ClaimSetRepositoryInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use InvalidArgumentException;
-use League\OAuth2\Server\Entities\ScopeEntityInterface;
 
 use function in_array;
 

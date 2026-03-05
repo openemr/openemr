@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Tests\Services\FHIR\QuestionnaireResponse;
 
+use Exception;
 use Monolog\Level;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -19,10 +20,9 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaireResponse;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 use OpenEMR\Services\PatientService;
-use OpenEMR\Services\QuestionnaireService;
 use OpenEMR\Services\QuestionnaireResponseService;
+use OpenEMR\Services\QuestionnaireService;
 use PHPUnit\Framework\TestCase;
-use Exception;
 
 /**
  * Integration tests for FhirQuestionnaireResponseFormService ensuring US Core 8.0 compliance with database operations

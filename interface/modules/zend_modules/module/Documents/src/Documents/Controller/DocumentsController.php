@@ -14,12 +14,12 @@
 
 namespace Documents\Controller;
 
-use DOMDocument;
-use OpenEMR\Common\Crypto\CryptoGen;
-use Laminas\Mvc\Controller\AbstractActionController;
 use Application\Listener\Listener;
-use Documents\Model\DocumentsTable;
 use Document;
+use Documents\Model\DocumentsTable;
+use DOMDocument;
+use Laminas\Mvc\Controller\AbstractActionController;
+use OpenEMR\Common\Crypto\CryptoGen;
 use XSLTProcessor;
 
 class DocumentsController extends AbstractActionController

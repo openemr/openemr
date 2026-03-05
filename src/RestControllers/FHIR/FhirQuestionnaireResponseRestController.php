@@ -18,8 +18,8 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpRestRouteHandler;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
-use OpenEMR\Services\FHIR\FhirQuestionnaireResponseService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\FHIR\FhirQuestionnaireResponseService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use Psr\Http\Message\ResponseInterface;
 

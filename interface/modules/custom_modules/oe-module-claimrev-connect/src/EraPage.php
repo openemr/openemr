@@ -15,8 +15,8 @@
 
 namespace OpenEMR\Modules\ClaimRevConnector;
 
-use OpenEMR\Modules\ClaimRevConnector\EraSearch;
 use OpenEMR\Modules\ClaimRevConnector\ClaimRevApiException;
+use OpenEMR\Modules\ClaimRevConnector\EraSearch;
 
 class EraPage
 {

@@ -14,10 +14,10 @@ require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\Header;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Services\UserService;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Services\UserService;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 

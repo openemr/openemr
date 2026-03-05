@@ -14,9 +14,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Controllers\Portal\PortalPatientReportController;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\PatientReport\PatientReportFilterEvent;
+use Twig\Error\SyntaxError;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
@@ -44,12 +49,6 @@ require_once('../../interface/globals.php');
 require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/patient.inc.php");
-
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Controllers\Portal\PortalPatientReportController;
-use OpenEMR\Events\PatientReport\PatientReportFilterEvent;
-use Twig\Error\SyntaxError;
 
 // get various authorization levels
 $auth_notes_a = true; //AclMain::aclCheckCore('encounters', 'notes_a');

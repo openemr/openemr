@@ -22,9 +22,9 @@ require_once("$srcdir/appointments.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/user.inc.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 

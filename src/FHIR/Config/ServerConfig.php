@@ -13,7 +13,6 @@
 
 namespace OpenEMR\FHIR\Config;
 
-
 class ServerConfig
 {
     /**

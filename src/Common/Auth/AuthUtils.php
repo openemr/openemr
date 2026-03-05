@@ -46,8 +46,8 @@ use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Services\UserService;
 use SodiumException;
 

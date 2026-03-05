@@ -13,7 +13,6 @@
 
 namespace OpenEMR\Modules\EhiExporter\Models;
 
-
 class EhiExportJob
 {
     public function __construct()

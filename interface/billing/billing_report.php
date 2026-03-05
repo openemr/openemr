@@ -25,9 +25,9 @@ require_once "$srcdir/options.inc.php";
 
 use OpenEMR\Billing\BillingReport;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 

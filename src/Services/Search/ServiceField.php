@@ -11,7 +11,6 @@
 
 namespace OpenEMR\Services\Search;
 
-
 class ServiceField
 {
     const TYPE_STRING = "string";

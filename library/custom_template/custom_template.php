@@ -31,8 +31,8 @@ require_once("../../interface/globals.php");
 require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/user.inc.php");
 
-use OpenEMR\Core\Header;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 // mdsupport : li code
 function listitemCode($strDisp, $strInsert, $ref = ''): void

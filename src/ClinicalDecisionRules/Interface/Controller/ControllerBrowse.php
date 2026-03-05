@@ -9,8 +9,8 @@
 
 namespace OpenEMR\ClinicalDecisionRules\Interface\Controller;
 
-use OpenEMR\ClinicalDecisionRules\Interface\Common;
 use OpenEMR\ClinicalDecisionRules\Interface\BaseController;
+use OpenEMR\ClinicalDecisionRules\Interface\Common;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 
 require_once(Common::src_dir() . "/clinical_rules.php");
