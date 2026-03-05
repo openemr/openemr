@@ -54,18 +54,25 @@ class CryptoGen implements CryptoInterface
     /**
      * @inheritdoc
      */
-    public function encryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive'): string
+    public function encryptStandard(?string $value, ?string $customPassword = null, ?KeySource $keySource = null): string
     {
-        return self::CURRENT_KEY_VERSION->toPaddedString() . $this->coreEncrypt($value, $customPassword, KeySource::from($keySource), self::CURRENT_KEY_VERSION);
+        if ($keySource === null) {
+            $keySource = KeySource::DRIVE;
+        }
+        return self::CURRENT_KEY_VERSION->toPaddedString() . $this->coreEncrypt($value, $customPassword, $keySource, self::CURRENT_KEY_VERSION);
     }
 
     /**
      * @inheritdoc
      */
-    public function decryptStandard(?string $value, ?string $customPassword = null, string $keySource = 'drive', ?int $minimumVersion = null): false|string
+    public function decryptStandard(?string $value, ?string $customPassword = null, ?KeySource $keySource = null, ?int $minimumVersion = null): false|string
     {
         if (empty($value)) {
             return "";
+        }
+
+        if ($keySource === null) {
+            $keySource = KeySource::DRIVE;
         }
 
         // Collect the encrypt/decrypt version and remove it from the value
@@ -90,12 +97,10 @@ class CryptoGen implements CryptoInterface
             }
         }
 
-        $keySourceEnum = KeySource::from($keySource);
-
         // Map the encrypt/decrypt version to the correct decryption function
         return ($encryptionVersion->usesLegacyDecryption())
-            ? $this->legacyDecrypt($trimmedValue, $customPassword, $keySourceEnum, $encryptionVersion)
-            : $this->coreDecrypt($trimmedValue, $customPassword, $keySourceEnum, $encryptionVersion);
+            ? $this->legacyDecrypt($trimmedValue, $customPassword, $keySource, $encryptionVersion)
+            : $this->coreDecrypt($trimmedValue, $customPassword, $keySource, $encryptionVersion);
     }
 
     /**
