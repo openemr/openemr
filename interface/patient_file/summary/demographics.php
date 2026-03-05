@@ -1869,7 +1869,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
 
                             $row['pc_eventTime'] = sprintf("%02d", $disphour) . ":{$dispmin}";
-                            $row['pc_status'] = generate_display_field(['data_type' => '1', 'list_id' => 'apptstat'], $row['pc_apptstatus']);
+                            $row['pc_status'] = generate_plaintext_field(['data_type' => '1', 'list_id' => 'apptstat'], $row['pc_apptstatus']);
                             if ($row['pc_status'] == 'None') {
                                 $row['pc_status'] = 'Scheduled';
                             }
@@ -1975,7 +1975,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
                             $row['etitle'] = $petitle;
 
-                            $row['pc_status'] = generate_display_field(['data_type' => '1', 'list_id' => 'apptstat'], $row['pc_apptstatus']);
+                            $row['pc_status'] = generate_plaintext_field(['data_type' => '1', 'list_id' => 'apptstat'], $row['pc_apptstatus']);
 
                             $row['dayName'] = $dayname;
                             $row['displayMeridiem'] = $displayMeridiem;

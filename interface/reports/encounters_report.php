@@ -43,11 +43,11 @@ $alertmsg = ''; // not used yet but maybe later
 // For each sorting option, specify the ORDER BY argument.
 //
 $ORDERHASH = [
-  'doctor'  => 'lower(u.lname), lower(u.fname), fe.date',
-  'patient' => 'lower(p.lname), lower(p.fname), fe.date',
-  'pubpid'  => 'lower(p.pubpid), fe.date',
-  'time'    => 'fe.date, lower(u.lname), lower(u.fname)',
-  'encounter'    => 'fe.encounter, fe.date, lower(u.lname), lower(u.fname)',
+  'doctor'  => 'lower(u.lname), lower(u.fname), fe.date DESC, fe.encounter DESC',
+  'patient' => 'lower(p.lname), lower(p.fname), fe.date DESC, fe.encounter DESC',
+  'pubpid'  => 'lower(p.pubpid), fe.date DESC, fe.encounter DESC',
+  'time'    => 'fe.date DESC, fe.encounter DESC, lower(u.lname), lower(u.fname)',
+  'encounter'    => 'fe.encounter DESC, fe.date DESC, lower(u.lname), lower(u.fname)',
 ];
 
 function show_doc_total($lastdocname, $doc_encounters): void

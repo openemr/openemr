@@ -324,7 +324,7 @@ if (!empty($_GET)) {
 
                                                 // Decrypt comment data if encrypted
                                                 if ($commentEncrStatus == "Yes") {
-                                                    if ($encryptVersion == 0) {
+                                                    if ($encryptVersion === 0) {
                                                         // The old mcrypt method is no longer supported
                                                         $trans_comments = xl("Unable to decrypt these comments since the PHP mycrypt module is no longer available.");
                                                     } else {
@@ -333,7 +333,7 @@ if (!empty($_GET)) {
                                                             ? KeyVersion::from($encryptVersion)->toPaddedString() . $iter["comments"]
                                                             : $iter["comments"];
                                                         $trans_comments = $cryptoGen->decryptStandard($comments);
-                                                        if ($trans_comments !== false) {
+                                                        if (is_string($trans_comments)) {
                                                             $trans_comments = preg_replace($patterns, $replace, $trans_comments);
                                                         } else {
                                                             $trans_comments = xl("Unable to decrypt these comments since decryption failed.");
