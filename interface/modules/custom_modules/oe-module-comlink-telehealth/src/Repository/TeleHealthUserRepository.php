@@ -11,18 +11,18 @@
  */
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Repository;
+
+use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\BaseService;
+use Ramsey\Uuid\UuidFactory;
 
 if (!defined('OPENEMR_GLOBALS_LOADED')) {
     http_response_code(404);
     exit();
 }
-
-use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser;
-use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Services\BaseService;
-use Ramsey\Uuid\UuidFactory;
 
 class TeleHealthUserRepository extends BaseService
 {

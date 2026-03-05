@@ -23,15 +23,15 @@
  */
 
 namespace OpenEMR\Billing;
-use OpenEMR\BC\ServiceContainer;
-
-require_once(__DIR__ . "/../../library/edihistory/codes/edih_271_code_class.php");
 
 use edih_271_codes;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\MultipartStream;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\BillingProcessor\BillingClaimBatchControlNumber;
 use OpenEMR\Common\Utils\RandomGenUtils;
+
+require_once(__DIR__ . "/../../library/edihistory/codes/edih_271_code_class.php");
 
 // @TODO global to become private var when this goes to a class.
 //

@@ -38,13 +38,6 @@ if ($session->isSymfonySession() && $session->has('pid') && $session->has('patie
     require_once(__DIR__ . "/../interface/globals.php");
 }
 
-<<<<<<< HEAD
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\Header;
-use OpenEMR\PaymentProcessing\PaymentProcessing;
-=======
->>>>>>> master
-
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token"], 'sphere', $session->getSymfonySession())) {
     CsrfUtils::csrfNotVerified();
 }

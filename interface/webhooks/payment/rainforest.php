@@ -18,16 +18,16 @@ header('Content-type: text/plain');
 $ignoreAuth_onsite_portal = true;
 require_once 'interface/globals.php';
 
-use OpenEMR\BC\ServiceContainer;
 use Http\Discovery\Psr17Factory;
 use Lcobucci\Clock\SystemClock;
 use Monolog\Logger;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Rainforest\Webhooks\{
     Dispatcher,
     RecordPayment,
     Verifier,
 };
-use OpenEMR\Core\OEGlobalsBag;
 
 $gb = OEGlobalsBag::getInstance();
 

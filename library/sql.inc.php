@@ -19,10 +19,10 @@
 
 require_once(__DIR__ . "/sqlconf.php");
 
-use OpenEMR\BC\ServiceContainer;
 use OpenEMR\BC\{
     DatabaseConnectionFactory,
     DatabaseConnectionOptions,
+    ServiceContainer,
 };
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;

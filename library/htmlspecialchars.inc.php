@@ -12,8 +12,6 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\BC\ServiceContainer;
-
 /**
  * Escape a javascript literal.
  *
@@ -109,7 +107,7 @@ function safe_href(?string $url): string
     }
 
     // Disallowed scheme — log and return safe fallback
-    ServiceContainer::getLogger()->warning(
+    \OpenEMR\BC\ServiceContainer::getLogger()->warning(
         "safe_href(): blocked disallowed URL scheme",
         ['scheme' => $scheme]
     );

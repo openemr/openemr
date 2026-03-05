@@ -12,20 +12,20 @@
  */
 
 namespace Carecoordination\Model;
-use OpenEMR\BC\ServiceContainer;
-
-// TODO: we need to refactor all of this so it can go into a class for this functionality
-require_once($GLOBALS['fileroot'] . '/ccr/transmitCCD.php');
-require_once($GLOBALS['fileroot'] . '/library/amc.php');
 
 use Application\Plugin\CommonPlugin;
 use CouchDB;
 use DOMDocument;
 use Dompdf\Dompdf;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\DirectMessaging\ErrorConstants;
 use OpenEMR\Common\Logging\SystemLogger;
 use XSLTProcessor;
+
+// TODO: we need to refactor all of this so it can go into a class for this functionality
+require_once($GLOBALS['fileroot'] . '/ccr/transmitCCD.php');
+require_once($GLOBALS['fileroot'] . '/library/amc.php');
 
 class EncountermanagerTable
 {
