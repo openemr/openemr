@@ -14,6 +14,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Auth\AuthHash;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -90,8 +92,6 @@ if (
 require_once(__DIR__ . "/lib/appsql.class.php");
 require_once("$srcdir/user.inc.php");
 
-use OpenEMR\Common\Auth\AuthHash;
-use OpenEMR\Common\Csrf\CsrfUtils;
 
 $logit = new ApplicationTable();
 $password_update = $session->get('password_update', 0);

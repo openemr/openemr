@@ -10,7 +10,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
+use OpenEMR\Core\Header;
 
 // block of code to securely support use by the patient portal
 // Need access to classes, so run autoloader now instead of in globals.php.
@@ -24,8 +26,6 @@ $patientPortalOther = CoreFormToPortalUtility::isPatientPortalOther($_GET);
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc.php");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\Header;
 
 if (!empty($_GET['id'])) {
     $obj = formFetch("form_sdoh", $_GET["id"]);

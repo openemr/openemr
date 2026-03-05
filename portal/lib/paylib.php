@@ -12,6 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Billing\PaymentGateway;
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
@@ -37,8 +39,6 @@ if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($sess
 
 require_once("./appsql.class.php");
 
-use OpenEMR\Billing\PaymentGateway;
-use OpenEMR\Common\Crypto\CryptoGen;
 
 if ($session->get('portal_init') !== true) {
     $session->set('whereto', '#paymentcard');
