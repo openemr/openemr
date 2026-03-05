@@ -79,7 +79,8 @@ class OnsiteActivityViewReporter extends Reporter
      */
     static function GetCustomQuery($criteria)
     {
-        $sql = "SELECT
+        $sql = <<<'SQL'
+        SELECT
             `onsite_portal_activity`.`id` AS Id,
             `onsite_portal_activity`.`date` AS Date,
             `onsite_portal_activity`.`patient_id` AS PatientId,
@@ -120,7 +121,8 @@ class OnsiteActivityViewReporter extends Reporter
             `users`.`physician_type` AS PhysicianType
         FROM `onsite_portal_activity`
         LEFT JOIN `patient_data` ON `onsite_portal_activity`.`patient_id` = `patient_data`.`pid`
-        LEFT JOIN `users` ON `patient_data`.`providerID` = `users`.`id`";
+        LEFT JOIN `users` ON `patient_data`.`providerID` = `users`.`id`
+        SQL;
 
         // the criteria can be used or you can write your own custom logic.
         // be sure to escape any user input with $criteria->Escape()
@@ -141,10 +143,12 @@ class OnsiteActivityViewReporter extends Reporter
      */
     static function GetCustomCountQuery($criteria)
     {
-        $sql = "SELECT count(1) AS counter
+        $sql = <<<'SQL'
+        SELECT count(1) AS counter
         FROM `onsite_portal_activity`
         LEFT JOIN `patient_data` ON `onsite_portal_activity`.`patient_id` = `patient_data`.`pid`
-        LEFT JOIN `users` ON `patient_data`.`providerID` = `users`.`id`";
+        LEFT JOIN `users` ON `patient_data`.`providerID` = `users`.`id`
+        SQL;
 
         // the criteria can be used or you can write your own custom logic.
         // be sure to escape any user input with $criteria->Escape()
