@@ -7,7 +7,9 @@
 
 require_once dirname(__FILE__, 2) . '/globals.php';
 
-$defaultBaseUrl = $GLOBALS['web_root'] ?? '/openemr';
+use OpenEMR\Core\OEGlobalsBag;
+
+$defaultBaseUrl = OEGlobalsBag::getInstance()->get('web_root') ?? '/openemr';
 ?>
 <!doctype html>
 <html lang="en">
