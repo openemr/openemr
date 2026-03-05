@@ -17,10 +17,10 @@ require_once("$srcdir/pid.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaValidateDocumentObject;
-use OpenEMR\Common\Logging\SystemLogger;
 
 $format = $_GET['format'] ?? "html";
 $format = in_array($format, ['json', 'html']) ? $format : "html";

@@ -18,8 +18,8 @@ define("TRANSMIT_FAX", 3);
 define("TRANSMIT_ERX", 4);
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\ORDataObject\Address;
+use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\ValueObjects\TypedPhoneNumber;
 use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\PhoneType;

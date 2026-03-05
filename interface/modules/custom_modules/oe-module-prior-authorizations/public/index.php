@@ -12,8 +12,8 @@ require_once dirname(__FILE__, 5) . "/globals.php";
 
 use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\AuthorizationService;
 use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\ListAuthorizations;
-use OpenEMR\Core\Header;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 
 $pid = $_SESSION['pid'] ?? null;
 function isValid($date, $format = 'Y-m-d'): bool

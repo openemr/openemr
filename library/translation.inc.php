@@ -1,7 +1,7 @@
 <?php
 
-use OpenEMR\Common\Translation\TranslationCache;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Translation\TranslationCache;
 
 if (!(function_exists('xlWarmCache'))) {
     /**

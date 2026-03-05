@@ -29,11 +29,11 @@ use OpenEMR\Services\Qdm\Services\InterventionService;
 use OpenEMR\Services\Qdm\Services\LaboratoryTestOrderedService;
 use OpenEMR\Services\Qdm\Services\LaboratoryTestService;
 use OpenEMR\Services\Qdm\Services\MedicationActiveService;
-use OpenEMR\Services\Qdm\Services\SubstanceOrderService;
 use OpenEMR\Services\Qdm\Services\PatientService;
 use OpenEMR\Services\Qdm\Services\PhysicalExamService;
 use OpenEMR\Services\Qdm\Services\ProcedureRecommendedService;
 use OpenEMR\Services\Qdm\Services\ProcedureService;
+use OpenEMR\Services\Qdm\Services\SubstanceOrderService;
 use OpenEMR\Services\Qdm\Services\SubstanceRecommendedService;
 use OpenEMR\Services\Qdm\Services\SymptomService;
 

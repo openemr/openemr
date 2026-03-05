@@ -1,4 +1,5 @@
 <?php
+
 /*
  * FhirUserClaim.php
  * @package openemr

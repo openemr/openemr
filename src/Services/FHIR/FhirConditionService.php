@@ -4,10 +4,10 @@ namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Services\ConditionService;
 use OpenEMR\Services\FHIR\Condition\FhirConditionEncounterDiagnosisService;
 use OpenEMR\Services\FHIR\Condition\FhirConditionHealthConcernService;
 use OpenEMR\Services\FHIR\Condition\FhirConditionProblemListItemService;
-use OpenEMR\Services\ConditionService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;

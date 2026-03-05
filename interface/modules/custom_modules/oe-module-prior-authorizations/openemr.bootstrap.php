@@ -12,10 +12,9 @@
  *
  */
 
-
+use OpenEMR\Core\ModulesClassLoader;
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Menu\PatientMenuEvent;
-use OpenEMR\Core\ModulesClassLoader;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 // AI Generated: registering namespace

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package OpenEMR
  * @link      https://www.open-emr.org
@@ -8,7 +9,6 @@
  */
 
 namespace OpenEMR\Cqm\Qdm\BaseTypes;
-
 
 use OpenEMR\Services\Qrda\Util\DateHelper;
 

@@ -17,13 +17,13 @@ require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/encounter.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\ListService;
-use OpenEMR\Services\PatientService;
-use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\PatientIssuesService;
+use OpenEMR\Services\PatientService;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();

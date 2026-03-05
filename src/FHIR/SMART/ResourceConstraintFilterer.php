@@ -1,4 +1,5 @@
 <?php
+
 /*
  * ResourceConstraintFilterer.php  Would like a better name for this but for now...
  * This class handles checking if a given FHIR resource can be accessed based on the constraints given in the

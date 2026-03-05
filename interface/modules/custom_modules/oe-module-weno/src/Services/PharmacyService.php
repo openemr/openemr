@@ -14,7 +14,6 @@
 
 namespace OpenEMR\Modules\WenoModule\Services;
 
-
 class PharmacyService
 {
     public function __construct()

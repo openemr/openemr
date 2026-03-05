@@ -20,8 +20,8 @@ namespace OpenEMR\Services\Utils;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\SQLUpgradeEvent;
 use OpenEMR\Services\Utils\Interfaces\ISQLUpgradeService;
 use OpenEMR\Services\VersionService;

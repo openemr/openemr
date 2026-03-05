@@ -12,12 +12,12 @@
 
 namespace OpenEMR\Patient\Cards;
 
+use InsuranceCompany;
 use OpenEMR\Billing\EDI270;
 use OpenEMR\Billing\InsurancePolicyTypes;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
-use InsuranceCompany;
 use OpenEMR\Services\InsuranceService;
 
 class InsuranceViewCard extends CardModel

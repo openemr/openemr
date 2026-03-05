@@ -14,11 +14,11 @@
  */
 
 use OpenEMR\Common\Crypto\CryptoGen;
-use PHPMailer\PHPMailer\PHPMailer;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
+use PHPMailer\PHPMailer\PHPMailer;
 
 class MyMailer extends PHPMailer
 {

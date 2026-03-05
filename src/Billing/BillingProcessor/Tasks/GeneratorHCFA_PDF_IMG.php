@@ -20,10 +20,10 @@
 
 namespace OpenEMR\Billing\BillingProcessor\Tasks;
 
+use OpenEMR\Billing\BillingProcessor\BillingClaim;
 use OpenEMR\Billing\BillingProcessor\GeneratorCanValidateInterface;
 use OpenEMR\Billing\BillingProcessor\GeneratorInterface;
 use OpenEMR\Billing\BillingProcessor\LoggerInterface;
-use OpenEMR\Billing\BillingProcessor\BillingClaim;
 use OpenEMR\Billing\Hcfa1500;
 
 class GeneratorHCFA_PDF_IMG extends GeneratorHCFA_PDF implements

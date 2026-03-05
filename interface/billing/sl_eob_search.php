@@ -27,10 +27,23 @@
 // Updated by Growlingflea Software.  now generates correct service and billing facility on statement.
 // any questions contact Daniel Pflieger at daniel@growlingflea.com
 
-require_once("../globals.php");
 
+use Mpdf\Mpdf;
+use OpenEMR\Billing\InvoiceSummary;
+use OpenEMR\Billing\ParseERA;
+use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Utils\FormatMoney;
+use OpenEMR\Common\Utils\ValidationUtils;
+use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Pdf\Config_Mpdf;
+
+require_once("../globals.php");
 
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/appointments.inc.php");
@@ -44,19 +57,6 @@ require_once("$srcdir/../controllers/C_Document.class.php");
 require_once("$srcdir/documents.php");
 require_once("$srcdir/options.inc.php");
 require_once "$srcdir/user.inc.php";
-
-use Mpdf\Mpdf;
-use OpenEMR\Billing\InvoiceSummary;
-use OpenEMR\Billing\ParseERA;
-use OpenEMR\Billing\SLEOB;
-use OpenEMR\Common\Acl\AccessDeniedHelper;
-use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Utils\FormatMoney;
-use OpenEMR\Common\Utils\ValidationUtils;
-use OpenEMR\Core\Header;
-use OpenEMR\OeUI\OemrUI;
-use OpenEMR\Pdf\Config_Mpdf;
 
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob: EOB Posting - Search", xl("EOB Posting - Search"));

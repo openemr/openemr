@@ -64,15 +64,15 @@ require_once(dirname(__DIR__) . "/custom/code_types.inc.php");
 
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Layouts\LayoutsUtils;
 use OpenEMR\Common\Forms\Types\BillingCodeType;
 use OpenEMR\Common\Forms\Types\LocalProviderListType;
 use OpenEMR\Common\Forms\Types\SmokingStatusType;
+use OpenEMR\Common\Layouts\LayoutsUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Events\PatientDemographics\RenderPharmacySectionEvent;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientNameHistoryService;
-use OpenEMR\Events\PatientDemographics\RenderPharmacySectionEvent;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
 $facilityService = new FacilityService();

@@ -13,10 +13,10 @@
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenApi\Attributes as OA;
-use OpenEMR\Services\FHIR\FhirResourcesService;
-use OpenEMR\Services\FHIR\FhirImmunizationService;
-use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
+use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\FHIR\FhirImmunizationService;
+use OpenEMR\Services\FHIR\FhirResourcesService;
 
 /**
  * Supports REST interactions with the FHIR immunization resource

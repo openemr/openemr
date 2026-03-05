@@ -20,8 +20,8 @@
 
 namespace OpenEMR\RestControllers\SMART;
 
-use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 
 class ScopePermissionParser
 {

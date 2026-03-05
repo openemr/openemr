@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Gacl class - phpGACL main class
  *

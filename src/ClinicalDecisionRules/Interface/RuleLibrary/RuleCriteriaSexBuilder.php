@@ -10,8 +10,8 @@ namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
 
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaBuilder;
-use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaType;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaSex;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaType;
 
 /**
  * Description of OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaSexBuilder

@@ -14,8 +14,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
 
 // block of code to securely support use by the patient portal
 // Need access to classes, so run autoloader now instead of in globals.php.
@@ -44,10 +48,6 @@ require_once "$srcdir/FeeSheetHtml.class.php";
  * @var string $BS_COL_CLASS
  */
 
-use OpenEMR\Common\Acl\AccessDeniedHelper;
-use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\Header;
 
 $CPR = 4; // cells per row
 

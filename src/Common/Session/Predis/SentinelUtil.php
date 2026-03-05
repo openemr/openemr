@@ -16,8 +16,8 @@
 namespace OpenEMR\Common\Session\Predis;
 
 use OpenEMR\Common\Logging\SystemLogger;
-use Psr\Log\LoggerInterface;
 use Predis\Client;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler;
 
 class SentinelUtil

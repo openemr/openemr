@@ -10,8 +10,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\PatientPortalService;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
@@ -34,8 +36,6 @@ if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($sess
     }
 }
 
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Services\PatientPortalService;
 
 $data = (array)(json_decode(file_get_contents('php://input'), true, 512, JSON_THROW_ON_ERROR));
 

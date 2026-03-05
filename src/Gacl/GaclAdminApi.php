@@ -1,4 +1,5 @@
 <?php
+
 /**
  * GaclAdminApi class - phpGACL custom extended API Class
  *
@@ -17,7 +18,6 @@
  * @copyright Copyright (c) 2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://www.gnu.org/licenses/old-licenses/lgpl-2.1.html GNU Lesser General Public License 2.1
  */
-
 
 namespace OpenEMR\Gacl;
 

@@ -13,7 +13,6 @@
 
 namespace OpenEMR\RestControllers\FHIR\Operations;
 
-
 /**
  *
  * @package OpenEMR\RestControllers\FHIR

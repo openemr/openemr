@@ -27,8 +27,8 @@
  *
  */
 
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Acl\AclExtended;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\ScriptFilterEvent;

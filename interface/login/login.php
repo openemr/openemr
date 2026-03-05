@@ -29,10 +29,10 @@
 Header("X-Frame-Options: DENY");
 Header("Content-Security-Policy: frame-ancestors 'none'");
 
-use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\LogoService;
 use Twig\Error\LoaderError;

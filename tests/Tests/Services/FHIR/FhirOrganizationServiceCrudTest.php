@@ -8,8 +8,8 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\Serialization\FhirOrganizationSerializer;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
 /**
  * FHIR Organization Service Crud Tests

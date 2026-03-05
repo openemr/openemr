@@ -30,14 +30,14 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Core\OEGlobalsBag;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use OpenEMR\Core\Kernel;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\OeUI\RenderFormFieldHelper;
 use OpenEMR\Services\FacilityService;
-use OpenEMR\Services\UserService;
 use OpenEMR\Services\ListService;
+use OpenEMR\Services\UserService;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 use Twig\TwigFunction;
 

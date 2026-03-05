@@ -13,13 +13,13 @@
 namespace OpenEMR\Services\FHIR;
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Enum\PlaceOfServiceEnum;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\Export\ExportCannotEncodeException;
 use OpenEMR\FHIR\Export\ExportException;
 use OpenEMR\FHIR\Export\ExportJob;
 use OpenEMR\FHIR\Export\ExportStreamWriter;
 use OpenEMR\FHIR\Export\ExportWillShutdownException;
-use OpenEMR\Common\Enum\PlaceOfServiceEnum;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRLocation;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;

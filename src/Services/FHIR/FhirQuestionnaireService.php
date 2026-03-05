@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use BadMethodCallException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaire;
@@ -26,7 +27,6 @@ use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
-use BadMethodCallException;
 
 class FhirQuestionnaireService extends FhirServiceBase implements IResourceReadableService, IResourceSearchableService
 {

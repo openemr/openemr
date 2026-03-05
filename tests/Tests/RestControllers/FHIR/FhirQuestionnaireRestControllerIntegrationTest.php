@@ -11,6 +11,7 @@
 
 namespace OpenEMR\Tests\RestControllers\FHIR;
 
+use Exception;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -19,10 +20,9 @@ use OpenEMR\RestControllers\FHIR\FhirQuestionnaireRestController;
 use OpenEMR\Services\FHIR\FhirQuestionnaireService;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
 use OpenEMR\Services\QuestionnaireService;
+use PHPUnit\Framework\MockObject\Exception as MockException;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
-use PHPUnit\Framework\MockObject\Exception as MockException;
-use Exception;
 
 class FhirQuestionnaireRestControllerIntegrationTest extends TestCase
 {

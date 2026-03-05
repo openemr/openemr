@@ -22,7 +22,6 @@
  for an existing service type and vendor service.
  */
 
-
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Messaging\SendSmsEvent;
 use OpenEMR\Events\PatientDocuments\PatientDocumentEvent;
@@ -31,8 +30,8 @@ use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
 use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
 use OpenEMR\Modules\FaxSMS\Events\NotificationEventListener;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 // some flags
 $allowFax = ($GLOBALS['oefax_enable_fax'] ?? null);
