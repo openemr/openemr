@@ -17,6 +17,7 @@ require_once("../globals.php");
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\KeySource;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
@@ -34,7 +35,7 @@ $fh = file_get_contents($filename);
 
 $cryptoGen = ServiceContainer::getCrypto();
 if ($cryptoGen->cryptCheckStandard($fh)) {
-    $fh = $cryptoGen->decryptStandard($fh, null, 'database');
+    $fh = $cryptoGen->decryptStandard($fh, null, KeySource::Database);
 }
 
 if (!empty($fh)) {

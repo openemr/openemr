@@ -22,6 +22,7 @@ require_once(__DIR__ . "/../gprelations.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\ValidationUtils;
@@ -943,13 +944,13 @@ class Document extends ORDataObject
         if ($this->storagemethod == self::STORAGE_METHOD_COUCHDB) {
             // Store it using CouchDB.
             if ($GLOBALS['couchdb_encryption']) {
-                $document = $cryptoGen->encryptStandard($data, null, 'database');
+                $document = $cryptoGen->encryptStandard($data, null, KeySource::Database);
             } else {
                 $document = base64_encode($data);
             }
             if ($has_thumbnail) {
                 if ($GLOBALS['couchdb_encryption']) {
-                    $th_document = $cryptoGen->encryptStandard($thumbnail_data, null, 'database');
+                    $th_document = $cryptoGen->encryptStandard($thumbnail_data, null, KeySource::Database);
                 } else {
                     $th_document = base64_encode($thumbnail_data);
                 }
@@ -1039,7 +1040,7 @@ class Document extends ORDataObject
             }
 
             // Store the file.
-            $storedData = $GLOBALS['drive_encryption'] ? $cryptoGen->encryptStandard($data, null, 'database') : $data;
+            $storedData = $GLOBALS['drive_encryption'] ? $cryptoGen->encryptStandard($data, null, KeySource::Database) : $data;
             if (file_exists($filepath . $filenameUuid)) {
                 // this should never happen with current uuid mechanism
                 return xl('Failed since file already exists') . " $filepath$filenameUuid";
@@ -1052,7 +1053,7 @@ class Document extends ORDataObject
                 // Store the thumbnail.
                 $this->thumb_url = "file://" . $filepath . $this->get_thumb_name($filenameUuid);
                 if ($GLOBALS['drive_encryption']) {
-                    $storedThumbnailData = $cryptoGen->encryptStandard($thumbnail_data, null, 'database');
+                    $storedThumbnailData = $cryptoGen->encryptStandard($thumbnail_data, null, KeySource::Database);
                 } else {
                     $storedThumbnailData = $thumbnail_data;
                 }
@@ -1157,7 +1158,7 @@ class Document extends ORDataObject
     public function decrypt_content($data)
     {
         $cryptoGen = ServiceContainer::getCrypto();
-        $decryptedData = $cryptoGen->decryptStandard($data, null, 'database');
+        $decryptedData = $cryptoGen->decryptStandard($data, null, KeySource::Database);
         if ($decryptedData === false) {
             throw new RuntimeException("Failed to decrypt the data");
         }

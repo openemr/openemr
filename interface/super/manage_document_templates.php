@@ -19,6 +19,7 @@ require_once('../globals.php');
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -49,7 +50,7 @@ if (!empty($_POST['bn_download'])) {
 
     // Decrypt file, if applicable
     if ($cryptoGen->cryptCheckStandard($fileData)) {
-        $fileData = $cryptoGen->decryptStandard($fileData, null, 'database');
+        $fileData = $cryptoGen->decryptStandard($fileData, null, KeySource::Database);
     }
 
     header('Content-Description: File Transfer');
@@ -141,7 +142,7 @@ if (!empty($_POST['bn_upload'])) {
         $fileData = file_get_contents($tmp_name);
 
         // Encrypt uploaded file, if applicable.
-        $storedData = $GLOBALS['drive_encryption'] ? $cryptoGen->encryptStandard($fileData, null, 'database') : $fileData;
+        $storedData = $GLOBALS['drive_encryption'] ? $cryptoGen->encryptStandard($fileData, null, KeySource::Database) : $fileData;
 
         // Store the uploaded file.
         if (file_put_contents($templatepath, $storedData) === false) {

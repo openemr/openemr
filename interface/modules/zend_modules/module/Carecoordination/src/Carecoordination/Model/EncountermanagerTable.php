@@ -18,6 +18,7 @@ use CouchDB;
 use DOMDocument;
 use Dompdf\Dompdf;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\DirectMessaging\ErrorConstants;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -169,7 +170,7 @@ class EncountermanagerTable
                 $resp = $couch->retrieve_doc($row['couch_docid']);
                 if ($row['encrypted']) {
                     $cryptoGen = ServiceContainer::getCrypto();
-                    $content = $cryptoGen->decryptStandard($resp->data, null, 'database');
+                    $content = $cryptoGen->decryptStandard($resp->data, null, KeySource::Database);
                 } else {
                     $content = base64_decode((string) $resp->data);
                 }
@@ -180,7 +181,7 @@ class EncountermanagerTable
                 $fccda = fopen($row['ccda_data'], "r");
                 if ($row['encrypted']) {
                     $cryptoGen = ServiceContainer::getCrypto();
-                    $content = $cryptoGen->decryptStandard(fread($fccda, filesize($row['ccda_data'])), null, 'database');
+                    $content = $cryptoGen->decryptStandard(fread($fccda, filesize($row['ccda_data'])), null, KeySource::Database);
                 } else {
                     $content = fread($fccda, filesize($row['ccda_data']));
                 }
