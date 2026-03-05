@@ -33,6 +33,12 @@ class CcdaServiceDocumentRequestor
             $this->getSystemLogger()->errorLogCaller("C-CDA Service is not enabled in Global Settings");
             throw new CcdaServiceConnectionException("Please Enable C-CDA Alternate Service in Global Settings");
         }
+
+        // Service connection configuration via environment variables
+        $host = $_ENV['CCDA_SERVICE_HOST'] ?? '127.0.0.1';
+        $port = (int) ($_ENV['CCDA_SERVICE_PORT'] ?? 6661);
+        $external = !empty($_ENV['CCDA_SERVICE_EXTERNAL']);
+
         $output = "";
         $system = new System();
 
@@ -42,9 +48,17 @@ class CcdaServiceDocumentRequestor
             throw new CcdaServiceConnectionException("Socket Creation Failed");
         }
         // Let's check if server is already running but suppress warning with @ operator
-        $server_active = @socket_connect($socket, "127.0.0.1", "6661");
+        $server_active = @socket_connect($socket, $host, $port);
         $this->getSystemLogger()->debug("CcdaServiceDocumentRequestor::socket_get server active: " . var_export($server_active, true));
         if ($server_active === false) {
+            // If using external service, don't attempt to start locally - just fail
+            if ($external) {
+                $errorCode = socket_last_error($socket);
+                $errorMsg = socket_strerror($errorCode);
+                $this->getSystemLogger()->errorLogCaller("External CCDA service connection failed: $errorCode $errorMsg");
+                throw new CcdaServiceConnectionException("Connection to external CCDA service failed: $errorMsg");
+            }
+
             $this->getSystemLogger()->debug("CcdaServiceDocumentRequestor::socket_get starting local ccda service");
             $path = $GLOBALS['fileroot'] . "/ccdaservice";
             if (IS_WINDOWS) {
@@ -77,14 +91,13 @@ class CcdaServiceDocumentRequestor
             sleep(5); // give cpu a rest
             $this->getSystemLogger()->debug("CcdaServiceDocumentRequestor::socket_get attempting connection again after starting service");
             // now try to connect to the server
-            $result = socket_connect($socket, "127.0.0.1", 6661);
+            $result = socket_connect($socket, $host, $port);
             if ($result === false) {
                 $errorCode = socket_last_error($socket);
                 $errorMsg = socket_strerror($errorCode);
                 $this->getSystemLogger()->errorLogCaller("Socket connection error $errorCode: $errorMsg");
                 throw new CcdaServiceConnectionException("Connection Failed: $errorMsg");
             }
-
         }
         // add file separator character for server end of message
         $data = $data . chr(28) . chr(28);
