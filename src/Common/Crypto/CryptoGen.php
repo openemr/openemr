@@ -54,25 +54,18 @@ class CryptoGen implements CryptoInterface
     /**
      * @inheritdoc
      */
-    public function encryptStandard(?string $value, ?string $customPassword = null, ?KeySource $keySource = null): string
+    public function encryptStandard(?string $value, ?string $customPassword = null, KeySource $keySource = KeySource::Drive): string
     {
-        if ($keySource === null) {
-            $keySource = KeySource::Drive;
-        }
         return self::CURRENT_KEY_VERSION->toPaddedString() . $this->coreEncrypt($value, $customPassword, $keySource, self::CURRENT_KEY_VERSION);
     }
 
     /**
      * @inheritdoc
      */
-    public function decryptStandard(?string $value, ?string $customPassword = null, ?KeySource $keySource = null, ?int $minimumVersion = null): false|string
+    public function decryptStandard(?string $value, ?string $customPassword = null, KeySource $keySource = KeySource::Drive, ?int $minimumVersion = null): false|string
     {
         if (empty($value)) {
             return "";
-        }
-
-        if ($keySource === null) {
-            $keySource = KeySource::Drive;
         }
 
         // Collect the encrypt/decrypt version and remove it from the value
