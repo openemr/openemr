@@ -1,7 +1,5 @@
 <?php
 
-use OpenEMR\Core\OEGlobalsBag;
-
 /**
  * import_template.php
  *
@@ -12,6 +10,8 @@ use OpenEMR\Core\OEGlobalsBag;
  * @copyright Copyright (c) 2016-2021 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
+
+use OpenEMR\Core\OEGlobalsBag;
 
     $globalsBag = OEGlobalsBag::getInstance();
     //require_once ("./../verify_session.php");
