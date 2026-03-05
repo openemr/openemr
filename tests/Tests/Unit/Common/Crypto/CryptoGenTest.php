@@ -153,7 +153,7 @@ final class CryptoGenTest extends TestCase
             ->willReturn(['value' => 'encoded_key_value']);
 
         $testValue = 'test data';
-        $result = $mockCryptoGen->encryptStandard($testValue, null, KeySource::Database->value);
+        $result = $mockCryptoGen->encryptStandard($testValue, null, KeySource::Database);
 
         $this->assertNotEmpty($result);
         $this->assertIsString($result);
@@ -585,7 +585,7 @@ final class CryptoGenTest extends TestCase
         $testData = 'test';
         $encrypted = $this->cryptoGen->encryptStandard($testData); // Current version
         $this->assertIsString($encrypted);
-        $result = $this->cryptoGen->decryptStandard($encrypted, null, KeySource::Drive->value, $this->cryptoGen::CURRENT_KEY_VERSION->value + 1);
+        $result = $this->cryptoGen->decryptStandard($encrypted, null, KeySource::Drive, $this->cryptoGen::CURRENT_KEY_VERSION->value + 1);
         $this->assertFalse($result);
     }
 
@@ -746,7 +746,7 @@ final class CryptoGenTest extends TestCase
         // Create an encrypted key file using the mock
         $keyDir = $this->testSiteDir . '/documents/logs_and_misc/methods';
         $rawKey = 'test_newer_key_32_bytes_for_test'; // Exactly 32 bytes
-        $encryptedKey = $mockCryptoGenForEncryption->encryptStandard($rawKey, null, KeySource::Database->value);
+        $encryptedKey = $mockCryptoGenForEncryption->encryptStandard($rawKey, null, KeySource::Database);
         file_put_contents($keyDir . '/' . $this->cryptoGen::CURRENT_KEY_VERSION->toString() . 'x', $encryptedKey);
 
         // Now test reading the key with a second mock for the decryption part
@@ -988,7 +988,7 @@ final class CryptoGenTest extends TestCase
 
         $this->expectException(CryptoGenException::class);
 
-        $mockCryptoGen->encryptStandard('non_empty_data', null, KeySource::Database->value);
+        $mockCryptoGen->encryptStandard('non_empty_data', null, KeySource::Database);
     }
 
     /**
@@ -1189,7 +1189,7 @@ final class CryptoGenTest extends TestCase
         $this->expectException(CryptoGenException::class);
 
         // This calls encryptStandard which internally calls collectCryptoKey
-        $mockCryptoGen->encryptStandard('test data', null, KeySource::Drive->value);
+        $mockCryptoGen->encryptStandard('test data', null, KeySource::Drive);
     }
 
     /**
