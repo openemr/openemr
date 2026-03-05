@@ -13,6 +13,10 @@
 
 const enableDebug = true;
 
+// Server configuration via environment variables
+const CCDA_HOST = process.env.CCDA_HOST || '127.0.0.1';
+const CCDA_PORT = parseInt(process.env.CCDA_PORT, 10) || 6661;
+
 const net = require("net");
 const server = net.createServer();
 const xml2js = require("xml2js");
@@ -3721,8 +3725,8 @@ function processConnection(connection) {
 
 function setUp(server) {
     server.on('connection', processConnection);
-    server.listen(6661, '127.0.0.1', function () { // never change port!
-        //console.log('server listening to ', server.address());
+    server.listen(CCDA_PORT, CCDA_HOST, function () {
+        console.log(`ccdaservice listening on ${CCDA_HOST}:${CCDA_PORT}`);
     });
 }
 
