@@ -24102,11 +24102,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/letter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'name\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/manage_dup_patients.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'count\' on array\\|false\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',

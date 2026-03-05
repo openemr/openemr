@@ -1443,6 +1443,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../interface/patient_file/manage_dup_patients.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot cast mixed to string\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
 ];

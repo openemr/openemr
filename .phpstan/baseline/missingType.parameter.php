@@ -14382,16 +14382,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/history/history_sdoh.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function displayRow\\(\\) has parameter \\$pid with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/manage_dup_patients.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function displayRow\\(\\) has parameter \\$row with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/manage_dup_patients.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function deleteRows\\(\\) has parameter \\$colname with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
