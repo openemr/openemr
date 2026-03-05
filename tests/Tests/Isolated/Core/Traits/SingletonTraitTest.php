@@ -14,8 +14,6 @@ namespace OpenEMR\Tests\Isolated\Core\Traits;
 
 use LogicException;
 use OpenEMR\Core\Traits\SingletonTrait;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -23,9 +21,6 @@ use PHPUnit\Framework\TestCase;
 #[Group('isolated')]
 #[Group('core')]
 #[Group('trait')]
-#[CoversClass(SingletonTrait::class)]
-#[CoversMethod(SingletonTrait::class, 'getInstance')]
-#[CoversMethod(SingletonTrait::class, 'createInstance')]
 class SingletonTraitTest extends TestCase
 {
     #[Test]
