@@ -16,8 +16,8 @@ require_once("../globals.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
-use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\KeySource;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
