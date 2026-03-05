@@ -12,11 +12,11 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\Entities;
 
+use DateTimeImmutable;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\Traits\AccessTokenTrait;
 use League\OAuth2\Server\Entities\Traits\EntityTrait;
 use League\OAuth2\Server\Entities\Traits\TokenEntityTrait;
-use DateTimeImmutable;
 
 class AccessTokenEntity implements AccessTokenEntityInterface
 {

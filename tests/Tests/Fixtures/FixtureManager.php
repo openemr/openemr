@@ -2,8 +2,8 @@
 
 namespace OpenEMR\Tests\Fixtures;
 
-use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use Ramsey\Uuid\Uuid;
 
 /**

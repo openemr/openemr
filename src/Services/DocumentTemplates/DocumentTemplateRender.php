@@ -21,10 +21,10 @@ namespace OpenEMR\Services\DocumentTemplates;
 
 use HTMLPurifier;
 use HTMLPurifier_Config;
-use RuntimeException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\VersionService;
+use RuntimeException;
 
 require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');

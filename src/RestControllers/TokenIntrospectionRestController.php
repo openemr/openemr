@@ -1,4 +1,5 @@
 <?php
+
 /*
  * TokenIntrospectionRestController.php  handles OAuth2 token introspection requests as per RFC 7662 and SMART on FHIR v2.2 specifications.
  *

@@ -90,8 +90,8 @@ require_once(__DIR__ . "/../lists.inc.php");
  *
  */
 
-use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Services\FHIR\Enum\FHIRMedicationIntentEnum;
 use OpenEMR\Services\ListService;
 

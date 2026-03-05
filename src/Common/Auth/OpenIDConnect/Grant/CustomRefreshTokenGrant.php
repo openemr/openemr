@@ -22,10 +22,10 @@ use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\IdTokenSMARTResponse;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Services\JWTClientAuthenticationService;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 
 class CustomRefreshTokenGrant extends RefreshTokenGrant
 {

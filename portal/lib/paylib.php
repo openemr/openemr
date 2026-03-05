@@ -13,6 +13,7 @@
  */
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Billing\PaymentGateway;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
@@ -37,8 +38,6 @@ if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($sess
 }
 
 require_once("./appsql.class.php");
-
-use OpenEMR\Billing\PaymentGateway;
 
 if ($session->get('portal_init') !== true) {
     $session->set('whereto', '#paymentcard');

@@ -15,8 +15,11 @@
  */
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\PaymentProcessing\PaymentProcessing;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
@@ -35,9 +38,12 @@ if ($session->isSymfonySession() && $session->has('pid') && $session->has('patie
     require_once(__DIR__ . "/../interface/globals.php");
 }
 
+<<<<<<< HEAD
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\PaymentProcessing\PaymentProcessing;
+=======
+>>>>>>> master
 
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token"], 'sphere', $session->getSymfonySession())) {
     CsrfUtils::csrfNotVerified();

@@ -16,14 +16,14 @@
 require_once(__DIR__ . "/../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Services\AppointmentService;
-use OpenEMR\Services\UserService;
 use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Services\Globals\GlobalFeaturesEnum;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\AppointmentService;
 use OpenEMR\Services\FHIR\MedicationDispense\FhirMedicationDispenseLocalDispensaryService;
+use OpenEMR\Services\Globals\GlobalFeaturesEnum;
 use OpenEMR\Services\PatientService;
+use OpenEMR\Services\UserService;
 
 function newpatient_report($pid, $encounter, $cols, $id): void
 {

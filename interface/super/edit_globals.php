@@ -35,7 +35,6 @@ use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\GlobalSetting;
 use Ramsey\Uuid\Uuid;
 
-
 // Set up crypto object
 $cryptoGen = ServiceContainer::getCrypto();
 

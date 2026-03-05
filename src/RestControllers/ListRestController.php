@@ -13,8 +13,8 @@
 namespace OpenEMR\RestControllers;
 
 use OpenApi\Attributes as OA;
-use OpenEMR\Services\ListService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\ListService;
 
 #[OA\Schema(
     schema: 'api_dental_issue_request',

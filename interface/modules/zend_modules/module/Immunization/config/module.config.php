@@ -2,10 +2,10 @@
 
 namespace Immunization;
 
-use Laminas\Router\Http\Segment;
 use Immunization\Controller\ImmunizationController;
-use Interop\Container\ContainerInterface;
 use Immunization\Model\ImmunizationTable;
+use Interop\Container\ContainerInterface;
+use Laminas\Router\Http\Segment;
 
 return [
     'controllers' => [

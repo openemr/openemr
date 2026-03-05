@@ -21,8 +21,8 @@ require_once(__DIR__ . "/forms.inc.php");
 require_once(__DIR__ . "/options.inc.php");
 require_once(__DIR__ . "/report_database.inc.php");
 
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\FacilityService;
