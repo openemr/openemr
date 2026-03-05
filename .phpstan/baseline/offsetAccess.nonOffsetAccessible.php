@@ -46283,7 +46283,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'allergy_uuid\' on mixed\\.$#',
-    'count' => 2,
+    'count' => 3,
     'path' => __DIR__ . '/../../src/Services/AllergyIntoleranceService.php',
 ];
 $ignoreErrors[] = [
@@ -48605,6 +48605,11 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/CodeTypesService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'condition_uuid\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/ConditionService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'pid\' on mixed\\.$#',
