@@ -160,7 +160,7 @@ class OneTimeAuth
 
         if (strlen((string)$onetime_token) >= 64) {
             if ($this->cryptoGen->cryptCheckStandard($onetime_token)) {
-                $one_time = $this->cryptoGen->decryptStandard($onetime_token, null, KeySource::Drive, 6);
+                $one_time = $this->cryptoGen->decryptStandard($onetime_token, minimumVersion: 6);
                 if (!empty($one_time)) {
                     $t_info = $this->getOnetime($one_time);
                     if (!empty($t_info['pid'] ?? 0)) {
@@ -190,7 +190,7 @@ class OneTimeAuth
         $redirect = $t_info['redirect_url'] ?? null;
         if (!empty($redirect_token)) {
             if ($this->cryptoGen->cryptCheckStandard($redirect_token)) {
-                $redirect_decrypted = $this->cryptoGen->decryptStandard($redirect_token, null, KeySource::Drive, 6);
+                $redirect_decrypted = $this->cryptoGen->decryptStandard($redirect_token, minimumVersion: 6);
                 $redirect_array = json_decode($redirect_decrypted, true);
                 $redirect = $redirect_array['to'];
                 if (($redirect_array['pid'] != $auth['pid'] && !empty($redirect_array['pid']))) {
