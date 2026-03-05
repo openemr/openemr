@@ -6337,11 +6337,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Command/CcdaNewpatientImport.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method remove\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Command/CreateAPIDocumentationCommand.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getHeader\\(\\) on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Common/Command/CreateReleaseChangelogCommand.php',

@@ -9578,7 +9578,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/reports/audit_log_tamper_report.php',
 ];
 $ignoreErrors[] = [
@@ -14143,7 +14143,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'/\'\\|\'\\\\\\\\\' results in an error\\.$#',
-    'count' => 8,
+    'count' => 6,
     'path' => __DIR__ . '/../../library/edihistory/edih_archive.php',
 ];
 $ignoreErrors[] = [
@@ -15434,11 +15434,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\+" between mixed and 1 results in an error\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.rmdir.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/\'\\|\'\\\\\\\\\' results in an error\\.$#',
-    'count' => 3,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.rmdir.php',
 ];
 $ignoreErrors[] = [

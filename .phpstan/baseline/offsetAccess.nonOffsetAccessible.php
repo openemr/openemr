@@ -3488,7 +3488,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset mixed on mixed\\.$#',
-    'count' => 8,
+    'count' => 6,
     'path' => __DIR__ . '/../../interface/billing/sl_eob_process.php',
 ];
 $ignoreErrors[] = [
@@ -6913,7 +6913,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'OCT\' on mixed\\.$#',
-    'count' => 3,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
@@ -7518,7 +7518,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'VF\' on mixed\\.$#',
-    'count' => 3,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
@@ -7598,7 +7598,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'docs_in_name\' on mixed\\.$#',
-    'count' => 8,
+    'count' => 5,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
@@ -9353,7 +9353,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'encounter_type_code\' on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/newpatient/C_EncounterVisitForm.class.php',
 ];
 $ignoreErrors[] = [
@@ -14333,7 +14333,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'eid\' on mixed\\.$#',
-    'count' => 10,
+    'count' => 9,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleconferenceRoomController.php',
 ];
 $ignoreErrors[] = [
@@ -14388,7 +14388,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'pc_eid\' on mixed\\.$#',
-    'count' => 12,
+    'count' => 11,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Controller/TeleconferenceRoomController.php',
 ];
 $ignoreErrors[] = [
@@ -37143,7 +37143,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset mixed on mixed\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.load_plugins.php',
 ];
 $ignoreErrors[] = [
@@ -37168,7 +37168,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset mixed on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.load_resource_plugin.php',
 ];
 $ignoreErrors[] = [
@@ -37303,7 +37303,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'dirname\' on mixed\\.$#',
-    'count' => 5,
+    'count' => 2,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/internals/core.rmdir.php',
 ];
 $ignoreErrors[] = [
@@ -39847,7 +39847,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset string on mixed\\.$#',
+    'message' => '#^Cannot access offset \\(int\\|string\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
@@ -45093,7 +45093,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'aro_groups\' on mixed\\.$#',
-    'count' => 7,
+    'count' => 6,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
@@ -45103,7 +45103,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'axo_groups\' on mixed\\.$#',
-    'count' => 7,
+    'count' => 6,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
@@ -45153,12 +45153,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \\(int\\|string\\) on mixed\\.$#',
-    'count' => 10,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset int\\|string on mixed\\.$#',
-    'count' => 5,
+    'count' => 8,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
@@ -47268,7 +47263,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'act\' on mixed\\.$#',
-    'count' => 119,
+    'count' => 118,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
@@ -49078,7 +49073,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'tmp_name\' on mixed\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/DocumentService.php',
 ];
 $ignoreErrors[] = [
@@ -51844,11 +51839,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'type\' on mixed\\.$#',
     'count' => 4,
-    'path' => __DIR__ . '/../../src/Services/PatientIssuesService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset int\\|string on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientIssuesService.php',
 ];
 $ignoreErrors[] = [

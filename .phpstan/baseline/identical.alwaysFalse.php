@@ -157,11 +157,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ClientRepository.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Strict comparison using \\=\\=\\= between OpenApi\\\\Annotations\\\\OpenApi and null will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Command/CreateAPIDocumentationCommand.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between \\*NEVER\\* and \'all\' will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/QrdaControllers/QrdaReportController.php',

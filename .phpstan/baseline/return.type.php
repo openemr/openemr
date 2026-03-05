@@ -1102,7 +1102,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Carecoordination\\\\Model\\\\CarecoordinationTable\\:\\:getCCDAComponents\\(\\) should return array\\<string\\> but returns array\\.$#',
+    'message' => '#^Method Carecoordination\\\\Model\\\\CarecoordinationTable\\:\\:getCCDAComponents\\(\\) should return array\\<string\\> but returns array\\<mixed\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];
@@ -1197,7 +1197,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Model/DocumentsTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Documents\\\\Model\\\\DocumentsTable\\:\\:getCategoryIDs\\(\\) should return array\\<string, mixed\\> but returns array\\.$#',
+    'message' => '#^Method Documents\\\\Model\\\\DocumentsTable\\:\\:getCategoryIDs\\(\\) should return array\\<string, mixed\\> but returns array\\<mixed\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Model/DocumentsTable.php',
 ];
@@ -1892,7 +1892,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/global_functions.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function cron_getFacilitiesMap\\(\\) should return array\\{msg_map\\: array\\<int, string\\>, phone_map\\: array\\<int, string\\>\\} but returns array\\{msg_map\\: array, phone_map\\: array\\}\\.$#',
+    'message' => '#^Function cron_getFacilitiesMap\\(\\) should return array\\{msg_map\\: array\\<int, string\\>, phone_map\\: array\\<int, string\\>\\} but returns array\\{msg_map\\: array\\<mixed\\>, phone_map\\: array\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/global_functions.inc.php',
 ];

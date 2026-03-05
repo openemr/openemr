@@ -1588,7 +1588,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 9,
+    'count' => 7,
     'path' => __DIR__ . '/../../interface/patient_file/transaction/add_transaction.php',
 ];
 $ignoreErrors[] = [
