@@ -2017,7 +2017,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between "SELECT\\\\n            …" and mixed results in an error\\.$#',
+    'message' => '#^Binary operation "\\.\\=" between "SELECT\\\\n    `onsite…" and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter.php',
 ];
