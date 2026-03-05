@@ -79,7 +79,6 @@ class OnsiteActivityViewReporter extends Reporter
      */
     static function GetCustomQuery($criteria)
     {
-
         $sql = "SELECT
             `onsite_portal_activity`.`id` AS Id,
             `onsite_portal_activity`.`date` AS Date,
