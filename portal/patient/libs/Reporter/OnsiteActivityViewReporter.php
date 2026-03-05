@@ -29,8 +29,7 @@ require_once("verysimple/Phreeze/Reporter.php");
  */
 class OnsiteActivityViewReporter extends Reporter
 {
-    // the properties in this class must match the columns returned by GetCustomQuery().
-    // 'CustomFieldExample' is an example that is not part of the `onsite_activity_view` table
+    // the properties in this class must match the columns returned by GetCustomQuery()
     public $Id;
     public $Date;
     public $PatientId;
@@ -81,46 +80,48 @@ class OnsiteActivityViewReporter extends Reporter
     static function GetCustomQuery($criteria)
     {
 
-        $sql = "select
-			`onsite_activity_view`.`id` as Id
-			,`onsite_activity_view`.`date` as Date
-			,`onsite_activity_view`.`patient_id` as PatientId
-			,`onsite_activity_view`.`activity` as Activity
-			,`onsite_activity_view`.`require_audit` as RequireAudit
-			,`onsite_activity_view`.`pending_action` as PendingAction
-			,`onsite_activity_view`.`action_taken` as ActionTaken
-			,`onsite_activity_view`.`status` as Status
-			,`onsite_activity_view`.`narrative` as Narrative
-			,`onsite_activity_view`.`table_action` as TableAction
-			,`onsite_activity_view`.`table_args` as TableArgs
-			,`onsite_activity_view`.`action_user` as ActionUser
-			,`onsite_activity_view`.`action_taken_time` as ActionTakenTime
-			,`onsite_activity_view`.`checksum` as Checksum
-			,`onsite_activity_view`.`title` as Title
-			,`onsite_activity_view`.`fname` as Fname
-			,`onsite_activity_view`.`lname` as Lname
-			,`onsite_activity_view`.`mname` as Mname
-			,`onsite_activity_view`.`DOB` as Dob
-			,`onsite_activity_view`.`ss` as Ss
-			,`onsite_activity_view`.`street` as Street
-			,`onsite_activity_view`.`postal_code` as PostalCode
-			,`onsite_activity_view`.`city` as City
-			,`onsite_activity_view`.`state` as State
-			,`onsite_activity_view`.`referrerID` as Referrerid
-			,`onsite_activity_view`.`providerID` as Providerid
-			,`onsite_activity_view`.`ref_providerID` as RefProviderid
-			,`onsite_activity_view`.`pubpid` as Pubpid
-			,`onsite_activity_view`.`care_team_provider` as CareTeam
-			,`onsite_activity_view`.`username` as Username
-			,`onsite_activity_view`.`authorized` as Authorized
-			,`onsite_activity_view`.`ufname` as Ufname
-			,`onsite_activity_view`.`umname` as Umname
-			,`onsite_activity_view`.`ulname` as Ulname
-			,`onsite_activity_view`.`facility` as Facility
-			,`onsite_activity_view`.`active` as Active
-			,`onsite_activity_view`.`utitle` as Utitle
-			,`onsite_activity_view`.`physician_type` as PhysicianType
-		from `onsite_activity_view`";
+        $sql = "SELECT
+            `onsite_portal_activity`.`id` AS Id,
+            `onsite_portal_activity`.`date` AS Date,
+            `onsite_portal_activity`.`patient_id` AS PatientId,
+            `onsite_portal_activity`.`activity` AS Activity,
+            `onsite_portal_activity`.`require_audit` AS RequireAudit,
+            `onsite_portal_activity`.`pending_action` AS PendingAction,
+            `onsite_portal_activity`.`action_taken` AS ActionTaken,
+            `onsite_portal_activity`.`status` AS Status,
+            `onsite_portal_activity`.`narrative` AS Narrative,
+            `onsite_portal_activity`.`table_action` AS TableAction,
+            `onsite_portal_activity`.`table_args` AS TableArgs,
+            `onsite_portal_activity`.`action_user` AS ActionUser,
+            `onsite_portal_activity`.`action_taken_time` AS ActionTakenTime,
+            `onsite_portal_activity`.`checksum` AS Checksum,
+            `patient_data`.`title` AS Title,
+            `patient_data`.`fname` AS Fname,
+            `patient_data`.`lname` AS Lname,
+            `patient_data`.`mname` AS Mname,
+            `patient_data`.`DOB` AS Dob,
+            `patient_data`.`ss` AS Ss,
+            `patient_data`.`street` AS Street,
+            `patient_data`.`postal_code` AS PostalCode,
+            `patient_data`.`city` AS City,
+            `patient_data`.`state` AS State,
+            `patient_data`.`referrerID` AS Referrerid,
+            `patient_data`.`providerID` AS Providerid,
+            `patient_data`.`ref_providerID` AS RefProviderid,
+            `patient_data`.`pubpid` AS Pubpid,
+            `patient_data`.`care_team_provider` AS CareTeam,
+            `users`.`username` AS Username,
+            `users`.`authorized` AS Authorized,
+            `users`.`fname` AS Ufname,
+            `users`.`mname` AS Umname,
+            `users`.`lname` AS Ulname,
+            `users`.`facility` AS Facility,
+            `users`.`active` AS Active,
+            `users`.`title` AS Utitle,
+            `users`.`physician_type` AS PhysicianType
+        FROM `onsite_portal_activity`
+        LEFT JOIN `patient_data` ON `onsite_portal_activity`.`patient_id` = `patient_data`.`pid`
+        LEFT JOIN `users` ON `patient_data`.`providerID` = `users`.`id`";
 
         // the criteria can be used or you can write your own custom logic.
         // be sure to escape any user input with $criteria->Escape()
@@ -141,7 +142,10 @@ class OnsiteActivityViewReporter extends Reporter
      */
     static function GetCustomCountQuery($criteria)
     {
-        $sql = "select count(1) as counter from `onsite_activity_view`";
+        $sql = "SELECT count(1) AS counter
+        FROM `onsite_portal_activity`
+        LEFT JOIN `patient_data` ON `onsite_portal_activity`.`patient_id` = `patient_data`.`pid`
+        LEFT JOIN `users` ON `patient_data`.`providerID` = `users`.`id`";
 
         // the criteria can be used or you can write your own custom logic.
         // be sure to escape any user input with $criteria->Escape()
