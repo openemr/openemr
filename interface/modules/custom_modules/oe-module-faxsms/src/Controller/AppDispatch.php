@@ -11,9 +11,9 @@
  */
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
-use OpenEMR\BC\ServiceContainer;
 
 use MyMailer;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionUtil;

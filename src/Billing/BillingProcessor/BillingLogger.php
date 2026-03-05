@@ -31,8 +31,8 @@
  */
 
 namespace OpenEMR\Billing\BillingProcessor;
-use OpenEMR\BC\ServiceContainer;
 
+use OpenEMR\BC\ServiceContainer;
 
 class BillingLogger
 {

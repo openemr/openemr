@@ -11,8 +11,8 @@
  */
 
 namespace OpenEMR\Common\Auth;
-use OpenEMR\BC\ServiceContainer;
 
+use OpenEMR\BC\ServiceContainer;
 
 class MfaUtils
 {

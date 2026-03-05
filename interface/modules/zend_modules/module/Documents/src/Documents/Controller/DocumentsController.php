@@ -13,13 +13,13 @@
  */
 
 namespace Documents\Controller;
-use OpenEMR\BC\ServiceContainer;
 
+use Application\Listener\Listener;
+use Document;
+use Documents\Model\DocumentsTable;
 use DOMDocument;
 use Laminas\Mvc\Controller\AbstractActionController;
-use Application\Listener\Listener;
-use Documents\Model\DocumentsTable;
-use Document;
+use OpenEMR\BC\ServiceContainer;
 use XSLTProcessor;
 
 class DocumentsController extends AbstractActionController

@@ -11,10 +11,10 @@
  */
 
 namespace OpenEMR\Billing;
-use OpenEMR\BC\ServiceContainer;
 
-use Omnipay\Omnipay;
 use Omnipay\Common\CreditCard;
+use Omnipay\Omnipay;
+use OpenEMR\BC\ServiceContainer;
 
 class PaymentGateway
 {

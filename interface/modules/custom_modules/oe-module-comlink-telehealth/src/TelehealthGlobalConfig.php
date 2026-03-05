@@ -11,8 +11,9 @@
  */
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule;
-use OpenEMR\BC\ServiceContainer;
 
+use MyMailer;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -20,7 +21,6 @@ use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Globals\GlobalsService;
-use MyMailer;
 use Twig\Environment;
 
 class TelehealthGlobalConfig

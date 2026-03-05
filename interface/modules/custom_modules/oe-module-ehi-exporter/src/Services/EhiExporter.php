@@ -12,8 +12,8 @@
  */
 
 namespace OpenEMR\Modules\EhiExporter\Services;
-use OpenEMR\BC\ServiceContainer;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -24,7 +24,9 @@ use OpenEMR\Modules\EhiExporter\Bootstrap;
 use OpenEMR\Modules\EhiExporter\Models;
 use OpenEMR\Modules\EhiExporter\Models\EhiExportJob;
 use OpenEMR\Modules\EhiExporter\Models\EhiExportJobTask;
+use OpenEMR\Modules\EhiExporter\Models\ExportKeyDefinition;
 use OpenEMR\Modules\EhiExporter\Models\ExportResult;
+use OpenEMR\Modules\EhiExporter\Models\ExportState;
 use OpenEMR\Modules\EhiExporter\Services\EhiExportJobService;
 use OpenEMR\Modules\EhiExporter\Services\EhiExportJobTaskService;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportClinicalNotesFormTableDefinition;
@@ -36,8 +38,6 @@ use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportOnsiteMessagesTableDefini
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportPersonTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTrackAnythingFormTableDefinition;
 use OpenEMR\Services\DocumentService;
-use OpenEMR\Modules\EhiExporter\Models\ExportState;
-use OpenEMR\Modules\EhiExporter\Models\ExportKeyDefinition;
 use Ramsey\Uuid\Rfc4122\UuidV4;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Twig\Environment;

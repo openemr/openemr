@@ -1,8 +1,8 @@
 <?php
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
-use OpenEMR\BC\ServiceContainer;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 

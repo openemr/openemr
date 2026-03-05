@@ -11,8 +11,8 @@
  */
 
 namespace OpenEMR\Modules\WenoModule\Services;
-use OpenEMR\BC\ServiceContainer;
 
+use OpenEMR\BC\ServiceContainer;
 
 /**
  * Companion to event bootstrapping

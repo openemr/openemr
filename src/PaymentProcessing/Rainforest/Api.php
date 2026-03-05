@@ -11,8 +11,8 @@
 declare(strict_types=1);
 
 namespace OpenEMR\PaymentProcessing\Rainforest;
-use OpenEMR\BC\ServiceContainer;
 
+use OpenEMR\BC\ServiceContainer;
 use GuzzleHttp\{Client, ClientInterface};
 use Money\Money;
 use OpenEMR\Core\OEGlobalsBag;

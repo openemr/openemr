@@ -14,9 +14,9 @@
  */
 
 namespace OpenEMR\RestControllers;
-use OpenEMR\BC\ServiceContainer;
 
 use League\OAuth2\Server\Exception\OAuthServerException;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
 use OpenEMR\Common\Auth\OpenIDConnect\FhirUserClaim;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeyParser;

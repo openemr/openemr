@@ -11,13 +11,13 @@
  */
 
 namespace OpenEMR\Services;
-use OpenEMR\BC\ServiceContainer;
 
 use Carecoordination\Model\CcdaGenerator;
 use Carecoordination\Model\EncounterccdadispatchTable;
 use CouchDB;
 use DOMDocument;
 use Exception;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;

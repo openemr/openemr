@@ -11,9 +11,9 @@
  */
 
 namespace OpenEMR\Modules\Dorn;
-use OpenEMR\BC\ServiceContainer;
 
 use Document;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Modules\Dorn\ConnectorApi;

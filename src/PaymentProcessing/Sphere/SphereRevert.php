@@ -12,10 +12,10 @@
  */
 
 namespace OpenEMR\PaymentProcessing\Sphere;
-use OpenEMR\BC\ServiceContainer;
 
 use Exception;
 use GuzzleHttp\Client;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthGlobal;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;

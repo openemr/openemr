@@ -15,8 +15,8 @@
  */
 
 namespace OpenEMR\Modules\WenoModule\Services;
-use OpenEMR\BC\ServiceContainer;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PhoneNumberService;

@@ -12,8 +12,8 @@
  */
 
 namespace OpenEMR\Modules\EhiExporter;
-use OpenEMR\BC\ServiceContainer;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 
 class GlobalConfig

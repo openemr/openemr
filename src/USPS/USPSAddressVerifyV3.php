@@ -13,11 +13,11 @@
  */
 
 namespace OpenEMR\USPS;
-use OpenEMR\BC\ServiceContainer;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\GuzzleException;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 
 class USPSAddressVerifyV3

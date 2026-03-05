@@ -11,8 +11,8 @@
  */
 
 namespace OpenEMR\PaymentProcessing\Sphere;
-use OpenEMR\BC\ServiceContainer;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Services\UserService;

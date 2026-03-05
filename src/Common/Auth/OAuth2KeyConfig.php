@@ -15,8 +15,8 @@
  */
 
 namespace OpenEMR\Common\Auth;
-use OpenEMR\BC\ServiceContainer;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Utils\RandomGenUtils;

@@ -13,12 +13,12 @@
  */
 
 namespace OpenEMR\Common\Logging;
-use OpenEMR\BC\ServiceContainer;
 
 use DateTime;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Traits\SingletonTrait;
 
 class EventAuditLogger

@@ -32,8 +32,8 @@ use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
 use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
 use OpenEMR\Modules\FaxSMS\Events\NotificationEventListener;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 // some flags
 $allowFax = ($GLOBALS['oefax_enable_fax'] ?? null);

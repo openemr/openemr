@@ -11,9 +11,9 @@
  */
 
 namespace OpenEMR\Modules\WenoModule\Services;
-use OpenEMR\BC\ServiceContainer;
 
 use Exception;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
 

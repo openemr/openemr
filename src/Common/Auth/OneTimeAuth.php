@@ -12,10 +12,10 @@
  */
 
 namespace OpenEMR\Common\Auth;
-use OpenEMR\BC\ServiceContainer;
 
 use DateInterval;
 use DateTime;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
 use OpenEMR\Common\Crypto\CryptoInterface;

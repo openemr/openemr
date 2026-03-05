@@ -11,11 +11,11 @@
  */
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
-use OpenEMR\BC\ServiceContainer;
 
 use Document;
 use Exception;
 use MyMailer;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;

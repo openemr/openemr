@@ -24,13 +24,13 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\PatientDocuments\PatientDocumentTreeViewFilterEvent;
+use OpenEMR\Events\PatientDocuments\PatientRetrieveOffsiteDocument;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
-use OpenEMR\Events\PatientDocuments\PatientDocumentTreeViewFilterEvent;
-use OpenEMR\Events\PatientDocuments\PatientRetrieveOffsiteDocument;
 
 class C_Document extends Controller
 {

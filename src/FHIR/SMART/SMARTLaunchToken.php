@@ -11,8 +11,8 @@
  */
 
 namespace OpenEMR\FHIR\SMART;
-use OpenEMR\BC\ServiceContainer;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\SystemLogger;
 
 class SMARTLaunchToken

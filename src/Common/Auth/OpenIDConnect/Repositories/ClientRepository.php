@@ -11,9 +11,9 @@
  */
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
-use OpenEMR\BC\ServiceContainer;
 
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;

@@ -17,8 +17,8 @@
  */
 
 namespace OpenEMR\Modules\ClaimRevConnector;
-use OpenEMR\BC\ServiceContainer;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\Globals\GlobalSetting;
 

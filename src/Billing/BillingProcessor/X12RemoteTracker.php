@@ -13,8 +13,8 @@
  */
 
 namespace OpenEMR\Billing\BillingProcessor;
-use OpenEMR\BC\ServiceContainer;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Services\BaseService;
 use phpseclib3\Net\SFTP;
 

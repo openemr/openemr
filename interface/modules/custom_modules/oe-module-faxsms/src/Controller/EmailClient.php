@@ -13,9 +13,9 @@
  */
 
 namespace OpenEMR\Modules\FaxSMS\Controller;
-use OpenEMR\BC\ServiceContainer;
 
 use MyMailer;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Modules\FaxSMS\Exception\EmailSendFailedException;
 use OpenEMR\Modules\FaxSMS\Exception\InvalidEmailAddressException;

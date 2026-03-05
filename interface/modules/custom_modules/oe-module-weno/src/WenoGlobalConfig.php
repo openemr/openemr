@@ -13,8 +13,8 @@
  */
 
 namespace OpenEMR\Modules\WenoModule;
-use OpenEMR\BC\ServiceContainer;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\Globals\GlobalSetting;
 

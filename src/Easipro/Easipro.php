@@ -18,9 +18,9 @@
  */
 
 namespace OpenEMR\Easipro;
-use OpenEMR\BC\ServiceContainer;
 
 use MyMailer;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 

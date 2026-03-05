@@ -11,8 +11,8 @@
  */
 
 namespace OpenEMR\PaymentProcessing;
-use OpenEMR\BC\ServiceContainer;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 
 class PaymentProcessing

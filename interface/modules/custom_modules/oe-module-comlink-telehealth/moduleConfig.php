@@ -14,9 +14,9 @@
 
 require_once dirname(__FILE__, 4) . '/globals.php';
 
+use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 
 $module_config = 1;
 
