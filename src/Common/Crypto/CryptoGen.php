@@ -57,7 +57,7 @@ class CryptoGen implements CryptoInterface
     public function encryptStandard(?string $value, ?string $customPassword = null, ?KeySource $keySource = null): string
     {
         if ($keySource === null) {
-            $keySource = KeySource::DRIVE;
+            $keySource = KeySource::Drive;
         }
         return self::CURRENT_KEY_VERSION->toPaddedString() . $this->coreEncrypt($value, $customPassword, $keySource, self::CURRENT_KEY_VERSION);
     }
@@ -72,7 +72,7 @@ class CryptoGen implements CryptoInterface
         }
 
         if ($keySource === null) {
-            $keySource = KeySource::DRIVE;
+            $keySource = KeySource::Drive;
         }
 
         // Collect the encrypt/decrypt version and remove it from the value
@@ -147,7 +147,7 @@ class CryptoGen implements CryptoInterface
      * @return string The encrypted data
      * @throws CryptoGenException If encryption fails due to critical errors
      */
-    protected function coreEncrypt(?string $sValue, ?string $customPassword = null, KeySource $keySource = KeySource::DRIVE, KeyVersion $keyVersion = self::CURRENT_KEY_VERSION): string
+    protected function coreEncrypt(?string $sValue, ?string $customPassword = null, KeySource $keySource = KeySource::Drive, KeyVersion $keyVersion = self::CURRENT_KEY_VERSION): string
     {
         if (!$this->isOpenSSLExtensionLoaded()) {
             throw new CryptoGenException("OpenEMR Error : Encryption is not working because missing openssl extension.");
@@ -212,7 +212,7 @@ class CryptoGen implements CryptoInterface
      * @param KeyVersion $keyVersion     The key version
      * @return false|string The decrypted data, or false if decryption fails
      */
-    protected function coreDecrypt(string $sValue, ?string $customPassword = null, KeySource $keySource = KeySource::DRIVE, KeyVersion $keyVersion = self::CURRENT_KEY_VERSION): false|string
+    protected function coreDecrypt(string $sValue, ?string $customPassword = null, KeySource $keySource = KeySource::Drive, KeyVersion $keyVersion = self::CURRENT_KEY_VERSION): false|string
     {
         if (!$this->isOpenSSLExtensionLoaded()) {
             error_log("OpenEMR Error : Decryption is not working because missing openssl extension.");
@@ -437,7 +437,7 @@ class CryptoGen implements CryptoInterface
      * @return string The key in raw form
      * @throws CryptoGenException If key collection fails due to critical errors
      */
-    protected function collectCryptoKey(KeyVersion $keyVersion, string $sub = "", KeySource $keySource = KeySource::DRIVE): string
+    protected function collectCryptoKey(KeyVersion $keyVersion, string $sub = "", KeySource $keySource = KeySource::Drive): string
     {
         // Build the main label
         $label = $keyVersion->toString() . $sub;
@@ -448,7 +448,7 @@ class CryptoGen implements CryptoInterface
         }
 
         // If the key does not exist, then create it
-        $key = $keySource === KeySource::DATABASE
+        $key = $keySource === KeySource::Database
             ? $this->collectDatabaseKey($label, $keyVersion)
             : $this->collectDriveKey($label, $keyVersion);
 
