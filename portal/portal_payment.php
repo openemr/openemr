@@ -15,8 +15,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\BillingUtilities;
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -61,7 +61,7 @@ require_once("$srcdir/encounter_events.inc.php");
 
 $twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
 
-$cryptoGen = new CryptoGen();
+$cryptoGen = ServiceContainer::getCrypto();
 
 $recorder = new Recorder();
 

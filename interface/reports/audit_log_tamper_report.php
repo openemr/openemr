@@ -14,9 +14,9 @@
 
 require_once("../globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -222,7 +222,7 @@ $check_sum = isset($_GET['check_sum']);
     $icnt = 1;
     if ($ret = EventAuditLogger::getInstance()->getEvents(['sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => ($_GET['sortby'] ?? null), 'levent' => $gev, 'tevent' => $tevent])) {
         // Set up crypto object (object will increase performance since caches used keys)
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = ServiceContainer::getCrypto();
 
         while ($iter = sqlFetchArray($ret)) {
             if (empty($iter["id"])) {

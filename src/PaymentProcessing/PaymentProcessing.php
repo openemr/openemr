@@ -12,7 +12,7 @@
 
 namespace OpenEMR\PaymentProcessing;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 
 class PaymentProcessing
@@ -24,7 +24,7 @@ class PaymentProcessing
     {
         $uuid = (new UuidRegistry(['table_name' => 'payment_processing_audit']))->createUuid();
         $auditData = json_encode($auditData);
-        $auditData = (new CryptoGen())->encryptStandard($auditData);
+        $auditData = (ServiceContainer::getCrypto())->encryptStandard($auditData);
         sqlStatement(
             "INSERT INTO `payment_processing_audit` (`uuid`, `service`, `pid`, `success`, `action_name`, `amount`, `ticket`, `transaction_id`, `audit_data`, `date`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())",
             [
@@ -47,7 +47,7 @@ class PaymentProcessing
     public static function saveRevertAudit(string $uuidUpdate, string $actionName, array $auditData, int $success, ?string $transactionId = null)
     {
         $auditData = json_encode($auditData);
-        $auditData = (new CryptoGen())->encryptStandard($auditData);
+        $auditData = (ServiceContainer::getCrypto())->encryptStandard($auditData);
         $uuidUpdate = UuidRegistry::uuidToBytes($uuidUpdate);
 
         // Update the audit log to show the charge was reverted (if successful)
@@ -121,7 +121,7 @@ class PaymentProcessing
         $sql .= " ORDER BY `date` DESC";
 
         // Collect pertinent information from auditdata
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = ServiceContainer::getCrypto();
         $return = [];
         $res = sqlStatement($sql, $sqlBind);
         while ($row = sqlFetchArray($res)) {

@@ -14,7 +14,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -37,7 +37,6 @@ if ($session->isSymfonySession() && $session->has('pid') && $session->has('patie
     $ignoreAuth = false;
     require_once(__DIR__ . "/../interface/globals.php");
 }
-
 
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token"], 'sphere', $session->getSymfonySession())) {
     CsrfUtils::csrfNotVerified();
@@ -75,7 +74,7 @@ if ($GLOBALS['payment_gateway'] != 'Sphere') {
         // Success!
         PaymentProcessing::saveAudit('sphere', $_GET['patient_id_cc'], 1, $auditData, $_POST['ticket'], $_POST['transid'], $_POST['action_name'], $_POST['amount']);
         if ($_GET['front'] == 'patient') {
-            echo "<script>opener.sphereSuccess(" . js_escape((new CryptoGen())->encryptStandard(json_encode($auditData))) . ");dlgclose();</script>";
+            echo "<script>opener.sphereSuccess(" . js_escape((ServiceContainer::getCrypto())->encryptStandard(json_encode($auditData))) . ");dlgclose();</script>";
         } else { // $_GET['front'] == 'clinic-phone' || $_GET['front'] == 'clinic-retail'
             echo "<script>opener.sphereSuccess(" . js_escape($_POST['transid']) . ");dlgclose();</script>";
         }

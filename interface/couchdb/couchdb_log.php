@@ -12,7 +12,7 @@
 
 require_once("../globals.php");
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 
 $filename = $GLOBALS['OE_SITE_DIR'] . '/documents/couchdb/log.txt';
 
@@ -23,7 +23,7 @@ if (!file_exists($filename)) {
 
 $fh = file_get_contents($filename);
 
-$cryptoGen = new CryptoGen();
+$cryptoGen = ServiceContainer::getCrypto();
 if ($cryptoGen->cryptCheckStandard($fh)) {
     $fh = $cryptoGen->decryptStandard($fh, null, 'database');
 }

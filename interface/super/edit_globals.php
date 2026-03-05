@@ -23,10 +23,10 @@ require_once("../../custom/code_types.inc.php");
 require_once("$srcdir/globals.inc.php");
 require_once("$srcdir/user.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
@@ -36,7 +36,7 @@ use OpenEMR\Services\Globals\GlobalSetting;
 use Ramsey\Uuid\Uuid;
 
 // Set up crypto object
-$cryptoGen = new CryptoGen();
+$cryptoGen = ServiceContainer::getCrypto();
 
 $userMode = (array_key_exists('mode', $_GET) && $_GET['mode'] == 'user');
 

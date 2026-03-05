@@ -13,7 +13,8 @@
 
 namespace OpenEMR\Modules\EhiExporter\Services;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Utils\FileUtils;
@@ -63,7 +64,7 @@ class EhiExporter
 
     private readonly SystemLogger $logger;
     private readonly EhiExportJobTaskService $taskService;
-    private readonly CryptoGen $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
     private readonly EhiExportJobService $jobService;
 
     private ?Session $session = null;
@@ -74,7 +75,7 @@ class EhiExporter
         $this->taskService = new EhiExportJobTaskService();
         $this->jobService = new EhiExportJobService();
         $this->twig = $twig;
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = ServiceContainer::getCrypto();
     }
 
     public function setSession(Session $session): void

@@ -17,9 +17,9 @@
 require_once(__DIR__ . "/../library/forms.inc.php");
 require_once(__DIR__ . "/../library/patient.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -78,7 +78,7 @@ class C_Document extends Controller
         $this->Document = new Document();
 
         // Create a crypto object that will be used for for encryption/decryption
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = ServiceContainer::getCrypto();
         $this->templateService = new DocumentTemplateService();
     }
 

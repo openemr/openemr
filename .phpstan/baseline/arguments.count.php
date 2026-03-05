@@ -52,11 +52,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Crypto\\\\CryptoInterface\\:\\:encryptStandard\\(\\) invoked with 1 parameter, 3 required\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Common/Logging/EventAuditLogger.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Class OpenEMR\\\\Cqm\\\\CqmClient constructor invoked with 0 parameters, 2\\-4 required\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/test.php',

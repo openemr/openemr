@@ -24452,11 +24452,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/JWT/RsaSha384Signer.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\ClientRepository\\:\\:\\$cryptoGen has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ClientRepository.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\UuidUserAccount\\:\\:\\$userRole has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/UuidUserAccount.php',
