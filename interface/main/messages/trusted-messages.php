@@ -12,8 +12,8 @@
 
 require_once("../../globals.php");
 
-use OpenEMR\Core\Header;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\PatientService;
 

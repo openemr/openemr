@@ -19,8 +19,8 @@ use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
 use OpenEMR\Services\CareTeamService;
-use OpenEMR\Services\ContactService; // AI-generated import
-use OpenEMR\Services\ContactRelationService; // AI-generated import
+use OpenEMR\Services\ContactRelationService;
+use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ListService;
 
 class CareTeamViewCard extends CardModel

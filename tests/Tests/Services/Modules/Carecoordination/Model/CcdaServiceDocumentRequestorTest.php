@@ -11,11 +11,11 @@
 namespace OpenEMR\Tests\Services\Modules\CareCoordination\Model;
 
 use Carecoordination\Model\CcdaServiceDocumentRequestor;
+use DOMDocument;
+use DOMXPath;
 use Monolog\Level;
 use OpenEMR\Common\Logging\SystemLogger;
 use PHPUnit\Framework\TestCase;
-use DOMXPath;
-use DOMDocument;
 
 class CcdaServiceDocumentRequestorTest extends TestCase
 {

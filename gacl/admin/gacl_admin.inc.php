@@ -1,4 +1,5 @@
 <?php
+
 /*
  * phpGACL - Generic Access Control List
  * Copyright (C) 2002 Mike Benoit

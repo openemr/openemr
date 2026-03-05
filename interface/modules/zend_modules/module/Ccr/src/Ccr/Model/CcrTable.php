@@ -14,8 +14,8 @@ namespace Ccr\Model;
 
 use Application\Model\ApplicationTable;
 use DOMDocument;
-use OpenEMR\Common\Database\QueryUtils;
 use DOMXpath;
+use OpenEMR\Common\Database\QueryUtils;
 
 require_once(__DIR__ . "/../../../../../../../../library/patient.inc.php");
 

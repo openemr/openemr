@@ -13,8 +13,8 @@
 namespace OpenEMR\RestControllers;
 
 use OpenApi\Attributes as OA;
-use OpenEMR\Services\VersionService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\VersionService;
 
 class VersionRestController
 {

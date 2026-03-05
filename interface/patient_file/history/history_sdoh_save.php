@@ -15,10 +15,10 @@ require_once("../../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\SDOH\HistorySdohService;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\SDOH\HistorySdohService;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 

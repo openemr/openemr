@@ -14,8 +14,8 @@ require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/immunization_helper.php");
 
-use OpenEMR\Services\FacilityService;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\FacilityService;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 

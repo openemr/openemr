@@ -14,7 +14,6 @@
 
 namespace OpenEMR\Menu;
 
-
 class BaseMenuItem implements MenuItemInterface
 {
     private $displayText;

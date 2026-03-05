@@ -21,12 +21,11 @@ use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\FHIR\SMART\ClientAdminController;
-use OpenEMR\Common\Logging\SystemLogger;
-use Symfony\Component\HttpFoundation\Request;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpSessionFactory;
-
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\FHIR\SMART\ClientAdminController;
+use Symfony\Component\HttpFoundation\Request;
 
 try {
     // TODO: @adunsulag at some point we'd like to have a CoreApplication like the ApiApplication that will dispatch controllers, refactor this once we have that

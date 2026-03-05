@@ -1,7 +1,7 @@
 <?php
 
-use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\Globals\GlobalSetting;
 
 $fldid ??= '';
 $fldarr ??= [];

@@ -14,9 +14,15 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use ESign\Api;
+use Mpdf\Mpdf;
+use OpenEMR\Common\Forms\FormLocator;
+use OpenEMR\Common\Forms\FormReportRenderer;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Pdf\Config_Mpdf;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
@@ -58,13 +64,6 @@ require_once(__DIR__ . "/../../custom/code_types.inc.php");
 require_once("$srcdir/ESign/Api.php");
 require_once("{$globalsBag->getString("include_root")}/orders/single_order_results.inc.php");
 require_once("{$globalsBag->getString('fileroot')}/controllers/C_Document.class.php");
-
-use ESign\Api;
-use Mpdf\Mpdf;
-use OpenEMR\Common\Forms\FormLocator;
-use OpenEMR\Common\Forms\FormReportRenderer;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Pdf\Config_Mpdf;
 
 // For those who care that this is the patient report.
 $globalsBag->set('PATIENT_REPORT_ACTIVE', true);

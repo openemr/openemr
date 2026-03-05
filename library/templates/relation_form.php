@@ -15,15 +15,15 @@
  *
  */
 
-use OpenEMR\Services\ContactService;
-use OpenEMR\Services\ContactRelationService;
-use OpenEMR\Services\PersonService;
-use OpenEMR\Services\ContactAddressService;
-use OpenEMR\Services\ContactTelecomService;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\ContactAddressService;
+use OpenEMR\Services\ContactRelationService;
+use OpenEMR\Services\ContactService;
+use OpenEMR\Services\ContactTelecomService;
+use OpenEMR\Services\PersonService;
 
 $logger = new SystemLogger();
 

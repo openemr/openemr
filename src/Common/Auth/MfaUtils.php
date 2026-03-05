@@ -12,7 +12,7 @@
 
 namespace OpenEMR\Common\Auth;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 
 class MfaUtils
 {
@@ -139,7 +139,7 @@ class MfaUtils
 
         // Decrypt the secret
         // First, try standard method that uses standard key
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = ServiceContainer::getCrypto();
         $secret = $cryptoGen->decryptStandard($registrationSecret);
         if (empty($secret)) {
             // Second, try the password hash, which was setup during install and is temporary

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * SmokingStatusType.php - Form Type for Smoking Status Field used in options.inc.php
  * with the LBF forms.

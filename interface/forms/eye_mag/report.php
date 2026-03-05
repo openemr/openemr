@@ -36,8 +36,8 @@ require_once(__DIR__ . "/../../../library/forms.inc.php");
 require_once(__DIR__ . "/../../../library/patient.inc.php");
 require_once(__DIR__ . "/../../../controllers/C_Document.class.php");
 
-use OpenEMR\Services\FacilityService;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\FacilityService;
 
 $form_name = "eye_mag";
 global $form_folder;

@@ -13,10 +13,10 @@
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenApi\Attributes as OA;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
+use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\FhirMedicationService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
-use OpenEMR\RestControllers\RestControllerHelper;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 
 class FhirMedicationRestController
 {

@@ -15,13 +15,9 @@ namespace OpenEMR\Tests\Unit\Forms\FeeSheet\Review;
 use OpenEMR\Forms\FeeSheet\Review\CodeInfo;
 use OpenEMR\Forms\FeeSheet\Review\EncounterInfo;
 use OpenEMR\Forms\FeeSheet\Review\Procedure;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(CodeInfo::class)]
-#[CoversClass(Procedure::class)]
-#[CoversClass(EncounterInfo::class)]
 #[Group('isolated')]
 class FeeSheetClassesTest extends TestCase
 {

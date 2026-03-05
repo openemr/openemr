@@ -13,6 +13,7 @@
 namespace OpenEMR\Modules\FaxSMS\Events;
 
 use MyMailer;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OneTimeAuth;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -20,8 +21,8 @@ use OpenEMR\Core\Kernel;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class NotificationEventListener implements EventSubscriberInterface
 {
@@ -113,7 +114,7 @@ class NotificationEventListener implements EventSubscriberInterface
         try {
             $clientApp = AppDispatch::getApiService($serviceType);
         } catch (\Throwable $e) {
-            \OpenEMR\BC\ServiceContainer::getLogger()->warning(
+            ServiceContainer::getLogger()->warning(
                 "FaxSMS: failed to load service",
                 ['type' => $serviceType, 'message' => $e->getMessage()]
             );

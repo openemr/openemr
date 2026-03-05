@@ -13,8 +13,9 @@
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use MyMailer;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
@@ -33,7 +34,7 @@ abstract class AppDispatch
     static mixed $_apiModule;
     public string $authErrorDefault;
     public static $timeZone;
-    protected CryptoGen $crypto;
+    protected CryptoInterface $crypto;
     protected $_currentAction;
     protected $credentials;
     private $_request, $_response, $_query, $_post, $_server, $_cookies, $_session;
@@ -55,7 +56,7 @@ abstract class AppDispatch
         if (empty(self::$_apiModule)) {
             self::$_apiModule = $_REQUEST['type'] ?? $_SESSION["oefax_current_module_type"] ?? null;
         }
-        $this->crypto = new CryptoGen();
+        $this->crypto = ServiceContainer::getCrypto();
         $this->dispatchActions();
         $this->render();
     }

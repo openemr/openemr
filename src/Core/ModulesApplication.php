@@ -15,12 +15,12 @@
 
 namespace OpenEMR\Core;
 
-use OpenEMR\Common\Acl\AccessDeniedException;
-use OpenEMR\Events\Core\ModuleLoadEvents;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Laminas\Mvc\Application;
 use Laminas\Mvc\Service\ServiceManagerConfig;
 use Laminas\ServiceManager\ServiceManager;
+use OpenEMR\Common\Acl\AccessDeniedException;
+use OpenEMR\Events\Core\ModuleLoadEvents;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class ModulesApplication
 {

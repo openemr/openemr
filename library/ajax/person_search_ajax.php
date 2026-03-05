@@ -17,12 +17,12 @@ $srcdir ??= ''; // should fatally fail but passes phpstan
 require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Services\PersonService;
-use OpenEMR\Services\ContactService;
-use OpenEMR\Services\PersonPatientLinkService;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ContactTelecomService;
+use OpenEMR\Services\PersonPatientLinkService;
+use OpenEMR\Services\PersonService;
 
 // Initialize logger early
 $logger = new SystemLogger();

@@ -46,22 +46,22 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent as CardRenderEvent;
 use OpenEMR\Events\Patient\Summary\Card\SectionEvent;
-use OpenEMR\Events\PatientDemographics\ViewEvent;
 use OpenEMR\Events\PatientDemographics\RenderEvent;
+use OpenEMR\Events\PatientDemographics\ViewEvent;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Patient\Cards\BillingViewCard;
+use OpenEMR\Patient\Cards\CareExperiencePreferenceViewCard;
 use OpenEMR\Patient\Cards\CareTeamViewCard;
 use OpenEMR\Patient\Cards\DemographicsViewCard;
 use OpenEMR\Patient\Cards\InsuranceViewCard;
 use OpenEMR\Patient\Cards\PortalCard;
+use OpenEMR\Patient\Cards\TreatmentPreferenceViewCard;
 use OpenEMR\Reminder\BirthdayReminder;
 use OpenEMR\Services\AllergyIntoleranceService;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
-use OpenEMR\Patient\Cards\CareExperiencePreferenceViewCard;
-use OpenEMR\Patient\Cards\TreatmentPreferenceViewCard;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
@@ -1869,7 +1869,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
 
                             $row['pc_eventTime'] = sprintf("%02d", $disphour) . ":{$dispmin}";
-                            $row['pc_status'] = generate_display_field(['data_type' => '1', 'list_id' => 'apptstat'], $row['pc_apptstatus']);
+                            $row['pc_status'] = generate_plaintext_field(['data_type' => '1', 'list_id' => 'apptstat'], $row['pc_apptstatus']);
                             if ($row['pc_status'] == 'None') {
                                 $row['pc_status'] = 'Scheduled';
                             }
@@ -1975,7 +1975,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
                             $row['etitle'] = $petitle;
 
-                            $row['pc_status'] = generate_display_field(['data_type' => '1', 'list_id' => 'apptstat'], $row['pc_apptstatus']);
+                            $row['pc_status'] = generate_plaintext_field(['data_type' => '1', 'list_id' => 'apptstat'], $row['pc_apptstatus']);
 
                             $row['dayName'] = $dayname;
                             $row['displayMeridiem'] = $displayMeridiem;

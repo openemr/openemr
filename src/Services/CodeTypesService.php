@@ -12,8 +12,8 @@
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use InvalidArgumentException;
+use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 
 /**
  * Service for code type

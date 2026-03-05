@@ -14,8 +14,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\MessageService;
 
 // Auth if core or portal.
 // Need access to classes, so run autoloader now instead of in globals.php.
@@ -35,8 +37,6 @@ if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($sess
 require_once(__DIR__ . "/../../interface/globals.php");
 require_once(__DIR__ . "/../documents.php");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Services\MessageService;
 
 if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], 'default', $session->getSymfonySession())) {
     CsrfUtils::csrfNotVerified();

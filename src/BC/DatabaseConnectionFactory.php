@@ -6,8 +6,8 @@ namespace OpenEMR\BC;
 
 use ADODB_mysqli_log;
 use mysqli;
-use RuntimeException;
 use OpenEMR\Common\Session\SessionWrapperInterface;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 /**

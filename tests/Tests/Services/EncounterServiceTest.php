@@ -15,8 +15,8 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Tests\Fixtures\EncounterFixtureManager;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
 class EncounterServiceTest extends TestCase
 {

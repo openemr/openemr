@@ -23,6 +23,8 @@ use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\RestControllers\AllergyIntoleranceRestController;
 use OpenEMR\RestControllers\AppointmentRestController;
 use OpenEMR\RestControllers\ConditionRestController;
+// TODO: Remove this import when the OpenEMR\RestControllers\Config\RestConfig is no longer needed
+use OpenEMR\RestControllers\Config\RestConfig;
 use OpenEMR\RestControllers\DocumentRestController;
 use OpenEMR\RestControllers\DrugRestController;
 use OpenEMR\RestControllers\EmployerRestController;
@@ -43,8 +45,6 @@ use OpenEMR\RestControllers\TransactionRestController;
 use OpenEMR\RestControllers\UserRestController;
 use OpenEMR\RestControllers\VersionRestController;
 use OpenEMR\Services\Search\SearchQueryConfig;
-// TODO: Remove this import when the OpenEMR\RestControllers\Config\RestConfig is no longer needed
-use OpenEMR\RestControllers\Config\RestConfig;
 
 return [
     "GET /api/facility" => function (HttpRestRequest $request) {
@@ -138,14 +138,14 @@ return [
 
     "POST /api/patient/:pid/encounter/:eid/vital" => function ($pid, $eid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "encounters", "notes");
-        $data = json_decode(file_get_contents("php://input"), true) ?? [];
+        $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new EncounterRestController($request->getSession()))->postVital($pid, $eid, $data);
 
         return $return;
     },
     "PUT /api/patient/:pid/encounter/:eid/vital/:vid" => function ($pid, $eid, $vid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "encounters", "notes");
-        $data = json_decode(file_get_contents("php://input"), true) ?? [];
+        $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new EncounterRestController($request->getSession()))->putVital($pid, $eid, $vid, $data);
 
         return $return;

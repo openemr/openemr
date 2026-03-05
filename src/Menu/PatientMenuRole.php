@@ -16,8 +16,8 @@ namespace OpenEMR\Menu;
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Services\UserService;
 use OpenEMR\Menu\PatientMenuEvent;
+use OpenEMR\Services\UserService;
 
 class PatientMenuRole extends MenuRole
 {

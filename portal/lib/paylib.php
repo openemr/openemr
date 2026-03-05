@@ -12,6 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Billing\PaymentGateway;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
@@ -37,9 +39,6 @@ if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($sess
 
 require_once("./appsql.class.php");
 
-use OpenEMR\Billing\PaymentGateway;
-use OpenEMR\Common\Crypto\CryptoGen;
-
 if ($session->get('portal_init') !== true) {
     $session->set('whereto', '#paymentcard');
 }
@@ -47,7 +46,7 @@ if ($session->get('portal_init') !== true) {
 $session->set('portal_init', false);
 
 if ($_POST['mode'] == 'Sphere') {
-    $cryptoGen = new CryptoGen();
+    $cryptoGen = ServiceContainer::getCrypto();
     $dataTrans = $cryptoGen->decryptStandard($_POST['enc_data']);
     $dataTrans = json_decode($dataTrans, true);
 
@@ -192,7 +191,7 @@ function SaveAudit($pid, $amts, $cc)
         $audit['table_args'] = $amts;
         $audit['action_user'] = "0";
         $audit['action_taken_time'] = "";
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = ServiceContainer::getCrypto();
         $audit['checksum'] = $cryptoGen->encryptStandard($cc);
 
         $edata = $appsql->getPortalAudit($pid, 'review', 'payment');
@@ -226,7 +225,7 @@ function CloseAudit($pid, $amts, $cc, $action = 'payment posted', $paction = 'no
         $audit['table_args'] = $amts;
         $audit['action_user'] = $session->get('authUserID', "0");
         $audit['action_taken_time'] = date("Y-m-d H:i:s");
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = ServiceContainer::getCrypto();
         $audit['checksum'] = $cryptoGen->encryptStandard($cc);
 
         $edata = $appsql->getPortalAudit($pid, 'review', 'payment');

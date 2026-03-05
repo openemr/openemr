@@ -13,7 +13,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\VersionService;
 
@@ -34,7 +34,7 @@ function getErxCredentials()
     $cred = [];
     $cred[] = $GLOBALS['erx_account_partner_name'];
     $cred[] = $GLOBALS['erx_account_name'];
-    $cryptoGen = new CryptoGen();
+    $cryptoGen = ServiceContainer::getCrypto();
     $cred[] = $cryptoGen->decryptStandard($GLOBALS['erx_account_password']);
 
     return $cred;

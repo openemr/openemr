@@ -13,6 +13,7 @@
 namespace OpenEMR\Modules\DashboardContext;
 
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDemographics\RenderEvent;
 use OpenEMR\Events\PatientDemographics\RenderEvent as pRenderEvent;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
@@ -20,7 +21,6 @@ use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Modules\DashboardContext\Controller\ContextWidgetController;
 use stdClass;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use OpenEMR\Core\OEGlobalsBag;
 
 class Bootstrap
 {

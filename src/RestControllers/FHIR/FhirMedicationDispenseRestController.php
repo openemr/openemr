@@ -14,9 +14,9 @@ namespace OpenEMR\RestControllers\FHIR;
 
 use OpenApi\Attributes as OA;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
-use OpenEMR\Services\FHIR\FhirResourcesService;
-use OpenEMR\Services\FHIR\FhirMedicationDispenseService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\FHIR\FhirMedicationDispenseService;
+use OpenEMR\Services\FHIR\FhirResourcesService;
 use Symfony\Component\HttpFoundation\Response;
 
 /**

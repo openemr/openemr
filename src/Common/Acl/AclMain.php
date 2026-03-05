@@ -116,8 +116,8 @@
 
 namespace OpenEMR\Common\Acl;
 
-use OpenEMR\Gacl\Gacl;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Gacl\Gacl;
 
 class AclMain
 {

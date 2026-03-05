@@ -14,7 +14,7 @@
 
 namespace OpenEMR\Billing\BillingProcessor;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Services\BaseService;
 use phpseclib3\Net\SFTP;
 
@@ -55,7 +55,7 @@ class X12RemoteTracker extends BaseService
     {
         $remoteTracker = new X12RemoteTracker();
         $x12_remotes = $remoteTracker->fetchByStatus(self::STATUS_WAITING);
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = ServiceContainer::getCrypto();
         foreach ($x12_remotes as $x12_remote) {
             // Make sure required parameters are filled in on the X12 partner form, otherwise, log a message
             if (false === $remoteTracker->validateSFTPCredentials($x12_remote)) {
