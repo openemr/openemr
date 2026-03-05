@@ -1,0 +1,15 @@
+services:
+  ccdaservice:
+    build: .
+    ports:
+      - "6661:6661"
+    environment:
+      CCDA_HOST: "0.0.0.0"
+      CCDA_PORT: "6661"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "const s=require('net').connect(6661,'127.0.0.1');s.on('connect',()=>{s.end();process.exit(0)});s.on('error',()=>process.exit(1))"]
+      interval: 30s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
