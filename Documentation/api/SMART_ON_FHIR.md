@@ -343,7 +343,7 @@ const response = await fetch('https://localhost:9300/apis/default/fhir/Patient/1
 
 #### Characteristics
 - ✅ Launched from OpenEMR UI
-- ✅ Patient context pre-selected
+- ✅ Patient context preselected
 - ✅ Encounter context available (SMART v2.2.0)
 - ✅ User already authenticated
 - ✅ Faster workflow for clinicians
@@ -530,7 +530,7 @@ SMART apps can receive contextual information about the launch environment.
 #### When Available
 - ✅ EHR launch from patient chart
 - ✅ Patient standalone apps (patient is authorized user)
-- ❌ Standalone provider apps (no pre-selected patient)
+- ❌ Standalone provider apps (no preselected patient)
 
 #### Requesting Patient Context
 
