@@ -1,4 +1,5 @@
 <?php
+
 /*
  * FhirGenericRestController.php
  * @package openemr

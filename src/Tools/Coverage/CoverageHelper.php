@@ -9,6 +9,7 @@ use SebastianBergmann\CodeCoverage\Driver\Selector;
 use SebastianBergmann\CodeCoverage\Filter;
 use SebastianBergmann\CodeCoverage\Report\PHP;
 use SebastianBergmann\FileIterator\Facade as FileIteratorFacade;
+
 use function microtime;
 use function register_shutdown_function;
 

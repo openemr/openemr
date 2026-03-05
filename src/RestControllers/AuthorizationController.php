@@ -81,6 +81,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Throwable;
 use Twig\Environment;
+
 use function sqlQuery;
 
 class AuthorizationController

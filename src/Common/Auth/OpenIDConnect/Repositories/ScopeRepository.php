@@ -27,6 +27,7 @@ use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenIDConnectServer\Repositories\ClaimSetRepositoryInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+
 use function in_array;
 
 class ScopeRepository implements ScopeRepositoryInterface

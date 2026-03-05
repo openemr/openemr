@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Handles the display of the relation list datatype in LBF
  * Updated to use ContactService, ContactRelationService, PersonService

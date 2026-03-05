@@ -42,6 +42,7 @@ use OpenEMR\Common\Logging\SystemLogger;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
+
 // AI Generated - Start
 class JWTClientAuthenticationService
 {

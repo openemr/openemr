@@ -19,7 +19,6 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\ContactAddressService;
 use OpenEMR\Services\ContactService;
 
-
 // Initialize services
 $contactService = new ContactService();
 $contactAddressService = new ContactAddressService();

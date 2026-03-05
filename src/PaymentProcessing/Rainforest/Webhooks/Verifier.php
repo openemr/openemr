@@ -18,12 +18,14 @@ use Psr\Clock\ClockInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use SensitiveParameter;
 use UnexpectedValueException;
+
 use function hash_equals;
 use function json_decode;
 use function sprintf;
 use function str_contains;
 use function str_starts_with;
 use function substr;
+
 use const JSON_THROW_ON_ERROR;
 
 /**

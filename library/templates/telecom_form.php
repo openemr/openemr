@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Handles the editing, updating, creating, and deleting of the telecom list datatype in LBF
  * Uses ContactService and ContactTelecomService

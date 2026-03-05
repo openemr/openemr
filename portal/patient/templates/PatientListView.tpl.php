@@ -1,4 +1,5 @@
 <?php
+
 use OpenEMR\Core\OEGlobalsBag;
 
 /**

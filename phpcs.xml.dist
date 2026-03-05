@@ -40,6 +40,7 @@
   -->
 
   <!-- Use statement rules -->
+  <rule ref="PSR12.Files.FileHeader" />
   <rule ref="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses" />
   <rule ref="SlevomatCodingStandard.Namespaces.UselessAlias" />
   <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses">

@@ -29,7 +29,6 @@ use OpenEMR\Services\Cda\CdaValidateDocuments;
 use OpenEMR\Services\Cda\XmlExtended;
 use OpenEMR\Services\CodeTypesService;
 
-
 class CarecoordinationTable
 {
     use CommandLineDebugStylerTrait;
