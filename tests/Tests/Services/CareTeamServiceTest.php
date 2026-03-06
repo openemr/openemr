@@ -638,7 +638,6 @@ class CareTeamServiceTest extends TestCase
 
         $result = $this->service->getOne($teamUuid, $patientUuid);
 
-        /** @var array<int, array<string, mixed>> $data */
         $data = $result->getData();
         $this->assertIsArray($data);
         $this->assertNotEmpty($data);
@@ -663,7 +662,6 @@ class CareTeamServiceTest extends TestCase
 
         $result = $this->service->getAll();
 
-        /** @var array<int, array<string, mixed>> $data */
         $data = $result->getData();
         $this->assertIsArray($data);
         $this->assertNotEmpty($data);
@@ -702,7 +700,6 @@ class CareTeamServiceTest extends TestCase
 
         $result = $this->service->getAll([], true, $patientUuid);
 
-        /** @var array<int, array<string, mixed>> $data */
         $data = $result->getData();
         $this->assertIsArray($data);
         $this->assertNotEmpty($data);
@@ -760,7 +757,6 @@ class CareTeamServiceTest extends TestCase
         $search = ['uuid' => new TokenSearchField('uuid', $teamUuid, true)];
         $result = $this->service->search($search);
 
-        /** @var array<int, array<string, mixed>> $data */
         $data = $result->getData();
         $this->assertIsArray($data);
         $this->assertNotEmpty($data);
@@ -814,7 +810,6 @@ class CareTeamServiceTest extends TestCase
         $search = ['uuid' => new TokenSearchField('uuid', $teamUuid, true)];
         $result = $this->service->search($search);
 
-        /** @var array<int, array<string, mixed>> $data */
         $data = $result->getData();
         $this->assertIsArray($data);
         $this->assertNotEmpty($data);
