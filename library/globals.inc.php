@@ -449,7 +449,7 @@ $GLOBALS_METADATA = [
         'main_menu_logo_link' => [
             xl('Main menu logo link URL'),
             'text',
-            'https://www.open-emr.org',
+            'https://www.open-emr.org/',
             xl('URL the main menu logo links to. Leave blank to make the logo non-clickable.'),
         ],
 
