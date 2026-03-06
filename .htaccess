@@ -1,0 +1,27 @@
+# Front controller infrastructure for OpenEMR.
+#
+# This file sets up routing through `public/index.php` and `FallbackRouter`.
+# Paths are migrated incrementally - add RewriteRules here as corresponding
+# subdirectory .htaccess files are decommissioned.
+#
+# See `OpenEMR\BC\FallbackRouter` for the PHP-side routing logic.
+
+RewriteEngine On
+
+# Static files - serve directly
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteCond %{REQUEST_URI} !\.php$
+RewriteRule ^ - [L]
+
+# Existing PHP files - route through front controller
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteCond %{REQUEST_URI} \.php$
+RewriteRule ^ public/index.php [QSA,L]
+
+# Paths migrated to front controller (add incrementally as subdirectory
+# .htaccess files are decommissioned):
+# RewriteRule ^apis/ public/index.php [QSA,L]
+# RewriteRule ^oauth2/ public/index.php [QSA,L]
+
+# Everything else: pass through to subdirectory .htaccess or 404
+
