@@ -20,10 +20,9 @@ COPY serveccda.js ./
 COPY data-stack ./data-stack/
 COPY utils ./utils/
 
-# Create non-root user for security
-RUN addgroup -g 1000 ccda && adduser -u 1000 -G ccda -s /bin/sh -D ccda
-RUN chown -R ccda:ccda /app
-USER ccda
+# Use existing node user for security (node:alpine includes this user)
+RUN chown -R node:node /app
+USER node
 
 # Default to binding all interfaces for Docker networking
 ENV CCDA_HOST=0.0.0.0
