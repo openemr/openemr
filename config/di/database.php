@@ -16,7 +16,6 @@ return [
     },
 
     DatabaseConnectionOptions::class => function (TC $c) {
-        // FIXME: this works only for the CLI path, not actual multi-site.
         $site = $c->get('OPENEMR_SITE');
         assert(is_string($site));
         return DatabaseConnectionOptions::forSite("sites/site");
