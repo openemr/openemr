@@ -14,8 +14,8 @@ namespace OpenEMR\Tests\Isolated\Services;
 
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VersionService;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
 class VersionServiceTest extends TestCase
 {
