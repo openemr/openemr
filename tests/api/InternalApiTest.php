@@ -16,6 +16,7 @@ if (!getenv('OPENEMR_ENABLE_INTERNAL_API_TEST')) {
 }
 
 $globalsBag = require_once(__DIR__ . "/../../interface/globals.php");
+assert($globalsBag instanceof \OpenEMR\Core\OEGlobalsBag);
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;

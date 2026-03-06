@@ -17,10 +17,8 @@ if (!getenv('OPENEMR_ENABLE_INTERNAL_FHIR_TEST')) {
     die('Set OPENEMR_ENABLE_INTERNAL_FHIR_TEST=1 environment variable to enable this script');
 }
 
-/**
- * @var \OpenEMR\Core\OEGlobalsBag
- */
 $globalsBag = require_once(__DIR__ . "/../../interface/globals.php");
+assert($globalsBag instanceof \OpenEMR\Core\OEGlobalsBag);
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;

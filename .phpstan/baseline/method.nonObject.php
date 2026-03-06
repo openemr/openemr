@@ -11782,21 +11782,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/api/InternalApiTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/api/InternalApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getKernel\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/api/InternalApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/api/InternalApiTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getAttribute\\(\\) on Psr\\\\Http\\\\Message\\\\ResponseInterface\\|null\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/api/InternalFhirTest.php',
