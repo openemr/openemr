@@ -5,9 +5,12 @@ declare(strict_types=1);
 
 use Doctrine\Migrations\DependencyFactory;
 use Doctrine\Migrations\Tools\Console\ConsoleRunner;
+use Firehed\Container\TypedContainerInterface;
 use Symfony\Component\Console\Application;
 
-require_once __DIR__ . '/bootstrap.php';
+// This will be used shortly
+$container = require_once __DIR__ . '/bootstrap.php';
+assert($container instanceof TypedContainerInterface);
 
 if (php_sapi_name() !== 'cli') {
     echo 'This can only be run from the command line.';
