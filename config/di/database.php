@@ -6,18 +6,38 @@ use Doctrine\DBAL\{
     Connection,
     DriverManager,
 };
+use Psr\Log\LoggerInterface;
+use Doctrine\Migrations\Configuration\{
+    Connection\ConnectionLoader,
+    Connection\ExistingConnection,
+    Migration\ConfigurationLoader,
+    Migration\PhpFile,
+};
+use Doctrine\Migrations\DependencyFactory;
 use OpenEMR\BC\DatabaseConnectionOptions;
 use Firehed\Container\TypedContainerInterface as TC;
 
 return [
+    // DBAL
     Connection::class => function (TC $c) {
         $opts = $c->get(DatabaseConnectionOptions::class);
         return DriverManager::getConnection($opts->toDbalParams());
     },
 
+    // DB connection config
     DatabaseConnectionOptions::class => function (TC $c) {
         $site = $c->get('OPENEMR_SITE');
         assert(is_string($site));
-        return DatabaseConnectionOptions::forSite("sites/site");
-    }
+        return DatabaseConnectionOptions::forSite("sites/$site");
+    },
+
+    // Doctrine Migrations
+    ConfigurationLoader::class => fn () => new PhpFile('db/migration-config.php'),
+    ConnectionLoader::class => fn (TC $c) => new ExistingConnection($c->get(Connection::class)),
+    DependencyFactory::class => fn (TC $c) => DependencyFactory::fromConnection(
+        $c->get(ConfigurationLoader::class),
+        $c->get(ConnectionLoader::class),
+        $c->get(LoggerInterface::class),
+    ),
+
 ];
