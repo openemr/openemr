@@ -58,6 +58,6 @@ $viewArgs = [
 ];
 
 $templatePageEvent = new TemplatePageEvent('about_page', [], 'core/about.html.twig', $viewArgs);
-$event = OEGlobalsBag::getInstance()->get('kernel')->getEventDispatcher()->dispatch($templatePageEvent, TemplatePageEvent::RENDER_EVENT);
+$event = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($templatePageEvent, TemplatePageEvent::RENDER_EVENT);
 
 echo $t->render($event->getTwigTemplate(), $event->getTwigVariables());

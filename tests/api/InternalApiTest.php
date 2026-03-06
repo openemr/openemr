@@ -104,7 +104,7 @@ try {
     $sessionFactory->setUseExistingSessionBridge(true);
     $restRequest->setSession($sessionFactory->createSession());
     $getParams = $restRequest->getQueryParams();
-    $kernel = new OEHttpKernel($globalsBag->get('kernel')->getEventDispatcher(), new ControllerResolver());
+    $kernel = new OEHttpKernel($globalsBag->getKernel()->getEventDispatcher(), new ControllerResolver());
     $kernel->setSystemLogger(new SystemLogger());
     $dispatchHandler = new HttpRestRouteHandler($kernel);
     $routeFinder = new StandardRouteFinder($kernel);

@@ -1517,49 +1517,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/vitals/C_FormVitals.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/login/login.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/login/login.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getTwigTemplate\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/login/login.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getTwigVariables\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/login/login.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/login/login.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/about_page.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/about_page.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getTwigTemplate\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/about_page.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getTwigVariables\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/about_page.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method _get_plugin_filepath\\(\\) on mixed\\.$#',
@@ -1915,11 +1875,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method required\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Validators/TelehealthPatientValidator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dashboard-context/openemr.bootstrap.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method debug\\(\\) on mixed\\.$#',
@@ -4787,26 +4742,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/home.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getAppointment\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/home.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getDataElement\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/home.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/home.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getString\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/home.php',
@@ -4852,16 +4787,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/import_template.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/import_template_ui.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/import_template_ui.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method Output\\(\\) on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../portal/lib/doc_lib.php',
@@ -4895,16 +4820,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method isSuccessful\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/lib/paylib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/messaging/messages.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/messaging/messages.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getAttribute\\(\\) on mixed\\.$#',
@@ -5610,16 +5525,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method renderLog\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/portal_custom_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/report/portal_patient_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/report/portal_patient_report.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getPathname\\(\\) on mixed\\.$#',
@@ -11882,18 +11787,18 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/api/InternalApiTest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method getKernel\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/api/InternalApiTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../tests/api/InternalApiTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getAttribute\\(\\) on Psr\\\\Http\\\\Message\\\\ResponseInterface\\|null\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../tests/api/InternalFhirTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../tests/api/InternalFhirTest.php',
 ];
 $ignoreErrors[] = [

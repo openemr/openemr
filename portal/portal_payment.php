@@ -59,7 +59,7 @@ require_once("../custom/code_types.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/encounter_events.inc.php");
 
-$twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
+$twig = (new TwigContainer(null, $globalsBag->getKernel()))->getTwig();
 
 $cryptoGen = ServiceContainer::getCrypto();
 
