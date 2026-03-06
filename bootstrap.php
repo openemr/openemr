@@ -45,4 +45,4 @@ if (class_exists(Dotenv::class) && file_exists('.env')) {
 }
 
 // Set up and return the PSR-11 DI container
-return AutoDetect::instance('config/di');
+return AutoDetect::instance('config');
