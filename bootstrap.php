@@ -22,11 +22,7 @@
 declare(strict_types=1);
 
 use Dotenv\Dotenv;
-use Firehed\Container\{
-    AutoDetect,
-    Builder,
-    Compiler,
-};
+use Firehed\Container\AutoDetect;
 
 chdir(__DIR__);
 
@@ -48,6 +44,5 @@ if (class_exists(Dotenv::class) && file_exists('.env')) {
     Dotenv::createUnsafeImmutable('.')->load();
 }
 
-// TODO: this should be streamlined further
-
-$container = AutoDetect::instance('config/di');
+// Set up and return the DI container
+return AutoDetect::instance('config/di');
