@@ -40,8 +40,7 @@ require_once 'vendor/autoload.php';
 // class_exists check is because dotenv should be a dev dependency and not
 // installed in prod deployments, though as of writing that's not the case.
 if (class_exists(Dotenv::class) && file_exists('.env')) {
-    // For the moment, detection needs putenv to occur.
-    Dotenv::createUnsafeImmutable('.')->load();
+    Dotenv::createImmutable('.')->load();
 }
 
 // Set up and return the PSR-11 DI container
