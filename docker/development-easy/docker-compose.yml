@@ -37,7 +37,6 @@ services:
     - themevolume:/var/www/localhost/htdocs/openemr/public/themes:rw
     - sitesvolume:/var/www/localhost/htdocs/openemr/sites:rw
     - nodemodules:/var/www/localhost/htdocs/openemr/node_modules:rw
-    - vendordir:/var/www/localhost/htdocs/openemr/vendor:rw
     - ccdanodemodules:/var/www/localhost/htdocs/openemr/ccdaservice/node_modules:rw
     - logvolume:/var/log
     - couchdbvolume:/couchdb/data
@@ -187,7 +186,6 @@ volumes:
   themevolume: {}
   sitesvolume: {}
   nodemodules: {}
-  vendordir: {}
   ccdanodemodules: {}
   logvolume: {}
   couchdbvolume: {}
