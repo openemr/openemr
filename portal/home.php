@@ -146,7 +146,7 @@ if ($appts) {
             'pc_eid' => $row['pc_eid'],
         ];
         $filteredEvent = $globalsBag->getKernel()->getEventDispatcher()->dispatch(new AppointmentFilterEvent($row, $formattedRecord), AppointmentFilterEvent::EVENT_NAME);
-        $appointments[] = $filteredEvent->getAppointment() ?? $formattedRecord;
+        $appointments[] = $filteredEvent->getAppointment();
     }
 }
 if ($past_appts) {
@@ -180,7 +180,7 @@ if ($past_appts) {
             'pc_eid' => $row['pc_eid'],
         ];
         $filteredEvent = $globalsBag->getKernel()->getEventDispatcher()->dispatch(new AppointmentFilterEvent($row, $formattedRecord), AppointmentFilterEvent::EVENT_NAME);
-        $past_appointments[] = $filteredEvent->getAppointment() ?? $formattedRecord;
+        $past_appointments[] = $filteredEvent->getAppointment();
     }
 }
 $current_theme = sqlQuery("SELECT `setting_value` FROM `patient_settings` WHERE setting_patient = ? AND `setting_label` = ?", [$pid, 'portal_theme'])['setting_value'] ?? '';
