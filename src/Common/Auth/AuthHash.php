@@ -36,7 +36,7 @@ class AuthHash
         // If SHA512HASH is selected, then ensure CRYPT_SHA512 is supported
         if ($this->algo == "SHA512HASH") {
             if (CRYPT_SHA512 != 1) {
-                $this->algo == "DEFAULT";
+                $this->algo = "DEFAULT";
                 error_log("OpenEMR WARNING: SHA512HASH not supported, so using DEFAULT instead");
             }
         }
