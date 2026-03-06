@@ -3472,6 +3472,7 @@ class InstallerTest extends TestCase
         // Verify that the complete SQL statement was assembled with proper spacing
         // The third execute_sql call should be the complete UPDATE statement
         $completeUpdateStatement = $executedSql[2] ?? '';
+        $this->assertIsString($completeUpdateStatement);
 
         // Must contain "0 WHERE" (with space), not "0WHERE" (fused)
         $this->assertStringContainsString('0 WHERE', $completeUpdateStatement);
