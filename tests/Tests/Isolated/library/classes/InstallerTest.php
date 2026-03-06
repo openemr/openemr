@@ -3393,7 +3393,6 @@ class InstallerTest extends TestCase
             ->willReturn($mockResult);
         $mockInstaller->upsertCustomGlobals(['test_monkey' => ['index' => 0, 'value' => 'sure is']]);
     }
-}
 
     /**
      * Test that load_file() properly preserves whitespace between SQL lines.
