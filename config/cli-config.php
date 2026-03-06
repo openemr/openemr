@@ -23,23 +23,15 @@ use Doctrine\Migrations\Configuration\Connection\ExistingConnection;
 use Doctrine\Migrations\Configuration\Migration\PhpFile;
 use Doctrine\Migrations\DependencyFactory;
 use OpenEMR\BC\DatabaseConnectionOptions;
+use Firehed\Container\TypedContainerInterface as TC;
+
+// This leaks in from parent `cli` scope... needs cleanup.
+assert(isset($container) && $container instanceof TC);
 
 $configLoader = new PhpFile('db/migration-config.php');
 
-$site = getenv('OPENEMR_SITE');
-if ($site === false) {
-    $site = 'default';
-}
-
-$getConnectionFromSqlconf = function(string $site): Connection {
-    $siteDir = "sites/$site";
-    $connOpts = DatabaseConnectionOptions::forSite($siteDir);
-    return DriverManager::getConnection($connOpts->toDbalParams());
-};
-
-$conn = $getConnectionFromSqlconf($site);
 $connLoader = new ExistingConnection(
-    connection: $conn,
+    connection: $container->get(Connection::class),
 );
 
 return DependencyFactory::fromConnection(
