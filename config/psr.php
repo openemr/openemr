@@ -38,7 +38,7 @@ return [
     // Future (not all will necessarily be added):
     // 6/16: Caching
     // 7: HTTP Messages
-    // 11: NO! Putting the conatiner in the container means you're doing it wrong.
+    // 11: NO! Putting the container in the container means you're doing it wrong.
     // 13: Hypermedia Links
     // 14: Event Dispatcher
     // 15: HTTP Handlers
