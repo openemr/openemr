@@ -1,10 +1,12 @@
 <?php
 
-use function Firehed\Container\env;
-
 /**
  * Environment variables
  */
+
+declare(strict_types=1);
+
+use function Firehed\Container\env;
 
 return [
     // The unspecified default today is dev=debug, other=warning

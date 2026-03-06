@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Generalized service config.
+ */
+
 declare(strict_types=1);
 
 use Firehed\Container\TypedContainerInterface as TC;

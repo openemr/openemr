@@ -6,8 +6,8 @@
 
 declare(strict_types=1);
 
-use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 
 return [
     LoggerInterface::class => SystemLogger::class,

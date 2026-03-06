@@ -6,7 +6,6 @@ use Doctrine\DBAL\{
     Connection,
     DriverManager,
 };
-use Psr\Log\LoggerInterface;
 use Doctrine\Migrations\Configuration\{
     Connection\ConnectionLoader,
     Connection\ExistingConnection,
@@ -14,8 +13,9 @@ use Doctrine\Migrations\Configuration\{
     Migration\PhpFile,
 };
 use Doctrine\Migrations\DependencyFactory;
-use OpenEMR\BC\DatabaseConnectionOptions;
 use Firehed\Container\TypedContainerInterface as TC;
+use OpenEMR\BC\DatabaseConnectionOptions;
+use Psr\Log\LoggerInterface;
 
 return [
     // DBAL
