@@ -174,7 +174,7 @@ class AllergyIntoleranceService extends BaseService
         }
 
         // Validating and Converting UUID to ID
-        if (isset($search['allergy_uuid'])) {
+        if (!empty($search['allergy_uuid']) && !($search['allergy_uuid'] instanceof ISearchField)) {
             $isValidAllergy = $this->allergyIntoleranceValidator->validateId(
                 'uuid',
                 self::ALLERGY_TABLE,
