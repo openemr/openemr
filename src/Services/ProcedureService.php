@@ -24,6 +24,7 @@ use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\BaseValidator;
+use OpenEMR\Validators\ProcedureOrderValidator;
 use OpenEMR\Validators\ProcessingResult;
 
 class ProcedureService extends BaseService
@@ -37,11 +38,13 @@ class ProcedureService extends BaseService
     private const PROCEDURE_RESULT_TABLE = "procedure_result";
     private const PROCEDURE_SPECIMEN_TABLE = "procedure_specimen";
     private readonly ProcedureOrderRelationshipService $relationshipService;
+    private readonly ProcedureOrderValidator $procedureOrderValidator;
 
     public function __construct()
     {
         parent::__construct(self::PROCEDURE_TABLE);
         $this->relationshipService = new ProcedureOrderRelationshipService();
+        $this->procedureOrderValidator = new ProcedureOrderValidator();
         UuidRegistry::createMissingUuidsForTables([
             self::PROCEDURE_TABLE,
             self::PATIENT_TABLE,
@@ -944,6 +947,89 @@ class ProcedureService extends BaseService
     }
 
     /**
+     * Inserts a new procedure order record.
+     *
+     * @param array<string, mixed> $data The procedure order fields to insert.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     *                          payload.
+     */
+    public function insert(array $data): ProcessingResult
+    {
+        /** @var ProcessingResult $processingResult */
+        $processingResult = $this->procedureOrderValidator->validate(
+            $data,
+            ProcedureOrderValidator::DATABASE_INSERT_CONTEXT
+        );
+
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
+
+        $data['uuid'] = (new UuidRegistry(['table_name' => self::PROCEDURE_TABLE]))->createUuid();
+
+        if (!isset($data['activity'])) {
+            $data['activity'] = 1;
+        }
+
+        /** @var array{set: string, bind: array<int, mixed>} $query */
+        $query = $this->buildInsertColumns($data);
+        $sql = "INSERT INTO " . self::PROCEDURE_TABLE . " SET " . $query['set'];
+
+        $orderId = QueryUtils::sqlInsert($sql, $query['bind']);
+
+        if ($orderId) {
+            $processingResult->addData([
+                'id' => $orderId,
+                'uuid' => UuidRegistry::uuidToString($data['uuid']),
+            ]);
+        } else {
+            $processingResult->addInternalError("error processing SQL Insert");
+        }
+
+        return $processingResult;
+    }
+
+    /**
+     * Updates an existing procedure order record.
+     *
+     * @param string $uuid The procedure order uuid identifier in string format.
+     * @param array<string, mixed> $data The updated procedure order fields.
+     * @return ProcessingResult which contains validation messages, internal error messages, and the data
+     *                          payload.
+     */
+    public function update(string $uuid, array $data): ProcessingResult
+    {
+        if ($data === []) {
+            $processingResult = new ProcessingResult();
+            $processingResult->setValidationMessages("Invalid Data");
+            return $processingResult;
+        }
+
+        $data['uuid'] = $uuid;
+        /** @var ProcessingResult $processingResult */
+        $processingResult = $this->procedureOrderValidator->validate(
+            $data,
+            ProcedureOrderValidator::DATABASE_UPDATE_CONTEXT
+        );
+
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
+
+        /** @var array{set: string, bind: array<int, mixed>} $query */
+        $query = $this->buildUpdateColumns($data);
+        $sql = "UPDATE " . self::PROCEDURE_TABLE . " SET " . $query['set'] . " WHERE `uuid` = ?";
+
+        $uuidBinary = UuidRegistry::uuidToBytes($uuid);
+        $query['bind'][] = $uuidBinary;
+        QueryUtils::sqlStatementThrowException($sql, $query['bind']);
+
+        $processingResult = $this->getOne($uuid);
+
+        return $processingResult;
+    }
+
+    /**
      * @param $data
      * @return array
      */
@@ -957,10 +1043,6 @@ class ProcedureService extends BaseService
         }
         return $diagnosisArray;
     }
-
-
-
-// Add these methods to the ProcedureService class
 
     /**
      * Get order codes for a specific procedure order with proper UUID handling
