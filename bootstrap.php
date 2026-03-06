@@ -4,7 +4,7 @@
  * This will eventually be core application setup for all paths: web, cli, etc.
  *
  * It is only to be used for a small number of critical operations:
- * - Autoloader seup
+ * - Autoloader setup
  * - Environment reading and normalization
  * - Standardizing some runtime configuration
  * - Setting up error handling
@@ -44,5 +44,5 @@ if (class_exists(Dotenv::class) && file_exists('.env')) {
     Dotenv::createUnsafeImmutable('.')->load();
 }
 
-// Set up and return the DI container
+// Set up and return the PSR-11 DI container
 return AutoDetect::instance('config/di');
