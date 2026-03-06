@@ -46,7 +46,7 @@ class VersionServiceTest extends TestCase
         $this->setVersionGlobals('8', '0', '1');
 
         $service = new VersionService();
-        $result = $service->asString(false, false);
+        $result = $this->service->getSoftwareVersion(false, false);
 
         $this->assertSame('8.0.1', $result);
     }
@@ -57,7 +57,7 @@ class VersionServiceTest extends TestCase
         $this->setVersionGlobals('8', '0', '1', '-rc1');
 
         $service = new VersionService();
-        $result = $service->asString(true, false);
+        $result = $this->service->getSoftwareVersion(true, false);
 
         $this->assertSame('8.0.1-rc1', $result);
     }
@@ -68,7 +68,7 @@ class VersionServiceTest extends TestCase
         $this->setVersionGlobals('8', '0', '1', '-rc1');
 
         $service = new VersionService();
-        $result = $service->asString(false, false);
+        $result = $this->service->getSoftwareVersion(false, false);
 
         $this->assertSame('8.0.1', $result);
     }
@@ -79,7 +79,7 @@ class VersionServiceTest extends TestCase
         $this->setVersionGlobals('8', '0', '1', '', '1.0.1.1');
 
         $service = new VersionService();
-        $result = $service->asString(false, true);
+        $result = $this->service->getSoftwareVersion(false, true);
 
         $this->assertSame('8.0.1 (1.0.1.1)', $result);
     }
@@ -90,7 +90,7 @@ class VersionServiceTest extends TestCase
         $this->setVersionGlobals('8', '0', '1', '', '1.0.1.1');
 
         $service = new VersionService();
-        $result = $service->asString(false, false);
+        $result = $this->service->getSoftwareVersion(false, false);
 
         $this->assertSame('8.0.1', $result);
     }
@@ -101,7 +101,7 @@ class VersionServiceTest extends TestCase
         $this->setVersionGlobals('8', '0', '1', '', '');
 
         $service = new VersionService();
-        $result = $service->asString(false, true);
+        $result = $this->service->getSoftwareVersion(false, true);
 
         $this->assertSame('8.0.1', $result);
     }
@@ -112,24 +112,20 @@ class VersionServiceTest extends TestCase
         $this->setVersionGlobals('8', '0', '1', '-dev', '1.0.1.2');
 
         $service = new VersionService();
-        $result = $service->asString();
+        $result = $this->service->getSoftwareVersion();
 
         $this->assertSame('8.0.1-dev (1.0.1.2)', $result);
     }
 
     #[Test]
-    public function testAsStringFallsBackToZeroWhenGlobalsMissing(): void
+    public function testAsStringDelegatesToGetSoftwareVersion(): void
     {
-        // Set missing values to non-string to test defensive fallback
-        $this->bag->set('v_major', null);
-        $this->bag->set('v_minor', null);
-        $this->bag->set('v_patch', null);
-        $this->bag->set('v_tag', null);
-        $this->bag->set('v_realpatch', null);
+        $this->setVersionGlobals('8', '0', '1', '-rc1', '1.0.1.1');
 
         $service = new VersionService();
-        $result = $service->asString(false, false);
-
-        $this->assertSame('0.0.0', $result);
+        // asString() is deprecated but must continue to delegate correctly
+        $this->assertSame($service->getSoftwareVersion(true, true), $service->asString(true, true));
+        $this->assertSame($service->getSoftwareVersion(false, false), $service->asString(false, false));
     }
 }
+
