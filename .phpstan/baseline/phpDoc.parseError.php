@@ -4493,16 +4493,7 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/VersionService.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var has invalid value \\(\\$includeRealpatch bool Include the realpatch\\)\\: Unexpected token "\\$includeRealpatch", expected type at offset 146 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/VersionService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var has invalid value \\(\\$includeTag bool Include the tag\\)\\: Unexpected token "\\$includeTag", expected type at offset 101 on line 4$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/VersionService.php',
-];
+
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return has invalid value \\(void\\.\\)\\: Unexpected token "\\.", expected TOKEN_HORIZONTAL_WS at offset 221 on line 6$#',
     'count' => 1,

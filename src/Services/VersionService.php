@@ -12,6 +12,8 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Core\OEGlobalsBag;
+
 class VersionService extends BaseService implements VersionServiceInterface
 {
     /**
@@ -31,21 +33,60 @@ class VersionService extends BaseService implements VersionServiceInterface
     }
 
     /**
-     * Return the compounded major, minor, patch and tag versions as a string
+     * Return the running software version as a string.
      *
-     * @var $includeTag bool Include the tag
-     * @var $includeRealpatch bool Include the realpatch
-     * @returns string Dot separated major, minor, patch version string (tag at end, if included)
+     * Reads from version.php globals so the displayed version always matches
+     * the running code without requiring a database round-trip.
+     *
+     * @param bool $includeTag      Append the pre-release tag (e.g. "-dev")
+     * @param bool $includeRealpatch Append the real-patch suffix in parentheses
+     * @return string e.g. "8.0.1", "8.0.1-dev", "8.0.1 (1.0.1.2)"
+     */
+    public function getSoftwareVersion(bool $includeTag = true, bool $includeRealpatch = true): string
+    {
+        $globals = OEGlobalsBag::getInstance();
+        $major     = $globals->getString('v_major', '0');
+        $minor     = $globals->getString('v_minor', '0');
+        $patch     = $globals->getString('v_patch', '0');
+        $tag       = $globals->getString('v_tag', '');
+        $realpatch = $globals->getString('v_realpatch', '');
+
+        $string = "{$major}.{$minor}.{$patch}";
+        if ($includeTag) {
+            $string .= $tag;
+        }
+        if ($includeRealpatch && $realpatch !== '') {
+            $string .= " ({$realpatch})";
+        }
+        return $string;
+    }
+
+    /**
+     * Return the database schema version as a string.
+     *
+     * This is the version recorded in the `version` table — it reflects what
+     * migrations have been applied, which may lag behind the running code
+     * immediately after an upgrade.
+     */
+    public function getSchemaVersion(): string
+    {
+        $row = $this->fetch();
+        return implode('.', [
+            $row['v_major'] ?? '0',
+            $row['v_minor'] ?? '0',
+            $row['v_patch'] ?? '0',
+        ]);
+    }
+
+    /**
+     * @deprecated Use getSoftwareVersion() instead.
+     * @param bool $includeTag
+     * @param bool $includeRealpatch
+     * @return string
      */
     public function asString(bool $includeTag = true, bool $includeRealpatch = true): string
     {
-        $v = $this->fetch();
-        $string = "{$v['v_major']}.{$v['v_minor']}.{$v['v_patch']}";
-        $string = ($includeTag == true) ? $string . "{$v['v_tag']}" : $string;
-        if ($includeRealpatch && (!empty($v['v_realpatch']))) {
-            $string .= " (" . $v['v_realpatch'] . ")";
-        }
-        return $string;
+        return $this->getSoftwareVersion($includeTag, $includeRealpatch);
     }
 
     /**
