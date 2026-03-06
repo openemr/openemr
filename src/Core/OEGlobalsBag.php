@@ -17,7 +17,22 @@ use Symfony\Component\HttpFoundation\ParameterBag;
 
 use function array_key_exists;
 
-/** @final */ class OEGlobalsBag extends ParameterBag
+/**
+ * Typed wrapper around $GLOBALS. Extends Symfony ParameterBag.
+ *
+ * Prefer typed getters over get() + cast:
+ *
+ * @see ParameterBag::getString()   getString(string $key, string $default = ''): string
+ * @see ParameterBag::getInt()      getInt(string $key, int $default = 0): int
+ * @see ParameterBag::getBoolean()  getBoolean(string $key, bool $default = false): bool
+ * @see ParameterBag::getAlpha()    getAlpha(string $key, string $default = ''): string — letters only
+ * @see ParameterBag::getAlnum()    getAlnum(string $key, string $default = ''): string — alphanumeric only
+ * @see ParameterBag::getDigits()   getDigits(string $key, string $default = ''): string — digits only
+ * @see ParameterBag::getEnum()     getEnum(string $key, string $class, ?BackedEnum $default = null): ?BackedEnum
+ *
+ * @final — not enforced at runtime because tests mock this class
+ */
+class OEGlobalsBag extends ParameterBag
 {
     use SingletonTrait;
 
