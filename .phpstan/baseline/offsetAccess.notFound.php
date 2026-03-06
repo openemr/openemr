@@ -652,11 +652,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/InvoiceSummary.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'table_name\' might not exist on array\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'actions\' might not exist on array\\{hasRestrictions\\: true, restrictions\\?\\: non\\-empty\\-array\\<array\\{label\\: \'Clinical Test\'\\|\'Encounter Diagnoses\'\\|\'Health Concerns\'\\|\'Laboratory\'\\|\'Problem List Items\'\\|\'Social Determinants…\'\\|\'Social History\'\\|\'Survey\'\\|\'Vital Signs\', value\\: \'http\\://hl7\\.org/fhir…\'\\|\'http\\://terminology…\', selected\\: true, actions\\: array\\{0\\?\\: \'c\'\\|\'d\'\\|\'r\'\\|\'s\'\\|\'u\', 1\\?\\: \'d\'\\|\'r\'\\|\'s\'\\|\'u\', 2\\?\\: \'d\'\\|\'s\'\\|\'u\', 3\\?\\: \'d\'\\|\'s\', 4\\?\\: \'s\'\\}\\}\\>\\}\\|array\\{name\\: mixed, description\\: string, context\\: mixed, version\\: mixed, actions\\: array\\{c\\: array\\{enabled\\: false\\}\\|array\\{enabled\\: true\\}, r\\: array\\{enabled\\: false\\}\\|array\\{enabled\\: true\\}, u\\: array\\{enabled\\: false\\}\\|array\\{enabled\\: true\\}, d\\: array\\{enabled\\: false\\}\\|array\\{enabled\\: true\\}, s\\: array\\{enabled\\: false\\}\\|array\\{enabled\\: true\\}\\}, restrictions\\: array\\<array\\{label\\: mixed, value\\: mixed, selected\\: true, actions\\: mixed\\}\\>, hasRestrictions\\: true, isUnrestricted\\: bool, \\.\\.\\.\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/SMART/ScopePermissionParser.php',

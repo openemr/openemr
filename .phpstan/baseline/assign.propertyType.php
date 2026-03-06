@@ -1857,16 +1857,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/Export/ExportStreamWriter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\SMART\\\\ClientAdminController\\:\\:\\$kernel \\(OpenEMR\\\\Core\\\\Kernel\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\SMART\\\\ClientAdminController\\:\\:\\$webroot \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\FHIR\\\\SMART\\\\ExternalClinicalDecisionSupport\\\\DecisionSupportInterventionEntity\\:\\:\\$id \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/SMART/ExternalClinicalDecisionSupport/DecisionSupportInterventionEntity.php',

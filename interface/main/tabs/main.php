@@ -459,11 +459,19 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
     ?>
     <div id="mainBox" <?php echo $disp_mainBox ?>>
         <nav class="navbar navbar-expand-xl navbar-light bg-light py-0">
-            <?php if ($GLOBALS['display_main_menu_logo'] === '1') : ?>
-                <a class="navbar-brand" href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank">
-                    <img src="<?php echo $menuLogo; ?>" class="d-inline-block align-middle" height="16" alt="<?php echo xlt('Main Menu Logo'); ?>">
-                </a>
-            <?php endif; ?>
+            <?php if ($GLOBALS['display_main_menu_logo'] === '1') {
+                $bag = OEGlobalsBag::getInstance();
+                $logoLinkDefault = 'https://www.open-emr.org/';
+                $logoTitleDefault = xl('OpenEMR Website');
+                $logoLink = trim($bag->getString('main_menu_logo_link', $logoLinkDefault));
+                $logoTitle = trim($bag->getString('main_menu_logo_title', $logoTitleDefault));
+                $logoImg = '<img src="' . attr($menuLogo) . '" class="d-inline-block align-middle" height="16" alt="' . xla('Main Menu Logo') . '">';
+                if ($logoLink !== '') {
+                    echo '<a class="navbar-brand" href="' . attr($logoLink) . '" title="' . attr($logoTitle) . '" rel="noopener" target="_blank">' . $logoImg . '</a>' . "\n";
+                } else {
+                    echo '<span class="navbar-brand">' . $logoImg . '</span>' . "\n";
+                }
+            } ?>
             <button class="navbar-toggler mr-auto" type="button" data-toggle="collapse" data-target="#mainMenu" aria-controls="mainMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>

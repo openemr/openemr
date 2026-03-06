@@ -133,6 +133,13 @@ npm run gulp-build   # Build only (no watch)
 - **Database:** Use `QueryUtils` for queries. New schema changes use Doctrine
   Migrations. Do not instantiate database connections directly — use the
   centralized `DatabaseConnectionFactory`.
+- **Global settings:** Use `OEGlobalsBag` (extends Symfony `ParameterBag`) instead
+  of `$GLOBALS`. Prefer typed getters over `get()` + cast:
+  - `getString($key)` instead of `(string) get($key)`
+  - `getInt($key)` instead of `(int) get($key)`
+  - `getBoolean($key)` instead of `(bool) get($key)`
+  - `getKernel()` for the Kernel instance
+  - Check the parent class for more: `getAlpha()`, `getAlnum()`, `getDigits()`, `getEnum()`
 
 ## Commit Messages
 

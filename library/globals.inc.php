@@ -446,6 +446,20 @@ $GLOBALS_METADATA = [
             xl('Display main menu logo'),
         ],
 
+        'main_menu_logo_link' => [
+            xl('Main menu logo link URL'),
+            'text',
+            'https://www.open-emr.org/',
+            xl('URL the main menu logo links to. Leave blank to make the logo non-clickable.'),
+        ],
+
+        'main_menu_logo_title' => [
+            xl('Main menu logo link title'),
+            'text',
+            '',
+            xl('Tooltip shown when hovering over the main menu logo. Leave blank to use the default (OpenEMR Website).'),
+        ],
+
         'online_support_link' => [
             xl('Online Support Link'),
             'text',                           // data type

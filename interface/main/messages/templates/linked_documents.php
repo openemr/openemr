@@ -18,15 +18,14 @@
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaValidateDocumentObject;
 
-// TODO: This is parameter validation, not authorization - see issue #10686
+// This file is a sub-template included by messages.php. $noteid is a required
+// parameter from the parent context. Return silently if it is missing — this
+// is a missing-parameter guard, not an authorisation failure, so showing the
+// unauthorized template would be misleading.
 if (empty($noteid)) {
-    $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
-    echo $twig->render('core/unauthorized.html.twig', ['pageTitle' => xl("Linked Documents")]);
-    exit;
+    return;
 }
 
 // Get the related document IDs if any.

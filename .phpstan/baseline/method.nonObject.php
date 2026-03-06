@@ -5322,11 +5322,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/AppBasePortalController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method Execute\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteActivityViewController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method GetDataPage\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteActivityViewController.php',
@@ -6665,16 +6660,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method getAcl\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Events/UserInterface/PageHeadingRenderEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method errorLogCaller\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getClient\\(\\) on mixed\\.$#',
