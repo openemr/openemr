@@ -46,11 +46,16 @@ class VersionService extends BaseService implements VersionServiceInterface
     public function asString(bool $includeTag = true, bool $includeRealpatch = true): string
     {
         $globals = OEGlobalsBag::getInstance();
-        $major = (string) $globals->get('v_major', '0');
-        $minor = (string) $globals->get('v_minor', '0');
-        $patch = (string) $globals->get('v_patch', '0');
-        $tag = (string) $globals->get('v_tag', '');
-        $realpatch = (string) $globals->get('v_realpatch', '');
+        $rawMajor    = $globals->get('v_major', '0');
+        $rawMinor    = $globals->get('v_minor', '0');
+        $rawPatch    = $globals->get('v_patch', '0');
+        $rawTag      = $globals->get('v_tag', '');
+        $rawRealpatch = $globals->get('v_realpatch', '');
+        $major    = is_string($rawMajor) ? $rawMajor : '0';
+        $minor    = is_string($rawMinor) ? $rawMinor : '0';
+        $patch    = is_string($rawPatch) ? $rawPatch : '0';
+        $tag      = is_string($rawTag) ? $rawTag : '';
+        $realpatch = is_string($rawRealpatch) ? $rawRealpatch : '';
 
         $string = "{$major}.{$minor}.{$patch}";
         $string = ($includeTag == true) ? $string . $tag : $string;
