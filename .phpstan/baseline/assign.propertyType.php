@@ -2267,11 +2267,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Unit/Controllers/Interface/Forms/Observation/ObservationControllerTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Unit\\\\Controllers\\\\Interface\\\\Forms\\\\Observation\\\\ObservationControllerTest\\:\\:\\$globalKernelBackup \\(OpenEMR\\\\Core\\\\Kernel\\|null\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Controllers/Interface/Forms/Observation/ObservationControllerTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Unit\\\\Controllers\\\\Interface\\\\Forms\\\\Observation\\\\ObservationControllerTest\\:\\:\\$globalWebrootBackup \\(string\\|null\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Unit/Controllers/Interface/Forms/Observation/ObservationControllerTest.php',

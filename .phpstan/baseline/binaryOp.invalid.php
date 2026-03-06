@@ -11822,11 +11822,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/appointments.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \' AND \' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/appointments.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \' \' results in an error\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/appointments.inc.php',

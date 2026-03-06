@@ -1947,11 +1947,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$calFilter \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$cattable \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
@@ -2042,18 +2037,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$customWhere \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder_ajax.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$sSearch \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder_ajax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$where \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder_ajax.php',
 ];
 $ignoreErrors[] = [
@@ -2070,11 +2055,6 @@ $ignoreErrors[] = [
     'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/finder/multi_patients_finder_ajax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$customWhere \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/finder/patient_select.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
