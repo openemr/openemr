@@ -133,156 +133,143 @@ if ($_POST['form_save'] ?? '') {
 
     if ($_POST['form_upay'] && $_REQUEST['radio_type_of_payment'] != 'pre_payment') {
         foreach ($_POST['form_upay'] as $enc => $payment) {
-            if ($amount = (float)$payment) {
-                $zero_enc = $enc;
+            $amount = (float)$payment;
+            if ($amount <= 0) {
+                continue;
+            }
 
-                //----------------------------------------------------------------------------------------------------
-                //Fetching the existing code and modifier
+            $zero_enc = $enc;
+
+            //----------------------------------------------------------------------------------------------------
+            //Fetching the existing code and modifier
+            $ResultSearchNew = sqlStatement(
+                "SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key " .
+                "WHERE code_types.ct_fee=1 AND billing.activity!=0 AND billing.pid =? AND encounter=? ORDER BY billing.code,billing.modifier",
+                [$form_pid, $enc]
+            );
+            if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
+                $Codetype = $RowSearch['code_type'];
+                $Code = $RowSearch['code'];
+                $Modifier = $RowSearch['modifier'];
+            } else {
+                $Codetype = '';
+                $Code = '';
+                $Modifier = '';
+            }
+
+            //----------------------------------------------------------------------------------------------------
+            if ($_REQUEST['radio_type_of_payment'] == 'copay') {//copay saving to ar_session and ar_activity tables
+                $session_id = sqlInsert(
+                    "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total," .
+                    " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) " .
+                    " VALUES ('0',?,?,now(),now(),?,'','patient','COPAY',?,?,'patient_payment',now())",
+                    [$session->get('authUserID'), $form_source, $amount, $form_pid, $form_method]
+                );
+
+                $recorder->recordActivity([
+                    'patientId' => $form_pid,
+                    'encounterId' => $enc,
+                    'codeType' => $Codetype,
+                    'code' => $Code,
+                    'modifier' => $Modifier,
+                    'payerType' => '0',
+                    'postUser' => $session->get('authUserID'),
+                    'sessionId' => $session_id,
+                    'payAmount' => $amount,
+                    'adjustmentAmount' => '0.0',
+                    'memo' => '',
+                    'accountCode' => 'PCP',
+                ]);
+
+                frontPayment($form_pid, $enc, $form_method, $form_source, $amount, 0, $timestamp);//insertion to 'payments' table.
+            }
+
+            if ($_REQUEST['radio_type_of_payment'] == 'invoice_balance' || $_REQUEST['radio_type_of_payment'] == 'cash') {                //Payment by patient after insurance paid, cash patients similar to do not bill insurance in feesheet.
+                if ($_REQUEST['radio_type_of_payment'] == 'cash') {
+                    sqlStatement(
+                        "update form_encounter set last_level_closed=? where encounter=? and pid=? ",
+                        [4, $enc, $form_pid]
+                    );
+                    sqlStatement(
+                        "update billing set billed=? where encounter=? and pid=?",
+                        [1, $enc, $form_pid]
+                    );
+                }
+
+                $adjustment_code = 'patient_payment';
+                $payment_id = sqlInsert(
+                    "insert into ar_session set " .
+                    "payer_id = ?" .
+                    ", patient_id = ?" .
+                    ", user_id = ?" .
+                    ", closed = ?" .
+                    ", reference = ?"   .
+                    ", check_date =  now() , deposit_date = now() " .
+                    ",  pay_total = ?" .
+                    ", payment_type = 'patient'" .
+                    ", description = ?" .
+                    ", adjustment_code = ?" .
+                    ", post_to_date = now() " .
+                    ", payment_method = ?",
+                    [0, $form_pid, $session->get('authUserID'), 0, $form_source, $amount, $NameNew, $adjustment_code, $form_method]
+                );
+
+                //--------------------------------------------------------------------------------------------------------------------
+
+                frontPayment($form_pid, $enc, $form_method, $form_source, 0, $amount, $timestamp);//insertion to 'payments' table.
+
+                //--------------------------------------------------------------------------------------------------------------------
+
+                $resMoneyGot = sqlStatement(
+                    "SELECT sum(pay_amount) as PatientPay FROM ar_activity where deleted IS NULL AND pid =? and " .
+                    "encounter =? and payer_type=0 and account_code='PCP'",
+                    [$form_pid, $enc]
+                );//new fees screen copay gives account_code='PCP'
+                $rowMoneyGot = sqlFetchArray($resMoneyGot);
+                $Copay = $rowMoneyGot['PatientPay'];
+
+                //--------------------------------------------------------------------------------------------------------------------
+
+                //Looping the existing code and modifier
                 $ResultSearchNew = sqlStatement(
-                    "SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key " .
-                    "WHERE code_types.ct_fee=1 AND billing.activity!=0 AND billing.pid =? AND encounter=? ORDER BY billing.code,billing.modifier",
+                    "SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key WHERE code_types.ct_fee=1 " .
+                    "AND billing.activity!=0 AND billing.pid =? AND encounter=? ORDER BY billing.code,billing.modifier",
                     [$form_pid, $enc]
                 );
-                if ($RowSearch = sqlFetchArray($ResultSearchNew)) {
+                while ($RowSearch = sqlFetchArray($ResultSearchNew)) {
                     $Codetype = $RowSearch['code_type'];
                     $Code = $RowSearch['code'];
                     $Modifier = $RowSearch['modifier'];
-                } else {
-                    $Codetype = '';
-                    $Code = '';
-                    $Modifier = '';
-                }
-
-                //----------------------------------------------------------------------------------------------------
-                if ($_REQUEST['radio_type_of_payment'] == 'copay') {//copay saving to ar_session and ar_activity tables
-                    $session_id = sqlInsert(
-                        "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total," .
-                        " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) " .
-                        " VALUES ('0',?,?,now(),now(),?,'','patient','COPAY',?,?,'patient_payment',now())",
-                        [$session->get('authUserID'), $form_source, $amount, $form_pid, $form_method]
-                    );
-
-                    $recorder->recordActivity([
-                        'patientId' => $form_pid,
-                        'encounterId' => $enc,
-                        'codeType' => $Codetype,
-                        'code' => $Code,
-                        'modifier' => $Modifier,
-                        'payerType' => '0',
-                        'postUser' => $session->get('authUserID'),
-                        'sessionId' => $session_id,
-                        'payAmount' => $amount,
-                        'adjustmentAmount' => '0.0',
-                        'memo' => '',
-                        'accountCode' => 'PCP',
-                    ]);
-
-                    frontPayment($form_pid, $enc, $form_method, $form_source, $amount, 0, $timestamp);//insertion to 'payments' table.
-                }
-
-                if ($_REQUEST['radio_type_of_payment'] == 'invoice_balance' || $_REQUEST['radio_type_of_payment'] == 'cash') {                //Payment by patient after insurance paid, cash patients similar to do not bill insurance in feesheet.
-                    if ($_REQUEST['radio_type_of_payment'] == 'cash') {
-                        sqlStatement(
-                            "update form_encounter set last_level_closed=? where encounter=? and pid=? ",
-                            [4, $enc, $form_pid]
-                        );
-                        sqlStatement(
-                            "update billing set billed=? where encounter=? and pid=?",
-                            [1, $enc, $form_pid]
-                        );
-                    }
-
-                    $adjustment_code = 'patient_payment';
-                    $payment_id = sqlInsert(
-                        "insert into ar_session set " .
-                        "payer_id = ?" .
-                        ", patient_id = ?" .
-                        ", user_id = ?" .
-                        ", closed = ?" .
-                        ", reference = ?"   .
-                        ", check_date =  now() , deposit_date = now() " .
-                        ",  pay_total = ?" .
-                        ", payment_type = 'patient'" .
-                        ", description = ?" .
-                        ", adjustment_code = ?" .
-                        ", post_to_date = now() " .
-                        ", payment_method = ?",
-                        [0, $form_pid, $session->get('authUserID'), 0, $form_source, $amount, $NameNew, $adjustment_code, $form_method]
-                    );
-
-                    //--------------------------------------------------------------------------------------------------------------------
-
-                    frontPayment($form_pid, $enc, $form_method, $form_source, 0, $amount, $timestamp);//insertion to 'payments' table.
-
-                    //--------------------------------------------------------------------------------------------------------------------
+                    $Fee = $RowSearch['fee'];
 
                     $resMoneyGot = sqlStatement(
-                        "SELECT sum(pay_amount) as PatientPay FROM ar_activity where deleted IS NULL AND pid =? and " .
-                        "encounter =? and payer_type=0 and account_code='PCP'",
-                        [$form_pid, $enc]
-                    );//new fees screen copay gives account_code='PCP'
-                    $rowMoneyGot = sqlFetchArray($resMoneyGot);
-                    $Copay = $rowMoneyGot['PatientPay'];
-
-                    //--------------------------------------------------------------------------------------------------------------------
-
-                    //Looping the existing code and modifier
-                    $ResultSearchNew = sqlStatement(
-                        "SELECT * FROM billing LEFT JOIN code_types ON billing.code_type=code_types.ct_key WHERE code_types.ct_fee=1 " .
-                        "AND billing.activity!=0 AND billing.pid =? AND encounter=? ORDER BY billing.code,billing.modifier",
-                        [$form_pid, $enc]
+                        "SELECT sum(pay_amount) as MoneyGot FROM ar_activity where deleted IS NULL AND pid = ? " .
+                        "and code_type=? and code=? and modifier=? and encounter =? and !(payer_type=0 and account_code='PCP')",
+                        [$form_pid, $Codetype, $Code, $Modifier, $enc]
                     );
-                    while ($RowSearch = sqlFetchArray($ResultSearchNew)) {
-                        $Codetype = $RowSearch['code_type'];
-                        $Code = $RowSearch['code'];
-                        $Modifier = $RowSearch['modifier'];
-                        $Fee = $RowSearch['fee'];
+                    //new fees screen copay gives account_code='PCP'
+                    $rowMoneyGot = sqlFetchArray($resMoneyGot);
+                    $MoneyGot = $rowMoneyGot['MoneyGot'];
 
-                        $resMoneyGot = sqlStatement(
-                            "SELECT sum(pay_amount) as MoneyGot FROM ar_activity where deleted IS NULL AND pid = ? " .
-                            "and code_type=? and code=? and modifier=? and encounter =? and !(payer_type=0 and account_code='PCP')",
-                            [$form_pid, $Codetype, $Code, $Modifier, $enc]
-                        );
-                        //new fees screen copay gives account_code='PCP'
-                        $rowMoneyGot = sqlFetchArray($resMoneyGot);
-                        $MoneyGot = $rowMoneyGot['MoneyGot'];
+                    $resMoneyAdjusted = sqlStatement(
+                        "SELECT sum(adj_amount) as MoneyAdjusted FROM ar_activity where deleted IS NULL AND " .
+                        "pid =? and code_type=? and code=? and modifier=? and encounter =?",
+                        [$form_pid, $Codetype, $Code, $Modifier, $enc]
+                    );
+                    $rowMoneyAdjusted = sqlFetchArray($resMoneyAdjusted);
+                    $MoneyAdjusted = $rowMoneyAdjusted['MoneyAdjusted'];
 
-                        $resMoneyAdjusted = sqlStatement(
-                            "SELECT sum(adj_amount) as MoneyAdjusted FROM ar_activity where deleted IS NULL AND " .
-                            "pid =? and code_type=? and code=? and modifier=? and encounter =?",
-                            [$form_pid, $Codetype, $Code, $Modifier, $enc]
-                        );
-                        $rowMoneyAdjusted = sqlFetchArray($resMoneyAdjusted);
-                        $MoneyAdjusted = $rowMoneyAdjusted['MoneyAdjusted'];
+                    $Remainder = $Fee - $Copay - $MoneyGot - $MoneyAdjusted;
+                    $Copay = 0;
+                    if (round($Remainder, 2) != 0 && $amount != 0) {
+                        if ($amount - $Remainder >= 0) {
+                            $insert_value = $Remainder;
+                            $amount -= $Remainder;
+                        } else {
+                            $insert_value = $amount;
+                            $amount = 0;
+                        }
 
-                        $Remainder = $Fee - $Copay - $MoneyGot - $MoneyAdjusted;
-                        $Copay = 0;
-                        if (round($Remainder, 2) != 0 && $amount != 0) {
-                            if ($amount - $Remainder >= 0) {
-                                $insert_value = $Remainder;
-                                $amount -= $Remainder;
-                            } else {
-                                $insert_value = $amount;
-                                $amount = 0;
-                            }
-
-                            $recorder->recordActivity([
-                                'patientId' => $form_pid,
-                                'encounterId' => $enc,
-                                'codeType' => $Codetype,
-                                'code' => $Code,
-                                'modifier' => $Modifier,
-                                'payerType' => 0,
-                                'postUser' => $session->get('authUserID'),
-                                'sessionId' => $payment_id,
-                                'payAmount' => $insert_value,
-                                'adjustmentAmount' => '0.0',
-                                'memo' => '',
-                                'accountCode' => 'PP',
-                            ]);
-                        }//if
-                    }//while
-                    if ($amount != 0) {//if any excess is there.
                         $recorder->recordActivity([
                             'patientId' => $form_pid,
                             'encounterId' => $enc,
@@ -292,16 +279,32 @@ if ($_POST['form_save'] ?? '') {
                             'payerType' => 0,
                             'postUser' => $session->get('authUserID'),
                             'sessionId' => $payment_id,
-                            'payAmount' => $amount,
+                            'payAmount' => $insert_value,
                             'adjustmentAmount' => '0.0',
                             'memo' => '',
                             'accountCode' => 'PP',
                         ]);
-                    }
+                    }//if
+                }//while
+                if ($amount != 0) {//if any excess is there.
+                    $recorder->recordActivity([
+                        'patientId' => $form_pid,
+                        'encounterId' => $enc,
+                        'codeType' => $Codetype,
+                        'code' => $Code,
+                        'modifier' => $Modifier,
+                        'payerType' => 0,
+                        'postUser' => $session->get('authUserID'),
+                        'sessionId' => $payment_id,
+                        'payAmount' => $amount,
+                        'adjustmentAmount' => '0.0',
+                        'memo' => '',
+                        'accountCode' => 'PP',
+                    ]);
+                }
 
-                    //--------------------------------------------------------------------------------------------------------------------
-                }//invoice_balance
-            }//if ($amount = 0 + $payment)
+                //--------------------------------------------------------------------------------------------------------------------
+            }//invoice_balance
         }//foreach
     }//if ($_POST['form_upay'])
 }//if ($_POST['form_save'])
