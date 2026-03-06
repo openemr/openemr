@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-// total 24 errors
+// total 25 errors
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
