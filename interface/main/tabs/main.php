@@ -461,22 +461,21 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
         <nav class="navbar navbar-expand-xl navbar-light bg-light py-0">
             <?php if ($GLOBALS['display_main_menu_logo'] === '1') : ?>
                 <?php
-                $logoLink  = trim((string)($GLOBALS['main_menu_logo_link'] ?? ''));
-                $logoTitle = trim((string)($GLOBALS['main_menu_logo_title'] ?? ''));
+                $bag = OEGlobalsBag::getInstance();
+                $logoLinkRaw  = $bag->get('main_menu_logo_link');
+                $logoTitleRaw = $bag->get('main_menu_logo_title');
+                $logoLink  = trim(is_string($logoLinkRaw) ? $logoLinkRaw : '');
+                $logoTitle = trim(is_string($logoTitleRaw) ? $logoTitleRaw : '');
                 if ($logoTitle === '') {
                     $logoTitle = xl('OpenEMR Website');
                 }
                 $logoImg = '<img src="' . attr($menuLogo) . '" class="d-inline-block align-middle" height="16" alt="' . attr(xl('Main Menu Logo')) . '">';
-                if ($logoLink !== '') :
+                if ($logoLink !== '') {
+                    echo '<a class="navbar-brand" href="' . attr($logoLink) . '" title="' . attr($logoTitle) . '" rel="noopener" target="_blank">' . $logoImg . '</a>' . "\n";
+                } else {
+                    echo '<span class="navbar-brand">' . $logoImg . '</span>' . "\n";
+                }
                 ?>
-                <a class="navbar-brand" href="<?php echo attr($logoLink); ?>" title="<?php echo attr($logoTitle); ?>" rel="noopener" target="_blank">
-                    <?php echo $logoImg; ?>
-                </a>
-                <?php else : ?>
-                <span class="navbar-brand">
-                    <?php echo $logoImg; ?>
-                </span>
-                <?php endif; ?>
             <?php endif; ?>
             <button class="navbar-toggler mr-auto" type="button" data-toggle="collapse" data-target="#mainMenu" aria-controls="mainMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
