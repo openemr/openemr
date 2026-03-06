@@ -559,6 +559,20 @@ services:
     - 8200:80
     environment:
       PMA_HOSTS: mariadb,mariadb-old,mariadb-very-old,mariadb-very-very-old,mysql,mysql-old,mysql-old-old,mariadb-ssl
+  ccdaservice:
+    restart: always
+    build:
+      context: ../..
+      dockerfile: docker/ccdaservice/Dockerfile
+    environment:
+      CCDA_SERVICE_HOST: 0.0.0.0
+      CCDA_SERVICE_PORT: 6661
+    healthcheck:
+      test: [CMD, node, -e, "const s=require('net').createConnection({port:6661,host:'127.0.0.1'},()=>{s.end();process.exit(0)});s.on('error',()=>process.exit(1))"]
+      start_period: 10s
+      interval: 10s
+      timeout: 3s
+      retries: 3
   couchdb:
     restart: always
     image: couchdb
