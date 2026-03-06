@@ -4,6 +4,9 @@
 # environment vars
 .env
 
+# local docker compose overrides
+compose.override.yml
+
 # vendor and assets
 node_modules
 /vendor/*

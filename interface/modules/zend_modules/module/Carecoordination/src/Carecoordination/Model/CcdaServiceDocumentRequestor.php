@@ -15,6 +15,7 @@ namespace Carecoordination\Model;
 
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\System\System;
+use OpenEMR\Core\OEGlobalsBag;
 
 class CcdaServiceDocumentRequestor
 {
@@ -41,10 +42,21 @@ class CcdaServiceDocumentRequestor
         if ($socket === false) {
             throw new CcdaServiceConnectionException("Socket Creation Failed");
         }
+        $globals = OEGlobalsBag::getInstance();
+        $host = $globals->getString('ccda_service_host', '127.0.0.1');
+        $port = $globals->getInt('ccda_service_port', 6661);
+        $isLocal = in_array($host, ['127.0.0.1', 'localhost', '::1'], true);
+
         // Let's check if server is already running but suppress warning with @ operator
-        $server_active = @socket_connect($socket, "127.0.0.1", "6661");
+        $server_active = @socket_connect($socket, $host, $port);
         $this->getSystemLogger()->debug("CcdaServiceDocumentRequestor::socket_get server active: " . var_export($server_active, true));
         if ($server_active === false) {
+            if (!$isLocal) {
+                $errorCode = socket_last_error($socket);
+                $errorMsg = socket_strerror($errorCode);
+                $this->getSystemLogger()->errorLogCaller("Remote C-CDA service at $host:$port is not reachable: $errorMsg");
+                throw new CcdaServiceConnectionException("Remote C-CDA service at $host:$port is not reachable: $errorMsg");
+            }
             $this->getSystemLogger()->debug("CcdaServiceDocumentRequestor::socket_get starting local ccda service");
             $path = $GLOBALS['fileroot'] . "/ccdaservice";
             if (IS_WINDOWS) {
@@ -77,7 +89,7 @@ class CcdaServiceDocumentRequestor
             sleep(5); // give cpu a rest
             $this->getSystemLogger()->debug("CcdaServiceDocumentRequestor::socket_get attempting connection again after starting service");
             // now try to connect to the server
-            $result = socket_connect($socket, "127.0.0.1", 6661);
+            $result = socket_connect($socket, $host, $port);
             if ($result === false) {
                 $errorCode = socket_last_error($socket);
                 $errorMsg = socket_strerror($errorCode);

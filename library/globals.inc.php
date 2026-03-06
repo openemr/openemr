@@ -3615,6 +3615,20 @@ $GLOBALS_METADATA = [
             xl('Enable C-CDA Service')
         ],
 
+        'ccda_service_host' => [
+            xl('C-CDA Service Host'),
+            'text',
+            '127.0.0.1',
+            xl('Hostname or IP of the C-CDA service. Use a non-loopback address to connect to a remote/containerized service.')
+        ],
+
+        'ccda_service_port' => [
+            xl('C-CDA Service Port'),
+            'text',
+            '6661',
+            xl('TCP port of the C-CDA service')
+        ],
+
         'phimail_enable' => [
             xl('Enable phiMail Direct Messaging Service'),
             'bool',                           // data type
