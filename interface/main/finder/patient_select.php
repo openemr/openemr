@@ -212,7 +212,7 @@ if ($popup) {
 
     // Custom filtering which enables module developer to filter patients out of search
     $patientSelectFilterEvent = new PatientSelectFilterEvent(new BoundFilter());
-    $patientSelectFilterEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientSelectFilterEvent, PatientSelectFilterEvent::EVENT_HANDLE);
+    OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientSelectFilterEvent, PatientSelectFilterEvent::EVENT_HANDLE);
     $boundFilter = $patientSelectFilterEvent->getBoundFilter();
     $sqlBindArray = array_merge($boundFilter->getBoundValues(), $sqlBindArray);
     $customWhere = $boundFilter->getFilterClause();
