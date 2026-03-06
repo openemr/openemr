@@ -212,7 +212,7 @@ class NotificationEventListener implements EventSubscriberInterface
      *     ]
      * ];
      * // Dispatch the event. In this case, the onetime is created and emailed to the recipient.
-     * $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new SendNotificationEvent($e_pid, $data), SendNotificationEvent::SEND_NOTIFICATION_SERVICE_UNIVERSAL_ONETIME);
+     * OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new SendNotificationEvent($e_pid, $data), SendNotificationEvent::SEND_NOTIFICATION_SERVICE_UNIVERSAL_ONETIME);
      *
      * @param SendNotificationEvent $event
      * @return string

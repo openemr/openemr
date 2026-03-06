@@ -13,6 +13,7 @@
 require_once(__DIR__ . "/../../../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Services\PatientPortalService;
 
@@ -72,7 +73,7 @@ function doOnetimeInvoiceRequest(): void
         ]
     ];
     try {
-        $rtn = $GLOBALS["kernel"]->getEventDispatcher()
+        $rtn = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()
             ->dispatch(new SendNotificationEvent($data['pid'], $data, 'email'), SendNotificationEvent::SEND_NOTIFICATION_SERVICE_UNIVERSAL_ONETIME);
     } catch (\Throwable $e) {
         die($e->getMessage());

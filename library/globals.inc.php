@@ -77,6 +77,7 @@
 //   Vietnamese                     // xl('Vietnamese')
 
 use OpenEMR\Common\Forms\FormActionBarSettings;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\OeUI\RenderFormFieldHelper;
 use OpenEMR\Services\Globals\GlobalAppearanceEnum;
@@ -4576,6 +4577,6 @@ if (!empty($GLOBALS['ippf_specific'])) {
 
 if (empty($skipGlobalEvent)) {
     $globalsInitEvent = new GlobalsInitializedEvent(new GlobalsService($GLOBALS_METADATA, $USER_SPECIFIC_GLOBALS, $USER_SPECIFIC_TABS));
-    $globalsInitEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($globalsInitEvent, GlobalsInitializedEvent::EVENT_HANDLE);
+    $globalsInitEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($globalsInitEvent, GlobalsInitializedEvent::EVENT_HANDLE);
     $globalsService = $globalsInitEvent->getGlobalsService()->save();
 }

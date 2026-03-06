@@ -22,6 +22,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\PatientUpdatedEventAux;
 use OpenEMR\Services\ContactAddressService;
 use OpenEMR\Services\ContactRelationService;
@@ -444,7 +445,7 @@ if (!empty($relationFieldsToSave)) {
  * Trigger events for listeners
  */
 try {
-    $GLOBALS["kernel"]->getEventDispatcher()->dispatch(
+    OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(
         new PatientUpdatedEventAux($pid, $_POST),
         PatientUpdatedEventAux::EVENT_HANDLE,
         10
