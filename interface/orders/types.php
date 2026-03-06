@@ -151,7 +151,7 @@ if ($popup && $_POST['form_save'] ?? '') {
     ?>
 
     <?php
-    // Create array of IDs to pre-select, leaf to top.
+    // Create array of IDs to preselect, leaf to top.
     echo "preopen = [";
     echo $order > 0 ? $order : 0;
     for ($parentid = $order; $parentid > 0;) {

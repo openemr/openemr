@@ -104,7 +104,7 @@ class Holidays_Storage
     }
 
     /**
-     * This function opend the $file(csv) and parses it to insert the values in the calendar_external so later they can be imported as events
+     * This function opens the $file(csv) and parses it to insert the values in the calendar_external so later they can be imported as events
      * csv format -> date,description
      * Example:
      * 2016/12/24,Christmas
