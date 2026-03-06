@@ -44,7 +44,7 @@ class Context
     public function Get($var, $default = null)
     {
         $session = SessionWrapperFactory::getInstance()->getWrapper();
-        return $session->has($this->GUID . "_" . $var) ? unserialize($session->get($this->GUID . "_" . $var)) : null;
+        return $session->has($this->GUID . "_" . $var) ? unserialize($session->get($this->GUID . "_" . $var), ['allowed_classes' => false]) : null;
     }
 
     /**
