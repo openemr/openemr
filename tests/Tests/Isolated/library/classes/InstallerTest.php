@@ -3394,3 +3394,92 @@ class InstallerTest extends TestCase
         $mockInstaller->upsertCustomGlobals(['test_monkey' => ['index' => 0, 'value' => 'sure is']]);
     }
 }
+
+    /**
+     * Test that load_file() properly preserves whitespace between SQL lines.
+     * Regression test for #10935.
+     *
+     * Before the fix, rtrim() removed trailing whitespace from each line,
+     * and concatenation happened with no separator. A continuation line
+     * starting at column 0 (no indentation) would fuse with the previous
+     * token, creating syntax errors.
+     *
+     * E.g.:
+     *   UPDATE layout_options SET uor = 0
+     *   WHERE form_id = 'DEM'
+     *
+     * Was becoming:
+     *   UPDATE layout_options SET uor = 0WHERE form_id = 'DEM'
+     */
+    public function testLoadFilePreservesWhitespaceBetweenLines(): void
+    {
+        $mockInstaller = $this->getMockBuilder(Installer::class)
+            ->setConstructorArgs([[
+                'server' => 'localhost',
+                'root' => 'root',
+                'rootpass' => 'password',
+                'port' => '3306',
+                'login' => 'openemr',
+                'pass' => 'openemr',
+                'dbname' => 'openemr'
+            ], new NullLogger()])
+            ->onlyMethods(['openFile', 'atEndOfFile', 'getLine', 'execute_sql', 'closeFile'])
+            ->getMock();
+
+        $mockResource = fopen('php://memory', 'w+');
+
+        $mockInstaller->expects($this->once())
+            ->method('openFile')
+            ->with('/path/to/test.sql', 'r')
+            ->willReturn($mockResource);
+
+        $eofCallCount = 0;
+        $mockInstaller->expects($this->exactly(4))
+            ->method('atEndOfFile')
+            ->willReturnCallback(function ($resource) use (&$eofCallCount) {
+                $eofCallCount++;
+                return $eofCallCount > 3;
+            });
+
+        // Simulate SQL lines with no leading whitespace on continuation
+        $mockInstaller->expects($this->exactly(3))
+            ->method('getLine')
+            ->with($mockResource, 1024)
+            ->willReturnOnConsecutiveCalls(
+                "UPDATE layout_options SET uor = 0",      // Line ends, no trailing whitespace after rtrim
+                "WHERE form_id = 'DEM' AND seq > 10",   // Continuation at column 0
+                "AND list_id IS NOT NULL;"               // Another continuation
+            );
+
+        // Capture the actual SQL statements executed
+        $executedSql = [];
+        $mockInstaller->expects($this->exactly(9))
+            ->method('execute_sql')
+            ->willReturnCallback(function ($sql) use (&$executedSql) {
+                $executedSql[] = $sql;
+                return true;
+            });
+
+        $mockInstaller->expects($this->once())
+            ->method('closeFile')
+            ->with($mockResource)
+            ->willReturn(true);
+
+        $result = $mockInstaller->load_file('/path/to/test.sql', 'Test SQL');
+
+        $this->assertIsString($result);
+        $this->assertStringContainsString('OK', $result);
+
+        // Verify that the complete SQL statement was assembled with proper spacing
+        // The third execute_sql call should be the complete UPDATE statement
+        $completeUpdateStatement = $executedSql[2] ?? '';
+
+        // Must contain "0 WHERE" (with space), not "0WHERE" (fused)
+        $this->assertStringContainsString('0 WHERE', $completeUpdateStatement);
+        $this->assertStringNotContainsString('0WHERE', $completeUpdateStatement);
+
+        // Must contain "10 AND" (with space), not "10AND" (fused)
+        $this->assertStringContainsString('10 AND', $completeUpdateStatement);
+        $this->assertStringNotContainsString('10AND', $completeUpdateStatement);
+    }
+}
