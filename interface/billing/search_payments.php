@@ -55,7 +55,7 @@ if (isset($_POST["mode"])) {
             }
         }
         //dispatch this payment is being deleted trigger refund process
-        $eventDispatcher->dispatch(new DeletePayment($DeletePaymentId), DeletePayment::ACTION_DELETE_PAYMENT, 10);
+        $eventDispatcher->dispatch(new DeletePayment($DeletePaymentId), DeletePayment::ACTION_DELETE_PAYMENT);
     //delete and log that action
         payment_row_delete("ar_session", "session_id ='" . add_escape_custom($DeletePaymentId) . "'");
         payment_row_modify("ar_activity", "deleted = NOW()", "deleted IS NULL AND session_id = '" . add_escape_custom($DeletePaymentId) . "'");

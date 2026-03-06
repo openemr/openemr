@@ -110,7 +110,7 @@ if (!empty($addressFieldsToSave)) {
  * Parse demographics data to listeners who want data that is not directly available in
  * the patient_data table on update
  */
-OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new PatientBeforeCreatedAuxEvent($pid, $_POST), PatientBeforeCreatedAuxEvent::EVENT_HANDLE, 10);
+OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new PatientBeforeCreatedAuxEvent($pid, $_POST), PatientBeforeCreatedAuxEvent::EVENT_HANDLE);
 
 
 $i1dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i1subscriber_DOB"));

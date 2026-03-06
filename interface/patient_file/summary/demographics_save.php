@@ -447,8 +447,7 @@ if (!empty($relationFieldsToSave)) {
 try {
     OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(
         new PatientUpdatedEventAux($pid, $_POST),
-        PatientUpdatedEventAux::EVENT_HANDLE,
-        10
+        PatientUpdatedEventAux::EVENT_HANDLE
     );
 } catch (\Throwable $e) {
     $logger->error("Error dispatching event", [
