@@ -44,21 +44,6 @@ use function array_key_exists;
         return parent::get($key, $default);
     }
 
-    /**
-     * Return the value for $key as a string.
-     *
-     * If the stored value is not a string (e.g. null or an array), $default
-     * is returned instead. This avoids the PHPStan "Cannot cast mixed to
-     * string" error that arises when using (string) on the result of get().
-     *
-     * @param string $default Fallback value when the stored value is not a string.
-     */
-    public function getString(string $key, string $default = ''): string
-    {
-        $value = $this->get($key, $default);
-        return is_string($value) ? $value : $default;
-    }
-
     public function has(string $key): bool
     {
         if (parent::has($key)) {
