@@ -463,14 +463,17 @@ class CareTeamServiceTest extends TestCase
         );
 
         $result = $this->service->getCareTeamData($this->testPid);
+        $this->assertIsArray($result);
 
         $this->assertEquals(self::TEST_TEAM_NAME, $result['team_name']);
         $this->assertEquals('active', $result['team_status']);
         $this->assertGreaterThanOrEqual(1, $result['member_count']);
+        $this->assertIsArray($result['members']);
         $this->assertNotEmpty($result['members']);
 
         // Verify first member structure
         $member = $result['members'][0];
+        $this->assertIsArray($member);
         $this->assertEquals('user', $member['member_type']);
         // @phpstan-ignore cast.int
         $this->assertEquals($this->testProviderId, (int) $member['user_id']);
@@ -583,9 +586,10 @@ class CareTeamServiceTest extends TestCase
 
         $this->assertCount(0, $result->getValidationMessages());
 
-        /** @var array<int, array<string, mixed>> $data */
         $data = $result->getData();
+        $this->assertIsArray($data);
         $this->assertNotEmpty($data);
+        $this->assertIsArray($data[0]);
 
         $this->assertEquals($uuidString, $data[0]['uuid']);
         $this->assertEquals(self::TEST_TEAM_NAME, $data[0]['team_name']);
@@ -636,7 +640,9 @@ class CareTeamServiceTest extends TestCase
 
         /** @var array<int, array<string, mixed>> $data */
         $data = $result->getData();
+        $this->assertIsArray($data);
         $this->assertNotEmpty($data);
+        $this->assertIsArray($data[0]);
         $this->assertEquals($teamUuid, $data[0]['uuid']);
     }
 
@@ -659,6 +665,7 @@ class CareTeamServiceTest extends TestCase
 
         /** @var array<int, array<string, mixed>> $data */
         $data = $result->getData();
+        $this->assertIsArray($data);
         $this->assertNotEmpty($data);
 
         // Verify at least one of the results is our test team
@@ -697,6 +704,7 @@ class CareTeamServiceTest extends TestCase
 
         /** @var array<int, array<string, mixed>> $data */
         $data = $result->getData();
+        $this->assertIsArray($data);
         $this->assertNotEmpty($data);
 
         // All returned records should belong to our test patient
@@ -754,9 +762,11 @@ class CareTeamServiceTest extends TestCase
 
         /** @var array<int, array<string, mixed>> $data */
         $data = $result->getData();
+        $this->assertIsArray($data);
         $this->assertNotEmpty($data);
 
         $record = $data[0];
+        $this->assertIsArray($record);
 
         // Verify providers are populated
         $this->assertArrayHasKey('providers', $record);
@@ -806,9 +816,11 @@ class CareTeamServiceTest extends TestCase
 
         /** @var array<int, array<string, mixed>> $data */
         $data = $result->getData();
+        $this->assertIsArray($data);
         $this->assertNotEmpty($data);
 
         $record = $data[0];
+        $this->assertIsArray($record);
 
         // Verify facilities are populated
         $this->assertArrayHasKey('facilities', $record);
