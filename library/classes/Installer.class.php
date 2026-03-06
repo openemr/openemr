@@ -477,7 +477,7 @@ class Installer
                 continue;
             }
 
-            $query .= $line;          // Check for full query
+            $query .= ($query !== "" ? " " : "") . $line; // Check for full query
             $chr = substr($query, strlen($query) - 1, 1);
             if ($chr == ";") { // valid query, execute
                 $query = rtrim($query, ";");
