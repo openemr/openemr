@@ -18,11 +18,13 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Core\Header;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -93,7 +95,7 @@ $simpleSearch = $_GET['simple_search'] ?? null;
 </head>
 <body class="body_top">
     <form method='post' action='new_search_popup.php' name='theform'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
         <input type='hidden' name='fstart' value='<?php echo attr($fstart); ?>' />
         <?php
         $MAXSHOW = 100; // maximum number of results to display at once
@@ -112,20 +114,29 @@ $simpleSearch = $_GET['simple_search'] ?? null;
         $sqlBindArray = [];
         $sqlBindArraySpecial = [];
         $where = "1 = 0";
+
+        // Whitelist valid column names from patient_data to prevent SQL injection
+        // via user-controlled request parameter names.
+        $pdColumns = sqlListFields('patient_data');
+
         foreach ($_REQUEST as $key => $value) {
             if (!str_starts_with((string) $key, 'mf_')) {
                 continue; // "match field"
             }
             $fldname = substr((string) $key, 3);
+            if (!in_array($fldname, $pdColumns)) {
+                continue; // skip invalid column names
+            }
             // pubpid requires special treatment.  Match on that is fatal.
+            $quotedField = "`" . $fldname . "`";
             if ($fldname == 'pubpid') {
-                $relevance .= " + 1000 * ( " . add_escape_custom($fldname) . " LIKE ? )";
+                $relevance .= " + 1000 * ( " . $quotedField . " LIKE ? )";
                 array_push($sqlBindArray, $value);
             } else {
-                $relevance .= " + ( " . add_escape_custom($fldname) . " LIKE ? )";
+                $relevance .= " + ( " . $quotedField . " LIKE ? )";
                 array_push($sqlBindArray, $value);
             }
-            $where .= " OR " . add_escape_custom($fldname) . " LIKE ?";
+            $where .= " OR " . $quotedField . " LIKE ?";
             array_push($sqlBindArraySpecial, $value);
             echo "<input type='hidden' name='" . attr($key) . "' value='" . attr($value) . "' />\n";
             ++$numfields;

@@ -29,8 +29,10 @@ class PaymentGateway
         $this->production = !$GLOBALS['gateway_mode_production'];
 
         $cryptoGen = ServiceContainer::getCrypto();
-        $this->apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
-        $this->transactionKey = $cryptoGen->decryptStandard($GLOBALS['gateway_transaction_key']);
+        $gatewayApiKey = $GLOBALS['gateway_api_key'];
+        $this->apiKey = $cryptoGen->decryptStandard(is_string($gatewayApiKey) ? $gatewayApiKey : null);
+        $gatewayTxnKey = $GLOBALS['gateway_transaction_key'];
+        $this->transactionKey = $cryptoGen->decryptStandard(is_string($gatewayTxnKey) ? $gatewayTxnKey : null);
 
         // Setup payment Gateway
         $this->setGateway($name);

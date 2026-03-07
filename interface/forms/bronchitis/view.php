@@ -22,6 +22,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
 $returnurl = 'encounter_top.php';
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html><head>
     <?php Header::setupHeader(); ?>
@@ -32,7 +33,7 @@ require_once("$srcdir/api.inc.php");
 $obj = formFetch("form_bronchitis", $_GET["id"]);
 ?>
 <form method=post action="<?php echo $rootdir?>/forms/bronchitis/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
 <span class="title"><?php echo xlt('Bronchitis Form'); ?></span><br /><br />
 

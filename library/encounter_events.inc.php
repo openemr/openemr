@@ -16,6 +16,7 @@ require_once(__DIR__ . '/calendar.inc.php');
 require_once(__DIR__ . '/patient_tracker.inc.php');
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 //===============================================================================
 //This section handles the events of payment screen.
@@ -83,7 +84,8 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
     if (!empty($GLOBALS['auto_create_prevent_reason'] ?? 0)) {
         $visit_reason = 'Please indicate visit reason';
     }
-    $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", [$_SESSION["authUserID"]]);
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", [$session->get('authUserID')]);
     $username = $tmprow['username'];
     $facility = $tmprow['facility'];
     $facility_id = $fac_id ? (int)$fac_id : $tmprow['facility_id'];
@@ -141,9 +143,10 @@ function todaysTherapyGroupEncounterCheck($group_id, $enc_date = '', $reason = '
         $visit_provider = $counselors = null;
     }
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $dos = $enc_date ?: $today;
     $visit_reason = $reason ?: xl('Please indicate visit reason');
-    $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", [$_SESSION["authUserID"]]);
+    $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", [$session->get('authUserID')]);
     $username = $tmprow['username'];
     $facility = $tmprow['facility'];
     $facility_id = $fac_id ? (int)$fac_id : $tmprow['facility_id'];
@@ -222,13 +225,15 @@ function todaysEncounter($patient_id, $reason = '')
   if ($encounter) return $encounter;
   *******************************************************************/
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $authUserID = $session->get('authUserID');
     $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users " .
-    "WHERE id = ?", [$_SESSION["authUserID"]]);
+    "WHERE id = ?", [$authUserID]);
     $username = $tmprow['username'];
     $facility = $tmprow['facility'];
     $facility_id = $tmprow['facility_id'];
     $encounter = QueryUtils::generateId();
-    $provider_id = $userauthorized ? $_SESSION['authUserID'] : 0;
+    $provider_id = $userauthorized ? $authUserID : 0;
     addForm(
         $encounter,
         "New Patient Encounter",
@@ -355,6 +360,7 @@ function InsertEvent($args, $from = 'general')
     $form_gid = empty($args['form_gid']) ? '' : $args['form_gid'];
     ;
     if ($from == 'general') {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $pc_eid = sqlInsert(
             "INSERT INTO openemr_postcalendar_events ( " .
             "pc_catid, pc_multiple, pc_aid, pc_pid, pc_gid, pc_title, pc_time, pc_hometext, " .
@@ -363,7 +369,7 @@ function InsertEvent($args, $from = 'general')
             "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility,pc_billing_location,pc_room " .
             ") VALUES (?,?,?,?,?,?,NOW(),?,?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?,?)",
             [$args['form_category'],($args['new_multiple_value'] ?? ''),$args['form_provider'],$form_pid,$form_gid,
-            $args['form_title'],$args['form_comments'],$_SESSION['authUserID'],$args['event_date'],
+            $args['form_title'],$args['form_comments'],$session->get('authUserID'),$args['event_date'],
             fixDate($args['form_enddate']),$args['duration'],$pc_recurrtype,serialize($args['recurrspec']),
             $args['starttime'],$args['endtime'],$args['form_allday'],$args['form_apptstatus'],$args['form_prefcat'],
             $args['locationspec'],(int)$args['facility'],(int)$args['billing_facility'],$form_room]
@@ -371,7 +377,7 @@ function InsertEvent($args, $from = 'general')
 
             //Manage tracker status.
         if (!empty($form_pid)) {
-            manage_tracker_status($args['event_date'], $args['starttime'], $pc_eid, $form_pid, $_SESSION['authUser'], $args['form_apptstatus'], $args['form_room']);
+            manage_tracker_status($args['event_date'], $args['starttime'], $pc_eid, $form_pid, $session->get('authUser'), $args['form_apptstatus'], $args['form_room']);
         }
 
             $GLOBALS['temporary-eid-for-manage-tracker'] = $pc_eid; //used by manage tracker module to set correct encounter in tracker when check in

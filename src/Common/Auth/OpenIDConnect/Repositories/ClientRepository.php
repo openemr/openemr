@@ -18,6 +18,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\HttpUtils;
 
 class ClientRepository implements ClientRepositoryInterface
@@ -48,7 +49,8 @@ class ClientRepository implements ClientRepositoryInterface
     // TODO: @adunsulag this function needs to be updated to remove usage of $_SESSION and other superglobals
     public function insertNewClient($clientId, $info, $site): bool
     {
-        $user = $_SESSION['authUserID'] ?? null; // future use for provider client.
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $user = $session->get('authUserID'); // future use for provider client.
         $is_confidential_client = empty($info['client_secret']) ? 0 : 1;
         $skip_ehr_launch_authorization_flow = ($info['skip_ehr_launch_authorization_flow'] ?? false) == true ? 1 : 0;
 
@@ -86,7 +88,7 @@ class ClientRepository implements ClientRepositoryInterface
         // encrypt the client secret
         if (!empty($info['client_secret'])) {
             $cryptoGen = $this->getCryptoGen();
-            $info['client_secret'] = $cryptoGen->encryptStandard($info['client_secret']);
+            $info['client_secret'] = $cryptoGen->encryptStandard(is_string($info['client_secret']) ? $info['client_secret'] : null);
         }
 
         // TODO: @adunsulag why do we skip over request_uris when we have it in the outer function?
@@ -192,7 +194,7 @@ class ClientRepository implements ClientRepositoryInterface
 
             // Validate client if is_confidential
             if (!empty($clientSecret) && !empty($client['is_confidential'])) {
-                $secret = (ServiceContainer::getCrypto())->decryptStandard($client['client_secret']);
+                $secret = (ServiceContainer::getCrypto())->decryptStandard(is_string($client['client_secret']) ? $client['client_secret'] : null);
                 if (empty($secret)) {
                     return false;
                 }

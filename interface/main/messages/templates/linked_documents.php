@@ -18,6 +18,7 @@
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\Cda\CdaValidateDocumentObject;
 
 // This file is a sub-template included by messages.php. $noteid is a required
@@ -157,6 +158,8 @@ try {
     // if twig throws any exceptions we want to log it.
     (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 
 <script>
@@ -182,7 +185,7 @@ try {
 
             // now we need to make an ajax async request to the server with the document id
             let docId = validateRecord.dataset['doc'];
-            let url = "<?php echo $GLOBALS['webroot'] . "/library/ajax/messages/validate_messages_document_ajax.php?csrf=\" + " . js_url(CsrfUtils::collectCsrfToken()); ?>
+            let url = "<?php echo $GLOBALS['webroot'] . "/library/ajax/messages/validate_messages_document_ajax.php?csrf=\" + " . js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>
 
             window.fetch(url + "&doc=" + encodeURIComponent(docId) )
                 .then(function(result) {
@@ -252,7 +255,7 @@ try {
             url: '<?php echo $GLOBALS['webroot'] . "/library/ajax/set_pt.php";?>',
             data: {
                 set_pid: pid,
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
             },
             async: false
         });

@@ -98,7 +98,7 @@ class RouteController
         $serviceId = $request->get('serviceId', '');
         $csrfToken = $request->get('csrf_token', '');
 
-        if (CsrfUtils::verifyCsrfToken($csrfToken, $this->session) === false) {
+        if (CsrfUtils::verifyCsrfToken($csrfToken, session: $this->session) === false) {
             return $this->notFoundAction($request);
         }
         if (empty(trim((string) $serviceId))) {
@@ -177,7 +177,7 @@ class RouteController
         // TODO: @adunsulag need to handle CSRF token in save action
         ['subAction' => $serviceId] = $this->parseRequest($request);
         $csrfToken = $request->get('_token', '');
-        if (!CsrfUtils::verifyCsrfToken($csrfToken, 'default', $this->session)) {
+        if (!CsrfUtils::verifyCsrfToken($csrfToken, $this->session)) {
             throw new CsrfInvalidException(xlt('Authentication Error'));
         }
 

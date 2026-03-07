@@ -24,10 +24,12 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -338,8 +340,9 @@ if (!empty($_POST["mode"]) && ($_POST["mode"] == "create_client_certificate")) {
     create_and_download_certificates();
 }
 
-if (!empty($_SESSION["zip_error"])) {
-    $zipErrorOutput = '<div><table align="center"><tr valign="top"><td rowspan="3"><font class="redtext">' . text($_SESSION["zip_error"]) . '</td></tr></table></div>';
+$zip_error = $session->get('zip_error');
+if (!empty($zip_error)) {
+    $zipErrorOutput = '<div><table align="center"><tr valign="top"><td rowspan="3"><font class="redtext">' . text($zip_error) . '</td></tr></table></div>';
     SessionUtil::unsetSession('zip_error');
 }
 
@@ -484,7 +487,7 @@ if (!empty($_SESSION["zip_error"])) {
         }
         ?>
   <form method='post' name=ssl_certificate_frm action='ssl_certificates_admin.php'>
-  <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+  <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
   <input type='hidden' name='mode' value='download_certificates'>
   <div class='borderbox'>
     <b><?php echo xlt('Create the SSL Certificate Authority and Server certificates.'); ?></b><br />
@@ -587,7 +590,7 @@ if (!empty($_SESSION["zip_error"])) {
   <br />
   <div class="borderbox">
     <form name='ssl_frm' method='post'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
     <b><?php echo xlt('Configure Apache to use Client side SSL certificates'); ?> </b>
     <br /><br />
         <?php echo xlt('Add following lines to the Apache configuration file'); ?>:<br />
@@ -626,7 +629,7 @@ if (!empty($_SESSION["zip_error"])) {
         }
         ?>
     <form name='client_cert_frm' method='post' action='ssl_certificates_admin.php'>
-      <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+      <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
       <input type='hidden' name='mode' value='create_client_certificate'>
       <table>
         <tr class='text'>

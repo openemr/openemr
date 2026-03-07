@@ -23,6 +23,7 @@ require_once "$srcdir/options.inc.php";
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 
@@ -30,8 +31,9 @@ if (!AclMain::aclCheckCore('acct', 'rep') && !AclMain::aclCheckCore('acct', 'rep
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep or acct/rep_a: Sales by Item", xl("Sales by Item"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -39,7 +41,7 @@ if (!empty($_POST)) {
 $form_provider  = $_POST['form_provider'] ?? null;
 if (!AclMain::aclCheckCore('acct', 'rep_a')) {
     // only allow user to see their encounter information
-    $form_provider = $_SESSION['authUserID'];
+    $form_provider = $session->get('authUserID');
 }
 
 if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
@@ -359,7 +361,7 @@ if (!empty($_POST['form_csvexport'])) {
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Sales by Item'); ?></span>
 
 <form method='post' action='sales_by_item.php' id='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
 <div id="report_parameters">
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
@@ -416,7 +418,7 @@ if (!empty($_POST['form_csvexport'])) {
 
             echo "   </select>\n";
         } else {
-            echo "<input type='hidden' name='form_provider' value='" . attr($_SESSION['authUserID']) . "'>";
+            echo "<input type='hidden' name='form_provider' value='" . attr($session->get('authUserID')) . "'>";
         }
         ?>
             &nbsp;

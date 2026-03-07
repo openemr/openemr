@@ -72,8 +72,8 @@ class BillingLogger
             if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log")) {
                 $this->hlog = file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log");
             }
-            if ($this->cryptoGen->cryptCheckStandard($this->hlog)) {
-                $this->hlog = $this->cryptoGen->decryptStandard($this->hlog, null, KeySource::Database);
+            if ($this->cryptoGen->cryptCheckStandard($this->hlog !== false ? $this->hlog : null)) {
+                $this->hlog = $this->cryptoGen->decryptStandard($this->hlog !== false ? $this->hlog : null, null, KeySource::Database);
             }
         } else { // ($GLOBALS['billing_log_option'] == 2)
             $this->hlog = '';

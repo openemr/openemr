@@ -12,7 +12,6 @@
 
 namespace OpenEMR\Common\Forms;
 
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 
@@ -25,14 +24,14 @@ class CoreFormToPortalUtility
     public static function isPatientPortalSession(?array $get): bool
     {
         if (isset($get['isPortal']) && (int)$get['isPortal'] !== 0) {
-            $session = SessionWrapperFactory::getInstance()->getWrapper();
-            if ($session->isSymfonySession() && $session->has('pid') && $session->has('patient_portal_onsite_two')) {
+            $session = SessionWrapperFactory::getInstance()->getPortalSession();
+            if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
                 // patient portal session is authenticated
                 return true;
             } else {
                 // user has claimed that is using patient portal, however patient portal session is not
                 // authenticated, so destroy the session/cookie and kill the script
-                SessionUtil::portalSessionCookieDestroy();
+                SessionWrapperFactory::getInstance()->destroyPortalSession();
                 exit;
             }
         } else {
@@ -68,7 +67,7 @@ class CoreFormToPortalUtility
             $pidForm = sqlQuery("SELECT `pid` FROM `forms` WHERE `form_id` = ? AND `formdir` = ?", [$formid, $formdir])['pid'];
             if (empty($pidForm) || ($pidForm != $patientId)) {
                 echo xlt("illegal Action");
-                SessionUtil::portalSessionCookieDestroy();
+                SessionWrapperFactory::getInstance()->destroyPortalSession();
                 exit;
             }
         }

@@ -13,6 +13,7 @@
 namespace OpenEMR\Modules\WenoModule\Services;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
  * Companion to event bootstrapping
@@ -56,10 +57,12 @@ class ModuleService
             "SELECT gl_name, gl_value FROM `globals` WHERE `gl_name` IN(?, ?, ?, ?, ?)",
             ["weno_rx_enable", "weno_rx_enable_test", "weno_encryption_key", "weno_admin_username", "weno_admin_password"]
         );
-        if (!empty($_SESSION['authUserID'] ?? '')) {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authUserID = $session->get('authUserID') ?? '';
+        if (!empty($authUserID)) {
             $us = sqlStatementNoLog(
                 "SELECT `setting_label`, `setting_value`, `setting_user` FROM `user_settings` WHERE `setting_label` IN(?, ?) AND `setting_user` = ?",
-                ["global:weno_provider_email", "global:weno_provider_password", $_SESSION['authUserID'] ?? '']
+                ["global:weno_provider_email", "global:weno_provider_password", $authUserID]
             );
         }
 
@@ -77,14 +80,14 @@ class ModuleService
             $key = substr((string) $row['setting_label'], 7);
             $vendors[$key] = $row['setting_value'];
         }
-        if (!$flag && !empty($_SESSION['authUserID'] ?? '')) {
+        if (!$flag && !empty($authUserID)) {
             $this->saveVendorGlobals($vendors, 'user');
         }
         if ($decrypt) {
             $crypt = ServiceContainer::getCrypto();
-            $vendors['weno_encryption_key'] = $crypt->decryptStandard($vendors['weno_encryption_key']);
-            $vendors['weno_admin_password'] = $crypt->decryptStandard($vendors['weno_admin_password']);
-            $vendors['weno_provider_password'] = $crypt->decryptStandard($vendors['weno_provider_password']);
+            $vendors['weno_encryption_key'] = $crypt->decryptStandard(is_string($vendors['weno_encryption_key']) ? $vendors['weno_encryption_key'] : null);
+            $vendors['weno_admin_password'] = $crypt->decryptStandard(is_string($vendors['weno_admin_password']) ? $vendors['weno_admin_password'] : null);
+            $vendors['weno_provider_password'] = $crypt->decryptStandard(is_string($vendors['weno_provider_password']) ? $vendors['weno_provider_password'] : null);
         }
 
         return $vendors;
@@ -98,13 +101,13 @@ class ModuleService
     {
         $crypt = ServiceContainer::getCrypto();
         if (!empty($items['weno_encryption_key'])) {
-            $items['weno_encryption_key'] = $crypt->encryptStandard($items['weno_encryption_key']);
+            $items['weno_encryption_key'] = $crypt->encryptStandard(is_string($items['weno_encryption_key']) ? $items['weno_encryption_key'] : null);
         }
         if (!empty($items['weno_admin_password'])) {
-            $items['weno_admin_password'] = $crypt->encryptStandard($items['weno_admin_password']);
+            $items['weno_admin_password'] = $crypt->encryptStandard(is_string($items['weno_admin_password']) ? $items['weno_admin_password'] : null);
         }
         if (!empty($items['weno_provider_password'])) {
-            $items['weno_provider_password'] = $crypt->encryptStandard($items['weno_provider_password']);
+            $items['weno_provider_password'] = $crypt->encryptStandard(is_string($items['weno_provider_password']) ? $items['weno_provider_password'] : null);
         }
         $vendors['weno_rx_enable'] = $items['weno_rx_enable'] ?? '0';
         $vendors['weno_rx_enable_test'] = $items['weno_rx_enable_test'] ?? '0';
@@ -126,12 +129,14 @@ class ModuleService
                 );
             }
         }
-        if ($which != 'global' && !empty($_SESSION['authUserID'] ?? '')) {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authUserID = $session->get('authUserID', '');
+        if ($which !== 'global' && !empty($authUserID ?? '')) {
             foreach ($userSettings as $key => $vendor) {
                 $GLOBALS[$key] = $vendor;
                 sqlQuery(
                     "INSERT INTO `user_settings` (`setting_label`,`setting_value`, `setting_user`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `setting_value` = ?, `setting_user` = ?",
-                    ['global:' . $key, $vendor, $_SESSION['authUserID'], $vendor, $_SESSION['authUserID'] ?? '']
+                    ['global:' . $key, $vendor, $authUserID, $vendor, $authUserID]
                 );
             }
         }
@@ -228,7 +233,8 @@ class ModuleService
      */
     public function getProviderName(): string
     {
-        $provider_info = sqlQuery("select fname, mname, lname from users where username=? ", [$_SESSION["authUser"]]);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $provider_info = sqlQuery("select fname, mname, lname from users where username=? ", [$session->get('authUser')]);
         $provider_info ??= ['fname' => '', 'mname' => '', 'lname' => ''];
         return $provider_info['fname'] . " " . $provider_info['mname'] . " " . $provider_info['lname'];
     }

@@ -168,11 +168,12 @@ class EncountermanagerTable
             if ($row['couch_docid'] != '') {
                 $couch = new CouchDB();
                 $resp = $couch->retrieve_doc($row['couch_docid']);
+                $respData = is_object($resp) && property_exists($resp, 'data') ? $resp->data : null;
                 if ($row['encrypted']) {
                     $cryptoGen = ServiceContainer::getCrypto();
-                    $content = $cryptoGen->decryptStandard($resp->data, null, KeySource::Database);
+                    $content = $cryptoGen->decryptStandard(is_string($respData) ? $respData : null, null, KeySource::Database);
                 } else {
-                    $content = base64_decode((string) $resp->data);
+                    $content = base64_decode(is_string($respData) ? $respData : '');
                 }
             } elseif (!$row['couch_docid']) {
                 if (!filesize($row['ccda_data'])) {
@@ -181,7 +182,8 @@ class EncountermanagerTable
                 $fccda = fopen($row['ccda_data'], "r");
                 if ($row['encrypted']) {
                     $cryptoGen = ServiceContainer::getCrypto();
-                    $content = $cryptoGen->decryptStandard(fread($fccda, filesize($row['ccda_data'])), null, KeySource::Database);
+                    $freadData = fread($fccda, filesize($row['ccda_data']));
+                    $content = $cryptoGen->decryptStandard($freadData !== false ? $freadData : null, null, KeySource::Database);
                 } else {
                     $content = fread($fccda, filesize($row['ccda_data']));
                 }

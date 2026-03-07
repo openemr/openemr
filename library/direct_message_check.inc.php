@@ -51,7 +51,8 @@ function phimail_connect(&$phimail_error)
     $phimail_server = @parse_url((string) $GLOBALS['phimail_server_address']);
     $phimail_username = $GLOBALS['phimail_username'];
     $cryptoGen = ServiceContainer::getCrypto();
-    $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
+    $phimailPwd = $GLOBALS['phimail_password'];
+    $phimail_password = $cryptoGen->decryptStandard(is_string($phimailPwd) ? $phimailPwd : null);
 
     // if test mode is disabled we use the production cert, otherwise we use the test certificate.
     if (isset($GLOBALS['phimail_testmode_disabled']) && $GLOBALS['phimail_testmode_disabled'] == '1') {
@@ -164,7 +165,8 @@ function phimail_check(): void
 
     $phimail_username = $GLOBALS['phimail_username'];
     $cryptoGen = ServiceContainer::getCrypto();
-    $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
+    $phimailPwd = $GLOBALS['phimail_password'];
+    $phimail_password = $cryptoGen->decryptStandard(is_string($phimailPwd) ? $phimailPwd : null);
 
     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
     if ($ret !== true) {

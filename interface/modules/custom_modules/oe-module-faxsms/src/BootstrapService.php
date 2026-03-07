@@ -12,6 +12,8 @@
 
 namespace OpenEMR\Modules\FaxSMS;
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 /**
  * Companion to event bootstrapping
  */
@@ -167,7 +169,8 @@ class BootstrapService
     public static function getUserPermission($user_id, $service)
     {
         if (empty($user_id)) {
-            $user_id = $_SESSION['authUserID'] ?? 0;
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $user_id = $session->get('authUserID', 0);
         }
         $setting_label = "module_faxsms_{$service}_permission";
         $query = "SELECT setting_value FROM user_settings WHERE setting_user = ? AND setting_label = ?";
@@ -181,7 +184,8 @@ class BootstrapService
             return '0';
         }
         if (empty($user_id)) {
-            $user_id = $_SESSION['authUserID'] ?? 0;
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $user_id = $session->get('authUserID', 0);
         }
         $setting_label = "module_faxsms_use_primary";
         $query = "SELECT setting_value FROM user_settings WHERE setting_user = ? AND setting_label = ?";

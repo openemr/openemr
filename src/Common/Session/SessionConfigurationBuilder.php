@@ -11,6 +11,7 @@ namespace OpenEMR\Common\Session;
 
 class SessionConfigurationBuilder
 {
+    /** @var array<string, mixed> */
     private array $config = [];
 
     public function __construct()
@@ -69,12 +70,16 @@ class SessionConfigurationBuilder
         return $this;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function build(): array
     {
         return $this->config;
     }
 
     // Preset configurations for different session types
+    /** @return array<string, mixed> */
     public static function forCore(string $webRoot = '', bool $readOnly = true): array
     {
         return (new self())
@@ -85,6 +90,7 @@ class SessionConfigurationBuilder
             ->build();
     }
 
+    /** @return array<string, mixed> */
     public static function forOAuth(string $webRoot = ''): array
     {
         return (new self())
@@ -95,6 +101,7 @@ class SessionConfigurationBuilder
             ->build();
     }
 
+    /** @return array<string, mixed> */
     public static function forApi(string $webRoot = ''): array
     {
         return (new self())
@@ -104,6 +111,7 @@ class SessionConfigurationBuilder
             ->build();
     }
 
+    /** @return array<string, mixed> */
     public static function forPortal(): array
     {
         return (new self())
@@ -111,10 +119,11 @@ class SessionConfigurationBuilder
             ->build();
     }
 
+    /** @return array<string, mixed> */
     public static function forSetup(): array
     {
         return (new self())
-            ->setName('setupOpenEMR')
+            ->setName(SessionUtil::SETUP_SESSION_ID)
             ->build();
     }
 }

@@ -30,6 +30,10 @@
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$authUserID = $session->get('authUserID');
 
 $templateid = $_REQUEST['templateid'] ?? '';
 $Source = $_REQUEST['source'] ?? '';
@@ -43,17 +47,17 @@ if ($Source == "add_template") {
 
     for ($i = 0; $i < count($arr) - 1; $i++) {
         $sql = sqlStatement("SELECT * FROM customlists AS cl LEFT OUTER JOIN template_users AS tu ON cl.cl_list_slno=tu.tu_template_id
-                        WHERE cl_list_item_long=? AND cl_list_type=3 AND cl_deleted=0 AND cl_list_id=? AND tu.tu_user_id=?", [$templateid, $arr[$i], $_SESSION['authUserID']]);
+                        WHERE cl_list_item_long=? AND cl_list_type=3 AND cl_deleted=0 AND cl_list_id=? AND tu.tu_user_id=?", [$templateid, $arr[$i], $authUserID]);
         $cnt = sqlNumRows($sql);
         if ($cnt == 0) {
-            $newid = sqlInsert("INSERT INTO customlists (cl_list_id,cl_list_type,cl_list_item_long,cl_creator) VALUES (?,?,?,?)", [$arr[$i], 3, $templateid, $_SESSION['authUserID']]);
-            sqlStatement("INSERT INTO template_users (tu_user_id,tu_template_id) VALUES (?,?)", [$_SESSION['authUserID'], $newid]);
+            $newid = sqlInsert("INSERT INTO customlists (cl_list_id,cl_list_type,cl_list_item_long,cl_creator) VALUES (?,?,?,?)", [$arr[$i], 3, $templateid, $authUserID]);
+            sqlStatement("INSERT INTO template_users (tu_user_id,tu_template_id) VALUES (?,?)", [$authUserID, $newid]);
         }
         echo "<select name='template' id='template' onchange='TemplateSentence(this.value)' style='width:180px'>";
         echo "<option value=''>" . xlt('Select category') . "</option>";
         $resTemplates = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN customlists AS c ON tu.tu_template_id=c.cl_list_slno WHERE
                                      tu.tu_user_id=? AND c.cl_list_type=3 AND cl_list_id=? AND cl_deleted=0 ORDER BY tu.tu_template_order,
-                                     c.cl_list_item_long", [$_SESSION['authUserID'], $list_id]);
+                                     c.cl_list_item_long", [$authUserID, $list_id]);
         while ($rowTemplates = sqlFetchArray($resTemplates)) {
             echo "<option value='" . attr($rowTemplates['cl_list_slno']) . "'>" . text($rowTemplates['cl_list_item_long']) . "</option>";
         }
@@ -70,15 +74,15 @@ if ($Source == "add_template") {
 } elseif ($Source == "add_item") {
     $row = sqlQuery("SELECT max(cl_order)+1 as order1 FROM customlists WHERE cl_list_id=?", [$templateid]);
     $order = $row['order1'];
-    $newid = sqlInsert("INSERT INTO customlists (cl_list_id,cl_list_type,cl_list_item_long,cl_order,cl_creator) VALUES (?,?,?,?,?)", [$templateid, 4, $item, $order, $_SESSION['authUserID']]);
-    sqlStatement("INSERT INTO template_users (tu_user_id,tu_template_id,tu_template_order) VALUES (?,?,?)", [$_SESSION['authUserID'], $newid, $order]);
+    $newid = sqlInsert("INSERT INTO customlists (cl_list_id,cl_list_type,cl_list_item_long,cl_order,cl_creator) VALUES (?,?,?,?,?)", [$templateid, 4, $item, $order, $authUserID]);
+    sqlStatement("INSERT INTO template_users (tu_user_id,tu_template_id,tu_template_order) VALUES (?,?,?)", [$authUserID, $newid, $order]);
 } elseif ($Source == "delete_item") {
-    sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", [$item, $_SESSION['authUserID']]);
+    sqlStatement("DELETE FROM template_users WHERE tu_template_id=? AND tu_user_id=?", [$item, $authUserID]);
 } elseif ($Source == "update_item") {
     $row = sqlQuery("SELECT max(cl_order)+1 as order1 FROM customlists WHERE cl_list_id=?", [$templateid]);
     $order = $row['order1'];
-    $newid = sqlInsert("INSERT INTO customlists (cl_list_id,cl_list_type,cl_list_item_long,cl_order,cl_creator) VALUES (?,?,?,?,?)", [$templateid, 4, $content, $order, $_SESSION['authUserID']]);
-    sqlStatement("UPDATE template_users SET tu_template_id=? WHERE tu_template_id=? AND tu_user_id=?", [$newid, $item, $_SESSION['authUserID']]);
+    $newid = sqlInsert("INSERT INTO customlists (cl_list_id,cl_list_type,cl_list_item_long,cl_order,cl_creator) VALUES (?,?,?,?,?)", [$templateid, 4, $content, $order, $authUserID]);
+    sqlStatement("UPDATE template_users SET tu_template_id=? WHERE tu_template_id=? AND tu_user_id=?", [$newid, $item, $authUserID]);
 } elseif ($Source == 'item_show') {
     $sql = "SELECT * FROM customlists WHERE cl_list_id=? AND cl_list_type=4 AND cl_deleted=0";
     $res = sqlStatement($sql, [$list_id]);
@@ -120,7 +124,7 @@ if ($Source == "add_template") {
     echo "</select>";
     $Source = "add_template";
 } elseif ($Source == 'delete_category') {
-    $res = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN users AS u ON tu.tu_user_id=u.id WHERE tu_template_id=? AND tu.tu_user_id!=?", [$templateid, $_SESSION['authUserID']]);
+    $res = sqlStatement("SELECT * FROM template_users AS tu LEFT OUTER JOIN users AS u ON tu.tu_user_id=u.id WHERE tu_template_id=? AND tu.tu_user_id!=?", [$templateid, $authUserID]);
     $users = '';
     $i = 0;
     while ($row = sqlFetchArray($res)) {
@@ -152,7 +156,7 @@ if ($Source != "add_template") {
     $res = sqlStatement(
         "SELECT * FROM customlists AS cl LEFT  OUTER JOIN template_users AS tu ON cl.cl_list_slno=tu.tu_template_id
                         WHERE cl_list_type=4 AND cl_list_id=? AND cl_deleted=0 AND tu.tu_user_id=? ORDER BY tu.tu_template_order",
-        [$templateid, $_SESSION['authUserID']]
+        [$templateid, $authUserID]
     );
     $i = 0;
     while ($row = sqlFetchArray($res)) {

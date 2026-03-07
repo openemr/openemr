@@ -68,7 +68,7 @@ class DataDriverMySQLi implements IDataDriver
         // Important: this completely ignores the parameters in favor of the
         // standard options reading/parsing. They're sourced from the same
         // place so it doesn't really matter.
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $globalsBag = OEGlobalsBag::getInstance();
         $config = DatabaseConnectionOptions::forSite($globalsBag->getString('OE_SITE_DIR'));
         $persistent = DatabaseConnectionFactory::detectConnectionPersistence($globalsBag, $session);

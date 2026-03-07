@@ -18,11 +18,14 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 formHeader("Form: note");
 $returnurl = 'encounter_top.php';
-$provider_results = sqlQuery("select fname, lname from users where username=?", [$_SESSION["authUser"]]);
+$provider_results = sqlQuery("select fname, lname from users where username=?", [$session->get('authUser')]);
 
 /* name of this form */
 $form_name = "note";
@@ -61,7 +64,7 @@ function PrintForm() {
 <body class="body_top">
 
 <form method=post action="<?php echo $rootdir . "/forms/" . $form_name . "/save.php?mode=update&id=" . attr_url($_GET["id"]);?>" name="my_form" id="my_form">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
 <span class="title"><?php echo xlt('Work/School Note'); ?></span><br /><br />
 

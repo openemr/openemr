@@ -26,11 +26,13 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("../../../library/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 formHeader("Form: CAMOS");
 $textarea_rows = 22;
 $textarea_cols = 90;
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html><head>
     <?php Header::setupHeader(); ?>
@@ -73,7 +75,7 @@ function show_edit(t) {
 </head>
 <body class="body_top">
 <form method=post action="<?php echo $rootdir?>/forms/CAMOS/save.php?mode=delete&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 <h1> <?php echo xlt('CAMOS'); ?> </h1>
 <input type="submit" name="delete" value="<?php echo xla('Delete Selected Items'); ?>" />
 <input type="submit" name="update" value="<?php echo xla('Update Selected Items'); ?>" />

@@ -58,9 +58,10 @@
 
 function getCombinePatients($dataSheet, $reportID)
 {
+    $cqmCodes = [];
     foreach ($dataSheet as $singleDataSheet) {
         //var_dump($singleDataSheet['cqm_nqf_code'],$singleDataSheet['init_patients']);
-        if (count($cqmCodes ?? []) && in_array($singleDataSheet['cqm_nqf_code'], $cqmCodes)) {
+        if (count($cqmCodes) && in_array($singleDataSheet['cqm_nqf_code'], $cqmCodes)) {
             $initPatArr = collectItemizedPatientsCdrReport($reportID, $singleDataSheet['itemized_test_id'], "init_patients");
             $fullPatArr = [];
             foreach ($initPatArr as $initPatInfo) {

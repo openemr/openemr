@@ -23,6 +23,7 @@ require_once "$srcdir/options.inc.php";
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('patients', 'lab')) {
@@ -36,6 +37,7 @@ $form_show     = $_POST['form_show'] ?? null;   // this is an array
 $form_facility = $_POST['form_facility'] ?? '';
 $form_sexes    = $_POST['form_sexes'] ?? '3';
 $form_output   = isset($_POST['form_output']) ? 0 + $_POST['form_output'] : 1;
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (empty($form_by)) {
     $form_by = '4';
@@ -296,7 +298,7 @@ $(function () {
 <h2><?php echo text($report_title); ?></h2>
 
 <form name='theform' method='post' action='procedure_stats.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
 <div class="col-8 col-md-8">
     <div class="row">
@@ -409,7 +411,7 @@ $(function () {
 } // end not export
 
 if (!empty($_POST['form_submit'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 

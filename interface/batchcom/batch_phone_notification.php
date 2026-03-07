@@ -41,7 +41,8 @@ $before_trigger_hours = $GLOBALS['phone_notification_hour'];
 $phone_url = $GLOBALS['phone_gateway_url'] ;
 $phone_id = $GLOBALS['phone_gateway_username'];
 $cryptoGen = ServiceContainer::getCrypto();
-$phone_token = $cryptoGen->decryptStandard($GLOBALS['phone_gateway_password']);
+$phoneGwPwd = $GLOBALS['phone_gateway_password'];
+$phone_token = $cryptoGen->decryptStandard(is_string($phoneGwPwd) ? $phoneGwPwd : null);
 $phone_time_range = $GLOBALS['phone_time_range'];
 
 //get the facility_id-message map

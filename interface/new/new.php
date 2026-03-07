@@ -13,6 +13,7 @@
 require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 if ($GLOBALS['full_new_patient_form']) {
@@ -33,6 +34,8 @@ $form_sex       = $_POST['sex'      ] ? trim((string) $_POST['sex'      ]) : '';
 $form_refsource = $_POST['refsource'] ? trim((string) $_POST['refsource']) : '';
 $form_dob       = $_POST['DOB'      ] ? trim((string) $_POST['DOB'      ]) : '';
 $form_regdate   = $_POST['regdate'  ] ? trim((string) $_POST['regdate'  ]) : date('Y-m-d');
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 
@@ -94,7 +97,7 @@ $(function () {
 
 <form name='new_patient' method='post' action="new_patient_save.php"
  onsubmit='return validate()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
 <span class='title'><?php echo xlt('Add Patient Record'); ?></span>
 

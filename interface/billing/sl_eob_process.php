@@ -27,6 +27,7 @@ use OpenEMR\Billing\ParseERA;
 use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -734,8 +735,8 @@ function eob_process_era_callback(array &$out): void
 /////////////////////////// End Functions ////////////////////////////
 
 $info_msg = "";
-
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -813,7 +814,7 @@ if (!$debug) {
 </head>
 <body class='m-0'>
 <form action="sl_eob_process.php" method="get">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
 <?php
 if (!empty($_GET['original']) && $_GET['original'] === 'original') {

@@ -31,6 +31,7 @@ require_once(__DIR__ . "/../library/direct_message_check.inc.php");
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\DirectMessaging\ErrorConstants;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
  * Connect to a phiMail Direct Messaging server and transmit
@@ -43,9 +44,9 @@ use OpenEMR\Common\Logging\EventAuditLogger;
  */
 function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
 {
-
-    $reqBy = $_SESSION['authUser'];
-    $reqID = $_SESSION['authUserID'];
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $reqBy = $session->get('authUser');
+    $reqID = $session->get('authUserID');
 
     $config_err = xl(ErrorConstants::MESSAGING_DISABLED) . " " . ErrorConstants::ERROR_CODE_ABBREVIATION . ":";
     if ($GLOBALS['phimail_enable'] == false) {
@@ -59,7 +60,8 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
 
     $phimail_username = $GLOBALS['phimail_username'];
     $cryptoGen = ServiceContainer::getCrypto();
-    $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
+    $phimailPwd = $GLOBALS['phimail_password'];
+    $phimail_password = $cryptoGen->decryptStandard(is_string($phimailPwd) ? $phimailPwd : null);
     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
     if ($ret !== true) {
         return("$config_err " . ErrorConstants::ERROR_CODE_AUTH_FAILED);
@@ -108,7 +110,7 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
     if (substr($ret, 5) == "ERROR") {
         //log the failure
 
-        EventAuditLogger::getInstance()->newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret);
+        EventAuditLogger::getInstance()->newEvent("transmit-ccd", $reqBy, $session->get('authProvider'), 0, $ret);
         return( xl(ErrorConstants::ERROR_MESSAGE_FILE_SEND_FAILED));
     }
 
@@ -120,11 +122,11 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
     $msg_id = explode(" ", trim($ret), 4);
     if ($msg_id[0] != "QUEUED" || !isset($msg_id[2])) { //unexpected response
         $ret = "UNEXPECTED RESPONSE: " . $ret;
-        EventAuditLogger::getInstance()->newEvent("transmit-message", $reqBy, $_SESSION['authProvider'], 0, $ret);
+        EventAuditLogger::getInstance()->newEvent("transmit-message", $reqBy, $session->get('authProvider'), 0, $ret);
         return( xl(ErrorConstants::ERROR_MESSAGE_UNEXPECTED_RESPONSE));
     }
 
-    EventAuditLogger::getInstance()->newEvent("transmit-message", $reqBy, $_SESSION['authProvider'], 1, $ret);
+    EventAuditLogger::getInstance()->newEvent("transmit-message", $reqBy, $session->get('authProvider'), 1, $ret);
     $sql = "INSERT INTO direct_message_log (msg_type,msg_id,sender,recipient,status,status_ts,user_id) " .
         "VALUES ('S', ?, ?, ?, 'S', NOW(), ?)";
     $res = @sqlStatementNoLog($sql, [$msg_id[2],$phimail_username,$recipient,$reqID]);
@@ -159,6 +161,8 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
     $att_filename = "";
     $extension = "";
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
     // TODO: do we want to throw an error if we can't get patient data?  Probably.
 
     if (!empty($patientData[0]['lname'])) {
@@ -189,7 +193,8 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
 
     $phimail_username = $GLOBALS['phimail_username'];
     $cryptoGen = ServiceContainer::getCrypto();
-    $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
+    $phimailPwd = $GLOBALS['phimail_password'];
+    $phimail_password = $cryptoGen->decryptStandard(is_string($phimailPwd) ? $phimailPwd : null);
     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
     if ($ret !== true) {
         return("$config_err " . ErrorConstants::ERROR_CODE_AUTH_FAILED);
@@ -285,14 +290,14 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
             $reqID = $u['id'];
         }
     } else {
-        $reqBy = $_SESSION['authUser'];
-        $reqID = $_SESSION['authUserID'];
+        $reqBy = $session->get('authUser');
+        $reqID = $session->get('authUserID');
     }
 
     if (substr($ret, 5) == "ERROR") {
         //log the failure
 
-        EventAuditLogger::getInstance()->newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret, $pid);
+        EventAuditLogger::getInstance()->newEvent("transmit-ccd", $reqBy, $session->get('authProvider'), 0, $ret, $pid);
         return( xl(ErrorConstants::ERROR_MESSAGE_FILE_SEND_FAILED));
     }
 
@@ -304,11 +309,11 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
     $msg_id = explode(" ", trim($ret), 4);
     if ($msg_id[0] != "QUEUED" || !isset($msg_id[2])) { //unexpected response
         $ret = "UNEXPECTED RESPONSE: " . $ret;
-        EventAuditLogger::getInstance()->newEvent("transmit-ccd", $reqBy, $_SESSION['authProvider'], 0, $ret, $pid);
+        EventAuditLogger::getInstance()->newEvent("transmit-ccd", $reqBy, $session->get('authProvider'), 0, $ret, $pid);
         return( xl(ErrorConstants::ERROR_MESSAGE_UNEXPECTED_RESPONSE));
     }
 
-    EventAuditLogger::getInstance()->newEvent("transmit-" . $xml_type, $reqBy, $_SESSION['authProvider'], 1, $ret, $pid);
+    EventAuditLogger::getInstance()->newEvent("transmit-" . $xml_type, $reqBy, $session->get('authProvider'), 1, $ret, $pid);
     $sql = "INSERT INTO direct_message_log (msg_type,msg_id,sender,recipient,status,status_ts,patient_id,user_id) " .
     "VALUES ('S', ?, ?, ?, 'S', NOW(), ?, ?)";
     $res = @sqlStatementNoLog($sql, [$msg_id[2],$phimail_username,$recipient,$pid,$reqID]);

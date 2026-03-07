@@ -104,7 +104,8 @@ if ($_POST['mode'] == 'Stripe') {
 
 if ($_GET['mode'] == 'terminal_token') {
     $cryptoGen = ServiceContainer::getCrypto();
-    $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
+    $gatewayApiKey = $GLOBALS['gateway_api_key'];
+    $apiKey = $cryptoGen->decryptStandard(is_string($gatewayApiKey) ? $gatewayApiKey : null);
     Stripe::setApiKey($apiKey);
 
     header('Content-Type: application/json');
@@ -119,7 +120,8 @@ if ($_GET['mode'] == 'terminal_token') {
 }
 if ($_GET['mode'] == 'cancel_intent') {
     $cryptoGen = ServiceContainer::getCrypto();
-    $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
+    $gatewayApiKey = $GLOBALS['gateway_api_key'];
+    $apiKey = $cryptoGen->decryptStandard(is_string($gatewayApiKey) ? $gatewayApiKey : null);
     Stripe::setApiKey($apiKey);
 
     header('Content-Type: application/json');
@@ -140,7 +142,8 @@ if ($_GET['mode'] == 'cancel_intent') {
 
 if ($_GET['mode'] == 'terminal_capture') {
     $cryptoGen = ServiceContainer::getCrypto();
-    $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
+    $gatewayApiKey = $GLOBALS['gateway_api_key'];
+    $apiKey = $cryptoGen->decryptStandard(is_string($gatewayApiKey) ? $gatewayApiKey : null);
     Stripe::setApiKey($apiKey);
 
     header('Content-Type: application/json');
@@ -162,7 +165,8 @@ if ($_GET['mode'] == 'terminal_capture') {
 
 if ($_GET['mode'] == 'terminal_create') {
     $cryptoGen = ServiceContainer::getCrypto();
-    $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
+    $gatewayApiKey = $GLOBALS['gateway_api_key'];
+    $apiKey = $cryptoGen->decryptStandard(is_string($gatewayApiKey) ? $gatewayApiKey : null);
     Stripe::setApiKey($apiKey);
 
     header('Content-Type: application/json');

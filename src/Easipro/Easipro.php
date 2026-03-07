@@ -29,7 +29,8 @@ class Easipro
     // Package authentication
     private static function packageAuth()
     {
-        return base64_encode($GLOBALS['easipro_name'] . ":" . (ServiceContainer::getCrypto())->decryptStandard($GLOBALS['easipro_pass']));
+        $easiproPass = $GLOBALS['easipro_pass'];
+        return base64_encode($GLOBALS['easipro_name'] . ":" . (ServiceContainer::getCrypto())->decryptStandard(is_string($easiproPass) ? $easiproPass : null));
     }
 
     // Collect list of forms (returns json)

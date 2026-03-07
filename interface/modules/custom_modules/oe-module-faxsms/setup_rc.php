@@ -14,11 +14,13 @@ namespace OpenEMR\Modules\FaxSMS\Controllers;
 
 require_once(__DIR__ . "/../../../globals.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 // kick off app endpoints controller
-$serviceType = $_REQUEST['type'] ?? $_SESSION["oefax_current_module_type"] ?? '';
+$serviceType = $_REQUEST['type'] ?? $session->get('oefax_current_module_type') ?? '';
 // kick off app endpoints controller
 $clientApp = AppDispatch::getApiService($serviceType);
 $service = $clientApp::getServiceType();

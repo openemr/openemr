@@ -33,7 +33,8 @@ class AuthGlobal
 
         // collect and decrypt the global hash
         $cryptoGen = ServiceContainer::getCrypto();
-        $globalHash = $cryptoGen->decryptStandard($GLOBALS[$this->globalSetting]);
+        $globalSettingVal = $GLOBALS[$this->globalSetting];
+        $globalHash = $cryptoGen->decryptStandard(is_string($globalSettingVal) ? $globalSettingVal : null);
 
         if (empty($globalHash)) {
             return false;
@@ -48,7 +49,7 @@ class AuthGlobal
         $authHash = new AuthHash();
         if ($authHash->passwordNeedsRehash($globalHash)) {
             $newHash = $authHash->passwordHash($pass);
-            $newHash = $cryptoGen->encryptStandard($newHash);
+            $newHash = $cryptoGen->encryptStandard(is_string($newHash) ? $newHash : null);
             sqlStatement("UPDATE `globals` SET `gl_value` = ? WHERE `gl_name` = ?", [$newHash, $this->globalSetting]);
         }
 

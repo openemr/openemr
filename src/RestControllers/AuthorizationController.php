@@ -55,6 +55,7 @@ use OpenEMR\Common\Http\HttpSessionFactory;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\HttpUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -490,7 +491,7 @@ class AuthorizationController
                 throw new OAuthServerException('Invalid registration token', 0, 'invalid _request', Response::HTTP_FORBIDDEN);
             }
             $params['client_id'] = $client['client_id'];
-            $params['client_secret'] = $this->cryptoGen->decryptStandard($client['client_secret']);
+            $params['client_secret'] = $this->cryptoGen->decryptStandard(is_string($client['client_secret']) ? $client['client_secret'] : null);
             $params['contacts'] = explode('|', (string) $client['contacts']);
             $params['application_type'] = $client['client_role'];
             $params['client_name'] = $client['client_name'];
@@ -826,7 +827,7 @@ class AuthorizationController
             ,'patientRoleSupport' => $patientRoleSupport
             ,'invalid' => ''
             ,'client' => $client
-            ,'csrfToken' => CsrfUtils::collectCsrfToken('oauth2', $session)
+            ,'csrfToken' => CsrfUtils::collectCsrfToken($session, 'oauth2')
         ];
         if (empty($request->request->get('username')) && empty($request->request->get('password'))) {
             $this->getSystemLogger()->debug("AuthorizationController->userLogin() presenting blank login form");
@@ -834,7 +835,7 @@ class AuthorizationController
         }
         $continueLogin = false;
         if ($request->request->has('user_role')) {
-            if (!CsrfUtils::verifyCsrfToken($request->request->get("csrf_token_form"), 'oauth2', $session)) {
+            if (!CsrfUtils::verifyCsrfToken($request->request->get("csrf_token_form"), $session, 'oauth2')) {
                 $this->getSystemLogger()->error("AuthorizationController->userLogin() Invalid CSRF token");
                 CsrfUtils::csrfViolation(toScreen: false);
                 $request->request->replace(); // clear out username/password
@@ -1083,7 +1084,7 @@ class AuthorizationController
             ,'userAccount' => $userAccount
             ,'offlineRequested' => true == $offline_requested
             ,'offline_access_date' => $offline_access_date
-            ,'csrfToken' => CsrfUtils::collectCsrfToken('oauth2', $session)
+            ,'csrfToken' => CsrfUtils::collectCsrfToken($session, 'oauth2')
         ];
 
         return $this->renderTwigPage('oauth2/authorize/scopes-authorize', "oauth2/scope-authorize.html.twig", $twigVars);
@@ -1198,7 +1199,7 @@ class AuthorizationController
             $code = $code["code"];
             // TODO: @adunsulag if the request is missing the key 'proceed' then we should error out here.
             if ($request->request->has('proceed') && !empty($code) && !empty($session_cache)) {
-                if (!CsrfUtils::verifyCsrfToken($request->request->get("csrf_token_form"), 'oauth2', $this->session)) {
+                if (!CsrfUtils::verifyCsrfToken($request->request->get("csrf_token_form"), $this->session, 'oauth2')) {
                     CsrfUtils::csrfViolation(toScreen: false);
                     throw OAuthServerException::serverError("Failed authorization due to failed CSRF check.");
                 } else {
@@ -1841,6 +1842,7 @@ class AuthorizationController
         $this->session->setId($oauthSessionId);
         $sessionFactory = new HttpSessionFactory($request, $this->webroot, HttpSessionFactory::SESSION_TYPE_OAUTH);
         $this->session = $sessionFactory->createSession(); // create and start a new session
+        SessionWrapperFactory::getInstance()->setActiveSession($this->session); // set active session to be in use in standalone/shared files
     }
 
     protected function getUserRepository(): UserRepository

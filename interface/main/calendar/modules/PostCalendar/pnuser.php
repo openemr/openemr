@@ -1,5 +1,7 @@
 <?php
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 @define('__POSTCALENDAR__', 'PostCalendar');
 /**
  *  $Id$
@@ -59,12 +61,15 @@ function postcalendar_user_view()
     }
 
     // added to allow the view & providers to remain as the user last saw it -- JRM
-    if ($_SESSION['viewtype']) {
-        $viewtype = $_SESSION['viewtype'];
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $sessionViewtype = $session->get('viewtype');
+    if ($sessionViewtype) {
+        $viewtype = $sessionViewtype;
     }
 
-    if (!empty($_SESSION['pc_username'])) {
-        $pc_username = $_SESSION['pc_username'];
+    $sessionPcUsername = $session->get('pc_username');
+    if (!empty($sessionPcUsername)) {
+        $pc_username = $sessionPcUsername;
     }
 
     return postcalendar_user_display(['viewtype' => $viewtype,'Date' => $Date,'print' => $print]) . postcalendar_footer();
@@ -89,8 +94,10 @@ function postcalendar_user_display($args)
         'pc_facility'
     );
     // added to allow the view & providers to remain as the user last saw it -- JRM
-    if ($_SESSION['viewtype']) {
-        $viewtype = $_SESSION['viewtype'];
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $sessionViewtype = $session->get('viewtype');
+    if ($sessionViewtype) {
+        $viewtype = $sessionViewtype;
     }
 
     extract($args);
@@ -176,6 +183,8 @@ function postcalendar_user_search()
         $provider_options .= " SELECTED ";
     }
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $sessionPcUsername = $session->get('pc_username', []);
     $provider_options .= ">" . xlt('All Providers') . "</option>";
     foreach ($provinfo as $provider) {
         $selected = "";
@@ -183,7 +192,8 @@ function postcalendar_user_search()
         // pc_username Session variable
         if ($ProviderID == "") {
             // that variable stores the 'username' and not the numeric 'id'
-            if ($_SESSION['pc_username'][0] == $provider['username']) {
+
+            if ($sessionPcUsername[0] == $provider['username']) {
                 $selected = " SELECTED ";
             }
         } elseif ($ProviderID == $provider['id']) {
