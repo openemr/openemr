@@ -52,7 +52,7 @@
     $preDefinedUniqIDRules['0059'] = '40280381-4555-E1C1-0145-90AC70DE2C73';
     $preDefinedUniqIDRules['0041'] = '40280381-4600-425F-0146-EE66F0005509';
 
-    $qrda_file_path = $GLOBALS['OE_SITE_DIR'] . "/documents/cqm_qrda/";
+    $qrda_file_path = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/cqm_qrda/";
 
     $EncounterCptCodes = ['ophthalmological_services' => '92002'];
 

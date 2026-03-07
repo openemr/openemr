@@ -1028,7 +1028,7 @@ class Prescription extends ORDataObject
     }
     function get_prescription_display()
     {
-        $pconfig = $GLOBALS['oer_config']['prescriptions'];
+        $pconfig = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('oer_config')['prescriptions'];
 
         switch ($pconfig['format']) {
             case "FL":

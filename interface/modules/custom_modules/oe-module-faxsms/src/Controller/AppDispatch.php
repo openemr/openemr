@@ -301,16 +301,16 @@ abstract class AppDispatch
             }
         }
         if (self::$_apiModule == 'sms') {
-            return $GLOBALS['oefax_enable_sms'] ?? null;
+            return \OpenEMR\Core\OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? null;
         }
         if (self::$_apiModule == 'fax') {
-            return $GLOBALS['oefax_enable_fax'] ?? null;
+            return \OpenEMR\Core\OEGlobalsBag::getInstance()->get('oefax_enable_fax') ?? null;
         }
         if (self::$_apiModule == 'email') {
-            return $GLOBALS['oe_enable_email'] ?? null;
+            return \OpenEMR\Core\OEGlobalsBag::getInstance()->get('oe_enable_email') ?? null;
         }
         if (self::$_apiModule == 'voice') {
-            return $GLOBALS['oe_enable_voice'] ?? null;
+            return \OpenEMR\Core\OEGlobalsBag::getInstance()->get('oe_enable_voice') ?? null;
         }
 
         throw new \RuntimeException(
@@ -426,7 +426,7 @@ abstract class AppDispatch
         $vendor = self::getModuleVendor();
         $this->authUser = (int)$this->getSession('authUserID');
         $use = BootstrapService::usePrimaryAccount($this->authUser);
-        if (!($GLOBALS['oerestrict_users'] ?? null)) {
+        if (!(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('oerestrict_users') ?? null)) {
             $this->authUser = 0;
         }
         if ($use) {
@@ -475,24 +475,24 @@ abstract class AppDispatch
     {
         $vendor = '_email';
         $this->authUser = (int)$this->getSession('authUserID');
-        if (!($GLOBALS['oerestrict_users'] ?? null)) {
+        if (!(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('oerestrict_users') ?? null)) {
             $this->authUser = 0;
         }
         $credentials = sqlQuery("SELECT * FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", [$this->authUser, $vendor]);
 
         if (empty($credentials)) {
             $credentials = [
-                'sender_name' => $GLOBALS['patient_reminder_sender_name'],
-                'sender_email' => $GLOBALS['patient_reminder_sender_email'],
-                'notification_email' => $GLOBALS['practice_return_email_path'],
-                'email_transport' => $GLOBALS['EMAIL_METHOD'],
-                'smtp_host' => $GLOBALS['SMTP_HOST'],
-                'smtp_port' => $GLOBALS['SMTP_PORT'],
-                'smtp_user' => $GLOBALS['SMTP_USER'],
-                'smtp_password' => $GLOBALS['SMTP_PASS'],
-                'smtp_security' => $GLOBALS['SMTP_SECURE'],
-                'notification_hours' => $GLOBALS['EMAIL_NOTIFICATION_HOUR'],
-                'email_message' => $GLOBALS['EMAIL_MESSAGE'] ?? '',
+                'sender_name' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('patient_reminder_sender_name'),
+                'sender_email' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('patient_reminder_sender_email'),
+                'notification_email' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('practice_return_email_path'),
+                'email_transport' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('EMAIL_METHOD'),
+                'smtp_host' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('SMTP_HOST'),
+                'smtp_port' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('SMTP_PORT'),
+                'smtp_user' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('SMTP_USER'),
+                'smtp_password' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('SMTP_PASS'),
+                'smtp_security' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('SMTP_SECURE'),
+                'notification_hours' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('EMAIL_NOTIFICATION_HOUR'),
+                'email_message' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('EMAIL_MESSAGE') ?? '',
             ];
             if (empty($credentials['email_message'] ?? '')) {
                 $credentials['email_message'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";
@@ -514,7 +514,7 @@ abstract class AppDispatch
     {
         $vendor = '_email';
         $this->authUser = (int)$this->getSession('authUserID');
-        if (!($GLOBALS['oerestrict_users'] ?? null)) {
+        if (!(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('oerestrict_users') ?? null)) {
             $this->authUser = 0;
         }
         $encoded = json_encode($credentials);
@@ -537,7 +537,7 @@ abstract class AppDispatch
         $vendor = self::getModuleVendor();
         $this->authUser = (int)$this->getSession('authUserID');
         $use = BootstrapService::usePrimaryAccount($this->authUser);
-        if (!($GLOBALS['oerestrict_users'] ?? null)) {
+        if (!(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('oerestrict_users') ?? null)) {
             $this->authUser = 0;
         }
         if ($use) {
@@ -629,7 +629,7 @@ abstract class AppDispatch
             }
             $content = text($body) . "\n";
             $from_name = text($from_name);
-            $from = $GLOBALS["practice_return_email_path"];
+            $from = \OpenEMR\Core\OEGlobalsBag::getInstance()->get("practice_return_email_path");
             $mail->AddReplyTo($from, $from_name);
             $mail->SetFrom($from, $from);
             $to = $email;

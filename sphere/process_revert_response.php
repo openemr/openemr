@@ -26,7 +26,7 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token"], 'sphere_revert')) {
     CsrfUtils::csrfNotVerified();
 }
 
-if ($GLOBALS['payment_gateway'] != 'Sphere') {
+if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('payment_gateway') != 'Sphere') {
     die(xlt("Feature not activated"));
 }
 

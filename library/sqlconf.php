@@ -13,7 +13,7 @@
 
 use OpenEMR\Common\System\MissingSiteException;
 
-$siteDir = $GLOBALS['OE_SITE_DIR'] ?? '';
+$siteDir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') ?? '';
 if (empty($siteDir)) {
     if (!defined('OPENEMR_STATIC_ANALYSIS') || !OPENEMR_STATIC_ANALYSIS) {
         throw new MissingSiteException();

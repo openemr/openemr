@@ -33,13 +33,13 @@ $dob = oeFormatShortDate($patdata['DOB']);
 //Keep in mind the envelope is shifted by 90 degrees.
 // Changes made by Daniel Pflieger, daniel@mi-squared.com growlingflea@gmail.com
 
-$x_width =  $GLOBALS['env_x_width'];
-$y_height = $GLOBALS['env_y_height'];
+$x_width =  \OpenEMR\Core\OEGlobalsBag::getInstance()->get('env_x_width');
+$y_height = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('env_y_height');
 
 //printed text details
-$font_size = $GLOBALS['env_font_size'];
-$x         = $GLOBALS['env_x_dist'];  // Distance from the 'top' of the envelope in portrait position
-$y         = $GLOBALS['env_y_dist']; // Distance from the right most edge of the envelope in portrait position
+$font_size = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('env_font_size');
+$x         = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('env_x_dist');  // Distance from the 'top' of the envelope in portrait position
+$y         = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('env_y_dist'); // Distance from the right most edge of the envelope in portrait position
 $angle    = 90;   // rotation in degrees
 $black    = '000000'; // color in hexa
 

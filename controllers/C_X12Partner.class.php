@@ -23,9 +23,9 @@ class C_X12Partner extends Controller
     {
         parent::__construct();
         $this->x12_partners = [];
-        $this->assign("FORM_ACTION", $GLOBALS['webroot'] . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
-        $this->assign("CURRENT_ACTION", $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&x12_partner&");
-        $this->assign("STYLE", $GLOBALS['style']);
+        $this->assign("FORM_ACTION", \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
+        $this->assign("CURRENT_ACTION", \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . "practice_settings&x12_partner&");
+        $this->assign("STYLE", \OpenEMR\Core\OEGlobalsBag::getInstance()->get('style'));
     }
 
     function default_action()
@@ -50,7 +50,7 @@ class C_X12Partner extends Controller
         }
 
         $this->assign("partner", $this->x12_partners[0]);
-        return $this->fetch($GLOBALS['template_dir'] . "x12_partners/" . $this->template_mod . "_edit.html");
+        return $this->fetch(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('template_dir') . "x12_partners/" . $this->template_mod . "_edit.html");
     }
 
     function list_action()
@@ -58,7 +58,7 @@ class C_X12Partner extends Controller
 
         $x = new X12Partner();
         $this->assign("partners", $x->x12_partner_factory());
-        return $this->fetch($GLOBALS['template_dir'] . "x12_partners/" . $this->template_mod . "_list.html");
+        return $this->fetch(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('template_dir') . "x12_partners/" . $this->template_mod . "_list.html");
     }
 
 
@@ -86,7 +86,7 @@ class C_X12Partner extends Controller
         //echo "action processed";
         $_POST['process'] = "";
         $this->_state = false;
-        header('Location:' . $GLOBALS['webroot'] . "/controller.php?" . "practice_settings&x12_partner&action=list");//Z&H
+        header('Location:' . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . "practice_settings&x12_partner&action=list");//Z&H
         //return $this->edit_action(null,$this->x12_partner[0]);
     }
 }

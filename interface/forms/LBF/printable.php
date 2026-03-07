@@ -20,7 +20,7 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/encounter.inc.php");
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
 
 use Mpdf\Mpdf;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -120,8 +120,8 @@ if ($PDF_OUTPUT) {
     $config_mpdf = Config_Mpdf::getConfigMpdf();
     $config_mpdf['margin_top'] *= 1.5;
     $config_mpdf['margin_bottom'] *= 1.5;
-    $config_mpdf['margin_header'] = $GLOBALS['pdf_top_margin'];
-    $config_mpdf['margin_footer'] =  $GLOBALS['pdf_bottom_margin'];
+    $config_mpdf['margin_header'] = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('pdf_top_margin');
+    $config_mpdf['margin_footer'] =  \OpenEMR\Core\OEGlobalsBag::getInstance()->get('pdf_bottom_margin');
     $pdf = new mPDF($config_mpdf);
     $pdf->SetDisplayMode('real');
     if ($_SESSION['language_direction'] == 'rtl') {

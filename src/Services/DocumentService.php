@@ -45,7 +45,7 @@ class DocumentService extends BaseService
             $queryParams['patient_id'] = $pid;
         }
         $query = http_build_query($queryParams);
-        return $GLOBALS['web_root'] . '/controller.php?' . $query;
+        return \OpenEMR\Core\OEGlobalsBag::getInstance()->get('web_root') . '/controller.php?' . $query;
     }
 
     public function isValidPath($path)
@@ -123,7 +123,7 @@ class DocumentService extends BaseService
     public function insertAtPath($pid, $path, $fileData, $eid)
     {
         // Ensure filetype is allowed
-        if ($GLOBALS['secure_upload'] && !isWhiteFile($fileData["tmp_name"])) {
+        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('secure_upload') && !isWhiteFile($fileData["tmp_name"])) {
             error_log("OpenEMR API Error: Attempt to upload insecure patient document was declined");
             return false;
         }

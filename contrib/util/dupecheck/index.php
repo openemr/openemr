@@ -251,7 +251,7 @@ $(function () {
 
     // perform the database search for duplicates
     $("#do_search").on("click", function() {
-        $("#thebiglist").html("<p style='margin:10px;'><img src='<?php echo $GLOBALS['webroot']; ?>/interface/pic/ajax-loader.gif'> Searching ...</p>");
+        $("#thebiglist").html("<p style='margin:10px;'><img src='<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/pic/ajax-loader.gif'> Searching ...</p>");
         $("#search_form").trigger("submit");
         return true;
     });
@@ -260,7 +260,7 @@ $(function () {
     var moreinfoWin = null;
     $(".moreinfo").on("click", function(evt) {
         if (moreinfoWin) { moreinfoWin.close(); }
-        moreinfoWin = window.open("<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/patient_file.php?set_pid=" + encodeURIComponent($(this).attr("oemrid")), "moreinfo");
+        moreinfoWin = window.open("<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/patient_file/patient_file.php?set_pid=" + encodeURIComponent($(this).attr("oemrid")), "moreinfo");
         evt.stopPropagation();
     });
 

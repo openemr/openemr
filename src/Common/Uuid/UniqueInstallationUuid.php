@@ -21,8 +21,8 @@ class UniqueInstallationUuid
     public static function getUniqueInstallationUuid()
     {
         // Return $GLOBALS if it exists
-        if (!empty($GLOBALS['unique_installation_id'])) {
-            return $GLOBALS['unique_installation_id'];
+        if (!empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('unique_installation_id'))) {
+            return \OpenEMR\Core\OEGlobalsBag::getInstance()->get('unique_installation_id');
         }
 
         // If $GLOBALS does not exists, then try to get it from globals table and return if it exists

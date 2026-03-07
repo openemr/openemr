@@ -73,7 +73,7 @@ class X12RemoteTracker extends BaseService
             // We try both the SFTP directory and the edi root directory
             $claim_file = $x12_remote['x12_sftp_local_dir'] . $x12_remote['x12_filename'];
             if (!file_exists($claim_file)) {
-                $claim_file = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/" . $x12_remote['x12_filename'];
+                $claim_file = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/edi/" . $x12_remote['x12_filename'];
             }
 
             $claim_file_contents = file_get_contents($claim_file);

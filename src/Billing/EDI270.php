@@ -163,7 +163,7 @@ class EDI270
             $NM1[6] = "";                       // Data Element not required.
             $NM1[7] = "";                       // Data Element not required.
             $NM1[8] = "PI";                     // 5010 no longer uses "46"
-            $payerId = $GLOBALS['enable_eligibility_requests'] ? $row['eligibility_id'] : $row['cms_id'];
+            $payerId = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('enable_eligibility_requests') ? $row['eligibility_id'] : $row['cms_id'];
             $NM1[9] = $payerId; // Application Sender's ID
         } elseif ($nm1Cast == 'FA') {
             $NM1[1] = "FA";                     // Entity ID Code - Facility [FA Facility]
@@ -571,7 +571,7 @@ class EDI270
 				<td class ='detail'>" . text($row['subscriber_sex']) . "</td>
 				<td class ='detail'>" . text($row['subscriber_ss']) . "</td>
 				<td class ='detail'>
-				<img src=\"" . $GLOBALS['images_static_relative'] . "/deleteBtn.png\" title=" . text(xl('Delete Row')) . " style='cursor:pointer;cursor:hand;' onclick='deletetherow(\"" . $i . "_" . text($row['policy_number']) . "\")'>
+				<img src=\"" . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('images_static_relative') . "/deleteBtn.png\" title=" . text(xl('Delete Row')) . " style='cursor:pointer;cursor:hand;' onclick='deletetherow(\"" . $i . "_" . text($row['policy_number']) . "\")'>
 				</td>
 			</tr>
 		";
@@ -918,7 +918,7 @@ class EDI270
     {
 
         $codes = new edih_271_codes('*', '^');
-        $target = $GLOBALS['edi_271_file_path'];
+        $target = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('edi_271_file_path');
         $log = "";
         // not sure if want to save yet
         $target .= time();
@@ -1113,7 +1113,7 @@ class EDI270
                 }
             }
             // some debug logging
-            if (!$GLOBALS['disable_eligibility_log']) {
+            if (!\OpenEMR\Core\OEGlobalsBag::getInstance()->get('disable_eligibility_log')) {
                 $log .= "*------------------- " . xlt("271 Returned") . " --------------------*\n" . $new . "\n" . (isset($AAA[0]) ? (xlt("AAA Segments") . ":\n" . print_r($AAA, true)) : "\n") . $elog;
                 $log .= self::makeEligibilityReport($subscribers);
             }

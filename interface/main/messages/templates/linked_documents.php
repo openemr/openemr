@@ -162,7 +162,7 @@ try {
 <script>
     function previewCCDADocument(event, documentId) {
         event.preventDefault();
-        let url = "<?php echo $GLOBALS['webroot']; ?>" + "/interface/modules/zend_modules/public/encountermanager/previewDocument?docId=" + documentId;
+        let url = "<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'); ?>" + "/interface/modules/zend_modules/public/encountermanager/previewDocument?docId=" + documentId;
         try {
             window.open(url);
         }
@@ -182,7 +182,7 @@ try {
 
             // now we need to make an ajax async request to the server with the document id
             let docId = validateRecord.dataset['doc'];
-            let url = "<?php echo $GLOBALS['webroot'] . "/library/ajax/messages/validate_messages_document_ajax.php?csrf=\" + " . js_url(CsrfUtils::collectCsrfToken()); ?>
+            let url = "<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot') . "/library/ajax/messages/validate_messages_document_ajax.php?csrf=\" + " . js_url(CsrfUtils::collectCsrfToken()); ?>
 
             window.fetch(url + "&doc=" + encodeURIComponent(docId) )
                 .then(function(result) {
@@ -249,7 +249,7 @@ try {
         top.restoreSession();
         $.ajax({
             type: 'get',
-            url: '<?php echo $GLOBALS['webroot'] . "/library/ajax/set_pt.php";?>',
+            url: '<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot') . "/library/ajax/set_pt.php";?>',
             data: {
                 set_pid: pid,
                 csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>

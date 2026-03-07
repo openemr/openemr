@@ -94,11 +94,11 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
                 $modulePath = "";
                 $added      = "";
                 if ($modulerow['type'] == 0) {
-                    $modulePath = $GLOBALS['customModDir'];
+                    $modulePath = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('customModDir');
                     $added      = "";
                 } else {
                     $added      = "index";
-                    $modulePath = $GLOBALS['zendModDir'];
+                    $modulePath = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('zendModDir');
                 }
 
                 $relative_link = "/interface/modules/" . $modulePath . "/" . $modulerow['mod_relative_link'] . $added;
@@ -169,11 +169,11 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
 
             while ($hookrow = sqlFetchArray($module_query)) {
                 if ($hookrow['type'] == 0) {
-                    $modulePath = $GLOBALS['customModDir'];
+                    $modulePath = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('customModDir');
                     $added = "";
                 } else {
                     $added = "index";
-                    $modulePath = $GLOBALS['zendModDir'];
+                    $modulePath = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('zendModDir');
                 }
 
                 if ($jid == 0 || ($modid != $hookrow['mod_id'])) {

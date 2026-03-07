@@ -13,7 +13,7 @@
 require_once(__DIR__ . '/../../globals.php');
 
 /* include api.inc.php, required. */
-require_once($GLOBALS['srcdir'] . '/api.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/api.inc.php');
 
 /* include our smarty derived controller class. */
 require('C_FormPainMap.class.php');

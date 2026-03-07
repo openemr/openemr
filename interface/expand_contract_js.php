@@ -30,7 +30,7 @@ $(function () {
             $('.expandable').toggleClass('container container-fluid');
             if ($(arrFiles).length) {
                 $.each(arrFiles, function (index, value) {
-                    $.post( "<?php echo $GLOBALS['webroot'] ?>/library/ajax/user_settings.php",
+                    $.post( "<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot') ?>/library/ajax/user_settings.php",
                         {
                             target: arrFiles[index].trim(),
                             setting: 0,
@@ -45,7 +45,7 @@ $(function () {
             $('.expandable').toggleClass('container-fluid container');
             if ($(arrFiles).length) {
                 $.each(arrFiles, function (index, value) {
-                    $.post( "<?php echo $GLOBALS['webroot'] ?>/library/ajax/user_settings.php",
+                    $.post( "<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot') ?>/library/ajax/user_settings.php",
                         {
                             target: arrFiles[index].trim(),
                             setting: 1,

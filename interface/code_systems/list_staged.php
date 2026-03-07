@@ -42,7 +42,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 }
 
 $db = $_GET['db'] ?? '0';
-$mainPATH = $GLOBALS['fileroot'] . "/contrib/" . strtolower((string) check_file_dir_name($db));
+$mainPATH = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/contrib/" . strtolower((string) check_file_dir_name($db));
 $file_checksum = "";
 
 //

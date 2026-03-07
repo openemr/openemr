@@ -22,7 +22,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\Common;
 // keep things up to date / consistent across the application
 ?>
 
-<link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative'] . '/jquery-ui-themes/themes/ui-lightness/jquery-ui.min.css'; ?>" />
+<link rel="stylesheet" href="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('assets_static_relative') . '/jquery-ui-themes/themes/ui-lightness/jquery-ui.min.css'; ?>" />
 <link rel="stylesheet" href="<?php Common::css_src('cdr-multiselect/common.css') ?>" />
 <link rel="stylesheet" href="<?php Common::css_src('cdr-multiselect/ui.multiselect.css') ?>" />
 <link rel="stylesheet" href="<?php Common::css_src('cdr-multiselect/plans_config.css') ?>" />
@@ -31,7 +31,7 @@ use OpenEMR\ClinicalDecisionRules\Interface\Common;
 <script src="<?php Common::js_src('cdr-multiselect/jquery-ui.min.js') ?>"></script>
 <script src="<?php Common::js_src('cdr-multiselect/plugins/localisation/jquery.localisation-min.js') ?>"></script>
 <script src="<?php Common::js_src('cdr-multiselect/plugins/scrollTo/jquery.scrollTo-min.js') ?>"></script>
-<script src="<?php Common::js_src('cdr-multiselect/ui.multiselect.js?v=' . $GLOBALS['v_js_includes']) ?>"></script>
+<script src="<?php Common::js_src('cdr-multiselect/ui.multiselect.js?v=' . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('v_js_includes')) ?>"></script>
 <script>
     // Below variables are to be used in the javascript for the cdr-multiselect(from cdr-multiselect/locale/ui-multiselect-cdr.js)
     $.extend($.ui.multiselect.locale, {

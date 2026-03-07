@@ -579,7 +579,7 @@ class Smarty_Legacy
      */
     public function __construct()
     {
-        $this->assign('SCRIPT_NAME', $_SERVER['SCRIPT_NAME'] ?? @$GLOBALS['HTTP_SERVER_VARS']['SCRIPT_NAME']);
+        $this->assign('SCRIPT_NAME', $_SERVER['SCRIPT_NAME'] ?? @\OpenEMR\Core\OEGlobalsBag::getInstance()->get('HTTP_SERVER_VARS')['SCRIPT_NAME']);
     }
 
     /**
@@ -1131,7 +1131,7 @@ class Smarty_Legacy
         $_smarty_old_error_level = $this->debugging ? error_reporting() : error_reporting($this->error_reporting ?? error_reporting() & ~E_NOTICE);
 
         if (!$this->debugging && $this->debugging_ctrl == 'URL') {
-            $_query_string = $this->request_use_auto_globals ? $_SERVER['QUERY_STRING'] : $GLOBALS['HTTP_SERVER_VARS']['QUERY_STRING'];
+            $_query_string = $this->request_use_auto_globals ? $_SERVER['QUERY_STRING'] : \OpenEMR\Core\OEGlobalsBag::getInstance()->get('HTTP_SERVER_VARS')['QUERY_STRING'];
             if (@strstr((string) $_query_string, $this->_smarty_debug_id)) {
                 if (@strstr((string) $_query_string, $this->_smarty_debug_id . '=on')) {
                     // enable debugging for this browser session
@@ -1146,7 +1146,7 @@ class Smarty_Legacy
                     $this->debugging = true;
                 }
             } else {
-                $this->debugging = (bool)($this->request_use_auto_globals ? @$_COOKIE['SMARTY_DEBUG'] : @$GLOBALS['HTTP_COOKIE_VARS']['SMARTY_DEBUG']);
+                $this->debugging = (bool)($this->request_use_auto_globals ? @$_COOKIE['SMARTY_DEBUG'] : @\OpenEMR\Core\OEGlobalsBag::getInstance()->get('HTTP_COOKIE_VARS')['SMARTY_DEBUG']);
             }
         }
 
@@ -1207,7 +1207,7 @@ class Smarty_Legacy
                         $_smarty_results .= smarty_core_display_debug_console($_params, $this);
                     }
                     if ($this->cache_modified_check) {
-                        $_server_vars = ($this->request_use_auto_globals) ? $_SERVER : $GLOBALS['HTTP_SERVER_VARS'];
+                        $_server_vars = ($this->request_use_auto_globals) ? $_SERVER : \OpenEMR\Core\OEGlobalsBag::getInstance()->get('HTTP_SERVER_VARS');
                         $_last_modified_date = @substr((string) $_server_vars['HTTP_IF_MODIFIED_SINCE'], 0, strpos((string) $_server_vars['HTTP_IF_MODIFIED_SINCE'], 'GMT') + 3);
                         $_gmt_mtime = gmdate('D, d M Y H:i:s', $this->_cache_info['timestamp']).' GMT';
                         if (empty($this->_cache_info['insert_tags'])

@@ -76,7 +76,7 @@ class RuleTemplateExtension
 
     public static function timeunit_select($args)
     {
-        require_once($GLOBALS["srcdir"] . "/options.inc.php");
+        require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("srcdir") . "/options.inc.php");
 
         return generate_select_list(
             $args['name'],
@@ -93,7 +93,7 @@ class RuleTemplateExtension
 
     public static function getLabel($value, $list_id)
     {
-        require_once($GLOBALS["srcdir"] . "/options.inc.php");
+        require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("srcdir") . "/options.inc.php");
 
         // get from list_options
         $result = generate_display_field(['data_type' => '1','list_id' => $list_id], $value);

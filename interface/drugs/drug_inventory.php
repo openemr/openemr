@@ -289,7 +289,7 @@ $(function () {
             stripeClasses:['stripe1','stripe2'],
             orderClasses: false,
             <?php // Bring in the translations ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
+            <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/datatables-net.js.php'); ?>
         });
 });
 </script>

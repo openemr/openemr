@@ -128,7 +128,7 @@ class ModuleManagerListener extends AbstractModuleActionListener
         foreach ($globals as $k => $v) {
             if ($k == 'oefax_enable_sms' || $k == 'oefax_enable_fax') {
                 // force disable of services
-                $globals[$k] = 0;
+                \OpenEMR\Core\OEGlobalsBag::getInstance()->set($k, 0);
             }
         }
         // save new disabled settings.

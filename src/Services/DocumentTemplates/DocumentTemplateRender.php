@@ -26,8 +26,8 @@ use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\VersionService;
 use RuntimeException;
 
-require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
-require_once($GLOBALS['srcdir'] . '/options.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/appointments.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php');
 
 class DocumentTemplateRender
 {
@@ -56,7 +56,7 @@ class DocumentTemplateRender
     public function __construct(private $pid, $user, $encounter = null)
     {
         $this->user = $user ?: $_SESSION['authUserID'] ?? 0;
-        $this->encounter = $encounter ?: $GLOBALS['encounter'];
+        $this->encounter = $encounter ?: \OpenEMR\Core\OEGlobalsBag::getInstance()->get('encounter');
         $this->version = (new VersionService())->asString();
         $this->templateService = new DocumentTemplateService();
         $this->logger = new SystemLogger();
@@ -111,7 +111,7 @@ class DocumentTemplateRender
         // purify html (and remove js)
         $isLegacy = stripos($template, 'portal_version') === false;
         $config = HTMLPurifier_Config::createDefault();
-        $purifyTempDir = $GLOBALS['temporary_files_dir'] . DIRECTORY_SEPARATOR . 'htmlpurifier';
+        $purifyTempDir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir') . DIRECTORY_SEPARATOR . 'htmlpurifier';
         if (
             !is_dir($purifyTempDir)
         ) {
@@ -601,7 +601,7 @@ class DocumentTemplateRender
     {
         $tmp = '';
         $lres = sqlStatement("SELECT title, comments FROM lists WHERE " . "pid = ? AND type = ? AND enddate IS NULL " . "ORDER BY begdate", [
-            $GLOBALS['pid'],
+            \OpenEMR\Core\OEGlobalsBag::getInstance()->get('pid'),
             $type
         ]);
         while ($lrow = sqlFetchArray($lres)) {

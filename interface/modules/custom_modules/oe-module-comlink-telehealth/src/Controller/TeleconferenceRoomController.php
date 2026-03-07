@@ -1313,7 +1313,7 @@ class TeleconferenceRoomController
             ]
             , 'participantList' => $this->participantListService->getParticipantListWithInvitationsForAppointment($user, $session)
             , 'encounter' => $encounter
-            , 'serviceUrl' => $GLOBALS[Bootstrap::COMLINK_VIDEO_TELEHEALTH_API]
+            , 'serviceUrl' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get(Bootstrap::COMLINK_VIDEO_TELEHEALTH_API)
             , 'sessionId' => $session['id']
             , 'thirdPartyPatient' => $thirdPartyPatient
         ];
@@ -1388,7 +1388,7 @@ class TeleconferenceRoomController
                 'apptstatus' => $appt['pc_apptstatus']
             ]
             , 'participantList' => $this->getParticipantListForAppointment($user, $session)
-            , 'serviceUrl' => $GLOBALS[Bootstrap::COMLINK_VIDEO_TELEHEALTH_API]
+            , 'serviceUrl' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get(Bootstrap::COMLINK_VIDEO_TELEHEALTH_API)
         ];
         return $data;
     }

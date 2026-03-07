@@ -148,7 +148,7 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
                     <input type='text' class="form-control form-control-sm col" id='searchparm' name='searchparm' size='12' value='<?php echo attr($_REQUEST['searchparm'] ?? ''); ?>' title='<?php echo xla('If name, any part of lastname or lastname,firstname'); ?>' />
                     <div class="col">
                         <input class='btn btn-primary btn-sm' type='submit' id="submitbtn" value='<?php echo xla('Search'); ?>' />
-                        <div id="searchspinner"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif" /></div>
+                        <div id="searchspinner"><img src="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot') ?>/interface/pic/ajax-loader.gif" /></div>
                     </div>
                 </div>
             </form>
@@ -258,7 +258,7 @@ if (!empty($_REQUEST['searchby']) && !empty($_REQUEST['searchparm'])) {
                             <?php $datetimepicker_timepicker = false; ?>
                             <?php $datetimepicker_showseconds = false; ?>
                             <?php $datetimepicker_formatInput = true; ?>
-                            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                            <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                         });
                     } else {

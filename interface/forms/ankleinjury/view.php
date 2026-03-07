@@ -37,7 +37,7 @@ $obj = formFetch("form_ankleinjury", $_GET["id"]);
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php echo xlt('Save'); ?>]</a>
 <br />
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link"
+<a href="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('form_exit_url'); ?>" class="link"
  onclick="top.restoreSession()">[<?php echo xlt('Don\'t Save Changes'); ?>]</a>
 <br /><br />
 
@@ -192,7 +192,7 @@ attr($obj["ankle_diagnosis4"]); ?>" size="50"></td>
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php echo xlt('Save'); ?>]</a>
 <br />
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link"
+<a href="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('form_exit_url'); ?>" class="link"
  onclick="top.restoreSession()">[<?php echo xlt('Don\'t Save Changes'); ?>]</a>
 </form>
 <?php

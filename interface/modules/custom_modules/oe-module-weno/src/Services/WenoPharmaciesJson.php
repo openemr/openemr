@@ -60,7 +60,7 @@ class WenoPharmaciesJson
         $downloadWenoPharmacies = new DownloadWenoPharmacies();
 
         $url = $this->wenoPharmacyDirectoryLink() . "?useremail=" . urlencode((string) $this->providerEmail()) . "&data=" . urlencode($this->encrypted);
-        $storageLocation = $storeLocation = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/";
+        $storageLocation = $storeLocation = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/weno/";
         $path_to_extract = $storageLocation;
         $storeLocation .= "weno_pharmacy.zip";
         $wenoLog->insertWenoLog("Pharmacy Directory", "'Background Initiated Download started", $url);
@@ -71,26 +71,26 @@ class WenoPharmaciesJson
 
     private function providerEmail()
     {
-        if (empty($GLOBALS['weno_admin_username'])) {
+        if (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_admin_username'))) {
             return '';
         }
-        return $GLOBALS['weno_admin_username'];
+        return \OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_admin_username');
     }
 
     private function providerPassword(): string
     {
-        if (empty($GLOBALS['weno_admin_password'])) {
+        if (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_admin_password'))) {
             return '';
         }
-        return md5($this->cryptoGen->decryptStandard($GLOBALS['weno_admin_password']));
+        return md5($this->cryptoGen->decryptStandard(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_admin_password')));
     }
 
     private function wenoEncryptionKey(): bool|string
     {
-        if (empty($GLOBALS['weno_encryption_key'])) {
+        if (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_encryption_key'))) {
             return '';
         }
-        return $this->cryptoGen->decryptStandard($GLOBALS['weno_encryption_key']);
+        return $this->cryptoGen->decryptStandard(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_encryption_key'));
     }
 
     private function wenoPharmacyDirectoryLink(): string

@@ -137,7 +137,7 @@ function execute_background_service_calls(): void
         }
 
         if ($service['require_once']) {
-            require_once($GLOBALS['fileroot'] . $service['require_once']);
+            require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . $service['require_once']);
         }
 
         if (!function_exists($service['function'])) {

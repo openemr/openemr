@@ -159,11 +159,11 @@ if ($Source != "add_template") {
         $i++;
         echo "<li class='bg-dark text-light' id='clorder_" . attr($row['cl_list_slno']) . "' style='cursor:pointer'><span class='bg-dark text-light'>";
         if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
-            echo "<img src='" . $GLOBALS['images_static_relative'] . "/b_edit.png' onclick='update_item_div(" . attr_js($row['cl_list_slno']) . ")'>";
+            echo "<img src='" . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('images_static_relative') . "/b_edit.png' onclick='update_item_div(" . attr_js($row['cl_list_slno']) . ")'>";
         }
         echo "<div style='display:inline' id='" . attr($row['cl_list_slno']) . "' onclick='moveOptions_11(" . attr_js($row['cl_list_slno']) . ", \"textarea1\")'>" . text($row['cl_list_item_long']) . "</div>";
         if (AclMain::aclCheckCore('nationnotes', 'nn_configure')) {
-            echo "<img src='" . $GLOBALS['images_static_relative'] . "/deleteBtn.png' onclick='delete_item(" . attr_js($row['cl_list_slno']) . ")'>";
+            echo "<img src='" . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('images_static_relative') . "/deleteBtn.png' onclick='delete_item(" . attr_js($row['cl_list_slno']) . ")'>";
             echo "<div id='update_item" . attr($row['cl_list_slno']) . "' style='display:none'><textarea name='update_item_txt" . attr($row['cl_list_slno']) . "' id='update_item_txt" . attr($row['cl_list_slno']) . "' class='w-100'>" . text($row['cl_list_item_long']) . "</textarea><br />";
             echo "<input type='button' name='update' onclick='update_item(" . attr_js($row['cl_list_slno']) . ")' value='" . xla('Update') . "'><input type='button' name='cancel' value='" . xla('Cancel') . "' onclick='cancel_item(" . attr_js($row['cl_list_slno']) . ")'></div>";
         }

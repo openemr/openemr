@@ -18,9 +18,9 @@ class Controller extends Smarty
          $this->template_mod = "general";
          $this->_current_action = "";
          $this->_state = true;
-         $this->setCompileDir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/main');
+         $this->setCompileDir(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/smarty/main');
          $this->setCompileCheck(true);
-         $this->setPluginsDir([__DIR__ . "/../smarty/plugins", $GLOBALS['vendor_dir'] . "/smarty/smarty/libs/plugins"]);
+         $this->setPluginsDir([__DIR__ . "/../smarty/plugins", \OpenEMR\Core\OEGlobalsBag::getInstance()->get('vendor_dir') . "/smarty/smarty/libs/plugins"]);
          $this->assign("PROCESS", "true");
          $this->assign("HEADER", "<html><head></head><body>");
          $this->assign("FOOTER", "</body></html>");
@@ -65,7 +65,7 @@ class Controller extends Smarty
 
     public function function_argument_error(): never
     {
-         $this->display($GLOBALS['template_dir'] . "error/" . $this->template_mod . "_function_argument.html");
+         $this->display(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('template_dir') . "error/" . $this->template_mod . "_function_argument.html");
          exit;
     }
 
@@ -107,7 +107,7 @@ class Controller extends Smarty
             $c_action = preg_replace("/[^A-Za-z0-9_]/", "", (string) array_pop($args));
             $args = array_reverse($args);
 
-        if (!$this->i_once($GLOBALS['fileroot'] . "/controllers/C_" . $c_name . ".class.php")) {
+        if (!$this->i_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/controllers/C_" . $c_name . ".class.php")) {
             echo "Unable to load controller $name\n, please check the first argument supplied in the URL and try again";
             exit;
         }

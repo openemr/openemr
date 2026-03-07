@@ -199,8 +199,8 @@ $templateVars = [
     'owner_id' => $foreign_id,
     'owner_contact_id' => $ownerContactId,
     'target_contact_id' => $targetContactId,
-    'webroot' => $GLOBALS['webroot'],
-    'srcdir' => $GLOBALS['srcdir'],
+    'webroot' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'),
+    'srcdir' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir'),
     'csrfToken' => CsrfUtils::collectCsrfToken()
 ];
 

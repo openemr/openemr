@@ -35,17 +35,17 @@ $dob = oeFormatShortDate($patdata['DOB']);
 //get label type and number of labels on sheet
 //
 
-if ($GLOBALS['chart_label_type'] == '1') {
+if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('chart_label_type') == '1') {
     $pdf = new PDF_Label('5160');
     $last = 30;
 }
 
-if ($GLOBALS['chart_label_type'] == '2') {
+if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('chart_label_type') == '2') {
     $pdf = new PDF_Label('5161');
     $last = 20;
 }
 
-if ($GLOBALS['chart_label_type'] == '3') {
+if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('chart_label_type') == '3') {
     $pdf = new PDF_Label('5162');
     $last = 14;
 }

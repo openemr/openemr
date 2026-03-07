@@ -81,7 +81,7 @@ class CcdaGlobalsConfiguration
 
     public function getMaxSections(): int
     {
-        return intval($GLOBALS[self::GLOBAL_KEY_CCDA_MAX_SECTIONS] ?? 0);
+        return intval(\OpenEMR\Core\OEGlobalsBag::getInstance()->get(self::GLOBAL_KEY_CCDA_MAX_SECTIONS) ?? 0);
     }
 
     /**
@@ -111,8 +111,8 @@ class CcdaGlobalsConfiguration
         $codeService = new CodeTypesService();
         $sortOrder = [];
         $sortOrderIndexesByKeys = [];
-        if (!empty($GLOBALS[$key])) {
-            $sortString = $GLOBALS[$key] ?? "";
+        if (!empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get($key))) {
+            $sortString = \OpenEMR\Core\OEGlobalsBag::getInstance()->get($key) ?? "";
             $sortOrder = explode(";", (string) $sortString);
             $sortOrderIndexesByKeys = array_combine($sortOrder, array_keys($sortOrder));
         }

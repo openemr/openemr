@@ -67,7 +67,7 @@ td {
 
 <script>
 
-<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+<?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
 
  // This is invoked when our Search button is clicked.
  function dosearch() {

@@ -124,7 +124,7 @@ var pselected = new Object();
 var eselected = new Object();
 var keyid = null; // id of currently hilited key, if any
 
-<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+<?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
 
 // callback from add_edit_issue.php:
 function refreshIssue(issue, title) {

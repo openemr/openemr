@@ -122,7 +122,7 @@ class Bootstrap
         $settings = $this->globalsConfig->getGlobalSettingSectionConfiguration();
 
         foreach ($settings as $key => $config) {
-            $value = $GLOBALS[$key] ?? $config['default'];
+            $value = \OpenEMR\Core\OEGlobalsBag::getInstance()->get($key) ?? $config['default'];
             $service->appendToSection(
                 $section,
                 $key,

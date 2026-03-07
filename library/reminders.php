@@ -364,8 +364,8 @@ function send_reminders()
         // Email to patient if Allow Email and set reminder sent flag.
         if ($hipaa_allowemail == "YES") {
             $mail = new MyMailer();
-            $sender_name = $GLOBALS['patient_reminder_sender_name'];
-            $email_address = $GLOBALS['patient_reminder_sender_email'];
+            $sender_name = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('patient_reminder_sender_name');
+            $email_address = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('patient_reminder_sender_email');
             $mail->FromName = $sender_name;  // required
             $mail->Sender = $email_address;    // required
             $mail->From = $email_address;    // required

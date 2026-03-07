@@ -422,8 +422,8 @@ MSG;
          */
         $srcUserID = $_SERVER['SERVER_NAME'] . '|OpenEMR';
         $srcNetwork = $_SERVER['SERVER_ADDR'];
-        $destUserID = $GLOBALS['atna_audit_host'];
-        $destNetwork = $GLOBALS['atna_audit_host'];
+        $destUserID = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('atna_audit_host');
+        $destNetwork = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('atna_audit_host');
 
         $patientRecordForMsg = ($eventIdDisplayName == 'Patient Record' && $patient_id != 0) ? sprintf(self::RFC3881_MSG_PATIENT_TEMPLATE, $patient_id) : '';
         /* Add the syslog header  with $eventDateTime and $_SERVER['SERVER_NAME'] */
@@ -497,14 +497,14 @@ MSG;
     public function sendAtnaAuditMsg($user, $group, $event, $patient_id, $outcome, $comments)
     {
         /* If no ATNA repository server is configured, return */
-        if (empty($GLOBALS['atna_audit_host']) || empty($GLOBALS['enable_atna_audit'])) {
+        if (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('atna_audit_host')) || empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('enable_atna_audit'))) {
             return;
         }
 
-        $host = $GLOBALS['atna_audit_host'];
-        $port = $GLOBALS['atna_audit_port'];
-        $localcert = $GLOBALS['atna_audit_localcert'];
-        $cacert = $GLOBALS['atna_audit_cacert'];
+        $host = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('atna_audit_host');
+        $port = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('atna_audit_port');
+        $localcert = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('atna_audit_localcert');
+        $cacert = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('atna_audit_cacert');
         $conn = $this->createTlsConn($host, $port, $localcert, $cacert);
         if ($conn !== false) {
             $msg = $this->createRfc3881Msg($user, $group, $event, $patient_id, $outcome, $comments);
@@ -529,8 +529,8 @@ MSG;
         $user =  $session->get('authUser') ?? "";
 
         /* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
-        if (empty($GLOBALS['enable_auditlog'])) {
-            if (empty($GLOBALS['gbl_force_log_breakglass']) || !$this->isBreakglassUser($user)) {
+        if (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('enable_auditlog'))) {
+            if (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_force_log_breakglass')) || !$this->isBreakglassUser($user)) {
                 return;
             }
         }
@@ -559,8 +559,8 @@ MSG;
         }
 
         /* If query events are not enabled, don't log them. Exception for "emergency" users. */
-        if (($querytype == "select") && !(array_key_exists('audit_events_query', $GLOBALS) && $GLOBALS['audit_events_query'])) {
-            if (empty($GLOBALS['gbl_force_log_breakglass']) || !$this->isBreakglassUser($user)) {
+        if (($querytype == "select") && !(array_key_exists('audit_events_query', $GLOBALS) && \OpenEMR\Core\OEGlobalsBag::getInstance()->get('audit_events_query'))) {
+            if (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_force_log_breakglass')) || !$this->isBreakglassUser($user)) {
                 return;
             }
         }
@@ -642,7 +642,7 @@ MSG;
             }
         }
 
-        if (empty($GLOBALS["audit_events_{$event}"]) && (empty($GLOBALS['gbl_force_log_breakglass'] ?? null) || !$this->isBreakglassUser($user))) {
+        if (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("audit_events_{$event}")) && (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_force_log_breakglass') ?? null) || !$this->isBreakglassUser($user))) {
             return;
         }
 
@@ -762,7 +762,7 @@ MSG;
         }
 
         // Encrypt if applicable
-        if (empty($GLOBALS["enable_auditlog_encryption"])) {
+        if (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("enable_auditlog_encryption"))) {
             // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
             $comments = base64_encode((string) $comments);
             $encrypt = 'No';
@@ -859,7 +859,7 @@ MSG;
     {
         $session = SessionWrapperFactory::getInstance()->getWrapper();
         // Skip if audit logging or http request logging is disabled
-        if (empty($GLOBALS['enable_auditlog']) || empty($GLOBALS['audit_events_http-request'])) {
+        if (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('enable_auditlog')) || empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('audit_events_http-request'))) {
             return;
         }
 

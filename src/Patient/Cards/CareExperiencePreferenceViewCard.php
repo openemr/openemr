@@ -132,7 +132,7 @@ class CareExperiencePreferenceViewCard extends CardModel
             'pid'              => $this->pid,
             'auth'             => true,  // TODO ACL
             'can_write'        => true,  // TODO ACL
-            'webroot'          => $GLOBALS['webroot'] ?? '',
+            'webroot'          => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot') ?? '',
             'csrf_token'       => CsrfUtils::collectCsrfToken(),
             'preferences'      => $preferences,
             'loinc_codes'      => $loincCodes,

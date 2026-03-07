@@ -120,7 +120,7 @@ class QrdaReportController
             chmod($zip_directory, 0777);
         }
         // local xml save directory
-        $directory = $GLOBALS['OE_SITE_DIR'] . '/documents/' . 'cat1_reports';
+        $directory = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/' . 'cat1_reports';
         $directory .= ($bypid ? '/all_measures' : "/measures");
         if (!is_dir($directory)) {
             if (!mkdir($directory, 0755, true) && !is_dir($directory)) {
@@ -275,7 +275,7 @@ class QrdaReportController
         }
 
         // Create local storage directory for permanent copies
-        $directory = $GLOBALS['OE_SITE_DIR'] . DIRECTORY_SEPARATOR . 'documents' . DIRECTORY_SEPARATOR . 'cat3_reports';
+        $directory = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . DIRECTORY_SEPARATOR . 'documents' . DIRECTORY_SEPARATOR . 'cat3_reports';
         if (!is_dir($directory)) {
             if (!mkdir($directory, 0775, true) && !is_dir($directory)) {
                 throw new \RuntimeException(sprintf('Directory "%s" was not created', $directory));

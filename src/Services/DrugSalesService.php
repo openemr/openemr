@@ -219,7 +219,7 @@ class DrugSalesService extends BaseService
     ) {
 
         if (empty($patient_id)) {
-            $patient_id   = $GLOBALS['pid'];
+            $patient_id   = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('pid');
         }
 
         if (empty($sale_date)) {
@@ -313,7 +313,7 @@ class DrugSalesService extends BaseService
             "WHERE " .
             "di.drug_id = ? AND di.destroy_date IS NULL AND di.on_hand != 0 ";
         $sqlarr = [$drug_id];
-        if ($GLOBALS['SELL_FROM_ONE_WAREHOUSE'] && $default_warehouse) {
+        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('SELL_FROM_ONE_WAREHOUSE') && $default_warehouse) {
             $query .= "AND di.warehouse_id = ? ";
             $sqlarr[] = $default_warehouse;
         }
@@ -449,7 +449,7 @@ class DrugSalesService extends BaseService
             );
 
             // If this sale exhausted the lot then auto-destroy it if that is wanted.
-            if ($row['on_hand'] == $thisqty && !empty($GLOBALS['gbl_auto_destroy_lots'])) {
+            if ($row['on_hand'] == $thisqty && !empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_auto_destroy_lots'))) {
                 QueryUtils::sqlStatementThrowException(
                     "UPDATE drug_inventory SET " .
                     "destroy_date = ?, destroy_method = ?, destroy_witness = ?, destroy_notes = ? "  .
@@ -479,7 +479,7 @@ class DrugSalesService extends BaseService
 
     public function send_drug_email($subject, $body): void
     {
-        $recipient = $GLOBALS['practice_return_email_path'];
+        $recipient = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('practice_return_email_path');
         if (empty($recipient)) {
             return;
         }

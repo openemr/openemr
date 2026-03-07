@@ -209,7 +209,7 @@ class ModulesApplication
     public static function isSafeModuleFileForInclude($file)
     {
         $realpath = realpath($file);
-        $moduleRootLocation = realpath($GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . 'interface' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR);
+        $moduleRootLocation = realpath(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . DIRECTORY_SEPARATOR . 'interface' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR);
 
         // make sure we haven't left our root path ie interface folder
         if (str_starts_with($realpath, $moduleRootLocation) && file_exists($realpath) && str_contains($realpath, ".php")) {
@@ -236,14 +236,14 @@ class ModulesApplication
                 // we need to strip that out and then check against the real path
                 $scriptSrcPath = parse_url($scriptSrc, PHP_URL_PATH);
                 // need to remove the web root as that is included in the $scriptSrc and also in the fileroot
-                $pos = stripos($scriptSrcPath, (string) $GLOBALS['web_root']);
+                $pos = stripos($scriptSrcPath, (string) \OpenEMR\Core\OEGlobalsBag::getInstance()->get('web_root'));
                 if ($pos !== false) {
-                    $scriptSrcPathWithoutWebroot = substr_replace($scriptSrcPath, '', $pos, strlen((string) $GLOBALS['web_root']));
+                    $scriptSrcPathWithoutWebroot = substr_replace($scriptSrcPath, '', $pos, strlen((string) \OpenEMR\Core\OEGlobalsBag::getInstance()->get('web_root')));
                 } else {
                     $scriptSrcPathWithoutWebroot = $scriptSrcPath;
                 }
-                $realPath = realpath($GLOBALS['fileroot'] . $scriptSrcPathWithoutWebroot);
-                $moduleRootLocation = realpath($GLOBALS['fileroot'] . DIRECTORY_SEPARATOR . 'interface' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR);
+                $realPath = realpath(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . $scriptSrcPathWithoutWebroot);
+                $moduleRootLocation = realpath(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . DIRECTORY_SEPARATOR . 'interface' . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR);
 
                 // make sure we haven't left our root path ie interface folder
                 if (str_starts_with($realPath, $moduleRootLocation) && file_exists($realPath)) {

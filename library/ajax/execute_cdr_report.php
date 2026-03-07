@@ -27,8 +27,8 @@ set_time_limit(0);
 // is increased, these cpu intensive reports will have less affect on the performance
 // of other server activities, albeit it may negatively impact the performance
 // of this report (note this is only applicable for linux).
-if (!empty($GLOBALS['cdr_report_nice'])) {
-    proc_nice($GLOBALS['cdr_report_nice']);
+if (!empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('cdr_report_nice'))) {
+    proc_nice(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('cdr_report_nice'));
 }
 
 //  Start a report, which will be stored in the report_results sql table..

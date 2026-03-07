@@ -36,7 +36,7 @@ $qrda_fname = $_GET['qrda_fname'];
 check_file_dir_name($qrda_fname);
 
 if ($qrda_fname != "") {
-    $qrda_file_path = $GLOBALS['OE_SITE_DIR'] . "/documents/cqm_qrda/";
+    $qrda_file_path = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/cqm_qrda/";
     $xmlurl = $qrda_file_path . $qrda_fname;
 
     header("Pragma: public"); // required

@@ -70,10 +70,10 @@ if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
 
 <!-- 'buttons' to min/max the bottom frame -JRM -->
 <div id="max" title="Restore this information">
-    <img src="<?php echo $GLOBALS['images_static_relative']; ?>/max.gif" />
+    <img src="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('images_static_relative'); ?>/max.gif" />
 </div>
 <div id="min" title="Minimize this information">
-    <img src="<?php echo $GLOBALS['images_static_relative']; ?>/min.gif" />
+    <img src="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('images_static_relative'); ?>/min.gif" />
 </div>
 
 <?php if ($imauthorized) { ?>
@@ -131,7 +131,7 @@ if ($imauthorized && $see_auth > 1) {
         }
     }
 
-    if (empty($GLOBALS['ignore_pnotes_authorization'])) {
+    if (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('ignore_pnotes_authorization'))) {
           //fetch pnotes information:
         if (
             $res = sqlStatement("select * from pnotes where authorized = 0 and " .
@@ -267,7 +267,7 @@ var EditNote = function(note) {
         noteid: parts[1],
         set_pid: parts[0]
     });
-    location.href = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/pnotes_full.php?" + params;
+    location.href = "<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/patient_file/summary/pnotes_full.php?" + params;
 <?php else : ?>
     // no-op
     alert(<?php echo xlj('You do not have access to view/edit this note'); ?>);

@@ -125,8 +125,8 @@ class CcdaServiceRequestModelGenerator
         $components_list = explode('|', (string) $components);
         $this->createdtime = time();
         $this->data .= "<CCDA>";
-        $this->data .= "<serverRoot>" . $GLOBALS['webroot'] . "</serverRoot>";
-        $this->data .= "<document_location>" . $GLOBALS['OE_SITE_DIR'] . "</document_location>";
+        $this->data .= "<serverRoot>" . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot') . "</serverRoot>";
+        $this->data .= "<document_location>" . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "</document_location>";
         $this->data .= "<username></username>";
         $this->data .= "<password></password>";
         $this->data .= "<hie>MyHealth</hie>";

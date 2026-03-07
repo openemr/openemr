@@ -32,9 +32,9 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
     <title><?php echo xlt("EDI History"); ?></title>
     <?php Header::setupHeader(['datetime-picker', 'datatables', 'datatables-dt', 'datatables-bs', 'datatables-scroller']); ?>
     <?php if ($_SESSION['language_direction'] == "rtl") { ?>
-      <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rtl_edi_history_v2.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
+      <link rel="stylesheet" href="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('themes_static_relative'); ?>/misc/rtl_edi_history_v2.css?v=<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
     <?php } else { ?>
-      <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/edi_history_v2.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
+      <link rel="stylesheet" href="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('themes_static_relative'); ?>/misc/edi_history_v2.css?v=<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
     <?php } ?>
 </head>
 <!-- style for OpenEMR color -->
@@ -376,7 +376,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -724,7 +724,7 @@ if (!AclMain::aclCheckCore('acct', 'eob')) {
                         'scrollX': true,
                         'paging': true,
                         <?php // Bring in the translations ?>
-                        <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
+                        <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/datatables-net.js.php'); ?>
                     });
                 },
             ]

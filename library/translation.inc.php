@@ -30,7 +30,7 @@ if (!(function_exists('xl'))) {
      */
     function xl($constant)
     {
-        if (!empty($GLOBALS['disable_translation']) || !empty($GLOBALS['temp_skip_translations'])) {
+        if (!empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('disable_translation')) || !empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('temp_skip_translations'))) {
             return $constant;
         }
         $session = SessionWrapperFactory::getInstance()->getWrapper();
@@ -73,7 +73,7 @@ if (!(function_exists('xl'))) {
             $string = "$constant";
         }
         // remove dangerous characters and remove comments
-        if (!empty($GLOBALS['translate_no_safe_apostrophe'])) {
+        if (!empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('translate_no_safe_apostrophe'))) {
             $patterns =  ['/\n/','/\r/','/\{\{.*\}\}/'];
             $replace =  [' ','',''];
             $string = preg_replace($patterns, $replace, (string) $string);
@@ -113,7 +113,7 @@ if (!(function_exists('xl'))) {
 function xl_list_label($constant)
 {
     // @phpstan-ignore argument.type (intentionally accepts dynamic content)
-    return $GLOBALS['translate_lists'] ? xl($constant) : $constant;
+    return \OpenEMR\Core\OEGlobalsBag::getInstance()->get('translate_lists') ? xl($constant) : $constant;
 }
 
 /**
@@ -128,7 +128,7 @@ function xl_list_label($constant)
 function xl_layout_label($constant)
 {
     // @phpstan-ignore argument.type (intentionally accepts dynamic content)
-    return $GLOBALS['translate_layout'] ? xl($constant) : $constant;
+    return \OpenEMR\Core\OEGlobalsBag::getInstance()->get('translate_layout') ? xl($constant) : $constant;
 }
 
 /**
@@ -143,7 +143,7 @@ function xl_layout_label($constant)
 function xl_gacl_group($constant)
 {
     // @phpstan-ignore argument.type (intentionally accepts dynamic content)
-    return $GLOBALS['translate_gacl_groups'] ? xl($constant) : $constant;
+    return \OpenEMR\Core\OEGlobalsBag::getInstance()->get('translate_gacl_groups') ? xl($constant) : $constant;
 }
 
 /**
@@ -158,7 +158,7 @@ function xl_gacl_group($constant)
 function xl_form_title($constant)
 {
     // @phpstan-ignore argument.type (intentionally accepts dynamic content)
-    return $GLOBALS['translate_form_titles'] ? xl($constant) : $constant;
+    return \OpenEMR\Core\OEGlobalsBag::getInstance()->get('translate_form_titles') ? xl($constant) : $constant;
 }
 
 /**
@@ -173,7 +173,7 @@ function xl_form_title($constant)
 function xl_document_category($constant)
 {
     // @phpstan-ignore argument.type (intentionally accepts dynamic content)
-    return $GLOBALS['translate_document_categories'] ? xl($constant) : $constant;
+    return \OpenEMR\Core\OEGlobalsBag::getInstance()->get('translate_document_categories') ? xl($constant) : $constant;
 }
 
 /**
@@ -188,7 +188,7 @@ function xl_document_category($constant)
 function xl_appt_category($constant)
 {
     // @phpstan-ignore argument.type (intentionally accepts dynamic content)
-    return $GLOBALS['translate_appt_categories'] ? xl($constant) : $constant;
+    return \OpenEMR\Core\OEGlobalsBag::getInstance()->get('translate_appt_categories') ? xl($constant) : $constant;
 }
 // ---------------------------------------------------------------------------
 

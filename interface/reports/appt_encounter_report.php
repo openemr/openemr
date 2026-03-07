@@ -220,7 +220,7 @@ if (!empty($_POST['form_refresh'])) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -378,7 +378,7 @@ if (!empty($_POST['form_refresh'])) {
                     $billed = "";
                 }
 
-                if (!$GLOBALS['simplified_demographics'] && !$brow['authorized']) {
+                if (!\OpenEMR\Core\OEGlobalsBag::getInstance()->get('simplified_demographics') && !$brow['authorized']) {
                     postError(xl('Needs Auth'));
                 }
 
@@ -390,7 +390,7 @@ if (!empty($_POST['form_refresh'])) {
 
                 if ($code_types[$code_type]['fee']) {
                     $charges += $brow['fee'];
-                    if ($brow['fee'] == 0 && !$GLOBALS['ippf_specific']) {
+                    if ($brow['fee'] == 0 && !\OpenEMR\Core\OEGlobalsBag::getInstance()->get('ippf_specific')) {
                         postError(xl('Missing Fee'));
                     }
                 } else {
@@ -400,7 +400,7 @@ if (!empty($_POST['form_refresh'])) {
                 }
 
                 // Custom logic for IPPF to determine if a GCAC issue applies.
-                if ($GLOBALS['ippf_specific']) {
+                if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('ippf_specific')) {
                     if (!empty($code_types[$code_type]['fee'])) {
                         $sqlBindArray = [];
                         $query = "SELECT related_code FROM codes WHERE code_type = ? AND code = ? AND ";
@@ -471,7 +471,7 @@ if (!empty($_POST['form_refresh'])) {
            /*****************************************************************/
 
             if (!$billed) {
-                postError($GLOBALS['simplified_demographics'] ?
+                postError(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('simplified_demographics') ?
                 xl('Not checked out') : xl('Not billed'));
             }
 

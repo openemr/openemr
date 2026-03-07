@@ -305,7 +305,7 @@ class FhirPersonRestController
         $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
-                'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
+                'fullUrl' =>  \OpenEMR\Core\OEGlobalsBag::getInstance()->get('site_addr_oath') . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
                 'resource' => $searchResult
             ];
             $fhirBundleEntry = new FHIRBundleEntry($bundleEntry);

@@ -38,8 +38,8 @@ $vendors['weno_secondary_encryption_key'] = '';
 $vendors['weno_provider_email'] = '';
 $vendors['weno_provider_password'] = '';
 
-$facilityUrl = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-weno/templates/setup_facilities.php";
-$usersUrl = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-weno/templates/weno_users.php";
+$facilityUrl = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('web_root') . "/interface/modules/custom_modules/oe-module-weno/templates/setup_facilities.php";
+$usersUrl = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('web_root') . "/interface/modules/custom_modules/oe-module-weno/templates/weno_users.php";
 $saveAction = false;
 $saveActionPersist = false;
 $isValidKey = true;

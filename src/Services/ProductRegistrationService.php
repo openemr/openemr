@@ -17,7 +17,7 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Services\VersionService;
 
-require_once($GLOBALS['fileroot'] . "/interface/product_registration/exceptions/generic_product_registration_exception.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/interface/product_registration/exceptions/generic_product_registration_exception.php");
 
 class ProductRegistrationService
 {
@@ -116,7 +116,7 @@ class ProductRegistrationService
             $info['distribution'] = getenv('OPENEMR_DOCKER_ENV_TAG', true);
         }
 
-        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+        $httpVerifySsl = (bool) (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
         $curl = curl_init('https://reg.open-emr.org/api/registration');
         curl_setopt($curl, CURLOPT_POST, true);
         curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($info));

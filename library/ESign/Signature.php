@@ -14,8 +14,8 @@
 
 namespace ESign;
 
-require_once $GLOBALS['srcdir'] . '/ESign/SignatureIF.php';
-require_once $GLOBALS['srcdir'] . '/ESign/Utils/Verification.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/SignatureIF.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Utils/Verification.php';
 
 class Signature implements SignatureIF
 {

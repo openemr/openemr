@@ -44,7 +44,7 @@ class CreateAPIDocumentationCommand extends Command
         // sets up $GLOBALS['fileroot'] before the command runs, but OEGlobalsBag
         // may not be fully initialized when --skip-globals is used.
         /** @var string $fileroot */
-        $fileroot = $GLOBALS['fileroot'];
+        $fileroot = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot');
         $fileDestinationFolder = $fileroot . DIRECTORY_SEPARATOR . "swagger" . DIRECTORY_SEPARATOR;
         $fileDestinationYaml =  $fileDestinationFolder . "openemr-api.yaml";
 

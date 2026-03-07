@@ -27,7 +27,7 @@
 
 require_once __DIR__ . '/base_controller.php';
 require_once __DIR__ . '/therapy_groups_controller.php';
-require_once("{$GLOBALS['srcdir']}/pid.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/pid.inc.php");
 
 class ParticipantsController extends BaseController
 {

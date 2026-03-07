@@ -18,7 +18,7 @@ class CacheUtils
 {
     public static function getAssetCacheParamRaw()
     {
-        return $GLOBALS['v_js_includes'];
+        return \OpenEMR\Core\OEGlobalsBag::getInstance()->get('v_js_includes');
     }
     /**
      * Returns the asset cache param that is used to bust the cache when the javascript versions change on the frontend.
@@ -26,7 +26,7 @@ class CacheUtils
      */
     public static function getAssetCacheParam()
     {
-        $v = $GLOBALS['v_js_includes'];
+        $v = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('v_js_includes');
         return "v={$v}";
     }
 

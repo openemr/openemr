@@ -63,7 +63,7 @@ function doOnetimeInvoiceRequest(): void
         'expiry_interval' => "P14D",
         'text_message' => $message,
         'html_message' => "",
-        'redirect_url' => $GLOBALS['web_root'] . "/portal/home.php?site=" . urlencode((string) $_SESSION['site_id']) . "&landOn=MakePayment",
+        'redirect_url' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('web_root') . "/portal/home.php?site=" . urlencode((string) $_SESSION['site_id']) . "&landOn=MakePayment",
         'phone' => $patient['phone'] ?? '',
         'email' => $patient['email'] ?? '',
         'actions' => [

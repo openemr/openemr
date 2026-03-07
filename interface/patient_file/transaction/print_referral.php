@@ -22,7 +22,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
-$template_file = $GLOBALS['OE_SITE_DIR'] . "/referral_template.html";
+$template_file = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/referral_template.html";
 
 $TEMPLATE_LABELS = [
   'label_clinic_id'             => xlt('Clinic ID'),

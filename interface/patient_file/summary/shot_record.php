@@ -53,7 +53,7 @@ function convertToDataArray($data_array)
 
         //Vaccine
         // Figure out which name to use (ie. from cvx list or from the custom list)
-        if ($GLOBALS['use_custom_immun_list']) {
+        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('use_custom_immun_list')) {
             $vaccine_display = generate_display_field(['data_type' => '1','list_id' => 'immunizations'], $row['immunization_id']);
         } else {
             if (!empty($row['code_text_short'])) {

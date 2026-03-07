@@ -33,12 +33,12 @@ class CouchDB
 {
     function __construct()
     {
-        $this->host = $GLOBALS['couchdb_host'];
-        $this->user = ($GLOBALS['couchdb_user'] != '') ? $GLOBALS['couchdb_user'] : null;
+        $this->host = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('couchdb_host');
+        $this->user = (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('couchdb_user') != '') ? \OpenEMR\Core\OEGlobalsBag::getInstance()->get('couchdb_user') : null;
         $cryptoGen = ServiceContainer::getCrypto();
-        $this->pass = ($cryptoGen->decryptStandard($GLOBALS['couchdb_pass']) != '') ? $cryptoGen->decryptStandard($GLOBALS['couchdb_pass']) : null;
-        $this->port = $GLOBALS['couchdb_port'];
-        $this->dbase = $GLOBALS['couchdb_dbase'];
+        $this->pass = ($cryptoGen->decryptStandard(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('couchdb_pass')) != '') ? $cryptoGen->decryptStandard(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('couchdb_pass')) : null;
+        $this->port = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('couchdb_port');
+        $this->dbase = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('couchdb_dbase');
     }
 
     function check_connection()
@@ -103,38 +103,38 @@ class CouchDB
 
     function send($method, $url, $post_data = null)
     {
-        if ($GLOBALS['couchdb_connection_ssl']) {
+        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('couchdb_connection_ssl')) {
             // encrypt couchdb over the wire
             if (
-                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/couchdb-ca") &&
-                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/couchdb-cert") &&
-                file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/couchdb-key")
+                file_exists(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/couchdb-ca") &&
+                file_exists(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/couchdb-cert") &&
+                file_exists(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/couchdb-key")
             ) {
                 // support cacert_file and client certificates
                 $stream_context = stream_context_create(
                     [
                         'ssl' =>
                             [
-                                'cafile' => "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/couchdb-ca",
-                                'local_cert' => "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/couchdb-cert",
-                                'local_pk' => "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/couchdb-key"
+                                'cafile' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/couchdb-ca",
+                                'local_cert' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/couchdb-cert",
+                                'local_pk' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/couchdb-key"
                             ]
                     ]
                 );
                 $s = stream_socket_client('ssl://' . $this->host . ":" . $this->port, $errno, $errstr, ini_get("default_socket_timeout"), STREAM_CLIENT_CONNECT, $stream_context);
-            } elseif (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/certificates/couchdb-ca")) {
+            } elseif (file_exists(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/couchdb-ca")) {
                 // support cacert_file
                 $stream_context = stream_context_create(
                     [
                         'ssl' =>
                             [
-                                'cafile' => "{$GLOBALS['OE_SITE_DIR']}/documents/certificates/couchdb-ca"
+                                'cafile' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/couchdb-ca"
                             ]
                     ]
                 );
                 $s = stream_socket_client('ssl://' . $this->host . ":" . $this->port, $errno, $errstr, ini_get("default_socket_timeout"), STREAM_CLIENT_CONNECT, $stream_context);
             } else {
-                if ($GLOBALS['couchdb_ssl_allow_selfsigned']) {
+                if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('couchdb_ssl_allow_selfsigned')) {
                     // support self-signed
                     $stream_context = stream_context_create(
                         [

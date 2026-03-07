@@ -11782,16 +11782,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/finder/multi_patients_finder_ajax.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$add_days might not be defined\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/main/finder/patient_select.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$extracols might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/patient_select.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$itemized_test_id might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/main/finder/patient_select.php',

@@ -18,8 +18,8 @@
 
 /* 3-feb-21 RM - addition of {CurrentDate} and {CurrentTime} */
 require_once('../globals.php');
-require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
-require_once($GLOBALS['srcdir'] . '/options.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/appointments.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php');
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\KeySource;
@@ -92,7 +92,7 @@ function getIssues($type)
     $tmp = '';
     $lres = sqlStatement("SELECT title, comments FROM lists WHERE " .
     "pid = ? AND type = ? AND enddate IS NULL " .
-    "ORDER BY begdate", [$GLOBALS['pid'], $type]);
+    "ORDER BY begdate", [\OpenEMR\Core\OEGlobalsBag::getInstance()->get('pid'), $type]);
     while ($lrow = sqlFetchArray($lres)) {
         if ($tmp) {
             $tmp .= '; ';
@@ -355,7 +355,7 @@ $templatedir   = "$OE_SITE_DIR/documents/doctemplates";
 $templatepath  = "$templatedir/" . check_file_dir_name($form_filename);
 
 // Create a temporary file to hold the output.
-$fname = tempnam($GLOBALS['temporary_files_dir'], 'OED');
+$fname = tempnam(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir'), 'OED');
 
 // Get mime type in a way that works with old and new PHP releases.
 $default_mimetype = 'application/octet-stream';
@@ -400,7 +400,7 @@ if ($cryptoGen->cryptCheckStandard($fileData)) {
 }
 
 // Create a temporary file to hold the template.
-$dname = tempnam($GLOBALS['temporary_files_dir'], 'OED');
+$dname = tempnam(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir'), 'OED');
 file_put_contents($dname, $fileData);
 
 $zipin = new ZipArchive();

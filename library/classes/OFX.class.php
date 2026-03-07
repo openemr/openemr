@@ -1,6 +1,6 @@
 <?php
 
-require_once $GLOBALS['OE_SITE_DIR'] . "/config.php";
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/config.php";
 
 /**
  * class OFX
@@ -14,7 +14,7 @@ class OFX
      */
     function __construct(public $billing_array = [])
     {
-        $this->config = $GLOBALS['oer_config']['ofx'];
+        $this->config = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('oer_config')['ofx'];
     }
 
     function get_OFX()

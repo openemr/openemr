@@ -125,7 +125,7 @@ use OpenEMR\Common\Acl\AclMain;
             <tbody>
             <?php foreach ($therapyGroups as $group) { ?>
                 <tr>
-                    <td><a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr_url($group['group_id']); ?>"><?php echo text($group['group_name']);?></a></td>
+                    <td><a href="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('rootdir') . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr_url($group['group_id']); ?>"><?php echo text($group['group_name']);?></a></td>
                     <td><?php echo text($group['group_id']);?></td>
                     <td><?php echo xlt($group_types[$group['group_type']]);?></td>
                     <td><?php echo xlt($statuses[$group['group_status']]);?></td>
@@ -141,7 +141,7 @@ use OpenEMR\Common\Acl\AclMain;
                         <?php
                         //Enable deletion only for groups that weren't yet deleted.
                         if ($group['group_status'] == 10) { ?>
-                            <a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=listGroups&deleteGroup=1&group_id=' . attr_url($group['group_id']); ?>"><?php
+                            <a href="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('rootdir') . '/therapy_groups/index.php?method=listGroups&deleteGroup=1&group_id=' . attr_url($group['group_id']); ?>"><?php
                             if ($edit) { ?>
                                 <button class="btn btn-danger">&times;</button><?php
                             } ?>
@@ -170,7 +170,7 @@ use OpenEMR\Common\Acl\AclMain;
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
 
@@ -188,7 +188,7 @@ use OpenEMR\Common\Acl\AclMain;
                                                           'infoFiltered' => ('(' . xla('filtered from') . ' _MAX_ ' . xla('total records') . ')'),
                                                           'infoPostFix' => (''),
                                                           'url' => ('')]; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
+            <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/datatables-net.js.php'); ?>
         });
 
         /* Hide/Show filters */
@@ -259,7 +259,7 @@ use OpenEMR\Common\Acl\AclMain;
     });
 
     /* Bring in the DateToYYYYMMDD_js function */
-    <?php require($GLOBALS['srcdir'] . '/formatting_DateToYYYYMMDD_js.js.php'); ?>
+    <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/formatting_DateToYYYYMMDD_js.js.php'); ?>
 
     /* ========= End Of Data Table & Filters Initialisation ========= */
 

@@ -31,7 +31,7 @@ class AuthHash
 
     public function __construct()
     {
-        $this->algo = $GLOBALS['gbl_auth_hash_algo'];
+        $this->algo = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_auth_hash_algo');
 
         // If SHA512HASH is selected, then ensure CRYPT_SHA512 is supported
         if ($this->algo == "SHA512HASH") {
@@ -94,14 +94,14 @@ class AuthHash
             }
             // Set up Argon2 options
             $temp_array = [];
-            if (($GLOBALS['gbl_auth_argon_hash_memory_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_auth_argon_hash_memory_cost']))) {
-                $temp_array['memory_cost'] = $GLOBALS['gbl_auth_argon_hash_memory_cost'];
+            if ((\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_auth_argon_hash_memory_cost') != "DEFAULT") && (check_integer(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_auth_argon_hash_memory_cost')))) {
+                $temp_array['memory_cost'] = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_auth_argon_hash_memory_cost');
             }
-            if (($GLOBALS['gbl_auth_argon_hash_time_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_auth_argon_hash_time_cost']))) {
-                $temp_array['time_cost'] = $GLOBALS['gbl_auth_argon_hash_time_cost'];
+            if ((\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_auth_argon_hash_time_cost') != "DEFAULT") && (check_integer(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_auth_argon_hash_time_cost')))) {
+                $temp_array['time_cost'] = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_auth_argon_hash_time_cost');
             }
-            if (($GLOBALS['gbl_auth_argon_hash_thread_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_auth_argon_hash_thread_cost']))) {
-                $temp_array['threads'] = $GLOBALS['gbl_auth_argon_hash_thread_cost'];
+            if ((\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_auth_argon_hash_thread_cost') != "DEFAULT") && (check_integer(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_auth_argon_hash_thread_cost')))) {
+                $temp_array['threads'] = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_auth_argon_hash_thread_cost');
             }
             if (!empty($temp_array)) {
                 $this->options = $temp_array;
@@ -109,14 +109,14 @@ class AuthHash
         } elseif ($this->algo == "BCRYPT") {
             // Bcrypt - Using bcrypt and set up bcrypt options
             $this->algo_constant = PASSWORD_BCRYPT;
-            if (($GLOBALS['gbl_auth_bcrypt_hash_cost'] != "DEFAULT") && (check_integer($GLOBALS['gbl_auth_bcrypt_hash_cost']))) {
-                $this->options = ['cost' => $GLOBALS['gbl_auth_bcrypt_hash_cost']];
+            if ((\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_auth_bcrypt_hash_cost') != "DEFAULT") && (check_integer(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_auth_bcrypt_hash_cost')))) {
+                $this->options = ['cost' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_auth_bcrypt_hash_cost')];
             }
         } elseif ($this->algo == "SHA512HASH") {
             // SHA512HASH - Using crypt and set up crypt option for this algo
             $this->algo_constant = $this->algo;
-            if (check_integer($GLOBALS['gbl_auth_sha512_rounds'])) {
-                $this->options = ['rounds' => $GLOBALS['gbl_auth_sha512_rounds']];
+            if (check_integer(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_auth_sha512_rounds'))) {
+                $this->options = ['rounds' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_auth_sha512_rounds')];
             } else {
                 $this->options = ['rounds' => 100000];
             }
@@ -189,7 +189,7 @@ class AuthHash
             return false;
         }
 
-        if ($GLOBALS['gbl_debug_hash_verify_execution_time']) {
+        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_debug_hash_verify_execution_time')) {
             // Reporting collection time to allow fine tuning of hashing algorithm
             $millisecondsStart = round(microtime(true) * 1000);
         }
@@ -222,7 +222,7 @@ class AuthHash
             }
         }
 
-        if ($GLOBALS['gbl_debug_hash_verify_execution_time']) {
+        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_debug_hash_verify_execution_time')) {
             // Reporting collection time to allow fine tuning of hashing algorithm
             $millisecondsStop = round(microtime(true) * 1000);
             error_log("Password hash verification execution time was following (milliseconds): " . errorLogEscape($millisecondsStop - $millisecondsStart));

@@ -49,8 +49,8 @@ class QrdaReportService
         $this->calculator = new CqmCalculator();
         $this->measuresPath = MeasureService::fetchMeasuresPath();
         $this->patientJson = "";
-        $this->effectiveDate = trim($GLOBALS['cqm_performance_period'] ?? '2022') . '-01-01 00:00:00';
-        $this->effectiveDateEnd = trim($GLOBALS['cqm_performance_period'] ?? '2022') . '-12-31 23:59:59';
+        $this->effectiveDate = trim(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('cqm_performance_period') ?? '2022') . '-01-01 00:00:00';
+        $this->effectiveDateEnd = trim(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('cqm_performance_period') ?? '2022') . '-12-31 23:59:59';
     }
 
     /**
@@ -60,7 +60,7 @@ class QrdaReportService
     function fetchCurrentMeasures($scope = 'active'): array
     {
         $measures = [];
-        $year = trim((string) $GLOBALS['cqm_performance_period'] ?: '2022');
+        $year = trim((string) \OpenEMR\Core\OEGlobalsBag::getInstance()->get('cqm_performance_period') ?: '2022');
         $list = 'ecqm_' . $year . '_reporting';
         $active = $scope == 'active' ? 1 : 0;
         $results = sqlStatement("SELECT `option_id` as measure_id, `title`, `activity` as active FROM `list_options` WHERE `list_id` = ? AND `activity` >= ?", [$list, $active]);
@@ -211,10 +211,10 @@ class QrdaReportService
     public function getConsolidatedFilename($reportingPeriod = null): string
     {
         if (!$reportingPeriod) {
-            $reportingPeriod = trim($GLOBALS['cqm_performance_period'] ?? '2023');
+            $reportingPeriod = trim(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('cqm_performance_period') ?? '2023');
         }
 
-        $orgName = $GLOBALS['openemr_name'] ?? 'OpenEMR_Practice';
+        $orgName = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('openemr_name') ?? 'OpenEMR_Practice';
         $orgName = preg_replace('/[^a-zA-Z0-9]/', '_', (string) $orgName);
         $timestamp = date('Ymd_His');
 

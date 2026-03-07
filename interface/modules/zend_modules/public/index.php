@@ -60,10 +60,10 @@ chdir(dirname(__DIR__));
 /** @var OpenEMR/Core/ModulesApplication
  * Defined in globals.php
 */
-if (!empty($GLOBALS['modules_application'])) {
+if (!empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('modules_application'))) {
     // $time_start = microtime(true);
     // run the request lifecycle.  The application has already inited in the globals.php
-    $GLOBALS['modules_application']->run();
+    \OpenEMR\Core\OEGlobalsBag::getInstance()->get('modules_application')->run();
     // $time_end = microtime(true);
     // echo "App runtime: " . ($time_end - $time_start) . "<br />";
 } else {

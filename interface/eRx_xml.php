@@ -21,21 +21,21 @@ $facilityService = new FacilityService();
 
 function getErxPath()
 {
-    return $GLOBALS['erx_newcrop_path'];
+    return \OpenEMR\Core\OEGlobalsBag::getInstance()->get('erx_newcrop_path');
 }
 
 function getErxSoapPath()
 {
-    return $GLOBALS['erx_newcrop_path_soap'];
+    return \OpenEMR\Core\OEGlobalsBag::getInstance()->get('erx_newcrop_path_soap');
 }
 
 function getErxCredentials()
 {
     $cred = [];
-    $cred[] = $GLOBALS['erx_account_partner_name'];
-    $cred[] = $GLOBALS['erx_account_name'];
+    $cred[] = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('erx_account_partner_name');
+    $cred[] = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('erx_account_name');
     $cryptoGen = ServiceContainer::getCrypto();
-    $cred[] = $cryptoGen->decryptStandard($GLOBALS['erx_account_password']);
+    $cred[] = $cryptoGen->decryptStandard(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('erx_account_password'));
 
     return $cred;
 }
@@ -198,7 +198,7 @@ function account($doc, $r): void
     }
 
     $b = $doc->createElement("Account");
-    $b->setAttribute('ID', $GLOBALS['erx_account_id']);
+    $b->setAttribute('ID', \OpenEMR\Core\OEGlobalsBag::getInstance()->get('erx_account_id'));
     $erxSiteID['name'] = stripSpecialCharacterFacility($erxSiteID['name']);
     $erxSiteID['name'] = trimData($erxSiteID['name'], 35);
     $msg = validation(xl('Account Name'), $erxSiteID['name'], $msg);
@@ -663,10 +663,10 @@ function Patient($doc, $r, $pid)
     }
 
         //$msg = validation(xl('Patient Country'),$patient_data['country_code'],$msg);
-    if (trim((string) $patient_data['country_code']) == '' && $GLOBALS['erx_default_patient_country'] == '') {
+    if (trim((string) $patient_data['country_code']) == '' && \OpenEMR\Core\OEGlobalsBag::getInstance()->get('erx_default_patient_country') == '') {
         $dem_check .= xlt("Patient Country is missing. Also you have not set default Patient Country in Global Settings") . "<br />";
     } elseif (trim((string) $patient_data['country_code']) == '') {
-        $patient_data['country_code'] = $GLOBALS['erx_default_patient_country'];
+        $patient_data['country_code'] = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('erx_default_patient_country');
     }
 
         $county_code = substr((string) $patient_data['country_code'], 0, 2);
@@ -787,7 +787,7 @@ function PatientMedication($doc, $r, $pid, $med_limit)
 {
     global $msg;
     $active = '';
-    if ($GLOBALS['erx_upload_active'] == 1) {
+    if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('erx_upload_active') == 1) {
         $active = " and (enddate is null or enddate = '0000-00-00' )";
     }
 
@@ -940,7 +940,7 @@ function PrescriptionRenewalResponse($doc, $r, $pid): void
 
 function checkError($xml)
 {
-    $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+    $httpVerifySsl = (bool) (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
     $ch = curl_init($xml);
 
     $data = ['RxInput' => $xml];
@@ -987,11 +987,11 @@ function checkError($xml)
 function erx_error_log($message): void
 {
     $date = date("Y-m-d");
-    if (!is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/erx_error')) {
-        mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/erx_error', 0777, true);
+    if (!is_dir(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/erx_error')) {
+        mkdir(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/erx_error', 0777, true);
     }
 
-    $filename = $GLOBALS['OE_SITE_DIR'] . "/documents/erx_error/erx_error" . "-" . $date . ".log";
+    $filename = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/erx_error/erx_error" . "-" . $date . ".log";
     $f = fopen($filename, 'a');
     fwrite($f, date("Y-m-d H:i:s") . " ==========> " . $message . "\r\n");
     fclose($f);

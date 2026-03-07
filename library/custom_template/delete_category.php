@@ -38,7 +38,7 @@ $res = sqlStatement("SELECT * FROM customlists as cl left outer join users as u 
     <head>
         <title><!-- Insert your title here --></title>
         <?php Header::setupHeader('opener'); ?>
-        <script src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajax_functions_writer.js"></script>
+        <script src="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot') ?>/library/js/ajax_functions_writer.js"></script>
 
         <script>
         function delete_full_category(id){

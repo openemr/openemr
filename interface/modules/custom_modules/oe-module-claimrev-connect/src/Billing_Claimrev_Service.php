@@ -24,7 +24,7 @@ use OpenEMR\Modules\ClaimRevConnector\ReportDownload;
  */
 function start_X12_Claimrev_send_files(): void
 {
-    $autoSend = $GLOBALS['oe_claimrev_config_auto_send_claim_files'] ?? null;
+    $autoSend = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('oe_claimrev_config_auto_send_claim_files') ?? null;
 
     if ($autoSend) {
         ClaimUpload::sendWaitingFiles();
@@ -34,7 +34,7 @@ function start_X12_Claimrev_send_files(): void
 function start_X12_Claimrev_get_reports(): void
 {
 
-    $autoSend = $GLOBALS['oe_claimrev_config_auto_send_claim_files'] ?? null;
+    $autoSend = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('oe_claimrev_config_auto_send_claim_files') ?? null;
 
     if ($autoSend) {
         ReportDownload::getWaitingFiles();

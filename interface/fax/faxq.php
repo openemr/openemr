@@ -27,10 +27,10 @@ $mlines = [];
 $dlines = [];
 $slines = [];
 
-if ($GLOBALS['enable_hylafax']) {
+if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('enable_hylafax')) {
 // Get the recvq entries, parse and sort by filename.
     $statlines = [];
-    exec("faxstat -r -l -h " . escapeshellarg((string) $GLOBALS['hylafax_server']), $statlines);
+    exec("faxstat -r -l -h " . escapeshellarg((string) \OpenEMR\Core\OEGlobalsBag::getInstance()->get('hylafax_server')), $statlines);
     foreach ($statlines as $line) {
         // This gets pagecount, sender, time, filename.  We are expecting the
         // string to start with "-rw-rw-" so as to exclude faxes not yet fully
@@ -50,7 +50,7 @@ if ($GLOBALS['enable_hylafax']) {
     154  124 F nobody 6153551807    0:1   4:12         No carrier detected
     */
     $donelines = [];
-    exec("faxstat -s -d -l -h " . escapeshellarg((string) $GLOBALS['hylafax_server']), $donelines);
+    exec("faxstat -s -d -l -h " . escapeshellarg((string) \OpenEMR\Core\OEGlobalsBag::getInstance()->get('hylafax_server')), $donelines);
     foreach ($donelines as $line) {
             // This gets jobid, priority, statchar, owner, phone, pages, dials and tts/status.
         if (preg_match('/^(\d+)\s+(\d+)\s+(\S)\s+(\S+)\s+(\S+)\s+(\d+:\d+)\s+(\d+:\d+)(.*)$/', $line, $matches)) {
@@ -61,8 +61,8 @@ if ($GLOBALS['enable_hylafax']) {
     ksort($dlines);
 }
 
-$scandir = $GLOBALS['scanner_output_directory'];
-if ($scandir && $GLOBALS['enable_scanner']) {
+$scandir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('scanner_output_directory');
+if ($scandir && \OpenEMR\Core\OEGlobalsBag::getInstance()->get('enable_scanner')) {
     // Get the directory entries, parse and sort by date and time.
     $dh = opendir($scandir);
     if (! $dh) {
@@ -181,21 +181,21 @@ function dosdclick(sfname) {
 <table class='w-100 h-100' cellspacing='0' cellpadding='0' style='margin: 0; border: 2px solid var(--black);' id='bigtable'>
  <tr style='height: 20px;'>
   <td width='33%' id='td_tab_faxin'  class='tabhead'
-    <?php if ($GLOBALS['enable_hylafax']) { ?>
+    <?php if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('enable_hylafax')) { ?>
    style='color: var(--danger); border-right: 2px solid var(--black); border-bottom: 2px solid transparent;'
     <?php } else { ?>
    style='color: var(--gray); border-right: 2px solid var(--black); border-bottom: 2px solid var(--black); cursor: pointer; display:none;'
     <?php } ?>
    onclick='tabclick("faxin")'><?php echo xlt('Faxes In'); ?></td>
   <td width='33%' id='td_tab_faxout' class='tabhead'
-    <?php if ($GLOBALS['enable_hylafax']) { ?>
+    <?php if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('enable_hylafax')) { ?>
    style='color: var(--gray); border-right: 2px solid var(--black); border-bottom: 2px solid var(--black); cursor: pointer;'
     <?php } else { ?>
    style='color: var(--gray); border-right: 2px solid var(--black); border-bottom: 2px solid var(--black); cursor: pointer; display:none;'
     <?php } ?>
    onclick='tabclick("faxout")'><?php echo xlt('Faxes Out'); ?></td>
   <td width='34%' id='td_tab_scanin' class='tabhead'
-    <?php if ($GLOBALS['enable_scanner']) { ?>
+    <?php if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('enable_scanner')) { ?>
    style='color: var(--gray); border-bottom: 2px solid var(--black); cursor: pointer;'
     <?php } else { ?>
    style='color: var(--danger); border-bottom: 2px solid transparent; display:none;'
@@ -208,7 +208,7 @@ function dosdclick(sfname) {
    <form method='post' action='faxq.php'>
 
    <table class='w-100' cellpadding='1' cellspacing='2' id='table_faxin'
-    <?php if (!$GLOBALS['enable_hylafax']) {
+    <?php if (!\OpenEMR\Core\OEGlobalsBag::getInstance()->get('enable_hylafax')) {
         echo "style='display:none;'";
     } ?>>
     <tr class='head'>
@@ -281,7 +281,7 @@ foreach ($dlines as $matches) {
    </table>
 
    <table class='w-100' cellpadding='1' cellspacing='2' id='table_scanin'
-    <?php if ($GLOBALS['enable_hylafax']) {
+    <?php if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('enable_hylafax')) {
         echo "style='display:none;'";
     } ?>>
     <tr class='head'>

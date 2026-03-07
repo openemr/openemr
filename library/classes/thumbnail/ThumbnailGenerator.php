@@ -34,7 +34,7 @@ class ThumbnailGenerator
      */
     public function __construct()
     {
-        $thumb_size = ($GLOBALS['thumb_doc_max_size'] > 0) ? $GLOBALS['thumb_doc_max_size'] : null;
+        $thumb_size = (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('thumb_doc_max_size') > 0) ? \OpenEMR\Core\OEGlobalsBag::getInstance()->get('thumb_doc_max_size') : null;
         $this->thumb_obj = new Thumbnail($thumb_size);
     }
 
@@ -134,7 +134,7 @@ class ThumbnailGenerator
         $from_pathname_array = array_reverse($from_pathname_array);
         $from_pathname = implode("/", $from_pathname_array);
 
-        $temp_url = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $from_filename;
+        $temp_url = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/' . $from_pathname . '/' . $from_filename;
 
         if (file_exists($temp_url)) {
             $url = $temp_url;

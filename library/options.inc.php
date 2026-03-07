@@ -118,7 +118,7 @@ function optionalAge($frow, $date, &$asof, $description = '')
         $tmp = sqlQuery(
             "SELECT date FROM form_encounter WHERE " .
             "pid = ? AND encounter = ? ORDER BY id DESC LIMIT 1",
-            [$GLOBALS['pid'], $GLOBALS['encounter']]
+            [\OpenEMR\Core\OEGlobalsBag::getInstance()->get('pid'), \OpenEMR\Core\OEGlobalsBag::getInstance()->get('encounter')]
         );
         if (!empty($tmp['date'])) {
             $asof = substr((string) $tmp['date'], 0, 10);
@@ -222,8 +222,8 @@ function generate_select_list(
         // This block should be migrated to the ListService but the service currently does not translate or offer a sort option.
 
         // sort by title
-        $order_by_sql = ($GLOBALS['gb_how_sort_list'] == '0') ? "seq, title" : "title, seq";
-        if (!$GLOBALS['translate_lists']) {
+        $order_by_sql = (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gb_how_sort_list') == '0') ? "seq, title" : "title, seq";
+        if (!\OpenEMR\Core\OEGlobalsBag::getInstance()->get('translate_lists')) {
             // do not translate
             $lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = ? ORDER BY $order_by_sql", [$list_id, $active]);
         } else {
@@ -733,7 +733,7 @@ function generate_form_field($frow, $currvalue): void
             echo " onchange='$tmp'";
         }
 
-        $tmp = htmlspecialchars((string) $GLOBALS['gbl_mask_patient_id'], ENT_QUOTES);
+        $tmp = htmlspecialchars((string) \OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_mask_patient_id'), ENT_QUOTES);
         // If mask is for use at save time, treat as no mask.
         if (str_contains($tmp, '^')) {
             $tmp = '';
@@ -1189,7 +1189,7 @@ function generate_form_field($frow, $currvalue): void
         "pid = ? AND type = 'allergy' AND enddate IS NULL " .
         "ORDER BY begdate";
         // echo "<!-- $query -->\n"; // debugging
-        $lres = sqlStatement($query, [$GLOBALS['pid']]);
+        $lres = sqlStatement($query, [\OpenEMR\Core\OEGlobalsBag::getInstance()->get('pid')]);
         $count = 0;
         while ($lrow = sqlFetchArray($lres)) {
             if ($count++) {
@@ -1521,7 +1521,7 @@ function generate_form_field($frow, $currvalue): void
         if (empty($currvalue)) {
             if (preg_match('/\\bimage=([a-zA-Z0-9._-]*)/', (string) $frow['description'], $matches)) {
                 // If defined this is the filename of the default starting image.
-                $currvalue = $GLOBALS['web_root'] . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
+                $currvalue = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('web_root') . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
             }
         }
         $mywidth  = 50 + ($canWidth  > 250 ? $canWidth  : 250);
@@ -1537,7 +1537,7 @@ function generate_form_field($frow, $currvalue): void
         $date_init .= " lbfCanvasSetup('form_$field_id_esc', $canWidth, $canHeight);\n";
     } elseif ($data_type == 41 || $data_type == 42) {
         $datatype = 'patient-signature';
-        $cpid = $GLOBALS['pid'];
+        $cpid = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('pid');
         $cuser = $session->get('authUserID');
         if ($data_type == 42) {
             $datatype = 'admin-signature';
@@ -2044,7 +2044,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
         $query = "SELECT title, comments FROM lists WHERE " .
         "pid = ? AND type = 'allergy' AND enddate IS NULL " .
         "ORDER BY begdate";
-        $lres = sqlStatement($query, [$GLOBALS['pid']]);
+        $lres = sqlStatement($query, [\OpenEMR\Core\OEGlobalsBag::getInstance()->get('pid')]);
         $count = 0;
         while ($lrow = sqlFetchArray($lres)) {
             if ($count++) {
@@ -2274,7 +2274,7 @@ function generate_print_field($frow, $currvalue, $value_allowed = true): void
     } elseif ($data_type == 40) { // Image from canvas drawing
         if (empty($currvalue)) {
             if (preg_match('/\\bimage=([a-zA-Z0-9._-]*)/', (string) $frow['description'], $matches)) {
-                $currvalue = $GLOBALS['web_root'] . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
+                $currvalue = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('web_root') . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
             }
         }
         if ($currvalue) {
@@ -2585,7 +2585,7 @@ function generate_display_field($frow, $currvalue)
         "pid = ? AND type = 'allergy' AND enddate IS NULL " .
         "ORDER BY begdate";
         // echo "<!-- $query -->\n"; // debugging
-        $lres = sqlStatement($query, [$GLOBALS['pid']]);
+        $lres = sqlStatement($query, [\OpenEMR\Core\OEGlobalsBag::getInstance()->get('pid')]);
         $count = 0;
         while ($lrow = sqlFetchArray($lres)) {
             if ($count++) {
@@ -2770,7 +2770,7 @@ function generate_display_field($frow, $currvalue)
     } elseif ($data_type == 40) { // Image from canvas drawing
         if (empty($currvalue)) {
             if (preg_match('/\\bimage=([a-zA-Z0-9._-]*)/', (string) $frow['description'], $matches)) {
-                $currvalue = $GLOBALS['web_root'] . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
+                $currvalue = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('web_root') . '/sites/' . $session->get('site_id') . '/images/' . $matches[1];
             }
         }
         if ($currvalue) {
@@ -3034,7 +3034,7 @@ function generate_plaintext_field($frow, $currvalue)
         $query = "SELECT title, comments FROM lists WHERE " .
         "pid = ? AND type = 'allergy' AND enddate IS NULL " .
         "ORDER BY begdate";
-        $lres = sqlStatement($query, [$GLOBALS['pid']]);
+        $lres = sqlStatement($query, [\OpenEMR\Core\OEGlobalsBag::getInstance()->get('pid')]);
         $count = 0;
         while ($lrow = sqlFetchArray($lres)) {
             if ($count++) {
@@ -3499,7 +3499,7 @@ function display_layout_rows($formtype, $result1, $result2 = ''): void
             if ($formtype == 'DEM') {
                 if (str_starts_with((string) $field_id, 'em_')) {
                     // Skip employer related fields, if it's disabled.
-                    if ($GLOBALS['omit_employers']) {
+                    if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('omit_employers')) {
                         continue;
                     }
 
@@ -3522,7 +3522,7 @@ function display_layout_rows($formtype, $result1, $result2 = ''): void
             if (strcmp((string) $this_group, (string) $last_group) != 0) {
                 $group_name = $grparr[$this_group]['grp_title'];
                 // totally skip generating the employer category, if it's disabled.
-                if ($group_name === 'Employer' && $GLOBALS['omit_employers']) {
+                if ($group_name === 'Employer' && \OpenEMR\Core\OEGlobalsBag::getInstance()->get('omit_employers')) {
                     continue;
                 }
 
@@ -3639,7 +3639,7 @@ function display_layout_tabs($formtype, $result1, $result2 = ''): void
             }
             $prev_group = $this_group;
             $group_name = $grparr[$this_group]['grp_title'];
-            if ($group_name === 'Employer' && $GLOBALS['omit_employers']) {
+            if ($group_name === 'Employer' && \OpenEMR\Core\OEGlobalsBag::getInstance()->get('omit_employers')) {
                 continue;
             }
             ?>
@@ -3694,7 +3694,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = ''): void
         while ($frow = sqlFetchArray($fres)) {
             $this_group = $frow['group_id'] ?? "" ;
 
-            if ($grparr[$this_group]['grp_title'] === 'Employer' && $GLOBALS['omit_employers']) {
+            if ($grparr[$this_group]['grp_title'] === 'Employer' && \OpenEMR\Core\OEGlobalsBag::getInstance()->get('omit_employers')) {
                 continue;
             }
             $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
@@ -3732,7 +3732,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = ''): void
                 if ($formtype == 'DEM') {
                     if (str_starts_with((string) $field_id, 'em_')) {
                         // Skip employer related fields, if it's disabled.
-                        if ($GLOBALS['omit_employers']) {
+                        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('omit_employers')) {
                             continue;
                         }
 
@@ -3764,7 +3764,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = ''): void
                 if (strcmp($this_group, $last_group) != 0) {
                     $group_name = $grparr[$this_group]['grp_title'];
                     // totally skip generating the employer category, if it's disabled.
-                    if ($group_name === 'Employer' && $GLOBALS['omit_employers']) {
+                    if ($group_name === 'Employer' && \OpenEMR\Core\OEGlobalsBag::getInstance()->get('omit_employers')) {
                         continue;
                     }
                     $last_group = $this_group;
@@ -3945,7 +3945,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = ''): 
             $group_name = $grparr[$this_group]['grp_title'];
             $group_name_esc = text($group_name);
 
-            if ($grparr[$this_group]['grp_title'] === 'Employer' && $GLOBALS['omit_employers']) {
+            if ($grparr[$this_group]['grp_title'] === 'Employer' && \OpenEMR\Core\OEGlobalsBag::getInstance()->get('omit_employers')) {
                 continue;
             }
             $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
@@ -4037,7 +4037,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = ''): 
                 if ($formtype == 'DEM') {
                     if (str_starts_with((string) $field_id, 'em_')) {
                         // Skip employer related fields, if it's disabled.
-                        if ($GLOBALS['omit_employers']) {
+                        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('omit_employers')) {
                             continue;
                         }
 
@@ -4059,7 +4059,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = ''): 
                 // Handle a data category (group) change.
                 if (strcmp((string) $this_group, (string) $last_group) != 0) {
                     // totally skip generating the employer category, if it's disabled.
-                    if ($group_name === 'Employer' && $GLOBALS['omit_employers']) {
+                    if ($group_name === 'Employer' && \OpenEMR\Core\OEGlobalsBag::getInstance()->get('omit_employers')) {
                         continue;
                     }
 
@@ -4790,11 +4790,7 @@ function lbf_current_value($frow, $formid, $encounter)
 
 function signer_head()
 {
-    return <<<EOD
-<link href="{$GLOBALS['web_root']}/portal/sign/css/signer_modal.css?v={$GLOBALS['v_js_includes']}" rel="stylesheet"/>
-<script src="{$GLOBALS['web_root']}/portal/sign/assets/signature_pad.umd.js?v={$GLOBALS['v_js_includes']}"></script>
-<script src="{$GLOBALS['web_root']}/portal/sign/assets/signer_api.js?v={$GLOBALS['v_js_includes']}"></script>
-EOD;
+    return "<link href=\"" . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('web_root') . "/portal/sign/css/signer_modal.css?v=" . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('v_js_includes') . "\" rel=\"stylesheet\"/>\n<script src=\"" . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('web_root') . "/portal/sign/assets/signature_pad.umd.js?v=" . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('v_js_includes') . "\"></script>\n<script src=\"" . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('web_root') . "/portal/sign/assets/signer_api.js?v=" . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('v_js_includes') . "\"></script>";
 }
 
 // This returns stuff that needs to go into the <head> section of a caller using
@@ -4803,12 +4799,7 @@ EOD;
 //
 function lbf_canvas_head($small = true)
 {
-    $s = <<<EOD
-<link  href="{$GLOBALS['assets_static_relative']}/literallycanvas/css/literallycanvas.css" rel="stylesheet" />
-<script src="{$GLOBALS['assets_static_relative']}/react/build/react-with-addons.min.js"></script>
-<script src="{$GLOBALS['assets_static_relative']}/react/build/react-dom.min.js"></script>
-<script src="{$GLOBALS['assets_static_relative']}/literallycanvas/js/literallycanvas.min.js"></script>
-EOD;
+    $s = "<link  href=\"" . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('assets_static_relative') . "/literallycanvas/css/literallycanvas.css\" rel=\"stylesheet\" />\n<script src=\"" . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('assets_static_relative') . "/react/build/react-with-addons.min.js\"></script>\n<script src=\"" . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('assets_static_relative') . "/react/build/react-dom.min.js\"></script>\n<script src=\"" . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('assets_static_relative') . "/literallycanvas/js/literallycanvas.min.js\"></script>";
     if ($small) {
         $s .= <<<EOD
 <style>

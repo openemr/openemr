@@ -39,7 +39,7 @@ function get_patients_list($req): void
         [$term]
     );
     while ($row = sqlFetchArray($response)) {
-        if ($GLOBALS['pid'] == $row['value']) {
+        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('pid') == $row['value']) {
             $row['value'] = "00";
             $row['label'] = xl("Locked") . "-" . xl("In Use") . ":" . $row['label'];
         }

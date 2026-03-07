@@ -87,8 +87,8 @@ class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
      */
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
-        $fhir_api = $GLOBALS['rest_fhir_api'] ?? '0';
-        $patient_api = $GLOBALS['rest_portal_api'] ?? '0';
+        $fhir_api = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('rest_fhir_api') ?? '0';
+        $patient_api = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('rest_portal_api') ?? '0';
 
         // if either the fhir api or the patient api is disabled, then we must fail the measure as no patient
         // fhir api access is available.

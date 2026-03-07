@@ -44,7 +44,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
         $(function() {
             $(".select-dropdown").select2({
                 theme: "bootstrap4",
-                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+                <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'); ?>
             });
             if (typeof error !== 'undefined') {
                 if (error) {
@@ -77,7 +77,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma
                 ?>
             });
@@ -87,7 +87,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma
                 ?>
             });
@@ -97,7 +97,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma
                 ?>
             });
@@ -107,7 +107,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma
                 ?>
             });
@@ -117,7 +117,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma
                 ?>
             });
@@ -127,7 +127,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma
                 ?>
             });
@@ -216,7 +216,7 @@ if (!isset($_GET["user_id"]) || !isset($_GET["fac_id"])) {
         </div>
     </div>
     <!-- include support for the list-add selectbox feature -->
-    <?php require $GLOBALS['fileroot'] . "/library/options_listadd.inc.php"; ?>
+    <?php require \OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/options_listadd.inc.php"; ?>
 
     <script>
         <?php echo $date_init; ?>

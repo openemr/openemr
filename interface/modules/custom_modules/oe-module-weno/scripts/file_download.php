@@ -17,9 +17,9 @@ $wenoValidate = new WenoValidate();
 $isKey = $wenoValidate->validateAdminCredentials(true, "Pharmacy Directory");
 
 $cryptoGen = ServiceContainer::getCrypto();
-$weno_username = $GLOBALS['weno_admin_username'] ?? '';
-$weno_password = $cryptoGen->decryptStandard($GLOBALS['weno_admin_password'] ?? '');
-$encryption_key = $cryptoGen->decryptStandard($GLOBALS['weno_encryption_key'] ?? '');
+$weno_username = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_admin_username') ?? '';
+$weno_password = $cryptoGen->decryptStandard(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_admin_password') ?? '');
+$encryption_key = $cryptoGen->decryptStandard(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_encryption_key') ?? '');
 $baseurl = "https://online.wenoexchange.com/en/EPCS/DownloadPharmacyDirectory";
 
 $pharmacyDownloadService = new DownloadWenoPharmacies();
@@ -49,8 +49,8 @@ $iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0)
 $encrypted = base64_encode(openssl_encrypt($json_object, $method, $key, OPENSSL_RAW_DATA, $iv));
 
 $fileUrl = $baseurl . "?useremail=" . urlencode((string) $weno_username) . "&data=" . urlencode($encrypted);
-$storeLocation = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/weno_pharmacy.zip";
-$path_to_extract = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/";
+$storeLocation = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/weno/weno_pharmacy.zip";
+$path_to_extract = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/weno/";
 
 $comment = "User Initiated Unscheduled Daily Pharmacy Import";
 if ($data['Daily'] == 'N') {

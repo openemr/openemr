@@ -52,7 +52,7 @@ class CarecoordinationController extends AbstractActionController
     {
         $this->carecoordinationTable = $table;
         $this->listenerObject = new Listener();
-        $this->date_format = ApplicationTable::dateFormat($GLOBALS['date_display_format']);
+        $this->date_format = ApplicationTable::dateFormat(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('date_display_format'));
         $this->documentsController = $documentsController;
     }
 

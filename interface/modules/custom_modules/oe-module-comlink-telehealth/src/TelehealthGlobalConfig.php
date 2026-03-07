@@ -302,7 +302,7 @@ class TelehealthGlobalConfig
     public function getGlobalSetting($settingKey)
     {
         // don't like this as php 8.1 requires this but OpenEMR works with globals and this is annoying.
-        return $GLOBALS[$settingKey] ?? '';
+        return \OpenEMR\Core\OEGlobalsBag::getInstance()->get($settingKey) ?? '';
     }
 
     public function getAppRegistrationCodeLength()
@@ -468,7 +468,7 @@ class TelehealthGlobalConfig
         $settings = $this->getGlobalSettingSectionConfiguration();
 
         foreach ($settings as $key => $config) {
-            $value = $GLOBALS[$key] ?? $config['default'];
+            $value = \OpenEMR\Core\OEGlobalsBag::getInstance()->get($key) ?? $config['default'];
             $setting = new GlobalSetting(
                 xlt($config['title']),
                 $config['type'],

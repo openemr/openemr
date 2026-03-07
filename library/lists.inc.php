@@ -71,7 +71,7 @@ $ISSUE_TYPE_STYLES = [
  */
 function collect_issue_type_category()
 {
-    if (!empty($GLOBALS['ippf_specific'])) { // IPPF version
+    if (!empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('ippf_specific'))) { // IPPF version
         return "ippf_specific";
     } else { // Default version
         return "default";

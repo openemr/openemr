@@ -42,7 +42,7 @@ function smarty_function_datetimepickerSupport($params, &$smarty): void
 
     $datetimepicker_formatInput = !empty($params['input']) && $params['input'] == 'format' ? true : false;
 
-    require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
+    require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
 
     echo " });";
 

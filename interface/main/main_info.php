@@ -15,7 +15,7 @@
 require_once("../globals.php");
 
 // this allows us to keep our viewtype between screens -- JRM calendar_view_type
-$viewtype = $GLOBALS['calendar_view_type'];
+$viewtype = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('calendar_view_type');
 if (isset($_SESSION['viewtype'])) {
     $viewtype = $_SESSION['viewtype'];
 }
@@ -43,7 +43,7 @@ if (isset($_SESSION['pc_username'])) {
 }
 
 // different frame source page depending on session vars
-if ($_SESSION['userauthorized'] && $GLOBALS['docs_see_entire_calendar']) {
+if ($_SESSION['userauthorized'] && \OpenEMR\Core\OEGlobalsBag::getInstance()->get('docs_see_entire_calendar')) {
     $framesrc = "calendar/index.php?module=PostCalendar&viewtype=" . attr_url($viewtype) . "&func=view";
 } elseif ($_SESSION['userauthorized']) {
     $framesrc = "calendar/index.php?module=PostCalendar&viewtype=" . attr_url($viewtype) . "&func=view&" . $pcuStr;

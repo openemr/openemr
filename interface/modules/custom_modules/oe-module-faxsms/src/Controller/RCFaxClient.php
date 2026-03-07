@@ -44,9 +44,9 @@ class RCFaxClient extends AppDispatch
     public function __construct()
     {
         $this->crypto = ServiceContainer::getCrypto();
-        $this->baseDir = $GLOBALS['temporary_files_dir'];
-        $this->uriDir = $GLOBALS['OE_SITE_WEBROOT'];
-        $this->cacheDir = $GLOBALS['OE_SITE_DIR'] . '/documents/logs_and_misc/_cache';
+        $this->baseDir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir');
+        $this->uriDir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT');
+        $this->cacheDir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/logs_and_misc/_cache';
         $this->credentials = $this->getCredentials();
         $this->portalUrl = $this->credentials['production'] ?? null ? "https://service.ringcentral.com/" : "https://service.devtest.ringcentral.com/";
         $this->serverUrl = $this->credentials['production'] ?? null ? "https://platform.ringcentral.com" : "https://platform.devtest.ringcentral.com";
@@ -177,7 +177,7 @@ class RCFaxClient extends AppDispatch
         $email = $this->getRequest('email');
         $faxNumber = $this->formatPhone($this->getRequest('phone'));
         $hasEmail = $this->validEmail($email);
-        $smtpEnabled = !empty($GLOBALS['SMTP_HOST'] ?? null);
+        $smtpEnabled = !empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('SMTP_HOST') ?? null);
         $user = $this::getLoggedInUser();
         $facility = substr((string)$user['facility'], 0, 20);
         $csid = $this->formatPhone($this->credentials['phone']);
@@ -258,7 +258,7 @@ class RCFaxClient extends AppDispatch
         $comments = trim((string)$this->getRequest('comments', $comments));
         $email = $this->getRequest('email');
         $hasEmail = $this->validEmail($email);
-        $smtpEnabled = !empty($GLOBALS['SMTP_HOST'] ?? null);
+        $smtpEnabled = !empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('SMTP_HOST') ?? null);
         $user = $this::getLoggedInUser();
         $name = $this->getRequest('name', $name) . ' ' . $this->getRequest('surname', '');
         $fileName ??= pathinfo((string)$file, PATHINFO_BASENAME);
@@ -283,7 +283,7 @@ class RCFaxClient extends AppDispatch
         // Check if the content is from patient report
         if ($isContent) {
             $content = $file;
-            $file = 'report-' . attr($GLOBALS['pid']) . '.pdf';
+            $file = 'report-' . attr(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('pid')) . '.pdf';
         } else {
             // Is it from patient documents
             if ($isDocuments) {
@@ -1162,7 +1162,7 @@ class RCFaxClient extends AppDispatch
         $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached fax document.");
         $mail = new MyMailer();
         $from_name = text($from_name);
-        $from = $GLOBALS["practice_return_email_path"];
+        $from = \OpenEMR\Core\OEGlobalsBag::getInstance()->get("practice_return_email_path");
         $mail->AddReplyTo($from, $from_name);
         $mail->SetFrom($from, $from);
         $mail->AddAddress($email, $email);

@@ -56,7 +56,7 @@ class CcdaNewpatient extends Command
         $_SESSION['authUser'] = $input->getOption('auth_name');
 
         $symfonyStyler = new SymfonyStyle($input, $output);
-        $careCoordinationTable = $GLOBALS['modules_application']->getServiceManager()->build(CarecoordinationTable::class);
+        $careCoordinationTable = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('modules_application')->getServiceManager()->build(CarecoordinationTable::class);
         if ($careCoordinationTable instanceof CarecoordinationTable) {
             if ($input->getOption('debug') !== false) {
                 $careCoordinationTable->setCommandLineStyler($symfonyStyler);

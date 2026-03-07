@@ -53,7 +53,7 @@ if (!empty($_POST['bn_save'])) {
         }
 
         $fileData = file_get_contents($_FILES['form_education']['tmp_name']);
-        if ($GLOBALS['drive_encryption']) {
+        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('drive_encryption')) {
             $fileData = (ServiceContainer::getCrypto())->encryptStandard($fileData, null, KeySource::Database);
         }
         if (file_put_contents($educationpath, $fileData) === false) {
@@ -96,7 +96,7 @@ if (isset($_POST['generate_thumbnails'])) {
  * Dependence - turn on global setting 'secure_upload'
  */
 
-if ($GLOBALS['secure_upload']) {
+if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('secure_upload')) {
     $mime_types  = ['image/*', 'text/*', 'audio/*', 'video/*'];
 
     $responseError = false;
@@ -253,7 +253,7 @@ function msfFileChanged() {
     </table>
 </div>
 
-<?php if ($GLOBALS['secure_upload']) { ?>
+<?php if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('secure_upload')) { ?>
 <div id="file_type_whitelist">
     <h3 class='text-center'><?php echo xlt('White list files by MIME content type');?></h3>
     <form id="whitelist_form" method="post">

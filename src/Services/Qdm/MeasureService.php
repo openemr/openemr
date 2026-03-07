@@ -14,7 +14,7 @@ class MeasureService
      */
     public static function fetchMeasureSourceOptions()
     {
-        $reporting_year = $GLOBALS['cqm_performance_period'] ?? '2023';
+        $reporting_year = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('cqm_performance_period') ?? '2023';
         $reporting_year .= '_reporting_period';
 
         return [
@@ -27,7 +27,7 @@ class MeasureService
     {
         $measureSources = self::fetchMeasureSourceOptions();
         $measureSourcePath = $measureSources['openemr/oe-cqm-parsers'];
-        $measurePath = $GLOBALS['fileroot'] . $measureSourcePath;
+        $measurePath = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . $measureSourcePath;
         $options = [];
 
         foreach (glob("$measurePath/*", GLOB_ONLYDIR) as $measureDirectory) {
@@ -41,7 +41,7 @@ class MeasureService
     {
         $measureSources = self::fetchMeasureSourceOptions();
         $measureSourcePath = $measureSources['openemr/oe-cqm-parsers'];
-        return $GLOBALS['fileroot'] . $measureSourcePath;
+        return \OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . $measureSourcePath;
     }
 
     /**
@@ -85,7 +85,7 @@ class MeasureService
      */
     public static function getCurrentReportingYear()
     {
-        return $GLOBALS['cqm_performance_period'] ?? '2023';
+        return \OpenEMR\Core\OEGlobalsBag::getInstance()->get('cqm_performance_period') ?? '2023';
     }
 
     /**
@@ -100,14 +100,14 @@ class MeasureService
             $year = self::getCurrentReportingYear();
         }
 
-        $tempGlobal = $GLOBALS['cqm_performance_period'];
-        $GLOBALS['cqm_performance_period'] = $year;
+        $tempGlobal = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('cqm_performance_period');
+        \OpenEMR\Core\OEGlobalsBag::getInstance()->set('cqm_performance_period', $year);
 
         $measureSources = self::fetchMeasureSourceOptions();
-        $measurePath = $GLOBALS['fileroot'] . $measureSources['openemr/oe-cqm-parsers'];
+        $measurePath = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . $measureSources['openemr/oe-cqm-parsers'];
 
         // Restore original global
-        $GLOBALS['cqm_performance_period'] = $tempGlobal;
+        \OpenEMR\Core\OEGlobalsBag::getInstance()->set('cqm_performance_period', $tempGlobal);
 
         return is_dir($measurePath) && count(glob("$measurePath/*", GLOB_ONLYDIR)) > 0;
     }

@@ -327,10 +327,10 @@ function csv_notes_file($content = '', $open = true)
 function csv_edih_basedir()
 {
     // should be something like /var/www/htdocs/openemr/sites/default
-    if (isset($GLOBALS['OE_SITE_DIR'])) {
+    if (\OpenEMR\Core\OEGlobalsBag::getInstance()->has('OE_SITE_DIR')) {
         // debug
         //echo 'csv_edih_basedir OE_SITE_DIR '.$GLOBALS['OE_SITE_DIR'].'<br />'.PHP_EOL;
-        return $GLOBALS['OE_SITE_DIR'] . DS . 'documents' . DS . 'edi' . DS . 'history';
+        return \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . DS . 'documents' . DS . 'edi' . DS . 'history';
     } else {
         csv_edihist_log('csv_edih_basedir: failed to obtain OpenEMR Site directory');
         return false;
@@ -383,7 +383,7 @@ function csv_setup()
     $out_str = '';
     $chr = 0;
     // $GLOBALS['OE_SITE_DIR'] should be like /var/www/htdocs/openemr/sites/default
-    $sitedir = $GLOBALS['OE_SITE_DIR'];
+    $sitedir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR');
     //$sitedir = csv_edih_basedir();
     //
     if (is_readable($sitedir)) {
@@ -747,7 +747,7 @@ function csv_parameters($type = 'ALL')
     // OpenEMR copies each batch file to sites/default/documents/edi and this project never writes to that directory
     // batch reg ex -- '/20[01][0-9]-[01][0-9]-[0-3][0-9]-[0-9]{4}-batch*\.txt/' '/\d{4}-\d{2}-\d{2}-batch*\.txt$/'
     //
-    $p_ar['f837'] = ['type' => 'f837', 'directory' => $GLOBALS['OE_SITE_DIR'] . DS . 'documents' . DS . 'edi', 'claims_csv' => $edihist_dir . DS . 'csv' . DS . 'claims_f837.csv',
+    $p_ar['f837'] = ['type' => 'f837', 'directory' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . DS . 'documents' . DS . 'edi', 'claims_csv' => $edihist_dir . DS . 'csv' . DS . 'claims_f837.csv',
                         'files_csv' => $edihist_dir . DS . 'csv' . DS . 'files_f837.csv', 'filedate' => 'Date', 'claimdate' => 'SvcDate', 'regex' => '/\-batch(.*)\.txt$/'];
     //
     //$p_ar['csv'] = array("type"=>'csv', "directory"=>$edihist_dir.'/csv', "claims_csv"=>'ibr_parameters.csv',

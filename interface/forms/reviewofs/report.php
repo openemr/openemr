@@ -11,7 +11,7 @@
  */
 
 require_once(__DIR__ . '/../../globals.php');
-require_once($GLOBALS["srcdir"] . "/api.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("srcdir") . "/api.inc.php");
 
 function reviewofs_report($pid, $encounter, $cols, $id): void
 {

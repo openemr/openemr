@@ -35,13 +35,13 @@ class EmailClient extends AppDispatch
 
     public function __construct()
     {
-        if (empty($GLOBALS['oe_enable_email'] ?? null)) {
+        if (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('oe_enable_email') ?? null)) {
             throw new \RuntimeException(xlt("Access denied! Module not enabled"));
         }
         $this->crypto = ServiceContainer::getCrypto();
-        $this->baseDir = $GLOBALS['temporary_files_dir'];
-        $this->uriDir = $GLOBALS['OE_SITE_WEBROOT'];
-        $this->smtpEnabled = !empty($GLOBALS['SMTP_HOST'] ?? null);
+        $this->baseDir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir');
+        $this->uriDir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT');
+        $this->smtpEnabled = !empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('SMTP_HOST') ?? null);
         parent::__construct();
     }
 
@@ -118,7 +118,7 @@ class EmailClient extends AppDispatch
         $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached document.");
         $mail = new MyMailer();
         $from_name = text($from_name);
-        $from = $GLOBALS["practice_return_email_path"];
+        $from = \OpenEMR\Core\OEGlobalsBag::getInstance()->get("practice_return_email_path");
         $mail->AddReplyTo($from, $from_name);
         $mail->SetFrom($from, $from);
         $mail->AddAddress($email, $email);
@@ -143,15 +143,15 @@ class EmailClient extends AppDispatch
         if (!$this->smtpEnabled) {
             throw new SmtpNotConfiguredException(sprintf(
                 "SMTP not configured (SMTP_HOST=%s, SMTP_PORT=%s, SMTP_USER=%s)",
-                $GLOBALS['SMTP_HOST'] ?? 'NOT_SET',
-                $GLOBALS['SMTP_PORT'] ?? 'NOT_SET',
-                !empty($GLOBALS['SMTP_USER']) ? 'SET' : 'NOT_SET'
+                \OpenEMR\Core\OEGlobalsBag::getInstance()->get('SMTP_HOST') ?? 'NOT_SET',
+                \OpenEMR\Core\OEGlobalsBag::getInstance()->get('SMTP_PORT') ?? 'NOT_SET',
+                !empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('SMTP_USER')) ? 'SET' : 'NOT_SET'
             ));
         }
-        $from_name = text($GLOBALS["Patient Reminder Sender Name"] ?? 'UNK');
+        $from_name = text(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("Patient Reminder Sender Name") ?? 'UNK');
         $desc = text($body);
         $mail = new MyMailer();
-        $from = text($GLOBALS["practice_return_email_path"]);
+        $from = text(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("practice_return_email_path"));
         $mail->AddReplyTo($from, $from_name);
         $mail->SetFrom($from, $from);
         $mail->AddAddress($email, $email);

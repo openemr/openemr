@@ -10,7 +10,7 @@
  */
 
 /* include the class we are extending. */
-require_once($GLOBALS['fileroot'] . "/interface/clickmap/AbstractClickmapModel.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/interface/clickmap/AbstractClickmapModel.php");
 
 /**
  * @class FormPainMap

@@ -324,7 +324,7 @@ class sms_clickatell implements sms_interface
     function _curl($command)
     {
         $this->_chk_curl();
-        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+        $httpVerifySsl = (bool) (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
         $ch = curl_init($command);
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

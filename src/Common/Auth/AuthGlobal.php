@@ -27,13 +27,13 @@ class AuthGlobal
 
     public function globalVerify(string $pass): bool
     {
-        if (empty($pass) || empty($this->globalSetting) || empty($GLOBALS[$this->globalSetting])) {
+        if (empty($pass) || empty($this->globalSetting) || empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get($this->globalSetting))) {
             return false;
         }
 
         // collect and decrypt the global hash
         $cryptoGen = ServiceContainer::getCrypto();
-        $globalHash = $cryptoGen->decryptStandard($GLOBALS[$this->globalSetting]);
+        $globalHash = $cryptoGen->decryptStandard(\OpenEMR\Core\OEGlobalsBag::getInstance()->get($this->globalSetting));
 
         if (empty($globalHash)) {
             return false;

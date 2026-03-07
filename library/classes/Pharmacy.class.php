@@ -252,7 +252,7 @@ class Pharmacy extends ORDataObject
         $sql = "SELECT p.id, a.city " .
             "FROM " . escape_table_name($p->_table) . " AS p " .
             "INNER JOIN addresses AS a ON p.id = a.foreign_id ";
-        if ($GLOBALS['weno_rx_enable'] ?? false) {
+        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_rx_enable') ?? false) {
             $sql .= "WHERE state = '" . add_escape_custom($this->state) . "' ";
         }
         $sql .= "ORDER BY name";

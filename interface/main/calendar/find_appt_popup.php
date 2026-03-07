@@ -20,7 +20,7 @@
 require_once("../../globals.php");
 require_once("$srcdir/patient.inc.php");
 require_once(__DIR__ . "/../../../library/appointments.inc.php");
-require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('incdir') . "/main/holidays/Holidays_Controller.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -90,7 +90,7 @@ function doOneDay($catid, $udate, $starttime, $duration, $prefcatid): void
 }
 
 // seconds per time slot
-$slotsecs = $GLOBALS['calendar_interval'] * 60;
+$slotsecs = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('calendar_interval') * 60;
 
 
 $catslots = 1;
@@ -139,7 +139,7 @@ if (isset($_REQUEST['evdur'])) {
     // if the global calendar interval is less than or equal to zero, use 10 mins
     $evdur = ValidationUtils::validateInt($_REQUEST['evdur'], min: 1);
     if ($evdur === false) {
-        $evdur = ValidationUtils::validateInt($GLOBALS['calendar_interval'], min: 1);
+        $evdur = ValidationUtils::validateInt(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('calendar_interval'), min: 1);
         if ($evdur === false) {
             $evdur = 10;
         }
@@ -407,7 +407,7 @@ if (isset($_REQUEST['cktime'])) {
                 }
 
                 $ampmFlag = $ampm;
-                $hour_format_leading_zeros = ($GLOBALS['time_display_format'] == 0) ? 'h' : 'H';
+                $hour_format_leading_zeros = (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('time_display_format') == 0) ? 'h' : 'H';
 
                 $atitle = "Choose " . date($hour_format_leading_zeros . ":i a", $utime);
                 $adate = getdate($utime);
@@ -419,7 +419,7 @@ if (isset($_REQUEST['cktime'])) {
                 attr_js($adate['minutes']) . ")'" .
                 " title='" . attr($atitle) . "' alt='" . attr($atitle) . "'" .
                 ">";
-                $hour_format = ($GLOBALS['time_display_format'] == 0) ? 'G' : 'g';
+                $hour_format = (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('time_display_format') == 0) ? 'G' : 'g';
                 echo (strlen(date($hour_format, $utime)) < 2 ? "<span class='invisible'>0</span>" : "") .
                 $anchor . date($hour_format . ":i", $utime) . "</a> ";
 
@@ -452,7 +452,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });

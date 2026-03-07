@@ -91,7 +91,7 @@ class C_EncounterVisitForm
     function displayOption($field)
     {
         $displayMode = $this->viewmode && $this->mode !== "followup" ? "edit" : "new";
-        echo RenderFormFieldHelper::shouldDisplayFormField($GLOBALS[$field], $displayMode) ? '' : 'd-none';
+        echo RenderFormFieldHelper::shouldDisplayFormField(\OpenEMR\Core\OEGlobalsBag::getInstance()->get($field), $displayMode) ? '' : 'd-none';
     }
 
     function getCareTeamFacilityForPatient($pid)
@@ -210,7 +210,7 @@ class C_EncounterVisitForm
         while ($row = sqlFetchArray($result)) {
             // Skip therapy group categories if not enabled
             // TODO: @adunsulag magic number 3 needs to be replaced as to wha        // TODO: t this value is...
-            if ($row['pc_cattype'] == 3 && !$GLOBALS['enable_group_therapy']) {
+            if ($row['pc_cattype'] == 3 && !\OpenEMR\Core\OEGlobalsBag::getInstance()->get('enable_group_therapy')) {
                 continue;
             }
 
@@ -401,7 +401,7 @@ class C_EncounterVisitForm
             'isVisible' => false
         ];
 
-        if (!$GLOBALS['enable_group_therapy']) {
+        if (!\OpenEMR\Core\OEGlobalsBag::getInstance()->get('enable_group_therapy')) {
             return $groupData;
         }
 
@@ -535,7 +535,7 @@ class C_EncounterVisitForm
         $posCode = '';
 
 // Prepare data for template
-        $issuesEnabled = $GLOBALS['enc_enable_issues'] !== RenderFormFieldHelper::HIDE_ALL;
+        $issuesEnabled = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('enc_enable_issues') !== RenderFormFieldHelper::HIDE_ALL;
         $issuesAuth = true;
         foreach ($this->issueTypes as $type => $dummy) {
             if (!AclMain::aclCheckIssue($type, '', 'write')) {
@@ -684,7 +684,7 @@ class C_EncounterVisitForm
             'pageTitle' => xl('Patient Encounter'),
             'facilities' => $facilities,
             'providers' => $this->getProvidersForTemplate(new UserService(), $encounter),
-            'visitCategories' => $this->getVisitCategoriesForTemplate($viewmode, $encounter, $GLOBALS['default_visit_category']),
+            'visitCategories' => $this->getVisitCategoriesForTemplate($viewmode, $encounter, \OpenEMR\Core\OEGlobalsBag::getInstance()->get('default_visit_category')),
             'sensitivities' => $this->getSensitivitiesForTemplate($encounter),
             'issuesEnabled' => $issuesEnabled,
             'issuesAuth' => $issuesAuth,
@@ -708,15 +708,15 @@ class C_EncounterVisitForm
             'defaultReferralSource' => $viewmode ? $encounter['referral_source'] : '',
             'parentEncounterId' => $parentEncounterId ?? '',
             // START AI GENERATED CODE
-            'showInCollection' => ($GLOBALS['hide_billing_widget'] != 1),
+            'showInCollection' => (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('hide_billing_widget') != 1),
             'inCollectionOptions' => $inCollectionOptions,
             'dischargeDispositions' => $dischargeDispositions,
             'groupData' => $groupData,
             'therapyGroupCategories' => $therapyGroupCategories,
-            'enableGroupTherapy' => $GLOBALS['enable_group_therapy'],
-            'isPosEnabled' => !empty($GLOBALS['set_pos_code_encounter']),
+            'enableGroupTherapy' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('enable_group_therapy'),
+            'isPosEnabled' => !empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('set_pos_code_encounter')),
             'posOptions' => $posOptions,
-            'textTemplatesEnabled' => $GLOBALS['text_templates_enabled'] === '1',
+            'textTemplatesEnabled' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('text_templates_enabled') === '1',
             'duplicate' => $this->getDuplicateEncounterRecords($viewmode, $pid),
         ];
         // END AI GENERATED CODE
@@ -735,7 +735,7 @@ class C_EncounterVisitForm
     function getDefaultFacilityForNewEncounters($pid, FacilityService $facilityService)
     {
         $default_fac_override = null;
-        if (!empty($GLOBALS['set_service_facility_encounter'])) {
+        if (!empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('set_service_facility_encounter'))) {
             $default_fac_override = $this->getCareTeamFacilityForPatient($pid);
         }
         if (empty($default_fac_override)) {

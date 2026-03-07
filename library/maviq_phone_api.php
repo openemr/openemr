@@ -42,7 +42,7 @@ class MaviqClient
         }
 
         // initialize a new curl object
-        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+        $httpVerifySsl = (bool) (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
         $curl = curl_init($url);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, $httpVerifySsl);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);

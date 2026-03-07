@@ -132,7 +132,7 @@ function display_desc($desc)
  */
 function formatMoneyNumber($value, $extradecimals = 0)
 {
-    return sprintf('%01.' . ($GLOBALS['currency_decimals'] + $extradecimals) . 'f', $value);
+    return sprintf('%01.' . (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('currency_decimals') + $extradecimals) . 'f', $value);
 }
 
 /**
@@ -736,7 +736,7 @@ function markTaxes($taxrates): void
  */
 function cron_getFacilitiesMap(FacilityService $facilityService)
 {
-    $message_map = $GLOBALS['phone_appt_message'];
+    $message_map = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('phone_appt_message');
     $facility_msg_map = [];
     $facility_phone_map = [];
 

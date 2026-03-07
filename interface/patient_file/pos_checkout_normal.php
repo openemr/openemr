@@ -71,7 +71,7 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
 $facilityService = new FacilityService();
 $recorder = new Recorder();
 
-$currdecimals = $GLOBALS['currency_decimals'];
+$currdecimals = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('currency_decimals');
 
 $details = empty($_GET['details']) ? 0 : 1;
 
@@ -168,7 +168,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
     $encounter = $ferow['encounter'];
     $svcdate = substr((string) $ferow['date'], 0, 10);
 
-    if ($GLOBALS['receipts_by_provider']) {
+    if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('receipts_by_provider')) {
         if (isset($ferow['provider_id'])) {
             $encprovider = $ferow['provider_id'];
         } elseif (isset($patdata['providerID'])) {
@@ -197,7 +197,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
         <title><?php echo xlt('Receipt for Payment'); ?></title>
         <script>
 
-        <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+        <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
 
         $(function () {
             var win = top.printLogSetup ? top : opener.top;
@@ -672,7 +672,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
 
       // Post discount.
         if ($_POST['form_discount']) {
-            if ($GLOBALS['discount_by_money']) {
+            if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('discount_by_money')) {
                 $amount  = sprintf('%01.2f', trim((string) $_POST['form_discount']));
             } else {
                 $form_discount = trim((string) $_POST['form_discount']) ?? 0;
@@ -809,9 +809,9 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
         <?php Header::setupHeader(['datetime-picker']);?>
 
         <script>
-            var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+            var mypcc = <?php echo js_escape(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('phone_country_code')); ?>;
 
-            <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+            <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
 
             // This clears the tax line items in preparation for recomputing taxes.
             function clearTax(visible) {
@@ -906,7 +906,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                 if (isNaN(discount)) {
                     discount = 0;
                 }
-                <?php if (!$GLOBALS['discount_by_money']) { ?>
+                <?php if (!\OpenEMR\Core\OEGlobalsBag::getInstance()->get('discount_by_money')) { ?>
                 // This site discounts by percentage, so convert it to a money amount.
                 if (discount > 100) {
                     discount = 100;
@@ -926,7 +926,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                    <?php $datetimepicker_timepicker = false; ?>
                    <?php $datetimepicker_showseconds = false; ?>
                    <?php $datetimepicker_formatInput = false; ?>
-                   <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                   <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                    <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
             });
@@ -1037,7 +1037,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                                         }
 
                                         // Custom logic for IPPF to determine if a GCAC issue applies.
-                                        if ($GLOBALS['ippf_specific'] && $related_code) {
+                                        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('ippf_specific') && $related_code) {
                                             $relcodes = explode(';', (string) $related_code);
                                             foreach ($relcodes as $codestring) {
                                                 if ($codestring === '') {
@@ -1127,7 +1127,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                             <legend><?php echo xlt('Collect Payment'); ?></legend>
                             <div class="row oe-custom-line">
                                 <div class="col-3 offset-lg-3">
-                                    <label class="control-label" for="form_discount"><?php echo $GLOBALS['discount_by_money'] ? xlt('Discount Amount') : xlt('Discount Percentage'); ?>:</label>
+                                    <label class="control-label" for="form_discount"><?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('discount_by_money') ? xlt('Discount Amount') : xlt('Discount Percentage'); ?>:</label>
                                 </div>
                                 <div class="col-3">
                                     <input maxlength='8' name='form_discount' id='form_discount' onkeyup='computeTotals()' class= 'form-control' type='text' value='' />
@@ -1192,7 +1192,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                                 </div>
                             </div>
                                 <?php
-                            } elseif (!empty($GLOBALS['gbl_mask_invoice_number'])) { // Otherwise if there is an invoice
+                            } elseif (!empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_mask_invoice_number'))) { // Otherwise if there is an invoice
                                 // reference number mask, ask for the refno.
                                 ?>
                             <div class="row oe-custom-line">
@@ -1200,7 +1200,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                                     <label class="control-label" for="form_irnumber"><?php echo xlt('Invoice Reference Number'); ?>:</label>
                                 </div>
                                 <div class="col-3">
-                                    <input type='text' name='form_irnumber' id='form_irnumber' class='form-control' value='' onkeyup='maskkeyup(this,<?php echo attr_js($GLOBALS['gbl_mask_invoice_number']); ?>)' onblur='maskblur(this,<?php echo attr_js($GLOBALS['gbl_mask_invoice_number']); ?>)' />
+                                    <input type='text' name='form_irnumber' id='form_irnumber' class='form-control' value='' onkeyup='maskkeyup(this,<?php echo attr_js(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_mask_invoice_number')); ?>)' onblur='maskblur(this,<?php echo attr_js(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_mask_invoice_number')); ?>)' />
                                 </div>
                             </div>
                                 <?php

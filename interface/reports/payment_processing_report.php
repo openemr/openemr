@@ -58,7 +58,7 @@ $actionName = $_POST['form_action_name'] ?? null;
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -76,7 +76,7 @@ $actionName = $_POST['form_action_name'] ?? null;
         }
 
         <?php
-        if ($GLOBALS['payment_gateway'] == 'Sphere') {
+        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('payment_gateway') == 'Sphere') {
             echo SphereRevert::renderRevertSphereJs();
         }
         ?>
@@ -253,12 +253,12 @@ if (!empty($_POST['form_refresh'])) {
                         }
                     }
                     if (!empty($auditEntry['offer_void'])) {
-                        if (($auditEntry['service'] == 'sphere') && ($GLOBALS['payment_gateway'] == 'Sphere')) {
+                        if (($auditEntry['service'] == 'sphere') && (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('payment_gateway') == 'Sphere')) {
                             echo SphereRevert::renderSphereVoidButton($auditEntry['front'], $auditEntry['transaction_id'], $auditEntry['uuid']);
                         }
                     }
                     if (!empty($auditEntry['offer_credit'])) {
-                        if (($auditEntry['service'] == 'sphere') && ($GLOBALS['payment_gateway'] == 'Sphere')) {
+                        if (($auditEntry['service'] == 'sphere') && (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('payment_gateway') == 'Sphere')) {
                             echo SphereRevert::renderSphereCreditButton($auditEntry['front'], $auditEntry['transaction_id'], $auditEntry['uuid']);
                         }
                     }

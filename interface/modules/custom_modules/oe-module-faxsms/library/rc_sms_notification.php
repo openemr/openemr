@@ -56,7 +56,7 @@ if (php_sapi_name() === 'cli') {
 // so service can set some settings if needed on init.
 $sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../../globals.php");
-require_once($GLOBALS['srcdir'] . "/appointments.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/appointments.inc.php");
 
 // Check for help argument
 if ($argc > 1 && (in_array('--help', $argv) || in_array('-h', $argv))) {

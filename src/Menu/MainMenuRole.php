@@ -50,10 +50,10 @@ class MainMenuRole extends MenuRole
         // Load the selected menu
         if (preg_match("/.json$/", $mainMenuRole)) {
             // load custom menu (includes .json in id)
-            $menu_parsed = json_decode(file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/custom_menus/" . $mainMenuRole));
+            $menu_parsed = json_decode(file_get_contents(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/custom_menus/" . $mainMenuRole));
         } else {
             // load a standardized menu (does not include .json in id)
-            $menu_parsed = json_decode(file_get_contents($GLOBALS['fileroot'] . "/interface/main/tabs/menu/menus/" . $mainMenuRole . ".json"));
+            $menu_parsed = json_decode(file_get_contents(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/interface/main/tabs/menu/menus/" . $mainMenuRole . ".json"));
         }
 
         // if error, then die and report error
@@ -84,7 +84,7 @@ class MainMenuRole extends MenuRole
         $output .= "<option value='standard' " . (($selected == "standard") ? "selected" : "") . ">" . xlt("Standard") . "</option>";
         $output .= "<option value='answering_service' " . (($selected == "answering_service") ? "selected" : "") . ">" . xlt("Answering Service") . "</option>";
         $output .= "<option value='front_office' " . (($selected == "front_office") ? "selected" : "") . ">" . xlt("Front Office") . "</option>";
-        $customMenuDir = $GLOBALS['OE_SITE_DIR'] . "/documents/custom_menus";
+        $customMenuDir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/custom_menus";
         if (file_exists($customMenuDir)) {
             $dHandle = opendir($customMenuDir);
             while (false !== ($menuCustom = readdir($dHandle))) {

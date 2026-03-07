@@ -365,7 +365,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         $PDF_OUTPUT = '1';
 
         $filename = $pid . "_" . $encounter . ".pdf";
-        $filepath = $GLOBALS['oer_config']['documents']['repository'] . $pid;
+        $filepath = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('oer_config')['documents']['repository'] . $pid;
         foreach (glob($filepath . '/' . $filename) as $file) {
             unlink($file);
         }
@@ -386,7 +386,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
     <div id="report_custom" style="width:100%;">  <!-- large outer DIV -->
         <?php
         echo report_header($pid);
-        include_once($GLOBALS['incdir'] . "/forms/eye_mag/report.php");
+        include_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('incdir') . "/forms/eye_mag/report.php");
         ($form_name . "_report")($pid, $form_encounter, $N, $form_id);
         if ($printable) {
             echo "" . xl('Signature') . ": _______________________________<br />";
@@ -404,7 +404,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         //$pdf->writeHTML($content, 2);
 
         $pdf->writeHTML($content);
-        $tmpdir = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/'; // Best to get a known system temp directory to ensure a writable directory.
+        $tmpdir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/temp/'; // Best to get a known system temp directory to ensure a writable directory.
         $temp_filename = $tmpdir . $filename;
         $content_pdf = $pdf->Output($temp_filename, 'F');
         $type = "application/pdf";

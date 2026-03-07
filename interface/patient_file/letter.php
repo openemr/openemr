@@ -13,7 +13,7 @@
  */
 
 require_once("../globals.php");
-require_once($GLOBALS['srcdir'] . "/patient.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/patient.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\KeySource;
@@ -26,7 +26,7 @@ $session = SessionWrapperFactory::getInstance()->getWrapper();
 // Set up crypto object
 $cryptoGen = ServiceContainer::getCrypto();
 
-$template_dir = $GLOBALS['OE_SITE_DIR'] . "/documents/letter_templates";
+$template_dir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/letter_templates";
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
@@ -120,7 +120,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         $temp_bodytext = str_replace("{" . $value . "}", "{" . $key . "}", $temp_bodytext);
     }
 
-    if ($GLOBALS['drive_encryption']) {
+    if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('drive_encryption')) {
         $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, null, KeySource::Database);
     }
 
@@ -172,10 +172,10 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     $cpstring = str_replace('{' . $FIELD_TAG['PT_DOB'] . '}', $patdata['DOB'] ?? '', $cpstring);
 
     if ($form_format == "pdf") {
-        $pdf = new Cezpdf($GLOBALS['rx_paper_size']);
-        $pdf->ezSetMargins($GLOBALS['rx_top_margin'], $GLOBALS['rx_bottom_margin'], $GLOBALS['rx_left_margin'], $GLOBALS['rx_right_margin']);
-        if (file_exists($GLOBALS['OE_SITE_DIR'] . "/custom_pdf.php")) {
-            include($GLOBALS['OE_SITE_DIR'] . "/custom_pdf.php");
+        $pdf = new Cezpdf(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('rx_paper_size'));
+        $pdf->ezSetMargins(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('rx_top_margin'), \OpenEMR\Core\OEGlobalsBag::getInstance()->get('rx_bottom_margin'), \OpenEMR\Core\OEGlobalsBag::getInstance()->get('rx_left_margin'), \OpenEMR\Core\OEGlobalsBag::getInstance()->get('rx_right_margin'));
+        if (file_exists(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/custom_pdf.php")) {
+            include(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/custom_pdf.php");
         } else {
             $pdf->selectFont('Helvetica');
             $pdf->ezText($cpstring, 12);
@@ -218,7 +218,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     <div class='paddingdiv'>
         <?php echo $cpstring; ?>
         <div class="navigate">
-    <a href='<?php echo $GLOBALS['rootdir'] . '/patient_file/letter.php?template=autosaved&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
+    <a href='<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('rootdir') . '/patient_file/letter.php?template=autosaved&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
     </div>
     <script>
     window.print();
@@ -282,7 +282,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         $temp_bodytext = str_replace("{" . $value . "}", "{" . $key . "}", $temp_bodytext);
     }
 
-    if ($GLOBALS['drive_encryption']) {
+    if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('drive_encryption')) {
         $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, null, KeySource::Database);
     }
 
@@ -324,7 +324,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         $temp_bodytext = str_replace("{" . $value . "}", "{" . $key . "}", $temp_bodytext);
     }
 
-    if ($GLOBALS['drive_encryption']) {
+    if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('drive_encryption')) {
         $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, null, KeySource::Database);
     }
 
@@ -543,7 +543,7 @@ function insertAtCursor(myField, myValue) {
    <select name="form_template" id="form_template" class='form-control'>
    <option value="">(<?php echo xlt('none{{Template}}'); ?>)</option>
 <?php
-$tpldir = $GLOBALS['OE_SITE_DIR'] . "/documents/letter_templates";
+$tpldir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/letter_templates";
 $dh = opendir($tpldir);
 if (! $dh) {
     die(xlt('Cannot read') . ' ' . text($tpldir));
@@ -710,7 +710,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 

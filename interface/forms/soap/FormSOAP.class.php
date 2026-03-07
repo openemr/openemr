@@ -61,7 +61,7 @@ class FormSOAP extends ORDataObject
 
         $this->_table = "form_soap";
         $this->activity = 1;
-        $this->pid = $GLOBALS['pid'];
+        $this->pid = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('pid');
         if ($id != "") {
             $this->populate();
             //$this->date = $this->get_date();

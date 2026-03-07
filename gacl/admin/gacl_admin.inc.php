@@ -60,7 +60,7 @@ $db = &$gacl->db;
 $smarty = new Smarty;
 $smarty->setCompileCheck(true);
 $smarty->setTemplateDir($gacl_options['smarty_template_dir']);
-$smarty->setCompileDir($GLOBALS['OE_SITE_DIR'] . '/documents/smarty/gacl');
+$smarty->setCompileDir(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/smarty/gacl');
 
 /*
  * Email address used in setup.php, please do not change.

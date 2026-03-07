@@ -51,11 +51,11 @@ if ($telemetryService->isTelemetryEnabled()) {
     $telemetryService->reportClickEvent([
         'eventType' => 'encounterForm',
         'eventLabel' => $_GET['formname'] ?? 'Unknown',
-        'eventUrl' => str_replace($GLOBALS['fileroot'], '', $file),
+        'eventUrl' => str_replace(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot'), '', $file),
         'eventTarget' => $pageName,
     ]);
 }
 
-if (!empty($GLOBALS['text_templates_enabled']) && !($_GET['formname'] == 'fee_sheet')) { ?>
-    <script src="<?php echo $GLOBALS['web_root'] ?>/library/js/CustomTemplateLoader.js"></script>
+if (!empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('text_templates_enabled')) && !($_GET['formname'] == 'fee_sheet')) { ?>
+    <script src="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('web_root') ?>/library/js/CustomTemplateLoader.js"></script>
 <?php } ?>

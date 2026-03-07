@@ -50,7 +50,7 @@ class SmartLaunchController
 
     public function renderPatientSmartLaunchSection(RenderEvent $event)
     {
-        if (empty($GLOBALS['rest_fhir_api'])) {
+        if (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('rest_fhir_api'))) {
             // do not show patient summary widget if fhir portal is off
             return;
         }

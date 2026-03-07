@@ -49,22 +49,22 @@ $sessionSetArray['pc_facility'] = 0;
 /*********************************************************************
 if ($_POST['pc_facility'])  $_SESSION['pc_facility'] = $_POST['pc_facility'];
 *********************************************************************/
-if ($GLOBALS['login_into_facility']) {
+if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('login_into_facility')) {
     $sessionSetArray['pc_facility'] = $_SESSION['facilityId'];
 } else {
-    if (isset($_COOKIE['pc_facility']) && $GLOBALS['set_facility_cookie']) {
+    if (isset($_COOKIE['pc_facility']) && \OpenEMR\Core\OEGlobalsBag::getInstance()->get('set_facility_cookie')) {
         $sessionSetArray['pc_facility'] = $_COOKIE['pc_facility'];
     }
 }
 
 // override the cookie if the user doesn't have access to that facility any more
-if ($_SESSION['userauthorized'] != 1 && $GLOBALS['restrict_user_facility']) {
+if ($_SESSION['userauthorized'] != 1 && \OpenEMR\Core\OEGlobalsBag::getInstance()->get('restrict_user_facility')) {
     $facilities = getUserFacilities($_SESSION['authUserID']);
     // use the first facility the user has access to, unless...
     $sessionSetArray['pc_facility'] = $facilities[0]['id'];
     // if the cookie is in the users' facilities, use that.
     foreach ($facilities as $facrow) {
-        if (($facrow['id'] == $_COOKIE['pc_facility']) && $GLOBALS['set_facility_cookie']) {
+        if (($facrow['id'] == $_COOKIE['pc_facility']) && \OpenEMR\Core\OEGlobalsBag::getInstance()->get('set_facility_cookie')) {
             $sessionSetArray['pc_facility'] = $_COOKIE['pc_facility'];
         }
     }
@@ -80,8 +80,8 @@ if (isset($_GET['pc_facility'])) {
     $sessionSetArray['pc_facility'] = $_GET['pc_facility'];
 }
 
-if ($GLOBALS['set_facility_cookie']) {
-    if (!$GLOBALS['login_into_facility'] && ($_SESSION['pc_facility'] ?? 0) > 0) {
+if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('set_facility_cookie')) {
+    if (!\OpenEMR\Core\OEGlobalsBag::getInstance()->get('login_into_facility') && ($_SESSION['pc_facility'] ?? 0) > 0) {
         // If login_into_facility is turn on $_COOKIE['pc_facility'] was saved in the login process.
         // In the case that login_into_facility is turn on you don't want to save different facility than the selected in the login screen.
         setcookie("pc_facility", (string) $_SESSION['pc_facility'], ['expires' => time() + (3600 * 365)]);

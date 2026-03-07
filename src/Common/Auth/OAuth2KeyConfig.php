@@ -51,7 +51,7 @@ class OAuth2KeyConfig
     {
         if (empty($siteDir)) {
             // default to our global location
-            $siteDir = $GLOBALS['OE_SITE_DIR'];
+            $siteDir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR');
         }
 
         // Create a crypto object that will be used for encryption/decryption

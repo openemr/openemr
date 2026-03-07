@@ -29,7 +29,7 @@ class PatientFlowBoardEventsSubscriber implements EventSubscriberInterface
     {
         $events = [];
         // we only subscribe to this event if the drug_screen is enabled as a feature
-        if ($GLOBALS['drug_screen']) {
+        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('drug_screen')) {
             $events[ServiceSaveEvent::EVENT_POST_SAVE] = 'onServicePostSaveEvent';
         }
         return $events;
@@ -53,8 +53,8 @@ class PatientFlowBoardEventsSubscriber implements EventSubscriberInterface
         if (!empty($status)) {
             $apptService = new AppointmentService();
             if ($apptService->isCheckInStatus($status)) {
-                $yearly_limit = $GLOBALS['maximum_drug_test_yearly'];
-                $percentage = $GLOBALS['drug_testing_percentage'];
+                $yearly_limit = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('maximum_drug_test_yearly');
+                $percentage = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('drug_testing_percentage');
                 $this->random_drug_test($trackerData['id'], $percentage, $yearly_limit);
             }
         }

@@ -186,15 +186,15 @@ class Header
         $assets = array_filter($assets, static fn ($asset): bool => is_string($asset) && trim($asset) !== '');
 
         // @TODO Hard coded the path to the config file, not good RD 2017-05-27
-        $map = self::readConfigFile("{$GLOBALS['fileroot']}/config/config.yaml");
+        $map = self::readConfigFile(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/config/config.yaml");
         self::$scripts = [];
         self::$links = [];
 
         self::parseConfigFile($map, $assets);
 
         /* adding custom assets in addition */
-        if (is_file("{$GLOBALS['fileroot']}/custom/assets/custom.yaml")) {
-            $customMap = self::readConfigFile("{$GLOBALS['fileroot']}/custom/assets/custom.yaml");
+        if (is_file(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/custom/assets/custom.yaml")) {
+            $customMap = self::readConfigFile(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/custom/assets/custom.yaml");
             self::parseConfigFile($customMap, $assets);
         }
 
@@ -239,7 +239,7 @@ class Header
                     // Above comparison is to skip bootstrap theme loading when using a main theme or using the patient portal theme
                     //  since bootstrap theme is already including in main themes and portal theme via SASS.
                     $t = '';
-                } elseif ($k == "compact-theme" && (in_array("no_main-theme", $selectedAssets) || empty($GLOBALS['enable_compact_mode']))) {
+                } elseif ($k == "compact-theme" && (in_array("no_main-theme", $selectedAssets) || empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('enable_compact_mode')))) {
                   // Do not display compact theme if it is turned off
                 } else {
                     foreach ($tmp['links'] as $l) {
@@ -253,7 +253,7 @@ class Header
                         self::$scripts[] = $s;
                     }
 
-                    if ($k == "compact-theme" && (in_array("no_main-theme", $selectedAssets) || !$GLOBALS['enable_compact_mode'])) {
+                    if ($k == "compact-theme" && (in_array("no_main-theme", $selectedAssets) || !\OpenEMR\Core\OEGlobalsBag::getInstance()->get('enable_compact_mode'))) {
                     } else {
                         foreach ($tmpRtl['links'] as $l) {
                             self::$links[] = $l;
@@ -347,8 +347,8 @@ class Header
         preg_match_all($re, $subject, $matches, PREG_SET_ORDER, 0);
 
         foreach ($matches as $match) {
-            if (array_key_exists($match[1], $GLOBALS)) {
-                $subject = str_replace($match[0], $GLOBALS["{$match[1]}"], $subject);
+            if (\OpenEMR\Core\OEGlobalsBag::getInstance()->has($match[1])) {
+                $subject = str_replace($match[0], \OpenEMR\Core\OEGlobalsBag::getInstance()->get("{$match[1]}"), $subject);
             }
         }
 
@@ -383,7 +383,7 @@ class Header
 
         $template = ($type == 'script') ? $script : $link;
         if (!$alreadyBuilt) {
-            $v = $GLOBALS['v_js_includes'];
+            $v = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('v_js_includes');
             // need to handle header elements that may already have a ? in the parameter.
             if (strrpos($path, "?") !== false) {
                 $path .= "&v={$v}";
@@ -432,6 +432,6 @@ class Header
     private static function getCurrentFile()
     {
         //remove web root and query string
-        return str_replace($GLOBALS['webroot'] . '/', '', strtok($_SERVER["REQUEST_URI"], '?'));
+        return str_replace(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot') . '/', '', strtok($_SERVER["REQUEST_URI"], '?'));
     }
 }
