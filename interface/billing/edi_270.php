@@ -29,10 +29,13 @@ require_once("$srcdir/appointments.inc.php");
 
 use OpenEMR\Billing\EDI270;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -149,7 +152,7 @@ if ($exclude_policy != "") {
         $res[] = $row;
     }
     // Get the facilities information
-    $facilities     = getUserFacilities($_SESSION['authUserID']);
+    $facilities     = getUserFacilities($session->get('authUserID'));
 
     // Get the Providers information
     $providers      = EDI270::getUsernames();
@@ -347,7 +350,7 @@ if ($exclude_policy != "") {
         </div>
 
         <form method='post' name='theform' id='theform' action='edi_270.php' onsubmit="return top.restoreSession()">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
             <input type="hidden" name="removedrows" id="removedrows" value="">
             <div id="report_parameters">
                 <table>

@@ -16,6 +16,7 @@ require_once('../globals.php');
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
 
@@ -24,7 +25,8 @@ $scheme = "https://"; // isset($_SERVER['HTTPS']) ? "https://" : "http://";
 $appId = $scheme . $_SERVER['HTTP_HOST'];
 $u2f = new u2flib_server\U2F($appId);
 
-$userid = $_SESSION['authUserID'];
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$userid = $session->get('authUserID');
 $action = $_REQUEST['action'];
 $user_name = getUserIDInfo($userid);
 $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
@@ -89,7 +91,7 @@ function docancel() {
             </div>
         </div>
         <form method='post' action='mfa_u2f.php' onsubmit='return top.restoreSession()'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
         <?php
 
@@ -142,7 +144,7 @@ function docancel() {
         </div>
             <?php
         } elseif ($action == 'reg2') {
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
                 CsrfUtils::csrfNotVerified();
             }
             try {

@@ -193,7 +193,8 @@ class MyMailer extends PHPMailer
                 $this->Host = $GLOBALS['SMTP_HOST'];
                 $this->Username = $GLOBALS['SMTP_USER'];
                 $cryptoGen = ServiceContainer::getCrypto();
-                $this->Password = $cryptoGen->decryptStandard($GLOBALS['SMTP_PASS']);
+                $smtpPass = $GLOBALS['SMTP_PASS'];
+                $this->Password = $cryptoGen->decryptStandard(is_string($smtpPass) ? $smtpPass : null);
                 $this->Port = $GLOBALS['SMTP_PORT'];
                 $this->SMTPSecure = $GLOBALS['SMTP_SECURE'];
                 break;

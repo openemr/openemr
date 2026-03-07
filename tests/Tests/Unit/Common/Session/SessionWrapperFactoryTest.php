@@ -3,9 +3,8 @@
 /**
  * SessionWrapperFactoryTest - Tests for session wrapper factory behavior
  *
- * Tests that the SessionWrapperFactory correctly handles session conflicts
- * when sessions are already active (e.g., API/OAuth contexts) and various
- * application cookie scenarios.
+ * Tests that the SessionWrapperFactory correctly creates and manages
+ * Symfony Session instances for both core and portal application contexts.
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -16,11 +15,11 @@
 
 namespace OpenEMR\Tests\Unit\Common\Session;
 
-use OpenEMR\Common\Session\PHPSessionWrapper;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class SessionWrapperFactoryTest extends TestCase
 {
@@ -44,6 +43,9 @@ class SessionWrapperFactoryTest extends TestCase
         $this->originalCookie = $_COOKIE;
         $this->originalServer = $_SERVER;
 
+        // Ensure web_root is set for OEGlobalsBag
+        $GLOBALS['web_root'] = '';
+
         // Reset the singleton instance before each test
         $this->resetSingleton();
     }
@@ -56,6 +58,11 @@ class SessionWrapperFactoryTest extends TestCase
 
         // Reset singleton after each test
         $this->resetSingleton();
+
+        // Close any active session
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
 
         parent::tearDown();
     }
@@ -73,852 +80,829 @@ class SessionWrapperFactoryTest extends TestCase
     }
 
     /**
-     * Test that non-portal requests return PHPSessionWrapper
+     * Helper to get a private property from the factory via reflection
      */
-    public function testNonPortalRequestReturnsPHPSessionWrapper(): void
+    private function getFactoryProperty(SessionWrapperFactory $factory, string $property): mixed
     {
-        // Set up non-portal cookie (core OpenEMR)
-        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::CORE_SESSION_ID;
-
-        $factory = SessionWrapperFactory::getInstance();
-
-        // Use reflection to call findSessionWrapper directly to avoid session issues
         $reflection = new ReflectionClass($factory);
-        $method = $reflection->getMethod('findSessionWrapper');
-        $wrapper = $method->invoke($factory, []);
-
-        $this->assertInstanceOf(
-            PHPSessionWrapper::class,
-            $wrapper,
-            'Non-portal requests should return PHPSessionWrapper'
-        );
+        $prop = $reflection->getProperty($property);
+        return $prop->getValue($factory);
     }
 
     /**
-     * Test that when session is already active, PHPSessionWrapper is returned
-     * regardless of cookie value
-     *
-     * This is the key fix - prevents "session already started" errors when
-     * API/OAuth requests have a portal cookie present
+     * Helper to ensure a PHP session is active for tests that need it
      */
-    public function testActiveSessionReturnsPHPSessionWrapper(): void
+    private function ensureSessionActive(): void
     {
-        // Simulate portal cookie being present
-        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
-
-        // Start a session to simulate API/OAuth having already started one
         if (session_status() !== PHP_SESSION_ACTIVE) {
             @session_start();
-        }
-
-        $this->assertEquals(
-            PHP_SESSION_ACTIVE,
-            session_status(),
-            'Session should be active for this test'
-        );
-
-        $factory = SessionWrapperFactory::getInstance();
-
-        // Use reflection to call findSessionWrapper directly
-        $reflection = new ReflectionClass($factory);
-        $method = $reflection->getMethod('findSessionWrapper');
-        $wrapper = $method->invoke($factory, []);
-
-        $this->assertInstanceOf(
-            PHPSessionWrapper::class,
-            $wrapper,
-            'When session is already active, should return PHPSessionWrapper to avoid conflicts'
-        );
-
-        // Clean up session
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
         }
     }
 
-    /**
-     * Test that API request URIs with subpath installations work correctly
-     *
-     * Addresses concern: Will this still work correctly if OpenEMR is installed
-     * at a subpath, like http://example.com/openemr/apis/foo
-     */
-    public function testApiRequestWithSubpathInstallation(): void
-    {
-        // Simulate subpath installation: /openemr/apis/fhir/Patient
-        $_SERVER['REQUEST_URI'] = '/openemr/apis/fhir/Patient';
-
-        // With a portal cookie present (common scenario)
-        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
-
-        // Start a session to simulate API listener having started one
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
-
-        $factory = SessionWrapperFactory::getInstance();
-
-        $reflection = new ReflectionClass($factory);
-        $method = $reflection->getMethod('findSessionWrapper');
-        $wrapper = $method->invoke($factory, []);
-
-        // The key assertion: even with portal cookie and subpath,
-        // active session check should prevent conflict
-        $this->assertInstanceOf(
-            PHPSessionWrapper::class,
-            $wrapper,
-            'Subpath API requests with active session should return PHPSessionWrapper'
-        );
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
-    }
+    // =========================================================================
+    // Singleton Tests
+    // =========================================================================
 
     /**
-     * Test that OAuth request URIs with subpath installations work correctly
+     * Test that getInstance returns the same instance (singleton pattern)
      */
-    public function testOAuthRequestWithSubpathInstallation(): void
+    public function testGetInstanceReturnsSameInstance(): void
     {
-        // Simulate subpath installation: /openemr/oauth2/authorize
-        $_SERVER['REQUEST_URI'] = '/openemr/oauth2/authorize';
-
-        // With a portal cookie present
-        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
-
-        // Start a session to simulate OAuth listener having started one
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
-
-        $factory = SessionWrapperFactory::getInstance();
-
-        $reflection = new ReflectionClass($factory);
-        $method = $reflection->getMethod('findSessionWrapper');
-        $wrapper = $method->invoke($factory, []);
-
-        $this->assertInstanceOf(
-            PHPSessionWrapper::class,
-            $wrapper,
-            'Subpath OAuth requests with active session should return PHPSessionWrapper'
-        );
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
-    }
-
-    /**
-     * Test session wrapper caching - subsequent calls should return same instance
-     */
-    public function testWrapperIsCached(): void
-    {
-        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::CORE_SESSION_ID;
-
-        $factory = SessionWrapperFactory::getInstance();
-
-        // Start session to avoid session start attempts
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
-
-        $wrapper1 = $factory->getWrapper();
-        $wrapper2 = $factory->getWrapper();
+        $instance1 = SessionWrapperFactory::getInstance();
+        $instance2 = SessionWrapperFactory::getInstance();
 
         $this->assertSame(
-            $wrapper1,
-            $wrapper2,
-            'getWrapper should return the same cached instance'
+            $instance1,
+            $instance2,
+            'getInstance should return the same singleton instance'
         );
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
-    }
-
-    /**
-     * Test that no App cookie defaults to non-portal behavior
-     */
-    public function testMissingAppCookieReturnsPHPSessionWrapper(): void
-    {
-        // No App cookie set
-        unset($_COOKIE[SessionUtil::APP_COOKIE_NAME]);
-
-        // Start session to prevent session start attempts during test
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
-
-        $factory = SessionWrapperFactory::getInstance();
-
-        $reflection = new ReflectionClass($factory);
-        $method = $reflection->getMethod('findSessionWrapper');
-        $wrapper = $method->invoke($factory, []);
-
-        $this->assertInstanceOf(
-            PHPSessionWrapper::class,
-            $wrapper,
-            'Missing App cookie should return PHPSessionWrapper (non-portal default)'
-        );
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
     }
 
     // =========================================================================
-    // Session Type Tests - All four session types (Core, API, OAuth, Portal)
+    // isSessionActive() Tests
     // =========================================================================
 
     /**
-     * Test Core session type (CORE_SESSION_ID = "OpenEMR")
+     * Test that isSessionActive returns false when no sessions are created
      */
-    public function testCoreSessionTypeReturnsPHPSessionWrapper(): void
+    public function testIsSessionActiveReturnsFalseInitially(): void
     {
-        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::CORE_SESSION_ID;
-
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
-
         $factory = SessionWrapperFactory::getInstance();
-        $reflection = new ReflectionClass($factory);
-        $method = $reflection->getMethod('findSessionWrapper');
-        $wrapper = $method->invoke($factory, []);
 
-        $this->assertInstanceOf(
-            PHPSessionWrapper::class,
-            $wrapper,
-            'Core session type (OpenEMR) should return PHPSessionWrapper'
-        );
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
-    }
-
-    /**
-     * Test API session type (API_SESSION_ID = "apiOpenEMR")
-     */
-    public function testApiSessionTypeReturnsPHPSessionWrapper(): void
-    {
-        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::API_SESSION_ID;
-
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
-
-        $factory = SessionWrapperFactory::getInstance();
-        $reflection = new ReflectionClass($factory);
-        $method = $reflection->getMethod('findSessionWrapper');
-        $wrapper = $method->invoke($factory, []);
-
-        $this->assertInstanceOf(
-            PHPSessionWrapper::class,
-            $wrapper,
-            'API session type (apiOpenEMR) should return PHPSessionWrapper'
-        );
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
-    }
-
-    /**
-     * Test OAuth session type (OAUTH_SESSION_ID = "authserverOpenEMR")
-     */
-    public function testOAuthSessionTypeReturnsPHPSessionWrapper(): void
-    {
-        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::OAUTH_SESSION_ID;
-
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
-
-        $factory = SessionWrapperFactory::getInstance();
-        $reflection = new ReflectionClass($factory);
-        $method = $reflection->getMethod('findSessionWrapper');
-        $wrapper = $method->invoke($factory, []);
-
-        $this->assertInstanceOf(
-            PHPSessionWrapper::class,
-            $wrapper,
-            'OAuth session type (authserverOpenEMR) should return PHPSessionWrapper'
-        );
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
-    }
-
-    /**
-     * Test Portal session type with active session returns PHPSessionWrapper
-     * (Portal would normally get SymfonySessionWrapper, but active session takes precedence)
-     */
-    public function testPortalSessionTypeWithActiveSessionReturnsPHPSessionWrapper(): void
-    {
-        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
-
-        // Start session BEFORE factory call - this is the conflict scenario
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
-
-        $factory = SessionWrapperFactory::getInstance();
-        $reflection = new ReflectionClass($factory);
-        $method = $reflection->getMethod('findSessionWrapper');
-        $wrapper = $method->invoke($factory, []);
-
-        $this->assertInstanceOf(
-            PHPSessionWrapper::class,
-            $wrapper,
-            'Portal session type with already-active session should return PHPSessionWrapper'
-        );
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
-    }
-
-    // =========================================================================
-    // Shared File/Directory Tests - Files accessed from multiple contexts
-    // =========================================================================
-
-    /**
-     * Test shared library file scenario: Portal cookie present during API request
-     *
-     * This is the original bug scenario - a user has the portal open in one tab,
-     * then an API request is made. The API request has the portal cookie, but
-     * SiteSetupListener has already started an API session.
-     */
-    public function testSharedLibraryPortalCookieWithApiSession(): void
-    {
-        // Portal cookie from another tab/context
-        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
-
-        // Simulate API context: /apis/default/fhir/Patient
-        $_SERVER['REQUEST_URI'] = '/apis/default/fhir/Patient';
-
-        // API listener has already started a session
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
-
-        $factory = SessionWrapperFactory::getInstance();
-        $reflection = new ReflectionClass($factory);
-        $method = $reflection->getMethod('findSessionWrapper');
-        $wrapper = $method->invoke($factory, []);
-
-        $this->assertInstanceOf(
-            PHPSessionWrapper::class,
-            $wrapper,
-            'Shared library accessed with portal cookie during API session should not conflict'
-        );
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
-    }
-
-    /**
-     * Test shared library file scenario: Portal cookie present during OAuth request
-     */
-    public function testSharedLibraryPortalCookieWithOAuthSession(): void
-    {
-        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
-        $_SERVER['REQUEST_URI'] = '/oauth2/authorize';
-
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
-
-        $factory = SessionWrapperFactory::getInstance();
-        $reflection = new ReflectionClass($factory);
-        $method = $reflection->getMethod('findSessionWrapper');
-        $wrapper = $method->invoke($factory, []);
-
-        $this->assertInstanceOf(
-            PHPSessionWrapper::class,
-            $wrapper,
-            'Shared library accessed with portal cookie during OAuth session should not conflict'
-        );
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
-    }
-
-    /**
-     * Test shared library file scenario: Core cookie present during API request
-     */
-    public function testSharedLibraryCoreCookieWithApiSession(): void
-    {
-        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::CORE_SESSION_ID;
-        $_SERVER['REQUEST_URI'] = '/apis/default/api/patient';
-
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
-
-        $factory = SessionWrapperFactory::getInstance();
-        $reflection = new ReflectionClass($factory);
-        $method = $reflection->getMethod('findSessionWrapper');
-        $wrapper = $method->invoke($factory, []);
-
-        $this->assertInstanceOf(
-            PHPSessionWrapper::class,
-            $wrapper,
-            'Shared library accessed with core cookie during API session should work'
-        );
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
-    }
-
-    /**
-     * Test module entry point scenario: Module accessed from different session contexts
-     *
-     * Modules often have shared entry points that can be accessed from core,
-     * portal, or API contexts.
-     */
-    public function testModuleEntryPointWithMixedSessionContext(): void
-    {
-        // Simulate module being accessed with portal cookie but API session active
-        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
-        $_SERVER['REQUEST_URI'] = '/interface/modules/custom_modules/oe-module-example/public/index.php';
-
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
-
-        $factory = SessionWrapperFactory::getInstance();
-        $reflection = new ReflectionClass($factory);
-        $method = $reflection->getMethod('findSessionWrapper');
-        $wrapper = $method->invoke($factory, []);
-
-        $this->assertInstanceOf(
-            PHPSessionWrapper::class,
-            $wrapper,
-            'Module entry point with mixed session context should not conflict'
-        );
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
-    }
-
-    // =========================================================================
-    // Path Variation Tests - Different installation paths
-    // =========================================================================
-
-    /**
-     * Test root installation path: /apis/fhir/Patient
-     */
-    public function testRootInstallationApiPath(): void
-    {
-        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
-        $_SERVER['REQUEST_URI'] = '/apis/fhir/Patient';
-
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
-
-        $factory = SessionWrapperFactory::getInstance();
-        $reflection = new ReflectionClass($factory);
-        $method = $reflection->getMethod('findSessionWrapper');
-        $wrapper = $method->invoke($factory, []);
-
-        $this->assertInstanceOf(
-            PHPSessionWrapper::class,
-            $wrapper,
-            'Root installation API path with active session should return PHPSessionWrapper'
-        );
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
-    }
-
-    /**
-     * Test deep subpath installation: /health/systems/openemr/apis/fhir/Patient
-     */
-    public function testDeepSubpathInstallation(): void
-    {
-        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
-        $_SERVER['REQUEST_URI'] = '/health/systems/openemr/apis/fhir/Patient';
-
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
-
-        $factory = SessionWrapperFactory::getInstance();
-        $reflection = new ReflectionClass($factory);
-        $method = $reflection->getMethod('findSessionWrapper');
-        $wrapper = $method->invoke($factory, []);
-
-        $this->assertInstanceOf(
-            PHPSessionWrapper::class,
-            $wrapper,
-            'Deep subpath installation with active session should return PHPSessionWrapper'
-        );
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
-    }
-
-    /**
-     * Test that session status check works regardless of REQUEST_URI
-     *
-     * The fix relies on session_status() check, not path matching.
-     * This test confirms it works even with unusual paths.
-     */
-    public function testSessionStatusCheckIndependentOfPath(): void
-    {
-        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
-
-        // Unusual path that doesn't match any pattern
-        $_SERVER['REQUEST_URI'] = '/some/random/path/that/looks/nothing/like/apis';
-
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
-
-        $factory = SessionWrapperFactory::getInstance();
-        $reflection = new ReflectionClass($factory);
-        $method = $reflection->getMethod('findSessionWrapper');
-        $wrapper = $method->invoke($factory, []);
-
-        // Key assertion: active session prevents conflict regardless of path
-        $this->assertInstanceOf(
-            PHPSessionWrapper::class,
-            $wrapper,
-            'Session status check should work regardless of REQUEST_URI path'
-        );
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
-    }
-
-    // =========================================================================
-    // Edge Case Tests
-    // =========================================================================
-
-    /**
-     * Test with empty REQUEST_URI
-     */
-    public function testEmptyRequestUri(): void
-    {
-        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
-        $_SERVER['REQUEST_URI'] = '';
-
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
-
-        $factory = SessionWrapperFactory::getInstance();
-        $reflection = new ReflectionClass($factory);
-        $method = $reflection->getMethod('findSessionWrapper');
-        $wrapper = $method->invoke($factory, []);
-
-        $this->assertInstanceOf(
-            PHPSessionWrapper::class,
-            $wrapper,
-            'Empty REQUEST_URI with active session should return PHPSessionWrapper'
-        );
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
-    }
-
-    /**
-     * Test with missing REQUEST_URI (CLI context)
-     */
-    public function testMissingRequestUri(): void
-    {
-        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
-        unset($_SERVER['REQUEST_URI']);
-
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
-
-        $factory = SessionWrapperFactory::getInstance();
-        $reflection = new ReflectionClass($factory);
-        $method = $reflection->getMethod('findSessionWrapper');
-        $wrapper = $method->invoke($factory, []);
-
-        $this->assertInstanceOf(
-            PHPSessionWrapper::class,
-            $wrapper,
-            'Missing REQUEST_URI (CLI) with active session should return PHPSessionWrapper'
-        );
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
-    }
-
-    /**
-     * Test init data is properly set on wrapper
-     */
-    public function testInitDataIsSetOnWrapper(): void
-    {
-        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::CORE_SESSION_ID;
-
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
-
-        $factory = SessionWrapperFactory::getInstance();
-        $initData = ['test_key' => 'test_value'];
-
-        $wrapper = $factory->getWrapper($initData);
-
-        $this->assertEquals(
-            'test_value',
-            $wrapper->get('test_key'),
-            'Init data should be set on the wrapper'
-        );
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
-    }
-
-    // =========================================================================
-    // isSymfonySession() Behavior Tests - Critical for portal/admin detection
-    // =========================================================================
-
-    /**
-     * Test that PHPSessionWrapper returns isSymfonySession() = false
-     *
-     * This is critical because shared files use isSymfonySession() to detect
-     * if the request is coming from portal context vs core/admin/API context.
-     */
-    public function testPHPSessionWrapperIsNotSymfonySession(): void
-    {
-        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::CORE_SESSION_ID;
-
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
-
-        $factory = SessionWrapperFactory::getInstance();
-        $wrapper = $factory->getWrapper();
-
-        $this->assertInstanceOf(PHPSessionWrapper::class, $wrapper);
         $this->assertFalse(
-            $wrapper->isSymfonySession(),
-            'PHPSessionWrapper should return false for isSymfonySession()'
+            $factory->isSessionActive(),
+            'isSessionActive should return false when no sessions have been created'
         );
-        $this->assertNull(
-            $wrapper->getSymfonySession(),
-            'PHPSessionWrapper should return null for getSymfonySession()'
-        );
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
     }
 
     /**
-     * Test that API request with portal cookie returns wrapper with isSymfonySession() = false
-     *
-     * This is THE key scenario: user has portal open, API call is made.
-     * The API should NOT be treated as a portal request.
+     * Test that isSessionActive returns true when activeSession is set via setActiveSession
      */
-    public function testApiWithPortalCookieIsNotSymfonySession(): void
+    public function testIsSessionActiveReturnsTrueWithActiveSession(): void
     {
-        // Portal cookie present (user has portal open in another tab)
-        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
-
-        // API/OAuth has already started a session
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
-
         $factory = SessionWrapperFactory::getInstance();
-        $wrapper = $factory->getWrapper();
 
-        // Should get PHPSessionWrapper, not SymfonySessionWrapper
-        $this->assertInstanceOf(PHPSessionWrapper::class, $wrapper);
+        $mockSession = $this->createMock(SessionInterface::class);
+        $factory->setActiveSession($mockSession);
 
-        // isSymfonySession() should return false - this is NOT a portal request
-        $this->assertFalse(
-            $wrapper->isSymfonySession(),
-            'API request with portal cookie should NOT be treated as Symfony/portal session'
-        );
-
-        // Shared file code like this should correctly fall through to admin branch:
-        // if ($session->isSymfonySession() && $session->has('pid')) { /* portal */ }
-        // else { /* admin/api */ }
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
-    }
-
-    /**
-     * Test that OAuth request with portal cookie returns wrapper with isSymfonySession() = false
-     */
-    public function testOAuthWithPortalCookieIsNotSymfonySession(): void
-    {
-        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
-        $_SERVER['REQUEST_URI'] = '/oauth2/token';
-
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
-
-        $factory = SessionWrapperFactory::getInstance();
-        $wrapper = $factory->getWrapper();
-
-        $this->assertInstanceOf(PHPSessionWrapper::class, $wrapper);
-        $this->assertFalse(
-            $wrapper->isSymfonySession(),
-            'OAuth request with portal cookie should NOT be treated as Symfony/portal session'
-        );
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
-    }
-
-    // =========================================================================
-    // Shared File Simulation Tests - Simulates actual portal file patterns
-    // =========================================================================
-
-    /**
-     * Simulate the pattern used in portal/messaging/secure_chat.php and similar files
-     *
-     * Pattern:
-     *   if ($session->isSymfonySession() && $session->has('pid') && $session->has('patient_portal_onsite_two')) {
-     *       // Portal context - use pid from session
-     *   } else {
-     *       // Admin context - require authUserID
-     *   }
-     */
-    public function testSharedFilePatternWithApiAndPortalCookie(): void
-    {
-        // Scenario: API request has portal cookie from another tab
-        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
-
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
-
-        // Set up session data as if it were a portal session
-        $_SESSION['pid'] = '123';
-        $_SESSION['patient_portal_onsite_two'] = true;
-
-        $factory = SessionWrapperFactory::getInstance();
-        $wrapper = $factory->getWrapper();
-
-        // Simulate the shared file pattern
-        $isPortalContext = $wrapper->isSymfonySession()
-            && $wrapper->has('pid')
-            && $wrapper->has('patient_portal_onsite_two');
-
-        // Even though session has portal data, isSymfonySession() is false
-        // so this should NOT be treated as portal context
-        $this->assertFalse(
-            $isPortalContext,
-            'API request should not enter portal context branch even with portal session data'
-        );
-
-        // The code should fall through to admin/API branch
-        $isAdminContext = !$wrapper->isSymfonySession() || !$wrapper->has('pid');
         $this->assertTrue(
-            $isAdminContext,
-            'API request should enter admin/API context branch'
+            $factory->isSessionActive(),
+            'isSessionActive should return true when activeSession is set'
         );
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
     }
 
     /**
-     * Test CSRF verification pattern used in shared files
-     *
-     * Pattern from portal files:
-     *   CsrfUtils::verifyCsrfToken($token, 'sphere', $session->getSymfonySession())
-     *
-     * When getSymfonySession() returns null, CSRF utils should handle it gracefully.
+     * Test isSessionActive after creating core session via getCoreSession
      */
-    public function testCsrfPatternWithNullSymfonySession(): void
+    public function testIsSessionActiveAfterCoreSessionCreation(): void
     {
-        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::API_SESSION_ID;
-
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
+        $this->ensureSessionActive();
 
         $factory = SessionWrapperFactory::getInstance();
-        $wrapper = $factory->getWrapper();
+        $factory->getCoreSession();
 
-        // getSymfonySession() returns null for PHPSessionWrapper
-        $symfonySession = $wrapper->getSymfonySession();
-        $this->assertNull($symfonySession);
-
-        // Code that passes this to CsrfUtils should handle null gracefully
-        // (CsrfUtils::verifyCsrfToken accepts ?Session parameter)
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
+        $this->assertTrue(
+            $factory->isSessionActive(),
+            'isSessionActive should return true after getCoreSession is called'
+        );
     }
 
     /**
-     * Test that all session types correctly report isSymfonySession() = false
-     * when session is already active (our fix scenario)
-     *
-     * @dataProvider sessionTypeProvider
+     * Test isSessionActive after creating portal session via getPortalSession
      */
-    public function testAllSessionTypesWithActiveSessionAreNotSymfony(string $sessionType): void
+    public function testIsSessionActiveAfterPortalSessionCreation(): void
+    {
+        $this->ensureSessionActive();
+
+        $factory = SessionWrapperFactory::getInstance();
+        $factory->getPortalSession();
+
+        $this->assertTrue(
+            $factory->isSessionActive(),
+            'isSessionActive should return true after getPortalSession is called'
+        );
+    }
+
+    // =========================================================================
+    // Session Caching Tests
+    // =========================================================================
+
+    /**
+     * Test that getCoreSession returns the same cached instance on subsequent calls
+     */
+    public function testGetCoreSessionReturnsCachedInstance(): void
+    {
+        $this->ensureSessionActive();
+
+        $factory = SessionWrapperFactory::getInstance();
+        $session1 = $factory->getCoreSession();
+        $session2 = $factory->getCoreSession();
+
+        $this->assertSame(
+            $session1,
+            $session2,
+            'getCoreSession should return the same cached instance'
+        );
+    }
+
+    /**
+     * Test that getPortalSession returns the same cached instance on subsequent calls
+     */
+    public function testGetPortalSessionReturnsCachedInstance(): void
+    {
+        $this->ensureSessionActive();
+
+        $factory = SessionWrapperFactory::getInstance();
+        $session1 = $factory->getPortalSession();
+        $session2 = $factory->getPortalSession();
+
+        $this->assertSame(
+            $session1,
+            $session2,
+            'getPortalSession should return the same cached instance'
+        );
+    }
+
+    /**
+     * Test that getCoreSession with reset=true creates a new instance
+     */
+    public function testGetCoreSessionWithResetCreatesNewInstance(): void
+    {
+        $this->ensureSessionActive();
+
+        $factory = SessionWrapperFactory::getInstance();
+        $session1 = $factory->getCoreSession();
+        $session2 = $factory->getCoreSession(true);
+
+        $this->assertNotSame(
+            $session1,
+            $session2,
+            'getCoreSession with reset=true should create a new instance'
+        );
+    }
+
+    /**
+     * Test that getPortalSession with reset=true creates a new instance
+     */
+    public function testGetPortalSessionWithResetCreatesNewInstance(): void
+    {
+        $this->ensureSessionActive();
+
+        $factory = SessionWrapperFactory::getInstance();
+        $session1 = $factory->getPortalSession();
+        $session2 = $factory->getPortalSession(true);
+
+        $this->assertNotSame(
+            $session1,
+            $session2,
+            'getPortalSession with reset=true should create a new instance'
+        );
+    }
+
+    // =========================================================================
+    // getActiveSession() Tests
+    // =========================================================================
+
+    /**
+     * Test that getActiveSession returns core session when no App cookie is set
+     */
+    public function testGetActiveSessionReturnsCoreWhenNoCookie(): void
+    {
+        unset($_COOKIE[SessionUtil::APP_COOKIE_NAME]);
+        $this->ensureSessionActive();
+
+        $factory = SessionWrapperFactory::getInstance();
+        $activeSession = $factory->getActiveSession();
+
+        // Verify it's the core session (same object)
+        $coreSession = $factory->getCoreSession();
+        $this->assertSame(
+            $coreSession,
+            $activeSession,
+            'getActiveSession without App cookie should return core session'
+        );
+    }
+
+    /**
+     * Test that getActiveSession returns core session when core cookie is set
+     */
+    public function testGetActiveSessionReturnsCoreWithCoreCookie(): void
+    {
+        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::CORE_SESSION_ID;
+        $this->ensureSessionActive();
+
+        $factory = SessionWrapperFactory::getInstance();
+        $activeSession = $factory->getActiveSession();
+
+        $coreSession = $factory->getCoreSession();
+        $this->assertSame(
+            $coreSession,
+            $activeSession,
+            'getActiveSession with core cookie should return core session'
+        );
+    }
+
+    /**
+     * Test that getActiveSession returns portal session when portal cookie is set
+     */
+    public function testGetActiveSessionReturnsPortalWithPortalCookie(): void
+    {
+        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
+        $this->ensureSessionActive();
+
+        $factory = SessionWrapperFactory::getInstance();
+        $activeSession = $factory->getActiveSession();
+
+        $portalSession = $factory->getPortalSession();
+        $this->assertSame(
+            $portalSession,
+            $activeSession,
+            'getActiveSession with portal cookie should return portal session'
+        );
+    }
+
+    /**
+     * Test that getActiveSession returns core session for API cookie
+     */
+    public function testGetActiveSessionReturnsCoreWithApiCookie(): void
+    {
+        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::API_SESSION_ID;
+        $this->ensureSessionActive();
+
+        $factory = SessionWrapperFactory::getInstance();
+        $activeSession = $factory->getActiveSession();
+
+        $coreSession = $factory->getCoreSession();
+        $this->assertSame(
+            $coreSession,
+            $activeSession,
+            'getActiveSession with API cookie should return core session (non-portal default)'
+        );
+    }
+
+    /**
+     * Test that all non-portal session types route to core session
+     *
+     * @dataProvider nonPortalSessionTypeProvider
+     */
+    public function testAllNonPortalSessionTypesRouteToCore(string $sessionType): void
     {
         $_COOKIE[SessionUtil::APP_COOKIE_NAME] = $sessionType;
-
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            @session_start();
-        }
+        $this->ensureSessionActive();
 
         $this->resetSingleton();
         $factory = SessionWrapperFactory::getInstance();
-        $wrapper = $factory->getWrapper();
+        $activeSession = $factory->getActiveSession();
 
-        $this->assertInstanceOf(
-            PHPSessionWrapper::class,
-            $wrapper,
-            "Session type '$sessionType' with active session should return PHPSessionWrapper"
+        $coreSession = $factory->getCoreSession();
+        $this->assertSame(
+            $coreSession,
+            $activeSession,
+            "Session type '$sessionType' should route to core session via getActiveSession"
         );
-        $this->assertFalse(
-            $wrapper->isSymfonySession(),
-            "Session type '$sessionType' with active session should return isSymfonySession()=false"
-        );
-
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_write_close();
-        }
     }
 
     /**
-     * Data provider for session types
+     * Data provider for non-portal session types
      *
      * @return array<string, array{string}>
      *
      * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
      */
-    public static function sessionTypeProvider(): array
+    public static function nonPortalSessionTypeProvider(): array
     {
         return [
             'Core session' => [SessionUtil::CORE_SESSION_ID],
             'API session' => [SessionUtil::API_SESSION_ID],
             'OAuth session' => [SessionUtil::OAUTH_SESSION_ID],
-            'Portal session' => [SessionUtil::PORTAL_SESSION_ID],
+        ];
+    }
+
+    // =========================================================================
+    // Destroy Session Tests
+    // =========================================================================
+
+    /**
+     * Test that destroyPortalSession invalidates and clears the active session
+     * when a portal PHP session is active
+     */
+    public function testDestroyPortalSessionClearsSession(): void
+    {
+        $factory = SessionWrapperFactory::getInstance();
+
+        $mockSession = $this->createMock(SessionInterface::class);
+        $mockSession->expects($this->once())->method('invalidate');
+        $factory->setActiveSession($mockSession);
+
+        $this->assertTrue($factory->isSessionActive(), 'Session should be active before destroy');
+
+        // Start a real PHP session with portal session name so destroy condition is met
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+        session_name(SessionUtil::PORTAL_SESSION_ID);
+        @session_start();
+
+        $factory->destroyPortalSession();
+
+        $this->assertFalse(
+            $factory->isSessionActive(),
+            'isSessionActive should be false after destroy'
+        );
+        $this->assertNull(
+            $this->getFactoryProperty($factory, 'activeSession'),
+            'activeSession should be null after portal session destroy'
+        );
+    }
+
+    /**
+     * Test that destroyCoreSession invalidates and clears the active session
+     * when a core PHP session is active
+     */
+    public function testDestroyCoreSessionClearsSession(): void
+    {
+        $factory = SessionWrapperFactory::getInstance();
+
+        $mockSession = $this->createMock(SessionInterface::class);
+        $mockSession->expects($this->once())->method('invalidate');
+        $factory->setActiveSession($mockSession);
+
+        $this->assertTrue($factory->isSessionActive(), 'Session should be active before destroy');
+
+        // Start a real PHP session with core session name so destroy condition is met
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+        session_name(SessionUtil::CORE_SESSION_ID);
+        @session_start();
+
+        $factory->destroyCoreSession();
+
+        $this->assertFalse(
+            $factory->isSessionActive(),
+            'isSessionActive should be false after destroy'
+        );
+        $this->assertNull(
+            $this->getFactoryProperty($factory, 'activeSession'),
+            'activeSession should be null after core session destroy'
+        );
+    }
+
+    /**
+     * Test that destroyPortalSession does NOT invalidate a core session
+     */
+    public function testDestroyPortalSessionDoesNotDestroyCoreSession(): void
+    {
+        $factory = SessionWrapperFactory::getInstance();
+
+        $mockSession = $this->createMock(SessionInterface::class);
+        $mockSession->expects($this->never())->method('invalidate');
+        $factory->setActiveSession($mockSession);
+
+        // Start a real PHP session with core session name
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+        session_name(SessionUtil::CORE_SESSION_ID);
+        @session_start();
+
+        $factory->destroyPortalSession();
+
+        $this->assertTrue(
+            $factory->isSessionActive(),
+            'isSessionActive should remain true — core session must not be destroyed by destroyPortalSession'
+        );
+    }
+
+    /**
+     * Test that destroyCoreSession does NOT invalidate a portal session
+     */
+    public function testDestroyCoreSessionDoesNotDestroyPortalSession(): void
+    {
+        $factory = SessionWrapperFactory::getInstance();
+
+        $mockSession = $this->createMock(SessionInterface::class);
+        $mockSession->expects($this->never())->method('invalidate');
+        $factory->setActiveSession($mockSession);
+
+        // Start a real PHP session with portal session name
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+        session_name(SessionUtil::PORTAL_SESSION_ID);
+        @session_start();
+
+        $factory->destroyCoreSession();
+
+        $this->assertTrue(
+            $factory->isSessionActive(),
+            'isSessionActive should remain true — portal session must not be destroyed by destroyCoreSession'
+        );
+    }
+
+    /**
+     * Test that destroyPortalSession does nothing when no session exists
+     */
+    public function testDestroyPortalSessionDoesNothingWhenNoSession(): void
+    {
+        $factory = SessionWrapperFactory::getInstance();
+
+        // Should not throw when activeSession is null
+        $factory->destroyPortalSession();
+
+        $this->assertFalse(
+            $factory->isSessionActive(),
+            'isSessionActive should remain false after destroying non-existent session'
+        );
+    }
+
+    /**
+     * Test that destroyCoreSession does nothing when no session exists
+     */
+    public function testDestroyCoreSessionDoesNothingWhenNoSession(): void
+    {
+        $factory = SessionWrapperFactory::getInstance();
+
+        // Should not throw when activeSession is null
+        $factory->destroyCoreSession();
+
+        $this->assertFalse(
+            $factory->isSessionActive(),
+            'isSessionActive should remain false after destroying non-existent session'
+        );
+    }
+
+    // =========================================================================
+    // Session Data Tests
+    // =========================================================================
+
+    /**
+     * Test that data can be set and retrieved on core session
+     */
+    public function testCoreSessionSupportsGetAndSet(): void
+    {
+        $this->ensureSessionActive();
+
+        $factory = SessionWrapperFactory::getInstance();
+        $session = $factory->getCoreSession();
+
+        $session->set('test_key', 'test_value');
+
+        $this->assertEquals(
+            'test_value',
+            $session->get('test_key'),
+            'Core session should support setting and getting data'
+        );
+    }
+
+    /**
+     * Test that data can be set and retrieved on portal session
+     */
+    public function testPortalSessionSupportsGetAndSet(): void
+    {
+        $this->ensureSessionActive();
+
+        $factory = SessionWrapperFactory::getInstance();
+        $session = $factory->getPortalSession();
+
+        $session->set('portal_key', 'portal_value');
+
+        $this->assertEquals(
+            'portal_value',
+            $session->get('portal_key'),
+            'Portal session should support setting and getting data'
+        );
+    }
+
+    // =========================================================================
+    // setActiveSession() Tests - API and OAuth session injection
+    //
+    // In API/OAuth contexts, an external listener (e.g. SiteSetupListener)
+    // creates a Symfony Session and injects it via setActiveSession().
+    // Since isSessionActive() checks activeSession directly, calling
+    // setActiveSession() is sufficient for getActiveSession() to return
+    // the injected session without needing core/portal sessions.
+    // =========================================================================
+
+    /**
+     * Test that setActiveSession stores the session in the activeSession property
+     */
+    public function testSetActiveSessionStoresSession(): void
+    {
+        $factory = SessionWrapperFactory::getInstance();
+        $mockSession = $this->createMock(SessionInterface::class);
+
+        $factory->setActiveSession($mockSession);
+
+        $this->assertSame(
+            $mockSession,
+            $this->getFactoryProperty($factory, 'activeSession'),
+            'setActiveSession should store the session in the activeSession property'
+        );
+    }
+
+    /**
+     * Test that setActiveSession can override a previously set active session
+     */
+    public function testSetActiveSessionOverridesPreviousSession(): void
+    {
+        $factory = SessionWrapperFactory::getInstance();
+
+        $firstSession = $this->createMock(SessionInterface::class);
+        $secondSession = $this->createMock(SessionInterface::class);
+
+        $factory->setActiveSession($firstSession);
+        $factory->setActiveSession($secondSession);
+
+        $this->assertSame(
+            $secondSession,
+            $this->getFactoryProperty($factory, 'activeSession'),
+            'setActiveSession should override a previously set session'
+        );
+    }
+
+    /**
+     * Test that getActiveSession returns the injected session
+     *
+     * Calling setActiveSession() is sufficient for getActiveSession() to return
+     * the injected session — cookie-based routing is bypassed.
+     */
+    public function testGetActiveSessionReturnsInjectedSession(): void
+    {
+        $factory = SessionWrapperFactory::getInstance();
+        $mockApiSession = $this->createMock(SessionInterface::class);
+
+        $factory->setActiveSession($mockApiSession);
+
+        $this->assertTrue(
+            $factory->isSessionActive(),
+            'isSessionActive should be true when activeSession is set via setActiveSession'
+        );
+
+        $this->assertSame(
+            $mockApiSession,
+            $factory->getActiveSession(),
+            'getActiveSession should return the session set via setActiveSession'
+        );
+    }
+
+    /**
+     * Test the typical API session lifecycle:
+     * 1. API listener creates a Symfony Session and injects it
+     * 2. getActiveSession() returns the API session
+     * 3. Data set on the API session is accessible
+     */
+    public function testApiSessionLifecycle(): void
+    {
+        $factory = SessionWrapperFactory::getInstance();
+
+        // Step 1: API listener creates and injects API session
+        $mockApiSession = $this->createMock(SessionInterface::class);
+        $mockApiSession->method('get')->with('api_token')->willReturn('abc123');
+        $factory->setActiveSession($mockApiSession);
+
+        // Step 2: getActiveSession returns API session
+        $activeSession = $factory->getActiveSession();
+        $this->assertSame($mockApiSession, $activeSession);
+
+        // Step 3: Data is accessible
+        $this->assertEquals(
+            'abc123',
+            $activeSession->get('api_token'),
+            'Data set on the injected API session should be accessible via getActiveSession'
+        );
+    }
+
+    /**
+     * Test the typical OAuth session lifecycle:
+     * 1. OAuth listener creates a Symfony Session and injects it
+     * 2. getActiveSession() returns the OAuth session
+     * 3. Data set on the OAuth session is accessible
+     */
+    public function testOAuthSessionLifecycle(): void
+    {
+        $factory = SessionWrapperFactory::getInstance();
+
+        // Step 1: OAuth listener creates and injects OAuth session
+        $mockOAuthSession = $this->createMock(SessionInterface::class);
+        $mockOAuthSession->method('get')->with('oauth_client_id')->willReturn('client_xyz');
+        $factory->setActiveSession($mockOAuthSession);
+
+        // Step 2: getActiveSession returns OAuth session
+        $activeSession = $factory->getActiveSession();
+        $this->assertSame($mockOAuthSession, $activeSession);
+        $this->assertEquals(
+            'client_xyz',
+            $activeSession->get('oauth_client_id'),
+            'Data set on the injected OAuth session should be accessible via getActiveSession'
+        );
+    }
+
+    /**
+     * Test that destroyCoreSession clears the injected active session
+     * when the PHP session is a core session
+     */
+    public function testDestroyCoreSessionClearsInjectedActiveSession(): void
+    {
+        $factory = SessionWrapperFactory::getInstance();
+
+        $mockApiSession = $this->createMock(SessionInterface::class);
+        $mockApiSession->expects($this->once())->method('invalidate');
+        $factory->setActiveSession($mockApiSession);
+
+        // Verify the injected session is returned
+        $this->assertSame($mockApiSession, $factory->getActiveSession());
+
+        // Start a real PHP session with core session name
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+        session_name(SessionUtil::CORE_SESSION_ID);
+        @session_start();
+
+        $factory->destroyCoreSession();
+
+        $this->assertFalse(
+            $factory->isSessionActive(),
+            'isSessionActive should be false after destroyCoreSession'
+        );
+    }
+
+    /**
+     * Test that destroyPortalSession clears the injected active session
+     * when the PHP session is a portal session
+     */
+    public function testDestroyPortalSessionClearsInjectedActiveSession(): void
+    {
+        $factory = SessionWrapperFactory::getInstance();
+
+        $mockOAuthSession = $this->createMock(SessionInterface::class);
+        $mockOAuthSession->expects($this->once())->method('invalidate');
+        $factory->setActiveSession($mockOAuthSession);
+
+        // Verify the injected session is returned
+        $this->assertSame($mockOAuthSession, $factory->getActiveSession());
+
+        // Start a real PHP session with portal session name
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+        session_name(SessionUtil::PORTAL_SESSION_ID);
+        @session_start();
+
+        $factory->destroyPortalSession();
+
+        $this->assertFalse(
+            $factory->isSessionActive(),
+            'isSessionActive should be false after destroyPortalSession'
+        );
+    }
+
+
+    // =========================================================================
+    // Cross-Context Session Conflict Prevention Tests
+    //
+    // These test real-world scenarios where the browser has a cookie from one
+    // context (e.g. portal) but the current request is handled by a different
+    // context (e.g. API/OAuth). When a listener has already injected a session
+    // via setActiveSession(), the App cookie must be irrelevant.
+    // =========================================================================
+
+    /**
+     * Test: Portal cookie present, but API listener already injected an API session
+     *
+     * Scenario: User has portal open in one tab (App cookie = PORTAL_SESSION_ID).
+     * An API request comes from the same browser. SiteSetupListener creates an
+     * API session and calls setActiveSession(). getActiveSession() must return
+     * the API session, NOT create a portal session from the cookie.
+     */
+    public function testPortalCookieWithInjectedApiSessionReturnsApiSession(): void
+    {
+        // Portal cookie is present from another tab
+        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
+
+        $factory = SessionWrapperFactory::getInstance();
+
+        // API listener has already created and injected an API session
+        $mockApiSession = $this->createMock(SessionInterface::class);
+        $mockApiSession->method('get')->with('api_context')->willReturn('fhir');
+        $factory->setActiveSession($mockApiSession);
+
+        // getActiveSession must return the API session, not a portal session
+        $activeSession = $factory->getActiveSession();
+        $this->assertSame(
+            $mockApiSession,
+            $activeSession,
+            'With portal cookie but injected API session, getActiveSession should return the API session'
+        );
+        $this->assertEquals('fhir', $activeSession->get('api_context'));
+    }
+
+    /**
+     * Test: Portal cookie present, but OAuth listener already injected an OAuth session
+     *
+     * Scenario: User has portal open, OAuth authorization request comes in.
+     * The OAuth listener creates its session and injects it.
+     */
+    public function testPortalCookieWithInjectedOAuthSessionReturnsOAuthSession(): void
+    {
+        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
+
+        $factory = SessionWrapperFactory::getInstance();
+
+        $mockOAuthSession = $this->createMock(SessionInterface::class);
+        $mockOAuthSession->method('get')->with('oauth_state')->willReturn('authorize');
+        $factory->setActiveSession($mockOAuthSession);
+
+        $activeSession = $factory->getActiveSession();
+        $this->assertSame(
+            $mockOAuthSession,
+            $activeSession,
+            'With portal cookie but injected OAuth session, getActiveSession should return the OAuth session'
+        );
+        $this->assertEquals('authorize', $activeSession->get('oauth_state'));
+    }
+
+    /**
+     * Test: Core cookie present, but API listener already injected an API session
+     *
+     * Scenario: User has core OpenEMR open, API request comes in from same browser.
+     */
+    public function testCoreCookieWithInjectedApiSessionReturnsApiSession(): void
+    {
+        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::CORE_SESSION_ID;
+
+        $factory = SessionWrapperFactory::getInstance();
+
+        $mockApiSession = $this->createMock(SessionInterface::class);
+        $factory->setActiveSession($mockApiSession);
+
+        $this->assertSame(
+            $mockApiSession,
+            $factory->getActiveSession(),
+            'With core cookie but injected API session, getActiveSession should return the API session'
+        );
+    }
+
+    /**
+     * Test: Module entry point accessed with portal cookie, but API session is active
+     *
+     * Modules often have shared entry points that can be accessed from core,
+     * portal, or API contexts. The injected session must take priority.
+     */
+    public function testModuleEntryPointWithPortalCookieAndInjectedApiSession(): void
+    {
+        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
+        $_SERVER['REQUEST_URI'] = '/interface/modules/custom_modules/oe-module-example/public/index.php';
+
+        $factory = SessionWrapperFactory::getInstance();
+
+        $mockApiSession = $this->createMock(SessionInterface::class);
+        $factory->setActiveSession($mockApiSession);
+
+        $this->assertSame(
+            $mockApiSession,
+            $factory->getActiveSession(),
+            'Module entry point with portal cookie but injected API session should return API session'
+        );
+    }
+
+    /**
+     * Test: Injected session takes priority regardless of any App cookie value
+     *
+     * @dataProvider appCookieProvider
+     */
+    public function testInjectedSessionTakesPriorityOverAnyCookie(string $cookieValue): void
+    {
+        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = $cookieValue;
+
+        $this->resetSingleton();
+        $factory = SessionWrapperFactory::getInstance();
+
+        $mockInjectedSession = $this->createMock(SessionInterface::class);
+        $factory->setActiveSession($mockInjectedSession);
+
+        $this->assertSame(
+            $mockInjectedSession,
+            $factory->getActiveSession(),
+            "Injected session should take priority over App cookie '$cookieValue'"
+        );
+    }
+
+    /**
+     * Data provider for all App cookie values
+     *
+     * @return array<string, array{string}>
+     *
+     * @codeCoverageIgnore Data providers run before coverage instrumentation starts.
+     */
+    public static function appCookieProvider(): array
+    {
+        return [
+            'Core cookie' => [SessionUtil::CORE_SESSION_ID],
+            'Portal cookie' => [SessionUtil::PORTAL_SESSION_ID],
+            'API cookie' => [SessionUtil::API_SESSION_ID],
+            'OAuth cookie' => [SessionUtil::OAUTH_SESSION_ID],
         ];
     }
 }

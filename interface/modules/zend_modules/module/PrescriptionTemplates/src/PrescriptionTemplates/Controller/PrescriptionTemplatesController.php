@@ -23,6 +23,7 @@ namespace PrescriptionTemplates\Controller;
 
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class PrescriptionTemplatesController extends AbstractActionController
 {
@@ -44,7 +45,8 @@ class PrescriptionTemplatesController extends AbstractActionController
         }
         $patient = $p->patient;
 
-        $defaultHtml = new ViewModel(['patient' => $patient, 'prescriptions' => $prescriptions, 'langDir' => $_SESSION['language_direction']]);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $defaultHtml = new ViewModel(['patient' => $patient, 'prescriptions' => $prescriptions, 'langDir' => $session->get('language_direction')]);
         $defaultHtml->setTemplate("prescription-templates/default.phtml");
 
         return $defaultHtml;

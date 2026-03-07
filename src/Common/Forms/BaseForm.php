@@ -15,6 +15,8 @@
 
 namespace OpenEMR\Common\Forms;
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 abstract class BaseForm
 {
     private ?int $id;
@@ -37,9 +39,10 @@ abstract class BaseForm
         $this->authorized = 0;
         $this->date = new \DateTime();
 
-        $this->therapy_group_id = $attendant_type == 'pid' ? null : $_SESSION['therapy_group'] ?? null;
-        $this->user = $_SESSION['authUser'] ?? null;
-        $this->groupname = $_SESSION['authProvider'] ?? null;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->therapy_group_id = $attendant_type === 'pid' ? null : $session->get('therapy_group');
+        $this->user = $session->get('authUser');
+        $this->groupname = $session->get('authProvider');
     }
 
     /**

@@ -31,9 +31,13 @@ require_once("$srcdir/MedEx/API.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Services\Globals\UserSettingsService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 //Gets validation rules from Page Validation list.
 $collectthis = collectValidationPageRules("/interface/main/messages/messages.php");
@@ -57,9 +61,9 @@ $setting_bootstrap_submenu = prevSetting('', 'setting_bootstrap_submenu', 'setti
 $uspfx = substr(__FILE__, strlen((string) $webserver_root)) . '.';
 $rcb_selectors = prevSetting($uspfx, 'rcb_selectors', 'rcb_selectors', 'block');
 $rcb_facility = prevSetting($uspfx, 'form_facility', 'form_facility', '');
-$rcb_provider = prevSetting($uspfx, 'form_provider', 'form_provider', $_SESSION['authUserID']);
-$patient_id = prevSetting($uspfx, 'form_patient_id', 'form_patient_id', '');
-$patient_name = prevSetting($uspfx, 'form_patient_name', 'form_patient_name', '');
+$rcb_provider = prevSetting($uspfx, 'form_provider', 'form_provider', $session->get('authUserID'));
+$patient_id = UserSettingsService::prevSetting($uspfx, 'form_patient_id', 'form_patient_id', '');
+$patient_name = UserSettingsService::prevSetting($uspfx, 'form_patient_name', 'form_patient_name', '');
 
 if (
     (array_key_exists('setting_bootstrap_submenu', $_POST)) ||
@@ -298,7 +302,7 @@ if (!empty($_REQUEST['go'])) { ?>
                             $datetime = isset($_POST['form_datetime']) ? DateTimeToYYYYMMDDHHMMSS($_POST['form_datetime']) : '';
                             foreach ($assigned_to_list as $assigned_to) {
                                 if ($noteid && $assigned_to != '-patient-') {
-                                    if (checkPnotesNoteId($noteid, $_SESSION['authUser'])) {
+                                    if (checkPnotesNoteId($noteid, $session->get('authUser'))) {
                                         updatePnote($noteid, $note, $form_note_type, $assigned_to, $form_message_status, $datetime);
                                         $noteid = '';
                                     } else {
@@ -352,7 +356,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                 die("There was an error processing your request.");
                             }
                             // Check to make sure the noteid is assigned to the user
-                            if (!checkPnotesNoteId($noteid, $_SESSION['authUser'])) {
+                            if (!checkPnotesNoteId($noteid, $session->get('authUser'))) {
                                 die("Message is not assigned to you. Viewing is disallowed.");
                             }
                             // Update the message if it already exists; it's appended to an existing note in Patient Notes.
@@ -376,7 +380,7 @@ if (!empty($_REQUEST['go'])) { ?>
                             $delete_id = $_POST['delete_id'];
                             for ($i = 0; $i < count($delete_id); $i++) {
                                 deletePnote($delete_id[$i]);
-                                EventAuditLogger::getInstance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "pnotes: id " . $delete_id[$i]);
+                                EventAuditLogger::getInstance()->newEvent("delete", $session->get('authUser'), $session->get('authProvider'), 1, "pnotes: id " . $delete_id[$i]);
                             }
                             break;
                     }
@@ -588,7 +592,7 @@ if (!empty($_REQUEST['go'])) { ?>
                         }
                         // Manage page numbering and display beneath the Messages table.
                         $listnumber = 25;
-                        $total = getPnotesByUser($active, $show_all, $_SESSION['authUser'], true);
+                        $total = getPnotesByUser($active, $show_all, $session->get('authUser'), true);
                         if ($begin == "" or $begin == 0) {
                             $begin = 0;
                         }
@@ -597,8 +601,8 @@ if (!empty($_REQUEST['go'])) { ?>
                         $start = $begin + 1;
                         $end = $listnumber + $start - 1;
 
-                        $chevron_icon_left = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
-                        $chevron_icon_right = $_SESSION['language_direction'] == 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
+                        $chevron_icon_left = $session->get('language_direction') == 'ltr' ? 'fa-chevron-circle-left' : 'fa-chevron-circle-right';
+                        $chevron_icon_right = $session->get('language_direction') == 'ltr' ? 'fa-chevron-circle-right' : 'fa-chevron-circle-left';
 
                         if ($end >= $total) {
                             $end = $total;
@@ -637,7 +641,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                 </thead>";
                         // Display the Messages table body.
                         $count = 0;
-                        $result = getPnotesByUser($active, $show_all, $_SESSION['authUser'], false, $sortby, $sortorder, $begin, $listnumber);
+                        $result = getPnotesByUser($active, $show_all, $session->get('authUser'), false, $sortby, $sortorder, $begin, $listnumber);
                         while ($myrow = sqlFetchArray($result)) {
                             $name = $myrow['user'];
                             $name = $myrow['users_lname'];
@@ -835,7 +839,7 @@ if (!empty($_REQUEST['go'])) { ?>
                 window.top.restoreSession();
                 request = new FormData;
                 request.append("ajax", "1");
-                request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>);
+                request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>);
                 request.append("background_service", "phimail");
                 request.append("background_force", "1");
                 fetch(webRoot + "/library/ajax/execute_background_services.php", {
@@ -1036,7 +1040,7 @@ if (!empty($_REQUEST['go'])) { ?>
             var url = '../../main/finder/multi_patients_finder.php'
             // for edit selected list
             if ($('#reply_to').val() !== '') {
-                url = url + '?patients=' + $('#reply_to').val() + '&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>';
+                url = url + '?patients=' + $('#reply_to').val() + '&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken(session: $session)); ?>';
             }
             dlgopen(url, '_blank', 625, 400);
         }

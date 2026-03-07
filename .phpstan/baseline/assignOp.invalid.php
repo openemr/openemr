@@ -982,17 +982,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/transaction/add_transaction.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and \\(array\\<string\\>\\|string\\) results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between mixed and non\\-falsy\\-string results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between string and mixed results in an error\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
 ];
@@ -2015,21 +2005,6 @@ $ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between mixed and \'\\<input id\\=\\\\\'portal…\' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between "SELECT\\\\n    `onsite…" and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between \'SELECT count\\(1\\) AS…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between "select\\\\n\\\\t\\\\t\\\\t\'custom…" and mixed results in an error\\.$#',

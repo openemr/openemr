@@ -20,6 +20,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
@@ -28,8 +29,9 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Audit Log Tamper Report", xl("Audit Log Tamper Report"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -132,7 +134,7 @@ if (empty($form_patient)) {
 ?>
 <br />
 <FORM METHOD="GET" name="theform" id="theform" onSubmit='top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 <?php
 
 $sortby = $_GET['sortby'] ?? null;
@@ -284,9 +286,11 @@ $check_sum = isset($_GET['check_sum']);
                     $trans_comments = xl("Unable to decrypt these comments since the PHP mycrypt module is no longer available.");
                 } else {
                     // For v1/v2, prepend version prefix. For v3+, data already has it.
-                    $comments = $encryptVersion < 3
-                        ? KeyVersion::from($encryptVersion)->toPaddedString() . $iter["comments"]
-                        : $iter["comments"];
+                    $encryptVersionInt = is_numeric($encryptVersion) ? (int) $encryptVersion : 0;
+                    $iterComments = is_string($iter["comments"]) ? $iter["comments"] : '';
+                    $comments = $encryptVersionInt < 3
+                        ? KeyVersion::from($encryptVersionInt)->toPaddedString() . $iterComments
+                        : $iterComments;
                     $trans_comments = $cryptoGen->decryptStandard($comments);
                     if (is_string($trans_comments)) {
                         $trans_comments = preg_replace($patterns, $replace, trim($trans_comments));
@@ -298,9 +302,9 @@ $check_sum = isset($_GET['check_sum']);
                 // base64 decode if applicable (note the $encryptVersion is a misnomer here, we have added in base64 encoding
                 //  of comments in OpenEMR 6.0.0 and greater when the comments are not encrypted since they hold binary (uuid) elements)
                 if ($encryptVersion >= 4) {
-                    $iter["comments"] = base64_decode((string) $iter["comments"]);
+                    $iter["comments"] = base64_decode(is_string($iter["comments"]) ? $iter["comments"] : '');
                 }
-                $trans_comments = preg_replace($patterns, $replace, trim((string) $iter["comments"]));
+                $trans_comments = preg_replace($patterns, $replace, trim(is_string($iter["comments"]) ? $iter["comments"] : ''));
             }
 
             //Alter Checksum value records only display here

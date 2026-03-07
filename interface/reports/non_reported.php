@@ -25,14 +25,16 @@ require_once("../../custom/code_types.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Syndromic Surveillance - Non Reported Issues", xl("Syndromic Surveillance - Non Reported Issues"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -40,8 +42,9 @@ if (!empty($_POST)) {
 // Ensoftek: Jul-2015: Get the facility of the logged in user.
 function getLoggedInUserFacility()
 {
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $sql = "SELECT f.name, f.facility_npi FROM users AS u LEFT JOIN facility AS f ON u.facility_id = f.id WHERE u.id=?";
-    $res = sqlStatement($sql, [$_SESSION['authUserID']]);
+    $res = sqlStatement($sql, [$session->get('authUserID')]);
     while ($arow = sqlFetchArray($res)) {
         return $arow;
     }
@@ -329,7 +332,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
 </div>
 
 <form name='theform' id='theform' method='post' action='non_reported.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 <div id="report_parameters">
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 <input type='hidden' name='form_get_hl7' id='form_get_hl7' value=''/>

@@ -16,10 +16,13 @@
 require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 $returnurl = 'encounter_top.php';
-$provider_results = sqlQuery("select fname, lname from users where username=?", [$_SESSION["authUser"]]);
+$provider_results = sqlQuery("select fname, lname from users where username=?", [$session->get('authUser')]);
 
 /* name of this form */
 $form_name = "note";

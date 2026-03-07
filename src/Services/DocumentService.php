@@ -120,6 +120,9 @@ class DocumentService extends BaseService
         return $fileResults;
     }
 
+    /**
+     * @param array{tmp_name: string, name: string} $fileData
+     */
     public function insertAtPath($pid, $path, $fileData, $eid)
     {
         // Ensure filetype is allowed

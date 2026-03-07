@@ -46,5 +46,7 @@ function create_event_time_anchor($displayString)
 [-/php-]
 </head>
 [-php-]
-echo "<body class = '" . attr($_SESSION['language_direction']) . " calsearch_body w-100'>";
+$session = \OpenEMR\Common\Session\SessionWrapperFactory::getInstance()->getActiveSession();
+$language_direction = $session->get('language_direction');
+echo "<body class = '" . attr($language_direction) . " calsearch_body w-100'>";
 [-/php-]

@@ -21,15 +21,17 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AccessDeniedResponseFormat;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Check authorization
 if (!AclMain::aclCheckCore('admin', 'practice')) {
     AccessDeniedHelper::deny('Unauthorized access to NPI lookup', format: AccessDeniedResponseFormat::Json);
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 // Verify CSRF token for security
 if (
-    !CsrfUtils::verifyCsrfToken($_GET['csrf_token'] ?? '')
+    !CsrfUtils::verifyCsrfToken($_GET['csrf_token'] ?? '', session: $session)
 ) {
     http_response_code(403);
     echo json_encode(['error' => 'Invalid CSRF token']);

@@ -24,7 +24,7 @@ TODO: Code cleanup */
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 $form_folder = "eye_mag";
@@ -42,16 +42,18 @@ require_once("../../forms/" . $form_folder . "/php/" . $form_folder . "_function
 $pid = (int) (empty($_REQUEST['pid']) ? $pid : $_REQUEST['pid']);
 $info_msg = "";
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 // A nonempty thisenc means we are to link the issue to the encounter.
 // ie. we are going to use this as a billing issue?
 // The Coding Engine does not look at encounters and issue linkage, yet.  It could and perhaps should.
-$encounter = 0 + (empty($_REQUEST['encounter']) ? $_SESSION['encounter'] : $_REQUEST['encounter']);
+$encounter = 0 + (empty($_REQUEST['encounter']) ? $session->get('encounter') : $_REQUEST['encounter']);
 
 $issue = $_REQUEST['issue'] ?? '';
 $deletion = $_REQUEST['deletion'] ?? '';
 $form_save = $_REQUEST['form_save'] ?? '';
 if (!$pid) {
-    $pid = $_SESSION['pid'];
+    $pid = $session->get('pid');
 }
 
 $form_id = $_REQUEST['form_id'];
@@ -74,8 +76,8 @@ if (
 $PMSFH = build_PMSFH($pid);
 $patient = getPatientData($pid, "*");
 $providerID = findProvider($pid, $encounter);
-if (!($_SESSION['providerID'] ?? '') && $providerID) {
-    SessionUtil::setSession('providerID', $providerID);
+if (!($session->get('providerID') ?? '') && $providerID) {
+    $session->set('providerID', $providerID);
 }
 
 $irow = [];
@@ -119,7 +121,7 @@ foreach (explode(',', $given) as $item) {
 // and ranked by frequency, sort alphabetically and <=10 are listed.
 // If not, we use the defaults from list_options/
         $i = '0';
-
+        $providerID = $session->get('providerID');
         foreach ($PMSFH[0] as $key => $value) {
             echo " aopts['" . attr($key) . "'] = [];\n";
             $local = '1';
@@ -127,7 +129,7 @@ foreach (explode(',', $given) as $item) {
             if ($key == "PMH") { // "0" = medical_problem_issue_list leave out Dental "4"
                 $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and subtype = '' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 20", [
                     "medical_problem",
-                    $_SESSION['providerID']
+                    $providerID
                 ]);
 
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
@@ -138,7 +140,7 @@ foreach (explode(',', $given) as $item) {
             } elseif ($key == "Medication") {
                 $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and subtype = '' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", [
                     "medication",
-                    $_SESSION['providerID']
+                    $providerID
                 ]);
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
                     $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", [
@@ -150,7 +152,7 @@ foreach (explode(',', $given) as $item) {
     subtype = '' and pid in (select pid from form_encounter where provider_id =?
     and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", [
                     "surgery",
-                    $_SESSION['providerID']
+                    $providerID
                 ]);
 
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
@@ -161,7 +163,7 @@ foreach (explode(',', $given) as $item) {
             } elseif ($key == "Allergy") {
                 $qry = sqlStatement("SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE ? and subtype = '' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10", [
                     "allergy",
-                    $_SESSION['providerID']
+                    $providerID
                 ]);
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
                     $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = ? and subtype not like 'eye'", [
@@ -171,7 +173,7 @@ foreach (explode(',', $given) as $item) {
             } elseif ($key == "POH") { // POH medical group
                 $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE 'medical_problem' and subtype = 'eye' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
                 $qry = sqlStatement($query, [
-                    $_SESSION['providerID']
+                    $providerID
                 ]);
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
                     $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = 'medical_problem_issue_list' and subtype = 'eye'");
@@ -179,7 +181,7 @@ foreach (explode(',', $given) as $item) {
             } elseif ($key == "POS") { // POS surgery group
                 $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq  FROM `lists` WHERE `type` LIKE 'surgery' and subtype = 'eye' and pid in (select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
                 $qry = sqlStatement($query, [
-                    $_SESSION['providerID']
+                    $providerID
                 ]);
 
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
@@ -188,7 +190,7 @@ foreach (explode(',', $given) as $item) {
             } elseif ($key == "Eye Meds") { // POS surgery group
                 $query = "SELECT title, title as option_id, diagnosis as codes, count(title) AS freq FROM `lists` WHERE `type` LIKE 'medication' and subtype = 'eye' and pid in ( select pid from form_encounter where provider_id =? and date BETWEEN NOW() - INTERVAL 30 DAY AND NOW()) GROUP BY title order by freq desc limit 10";
                 $qry = sqlStatement($query, [
-                    $_SESSION['providerID']
+                    $providerID
                 ]);
                 if (sqlNumRows($qry) < '4') { //if they are just starting out, use the list_options for all
                     $qry = sqlStatement("SELECT * FROM list_options WHERE list_id = 'medication_issue_list' and subtype = 'eye'");

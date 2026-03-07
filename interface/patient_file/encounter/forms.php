@@ -45,7 +45,7 @@ use OpenEMR\Events\Encounter\EncounterMenuEvent;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\UserService;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $expand_default = (int)$GLOBALS['expand_form'] ? 'show' : 'hide';
 $reviewMode = false;
@@ -84,7 +84,7 @@ $esignApi = new Api();
 <?php // if the track_anything form exists, then include the styling and js functions (and js variable) for graphing
 if (file_exists(__DIR__ . "/../../forms/track_anything/style.css")) { ?>
     <script>
-        var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>;
+        var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
     </script>
     <script src="<?php echo $GLOBALS['web_root'] ?>/interface/forms/track_anything/report.js"></script>
     <link rel="stylesheet" href="<?php echo $GLOBALS['web_root'] ?>/interface/forms/track_anything/style.css">
@@ -184,7 +184,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     patient_id: <?php echo js_escape($pid); ?>,
                     object_category: "form_encounter",
                     object_id: <?php echo js_escape($encounter); ?>,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                 }
             );
         });
@@ -204,7 +204,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     patient_id: <?php echo js_escape($pid); ?>,
                     object_category: "form_encounter",
                     object_id: <?php echo js_escape($encounter); ?>,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                 }
             );
         });
@@ -232,7 +232,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     patient_id: <?php echo js_escape($pid); ?>,
                     object_category: "form_encounter",
                     object_id: <?php echo js_escape($encounter); ?>,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                 }
             );
         });
@@ -252,7 +252,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     patient_id: <?php echo js_escape($pid); ?>,
                     object_category: "form_encounter",
                     object_id: <?php echo js_escape($encounter); ?>,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                 }
             );
         });
@@ -271,7 +271,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     patient_id: <?php echo js_escape($pid); ?>,
                     object_category: "form_encounter",
                     object_id: <?php echo js_escape($encounter); ?>,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                 }
             );
         });
@@ -317,7 +317,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
     // Process click on Delete link.
     function deleteme() {
         const params = new URLSearchParams({
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
             encounterid: <?php echo js_escape($encounter); ?>
         });
         dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 200, '', '', {

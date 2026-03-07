@@ -14,6 +14,7 @@
  */
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\VersionService;
 
@@ -35,7 +36,8 @@ function getErxCredentials()
     $cred[] = $GLOBALS['erx_account_partner_name'];
     $cred[] = $GLOBALS['erx_account_name'];
     $cryptoGen = ServiceContainer::getCrypto();
-    $cred[] = $cryptoGen->decryptStandard($GLOBALS['erx_account_password']);
+    $erxPwd = $GLOBALS['erx_account_password'];
+    $cred[] = $cryptoGen->decryptStandard(is_string($erxPwd) ? $erxPwd : null);
 
     return $cred;
 }
@@ -132,7 +134,8 @@ function credentials($doc, $r): void
 function user_role($doc, $r): void
 {
     global $msg;
-    $userRole = sqlQuery("select * from users where username=?", [$_SESSION['authUser']]);
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $userRole = sqlQuery("select * from users where username=?", [$session->get('authUser')]);
     if (!$userRole['newcrop_user_role']) {
         echo xlt('Unauthorized access to ePrescription');
         die;
@@ -168,7 +171,8 @@ function user_role($doc, $r): void
 function destination($doc, $r, ?string $page = null, $pid = null): void
 {
     global $msg,$page;
-    $userRole = sqlQuery("select * from users where username=?", [$_SESSION['authUser']]);
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $userRole = sqlQuery("select * from users where username=?", [$session->get('authUser')]);
     $userRole['newcrop_user_role'] = preg_replace('/erx/', '', (string) $userRole['newcrop_user_role']);
     if (!$page) {
         $page = 'compose';
@@ -197,6 +201,7 @@ function account($doc, $r): void
         die;
     }
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $b = $doc->createElement("Account");
     $b->setAttribute('ID', $GLOBALS['erx_account_id']);
     $erxSiteID['name'] = stripSpecialCharacterFacility($erxSiteID['name']);
@@ -207,7 +212,7 @@ function account($doc, $r): void
         $doc->createTextNode($erxSiteID['name'])
     );
     $b->appendChild($accountName);
-    $msg = validation(xl('Site ID'), $_SESSION['site_id'], $msg);
+    $msg = validation(xl('Site ID'), $session->get('site_id'), $msg);
     $siteID = $doc->createElement("siteID");
     $siteID->appendChild(
         $doc->createTextNode($erxSiteID['federal_ein'])
@@ -284,7 +289,8 @@ function account($doc, $r): void
 function location($doc, $r): void
 {
     global $msg;
-    $userRole = sqlQuery("SELECT * FROM users AS u LEFT JOIN facility AS f ON f.id=u.facility_id WHERE u.username=?", [$_SESSION['authUser']]);
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $userRole = sqlQuery("SELECT * FROM users AS u LEFT JOIN facility AS f ON f.id=u.facility_id WHERE u.username=?", [$session->get('authUser')]);
     $b = $doc->createElement("Location");
     $b->setAttribute('ID', $userRole['id']);
     $userRole['name'] = stripSpecialCharacterFacility($userRole['name']);
@@ -382,7 +388,8 @@ function location($doc, $r): void
 function LicensedPrescriber($doc, $r): void
 {
     global $msg;
-    $user_details = sqlQuery("SELECT * FROM users WHERE id = ?", [$_SESSION['authUserID']]);
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $user_details = sqlQuery("SELECT * FROM users WHERE id = ?", [$session->get('authUserID')]);
     $b = $doc->createElement("LicensedPrescriber");
     $b->setAttribute('ID', $user_details['npi']);
     $LicensedPrescriberName = $doc->createElement("LicensedPrescriberName");
@@ -438,7 +445,8 @@ function LicensedPrescriber($doc, $r): void
 function Staff($doc, $r): void
 {
     global $msg;
-    $user_details = sqlQuery("SELECT * FROM users WHERE id = ?", [$_SESSION['authUserID']]);
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $user_details = sqlQuery("SELECT * FROM users WHERE id = ?", [$session->get('authUserID')]);
     $b = $doc->createElement("Staff");
     $b->setAttribute('ID', $user_details['username']);
     $StaffName = $doc->createElement("StaffName");
@@ -472,7 +480,8 @@ function Staff($doc, $r): void
 function SupervisingDoctor($doc, $r): void
 {
     global $msg;
-    $user_details = sqlQuery("SELECT * FROM users WHERE id = ?", [$_SESSION['authUserID']]);
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $user_details = sqlQuery("SELECT * FROM users WHERE id = ?", [$session->get('authUserID')]);
     $b = $doc->createElement("SupervisingDoctor");
     $b->setAttribute('ID', $user_details['npi']);
     $LicensedPrescriberName = $doc->createElement("LicensedPrescriberName");
@@ -528,7 +537,8 @@ function SupervisingDoctor($doc, $r): void
 function MidlevelPrescriber($doc, $r): void
 {
     global $msg;
-    $user_details = sqlQuery("SELECT * FROM users WHERE id = ?", [$_SESSION['authUserID']]);
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $user_details = sqlQuery("SELECT * FROM users WHERE id = ?", [$session->get('authUserID')]);
     $b = $doc->createElement("MidlevelPrescriber");
     $b->setAttribute('ID', $user_details['npi']);
     $LicensedPrescriberName = $doc->createElement("LicensedPrescriberName");

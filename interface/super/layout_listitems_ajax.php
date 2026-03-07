@@ -16,9 +16,11 @@
 require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 //verify csrf
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 

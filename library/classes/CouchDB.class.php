@@ -36,7 +36,8 @@ class CouchDB
         $this->host = $GLOBALS['couchdb_host'];
         $this->user = ($GLOBALS['couchdb_user'] != '') ? $GLOBALS['couchdb_user'] : null;
         $cryptoGen = ServiceContainer::getCrypto();
-        $this->pass = ($cryptoGen->decryptStandard($GLOBALS['couchdb_pass']) != '') ? $cryptoGen->decryptStandard($GLOBALS['couchdb_pass']) : null;
+        $couchDbPass = is_string($GLOBALS['couchdb_pass']) ? $GLOBALS['couchdb_pass'] : null;
+        $this->pass = ($cryptoGen->decryptStandard($couchDbPass) != '') ? $cryptoGen->decryptStandard($couchDbPass) : null;
         $this->port = $GLOBALS['couchdb_port'];
         $this->dbase = $GLOBALS['couchdb_dbase'];
     }

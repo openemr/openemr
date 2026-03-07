@@ -18,9 +18,11 @@ require_once("../../library/patient.inc.php");
 require_once("../../library/forms.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 $info_msg = "";
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 <head>
@@ -37,7 +39,7 @@ $info_msg = "";
 
     $row = sqlQuery("Select billing_note From patient_data Where pid=?", [$patient_id]);
     if (isset($_POST['form_save'])) {
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
             CsrfUtils::csrfNotVerified();
         }
 
@@ -65,7 +67,7 @@ $info_msg = "";
         </div>
         <div class="row mx-auto">
             <form method='post' action='sl_eob_patient_note.php?patient_id=<?php echo attr_url($patient_id); ?>'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                 <div class="row">
                     <div class="col-12 pb-1">
                         <div class="form-group">

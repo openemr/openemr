@@ -20,7 +20,7 @@ require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $template_file = $GLOBALS['OE_SITE_DIR'] . "/referral_template.html";
 

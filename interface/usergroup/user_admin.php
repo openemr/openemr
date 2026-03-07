@@ -24,6 +24,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\User\UserEditRenderEvent;
@@ -32,8 +33,9 @@ use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\UserService;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -274,7 +276,7 @@ function toggle_password() {
 </table>
 <br />
 <FORM NAME="user_form" id="user_form" METHOD="POST" ACTION="usergroup_admin.php">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
 <input type=hidden name="pre_active" value="<?php echo attr($iter["active"]); ?>" >
 <input type=hidden name="get_admin_id" value="<?php echo attr($GLOBALS['Emergency_Login_email']); ?>" >

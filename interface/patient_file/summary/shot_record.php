@@ -17,7 +17,7 @@ require_once("$srcdir/immunization_helper.php");
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\FacilityService;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $facilityService = new FacilityService();
 

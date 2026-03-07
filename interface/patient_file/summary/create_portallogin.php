@@ -25,24 +25,8 @@
 require_once("../../globals.php");
 require_once('../../../library/amc.php');
 
-use OpenEMR\Common\{Csrf\CsrfUtils,};
+use OpenEMR\Common\{Csrf\CsrfUtils, Session\SessionWrapperFactory};
 use OpenEMR\Services\PatientAccessOnsiteService;
-
-function displayLogin($patient_id, $message, $emailFlag)
-{
-    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", [$patient_id]);
-    if ($emailFlag) {
-        $message = xlt("Email was sent to following address") . ": " .
-            text($patientData['email']) . "\n\n" .
-            $message;
-    } else {
-        $message = "<div class='text-danger'>" . xlt("Email was not sent to the following address") . ": " .
-            text($patientData['email']) . "</div>" . "\n\n" .
-            $message;
-    }
-
-    return $message;
-}
 
 $patientAccessOnSiteService = new PatientAccessOnsiteService();
 $credentials = $patientAccessOnSiteService->getOnsiteCredentialsForPid($pid);
@@ -56,29 +40,41 @@ if ($option == '2') {
     $forced_reset_disable = 1; // sets database to ignore force reset on login
 }
 
-$credMessage = '';
-if (isset($_POST['form_save']) && $_POST['form_save'] == 'submit') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$credPlainMessage = '';
+$credEmailSent = false;
+$credEmailAddress = '';
+if (isset($_POST['form_save']) && $_POST['form_save'] === 'submit') {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
-    $forced_reset_disable = $option == '2' ? $_POST['forced_reset_disable'] ?? 0 : $option;
+    $postForcedResetDisable = $_POST['forced_reset_disable'] ?? 0;
+    $rawForcedResetDisable = is_numeric($postForcedResetDisable) ? intval($postForcedResetDisable) : 0;
+    $forced_reset_disable = $option == '2' ? $rawForcedResetDisable : $option;
+    $rawPwd = $_POST['pwd'] ?? '';
+    $postPwd = is_string($rawPwd) ? strip_tags($rawPwd) : '';
+    $rawUname = $_POST['uname'] ?? '';
+    $postUname = is_string($rawUname) ? strip_tags($rawUname) : '';
+    $rawLoginUname = $_POST['login_uname'] ?? '';
+    $postLoginUname = is_string($rawLoginUname) ? strip_tags($rawLoginUname) : '';
     // TODO: @adunsulag do we clear the pwd variables here?? Hard to break it out into separate functions when we do that...
-    $result = $patientAccessOnSiteService->saveCredentials($pid, $_POST['pwd'], $_POST['uname'], $_POST['login_uname'], $forced_reset_disable);
+    $result = $patientAccessOnSiteService->saveCredentials($pid, $postPwd, $postUname, $postLoginUname, $forced_reset_disable);
     if (!empty($result)) {
         $emailResult = $patientAccessOnSiteService->sendCredentialsEmail($pid, $result['pwd'], $result['uname'], $result['login_uname'], $result['email_direct']);
-        if ($emailResult['success']) {
-            $credMessage = nl2br((string) displayLogin($pid, $emailResult['plainMessage'], true));
-        } else {
-            $credMessage = nl2br((string) displayLogin($pid, $emailResult['plainMessage'], false));
-        }
+        $credPlainMessage = strip_tags((string) $emailResult['plainMessage']);
+        $credEmailSent = $emailResult['success'];
+        $patientData = sqlQuery("SELECT `email` FROM `patient_data` WHERE `pid` = ?", [$pid]);
+        $credEmailAddress = $patientData['email'] ?? '';
     }
 }
 $trustedUserName = $patientAccessOnSiteService->getUniqueTrustedUsernameForPid($pid);
 $trustedEmail = $patientAccessOnSiteService->getTrustedEmailForPid($pid);
 
 echo $patientAccessOnSiteService->filterTwigTemplateData($pid, 'patient/portal_login/print.html.twig', [
-    'credMessage' => $credMessage
-    , 'csrfToken' => CsrfUtils::collectCsrfToken()
+    'credPlainMessage' => $credPlainMessage
+    , 'credEmailSent' => $credEmailSent
+    , 'credEmailAddress' => $credEmailAddress
+    , 'csrfToken' => CsrfUtils::collectCsrfToken(session: $session)
     , 'fname' => $credentials['fname']
     , 'portal_username' => $credentials['portal_username']
     , 'id' => $credentials['id']

@@ -24,13 +24,16 @@ require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $returnurl = 'encounter_top.php';
 $formid = (int)($_GET['id'] ?? 0);
 if (empty($formid)) {
     $sql = "SELECT form_id, encounter FROM `forms` WHERE formdir = 'care_plan' AND pid = ? AND encounter = ? AND deleted = 0 LIMIT 1";
-    $formid = sqlQuery($sql, [$_SESSION["pid"], $_SESSION["encounter"]])['form_id'] ?? 0;
+    $formid = sqlQuery($sql, [$session->get('pid'), $session->get('encounter')])['form_id'] ?? 0;
     if (!empty($formid)) {
         echo "<script>var message=" .
             js_escape(xl("Already a Care Plan form for this encounter. Using existing Care Plan form.")) .
@@ -39,7 +42,7 @@ if (empty($formid)) {
 }
 if (!empty($formid)) {
     $sql = "SELECT * FROM `form_care_plan` WHERE id=? AND pid = ? AND encounter = ?";
-    $res = sqlStatement($sql, [$formid, $_SESSION["pid"], $_SESSION["encounter"]]);
+    $res = sqlStatement($sql, [$formid, $session->get('pid'), $session->get('encounter')]);
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $all[$iter] = $row;
     }
@@ -99,7 +102,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
             <div class="col-12">
                 <h2><?php echo xlt('Care Plan Form'); ?></h2>
                 <form method='post' name='my_form' action='<?php echo $rootdir ?>/forms/care_plan/save.php?id=<?php echo attr_url($formid) ?>'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                     <fieldset>
                         <legend><?php echo xlt('Enter Details'); ?></legend>
                         <div class="container">
@@ -192,7 +195,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                         <div class="forms col-md-2">
                                             <label for="code_1" class="h5"><?php echo xlt('Code'); ?>:</label>
                                             <input type="text" id="code_1" name="code[]" class="form-control code" value="<?php echo attr($obj["code"] ?? ''); ?>" onclick='sel_code(<?php echo attr_js($GLOBALS['webroot']) ?>, this.parentElement.parentElement.parentElement.id || "");'>
-                                            <input type="hidden" id="user_1" name="user[]" class="user" value="<?php echo attr($obj["user"] ?? $_SESSION["authUser"]); ?>" />
+                                            <input type="hidden" id="user_1" name="user[]" class="user" value="<?php echo attr($obj["user"] ?? $session->get('authUser')); ?>" />
                                             <span id="displaytext_1" class="displaytext help-block"></span>
                                             <input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"] ?? ''); ?>">
                                         </div>

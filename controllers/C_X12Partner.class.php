@@ -44,9 +44,10 @@ class C_X12Partner extends Controller
         }
 
         // If we have an SFTP password set, decrypt it
-        if ($this->x12_partners[0]->get_x12_sftp_pass()) {
+        $sftpPass = $this->x12_partners[0]->get_x12_sftp_pass();
+        if ($sftpPass) {
             $cryptoGen = ServiceContainer::getCrypto();
-            $this->x12_partners[0]->set_x12_sftp_pass($cryptoGen->decryptStandard($this->x12_partners[0]->get_x12_sftp_pass()));
+            $this->x12_partners[0]->set_x12_sftp_pass($cryptoGen->decryptStandard(is_string($sftpPass) ? $sftpPass : null));
         }
 
         $this->assign("partner", $this->x12_partners[0]);
@@ -76,7 +77,8 @@ class C_X12Partner extends Controller
         // If we are setting the SFTP password, encrypt it
         if (!empty($_POST['x12_sftp_pass'])) {
             $cryptoGen = ServiceContainer::getCrypto();
-            $this->x12_partners[0]->x12_sftp_pass = $cryptoGen->encryptStandard($this->x12_partners[0]->x12_sftp_pass);
+            $currentPass = $this->x12_partners[0]->x12_sftp_pass;
+            $this->x12_partners[0]->x12_sftp_pass = $cryptoGen->encryptStandard(is_string($currentPass) ? $currentPass : null);
         }
 
         $this->x12_partners[0]->persist();

@@ -17,7 +17,9 @@ require_once('../../globals.php');
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <?php
 // Check authorization.
@@ -27,7 +29,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
 
 if ($_POST['export']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -73,7 +75,7 @@ if ($_POST['export']) {
 }
 
 if ($_POST['import']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
     ?>
@@ -104,7 +106,7 @@ if ($_POST['import']) {
                 } else {
                     $query = "INSERT INTO " . mitigateSqlTableUpperCase("form_CAMOS_category") . " (user, category) " .
                     "values (?, ?)";
-                    sqlStatement($query, [$_SESSION['authUser'], $category]);
+                    sqlStatement($query, [$session->get('authUser'), $category]);
                     $statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_category") . " where category like ?", [$category]);
                     if ($result = sqlFetchArray($statement)) {
                         $category_id = $result['id'];
@@ -121,7 +123,7 @@ if ($_POST['import']) {
                 } else {
                     $query = "INSERT INTO " . mitigateSqlTableUpperCase("form_CAMOS_subcategory") . " (user, subcategory, category_id) " .
                     "values (?, ?, ?)";
-                    sqlStatement($query, [$_SESSION['authUser'], $subcategory, $category_id]);
+                    sqlStatement($query, [$session->get('authUser'), $subcategory, $category_id]);
                     $statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_subcategory") . " where subcategory " .
                     "like ? and category_id = ?", [$subcategory, $category_id]);
                     if ($result = sqlFetchArray($statement)) {
@@ -152,7 +154,7 @@ if ($_POST['import']) {
                             if (!($inner_result = sqlFetchArray($inner_statement))) {//doesn't exist
                                     $inner_query = "INSERT INTO " . mitigateSqlTableUpperCase("form_CAMOS_item") . " (user, item, subcategory_id) " .
                                     "values (?, ?, ?)";
-                                    sqlStatement($inner_query, [$_SESSION['authUser'], $insert_value, $subcategory_id]);
+                                    sqlStatement($inner_query, [$session->get('authUser'), $insert_value, $subcategory_id]);
                                     $inserted_duplicate = true;
                             } else {
                                 $postfix++;
@@ -161,7 +163,7 @@ if ($_POST['import']) {
                     } else {
                         $query = "INSERT INTO " . mitigateSqlTableUpperCase("form_CAMOS_item") . " (user, item, subcategory_id) " .
                         "values (?, ?, ?)";
-                        sqlStatement($query, [$_SESSION['authUser'], $value, $subcategory_id]);
+                        sqlStatement($query, [$session->get('authUser'), $value, $subcategory_id]);
                     }
 
                     if ($postfix == 0) {
@@ -204,7 +206,7 @@ admin
 <?php echo xlt("This feature is very experimental and not fully tested. Use at your own risk!"); ?>
 </p>
 <form enctype="multipart/form-data" method="POST">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 <input type="hidden" name="MAX_FILE_SIZE" value="12000000" />
 <?php echo xlt('Send this file'); ?>: <input type="file" name="userfile"/>
 <input type="submit" name="import" value='<?php echo xla("Import"); ?>'/>

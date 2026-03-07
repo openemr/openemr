@@ -51,7 +51,7 @@ class LocalApiAuthorizationController implements IAuthorizationStrategy
             $csrfFail = true;
         }
 
-        if ((!$csrfFail) && (!CsrfUtils::verifyCsrfToken($csrfToken, 'api', $session))) {
+        if ((!$csrfFail) && (!CsrfUtils::verifyCsrfToken($csrfToken, $session, 'api'))) {
             $this->logger->error("OpenEMR Error: internal api failed because csrf token did not match");
             $csrfFail = true;
         }

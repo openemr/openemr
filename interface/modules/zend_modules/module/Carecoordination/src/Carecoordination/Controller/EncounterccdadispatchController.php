@@ -74,7 +74,6 @@ class EncounterccdadispatchController extends AbstractActionController
 
         global $assignedEntity;
         global $representedOrganization;
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
 
         $representedOrganization = $this->getEncounterccdadispatchTable()->getRepresentedOrganization();
 
@@ -120,12 +119,15 @@ class EncounterccdadispatchController extends AbstractActionController
             exit;
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authUser = $session->get('authUser');
+        $authProvider = $session->get('authProvider');
         // QRDA III user view html version
         if ($this->getRequest()->getQuery('doctype') === 'qrda3') {
             $xmlController = new QrdaReportController();
             $document = $xmlController->getCategoryIIIReport($combination, '');
             echo $document;
-            EventAuditLogger::getInstance()->newEvent("qrda3-export", $session->get('authUser'), $session->get('authProvider'), 1, "QRDA3 view");
+            EventAuditLogger::getInstance()->newEvent("qrda3-export", $authUser, $authProvider, 1, "QRDA3 view");
             exit;
         }
 
@@ -136,7 +138,7 @@ class EncounterccdadispatchController extends AbstractActionController
 
             // For HTML view, you could add XSL transformation here if needed
             echo $document;
-            EventAuditLogger::getInstance()->newEvent("qrda3-consolidated-export", $session->get('authUser'), $session->get('authProvider'), 1, "QRDA3 Consolidated view");
+            EventAuditLogger::getInstance()->newEvent("qrda3-consolidated-export", $authUser, $authProvider, 1, "QRDA3 Consolidated view");
             exit;
         }
 
@@ -371,7 +373,6 @@ class EncounterccdadispatchController extends AbstractActionController
      */
     public function getConsolidatedQrda3Content($pids = null, $measures = [])
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
         try {
             $xmlController = new QrdaReportController();
 
@@ -384,6 +385,7 @@ class EncounterccdadispatchController extends AbstractActionController
             $content = $xmlController->getConsolidatedCategoryIIIReport($pids, $measures);
 
             // Log the event (following your existing audit pattern)
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             EventAuditLogger::getInstance()->newEvent(
                 "qrda3-consolidated-generation",
                 $session->get('authUser'),

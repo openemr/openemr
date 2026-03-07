@@ -22,6 +22,7 @@ namespace OpenEMR\Services\DocumentTemplates;
 use HTMLPurifier;
 use HTMLPurifier_Config;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\VersionService;
 use RuntimeException;
@@ -55,7 +56,8 @@ class DocumentTemplateRender
 
     public function __construct(private $pid, $user, $encounter = null)
     {
-        $this->user = $user ?: $_SESSION['authUserID'] ?? 0;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->user = $user ?: $session->get('authUserID', 0);
         $this->encounter = $encounter ?: $GLOBALS['encounter'];
         $this->version = (new VersionService())->asString();
         $this->templateService = new DocumentTemplateService();

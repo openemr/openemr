@@ -348,7 +348,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$object_type in empty\\(\\) always exists and is not falsy\\.$#',
-    'count' => 7,
+    'count' => 6,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [

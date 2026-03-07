@@ -14,7 +14,7 @@
 
 namespace MedExApi;
 
-use OpenEMR\Services\VersionService;
+use OpenEMR\Common\Session\SessionWrapperFactory;use OpenEMR\Services\VersionService;
 
 error_reporting(0);
 
@@ -1848,8 +1848,9 @@ class Display extends Base
         global $rcb_facility;
         global $rcb_provider;
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         //let's get all the recalls the user requests, or if no dates set use defaults
-        $from_date = (!empty($_REQUEST['form_from_date'])) ? DateToYYYYMMDD($_REQUEST['form_from_date']) : date('Y-m-d', strtotime('-6 months'));
+        $from_date = (!empty($_REQUEST['form_from_date'])) ? DateToYYYYMMDD(strip_tags((string) $_REQUEST['form_from_date'])) : date('Y-m-d', strtotime('-6 months'));
         //limit date range for initial Board to keep us sane and not tax the server too much
 
         if (str_starts_with((string) $GLOBALS['ptkr_end_date'], 'Y')) {
@@ -1865,11 +1866,11 @@ class Display extends Base
         $to_date = date('Y-m-d', $ptkr_future_time);
         //prevSetting to_date?
 
-        $to_date = (!empty($_REQUEST['form_to_date'])) ? DateToYYYYMMDD($_REQUEST['form_to_date']) : $to_date;
-        $patient_id = $_REQUEST['form_patient_id'] ?? '';
-        $patient_name = $_REQUEST['form_patient_name'] ?? '';
+        $to_date = (!empty($_REQUEST['form_to_date'])) ? DateToYYYYMMDD(strip_tags((string) $_REQUEST['form_to_date'])) : $to_date;
+        $patient_id = strip_tags((string) ($_REQUEST['form_patient_id'] ?? ''));
+        $patient_name = strip_tags((string) ($_REQUEST['form_patient_name'] ?? ''));
 
-        $recalls = $this->get_recalls($from_date, $to_date, $rcb_facility, $rcb_provider, $patient_id, $patient_name);
+        $recalls = $this->get_recalls(is_string($from_date) ? $from_date : '', is_string($to_date) ? $to_date : '', is_string($rcb_facility) ? $rcb_facility : '', is_string($rcb_provider) ? $rcb_provider : '', $patient_id, $patient_name);
 
         $processed = $this->recall_board_process($logged_in, $recalls, $events ?? '');
         ob_start();
@@ -1945,13 +1946,15 @@ class Display extends Base
                                         $query = "SELECT id, lname, fname FROM users WHERE " .
                                         "authorized = 1  AND active = 1 ORDER BY lname, fname"; #(CHEMED) facility filter
                                         $ures = sqlStatement($query);
+                                        $userauthorized = $session->get('userauthorized');
+                                        $authUserID = $session->get('authUserID');
                                         //a year ago @matrix-amiel Adding filters to flow board and counting of statuses
                                         while ($urow = sqlFetchArray($ures)) {
                                             $provid = $urow['id'];
                                             echo "<option value='" . attr($provid) . "'";
                                             if (isset($rcb_provider) && $provid == ($_POST['form_provider'] ?? '')) {
                                                 echo " selected";
-                                            } elseif (!isset($_POST['form_provider']) && $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']) {
+                                            } elseif (!isset($_POST['form_provider']) && $userauthorized && $provid == $authUserID) {
                                                 echo " selected";
                                             }
                                             echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
@@ -2019,7 +2022,8 @@ class Display extends Base
                         $has_recall = !empty($processed['ALL']);
                         $this->recall_board_top($has_recall);
                         if ($has_recall) {
-                            echo $processed['ALL'];
+                            // Output pre-built HTML (escaped at construction in recall_board_process)
+                            echo is_array($processed) ? ($processed['ALL'] ?? '') : ''; // nosemgrep: echoed-request
                             $this->recall_board_bot();
                         }
                         ?>
@@ -2190,7 +2194,7 @@ class Display extends Base
             if ($count_providers > '1') {
                 echo "<br /><span data-toggle='tooltip' data-placement='auto'  title='" . xla('Provider') . "'>" . text($provider[$recall['r_provider']]) . "</span>";
             }
-            if (( $count_facilities > '1' ) && ( $_REQUEST['form_facility'] == '' )) {
+            if (( $count_facilities > '1' ) && empty($_REQUEST['form_facility'])) {
                 echo "<br /><span data-toggle='tooltip' data-placement='auto'  title='" . xla('Facility') . "'>" . text($facility[$recall['r_facility']]) . "</span><br />";
             }
 
@@ -2392,9 +2396,10 @@ class Display extends Base
                 $show['campaign'][$event['C_UID']] = $event;
                 $show['campaign'][$event['C_UID']]['icon'] = $this->get_icon($event['M_type'], "SCHEDULED");
 
-                $recall_date = date("Y-m-d", strtotime($interval . $event['E_fire_time'] . " days", strtotime((string) $recall['r_eventDate'])));
+                $rEventDate = is_array($recall) ? (is_string($recall['r_eventDate'] ?? null) ? $recall['r_eventDate'] : '') : '';
+                $recall_date = date("Y-m-d", strtotime($interval . $event['E_fire_time'] . " days", strtotime($rEventDate)));
                 $date1 = date('Y-m-d');
-                $date_diff = strtotime($date1) - strtotime((string) $recall['r_eventDate']);
+                $date_diff = strtotime($date1) - strtotime($rEventDate);
                 if ($date_diff >= '-1') { //if it is sched for tomorrow or earlier, queue it up
                     $show['campaign'][$event['C_UID']]['executed'] = "QUEUED";
                     $show['status'] = "whitish";
@@ -2501,7 +2506,7 @@ class Display extends Base
         }
         return $pat;
     }
-    private function recall_board_top($has_recall = false)
+    private function recall_board_top(bool $has_recall = false)
     {
         if (!$has_recall) {
             echo '<div id="no_recalls_message" class="alert alert-info text-center">' . xlt('No Recalls Found') . '</div>';
@@ -2556,6 +2561,8 @@ class Display extends Base
     public function display_add_recall($pid = 'new')
     {
         global $result_pat;
+
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         ?>
 
     <div class="container-fluid">
@@ -2625,7 +2632,7 @@ class Display extends Base
                         </div>
                         <div class="form-group col-8 col-md-8 divTableCell indent20">
                             <input class="form-control" type="text" name="new_reason" id="new_reason" value="<?php if ($result_pat['PLAN'] > '') {
-                                 echo attr(rtrim("|", trim((string) $result_pat['PLAN']))); } ?>" />
+                                 echo attr(rtrim("|", trim(is_string($result_pat['PLAN'] ?? null) ? $result_pat['PLAN'] : ''))); } ?>" />
                         </div>
                     </div>
                     <div class="row divTableBody prefs">
@@ -2636,13 +2643,13 @@ class Display extends Base
                                     <?php
                                     $ures = sqlStatement("SELECT id, username, fname, lname FROM users WHERE authorized != 0 AND active = 1 ORDER BY lname, fname");
                                 //This is an internal practice function so ignore the suffix as extraneous information.  We know who we are.
-                                    $defaultProvider = $_SESSION['authUserID'];
+                                    $defaultProvider = $session->get('authUserID');
+                                    $pc_username = $session->get('pc_username');
                                 // or, if we have chosen a provider in the calendar, default to them
                                 // choose the first one if multiple have been selected
-                                    if (is_countable($_SESSION['pc_username'])) {
-                                        if (count($_SESSION['pc_username']) >= 1) {
+                                    if (is_countable($pc_username)) {
+                                        if (count($pc_username) >= 1) {
                                             // get the numeric ID of the first provider in the array
-                                            $pc_username = $_SESSION['pc_username'];
                                             $firstProvider = sqlFetchArray(sqlStatement("SELECT id FROM users WHERE username=?", [$pc_username[0]]));
                                             $defaultProvider = $firstProvider['id'];
                                         }
@@ -2797,9 +2804,9 @@ class Display extends Base
                 });
             });
                 <?php
-                if ($_SESSION['pid'] > '') {
+                if ($session->get('pid') > '') {
                     ?>
-                setpatient('<?php echo text($_SESSION['pid']); ?>');
+                setpatient('<?php echo text($session->get('pid')); ?>');
                     <?php
                 }
                 ?>
@@ -2934,7 +2941,8 @@ class Display extends Base
             $fields['pid_list'] = $responseA['pid_list'];
             $fields['list_hits']  = $responseA['list_hits'];
         }
-        $fields['providerID'] = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $fields['providerID'] = $session->get('authUserID');
         $fields['token'] = $logged_in['token'];
         $fields['pc_eid'] = $data['pc_eid'];
 
@@ -2959,7 +2967,7 @@ class Display extends Base
     {
         if ($pid == 'pat_list') {
             global $data;
-            $values = rtrim((string) $_POST['outpatient']);
+            $values = rtrim(is_string($_POST['outpatient'] ?? null) ? $_POST['outpatient'] : '');
             $match = preg_split("/(?<=\w)\b\s*[!?.]*/", $values, -1, PREG_SPLIT_NO_EMPTY);
             if ((preg_match('/ /', $values)) && (!empty($match[1]))) {
                 $sqlSync = "SELECT * FROM patient_data WHERE (fname LIKE ? OR fname LIKE ?) AND (lname LIKE ? OR lname LIKE ?) LIMIT 20";
@@ -3337,7 +3345,7 @@ class MedEx
         if ($sessionFile == 'cookiejar_MedExAPI') {
             $sessionFile = $GLOBALS['temporary_files_dir'] . '/cookiejar_MedExAPI';
         }
-        $this->url      = rtrim('https://' . preg_replace('/^https?\:\/\//', '', (string) $url), '/') . '/cart/upload/index.php?route=api/';
+        $this->url      = rtrim('https://' . preg_replace('/^https?\:\/\//', '', is_string($url) ? $url : ''), '/') . '/cart/upload/index.php?route=api/';
         $this->curl     = new CurlRequest($sessionFile);
         $this->practice = new Practice($this);
         $this->campaign = new Campaign($this);
@@ -3373,9 +3381,9 @@ class MedEx
         'MedEx'     => 'OpenEMR',
         'major'     => attr($version['v_major']),
         'minor'     => attr($version['v_minor']),
-        'patch'     => attr($version['v_patch']),
-        'database'  => attr($version['v_database']),
-        'acl'       => attr($version['v_acl']),
+        'patch'     => attr(is_string($version['v_patch']) ? $version['v_patch'] : ''),
+        'database'  => attr(is_string($version['v_database']) ? $version['v_database'] : ''),
+        'acl'       => attr(is_string($version['v_acl']) ? $version['v_acl'] : ''),
         'callback_key' => $info['callback_key']
         ]);
 
@@ -3403,18 +3411,18 @@ class MedEx
         $info = $this->getPreferences();
 
         if (
-            empty($info) ||
-            empty($info['ME_username']) ||
-            empty($info['ME_api_key']) ||
-            empty($info['MedEx_id']) ||
+            $info === [] ||
+            ($info['ME_username'] ?? '') === '' ||
+            ($info['ME_api_key'] ?? '') === '' ||
+            ($info['MedEx_id'] ?? '') === '' ||
             ($GLOBALS['medex_enable'] !== '1')
         ) {
             return false;
         }
         $info['callback_key'] = $_POST['callback_key'];
 
-        if (empty($force)) {
-            $timer = strtotime((string) $info['MedEx_lastupdated']);
+        if ($force === '' || $force === null) {
+            $timer = strtotime(is_string($info['MedEx_lastupdated']) ? $info['MedEx_lastupdated'] : '');
             $utc_now = date('Y-m-d H:m:s');
             $hour_ago = strtotime($utc_now . "-60 minutes");
             if ($hour_ago > $timer) {
@@ -3425,7 +3433,7 @@ class MedEx
             $info['force'] = $force;
             $info = $this->just_login($info);
         } else {
-            $info['status'] = json_decode((string) $info['status'], true);
+            $info['status'] = json_decode(is_string($info['status']) ? $info['status'] : '', true);
         }
 
         if (isset($info['error'])) {
@@ -3455,20 +3463,20 @@ class MedEx
     public function checkModality($event, $appt, $icon = '')
     {
         if ($event['M_type'] == "SMS") {
-            if (empty($appt['phone_cell']) || ($appt["hipaa_allowsms"] == "NO")) {
+            if (($appt['phone_cell'] ?? '') === '' || ($appt["hipaa_allowsms"] == "NO")) {
                 return [$icon['SMS']['NotAllowed'],false];
             } else {
-                $phone = preg_replace("/[^0-9]/", "", (string) $appt["phone_cell"]);
+                $phone = preg_replace("/[^0-9]/", "", is_string($appt["phone_cell"]) ? $appt["phone_cell"] : '');
                 return [$icon['SMS']['ALLOWED'],$phone];     // It is allowed and they have a cell phone
             }
         } elseif ($event['M_type'] == "AVM") {
-            if ((empty($appt["phone_home"]) && (empty($appt["phone_cell"])) || ($appt["hipaa_voice"] == "NO"))) {
+            if ((($appt["phone_home"] ?? '') === '' && (($appt["phone_cell"] ?? '') === '') || ($appt["hipaa_voice"] == "NO"))) {
                 return [$icon['AVM']['NotAllowed'],false];
             } else {
-                if (!empty($appt["phone_cell"])) {
-                    $phone = preg_replace("/[^0-9]/", "", (string) $appt["phone_cell"]);
+                if (($appt["phone_cell"] ?? '') !== '') {
+                    $phone = preg_replace("/[^0-9]/", "", is_string($appt["phone_cell"]) ? $appt["phone_cell"] : '');
                 } else {
-                    $phone = preg_replace("/[^0-9]/", "", (string) $appt["phone_home"]);
+                    $phone = preg_replace("/[^0-9]/", "", is_string($appt["phone_home"]) ? $appt["phone_home"] : '');
                 }
                 return [$icon['AVM']['ALLOWED'],$phone]; //We have a phone to call and permission!
             }

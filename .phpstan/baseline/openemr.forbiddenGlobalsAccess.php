@@ -1168,7 +1168,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$GLOBALS is forbidden\\. Use OEGlobalsBag\\:\\:getInstance\\(\\)\\-\\>get\\(\\) instead\\.$#',
-    'count' => 12,
+    'count' => 10,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/LogProperties.php',
 ];
 $ignoreErrors[] = [
@@ -2935,11 +2935,6 @@ $ignoreErrors[] = [
     'message' => '#^Direct access to \\$GLOBALS is forbidden\\. Use OEGlobalsBag\\:\\:getInstance\\(\\)\\-\\>get\\(\\) instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Session/SessionTracker.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Direct access to \\$GLOBALS is forbidden\\. Use OEGlobalsBag\\:\\:getInstance\\(\\)\\-\\>get\\(\\) instead\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$GLOBALS is forbidden\\. Use OEGlobalsBag\\:\\:getInstance\\(\\)\\-\\>get\\(\\) instead\\.$#',

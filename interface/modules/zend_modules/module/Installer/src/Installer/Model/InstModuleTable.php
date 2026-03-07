@@ -20,6 +20,7 @@ use Interop\Container\ContainerInterface;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\Utils\SQLUpgradeService;
 
 class InstModuleTable
@@ -189,8 +190,10 @@ class InstModuleTable
             $fieldName,
             $moduleId,
         ];
-        $createdBy = $_SESSION['authUserID'];
-        $updatedBy = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authUserID = $session->get('authUserID');
+        $createdBy = $authUserID;
+        $updatedBy = $authUserID;
         $result = QueryUtils::fetchRecords($sql, $params);
         if (count($result) > 0) {
             $sql = "UPDATE module_configuration SET field_value = ?, updated_by = ?

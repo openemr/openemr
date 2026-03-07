@@ -82,7 +82,8 @@ class WenoPharmaciesJson
         if (empty($GLOBALS['weno_admin_password'])) {
             return '';
         }
-        return md5($this->cryptoGen->decryptStandard($GLOBALS['weno_admin_password']));
+        $adminPwd = $GLOBALS['weno_admin_password'];
+        return md5($this->cryptoGen->decryptStandard(is_string($adminPwd) ? $adminPwd : null));
     }
 
     private function wenoEncryptionKey(): bool|string
@@ -90,7 +91,8 @@ class WenoPharmaciesJson
         if (empty($GLOBALS['weno_encryption_key'])) {
             return '';
         }
-        return $this->cryptoGen->decryptStandard($GLOBALS['weno_encryption_key']);
+        $encKey = $GLOBALS['weno_encryption_key'];
+        return $this->cryptoGen->decryptStandard(is_string($encKey) ? $encKey : null);
     }
 
     private function wenoPharmacyDirectoryLink(): string

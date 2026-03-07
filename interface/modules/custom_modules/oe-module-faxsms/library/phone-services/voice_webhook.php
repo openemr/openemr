@@ -10,6 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 local_log("RingCentral webhook accessed at " . date('Y-m-d H:i:s'));
 
 // Handle RingCentral validation token
@@ -27,7 +29,8 @@ if (!empty($validationToken)) {
 $ignoreAuth = true; // Ignore OpenEMR authentication for this webhook
 require_once(__DIR__ . '/../../../../../globals.php');
 
-$expectedToken = $_SESSION['ringcentral_voice_token'] ?? '';
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$expectedToken = $session->get('ringcentral_voice_token') ?? '';
 $providedToken = $_GET['token'] ?? '';
 if (empty($expectedToken) || $providedToken !== $expectedToken) {
     local_log("RingCentral webhook: Invalid or missing token");

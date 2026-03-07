@@ -30,7 +30,7 @@ use OpenEMR\Core\OEGlobalsBag;
 $first_time = true;
 $group = 1;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 /**
  * @param bool $first_time
@@ -188,7 +188,7 @@ function calculateScores(): int
 }
 
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -281,7 +281,7 @@ if ($is_csv) {
             <h2><?php echo xlt('Duplicate Patient Management') ?></h2>
         </div>
         <form class="form" method='post' action='manage_dup_patients.php'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
             <div class="btn-sm-group mb-1 text-center">
                 <button class="btn btn-sm btn-primary btn-refresh" type='submit' name='form_refresh' value="Refresh"><?php echo xla('ReCalculate Scores') ?></button>
                 <button class="btn btn-sm btn-primary btn-print" type='button' value='Print' onclick='window.print()'><?php echo xla('Print'); ?></button>
@@ -386,9 +386,11 @@ while ($row1 = sqlFetchArray($res1)) {
     }
     // Only display this group if there are actual matches (prevents orphans)
     if (count($matches) > 0) {
+        /** @var array<string, string> $row1 */
         displayRow($first_time, $group, $row1);
         $displayed[$row1['pid']] = true;
         foreach ($matches as $row2) {
+            /** @var array<string, string> $row2 */
             displayRow($first_time, $group, $row2, (string) $row1['pid']);
             $displayed[$row2['pid']] = true;
         }
@@ -407,7 +409,7 @@ if (!$is_csv) {
     <!-- form used to open a new top level window when a patient row is clicked -->
     <form name='fnew' method='post' target='_blank'
         action='../main/main_screen.php?auth=login&site=<?php echo attr_url($session->get('site_id')); ?>'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
         <input type='hidden' name='patientID' value='0' />
     </form>
 </body>

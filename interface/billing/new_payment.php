@@ -25,8 +25,11 @@ require_once("$srcdir/payment.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: New Payment", xl("New Payment"));
@@ -52,7 +55,7 @@ if ($mode == "new_payment" || $mode == "distribute") {
     } elseif (trim((string) $_POST['type_name']) == 'patient') {
         $QueryPart = "payer_id = '0', patient_id = '" . add_escape_custom($hidden_type_code);
     }
-      $user_id = $_SESSION['authUserID'];
+      $user_id = $session->get('authUserID');
       $closed = 0;
       $modified_time = date('Y-m-d H:i:s');
       $check_date = DateToYYYYMMDD(formData('check_date'));
@@ -85,7 +88,7 @@ if ($mode == "new_payment" || $mode == "distribute") {
 //ar_activity addition code
 //===============================================================================
 if ($mode == "PostPayments" || $mode == "FinishPayments") {
-    $user_id = $_SESSION['authUserID'];
+    $user_id = $session->get('authUserID');
     $created_time = date('Y-m-d H:i:s');
     for ($CountRow = 1;; $CountRow++) {
         if (isset($_POST["HiddenEncounter$CountRow"])) {

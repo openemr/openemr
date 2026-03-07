@@ -17,6 +17,7 @@ use Exception;
 use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Modules\FaxSMS\EtherFax\EtherFaxClient;
 use OpenEMR\Modules\FaxSMS\EtherFax\FaxResult;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
@@ -832,7 +833,8 @@ class EtherFaxActions extends AppDispatch
     public function insertFaxQueue($faxDetails): int
     {
         $account = $this->credentials['account'];
-        $uid = (int)($_SESSION['authUserID'] ?? 0);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $uid = (int)($session->get('authUserID') ?? 0);
         $jobId = (string)($faxDetails->JobId ?? '');
         $to = (string)($faxDetails->CalledNumber ?? '');
         $from = (string)($faxDetails->CallingNumber ?? '');
@@ -884,7 +886,8 @@ SQL;
     public function insertSentFaxQueue($faxStatus, string $dialNumber, string $callerId, string $tag = '', string $fileName = ''): int
     {
         $account = $this->credentials['account'];
-        $uid = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $uid = $session->get('authUserID');
         $jobId = $faxStatus->JobId;
 
         // Build a details object similar to received faxes but for sent

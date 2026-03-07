@@ -18,6 +18,7 @@ use kamermans\OAuth2\GrantType\AuthorizationCode;
 use kamermans\OAuth2\GrantType\RefreshToken;
 use kamermans\OAuth2\OAuth2Middleware;
 use kamermans\OAuth2\Persistence\FileTokenPersistence;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
  * Class oeOAuth
@@ -93,11 +94,12 @@ class oeOAuth
          */
         $this->auth_client = new Client($this->auth_options);
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         /* Use php file to persist a safe token storage.
          *  Uniqueness is by client_id and logged in username.
          */
         $token_path = $GLOBALS['OE_SITE_DIR'] . '/documents/logs_and_misc/methods/' .
-            $this->token_config["client_id"] . '_cache_' . $_SESSION['authUser'];
+            $this->token_config["client_id"] . '_cache_' . $session->get('authUser');
         // init cache
         $this->token_storage = new FileTokenPersistence($token_path);
         // Test if valid token. If not then do the flows consent and get code.

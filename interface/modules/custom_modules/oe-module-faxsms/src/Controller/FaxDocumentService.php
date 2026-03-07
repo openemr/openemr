@@ -15,6 +15,7 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use Document;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FileUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Exception\FaxDocumentException;
@@ -30,7 +31,8 @@ class FaxDocumentService
     public function __construct(?string $siteId = null)
     {
         $globals = OEGlobalsBag::getInstance();
-        $this->siteId = $siteId ?? $_SESSION['site_id'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->siteId = $siteId ?? $session->get('site_id');
         $this->sitePath = $globals->get('OE_SITE_DIR') ?? ($globals->get('OE_SITES_BASE') . '/' . $this->siteId);
         $this->receivedFaxesPath = $this->sitePath . '/documents/received_faxes';
 
@@ -75,7 +77,8 @@ class FaxDocumentService
                 $categoryId = $categoryResult['id'] ?? 1;
 
                 $formattedFrom = PhoneNumberService::tryFormatPhone($fromNumber);
-                $owner = $_SESSION['authUserID'];
+                $session = SessionWrapperFactory::getInstance()->getActiveSession();
+                $owner = $session->get('authUserID');
 
                 // Create and save document using OpenEMR's standard method
                 $document = new Document();

@@ -16,7 +16,7 @@ require_once("$srcdir/clinical_rules.php");
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 ?>
 <html>
