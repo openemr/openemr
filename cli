@@ -8,7 +8,6 @@ use Doctrine\Migrations\Tools\Console\ConsoleRunner;
 use Firehed\Container\TypedContainerInterface;
 use Symfony\Component\Console\Application;
 
-// This will be used shortly
 $container = require_once __DIR__ . '/bootstrap.php';
 assert($container instanceof TypedContainerInterface);
 
