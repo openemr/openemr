@@ -5,10 +5,10 @@ declare(strict_types=1);
 
 use Doctrine\Migrations\DependencyFactory;
 use Doctrine\Migrations\Tools\Console\ConsoleRunner as MigrationsConsoleRunner;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Console\ConsoleRunner as ORMConsoleRunner;
 use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
 use Firehed\Container\TypedContainerInterface;
-use OpenEMR\BC\ServiceContainer;
 use Symfony\Component\Console\Application;
 
 // This will be used shortly
@@ -33,7 +33,7 @@ MigrationsConsoleRunner::addCommands($application, $container->get(DependencyFac
 // Doctrine ORM integration
 ORMConsoleRunner::addCommands(
     $application,
-    new SingleManagerProvider(ServiceContainer::getEntityManager()),
+    new SingleManagerProvider($container->get(EntityManagerInterface::class)),
 );
 
 $application->run();
