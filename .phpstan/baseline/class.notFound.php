@@ -1202,32 +1202,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/FacilityFixtureManager.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Access to offset \'address_id\' on an unknown class OpenEMR\\\\Tests\\\\Fixtures\\\\random\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to offset \'addresses\' on an unknown class OpenEMR\\\\Tests\\\\Fixtures\\\\random\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to offset \'contact_id\' on an unknown class OpenEMR\\\\Tests\\\\Fixtures\\\\random\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\FixtureManager\\:\\:getNextPid\\(\\) has invalid return type OpenEMR\\\\Tests\\\\Fixtures\\\\the\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\FixtureManager\\:\\:getSingleEntry\\(\\) has invalid return type OpenEMR\\\\Tests\\\\Fixtures\\\\random\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\FixtureManager\\:\\:getSinglePatientFixture\\(\\) has invalid return type OpenEMR\\\\Tests\\\\Fixtures\\\\a\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
 ];
@@ -1305,11 +1280,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\FhirPatientServiceMappingTest\\:\\:findTelecomEntry\\(\\) has invalid return type OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\matching\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/FhirPatientServiceMappingTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to offset \'pubpid\' on an unknown class OpenEMR\\\\Tests\\\\Fixtures\\\\a\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/Qrda/QrdaReportServiceTest.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];
