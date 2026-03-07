@@ -1850,7 +1850,7 @@ class Display extends Base
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         //let's get all the recalls the user requests, or if no dates set use defaults
-        $from_date = (!empty($_REQUEST['form_from_date'])) ? DateToYYYYMMDD($_REQUEST['form_from_date']) : date('Y-m-d', strtotime('-6 months'));
+        $from_date = (!empty($_REQUEST['form_from_date'])) ? DateToYYYYMMDD(strip_tags($_REQUEST['form_from_date'])) : date('Y-m-d', strtotime('-6 months'));
         //limit date range for initial Board to keep us sane and not tax the server too much
 
         if (str_starts_with((string) $GLOBALS['ptkr_end_date'], 'Y')) {
@@ -1866,9 +1866,9 @@ class Display extends Base
         $to_date = date('Y-m-d', $ptkr_future_time);
         //prevSetting to_date?
 
-        $to_date = (!empty($_REQUEST['form_to_date'])) ? DateToYYYYMMDD($_REQUEST['form_to_date']) : $to_date;
-        $patient_id = $_REQUEST['form_patient_id'] ?? '';
-        $patient_name = $_REQUEST['form_patient_name'] ?? '';
+        $to_date = (!empty($_REQUEST['form_to_date'])) ? DateToYYYYMMDD(strip_tags($_REQUEST['form_to_date'])) : $to_date;
+        $patient_id = strip_tags($_REQUEST['form_patient_id'] ?? '');
+        $patient_name = strip_tags($_REQUEST['form_patient_name'] ?? '');
 
         $recalls = $this->get_recalls(is_string($from_date) ? $from_date : '', is_string($to_date) ? $to_date : '', is_string($rcb_facility) ? $rcb_facility : '', is_string($rcb_provider) ? $rcb_provider : '', is_string($patient_id) ? $patient_id : '', is_string($patient_name) ? $patient_name : '');
 
@@ -2194,7 +2194,7 @@ class Display extends Base
             if ($count_providers > '1') {
                 echo "<br /><span data-toggle='tooltip' data-placement='auto'  title='" . xla('Provider') . "'>" . text($provider[$recall['r_provider']]) . "</span>";
             }
-            if (( $count_facilities > '1' ) && ( $_REQUEST['form_facility'] == '' )) {
+            if (( $count_facilities > '1' ) && empty($_REQUEST['form_facility'])) {
                 echo "<br /><span data-toggle='tooltip' data-placement='auto'  title='" . xla('Facility') . "'>" . text($facility[$recall['r_facility']]) . "</span><br />";
             }
 
