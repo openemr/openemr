@@ -1,4 +1,4 @@
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 
 RUN apk add --no-cache python3 make g++
 WORKDIR /app
@@ -7,19 +7,14 @@ COPY ccdaservice/oe-blue-button-generate/ ./oe-blue-button-generate/
 COPY ccdaservice/packages/ ./packages/
 RUN npm ci --production --ignore-scripts && npm rebuild libxmljs2
 
-FROM node:20-alpine
+FROM node:22-alpine
 
 RUN apk add --no-cache libstdc++
 WORKDIR /app
+COPY ccdaservice/ ./
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/oe-blue-button-generate ./oe-blue-button-generate
 COPY --from=build /app/packages ./packages
-COPY ccdaservice/serveccda.js ./
-COPY ccdaservice/oe-blue-button-meta/ ./oe-blue-button-meta/
-COPY ccdaservice/oe-blue-button-util/ ./oe-blue-button-util/
-COPY ccdaservice/utils/ ./utils/
-COPY ccdaservice/data-stack/ ./data-stack/
-COPY ccdaservice/ccda_gateway.php ./
 
 ENV CCDA_SERVICE_HOST=0.0.0.0
 ENV CCDA_SERVICE_PORT=6661
