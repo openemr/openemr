@@ -3720,9 +3720,11 @@ function processConnection(connection) {
 }
 
 function setUp(server) {
+    const host = process.env.CCDA_SERVICE_HOST || '127.0.0.1';
+    const port = parseInt(process.env.CCDA_SERVICE_PORT, 10) || 6661;
     server.on('connection', processConnection);
-    server.listen(6661, '127.0.0.1', function () { // never change port!
-        //console.log('server listening to ', server.address());
+    server.listen(port, host, function () {
+        console.log('ccdaservice listening on %s:%d', host, port);
     });
 }
 
