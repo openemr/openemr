@@ -26,7 +26,7 @@ class FacilityFixtureManager extends BaseFixtureManager
 
     public function __construct()
     {
-        parent::__construct("facility.json", "facility");
+        parent::__construct("facility.php", "facility");
         $this->fhirFacilityFixtures = $this->loadJsonFile("FHIR/facility.json");
     }
 

@@ -35,23 +35,38 @@ abstract class BaseFixtureManager
      */
     protected function getFixturesFromFile()
     {
-        if (empty($this->fixtures)) {
-            $this->fixtures = $this->loadJsonFile($this->fileName);
+        if (count($this->fixtures) === 0) {
+            $this->fixtures = $this->loadPhpFile($this->fileName);
         }
         return $this->fixtures;
     }
 
     /**
-     * Loads a JSON fixture from a file within the Fixture namespace, returning the data as an array of records.
-     * @param $fileName The file name to load.
+     * Load a PHP fixture file that returns a typed array.
+     *
      * @return array<string, mixed>[]
      */
-    protected function loadJsonFile($fileName)
+    protected function loadPhpFile(string $fileName): array
     {
-        $filePath = __DIR__ . "/" . $fileName;
-        $jsonData = file_get_contents($filePath);
+        $filePath = realpath(__DIR__ . '/' . $fileName);
+        if ($filePath === false || !str_starts_with($filePath, __DIR__ . '/')) {
+            throw new \RuntimeException('Fixture file not found or outside fixtures directory: ' . $fileName);
+        }
+        /** @var array<string, mixed>[] */
+        return require $filePath;
+    }
+
+    /**
+     * Load a JSON fixture file, returning the data as an array of records.
+     * Use for FHIR fixtures that stay in JSON format.
+     *
+     * @return array<string, mixed>[]
+     */
+    protected function loadJsonFile(string $fileName): array
+    {
+        $filePath = __DIR__ . '/' . $fileName;
         /** @var array<string, mixed>[] $parsedRecords */
-        $parsedRecords = json_decode($jsonData, true);
+        $parsedRecords = json_decode((string) file_get_contents($filePath), true);
         return $parsedRecords;
     }
 
