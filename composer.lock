@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fce4e45acd560f060fb522b8d41e5770",
+    "content-hash": "47465f16f328cadb2b891261f02666fe",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -1412,6 +1412,73 @@
                 "source": "https://github.com/firebase/php-jwt/tree/v7.0.2"
             },
             "time": "2025-12-16T22:17:28+00:00"
+        },
+        {
+            "name": "firehed/container",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Firehed/container.git",
+                "reference": "0b77cbfcd0396aca149625dc83030c3b9f383486"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Firehed/container/zipball/0b77cbfcd0396aca149625dc83030c3b9f383486",
+                "reference": "0b77cbfcd0396aca149625dc83030c3b9f383486",
+                "shasum": ""
+            },
+            "require": {
+                "nikic/php-parser": "^4.7.0 || ^5.0",
+                "php": "^8.1",
+                "psr/container": "^1.0 || ^2.0",
+                "psr/log": "^1.1 || ^2.0 || ^3.0"
+            },
+            "provide": {
+                "psr/container-implementation": "^1.0"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^2.0",
+                "phpstan/phpstan-phpunit": "^2.0",
+                "phpstan/phpstan-strict-rules": "^2.0",
+                "phpunit/phpunit": "^10.5.27",
+                "squizlabs/php_codesniffer": "^3.5",
+                "vlucas/phpdotenv": "^5.6"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/functions.php"
+                ],
+                "psr-4": {
+                    "Firehed\\Container\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Eric Stern",
+                    "email": "eric@ericstern.com"
+                }
+            ],
+            "description": "Dependency inversion container with advanced autowiring and compilation support. PSR-11 compliant.",
+            "keywords": [
+                "PSR-11",
+                "autowire",
+                "container",
+                "container-interface",
+                "container-interop",
+                "di",
+                "ioc",
+                "psr11"
+            ],
+            "support": {
+                "issues": "https://github.com/Firehed/container/issues",
+                "source": "https://github.com/Firehed/container/tree/1.0.0"
+            },
+            "time": "2026-03-07T00:08:33+00:00"
         },
         {
             "name": "giggsey/libphonenumber-for-php",
