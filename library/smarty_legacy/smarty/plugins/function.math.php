@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Smarty plugin
  * This plugin is only for Smarty2 BC

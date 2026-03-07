@@ -2,13 +2,13 @@
 
 namespace OpenEMR\Tests\Certification\HIT1\G10_Certification\Trait;
 
+use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ServerException;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\Globals\GlobalConnectorsEnum;
 use OpenEMR\Tests\Api\ApiTestClient;
-use Exception;
 
 trait G10ApiTestTrait
 {

@@ -180,11 +180,29 @@ class DuplicatePatientDetectionTest extends TestCase
      *
      * When a patient has dupscore=-1, they've been explicitly marked as not a duplicate.
      * The updateDupScore function should not consider them as potential matches.
+     *
+     * Because the demo database may contain patients that partially match on common
+     * fields like sex, we first establish a baseline score (before the unique patient
+     * exists) and then verify that adding a unique-flagged duplicate does not increase
+     * the score beyond that baseline.
      */
     #[Test]
     public function testUpdateDupScoreRespectsUniqueFlag(): void
     {
-        // Create a patient marked as unique
+        // Create the test patient first to establish a baseline score against
+        // any pre-existing patients in the database.
+        $pidNew = $this->createPatient([
+            'fname' => 'Marked',
+            'lname' => 'AsUnique',
+            'DOB' => '1960-01-01',
+            'sex' => 'Male',
+            'email' => 'unique@example.com',
+        ]);
+
+        /** @var int $baselineScore */
+        $baselineScore = updateDupScore($pidNew);
+
+        // Now create a patient with identical demographics but marked as unique
         $pidUnique = $this->createPatient([
             'fname' => 'Marked',
             'lname' => 'AsUnique',
@@ -194,23 +212,16 @@ class DuplicatePatientDetectionTest extends TestCase
             'dupscore' => -1,  // Marked as unique/not a duplicate
         ]);
 
-        // Create another patient with identical demographics
-        $pidNew = $this->createPatient([
-            'fname' => 'Marked',
-            'lname' => 'AsUnique',
-            'DOB' => '1960-01-01',
-            'sex' => 'Male',
-            'email' => 'unique@example.com',
-        ]);
+        // Update the new patient's dupscore again
+        /** @var int $scoreAfter */
+        $scoreAfter = updateDupScore($pidNew);
 
-        // Update the new patient's dupscore
-        $score = updateDupScore($pidNew);
-
-        // Score should be 0 because the only potential match is marked as unique
+        // Score should not increase — the unique patient must be excluded from matching
         $this->assertEquals(
-            0,
-            $score,
-            "updateDupScore should not match against patients with dupscore=-1"
+            $baselineScore,
+            $scoreAfter,
+            "updateDupScore should not match against patients with dupscore=-1 "
+            . "(baseline={$baselineScore}, after={$scoreAfter})"
         );
     }
 }

@@ -12,10 +12,10 @@ namespace OpenEMR\Telemetry;
 
 use OpenEMR\Common\Database\DatabaseQueryTrait;
 use OpenEMR\Common\Logging\SystemLogger;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
-use OpenEMR\Services\VersionServiceInterface;
 use OpenEMR\Services\VersionService;
+use OpenEMR\Services\VersionServiceInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Provides telemetry reporting functionality.

@@ -10,14 +10,14 @@
 
 namespace OpenEMR\Modules\WenoModule\Services;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 class WenoPharmaciesJson
 {
     private readonly string $encrypted;
 
-    public function __construct(private readonly CryptoGen $cryptoGen)
+    public function __construct(private readonly CryptoInterface $cryptoGen)
     {
         // Build the JSON data
         $jobJson = $this->buildJson();

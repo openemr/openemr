@@ -2,13 +2,13 @@
 
 namespace OpenEMR\Tests\Unit\ClinicalDecisionRules;
 
+use OpenEMR\ClinicalDecisionRules\Interface\Controller\ControllerEdit;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\CodeManager;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\Rule;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleManager;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleType;
 use PHPUnit\Framework\TestCase;
-use OpenEMR\ClinicalDecisionRules\Interface\Controller\ControllerEdit;
 
 class ControllerEditTest extends TestCase
 {

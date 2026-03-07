@@ -17,10 +17,10 @@
 
 require_once(__DIR__ . "/../interface/globals.php");
 
-use OpenEMR\Events\PatientDocuments\PatientDocumentViewCCDAEvent;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\PatientDocuments\PatientDocumentViewCCDAEvent;
 
 $type = $_GET['type'];
 $document_id = $_GET['doc_id'];

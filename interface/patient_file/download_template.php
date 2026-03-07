@@ -21,7 +21,8 @@ require_once('../globals.php');
 require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -393,9 +394,9 @@ if ($ext != 'dotx') {
 $fileData = file_get_contents($templatepath);
 
 // Decrypt file, if applicable.
-$cryptoGen = new CryptoGen();
+$cryptoGen = ServiceContainer::getCrypto();
 if ($cryptoGen->cryptCheckStandard($fileData)) {
-    $fileData = $cryptoGen->decryptStandard($fileData, null, 'database');
+    $fileData = $cryptoGen->decryptStandard($fileData, null, KeySource::Database);
 }
 
 // Create a temporary file to hold the template.

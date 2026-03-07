@@ -17,21 +17,21 @@ namespace OpenEMR\Modules\EhiExporter\Models;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportContactTableDefinition;
-use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportFormsGroupsEncounterTableDefinition;
-use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportClinicalNotesFormTableDefinition;
-use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportEsignatureTableDefinition;
+use OpenEMR\Modules\EhiExporter\Models;
+use OpenEMR\Modules\EhiExporter\Models\EhiExportJobTask;
+use OpenEMR\Modules\EhiExporter\Models\ExportKeyDefinition;
+use OpenEMR\Modules\EhiExporter\Models\ExportTableResult;
 use OpenEMR\Modules\EhiExporter\Services\ExportKeyDefinitionFilterer;
+use OpenEMR\Modules\EhiExporter\Services\ExportTableDataFilterer;
+use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportClinicalNotesFormTableDefinition;
+use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportContactTableDefinition;
+use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportEsignatureTableDefinition;
+use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportFormsGroupsEncounterTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportOnsiteMailTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportOnsiteMessagesTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportOpenEmrPostCalendarEventsTableDefinition;
-use OpenEMR\Modules\EhiExporter\Services\ExportTableDataFilterer;
-use OpenEMR\Modules\EhiExporter\Models\ExportTableResult;
-use OpenEMR\Modules\EhiExporter\Models;
-use OpenEMR\Modules\EhiExporter\Models\ExportKeyDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportPersonTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition;
-use OpenEMR\Modules\EhiExporter\Models\EhiExportJobTask;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTrackAnythingFormTableDefinition;
 
 class ExportState

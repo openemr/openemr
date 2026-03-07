@@ -1,4 +1,5 @@
 <?php
+
 /*
  * DocumentReferenceCategoryEnum.php
  * @package openemr

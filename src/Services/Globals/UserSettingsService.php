@@ -14,8 +14,8 @@
 
 namespace OpenEMR\Services\Globals;
 
-use function sqlStatement;
 use function sqlQuery;
+use function sqlStatement;
 
 class UserSettingsService
 {

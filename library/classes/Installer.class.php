@@ -18,6 +18,7 @@
 
 use OpenEMR\BC\DatabaseConnectionFactory;
 use OpenEMR\BC\DatabaseConnectionOptions;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Gacl\GaclApi;
 use Psr\Log\LoggerInterface;
 
@@ -1744,7 +1745,7 @@ $config = 1; /////////////
         $cmd = "mysqldump -u " . escapeshellarg($login) .
         " -h " . $host .
         " -p" . escapeshellarg($pass) .
-        " --ignore-table=" . escapeshellarg($dbase . ".onsite_activity_view") . " --hex-blob --opt --skip-extended-insert --quote-names -r $backup_file " .
+        " --hex-blob --opt --skip-extended-insert --quote-names -r $backup_file " .
         escapeshellarg($dbase);
 
         $tmp1 = [];
@@ -2078,7 +2079,7 @@ SETHLP;
      */
     protected function encryptTotpSecret(string $secret, string $hash): string
     {
-        $cryptoGen = new \OpenEMR\Common\Crypto\CryptoGen();
+        $cryptoGen = ServiceContainer::getCrypto();
         return $cryptoGen->encryptStandard($secret, $hash);
     }
 

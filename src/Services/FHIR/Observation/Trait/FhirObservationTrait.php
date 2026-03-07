@@ -11,8 +11,8 @@
 
 namespace OpenEMR\Services\FHIR\Observation\Trait;
 
-use InvalidArgumentException;
 use BadMethodCallException;
+use InvalidArgumentException;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;

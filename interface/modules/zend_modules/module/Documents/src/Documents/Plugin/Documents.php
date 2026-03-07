@@ -12,9 +12,9 @@
 
 namespace Documents\Plugin;
 
-use OpenEMR\Common\Database\QueryUtils;
-use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
 use Documents\Model\DocumentsTable;
+use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
+use OpenEMR\Common\Database\QueryUtils;
 
 require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
 

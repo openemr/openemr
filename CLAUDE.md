@@ -21,8 +21,9 @@
 - **Templates:** Twig 3.x (modern), Smarty 4.5 (legacy)
 - **Frontend:** Angular 1.8, jQuery 3.7, Bootstrap 4.6
 - **Build:** Gulp 4, SASS
-- **Database:** MySQL via ADODB wrapper
+- **Database:** MySQL via Doctrine DBAL 4.x (ADODB surface API for legacy code)
 - **Testing:** PHPUnit 11, Jest 29
+- **Static Analysis:** PHPStan level 10, Rector, custom rules in `tests/PHPStan/Rules/`
 
 ## Local Development
 
@@ -92,14 +93,21 @@ for details on adding new test cases.
 These run on the host (requires local PHP/Node):
 
 ```bash
-# Run all PHP quality checks (phpcs, phpstan, rector)
+# Run all PHP quality checks (phpcs, phpstan, rector, etc.)
 composer code-quality
 
 # Individual checks (composer scripts handle memory limits)
-composer phpstan          # Static analysis
-composer phpcs            # PHP code style check
-composer phpcbf           # PHP code style auto-fix
-composer rector-check     # Code modernization (dry-run)
+composer phpstan              # Static analysis (level 10)
+composer phpstan-baseline     # Regenerate PHPStan baseline
+composer phpcs                # PHP code style check
+composer phpcbf               # PHP code style auto-fix
+composer rector-check         # Code modernization (dry-run)
+composer rector-fix           # Code modernization (apply changes)
+composer require-checker      # Detect undeclared dependencies
+composer checks               # Validate composer.json and normalize
+composer codespell            # Spell-check the codebase
+composer conventional-commits:check  # Validate commit messages
+composer php-syntax-check     # Run php -l on all PHP files
 
 # JavaScript/CSS
 npm run lint:js           # ESLint check
@@ -119,9 +127,19 @@ npm run gulp-build   # Build only (no watch)
 
 - **Indentation:** 4 spaces
 - **Line endings:** LF (Unix)
-- **No strict_types:** Project doesn't use `declare(strict_types=1)`
+- **strict_types:** New files should use `declare(strict_types=1)` — adoption is growing
 - **Namespaces:** PSR-4 with `OpenEMR\` prefix for `/src/`
 - New code goes in `/src/`, legacy helpers in `/library/`
+- **Database:** Use `QueryUtils` for queries. New schema changes use Doctrine
+  Migrations. Do not instantiate database connections directly — use the
+  centralized `DatabaseConnectionFactory`.
+- **Global settings:** Use `OEGlobalsBag` (extends Symfony `ParameterBag`) instead
+  of `$GLOBALS`. Prefer typed getters over `get()` + cast:
+  - `getString($key)` instead of `(string) get($key)`
+  - `getInt($key)` instead of `(int) get($key)`
+  - `getBoolean($key)` instead of `(bool) get($key)`
+  - `getKernel()` for the Kernel instance
+  - Check the parent class for more: `getAlpha()`, `getAlnum()`, `getDigits()`, `getEnum()`
 
 ## Commit Messages
 
@@ -178,7 +196,12 @@ Preserve existing authors/copyrights when editing files.
 
 - Multiple template engines: check extension (.twig, .html, .php)
 - Event system uses Symfony EventDispatcher
-- Pre-commit hooks available via `.pre-commit-config.yaml`
+- **Pre-commit hooks:** Install with `prek install` (or `pre-commit install` if
+  prek is unavailable). Run `prek run --all-files` before committing to catch
+  issues early — the hooks run phpstan, rector, phpcs, codespell, and more.
+- Custom PHPStan rules in `tests/PHPStan/Rules/` enforce project conventions
+  (forbidden globals, forbidden direct instantiations, namespace rules, etc.)
+- Commit messages are validated against Conventional Commits format in CI
 
 ## Key Documentation
 

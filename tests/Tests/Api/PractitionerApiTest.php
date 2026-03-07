@@ -2,9 +2,9 @@
 
 namespace OpenEMR\Tests\Api;
 
-use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Api\ApiTestClient;
 use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Practitioner API Endpoint Test Cases.

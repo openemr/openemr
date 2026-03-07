@@ -19,15 +19,15 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\Facility\FacilityCreatedEvent;
+use OpenEMR\Events\Facility\FacilityUpdatedEvent;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\FacilityValidator;
 use OpenEMR\Validators\ProcessingResult;
-use OpenEMR\Events\Facility\FacilityCreatedEvent;
-use OpenEMR\Events\Facility\FacilityUpdatedEvent;
 use Particle\Validator\Validator;
 
 class FacilityService extends BaseService

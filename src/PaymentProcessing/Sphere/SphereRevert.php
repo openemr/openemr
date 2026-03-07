@@ -15,8 +15,9 @@ namespace OpenEMR\PaymentProcessing\Sphere;
 
 use Exception;
 use GuzzleHttp\Client;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthGlobal;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 
@@ -52,10 +53,7 @@ class SphereRevert
      */
     private $returnUrl;
 
-    /**
-     * @var CryptoGen
-     */
-    private $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
 
     /**
      * @var SystemLogger
@@ -74,7 +72,7 @@ class SphereRevert
 
         $this->authGlobalPin = new AuthGlobal('sphere_credit_void_confirm_pin');
 
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = ServiceContainer::getCrypto();
         if ($front == 'patient') {
             $this->custid = $this->cryptoGen->decryptStandard($GLOBALS['sphere_patientfront_trxcustid']);
             $this->custpass = $this->cryptoGen->decryptStandard($GLOBALS['sphere_ecomm_tc_link_pass']);

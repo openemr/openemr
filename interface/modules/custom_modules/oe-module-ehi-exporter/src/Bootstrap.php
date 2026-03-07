@@ -21,9 +21,8 @@ use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
-use OpenEMR\Modules\EhiExporter\Services\EhiExporter;
 use OpenEMR\Menu\MenuEvent;
-
+use OpenEMR\Modules\EhiExporter\Services\EhiExporter;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 // we import our own classes here.. although this use statement is unnecessary it forces the autoloader to be tested.

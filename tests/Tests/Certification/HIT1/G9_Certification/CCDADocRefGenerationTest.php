@@ -1,4 +1,5 @@
 <?php
+
 /*
  * CCDADocRefGenerationTest.php
  * @package openemr

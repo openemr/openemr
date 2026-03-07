@@ -11,8 +11,8 @@
  */
 
 use OpenEMR\Billing\BillingUtilities;
-use OpenEMR\Core\Header;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
 
 $GLOBALS['form_exit_url'] = "javascript:parent.closeTab(window.name, false)";
 

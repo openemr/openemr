@@ -12,17 +12,17 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Repository;
 
-if (!defined('OPENEMR_GLOBALS_LOADED')) {
-    http_response_code(404);
-    exit();
-}
-
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\BaseService;
 use Ramsey\Uuid\UuidFactory;
+
+if (!defined('OPENEMR_GLOBALS_LOADED')) {
+    http_response_code(404);
+    exit();
+}
 
 class TeleHealthUserRepository extends BaseService
 {
@@ -144,7 +144,7 @@ class TeleHealthUserRepository extends BaseService
     {
         $factory = new UuidFactory();
         $uuidString = $factory->uuid4()->toString();
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = ServiceContainer::getCrypto();
         // we could make this even stronger by using the API password for the encryption password...
         // but this is probably good enough
         return $cryptoGen->encryptStandard($uuidString);
@@ -152,7 +152,7 @@ class TeleHealthUserRepository extends BaseService
 
     public function decryptPassword($password)
     {
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = ServiceContainer::getCrypto();
         return $cryptoGen->decryptStandard($password);
     }
 }

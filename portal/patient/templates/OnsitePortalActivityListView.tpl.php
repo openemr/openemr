@@ -11,6 +11,7 @@
  */
 
     use OpenEMR\Core\OEGlobalsBag;
+
     $globalsBag = OEGlobalsBag::getInstance();
 
     $this->assign('title', xlt("Patient Portal") . " | " . xlt("Onsite Portal Activities"));

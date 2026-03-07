@@ -23,6 +23,7 @@
  */
 
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Messaging\SendSmsEvent;
 use OpenEMR\Events\PatientDocuments\PatientDocumentEvent;
@@ -31,8 +32,8 @@ use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
 use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
 use OpenEMR\Modules\FaxSMS\Events\NotificationEventListener;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Contracts\EventDispatcher\Event;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 // some flags
 $allowFax = ($GLOBALS['oefax_enable_fax'] ?? null);
@@ -86,7 +87,7 @@ $allowVoice = $GLOBALS['oe_enable_voice'];
 if ($allowVoice) {
     $voiceVendorId = is_numeric($allowVoice) ? (int)$allowVoice : 0;
     if (ServiceType::tryFrom($voiceVendorId) !== ServiceType::VOICE) {
-        \OpenEMR\BC\ServiceContainer::getLogger()->error(
+        ServiceContainer::getLogger()->error(
             "FaxSMS: unknown voice vendor ID '" . var_export($allowVoice, true) . "'. "
             . "Voice features disabled. To fix, run: "
             . "UPDATE globals SET gl_value = '9' WHERE gl_name = 'oe_enable_voice';"

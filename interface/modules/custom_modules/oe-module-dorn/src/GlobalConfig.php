@@ -12,7 +12,8 @@
 
  namespace OpenEMR\Modules\Dorn;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\Globals\GlobalSetting;
 
 class GlobalConfig
@@ -27,14 +28,11 @@ class GlobalConfig
 
     public const CONFIG_ENABLE_MENU = "oe_dorn_config_add_menu_button";
 
-    /**
-     * @var CryptoGen
-     */
-    private $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
 
     public function __construct(private array $globalsArray)
     {
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = ServiceContainer::getCrypto();
     }
 
     /**

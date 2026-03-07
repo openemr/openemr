@@ -15,8 +15,8 @@
 namespace OpenEMR\Modules\ClaimRevConnector;
 
 use OpenEMR\Modules\ClaimRevConnector\EligibilityData;
-use OpenEMR\Modules\ClaimRevConnector\RevenueToolsRequest;
 use OpenEMR\Modules\ClaimRevConnector\RevenueToolsPayer;
+use OpenEMR\Modules\ClaimRevConnector\RevenueToolsRequest;
 
 class EligibilityObjectCreator
 {

@@ -44,7 +44,6 @@ require_once($GLOBALS['fileroot'] . "/library/patient.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Services\VitalsService;
 
-
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
 }

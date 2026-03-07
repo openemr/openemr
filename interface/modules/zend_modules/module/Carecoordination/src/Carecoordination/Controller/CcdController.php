@@ -12,13 +12,13 @@
 
 namespace Carecoordination\Controller;
 
+use Application\Listener\Listener;
+use Carecoordination\Model\CarecoordinationTable;
+use Carecoordination\Model\CcdTable;
+use Documents\Controller\DocumentsController;
+use Documents\Model\DocumentsTable;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
-use Application\Listener\Listener;
-use Documents\Controller\DocumentsController;
-use Carecoordination\Model\CcdTable;
-use Carecoordination\Model\CarecoordinationTable;
-use Documents\Model\DocumentsTable;
 
 class CcdController extends AbstractActionController
 {

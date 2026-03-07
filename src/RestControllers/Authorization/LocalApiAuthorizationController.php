@@ -2,14 +2,14 @@
 
 namespace OpenEMR\RestControllers\Authorization;
 
-use OpenEMR\Services\UserService;
-use Symfony\Component\HttpFoundation\Response;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\UserService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 

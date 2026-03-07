@@ -2,7 +2,6 @@
 
 namespace OpenEMR\Services\Qdm;
 
-
 class MeasureService
 {
     public function __construct()

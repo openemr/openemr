@@ -18,7 +18,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\RestControllers\Config\RestConfig;
 use OpenEMR\RestControllers\FHIR\FhirAllergyIntoleranceRestController;
@@ -30,41 +32,39 @@ use OpenEMR\RestControllers\FHIR\FhirDeviceRestController;
 use OpenEMR\RestControllers\FHIR\FhirDiagnosticReportRestController;
 use OpenEMR\RestControllers\FHIR\FhirDocumentReferenceRestController;
 use OpenEMR\RestControllers\FHIR\FhirEncounterRestController;
-use OpenEMR\RestControllers\FHIR\FhirImmunizationRestController;
+use OpenEMR\RestControllers\FHIR\FhirGenericRestController;
 use OpenEMR\RestControllers\FHIR\FhirGoalRestController;
 use OpenEMR\RestControllers\FHIR\FhirGroupRestController;
+use OpenEMR\RestControllers\FHIR\FhirImmunizationRestController;
 use OpenEMR\RestControllers\FHIR\FhirLocationRestController;
-use OpenEMR\RestControllers\FHIR\FhirMedicationRestController;
+use OpenEMR\RestControllers\FHIR\FhirMediaRestController;
 use OpenEMR\RestControllers\FHIR\FhirMedicationDispenseRestController;
 use OpenEMR\RestControllers\FHIR\FhirMedicationRequestRestController;
+use OpenEMR\RestControllers\FHIR\FhirMedicationRestController;
+use OpenEMR\RestControllers\FHIR\FhirMetaDataRestController;
 use OpenEMR\RestControllers\FHIR\FhirOrganizationRestController;
 use OpenEMR\RestControllers\FHIR\FhirPatientRestController;
 use OpenEMR\RestControllers\FHIR\FhirPersonRestController;
-use OpenEMR\RestControllers\FHIR\FhirPractitionerRoleRestController;
 use OpenEMR\RestControllers\FHIR\FhirPractitionerRestController;
+use OpenEMR\RestControllers\FHIR\FhirPractitionerRoleRestController;
 use OpenEMR\RestControllers\FHIR\FhirProcedureRestController;
 use OpenEMR\RestControllers\FHIR\FhirProvenanceRestController;
-use OpenEMR\RestControllers\FHIR\FhirServiceRequestRestController;
-use OpenEMR\RestControllers\FHIR\FhirValueSetRestController;
-use OpenEMR\RestControllers\FHIR\FhirMetaDataRestController;
-use OpenEMR\RestControllers\FHIR\Operations\FhirOperationExportRestController;
-use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDocRefRestController;
-use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDefinitionRestController;
-use OpenEMR\RestControllers\SMART\SMARTConfigurationController;
-use OpenEMR\Common\Acl\AccessDeniedException;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Services\FHIR\FhirQuestionnaireService;
-use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
-use OpenEMR\RestControllers\FHIR\FhirQuestionnaireRestController;
-use OpenEMR\Services\FHIR\FhirQuestionnaireResponseService;
-use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 use OpenEMR\RestControllers\FHIR\FhirQuestionnaireResponseRestController;
+use OpenEMR\RestControllers\FHIR\FhirQuestionnaireRestController;
+use OpenEMR\RestControllers\FHIR\FhirServiceRequestRestController;
 use OpenEMR\RestControllers\FHIR\FhirSpecimenRestController;
-use OpenEMR\RestControllers\FHIR\FhirMediaRestController;
-use OpenEMR\RestControllers\FHIR\FhirGenericRestController;
+use OpenEMR\RestControllers\FHIR\FhirValueSetRestController;
+use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDefinitionRestController;
+use OpenEMR\RestControllers\FHIR\Operations\FhirOperationDocRefRestController;
+use OpenEMR\RestControllers\FHIR\Operations\FhirOperationExportRestController;
+use OpenEMR\RestControllers\SMART\SMARTConfigurationController;
 use OpenEMR\Services\FHIR\FhirConditionService;
 use OpenEMR\Services\FHIR\FhirObservationService;
+use OpenEMR\Services\FHIR\FhirQuestionnaireResponseService;
+use OpenEMR\Services\FHIR\FhirQuestionnaireService;
 use OpenEMR\Services\FHIR\FhirRelatedPersonService;
+use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
+use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 
 // Note that the fhir route includes both user role and patient role
 //  (there is a mechanism in place to ensure patient role is binded

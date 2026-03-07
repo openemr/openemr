@@ -12,8 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Core\Header;
 use OpenEMR\ClinicalDecisionRules\Interface\Common;
+use OpenEMR\Core\Header;
 
 ?>
 <!DOCTYPE html>

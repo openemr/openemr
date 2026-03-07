@@ -1,4 +1,5 @@
 <?php
+
 /*
 meinhard_jahn@web.de, 20041102: link to acl_test2.php and acl_test3.php
 */

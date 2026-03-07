@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This will eventually be core application setup for all paths: web, cli, etc.
  *
@@ -18,6 +16,8 @@ declare(strict_types=1);
  *
  * For now, it's only used in an experimental CLI tool.
  */
+
+declare(strict_types=1);
 
 chdir(__DIR__);
 

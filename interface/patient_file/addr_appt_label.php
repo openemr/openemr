@@ -19,6 +19,7 @@
  */
 
 use OpenEMR\Common\Session\SessionWrapperFactory;
+
 require_once("../globals.php");
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
