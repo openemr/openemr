@@ -9,8 +9,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Console\ConsoleRunner as ORMConsoleRunner;
 use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
 use Firehed\Container\TypedContainerInterface;
-use Symfony\Component\Console\Application;
 use OpenEMR\Console\Command\DebugLoadFacilityCommand;
+use Symfony\Component\Console\Application;
 
 // This will be used shortly
 $container = require_once __DIR__ . '/bootstrap.php';
