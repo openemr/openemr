@@ -17,7 +17,7 @@
 
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
 
 // Paging parameters.  -1 means not applicable.
 //

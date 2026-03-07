@@ -46,16 +46,16 @@ class MyMailer extends PHPMailer
     public static function isConfigured(): bool
     {
         $requiredKeys = [];
-        if ($GLOBALS['EMAIL_METHOD'] === "SMTP") {
+        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('EMAIL_METHOD') === "SMTP") {
             $requiredKeys = ['SMTP_HOST', 'SMTP_PORT', 'SMTP_SECURE'];
-            if (!empty($GLOBALS['SMTP_Auth'])) {
+            if (!empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('SMTP_Auth'))) {
                 $requiredKeys[] = 'SMTP_USER';
                 $requiredKeys[] = 'SMTP_PASS';
             }
         }
 
         foreach ($requiredKeys as $key) {
-            if (empty($GLOBALS[$key])) {
+            if (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get($key))) {
                 return false;
             }
         }
@@ -183,19 +183,19 @@ class MyMailer extends PHPMailer
     {
         global $HTML_CHARSET;
         $this->CharSet = $HTML_CHARSET;
-        switch ($GLOBALS['EMAIL_METHOD']) {
+        switch (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('EMAIL_METHOD')) {
             case "PHPMAIL":
                 $this->Mailer = "mail";
                 break;
             case "SMTP":
                 $this->Mailer = "smtp";
-                $this->SMTPAuth = $GLOBALS['SMTP_Auth'];
-                $this->Host = $GLOBALS['SMTP_HOST'];
-                $this->Username = $GLOBALS['SMTP_USER'];
+                $this->SMTPAuth = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('SMTP_Auth');
+                $this->Host = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('SMTP_HOST');
+                $this->Username = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('SMTP_USER');
                 $cryptoGen = ServiceContainer::getCrypto();
-                $this->Password = $cryptoGen->decryptStandard($GLOBALS['SMTP_PASS']);
-                $this->Port = $GLOBALS['SMTP_PORT'];
-                $this->SMTPSecure = $GLOBALS['SMTP_SECURE'];
+                $this->Password = $cryptoGen->decryptStandard(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('SMTP_PASS'));
+                $this->Port = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('SMTP_PORT');
+                $this->SMTPSecure = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('SMTP_SECURE');
                 break;
             case "SENDMAIL":
                 $this->Mailer = "sendmail";

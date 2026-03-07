@@ -18,7 +18,7 @@ require_once(__DIR__ . '/patient_tracker.inc.php');
 
 function updateAppointmentStatus($pid, $encdate, $newstatus): void
 {
-    if (empty($GLOBALS['gbl_auto_update_appt_status'])) {
+    if (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_auto_update_appt_status'))) {
         return;
     }
 

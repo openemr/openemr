@@ -66,7 +66,7 @@ $returnurl = 'encounter_top.php';
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php echo xlt('Save'); ?>]</a>
 <br />
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" style="color: #483D8B"
+<a href="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('form_exit_url'); ?>" class="link" style="color: #483D8B"
  onclick="top.restoreSession()">[<?php echo xlt('Don\'t Save'); ?>]</a>
 <br /><br />
 <span class="text" ><?php echo xlt('Onset of Illness:'); ?> </span><input type="text" name="bronchitis_date_of_illness" value=""></input>
@@ -444,7 +444,7 @@ $returnurl = 'encounter_top.php';
 <br />
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php echo xlt('Save'); ?>]</a>
 <br />
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" style="color: #483D8B"
+<a href="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('form_exit_url'); ?>" class="link" style="color: #483D8B"
  onclick="top.restoreSession()">[<?php echo xlt('Don\'t Save'); ?>]</a>
 </form>
 

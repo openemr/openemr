@@ -10,7 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once($GLOBALS["srcdir"] . "/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("srcdir") . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Utils\FormatMoney;
@@ -314,7 +314,7 @@ function printPatientForms($pid, $cols): void
     //this function takes a $pid
     $inclookupres = sqlStatement("select distinct formdir from forms where pid=? AND deleted=0", [$pid]);
     while ($result = sqlFetchArray($inclookupres)) {
-        include_once($GLOBALS['incdir'] . "/forms/" . $result["formdir"] . "/report.php");
+        include_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('incdir') . "/forms/" . $result["formdir"] . "/report.php");
     }
 
     $res = sqlStatement("select * from forms where pid=? AND deleted=0 order by date", [$pid]);

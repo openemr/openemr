@@ -172,6 +172,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/receive_hl7_results.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to static method getInstance\\(\\) on an unknown class echo\\\\OpenEMR\\\\Core\\\\OEGlobalsBag\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/birthday_alert/birthday_pop.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Caught class MpdfException not found\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/report/custom_report.php',

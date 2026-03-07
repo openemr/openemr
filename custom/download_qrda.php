@@ -154,10 +154,10 @@ $type_report = (in_array($type_report, ["amc", "amc_2011", "amc_2014", "cqm", "c
         <th scope="col" class="multiDownload">
             <input type="checkbox" name="checkAll" id="checkAll"/>
             <div style="display:none" id=downloadAll>
-                <img class="downloadIcon" src="<?php echo $GLOBALS['images_static_relative'];?>/downbtn.gif" onclick=downloadAllXML(); />
+                <img class="downloadIcon" src="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('images_static_relative');?>/downbtn.gif" onclick=downloadAllXML(); />
             </div>
             <div style="display:none" id=spinAll>;
-                <img src="<?php echo $GLOBALS['webroot'];?>/interface/pic/ajax-loader.gif"/>
+                <img src="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot');?>/interface/pic/ajax-loader.gif"/>
             </div>
         </th>
         <th scope="col">
@@ -209,15 +209,15 @@ $type_report = (in_array($type_report, ["amc", "amc_2011", "amc_2014", "cqm", "c
                 echo "</td>";
                 echo "<td align=center>";
                 echo "<div id=download" . attr($counter) . ">";
-                echo "<img class='downloadIcon' src='" . $GLOBALS['images_static_relative'] . "/downbtn.gif' onclick=downloadXML(" . attr_js($counter) . ",1); />";
+                echo "<img class='downloadIcon' src='" . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('images_static_relative') . "/downbtn.gif' onclick=downloadXML(" . attr_js($counter) . ",1); />";
                 echo "</div>";
                 echo "<div style='display:none' id=spin" . attr($counter) . ">";
-                echo "<img src='" . $GLOBALS['webroot'] . "/interface/pic/ajax-loader.gif'/>";
+                echo "<img src='" . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot') . "/interface/pic/ajax-loader.gif'/>";
                 echo "</div>";
                 echo "</td>";
                 echo "<td>";
                 echo "<div style='display:none' id=checkmark" . attr($counter) . ">";
-                echo "<img src='" . $GLOBALS['images_static_relative'] . "/checkmark.png' />";
+                echo "<img src='" . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('images_static_relative') . "/checkmark.png' />";
                 echo "</div>";
                 echo "</td>";
                 echo "</tr>";

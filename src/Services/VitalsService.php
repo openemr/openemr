@@ -52,7 +52,7 @@ class VitalsService extends BaseService
         parent::__construct(self::TABLE_VITALS);
         UuidRegistry::createMissingUuidsForTables([self::TABLE_VITALS]);
         $this->shouldConvertVitalMeasurements = true;
-        $this->units_of_measurement = $units_of_measurement ?? $GLOBALS['units_of_measurement'];
+        $this->units_of_measurement = $units_of_measurement ?? \OpenEMR\Core\OEGlobalsBag::getInstance()->get('units_of_measurement');
         $globalsBag = OEGlobalsBag::getInstance();
         if ($globalsBag->hasKernel()) {
             $this->dispatcher = $globalsBag->getKernel()->getEventDispatcher();

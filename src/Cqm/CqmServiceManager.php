@@ -8,7 +8,7 @@ class CqmServiceManager
 {
     public static function makeCqmClient()
     {
-        $servicePath = $GLOBALS['fileroot'] . DIRECTORY_SEPARATOR .
+        $servicePath = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . DIRECTORY_SEPARATOR .
             'ccdaservice/node_modules' . DIRECTORY_SEPARATOR .
             'oe-cqm-service' . DIRECTORY_SEPARATOR .
             'server.js';

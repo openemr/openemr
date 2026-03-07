@@ -22,7 +22,7 @@ namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
 
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\CdrResults;
 
-require_once($GLOBALS['fileroot'] . "/library/clinical_rules.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/clinical_rules.php");
 
 /**
  * class OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\CdrAlertManager

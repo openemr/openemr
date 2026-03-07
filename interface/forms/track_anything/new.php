@@ -45,7 +45,7 @@ $(function () {
         <?php $datetimepicker_timepicker = true; ?>
         <?php $datetimepicker_showseconds = true; ?>
         <?php $datetimepicker_formatInput = false; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });
@@ -75,7 +75,7 @@ if (!$formid) {
             addForm($encounter, $register_as, $formid, "track_anything", $pid, $userauthorized);
         } else {
                 echo xlt('No track selected') . ".<br />";
-            ?><input type='button' value='<?php echo xla('Back'); ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" /><?php
+            ?><input type='button' value='<?php echo xla('Back'); ?>' onclick="top.restoreSession();location='<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('form_exit_url'); ?>'" /><?php
         }
     } else {
     // procedure is not yet selected
@@ -100,7 +100,7 @@ if (!$formid) {
         echo "</select>";
         echo "</td></tr><tr><td align='center'>";
         echo "<input type='submit' name='bn_select' value='" . xla('Select') . "' />";
-        ?><input type='button' value='<?php echo  xla('Back'); ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" /><?php
+        ?><input type='button' value='<?php echo  xla('Back'); ?>' onclick="top.restoreSession();location='<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('form_exit_url'); ?>'" /><?php
         echo "</form>";
         echo "<br />&nbsp;</td></tr>";
 
@@ -211,7 +211,7 @@ if ($formid) {
     echo "</table>";
     echo "<input type='hidden' name='formid' value='" . attr($formid) . "'>";
     echo "<input type='submit' name='bn_save' value='" . xla('Save') . "' />";
-    ?><input type='button' value='<?php echo  xla('Stop'); ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" /><?php
+    ?><input type='button' value='<?php echo  xla('Stop'); ?>' onclick="top.restoreSession();location='<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('form_exit_url'); ?>'" /><?php
 
 
     // show old entries of track
@@ -265,7 +265,7 @@ while ($myrow = sqlFetchArray($query)) {
     echo "</tr></table>";
     echo "<input type='hidden' name='formid' value='" . attr($formid) . "'>";
     echo "<input type='submit' name='bn_save' value='" . xla('Save') . "' />";
-?><input type='button' value='<?php echo xla('Stop'); ?>' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'" /><?php
+?><input type='button' value='<?php echo xla('Stop'); ?>' onclick="top.restoreSession();location='<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('form_exit_url'); ?>'" /><?php
 
     echo "</form>";
 }//end if($formid)

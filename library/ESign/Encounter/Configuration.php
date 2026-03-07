@@ -14,7 +14,7 @@
 
 namespace ESign;
 
-require_once $GLOBALS['srcdir'] . '/ESign/Abstract/Configuration.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Abstract/Configuration.php';
 
 class Encounter_Configuration extends Abstract_Configuration implements ConfigurationIF
 {

@@ -292,7 +292,7 @@ class QueryUtils
 
         // Return the correct last id generated using function
         //   that is safe with the audit engine.
-        return $GLOBALS['lastidado'] > 0 ? $GLOBALS['lastidado'] : $GLOBALS['adodb']['db']->Insert_ID();
+        return \OpenEMR\Core\OEGlobalsBag::getInstance()->get('lastidado') > 0 ? \OpenEMR\Core\OEGlobalsBag::getInstance()->get('lastidado') : \OpenEMR\Core\OEGlobalsBag::getInstance()->get('adodb')['db']->Insert_ID();
     }
 
     /**
@@ -400,7 +400,7 @@ class QueryUtils
     {
         // Return the correct last id generated using function
         //   that is safe with the audit engine.
-        return ($GLOBALS['lastidado'] ?? 0) > 0 ? $GLOBALS['lastidado'] : $GLOBALS['adodb']['db']->Insert_ID();
+        return (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('lastidado') ?? 0) > 0 ? \OpenEMR\Core\OEGlobalsBag::getInstance()->get('lastidado') : \OpenEMR\Core\OEGlobalsBag::getInstance()->get('adodb')['db']->Insert_ID();
     }
 
     /**
@@ -459,9 +459,9 @@ class QueryUtils
      */
     public static function getLastError(): string
     {
-        return !empty($GLOBALS['last_mysql_error'])
-            ? (string) $GLOBALS['last_mysql_error']
-            : (string) $GLOBALS['adodb']['db']->ErrorMsg();
+        return !empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('last_mysql_error'))
+            ? (string) \OpenEMR\Core\OEGlobalsBag::getInstance()->get('last_mysql_error')
+            : (string) \OpenEMR\Core\OEGlobalsBag::getInstance()->get('adodb')['db']->ErrorMsg();
     }
 
     /**
@@ -469,6 +469,6 @@ class QueryUtils
      */
     private static function getADODB()
     {
-        return $GLOBALS['adodb']['db'];
+        return \OpenEMR\Core\OEGlobalsBag::getInstance()->get('adodb')['db'];
     }
 }

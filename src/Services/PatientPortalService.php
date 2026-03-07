@@ -25,7 +25,7 @@ class PatientPortalService
 
     public function __construct()
     {
-        self::setIsEnabledServices($GLOBALS['oefax_enable_fax'] ?? false, $GLOBALS['oefax_enable_sms'] ?? false, $GLOBALS['oe_enable_email'] ?? false);
+        self::setIsEnabledServices(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('oefax_enable_fax') ?? false, \OpenEMR\Core\OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? false, \OpenEMR\Core\OEGlobalsBag::getInstance()->get('oe_enable_email') ?? false);
     }
 
     /**

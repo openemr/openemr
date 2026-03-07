@@ -18,12 +18,12 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 
 <head>
     <?php if ($_SESSION['language_direction'] == "rtl") { ?>
-        <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rtl_rules.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
+        <link rel="stylesheet" href="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('themes_static_relative'); ?>/misc/rtl_rules.css?v=<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
     <?php } else { ?>
-        <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rules.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
+        <link rel="stylesheet" href="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('themes_static_relative'); ?>/misc/rules.css?v=<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
     <?php } ?>
 
-    <script src="../../../library/dialog.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+    <script src="../../../library/dialog.js?v=<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('v_js_includes'); ?>"></script>
 
     <script>
         // This invokes the find-code popup.
@@ -52,4 +52,4 @@ use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 <br/>
 
 <!-- optional/required and inclusion/exclusion fields -->
-<?php echo RuleTemplateExtension::common_fields(array( "criteria" => $criteria)); ?>
+<?php echo RuleTemplateExtension::common_fields([ "criteria" => $criteria]); ?>

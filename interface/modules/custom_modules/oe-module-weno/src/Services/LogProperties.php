@@ -68,16 +68,16 @@ class LogProperties
     {
         $this->cryptoGen = ServiceContainer::getCrypto();
         $this->method = "aes-256-cbc";
-        $this->rxsynclog = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/logsync.csv";
-        $logDir = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno";
+        $this->rxsynclog = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/weno/logsync.csv";
+        $logDir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/weno";
         if (!is_dir($logDir)) {
             mkdir($logDir, 0775, true);
         }
-        $this->enc_key = $this->cryptoGen->decryptStandard($GLOBALS['weno_encryption_key'] ?? '');
+        $this->enc_key = $this->cryptoGen->decryptStandard(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_encryption_key') ?? '');
         $this->key = substr(hash('sha256', $this->enc_key, true), 0, 32);
         $this->iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0);
-        $this->weno_admin_email = $GLOBALS['weno_admin_username'] ?? '';
-        $this->weno_admin_password = $this->cryptoGen->decryptStandard($GLOBALS['weno_admin_password'] ?? '');
+        $this->weno_admin_email = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_admin_username') ?? '';
+        $this->weno_admin_password = $this->cryptoGen->decryptStandard(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_admin_password') ?? '');
     }
 
     public function fetchLogSyncDates(): array
@@ -233,7 +233,7 @@ class LogProperties
     public function getProviderEmail(): string|array
     {
         if ($_SESSION['authUser']) {
-            $provider_info = ['email' => $GLOBALS['weno_provider_email']];
+            $provider_info = ['email' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_provider_email')];
             if (!empty($provider_info['email'])) {
                 return $provider_info;
             } else {
@@ -241,8 +241,8 @@ class LogProperties
                 error_log(errorLogEscape($error));
                 TransmitProperties::echoError($error);
             }
-        } elseif ($GLOBALS['weno_admin_username'] ?? false) {
-            $provider_info["email"] = $GLOBALS['weno_admin_username'];
+        } elseif (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_admin_username') ?? false) {
+            $provider_info["email"] = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_admin_username');
             return $provider_info;
         } else {
             $error = xlt("Weno Prescriber email address is missing. Go to User settings Weno tab to add Weno Prescriber's weno registered email address");
@@ -259,15 +259,15 @@ class LogProperties
     public function getProviderPassword(): mixed
     {
         if ($_SESSION['authUser']) {
-            if (!empty($GLOBALS['weno_provider_password'])) {
-                return $this->cryptoGen->decryptStandard($GLOBALS['weno_provider_password']);
+            if (!empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_provider_password'))) {
+                return $this->cryptoGen->decryptStandard(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_provider_password'));
             } else {
                 echo xlt('Weno Prescriber Password is missing');
                 error_log("Weno Prescriber Password is missing");
                 die;
             }
-        } elseif ($GLOBALS['weno_admin_password']) {
-            return $this->cryptoGen->decryptStandard($GLOBALS['weno_admin_password']);
+        } elseif (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_admin_password')) {
+            return $this->cryptoGen->decryptStandard(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_admin_password'));
         } else {
             error_log("Admin password not set");
             exit;

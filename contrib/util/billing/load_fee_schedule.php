@@ -34,7 +34,7 @@ use League\Csv\Reader;
 // setup a csv file with a header consisting of type, code and modifier
 // at the specified location
 $filename = DIRECTORY_SEPARATOR . $argv[2];
-$filepath = $GLOBALS['temporary_files_dir'];
+$filepath = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir');
 $reader = Reader::createFromPath($filepath . $filename);
 $reader->setDelimiter("\t");
 

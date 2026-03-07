@@ -36,7 +36,7 @@ $rf = $_GET['rf'] ?? '0';
 $file_revision_date = $_GET['file_revision_date'] ?? '0';
 $file_checksum = $_GET['file_checksum'] ?? '0';
 $newInstall =   $_GET['newInstall'] ?? '0';
-$mainPATH = $GLOBALS['fileroot'] . "/contrib/" . strtolower((string) $db);
+$mainPATH = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/contrib/" . strtolower((string) $db);
 
 $files_array = scandir($mainPATH);
 array_shift($files_array); // get rid of "."

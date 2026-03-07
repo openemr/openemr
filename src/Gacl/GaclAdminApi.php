@@ -47,7 +47,7 @@ class GaclAdminApi extends GaclApi {
      */
     function return_page($url=""): never {
         $return_page = basename((string) $url);
-        header('Location: ' . $GLOBALS['web_root'] . "/gacl/admin/" . $return_page);
+        header('Location: ' . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('web_root') . "/gacl/admin/" . $return_page);
         exit;
     }
 

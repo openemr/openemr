@@ -21,7 +21,7 @@ $facilityService = new FacilityService();
 
 function send_email($subject, $body): void
 {
-    $recipient = $GLOBALS['practice_return_email_path'];
+    $recipient = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('practice_return_email_path');
     if (empty($recipient)) {
         return;
     }
@@ -167,7 +167,7 @@ $row = sqlQuery("SELECT " .
     "p.pid = s.pid AND " .
     "u.id = r.provider_id", [$sale_id]);
 
-$dconfig = $GLOBALS['oer_config']['druglabels'];
+$dconfig = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('oer_config')['druglabels'];
 
 $header_text = $row['ufname'] . ' ' . $row['umname'] . ' ' . $row['ulname'] . "\n" .
 $frow['street'] . "\n" .

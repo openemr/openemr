@@ -75,7 +75,7 @@ class ClientRepository implements ClientRepositoryInterface
             $scopeRepo->hasScopesThatRequireManualApproval(
                 $is_confidential_client == 1,
                 $scopes,
-                $GLOBALS['oauth_app_manual_approval'] ?? '0'
+                \OpenEMR\Core\OEGlobalsBag::getInstance()->get('oauth_app_manual_approval') ?? '0'
             )
         ) {
             $is_client_enabled = 0; // disabled

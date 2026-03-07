@@ -78,7 +78,7 @@ while ($lrow = sqlFetchArray($lres)) {
     echo '{"id":' . js_escape($lrow['option_id']) . ',';
 
     // translate title if translate-lists flag set and not english
-    if ($GLOBALS['translate_lists'] && $_SESSION['language_choice'] > 1) {
+    if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('translate_lists') && $_SESSION['language_choice'] > 1) {
         echo '"title":' . xlj($lrow['title']) . '}';
     } else {
         echo '"title":' . js_escape($lrow['title']) . '}';

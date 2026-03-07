@@ -101,12 +101,12 @@ class IndexController extends AbstractActionController
     {
         $limitEnd = \Application\Plugin\CommonPlugin::escapeLimit($limit);
 
-        if (isset($GLOBALS['set_autosuggest_options'])) {
-            $leading = $GLOBALS['set_autosuggest_options'] == 1 ? '%' : $post->leading;
+        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->has('set_autosuggest_options')) {
+            $leading = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('set_autosuggest_options') == 1 ? '%' : $post->leading;
 
-            $trailing = $GLOBALS['set_autosuggest_options'] == 2 ? '%' : $post->trailing;
+            $trailing = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('set_autosuggest_options') == 2 ? '%' : $post->trailing;
 
-            if ($GLOBALS['set_autosuggest_options'] == 3) {
+            if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('set_autosuggest_options') == 3) {
                 $leading = '%';
                 $trailing = '%';
             }

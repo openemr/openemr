@@ -47,17 +47,17 @@ class BirthdayReminder
         if (
             // on and up to 28 days
             (
-                $GLOBALS['patient_birthday_alert'] == 3 &&
+                \OpenEMR\Core\OEGlobalsBag::getInstance()->get('patient_birthday_alert') == 3 &&
                 $today >= $dobStr &&
                 $today <= date('m-d', strtotime('+28 days', strtotime((string) $res['DOB'])))
             ) ||
             // on and after
             (
-                $GLOBALS['patient_birthday_alert'] == 2 &&
+                \OpenEMR\Core\OEGlobalsBag::getInstance()->get('patient_birthday_alert') == 2 &&
                 $today >= $dobStr
             ) ||
             (
-                $GLOBALS['patient_birthday_alert'] == 1 &&
+                \OpenEMR\Core\OEGlobalsBag::getInstance()->get('patient_birthday_alert') == 1 &&
                 $today == $dobStr
             )
         ) {

@@ -114,12 +114,12 @@ class ModuleService
         $userSettings['weno_provider_email'] = $items['weno_provider_email'];
         $userSettings['weno_provider_password'] = $items['weno_provider_password'];
 
-        $GLOBALS['weno_encryption_key'] = $items['weno_encryption_key'];
-        $GLOBALS['weno_admin_password'] = $items['weno_admin_password'];
+        \OpenEMR\Core\OEGlobalsBag::getInstance()->set('weno_encryption_key', $items['weno_encryption_key']);
+        \OpenEMR\Core\OEGlobalsBag::getInstance()->set('weno_admin_password', $items['weno_admin_password']);
 
         if ($which != 'user') {
             foreach ($vendors as $key => $vendor) {
-                $GLOBALS[$key] = $vendor;
+                \OpenEMR\Core\OEGlobalsBag::getInstance()->set($key, $vendor);
                 sqlQuery(
                     "INSERT INTO `globals` (`gl_name`,`gl_value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `gl_name` = ?, `gl_value` = ?",
                     [$key, $vendor, $key, $vendor]
@@ -128,7 +128,7 @@ class ModuleService
         }
         if ($which != 'global' && !empty($_SESSION['authUserID'] ?? '')) {
             foreach ($userSettings as $key => $vendor) {
-                $GLOBALS[$key] = $vendor;
+                \OpenEMR\Core\OEGlobalsBag::getInstance()->set($key, $vendor);
                 sqlQuery(
                     "INSERT INTO `user_settings` (`setting_label`,`setting_value`, `setting_user`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `setting_value` = ?, `setting_user` = ?",
                     ['global:' . $key, $vendor, $_SESSION['authUserID'], $vendor, $_SESSION['authUserID'] ?? '']

@@ -37,11 +37,11 @@ if (!AclMain::aclCheckForm('fee_sheet')) { ?>
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // Some table cells will not be displayed unless insurance billing is used.
-$usbillstyle = $GLOBALS['ippf_specific'] ? " style='display:none'" : "";
+$usbillstyle = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('ippf_specific') ? " style='display:none'" : "";
 $justifystyle = justifiers_are_used() ? "" : " style='display:none'";
 
-$liprovstyle = (isset($GLOBALS['support_fee_sheet_line_item_provider']) &&
-  $GLOBALS['support_fee_sheet_line_item_provider'] != 1) ? " style='display:none'" : "";
+$liprovstyle = (\OpenEMR\Core\OEGlobalsBag::getInstance()->has('support_fee_sheet_line_item_provider') &&
+  \OpenEMR\Core\OEGlobalsBag::getInstance()->get('support_fee_sheet_line_item_provider') != 1) ? " style='display:none'" : "";
 
 // This flag comes from the LBFmsivd form and perhaps later others.
 $rapid_data_entry = empty($_GET['rde']) ? 0 : 1;
@@ -55,7 +55,7 @@ $alertmsg = '';
 $tmp = sqlQuery("SELECT COUNT(*) AS count FROM list_options where list_id = 'pricelevel' AND activity = 1");
 $price_levels_are_used = $tmp['count'] > 1;
 // For revenue codes
-$institutional = $GLOBALS['ub04_support'] == "1" ? true : false;
+$institutional = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('ub04_support') == "1" ? true : false;
 // Helper function for creating drop-lists.
 function endFSCategory(): void
 {
@@ -196,7 +196,7 @@ function echoServiceLines(): void
             echo "  <td class='billcell text-center' $usbillstyle><input type='checkbox'" .
             ($li['auth'] ? " checked" : "") . " disabled /></td>\n";
 
-            if (!empty($GLOBALS['gbl_auto_create_rx'])) {
+            if (!empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_auto_create_rx'))) {
                 echo "  <td class='billcell text-center'>&nbsp;</td>\n";
             }
 
@@ -291,7 +291,7 @@ function echoServiceLines(): void
             echo "  <td class='billcell text-center' $usbillstyle><input type='checkbox' name='bill[" . attr($lino) . "][auth]' " .
             "value='1'" . ($li['auth'] ? " checked" : "") . " /></td>\n";
 
-            if (!empty($GLOBALS['gbl_auto_create_rx'])) {
+            if (!empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_auto_create_rx'))) {
                 echo "  <td class='billcell text-center'>&nbsp;</td>\n";   // KHY: May need to confirm proper location of this cell
             }
 
@@ -410,7 +410,7 @@ function echoProductLines(): void
             //
             echo "  <td class='billcell text-center' $usbillstyle>&nbsp;</td>\n"; // note codes
             echo "  <td class='billcell text-center' $usbillstyle>&nbsp;</td>\n"; // auth
-            if ($GLOBALS['gbl_auto_create_rx']) {
+            if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_auto_create_rx')) {
                 echo "  <td class='billcell text-center'><input type='checkbox'" . // rx
                 " disabled /></td>\n";
             }
@@ -457,7 +457,7 @@ function echoProductLines(): void
             //
             echo "  <td class='billcell text-center' $usbillstyle>&nbsp;</td>\n"; // note codes
             echo "  <td class='billcell text-center' $usbillstyle>&nbsp;</td>\n"; // auth
-            if ($GLOBALS['gbl_auto_create_rx']) {
+            if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_auto_create_rx')) {
                 echo "  <td class='billcell text-center'>" .
                 "<input type='checkbox' name='prod[" . attr($lino) . "][rx]' value='1'" .
                 ($rx ? " checked" : "") . " /></td>\n";
@@ -579,7 +579,7 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) 
             if ($tmp_form_id) {
                 // Contraceptive method does not match existing contraception data for this visit,
                 // or there is no such data.  Open a new or existing Contraception Summary form.
-                $tmpurl = "{$GLOBALS['rootdir']}/patient_file/encounter/view_form.php" .
+                $tmpurl = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('rootdir') . "/patient_file/encounter/view_form.php" .
                     "?formname=LBFcontra&id=" . ($tmp_form_id < 0 ? 0 : urlencode((string) $tmp_form_id));
                 if (!empty($_POST['bn_save_close']) && !empty($_POST['form_has_charges'])) {
                     $tmpurl .= "&from_save_and_checkout=1";
@@ -593,7 +593,7 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) 
         if ($rapid_data_entry || (!empty($_POST['bn_save_close']) && !empty($_POST['form_has_charges']))) {
             // In rapid data entry mode or if "Save and Checkout" was clicked,
             // we go directly to the Checkout page.
-            formJump("{$GLOBALS['rootdir']}/patient_file/pos_checkout.php?framed=1" .
+            formJump(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('rootdir') . "/patient_file/pos_checkout.php?framed=1" .
             "&ptid=" . urlencode((string) $fs->pid) . "&enid=" . urlencode((string) $fs->encounter) . "&rde=" . urlencode((string) $rapid_data_entry));
         } else {
             // Otherwise return to the normal encounter summary frameset.
@@ -611,7 +611,7 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) 
 // If there was a checkout this will undo it unless the global 'void_checkout_reopen' is turned off
 // then it just reopens the fee sheet for editing
 if (!$alertmsg && (!empty($_POST['bn_reopen']) || !empty($_POST['form_reopen']))) {
-    if ($GLOBALS['void_checkout_reopen']) {
+    if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('void_checkout_reopen')) {
         BillingUtilities::doVoid(
             $fs->pid,
             $fs->encounter,
@@ -638,7 +638,7 @@ $billresult = BillingUtilities::getBillingByEncounter($fs->pid, $fs->encounter, 
 <head>
 <?php Header::setupHeader(['common', 'knockout', 'jquery-ui', 'jquery-ui-base']);?>
 <script>
-var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+var mypcc = <?php echo js_escape(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('phone_country_code')); ?>;
 var diags = new Array();
 
 <?php
@@ -696,7 +696,7 @@ function reinitForm(){
                 response( cache[ term ] );
                 return;
             }
-            $.getJSON( "<?php echo $GLOBALS['web_root'] ?>/interface/billing/ub04_helpers.php", request, function( data, status, xhr ) {
+            $.getJSON( "<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('web_root') ?>/interface/billing/ub04_helpers.php", request, function( data, status, xhr ) {
                 cache[ term ] = data;
                 response( data );
             })
@@ -742,7 +742,7 @@ function voidwrap(form_reason, form_notes) {
 function validate(f) {
  if (f.bn_reopen) {
   var reopening = f.bn_reopen.clicked;
-  <?php if ($GLOBALS['void_checkout_reopen']) { ?>
+  <?php if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('void_checkout_reopen')) { ?>
   var voiding = reopening && f.bn_reopen.clicked == 2;
   <?php } else { ?>
   var voiding = false;
@@ -1102,7 +1102,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
 
                                 // Create one more drop-list, for Products.
-                            if ($GLOBALS['sell_non_drug_products']) {
+                            if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('sell_non_drug_products')) {
                                 ++$i;
                                 echo ($i <= 1) ? " <tr>\n" : "";
                                 echo "  <td class='text-center text-nowrap' width='50%'>\n";
@@ -1132,7 +1132,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 }
                             }
 
-                            $search_type = $GLOBALS['default_search_code_type'] ?? null;
+                            $search_type = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('default_search_code_type') ?? null;
                             if (!empty($_POST['search_type'])) {
                                 $search_type = $_POST['search_type'];
                             }
@@ -1273,7 +1273,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         <th class='billcell' <?php echo $liprovstyle; ?>><?php echo xlt('Provider/Warehouse');?></th>
                                         <th class='billcell'<?php echo $usbillstyle; ?>><?php echo xlt('Note Codes');?></th>
                                         <th class='billcell'<?php echo $usbillstyle; ?>><?php echo xlt('Auth');?></th>
-                                        <?php if (!empty($GLOBALS['gbl_auto_create_rx'])) { ?>
+                                        <?php if (!empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_auto_create_rx'))) { ?>
                                             <th class='billcell'><?php echo xlt('Rx'); ?></th>
                                         <?php } ?>
                                         <th class='billcell'><?php echo xlt('Delete');?></th>
@@ -1664,12 +1664,12 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <label class="col-form-label col-2"><?php echo  xlt('Rendering'); ?></label>
                                 <div class="col-10">
                                     <?php
-                                    if (empty($GLOBALS['default_rendering_provider'])) {
+                                    if (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('default_rendering_provider'))) {
                                         $default_rid = $fs->provider_id ?: 0;
                                         if (!$default_rid && $userauthorized) {
                                             $default_rid = $session->get('authUserID');
                                         }
-                                    } elseif ($GLOBALS['default_rendering_provider'] == '1') {
+                                    } elseif (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('default_rendering_provider') == '1') {
                                         $default_rid = $fs->provider_id;
                                     } else {
                                         $default_rid = $session->get('authUserID') ?? $fs->provider_id;
@@ -1687,7 +1687,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             <div class="form-row col">
                                 <?php
                                 // Supervising Provider (skip for IPPF).
-                                if (!$GLOBALS['ippf_specific']) { ?>
+                                if (!\OpenEMR\Core\OEGlobalsBag::getInstance()->get('ippf_specific')) { ?>
                                     <label class='col-form-label col-2'><?php echo xlt('Supervising'); ?></label>
                                     <div class="col-10">
                                     <?php
@@ -1727,7 +1727,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         echo " style='background-color: #cc0000'; color: var(--white)'";
                                     } ?>><?php echo xla('Save');?></button>
                                     <button type='submit' name='bn_save_stay' class='btn btn-primary btn-save' value='<?php echo xla('Save Current'); ?>'><?php echo xlt('Save Current'); ?></button>
-                                    <?php if ($GLOBALS['ippf_specific'] && (AclMain::aclCheckForm('admin', 'super') || AclMain::aclCheckForm('acct', 'bill') || AclMain::aclCheckForm('acct', 'disc'))) { // start ippf-only stuff ?>
+                                    <?php if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('ippf_specific') && (AclMain::aclCheckForm('admin', 'super') || AclMain::aclCheckForm('acct', 'bill') || AclMain::aclCheckForm('acct', 'disc'))) { // start ippf-only stuff ?>
                                         <?php if ($fs->hasCharges) { // unbilled with charges ?>
                                                 <button type='submit' name='bn_save_close' class='btn btn-primary btn-save' value='<?php echo xla('Save and Checkout'); ?>'><?php echo xlt('Save and Checkout'); ?></button>
                                         <?php } else { // unbilled with no charges ?>
@@ -1744,7 +1744,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     </button>
     <button type='submit' class='btn btn-secondary btn-undo' name='bn_reopen'
      onclick='return this.clicked = 2;' value='<?php echo xla('Void All Checkouts and Re-Open'); ?>'>
-                                            <?php if ($GLOBALS['void_checkout_reopen']) {
+                                            <?php if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('void_checkout_reopen')) {
                                                 echo xlt('Void Checkout and Re-Open');
                                             } else {
                                                 echo xla('Re-Open');
@@ -1761,7 +1761,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         <?php echo xlt('Add More Items'); ?>
                                     </button>
                                 <?php } // end billed ?>
-                                    <button type='button' class='btn btn-secondary btn-cancel' onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'">
+                                    <button type='button' class='btn btn-secondary btn-cancel' onclick="top.restoreSession();location='<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('form_exit_url'); ?>'">
                                     <?php echo xlt('Cancel');?></button>
                                     <input type='hidden' name='form_has_charges' value='<?php echo $fs->hasCharges ? 1 : 0; ?>' />
                                     <input type='hidden' name='form_checksum' value='<?php echo attr($current_checksum); ?>' />
@@ -1798,7 +1798,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 } ?>
 <?php require_once("review/initialize_review.php"); ?>
 <?php require_once("code_choice/initialize_code_choice.php"); ?>
-<?php if ($GLOBALS['ippf_specific']) {
+<?php if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('ippf_specific')) {
     require_once("contraception_products/initialize_contraception_products.php");
 } ?>
 <script>

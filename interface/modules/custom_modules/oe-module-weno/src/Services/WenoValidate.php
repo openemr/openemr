@@ -51,7 +51,7 @@ class WenoValidate extends ModuleService
     {
         $gbl = $this->getVendorGlobals();
         $gbl['weno_encryption_key'] = $key;
-        $GLOBALS['weno_encryption_key'] = $key;
+        \OpenEMR\Core\OEGlobalsBag::getInstance()->set('weno_encryption_key', $key);
         // save the new key to the database.
         // save will also set the global to stay current.
         $this->saveVendorGlobals($gbl);

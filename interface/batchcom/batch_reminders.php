@@ -15,9 +15,9 @@
  */
 
 require_once(__DIR__ . "/../../interface/globals.php");
-require_once($GLOBALS['srcdir'] . "/maviq_phone_api.php");
-require_once($GLOBALS['srcdir'] . "/reminders.php");
-require_once($GLOBALS['srcdir'] . "/report_database.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/maviq_phone_api.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/reminders.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/report_database.inc.php");
 
 use OpenEMR\Core\Header;
 
@@ -31,8 +31,8 @@ $report_id = $_GET['report_id'] ?: "";
 // is increased, this cpu intensive script will have less affect on the performance
 // of other server activities, albeit it may negatively impact the performance
 // of this script (note this is only applicable for linux).
-if (empty($report_id) && !empty($GLOBALS['pat_rem_clin_nice'])) {
-    proc_nice($GLOBALS['pat_rem_clin_nice']);
+if (empty($report_id) && !empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('pat_rem_clin_nice'))) {
+    proc_nice(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('pat_rem_clin_nice'));
 }
 ?>
 

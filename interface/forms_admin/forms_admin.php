@@ -128,7 +128,7 @@ $bigdata = getRegistered("%") or $bigdata = false;
                                     "select priority, category, nickname, aco_spec from registry where id = ?",
                                     [$registry['id']]
                                 );
-                                $patientPortalCompliant = file_exists($GLOBALS['srcdir'] . "/../interface/forms/" . $registry['directory'] . "/patient_portal.php");
+                                $patientPortalCompliant = file_exists(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/../interface/forms/" . $registry['directory'] . "/patient_portal.php");
                                 ?>
                             <tr>
                                 <td>
@@ -226,9 +226,9 @@ $bigdata = getRegistered("%") or $bigdata = false;
                             <tr>
                                 <td colspan="2">
                                     <?php
-                                    $form_title_file = @file($GLOBALS['srcdir'] . "/../interface/forms/$fname/info.txt");
+                                    $form_title_file = @file(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/../interface/forms/$fname/info.txt");
                                     $form_title = $form_title_file ? $form_title_file[0] : $fname;
-                                    $patientPortalCompliant = file_exists($GLOBALS['srcdir'] . "/../interface/forms/" . $fname . "/patient_portal.php");
+                                    $patientPortalCompliant = file_exists(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/../interface/forms/" . $fname . "/patient_portal.php");
                                     ?>
                                     <?php
                                     echo text(xl_form_title($form_title));

@@ -23,7 +23,7 @@ if ($isAuthorized !== true) {
     $encounter = $_REQUEST['enc'] ?: '0';
     $action = $_REQUEST['action'] ?? false ?: false;
     $payerid = $_REQUEST['id'] ?? '0' ?: '0';
-    $imgurl = $GLOBALS['images_static_relative'];
+    $imgurl = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('images_static_relative');
     if ($action == 'payer_defaults') {
         $ub04id = get_payer_defaults($payerid);
     } elseif ($pid && $encounter) {
@@ -53,7 +53,7 @@ $(function() {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = false; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php echo(",validateOnBlur: false, formatDate: 'mdy', format: 'mdy'") ?>
     });
 

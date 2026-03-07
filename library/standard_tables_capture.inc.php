@@ -29,13 +29,13 @@ function temp_copy($filename, $type)
         return false;
     }
 
-    if (!file_exists($GLOBALS['temporary_files_dir'] . "/" . $type)) {
-        if (!mkdir($GLOBALS['temporary_files_dir'] . "/" . $type, 0777, true)) {
+    if (!file_exists(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/" . $type)) {
+        if (!mkdir(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/" . $type, 0777, true)) {
                 return false;
         }
     }
 
-    if (copy($filename, $GLOBALS['temporary_files_dir'] . "/" . $type . "/" . basename((string) $filename))) {
+    if (copy($filename, \OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/" . $type . "/" . basename((string) $filename))) {
         return true;
     } else {
         return false;
@@ -46,13 +46,13 @@ function temp_copy($filename, $type)
 // $type (RXNORM, SNOMED etc.)
 function temp_unarchive($filename, $type)
 {
-    $filename = $GLOBALS['temporary_files_dir'] . "/" . $type . "/" . basename((string) $filename);
+    $filename = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/" . $type . "/" . basename((string) $filename);
     if (!file_exists($filename)) {
         return false;
     } elseif ($type == "ICD10") {
         // copy zip file contents to /tmp/ICD10 due to CMS zip file
         $zip = new ZipArchive();
-        $path = $GLOBALS['temporary_files_dir'] . "/" . $type;
+        $path = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/" . $type;
         if ($zip->open($filename) === true) {
             for ($i = 0; $i < $zip->numFiles; $i++) {
                 $sub_dir_filename = $zip->getNameIndex($i);
@@ -70,7 +70,7 @@ function temp_unarchive($filename, $type)
         // unzip the file
         $zip = new ZipArchive();
         if ($zip->open($filename) === true) {
-            if (!($zip->extractTo($GLOBALS['temporary_files_dir'] . "/" . $type))) {
+            if (!($zip->extractTo(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/" . $type))) {
                 return false;
             }
             $zip->close();
@@ -90,8 +90,8 @@ function rxnorm_import($is_windows_flag)
         OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
     }
     // set paths
-    $dirScripts = $GLOBALS['temporary_files_dir'] . "/RXNORM/scripts/mysql";
-    $dir = $GLOBALS['temporary_files_dir'] . "/RXNORM/rrf";
+    $dirScripts = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/RXNORM/scripts/mysql";
+    $dir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/RXNORM/rrf";
     $dir = str_replace('\\', '/', $dir);
 
     $rx_info = [];
@@ -216,7 +216,7 @@ function snomed_import($us_extension = false)
     ];
 
     // set up paths
-    $dir_snomed = $GLOBALS['temporary_files_dir'] . "/SNOMED/";
+    $dir_snomed = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/SNOMED/";
     $sub_path = "Terminology/Content/";
     $dir = $dir_snomed;
     $dir = str_replace('\\', '/', $dir);
@@ -414,7 +414,7 @@ function snomedRF2_import()
     ];
 
     // set up paths
-    $dir_snomed = $GLOBALS['temporary_files_dir'] . "/SNOMED/";
+    $dir_snomed = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/SNOMED/";
     // $sub_path="Terminology/Content/";
     $sub_path = "Full/Terminology/";
     $dir = $dir_snomed;
@@ -497,7 +497,7 @@ function icd_import($type)
     }
 
     // set up paths
-    $dir_icd = $GLOBALS['temporary_files_dir'] . "/" . $type . "/";
+    $dir_icd = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/" . $type . "/";
     $dir = str_replace('\\', '/', $dir_icd);
     $db_load = '';
     $db_update = '';
@@ -608,7 +608,7 @@ function valueset_import($type)
         OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($codeTypeInstalledEvent, CodeTypeInstalledEvent::EVENT_INSTALLED_PRE);
     }
 
-    $dir_valueset = $GLOBALS['temporary_files_dir'] . "/" . $type . "/";
+    $dir_valueset = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/" . $type . "/";
     $dir = str_replace('\\', '/', $dir_valueset);
 
     // Settings to drastically speed up import with InnoDB
@@ -689,8 +689,8 @@ function valueset_import($type)
 // $type (RXNORM etc.)
 function temp_dir_cleanup($type): void
 {
-    if (is_dir($GLOBALS['temporary_files_dir'] . "/" . $type)) {
-        rmdir_recursive($GLOBALS['temporary_files_dir'] . "/" . $type);
+    if (is_dir(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/" . $type)) {
+        rmdir_recursive(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/" . $type);
     }
 }
 

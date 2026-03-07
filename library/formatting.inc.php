@@ -65,15 +65,15 @@ function oeTimestampFormatDateTime($timestamp)
         $timestamp = strtotime(date('Y-m-d H:i'));
     }
 
-    if ($GLOBALS['time_display_format'] == 0) {
+    if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('time_display_format') == 0) {
         $timeFormat = 'H:i';
     } else { // $GLOBALS['time_display_format'] == 1
         $timeFormat = 'g:i a';
     }
 
-    if ($GLOBALS['date_display_format'] == 1) { // mm/dd/yyyy
+    if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('date_display_format') == 1) { // mm/dd/yyyy
         $newDate = date('m/d/Y ' . $timeFormat, $timestamp);
-    } elseif ($GLOBALS['date_display_format'] == 2) { // dd/mm/yyyy
+    } elseif (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('date_display_format') == 2) { // dd/mm/yyyy
         $newDate = date('d/m/Y ' . $timeFormat, $timestamp);
     } else { // yyyy-mm-dd
         $newDate = date('Y-m-d ' . $timeFormat, $timestamp);
@@ -130,7 +130,7 @@ function DateFormatRead($mode = 'legacy')
     //For the 3 supported date format,the javascript code also should be twicked to display the date as per it.
     //Output of this function is given to 'ifFormat' parameter of the 'Calendar.setup'.
     //This will show the date as per the global settings.
-    if ($GLOBALS['date_display_format'] == 0) {
+    if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('date_display_format') == 0) {
         if ($mode == 'legacy') {
             return "%Y-%m-%d";
         } elseif ($mode == 'validateJS') {
@@ -138,7 +138,7 @@ function DateFormatRead($mode = 'legacy')
         } else { //$mode=='jquery-datetimepicker'
             return "Y-m-d";
         }
-    } elseif ($GLOBALS['date_display_format'] == 1) {
+    } elseif (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('date_display_format') == 1) {
         if ($mode == 'legacy') {
             return "%m/%d/%Y";
         } elseif ($mode == 'validateJS') {
@@ -146,7 +146,7 @@ function DateFormatRead($mode = 'legacy')
         } else { //$mode=='jquery-datetimepicker'
             return "m/d/Y";
         }
-    } elseif ($GLOBALS['date_display_format'] == 2) {
+    } elseif (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('date_display_format') == 2) {
         if ($mode == 'legacy') {
             return "%d/%m/%Y";
         } elseif ($mode == 'validateJS') {

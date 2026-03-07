@@ -48,8 +48,8 @@ class ImmunizationController extends AbstractActionController
         $data = $request->getPost();
         $isFormRefresh = 'true';
         $form_code = $data['codes'] ?? [];
-        $from_date = $request->getPost('from_date', null) ? $this->CommonPlugin()->date_format($request->getPost('from_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7));
-        $to_date = $request->getPost('to_date', null) ? $this->CommonPlugin()->date_format($request->getPost('to_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
+        $from_date = $request->getPost('from_date', null) ? $this->CommonPlugin()->date_format($request->getPost('from_date', null), 'yyyy-mm-dd', \OpenEMR\Core\OEGlobalsBag::getInstance()->get('date_display_format')) : date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7));
+        $to_date = $request->getPost('to_date', null) ? $this->CommonPlugin()->date_format($request->getPost('to_date', null), 'yyyy-mm-dd', \OpenEMR\Core\OEGlobalsBag::getInstance()->get('date_display_format')) : date('Y-m-d');
         $form_get_hl7 = '';
         $patient_id = $request->getPost('patient_id', null);
         //pagination
@@ -195,8 +195,8 @@ class ImmunizationController extends AbstractActionController
         $key_val = '';
         if (isset($data['hl7button'])) {
             $form_code = $data['codes'] ?? [];
-            $from_date = $request->getPost('from_date', null) ? $this->CommonPlugin()->date_format($request->getPost('from_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7));
-            $to_date = $request->getPost('to_date', null) ? $this->CommonPlugin()->date_format($request->getPost('to_date', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
+            $from_date = $request->getPost('from_date', null) ? $this->CommonPlugin()->date_format($request->getPost('from_date', null), 'yyyy-mm-dd', \OpenEMR\Core\OEGlobalsBag::getInstance()->get('date_display_format')) : date('Y-m-d', strtotime(date('Ymd')) - (86400 * 7));
+            $to_date = $request->getPost('to_date', null) ? $this->CommonPlugin()->date_format($request->getPost('to_date', null), 'yyyy-mm-dd', \OpenEMR\Core\OEGlobalsBag::getInstance()->get('date_display_format')) : date('Y-m-d');
             $form_get_hl7 = 'true';
             $patient_id = $request->getPost('patient_id', null);
             //pagination

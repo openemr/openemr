@@ -38,7 +38,7 @@ if (isset($_GET['docUpdateId'])) {
   <div class='tab current'>
     <?php
     //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
-    $N = $GLOBALS['num_of_messages_displayed'];
+    $N = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('num_of_messages_displayed');
     $has_note = 0;
     $thisauth = AclMain::aclCheckCore('patients', 'notes');
     if ($thisauth) {
@@ -72,7 +72,7 @@ if (isset($_GET['docUpdateId'])) {
             echo "<thead>\n<tr>";
             echo "<th class='text' >" . xlt('From') . "</th>\n";
             echo "<th class='text' >" . xlt('To{{Destination}}') . "</th>\n";
-            if ($GLOBALS['messages_due_date']) {
+            if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('messages_due_date')) {
                 echo "<th class='text' >" . xlt('Due date') . "</th>\n";
             } else {
                 echo "<th class='text' >" . xlt('Date') . "</th>\n";

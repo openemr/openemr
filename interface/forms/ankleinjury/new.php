@@ -37,7 +37,7 @@ formHeader("Form: ankleinjury");
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[<?php echo xlt('Save'); ?>]</a>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" style="color: #483D8B"
+<a href="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('form_exit_url'); ?>" class="link" style="color: #483D8B"
  onclick="top.restoreSession()">[<?php echo xlt('Don\'t Save'); ?>]</a>
 <br /><br />
 
@@ -227,7 +227,7 @@ wrap="virtual name"><?php echo xlt('1.Rest
 </table>
 
 <a href="javascript:top.restoreSession();document.my_form.submit();" class="link_submit">[Save]</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<a href="<?php echo $GLOBALS['form_exit_url']; ?>" class="link" style="color: #483D8B"
+<a href="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('form_exit_url'); ?>" class="link" style="color: #483D8B"
  onclick="top.restoreSession()">[<?php echo xlt('Don\'t Save'); ?>]</a>
 </form>
 <?php

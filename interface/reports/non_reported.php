@@ -274,7 +274,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
 
     <script>
 
-        <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+        <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
 
         $(function () {
             var win = top.printLogSetup ? top : opener.top;
@@ -284,7 +284,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });

@@ -15,11 +15,11 @@
  */
 
 require_once '../../globals.php';
-require_once $GLOBALS['srcdir'] . '/lists.inc.php';
-require_once $GLOBALS['srcdir'] . '/patient.inc.php';
-require_once $GLOBALS['srcdir'] . '/options.inc.php';
-require_once $GLOBALS['fileroot'] . '/custom/code_types.inc.php';
-require_once $GLOBALS['srcdir'] . '/csv_like_join.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/lists.inc.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/patient.inc.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/csv_like_join.php';
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -36,7 +36,7 @@ $session = SessionWrapperFactory::getInstance()->getWrapper();
 ?>
 <script src="<?php echo $webroot ?>/interface/main/tabs/js/include_opener.js?v=<?php echo $v_js_includes; ?>"></script>
 <script>
-    <?php require $GLOBALS['srcdir'] . '/formatting_DateToYYYYMMDD_js.js.php'; ?>
+    <?php require \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/formatting_DateToYYYYMMDD_js.js.php'; ?>
 </script>
 <?php
 
@@ -60,7 +60,7 @@ if (!empty($_POST['form_save'])) {
 if (isset($ISSUE_TYPES['ippf_gcac'])) {
     if ($ISSUE_TYPES['ippf_gcac']) {
         // Similarly for IPPF issues.
-        require_once $GLOBALS['srcdir'] . '/ippf_issues.inc.php';
+        require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ippf_issues.inc.php';
     }
 }
 
@@ -405,7 +405,7 @@ function getCodeText($code)
     ///////////
     ?>
 
-    <?php require $GLOBALS['srcdir'] . "/restoreSession.php"; ?>
+    <?php require \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"; ?>
 
     ///////////////////////////
     function onActiveCodeSelected() {
@@ -722,7 +722,7 @@ function getCodeText($code)
             <?php $datetimepicker_timepicker = true; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+            <?php require \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma
             ?>
         });
@@ -912,7 +912,7 @@ function getCodeText($code)
                                     generate_form_field(['data_type' => 1, 'field_id' => 'occur', 'list_id' => 'occurrence', 'empty_title' => 'SKIP'], ($irow['occurrence'] ?? null));
                                     ?>
                                 </div>
-                                <div class="form-group col-sm-12 col-md-4 <?php echo ($GLOBALS['ippf_specific']) ? 'd-none' : '';?>">
+                                <div class="form-group col-sm-12 col-md-4 <?php echo (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('ippf_specific')) ? 'd-none' : '';?>">
                                     <label for="form_outcome"><?php echo xlt('Outcome'); ?>:</label>
                                     <?php
                                     echo generate_select_list('form_outcome', 'outcome', ($irow['outcome'] ?? null), '', '', '', 'outcomeClicked(this);');
@@ -955,7 +955,7 @@ function getCodeText($code)
                                     <label class="col-form-label" for="form_referredby"><?php echo xlt('Referred by'); ?>:</label>
                                     <input type='text' name='form_referredby' id='form_referredby' class='form-control' value='<?php echo attr($irow['referredby'] ?? '') ?>' title='<?php echo xla('Referring physician and practice'); ?>' />
                                 </div>
-                                <div class="form-group col-sm-12 col-md-4 <?php echo ($GLOBALS['ippf_specific']) ? 'd-none' : ''; ?>">
+                                <div class="form-group col-sm-12 col-md-4 <?php echo (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('ippf_specific')) ? 'd-none' : ''; ?>">
                                     <label class="col-form-label" for="form_destination"><?php echo xlt('Destination'); ?>:</label>
                                     <?php if (true) { ?>
                                         <input type='text' class='form-control' name='form_destination' id='form_destination' value='<?php echo attr($irow['destination'] ?? '') ?>' style='width:100%' title='GP, Secondary care specialist, etc.' />

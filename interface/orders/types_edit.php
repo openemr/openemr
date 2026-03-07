@@ -113,7 +113,7 @@ function recursiveDelete($typeid): void
 
     <script>
 
-        <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+        <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
 
         // The name of the form field for find-code popup results.
         var rcvarname;

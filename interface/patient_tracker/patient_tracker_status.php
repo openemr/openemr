@@ -68,7 +68,7 @@ if (!empty($_POST['statustype'])) {
         // if an encounter is found it is returned to be carried forward with status changes.
         // otherwise 0 which is table default.
         $is_tracker = is_tracker_encounter_exist($apptdate, $appttime, $tkpid, $pceid);
-        if ($GLOBALS['auto_create_new_encounters'] && $apptdate == date('Y-m-d') && (is_checkin($status) == '1') && !$is_tracker) {
+        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('auto_create_new_encounters') && $apptdate == date('Y-m-d') && (is_checkin($status) == '1') && !$is_tracker) {
             # Gather information for encounter fields
             $genenc = sqlQuery("select pc_catid as category, pc_hometext as reason, pc_aid as provider, pc_facility as facility, pc_billing_location as billing_facility " .
                       "from openemr_postcalendar_events where pc_eid =? ", [$pceid]);

@@ -164,7 +164,7 @@ function gnrtCCR($ccr, $raw = "no", $requested_by = ""): void
                     return;
         }
 
-        $tempDir = $GLOBALS['temporary_files_dir'];
+        $tempDir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir');
         $zipName = $tempDir . "/" . getReportFilename() . "-ccr.zip";
         if (file_exists($zipName)) {
                     unlink($zipName);
@@ -258,7 +258,7 @@ function viewCCD($ccr, $raw = "no", $requested_by = ""): void
             return;
         }
 
-        $tempDir = $GLOBALS['temporary_files_dir'];
+        $tempDir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir');
         $zipName = $tempDir . "/" . getReportFilename() . "-ccd.zip";
         if (file_exists($zipName)) {
             unlink($zipName);

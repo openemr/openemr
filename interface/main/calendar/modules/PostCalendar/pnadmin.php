@@ -467,7 +467,7 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
     //=================================================================
 
     // create translations if applicable
-    if (($GLOBALS['translate_appt_categories']) && ($_SESSION['language_choice'] > 1)) {
+    if ((\OpenEMR\Core\OEGlobalsBag::getInstance()->get('translate_appt_categories')) && ($_SESSION['language_choice'] > 1)) {
         $sizeAllCat = count($all_categories);
         for ($m = 0; $m < $sizeAllCat; $m++) {
             $tempCategory = $all_categories[$m]["name"];
@@ -496,8 +496,8 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
     $tpl->assign('pcDir', $modir);
     $tpl->assign('action', pnModURL(__POSTCALENDAR__, 'admin', 'categoriesConfirm'));
     $tpl->assign('adminmenu', postcalendar_adminmenu("category"));
-    $tpl->assign('BGCOLOR2', $GLOBALS['style']['BGCOLOR2']);
-    $tpl->assign('css_header', $GLOBALS['css_header']);
+    $tpl->assign('BGCOLOR2', \OpenEMR\Core\OEGlobalsBag::getInstance()->get('style')['BGCOLOR2']);
+    $tpl->assign('css_header', \OpenEMR\Core\OEGlobalsBag::getInstance()->get('css_header'));
     $tpl->assign('_PC_REP_CAT_TITLE_S', _PC_REP_CAT_TITLE_S);
     $tpl->assign('_PC_NEW_CAT_TITLE_S', _PC_NEW_CAT_TITLE_S);
     $tpl->assign('_PC_CAT_NAME', _PC_CAT_NAME);

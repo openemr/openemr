@@ -105,7 +105,7 @@ class sms_tmb4 implements sms_interface
     function _send_curl($request)
     {
         /* Initiate a cURL session */
-        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+        $httpVerifySsl = (bool) (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
         $ch = curl_init();
 
         /* Set cURL variables */

@@ -48,7 +48,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
     <script>
 
-        var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+        var mypcc = <?php echo js_escape(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('phone_country_code')); ?>;
 
         var el_pt_name;
         var el_pt_id;
@@ -345,7 +345,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                 $sql = "SELECT DISTINCT TABLE_NAME as encounter_table, COLUMN_NAME as encounter_column " .
                     "FROM INFORMATION_SCHEMA.COLUMNS " .
                     "WHERE COLUMN_NAME IN('encounter', 'encounter_id') AND TABLE_SCHEMA = ?";
-                $res = sqlStatement($sql, [$GLOBALS['adodb']['db']->database]);
+                $res = sqlStatement($sql, [\OpenEMR\Core\OEGlobalsBag::getInstance()->get('adodb')['db']->database]);
                 while ($tbl = sqlFetchArray($res)) {
                     $tables[] = $tbl;
                 }
@@ -359,7 +359,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
                     if ($PRODUCTION) {
                         sqlStatement($sql, [$target, $source['encounter']]);
-                        if ($GLOBALS['adodb']['db']->_connectionID->affected_rows) {
+                        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('adodb')['db']->_connectionID->affected_rows) {
                             echo "<br />$sql (" . text($target) . ")" . " : (" . text($source['encounter']) . ")";
                             logMergeEvent(
                                 $target_pid,
@@ -380,7 +380,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                     sqlStatement($sql, [$source['encounter']]);
                     $sql = "DELETE FROM `form_encounter` WHERE `encounter` = ?";
                     sqlStatement($sql, [$source['encounter']]);
-                    if ($GLOBALS['adodb']['db']->_connectionID->affected_rows) {
+                    if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('adodb')['db']->_connectionID->affected_rows) {
                         echo "<br />$sql" . text($source['encounter']);
                         logMergeEvent(
                             $target_pid,

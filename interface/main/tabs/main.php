@@ -19,7 +19,7 @@
 
 $sessionAllowWrite = true;
 require_once(__DIR__ . '/../../globals.php');
-require_once $GLOBALS['srcdir'] . '/ESign/Api.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Api.php';
 
 use ESign\Api;
 use OpenEMR\Common\Acl\AclMain;
@@ -79,7 +79,7 @@ if (
 }
 // this will not allow copy/paste of the link to this main.php page or a refresh of this main.php page
 //  (default behavior, however, this behavior can be turned off in the prevent_browser_refresh global)
-if ($GLOBALS['prevent_browser_refresh'] > 1) {
+if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('prevent_browser_refresh') > 1) {
     unset($_SESSION['token_main_php']);
 }
 
@@ -96,7 +96,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
     <script>
         // This is to prevent users from losing data by refreshing or backing out of OpenEMR.
         //  (default behavior, however, this behavior can be turned off in the prevent_browser_refresh global)
-        <?php if ($GLOBALS['prevent_browser_refresh'] > 0) { ?>
+        <?php if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('prevent_browser_refresh') > 0) { ?>
         window.addEventListener('beforeunload', (event) => {
             if (!timed_out) {
                 event.returnValue = <?php echo xlj('Recommend not leaving or refreshing or you may lose data.'); ?>;
@@ -104,7 +104,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
         });
         <?php } ?>
 
-        <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+        <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
 
         // Since this should be the parent window, this is to prevent calls to the
         // window that opened this window. For example when a new window is opened
@@ -119,25 +119,25 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
         // some globals to access using top.variable
         // note that 'let' or 'const' does not allow global scope here.
         // only use var
-        var isPortalEnabled = "<?php echo $GLOBALS['portal_onsite_two_enable'] ?>";
+        var isPortalEnabled = "<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('portal_onsite_two_enable') ?>";
         // Set the csrf_token_js token that is used in the below js/tabs_view_model.js script
         var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
-        var userDebug = <?php echo js_escape($GLOBALS['user_debug']); ?>;
+        var userDebug = <?php echo js_escape(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('user_debug')); ?>;
         var webroot_url = <?php echo js_escape($web_root); ?>;
         var jsLanguageDirection = <?php echo js_escape($_SESSION['language_direction']); ?> ||
         'ltr';
         var jsGlobals = {};
         // used in tabs_view_model.js.
-        jsGlobals.enable_group_therapy = <?php echo js_escape($GLOBALS['enable_group_therapy']); ?>;
+        jsGlobals.enable_group_therapy = <?php echo js_escape(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('enable_group_therapy')); ?>;
         jsGlobals.languageDirection = jsLanguageDirection;
-        jsGlobals.date_display_format = <?php echo js_escape($GLOBALS['date_display_format']); ?>;
-        jsGlobals.time_display_format = <?php echo js_escape($GLOBALS['time_display_format']); ?>;
-        jsGlobals.timezone = <?php echo js_escape($GLOBALS['gbl_time_zone'] ?? ''); ?>;
-        jsGlobals.assetVersion = <?php echo js_escape($GLOBALS['v_js_includes']); ?>;
-        var WindowTitleAddPatient = <?php echo($GLOBALS['window_title_add_patient_name'] ? 'true' : 'false'); ?>;
+        jsGlobals.date_display_format = <?php echo js_escape(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('date_display_format')); ?>;
+        jsGlobals.time_display_format = <?php echo js_escape(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('time_display_format')); ?>;
+        jsGlobals.timezone = <?php echo js_escape(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_time_zone') ?? ''); ?>;
+        jsGlobals.assetVersion = <?php echo js_escape(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('v_js_includes')); ?>;
+        var WindowTitleAddPatient = <?php echo(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('window_title_add_patient_name') ? 'true' : 'false'); ?>;
         var WindowTitleBase = <?php echo js_escape($openemr_name); ?>;
-        const isSms = "<?php echo !empty($GLOBALS['oefax_enable_sms'] ?? null); ?>";
-        const isFax = "<?php echo !empty($GLOBALS['oefax_enable_fax']) ?? null?>";
+        const isSms = "<?php echo !empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? null); ?>";
+        const isFax = "<?php echo !empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('oefax_enable_fax')) ?? null?>";
         const isServicesOther = (isSms || isFax);
         var telemetryEnabled = <?php echo js_escape((new TelemetryService())->isTelemetryEnabled()); ?>;
 
@@ -301,7 +301,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
         // set up global translations for js
         function setupI18n(lang_id) {
             restoreSession();
-            return fetch(<?php echo js_escape($GLOBALS['webroot']) ?> +"/library/ajax/i18n_generator.php?lang_id=" + encodeURIComponent(lang_id) + "&csrf_token_form=" + encodeURIComponent(csrf_token_js), {
+            return fetch(<?php echo js_escape(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot')) ?> +"/library/ajax/i18n_generator.php?lang_id=" + encodeURIComponent(lang_id) + "&csrf_token_form=" + encodeURIComponent(csrf_token_js), {
                 credentials: 'same-origin',
                 method: 'GET'
             }).then((response) => {
@@ -356,23 +356,21 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
     <?php
     // Below code block is to prepare certain elements for deciding what links to show on the menu
     // prepare Ensora eRx globals that are used in creating the menu
-    if ($GLOBALS['erx_enable']) {
+    if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('erx_enable')) {
         $newcrop_user_role_sql = sqlQuery("SELECT `newcrop_user_role` FROM `users` WHERE `username` = ?", [$_SESSION['authUser']]);
-        $GLOBALS['newcrop_user_role'] = $newcrop_user_role_sql['newcrop_user_role'];
-        if ($GLOBALS['newcrop_user_role'] === 'erxadmin') {
-            $GLOBALS['newcrop_user_role_erxadmin'] = 1;
+        \OpenEMR\Core\OEGlobalsBag::getInstance()->set('newcrop_user_role', $newcrop_user_role_sql['newcrop_user_role']);
+        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('newcrop_user_role') === 'erxadmin') {
+            \OpenEMR\Core\OEGlobalsBag::getInstance()->set('newcrop_user_role_erxadmin', 1);
         }
     }
 
     // prepare track anything to be used in creating the menu
     $track_anything_sql = sqlQuery("SELECT `state` FROM `registry` WHERE `directory` = 'track_anything'");
-    $GLOBALS['track_anything_state'] = ($track_anything_sql['state'] ?? 0);
+    \OpenEMR\Core\OEGlobalsBag::getInstance()->set('track_anything_state', $track_anything_sql['state'] ?? 0);
     // prepare Issues popup link global that is used in creating the menu
-    $GLOBALS['allow_issue_menu_link'] = (
-        (AclMain::aclCheckCore('encounters', 'notes', '', 'write')
-        || AclMain::aclCheckCore('encounters', 'notes_a', '', 'write'))
-        && AclMain::aclCheckCore('patients', 'med', '', 'write')
-    );
+    \OpenEMR\Core\OEGlobalsBag::getInstance()->set('allow_issue_menu_link', (AclMain::aclCheckCore('encounters', 'notes', '', 'write')
+    || AclMain::aclCheckCore('encounters', 'notes_a', '', 'write'))
+    && AclMain::aclCheckCore('patients', 'med', '', 'write'));
 
     // we use twig templates here so modules can customize some of these files
     // at some point we will twigify all of main.php so we can extend it.
@@ -384,7 +382,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
     <?php
     echo $twig->render("interface/main/tabs/therapy_group_template.html.twig", []);
     echo $twig->render("interface/main/tabs/user_data_template.html.twig", [
-        'openemr_name' => $GLOBALS['openemr_name']
+        'openemr_name' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('openemr_name')
     ]);
     // Collect the menu then build it
     $menuMain = new MainMenuRole(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
@@ -459,7 +457,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
     ?>
     <div id="mainBox" <?php echo $disp_mainBox ?>>
         <nav class="navbar navbar-expand-xl navbar-light bg-light py-0">
-            <?php if ($GLOBALS['display_main_menu_logo'] === '1') {
+            <?php if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('display_main_menu_logo') === '1') {
                 $bag = OEGlobalsBag::getInstance();
                 $logoLinkDefault = 'https://www.open-emr.org/';
                 $logoTitleDefault = xl('OpenEMR Website');
@@ -476,7 +474,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="mainMenu" data-bind="template: {name: 'menu-template', data: application_data}"></div>
-            <?php if ($GLOBALS['search_any_patient'] != 'none') : ?>
+            <?php if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('search_any_patient') != 'none') : ?>
                 <form name="frm_search_globals" class="form-inline">
                     <div class="input-group">
                         <input type="text" id="anySearchBox" class="form-control-sm <?php echo $any_search_class ?> form-control" name="anySearchBox" placeholder="<?php echo xla("Search by any demographics") ?>" autocomplete="off">

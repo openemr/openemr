@@ -226,7 +226,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
 
   </head>
   <!--Need a margin-top due to fixed nav, move to style.css to separate view stuff? Long way from that... -->
-  <body class="bgcolor2" background="<?php echo $GLOBALS['backpic']?>" style="margin:5px 0 0 0;">
+  <body class="bgcolor2" background="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('backpic')?>" style="margin:5px 0 0 0;">
 
   <div id="tabs_left" class="tabs ui-tabs ui-widget-content ui-corner-all nodisplay">
       <ul class="ui-tabs-nav ui-helper-reset ui-helper-clearfix ui-corner-all">
@@ -773,7 +773,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                     <!-- start  PMH Right -->
                     <div id="PMH_right" name="PMH_right" class="exam_section_right borderShadow">
                       <a class="nodisplay left_PMSFH_tab" id="right-panel-link" href="#right-panel">
-                        <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/PMSFHx.png">
+                        <img src="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/eye_mag/images/PMSFHx.png">
                       </a>
                       <?php display_draw_section("PMH", $encounter, $pid); ?>
                       <div id="QP_PMH" name="QP_PMH" class="QP_class" style="max-height:100%">
@@ -1405,12 +1405,12 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                           <td name="W_wide" title="<?php echo xla('Binocular Pupillary Diameter - Distance'); ?>"><?php echo xlt('PD-D{{abbreviation for Binocular Pupillary Diameter - Distance}}'); ?></td>
                           <td name="W_wide" title="<?php echo xla('Binocular Pupillary Diameter - Near'); ?>"><?php echo xlt('PD-N{{abbreviation for Binocular Pupillary Diameter - Near}}'); ?></td>
                           <td name="W_wide" title="<?php echo xla('Lens Material'); ?>" colspan="2">
-                            <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_Lens_Material" target="RTop"
+                            <a href="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/super/edit_list.php?list_id=Eye_Lens_Material" target="RTop"
                                   title="<?php echo xla('Click here to edit list of available Lens Materials'); ?>"
                                   name="Lens_mat"><span class="underline"><?php echo xlt('Lens Material'); ?></span> <i class="fa fa-pencil-alt fa-fw"></i> </a>
                           </td>
                           <td name="W_wide2" colspan="4" rowspan="4">
-                            <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_Lens_Treatments" target="RTop"
+                            <a href="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/super/edit_list.php?list_id=Eye_Lens_Treatments" target="RTop"
                                   title="<?php echo xla('Click here to edit list of available Lens Treatment Options'); ?>"
                                   name="Lens_txs"><span class="underline"><?php echo xlt('Lens Treatments'); ?></span> <i class="fa fa-pencil-alt fa-fw"></i> </a>
                             <br />
@@ -1618,15 +1618,15 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                             <table>
                               <tr>
                                 <td></td>
-                                <td><a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=CTLManufacturer" target="RTop"
+                                <td><a href="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/super/edit_list.php?list_id=CTLManufacturer" target="RTop"
                                   title="<?php echo xla('Click here to Edit the Manufacturer List'); ?>"
                                   name="CTL"><?php echo xlt('Manufacturer'); ?> <i class="fa fa-pencil-alt fa-fw"></i> </a>
                                 </td>
-                                <td><a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=CTLSupplier" target="RTop"
+                                <td><a href="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/super/edit_list.php?list_id=CTLSupplier" target="RTop"
                                   title="<?php echo xla('Click here to Edit the Supplier List'); ?>"
                                   name="CTL"><?php echo xlt('Supplier'); ?> <i class="fa fa-pencil-alt fa-fw"></i> </a>
                                 </td>
-                                <td><a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=CTLBrand" target="RTop"
+                                <td><a href="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/super/edit_list.php?list_id=CTLBrand" target="RTop"
                                   title="<?php echo xla('Click here to Edit the Contact Lens Brand List'); ?>"
                                   name="CTL"><?php echo xlt('Brand'); ?> <i class="fa fa-pencil-alt fa-fw"></i> </a>
                                 </td>
@@ -2013,7 +2013,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                 <span class="BAR2_kb" title="<?php echo xla('Click to display shorthand field names.'); ?>" class="ke"><b><?php echo xlt('Shorthand'); ?></b>
                 </span>
 
-                <a  target="_shorthand" href="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/help.php">
+                <a  target="_shorthand" href="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/eye_mag/help.php">
                 <i title="<?php echo xla('Click for Shorthand Help.'); ?>" class="fa fa-info-circle fa-1"></i>
                 </a><br />
                 <textarea id="ALL_keyboard_left" name="ALL_keyboard_left" tabindex='1000'></textarea>
@@ -3577,7 +3577,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                       <span class="anchor" id="IMPPLAN_anchor"></span>
                       <a class="closeButton_5 far fa-file-pdf"
                          title="<?php echo xla('Once completed, view and store this encounter as a PDF file'); ?>"
-                         onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/report/custom_report.php?printable=1&pdf=1&<?php echo attr_url($form_folder) . "_" . attr_url($form_id) . "=" . attr_url($encounter); ?>&', 'Eye Report');"
+                         onclick="openNewForm('<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/patient_file/report/custom_report.php?printable=1&pdf=1&<?php echo attr_url($form_folder) . "_" . attr_url($form_id) . "=" . attr_url($encounter); ?>&', 'Eye Report');"
                          href="JavaScript:void(0);">
 
                       </a>
@@ -3743,7 +3743,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                    */
                                 ?>
                               <script>
-                                  var default_search_type = '<?php echo text($GLOBALS['default_search_code_type']); ?>';
+                                  var default_search_type = '<?php echo text(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('default_search_code_type')); ?>';
                               </script>
 
                               <dt class="borderShadow"><span><?php echo xlt('Coding Engine'); ?></span></dt>
@@ -3852,7 +3852,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                           <tr>
                                               <td style="padding-top:10px;" colspan="3">
                                                   <b><u><?php echo xlt('Tests Performed'); ?>:</u></b>&nbsp;
-                                                  <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_todo_done_<?php echo attr($provider_id); ?>" target="RTop"
+                                                  <a href="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/super/edit_list.php?list_id=Eye_todo_done_<?php echo attr($provider_id); ?>" target="RTop"
                                                      title="<?php echo xla('Click here to Edit this Doctor\'s Plan options') . ". \n" . xlt('Only entries with a Code are billable') . ". "; ?>"
                                                      name="provider_testing_codes" style="color:black;font-weight:600;"><i class="fa fa-pencil-alt fa-fw"></i> </a>
                                               </td>
@@ -3956,7 +3956,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                                                   echo " " . xlt('Billing'); ?>:</b></u><br />
                                                       <button id="code_me_now" ><?php echo xlt('Populate Fee Sheet'); ?></button>
                                                       <button id="open_fee_sheet"
-                                                              onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/encounter/load_form.php?formname=fee_sheet', 'Fee Sheet');" href="JavaScript:void(0);"
+                                                              onclick="openNewForm('<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/patient_file/encounter/load_form.php?formname=fee_sheet', 'Fee Sheet');" href="JavaScript:void(0);"
                                                               tabindex="-1"><?php echo xlt('Open Fee Sheet'); ?>
                                                       </button>
                                                   </div>
@@ -3999,7 +3999,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                 ?>
                               <dt class="borderShadow">
                                   <span><?php echo xlt('Next Visit Orders'); ?></span>
-                                  <a href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=Eye_todo_done_<?php echo attr($provider_id); ?>" target="RTop"
+                                  <a href="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/super/edit_list.php?list_id=Eye_todo_done_<?php echo attr($provider_id); ?>" target="RTop"
                                      title="<?php echo xla('Click here to Edit this Doctor\'s Plan options'); ?>"
                                      name="provider_todo" style="color:black;font-weight:600;"><i class="fa fa-pencil-alt fa-fw"></i> </a>
                               </dt>
@@ -4164,7 +4164,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                                             ?>
                                                             <span id='pcp_fax'><?php echo text($pcp_data['fax']); ?></span>
                                                             <span id='pcp_fax_info'>
-                                                                 <a onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/controller.php?document&view&patient_id=<?php echo attr($pid); ?>&doc_id=<?php echo attr($FAX_PCP['DOC_ID']); ?>', 'PCP: Fax Report');"
+                                                                 <a onclick="openNewForm('<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'); ?>/controller.php?document&view&patient_id=<?php echo attr($pid); ?>&doc_id=<?php echo attr($FAX_PCP['DOC_ID']); ?>', 'PCP: Fax Report');"
                                                                     href='JavaScript:void(0);'
                                                                     title='<?php echo xla('View the Summary Report sent via Fax Server on') . "\t " . attr($FAX_PCP['COMPLETED_DATE']); ?>'>
                                                                   <i class='far fa-file-pdf fa-fw'></i></a>
@@ -4193,7 +4193,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                                         if ($FAX_REF['ID'] ?? '') { //it is here already, make them print and manually fax it.  Show icon ?>
                                                              <span id='ref_fax'><?php echo text($ref_data['fax']); ?></span>
                                                              <span id='ref_fax_info'>
-                                                                 <a onclick="openNewForm('<?php echo $GLOBALS['webroot']; ?>/controller.php?document&view&patient_id=<?php echo attr($pid); ?>&doc_id=<?php echo attr($FAX_REF['DOC_ID']); ?>', 'Refer: Fax Report');"
+                                                                 <a onclick="openNewForm('<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'); ?>/controller.php?document&view&patient_id=<?php echo attr($pid); ?>&doc_id=<?php echo attr($FAX_REF['DOC_ID']); ?>', 'Refer: Fax Report');"
                                                                     href='JavaScript:void(0);'
                                                                     title='<?php echo xla('View the Summary Report sent via Fax Server on') . "\t " . attr($FAX_REF['COMPLETED_DATE']); ?>'>
                                                                   <i class='far fa-file-pdf fa-fw'></i></a>
@@ -4317,7 +4317,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                                   echo str_replace("form-control", "", $select_pharm);
                                                 ?>
                                               </td><td class="top">
-                                                  <button onclick="editScripts('<?php echo $GLOBALS['webroot']; ?>/controller.php?prescription&list&pid=<?php echo attr($pat_data['pid']); ?>');"><?php echo xlt('eRx'); ?></button>
+                                                  <button onclick="editScripts('<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'); ?>/controller.php?prescription&list&pid=<?php echo attr($pat_data['pid']); ?>');"><?php echo xlt('eRx'); ?></button>
                                               </td></tr>
 
                                       </table>
@@ -4345,7 +4345,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
         menu_overhaul_bottom($pid, $encounter);
     }
     ?>
-  <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/jquery-panelslider/jquery.panelslider.min.js"></script>
+  <script src="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/<?php echo $form_folder; ?>/js/jquery-panelslider/jquery.panelslider.min.js"></script>
   <script>
         function openNewForm(sel, label) {
             top.restoreSession();
@@ -4470,12 +4470,12 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
             <?php
         } ?>
 
-        var base = '<?php echo $GLOBALS['webroot']; ?>';
+        var base = '<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'); ?>';
     </script>
-    <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/shorthand_eye.js"></script>
-    <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/shortcut.js-2-01-B/shortcut.js"></script>
-    <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($provider_id); ?>"></script>
-    <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/canvasdraw.js"></script>
+    <script src="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/<?php echo $form_folder; ?>/js/shorthand_eye.js"></script>
+    <script src="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/<?php echo $form_folder; ?>/js/shortcut.js-2-01-B/shortcut.js"></script>
+    <script src="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($provider_id); ?>"></script>
+    <script src="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/<?php echo $form_folder; ?>/js/canvasdraw.js"></script>
     <div id="right-panel" name="right-panel" class="panel_side" >
       <div class="text-center" style="margin-top: 10px;">
         <span class="fa fa-file-alt" id="PANEL_TEXT" name="PANEL_TEXT"></span>

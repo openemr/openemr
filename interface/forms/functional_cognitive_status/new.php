@@ -17,8 +17,8 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/csv_like_join.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -93,7 +93,7 @@ $check_res = $formid ? $check_res : [];
             id = id.split('tb_row_');
             var checkId = '_' + id[1];
             document.getElementById('clickId').value = checkId;
-            dlgopen('<?php echo $GLOBALS['webroot'] . "/interface/patient_file/encounter/" ?>find_code_popup.php?codetype=SNOMED-CT', '_blank', 700, 400);
+            dlgopen('<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/encounter/" ?>find_code_popup.php?codetype=SNOMED-CT', '_blank', 700, 400);
         }
 
         function set_related(codetype, code, selector, codedesc) {
@@ -121,7 +121,7 @@ $check_res = $formid ? $check_res : [];
                     <?php $datetimepicker_timepicker = false; ?>
                     <?php $datetimepicker_showseconds = false; ?>
                     <?php $datetimepicker_formatInput = false; ?>
-                    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                    <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
             });

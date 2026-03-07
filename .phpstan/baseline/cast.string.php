@@ -3043,6 +3043,16 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../sql_patch.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot cast mixed to string\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../sql_upgrade.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot cast mixed to string\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Billing/BillingProcessor/BillingClaim.php',
 ];

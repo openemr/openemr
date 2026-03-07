@@ -29,9 +29,9 @@ $session = SessionWrapperFactory::getInstance()->getWrapper();
 </head>
 <body>
     <div style="padding: 15px; text-align: center">
-        <p class="h2"><?php echo xlt('Happy Birthday');?>&ensp;<img src="<?php echo$GLOBALS['images_static_relative']?>/balloons-154949_960_720.png" height="42" width="42"></p>
+        <p class="h2"><?php echo xlt('Happy Birthday');?>&ensp;<img src="<?php echo\OpenEMR\Core\OEGlobalsBag::getInstance()->get('images_static_relative')?>/balloons-154949_960_720.png" height="42" width="42"></p>
 
-        <?php if ($GLOBALS['patient_birthday_alert_manual_off']) { ?>
+        <?php if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('patient_birthday_alert_manual_off')) { ?>
             <div class="checkbox">
                 <label><input type="checkbox" name="turnOff" id="turnOff" value="1"><?php echo xlt('Turn Off birthday alert');?></label>
             </div>
@@ -42,7 +42,7 @@ $session = SessionWrapperFactory::getInstance()->getWrapper();
         <?php } ?>
     </div>
 <script>
-    <?php if ($GLOBALS['patient_birthday_alert_manual_off']) { ?>
+    <?php if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('patient_birthday_alert_manual_off')) { ?>
         $("#turnOff").change(function () {
     <?php } ?>
             var pid = <?php echo js_escape($_GET['pid'])?>;
@@ -63,7 +63,7 @@ $session = SessionWrapperFactory::getInstance()->getWrapper();
                 success: function (msg) {
                 }
             });
-    <?php if ($GLOBALS['patient_birthday_alert_manual_off']) { ?>
+    <?php if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('patient_birthday_alert_manual_off')) { ?>
         });
     <?php } ?>
 </script>

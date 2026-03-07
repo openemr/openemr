@@ -24,7 +24,7 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob or acct/bill: Billing Log", xl("Billing Log"));
 }
 
-$filename = $GLOBALS['OE_SITE_DIR'] . '/documents/edi/process_bills.log';
+$filename = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/edi/process_bills.log';
 
 if (!file_exists($filename)) {
     echo xlt("Billing log is empty");

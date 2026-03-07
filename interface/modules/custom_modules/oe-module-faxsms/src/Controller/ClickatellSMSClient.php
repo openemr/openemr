@@ -14,7 +14,7 @@ class ClickatellSMSClient extends AppDispatch
 {
     public function __construct()
     {
-        if (empty($GLOBALS['oefax_enable_sms'] ?? null)) {
+        if (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? null)) {
             throw new \RuntimeException(xlt("Access denied! Module not enabled"));
         }
         parent::__construct();

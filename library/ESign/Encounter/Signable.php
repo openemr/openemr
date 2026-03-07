@@ -15,9 +15,9 @@
 
 namespace ESign;
 
-require_once $GLOBALS['srcdir'] . '/ESign/DbRow/Signable.php';
-require_once $GLOBALS['srcdir'] . '/ESign/SignableIF.php';
-require_once $GLOBALS['srcdir'] . '/ESign/Form/Factory.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/DbRow/Signable.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/SignableIF.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Form/Factory.php';
 
 class Encounter_Signable extends DbRow_Signable implements SignableIF
 {
@@ -52,7 +52,7 @@ class Encounter_Signable extends DbRow_Signable implements SignableIF
     public function isLocked()
     {
         $locked = false;
-        if ($GLOBALS['lock_esign_all']) {
+        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('lock_esign_all')) {
             $locked = parent::isLocked();
         }
 

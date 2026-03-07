@@ -17,7 +17,7 @@ use OpenEMR\Core\ModulesClassLoader;
 require_once dirname(__FILE__, 4) . '/globals.php';
 
 /* required for config before install */
-$classLoader = new ModulesClassLoader($GLOBALS['fileroot']);
+$classLoader = new ModulesClassLoader(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot'));
 $classLoader->registerNamespaceIfNotExists("OpenEMR\\Modules\\ClaimRevConnector\\", __DIR__ . DIRECTORY_SEPARATOR . 'src');
 
 $module_config = 1;

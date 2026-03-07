@@ -50,7 +50,7 @@ if (isset($_POST['submit'])) {
                     'result' => $result
                     ,'job' => $job
                     , 'assetPath' => $bootstrap->getAssetPath()
-                    ,'postUrl' => $GLOBALS['webroot'] . Bootstrap::MODULE_INSTALLATION_PATH . '/'
+                    ,'postUrl' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot') . Bootstrap::MODULE_INSTALLATION_PATH . '/'
                                     . Bootstrap::MODULE_NAME . '/public/index.php'
                 ]
             );
@@ -95,7 +95,7 @@ if (isset($_POST['submit'])) {
             // TODO: @adunsulag add most recent exports here.
             , 'errorMessage' => $errorMessage
             , 'postAction' => $_SERVER['PHP_SELF']
-            , 'site_addr_oath' => trim($GLOBALS['site_addr_oath'] ?? '')
+            , 'site_addr_oath' => trim(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('site_addr_oath') ?? '')
             , 'assetPath' => $bootstrap->getAssetPath()
         ]
     );

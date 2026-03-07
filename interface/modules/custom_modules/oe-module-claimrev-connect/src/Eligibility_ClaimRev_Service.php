@@ -16,7 +16,7 @@ use OpenEMR\Modules\ClaimRevConnector\EligibilityTransfer;
 
 function start_send_eligibility(): void
 {
-    $autoSend = $GLOBALS['oe_claimrev_send_eligibility'] ?? null;
+    $autoSend = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('oe_claimrev_send_eligibility') ?? null;
     if ($autoSend) {
         EligibilityTransfer::sendWaitingEligibility();
     }

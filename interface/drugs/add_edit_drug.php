@@ -91,13 +91,13 @@ echo ' ' . xlt('Drug'); ?></title>
 
 <style>
 
-<?php if ($GLOBALS['sell_non_drug_products'] == 2) { // "Products but no prescription drugs and no templates" ?>
+<?php if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('sell_non_drug_products') == 2) { // "Products but no prescription drugs and no templates" ?>
 .drugsonly { display:none; }
 <?php } else { ?>
 .drugsonly { }
 <?php } ?>
 
-<?php if (empty($GLOBALS['ippf_specific'])) { ?>
+<?php if (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('ippf_specific'))) { ?>
 .ippfonly { display:none; }
 <?php } else { ?>
 .ippfonly { }
@@ -107,7 +107,7 @@ echo ' ' . xlt('Drug'); ?></title>
 
 <script>
 
-<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+<?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
 
 // This is for callback by the find-code popup.
 // Appends to or erases the current list of related codes.
@@ -335,7 +335,7 @@ if ((!empty($_POST['form_save']) || !empty($_POST['form_delete'])) && !$alertmsg
         $tmpl = $_POST['form_tmpl'];
        // If using the simplified drug form, then force the one and only
        // selector name to be the same as the product name.
-        if ($GLOBALS['sell_non_drug_products'] == 2) {
+        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('sell_non_drug_products') == 2) {
             $tmpl["1"]['selector'] = $_POST['form_name'];
         }
 
@@ -484,7 +484,7 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
 
     <div class="form-group mt-3">
         <label><?php echo xlt('NDC Number'); ?>:</label>
-        <input class="form-control w-100" size="40" name="form_ndc_number" maxlength="20" value='<?php echo attr($row['ndc_number']) ?>' onkeyup='maskkeyup(this,"<?php echo attr(addslashes((string) $GLOBALS['gbl_mask_product_id'])); ?>")' onblur='maskblur(this,"<?php echo attr(addslashes((string) $GLOBALS['gbl_mask_product_id'])); ?>")' />
+        <input class="form-control w-100" size="40" name="form_ndc_number" maxlength="20" value='<?php echo attr($row['ndc_number']) ?>' onkeyup='maskkeyup(this,"<?php echo attr(addslashes((string) \OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_mask_product_id'))); ?>")' onblur='maskblur(this,"<?php echo attr(addslashes((string) \OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_mask_product_id'))); ?>")' />
     </div>
 
     <div class="form-group mt-3">
@@ -503,7 +503,7 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
         <table class="table table-borderless pl-5">
             <tr>
                 <td class="align-top ">
-                    <?php echo !empty($GLOBALS['gbl_min_max_months']) ? xlt('Months') : xlt('Units'); ?>
+                    <?php echo !empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_min_max_months')) ? xlt('Months') : xlt('Units'); ?>
                 </td>
                 <td class="align-top"><?php echo xlt('Global'); ?></td>
 <?php
@@ -599,7 +599,7 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
 
     <div class="form-group mt-3">
         <label>
-            <?php echo $GLOBALS['sell_non_drug_products'] == 2 ? xlt('Fees') : xlt('Templates'); ?>:
+            <?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('sell_non_drug_products') == 2 ? xlt('Fees') : xlt('Templates'); ?>:
         </label>
         <table class='table table-borderless'>
             <thead>
@@ -635,10 +635,10 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
             </thead>
             <tbody>
             <?php
-            $blank_lines = $GLOBALS['sell_non_drug_products'] == 2 ? 1 : 3;
+            $blank_lines = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('sell_non_drug_products') == 2 ? 1 : 3;
             if ($tres) {
                 while ($trow = sqlFetchArray($tres)) {
-                    $blank_lines = $GLOBALS['sell_non_drug_products'] == 2 ? 0 : 1;
+                    $blank_lines = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('sell_non_drug_products') == 2 ? 0 : 1;
                     $selector = $trow['selector'];
                 // Get array of prices.
                     $prices = [];
@@ -668,7 +668,7 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
             }
 
             for ($i = 0; $i < $blank_lines; ++$i) {
-                $selector = $GLOBALS['sell_non_drug_products'] == 2 ? $row['name'] : '';
+                $selector = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('sell_non_drug_products') == 2 ? $row['name'] : '';
                 writeTemplateLine($selector, '', '', '', '', $emptyPrices, '', '1');
             }
             ?>

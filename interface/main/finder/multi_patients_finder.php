@@ -184,7 +184,7 @@ $('#by-id, #by-name').select2({
         },
         dataType: 'json',
     },
-    <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+    <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'); ?>
 });
 
 //get all the data of selected patient

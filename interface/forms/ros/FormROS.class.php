@@ -194,7 +194,7 @@ class FormROS extends ORDataObject
         $this->date_of_onset = date("Y-m-d");
         $this->_table = "form_ros";
 
-        $this->pid = $GLOBALS['pid'];
+        $this->pid = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('pid');
         if ($id != "") {
             $this->populate();
         }

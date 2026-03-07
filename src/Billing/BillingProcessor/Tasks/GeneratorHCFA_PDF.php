@@ -186,7 +186,7 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements
     public function completeToScreen(array $context)
     {
         // If we are just validating, make a temp file
-        $tmp_claim_file = $GLOBALS['temporary_files_dir'] .
+        $tmp_claim_file = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir') .
             DIRECTORY_SEPARATOR .
             $this->batch->getBatFilename();
         file_put_contents($tmp_claim_file, $this->pdf->ezOutput());
@@ -216,7 +216,7 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements
     public function completeToFile(array $context)
     {
         // If a writable edi directory exists (and it should), write the pdf to it.
-        $fh = @fopen($GLOBALS['OE_SITE_DIR'] . "/documents/edi/{$this->batch->getBatFilename()}", 'a');
+        $fh = @fopen(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/edi/{$this->batch->getBatFilename()}", 'a');
         if ($fh) {
             fwrite($fh, (string) $this->pdf->ezOutput());
             fclose($fh);

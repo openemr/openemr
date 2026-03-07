@@ -37,8 +37,8 @@ class InstModuleTable
     public function __construct(
         private readonly ContainerInterface $container
     ) {
-        $this->module_zend_path = $GLOBALS['srcdir'] . DIRECTORY_SEPARATOR
-            . ".." . DIRECTORY_SEPARATOR . $GLOBALS['baseModDir'] . $GLOBALS['zendModDir'] . DIRECTORY_SEPARATOR . "module";
+        $this->module_zend_path = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . DIRECTORY_SEPARATOR
+            . ".." . DIRECTORY_SEPARATOR . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('baseModDir') . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('zendModDir') . DIRECTORY_SEPARATOR . "module";
     }
 
     /**
@@ -233,8 +233,8 @@ class InstModuleTable
             $added = "";
             $typeSet = "";
 
-            if (file_exists($GLOBALS['srcdir'] . "/../interface/modules/$base/$added$directory/info.txt")) {
-                $lines = @file($GLOBALS['srcdir'] . "/../interface/modules/$base/$added$directory/info.txt");
+            if (file_exists(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/../interface/modules/$base/$added$directory/info.txt")) {
+                $lines = @file(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/../interface/modules/$base/$added$directory/info.txt");
             }
             $name = !empty($lines) ? $lines[0] : $directory;
 

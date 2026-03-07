@@ -79,7 +79,7 @@ class InsuranceCompanyService extends BaseService
     }
     public static function getDisplayNameForInsuranceRecord($insuranceCompany)
     {
-        switch ($GLOBALS['insurance_information']) {
+        switch (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('insurance_information')) {
             case '1':
                 $returnval = $insuranceCompany['name'] . " (" . $insuranceCompany['line1'] . ", " . $insuranceCompany['line2'] . ")";
                 break;

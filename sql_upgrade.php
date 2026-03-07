@@ -17,12 +17,12 @@
 
 /* @TODO add language selection. needs RTL testing */
 
-$GLOBALS['ongoing_sql_upgrade'] = true;
+\OpenEMR\Core\OEGlobalsBag::getInstance()->set('ongoing_sql_upgrade', true);
 
 if (php_sapi_name() === 'cli') {
     // setting for when running as command line script
     // need this for output to be readable when running as command line
-    $GLOBALS['force_simple_sql_upgrade'] = true;
+    \OpenEMR\Core\OEGlobalsBag::getInstance()->set('force_simple_sql_upgrade', true);
 }
 
 // Checks if the server's PHP version is compatible with OpenEMR:
@@ -43,7 +43,7 @@ if (ob_get_level() === 0) {
 
 $ignoreAuth = true; // no login required
 $sessionAllowWrite = true;
-$GLOBALS['connection_pooling_off'] = true; // force off database connection pooling
+\OpenEMR\Core\OEGlobalsBag::getInstance()->set('connection_pooling_off', true); // force off database connection pooling
 
 require_once('interface/globals.php');
 require_once('library/sql_upgrade_fx.php');
@@ -55,9 +55,9 @@ use OpenEMR\Services\Utils\SQLUpgradeService;
 use OpenEMR\Services\VersionService;
 
 // Force logging off
-$GLOBALS["enable_auditlog"] = 0;
+\OpenEMR\Core\OEGlobalsBag::getInstance()->set("enable_auditlog", 0);
 
-$versions = array();
+$versions = [];
 $sqldir = "$webserver_root/sql";
 $dh = opendir($sqldir);
 if (!$dh) {
@@ -78,7 +78,7 @@ while (false !== ($sfname = readdir($dh))) {
 closedir($dh);
 ksort($versions);
 
-$res2 = sqlStatement("select * from lang_languages where lang_description = ?", array($GLOBALS['language_default'] ?? ''));
+$res2 = sqlStatement("select * from lang_languages where lang_description = ?", [\OpenEMR\Core\OEGlobalsBag::getInstance()->get('language_default') ?? '']);
 for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
     $result2[$iter] = $row;
 }
@@ -360,7 +360,7 @@ header('Content-type: text/html; charset=utf-8');
                     $form_old_version = $_POST['form_old_version'];
 
                     foreach ($versions as $version => $filename) {
-                        if (strcmp($version, $form_old_version) < 0) {
+                        if (strcmp($version, (string) $form_old_version) < 0) {
                             continue;
                         }
                         // set polling version and start
@@ -371,7 +371,7 @@ header('Content-type: text/html; charset=utf-8');
                         $sqlUpgradeService->flush_echo("<script>processProgress = 100;doPoll = 0;</script>");
                     }
 
-                    if (!empty($GLOBALS['ippf_specific'])) {
+                    if (!empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('ippf_specific'))) {
                         // Upgrade custom stuff for IPPF.
                         $sqlUpgradeService->upgradeFromSqlFile('ippf_upgrade.sql');
                     }
@@ -399,8 +399,8 @@ header('Content-type: text/html; charset=utf-8');
                     require_once("library/globals.inc.php");
                     foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                         foreach ($grparr as $fldid => $fldarr) {
-                            list($fldname, $fldtype, $flddef, $flddesc) = $fldarr;
-                            if (is_array($fldtype) || (substr($fldtype, 0, 2) !== 'm_')) {
+                            [$fldname, $fldtype, $flddef, $flddesc] = $fldarr;
+                            if (is_array($fldtype) || (!str_starts_with((string) $fldtype, 'm_'))) {
                                 $row = sqlQuery("SELECT count(*) AS count FROM globals WHERE gl_name = '$fldid'");
                                 if (empty($row['count'])) {
                                     sqlStatement("INSERT INTO globals ( gl_name, gl_index, gl_value ) " .

@@ -4,7 +4,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\FormService;
 
-$GLOBALS['form_exit_url'] = "javascript:parent.closeTab(window.name, false)";
+\OpenEMR\Core\OEGlobalsBag::getInstance()->set('form_exit_url', "javascript:parent.closeTab(window.name, false)");
 
 /**
  * @deprecated Use FormService::getFormByEncounter() instead

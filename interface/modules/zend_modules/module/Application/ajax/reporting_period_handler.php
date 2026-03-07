@@ -64,7 +64,7 @@ function handleUpdateReportingPeriod()
         SessionUtil::setSession('selected_ecqm_period', $period);
 
         // Update global
-        $GLOBALS['cqm_performance_period'] = $period;
+        \OpenEMR\Core\OEGlobalsBag::getInstance()->set('cqm_performance_period', $period);
 
         // Optionally update database global setting
         try {
@@ -111,8 +111,8 @@ function handleGetMeasuresForPeriod()
     }
 
     // Temporarily update the global to get measures for the selected period
-    $originalPeriod = $GLOBALS['cqm_performance_period'] ?? null;
-    $GLOBALS['cqm_performance_period'] = $period;
+    $originalPeriod = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('cqm_performance_period') ?? null;
+    \OpenEMR\Core\OEGlobalsBag::getInstance()->set('cqm_performance_period', $period);
 
     $measures = [];
 
@@ -144,7 +144,7 @@ function handleGetMeasuresForPeriod()
     } catch (\Throwable $e) {
         // Restore original period on error
         if ($originalPeriod !== null) {
-            $GLOBALS['cqm_performance_period'] = $originalPeriod;
+            \OpenEMR\Core\OEGlobalsBag::getInstance()->set('cqm_performance_period', $originalPeriod);
         }
 
         return [

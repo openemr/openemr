@@ -44,12 +44,12 @@ class ESign
     public function isLogViewable($mode = "default"): bool
     {
         $viewable = false;
-        if (count($this->_signable->getSignatures()) > 0 && empty($GLOBALS['esign_report_hide_all_sig'])) {
+        if (count($this->_signable->getSignatures()) > 0 && empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('esign_report_hide_all_sig'))) {
             // If we have signatures, always show the log.
             $viewable = true;
         } else {
             // If in report mode then hide the log if $_GLOBALS['esign_report_hide_empty_sig'] is true and there are no signatures
-            if (($mode == "report") && ($GLOBALS['esign_report_hide_empty_sig'])) {
+            if (($mode == "report") && (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('esign_report_hide_empty_sig'))) {
                 $viewable = false;
             } else {
                 // defer if viewable to the log object

@@ -55,7 +55,7 @@ class FormPriorAuth extends ORDataObject implements \Stringable
             $id = "";
         }
 
-        $this->pid = $GLOBALS['pid'];
+        $this->pid = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('pid');
         $this->activity = 1;
         $this->date = date("Y-m-d H:i:s");
         $this->prior_auth_number = "";

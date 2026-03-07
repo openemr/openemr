@@ -37,7 +37,7 @@ if (!$result) { //If there are no disclosures recorded
   </b></span>
   <br />
   <br />
-    <?php include_once($GLOBALS['incdir'] . "/forms/vitals/report.php");
+    <?php include_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('incdir') . "/forms/vitals/report.php");
     vitals_report('', '', 1, $result['id']);
     ?>  <span class='text'>
   <br />

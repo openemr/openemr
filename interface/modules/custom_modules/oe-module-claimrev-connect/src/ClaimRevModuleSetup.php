@@ -20,7 +20,7 @@ class ClaimRevModuleSetup
 
     public static function doesPartnerExists()
     {
-        $x12Name = $GLOBALS['oe_claimrev_x12_partner_name'];
+        $x12Name = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('oe_claimrev_x12_partner_name');
         $sql = "SELECT * FROM x12_partners WHERE name = ?";
         $sqlarr = [$x12Name];
         $result = sqlStatementNoLog($sql, $sqlarr);

@@ -299,9 +299,10 @@ class TelemetryServiceTest extends TestCase
 
         $telemetryService = new TelemetryService($mockRepository, $mockVersionService, $mockLogger);
 
-        // Set up GLOBALS to test the normalization behavior
-        $originalWebroot = $GLOBALS['webroot'] ?? null;
-        $GLOBALS['webroot'] = '/openemr';
+        // Set up webroot to test the normalization behavior
+        $globalsBag = \OpenEMR\Core\OEGlobalsBag::getInstance();
+        $originalWebroot = $globalsBag->get('webroot');
+        $globalsBag->set('webroot', '/openemr');
 
         $data = [
             'eventType' => 'click',
@@ -327,11 +328,7 @@ class TelemetryServiceTest extends TestCase
         $this->assertEquals(["success" => true], $decodedResult);
 
         // Restore original webroot
-        if ($originalWebroot !== null) {
-            $GLOBALS['webroot'] = $originalWebroot;
-        } else {
-            unset($GLOBALS['webroot']);
-        }
+        $globalsBag->set('webroot', $originalWebroot);
     }
 
     public function testReportClickEventHandlesMissingOptionalFields(): void
@@ -776,9 +773,10 @@ class TelemetryServiceTest extends TestCase
 
         $telemetryService = new TelemetryService($mockRepository, $mockVersionService, $mockLogger);
 
-        // Set up GLOBALS with empty webroot to test the fallback behavior
-        $originalWebroot = $GLOBALS['webroot'] ?? null;
-        $GLOBALS['webroot'] = '';
+        // Set up empty webroot to test the fallback behavior
+        $globalsBag = \OpenEMR\Core\OEGlobalsBag::getInstance();
+        $originalWebroot = $globalsBag->get('webroot');
+        $globalsBag->set('webroot', '');
 
         $data = [
             'eventType' => 'click',
@@ -804,11 +802,7 @@ class TelemetryServiceTest extends TestCase
         $this->assertEquals(["success" => true], $decodedResult);
 
         // Restore original webroot
-        if ($originalWebroot !== null) {
-            $GLOBALS['webroot'] = $originalWebroot;
-        } else {
-            unset($GLOBALS['webroot']);
-        }
+        $globalsBag->set('webroot', $originalWebroot);
     }
 
     public function testReportClickEventNormalizesUrlWithFragmentOnly(): void

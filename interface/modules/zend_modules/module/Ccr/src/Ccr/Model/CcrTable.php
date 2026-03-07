@@ -312,10 +312,10 @@ class CcrTable
                                 }
 
                                 $query = "INSERT INTO lists (pid, diagnosis, activity, title, date, type) VALUES (?,?,?,?,?,?)";
-                                QueryUtils::sqlStatementThrowException($query, [$data['pid'], $data['lists1-diagnosis'][$i], $activity, $data['lists1-title'][$i], ApplicationTable::fixDate($data['lists1-date'][$i], 'yyyy-mm-dd', $GLOBALS['date_display_format']), 'medical_problem']);
+                                QueryUtils::sqlStatementThrowException($query, [$data['pid'], $data['lists1-diagnosis'][$i], $activity, $data['lists1-title'][$i], ApplicationTable::fixDate($data['lists1-date'][$i], 'yyyy-mm-dd', \OpenEMR\Core\OEGlobalsBag::getInstance()->get('date_display_format')), 'medical_problem']);
                             } elseif (substr((string) $key, 0, -4) == 'lists2') {
                                 $query = "INSERT INTO lists (pid, date, type, title, diagnosis, reaction) VALUES (?,?,?,?,?,?)";
-                                QueryUtils::sqlStatementThrowException($query, [$data['pid'], ApplicationTable::fixDate($data['lists2-date'][$i], 'yyyy-mm-dd', $GLOBALS['date_display_format']), $data['lists2-type'][$i], $data['lists2-title'][$i], $data['lists2-diagnosis'][$i], $data['lists2-reaction'][$i]]);
+                                QueryUtils::sqlStatementThrowException($query, [$data['pid'], ApplicationTable::fixDate($data['lists2-date'][$i], 'yyyy-mm-dd', \OpenEMR\Core\OEGlobalsBag::getInstance()->get('date_display_format')), $data['lists2-type'][$i], $data['lists2-title'][$i], $data['lists2-diagnosis'][$i], $data['lists2-reaction'][$i]]);
                             } elseif (substr((string) $key, 0, -4) == 'prescriptions') {
                                 if ($data['prescriptions-active'][$i] == 'Active') {
                                     $active = 1;
@@ -324,10 +324,10 @@ class CcrTable
                                 }
 
                                 $query = "INSERT INTO prescriptions (patient_id, date_added, active, drug, size, form, quantity) VALUES (?,?,?,?,?,?,?)";
-                                QueryUtils::sqlStatementThrowException($query, [$data['pid'], ApplicationTable::fixDate($data['prescriptions-date_added'][$i], 'yyyy-mm-dd', $GLOBALS['date_display_format']), $active, $data['prescriptions-drug'][$i], $data['prescriptions-size'][$i], $data['prescriptions-form'][$i], $data['prescriptions-quantity'][$i]]);
+                                QueryUtils::sqlStatementThrowException($query, [$data['pid'], ApplicationTable::fixDate($data['prescriptions-date_added'][$i], 'yyyy-mm-dd', \OpenEMR\Core\OEGlobalsBag::getInstance()->get('date_display_format')), $active, $data['prescriptions-drug'][$i], $data['prescriptions-size'][$i], $data['prescriptions-form'][$i], $data['prescriptions-quantity'][$i]]);
                             } elseif (substr((string) $key, 0, -4) == 'immunizations') {
                                 $query = "INSERT INTO immunizations (patient_id, administered_date, note) VALUES (?,?,?)";
-                                QueryUtils::sqlStatementThrowException($query, [$data['pid'], ApplicationTable::fixDate($data['immunizations-administered_date'][$i], 'yyyy-mm-dd', $GLOBALS['date_display_format']), $data['immunizations-note'][$i]]);
+                                QueryUtils::sqlStatementThrowException($query, [$data['pid'], ApplicationTable::fixDate($data['immunizations-administered_date'][$i], 'yyyy-mm-dd', \OpenEMR\Core\OEGlobalsBag::getInstance()->get('date_display_format')), $data['immunizations-note'][$i]]);
                             }
                         } elseif ($val[$i] == 'update') {
                             if (substr((string) $key, 0, -4) == 'lists1') {

@@ -127,8 +127,8 @@ class LoadEncounterFormFilterEvent extends Event
     {
         $path = realpath($path);
         // for now we will lock this down to just the forms directory or to the modules directory
-        $inModules = str_starts_with($path, $GLOBALS['fileroot'] . '/interface/modules/');
-        $inForms = str_starts_with($path, $GLOBALS['fileroot'] . '/interface/forms/');
+        $inModules = str_starts_with($path, \OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/interface/modules/');
+        $inForms = str_starts_with($path, \OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/interface/forms/');
         if (!(($inModules || $inForms) && file_exists($path))) {
             throw new \InvalidArgumentException('Invalid path');
         }

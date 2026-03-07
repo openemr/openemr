@@ -148,7 +148,7 @@ class EligibilityTransfer extends BaseService
         $raw271 = null;
         if (is_array($eligibility) && isset($eligibility['raw271'])) {
             $raw271 = $eligibility['raw271'];
-            $siteDir = $GLOBALS['OE_SITE_DIR'];
+            $siteDir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR');
             $reportFolder = 'f271';
             $savePath = $siteDir . '/documents/edi/history/' . $reportFolder . '/';
             if (!file_exists($savePath)) {

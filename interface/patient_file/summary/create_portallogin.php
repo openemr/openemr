@@ -47,7 +47,7 @@ function displayLogin($patient_id, $message, $emailFlag)
 $patientAccessOnSiteService = new PatientAccessOnsiteService();
 $credentials = $patientAccessOnSiteService->getOnsiteCredentialsForPid($pid);
 
-$option = $GLOBALS['portal_force_credential_reset'] ?? '0';
+$option = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('portal_force_credential_reset') ?? '0';
 if ($option == '2') {
     $forced_reset_disable = PatientAccessOnsiteService::fetchUserSetting('portal_login.credential_reset_disable');
 } elseif ($option == '0') {
@@ -85,7 +85,7 @@ echo $patientAccessOnSiteService->filterTwigTemplateData($pid, 'patient/portal_l
     , 'uname' => $credentials['portal_username'] ?: $credentials['fname'] . $credentials['lname'] . $credentials['id']
     , 'login_uname' => $credentials['portal_login_username'] ?? $trustedUserName
     , 'pwd' => $patientAccessOnSiteService->getRandomPortalPassword()
-    , 'enforce_signin_email' => $GLOBALS['enforce_signin_email']
+    , 'enforce_signin_email' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('enforce_signin_email')
     , 'email_direct' => trim((string) $trustedEmail['email_direct'])
     , 'forced_reset_disable' => $forced_reset_disable
     , 'forced_reset_option' => $option

@@ -85,7 +85,7 @@ if ($isNN) {
 }
     Header::setupHeader(['common', 'opener', 'select2', 'ckeditor', $ckeditorConfig]);
 ?>
-<script src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajax_functions_writer.js"></script>
+<script src="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot') ?>/library/js/ajax_functions_writer.js"></script>
 
 <script>
     // note these variables are set on backend server side, leaving comment for server side readers
@@ -114,7 +114,7 @@ if ($isNN) {
                     },
                     dataType: 'json',
                 },
-                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+                <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'); ?>
             });
 
             $('#contextSearch').on('select2:select', function (e) {
@@ -250,7 +250,7 @@ if ($isNN) {
     });
 </script>
 <script>
-    <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+    <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
 </script>
 </head>
 <body class="body_top">

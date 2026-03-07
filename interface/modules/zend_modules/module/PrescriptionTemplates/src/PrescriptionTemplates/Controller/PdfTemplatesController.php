@@ -52,7 +52,7 @@ class PdfTemplatesController extends PrescriptionTemplatesController
         $htmlView = $this->renderer->render($defaultHtml);
 
         /* create pdf */
-        $mpdf = new Mpdf(['tempDir' => $GLOBALS['MPDF_WRITE_DIR']]);
+        $mpdf = new Mpdf(['tempDir' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('MPDF_WRITE_DIR')]);
         $mpdf->autoLangToFont = true;
         $mpdf->WriteHTML($htmlView);
         $mpdf->Output();

@@ -30,7 +30,7 @@ $title   = empty($_REQUEST['title']) ? 'LBTref' : $_REQUEST['title'];
 $form_id = $title;
 
 // Plugin support.
-$fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/" . convert_safe_file_dir_name($form_id) . ".plugin.php";
+$fname = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/LBF/" . convert_safe_file_dir_name($form_id) . ".plugin.php";
 if (file_exists($fname)) {
     include_once($fname);
 }
@@ -165,7 +165,7 @@ $trow = $transid ? getTransById($transid) : [];
 
 <?php Header::setupHeader(['common','datetime-picker','select2']); ?>
 
-<?php include_once("{$GLOBALS['srcdir']}/options.js.php"); ?>
+<?php include_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/options.js.php"); ?>
 
 <script>
 $(function () {
@@ -177,7 +177,7 @@ $(function () {
   }
 });
 
-var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+var mypcc = <?php echo js_escape(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('phone_country_code')); ?>;
 
 $(function () {
   $("#send_sum_flag").click(function() {
@@ -197,7 +197,7 @@ $(function () {
 
   $(".select-dropdown").select2({
     theme: "bootstrap4",
-    <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+    <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'); ?>
   });
   if (typeof error !== 'undefined') {
     if (error) {
@@ -211,7 +211,7 @@ $(function () {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = false; ?>
     <?php $datetimepicker_maxDate = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datetimepicker').datetimepicker({
@@ -220,7 +220,7 @@ $(function () {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = false; ?>
     <?php $datetimepicker_maxDate = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datepicker-past').datetimepicker({
@@ -229,7 +229,7 @@ $(function () {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = false; ?>
     <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datetimepicker-past').datetimepicker({
@@ -238,7 +238,7 @@ $(function () {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = false; ?>
     <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datepicker-future').datetimepicker({
@@ -247,7 +247,7 @@ $(function () {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = '-1970/01/01'; ?>
     <?php $datetimepicker_maxDate = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datetimepicker-future').datetimepicker({
@@ -256,7 +256,7 @@ $(function () {
     <?php $datetimepicker_formatInput = true; ?>
     <?php $datetimepicker_minDate = '-1970/01/01'; ?>
     <?php $datetimepicker_maxDate = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
 });
@@ -300,7 +300,7 @@ function set_related(codetype, code, selector, codedesc) {
 function sel_related(e) {
     current_sel_name = e.name;
     dlgopen('../encounter/find_code_popup.php<?php
-    if ($GLOBALS['ippf_specific']) {
+    if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('ippf_specific')) {
         echo '?codetype=REF';
     } ?>', '_blank', 500, 400);
 }
@@ -440,7 +440,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         </div>
                         <div class="forms col-sm-5">
                             <?php
-                            if ($GLOBALS['enable_amc_prompting'] && 'LBTref' == $form_id) { ?>
+                            if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('enable_amc_prompting') && 'LBTref' == $form_id) { ?>
                                 <div class='oe-pull-away' style='margin-right:25px;border-style:solid;border-width:1px;'>
                                     <div style='margin:5px 5px 5px 5px;'>
 
@@ -627,7 +627,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         </form>
 
         <!-- include support for the list-add selectbox feature -->
-        <?php require $GLOBALS['fileroot'] . "/library/options_listadd.inc.php"; ?>
+        <?php require \OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/options_listadd.inc.php"; ?>
     </div> <!--end of container div-->
     <?php $oemr_ui->oeBelowContainerDiv();?>
 </body>

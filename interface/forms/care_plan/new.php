@@ -19,8 +19,8 @@ require_once("../../globals.php");
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/csv_like_join.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
@@ -68,10 +68,10 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
     <title><?php echo xlt("Care Plan Form"); ?></title>
 
     <?php Header::setupHeader(['datetime-picker', 'reason-code-widget']); ?>
-    <script src="<?php echo attr($GLOBALS['webroot']); ?>/interface/forms/care_plan/careplan.js?v=<?php echo attr($GLOBALS['v_js_includes']); ?>" type="text/javascript"></script>
+    <script src="<?php echo attr(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot')); ?>/interface/forms/care_plan/careplan.js?v=<?php echo attr(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('v_js_includes')); ?>" type="text/javascript"></script>
     <script>
         window.addEventListener('DOMContentLoaded', function () {
-            window.careplanForm.init(<?php echo js_url($GLOBALS['webroot']); ?>);
+            window.careplanForm.init(<?php echo js_url(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot')); ?>);
         });
 
         $(function () {
@@ -81,7 +81,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                     <?php $datetimepicker_timepicker = true; ?>
                     <?php $datetimepicker_showseconds = false; ?>
                     <?php $datetimepicker_formatInput = false; ?>
-                    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                    <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
             });
@@ -113,7 +113,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                             <div class="forms col-md-4">
                                                 <label for="code_<?php echo attr($key) + 1; ?>" class="h5"><?php echo xlt('Code'); ?>:</label>
                                                 <input type="text" id="code_<?php echo attr($key) + 1; ?>" name="code[]" class="form-control code"
-                                                    value="<?php echo attr($obj["code"]); ?>" onclick='sel_code(<?php echo attr_js($GLOBALS['webroot']) ?>,
+                                                    value="<?php echo attr($obj["code"]); ?>" onclick='sel_code(<?php echo attr_js(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot')) ?>,
                                                     this.parentElement.parentElement.parentElement.id);' data-toggle='tooltip' data-placement='bottom' title='<?php echo attr($obj['code']) . "'"; ?> />
                                                 <span id="displaytext_<?php echo attr($key) + 1; ?>"  class="displaytext help-block"><?php echo text($obj["codetext"] ?? ''); ?></span>
                                                 <input type="hidden" id="codetext_<?php echo attr($key) + 1; ?>" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"]); ?>" />
@@ -191,7 +191,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                     <div class="form-row">
                                         <div class="forms col-md-2">
                                             <label for="code_1" class="h5"><?php echo xlt('Code'); ?>:</label>
-                                            <input type="text" id="code_1" name="code[]" class="form-control code" value="<?php echo attr($obj["code"] ?? ''); ?>" onclick='sel_code(<?php echo attr_js($GLOBALS['webroot']) ?>, this.parentElement.parentElement.parentElement.id || "");'>
+                                            <input type="text" id="code_1" name="code[]" class="form-control code" value="<?php echo attr($obj["code"] ?? ''); ?>" onclick='sel_code(<?php echo attr_js(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot')) ?>, this.parentElement.parentElement.parentElement.id || "");'>
                                             <input type="hidden" id="user_1" name="user[]" class="user" value="<?php echo attr($obj["user"] ?? $_SESSION["authUser"]); ?>" />
                                             <span id="displaytext_1" class="displaytext help-block"></span>
                                             <input type="hidden" id="codetext_1" name="codetext[]" class="codetext" value="<?php echo attr($obj["codetext"] ?? ''); ?>">

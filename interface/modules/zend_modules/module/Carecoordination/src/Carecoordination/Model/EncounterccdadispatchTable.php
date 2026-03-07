@@ -48,7 +48,7 @@ use RuntimeException;
 
 require_once(__DIR__ . "/../../../../../../../../custom/code_types.inc.php");
 require_once(__DIR__ . "/../../../../../../../forms/vitals/report.php");
-require_once($GLOBALS['fileroot'] . '/library/amc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/library/amc.php');
 
 class EncounterccdadispatchTable
 {
@@ -1658,7 +1658,7 @@ class EncounterccdadispatchTable
 
             if ($row['start_date']) {
                 $start_date = str_replace('-', '', $row['start_date']);
-                $start_date_formatted = \Application\Model\ApplicationTable::fixDate($row['start_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');;
+                $start_date_formatted = \Application\Model\ApplicationTable::fixDate($row['start_date'], \OpenEMR\Core\OEGlobalsBag::getInstance()->get('date_display_format'), 'yyyy-mm-dd');;
             }
 
             $medications .= "<medication>" . $provenanceXml . "
@@ -3044,7 +3044,7 @@ class EncounterccdadispatchTable
             $convWeightValue = number_format($row['weight'] * 0.45359237, 2);
             $convHeightValue = number_format(round($row['height'] * 2.54, 1), 2);
             $convTempValue = number_format((round($row['temperature'] - 32) * (5 / 9)), 1);
-            if ($GLOBALS['units_of_measurement'] == 2 || $GLOBALS['units_of_measurement'] == 4) {
+            if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('units_of_measurement') == 2 || \OpenEMR\Core\OEGlobalsBag::getInstance()->get('units_of_measurement') == 4) {
                 $weight_value = $convWeightValue;
                 $weight_unit = 'kg';
                 $height_value = $convHeightValue;
@@ -3565,8 +3565,8 @@ class EncounterccdadispatchTable
                     foreach ($form_ids as $row) {//Fetching the values of each forms
                         foreach ($row as $value) {
                             ob_start();
-                            if (file_exists($GLOBALS['fileroot'] . '/interface/forms/' . $formTables_details[2] . '/report.php')) {
-                                include_once($GLOBALS['fileroot'] . '/interface/forms/' . $formTables_details[2] . '/report.php');
+                            if (file_exists(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/interface/forms/' . $formTables_details[2] . '/report.php')) {
+                                include_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/interface/forms/' . $formTables_details[2] . '/report.php');
                                 ($formTables_details[2] . "_report")($pid, $encounter, 2, $value);
                             }
 
@@ -3629,7 +3629,7 @@ class EncounterccdadispatchTable
 
                     $formid_list = $formid_list ?: "''";
                     $lbf = "lbf_data";
-                    $filename = "{$GLOBALS['srcdir']}/" . $formTables_details[2] . "/" . $formTables_details[2] . "_db.php";
+                    $filename = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/" . $formTables_details[2] . "/" . $formTables_details[2] . "_db.php";
                     if (file_exists($filename)) {
                         include_once($filename);
                     }
@@ -4332,7 +4332,7 @@ class EncounterccdadispatchTable
             $sdoh = (HistorySdohService::getCurrentAssessment((int)$pid)) ?? null;
             if ($sdoh) {
                 // Author/provenance (use last updater or current user)
-                $authorId = $sdoh['user'] ?? $sdoh['provider'] ?? ($GLOBALS['authUserID'] ?? null);
+                $authorId = $sdoh['user'] ?? $sdoh['provider'] ?? (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('authUserID') ?? null);
                 $authorTime = $sdoh['updated_at'] ?? $sdoh['assessment_date'] ?? date('Y-m-d');
                 $encId = (int)($sdoh['encounter'] ?? $encounter ?? 0);
 

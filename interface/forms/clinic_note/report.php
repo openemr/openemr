@@ -13,7 +13,7 @@
  */
 
 require_once("../../globals.php");
-require_once($GLOBALS["srcdir"] . "/api.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("srcdir") . "/api.inc.php");
 
 function clinic_note_report($pid, $encounter, $cols, $id): void
 {

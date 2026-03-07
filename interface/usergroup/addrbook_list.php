@@ -229,7 +229,7 @@ while ($row = sqlFetchArray($res)) {
 <script>
 
 <?php if ($popup) {
-    require($GLOBALS['srcdir'] . "/restoreSession.php");
+    require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php");
 } ?>
 
 // Callback from popups to refresh this display.

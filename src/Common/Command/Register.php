@@ -57,7 +57,7 @@ class Register extends Command
         $moduleName = $input->getOption('modname');
         $rel_path = "public/" . $moduleName . "/";
 
-        if ($GLOBALS['modules_application']->getServiceManager()->build(InstModuleTable::class)->register($moduleName, $rel_path, 0, $GLOBALS['zendModDir'])) {
+        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('modules_application')->getServiceManager()->build(InstModuleTable::class)->register($moduleName, $rel_path, 0, \OpenEMR\Core\OEGlobalsBag::getInstance()->get('zendModDir'))) {
             $output->writeln('Success');
             return 0;
         } else {

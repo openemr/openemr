@@ -29,7 +29,7 @@ if (!empty($_POST)) {
 
 $fstart = isset($_REQUEST['fstart']) ? $_REQUEST['fstart'] + 0 : 0;
 
-$searchcolor = empty($GLOBALS['layout_search_color']) ? 'var(--yellow)' : $GLOBALS['layout_search_color'];
+$searchcolor = empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('layout_search_color')) ? 'var(--yellow)' : \OpenEMR\Core\OEGlobalsBag::getInstance()->get('layout_search_color');
 $simpleSearch = $_GET['simple_search'] ?? null;
 ?>
 <!DOCTYPE html>
@@ -162,7 +162,7 @@ $simpleSearch = $_GET['simple_search'] ?? null;
                     echo $paginator->render(
                         offset: $fstart,
                         pageSize: $MAXSHOW,
-                        totalCount: $GLOBALS['PATIENT_INC_COUNT'],
+                        totalCount: \OpenEMR\Core\OEGlobalsBag::getInstance()->get('PATIENT_INC_COUNT'),
                         filename: basename(__FILE__),
                         separator: '&nbsp;'
                     );

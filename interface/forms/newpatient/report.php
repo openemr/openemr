@@ -73,7 +73,7 @@ function newpatient_report($pid, $encounter, $cols, $id): void
         /**
          * @var \OpenEMR\Core\OEGlobalsBag $globalsBag
          */
-        $globalsBag = $GLOBALS['globalsBag'];
+        $globalsBag = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('globalsBag');
         if ($globalsBag->getInt(GlobalFeaturesEnum::INHOUSE_PHARMACY->value, 0) === 1) {
             $encounterUuid = UuidRegistry::uuidToString($result['uuid']);
             $patientService = new PatientService();

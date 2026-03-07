@@ -172,7 +172,7 @@ if (empty($SBCODES)) {
     }
 
     // Create one more group, for Products.
-    if ($GLOBALS['sell_non_drug_products']) {
+    if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('sell_non_drug_products')) {
         $SBCODES[] = '*G|' . xl('Products');
         $tres = sqlStatement("SELECT " .
                 "dt.drug_id, dt.selector, d.name, d.ndc_number " .
@@ -469,7 +469,7 @@ foreach ($pid_list as $pid) {
 <tr>
 <td colspan='4' valign='top' class='fshead' style='height:{$lheight}pt'>";
 
-            if (empty($GLOBALS['ippf_specific'])) {
+            if (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('ippf_specific'))) {
                 $html .= xlt('Insurance') . ":";
                 if ($form_fill) {
                     foreach (['primary', 'secondary', 'tertiary'] as $instype) {

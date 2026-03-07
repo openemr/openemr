@@ -156,7 +156,7 @@ class UserSettingsService
     public static function collectAndOrganizeExpandSetting($filenames = [])
     {
         $current_filename = $filenames[0];
-        $global_value = $GLOBALS['expand_form'];
+        $global_value = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('expand_form');
 
         if (self::getUserSetting($current_filename) > -1) {
             $current_state = self::getUserSetting($current_filename);

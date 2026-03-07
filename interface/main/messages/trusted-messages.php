@@ -40,7 +40,7 @@ if (!empty($_SESSION['pid'])) {
     }
 }
 
-$verifyMessageReceivedChecked = $GLOBALS['phimail_verifyrecipientreceived_enable'] == '1' ? "checked" : '';
+$verifyMessageReceivedChecked = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('phimail_verifyrecipientreceived_enable') == '1' ? "checked" : '';
 ?>
 <!DOCTYPE html>
 <html>

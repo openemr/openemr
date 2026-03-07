@@ -33,7 +33,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 <head>
 <?php Header::setupHeader(); ?>
 <title><?php echo xlt('U2F Registration'); ?></title>
-<script src="<?php echo $GLOBALS['webroot'] ?>/library/js/u2f-api.js"></script>
+<script src="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot') ?>/library/js/u2f-api.js"></script>
 <script>
 
 function doregister() {

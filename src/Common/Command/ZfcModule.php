@@ -51,7 +51,7 @@ class ZfcModule extends Command
 
         $modname = $input->getOption('modname');
         $modaction = $input->getOption('modaction');
-        (new InstallerController($GLOBALS['modules_application']->getServiceManager()->build(InstModuleTable::class)))->commandInstallModuleAction($modname, $modaction);
+        (new InstallerController(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('modules_application')->getServiceManager()->build(InstModuleTable::class)))->commandInstallModuleAction($modname, $modaction);
         return 0;
     }
 }

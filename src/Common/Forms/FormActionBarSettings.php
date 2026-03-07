@@ -26,12 +26,12 @@ class FormActionBarSettings
     public static function shouldDisplayTopActionBar()
     {
         // probably could make this more efficient by doing integer position comparisons, but the global values are stored as strings...
-        return $GLOBALS['form_actionbar_position'] == self::ACTION_BAR_DISPLAY_FORM_TOP
-            || $GLOBALS['form_actionbar_position'] == self::ACTION_BAR_DISPLAY_FORM_TOP_AND_BOTTOM;
+        return \OpenEMR\Core\OEGlobalsBag::getInstance()->get('form_actionbar_position') == self::ACTION_BAR_DISPLAY_FORM_TOP
+            || \OpenEMR\Core\OEGlobalsBag::getInstance()->get('form_actionbar_position') == self::ACTION_BAR_DISPLAY_FORM_TOP_AND_BOTTOM;
     }
     public static function shouldDisplayBottomActionBar()
     {
-        return $GLOBALS['form_actionbar_position'] == self::ACTION_BAR_DISPLAY_FORM_BOTTOM
-            || $GLOBALS['form_actionbar_position'] == self::ACTION_BAR_DISPLAY_FORM_TOP_AND_BOTTOM;
+        return \OpenEMR\Core\OEGlobalsBag::getInstance()->get('form_actionbar_position') == self::ACTION_BAR_DISPLAY_FORM_BOTTOM
+            || \OpenEMR\Core\OEGlobalsBag::getInstance()->get('form_actionbar_position') == self::ACTION_BAR_DISPLAY_FORM_TOP_AND_BOTTOM;
     }
 }

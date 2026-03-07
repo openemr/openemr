@@ -36,8 +36,8 @@ use OpenEMR\Common\Acl\AclMain;
                 <div class="row">
                     <div class="col-md-8 col-sm-12">
                         <ul class="tabNav">
-                            <li class="current"><a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr_url($groupData['group_id']); ?>"><?php echo xlt('General data');?></a></li>
-                            <li><a href="<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupParticipants&group_id=' . attr_url($groupData['group_id']); ?>"><?php echo xlt('Participants ');?></a></li>
+                            <li class="current"><a href="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('rootdir') . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr_url($groupData['group_id']); ?>"><?php echo xlt('General data');?></a></li>
+                            <li><a href="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('rootdir') . '/therapy_groups/index.php?method=groupParticipants&group_id=' . attr_url($groupData['group_id']); ?>"><?php echo xlt('Participants ');?></a></li>
                         </ul>
                     </div>
                     <div class="col-md-4 col-sm-4">
@@ -46,10 +46,10 @@ use OpenEMR\Common\Acl\AclMain;
                                 <button class="btn btn-primary" onclick="newGroup()"><?php echo xlt('Add encounter'); ?></button>
                             <?php } ?>
                             <?php if ($readonly == '') { ?>
-                            <button class="btn btn-secondary" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr_url($groupData['group_id']); ?>'"><?php echo xlt('Cancel');?></button>
+                            <button class="btn btn-secondary" onclick="location.href='<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('rootdir') . '/therapy_groups/index.php?method=groupDetails&group_id=' . attr_url($groupData['group_id']); ?>'"><?php echo xlt('Cancel');?></button>
                             <button class="btn btn-primary" id="saveUpdates"><?php echo xlt('Save');?></button>
                         <?php } else { ?>
-                            <button class="btn btn-primary" onclick="location.href='<?php echo $GLOBALS['rootdir'] . '/therapy_groups/index.php?method=groupDetails&editGroup=1&group_id=' . attr_url($groupData['group_id']); ?>'"><?php echo xlt('Update');?></button>
+                            <button class="btn btn-primary" onclick="location.href='<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('rootdir') . '/therapy_groups/index.php?method=groupDetails&editGroup=1&group_id=' . attr_url($groupData['group_id']); ?>'"><?php echo xlt('Update');?></button>
                         <?php } ?>
                       <?php }?>
                     </div>
@@ -205,7 +205,7 @@ use OpenEMR\Common\Acl\AclMain;
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -220,7 +220,7 @@ use OpenEMR\Common\Acl\AclMain;
 
     function refreshme() {
         top.restoreSession();
-        location.href = <?php echo js_escape($GLOBALS['webroot']); ?> + '/interface/therapy_groups/index.php?method=groupDetails&group_id=' + <?php echo js_url($groupId); ?>;
+        location.href = <?php echo js_escape(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot')); ?> + '/interface/therapy_groups/index.php?method=groupDetails&group_id=' + <?php echo js_url($groupId); ?>;
     }
 
     function newGroup(){

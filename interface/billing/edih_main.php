@@ -85,7 +85,7 @@ require_once("$srcdir/edihistory/codes/edih_997_codes.php");
 // php may output line endings with included files
 ob_clean();
 
-if (isset($GLOBALS['OE_SITE_DIR'])) {
+if (\OpenEMR\Core\OEGlobalsBag::getInstance()->has('OE_SITE_DIR')) {
     $edih_base_dir = csv_edih_basedir();
     $edih_tmp_dir = csv_edih_tmpdir();
 } else {

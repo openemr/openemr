@@ -388,7 +388,7 @@ $num_virtual_cols = $num_used_cols ? $num_used_cols + 5 : 10;
    window.close();
 <?php } else { ?>
    top.restoreSession();
-   location='<?php echo $GLOBALS['form_exit_url'] ?>';
+   location='<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('form_exit_url') ?>';
 <?php } ?>
   }
  }
@@ -593,7 +593,7 @@ foreach ($bcodes['Phys']['Physiotherapy Procedures'] as $key => $value) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });

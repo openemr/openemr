@@ -243,7 +243,7 @@ if (!$thisauth) {
 <dl>
 <dt>
 <a href="diagnosis_full.php" target="<?php echo attr($target); ?>" onclick="top.restoreSession()">
-<span class='title'><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('Billing') : xlt('Coding'); ?></span>
+<span class='title'><?php echo (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('phone_country_code') == '1') ? xlt('Billing') : xlt('Coding'); ?></span>
 <span class='more'><?php echo text($tmore); ?></span></a>
 
 <?php
@@ -252,7 +252,7 @@ if (!empty($_GET["back"]) || !empty($_POST["back"])) {
     print "<input type=\"hidden\" name=\"back\" value=\"1\">";
 }
 ?>
-<?php if (!$GLOBALS['weight_loss_clinic']) { ?>
+<?php if (!\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weight_loss_clinic')) { ?>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <input type="submit" name="justify" value="<?php echo xla('Justify/Save');?>">
 <?php } ?>

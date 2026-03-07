@@ -119,9 +119,9 @@ function buildTemplate(?string $pid = null, ?string $encounter = null, $htmlin =
 
 function ub04Dispose($dispose = 'download', $htmlin = "", $filename = "ub04.pdf", $form_action = "")
 {
-    $top = $_POST["left_ubmargin"] ?? $GLOBALS['left_ubmargin_default'];
-    $side = $_POST["top_ubmargin"] ?? $GLOBALS['top_ubmargin_default'];
-    $form_filename = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/$filename";
+    $top = $_POST["left_ubmargin"] ?? \OpenEMR\Core\OEGlobalsBag::getInstance()->get('left_ubmargin_default');
+    $side = $_POST["top_ubmargin"] ?? \OpenEMR\Core\OEGlobalsBag::getInstance()->get('top_ubmargin_default');
+    $form_filename = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/edi/$filename";
     // convert points to inches-some tricky calculus here! 72 pts/inch
     $top = round($top / 72.00, 2) . "in";
     $side = round($side / 72.00, 2) . "in";

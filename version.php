@@ -53,4 +53,4 @@ if (!empty($_ENV['OPENEMR__ENVIRONMENT']) && ($_ENV['OPENEMR__ENVIRONMENT'] === 
 }
 
 // Do not modify below
-$GLOBALS['v_js_includes'] = $v_js_includes;
+\OpenEMR\Core\OEGlobalsBag::getInstance()->set('v_js_includes', $v_js_includes);

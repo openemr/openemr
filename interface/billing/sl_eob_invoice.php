@@ -35,7 +35,7 @@ use OpenEMR\Core\Header;
 $debug = 0; // set to 1 for debugging mode
 $save_stay = (!empty($_REQUEST['form_save']) && ($_REQUEST['form_save'] == '1')) ? true : false;
 $from_posting = (0 + ($_REQUEST['isPosting'] ?? null)) ? 1 : 0;
-$g_posting_adj_disable = $GLOBALS['posting_adj_disable'] ? 'checked' : '';
+$g_posting_adj_disable = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('posting_adj_disable') ? 'checked' : '';
 if ($from_posting) {
     $posting_adj_disable = prevSetting('sl_eob_search.', 'posting_adj_disable', 'posting_adj_disable', $g_posting_adj_disable);
 } else {
@@ -221,7 +221,7 @@ $info_msg = "";
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });

@@ -29,7 +29,7 @@ if (!$isBilled) {
     // This is a list of diagnosis code types to present for as options in the justify dialog,
     // for now, only "internal codes" included.
     var diag_code_types = <?php echo diag_code_types('json');?>;
-    var ippf_specific = <?php echo $GLOBALS['ippf_specific'] ? 'true' : 'false'; ?>;
+    var ippf_specific = <?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('ippf_specific') ? 'true' : 'false'; ?>;
     var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
 </script>
 <script>
@@ -42,10 +42,10 @@ if (!$isBilled) {
         return this;
     }
 </script>
-<script src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/initialize_review.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
-<script src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/js/fee_sheet_core.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
-<script src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/fee_sheet_review_view_model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
-<script src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/fee_sheet_justify_view_model.js?v=<?php echo $GLOBALS['v_js_includes']; ?>"></script>
+<script src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/initialize_review.js?v=<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('v_js_includes'); ?>"></script>
+<script src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/js/fee_sheet_core.js?v=<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('v_js_includes'); ?>"></script>
+<script src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/fee_sheet_review_view_model.js?v=<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('v_js_includes'); ?>"></script>
+<script src="<?php echo $web_root;?>/interface/forms/fee_sheet/review/fee_sheet_justify_view_model.js?v=<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('v_js_includes'); ?>"></script>
 
     <?php
     // knockoutjs template files

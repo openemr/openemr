@@ -16,7 +16,7 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once($GLOBALS['srcdir'] . "/forms.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/forms.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -67,7 +67,7 @@ if (!empty($_POST['confirm'])) {
     EventAuditLogger::getInstance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, "Form " . $_POST['formname'] . " deleted from Encounter " . $_POST['encounter']);
 
     // redirect back to the encounter
-    $address = "{$GLOBALS['rootdir']}/patient_file/encounter/$returnurl";
+    $address = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('rootdir') . "/patient_file/encounter/" . $returnurl;
     echo "\n<script>top.restoreSession();window.location='$address';</script>\n";
     exit;
 }

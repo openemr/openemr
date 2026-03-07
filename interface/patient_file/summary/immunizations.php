@@ -105,7 +105,7 @@ if (isset($_GET['mode'])) {
         $immunization_id = $cvx_code = $manufacturer = $lot_number = $administered_by_id = $note = $id = $ordered_by_id = "";
         $administered_by = $vis_date = "";
         $newid = $_GET['id'] ?: $newid;
-        if ($GLOBALS['observation_results_immunization']) {
+        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('observation_results_immunization')) {
             saveImmunizationObservationResults($newid, $_GET);
         }
     } elseif ($_GET['mode'] == "delete") {
@@ -188,7 +188,7 @@ if (isset($_GET['mode'])) {
 $observation_criteria = getImmunizationObservationLists('1');
 $observation_criteria_value = getImmunizationObservationLists('2');
 // Decide whether using the CVX list or the custom list in list_options
-if ($GLOBALS['use_custom_immun_list']) {
+if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('use_custom_immun_list')) {
     // user forces the use of the custom list
     $useCVX = false;
 } else {
@@ -552,7 +552,7 @@ tr.selected {
                                 <p><?php echo xlt('Entered By'); ?> <?php echo text($entered_by); ?></p>
                             <?php } ?>
 
-                            <?php if ($GLOBALS['observation_results_immunization']) { ?>
+                            <?php if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('observation_results_immunization')) { ?>
                             <button type="button" class="btn btn-primary" onclick="showObservationResultSection();" title='<?php echo xla('Click here to see observation results'); ?>'>
                                 <?php echo xlt('See observation results'); ?>
                             </button>
@@ -783,7 +783,7 @@ tr.selected {
                             }
 
                             // Figure out which name to use (ie. from cvx list or from the custom list)
-                            if ($GLOBALS['use_custom_immun_list']) {
+                            if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('use_custom_immun_list')) {
                                 $vaccine_display = generate_display_field(['data_type' => '1','list_id' => 'immunizations'], $row['immunization_id']);
                             } else {
                                 if (!empty($row['code_text_short'])) {
@@ -884,14 +884,14 @@ $(function () {
     <?php $datetimepicker_timepicker = false; ?>
     <?php $datetimepicker_showseconds = false; ?>
     <?php $datetimepicker_formatInput = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   $('.datetimepicker').datetimepicker({
     <?php $datetimepicker_timepicker = true; ?>
     <?php $datetimepicker_showseconds = false; ?>
     <?php $datetimepicker_formatInput = false; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
   // special cases to deal with datepicker items that are added dynamically
@@ -900,7 +900,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = false; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
   });
@@ -1225,7 +1225,7 @@ function sel_code(id)
     id = id.split('sct_code_');
     var checkId = id[1];
     $('#clickId').val(checkId);
-    dlgopen('<?php echo $GLOBALS['webroot'] . "/interface/patient_file/encounter/" ?>find_code_popup.php', '_blank', 700, 400);
+    dlgopen('<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/encounter/" ?>find_code_popup.php', '_blank', 700, 400);
 }
 
 $(function () {

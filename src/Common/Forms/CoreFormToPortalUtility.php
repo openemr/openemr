@@ -146,7 +146,7 @@ class CoreFormToPortalUtility
     public static function insertPatientPortalTemplate(int $id): void
     {
         $infoNewRegisteredForm = sqlQuery("SELECT `name`, `directory` FROM `registry` WHERE `id` = ?", [$id]);
-        $patientPortalCompliant = file_exists($GLOBALS['srcdir'] . "/../interface/forms/" . $infoNewRegisteredForm['directory'] . "/patient_portal.php");
+        $patientPortalCompliant = file_exists(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/../interface/forms/" . $infoNewRegisteredForm['directory'] . "/patient_portal.php");
         if ($patientPortalCompliant) {
             $checkDocumentTemplate = sqlQuery("SELECT `id` FROM `document_templates` WHERE `template_name` = ?", [$infoNewRegisteredForm['name']]);
             if (empty($checkDocumentTemplate)) {
@@ -163,11 +163,11 @@ class CoreFormToPortalUtility
     {
         // first get list of form directory names that are patient portal compliant
         $dirFormNames = [];
-        $formDirs = scandir($GLOBALS['srcdir'] . "/../interface/forms/");
+        $formDirs = scandir(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/../interface/forms/");
         foreach ($formDirs as $formDir) {
             if (
                 !in_array($formDir, [".", "..", "LBF"]) &&
-                file_exists($GLOBALS['srcdir'] . "/../interface/forms/" . $formDir . "/patient_portal.php")
+                file_exists(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/../interface/forms/" . $formDir . "/patient_portal.php")
             ) {
                 $dirFormNames[] = $formDir;
             }

@@ -82,8 +82,8 @@ function hs_badge_class(?string $val): string
 
 $authorized = AclMain::aclCheckCore('patients', 'med');
 $siteId = $session->get('site_id');
-$self_form = $GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh.php";
-$list_url  = $GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_list.php";
+$self_form = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/history/history_sdoh.php";
+$list_url  = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/history/history_sdoh_list.php";
 
 $info = [];
 if ($authorized && !empty($pid)) {

@@ -34,7 +34,7 @@ formHeader("Form: CAMOS");
         <h1><?php echo xlt('CAMOS'); ?></h1>
         <hr>
         <input type="submit" name="submit form" value="<?php echo xla('submit form'); ?>" />
-        <?php echo "<a href='{$GLOBALS['form_exit_url']}' onclick='top.restoreSession()'>[" . xlt('do not save') . "]</a>"; ?>
+        <?php echo "<a href='" . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('form_exit_url') . "' onclick='top.restoreSession()'>[" . xlt('do not save') . "]</a>"; ?>
         <table>
         </table>
         <h3><?php echo xlt('Computer Aided Medical Ordering System'); ?></h3>
@@ -57,7 +57,7 @@ formHeader("Form: CAMOS");
             </tr>
         </table><input type="submit" name="submit form" value="submit form" />
         <?php
-        echo "<a href='{$GLOBALS['form_exit_url']}' onclick='top.restoreSession()'>[" .
+        echo "<a href='" . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('form_exit_url') . "' onclick='top.restoreSession()'>[" .
         xlt('do not save') . "]</a>";
         ?>
 

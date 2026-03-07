@@ -49,6 +49,6 @@ $file = $formLocator->findFile($_GET['formname'], $pageName, 'load_form.php');
 require_once($file);
 
 $id = $clean_id;
-if (!empty($GLOBALS['text_templates_enabled'])) { ?>
-    <script src="<?php echo $GLOBALS['web_root'] ?>/library/js/CustomTemplateLoader.js"></script>
+if (!empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('text_templates_enabled'))) { ?>
+    <script src="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('web_root') ?>/library/js/CustomTemplateLoader.js"></script>
 <?php } ?>

@@ -94,7 +94,7 @@ class eRxXMLBuilder
 
     public function checkError($xml)
     {
-        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+        $httpVerifySsl = (bool) (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
         $curlHandler = curl_init($xml);
         $sitePath = $this->getGlobals()->getOpenEMRSiteDirectory();
         $data = ['RxInput' => $xml];

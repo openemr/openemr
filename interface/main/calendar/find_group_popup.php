@@ -192,7 +192,7 @@ if ($searchby && $searchparm) {
         <?php echo xlt('for') . ':'; ?>
         <input type='text' id='searchparm' name='searchparm' size='12' value='<?php echo attr($searchparam ?? ""); ?>'>        &nbsp;
         <input type='submit' id="submitbtn" value='<?php echo xla('Search'); ?>'>
-        <div id="searchspinner"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif"></div>
+        <div id="searchspinner"><img src="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot') ?>/interface/pic/ajax-loader.gif"></div>
     </form>
 </div>
 

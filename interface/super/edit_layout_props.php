@@ -42,7 +42,7 @@ td { font-size:10pt; }
 
 <script>
 
-<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+<?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
 
 // The name of the input element to receive a found code.
 var current_sel_name = '';
@@ -390,7 +390,7 @@ for ($cols = 2; $cols <= 12; ++$cols) {
     $itres = sqlStatement(
         "SELECT type, singular FROM issue_types " .
         "WHERE category = ? AND active = 1 ORDER BY singular",
-        [$GLOBALS['ippf_specific'] ? 'ippf_specific' : 'default']
+        [\OpenEMR\Core\OEGlobalsBag::getInstance()->get('ippf_specific') ? 'ippf_specific' : 'default']
     );
     while ($itrow = sqlFetchArray($itres)) {
         echo "<option value='" . attr($itrow['type']) . "'";

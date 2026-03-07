@@ -47,7 +47,7 @@ require_once("../globals.php");
 
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/appointments.inc.php");
-require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/statement.inc.php");
 // statement.inc.php sets $STMT_TEMP_FILE and $STMT_PRINT_CMD
 assert(isset($STMT_TEMP_FILE));
 assert(isset($STMT_PRINT_CMD));
@@ -67,12 +67,12 @@ $alertmsg = '';
 $where = '';
 $eraname = '';
 $eracount = 0;
-$g_posting_adj_disable = $GLOBALS['posting_adj_disable'] ? 'checked' : '';
+$g_posting_adj_disable = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('posting_adj_disable') ? 'checked' : '';
 $posting_adj_disable = prevSetting('sl_eob_search.', 'posting_adj_disable', 'posting_adj_disable', $g_posting_adj_disable);
 $form_cb = false;
 
 /* Load dependencies only if we need them */
-if (!empty($GLOBALS['portal_onsite_two_enable'])) {
+if (!empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('portal_onsite_two_enable'))) {
     /* Addition of onsite portal patient notify of invoice and reformatted invoice - sjpadgett 01/2017 */
     require_once("../../portal/lib/portal_mail.inc.php");
     require_once("../../portal/lib/appsql.class.php");
@@ -91,7 +91,7 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
 
     function notify_portal($thispid, array $invoices, $template, $invid)
     {
-        $builddir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/' . $thispid;
+        $builddir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/onsite_portal_documents/templates/' . $thispid;
         if (!is_dir($builddir)) {
             mkdir($builddir, 0755, true);
         }
@@ -199,7 +199,7 @@ function emailLogin(int $patient_id, string $message): void
     }
 
     $patientData = QueryUtils::querySingleRow("SELECT * FROM `patient_data` WHERE `pid`=?", [$patient_id]);
-    if ($patientData['hipaa_allowemail'] != "YES" || ($patientData['email'] ?? '') === '' || ($GLOBALS['patient_reminder_sender_email'] ?? '') === '') {
+    if ($patientData['hipaa_allowemail'] != "YES" || ($patientData['email'] ?? '') === '' || (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('patient_reminder_sender_email') ?? '') === '') {
         throw new RuntimeException(xl('Email is not allowed or not configured for this patient'));
     }
 
@@ -207,7 +207,7 @@ function emailLogin(int $patient_id, string $message): void
         throw new RuntimeException(xl('Patient email address is invalid'));
     }
 
-    if (!(ValidationUtils::isValidEmail($GLOBALS['patient_reminder_sender_email']))) {
+    if (!(ValidationUtils::isValidEmail(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('patient_reminder_sender_email')))) {
         throw new RuntimeException(xl('Sender email address is not configured or invalid'));
     }
 
@@ -221,7 +221,7 @@ function emailLogin(int $patient_id, string $message): void
     $pt_name = $patientData['fname'] . ' ' . $patientData['lname'];
     $pt_email = $patientData['email'];
     $email_subject = ($facility['name'] . ' ' . xl('Patient Statement Bill'));
-    $email_sender = $GLOBALS['patient_reminder_sender_email'];
+    $email_sender = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('patient_reminder_sender_email');
     $mail->AddReplyTo($email_sender, $email_sender);
     $mail->SetFrom($email_sender, $email_sender);
     $mail->AddAddress($pt_email, $pt_name);
@@ -266,14 +266,14 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
 
     $aPatFName = convert_safe_file_dir_name($aPatFirstName); //modified for statement title name
     if ($flagCFN) {
-        $STMT_TEMP_FILE_PDF = $GLOBALS['temporary_files_dir'] . "/Stmt_{$aPatFName}_{$aPatID}.pdf";
+        $STMT_TEMP_FILE_PDF = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/Stmt_{$aPatFName}_{$aPatID}.pdf";
     } else {
         global $STMT_TEMP_FILE_PDF;
     }
 
     global $srcdir;
 
-    if ($GLOBALS['statement_appearance'] == '1') {
+    if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('statement_appearance') == '1') {
         $config_mpdf = Config_Mpdf::getConfigMpdf();
         $pdf2 = new mPDF($config_mpdf);
         if ($_SESSION['language_direction'] == 'rtl') {
@@ -502,7 +502,7 @@ if (
         foreach ($invlines as $key => $value) {
             $line = [];
             $line['dos'] = $svcdate;
-            if ($GLOBALS['use_custom_statement']) {
+            if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('use_custom_statement')) {
                 $line['desc'] = ($key == 'CO-PAY') ? "Patient Payment" : $value['code_text'];
             } else {
                 $line['desc'] = ($key == 'CO-PAY') ? "Patient Payment" : "Procedure $key";
@@ -576,7 +576,7 @@ if (
                     }
                     // even if click download pdf the file content in $tmp is text
                     // set mimetype and fileext based on statement appearance
-                    $isPdf = ($GLOBALS['statement_appearance'] == 1);
+                    $isPdf = (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('statement_appearance') == 1);
                     $fileext = $isPdf ? '.pdf' : '.txt';
                     $inv_filename = 'Invoice-' . date('Y-m-d-H:i:s') . $fileext;
                     $mimetype = $isPdf ? 'pdf' : 'text/plain';
@@ -729,7 +729,7 @@ if (
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -961,12 +961,12 @@ if (
                                 echo "<!-- Notes from ERA upload processing:\n";
                                 $alertmsg .= ParseERA::parseERA($tmp_name, 'eob_search_era_callback');
                                 echo "-->\n";
-                                $erafullname = $GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi";
-                                $edihname = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/history/f835/$eraname.835";
+                                $erafullname = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/era/$eraname.edi";
+                                $edihname = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/edi/history/f835/$eraname.835";
 
                                 if (is_file($erafullname)) {
                                     $alertmsg .= "Warning: Set $eraname was already uploaded ";
-                                    if (is_file($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.html")) {
+                                    if (is_file(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/era/$eraname.html")) {
                                         $alertmsg .= "and processed. ";
                                     } else {
                                         $alertmsg .= "but not yet processed. ";
@@ -1217,7 +1217,7 @@ if (
                             } else { ?>
                                 <button type="button" class="btn btn-secondary btn-save" name="Submit1" onclick='checkAll(true)'><?php echo xlt('Select All'); ?></button>
                                 <button type="button" class="btn btn-secondary btn-undo" name="Submit2" onclick='checkAll(false)'><?php echo xlt('Clear All'); ?></button>
-                                <?php if ($GLOBALS['statement_appearance'] != '1') { ?>
+                                <?php if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('statement_appearance') != '1') { ?>
                                     <button type="submit" class="btn btn-secondary btn-print" name='form_print' value="<?php echo xla('Print Selected Statements'); ?>"><?php echo xlt('Print Selected'); ?></button>
                                     <button type="submit" class="btn btn-secondary btn-download" name='form_download' value="<?php echo xla('Download Selected Statements'); ?>"><?php echo xlt('Download Selected'); ?></button>
                                 <?php } ?>

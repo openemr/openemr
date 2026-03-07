@@ -196,7 +196,7 @@ class TransmitProperties
     public function createJsonObject(): false|string
     {
         //default is testing mode
-        $testing = isset($GLOBALS['weno_rx_enable_test']);
+        $testing = \OpenEMR\Core\OEGlobalsBag::getInstance()->has('weno_rx_enable_test');
         $mode = $testing ? 'Y' : 'N';
         $gender = $this->patient['sex'];
         $heightDate = explode(" ", $this->vitals['date'] ?? '');
@@ -329,7 +329,7 @@ class TransmitProperties
      */
     public function getProviderEmail(): array|string
     {
-        $provider_info = ['email' => ($GLOBALS['weno_provider_email'] ?? '')];
+        $provider_info = ['email' => (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_provider_email') ?? '')];
         if (empty($provider_info['email'])) {
             return "REQED:{user_settings}" . (xlt('Weno Prescriber Email is missing. Go to User Settings Weno Tab and enter your Weno User Email'));
         } else {
@@ -447,7 +447,7 @@ class TransmitProperties
     public function cipherPayload(): string
     {
         $cipher = "aes-256-cbc"; // AES 256 CBC cipher
-        $enc_key = $this->cryptoGen->decryptStandard($GLOBALS['weno_encryption_key']);
+        $enc_key = $this->cryptoGen->decryptStandard(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_encryption_key'));
 
         if (!$enc_key) {
             return "error";
@@ -465,8 +465,8 @@ class TransmitProperties
      */
     public function getProviderPassword(): mixed
     {
-        if (!empty($GLOBALS['weno_provider_password'])) {
-            $ret = $this->cryptoGen->decryptStandard($GLOBALS['weno_provider_password']);
+        if (!empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_provider_password'))) {
+            $ret = $this->cryptoGen->decryptStandard(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_provider_password'));
             if (!$ret) {
                 return ("REQED:{user_settings}" . xlt('Your Weno Prescriber Password fails decryption. Go to User Settings Weno Tab and reenter your Weno User Password'));
             }
@@ -575,32 +575,32 @@ class TransmitProperties
         // get the Weno User id from the user table (weno_prov_id)
         $provider = sqlQuery("SELECT weno_prov_id FROM users WHERE id = ?", [$id]);
 
-        if ((!empty($GLOBALS['weno_provider_uid'])) && !empty($provider['weno_prov_id'])) {
-            $doIt = ($GLOBALS['weno_provider_uid']) != trim((string) $provider['weno_prov_id']);
+        if ((!empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_provider_uid'))) && !empty($provider['weno_prov_id'])) {
+            $doIt = (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_provider_uid')) != trim((string) $provider['weno_prov_id']);
             if ($doIt) {
-                $provider['weno_prov_id'] = $GLOBALS['weno_provider_uid'];
+                $provider['weno_prov_id'] = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_provider_uid');
                 $sql = "INSERT INTO `user_settings` (`setting_value`, `setting_user`, `setting_label`)
                     VALUES (?, ?, 'global:weno_provider_uid')
                     ON DUPLICATE KEY UPDATE `setting_value` = ?";
                 sqlQuery($sql, [$provider['weno_prov_id'], $id, $provider['weno_prov_id']]);
             }
-            $GLOBALS['weno_provider_uid'] = $GLOBALS['weno_prov_id'] = $provider['weno_prov_id']; // update users
+            \OpenEMR\Core\OEGlobalsBag::getInstance()->set('weno_provider_uid', \OpenEMR\Core\OEGlobalsBag::getInstance()->set('weno_prov_id', $provider['weno_prov_id'])); // update users
             $sql = "INSERT INTO `users` (`weno_prov_id`, `id`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `weno_prov_id` = ?";
-            sqlQuery($sql, [$GLOBALS['weno_provider_uid'], $id, $GLOBALS['weno_provider_uid']]);
+            sqlQuery($sql, [\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_provider_uid'), $id, \OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_provider_uid')]);
             return $provider['weno_prov_id'];
-        } elseif (!empty($provider['weno_prov_id'] ?? '') && empty($GLOBALS['weno_provider_uid'])) {
+        } elseif (!empty($provider['weno_prov_id'] ?? '') && empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_provider_uid'))) {
             $sql = "INSERT INTO `user_settings` (`setting_value`, `setting_user`, `setting_label`)
                 VALUES (?, ?, 'global:weno_provider_uid')
                 ON DUPLICATE KEY UPDATE `setting_value` = ?";
             sqlQuery($sql, [$provider['weno_prov_id'], $id, $provider['weno_prov_id']]);
 
-            $GLOBALS['weno_provider_uid'] = $GLOBALS['weno_prov_id'] = $provider['weno_prov_id'];
+            \OpenEMR\Core\OEGlobalsBag::getInstance()->set('weno_provider_uid', \OpenEMR\Core\OEGlobalsBag::getInstance()->set('weno_prov_id', $provider['weno_prov_id']));
             return $provider['weno_prov_id'];
-        } elseif (empty($provider['weno_prov_id'] ?? '') && !empty($GLOBALS['weno_provider_uid'])) {
+        } elseif (empty($provider['weno_prov_id'] ?? '') && !empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_provider_uid'))) {
             $sql = "INSERT INTO `users` (`weno_prov_id`, `id`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `weno_prov_id` = ?";
-            sqlQuery($sql, [$GLOBALS['weno_provider_uid'], $id, $GLOBALS['weno_provider_uid']]);
+            sqlQuery($sql, [\OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_provider_uid'), $id, \OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_provider_uid')]);
 
-            $provider['weno_prov_id'] = $GLOBALS['weno_prov_id'] = $GLOBALS['weno_provider_uid'];
+            $provider['weno_prov_id'] = \OpenEMR\Core\OEGlobalsBag::getInstance()->set('weno_prov_id', \OpenEMR\Core\OEGlobalsBag::getInstance()->get('weno_provider_uid'));
             return $provider['weno_prov_id'];
         } else {
             return "REQED:{users}" . xlt("Weno User Id missing. Select Admin then Users and edit the user to add Weno User Id");

@@ -138,12 +138,12 @@ class DatabaseConnectionFactory
     public static function detectConnectionPersistenceFromGlobalState(): bool
     {
         // If connection pooling is explicitly disabled, return false
-        if (!empty($GLOBALS['connection_pooling_off'])) {
+        if (!empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('connection_pooling_off'))) {
             return false;
         }
 
         // Check if pooling is enabled via globals or session
-        if (!empty($GLOBALS['enable_database_connection_pooling'])) {
+        if (!empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('enable_database_connection_pooling'))) {
             return true;
         }
         if (!empty($_SESSION['enable_database_connection_pooling'])) {

@@ -13,7 +13,7 @@
  */
 
 require_once(__DIR__ . '/../globals.php');
-require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("include_root") . "/orders/single_order_results.inc.php");
 
 use Mpdf\Mpdf;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
@@ -57,7 +57,7 @@ if (!empty($_POST['form_sign']) && !empty($_POST['form_sign_list'])) {
 if (!empty($_POST['form_send_to_portal'])) {
   // Borrowing the general strategy here from custom_report.php.
   // See also: http://wiki.spipu.net/doku.php?id=html2pdf:en:v3:output
-    require_once($GLOBALS["include_root"] . "/cmsportal/portal.inc.php");
+    require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("include_root") . "/cmsportal/portal.inc.php");
     $config_mpdf = Config_Mpdf::getConfigMpdf();
     $pdf = new mPDF($config_mpdf);
     if ($_SESSION['language_direction'] == 'rtl') {
@@ -66,9 +66,9 @@ if (!empty($_POST['form_send_to_portal'])) {
     ob_start();
     echo "<link rel='stylesheet' type='text/css' href='$webserver_root/interface/themes/style_pdf.css'>\n";
     echo "<link rel='stylesheet' type='text/css' href='$webserver_root/library/ESign/css/esign_report.css'>\n";
-    $GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
+    \OpenEMR\Core\OEGlobalsBag::getInstance()->set('PATIENT_REPORT_ACTIVE', true);
     generate_order_report($orderid, false, true, $finals_only);
-    $GLOBALS['PATIENT_REPORT_ACTIVE'] = false;
+    \OpenEMR\Core\OEGlobalsBag::getInstance()->set('PATIENT_REPORT_ACTIVE', false);
   // echo ob_get_clean(); exit(); // debugging
     $pdf->writeHTML(ob_get_clean());
     $contents = $pdf->Output('', true);
@@ -101,7 +101,7 @@ body {
 
 <script src="../../library/topdialog.js"></script>
 <script>
-    <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+    <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
 </script>
 
 </head>

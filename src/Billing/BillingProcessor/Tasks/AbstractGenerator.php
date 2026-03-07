@@ -102,7 +102,7 @@ abstract class AbstractGenerator extends AbstractProcessingTask implements Gener
      */
     public function printDownloadClaimFileJS($filename, $location = '', $delete = false)
     {
-        $url = $GLOBALS['webroot'] . '/interface/billing/get_claim_file.php?' .
+        $url = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot') . '/interface/billing/get_claim_file.php?' .
             'key=' . urlencode((string) $filename) .
             '&location=' . urlencode((string) $location) .
             '&delete=' . urlencode($delete) .

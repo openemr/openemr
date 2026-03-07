@@ -34,7 +34,7 @@ class PdfCreator
      */
     private function getBinaryPath(): string
     {
-        $binroot = $GLOBALS['vendor_dir'] . "/openemr/wkhtmltopdf-openemr/bin";
+        $binroot = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('vendor_dir') . "/openemr/wkhtmltopdf-openemr/bin";
 
         // This will not necessarily reflect actual machine bus width but php bus size.
         $bit = str_contains(php_uname("m"), '64') ? "64" : "32";
@@ -55,7 +55,7 @@ class PdfCreator
     public function __construct()
     {
         $this->binaryPath = $this->getBinaryPath();
-        $this->tempPath = $GLOBALS['OE_SITE_DIR'] . "/documents/temp";
+        $this->tempPath = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/temp";
     }
 
     /**

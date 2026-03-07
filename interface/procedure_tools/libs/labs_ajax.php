@@ -77,7 +77,7 @@ if ($action === 'print_labels') {
     }
 
     $pdf = new mPDF([
-        'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
+        'tempDir' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('MPDF_WRITE_DIR'),
         'mode' => 'utf-8',
         'format' => [45, 19],
         'default_font_size' => '9',

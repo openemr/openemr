@@ -59,7 +59,7 @@ function generate_html_u2f(): void
 {
     global $appId;
     ?>
-    <script src="<?php echo $GLOBALS['webroot'] ?>/library/js/u2f-api.js"></script>
+    <script src="<?php echo \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot') ?>/library/js/u2f-api.js"></script>
     <script>
         function doAuth() {
             var f = document.getElementById("u2fform");
@@ -389,7 +389,7 @@ SessionTracker::setupSessionDatabaseTracker();
 
 $_SESSION["encounter"] = '';
 
-if ($GLOBALS['login_into_facility']) {
+if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('login_into_facility')) {
     $facility_id = $_POST['facility'];
     if ($facility_id === 'user_default') {
         //get the default facility of login user from users table
@@ -398,15 +398,15 @@ if ($GLOBALS['login_into_facility']) {
         $facility_id = $facility['id'];
     }
     $_SESSION['facilityId'] = $facility_id;
-    if ($GLOBALS['set_facility_cookie']) {
+    if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('set_facility_cookie')) {
         // set cookie with facility for the calendar screens
-        setcookie("pc_facility", (string) $_SESSION['facilityId'], ['expires' => time() + (3600 * 365), 'path' => $GLOBALS['webroot']]);
+        setcookie("pc_facility", (string) $_SESSION['facilityId'], ['expires' => time() + (3600 * 365), 'path' => \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot')]);
     }
 }
 
 // Fetch the password expiration date (note LDAP skips this)
 $is_expired = false;
-if ((!AuthUtils::useActiveDirectory()) && ($GLOBALS['password_expiration_days'] != 0) && (check_integer($GLOBALS['password_expiration_days']))) {
+if ((!AuthUtils::useActiveDirectory()) && (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('password_expiration_days') != 0) && (check_integer(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('password_expiration_days')))) {
     $result = privQuery("select `last_update_password` from `users_secure` where `id` = ?", [$_SESSION['authUserID']]);
     $current_date = date('Y-m-d');
     if (!empty($result['last_update_password'])) {
@@ -417,7 +417,7 @@ if ((!AuthUtils::useActiveDirectory()) && ($GLOBALS['password_expiration_days'] 
     }
 
     // Display the password expiration message (will show during the grace time)
-    $pwd_alert_date = date('Y-m-d', strtotime($pwd_last_update . '+' . $GLOBALS['password_expiration_days'] . ' days'));
+    $pwd_alert_date = date('Y-m-d', strtotime($pwd_last_update . '+' . \OpenEMR\Core\OEGlobalsBag::getInstance()->get('password_expiration_days') . ' days'));
 
     if (empty(strtotime($pwd_alert_date))) {
         error_log("OpenEMR ERROR: there is a problem when trying to check if user's password is expired");

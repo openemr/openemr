@@ -100,7 +100,7 @@ class FormVitals extends ORDataObject
 
         $this->_table = self::TABLE_NAME;
         $this->activity = 1;
-        $this->pid = $GLOBALS['pid'];
+        $this->pid = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('pid');
         if (!empty($id)) {
             $this->populate();
         }
@@ -229,7 +229,7 @@ class FormVitals extends ORDataObject
     public function display_weight($pounds)
     {
         if ($pounds != 0) {
-            if ($GLOBALS['us_weight_format'] == 2) {
+            if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('us_weight_format') == 2) {
                 $pounds_int = floor($pounds);
                 return $pounds_int . " " . xl('lb') . " " . round(($pounds - $pounds_int) * 16) . " " . xl('oz');
             }

@@ -10,14 +10,14 @@
 */
 
 //Require once the holidays controller for the is_holiday() function
-require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('incdir') . "/main/holidays/Holidays_Controller.php");
 
 // Returns an array of the facility ids and names that the user is allowed to access.
 // Access might be for inventory purposes ($inventory=true) or calendar purposes.
 //
 function getUserFacilities($uID, $orderby = 'id', $inventory = false)
 {
-    $restrict = $inventory ? $GLOBALS['gbl_fac_warehouse_restrictions'] : $GLOBALS['restrict_user_facility'];
+    $restrict = $inventory ? \OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_fac_warehouse_restrictions') : \OpenEMR\Core\OEGlobalsBag::getInstance()->get('restrict_user_facility');
     if ($restrict) {
         // No entries in this table means the user is not restricted.
         $countrow = sqlQuery(
@@ -76,7 +76,7 @@ function getUserFacWH($uID, $fID)
 function is_weekend_day($day)
 {
 
-    if (in_array($day, $GLOBALS['weekend_days'])) {
+    if (in_array($day, \OpenEMR\Core\OEGlobalsBag::getInstance()->get('weekend_days'))) {
         return true;
     } else {
         return false;

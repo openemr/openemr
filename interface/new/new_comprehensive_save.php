@@ -79,7 +79,7 @@ if (empty($pid)) {
     die("Internal error: setpid(" . text($pid) . ") failed!");
 }
 setpid($pid);
-if (!$GLOBALS['omit_employers']) {
+if (!\OpenEMR\Core\OEGlobalsBag::getInstance()->get('omit_employers')) {
     updateEmployerData($pid, $newdata['employer_data'], true, $newdata['patient_data']);
 }
 
@@ -118,7 +118,7 @@ $i1date = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date"));
 
 newHistoryData($pid);
 // no need to save insurance for simple demos
-if (!$GLOBALS['simplified_demographics']) {
+if (!\OpenEMR\Core\OEGlobalsBag::getInstance()->get('simplified_demographics')) {
     newInsuranceData(
         $pid,
         "primary",
@@ -151,7 +151,7 @@ if (!$GLOBALS['simplified_demographics']) {
     );
 
     //Dont save more than one insurance since only one is allowed / save space in DB
-    if (!$GLOBALS['insurance_only_one']) {
+    if (!\OpenEMR\Core\OEGlobalsBag::getInstance()->get('insurance_only_one')) {
         $i2dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i2subscriber_DOB"));
         $i2date = DateToYYYYMMDD(filter_input(INPUT_POST, "i2effective_date"));
 

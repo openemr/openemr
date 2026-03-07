@@ -90,10 +90,10 @@ class X125010837P
         if (
             (
                 $HLcount == 1 // HLcount passed in to function by GeneratorX12Direct class
-                && !empty($GLOBALS['gen_x12_based_on_ins_co'])
+                && !empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gen_x12_based_on_ins_co'))
             )
             || (
-                empty($GLOBALS['gen_x12_based_on_ins_co'])
+                empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gen_x12_based_on_ins_co'))
             )
         ) {
             ++$edicount;
@@ -373,7 +373,7 @@ class X125010837P
             // NM1*PE, N3, N4, REF*2U, REF*EI
         }
 
-        if (!empty($GLOBALS['gen_x12_based_on_ins_co'])) {
+        if (!empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gen_x12_based_on_ins_co'))) {
             $HLcount += $patSegmentCount;
         }
 
@@ -1604,7 +1604,7 @@ class X125010837P
 
         if (
             $SEFLAG == true
-            || empty($GLOBALS['gen_x12_based_on_ins_co'])
+            || empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gen_x12_based_on_ins_co'))
         ) {
             ++$edicount; //todo: This might have to go into the SE flag spot //***MS Modify
 

@@ -17,9 +17,9 @@
  */
 
 require_once('../globals.php');
-require_once($GLOBALS['srcdir'] . '/patient.inc.php');
-require_once($GLOBALS['srcdir'] . '/options.inc.php');
-require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/patient.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/appointments.inc.php');
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -152,7 +152,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsuran
         $uap_flag = false;
         if ($unassigned) {
             if (($pmt['pay_total'] - $pmt['applied']) == 0) {
-                if (!$GLOBALS['show_payment_history']) {
+                if (!\OpenEMR\Core\OEGlobalsBag::getInstance()->get('show_payment_history')) {
                     continue;
                 }
                 $uap_flag = true;
@@ -310,14 +310,14 @@ if (!isset($_REQUEST['$form_dob'])) {
     $_REQUEST['$form_dob'] = '';
 }
 
-if (str_starts_with((string) $GLOBALS['ledger_begin_date'], 'Y')) {
-    $ledger_time = substr((string) $GLOBALS['ledger_begin_date'], 1, 1);
+if (str_starts_with((string) \OpenEMR\Core\OEGlobalsBag::getInstance()->get('ledger_begin_date'), 'Y')) {
+    $ledger_time = substr((string) \OpenEMR\Core\OEGlobalsBag::getInstance()->get('ledger_begin_date'), 1, 1);
     $last_year = mktime(0, 0, 0, date('m'), date('d'), date('Y') - $ledger_time);
-} elseif (str_starts_with((string) $GLOBALS['ledger_begin_date'], 'M')) {
-    $ledger_time = substr((string) $GLOBALS['ledger_begin_date'], 1, 1);
+} elseif (str_starts_with((string) \OpenEMR\Core\OEGlobalsBag::getInstance()->get('ledger_begin_date'), 'M')) {
+    $ledger_time = substr((string) \OpenEMR\Core\OEGlobalsBag::getInstance()->get('ledger_begin_date'), 1, 1);
     $last_year = mktime(0, 0, 0, date('m') - $ledger_time, date('d'), date('Y'));
-} elseif (str_starts_with((string) $GLOBALS['ledger_begin_date'], 'D')) {
-    $ledger_time = substr((string) $GLOBALS['ledger_begin_date'], 1, 1);
+} elseif (str_starts_with((string) \OpenEMR\Core\OEGlobalsBag::getInstance()->get('ledger_begin_date'), 'D')) {
+    $ledger_time = substr((string) \OpenEMR\Core\OEGlobalsBag::getInstance()->get('ledger_begin_date'), 1, 1);
     $last_year = mktime(0, 0, 0, date('m'), date('d') - $ledger_time, date('Y'));
 }
 
@@ -420,7 +420,7 @@ if ($_REQUEST['form_csvexport']) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -873,7 +873,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     </table>
     <tr><td>&nbsp;</td></tr><br /><br />
         <?php
-        if ($GLOBALS['print_next_appointment_on_ledger'] == 1) {
+        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('print_next_appointment_on_ledger') == 1) {
             $next_day = mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'));
         # add one day to date so it will not get todays appointment
             $current_date2 = date('Y-m-d', $next_day);

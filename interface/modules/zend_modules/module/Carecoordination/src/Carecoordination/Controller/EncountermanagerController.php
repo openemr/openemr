@@ -61,9 +61,9 @@ class EncountermanagerController extends AbstractActionController
     {
         $request = $this->getRequest();
         $fromDate = $request->getPost('form_date_from', null);
-        $fromDate = $this->CommonPlugin()->date_format($fromDate, 'yyyy-mm-dd', $GLOBALS['date_display_format']);
+        $fromDate = $this->CommonPlugin()->date_format($fromDate, 'yyyy-mm-dd', \OpenEMR\Core\OEGlobalsBag::getInstance()->get('date_display_format'));
         $toDate = $request->getPost('form_date_to', null);
-        $toDate = $this->CommonPlugin()->date_format($toDate, 'yyyy-mm-dd', $GLOBALS['date_display_format']);
+        $toDate = $this->CommonPlugin()->date_format($toDate, 'yyyy-mm-dd', \OpenEMR\Core\OEGlobalsBag::getInstance()->get('date_display_format'));
         // encounter_date
         // patient_date_created
 
@@ -75,8 +75,8 @@ class EncountermanagerController extends AbstractActionController
         $status = $request->getPost('form_status', null);
 
         if (!$pid && !$encounter && !$status) {
-            $fromDate = $request->getPost('form_date_from', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_from', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d', strtotime("-3 months", $fromDate));
-            $toDate = $request->getPost('form_date_to', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_to', null), 'yyyy-mm-dd', $GLOBALS['date_display_format']) : date('Y-m-d');
+            $fromDate = $request->getPost('form_date_from', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_from', null), 'yyyy-mm-dd', \OpenEMR\Core\OEGlobalsBag::getInstance()->get('date_display_format')) : date('Y-m-d', strtotime("-3 months", $fromDate));
+            $toDate = $request->getPost('form_date_to', null) ? $this->CommonPlugin()->date_format($request->getPost('form_date_to', null), 'yyyy-mm-dd', \OpenEMR\Core\OEGlobalsBag::getInstance()->get('date_display_format')) : date('Y-m-d');
         }
 
         $results = $request->getPost('form_results', 500);

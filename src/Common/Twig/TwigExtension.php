@@ -195,7 +195,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     // In the event we need to pass the this objecto to the datetimepicker, we cannot use quotations because `this` would not be a string
                     $selector = ($domSelector == "this") ? $domSelector : "\"$domSelector\"";
                     echo "$($selector).datetimepicker({";
-                    require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
+                    require(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
                     echo "})";
                     return ob_get_clean();
                 }
@@ -204,7 +204,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 'DateToYYYYMMDD_js',
                 function () {
                     ob_start();
-                    require $GLOBALS['srcdir'] . "/formatting_DateToYYYYMMDD_js.js.php";
+                    require \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/formatting_DateToYYYYMMDD_js.js.php";
                     return ob_get_clean();
                 }
             ),
@@ -234,7 +234,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 'oemHelpIcon',
                 function () {
                     // this setups a variable called $help_icon... strange
-                    require $GLOBALS['srcdir'] . "/display_help_icon_inc.php";
+                    require \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/display_help_icon_inc.php";
                     return $help_icon ?? '';
                 }
             ),

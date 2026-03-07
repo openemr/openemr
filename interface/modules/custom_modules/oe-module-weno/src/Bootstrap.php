@@ -72,7 +72,7 @@ class Bootstrap
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->installPath = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-weno";
+        $this->installPath = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('web_root') . "/interface/modules/custom_modules/oe-module-weno";
         $this->globalsConfig = new WenoGlobalConfig();
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->modulePath = dirname(__DIR__);
@@ -127,7 +127,7 @@ class Bootstrap
         $service->addUserSpecificTab(self::MODULE_MENU_NAME);
 
         foreach ($settings as $key => $config) {
-            $value = $GLOBALS[$key] ?? $config['default'];
+            $value = \OpenEMR\Core\OEGlobalsBag::getInstance()->get($key) ?? $config['default'];
             if ($userMode) {
                 $service->appendToSection(
                     self::MODULE_MENU_NAME,

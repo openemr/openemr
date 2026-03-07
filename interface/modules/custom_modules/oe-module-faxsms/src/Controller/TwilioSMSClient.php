@@ -39,12 +39,12 @@ class TwilioSMSClient extends AppDispatch
 
     public function __construct()
     {
-        if (empty($GLOBALS['oefax_enable_sms'] ?? null)) {
+        if (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? null)) {
             throw new RuntimeException(xlt("Access denied! Module not enabled"));
         }
         $this->crypto = ServiceContainer::getCrypto();
-        $this->baseDir = $GLOBALS['temporary_files_dir'];
-        $this->uriDir = $GLOBALS['OE_SITE_WEBROOT'];
+        $this->baseDir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir');
+        $this->uriDir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT');
         $this->credentials = $this->getCredentials();
         parent::__construct();
     }

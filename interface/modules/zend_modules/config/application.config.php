@@ -28,7 +28,7 @@ $plugin_modules = \OpenEMR\Core\ModulesApplication::oemr_zend_load_modules_from_
     $webRootPath ?? '',
     $zendConfigurationPath ?? ''
 );
-$vendor_path = !empty($GLOBALS['vendor_dir']) ? $GLOBALS['vendor_dir'] : (realpath(__DIR__) . '/../vendor');
+$vendor_path = !empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('vendor_dir')) ? \OpenEMR\Core\OEGlobalsBag::getInstance()->get('vendor_dir') : (realpath(__DIR__) . '/../vendor');
 
 return [
     'modules' =>  array_merge($core_modules, $plugin_modules)

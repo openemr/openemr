@@ -39,7 +39,7 @@ class Tree
     */
     function __construct(public $_root, public $_root_type = ROOT_TYPE_ID)
     {
-        $this->_db = $GLOBALS['adodb']['db'];
+        $this->_db = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('adodb')['db'];
         $this->load_tree();
     }
 

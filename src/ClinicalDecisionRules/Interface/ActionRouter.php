@@ -31,7 +31,7 @@ class ActionRouter
     public function __construct(protected $controller, protected $action)
     {
         $this->appRoot = Common::base_dir();
-        $this->webRoot = $GLOBALS['webroot'];
+        $this->webRoot = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('webroot');
         $this->templateRoot = Common::template_dir();
     }
 

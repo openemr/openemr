@@ -449,7 +449,7 @@ class Hcfa1500
         // There is still confusion over this.
         if (
             $claim->referrerLastName() || $claim->billingProviderLastName() &&
-            (empty($GLOBALS['MedicareReferrerIsRenderer']) || $claim->claimType() != 'MB')
+            (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('MedicareReferrerIsRenderer')) || $claim->claimType() != 'MB')
         ) {
             // Box 17a. Referring Provider Alternate Identifier
             // Commented this out because UPINs are obsolete, leaving the code as an
@@ -698,9 +698,9 @@ class Hcfa1500
 
         // 31. Signature of Physician or Supplier
 
-        if ($GLOBALS['cms_1500_box_31_format'] == 0) {
+        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('cms_1500_box_31_format') == 0) {
             $this->putHcfa(60, 1, 20, 'Signature on File');
-        } elseif ($GLOBALS['cms_1500_box_31_format'] == 1) {
+        } elseif (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('cms_1500_box_31_format') == 1) {
             $this->putHcfa(60, 1, 22, $claim->providerFirstName() . " " . $claim->providerLastName());
         }
 
@@ -715,13 +715,13 @@ class Hcfa1500
             $claim->billingFacilityZip());
 
         // 31. Signature of Physician or Supplier: Date
-        if ($GLOBALS['cms_1500_box_31_date'] > 0) {
-            if ($GLOBALS['cms_1500_box_31_date'] == 1) {
+        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('cms_1500_box_31_date') > 0) {
+            if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('cms_1500_box_31_date') == 1) {
                 $date_of_service = $claim->serviceDate();
                 $MDY = substr((string) $date_of_service, 4, 2) .
                     " " . substr((string) $date_of_service, 6, 2) .
                     " " . substr((string) $date_of_service, 2, 2);
-            } elseif ($GLOBALS['cms_1500_box_31_date'] == 2) {
+            } elseif (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('cms_1500_box_31_date') == 2) {
                 $MDY = date("m/d/y");
             }
 

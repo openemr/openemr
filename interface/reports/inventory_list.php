@@ -36,7 +36,7 @@ $ORDERHASH = [
 ];
 
 // Check permission for this report.
-$auth_drug_reports = $GLOBALS['inhouse_pharmacy'] && (
+$auth_drug_reports = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('inhouse_pharmacy') && (
     AclMain::aclCheckCore('admin', 'drugs') ||
     AclMain::aclCheckCore('inventory', 'reporting'));
 if (!$auth_drug_reports) {
@@ -95,7 +95,7 @@ function checkReorder($drug_id, $min, $warehouse = '')
     $ohrow = sqlQuery($query, $binds);
     $onhand = intval($ohrow['on_hand']);
 
-    if (empty($GLOBALS['gbl_min_max_months'])) {
+    if (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_min_max_months'))) {
         if ($onhand <= $min) {
             return true;
         }
@@ -443,7 +443,7 @@ function write_report_line(&$row): void
         // Note if facility details, this the sum of min levels for the facility's warehouses.
         $min_months = 0 + ($form_details ? $row['pw_min_level'] : $row['reorder_point']);
         // If min is not specified as months then compute it that way.
-        if (empty($GLOBALS['gbl_min_max_months'])) {
+        if (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_min_max_months'))) {
             $min_months /= $monthly;
         }
         if ($stock_months < $min_months) {
@@ -466,7 +466,7 @@ function write_report_line(&$row): void
         }
         [$codetype, $code] = explode(':', $codestring);
         // For IPPF just the IPPFCM codes are wanted.
-        if ($GLOBALS['ippf_specific'] && $codetype !== 'IPPFCM') {
+        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('ippf_specific') && $codetype !== 'IPPFCM') {
             continue;
         }
         if ($relcodes) {
@@ -576,7 +576,7 @@ $form_warehouse = $_REQUEST['form_warehouse'] ?? '';
 $tmp = explode('/', (string) $form_warehouse);
 $form_warehouse = $tmp[0];
 
-$mmtype = empty($GLOBALS['gbl_min_max_months']) ? xl('Units') : xl('Months');
+$mmtype = empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_min_max_months')) ? xl('Units') : xl('Months');
 
 // Compute WHERE condition for filtering on facility/warehouse.
 $fwcond = '';

@@ -26,11 +26,11 @@ class PaymentGateway
 
     public function __construct($name)
     {
-        $this->production = !$GLOBALS['gateway_mode_production'];
+        $this->production = !\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gateway_mode_production');
 
         $cryptoGen = ServiceContainer::getCrypto();
-        $this->apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
-        $this->transactionKey = $cryptoGen->decryptStandard($GLOBALS['gateway_transaction_key']);
+        $this->apiKey = $cryptoGen->decryptStandard(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gateway_api_key'));
+        $this->transactionKey = $cryptoGen->decryptStandard(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gateway_transaction_key'));
 
         // Setup payment Gateway
         $this->setGateway($name);

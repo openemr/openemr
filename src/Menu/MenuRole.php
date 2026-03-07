@@ -97,12 +97,12 @@ abstract class MenuRole implements MenuRoleInterface
                         if (str_starts_with((string) $curSetting, '!')) {
                             $curSetting = substr((string) $curSetting, 1);
                             // If the global isn't set at all, or if it is false, then show it
-                            if (!isset($GLOBALS[$curSetting]) || !$GLOBALS[$curSetting]) {
+                            if (!\OpenEMR\Core\OEGlobalsBag::getInstance()->has($curSetting) || !\OpenEMR\Core\OEGlobalsBag::getInstance()->get($curSetting)) {
                                 $noneSet = false;
                             }
                         } else {
                             // If the setting is both set and true, then show it
-                            if (isset($GLOBALS[$curSetting]) && $GLOBALS[$curSetting]) {
+                            if (\OpenEMR\Core\OEGlobalsBag::getInstance()->has($curSetting) && \OpenEMR\Core\OEGlobalsBag::getInstance()->get($curSetting)) {
                                 $noneSet = false;
                             }
                         }
@@ -116,12 +116,12 @@ abstract class MenuRole implements MenuRoleInterface
                     if (str_starts_with((string) $srcEntry->global_req, '!')) {
                         $globalSetting = substr((string) $srcEntry->global_req, 1);
                         // If the setting is both set and true, then skip this entry
-                        if (isset($GLOBALS[$globalSetting]) && $GLOBALS[$globalSetting]) {
+                        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->has($globalSetting) && \OpenEMR\Core\OEGlobalsBag::getInstance()->get($globalSetting)) {
                             $includeEntry = false;
                         }
                     } else {
                         // If the global isn't set at all, or if it is false then skip the entry
-                        if (!isset($GLOBALS[$srcEntry->global_req]) || !$GLOBALS[$srcEntry->global_req]) {
+                        if (!\OpenEMR\Core\OEGlobalsBag::getInstance()->has($srcEntry->global_req) || !\OpenEMR\Core\OEGlobalsBag::getInstance()->get($srcEntry->global_req)) {
                             $includeEntry = false;
                         }
                     }
@@ -139,12 +139,12 @@ abstract class MenuRole implements MenuRoleInterface
                         if (str_starts_with((string) $curSetting, '!')) {
                             $curSetting = substr((string) $curSetting, 1);
                             // If the setting is both set and true, then do not show it
-                            if (isset($GLOBALS[$curSetting]) && $GLOBALS[$curSetting]) {
+                            if (\OpenEMR\Core\OEGlobalsBag::getInstance()->has($curSetting) && \OpenEMR\Core\OEGlobalsBag::getInstance()->get($curSetting)) {
                                 $allSet = false;
                             }
                         } else {
                             // If the global isn't set at all, or if it is false, then do not show it
-                            if (!isset($GLOBALS[$curSetting]) || !$GLOBALS[$curSetting]) {
+                            if (!\OpenEMR\Core\OEGlobalsBag::getInstance()->has($curSetting) || !\OpenEMR\Core\OEGlobalsBag::getInstance()->get($curSetting)) {
                                 $allSet = false;
                             }
                         }
@@ -158,12 +158,12 @@ abstract class MenuRole implements MenuRoleInterface
                     if (str_starts_with((string) $srcEntry->global_req_strict, '!')) {
                         $globalSetting = substr((string) $srcEntry->global_req_strict, 1);
                         // If the setting is both set and true, then skip this entry
-                        if (isset($GLOBALS[$globalSetting]) && $GLOBALS[$globalSetting]) {
+                        if (\OpenEMR\Core\OEGlobalsBag::getInstance()->has($globalSetting) && \OpenEMR\Core\OEGlobalsBag::getInstance()->get($globalSetting)) {
                             $includeEntry = false;
                         }
                     } else {
                         // If the global isn't set at all, or if it is false then skip the entry
-                        if (!isset($GLOBALS[$srcEntry->global_req_strict]) || !$GLOBALS[$srcEntry->global_req_strict]) {
+                        if (!\OpenEMR\Core\OEGlobalsBag::getInstance()->has($srcEntry->global_req_strict) || !\OpenEMR\Core\OEGlobalsBag::getInstance()->get($srcEntry->global_req_strict)) {
                             $includeEntry = false;
                         }
                     }

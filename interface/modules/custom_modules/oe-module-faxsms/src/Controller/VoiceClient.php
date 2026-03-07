@@ -25,13 +25,13 @@ class VoiceClient extends AppDispatch
     private VoiceClient $client;
     public function __construct()
     {
-        if (empty($GLOBALS['oe_enable_voice'] ?? null)) {
+        if (empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('oe_enable_voice') ?? null)) {
             throw new \RuntimeException(xlt("Access denied! Module not enabled"));
         }
         $this->crypto = ServiceContainer::getCrypto();
-        $this->baseDir = $GLOBALS['temporary_files_dir'];
-        $this->uriDir = $GLOBALS['OE_SITE_WEBROOT'];
-        $this->cacheDir = $GLOBALS['OE_SITE_DIR'] . '/documents/logs_and_misc/_cache';
+        $this->baseDir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('temporary_files_dir');
+        $this->uriDir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT');
+        $this->cacheDir = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/logs_and_misc/_cache';
         $this->credentials = $this->getCredentials();
         $this->portalUrl = $this->credentials['production'] ?? null ? "https://service.ringcentral.com/" : "https://service.devtest.ringcentral.com/";
         $this->serverUrl = $this->credentials['production'] ?? null ? "https://platform.ringcentral.com" : "https://platform.devtest.ringcentral.com";
@@ -45,7 +45,7 @@ class VoiceClient extends AppDispatch
     {
         $vendor = '_voice';
         $this->authUser = (int)$this->getSession('authUserID');
-        if (!($GLOBALS['oerestrict_users'] ?? null)) {
+        if (!(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('oerestrict_users') ?? null)) {
             $this->authUser = 0;
         }
         $credentials = sqlQuery("SELECT * FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", [$this->authUser, $vendor]);

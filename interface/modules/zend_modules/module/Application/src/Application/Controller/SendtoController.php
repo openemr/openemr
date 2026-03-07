@@ -44,7 +44,7 @@ class SendtoController extends AbstractActionController
         $selected_cform = $this->params()->fromQuery('selected_form');
         $default_send_via = $this->params()->fromQuery('default_send_via');
         $default_send_via = $default_send_via ?: 'printer';
-        $encounter = $GLOBALS['encounter'];
+        $encounter = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('encounter');
         $faxRecievers = $this->getSendtoTable()->getFaxRecievers();
         $ccda_sections = $this->getSendtoTable()->getCCDAComponents(0);
         $ccda_components = $this->getSendtoTable()->getCCDAComponents(1);
@@ -76,8 +76,8 @@ class SendtoController extends AbstractActionController
     public function ajaxAction()
     {
         $ajax_mode = $this->getRequest()->getPost('ajax_mode', null);
-        $encounter = $GLOBALS['encounter'];
-        $pid = $GLOBALS['pid'];
+        $encounter = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('encounter');
+        $pid = \OpenEMR\Core\OEGlobalsBag::getInstance()->get('pid');
         switch ($ajax_mode) {
             case 'get_componets':
                 $formId = $this->getRequest()->getPost('form_id', null);
