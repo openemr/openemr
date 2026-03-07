@@ -514,11 +514,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Use OpenEMR\\\\Common\\\\Logging\\\\SystemLogger instead of error_log\\(\\)\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use OpenEMR\\\\Common\\\\Logging\\\\SystemLogger instead of error_log\\(\\)\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/ECQM/AllPatientsTest.php',
 ];
 $ignoreErrors[] = [

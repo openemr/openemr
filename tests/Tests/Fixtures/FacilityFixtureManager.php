@@ -21,6 +21,7 @@ use OpenEMR\Tests\Fixtures\BaseFixtureManager;
  */
 class FacilityFixtureManager extends BaseFixtureManager
 {
+    /** @var array<string, mixed>[] */
     private $fhirFacilityFixtures;
 
     public function __construct()
@@ -55,7 +56,7 @@ class FacilityFixtureManager extends BaseFixtureManager
 
 
     /**
-     * @return a random facility fixture.
+     * @return array<string, mixed>
      */
     public function getSingleFacilityFixture()
     {

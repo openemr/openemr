@@ -25,7 +25,9 @@ class PractitionerFixtureManager
     // use a prefix so we can easily remove fixtures
     const FIXTURE_PREFIX = "test-fixture";
 
+    /** @var array<string, mixed>[] */
     private $practitionerFixtures;
+    /** @var array<string, mixed>[] */
     private $fhirPractitionerFixtures;
 
     public function __construct()
@@ -37,12 +39,13 @@ class PractitionerFixtureManager
     /**
      * Loads a JSON fixture from a file within the Fixture namespace, returning the data as an array of records.
      * @param $fileName The file name to load.
-     * @return array of records.
+     * @return array<string, mixed>[]
      */
     private function loadJsonFile($fileName)
     {
         $filePath = __DIR__ . "/" . $fileName;
         $jsonData = file_get_contents($filePath);
+        /** @var array<string, mixed>[] $parsedRecords */
         $parsedRecords = json_decode($jsonData, true);
         return $parsedRecords;
     }
@@ -130,7 +133,8 @@ class PractitionerFixtureManager
     }
 
     /**
-     * @return random single entry from an array.
+     * @param array<string, mixed>[] $array
+     * @return array<string, mixed> Random single entry from the array.
      */
     private function getSingleEntry($array)
     {
@@ -139,7 +143,7 @@ class PractitionerFixtureManager
     }
 
     /**
-     * @return a random practitioner fixture.
+     * @return array<string, mixed>
      */
     public function getSinglePractitionerFixture()
     {

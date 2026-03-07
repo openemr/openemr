@@ -4524,31 +4524,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Validators/BaseValidator.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(\\$getResponse \\- HTTP response\\)\\: Unexpected token "\\$getResponse", expected type at offset 159 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(\\$getResponse \\- HTTP response\\)\\: Unexpected token "\\$getResponse", expected type at offset 201 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(\\$patchResponse \\- HTTP response\\)\\: Unexpected token "\\$patchResponse", expected type at offset 192 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(\\$postResponse \\- HTTP response\\)\\: Unexpected token "\\$postResponse", expected type at offset 154 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(\\$putResponse \\- HTTP response\\)\\: Unexpected token "\\$putResponse", expected type at offset 188 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return has invalid value \\(uuid\\.\\)\\: Unexpected token "\\.", expected TOKEN_HORIZONTAL_WS at offset 164 on line 6$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',

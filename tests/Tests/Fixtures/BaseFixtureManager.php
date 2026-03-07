@@ -22,6 +22,7 @@ abstract class BaseFixtureManager
     // use a prefix so we can easily remove fixtures
     const FIXTURE_PREFIX = "test-fixture";
     private $hasInstalledFixtured;
+    /** @var array<string, mixed>[] */
     private $fixtures;
 
     public function __construct(private $fileName = "", private $tableName = "")
@@ -29,6 +30,9 @@ abstract class BaseFixtureManager
         $this->hasInstalledFixtured = false;
     }
 
+    /**
+     * @return array<string, mixed>[]
+     */
     protected function getFixturesFromFile()
     {
         if (empty($this->fixtures)) {
@@ -40,12 +44,13 @@ abstract class BaseFixtureManager
     /**
      * Loads a JSON fixture from a file within the Fixture namespace, returning the data as an array of records.
      * @param $fileName The file name to load.
-     * @return array of records.
+     * @return array<string, mixed>[]
      */
     protected function loadJsonFile($fileName)
     {
         $filePath = __DIR__ . "/" . $fileName;
         $jsonData = file_get_contents($filePath);
+        /** @var array<string, mixed>[] $parsedRecords */
         $parsedRecords = json_decode($jsonData, true);
         return $parsedRecords;
     }
@@ -144,7 +149,7 @@ abstract class BaseFixtureManager
     }
 
     /**
-     * @return a random fixture.
+     * @return array<string, mixed> Random fixture.
      */
     public function getSingleFixture()
     {
@@ -213,7 +218,8 @@ abstract class BaseFixtureManager
     }
 
     /**
-     * @return random single entry from an array.
+     * @param array<string, mixed>[] $array
+     * @return array<string, mixed> Random single entry from the array.
      */
     protected function getSingleEntry($array)
     {

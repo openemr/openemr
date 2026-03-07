@@ -1182,42 +1182,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:setAuthToken\\(\\) has invalid return type OpenEMR\\\\Tests\\\\Api\\\\the\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getBody\\(\\) on an unknown class OpenEMR\\\\Tests\\\\Api\\\\the\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClientTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getStatusCode\\(\\) on an unknown class OpenEMR\\\\Tests\\\\Api\\\\the\\.$#',
-    'count' => 14,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClientTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\BulkAPITestClient\\:\\:setAuthToken\\(\\) has invalid return type OpenEMR\\\\Tests\\\\Api\\\\the\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/BulkAPITestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getStatusCode\\(\\) on an unknown class OpenEMR\\\\Tests\\\\Api\\\\the\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/IntrospectionTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:getNextId\\(\\) has invalid return type OpenEMR\\\\Tests\\\\Fixtures\\\\the\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:getSingleEntry\\(\\) has invalid return type OpenEMR\\\\Tests\\\\Fixtures\\\\random\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:getSingleFixture\\(\\) has invalid return type OpenEMR\\\\Tests\\\\Fixtures\\\\a\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
 ];
@@ -1230,11 +1195,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:installFixturesForTable\\(\\) has invalid return type OpenEMR\\\\Tests\\\\Fixtures\\\\the\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\FacilityFixtureManager\\:\\:getSingleFacilityFixture\\(\\) has invalid return type OpenEMR\\\\Tests\\\\Fixtures\\\\a\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/FacilityFixtureManager.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\FacilityFixtureManager\\:\\:installSingleFacilityFixture\\(\\) has invalid return type OpenEMR\\\\Tests\\\\Fixtures\\\\count\\.$#',
@@ -1292,16 +1252,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/PractitionerFixtureManager.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\PractitionerFixtureManager\\:\\:getSingleEntry\\(\\) has invalid return type OpenEMR\\\\Tests\\\\Fixtures\\\\random\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/PractitionerFixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\PractitionerFixtureManager\\:\\:getSinglePractitionerFixture\\(\\) has invalid return type OpenEMR\\\\Tests\\\\Fixtures\\\\a\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/PractitionerFixtureManager.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\PractitionerFixtureManager\\:\\:getUnregisteredUuid\\(\\) has invalid return type OpenEMR\\\\Tests\\\\Fixtures\\\\uuid4\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/PractitionerFixtureManager.php',
@@ -1340,16 +1290,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @var for variable \\$repository contains unknown class OpenEMR\\\\Tests\\\\Isolated\\\\Telemetry\\\\MockObject\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Telemetry/TelemetryRepositoryTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Services\\\\CarePlanServiceTest\\:\\:\\$fixture has unknown class OpenEMR\\\\Tests\\\\Services\\\\CarePlanFixture as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/CarePlanServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Services\\\\EncounterServiceTest\\:\\:\\$fixture has unknown class OpenEMR\\\\Tests\\\\Services\\\\EncounterFixture as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/EncounterServiceTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Access to offset 0 on an unknown class OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\matching\\.$#',
