@@ -32,7 +32,8 @@ use OpenEMR\BC\ServiceContainer;
 
 $STMT_TEMP_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_statements.txt";
 $STMT_TEMP_FILE_PDF = $GLOBALS['temporary_files_dir'] . "/openemr_statements.pdf";
-$STMT_PRINT_CMD = (ServiceContainer::getCrypto())->decryptStandard($GLOBALS['more_secure']['print_command']);
+$printCommand = $GLOBALS['more_secure']['print_command'] ?? null;
+$STMT_PRINT_CMD = (ServiceContainer::getCrypto())->decryptStandard(is_string($printCommand) ? $printCommand : null);
 
 /** There are two options to print a batch of PDF statements:
  *  1.  The original statement, a text based statement, using CezPDF

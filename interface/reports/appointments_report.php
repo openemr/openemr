@@ -569,7 +569,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
 
             <td class="detail" <?php echo $chk_day_of_week ? '' : 'style="display:none;"' ?>>
                 <?php
-                    echo date('D', strtotime((string) $appointment['pc_eventDate']));
+                    echo text(date('D', strtotime((string) $appointment['pc_eventDate'])));
                 ?>
             </td>
 

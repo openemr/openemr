@@ -861,7 +861,7 @@ if (!empty($_POST['form_refresh'])) {
                     $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols(" . attr_js($sortby) . ",'desc');\" ><img src='" .  attr($GLOBALS['images_static_relative']) . "/sortup.gif' border='0' alt=\"" . xla('Sort Up') . "\"></a>";
                     break;
                 case "desc":
-                    $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('" . attr_js($sortby) . "','asc');\" onclick=\"top.restoreSession()\"><img src='" . attr($GLOBALS['images_static_relative']) . "/sortdown.gif' border='0' alt=\"" . xla('Sort Down') . "\"></a>";
+                    $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('" . attr_js($sortby) . "','asc');\" onclick=\"top.restoreSession()\"><img src='" . attr((string) $GLOBALS['images_static_relative']) . "/sortdown.gif' border='0' alt=\"" . xla('Sort Down') . "\"></a>";
                     break;
             }
             break;
@@ -928,8 +928,8 @@ if (!empty($_POST['form_refresh'])) {
 
         if (!$csv) { // Draw table if displaying in HTML ?>
             <br />
-            <input type="hidden" name="sortby" id="sortby" value="<?php echo attr($sortby); ?>" />
-            <input type="hidden" name="sortorder" id="sortorder" value="<?php echo attr($sortorder); ?>" />
+            <input type="hidden" name="sortby" id="sortby" value="<?php echo attr((string) $sortby); ?>" />
+            <input type="hidden" name="sortorder" id="sortorder" value="<?php echo attr((string) $sortorder); ?>" />
             <div id="report_results">
                 <table>
                     <tr>
