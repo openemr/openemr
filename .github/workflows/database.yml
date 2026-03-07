@@ -47,9 +47,13 @@ jobs:
           EOF
 
       - name: Run migrations
-        run: vendor/bin/doctrine-migrations migrate --no-interaction
+        run: ./cli migrations:migrate --no-interaction
+        env:
+          ENVIRONMENT: test
       - name: Verify status
-        run: vendor/bin/doctrine-migrations status
+        run: ./cli migrations:status
+        env:
+          ENVIRONMENT: test
 
   # # Placeholder jobs for future database support
   # sqlite:

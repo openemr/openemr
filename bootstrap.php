@@ -4,9 +4,11 @@
  * This will eventually be core application setup for all paths: web, cli, etc.
  *
  * It is only to be used for a small number of critical operations:
- * - Autoloader seup
+ * - Autoloader setup
+ * - Environment reading and normalization
  * - Standardizing some runtime configuration
  * - Setting up error handling
+ * - Preparing DI tooling
  *
  * This MUST NOT do anything like the following:
  * - Connect to the database
@@ -18,6 +20,9 @@
  */
 
 declare(strict_types=1);
+
+use Dotenv\Dotenv;
+use Firehed\Container\AutoDetect;
 
 chdir(__DIR__);
 
@@ -32,7 +37,11 @@ error_reporting(E_ALL);
 
 require_once 'vendor/autoload.php';
 
-// Load a dotenv file, if it exists
-if (file_exists('./.env')) {
-    Dotenv\Dotenv::createImmutable('.')->load();
+// class_exists check is because dotenv should be a dev dependency and not
+// installed in prod deployments, though as of writing that's not the case.
+if (class_exists(Dotenv::class) && file_exists('.env')) {
+    Dotenv::createImmutable('.')->load();
 }
+
+// Set up and return the PSR-11 DI container
+return AutoDetect::instance('config');
