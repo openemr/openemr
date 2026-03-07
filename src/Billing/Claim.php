@@ -17,6 +17,7 @@ namespace OpenEMR\Billing;
 use InsuranceCompany;
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Common\Utils\ValidationUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
@@ -188,7 +189,7 @@ class Claim
             $referrer_id = $this->billing_options['provider_id'];
         } elseif ($this->encounterService->getReferringProviderID($this->pid, $this->encounter_id) ?? '') {
             $referrer_id = $this->encounterService->getReferringProviderID($this->pid, $this->encounter_id);
-        } elseif (empty($GLOBALS['MedicareReferrerIsRenderer']) || ($this->insurance_numbers['provider_number_type'] ?? '') != '1C') {
+        } elseif (empty(OEGlobalsBag::getInstance()->get('MedicareReferrerIsRenderer')) || ($this->insurance_numbers['provider_number_type'] ?? '') != '1C') {
             $referrer_id = $this->patient_data['ref_providerID'];
         } else {
             $referrer_id = $this->encounter['provider_id'];
@@ -652,7 +653,7 @@ class Claim
 //***MS Add - since we are a TPA we need to include this
     public function x12_submitter_name()
     {
-        if ($GLOBALS['gen_x12_based_on_ins_co'] != 1) {
+        if (OEGlobalsBag::getInstance()->get('gen_x12_based_on_ins_co') != 1) {
             return false;
         }
 

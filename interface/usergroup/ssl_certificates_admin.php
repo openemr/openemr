@@ -25,6 +25,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -73,15 +74,15 @@ function create_client_cert(): void
 {
     global $error_msg;
 
-    if (!$GLOBALS['is_client_ssl_enabled']) {
+    if (!OEGlobalsBag::getInstance()->get('is_client_ssl_enabled')) {
         $error_msg .= xl('Error, User Certificate Authentication is not enabled in OpenEMR');
         return;
     }
-    if (!file_exists($GLOBALS['certificate_authority_crt'])) {
+    if (!file_exists(OEGlobalsBag::getInstance()->get('certificate_authority_crt'))) {
         $error_msg .= xl('Error, the CA Certificate File doesn\'t exist');
         return;
     }
-    if (!file_exists($GLOBALS['certificate_authority_key'])) {
+    if (!file_exists(OEGlobalsBag::getInstance()->get('certificate_authority_key'))) {
         $error_msg .= xl('Error, the CA Key File doesn\'t exist');
         return;
     }
@@ -103,16 +104,16 @@ function create_client_cert(): void
         $user,
         $email,
         $serial,
-        $GLOBALS['certificate_authority_crt'],
-        $GLOBALS['certificate_authority_key'],
-        $GLOBALS['client_certificate_valid_in_days']
+        OEGlobalsBag::getInstance()->get('certificate_authority_crt'),
+        OEGlobalsBag::getInstance()->get('certificate_authority_key'),
+        OEGlobalsBag::getInstance()->get('client_certificate_valid_in_days')
     );
     if ($data === false) {
         $error_msg .= xl('Error, unable to create client certificate.');
         return;
     }
 
-    $filename = $GLOBALS['temporary_files_dir'] . "/openemr_client_cert.p12";
+    $filename = OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/openemr_client_cert.p12";
     $handle = fopen($filename, 'w');
     fwrite($handle, $data);
     fclose($handle);
@@ -130,7 +131,7 @@ function create_client_cert(): void
  */
 function delete_certificates(): void
 {
-    $tempDir = $GLOBALS['temporary_files_dir'];
+    $tempDir = OEGlobalsBag::getInstance()->get('temporary_files_dir');
     $files = ["CertificateAuthority.key", "CertificateAuthority.crt",
                    "Server.key", "Server.crt", "admin.p12", "ssl.zip"];
 
@@ -153,7 +154,7 @@ function delete_certificates(): void
 function create_and_download_certificates(): void
 {
     global $error_msg;
-    $tempDir = $GLOBALS['temporary_files_dir'];
+    $tempDir = OEGlobalsBag::getInstance()->get('temporary_files_dir');
 
     $zipName = $tempDir . "/ssl.zip";
     if (file_exists($zipName)) {
@@ -479,7 +480,7 @@ if (!empty($_SESSION["zip_error"])) {
   </ul>
   <br />
         <?php
-        if ($GLOBALS['certificate_authority_crt'] != "" && $GLOBALS['is_client_ssl_enabled']) {
+        if (OEGlobalsBag::getInstance()->get('certificate_authority_crt') != "" && OEGlobalsBag::getInstance()->get('is_client_ssl_enabled')) {
             echo xlt('OpenEMR already has a Certificate Authority configured.');
         }
         ?>
@@ -619,8 +620,8 @@ if (!empty($_SESSION["zip_error"])) {
     <br />
         <?php
         if (
-            !$GLOBALS['is_client_ssl_enabled'] ||
-            $GLOBALS['certificate_authority_crt'] == ""
+            !OEGlobalsBag::getInstance()->get('is_client_ssl_enabled') ||
+            OEGlobalsBag::getInstance()->get('certificate_authority_crt') == ""
         ) {
             echo "<font class='redtext'>" . xlt('OpenEMR must be configured to use certificates before it can create client certificates.') . "</font><br />";
         }

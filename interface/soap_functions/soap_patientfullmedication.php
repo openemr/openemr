@@ -25,14 +25,16 @@
  * @link       https://www.open-emr.org
  */
 
+use OpenEMR\Core\OEGlobalsBag;
+
 require_once(__DIR__ . '/../globals.php');
-require_once($GLOBALS['fileroot'] . '/interface/eRxGlobals.php');
-require_once($GLOBALS['fileroot'] . '/interface/eRxStore.php');
-require_once($GLOBALS['srcdir'] . '/xmltoarray_parser_htmlfix.php');
-require_once($GLOBALS['srcdir'] . '/lists.inc.php');
-require_once($GLOBALS['srcdir'] . '/amc.php');
-require_once($GLOBALS['fileroot'] . '/interface/eRxSOAP.php');
-require_once($GLOBALS['fileroot'] . '/interface/eRx_xml.php');
+require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRxGlobals.php');
+require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRxStore.php');
+require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/xmltoarray_parser_htmlfix.php');
+require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/lists.inc.php');
+require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/amc.php');
+require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRxSOAP.php');
+require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRx_xml.php');
 
 set_time_limit(0);
 
@@ -45,7 +47,7 @@ $eRxSOAP->setGlobals(new eRxGlobals($GLOBALS_REF))
 if (array_key_exists('patient', $_REQUEST)) {
     $eRxSOAP->setPatientId($_REQUEST['patient']);
 } elseif (array_key_exists('pid', $GLOBALS)) {
-    $eRxSOAP->setPatientId($GLOBALS['pid']);
+    $eRxSOAP->setPatientId(OEGlobalsBag::getInstance()->get('pid'));
 }
 
 if (

@@ -35,25 +35,25 @@ $t = $twig->getTwig();
 $versionService = new VersionService();
 
 // Auto-generate the link if no override is specified. This is tied directly to the OpenEMR Wiki
-$userManual = ($GLOBALS['user_manual_link'] === '')
+$userManual = (OEGlobalsBag::getInstance()->get('user_manual_link') === '')
     ? "https://open-emr.org/wiki/index.php/OpenEMR_" . $versionService->asString(false, false) . "_Users_Guide"
-    : $GLOBALS['user_manual_link'];
+    : OEGlobalsBag::getInstance()->get('user_manual_link');
 
 // Collect registered email, if applicable
 $emailRegistered = (new ProductRegistrationService())->getRegistrationEmail() ?? '';
 
 $viewArgs = [
-    'onlineSupportHref' => $GLOBALS["online_support_link"],
+    'onlineSupportHref' => OEGlobalsBag::getInstance()->get("online_support_link"),
     'ackHref' => "../../acknowledge_license_cert.html",
     'applicationTitle' => $openemr_name,
     'versionNumber' => $versionService->asString(),
-    'supportPhoneNumber' => $GLOBALS['support_phone_number'] ?? false,
+    'supportPhoneNumber' => OEGlobalsBag::getInstance()->get('support_phone_number') ?? false,
     'theUUID' => UniqueInstallationUuid::getUniqueInstallationUuid(),
     'userManualHref' => $userManual,
-    'onlineSupportLink' => $GLOBALS['online_support_link'] ?? false,
-    'displayAcknowledgements' => $GLOBALS['display_acknowledgements'],
-    'displayDonations' => $GLOBALS['display_donations_link'],
-    'displayReview' => $GLOBALS['display_review_link'],
+    'onlineSupportLink' => OEGlobalsBag::getInstance()->get('online_support_link') ?? false,
+    'displayAcknowledgements' => OEGlobalsBag::getInstance()->get('display_acknowledgements'),
+    'displayDonations' => OEGlobalsBag::getInstance()->get('display_donations_link'),
+    'displayReview' => OEGlobalsBag::getInstance()->get('display_review_link'),
     'emailRegistered' => $emailRegistered
 ];
 

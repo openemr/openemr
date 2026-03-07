@@ -41,7 +41,7 @@ class TwigContainer
      */
     public function __construct(?string $path = null, ?Kernel $kernel = null)
     {
-        $this->paths[] = $GLOBALS['fileroot'] . '/templates';
+        $this->paths[] = OEGlobalsBag::getInstance()->get('fileroot') . '/templates';
 
         if (!empty($path)) {
             $this->addPath($path);

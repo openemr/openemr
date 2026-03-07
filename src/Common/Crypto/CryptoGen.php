@@ -33,6 +33,7 @@
 namespace OpenEMR\Common\Crypto;
 
 use Exception;
+use OpenEMR\Core\OEGlobalsBag;
 
 class CryptoGen implements CryptoInterface
 {
@@ -507,7 +508,7 @@ class CryptoGen implements CryptoInterface
      */
     protected function collectDriveKey(string $label, KeyVersion $keyVersion): string
     {
-        $keyPath = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/" . $label;
+        $keyPath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/methods/" . $label;
         if (!$this->fileExists($keyPath)) {
             return $this->createDriveKey($label, $keyVersion);
         }
@@ -532,7 +533,7 @@ class CryptoGen implements CryptoInterface
      */
     protected function createDriveKey(string $label, KeyVersion $keyVersion): string
     {
-        $keyPath = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/methods/" . $label;
+        $keyPath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/methods/" . $label;
         $key = $this->getRandomBytes(32);
         if (empty($key)) {
             throw new CryptoGenException("OpenEMR Error: Random Bytes error - exiting");

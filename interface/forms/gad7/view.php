@@ -16,6 +16,7 @@ require_once("gad7.inc.php");  // common strings, require_once(globals.php), oth
 
 use OpenEMR\Common\Csrf\CsrfUtils;    // security module
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $form_folder = "gad7";
 ?>
@@ -70,7 +71,7 @@ if (changes_made) {
     conf = confirm ( <?php echo js_escape($str_nosave_confirm); ?> );
     }
 if (conf) {
-    window.location.href="<?php echo $GLOBALS['form_exit_url']; ?>";
+    window.location.href="<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>";
     }
 return ( conf );
 }

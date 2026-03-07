@@ -15,8 +15,10 @@
 
 namespace ESign;
 
-require_once $GLOBALS['srcdir'] . '/ESign/Abstract/Model.php';
-require_once $GLOBALS['srcdir'] . '/ESign/ViewableIF.php';
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Abstract/Model.php';
+require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/ViewableIF.php';
 
 class Viewer extends Abstract_Model
 {

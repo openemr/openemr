@@ -15,6 +15,7 @@
 namespace OpenEMR\Modules\ClaimRevConnector;
 
 use OpenEMR\Billing\BillingProcessor\X12RemoteTracker;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\BaseService;
 
 class ClaimUpload extends BaseService
@@ -76,7 +77,7 @@ class ClaimUpload extends BaseService
             $localDir = $x12_remote['x12_sftp_local_dir'];
             $claim_file = $localDir . $x12_remoteFilename;
             if (!file_exists($claim_file)) {
-                $claim_file = $GLOBALS['OE_SITE_DIR'] . '/documents/edi/' . $x12_remoteFilename;
+                $claim_file = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/edi/' . $x12_remoteFilename;
             }
 
             $claim_file_contents = file_get_contents($claim_file);

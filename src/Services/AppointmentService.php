@@ -16,6 +16,7 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Services\ServiceDeleteEvent;
 use OpenEMR\Services\Search\DateSearchField;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
@@ -373,7 +374,7 @@ class AppointmentService extends BaseService
         // =======================================
         //  multi providers event
         // =======================================
-        if ($GLOBALS['select_multi_providers']) {
+        if (OEGlobalsBag::getInstance()->get('select_multi_providers')) {
             // what is multiple key around this $eid?
             $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", [$eid]);
 
@@ -640,7 +641,7 @@ class AppointmentService extends BaseService
         );
 
         $visit_reason = $appointment['pc_hometext'] ?? xl('Please indicate visit reason');
-        if (!empty($GLOBALS['auto_create_prevent_reason'] ?? 0)) {
+        if (!empty(OEGlobalsBag::getInstance()->get('auto_create_prevent_reason') ?? 0)) {
             $visit_reason = 'Please indicate visit reason';
         }
         $data = [

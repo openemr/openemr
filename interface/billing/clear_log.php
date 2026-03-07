@@ -17,6 +17,7 @@ require_once("../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -27,9 +28,9 @@ if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob or acct/bill: Billing Log", xl("Billing Log"));
 }
 
-$filename = $GLOBALS['OE_SITE_DIR'] . '/documents/edi/process_bills.log';
+$filename = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/edi/process_bills.log';
 if (file_exists($filename)) {
-    $newlog = $GLOBALS['OE_SITE_DIR'] . '/documents/edi/' . date("Y-m-d-His") . '_process_bills.log';
+    $newlog = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/edi/' . date("Y-m-d-His") . '_process_bills.log';
     rename($filename, $newlog);
     echo xlt("Log is cleared. Please close window.");
 } else {

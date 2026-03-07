@@ -31,6 +31,7 @@ use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\SDOH\HistorySdohService;
@@ -130,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $committed = true;
         }
         // Redirect to SDOH summary
-        $redirectUrl = $GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid);
+        $redirectUrl = OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid);
         header("Location: " . $redirectUrl);
         exit();
     } catch (SqlQueryException $exception) {
@@ -254,7 +255,7 @@ $csrf = CsrfUtils::collectCsrfToken('default', $session->getSymfonySession());
                         <?php echo xlt("Add Selected Concerns"); ?>
                     </button>
 
-                    <a href="<?php echo attr($GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid)); ?>"
+                    <a href="<?php echo attr(OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid)); ?>"
                        class="btn btn-secondary btn-lg">
                         <i class="fa fa-times"></i>
                         <?php echo xlt("Skip - No Concerns"); ?>

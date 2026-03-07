@@ -12,6 +12,7 @@
 
 namespace OpenEMR\Patient\Cards;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
 
@@ -50,7 +51,7 @@ class BillingViewCard extends CardModel
     {
         $pid = $this->pid;
         $ed = $this->getEventDispatcher();
-        $forceBillingExpandAlways = ($GLOBALS['force_billing_widget_open']) ? true : false;
+        $forceBillingExpandAlways = (OEGlobalsBag::getInstance()->get('force_billing_widget_open')) ? true : false;
         $patientbalance = get_patient_balance($pid, false);
         $insurancebalance = get_patient_balance($pid, true) - $patientbalance;
         $totalbalance = $patientbalance + $insurancebalance;

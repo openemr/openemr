@@ -17,6 +17,7 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 $scparams = session_get_cookie_params();
 ?>
@@ -39,12 +40,12 @@ var oemr_cookie = '';
 var oemr_change_count = 0; // debugging
 
 function restoreSession() {
-    <?php if (!empty($GLOBALS['restore_sessions'])) { ?>
+    <?php if (!empty(OEGlobalsBag::getInstance()->get('restore_sessions'))) { ?>
         var ca = document.cookie.split('; ');
         for (var i = 0; i < ca.length; ++i) {
             var c = ca[i].split('=');
             if (c[0] == oemr_session_name && c[1] != oemr_session_id) {
-                <?php if ($GLOBALS['restore_sessions'] == 2) { ?>
+                <?php if (OEGlobalsBag::getInstance()->get('restore_sessions') == 2) { ?>
                     alert('Changing session ID from\n"' + c[1] + '" to\n"' + oemr_session_id + '"');
                 <?php } ?>
                 // It's important that the cookie parameters duplicate what PHP assigned.
@@ -93,7 +94,7 @@ function printLogSetup(elem, logdata) {
  var doc = elem.ownerDocument;
  var win = doc.defaultView || doc.parentWindow;
  if (typeof(logdata) == 'undefined') logdata = null;
-<?php if ($GLOBALS['gbl_print_log_option'] == 1) { ?>
+<?php if (OEGlobalsBag::getInstance()->get('gbl_print_log_option') == 1) { ?>
  if (logdata == null) {
   elem.style.display = 'none';
   return;
@@ -118,16 +119,16 @@ function printLogPrint(elem) {
   var doc = elem.ownerDocument;
   win = doc.defaultView || doc.parentWindow;
  }
-<?php if ($GLOBALS['gbl_print_log_option'] == 1) { ?>
+<?php if (OEGlobalsBag::getInstance()->get('gbl_print_log_option') == 1) { ?>
  // Returning false means we didn't print.
  if (!win.printlogdata) return false;
 <?php } ?>
  if (win.printlog_before_print) win.printlog_before_print();
  win.print();
-<?php if (!empty($GLOBALS['gbl_print_log_option'])) { ?>
+<?php if (!empty(OEGlobalsBag::getInstance()->get('gbl_print_log_option'))) { ?>
  comments = win.printlogdata || win.document.body.innerHTML;
  top.restoreSession();
- $.post("<?php echo $GLOBALS['webroot']; ?>/library/ajax/log_print_action_ajax.php",
+ $.post("<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/library/ajax/log_print_action_ajax.php",
   {
     comments: comments,
     csrf_token_form: <?php echo json_encode(CsrfUtils::collectCsrfToken()); ?>

@@ -15,6 +15,7 @@ namespace OpenEMR\Patient\Cards;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
 use OpenEMR\Services\TreatmentInterventionPreferenceService;
@@ -131,7 +132,7 @@ class TreatmentPreferenceViewCard extends CardModel
             'pid'              => $this->pid,
             'auth'             => true,  // TODO ACL
             'can_write'        => true,  // TODO ACL
-            'webroot'          => $GLOBALS['webroot'] ?? '',
+            'webroot'          => OEGlobalsBag::getInstance()->get('webroot') ?? '',
             'csrf_token'       => CsrfUtils::collectCsrfToken(),
             'preferences'      => $preferences,
             'loinc_codes'      => $loincCodes,

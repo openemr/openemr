@@ -21,6 +21,7 @@ use OpenEMR\Billing\BillingProcessor\BillingProcessor;
 use OpenEMR\Billing\BillingProcessor\GeneratorCanValidateInterface;
 use OpenEMR\Billing\BillingProcessor\GeneratorInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 abstract class AbstractGenerator extends AbstractProcessingTask implements GeneratorInterface
 {
@@ -102,7 +103,7 @@ abstract class AbstractGenerator extends AbstractProcessingTask implements Gener
      */
     public function printDownloadClaimFileJS($filename, $location = '', $delete = false)
     {
-        $url = $GLOBALS['webroot'] . '/interface/billing/get_claim_file.php?' .
+        $url = OEGlobalsBag::getInstance()->get('webroot') . '/interface/billing/get_claim_file.php?' .
             'key=' . urlencode((string) $filename) .
             '&location=' . urlencode((string) $location) .
             '&delete=' . urlencode($delete) .

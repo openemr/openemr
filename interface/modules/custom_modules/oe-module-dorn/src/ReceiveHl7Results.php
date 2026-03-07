@@ -17,6 +17,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\Dorn\ConnectorApi;
 use OpenEMR\Modules\Dorn\models\ReceiveResultsResponseModel;
 
@@ -50,7 +51,7 @@ class ReceiveHl7Results
     public function receiveSingleResults($result, $rejectResult): ReceiveResultsResponseModel
     {
         $returnValue = new ReceiveResultsResponseModel();
-        $resultPath = $GLOBALS['OE_SITE_DIR'] . "/documents/procedure_results";
+        $resultPath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/procedure_results";
 
         $orderNumber = $result->orderNumber;
         $patientId = $result->patientId;
@@ -83,7 +84,7 @@ class ReceiveHl7Results
         $remote_host = $record['remote_host'];
         $debug = trim((string) $record['DorP']) === 'D';
 
-        $logpath = $GLOBALS['OE_SITE_DIR'] . "/documents/procedure_results/logs/$lab_npi";
+        $logpath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/procedure_results/logs/$lab_npi";
         $prpath .= $resultPath . '/' . $ppid . '-' . $lab_npi;
         $file = "result_" . $orderNumber . ".hl7";
 
@@ -260,12 +261,12 @@ class ReceiveHl7Results
         // We'll need the document category IDs for any embedded documents.
         $catrow = sqlQuery(
             "SELECT id FROM categories WHERE name = ?",
-            [$GLOBALS['lab_results_category_name']]
+            [OEGlobalsBag::getInstance()->get('lab_results_category_name')]
         );
         if (empty($catrow['id'])) {
             return $this->rhl7LogMsg(
                 xl('Document category for lab results does not exist') .
-                ': ' . $GLOBALS['lab_results_category_name'],
+                ': ' . OEGlobalsBag::getInstance()->get('lab_results_category_name'),
                 true
             );
         } else {
@@ -273,7 +274,7 @@ class ReceiveHl7Results
             $mdm_category_id = $results_category_id;
             $catrow = sqlQuery(
                 "SELECT id FROM categories WHERE name = ?",
-                [$GLOBALS['gbl_mdm_category_name']]
+                [OEGlobalsBag::getInstance()->get('gbl_mdm_category_name')]
             );
             if (!empty($catrow['id'])) {
                 $mdm_category_id = $catrow['id'];
@@ -1658,7 +1659,7 @@ class ReceiveHl7Results
      */
     private function hl7Crypt($content)
     {
-        if ($GLOBALS['drive_encryption']) {
+        if (OEGlobalsBag::getInstance()->get('drive_encryption')) {
             $content = (ServiceContainer::getCrypto())->encryptStandard($content, null, KeySource::Database);
         }
 

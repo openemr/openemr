@@ -24,6 +24,7 @@ use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
 
 class CarecoordinationController extends AbstractActionController
@@ -52,7 +53,7 @@ class CarecoordinationController extends AbstractActionController
     {
         $this->carecoordinationTable = $table;
         $this->listenerObject = new Listener();
-        $this->date_format = ApplicationTable::dateFormat($GLOBALS['date_display_format']);
+        $this->date_format = ApplicationTable::dateFormat(OEGlobalsBag::getInstance()->get('date_display_format'));
         $this->documentsController = $documentsController;
     }
 

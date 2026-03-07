@@ -47,6 +47,7 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 //ajax param should be set by calling ajax scripts
 $isAjaxCall = isset($_POST['ajax']);
@@ -137,7 +138,7 @@ function execute_background_service_calls(): void
         }
 
         if ($service['require_once']) {
-            require_once($GLOBALS['fileroot'] . $service['require_once']);
+            require_once(OEGlobalsBag::getInstance()->get('fileroot') . $service['require_once']);
         }
 
         if (!function_exists($service['function'])) {

@@ -15,6 +15,7 @@ require_once(__DIR__ . "/../../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 
 $serviceType = $_REQUEST['type'] ?? '';
@@ -35,12 +36,12 @@ $isForward = ($clientApp->getRequest('mode', false) == 'forward') ? 1 : 0;
 $isFax = ($serviceType == 'fax') ? 1 : 0;
 $isUniversal = (int)$clientApp->getRequest('isUniversal', false);
 
-$isSMTP = !empty($GLOBALS['SMTP_HOST'] ?? null);
+$isSMTP = !empty(OEGlobalsBag::getInstance()->get('SMTP_HOST') ?? null);
 $isOnetime = (int)$clientApp->getRequest('isOnetime', false);
 
 if ($isUniversal) {
-    $isSMS = !empty($GLOBALS['oefax_enable_sms'] ?? 0);
-    $isEmail = !empty($GLOBALS['oe_enable_email'] ?? 0);
+    $isSMS = !empty(OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? 0);
+    $isEmail = !empty(OEGlobalsBag::getInstance()->get('oe_enable_email') ?? 0);
 }
 
 $service = $clientApp::getServiceType();
@@ -65,7 +66,7 @@ if (empty($isSMS)) {
 } else {
 // SMS contact dialog. Passed in phone or select patient from popup.
     $interface_pid = $clientApp->getRequest('pid', '');
-    $portal_url = $GLOBALS['portal_onsite_two_address'];
+    $portal_url = OEGlobalsBag::getInstance()->get('portal_onsite_two_address');
     $details = json_decode((string) $clientApp->getRequest('details', ''), true);
     $recipient_phone = $clientApp->getRequest('recipient', $details['phone'] ?? '');
     $pid = $interface_pid;
@@ -80,8 +81,8 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
     <?php Header::setupHeader();
     echo "<script>var pid=" . js_escape($interface_pid ?: $pid) . ";var isFax=" . js_escape($isFax) . ";var isOnetime=" . js_escape($isOnetime) . ";var isEmail=" . js_escape($isEmail) . ";var isSms=" . js_escape($isSMS) . ";var isForward=" . js_escape($isForward) . ";var recipient=" . js_escape($recipient_phone) . ";var isUniversal=" . js_escape($isUniversal) . ";</script>";
     ?>
-    <?php if (!empty($GLOBALS['text_templates_enabled'])) { ?>
-        <script src="<?php echo $GLOBALS['web_root'] ?>/library/js/CustomTemplateLoader.js"></script>
+    <?php if (!empty(OEGlobalsBag::getInstance()->get('text_templates_enabled'))) { ?>
+        <script src="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/js/CustomTemplateLoader.js"></script>
     <?php } ?>
     <script>
         const serviceType = <?php echo js_escape($serviceType); ?>;

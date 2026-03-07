@@ -30,6 +30,7 @@
 require_once("../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Ensure script doesn't time out and has enough memory
 set_time_limit(0);
@@ -42,7 +43,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 }
 
 $db = $_GET['db'] ?? '0';
-$mainPATH = $GLOBALS['fileroot'] . "/contrib/" . strtolower((string) check_file_dir_name($db));
+$mainPATH = OEGlobalsBag::getInstance()->get('fileroot') . "/contrib/" . strtolower((string) check_file_dir_name($db));
 $file_checksum = "";
 
 //

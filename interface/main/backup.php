@@ -117,12 +117,12 @@ $auto_continue = false;
 # set up main paths
 $backup_file_prefix = "emr_backup";
 $backup_file_suffix = ".tar";
-$TMP_BASE = $GLOBALS['temporary_files_dir'] . "/openemr_web_backup";
+$TMP_BASE = OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/openemr_web_backup";
 $BACKUP_DIR = $TMP_BASE . "/emr_backup";
 $TAR_FILE_PATH = $TMP_BASE . DIRECTORY_SEPARATOR . $backup_file_prefix . $backup_file_suffix;
-$EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
-$MYSQL_PATH = realpath($GLOBALS['mysql_bin_dir']);
-$PERL_PATH = realpath($GLOBALS['perl_bin_dir']);
+$EXPORT_FILE = OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/openemr_config.sql";
+$MYSQL_PATH = realpath(OEGlobalsBag::getInstance()->get('mysql_bin_dir'));
+$PERL_PATH = realpath(OEGlobalsBag::getInstance()->get('perl_bin_dir'));
 
 if ($form_step == 6) {
     header("Pragma: public");
@@ -308,9 +308,9 @@ if ($form_step == 402) {
         // This is the "filename" for the Content-Disposition header.
         $filename = "log_archive_{$end_date}.csv";
 
-        $outfile = tempnam($GLOBALS['temporary_files_dir'], 'OET');
+        $outfile = tempnam(OEGlobalsBag::getInstance()->get('temporary_files_dir'), 'OET');
         if ($outfile === false) {
-            die("tempnam('" . text($GLOBALS['temporary_files_dir']) . "','OET') failed.\n");
+            die("tempnam('" . text(OEGlobalsBag::getInstance()->get('temporary_files_dir')) . "','OET') failed.\n");
         }
         $hout = fopen($outfile, "w");
         $wcount = 0;
@@ -370,9 +370,9 @@ if ($form_step == 402) {
         // Do compression if requested (it is!)
         if (true) {
             $zip = new ZipArchive();
-            $zippedoutfile = tempnam($GLOBALS['temporary_files_dir'], 'OEZ');
+            $zippedoutfile = tempnam(OEGlobalsBag::getInstance()->get('temporary_files_dir'), 'OEZ');
             if ($zippedoutfile === false) {
-                die("tempnam('" . text($GLOBALS['temporary_files_dir']) . "','OEZ') failed.\n");
+                die("tempnam('" . text(OEGlobalsBag::getInstance()->get('temporary_files_dir')) . "','OEZ') failed.\n");
             }
             if ($zip->open($zippedoutfile, ZIPARCHIVE::OVERWRITE) !== true) {
                 die(xlt('Cannot create file') . " '$zipname'\n");
@@ -415,7 +415,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });
@@ -473,7 +473,7 @@ if ($form_step == 0) {
     echo "  <td>" . xlt('Create and download a full backup') . "</td>\n";
     echo " </tr>\n";
   // The config import/export feature is optional.
-    if (!empty($GLOBALS['configuration_import_export'])) {
+    if (!empty(OEGlobalsBag::getInstance()->get('configuration_import_export'))) {
         echo " <tr>\n";
         echo "  <td><input class='btn btn-secondary' type='submit' name='form_export' value='" . attr($BTN_TEXT_EXPORT) . "' /></td>\n";
         echo "  <td>" . xlt('Download configuration data') . "</td>\n";
@@ -494,7 +494,7 @@ if ($form_step == 0) {
     echo "  <td>" . xlt('Create Eventlog Backup') . "</td>\n";
     echo " </tr>\n";
     echo " <tr>\n";
-    echo "  <td></td><td class='text'>" . xlt('Note that the Eventlog Backup is currently set to save in the following folder') . ": " . text($GLOBALS['backup_log_dir']) . " . " . xlt('Recommend setting the Path for Event Log Backup in Globals settings in the Miscellaneous section to something other than your tmp/temp directory.') . " " . xlt('Please refer to') . ' README-Log-Backup.txt ' . xlt('file in the Documentation directory to learn how to automate the process of creating log backups') . ".</td>\n";
+    echo "  <td></td><td class='text'>" . xlt('Note that the Eventlog Backup is currently set to save in the following folder') . ": " . text(OEGlobalsBag::getInstance()->get('backup_log_dir')) . " . " . xlt('Recommend setting the Path for Event Log Backup in Globals settings in the Miscellaneous section to something other than your tmp/temp directory.') . " " . xlt('Please refer to') . ' README-Log-Backup.txt ' . xlt('file in the Documentation directory to learn how to automate the process of creating log backups') . ".</td>\n";
     echo " </tr>\n";
     echo "</table>\n";
 }
@@ -594,7 +594,7 @@ if ($form_step == 5) {   // create the final compressed tar containing all files
 
     chdir($cur_dir);
     /* To log the backup event */
-    if ($GLOBALS['audit_events_backup']) {
+    if (OEGlobalsBag::getInstance()->get('audit_events_backup')) {
         EventAuditLogger::getInstance()->newEvent("backup", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Backup is completed");
     }
 
@@ -974,7 +974,7 @@ if ($form_step == 301) {
 # Get the Current Timestamp, to attach with the log backup file
     $backuptime = date("Ymd_His");
 # Eventlog backup directory
-    $BACKUP_EVENTLOG_DIR = $GLOBALS['backup_log_dir'];
+    $BACKUP_EVENTLOG_DIR = OEGlobalsBag::getInstance()->get('backup_log_dir');
 
 # Check if Eventlog Backup directory exists, if not create it with Write permission
     if (!file_exists($BACKUP_EVENTLOG_DIR)) {

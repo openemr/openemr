@@ -17,6 +17,7 @@ use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 class IndexController extends AbstractActionController
 {
@@ -101,12 +102,12 @@ class IndexController extends AbstractActionController
     {
         $limitEnd = \Application\Plugin\CommonPlugin::escapeLimit($limit);
 
-        if (isset($GLOBALS['set_autosuggest_options'])) {
-            $leading = $GLOBALS['set_autosuggest_options'] == 1 ? '%' : $post->leading;
+        if (OEGlobalsBag::getInstance()->has('set_autosuggest_options')) {
+            $leading = OEGlobalsBag::getInstance()->get('set_autosuggest_options') == 1 ? '%' : $post->leading;
 
-            $trailing = $GLOBALS['set_autosuggest_options'] == 2 ? '%' : $post->trailing;
+            $trailing = OEGlobalsBag::getInstance()->get('set_autosuggest_options') == 2 ? '%' : $post->trailing;
 
-            if ($GLOBALS['set_autosuggest_options'] == 3) {
+            if (OEGlobalsBag::getInstance()->get('set_autosuggest_options') == 3) {
                 $leading = '%';
                 $trailing = '%';
             }

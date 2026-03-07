@@ -84,7 +84,7 @@ if (!empty($_POST['access_group']) && is_array($_POST['access_group'])) {
                 $row = sqlFetchArray($res);
                 $uname = $row['username'];
                 $mail = new MyMailer();
-                $mail->From = $GLOBALS["practice_return_email_path"];
+                $mail->From = OEGlobalsBag::getInstance()->get("practice_return_email_path");
                 $mail->FromName = "Administrator OpenEMR";
                 $text_body = "Hello Security Admin,\n\n The Emergency Login user " . $uname .
                     " was activated at " . date('l jS \of F Y h:i:s A') . " \n\nThanks,\nAdmin OpenEMR.";
@@ -165,7 +165,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             //END (CHEMED)
         }
 
-        if (!empty($GLOBALS['gbl_fac_warehouse_restrictions']) || !empty($GLOBALS['restrict_user_facility'])) {
+        if (!empty(OEGlobalsBag::getInstance()->get('gbl_fac_warehouse_restrictions')) || !empty(OEGlobalsBag::getInstance()->get('restrict_user_facility'))) {
             if (empty($_POST["schedule_facility"])) {
                 $_POST["schedule_facility"] = [];
             }
@@ -576,7 +576,7 @@ function resetCounter(username) {
     request.append("function", "resetUsernameCounter");
     request.append("username", username);
     request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken('counter')); ?>);
-    fetch("<?php echo $GLOBALS["webroot"]; ?>/library/ajax/login_counter_ip_tracker.php", {
+    fetch("<?php echo OEGlobalsBag::getInstance()->get("webroot"); ?>/library/ajax/login_counter_ip_tracker.php", {
         method: 'POST',
         credentials: 'same-origin',
         body: request
@@ -639,7 +639,7 @@ function resetCounter(username) {
                             <th><?php echo xlt('MFA'); ?></th>
                             <?php
                             $checkPassExp = false;
-                            if (($GLOBALS['password_expiration_days'] != 0) && (check_integer($GLOBALS['password_expiration_days'])) && (check_integer($GLOBALS['password_grace_time']))) {
+                            if ((OEGlobalsBag::getInstance()->get('password_expiration_days') != 0) && (check_integer(OEGlobalsBag::getInstance()->get('password_expiration_days'))) && (check_integer(OEGlobalsBag::getInstance()->get('password_grace_time')))) {
                                 $checkPassExp = true;
                                 echo '<th>' . xlt('Password Expiration') . '</th>';
                             }
@@ -678,8 +678,8 @@ function resetCounter(username) {
                             if ($checkPassExp && !empty($iter["active"])) {
                                 $current_date = date("Y-m-d");
                                 $userSecure = privQuery("SELECT `last_update_password` FROM `users_secure` WHERE `id` = ?", [$iter['id']]);
-                                $pwd_expires = date("Y-m-d", strtotime($userSecure['last_update_password'] . "+" . $GLOBALS['password_expiration_days'] . " days"));
-                                $grace_time = date("Y-m-d", strtotime($pwd_expires . "+" . $GLOBALS['password_grace_time'] . " days"));
+                                $pwd_expires = date("Y-m-d", strtotime($userSecure['last_update_password'] . "+" . OEGlobalsBag::getInstance()->get('password_expiration_days') . " days"));
+                                $grace_time = date("Y-m-d", strtotime($pwd_expires . "+" . OEGlobalsBag::getInstance()->get('password_grace_time') . " days"));
                             }
 
                             print "<tr>
@@ -720,11 +720,11 @@ function resetCounter(username) {
                                     echo ' ' . '<button type="button" class="btn btn-sm btn-danger ml-1" onclick="resetCounter(' . attr_js($iter["username"]) . ')">' . xlt("Reset Counter") . '</button>';
                                     $autoBlocked = false;
                                     $autoBlockEnd = null;
-                                    if ((int)$GLOBALS['password_max_failed_logins'] != 0 && ($queryCounter['login_fail_counter'] > (int)$GLOBALS['password_max_failed_logins'])) {
-                                        if ((int)$GLOBALS['time_reset_password_max_failed_logins'] != 0) {
-                                            if ($queryCounter['seconds_last_login_fail'] < (int)$GLOBALS['time_reset_password_max_failed_logins']) {
+                                    if ((int)OEGlobalsBag::getInstance()->get('password_max_failed_logins') != 0 && ($queryCounter['login_fail_counter'] > (int)OEGlobalsBag::getInstance()->get('password_max_failed_logins'))) {
+                                        if ((int)OEGlobalsBag::getInstance()->get('time_reset_password_max_failed_logins') != 0) {
+                                            if ($queryCounter['seconds_last_login_fail'] < (int)OEGlobalsBag::getInstance()->get('time_reset_password_max_failed_logins')) {
                                                 $autoBlocked = true;
-                                                $autoBlockEnd = date('Y-m-d H:i:s', (time() + ((int)$GLOBALS['time_reset_password_max_failed_logins'] - $queryCounter['seconds_last_login_fail'])));
+                                                $autoBlockEnd = date('Y-m-d H:i:s', (time() + ((int)OEGlobalsBag::getInstance()->get('time_reset_password_max_failed_logins') - $queryCounter['seconds_last_login_fail'])));
                                             }
                                         } else {
                                             $autoBlocked = true;
@@ -748,7 +748,7 @@ function resetCounter(username) {
                 </table>
             </div>
             <?php
-            if (empty($GLOBALS['disable_non_default_groups'])) {
+            if (empty(OEGlobalsBag::getInstance()->get('disable_non_default_groups'))) {
                 $res = sqlStatement("select * from `groups` order by name");
                 for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                     $result5[$iter] = $row;

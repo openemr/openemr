@@ -19,8 +19,8 @@ require_once("../../globals.php");
 
 // Option to substitute a custom version of this script.
 if (
-    !empty($GLOBALS['gbl_rapid_workflow']) &&
-    $GLOBALS['gbl_rapid_workflow'] == 'LBFmsivd' &&
+    !empty(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_rapid_workflow')) &&
+    \OpenEMR\Core\OEGlobalsBag::getInstance()->get('gbl_rapid_workflow') == 'LBFmsivd' &&
     file_exists('../../../custom/demographics_print.php')
 ) {
     include('../../../custom/demographics_print.php');

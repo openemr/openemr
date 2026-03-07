@@ -16,6 +16,7 @@ require_once("../../../custom/code_types.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -52,7 +53,7 @@ $code_type = $_GET['type'];
 
 <input type='submit' id="submitbtn" name="submitbtn" value='<?php echo xla('Search'); ?>' />
 <!-- TODO: Use BS4 classes here !-->
-<div id="searchspinner" style="display: inline; visibility: hidden;"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif"></div>
+<div id="searchspinner" style="display: inline; visibility: hidden;"><img src="<?php echo OEGlobalsBag::getInstance()->get('webroot') ?>/interface/pic/ajax-loader.gif"></div>
 
 </form>
 

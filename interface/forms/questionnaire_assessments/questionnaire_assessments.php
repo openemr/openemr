@@ -137,8 +137,8 @@ $bottom_note = false;
 
 $loinc_text = "<span class='font-weight-bold bg-light text-dark'>" . xlt("Important to Note") . ": </span><i>" . xlt("LOINC form definitions are subject to the LOINC") . " <a href='http://loinc.org/terms-of-use' target='_blank'> " . xlt("terms of use.") . "</i>" . "</a>";
 
-if ($GLOBALS['questionnaire_display_LOINCnote'] ?? 0) {
-    switch ($GLOBALS['questionnaire_display_LOINCnote'] ?? 0) {
+if (OEGlobalsBag::getInstance()->get('questionnaire_display_LOINCnote') ?? 0) {
+    switch (OEGlobalsBag::getInstance()->get('questionnaire_display_LOINCnote') ?? 0) {
         case '0':
             $top_note = true;
             $bottom_note = false; // not really needed as this is the default!!
@@ -156,20 +156,20 @@ if ($GLOBALS['questionnaire_display_LOINCnote'] ?? 0) {
 }
 
 if ($isPortal) {
-    $theme = stripos((string)$GLOBALS['portal_css_header'], 'dark') !== false ? 'dark' : 'light';
+    $theme = stripos((string)OEGlobalsBag::getInstance()->get('portal_css_header'), 'dark') !== false ? 'dark' : 'light';
 } else {
-    $theme = stripos((string)$GLOBALS['css_header'], 'dark') !== false ? 'dark' : 'light';
+    $theme = stripos((string)OEGlobalsBag::getInstance()->get('css_header'), 'dark') !== false ? 'dark' : 'light';
 }
 
-if (($GLOBALS['questionnaire_display_style'] ?? 0) == 3) {
+if ((OEGlobalsBag::getInstance()->get('questionnaire_display_style') ?? 0) == 3) {
     $theme = 'light';
-} elseif (($GLOBALS['questionnaire_display_style'] ?? 0) == 4) {
+} elseif ((OEGlobalsBag::getInstance()->get('questionnaire_display_style') ?? 0) == 4) {
     $theme = 'dark';
 }
 
 if ($isModule || $isDashboard || $isPortal) {
     $container = 'container-fluid';
-} elseif (!empty($GLOBALS['questionnaire_display_fullscreen'] ?? 0)) {
+} elseif (!empty(OEGlobalsBag::getInstance()->get('questionnaire_display_fullscreen') ?? 0)) {
     $container = 'container';
 } else {
     $container = 'container-fluid';
@@ -191,7 +191,7 @@ if ($isModule || $isDashboard || $isPortal) {
     <script>
         let isPortal = <?php echo js_escape($isPortal); ?>;
         let portalOther = <?php echo js_escape($patientPortalOther); ?>;
-        let allowCopyright = <?php echo js_escape(!(($GLOBALS['questionnaire_display_LOINCnote'] ?? 0) == '3')); ?>;
+        let allowCopyright = <?php echo js_escape(!((OEGlobalsBag::getInstance()->get('questionnaire_display_LOINCnote') ?? 0) == '3')); ?>;
         let formOptions = {
             "questionLayout": "vertical",
             "hideTreeLine": true,
@@ -209,7 +209,7 @@ if ($isModule || $isDashboard || $isPortal) {
                 dropdownAutoWidth: true,
                 width: 'resolve',
                 closeOnSelect: true,
-                <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'); ?>
             });
             $(document).on('select2:open', () => {
                 document.querySelector('.select2-search__field').focus();

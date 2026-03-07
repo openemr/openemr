@@ -15,8 +15,10 @@
 
 namespace ESign;
 
-require_once $GLOBALS['srcdir'] . '/ESign/ButtonIF.php';
-require_once $GLOBALS['srcdir'] . '/ESign/Viewer.php';
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/ButtonIF.php';
+require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Viewer.php';
 
 class Form_Button implements ButtonIF
 {
@@ -34,12 +36,12 @@ class Form_Button implements ButtonIF
 
     public function isViewable()
     {
-        return $GLOBALS['esign_individual'];
+        return OEGlobalsBag::getInstance()->get('esign_individual');
     }
 
     public function getViewScript()
     {
-        return $GLOBALS['srcdir'] . '/ESign/views/form/esign_button.php';
+        return OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/views/form/esign_button.php';
     }
 
     public function render(?SignableIF $signable = null)

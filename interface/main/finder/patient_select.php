@@ -134,7 +134,7 @@ form {
 
 <script>
 <?php if ($popup) {
-    require($GLOBALS['srcdir'] . "/restoreSession.php");
+    require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php");
 } ?>
 </script>
 
@@ -247,11 +247,11 @@ if ($popup) {
     if ($print_patients) {
         // collect entire listing for printing
         $result = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass_id, $numerator_label);
-        $GLOBALS['PATIENT_INC_COUNT'] = count($result);
-        $MAXSHOW = $GLOBALS['PATIENT_INC_COUNT'];
+        OEGlobalsBag::getInstance()->set('PATIENT_INC_COUNT', count($result));
+        $MAXSHOW = OEGlobalsBag::getInstance()->get('PATIENT_INC_COUNT');
     } else {
         // collect the total listing count
-        $GLOBALS['PATIENT_INC_COUNT'] = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass_id, $numerator_label, true);
+        OEGlobalsBag::getInstance()->set('PATIENT_INC_COUNT', collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass_id, $numerator_label, true));
         // then just collect applicable list for pagination
         $result = collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass_id, $numerator_label, false, $sqllimit, $fstart);
     }
@@ -310,7 +310,7 @@ if ($popup) {
     echo $paginator->render(
         offset: $fstart,
         pageSize: $MAXSHOW,
-        totalCount: $GLOBALS['PATIENT_INC_COUNT'],
+        totalCount: OEGlobalsBag::getInstance()->get('PATIENT_INC_COUNT'),
         filename: basename(__FILE__),
         onclick: 'top.restoreSession()'
     );
@@ -342,7 +342,7 @@ if ($popup) {
 <th class="srDOB"><?php echo xlt('DOB'); ?></th>
 <th class="srID"><?php echo xlt('ID'); ?></th>
 
-<?php if (empty($GLOBALS['patient_search_results_style'])) { ?>
+<?php if (empty(OEGlobalsBag::getInstance()->get('patient_search_results_style'))) { ?>
 <th class="srPID"><?php echo xlt('PID'); ?></th>
 <th class="srNumEnc"><?php echo xlt('[Number Of Encounters]'); ?></th>
 <th class="srNumDays"><?php echo xlt('[Days Since Last Encounter]'); ?></th>
@@ -428,7 +428,7 @@ if ($result) {
 
         echo "<td class='srID'>" . text($iter['pubpid']) . "</td>";
 
-        if (empty($GLOBALS['patient_search_results_style'])) {
+        if (empty(OEGlobalsBag::getInstance()->get('patient_search_results_style'))) {
             echo "<td class='srPID'>" . text($iter['pid']) . "</td>";
 
           //setup for display of encounter date info

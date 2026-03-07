@@ -18,6 +18,7 @@ require_once(__DIR__ . "/../../controllers/C_Document.class.php");
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
@@ -45,7 +46,7 @@ class DocumentService extends BaseService
             $queryParams['patient_id'] = $pid;
         }
         $query = http_build_query($queryParams);
-        return $GLOBALS['web_root'] . '/controller.php?' . $query;
+        return OEGlobalsBag::getInstance()->get('web_root') . '/controller.php?' . $query;
     }
 
     public function isValidPath($path)
@@ -123,7 +124,7 @@ class DocumentService extends BaseService
     public function insertAtPath($pid, $path, $fileData, $eid)
     {
         // Ensure filetype is allowed
-        if ($GLOBALS['secure_upload'] && !isWhiteFile($fileData["tmp_name"])) {
+        if (OEGlobalsBag::getInstance()->get('secure_upload') && !isWhiteFile($fileData["tmp_name"])) {
             error_log("OpenEMR API Error: Attempt to upload insecure patient document was declined");
             return false;
         }

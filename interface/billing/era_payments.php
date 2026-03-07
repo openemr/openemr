@@ -20,7 +20,7 @@
 
 require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
-require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/statement.inc.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Billing\ParseERA;
@@ -162,7 +162,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
 <html>
 <head>
     <?php Header::setupHeader(['datetime-picker', 'common']);?>
-    <?php require_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
+    <?php require_once(OEGlobalsBag::getInstance()->get('srcdir') . "/ajax/payment_ajax_jav.inc.php"); ?>
     <script>
     function Validate()
     {
@@ -229,7 +229,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
        });
     });

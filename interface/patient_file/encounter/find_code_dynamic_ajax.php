@@ -15,9 +15,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
+
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
+require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
 
 // Paging parameters.  -1 means not applicable.
 //
