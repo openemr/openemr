@@ -1850,7 +1850,7 @@ class Display extends Base
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         //let's get all the recalls the user requests, or if no dates set use defaults
-        $from_date = (!empty($_REQUEST['form_from_date'])) ? DateToYYYYMMDD(strip_tags($_REQUEST['form_from_date'])) : date('Y-m-d', strtotime('-6 months'));
+        $from_date = (!empty($_REQUEST['form_from_date'])) ? DateToYYYYMMDD(strip_tags((string) $_REQUEST['form_from_date'])) : date('Y-m-d', strtotime('-6 months'));
         //limit date range for initial Board to keep us sane and not tax the server too much
 
         if (str_starts_with((string) $GLOBALS['ptkr_end_date'], 'Y')) {
@@ -1866,7 +1866,7 @@ class Display extends Base
         $to_date = date('Y-m-d', $ptkr_future_time);
         //prevSetting to_date?
 
-        $to_date = (!empty($_REQUEST['form_to_date'])) ? DateToYYYYMMDD(strip_tags($_REQUEST['form_to_date'])) : $to_date;
+        $to_date = (!empty($_REQUEST['form_to_date'])) ? DateToYYYYMMDD(strip_tags((string) $_REQUEST['form_to_date'])) : $to_date;
         $patient_id = strip_tags($_REQUEST['form_patient_id'] ?? '');
         $patient_name = strip_tags($_REQUEST['form_patient_name'] ?? '');
 
