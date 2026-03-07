@@ -54737,16 +54737,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/PractitionerFixtureManager.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset 0 on array\\{0\\: string, 1\\?\\: int\\}\\|int\\|string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Integration/RestControllers/Subscriber/SiteSetupListenerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1 on array\\{0\\: string, 1\\?\\: int\\}\\|int\\|string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Integration/RestControllers/Subscriber/SiteSetupListenerTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset 0 on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Billing/BillingClaimBatchTest.php',
@@ -54770,6 +54760,21 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access offset 1 on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Billing/BillingLoggerTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'isOauth2Request\' on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/Subscriber/SiteSetupListenerTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'siteId\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/Subscriber/SiteSetupListenerTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset 0 on array\\{0\\: string, 1\\?\\: int\\}\\|int\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/Subscriber/SiteSetupListenerTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'count\' on mixed\\.$#',
