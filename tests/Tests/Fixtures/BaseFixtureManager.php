@@ -23,7 +23,7 @@ abstract class BaseFixtureManager
     const FIXTURE_PREFIX = "test-fixture";
     private $hasInstalledFixtured;
     /** @var array<string, mixed>[] */
-    private $fixtures;
+    private $fixtures = [];
 
     public function __construct(private $fileName = "", private $tableName = "")
     {
