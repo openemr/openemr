@@ -38,7 +38,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 function types_invalue(string $name): string
 {
-    return trim($_POST[$name] ?? '');
+    return trim(is_string($_POST[$name] ?? null) ? $_POST[$name] : '');
 }
 
 function recursiveDelete($typeid): void

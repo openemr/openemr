@@ -1870,7 +1870,7 @@ class Display extends Base
         $patient_id = strip_tags((string) ($_REQUEST['form_patient_id'] ?? ''));
         $patient_name = strip_tags((string) ($_REQUEST['form_patient_name'] ?? ''));
 
-        $recalls = $this->get_recalls($from_date, $to_date, is_string($rcb_facility) ? $rcb_facility : '', is_string($rcb_provider) ? $rcb_provider : '', $patient_id, $patient_name);
+        $recalls = $this->get_recalls(is_string($from_date) ? $from_date : '', is_string($to_date) ? $to_date : '', is_string($rcb_facility) ? $rcb_facility : '', is_string($rcb_provider) ? $rcb_provider : '', $patient_id, $patient_name);
 
         $processed = $this->recall_board_process($logged_in, $recalls, $events ?? '');
         ob_start();
@@ -2632,7 +2632,7 @@ class Display extends Base
                         </div>
                         <div class="form-group col-8 col-md-8 divTableCell indent20">
                             <input class="form-control" type="text" name="new_reason" id="new_reason" value="<?php if ($result_pat['PLAN'] > '') {
-                                 echo attr(rtrim("|", trim((string) ($result_pat['PLAN'] ?? '')))); } ?>" />
+                                 echo attr(rtrim("|", trim(is_string($result_pat['PLAN'] ?? null) ? $result_pat['PLAN'] : ''))); } ?>" />
                         </div>
                     </div>
                     <div class="row divTableBody prefs">
@@ -2967,7 +2967,7 @@ class Display extends Base
     {
         if ($pid == 'pat_list') {
             global $data;
-            $values = rtrim((string) ($_POST['outpatient'] ?? ''));
+            $values = rtrim(is_string($_POST['outpatient'] ?? null) ? $_POST['outpatient'] : '');
             $match = preg_split("/(?<=\w)\b\s*[!?.]*/", $values, -1, PREG_SPLIT_NO_EMPTY);
             if ((preg_match('/ /', $values)) && (!empty($match[1]))) {
                 $sqlSync = "SELECT * FROM patient_data WHERE (fname LIKE ? OR fname LIKE ?) AND (lname LIKE ? OR lname LIKE ?) LIMIT 20";

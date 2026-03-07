@@ -928,8 +928,8 @@ if (!empty($_POST['form_refresh'])) {
 
         if (!$csv) { // Draw table if displaying in HTML ?>
             <br />
-            <input type="hidden" name="sortby" id="sortby" value="<?php echo attr((string) $sortby); ?>" />
-            <input type="hidden" name="sortorder" id="sortorder" value="<?php echo attr((string) $sortorder); ?>" />
+            <input type="hidden" name="sortby" id="sortby" value="<?php echo attr(is_string($sortby) ? $sortby : ''); ?>" />
+            <input type="hidden" name="sortorder" id="sortorder" value="<?php echo attr(is_string($sortorder) ? $sortorder : ''); ?>" />
             <div id="report_results">
                 <table>
                     <tr>
@@ -1019,7 +1019,7 @@ if (!empty($_POST['form_refresh'])) {
                     case "prc_diagnoses":
                         if (!$csv && $report_value != '') {
                             $report_value_print = '<ul style="margin: 0; padding-left: 0.5em;">';
-                            foreach (explode(';', (string) $report_value) as $code) {
+                            foreach (explode(';', is_string($report_value) ? $report_value : '') as $code) {
                                 $report_value_print .= '<li><abbr title="' . attr($code) . '">' . text(getCodeDescription($code)) . '</abbr></li>';
                             }
                             $report_value_print .= '</ul>';
