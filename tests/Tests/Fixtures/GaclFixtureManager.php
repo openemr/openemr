@@ -15,7 +15,7 @@ class GaclFixtureManager extends BaseFixtureManager
 {
     public function __construct()
     {
-        parent::__construct("gacl-breakglass.json", "");
+        parent::__construct("gacl-breakglass.php", "");
     }
 
     /**

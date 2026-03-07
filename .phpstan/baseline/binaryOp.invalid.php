@@ -21882,11 +21882,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between literal\\-string&non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \' \\= \' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
@@ -21897,11 +21892,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between literal\\-string&non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \' \\= \\?, \' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
@@ -21910,11 +21900,6 @@ $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'Patient does not…\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManagerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between literal\\-string&non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/PractitionerFixtureManager.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \' \\= \\?, \' results in an error\\.$#',

@@ -15727,11 +15727,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\FixtureManager\\:\\:loadJsonFile\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\MedicationDispenseFixtureManager\\:\\:createDrugInventory\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/MedicationDispenseFixtureManager.php',

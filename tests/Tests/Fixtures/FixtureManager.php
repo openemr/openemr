@@ -39,23 +39,35 @@ class FixtureManager
 
     public function __construct()
     {
-        $this->addressFixtures = $this->loadJsonFile("addresses.json");
-        $this->contactAddressFixtures = $this->loadJsonFile("contact-addresses.json");
-        $this->contactFixtures = $this->loadJsonFile("contacts.json");
-        $this->patientFixtures = $this->loadJsonFile("patients.json");
+        $this->addressFixtures = $this->loadPhpFile("addresses.php");
+        $this->contactAddressFixtures = $this->loadPhpFile("contact-addresses.php");
+        $this->contactFixtures = $this->loadPhpFile("contacts.php");
+        $this->patientFixtures = $this->loadPhpFile("patients.php");
         $this->fhirPatientFixtures = $this->loadJsonFile("FHIR/patients.json");
     }
 
     /**
-     * Loads a JSON fixture from a file within the Fixture namespace, returning the data as an array of records.
-     * @param $fileName The file name to load.
-     * @return array of records.
+     * @return array<string, mixed>[]
      */
-    private function loadJsonFile($fileName)
+    private function loadPhpFile(string $fileName): array
     {
-        $filePath = __DIR__ . "/" . $fileName;
-        $jsonData = file_get_contents($filePath);
-        $parsedRecords = json_decode($jsonData, true);
+        $filePath = realpath(__DIR__ . '/' . $fileName);
+        if ($filePath === false || !str_starts_with($filePath, __DIR__ . '/')) {
+            throw new \RuntimeException('Fixture file not found or outside fixtures directory: ' . $fileName);
+        }
+        /** @var array<string, mixed>[] */
+        return require $filePath;
+    }
+
+    /**
+     * Load a JSON fixture file. Used for FHIR fixtures that stay in JSON format.
+     *
+     * @return array<string, mixed>[]
+     */
+    private function loadJsonFile(string $fileName): array
+    {
+        /** @var array<string, mixed>[] $parsedRecords */
+        $parsedRecords = json_decode((string) file_get_contents(__DIR__ . '/' . $fileName), true);
         return $parsedRecords;
     }
 
@@ -158,7 +170,7 @@ class FixtureManager
     public function getAllergyIntoleranceFixtures()
     {
         if (empty($this->fhirAllergyIntoleranceFixtures)) {
-            $this->fhirAllergyIntoleranceFixtures = $this->loadJsonFile("allergy-intolerance.json");
+            $this->fhirAllergyIntoleranceFixtures = $this->loadPhpFile("allergy-intolerance.php");
         }
         return $this->fhirAllergyIntoleranceFixtures;
     }
