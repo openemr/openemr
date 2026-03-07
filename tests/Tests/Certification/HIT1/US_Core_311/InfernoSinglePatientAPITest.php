@@ -334,6 +334,7 @@ class InfernoSinglePatientAPITest extends TestCase
     protected function getTestGroupResponse(string $testGroupId, $credentialsKeyName = 'smart_credentials'): array
     {
         $accessToken = self::$testClient->getAccessToken();
+        assert($accessToken !== null, 'Access token must be set before running test groups');
         $testRunData = [
             'test_session_id' => self::$sessionId,
             'test_group_id' => $testGroupId,

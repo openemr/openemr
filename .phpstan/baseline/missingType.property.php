@@ -31107,51 +31107,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Validators/ProcessingResult.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:\\$access_token has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:\\$client has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:\\$client_id has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:\\$client_secret has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:\\$headers has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:\\$id_token has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:\\$refresh_token has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\FacilityApiTest\\:\\:\\$facilityRecord has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/FacilityApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\FacilityApiTest\\:\\:\\$testClient has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/FacilityApiTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\PatientApiTest\\:\\:\\$fixtureManager has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Api/PatientApiTest.php',
@@ -31165,16 +31120,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\PatientApiTest\\:\\:\\$testClient has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Api/PatientApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\PractitionerApiTest\\:\\:\\$fixtureManager has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/PractitionerApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\PractitionerApiTest\\:\\:\\$practitionerRecord has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/PractitionerApiTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Common\\\\Uuid\\\\UuidRegistryTest\\:\\:\\$uuidFactory has no type specified\\.$#',
@@ -31252,11 +31197,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:\\$fixtures has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:\\$hasInstalledFixtured has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
@@ -31280,11 +31220,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Fixtures\\\\EncounterFixtureManager\\:\\:\\$patientFixtureManager has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/EncounterFixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Fixtures\\\\FacilityFixtureManager\\:\\:\\$fhirFacilityFixtures has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/FacilityFixtureManager.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Fixtures\\\\FixtureManager\\:\\:\\$addressFixtures has no type specified\\.$#',
@@ -31325,16 +31260,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Fixtures\\\\MedicationDispenseFixtureManager\\:\\:\\$createdRecords has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/MedicationDispenseFixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Fixtures\\\\PractitionerFixtureManager\\:\\:\\$fhirPractitionerFixtures has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/PractitionerFixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Fixtures\\\\PractitionerFixtureManager\\:\\:\\$practitionerFixtures has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/PractitionerFixtureManager.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Isolated\\\\Telemetry\\\\BackgroundTaskManagerStub\\:\\:\\$lastBinds has no type specified\\.$#',

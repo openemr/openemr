@@ -269,7 +269,7 @@ class FhirPatientRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function post($fhirJson)
+    public function post($fhirJson): Response
     {
         $fhirValidate = $this->fhirValidate->validate($fhirJson);
         if (!empty($fhirValidate)) {
@@ -405,7 +405,7 @@ class FhirPatientRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function put(string $fhirId, array $fhirJson)
+    public function put(string $fhirId, array $fhirJson): Response
     {
         $fhirValidate = $this->fhirValidate->validate($fhirJson);
         if (!empty($fhirValidate)) {
