@@ -12,15 +12,15 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule;
 
-use Comlink\OpenEMR\Module\GlobalConfig;
-use OpenEMR\Common\Crypto\CryptoGen;
+use MyMailer;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Globals\GlobalsService;
-use MyMailer;
 use Twig\Environment;
 
 class TelehealthGlobalConfig
@@ -66,10 +66,7 @@ class TelehealthGlobalConfig
     const LOCALE_TIMEZONE_DEFAULT = "Unassigned";
     const LOCALE_TIMEZONE = "gbl_time_zone";
 
-    /**
-     * @var CryptoGen
-     */
-    private $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
 
     /**
      * @var publicWebPath
@@ -79,7 +76,7 @@ class TelehealthGlobalConfig
 
     public function __construct($publicWebPath, private readonly Environment $twig)
     {
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = ServiceContainer::getCrypto();
         $this->publicWebPath = $publicWebPath;
     }
 

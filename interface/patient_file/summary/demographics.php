@@ -37,7 +37,6 @@ require_once("$srcdir/clinical_rules.php");
 require_once("$srcdir/group.inc.php");
 require_once(__DIR__ . "/../../../library/appointments.inc.php");
 
-use OpenEMR\Billing\EDI270;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
@@ -47,27 +46,22 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent as CardRenderEvent;
 use OpenEMR\Events\Patient\Summary\Card\SectionEvent;
-use OpenEMR\Events\Patient\Summary\Card\RenderModel;
-use OpenEMR\Events\Patient\Summary\Card\CardInterface;
-use OpenEMR\Events\PatientDemographics\ViewEvent;
 use OpenEMR\Events\PatientDemographics\RenderEvent;
+use OpenEMR\Events\PatientDemographics\ViewEvent;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Patient\Cards\BillingViewCard;
+use OpenEMR\Patient\Cards\CareExperiencePreferenceViewCard;
 use OpenEMR\Patient\Cards\CareTeamViewCard;
 use OpenEMR\Patient\Cards\DemographicsViewCard;
 use OpenEMR\Patient\Cards\InsuranceViewCard;
 use OpenEMR\Patient\Cards\PortalCard;
+use OpenEMR\Patient\Cards\TreatmentPreferenceViewCard;
 use OpenEMR\Reminder\BirthdayReminder;
 use OpenEMR\Services\AllergyIntoleranceService;
-use OpenEMR\Services\ConditionService;
-use OpenEMR\Services\DemographicsRelatedPersonsService;
-use OpenEMR\Services\ImmunizationService;
 use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
-use OpenEMR\Patient\Cards\CareExperiencePreferenceViewCard;
-use OpenEMR\Patient\Cards\TreatmentPreferenceViewCard;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
@@ -1055,7 +1049,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     <?php
     // Create and fire the patient demographics view event
     $viewEvent = new ViewEvent($pid);
-    $viewEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($viewEvent, ViewEvent::EVENT_HANDLE);
+    $viewEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($viewEvent, ViewEvent::EVENT_HANDLE);
     $thisauth = AclMain::aclCheckCore('patients', 'demo');
 
     if (!$thisauth || !$viewEvent->authorized()) {
@@ -1075,7 +1069,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         }
 
         if ($thisauth) :
-            $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_TOP);
+            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_TOP);
             require_once("$include_root/patient_file/summary/dashboard_header.php");
         endif;
 
@@ -1353,7 +1347,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     $sectionCards = $sectionRenderEvents->getCards();
 
                     // if anyone wants to render anything before the patient demographic list
-                    $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE);
+                    OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_BEFORE);
 
                     foreach ($sectionCards as $card) {
                         $_auth = $card->getAcl();
@@ -1532,7 +1526,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     endif; // end vitals
 
                     // if anyone wants to render anything after the patient demographic list
-                    $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_AFTER);
+                    OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new RenderEvent($pid), RenderEvent::EVENT_SECTION_LIST_RENDER_AFTER);
 
                     // This generates a section similar to Vitals for each LBF form that
                     // supports charting.  The form ID is used as the "widget label".
@@ -1875,7 +1869,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
 
                             $row['pc_eventTime'] = sprintf("%02d", $disphour) . ":{$dispmin}";
-                            $row['pc_status'] = generate_display_field(['data_type' => '1', 'list_id' => 'apptstat'], $row['pc_apptstatus']);
+                            $row['pc_status'] = generate_plaintext_field(['data_type' => '1', 'list_id' => 'apptstat'], $row['pc_apptstatus']);
                             if ($row['pc_status'] == 'None') {
                                 $row['pc_status'] = 'Scheduled';
                             }
@@ -1981,7 +1975,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             }
                             $row['etitle'] = $petitle;
 
-                            $row['pc_status'] = generate_display_field(['data_type' => '1', 'list_id' => 'apptstat'], $row['pc_apptstatus']);
+                            $row['pc_status'] = generate_plaintext_field(['data_type' => '1', 'list_id' => 'apptstat'], $row['pc_apptstatus']);
 
                             $row['dayName'] = $dayname;
                             $row['displayMeridiem'] = $displayMeridiem;

@@ -13,9 +13,8 @@
 
 namespace Acl;
 
-use Laminas\ServiceManager\Factory\InvokableFactory;
-use Laminas\Router\Http\Segment;
 use Interop\Container\ContainerInterface;
+use Laminas\Router\Http\Segment;
 
 return [
     'controllers' => [
@@ -65,11 +64,7 @@ return [
     ],
     'service_manager' => [
         'factories' => [
-            Model\AclTable::class =>  function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get(\Laminas\Db\Adapter\Adapter::class);
-                $table = new Model\AclTable($dbAdapter);
-                return $table;
-            },
+            Model\AclTable::class =>  fn(ContainerInterface $container, $requestedName) => new Model\AclTable(),
         ]
     ]
 ];

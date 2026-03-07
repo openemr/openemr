@@ -16,10 +16,8 @@
 
 namespace OpenEMR\Modules\WenoModule\Services;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PhoneNumberService;
 
@@ -69,7 +67,7 @@ class TransmitProperties
         $this->setWenoLocation($this->wenoLocation);
         $this->errors = ['errors' => '', 'warnings' => '', 'info' => '', 'string' => ''];
         $this->csrf = js_escape(CsrfUtils::collectCsrfToken());
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = ServiceContainer::getCrypto();
         $this->wenoProviderID = $this->getWenoProviderID();
         $this->ncpdp = $this->getPharmacy();
         $this->vitals = $this->getVitals();

@@ -23,8 +23,8 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientPortal\AppointmentFilterEvent;
-use OpenEMR\Events\PatientReport\PatientReportFilterEvent;
 use OpenEMR\Events\PatientPortal\RenderEvent;
+use OpenEMR\Events\PatientReport\PatientReportFilterEvent;
 use OpenEMR\Services\LogoService;
 use OpenEMR\Services\Utils\TranslationService;
 use OpenEMR\Telemetry\TelemetryService;
@@ -145,8 +145,8 @@ if ($appts) {
             'etitle' => $etitle,
             'pc_eid' => $row['pc_eid'],
         ];
-        $filteredEvent = $globalsBag->get('kernel')->getEventDispatcher()->dispatch(new AppointmentFilterEvent($row, $formattedRecord), AppointmentFilterEvent::EVENT_NAME);
-        $appointments[] = $filteredEvent->getAppointment() ?? $formattedRecord;
+        $filteredEvent = $globalsBag->getKernel()->getEventDispatcher()->dispatch(new AppointmentFilterEvent($row, $formattedRecord), AppointmentFilterEvent::EVENT_NAME);
+        $appointments[] = $filteredEvent->getAppointment();
     }
 }
 if ($past_appts) {
@@ -179,8 +179,8 @@ if ($past_appts) {
             'etitle' => $etitle,
             'pc_eid' => $row['pc_eid'],
         ];
-        $filteredEvent = $globalsBag->get('kernel')->getEventDispatcher()->dispatch(new AppointmentFilterEvent($row, $formattedRecord), AppointmentFilterEvent::EVENT_NAME);
-        $past_appointments[] = $filteredEvent->getAppointment() ?? $formattedRecord;
+        $filteredEvent = $globalsBag->getKernel()->getEventDispatcher()->dispatch(new AppointmentFilterEvent($row, $formattedRecord), AppointmentFilterEvent::EVENT_NAME);
+        $past_appointments[] = $filteredEvent->getAppointment();
     }
 }
 $current_theme = sqlQuery("SELECT `setting_value` FROM `patient_settings` WHERE setting_patient = ? AND `setting_label` = ?", [$pid, 'portal_theme'])['setting_value'] ?? '';
@@ -344,7 +344,7 @@ $styleArray = collectStyles();
 $isTelemetryAllowed = (new TelemetryService())->isTelemetryEnabled();
 
 // Render Home Page
-$twig = (new TwigContainer('', $globalsBag->get('kernel')))->getTwig();
+$twig = (new TwigContainer('', $globalsBag->getKernel()))->getTwig();
 try {
     $healthSnapshot = [
         'immunizationRecords' => $immunRecords,
@@ -352,7 +352,7 @@ try {
     ];
     $patientReportEvent = new PatientReportFilterEvent();
     $patientReportEvent->setDataElement('healthSnapshot', $healthSnapshot);
-    $filteredEvent = $globalsBag->get('kernel')->getEventDispatcher()->dispatch($patientReportEvent, PatientReportFilterEvent::FILTER_PORTAL_HEALTHSNAPSHOT_TWIG_DATA);
+    $filteredEvent = $globalsBag->getKernel()->getEventDispatcher()->dispatch($patientReportEvent, PatientReportFilterEvent::FILTER_PORTAL_HEALTHSNAPSHOT_TWIG_DATA);
     $data = [
         'user' => $user,
         'whereto' => ($session->get('whereto', null)) ?: ($whereto ?? '#quickstart-card'),

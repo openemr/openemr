@@ -21,13 +21,12 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\Types\EncounterListOptionType;
 use OpenEMR\Common\Layouts\LayoutsUtils;
-use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
-use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\LogoService;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use Symfony\Component\EventDispatcher\GenericEvent;
@@ -273,6 +272,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('js_escape', js_escape(...)),
             new TwigFilter('attr_js', attr_js(...)),
             new TwigFilter('attr_url', attr_url(...)),
+            new TwigFilter('safe_href', safe_href(...)),
             new TwigFilter('js_url', js_url(...)),
             new TwigFilter('javascriptStringRemove', javascriptStringRemove(...)),
             new TwigFilter('xl', xl(...)),

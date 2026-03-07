@@ -20,58 +20,18 @@
 
 namespace Patientvalidation\Model;
 
-use Laminas\Db\Sql\Expression;
-use Laminas\Db\TableGateway\TableGateway;
-use Laminas\Db\Sql\Predicate;
-use Application\Model\ApplicationTable;
-use Laminas\Db\Adapter\Adapter;
+use OpenEMR\Common\Database\QueryUtils;
 
 class PatientDataTable
 {
-    protected $tableGateway;
-    protected $adapter;
-
-
-    /**
-     * PatientTable constructor.
-     * @param TableGateway $tableGateway
-     */
-    public function __construct(TableGateway $tableGateway)
-    {
-        $this->tableGateway = $tableGateway;
-        $adapter = \Laminas\Db\TableGateway\Feature\GlobalAdapterFeature::getStaticAdapter();
-        $this->adapter = $adapter;
-    }
-
-
-
-
-
-
-
-
-
     /**
      * @param array $parameters
-     * @return array
+     * @return list<array<string, mixed>>
      */
     public function getPatients(array $parameters)
     {
-        //You can use this function to write whatever rules that you need from the DB
-        //$sql="SELECT * FROM patient_data WHERE fname like ".$parameters['fname']." OR lname like ".$parameters['lname'] ." OR DOB like ".$parameters['DOB'];
-
-
-        $obj    = new ApplicationTable();
-        $sql    = " SELECT * FROM patient_data WHERE fname like  ? OR lname like ? OR DOB like ?  OR pubpid = ?";
-        $params = [$parameters['fname'],$parameters['lname'],$parameters['DOB'],$parameters['pubpid'] ?? ''];
-        $rowset = $obj->zQuery($sql, $params);
-
-
-        $results = [];
-        foreach ($rowset as $row) {
-            $results[] = $row;
-        }
-
-        return $results;
+        $sql = " SELECT * FROM patient_data WHERE fname like  ? OR lname like ? OR DOB like ?  OR pubpid = ?";
+        $params = [$parameters['fname'], $parameters['lname'], $parameters['DOB'], $parameters['pubpid'] ?? ''];
+        return QueryUtils::fetchRecords($sql, $params);
     }
 }

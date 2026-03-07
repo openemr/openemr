@@ -14,8 +14,6 @@ namespace OpenEMR\Tests\Fixtures;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use Ramsey\Uuid\Uuid;
 
 class CarePlanFixtureManager extends BaseFixtureManager
 {

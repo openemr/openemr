@@ -19,12 +19,10 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Database\QueryPagination;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\TableTypes;
-use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\ORDataObject\Address;
 use OpenEMR\Common\ORDataObject\ContactAddress;
-use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\BeforePatientCreatedEvent;
 use OpenEMR\Events\Patient\BeforePatientUpdatedEvent;
 use OpenEMR\Events\Patient\PatientCreatedEvent;
@@ -32,11 +30,10 @@ use OpenEMR\Events\Patient\PatientUpdatedEvent;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchConfigClauseBuilder;
-use OpenEMR\Services\Search\SearchQueryConfig;
-use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\SearchModifier;
+use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Services\Search\StringSearchField;
-use OpenEMR\Services\Search\TokenSearchValue;
+use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\PatientValidator;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -108,7 +105,7 @@ class PatientService extends BaseService
      * TODO: This should go in the ChartTrackerService and doesn't have to be static.
      *
      * @param  $pid unique patient id
-     * @return recordset
+     * @return \ADORecordSet
      */
     public static function getChartTrackerInformationActivity($pid)
     {
@@ -129,7 +126,7 @@ class PatientService extends BaseService
     /**
      * TODO: This should go in the ChartTrackerService and doesn't have to be static.
      *
-     * @return recordset
+     * @return \ADORecordSet
      */
     public static function getChartTrackerInformation()
     {
@@ -703,8 +700,8 @@ class PatientService extends BaseService
     /**
      * Returns a string to be used to display a patient's age
      *
-     * @param type $dobYMD
-     * @param type $asOfYMD
+     * @param string $dobYMD
+     * @param ?string $asOfYMD
      * @return string suitable for displaying patient's age based on preferences
      */
     public function getPatientAgeDisplay($dobYMD, $asOfYMD = null)
@@ -775,9 +772,8 @@ class PatientService extends BaseService
 
 
     /**
-     *
-     * @param type $dob
-     * @param type $date
+     * @param string $dob
+     * @param ?string $date
      * @return array containing
      *      age - decimal age in years
      *      age_in_months - decimal age in months
@@ -792,6 +788,7 @@ class PatientService extends BaseService
             $datenow = $yearnow . $monthnow . $daynow;
         } else {
             $datenow = preg_replace("/-/", "", $date);
+            assert(is_string($datenow));
             $yearnow = substr($datenow, 0, 4);
             $monthnow = substr($datenow, 4, 2);
             $daynow = substr($datenow, 6, 2);
@@ -799,6 +796,7 @@ class PatientService extends BaseService
         }
 
         $dob = preg_replace("/-/", "", $dob);
+        assert(is_string($dob));
         $dobyear = substr($dob, 0, 4);
         $dobmonth = substr($dob, 4, 2);
         $dobday = substr($dob, 6, 2);

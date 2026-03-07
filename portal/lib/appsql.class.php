@@ -12,7 +12,6 @@
 
 require_once(__DIR__ . '/../../interface/globals.php');
 
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -36,7 +35,7 @@ class ApplicationTable
      *            Logging True / False
      * @param boolean $error
      *            Error Display True / False
-     * @return type
+     * @return mixed
      */
     public function zQuery($sql, $params = '', $log = false, $error = true)
     {
@@ -240,7 +239,7 @@ class ApplicationTable
      * Same behavior of HelpfulDie function in OpenEMR
      * Path /library/sql.inc.php
      *
-     * @param type $e
+     * @param \Throwable $e
      * @param string $sql
      * @param array $binds
      */

@@ -16,8 +16,8 @@
 namespace OpenEMR\Common\Session\Predis;
 
 use OpenEMR\Common\Logging\SystemLogger;
-use Psr\Log\LoggerInterface;
 use Predis\Client;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler;
 
 class SentinelUtil
@@ -217,18 +217,7 @@ class SentinelUtil
         }
 
         // Create a new Predis client instance
-        $client = new Client($sentinelParameters, $options);
-
-        // Explicitly connect to force sentinel master resolution before the client is used.
-        // This is required for compatibility with predis >= 3.4.0, which refactored the
-        // handshake process and now calls getParameters() on the aggregate connection earlier
-        // in the command execution lifecycle. Without this, SentinelReplication::getParameters()
-        // is called before a connection is established and returns an array instead of a
-        // ParametersInterface object, causing a fatal error.
-        // See: https://github.com/predis/predis/releases/tag/v3.4.0
-        $client->connect();
-
-        return $client;
+        return new Client($sentinelParameters, $options);
     }
 
     public function configure(int $ttl): \SessionHandlerInterface {

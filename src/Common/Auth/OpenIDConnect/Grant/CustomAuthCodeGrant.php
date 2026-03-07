@@ -12,7 +12,6 @@
 namespace OpenEMR\Common\Auth\OpenIDConnect\Grant;
 
 use DateInterval;
-use Exception;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use League\OAuth2\Server\Grant\AuthCodeGrant;
@@ -21,9 +20,9 @@ use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\RequestEvent;
 use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
-use OpenEMR\Services\JWTClientAuthenticationService;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
+use OpenEMR\Services\JWTClientAuthenticationService;
 use Psr\Http\Message\ServerRequestInterface;
 
 class CustomAuthCodeGrant extends AuthCodeGrant

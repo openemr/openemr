@@ -26,14 +26,14 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\Header;
-use OpenEMR\Services\PatientService;
-use OpenEMR\Services\PatientIssuesService;
-use OpenEMR\Services\SDOH\HistorySdohService;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Services\PatientIssuesService;
+use OpenEMR\Services\PatientService;
+use OpenEMR\Services\SDOH\HistorySdohService;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 

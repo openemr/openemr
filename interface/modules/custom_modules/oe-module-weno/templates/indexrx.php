@@ -17,10 +17,9 @@
 require_once("../../../../globals.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Crypto\CryptoGen;
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
@@ -56,7 +55,7 @@ if (isset($_GET['form_reset_key'])) {
     $isKey = $wenoValidate->validateAdminCredentials(true);
 */
 
-$cryptoGen = new CryptoGen();
+$cryptoGen = ServiceContainer::getCrypto();
 
 // set up the dependencies for the page.
 $pharmacyService = new PharmacyService();

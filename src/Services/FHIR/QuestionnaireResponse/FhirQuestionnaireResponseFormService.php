@@ -11,6 +11,11 @@
 
 namespace OpenEMR\Services\FHIR\QuestionnaireResponse;
 
+use BadMethodCallException;
+use DateTime;
+use DateTimeInterface;
+use InvalidArgumentException;
+use JsonException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\DomainModels\OpenEMRFhirQuestionnaireResponse;
@@ -41,12 +46,6 @@ use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
-use InvalidArgumentException;
-use JsonException;
-use DateTime;
-use DateTimeInterface;
-use BadMethodCallException;
-use Exception;
 
 class FhirQuestionnaireResponseFormService extends FhirServiceBase implements IResourceReadableService, IResourceSearchableService, IResourceCreatableService
 {

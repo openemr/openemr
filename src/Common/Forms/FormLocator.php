@@ -14,10 +14,10 @@
 namespace OpenEMR\Common\Forms;
 
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Core\OEGlobalsBag;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Core\ModulesApplication;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Encounter\LoadEncounterFormFilterEvent;
+use Psr\Log\LoggerInterface;
 
 class FormLocator
 {

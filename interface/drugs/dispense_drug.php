@@ -13,9 +13,9 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\FacilityService;
 use PHPMailer\PHPMailer\PHPMailer;
-use OpenEMR\Common\Logging\SystemLogger;
 
 $facilityService = new FacilityService();
 

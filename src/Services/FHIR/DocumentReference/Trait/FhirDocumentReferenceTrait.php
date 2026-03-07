@@ -1,4 +1,5 @@
 <?php
+
 /*
  * FhirDocumentReferenceTrait.php
  * @package openemr
@@ -193,7 +194,7 @@ trait FhirDocumentReferenceTrait {
         }
     }
 
-    public function populateStatus(FhirDocumentReference $docReference, array $dataRecord): void
+    public function populateStatus(FHIRDocumentReference $docReference, array $dataRecord): void
     {
         if (!empty($dataRecord['deleted'])) {
             if ($dataRecord['deleted'] != 1) {

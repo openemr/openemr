@@ -12,8 +12,6 @@
 namespace Ccr\Controller;
 
 use Laminas\Mvc\Controller\AbstractActionController;
-use Laminas\View\Model\ViewModel;
-use Laminas\Filter\Compress\Zip;
 
 /**
  * Handles the OpenEMR Module configuration for the Ccr module.

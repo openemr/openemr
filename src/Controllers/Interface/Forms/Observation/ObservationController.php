@@ -13,18 +13,18 @@
 
 namespace OpenEMR\Controllers\Interface\Forms\Observation;
 
+use InvalidArgumentException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FormService;
 use OpenEMR\Services\ObservationService;
-use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\TokenSearchField;
@@ -34,7 +34,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
-use InvalidArgumentException;
 
 class ObservationController
 {

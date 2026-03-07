@@ -15,6 +15,7 @@ require_once("gad7.inc.php"); //common strings, require_once(globals.php), other
 
 use OpenEMR\Common\Csrf\CsrfUtils;    // security module
 use OpenEMR\Core\Header;
+
 ?>
 <html>
 <head>

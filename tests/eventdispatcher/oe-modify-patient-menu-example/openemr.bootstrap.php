@@ -16,8 +16,6 @@
 
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\PatientMenuEvent;
-use Symfony\Contracts\EventDispatcher\Event;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
  * @param PatientMenuEvent $menuEvent

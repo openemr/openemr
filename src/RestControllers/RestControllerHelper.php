@@ -12,17 +12,13 @@
 
 namespace OpenEMR\RestControllers;
 
+use Http\Message\Encoding\GzipEncodeStream;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
-use OpenEMR\Core\OEGlobalsBag;
-use Http\Message\Encoding\GzipEncodeStream;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\RestApiExtend\RestApiResourceServiceEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
-use OpenEMR\Services\FHIR\IResourceSearchableService;
-use OpenEMR\Services\FHIR\UtilsService;
-use OpenEMR\Services\Search\FhirSearchParameterDefinition;
-use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRRestfulCapabilityMode;
@@ -32,7 +28,11 @@ use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatement
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementOperation;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementResource;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementRest;
+use OpenEMR\Services\FHIR\IResourceSearchableService;
 use OpenEMR\Services\FHIR\IResourceUSCIGProfileService;
+use OpenEMR\Services\FHIR\UtilsService;
+use OpenEMR\Services\Search\FhirSearchParameterDefinition;
+use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Validators\ProcessingResult;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -249,7 +249,7 @@ class RestControllerHelper
         return $httpResponseBody;
     }
 
-    public static function createProcessingResultResponse(HttpRestRequest $request, ProcessingResult $processingResult, $successStatusCode = Response::HTTP_OK, $isMultipleResultResponse = false)
+    public static function createProcessingResultResponse(HttpRestRequest $request, ProcessingResult $processingResult, $successStatusCode = Response::HTTP_OK, $isMultipleResultResponse = false): ResponseInterface
     {
         $httpResponseBody = [
             "validationErrors" => [],

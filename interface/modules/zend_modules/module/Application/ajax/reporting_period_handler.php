@@ -14,6 +14,7 @@
 require_once("../../../../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 
 header('Content-Type: application/json');
@@ -60,7 +61,7 @@ function handleUpdateReportingPeriod()
 
     if ($result['count'] > 0) {
         // Update session
-        $_SESSION['selected_ecqm_period'] = $period;
+        SessionUtil::setSession('selected_ecqm_period', $period);
 
         // Update global
         $GLOBALS['cqm_performance_period'] = $period;

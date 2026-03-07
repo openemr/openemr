@@ -22,19 +22,17 @@ namespace OpenEMR\Modules\ClaimRevConnector;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Kernel;
+use OpenEMR\Events\Appointments\AppointmentSetEvent;
 use OpenEMR\Events\Core\TwigEnvironmentEvent;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
+use OpenEMR\Events\PatientDemographics\RenderEvent as pRenderEvent;
+use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
 use OpenEMR\Events\RestApiExtend\RestApiResourceServiceEvent;
 use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
-use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Menu\MenuEvent;
-use OpenEMR\Events\RestApiExtend\RestApiCreateEvent;
-use OpenEMR\Events\PatientDemographics\RenderEvent as pRenderEvent;
-use OpenEMR\Events\Appointments\AppointmentSetEvent;
-
 use OpenEMR\Modules\ClaimRevConnector\ClaimRevRteService;
-
+use OpenEMR\Services\Globals\GlobalSetting;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Error\LoaderError;
 use Twig\Loader\FilesystemLoader;

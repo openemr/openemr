@@ -21,12 +21,13 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Services\ContactService;
-use OpenEMR\Services\ContactAddressService;
-use OpenEMR\Services\ContactTelecomService;
-use OpenEMR\Services\ContactRelationService;
-use OpenEMR\Events\Patient\PatientUpdatedEventAux;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\Patient\PatientUpdatedEventAux;
+use OpenEMR\Services\ContactAddressService;
+use OpenEMR\Services\ContactRelationService;
+use OpenEMR\Services\ContactService;
+use OpenEMR\Services\ContactTelecomService;
 
 // Initialize logger
 $logger = new SystemLogger();
@@ -444,10 +445,9 @@ if (!empty($relationFieldsToSave)) {
  * Trigger events for listeners
  */
 try {
-    $GLOBALS["kernel"]->getEventDispatcher()->dispatch(
+    OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(
         new PatientUpdatedEventAux($pid, $_POST),
-        PatientUpdatedEventAux::EVENT_HANDLE,
-        10
+        PatientUpdatedEventAux::EVENT_HANDLE
     );
 } catch (\Throwable $e) {
     $logger->error("Error dispatching event", [

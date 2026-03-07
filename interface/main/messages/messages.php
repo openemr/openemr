@@ -11,10 +11,12 @@
  * @author Brady Miller <brady.g.miller@gmail.com>
  * @author Ray Magauran <magauran@medfetch.com>
  * @author Tyler Wrenn <tyler@tylerwrenn.com>
+ * @author Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2010 OpenEMR Support LLC
  * @copyright Copyright (c) 2017 MedEXBank.com
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -56,6 +58,8 @@ $uspfx = substr(__FILE__, strlen((string) $webserver_root)) . '.';
 $rcb_selectors = prevSetting($uspfx, 'rcb_selectors', 'rcb_selectors', 'block');
 $rcb_facility = prevSetting($uspfx, 'form_facility', 'form_facility', '');
 $rcb_provider = prevSetting($uspfx, 'form_provider', 'form_provider', $_SESSION['authUserID']);
+$patient_id = prevSetting($uspfx, 'form_patient_id', 'form_patient_id', '');
+$patient_name = prevSetting($uspfx, 'form_patient_name', 'form_patient_name', '');
 
 if (
     (array_key_exists('setting_bootstrap_submenu', $_POST)) ||

@@ -18,7 +18,6 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
-
 if (!AclMain::aclCheckCore('admin', 'super')) {
     // a recheck as was checked in setup script that calls this script in an iframe.
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Weno Users", xl("Weno Users"));

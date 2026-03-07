@@ -66,10 +66,10 @@ namespace OpenEMR\Common\Session;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\Predis\SentinelUtil;
+use SessionHandlerInterface;
+use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage;
-use Symfony\Component\HttpFoundation\Cookie;
-use SessionHandlerInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
 
 class SessionUtil

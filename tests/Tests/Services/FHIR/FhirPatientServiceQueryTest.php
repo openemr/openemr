@@ -5,12 +5,12 @@ namespace OpenEMR\Tests\Services\FHIR;
 use Monolog\Level;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Tests\Fixtures\FixtureManager;
-use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
+use OpenEMR\Services\FHIR\FhirPatientService;
+use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
 /**
  * FHIR Patient Service Query Tests

@@ -2,8 +2,8 @@
 
 namespace OpenEMR\Tests\Fixtures;
 
-use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Fixtures\FixtureManager;
+use PHPUnit\Framework\TestCase;
 
 /**
  * @package   OpenEMR

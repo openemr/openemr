@@ -19,9 +19,10 @@
 require_once(__DIR__ . "/../../globals.php");
 require_once($GLOBALS['srcdir'] . "/options.inc.php");
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\BoundFilter;
-use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 use OpenEMR\Events\PatientFinder\ColumnFilter;
+use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 
 // Not checking csrf since it breaks when opening up a patient in a new frame.
 //  Also note that csrf checking is not needed in this script because of following 2 reasons.
@@ -201,7 +202,7 @@ for ($i = 0; $i < count($aColumns); ++$i) {
 // This allows a module to subscribe to a 'patient-finder.filter' event and
 // add filtering before data ever gets to the user
 $patientFinderFilterEvent = new PatientFinderFilterEvent(new BoundFilter(), $aColumns, $columnFilters);
-$patientFinderFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientFinderFilterEvent, PatientFinderFilterEvent::EVENT_HANDLE);
+OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientFinderFilterEvent, PatientFinderFilterEvent::EVENT_HANDLE);
 $boundFilter = $patientFinderFilterEvent->getBoundFilter();
 $customWhere = $boundFilter->getFilterClause();
 $srch_bind = array_merge($boundFilter->getBoundValues(), $srch_bind);

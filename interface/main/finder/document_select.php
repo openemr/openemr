@@ -27,8 +27,8 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\DocumentService;
 use OpenEMR\Services\PatientService;
-use OpenEMR\Services\Search\StringSearchField;
 use OpenEMR\Services\Search\SearchModifier;
+use OpenEMR\Services\Search\StringSearchField;
 
 if (!empty($_REQUEST)) {
     if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {

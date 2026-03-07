@@ -21,9 +21,6 @@
 
 namespace PrescriptionTemplates\Controller;
 
-use Interop\Container\ContainerInterface;
-use Laminas\View\Model\ViewModel;
-
 /**
  * Class HtmlTemplatesController
  * Here you can add custom html template for print prescription.

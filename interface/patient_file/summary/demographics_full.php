@@ -26,12 +26,12 @@ require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
-use OpenEMR\Services\DemographicsRelatedPersonsService;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -52,7 +52,7 @@ $result2 = getEmployerData($pid);
 if ($pid) {
     // Create and fire the patient demographics update event
     $updateEvent = new UpdateEvent($pid);
-    $updateEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($updateEvent, UpdateEvent::EVENT_HANDLE);
+    $updateEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($updateEvent, UpdateEvent::EVENT_HANDLE);
 
     if (
         !$updateEvent->authorized() ||

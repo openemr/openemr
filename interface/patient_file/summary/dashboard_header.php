@@ -16,7 +16,6 @@
 
 require_once("$srcdir/display_help_icon_inc.php");
 
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 

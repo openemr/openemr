@@ -16,10 +16,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\ORDataObject\Address;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\ValueObjects\TypedPhoneNumber;
 use OpenEMR\Services\InsuranceCompanyService;
-use OpenEMR\Common\ORDataObject\Address;
 use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\PhoneType;
 

@@ -8,8 +8,8 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\Services\FHIR\Serialization\FhirPatientSerializer;
 use OpenEMR\Tests\Fixtures\FixtureManager;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
 /**
  * FHIR Patient Service Crud Tests

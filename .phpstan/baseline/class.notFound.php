@@ -2,249 +2,9 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to offset 2 on an unknown class type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to offset 9 on an unknown class type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to offset int on an unknown class type\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$col_code of function define_external_table\\(\\) has invalid type type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$col_description of function define_external_table\\(\\) has invalid type type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$col_description_brief of function define_external_table\\(\\) has invalid type type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$filter_clauses of function define_external_table\\(\\) has invalid type type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$joins of function define_external_table\\(\\) has invalid type type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$results of function define_external_table\\(\\) has invalid type type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$table_name of function define_external_table\\(\\) has invalid type type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$version_order of function define_external_table\\(\\) has invalid type type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/code_types.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to offset \'city\' on an unknown class OpenEMR\\\\Common\\\\Database\\\\recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/export_xml.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to offset \'country\' on an unknown class OpenEMR\\\\Common\\\\Database\\\\recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/export_xml.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to offset \'id\' on an unknown class OpenEMR\\\\Common\\\\Database\\\\recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/export_xml.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to offset \'name\' on an unknown class OpenEMR\\\\Common\\\\Database\\\\recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/export_xml.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to offset \'postal_code\' on an unknown class OpenEMR\\\\Common\\\\Database\\\\recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/export_xml.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to offset \'state\' on an unknown class OpenEMR\\\\Common\\\\Database\\\\recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/export_xml.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to offset \'street\' on an unknown class OpenEMR\\\\Common\\\\Database\\\\recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/export_xml.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method dispatch\\(\\) on an unknown class EventDispatcherInterface\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/search_payments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var for variable \\$eventDispatcher contains unknown class EventDispatcherInterface\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/search_payments.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AbstractClickmapModel\\:\\:getCode\\(\\) has invalid return type A\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method AbstractClickmapModel\\:\\:getTitle\\(\\) has invalid return type The\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property AbstractClickmapModel\\:\\:\\$activity has unknown class activity as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property AbstractClickmapModel\\:\\:\\$authorized has unknown class authorized as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property AbstractClickmapModel\\:\\:\\$data has unknown class data as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property AbstractClickmapModel\\:\\:\\$date has unknown class date as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property AbstractClickmapModel\\:\\:\\$groupname has unknown class groupname as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property AbstractClickmapModel\\:\\:\\$id has unknown class id as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property AbstractClickmapModel\\:\\:\\$pid has unknown class pid as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to property \\$hideNav on an unknown class Model\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method C_AbstractClickmap\\:\\:createModel\\(\\) has invalid return type Model\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method C_AbstractClickmap\\:\\:getImage\\(\\) has invalid return type The\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method C_AbstractClickmap\\:\\:getOptionList\\(\\) has invalid return type A\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method C_AbstractClickmap\\:\\:getOptionsLabel\\(\\) has invalid return type The\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property C_AbstractClickmap\\:\\:\\$template_dir has unknown class template_dir as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function load_fee_sheet_options\\(\\) has invalid return type an\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_options_queries.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$search_query of function diagnosis_search\\(\\) has invalid type type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_search_queries.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$search_type of function diagnosis_search\\(\\) has invalid type type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_search_queries.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$search_type_id of function diagnosis_search\\(\\) has invalid type type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_search_queries.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method C_FormPainMap\\:\\:createModel\\(\\) has invalid return type Model\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/painmap/C_FormPainMap.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method C_FormPainMap\\:\\:getImage\\(\\) has invalid return type The\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/painmap/C_FormPainMap.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method C_FormPainMap\\:\\:getOptionList\\(\\) has invalid return type A\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/painmap/C_FormPainMap.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method C_FormPainMap\\:\\:getOptionsLabel\\(\\) has invalid return type The\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/painmap/C_FormPainMap.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property C_FormPainMap\\:\\:\\$FORM_CODE has unknown class FORM_CODE as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/painmap/C_FormPainMap.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property C_FormPainMap\\:\\:\\$FORM_TITLE has unknown class FORM_TITLE as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/painmap/C_FormPainMap.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method FormPainMap\\:\\:getCode\\(\\) has invalid return type A\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/painmap/FormPainMap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method FormPainMap\\:\\:getTitle\\(\\) has invalid return type The\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/painmap/FormPainMap.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property FormPainMap\\:\\:\\$TABLE_NAME has unknown class TABLE_NAME as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/painmap/FormPainMap.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @var contains unknown class Dotenv\\.$#',
@@ -255,16 +15,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @var contains unknown class Kernel\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/globals.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method dispatch\\(\\) on an unknown class EventDispatcherInterface\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../interface/main/calendar/add_edit_event.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var for variable \\$eventDispatcher contains unknown class EventDispatcherInterface\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/add_edit_event.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function pnConfigGetVar\\(\\) has invalid return type value\\.$#',
@@ -317,124 +67,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/LogProperties.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method listAutoSuggest\\(\\) on an unknown class Application\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/IndexController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Controller\\\\IndexController\\:\\:getApplicationTable\\(\\) has invalid return type Application\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/IndexController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getCCDAComponents\\(\\) on an unknown class Application\\\\Controller\\\\type\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getCombinationFormComponents\\(\\) on an unknown class Application\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getFacility\\(\\) on an unknown class Application\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getFaxRecievers\\(\\) on an unknown class Application\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getUsers\\(\\) on an unknown class Application\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Controller\\\\SendtoController\\:\\:getApplicationTable\\(\\) has invalid return type Application\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Controller\\\\SendtoController\\:\\:getSendtoTable\\(\\) has invalid return type Application\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Application\\\\Listener\\\\Listener\\:\\:\\$listeners has unknown class Laminas\\\\Stdlib\\\\CallbackHandler as its type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Listener/Listener.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method count\\(\\) on an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getTraceAsString\\(\\) on an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Model\\\\ApplicationTable\\:\\:quoteValue\\(\\) has invalid return type Application\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Model\\\\ApplicationTable\\:\\:zQuery\\(\\) has invalid return type Application\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$e of method Application\\\\Model\\\\ApplicationTable\\:\\:errorHandler\\(\\) has invalid type Application\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$value of method Application\\\\Model\\\\ApplicationTable\\:\\:quoteValue\\(\\) has invalid type Application\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/ApplicationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method current\\(\\) on an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/CommonPlugin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getGeneratedValue\\(\\) on an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/CommonPlugin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/CommonPlugin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Application\\\\Plugin\\\\CommonPlugin\\:\\:checkACL\\(\\) has invalid return type Application\\\\Plugin\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/CommonPlugin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$container of method Application\\\\Plugin\\\\CommonPlugin\\:\\:__construct\\(\\) has invalid type Application\\\\Plugin\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/CommonPlugin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$container of method Application\\\\Plugin\\\\Phimail\\:\\:__construct\\(\\) has invalid type Application\\\\Plugin\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/Phimail.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to method getDocumentsTable\\(\\) on an unknown class Carecoordination\\\\Controller\\\\Documents\\\\Controller\\\\DocumentsController\\.$#',
@@ -477,361 +112,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/CcdController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to method getDocuments\\(\\) on an unknown class Carecoordination\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/MapperController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getFormsList\\(\\) on an unknown class Carecoordination\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/MapperController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getLbfList\\(\\) on an unknown class Carecoordination\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/MapperController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getMappedFields\\(\\) on an unknown class Carecoordination\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/MapperController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getMaxIdCcda\\(\\) on an unknown class Carecoordination\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/MapperController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getSections\\(\\) on an unknown class Carecoordination\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/MapperController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getTableList\\(\\) on an unknown class Carecoordination\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/MapperController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method insertChild\\(\\) on an unknown class Carecoordination\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/MapperController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method insertMaster\\(\\) on an unknown class Carecoordination\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/MapperController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method updateExistingMappedFields\\(\\) on an unknown class Carecoordination\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/MapperController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Carecoordination\\\\Controller\\\\MapperController\\:\\:getMapperTable\\(\\) has invalid return type Carecoordination\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/MapperController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method count\\(\\) on an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method current\\(\\) on an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 29,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method count\\(\\) on an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method current\\(\\) on an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getGeneratedValue\\(\\) on an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 47,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method count\\(\\) on an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncountermanagerTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncountermanagerTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 10,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/MapperTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 10,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/SetupTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method createAuditArray\\(\\) on an unknown class Ccr\\\\Controller\\\\type\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method discardCCRData\\(\\) on an unknown class Ccr\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method document_fetch\\(\\) on an unknown class Ccr\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method fetch_cat_id\\(\\) on an unknown class Ccr\\\\Controller\\\\type\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method fetch_uploaded_documents\\(\\) on an unknown class Ccr\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getAllergies\\(\\) on an unknown class Ccr\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getDemographicsOld\\(\\) on an unknown class Ccr\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getDemographics\\(\\) on an unknown class Ccr\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getDocument\\(\\) on an unknown class Ccr\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getImmunizations\\(\\) on an unknown class Ccr\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getLabResults\\(\\) on an unknown class Ccr\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getMedications\\(\\) on an unknown class Ccr\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getProblems\\(\\) on an unknown class Ccr\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method insertApprovedData\\(\\) on an unknown class Ccr\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method insert_ccr_into_audit_data\\(\\) on an unknown class Ccr\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method insert_patient\\(\\) on an unknown class Ccr\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method parseXmlStream\\(\\) on an unknown class Ccr\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method update_document\\(\\) on an unknown class Ccr\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method update_imported\\(\\) on an unknown class Ccr\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Ccr\\\\Controller\\\\CcrController\\:\\:getCcrTable\\(\\) has invalid return type Ccr\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Controller/CcrController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method count\\(\\) on an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getGeneratedValue\\(\\) on an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 14,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method current\\(\\) on an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Model/DocumentsTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Model/DocumentsTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method get\\(\\) on an unknown class Documents\\\\Plugin\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Plugin/Documents.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Plugin/Documents.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$sm of method Documents\\\\Plugin\\\\Documents\\:\\:__construct\\(\\) has invalid type Documents\\\\Plugin\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Plugin/Documents.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Immunization\\\\Controller\\\\ImmunizationController\\:\\:format_cvx_code\\(\\) has invalid return type Immunization\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ImmunizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Immunization\\\\Controller\\\\ImmunizationController\\:\\:format_ethnicity\\(\\) has invalid return type Immunization\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ImmunizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Immunization\\\\Controller\\\\ImmunizationController\\:\\:tr\\(\\) has invalid return type Immunization\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ImmunizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$a of method Immunization\\\\Controller\\\\ImmunizationController\\:\\:tr\\(\\) has invalid type Immunization\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ImmunizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$cvx_code of method Immunization\\\\Controller\\\\ImmunizationController\\:\\:format_cvx_code\\(\\) has invalid type Immunization\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ImmunizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$ethnicity of method Immunization\\\\Controller\\\\ImmunizationController\\:\\:format_ethnicity\\(\\) has invalid type Immunization\\\\Controller\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ImmunizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to offset \'code_bind_values\' on an unknown class Immunization\\\\Model\\\\type\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to offset \'form_from_date\' on an unknown class Immunization\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to offset \'form_get_hl7\' on an unknown class Immunization\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to offset \'form_to_date\' on an unknown class Immunization\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to offset \'limit_start\' on an unknown class Immunization\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to offset \'pid_bind_values\' on an unknown class Immunization\\\\Model\\\\type\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to offset \'query_codes\' on an unknown class Immunization\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to offset \'query_pids\' on an unknown class Immunization\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to offset \'results\' on an unknown class Immunization\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Immunization\\\\Model\\\\ImmunizationTable\\:\\:getImmunizationObservationResultsData\\(\\) has invalid return type Immunization\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Immunization\\\\Model\\\\ImmunizationTable\\:\\:immunizedPatientDetails\\(\\) has invalid return type Immunization\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$form_data of method Immunization\\\\Model\\\\ImmunizationTable\\:\\:immunizedPatientDetails\\(\\) has invalid type Immunization\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$id of method Immunization\\\\Model\\\\ImmunizationTable\\:\\:getImmunizationObservationResultsData\\(\\) has invalid type Immunization\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$pid of method Immunization\\\\Model\\\\ImmunizationTable\\:\\:getImmunizationObservationResultsData\\(\\) has invalid type Immunization\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getAclConfig\\(\\) on an unknown class Installer\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Iterating over an object of an unknown class Installer\\\\Controller\\\\unknown_type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
@@ -842,84 +122,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Controller/InstallerController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to method count\\(\\) on an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method current\\(\\) on an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getAclConfig\\(\\) on an unknown class Installer\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getGeneratedValue\\(\\) on an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getHookConfig\\(\\) on an unknown class Installer\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 17,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Installer\\\\Model\\\\InstModuleTable\\:\\:getObject\\(\\) has invalid return type Installer\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$adapter of method Installer\\\\Model\\\\InstModuleTable\\:\\:getObject\\(\\) has invalid type Installer\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$dir of method Installer\\\\Model\\\\InstModuleTable\\:\\:installSQL\\(\\) has invalid type Installer\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$features of method Installer\\\\Model\\\\InstModuleTableGateway\\:\\:__construct\\(\\) has invalid type Installer\\\\Model\\\\Feature\\\\AbstractFeature\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTableGateway.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$features of method Installer\\\\Model\\\\InstModuleTableGateway\\:\\:__construct\\(\\) has invalid type Installer\\\\Model\\\\Feature\\\\FeatureSet\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTableGateway.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Controller\\\\BaseController\\:\\:getPostParamsArray\\(\\) has invalid return type Multipledb\\\\Controller\\\\post\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/BaseController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Patientvalidation\\\\Controller\\\\BaseController\\:\\:getPostParamsArray\\(\\) has invalid return type Patientvalidation\\\\Controller\\\\post\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Controller/BaseController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Model/PatientDataTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method current\\(\\) on an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Model/SyndromicsurveillanceTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Model/SyndromicsurveillanceTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Access to property \\$RECEIVING_APPLICATION on an unknown class QuestResultClient\\.$#',
@@ -1002,16 +207,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method NumberToText\\:\\:convert\\(\\) has invalid return type The\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/NumberToText.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method NumberToText\\:\\:n2t_convertthree\\(\\) has invalid return type The\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/NumberToText.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function listingCDRReminderLog\\(\\) has invalid return type sqlret\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
@@ -1020,36 +215,6 @@ $ignoreErrors[] = [
     'message' => '#^Function create_crt\\(\\) has invalid return type data\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/create_ssl_certificate.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getImmunizationList\\(\\) has invalid return type recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/immunization_helper.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function getEmployerData\\(\\) has invalid return type OpenEMR\\\\Common\\\\Database\\\\recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$asOfYMD of function getPatientAgeDisplay\\(\\) has invalid type type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$date of function getPatientAgeYMD\\(\\) has invalid type type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$dob of function getPatientAgeYMD\\(\\) has invalid type type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$dobYMD of function getPatientAgeDisplay\\(\\) has invalid type type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/patient.inc.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\$function of method Smarty_Legacy\\:\\:_get_filter_name\\(\\) has invalid type callback\\.$#',
@@ -1092,11 +257,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/Smarty_Legacy.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function sqlQ\\(\\) has invalid return type recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sql.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getUserSetting\\(\\) has invalid return type Effective\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/user.inc.php',
@@ -1105,36 +265,6 @@ $ignoreErrors[] = [
     'message' => '#^Function prevSetting\\(\\) has invalid return type Prior\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/user.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method xmltoarray_parser_htmlfix\\:\\:_struct_to_array\\(\\) has invalid return type The\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/xmltoarray_parser_htmlfix.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method xmltoarray_parser_htmlfix\\:\\:createArray\\(\\) has invalid return type The\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/xmltoarray_parser_htmlfix.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method xmltoarray_parser_htmlfix\\:\\:fix_html_entities\\(\\) has invalid return type A\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/xmltoarray_parser_htmlfix.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getTraceAsString\\(\\) on an unknown class type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/appsql.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method ApplicationTable\\:\\:zQuery\\(\\) has invalid return type type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/appsql.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$e of method ApplicationTable\\:\\:errorHandler\\(\\) has invalid type type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/lib/appsql.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Instantiated class OpenEMR\\\\PatientPortal\\\\Chat\\\\ChatController not found\\.$#',
@@ -1647,139 +777,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to method getPosition\\(\\) on an unknown class OpenEMR\\\\Billing\\\\type\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Billing/HCFAInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Billing\\\\HCFAInfo\\:\\:getPosition\\(\\) has invalid return type OpenEMR\\\\Billing\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/HCFAInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$column of method OpenEMR\\\\Billing\\\\HCFAInfo\\:\\:__construct\\(\\) has invalid type OpenEMR\\\\Billing\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/HCFAInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$first of method OpenEMR\\\\Billing\\\\HCFAInfo\\:\\:cmpHcfaInfo\\(\\) has invalid type OpenEMR\\\\Billing\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/HCFAInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$info of method OpenEMR\\\\Billing\\\\HCFAInfo\\:\\:__construct\\(\\) has invalid type OpenEMR\\\\Billing\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/HCFAInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$row of method OpenEMR\\\\Billing\\\\HCFAInfo\\:\\:__construct\\(\\) has invalid type OpenEMR\\\\Billing\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/HCFAInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$second of method OpenEMR\\\\Billing\\\\HCFAInfo\\:\\:cmpHcfaInfo\\(\\) has invalid type OpenEMR\\\\Billing\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/HCFAInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$width of method OpenEMR\\\\Billing\\\\HCFAInfo\\:\\:__construct\\(\\) has invalid type OpenEMR\\\\Billing\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/HCFAInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Billing\\\\HCFAInfo\\:\\:\\$column has unknown class OpenEMR\\\\Billing\\\\type as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/HCFAInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Billing\\\\HCFAInfo\\:\\:\\$info has unknown class OpenEMR\\\\Billing\\\\type as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/HCFAInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Billing\\\\HCFAInfo\\:\\:\\$row has unknown class OpenEMR\\\\Billing\\\\type as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/HCFAInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Billing\\\\HCFAInfo\\:\\:\\$width has unknown class OpenEMR\\\\Billing\\\\type as its type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/HCFAInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to property \\$diagtype on an unknown class OpenEMR\\\\Billing\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Hcfa1500.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method diagArray\\(\\) on an unknown class OpenEMR\\\\Billing\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Hcfa1500.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method medicaidOriginalReference\\(\\) on an unknown class OpenEMR\\\\Billing\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Hcfa1500.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method medicaidResubmissionCode\\(\\) on an unknown class OpenEMR\\\\Billing\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Hcfa1500.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method priorAuth\\(\\) on an unknown class OpenEMR\\\\Billing\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Hcfa1500.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$claim of method OpenEMR\\\\Billing\\\\Hcfa1500\\:\\:processDiagnoses0212\\(\\) has invalid type OpenEMR\\\\Billing\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Hcfa1500.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$col of method OpenEMR\\\\Billing\\\\Hcfa1500\\:\\:putHcfa\\(\\) has invalid type OpenEMR\\\\Billing\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Hcfa1500.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$data of method OpenEMR\\\\Billing\\\\Hcfa1500\\:\\:putHcfa\\(\\) has invalid type OpenEMR\\\\Billing\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Hcfa1500.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$diag of method OpenEMR\\\\Billing\\\\Hcfa1500\\:\\:addDiagnosis\\(\\) has invalid type OpenEMR\\\\Billing\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Hcfa1500.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$line of method OpenEMR\\\\Billing\\\\Hcfa1500\\:\\:putHcfa\\(\\) has invalid type OpenEMR\\\\Billing\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Hcfa1500.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$maxlen of method OpenEMR\\\\Billing\\\\Hcfa1500\\:\\:putHcfa\\(\\) has invalid type OpenEMR\\\\Billing\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Hcfa1500.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$number of method OpenEMR\\\\Billing\\\\Hcfa1500\\:\\:addDiagnosis\\(\\) has invalid type OpenEMR\\\\Billing\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Hcfa1500.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$strip of method OpenEMR\\\\Billing\\\\Hcfa1500\\:\\:putHcfa\\(\\) has invalid type OpenEMR\\\\Billing\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/Hcfa1500.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\RuleLibrary\\\\Rule\\:\\:\\$groups has unknown class RuleTargetActionGroups as its type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/Rule.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\AuthUtils\\:\\:collectIpLoginFailsSql\\(\\) has invalid return type recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\AuthUtils\\:\\:rehashPassword\\(\\) has invalid return type s\\.$#',
@@ -1932,26 +932,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/Config/RestConfig.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\EncounterRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\a\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\EncounterRestController\\:\\:getOne\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\a\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\EncounterRestController\\:\\:post\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\a\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\EncounterRestController\\:\\:put\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\a\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirAllergyIntoleranceRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirAllergyIntoleranceRestController.php',
@@ -1995,11 +975,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirEncounterRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirEncounterRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirGoalRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGoalRestController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirGroupRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
@@ -2057,11 +1032,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirServiceRequestRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirSpecimenRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirSpecimenRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirValueSetRestController\\:\\:getAll\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirValueSetRestController.php',
@@ -2097,39 +1067,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationDocRefRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\PractitionerRestController\\:\\:patch\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\a\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/PractitionerRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\PractitionerRestController\\:\\:post\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\a\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/PractitionerRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\TransactionRestController\\:\\:CreateTransaction\\(\\) has invalid return type OpenEMR\\\\RestControllers\\\\a\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/TransactionRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method count\\(\\) on an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 40,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateImportDispose.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method current\\(\\) on an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 15,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateImportDispose.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getGeneratedValue\\(\\) on an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 18,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateImportDispose.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Iterating over an object of an unknown class Application\\\\Model\\\\type\\.$#',
-    'count' => 35,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateImportDispose.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\FHIR\\\\DiagnosticReport\\\\FhirDiagnosticReportClinicalNotesService\\:\\:createProvenanceResource\\(\\) has invalid return type OpenEMR\\\\Services\\\\FHIR\\\\DiagnosticReport\\\\the\\.$#',
@@ -2225,36 +1165,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Globals\\\\UserSettingsService\\:\\:prevSetting\\(\\) has invalid return type OpenEMR\\\\Services\\\\Globals\\\\Prior\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Globals/UserSettingsService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\PatientService\\:\\:getChartTrackerInformationActivity\\(\\) has invalid return type OpenEMR\\\\Services\\\\recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PatientService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\PatientService\\:\\:getChartTrackerInformation\\(\\) has invalid return type OpenEMR\\\\Services\\\\recordset\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PatientService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$asOfYMD of method OpenEMR\\\\Services\\\\PatientService\\:\\:getPatientAgeDisplay\\(\\) has invalid type OpenEMR\\\\Services\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PatientService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$date of method OpenEMR\\\\Services\\\\PatientService\\:\\:getPatientAgeYMD\\(\\) has invalid type OpenEMR\\\\Services\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PatientService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$dob of method OpenEMR\\\\Services\\\\PatientService\\:\\:getPatientAgeYMD\\(\\) has invalid type OpenEMR\\\\Services\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PatientService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\$dobYMD of method OpenEMR\\\\Services\\\\PatientService\\:\\:getPatientAgeDisplay\\(\\) has invalid type OpenEMR\\\\Services\\\\type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PatientService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\Search\\\\DateSearchField\\:\\:\\$dateType has unknown class OpenEMR\\\\Services\\\\Search\\\\Tracks as its type\\.$#',
@@ -2430,16 +1340,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @var for variable \\$repository contains unknown class OpenEMR\\\\Tests\\\\Isolated\\\\Telemetry\\\\MockObject\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Telemetry/TelemetryRepositoryTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getBody\\(\\) on an unknown class OpenEMR\\\\RestControllers\\\\a\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../tests/Tests/RestControllers/PractitionerRestControllerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to method getStatusCode\\(\\) on an unknown class OpenEMR\\\\RestControllers\\\\a\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../tests/Tests/RestControllers/PractitionerRestControllerTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Services\\\\CarePlanServiceTest\\:\\:\\$fixture has unknown class OpenEMR\\\\Tests\\\\Services\\\\CarePlanFixture as its type\\.$#',

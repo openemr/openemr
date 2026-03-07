@@ -22,7 +22,6 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRReference;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\FHIR\FhirProvenanceService;
-use OpenEMR\Services\FHIR\Observation\FhirObservationObservationFormService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationQuestionnaireItemService;
 use OpenEMR\Services\FHIR\UtilsService;
 use OpenEMR\Services\Search\SearchFieldType;

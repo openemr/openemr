@@ -10,8 +10,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 
 // this script is used by both the patient portal and main openemr; below does authorization.
@@ -40,8 +42,6 @@ if (empty($is_portal)) {
 
 require_once(__DIR__ . '/../../../interface/globals.php');
 
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Twig\TwigContainer;
 
 $aud = "admin-signature";
 $cuser = attr($session->get('authUserID', null) ?? "-patient-");
@@ -54,7 +54,7 @@ $twigVars = [
     ,'cpid' => $cpid
     ,'aud' => $is_portal ? $aud = 'patient-signature' : $aud
 ];
-$twigContainer = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
+$twigContainer = (new TwigContainer(null, $globalsBag->getKernel()))->getTwig();
 try {
     $modal = $twigContainer->render("portal/partial/_signer_modal.html.twig", $twigVars);
 } catch (\Throwable $exception) {

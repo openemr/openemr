@@ -12,7 +12,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 // Will start the (patient) portal OpenEMR session/cookie.
@@ -36,9 +39,6 @@ require_once(__DIR__ . "/../lib/portal_mail.inc.php");
 require_once("$srcdir/pnotes.inc.php");
 require_once("./account.lib.php");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Core\Header;
 
 $action = $_REQUEST['action'] ?? '';
 

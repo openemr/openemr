@@ -15,18 +15,16 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect;
 
+use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
 use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
 use OpenEMR\Services\FHIR\UtilsService;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use League\OAuth2\Server\Entities\ScopeEntityInterface;
-use Exception;
 
 class SMARTSessionTokenContextBuilder
 {

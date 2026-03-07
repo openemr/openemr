@@ -11,7 +11,6 @@
  */
 
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Csrf\CsrfUtils;
 
 // Ensure this script is not called separately
 if (!isset($langModuleFlag) || $langModuleFlag !== true) {

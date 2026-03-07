@@ -13,6 +13,7 @@
 
 namespace OpenEMR\Tests\Services\FHIR\Questionnaire;
 
+use Exception;
 use Monolog\Level;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -21,7 +22,6 @@ use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaire;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
 use OpenEMR\Services\QuestionnaireService;
 use PHPUnit\Framework\TestCase;
-use Exception;
 
 class FhirQuestionnaireFormServiceIntegrationTest extends TestCase
 {

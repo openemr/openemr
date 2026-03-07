@@ -14,7 +14,7 @@
 
 namespace OpenEMR\Common\Auth;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 
 class AuthGlobal
 {
@@ -32,7 +32,7 @@ class AuthGlobal
         }
 
         // collect and decrypt the global hash
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = ServiceContainer::getCrypto();
         $globalHash = $cryptoGen->decryptStandard($GLOBALS[$this->globalSetting]);
 
         if (empty($globalHash)) {

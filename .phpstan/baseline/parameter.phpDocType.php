@@ -12,16 +12,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-prior-authorizations/src/Controller/AuthorizationService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param for parameter \\$container with type Application\\\\Plugin\\\\type is not subtype of native type Psr\\\\Container\\\\ContainerInterface\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/CommonPlugin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param for parameter \\$container with type Application\\\\Plugin\\\\type is not subtype of native type Psr\\\\Container\\\\ContainerInterface\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/Phimail.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$arr with type string is incompatible with native type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/htmlspecialchars.inc.php',
@@ -40,11 +30,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$periodStart with type DateTime\\|null is not subtype of native type DateTime\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ContactAddress.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param for parameter \\$boundFilter with type string is incompatible with native type OpenEMR\\\\Events\\\\BoundFilter\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/AbstractBoundFilterEvent.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$component with type string is incompatible with native type array\\.$#',

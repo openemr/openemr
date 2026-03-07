@@ -32,7 +32,8 @@
 
 namespace OpenEMR\Billing\BillingProcessor;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\KeySource;
 
 class BillingLogger
 {
@@ -65,14 +66,14 @@ class BillingLogger
 
     public function __construct()
     {
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = ServiceContainer::getCrypto();
 
         if ($GLOBALS['billing_log_option'] == 1) {
             if (file_exists($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log")) {
                 $this->hlog = file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log");
             }
             if ($this->cryptoGen->cryptCheckStandard($this->hlog)) {
-                $this->hlog = $this->cryptoGen->decryptStandard($this->hlog, null, 'database');
+                $this->hlog = $this->cryptoGen->decryptStandard($this->hlog, null, KeySource::Database);
             }
         } else { // ($GLOBALS['billing_log_option'] == 2)
             $this->hlog = '';
@@ -94,7 +95,7 @@ class BillingLogger
         // If the hlog isn't empty, write the log to disk
         if (!empty($this->hlog)) {
             if ($GLOBALS['drive_encryption']) {
-                $this->hlog = $this->cryptoGen->encryptStandard($this->hlog, null, 'database');
+                $this->hlog = $this->cryptoGen->encryptStandard($this->hlog, null, KeySource::Database);
             }
             file_put_contents($GLOBALS['OE_SITE_DIR'] . "/documents/edi/process_bills.log", $this->hlog);
         }

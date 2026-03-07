@@ -14,13 +14,10 @@
 
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
-
-use OpenEMR\Core\Header;
 
 $ignoreAuth_onsite_portal = $ignoreAuth = false;
 // Will start the (patient) portal OpenEMR session/cookie.
@@ -120,7 +117,7 @@ $vars = [
     ,'isSaved' => $isSaved
 ];
 try {
-    echo (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig()->render("portal/portal-credentials-settings.html.twig", $vars);
+    echo (new TwigContainer(null, $globalsBag->getKernel()))->getTwig()->render("portal/portal-credentials-settings.html.twig", $vars);
 } catch (\Throwable $exception) {
     (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
     die(xlt("Failed to render twig file"));

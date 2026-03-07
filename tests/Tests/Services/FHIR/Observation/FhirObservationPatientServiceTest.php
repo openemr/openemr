@@ -19,10 +19,9 @@ use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\Services\FHIR\Observation\FhirObservationPatientService;
+use OpenEMR\Services\ListService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
-use OpenEMR\Services\ListService;
-use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\TestCase;
 
 /**

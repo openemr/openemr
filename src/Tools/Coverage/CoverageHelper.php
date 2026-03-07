@@ -2,13 +2,13 @@
 
 namespace OpenEMR\Tools\Coverage;
 
+use PHPUnit\Framework\Attributes\Test;
 use ReflectionMethod;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
 use SebastianBergmann\CodeCoverage\Driver\Selector;
 use SebastianBergmann\CodeCoverage\Filter;
 use SebastianBergmann\CodeCoverage\Report\PHP;
 use SebastianBergmann\FileIterator\Facade as FileIteratorFacade;
-use PHPUnit\Framework\Attributes\Test;
 
 use function microtime;
 use function register_shutdown_function;

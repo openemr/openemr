@@ -15,14 +15,11 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\SearchFieldException;
-use OpenEMR\Services\Search\SearchModifier;
-use OpenEMR\Services\Search\StringSearchField;
-use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Validator;
-use OpenEMR\Common\Uuid\UuidRegistry;
 
 // TODO: @adunsulag should we rename this to be ListOptions service since that is the table it corresponds to?  The lists table is a patient issues table so this could confuse new developers
 class ListService

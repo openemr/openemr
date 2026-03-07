@@ -14,20 +14,17 @@
 
 namespace Carecoordination\Controller;
 
+use Application\Listener\Listener;
 use Application\Model\ApplicationTable;
 use Application\Plugin\CommonPlugin;
-use Laminas\Mvc\Controller\AbstractActionController;
-use Laminas\View\Model\ViewModel;
-use Laminas\View\Model\JsonModel;
-use Application\Listener\Listener;
-use Documents\Controller\DocumentsController;
 use Carecoordination\Model\CarecoordinationTable;
-use C_Document;
 use Document;
-use CouchDB;
+use Documents\Controller\DocumentsController;
+use Laminas\Mvc\Controller\AbstractActionController;
+use Laminas\View\Model\JsonModel;
+use Laminas\View\Model\ViewModel;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
-use xmltoarray_parser_htmlfix;
 
 class CarecoordinationController extends AbstractActionController
 {

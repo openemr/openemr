@@ -2,11 +2,10 @@
 
 namespace OpenEMR\Tests\Api;
 
-use OpenEMR\RestControllers\FacilityRestController;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
-use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Facility API Endpoint Test Cases.

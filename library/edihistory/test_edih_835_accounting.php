@@ -28,7 +28,6 @@
 if (!getenv('OPENEMR_ENABLE_TEST_EDIH_835_ACCOUNTING')) {
     die('Set OPENEMR_ENABLE_TEST_EDIH_835_ACCOUNTING=1 environment variable to enable this script');
 }
-use OpenEMR\Billing\ParseERA;
 
 function edih_835_accounting($segments, $delimiters)
 {

@@ -14,8 +14,6 @@
 
 namespace OpenEMR\Menu;
 
-use Google\Service\CloudSearch\MenuItem;
-
 class BaseMenuItem implements MenuItemInterface
 {
     private $displayText;

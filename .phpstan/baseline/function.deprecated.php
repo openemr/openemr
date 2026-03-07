@@ -30,11 +30,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/batchcom/batch_phone_notification.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated function get_db\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/billing_report.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated function collectAndOrganizeExpandSetting\\(\\)\\:
 7\\.0\\.3 see UserSettingsService\\:\\:collectAndOrganizeExpandSetting$#',
     'count' => 1,
@@ -343,7 +338,7 @@ Use the standard DB connections instead\\.$#',
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function prevSetting\\(\\)\\:
 7\\.0\\.3 see UserSettingsService\\:\\:prevSetting$#',
-    'count' => 4,
+    'count' => 6,
     'path' => __DIR__ . '/../../interface/main/messages/messages.php',
 ];
 $ignoreErrors[] = [
@@ -603,11 +598,6 @@ $ignoreErrors[] = [
 7\\.0\\.3 see UserSettingsService\\:\\:setUserSetting$#',
     'count' => 3,
     'path' => __DIR__ . '/../../library/ajax/user_settings.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function get_db\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function checkUserSetting\\(\\)\\:

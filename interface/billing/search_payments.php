@@ -34,9 +34,6 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCor
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: Search Payment", xl("Search Payment"));
 }
 
-/**
- * @var EventDispatcherInterface $eventDispatcher
- */
 $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 
 //===============================================================================
@@ -58,7 +55,7 @@ if (isset($_POST["mode"])) {
             }
         }
         //dispatch this payment is being deleted trigger refund process
-        $eventDispatcher->dispatch(new DeletePayment($DeletePaymentId), DeletePayment::ACTION_DELETE_PAYMENT, 10);
+        $eventDispatcher->dispatch(new DeletePayment($DeletePaymentId), DeletePayment::ACTION_DELETE_PAYMENT);
     //delete and log that action
         payment_row_delete("ar_session", "session_id ='" . add_escape_custom($DeletePaymentId) . "'");
         payment_row_modify("ar_activity", "deleted = NOW()", "deleted IS NULL AND session_id = '" . add_escape_custom($DeletePaymentId) . "'");

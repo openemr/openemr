@@ -20,7 +20,6 @@ require_once(__DIR__ . "/../../globals.php");
 require_once "$srcdir/user.inc.php";
 require_once "$srcdir/options.inc.php";
 
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
@@ -28,8 +27,8 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
 use OpenEMR\Menu\BaseMenuItem;
 use OpenEMR\OeUI\OemrUI;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use OpenEMR\Services\PatientService;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 
 $uspfx = 'patient_finder.'; //substr(__FILE__, strlen($webserver_root)) . '.';
 $patient_finder_exact_search = prevSetting($uspfx, 'patient_finder_exact_search', 'patient_finder_exact_search', ' ');

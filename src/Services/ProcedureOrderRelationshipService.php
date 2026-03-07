@@ -14,7 +14,6 @@
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 
 /**

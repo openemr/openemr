@@ -12,8 +12,8 @@
 
 require_once(dirname(__DIR__, 4) . "/globals.php");
 
-use OpenEMR\Modules\WenoModule\Services\LogProperties;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Modules\WenoModule\Services\LogProperties;
 use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 

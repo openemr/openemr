@@ -9,14 +9,14 @@
 
 namespace PatientFilter;
 
+use Laminas\ModuleManager\ModuleManager;
+use Laminas\Mvc\MvcEvent;
 use OpenEMR\Events\Appointments\AppointmentsFilterEvent;
 use OpenEMR\Events\PatientDemographics\UpdateEvent;
 use OpenEMR\Events\PatientDemographics\ViewEvent;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
 use OpenEMR\Services\UserService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Laminas\ModuleManager\ModuleManager;
-use Laminas\Mvc\MvcEvent;
 
 /**
  * Module for creating a blacklist on the patient finder, which can restrict certain

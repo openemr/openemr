@@ -20,7 +20,6 @@ use OpenEMR\Tests\E2e\Base\BaseTrait;
 use OpenEMR\Tests\E2e\Login\LoginTrait;
 use OpenEMR\Tests\E2e\User\UserAddTrait;
 use Symfony\Component\Panther\PantherTestCase;
-use Symfony\Component\Panther\Client;
 
 class BbCreateStaffTest extends PantherTestCase
 {

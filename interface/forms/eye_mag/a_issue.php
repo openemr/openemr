@@ -22,8 +22,15 @@
 /*
 TODO: Code cleanup */
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Core\Header;
+
 $form_folder = "eye_mag";
 require_once('../../globals.php');
+
+
 require_once($GLOBALS['srcdir'] . '/lists.inc.php');
 require_once($GLOBALS['srcdir'] . '/patient.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');
@@ -31,9 +38,6 @@ require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
 require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
 require_once("../../forms/" . $form_folder . "/php/" . $form_folder . "_functions.php");
 
-use OpenEMR\Common\Acl\AccessDeniedHelper;
-use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Core\Header;
 
 $pid = (int) (empty($_REQUEST['pid']) ? $pid : $_REQUEST['pid']);
 $info_msg = "";
@@ -71,7 +75,7 @@ $PMSFH = build_PMSFH($pid);
 $patient = getPatientData($pid, "*");
 $providerID = findProvider($pid, $encounter);
 if (!($_SESSION['providerID'] ?? '') && $providerID) {
-    ($_SESSION['providerID'] = $providerID);
+    SessionUtil::setSession('providerID', $providerID);
 }
 
 $irow = [];

@@ -19,17 +19,16 @@
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
-use OpenEMR\Services\Search\TokenSearchField;
-use RuntimeException;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
+use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use OpenEMR\Validators\ProcessingResult;
-use Exception;
+use RuntimeException;
 
 class ObservationService extends BaseService
 {

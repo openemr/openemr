@@ -13,8 +13,8 @@
 namespace OpenEMR\Modules\FaxSMS\Controller;
 
 use DateTime;
-use Exception;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use RuntimeException;
 use Twilio\Rest\Client;
 
@@ -24,7 +24,7 @@ class TwilioSMSClient extends AppDispatch
     public $uriDir;
     public $serverUrl;
     public $credentials;
-    protected CryptoGen $crypto;
+    protected CryptoInterface $crypto;
     private $sid;
     private $appKey;
     private $appSecret;
@@ -42,7 +42,7 @@ class TwilioSMSClient extends AppDispatch
         if (empty($GLOBALS['oefax_enable_sms'] ?? null)) {
             throw new RuntimeException(xlt("Access denied! Module not enabled"));
         }
-        $this->crypto = new CryptoGen();
+        $this->crypto = ServiceContainer::getCrypto();
         $this->baseDir = $GLOBALS['temporary_files_dir'];
         $this->uriDir = $GLOBALS['OE_SITE_WEBROOT'];
         $this->credentials = $this->getCredentials();

@@ -16,15 +16,14 @@
 namespace OpenEMR\Common\Http;
 
 use OpenEMR\Common\Acl\AccessDeniedException;
-use OpenEMR\Common\Logging\SystemLogger;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\RestApiExtend\RestApiSecurityCheckEvent;
 use Psr\Http\Message\ResponseInterface;
-use Throwable;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Throwable;
 
 class HttpRestRouteHandler
 {

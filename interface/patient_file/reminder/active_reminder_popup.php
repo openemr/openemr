@@ -13,8 +13,8 @@
 require_once("../../globals.php");
 require_once("$srcdir/clinical_rules.php");
 
-use OpenEMR\Core\Header;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 

@@ -2,7 +2,6 @@
 
 namespace OpenEMR\Tests\Isolated\Billing;
 
-use OpenEMR\Billing\BillingProcessor\BillingClaim;
 use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use PHPUnit\Framework\TestCase;
 

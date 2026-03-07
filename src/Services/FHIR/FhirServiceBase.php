@@ -2,19 +2,18 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Services\IGlobalsAware;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
+use OpenEMR\Services\FHIR\Traits\ResourceServiceSearchTrait;
+use OpenEMR\Services\IGlobalsAware;
 use OpenEMR\Services\Search\FHIRSearchFieldFactory;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\SearchFieldException;
-use OpenEMR\Services\FHIR\Traits\ResourceServiceSearchTrait;
 use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Services\SessionAwareInterface;
 use OpenEMR\Validators\ProcessingResult;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**

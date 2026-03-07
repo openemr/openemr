@@ -13,6 +13,7 @@
 namespace OpenEMR\Modules\FaxSMS\Events;
 
 use MyMailer;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OneTimeAuth;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -20,9 +21,8 @@ use OpenEMR\Core\Kernel;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
-use PHPMailer\PHPMailer\Exception;
-use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class NotificationEventListener implements EventSubscriberInterface
 {
@@ -110,9 +110,16 @@ class NotificationEventListener implements EventSubscriberInterface
 
     private function getRCCredentials($serviceType = 'voice'): array
     {
-        // Set the module type for AppDispatch i.e. voice, fax, sms, email
         AppDispatch::setModuleType($serviceType);
-        $clientApp = AppDispatch::getApiService($serviceType);
+        try {
+            $clientApp = AppDispatch::getApiService($serviceType);
+        } catch (\Throwable $e) {
+            ServiceContainer::getLogger()->warning(
+                "FaxSMS: failed to load service",
+                ['type' => $serviceType, 'message' => $e->getMessage()]
+            );
+            return ['appKey' => '', 'appSecret' => '', 'jwt' => ''];
+        }
         return $clientApp->getCredentials();
     }
 
@@ -205,7 +212,7 @@ class NotificationEventListener implements EventSubscriberInterface
      *     ]
      * ];
      * // Dispatch the event. In this case, the onetime is created and emailed to the recipient.
-     * $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new SendNotificationEvent($e_pid, $data), SendNotificationEvent::SEND_NOTIFICATION_SERVICE_UNIVERSAL_ONETIME);
+     * OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new SendNotificationEvent($e_pid, $data), SendNotificationEvent::SEND_NOTIFICATION_SERVICE_UNIVERSAL_ONETIME);
      *
      * @param SendNotificationEvent $event
      * @return string

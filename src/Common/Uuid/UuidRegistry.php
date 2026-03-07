@@ -25,14 +25,13 @@
 
 namespace OpenEMR\Common\Uuid;
 
-use Exception;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Uuid\UuidMapping;
 use Ramsey\Uuid\Codec\TimestampFirstCombCodec;
 use Ramsey\Uuid\Generator\CombGenerator;
-use Ramsey\Uuid\UuidFactory;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidFactory;
 
 class UuidRegistry
 {

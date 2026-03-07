@@ -12,10 +12,10 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Services\BaseService;
 use OpenEMR\Common\Logging\SystemLogger;
-use Psr\Log\LoggerInterface;
+use OpenEMR\Services\BaseService;
 use OpenEMR\Validators\ProcessingResult;
+use Psr\Log\LoggerInterface;
 
 class PersonPatientLinkService extends BaseService
 {

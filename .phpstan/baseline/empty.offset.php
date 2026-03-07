@@ -7,7 +7,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../controllers/C_Document.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset 7 on array\\{0\\: array\\{\\}, 2\\: mixed, 4\\: mixed, 8\\: non\\-falsy\\-string, 10\\: non\\-falsy\\-string, 3\\: non\\-falsy\\-string, 6\\: mixed\\} in empty\\(\\) does not exist\\.$#',
+    'message' => '#^Offset 7 on array\\{0\\: array\\{\\}, 2\\: string, 4\\: string, 8\\: non\\-falsy\\-string, 10\\: non\\-falsy\\-string, 3\\: non\\-falsy\\-string, 6\\: mixed\\} in empty\\(\\) does not exist\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/ub04_dispose.php',
 ];
@@ -17,7 +17,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/login/login.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'items\' on array\\{group_name\\: mixed, group_id\\: mixed, items\\: non\\-empty\\-list\\} in empty\\(\\) always exists and is not falsy\\.$#',
+    'message' => '#^Offset \'items\' on array\\{group_name\\: mixed, group_id\\: mixed, items\\: non\\-empty\\-list\\<array\\<string, mixed\\>\\>\\} in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Controller/AclController.php',
 ];

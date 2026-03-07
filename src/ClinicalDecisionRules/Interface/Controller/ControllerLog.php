@@ -2,6 +2,7 @@
 
 namespace OpenEMR\ClinicalDecisionRules\Interface\Controller;
 
+use League\Csv\EscapeFormula;
 use League\Csv\Writer;
 use OpenEMR\ClinicalDecisionRules\Interface\BaseController;
 use OpenEMR\ClinicalDecisionRules\Interface\Common;
@@ -12,7 +13,6 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ControllerLog extends BaseController
 {
@@ -56,6 +56,7 @@ class ControllerLog extends BaseController
 
         $records = $this->getLogRecordsFromRequest($form_begin_date, $form_end_date);
         $writer = Writer::createFromString();
+        $writer->addFormatter(new EscapeFormula());
         $writer->insertOne(self::HEADERS);
         foreach ($records as $record) {
             try {

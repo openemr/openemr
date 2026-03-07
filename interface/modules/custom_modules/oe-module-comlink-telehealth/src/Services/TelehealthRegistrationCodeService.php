@@ -12,8 +12,8 @@
 
 namespace Comlink\OpenEMR\Modules\TeleHealthModule\Services;
 
-use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
+use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\PatientService;

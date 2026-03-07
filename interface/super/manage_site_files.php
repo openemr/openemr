@@ -15,12 +15,12 @@
 
 require_once('../globals.php');
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
-use GuzzleHttp\Client;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: File management", xl("File management"));
@@ -54,7 +54,7 @@ if (!empty($_POST['bn_save'])) {
 
         $fileData = file_get_contents($_FILES['form_education']['tmp_name']);
         if ($GLOBALS['drive_encryption']) {
-            $fileData = (new Cryptogen())->encryptStandard($fileData, null, 'database');
+            $fileData = (ServiceContainer::getCrypto())->encryptStandard($fileData, null, KeySource::Database);
         }
         if (file_put_contents($educationpath, $fileData) === false) {
             die(text(xl('Unable to create') . " '$educationpath'"));

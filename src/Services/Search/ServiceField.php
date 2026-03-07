@@ -11,8 +11,6 @@
 
 namespace OpenEMR\Services\Search;
 
-use OpenEMR\Common\Uuid\UuidRegistry;
-
 class ServiceField
 {
     const TYPE_STRING = "string";

@@ -19,13 +19,12 @@ require_once($GLOBALS['fileroot'] . "/library/amc.php");
 require_once($GLOBALS['fileroot'] . "/library/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Http\oeHttp;
-use OpenEMR\Rx\RxList;
-use PHPMailer\PHPMailer\PHPMailer;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Rx\RxList;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\DrugSalesService;
 use OpenEMR\Services\PatientIssuesService;

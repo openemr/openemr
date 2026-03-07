@@ -14,8 +14,6 @@
 
 namespace OpenEMR\Modules\WenoModule\Services;
 
-use Exception;
-
 class PharmacyService
 {
     public function __construct()

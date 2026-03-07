@@ -17,10 +17,10 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use PhpParser\Node;
 use PhpParser\NodeTraverser;
 use PhpParser\NodeVisitor;
 use PhpParser\NodeVisitorAbstract;
-use PhpParser\Node;
 use PhpParser\ParserFactory;
 
 $file = $argv[1] ?? __DIR__ . '/../version.php';

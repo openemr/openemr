@@ -15,13 +15,11 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 use Document;
 use Exception;
 use MyMailer;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Http\oeHttp;
-use OpenEMR\Common\Http\oeHttpRequest;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Exception\FaxDocumentException;
-use OpenEMR\Modules\FaxSMS\Exception\FaxNotFoundException;
 use SignalWire\Rest\Client;
 
 class SignalWireClient extends AppDispatch
@@ -32,7 +30,7 @@ class SignalWireClient extends AppDispatch
     protected $serverUrl;
     protected $credentials;
     public string $portalUrl;
-    protected CryptoGen $crypto;
+    protected CryptoInterface $crypto;
     private $client;
     private $spaceUrl;
     private $projectId;
@@ -46,7 +44,7 @@ class SignalWireClient extends AppDispatch
     {
         // Initialize properties before calling parent (like other controllers)
         $globals = OEGlobalsBag::getInstance();
-        $this->crypto = new CryptoGen();
+        $this->crypto = ServiceContainer::getCrypto();
         $this->baseDir = $globals->get('temporary_files_dir');
         $this->uriDir = $globals->get('OE_SITE_WEBROOT');
 

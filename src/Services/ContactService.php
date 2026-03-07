@@ -11,10 +11,9 @@
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Common\ORDataObject\Contact;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\ORDataObject\Contact;
 use OpenEMR\Services\BaseService;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Validators\ProcessingResult;
 
 class ContactService extends BaseService

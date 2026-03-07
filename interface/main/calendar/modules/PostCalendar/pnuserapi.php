@@ -12,12 +12,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
-use OpenEMR\Services\UserService;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Appointments\CalendarFilterEvent;
 use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
+use OpenEMR\Services\UserService;
 
 if (!defined('__POSTCALENDAR__')) {
     @define('__POSTCALENDAR__', 'PostCalendar');
@@ -903,7 +903,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
 
     // Custom filtering
     $calFilterEvent = new CalendarFilterEvent();
-    $calFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($calFilterEvent, CalendarFilterEvent::EVENT_HANDLE);
+    $calFilterEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($calFilterEvent, CalendarFilterEvent::EVENT_HANDLE);
     $calFilter = $calFilterEvent->getCustomWhereFilter();
     $sql .= " AND $calFilter ";
 

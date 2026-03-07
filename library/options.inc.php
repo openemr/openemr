@@ -64,16 +64,16 @@ require_once(dirname(__DIR__) . "/custom/code_types.inc.php");
 
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Layouts\LayoutsUtils;
 use OpenEMR\Common\Forms\Types\BillingCodeType;
 use OpenEMR\Common\Forms\Types\LocalProviderListType;
 use OpenEMR\Common\Forms\Types\SmokingStatusType;
+use OpenEMR\Common\Layouts\LayoutsUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\PatientDemographics\RenderPharmacySectionEvent;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
-use OpenEMR\Services\PatientService;
 use OpenEMR\Services\PatientNameHistoryService;
-use OpenEMR\Events\PatientDemographics\RenderPharmacySectionEvent;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
 $facilityService = new FacilityService();
@@ -874,7 +874,7 @@ function generate_form_field($frow, $currvalue): void
          * if anyone wants to render something after the pharmacy section on the demographics form,
          * they would have to listen to this event.
         */
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderPharmacySectionEvent(), RenderPharmacySectionEvent::RENDER_AFTER_PHARMACY_SECTION, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new RenderPharmacySectionEvent(), RenderPharmacySectionEvent::RENDER_AFTER_PHARMACY_SECTION);
     } elseif ($data_type == 13) { // squads
         echo "<select name='form_$field_id_esc' id='form_$field_id_esc' title='$description' class='form-control$smallform'";
         echo " $lbfonchange $disabled>";
@@ -2440,7 +2440,7 @@ function generate_display_field($frow, $currvalue)
          * if anyone wants to render something after the pharmacy section on the patient chart/dashboard,
          * they would have to listen to this event.
         */
-        $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new RenderPharmacySectionEvent(), RenderPharmacySectionEvent::RENDER_AFTER_SELECTED_PHARMACY_SECTION, 10);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new RenderPharmacySectionEvent(), RenderPharmacySectionEvent::RENDER_AFTER_SELECTED_PHARMACY_SECTION);
     } elseif ($data_type == 13) { // squads
         $squads = AclExtended::aclGetSquads();
         if ($squads) {

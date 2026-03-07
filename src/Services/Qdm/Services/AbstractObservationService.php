@@ -16,7 +16,6 @@ use OpenEMR\Cqm\Qdm\BaseTypes\{
     DateTime,
     Interval
 };
-use OpenEMR\Services\ObservationService;
 use OpenEMR\Services\Qdm\Interfaces\QdmServiceInterface;
 use OpenEMR\Services\Qdm\QdmRecord;
 

@@ -2,15 +2,16 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPoint;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointSystem;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRContactPointUse;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifierUse;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
@@ -25,10 +26,6 @@ use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\ListService;
 use OpenEMR\Services\PatientService;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRAdministrativeGender;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;
@@ -590,7 +587,7 @@ class FhirPatientService extends FhirServiceBase implements IFhirExportableResou
         }
     }
 
-    protected function parseOpenEMRGenderIdentity(FhirPatient $patientResource, array $dataRecord): void
+    protected function parseOpenEMRGenderIdentity(FHIRPatient $patientResource, array $dataRecord): void
     {
         if (!empty($dataRecord['gender_identity'])) {
             $genderIdentityExtension = new FHIRExtension();
