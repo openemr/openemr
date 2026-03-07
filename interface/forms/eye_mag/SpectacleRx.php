@@ -1257,7 +1257,7 @@ if ($REFTYPE == "CTL") {
                     if ($prov_data['suffix']) {
                         echo ", " . $prov_data['suffix'];
                     } ?>
-                    <?php if (isset($prov_data['state_license_number']) && $prov_data['state_license_number'] !== '') { ?>
+                    <?php if (isset($prov_data['state_license_number']) && is_string( $prov_data['state_license_number'])) { ?>
                         <br/><?php echo xlt('State License Number'); ?>: <?php echo text($prov_data['state_license_number']); ?>
                     <?php } ?>
 
