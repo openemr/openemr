@@ -42,11 +42,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PHPRenderEngine.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Expression "\\$this\\-\\>algo \\=\\= "DEFAULT"" on a separate line does not do anything\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/AuthHash.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Expression "clone \\$instance" on a separate line does not do anything\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Core/Traits/SingletonTraitTest.php',
