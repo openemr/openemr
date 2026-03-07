@@ -12,26 +12,12 @@ declare(strict_types=1);
 
 namespace OpenEMR\BC;
 
-use Doctrine\DBAL\{
-    DriverManager,
-    Types\Type,
-};
-use Doctrine\ORM\{
-    EntityManager,
-    EntityManagerInterface,
-    Events,
-    Mapping\DefaultTypedFieldMapper,
-    Mapping\UnderscoreNamingStrategy,
-    ORMSetup,
-};
-use OpenEMR\Entities\EventSubscriber\TimestampSubscriber;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Crypto;
 use OpenEMR\Common\Logging;
 use Lcobucci\Clock\SystemClock;
 use OpenEMR\Common\Http\Psr17Factory;
-use OpenEMR\BC\DatabaseConnectionOptions;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\{
     RequestFactoryInterface,
@@ -40,10 +26,6 @@ use Psr\Http\Message\{
     StreamFactoryInterface,
     UploadedFileFactoryInterface,
     UriFactoryInterface,
-};
-use Ramsey\Uuid\{
-    Doctrine\UuidBinaryType,
-    UuidInterface,
 };
 
 /**
@@ -115,42 +97,6 @@ class ServiceContainer
     public static function getCrypto(): Crypto\CryptoInterface
     {
         return self::resolve(Crypto\CryptoInterface::class) ?? new Crypto\CryptoGen();
-    }
-
-    /**
-     * @deprecated This is experimental, do not use it.
-     */
-    public static function getEntityManager(): EntityManagerInterface
-    {
-        $override = self::resolve(EntityManagerInterface::class);
-        if ($override !== null) {
-            return $override;
-        }
-
-        $paths = ['src/Entities'];
-        $isDevMode = getenv('OPENEMR__ENVIRONMENT') === 'dev';
-
-        $config = ORMSetup::createAttributeMetadataConfiguration($paths, $isDevMode);
-        $config->setNamingStrategy(new UnderscoreNamingStrategy(case: CASE_LOWER));
-
-        Type::addType(UuidBinaryType::NAME, UuidBinaryType::class);
-        $config->setTypedFieldMapper(new DefaultTypedFieldMapper([
-            UuidInterface::class => UuidBinaryType::NAME,
-        ]));
-
-        $site = $_ENV['OPENEMR_SITE'] ?? 'default';
-        assert(is_string($site));
-        $siteDir = sprintf('sites/%s', $site);
-        $dbConfig = DatabaseConnectionOptions::forSite($siteDir);
-        $connection = DriverManager::getConnection($dbConfig->toDbalParams());
-
-        $em = new EntityManager($connection, $config);
-        $em->getEventManager()->addEventListener(
-            [Events::prePersist, Events::preUpdate],
-            new TimestampSubscriber(clock: self::getClock()),
-        );
-
-        return $em;
     }
 
     public static function getLogger(): LoggerInterface
