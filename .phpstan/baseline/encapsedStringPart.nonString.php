@@ -6127,26 +6127,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/SocialHistoryService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$v\\[\'v_major\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/VersionService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$v\\[\'v_minor\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/VersionService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$v\\[\'v_patch\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/VersionService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$v\\[\'v_tag\'\\] \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/VersionService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$this\\-\\>tabsid \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 6,
     'path' => __DIR__ . '/../../src/Tabs/TabsWrapper.php',
