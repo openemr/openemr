@@ -321,14 +321,14 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             f.bn_x12_support.disabled = !can_generate;
                 <?php if ($GLOBALS['support_encounter_claims']) { ?>
             f.bn_x12_encounter.disabled = !can_generate;
-            <?php } ?>
+                <?php } ?>
             f.bn_process_hcfa_support.disabled = !can_generate;
                 <?php if ($GLOBALS['preprinted_cms_1500']) { ?>
             f.bn_process_hcfa_form.disabled = !can_generate;
-            <?php } ?>
+                <?php } ?>
                 <?php if ($GLOBALS['ub04_support']) { ?>
             f.bn_process_ub04_support.disabled = !can_generate;
-            <?php } ?>
+                <?php } ?>
             f.bn_hcfa_txt_file.disabled = !can_generate;
             f.bn_reopen.disabled = !can_bill;
             <?php } ?>
@@ -906,7 +906,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             </table>
                         </td>
                     </tr>
-                    <?php } ?>
+                        <?php } ?>
 
                         <?php
                         $loop = 0;
@@ -1051,7 +1051,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     EncounterNoteArray[<?php echo attr($iter['enc_pid']); ?>][Count] = <?php echo js_escape($rowresult4['billing_note']); ?>;
                                     Count++;
                                     <?php
-                                    $enc_billing_note[$rowresult4['encounter']] = $rowresult4['billing_note'];
+                                        $enc_billing_note[$rowresult4['encounter']] = $rowresult4['billing_note'];
                                 } ?>
                     </script>
                                 <?php
