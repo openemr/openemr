@@ -152,6 +152,7 @@ class SiteSetupListener implements EventSubscriberInterface
     /**
      * Start the API or OAuth session for non-local-API requests.
      * Override in tests to avoid starting real PHP sessions.
+     *
      */
     protected function setupApiSession(
         HttpRestRequest $request,
@@ -179,6 +180,7 @@ class SiteSetupListener implements EventSubscriberInterface
      * globals.php reads several variables from the caller's local scope via
      * PHP include semantics. Set them here so they remain visible to the
      * included file.
+     *
      */
     protected function loadApplicationGlobals(RequestEvent $event, bool $ignoreAuth): mixed
     {
@@ -205,6 +207,7 @@ class SiteSetupListener implements EventSubscriberInterface
     /**
      * Create a core session bridge for local API requests (APICSRFTOKEN).
      * Override in tests to avoid starting real PHP sessions.
+     *
      */
     protected function setupCoreSessionBridge(HttpRestRequest $request, string $webroot): void
     {
@@ -221,6 +224,7 @@ class SiteSetupListener implements EventSubscriberInterface
     /**
      * Ensure OAuth2 key pairs exist and set the API base URL.
      * Override in tests to avoid filesystem/config dependencies.
+     *
      */
     protected function setupOAuthKeys(mixed $globalsBag, HttpRestRequest $request): void
     {

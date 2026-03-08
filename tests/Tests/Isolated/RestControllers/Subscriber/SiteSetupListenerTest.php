@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\RestControllers\Subscriber;
 
+use OpenEMR\Common\Auth\OAuth2KeyException;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\RestControllers\Subscriber\SiteSetupListener;
 use PHPUnit\Framework\TestCase;
@@ -64,6 +65,18 @@ class TestableSiteSetupListener extends SiteSetupListener
     {
         $this->calls['setupOAuthKeys'] = true;
         $request->setApiBaseFullUrl('https://localhost/apis');
+    }
+}
+
+/**
+ * Variant that throws OAuth2KeyException from setupOAuthKeys
+ * to test the catch block in onKernelRequest.
+ */
+class ThrowingOAuthKeyListener extends TestableSiteSetupListener
+{
+    protected function setupOAuthKeys(mixed $globalsBag, HttpRestRequest $request): void
+    {
+        throw new OAuth2KeyException('Test key failure');
     }
 }
 
@@ -154,7 +167,7 @@ class SiteSetupListenerTest extends TestCase
 
         try {
             $listener->onKernelRequest($event);
-            $this->fail('Expected HttpException was not thrown');
+            $this->fail('Expected HttpException was not thrown'); // @codeCoverageIgnore
         } catch (HttpException $e) {
             $this->assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         }
@@ -167,7 +180,7 @@ class SiteSetupListenerTest extends TestCase
 
         try {
             $listener->onKernelRequest($event);
-            $this->fail('Expected HttpException was not thrown');
+            $this->fail('Expected HttpException was not thrown'); // @codeCoverageIgnore
         } catch (HttpException $e) {
             $this->assertSame(Response::HTTP_BAD_REQUEST, $e->getStatusCode());
         }
@@ -243,6 +256,25 @@ class SiteSetupListenerTest extends TestCase
         $this->assertFalse($listener->calls['loadApplicationGlobals']['ignoreAuth']);
         $this->assertArrayHasKey('setupOAuthKeys', $listener->calls);
     }
+
+    // ── onKernelRequest: OAuth2KeyException ─────────────────────────
+
+    public function testOnKernelRequestWrapsOAuth2KeyExceptionInHttpException(): void
+    {
+        $listener = new ThrowingOAuthKeyListener();
+        $event = $this->createRequestEvent('/default/api/patient');
+
+        try {
+            $listener->onKernelRequest($event);
+            $this->fail('Expected HttpException was not thrown'); // @codeCoverageIgnore
+        } catch (HttpException $e) {
+            $this->assertSame(500, $e->getStatusCode());
+            $this->assertSame('Test key failure', $e->getMessage());
+            $this->assertInstanceOf(OAuth2KeyException::class, $e->getPrevious());
+        }
+    }
+
+    // ── onKernelRequest: webroot with APICSRFTOKEN ────────────────
 
     public function testOnKernelRequestWithApicsrftokenSetsWebroot(): void
     {
