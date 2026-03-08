@@ -26,7 +26,8 @@ class FixtureManager
     // use a prefix so we can easily remove fixtures
     const PATIENT_FIXTURE_PUBPID_PREFIX = "test-fixture";
 
-    private $patientFixtures;
+    /** @var array<string, mixed>[] */
+    private readonly array $patientFixtures;
     private $fhirPatientFixtures;
     private $addressFixtures;
     private $contactFixtures;
@@ -176,18 +177,20 @@ class FixtureManager
     }
 
     /**
-     * @return random single entry from an array.
+     * @template T
+     * @param T[] $array
+     * @return T
      */
-    private function getSingleEntry($array)
+    private function getSingleEntry(array $array): mixed
     {
         $randomIndex = array_rand($array, 1);
         return $array[$randomIndex];
     }
 
     /**
-     * @return a random patient fixture.
+     * @return array<string, mixed>
      */
-    public function getSinglePatientFixture()
+    public function getSinglePatientFixture(): array
     {
         return $this->getSingleEntry($this->patientFixtures);
     }

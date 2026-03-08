@@ -128,6 +128,7 @@ class ApiTestClient
         'user/practitioner.read',
         'user/practitioner.write',
         'user/prescription.read',
+        'user/prescription.write',
         'user/procedure.read',
         'user/soap_note.read',
         'user/soap_note.write',
@@ -415,13 +416,23 @@ class ApiTestClient
     }
 
     /**
+     * Submits a HTTP DELETE request.
+     * @param string $url The target URL (relative)
+     * @param string|int $id The resource id
+     */
+    public function delete(string $url, string|int $id): ResponseInterface
+    {
+        $resourceUrl = $url . "/" . $id;
+        return $this->client->delete($resourceUrl, ["headers" => $this->headers]);
+    }
+
+    /**
      * Submits a HTTP GET request for a single resource.
      */
     public function getOne(string $url, string $id): ResponseInterface
     {
         $resourceUrl = $url . "/" . $id;
-        $getResponse = $this->client->get($resourceUrl, ["headers" => $this->headers]);
-        return $getResponse;
+        return $this->client->get($resourceUrl, ["headers" => $this->headers]);
     }
 
     /**
@@ -431,10 +442,9 @@ class ApiTestClient
      */
     public function get(string $url, array $params = []): ResponseInterface
     {
-        $getResponse = $this->client->get($url, [
+        return $this->client->get($url, [
             "headers" => $this->headers,
             "query" => $params
-            ]);
-        return $getResponse;
+        ]);
     }
 }
