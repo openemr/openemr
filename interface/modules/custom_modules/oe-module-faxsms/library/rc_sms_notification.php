@@ -191,14 +191,14 @@ $db_sms_msg['message'] = $MESSAGE;
                                 echo(nl2br($strMsg));
                                 continue;
                             } else {
-                                cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
+                                cron_InsertNotificationLogEntryFaxsms($TYPE, $prow, $db_sms_msg);
                             }
                         }
                         if (!$isValid) {
                             $strMsg .= "<strong style='color:red'>\n* " . xlt("INVALID Mobile Phone#") . text('$prow["phone_cell"]') . " " . xlt("SMS NOT SENT Patient") . ":</strong>" . text($prow['fname']) . " " . text($prow['lname']) . "</b>";
                             $db_sms_msg['message'] = xlt("Error: INVALID Mobile Phone") . '# ' . text($prow['phone_cell']) . xlt("SMS NOT SENT For") . ": " . text($prow['fname']) . " " . text($prow['lname']);
                             if ($bTestRun == 0) {
-                                cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
+                                cron_InsertNotificationLogEntryFaxsms($TYPE, $prow, $db_sms_msg);
                             }
                         } else {
                             $strMsg .= " | " . xlt("SMS SENT SUCCESSFULLY TO") . "<strong> " . text($prow['phone_cell']) . "</strong>";
@@ -220,7 +220,7 @@ $db_sms_msg['message'] = $MESSAGE;
                                     $db_sms_msg['message'],
                                 );
                                 // Success - create notification log entry
-                                cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
+                                cron_InsertNotificationLogEntryFaxsms($TYPE, $prow, $db_sms_msg);
                             } catch (InvalidEmailAddressException) {
                                 $strMsg .= formatErrorMessage(xlt("Invalid email address"));
                                 echo(nl2br($strMsg));
@@ -243,7 +243,7 @@ $db_sms_msg['message'] = $MESSAGE;
                             $strMsg .= "<strong style='color:red'>\n* " . xlt("INVALID Email") . text('$prow["email"]') . " " . xlt("EMAIL NOT SENT Patient") . ":</strong>" . text($prow['fname']) . " " . text($prow['lname']) . "</b>";
                             $db_sms_msg['message'] = xlt("Error: INVALID EMAIL") . '# ' . text($prow['email']) . xlt("EMAIL NOT SENT For") . ": " . text($prow['fname']) . " " . text($prow['lname']);
                             if ($bTestRun == 0) {
-                                cron_InsertNotificationLogEntry($TYPE, $prow, $db_sms_msg);
+                                cron_InsertNotificationLogEntryFaxsms($TYPE, $prow, $db_sms_msg);
                             }
                         } else {
                             $strMsg .= " | " . xlt("EMAILED SUCCESSFULLY TO") . "<strong> " . text($prow['email']) . "</strong>";
@@ -372,7 +372,7 @@ function formatErrorMessage(string $message): string
  * @param array  $db_sms_msg
  * @return void
  */
-function cron_InsertNotificationLogEntry($type, $prow, $db_sms_msg): void
+function cron_InsertNotificationLogEntryFaxsms($type, $prow, $db_sms_msg): void
 {
     $smsgateway_info = $type == 'SMS' ? "" : $db_sms_msg['email_sender'] . "|||" . $db_sms_msg['email_subject'];
 
@@ -409,19 +409,6 @@ function cron_SetMessage($prow, $db_sms_msg): string
     $message = text($message);
 
     return $message;
-}
-
-/**
- * Get Notification Settings
- *
- * @return array|false
- */
-function cron_GetNotificationSettings(): bool|array
-{
-    $strQuery = "SELECT * FROM notification_settings WHERE type='SMS/Email Settings'";
-    $vectNotificationSettings = sqlFetchArray(sqlStatement($strQuery));
-
-    return ($vectNotificationSettings);
 }
 
 function displayHelp(): void

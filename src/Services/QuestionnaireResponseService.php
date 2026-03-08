@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2022 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -486,9 +488,6 @@ class QuestionnaireResponseService extends BaseService
 
         $preSaveEvent = new ServiceSaveEvent($this, $dataValues);
         $updatedPreSaveEvent = $this->getEventDispatcher()->dispatch($preSaveEvent, ServiceSaveEvent::EVENT_PRE_SAVE);
-        if (!$updatedPreSaveEvent instanceof ServiceSaveEvent) {
-            $this->getLogger()->error(self::class . "->saveQuestionnaireResponse() failed ot receive valid class for " . ServiceSaveEvent::class);
-        }
         $dataValues = $updatedPreSaveEvent->getSaveData();
 
         if ($update_flag) {
@@ -526,10 +525,7 @@ class QuestionnaireResponseService extends BaseService
             $dataValues['id'] = $id;
         }
         $postSaveEvent = new ServiceSaveEvent($this, $dataValues);
-        $updatedPostSaveEvent = $this->getEventDispatcher()->dispatch($postSaveEvent, ServiceSaveEvent::EVENT_POST_SAVE);
-        if (!$updatedPostSaveEvent instanceof ServiceSaveEvent) {
-            $this->getLogger()->error(self::class . "->saveQuestionnaireResponse() failed to receive valid class for " . ServiceSaveEvent::class);
-        }
+        $this->getEventDispatcher()->dispatch($postSaveEvent, ServiceSaveEvent::EVENT_POST_SAVE);
 
         return ['id' => $id, 'response_id' => $qr_id, 'new' => !$update_flag];
     }
@@ -686,7 +682,7 @@ class QuestionnaireResponseService extends BaseService
         // Render answer if it exists
         if (isset($item['answer']) && is_array($item['answer'])) {
             foreach ($item['answer'] as $answer) {
-                $answerValue = $this->extractAnswerValue($answer);
+                $answerValue = text($this->extractAnswerValue($answer));
                 $html .= "<span style='font-size: 1.1rem; font-weight: 500;'>{$answerValue}</span>\n";
                 // Recursively render any nested items within the answer
                 if (isset($answer['item']) && is_array($answer['item'])) {

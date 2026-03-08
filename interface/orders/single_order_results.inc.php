@@ -231,7 +231,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false): voi
             echo "  <td colspan='3'>";
             if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
                 echo "<a href='" . $GLOBALS['webroot'] . "/controller.php?document";
-                echo "&retrieve&patient_id=" . attr_url($patient_id) . "&document_id=" . attr_url($result_document_id) . "' ";
+                echo "&retrieve&patient_id=" . attr_url($ctx['patient_id']) . "&document_id=" . attr_url($result_document_id) . "' ";
                 echo "onclick='top.restoreSession()'>";
             }
 
@@ -557,6 +557,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                 'lino' => 0,
                 'sign_list' => '',
                 'seen_report_ids' => [],
+                'patient_id' => $patient_id
             ];
 
             while ($row = sqlFetchArray($res)) {

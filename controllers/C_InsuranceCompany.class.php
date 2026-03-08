@@ -1,6 +1,7 @@
 <?php
 
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\InsuranceCompanyService;
 
 class C_InsuranceCompany extends Controller
@@ -41,7 +42,7 @@ class C_InsuranceCompany extends Controller
 
     public function list_action()
     {
-        $twig = new TwigContainer(null, $GLOBALS['kernel']);
+        $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
 
         $insuranceCompanyService = new InsuranceCompanyService();
         $results = $insuranceCompanyService->search([]);

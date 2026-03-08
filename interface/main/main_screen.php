@@ -4,7 +4,7 @@
  * The outside frame that holds all of the OpenEMR User Interface.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
@@ -18,8 +18,8 @@
 $sessionAllowWrite = true;
 require_once('../globals.php');
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthUtils;
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionTracker;
 use OpenEMR\Common\Session\SessionUtil;
@@ -27,7 +27,6 @@ use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\ListService;
-use u2flib_server\U2F;
 
 ///////////////////////////////////////////////////////////////////////
 // Functions to support MFA.
@@ -189,7 +188,7 @@ if (isset($_POST['new_login_session_management'])) {
 
                 // Decrypt the secret
                 // First, try standard method that uses standard key
-                $cryptoGen = new CryptoGen();
+                $cryptoGen = ServiceContainer::getCrypto();
                 $secret = $cryptoGen->decryptStandard($registrationSecret);
                 if (empty($secret)) {
                     // Second, try the password hash, which was setup during install and is temporary

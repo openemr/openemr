@@ -7,7 +7,7 @@
  *  Added filtering to show encounters not e-signed, encounters e-signed and forms e-signed.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Terry Hill <terry@lilysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -22,15 +22,14 @@ require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once "$srcdir/options.inc.php";
 
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Billing\BillingUtilities;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 if (!AclMain::aclCheckCore('encounters', 'coding_a')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Encounters Report")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for encounters/coding_a: Encounters Report", xl("Encounters Report"));
 }
 
 if (!empty($_POST)) {
@@ -44,11 +43,11 @@ $alertmsg = ''; // not used yet but maybe later
 // For each sorting option, specify the ORDER BY argument.
 //
 $ORDERHASH = [
-  'doctor'  => 'lower(u.lname), lower(u.fname), fe.date',
-  'patient' => 'lower(p.lname), lower(p.fname), fe.date',
-  'pubpid'  => 'lower(p.pubpid), fe.date',
-  'time'    => 'fe.date, lower(u.lname), lower(u.fname)',
-  'encounter'    => 'fe.encounter, fe.date, lower(u.lname), lower(u.fname)',
+  'doctor'  => 'lower(u.lname), lower(u.fname), fe.date DESC, fe.encounter DESC',
+  'patient' => 'lower(p.lname), lower(p.fname), fe.date DESC, fe.encounter DESC',
+  'pubpid'  => 'lower(p.pubpid), fe.date DESC, fe.encounter DESC',
+  'time'    => 'fe.date DESC, fe.encounter DESC, lower(u.lname), lower(u.fname)',
+  'encounter'    => 'fe.encounter DESC, fe.date DESC, lower(u.lname), lower(u.fname)',
 ];
 
 function show_doc_total($lastdocname, $doc_encounters): void

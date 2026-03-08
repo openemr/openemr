@@ -4,7 +4,7 @@
  * main.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ranganath Pathak <pathak@scrs1.org>
@@ -26,6 +26,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Services\LogoService;
@@ -83,7 +84,7 @@ if ($GLOBALS['prevent_browser_refresh'] > 1) {
 }
 
 $esignApi = new Api();
-$twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
+$twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
 
 ?>
 <!DOCTYPE html>
@@ -386,7 +387,7 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
         'openemr_name' => $GLOBALS['openemr_name']
     ]);
     // Collect the menu then build it
-    $menuMain = new MainMenuRole($GLOBALS['kernel']->getEventDispatcher());
+    $menuMain = new MainMenuRole(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
     $menu_restrictions = $menuMain->getMenu();
     echo $twig->render("interface/main/tabs/menu_json.html.twig", ['menu_restrictions' => $menu_restrictions]);
     ?>
@@ -435,8 +436,8 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
 <body class="min-vw-100">
     <?php
     // fire off an event here
-    if (!empty($GLOBALS['kernel']->getEventDispatcher())) {
-        $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+    if (OEGlobalsBag::getInstance()->hasKernel()) {
+        $dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
         $dispatcher->dispatch(new RenderEvent(), RenderEvent::EVENT_BODY_RENDER_PRE);
     }
     ?>
@@ -458,11 +459,19 @@ $twig = (new TwigContainer(null, $GLOBALS['kernel']))->getTwig();
     ?>
     <div id="mainBox" <?php echo $disp_mainBox ?>>
         <nav class="navbar navbar-expand-xl navbar-light bg-light py-0">
-            <?php if ($GLOBALS['display_main_menu_logo'] === '1') : ?>
-                <a class="navbar-brand" href="https://www.open-emr.org" title="OpenEMR <?php echo xla("Website"); ?>" rel="noopener" target="_blank">
-                    <img src="<?php echo $menuLogo; ?>" class="d-inline-block align-middle" height="16" alt="<?php echo xlt('Main Menu Logo'); ?>">
-                </a>
-            <?php endif; ?>
+            <?php if ($GLOBALS['display_main_menu_logo'] === '1') {
+                $bag = OEGlobalsBag::getInstance();
+                $logoLinkDefault = 'https://www.open-emr.org/';
+                $logoTitleDefault = xl('OpenEMR Website');
+                $logoLink = trim($bag->getString('main_menu_logo_link', $logoLinkDefault));
+                $logoTitle = trim($bag->getString('main_menu_logo_title', $logoTitleDefault));
+                $logoImg = '<img src="' . attr($menuLogo) . '" class="d-inline-block align-middle" height="16" alt="' . xla('Main Menu Logo') . '">';
+                if ($logoLink !== '') {
+                    echo '<a class="navbar-brand" href="' . attr($logoLink) . '" title="' . attr($logoTitle) . '" rel="noopener" target="_blank">' . $logoImg . '</a>' . "\n";
+                } else {
+                    echo '<span class="navbar-brand">' . $logoImg . '</span>' . "\n";
+                }
+            } ?>
             <button class="navbar-toggler mr-auto" type="button" data-toggle="collapse" data-target="#mainMenu" aria-controls="mainMenu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>

@@ -11,7 +11,7 @@ use Ramsey\Uuid\Exception\InvalidUuidStringException;
  * Base class for OpenEMR object validation.
  * Validation processes are implemented using Particle (https://github.com/particle-php/Validator)
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
@@ -94,7 +94,7 @@ abstract class BaseValidator
      * @param $table The table in database
      * @param $lookupId The identifier to validateId
      * @param $isUuid true if the lookupId is UUID, otherwise false
-     * @return true if the lookupId is a valid existing id, otherwise Validation Message
+     * @return ProcessingResult|true True if valid, ProcessingResult with validation messages otherwise.
      */
     public static function validateId($field, $table, $lookupId, $isUuid = false)
     {

@@ -4,7 +4,7 @@
  * letter.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2007-2011 Rod Roark <rod@sunsetsystems.com>
@@ -15,7 +15,8 @@
 require_once("../globals.php");
 require_once($GLOBALS['srcdir'] . "/patient.inc.php");
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -23,7 +24,7 @@ use OpenEMR\Core\Header;
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // Set up crypto object
-$cryptoGen = new CryptoGen();
+$cryptoGen = ServiceContainer::getCrypto();
 
 $template_dir = $GLOBALS['OE_SITE_DIR'] . "/documents/letter_templates";
 
@@ -120,7 +121,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     }
 
     if ($GLOBALS['drive_encryption']) {
-        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, null, 'database');
+        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, null, KeySource::Database);
     }
 
     if (! fwrite($fh, $temp_bodytext)) {
@@ -243,7 +244,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     fclose($fh);
 
     if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = $cryptoGen->decryptStandard($bodytext, null, 'database');
+        $bodytext = $cryptoGen->decryptStandard($bodytext, null, KeySource::Database);
     }
 
     // translate from constant to the definition
@@ -265,7 +266,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     fclose($fh);
 
     if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = $cryptoGen->decryptStandard($bodytext, null, 'database');
+        $bodytext = $cryptoGen->decryptStandard($bodytext, null, KeySource::Database);
     }
 
     // translate from constant to the definition
@@ -282,7 +283,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     }
 
     if ($GLOBALS['drive_encryption']) {
-        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, null, 'database');
+        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, null, KeySource::Database);
     }
 
     if (! fwrite($fh, $temp_bodytext)) {
@@ -307,7 +308,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     fclose($fh);
 
     if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = $cryptoGen->decryptStandard($bodytext, null, 'database');
+        $bodytext = $cryptoGen->decryptStandard($bodytext, null, KeySource::Database);
     }
 
     // translate from constant to the definition
@@ -324,7 +325,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     }
 
     if ($GLOBALS['drive_encryption']) {
-        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, null, 'database');
+        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, null, KeySource::Database);
     }
 
     if (! fwrite($fh, $temp_bodytext)) {
@@ -348,7 +349,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     fclose($fh);
 
     if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = $cryptoGen->decryptStandard($bodytext, null, 'database');
+        $bodytext = $cryptoGen->decryptStandard($bodytext, null, KeySource::Database);
     }
 
     // translate from constant to the definition

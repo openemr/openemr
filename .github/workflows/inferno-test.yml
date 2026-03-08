@@ -371,14 +371,14 @@ jobs:
 
     - name: Upload JUnit test results to GitHub
       if: ${{ !cancelled() && hashFiles('junit-inferno.xml') != '' }}
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: junit-inferno-test-results
         path: junit-inferno.xml
 
     - name: Upload coverage artifacts to GitHub
       if: ${{ !cancelled() && hashFiles('coverage.inferno-phpunit.clover.xml', 'coverage.inferno-http.clover.xml') != '' }}
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: inferno-coverage-reports
         path: |

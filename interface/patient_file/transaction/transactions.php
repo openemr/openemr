@@ -4,7 +4,7 @@
  * transactions.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -19,6 +19,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 ?>
 <html>
@@ -110,7 +111,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                         //  (note this only contains a date without a time)
                                         $date = oeFormatShortDate($item['refer_date']);
                                     } else {
-                                        $date = oeFormatDateTime($item['date']);
+                                        $date = DateFormatterUtils::oeFormatDateTime($item['date']);
                                     }
 
                                     $id = $item['id'];

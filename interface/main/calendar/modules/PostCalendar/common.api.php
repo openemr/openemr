@@ -211,9 +211,9 @@ function postcalendar_getDate($format = 'Ymd')
         $Date = (int) "$jumpyear$jumpmonth$jumpday";
     }
 
-    $y = substr($Date, 0, 4);
-    $m = substr($Date, 4, 2);
-    $d = substr($Date, 6, 2);
+    $y = substr((string) $Date, 0, 4);
+    $m = substr((string) $Date, 4, 2);
+    $d = substr((string) $Date, 6, 2);
     OpenEMR\Common\Session\SessionUtil::setSession('lastcaldate', "$y-$m-$d"); // remember the last chosen date
     return date($format, mktime(0, 0, 0, $m, $d, $y));
 }
@@ -498,7 +498,7 @@ function postcalendar_userapi_buildYearSelect($args)
 
 function &postcalendar_userapi_getCategories()
 {
-    [$dbconn] = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
     $cat_table = $pntable['postcalendar_categories'];
     $sql = "SELECT pc_catid,pc_catname,pc_constant_id,pc_catcolor,pc_catdesc,
@@ -506,19 +506,17 @@ function &postcalendar_userapi_getCategories()
             pc_dailylimit,pc_end_date_flag,pc_end_date_type,pc_end_date_freq,
             pc_end_all_day,pc_cattype,pc_active,pc_seq,aco_spec FROM $cat_table
             ORDER BY pc_catname";
-    $result = $dbconn->Execute($sql);
-
-    if ($dbconn->ErrorNo() != 0) {
-        return [];
-    }
-
-    if (!isset($result)) {
-        return [];
+    try {
+        $result = $conn->executeQuery($sql);
+    } catch (Doctrine\DBAL\Exception) {
+        $categories = [];
+        return $categories;
     }
 
     $categories = [];
-    for ($i = 0; !$result->EOF; $result->MoveNext()) {
-        [$catid, $catname, $constantid, $catcolor, $catdesc, $rtype, $rspec, $rfreq, $duration, $limit, $end_date_flag, $end_date_type, $end_date_freq, $end_all_day, $cattype, $active, $seq, $aco] = $result->fields;
+    $i = 0;
+    foreach ($result->iterateNumeric() as $row) {
+        [$catid, $catname, $constantid, $catcolor, $catdesc, $rtype, $rspec, $rfreq, $duration, $limit, $end_date_flag, $end_date_type, $end_date_freq, $end_all_day, $cattype, $active, $seq, $aco] = $row;
 
         $categories[$i]['id']     = $catid;
         $categories[$i]['name']   = $catname;
@@ -547,31 +545,31 @@ function &postcalendar_userapi_getCategories()
         $categories[$i++]['dailylimit'] = $limit;
     }
 
-    $result->Close();
     return $categories;
 }
 
 function &postcalendar_userapi_getTopics()
 {
-    [$dbconn] = pnDBGetConn();
+    $conn = pnDBGetConn();
     $pntable = pnDBGetTables();
     $topics_table = $pntable['topics'];
     $topics_column = &$pntable['topics_column'];
     $sql = "SELECT $topics_column[topicid], $topics_column[topictext], $topics_column[topicname]
             FROM $topics_table
             ORDER BY $topics_column[topictext]";
-    $topiclist = $dbconn->Execute($sql);
-    if ($dbconn->ErrorNo() != 0) {
-        return false;
+    try {
+        $result = $conn->executeQuery($sql);
+    } catch (Doctrine\DBAL\Exception) {
+        $data = false;
+        return $data;
     }
 
     $data = [];
     $i = 0;
-    for (; !$topiclist->EOF; $topiclist->MoveNext()) {
-        [$data[$i]['id'], $data[$i]['text'], $data[$i++]['name']] = $topiclist->fields;
+    foreach ($result->iterateNumeric() as $row) {
+        [$data[$i]['id'], $data[$i]['text'], $data[$i++]['name']] = $row;
     }
 
-    $topiclist->Close();
     return $data;
 }
 

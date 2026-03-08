@@ -4,7 +4,7 @@
  * Functions to globally validate and prepare data for sql database insertion.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    MMF Systems, Inc
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -20,8 +20,9 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/report.inc.php");
 require_once("$srcdir/calendar.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\EDI270;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -48,16 +49,16 @@ if (isset($_FILES) && !empty($_FILES)) {
         $message .= xlt('Invalid file type.') . "<br />";
     }
     if (!isset($message)) {
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = ServiceContainer::getCrypto();
         $uploadedFile = file_get_contents($_FILES['uploaded']['tmp_name']);
         if ($GLOBALS['drive_encryption']) {
-            $uploadedFile = $cryptoGen->encryptStandard($uploadedFile, null, 'database');
+            $uploadedFile = $cryptoGen->encryptStandard($uploadedFile, null, KeySource::Database);
         }
         if (file_put_contents($target, $uploadedFile)) {
             $message = xlt('The following EDI file has been uploaded') . ': "' . text(basename((string) $_FILES['uploaded']['name'])) . '"';
             $Response271 = file_get_contents($target);
             if ($cryptoGen->cryptCheckStandard($Response271)) {
-                $Response271 = $cryptoGen->decryptStandard($Response271, null, 'database');
+                $Response271 = $cryptoGen->decryptStandard($Response271, null, KeySource::Database);
             }
             if ($Response271) {
                 $batch_log = EDI270::parseEdi271($Response271);

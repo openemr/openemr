@@ -15,10 +15,10 @@ namespace OpenEMR\OeUI;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\UserInterface\BaseActionButtonHelper;
 use OpenEMR\Events\UserInterface\PageHeadingRenderEvent;
 use OpenEMR\Services\Globals\UserSettingsService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 
 // Special case where not setting up the header for a script, so using setupAssets function,
 //  which does not autoload anything. The actual header is set up in another script.
@@ -99,15 +99,9 @@ class OemrUI
             $this->action = true;
         }
 
-        /**
-         * @var EventDispatcher
-         */
-        $this->ed = $GLOBALS['kernel']->getEventDispatcher();
-
-        /**
-         * @var TwigEnvironment
-         */
-        $twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+        $kernel = OEGlobalsBag::getInstance()->getKernel();
+        $this->ed = $kernel->getEventDispatcher();
+        $twigContainer = new TwigContainer(null, $kernel);
         $this->twig = $twigContainer->getTwig();
 
         if ($this->expandable) {

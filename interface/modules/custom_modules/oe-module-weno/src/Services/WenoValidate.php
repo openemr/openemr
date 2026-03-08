@@ -159,7 +159,7 @@ class WenoValidate extends ModuleService
 
             $newKey = $response['Body']['Success']['NewEncryptionKey'] ?? '';
             return ($response !== false && !empty($newKey)) ? trim((string) $newKey) : false;
-        } catch (\Exception) {
+        } catch (\Throwable) {
             // Handle Exception
             return false;
         }
@@ -200,7 +200,7 @@ class WenoValidate extends ModuleService
                 $valid = (strtolower($valid) === 'true') || ($valid == '1') && !empty($valid);
             }
             return $valid;
-        } catch (\Exception) {
+        } catch (\Throwable) {
             return false;
         }
     }

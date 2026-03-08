@@ -20,8 +20,8 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/report.inc.php");
 
-use OpenEMR\Services\FacilityService;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
 
@@ -122,17 +122,18 @@ if (($_REQUEST['mode'] ?? '') == "update") {  //store any changed fields in disp
 
 if ($_REQUEST['REFTYPE']) {
     $REFTYPE = $_REQUEST['REFTYPE'];
-    if ($REFTYPE == "AR") {
-        $RXTYPE = "Bifocal";
-    }
 
-    if ($REFTYPE == "MR") {
-        $RXTYPE = "Bifocal";
-    }
+    // Map the rx_type numeric code passed from view.php to a display string and
+    // set the corresponding checkbox state. Default to Single (0) if the value
+    // is missing or not one of the four expected codes.
+    $valid_rx_types = ['0' => 'Single', '1' => 'Bifocal', '2' => 'Trifocal', '3' => 'Progressive'];
+    $rx_type_raw    = (string) ($_REQUEST['rx_type'] ?? '');
+    $RXTYPE         = $valid_rx_types[$rx_type_raw] ?? 'Single';
 
-    if ($REFTYPE == "CTL") {
-        $RXTYPE = "Bifocal";
-    }
+    $Single     = ($RXTYPE === 'Single')      ? "checked='checked'" : '';
+    $Bifocal    = ($RXTYPE === 'Bifocal')     ? "checked='checked'" : '';
+    $Trifocal   = ($RXTYPE === 'Trifocal')    ? "checked='checked'" : '';
+    $Progressive = ($RXTYPE === 'Progressive') ? "checked='checked'" : '';
 
     $id = $_REQUEST['id'];
     $table_name = "form_eye_mag";
@@ -156,20 +157,6 @@ if ($_REQUEST['REFTYPE']) {
         $ODADD2 = $wearing['ODADD'];
         $OSMIDADD = $wearing['OSMIDADD'];
         $OSADD2 = $wearing['OSADD'];
-        @extract($wearing);
-        if ($wearing['RX_TYPE'] == '0') {
-            $Single = "checked='checked'";
-            $RXTYPE = "Single";
-        } elseif ($wearing['RX_TYPE'] == '1') {
-            $Bifocal = "checked='checked'";
-            $RXTYPE = "Bifocal";
-        } elseif ($wearing['RX_TYPE'] == '2') {
-            $Trifocal = "checked='checked'";
-            $RXTYPE = "Trifocal";
-        } elseif ($wearing['RX_TYPE'] == '3') {
-            $Progressive = "checked='checked'";
-            $RXTYPE = "Progressive";
-        }
 
         //do LT and Lens materials
     } elseif ($REFTYPE == "AR") {
@@ -184,7 +171,6 @@ if ($_REQUEST['REFTYPE']) {
         $COMMENTS   = $data['CRCOMMENTS'];
         $ODADD2     = $data['ARODADD'];
         $OSADD2     = $data['AROSADD'];
-        $Bifocal    = "checked='checked'";
     } elseif ($REFTYPE == "MR") {
         $ODSPH      = $data['MRODSPH'];
         $ODAXIS     = $data['MRODAXIS'];
@@ -197,7 +183,6 @@ if ($_REQUEST['REFTYPE']) {
         $COMMENTS   = $data['CRCOMMENTS'];
         $ODADD2     = $data['MRODADD'];
         $OSADD2     = $data['MROSADD'];
-        $Bifocal    = "checked='checked'";
     } elseif ($REFTYPE == "CR") {
         $ODSPH      = $data['CRODSPH'];
         $ODAXIS     = $data['CRODAXIS'];
@@ -1271,7 +1256,11 @@ if ($REFTYPE == "CTL") {
                     : <?php echo text($prov_data['fname']); ?> <?php echo text($prov_data['lname']);
                     if ($prov_data['suffix']) {
                         echo ", " . $prov_data['suffix'];
-                    } ?><br/>
+                    } ?>
+                    <?php if (isset($prov_data['state_license_number']) && is_string( $prov_data['state_license_number'])) { ?>
+                        <br/><?php echo xlt('State License Number'); ?>: <?php echo text($prov_data['state_license_number']); ?>
+                    <?php } ?>
+
                     <small><?php echo xlt('e-signed'); ?> <input type="checkbox" checked="checked" disabled></small>
                 </td>
             </tr>

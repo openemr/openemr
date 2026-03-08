@@ -5,7 +5,7 @@
  * Provides functionality to see the list of registered client's and the ability to enable / disable
  * client registrations.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2020 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -21,12 +21,11 @@ use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\FHIR\SMART\ClientAdminController;
-use OpenEMR\Common\Logging\SystemLogger;
-use Symfony\Component\HttpFoundation\Request;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpSessionFactory;
-
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\FHIR\SMART\ClientAdminController;
+use Symfony\Component\HttpFoundation\Request;
 
 try {
     // TODO: @adunsulag at some point we'd like to have a CoreApplication like the ApiApplication that will dispatch controllers, refactor this once we have that
@@ -48,7 +47,7 @@ try {
 } catch (AccessDeniedException $exception) {
     (new SystemLogger())->critical($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);
     die();
-} catch (Exception $exception) {
+} catch (\Throwable $exception) {
     (new SystemLogger())->error($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);
     die("Unknown system error occurred");
 }

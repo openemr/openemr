@@ -4,7 +4,7 @@
  * Authorization Server Member
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
@@ -17,75 +17,69 @@ namespace OpenEMR\RestControllers;
 use DateInterval;
 use DateTimeImmutable;
 use Exception;
-use GuzzleHttp\Client;
 use League\OAuth2\Server\AuthorizationServer;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\CryptTrait;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Exception\OAuthServerException;
-use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use League\OAuth2\Server\RequestTypes\AuthorizationRequest;
 use Nyholm\Psr7\Stream;
 use Nyholm\Psr7Server\ServerRequestCreator;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Auth\MfaUtils;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
 use OpenEMR\Common\Auth\OAuth2KeyException;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
-use OpenEMR\Common\Auth\OpenIDConnect\Entities\UserEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomAuthCodeGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomClientCredentialsGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomPasswordGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomRefreshTokenGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\IdTokenSMARTResponse;
-use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeyParser;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AuthCodeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClaimRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
-use OpenEMR\Common\Auth\OpenIDConnect\Repositories\IdentityRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\UserRepository;
-use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\RestControllers\SMART\ScopePermissionParser;
-use OpenEMR\Services\JWTClientAuthenticationService;
 use OpenEMR\Common\Auth\OpenIDConnect\SMARTSessionTokenContextBuilder;
 use OpenEMR\Common\Auth\UuidUserAccount;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpSessionFactory;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\HttpUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\SMART\SMARTLaunchToken;
+use OpenEMR\RestControllers\SMART\ScopePermissionParser;
 use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
 use OpenEMR\Services\DecisionSupportInterventionService;
+use OpenEMR\Services\JWTClientAuthenticationService;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use OpenIDConnectServer\ClaimExtractor;
 use OpenIDConnectServer\Entities\ClaimSetEntity;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use RuntimeException;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\HttpClient\Exception\JsonException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Twig\Environment;
 use Throwable;
+use Twig\Environment;
 
 use function sqlQuery;
 
@@ -119,7 +113,7 @@ class AuthorizationController
     private string $oaEncryptionKey;
     private string $grantType;
     private string $authRequestSerial;
-    private CryptoGen $cryptoGen;
+    private CryptoInterface $cryptoGen;
     private int|string|null $userId = null;
 
     /**
@@ -183,7 +177,7 @@ class AuthorizationController
         // used for session stash
         $this->authRequestSerial = $this->session->get('authRequestSerial', '');
         // Create a crypto object that will be used for for encryption/decryption
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = ServiceContainer::getCrypto();
         // verify and/or setup our key pairs.
         $this->configKeyPairs($this->session);
         $this->trustedUserService = new TrustedUserService();
@@ -209,10 +203,7 @@ class AuthorizationController
         if (!isset($this->twig)) {
             // TODO: @adunsulag look at refactoring this.  I don't like how this kernel has ended up and is incompatible
             // with our current kernel.
-            $oeKernel = $this->globalsBag->get("kernel");
-            if (!$oeKernel instanceof Kernel) {
-                throw new RuntimeException("OpenEMR Error: Unable to get OpenEMR Kernel from globals bag");
-            }
+            $oeKernel = $this->globalsBag->getKernel();
             $twigContainer = new TwigContainer(__DIR__ . "/../../oauth2/", $oeKernel);
             $this->twig = $twigContainer->getTwig();
         }
@@ -378,7 +369,7 @@ class AuthorizationController
                 $params['dsi_type'] = $dsiTypeName;
 
                 $clientSaved = true;
-            } catch (Exception $exception) {
+            } catch (\Throwable $exception) {
                 $this->getSystemLogger()->errorLogCaller("Failed to create account Exception: " . $exception->getMessage(), ['trace' => $exception->getMessage()]);
                 throw OAuthServerException::serverError("Try again. Unable to create account", $exception);
             } finally {
@@ -387,7 +378,7 @@ class AuthorizationController
                 } else {
                     try {
                         $this->rollbackTransaction();
-                    } catch (Exception $exception) {
+                    } catch (\Throwable $exception) {
                         $this->getSystemLogger()->errorLogCaller("Error rolling back transaction", ['trace' => $exception->getMessage()]);
                     }
                 }
@@ -471,17 +462,6 @@ class AuthorizationController
             $psr17Factory, // UploadedFileFactory
             $psr17Factory  // StreamFactory
         ))->fromGlobals();
-    }
-
-    public function base64url_encode($data): string
-    {
-        return HttpUtils::base64url_encode($data);
-    }
-
-    public function base64url_decode($token): string
-    {
-        $b64 = strtr($token, '-_', '+/');
-        return base64_decode($b64);
     }
 
     public function clientRegisteredDetails(HttpRestRequest $request): ResponseInterface
@@ -631,7 +611,7 @@ class AuthorizationController
             );
             $httpRequest->getSession()->invalidate();
             return $exception->generateHttpResponse($response);
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $logger->error("AuthorizationController->oauthAuthorizationFlow() Exception message: " . $exception->getMessage());
             $httpRequest->getSession()->invalidate();
             $body = $response->getBody();
@@ -802,7 +782,7 @@ class AuthorizationController
             $result = ['outer' => $outer, 'scopes' => $scoped, 'client' => $client];
             $this->authRequestSerial = json_encode($result, JSON_THROW_ON_ERROR);
             $session->set('authRequestSerial', $this->authRequestSerial);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             echo $e;
         }
     }
@@ -856,7 +836,7 @@ class AuthorizationController
         if ($request->request->has('user_role')) {
             if (!CsrfUtils::verifyCsrfToken($request->request->get("csrf_token_form"), 'oauth2', $session)) {
                 $this->getSystemLogger()->error("AuthorizationController->userLogin() Invalid CSRF token");
-                CsrfUtils::csrfNotVerified(false, true, false);
+                CsrfUtils::csrfViolation(toScreen: false);
                 $request->request->replace(); // clear out username/password
                 $request->overrideGlobals(); // override the globals with the cleared out request so we don't have the username/password in the request sequence
                 $invalid = "Sorry. Invalid CSRF!"; // todo: display error
@@ -955,7 +935,7 @@ class AuthorizationController
         // TODO: @adunsulag do we want to catch exceptions here?
         try {
             $responseBody = $twig->render($template, $vars);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $this->getSystemLogger()->errorLogCaller("caught exception rendering template", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             $responseBody = $twig->render("error/general_http_error.html.twig", ['statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR]);
         }
@@ -1219,7 +1199,7 @@ class AuthorizationController
             // TODO: @adunsulag if the request is missing the key 'proceed' then we should error out here.
             if ($request->request->has('proceed') && !empty($code) && !empty($session_cache)) {
                 if (!CsrfUtils::verifyCsrfToken($request->request->get("csrf_token_form"), 'oauth2', $this->session)) {
-                    CsrfUtils::csrfNotVerified(false, true, false);
+                    CsrfUtils::csrfViolation(toScreen: false);
                     throw OAuthServerException::serverError("Failed authorization due to failed CSRF check.");
                 } else {
                     if (!$this->saveTrustedUser(
@@ -1243,7 +1223,7 @@ class AuthorizationController
             $this->getSystemLogger()->debug("AuthorizationController->authorizeUser() sending server response");
             $this->session->invalidate();
             return $result;
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->getSystemLogger()->error("AuthorizationController->authorizeUser() Exception thrown", ["message" => $exception->getMessage()]);
             $this->session->invalidate();
             $body = $response->getBody();
@@ -1287,7 +1267,7 @@ class AuthorizationController
                     $scopeUpdates[] = $approvedScopeEntity;
                 }
             }
-            catch (Exception $e) {
+            catch (\Throwable $e) {
                 $this->getSystemLogger()->error(
                     "AuthorizationController->updateAuthRequestWithUserApprovedScopes() Exception occurred while processing approved scopes",
                     ["message" => $e->getMessage(), 'trace' => $e->getTraceAsString()]
@@ -1331,7 +1311,7 @@ class AuthorizationController
             $authRequest->setState($outer['state']);
             $authRequest->setCodeChallenge($outer['codeChallenge']);
             $authRequest->setCodeChallengeMethod($outer['codeChallengeMethod']);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             echo $e;
         }
 
@@ -1399,7 +1379,7 @@ class AuthorizationController
             );
             $this->session->invalidate();
             return $exception->generateHttpResponse($response);
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->getSystemLogger()->error(
                 "AuthorizationController->oauthAuthorizeToken() Exception occurred",
                 ["message" => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
@@ -1430,7 +1410,7 @@ class AuthorizationController
                 return false;
             }
             return true;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $this->getSystemLogger()->errorLogCaller("AuthorizationController->saveTrustedUser() Exception occurred while saving trusted user", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             return false;
         }
@@ -1438,7 +1418,7 @@ class AuthorizationController
 
     public function decodeToken($token)
     {
-        return json_decode($this->base64url_decode($token), true);
+        return json_decode(HttpUtils::base64url_decode($token), true);
     }
 
     public function userSessionLogout(HttpRestRequest $request): ResponseInterface

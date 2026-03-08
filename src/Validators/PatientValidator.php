@@ -3,16 +3,16 @@
 namespace OpenEMR\Validators;
 
 use OpenEMR\Common\Utils\ValidationUtils;
-use Particle\Validator\Validator;
-use Particle\Validator\Exception\InvalidValueException;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use Particle\Validator\Exception\InvalidValueException;
+use Particle\Validator\Validator;
 use Ramsey\Uuid\Exception\InvalidUuidStringException;
 
 /**
  * Supports Patient Record Validation.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>

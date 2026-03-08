@@ -2,7 +2,7 @@
 # Patient telehealth auto login
 #
 # @package openemr
-# @link      http://www.open-emr.org
+# @link      https://www.open-emr.org
 # @author    Stephen Nielson <snielson@discoverandchange.com>
 # @copyright Copyright (c) 2023 Comlink Inc <https://comlinkinc.com/>
 # @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -34,7 +34,7 @@
         {% else %}
         <h5 class="m-5">{{ "Please wait while we authenticate your session"|xlt }}</h5>
         {% endif %}
-        <form method="POST" id="autologinform" action="{{ action }}">
+        <form method="POST" id="autologinform" action="{{ action|attr }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token|attr }}" />
             <input type="hidden" name="service_auth" value="{{ service_auth|attr }}" />
             <input type="hidden" name="target" value="{{ target|attr_url }}" />

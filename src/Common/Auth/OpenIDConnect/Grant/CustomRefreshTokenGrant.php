@@ -5,7 +5,7 @@
  * standard api and the regular api.  Since we don't have access to the old refresh token scopes when we are creating
  * our scope repository, we initialize them here so we can use them in our scope repo.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2020 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -22,10 +22,10 @@ use League\OAuth2\Server\ResponseTypes\ResponseTypeInterface;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\IdTokenSMARTResponse;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Services\JWTClientAuthenticationService;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 
 class CustomRefreshTokenGrant extends RefreshTokenGrant
 {
@@ -93,7 +93,7 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
                     if ($responseType instanceof IdTokenSMARTResponse) {
                         $responseType->setContextForNewTokens($decodedContext);
                     }
-                } catch (\Exception $exception) {
+                } catch (\Throwable $exception) {
                     $this->getSystemLogger()->error("OpenEMR Error: failed to decode token context json", ['exception' => $exception->getMessage()
                         , 'tokenId' => $oldRefreshToken['access_token_id']]);
                 }

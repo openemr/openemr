@@ -8,7 +8,7 @@
  * run by the user.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -98,7 +98,7 @@ abstract class AbstractGenerator extends AbstractProcessingTask implements Gener
      *
      * @param $filename
      * @param $location
-     * @param false $delete
+     * @param bool $delete
      */
     public function printDownloadClaimFileJS($filename, $location = '', $delete = false)
     {

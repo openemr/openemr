@@ -19,11 +19,8 @@
  */
 namespace Patientvalidation\Controller;
 
-use Laminas\InputFilter\InputFilter;
-use Laminas\Mvc\Controller\AbstractActionController;
 use Application\Listener\Listener;
-use Laminas\Mvc\Controller\ActionController;
-use Laminas\View\Model\ViewModel;
+use Laminas\Mvc\Controller\AbstractActionController;
 
 class BaseController extends AbstractActionController
 {

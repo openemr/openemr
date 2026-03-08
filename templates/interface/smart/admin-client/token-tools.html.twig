@@ -15,7 +15,7 @@
             </div>
             {% endif %}
             {% block toolContents %}
-            <form method="POST" action="{{ actionUrl }}">
+            <form method="POST" action="{{ actionUrl|attr }}">
                 {% include "interface/smart/admin-client/partials/textarea.html.twig" with {key: 'token', 'setting': tokenSettings} %}
                 <input type="submit" class="btn btn-sm btn-primary" value="{{ "Parse Token"|xla }}" />
             </form>

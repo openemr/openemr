@@ -4,7 +4,7 @@
  * @package    OpenEMR
  * Claude A.I contributed to this file for the QRDA III consolidated report xml generation.
  *
- * @link       http://www.open-emr.org
+ * @link       https://www.open-emr.org
  * @author     Ken Chapple <ken@mi-squared.com>
  * @author     Jerry Padgett <sjpadgett@gmail.com>
  * @copyright  Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>

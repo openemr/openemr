@@ -7,26 +7,31 @@
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019-2024 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(__DIR__ . "/../library/forms.inc.php");
 require_once(__DIR__ . "/../library/patient.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\PatientDocuments\PatientDocumentTreeViewFilterEvent;
+use OpenEMR\Events\PatientDocuments\PatientRetrieveOffsiteDocument;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\PatientService;
-use OpenEMR\Events\PatientDocuments\PatientDocumentTreeViewFilterEvent;
-use OpenEMR\Events\PatientDocuments\PatientRetrieveOffsiteDocument;
 
 class C_Document extends Controller
 {
@@ -74,7 +79,7 @@ class C_Document extends Controller
         $this->Document = new Document();
 
         // Create a crypto object that will be used for for encryption/decryption
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = ServiceContainer::getCrypto();
         $this->templateService = new DocumentTemplateService();
     }
 
@@ -213,6 +218,8 @@ class C_Document extends Controller
         if (!$skipUpload && !empty($_FILES['dicom_folder']['name'][0])) {
             // let's zip um up then pass along new zip
             $study_name = $_POST['destination'] ? (trim((string) $_POST['destination']) . ".zip") : 'DicomStudy.zip';
+            // Strip directory components to prevent path traversal (e.g. "../../evil" → "evil.zip").
+            $study_name = basename($study_name);
             $study_name =  preg_replace('/\s+/', '_', $study_name);
             $_POST['destination'] = "";
             $zipped = $this->zip_dicom_folder($study_name);
@@ -289,7 +296,8 @@ class C_Document extends Controller
                         }
                     }
                     if ($_POST['destination'] != '') {
-                        $fname = $_POST['destination'];
+                        // Strip directory components to prevent path traversal.
+                        $fname = basename((string) $_POST['destination']);
                     }
                     // test for single DICOM and assign extension if missing.
                     if (str_contains($filetext, 'DICM')) {
@@ -446,6 +454,25 @@ class C_Document extends Controller
         require_once(__DIR__ . "/../library/lists.inc.php");
         $session = SessionWrapperFactory::getInstance()->getWrapper();
         $d = new Document($doc_id);
+
+        // Verify the document belongs to the requested patient to prevent IDOR.
+        $doc_pid = $d->get_foreign_id();
+        if ($patient_id !== null && (int)$doc_pid !== (int)$patient_id) {
+            (new SystemLogger())->warning(
+                "An attempt was made to view a document belonging to a different patient",
+                ['user-id' => $session->get('authUserID'), 'requested-patient-id' => $patient_id, 'document-patient-id' => $doc_pid, 'document-id' => $doc_id]
+            );
+            EventAuditLogger::getInstance()->newEvent(
+                "security-access",
+                $session->get('authUser') ?? '',
+                $session->get('authProvider') ?? '',
+                0,
+                "Unauthorized attempt to view document " . $doc_id . " belonging to pid " . $doc_pid
+            );
+            http_response_code(403);
+            die(xlt("Not authorized to view requested file"));
+        }
+
         $notes = $d->get_notes();
 
         $this->assign("csrf_token_form", CsrfUtils::collectCsrfToken('default', $session->getSymfonySession()));
@@ -623,8 +650,8 @@ class C_Document extends Controller
         //  which could introduce xss vulnerabilities.
         if ($disable_exit == true) {
             if (!$this->isReturnRetrieveKey()) {
-                // Access to return the raw file has not been granted. Very likely bad actor, so die.
-                die(xlt("Not authorized to return raw file."));
+                // Access to return the raw file has not been granted. Very likely bad actor, so deny.
+                AccessDeniedHelper::deny('Attempt to return raw file without retrieve key');
             }
         }
 
@@ -634,20 +661,34 @@ class C_Document extends Controller
                 break;
         }
 
+        // For patient_picture context, non-portal users may only request the session's active patient.
+        if ($context === 'patient_picture') {
+            if (!($session->has('patient_portal_onsite_two') && $session->has('pid'))) {
+                $allowed_pid = $GLOBALS['pid'] ?? 0;
+                if ($allowed_pid === 0 || $patient_id === null || $patient_id !== (string)$allowed_pid) {
+                    AccessDeniedHelper::deny("Attempt to retrieve patient picture for pid $patient_id");
+                }
+            }
+        }
+
         $d = new Document($document_id);
 
         // ensure user/patient has access
         if ($session->has('patient_portal_onsite_two') && $session->has('pid')) {
             // ensure patient has access (called from patient portal)
             if (!$d->can_patient_access($session->get('pid'))) {
-                (new SystemLogger())->debug("An attempt was made by a patient to download a document from an unauthorized category", ['patient-id' => $session->get('pid'), 'document-id' => $document_id]);
-                die(xlt("Not authorized to view requested file"));
+                AccessDeniedHelper::deny("Patient unauthorized to access document $document_id category");
             }
         } else {
             // ensure user has access
             if (!$d->can_access()) {
-                (new SystemLogger())->debug("An attempt was made by a user to download a document from an unauthorized category", ['user-id' => $session->get('authUserID'), 'patient-id' => $patient_id, 'document-id' => $document_id]);
-                die(xlt("Not authorized to view requested file"));
+                AccessDeniedHelper::deny("Unauthorized attempt to access document $document_id from restricted category");
+            }
+
+            // Verify the document belongs to the requested patient to prevent IDOR.
+            $doc_pid = $d->get_foreign_id();
+            if ($patient_id !== null && (int)$doc_pid !== (int)$patient_id) {
+                AccessDeniedHelper::deny("Unauthorized attempt to retrieve document $document_id belonging to pid $doc_pid");
             }
         }
 
@@ -675,7 +716,7 @@ class C_Document extends Controller
                 die(xlt("File retrieval from CouchDB failed"));
             }
             if ($d->get_encrypted() == 1) {
-                $filetext = $this->cryptoGen->decryptStandard($content, null, 'database');
+                $filetext = $this->cryptoGen->decryptStandard($content, null, KeySource::Database);
             } else {
                 $filetext = base64_decode((string) $content);
             }
@@ -713,7 +754,7 @@ class C_Document extends Controller
                 $couchM = new CouchDB();
                 $respM = $couchM->retrieve_doc($couch_docid);
                 if ($d->get_encrypted() == 1) {
-                    $contentM = $this->cryptoGen->decryptStandard($respM->data, null, 'database');
+                    $contentM = $this->cryptoGen->decryptStandard($respM->data, null, KeySource::Database);
                 } else {
                     $contentM = base64_decode((string) $respM->data);
                 }
@@ -741,7 +782,7 @@ class C_Document extends Controller
                 if (is_file($to_file_tmp_name)) {
                     $couchI = new CouchDB();
                     if ($d->get_encrypted() == 1) {
-                        $document = $this->cryptoGen->encryptStandard(file_get_contents($to_file_tmp_name), null, 'database');
+                        $document = $this->cryptoGen->encryptStandard(file_get_contents($to_file_tmp_name), null, KeySource::Database);
                     } else {
                         $document = base64_encode(file_get_contents($to_file_tmp_name));
                     }
@@ -756,14 +797,14 @@ class C_Document extends Controller
                 $couchF = new CouchDB();
                 $respF = $couchF->retrieve_doc("converted_" . $couch_docid);
                 if ($d->get_encrypted() == 1) {
-                    $content = $this->cryptoGen->decryptStandard($respF->data, null, 'database');
+                    $content = $this->cryptoGen->decryptStandard($respF->data, null, KeySource::Database);
                 } else {
                     $content = base64_decode((string) $respF->data);
                 }
             } else {
                 // decrypt/decode when converted jpg already exists
                 if ($d->get_encrypted() == 1) {
-                    $content = $this->cryptoGen->decryptStandard($resp->data, null, 'database');
+                    $content = $this->cryptoGen->decryptStandard($resp->data, null, KeySource::Database);
                 } else {
                     $content = base64_decode((string) $resp->data);
                 }
@@ -821,7 +862,7 @@ class C_Document extends Controller
             }
 
             $retrieveOffsiteDocument = new PatientRetrieveOffsiteDocument($d->get_url(), $d);
-            $updatedOffsiteDocumentEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch(
+            $updatedOffsiteDocumentEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(
                 $retrieveOffsiteDocument,
                 PatientRetrieveOffsiteDocument::REMOTE_DOCUMENT_LOCATION
             );
@@ -829,10 +870,7 @@ class C_Document extends Controller
             // If the file is not found locally, it will be found remotely.  Systems like s3, blob stores, etc, can
             // be tied and and use those urls.  Note NO security is handled here so any kind of security mechanism must
             // be handled on the receiving end's URL (s3/azure for example use signed urls with signature verification)
-            if (
-                $updatedOffsiteDocumentEvent instanceof PatientRetrieveOffsiteDocument
-                && $updatedOffsiteDocumentEvent->getOffsiteUrl() != null
-            ) {
+            if ($updatedOffsiteDocumentEvent->getOffsiteUrl() !== null) {
                 header('Content-Description: File Transfer');
                 header("Location: " . $updatedOffsiteDocumentEvent->getOffsiteUrl());
                 exit;
@@ -849,7 +887,7 @@ class C_Document extends Controller
         if ($original_file) {
             //normal case when serving the file referenced in database
             if ($d->get_encrypted() == 1) {
-                $filetext = $this->cryptoGen->decryptStandard(file_get_contents($url), null, 'database');
+                $filetext = $this->cryptoGen->decryptStandard(file_get_contents($url), null, KeySource::Database);
             } else {
                 if (!is_dir($url)) {
                     $filetext = file_get_contents($url);
@@ -889,7 +927,7 @@ class C_Document extends Controller
             if (!is_file($url)) {
                 if ($d->get_encrypted() == 1) {
                     // decrypt the from-file into a temporary file
-                    $from_file_unencrypted = $this->cryptoGen->decryptStandard(file_get_contents($originalUrl), null, 'database');
+                    $from_file_unencrypted = $this->cryptoGen->decryptStandard(file_get_contents($originalUrl), null, KeySource::Database);
                     $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
                     file_put_contents($from_file_tmp_name, $from_file_unencrypted);
                     // prepare a temporary file for the unencrypted to-file
@@ -901,7 +939,7 @@ class C_Document extends Controller
                     unlink($from_file_tmp_name);
                     // make the encrypted to-file if a to-file was created in above convert call
                     if (is_file($to_file_tmp_name)) {
-                        $to_file_encrypted = $this->cryptoGen->encryptStandard(file_get_contents($to_file_tmp_name), null, 'database');
+                        $to_file_encrypted = $this->cryptoGen->encryptStandard(file_get_contents($to_file_tmp_name), null, KeySource::Database);
                         file_put_contents($url, $to_file_encrypted);
                         // remove unencrypted tmp files
                         unlink($to_file_tmp);
@@ -914,7 +952,7 @@ class C_Document extends Controller
             }
             if (is_file($url)) {
                 if ($d->get_encrypted() == 1) {
-                    $filetext = $this->cryptoGen->decryptStandard(file_get_contents($url), null, 'database');
+                    $filetext = $this->cryptoGen->decryptStandard(file_get_contents($url), null, KeySource::Database);
                 } else {
                     $filetext = file_get_contents($url);
                 }
@@ -959,9 +997,9 @@ class C_Document extends Controller
         if (is_numeric($new_patient_id) && is_numeric($document_id)) {
             $d = new Document($document_id);
             $sql = "SELECT pid from patient_data where pid = ?";
-            $result = $d->_db->Execute($sql, [$new_patient_id]);
+            $result = QueryUtils::querySingleRow($sql, [$new_patient_id]);
 
-            if (!$result || $result->EOF) {
+            if ($result === false) {
                 //patient id does not exist
                 $messages .= sprintf("%s '%s' %s\n", xl('Document could not be moved to patient id'), $new_patient_id, xl('because that id does not exist.'));
             } else {
@@ -989,7 +1027,7 @@ class C_Document extends Controller
             $couch = new CouchDB();
             $resp = $couch->retrieve_doc($d->couch_docid);
             if ($d->get_encrypted() == 1) {
-                $content = $this->cryptoGen->decryptStandard($resp->data, null, 'database');
+                $content = $this->cryptoGen->decryptStandard($resp->data, null, KeySource::Database);
             } else {
                 $content = base64_decode((string) $resp->data);
             }
@@ -1027,7 +1065,7 @@ class C_Document extends Controller
             }
 
             if ($d->get_encrypted() == 1) {
-                $content = $this->cryptoGen->decryptStandard(file_get_contents($url), null, 'database');
+                $content = $this->cryptoGen->decryptStandard(file_get_contents($url), null, KeySource::Database);
             } else {
                 $content = file_get_contents($url);
             }
@@ -1127,8 +1165,7 @@ class C_Document extends Controller
         $used_msg = xl('Current patient unavailable here. Use Patient Documents');
         if ($cur_pid == '00') {
             if (!AclMain::aclCheckCore('patients', 'docs', '', ['write', 'addonly'])) {
-                echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Documents")]);
-                exit;
+                AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/docs write|addonly: Documents", xl("Documents"));
             }
             $cur_pid = '0';
             $is_new = 1;
@@ -1144,8 +1181,7 @@ class C_Document extends Controller
             }
         }
         if (!AclMain::aclCheckCore('patients', 'docs')) {
-            echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Documents")]);
-            exit;
+            AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/docs: Documents", xl("Documents"));
         }
         $this->assign('is_new', $is_new);
         $this->assign('place_hld', $place_hld);
@@ -1225,7 +1261,7 @@ class C_Document extends Controller
                     ]);
 
                     $treeViewFilterEvent->setHtmlTreeNode($htmlNode);
-                    $filteredEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($treeViewFilterEvent, PatientDocumentTreeViewFilterEvent::EVENT_NAME);
+                    $filteredEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($treeViewFilterEvent, PatientDocumentTreeViewFilterEvent::EVENT_NAME);
                     if ($filteredEvent->getHtmlTreeNode() != null) {
                         $current_node->addItem($filteredEvent->getHtmlTreeNode());
                     } else {
@@ -1250,14 +1286,14 @@ class C_Document extends Controller
         $LOG = file_get_contents($log_path . $log_file);
 
         if ($this->cryptoGen->cryptCheckStandard($LOG)) {
-            $LOG = $this->cryptoGen->decryptStandard($LOG, null, 'database');
+            $LOG = $this->cryptoGen->decryptStandard($LOG, null, KeySource::Database);
         }
 
         $LOG .= $content;
 
         if (!empty($LOG)) {
             if ($GLOBALS['drive_encryption']) {
-                $LOG = $this->cryptoGen->encryptStandard($LOG, null, 'database');
+                $LOG = $this->cryptoGen->encryptStandard($LOG, null, KeySource::Database);
             }
             file_put_contents($log_path . $log_file, $LOG);
         }
@@ -1395,7 +1431,7 @@ class C_Document extends Controller
     public function clear_procedure_tag_action(?string $patient_id, $document_id)
     {
         if (is_numeric($document_id)) {
-            sqlStatement("delete from procedure_result where document_id = ?", $document_id);
+            sqlStatement("delete from procedure_result where document_id = ?", [$document_id]);
         }
         return $this->view_action($patient_id, $document_id);
     }

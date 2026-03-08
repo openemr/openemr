@@ -3,10 +3,9 @@
 namespace Carecoordination\Factory;
 
 use Carecoordination\Controller\EncounterccdadispatchController;
-use Carecoordination\Model\EncountermanagerTable;
+use Carecoordination\Model\EncounterccdadispatchTable;
 use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
-use Carecoordination\Model\EncounterccdadispatchTable;
 
 /**
  * Creates instances of EncounterccdadispatchController.  This is necessary because the controller is used both as a service

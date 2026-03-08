@@ -22,6 +22,8 @@ $core_modules = [
 ];
 
 // $zendConfigurationPath is loaded using ModulesApplication.php from globals.php
+/** @var ?string $webRootPath */
+/** @var ?string $zendConfigurationPath */
 $plugin_modules = \OpenEMR\Core\ModulesApplication::oemr_zend_load_modules_from_db(
     $webRootPath ?? '',
     $zendConfigurationPath ?? ''

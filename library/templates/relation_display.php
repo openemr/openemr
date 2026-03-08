@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Handles the display of the relation list datatype in LBF
  * Updated to use ContactService, ContactRelationService, PersonService
@@ -12,13 +13,14 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Services\ContactService;
-use OpenEMR\Services\ContactRelationService;
-use OpenEMR\Services\PersonService;
-use OpenEMR\Services\ContactAddressService;
-use OpenEMR\Services\ContactTelecomService;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\ContactAddressService;
+use OpenEMR\Services\ContactRelationService;
+use OpenEMR\Services\ContactService;
+use OpenEMR\Services\ContactTelecomService;
+use OpenEMR\Services\PersonService;
 
 $logger = new SystemLogger();
 
@@ -122,7 +124,7 @@ try {
             $relatedPersons[] = $relatedPerson;
         }
     }
-} catch (\Exception $e) {
+} catch (\Throwable $e) {
     $logger->error("Error loading relations for display", [
         'foreign_table' => $foreign_table,
         'foreign_id' => $foreign_id,
@@ -159,6 +161,6 @@ $logger->debug("Error loading relations for display", [
 ]);
 
 // Render the template
-$twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+$twigContainer = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
 $twig = $twigContainer->getTwig();
 echo $twig->render('patient/demographics/relation_display.html.twig', $templateVars);

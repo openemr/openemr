@@ -5,7 +5,7 @@
  * The second is sl_eob_invoice.php.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Bill Cernansky
  * @author    Tony McCormick
@@ -27,7 +27,24 @@
 // Updated by Growlingflea Software.  now generates correct service and billing facility on statement.
 // any questions contact Daniel Pflieger at daniel@growlingflea.com
 
+
+use Mpdf\Mpdf;
+use OpenEMR\Billing\InvoiceSummary;
+use OpenEMR\Billing\ParseERA;
+use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Utils\FormatMoney;
+use OpenEMR\Common\Utils\ValidationUtils;
+use OpenEMR\Core\Header;
+use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Pdf\Config_Mpdf;
+
 require_once("../globals.php");
+
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/appointments.inc.php");
 require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
@@ -41,22 +58,8 @@ require_once("$srcdir/documents.php");
 require_once("$srcdir/options.inc.php");
 require_once "$srcdir/user.inc.php";
 
-use Mpdf\Mpdf;
-use OpenEMR\Billing\InvoiceSummary;
-use OpenEMR\Billing\ParseERA;
-use OpenEMR\Billing\SLEOB;
-use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Common\Utils\FormatMoney;
-use OpenEMR\Common\Utils\ValidationUtils;
-use OpenEMR\Core\Header;
-use OpenEMR\OeUI\OemrUI;
-use OpenEMR\Pdf\Config_Mpdf;
-
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("EOB Posting - Search")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob: EOB Posting - Search", xl("EOB Posting - Search"));
 }
 
 $DEBUG = 0; // set to 0 for production, 1 to test
@@ -76,16 +79,14 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
 
     function is_auth_portal($pid = 0)
     {
-        if ($pData = sqlQuery("SELECT id, allow_patient_portal, fname, lname FROM `patient_data` WHERE `pid` = ?", [$pid])) {
-            if ($pData['allow_patient_portal'] != "YES") {
-                return false;
-            } else {
-                $_SESSION['portalUser'] = strtolower((string) $pData['fname']) . $pData['id'];
-                return true;
-            }
-        } else {
-            return false;
+        $rows = QueryUtils::fetchRecords("SELECT id, allow_patient_portal, fname FROM `patient_data` WHERE `pid` = ?", [$pid]);
+        $pData = $rows[0] ?? null;
+        if ($pData !== null && $pData['allow_patient_portal'] === "YES") {
+            SessionUtil::setSession('portalUser', strtolower((string) $pData['fname']) . $pData['id']);
+            return true;
         }
+
+        return false;
     }
 
     function notify_portal($thispid, array $invoices, $template, $invid)
@@ -149,7 +150,7 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
             } else {
                 $appsql->portalAudit('insert', '', $audit);
             }
-        } catch (Exception $ex) {
+        } catch (\Throwable $ex) {
             return $ex;
         }
 
@@ -157,8 +158,12 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
     }
 }
 
-// This is called back by ParseERA::parseERA() if we are processing X12 835's.
-function era_callback(&$out): void
+/**
+ * This is called back by ParseERA::parseERA() if we are processing X12 835's.
+ *
+ * @param array $out
+ */
+function eob_search_era_callback(array &$out): void
 {
     global $where, $eracount, $eraname;
     // print_r($out); // debugging
@@ -193,7 +198,7 @@ function emailLogin(int $patient_id, string $message): void
         throw new InvalidArgumentException('Statement message has no text content');
     }
 
-    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", [$patient_id]);
+    $patientData = QueryUtils::querySingleRow("SELECT * FROM `patient_data` WHERE `pid`=?", [$patient_id]);
     if ($patientData['hipaa_allowemail'] != "YES" || ($patientData['email'] ?? '') === '' || ($GLOBALS['patient_reminder_sender_email'] ?? '') === '') {
         throw new RuntimeException(xl('Email is not allowed or not configured for this patient'));
     }
@@ -207,11 +212,9 @@ function emailLogin(int $patient_id, string $message): void
     }
 
     if ($_SESSION['pc_facility']) {
-        $sql = "select * from facility where id=?";
-        $facility = sqlQuery($sql, [$_SESSION['pc_facility']]);
+        $facility = QueryUtils::querySingleRow("select * from facility where id=?", [$_SESSION['pc_facility']]);
     } else {
-        $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
-        $facility = sqlQuery($sql);
+        $facility = QueryUtils::querySingleRow("SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1");
     }
 
     $mail = new MyMailer();
@@ -493,7 +496,7 @@ if (
         // Recompute age at each invoice.
         $stmt['age'] = round((strtotime($today) - strtotime((string) $stmt['duedate'])) / (24 * 60 * 60));
         // grab last bill date from billing
-        $bdrow = sqlQuery("select bill_date from billing where pid = ? AND encounter = ? limit 1", [$row['pid'], $row['encounter']]);
+        $bdrow = QueryUtils::querySingleRow("select bill_date from billing where pid = ? AND encounter = ? limit 1", [$row['pid'], $row['encounter']]);
 
         $invlines = InvoiceSummary::arGetInvoiceSummary($row['pid'], $row['encounter'], true);
         foreach ($invlines as $key => $value) {
@@ -567,7 +570,7 @@ if (
                     $d = new Document();
                     $doc_pid = $inv_pid[$inv_count];
                     $invoice_category_id = 0;
-                    $catrow = sqlQuery("SELECT id FROM categories WHERE name = ?", ['Invoices']);
+                    $catrow = QueryUtils::querySingleRow("SELECT id FROM categories WHERE name = ?", ['Invoices']);
                     if (!empty($catrow['id'])) {
                         $invoice_category_id = $catrow['id'];
                     }
@@ -956,7 +959,7 @@ if (
                                 }
 
                                 echo "<!-- Notes from ERA upload processing:\n";
-                                $alertmsg .= ParseERA::parseERA($tmp_name, 'era_callback');
+                                $alertmsg .= ParseERA::parseERA($tmp_name, 'eob_search_era_callback');
                                 echo "-->\n";
                                 $erafullname = $GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi";
                                 $edihname = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/history/f835/$eraname.835";
@@ -1186,7 +1189,7 @@ if (
                                     <?php } ?>
                                     <td class="detail text-left">
                                         <?php
-                                        $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", [$row['pid']]);
+                                        $patientData = QueryUtils::querySingleRow("SELECT * FROM `patient_data` WHERE `pid`=?", [$row['pid']]);
                                         if ($patientData['hipaa_allowemail'] == "YES" && $patientData['allow_patient_portal'] == "YES" && $patientData['hipaa_notice'] == "YES" && ValidationUtils::isValidEmail($patientData['email'])) {
                                             echo xlt("YES");
                                         } else {

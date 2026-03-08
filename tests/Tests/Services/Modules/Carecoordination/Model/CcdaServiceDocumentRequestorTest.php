@@ -3,7 +3,7 @@
 /*
  * CcdaGeneratorTest.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -11,11 +11,11 @@
 namespace OpenEMR\Tests\Services\Modules\CareCoordination\Model;
 
 use Carecoordination\Model\CcdaServiceDocumentRequestor;
+use DOMDocument;
+use DOMXPath;
 use Monolog\Level;
 use OpenEMR\Common\Logging\SystemLogger;
 use PHPUnit\Framework\TestCase;
-use DOMXPath;
-use DOMDocument;
 
 class CcdaServiceDocumentRequestorTest extends TestCase
 {

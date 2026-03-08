@@ -4,7 +4,7 @@
  * Top-level API and helper functions for the ESign module
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Medical Information Integration, LLC
@@ -96,7 +96,7 @@ class Api
         try {
             $ret = $signable->sign($userId, $lock, $amendment);
             return $ret;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log(errorLogEscape($e->getMessage()));
             return false;
         }

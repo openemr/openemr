@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace OpenEMR\Tests\Api;
 
 use GuzzleHttp\Client;
 use Monolog\Level;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
@@ -17,9 +20,11 @@ use Psr\Http\Message\ResponseInterface;
  * - standard HTTP methods/verbs: POST, PUT, GET
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
+ * @copyright Copyright (c) 2026 Michael A. Smith <michael@opencoreemr.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
@@ -123,6 +128,7 @@ class ApiTestClient
         'user/practitioner.read',
         'user/practitioner.write',
         'user/prescription.read',
+        'user/prescription.write',
         'user/procedure.read',
         'user/soap_note.read',
         'user/soap_note.write',
@@ -154,33 +160,23 @@ class ApiTestClient
         'patient/patient.read',
     ];
 
-    protected $headers;
-    protected $client;
-    protected $client_id;
-    protected $client_secret;
-    protected $id_token;
-    protected $access_token;
-    protected $refresh_token;
+    /** @var array<string, string> */
+    protected array $headers;
+    protected Client $client;
+    protected ?string $client_id = null;
+    protected ?string $client_secret = null;
+    protected ?string $id_token = null;
+    protected ?string $access_token = null;
+    protected ?string $refresh_token = null;
 
     /**
-     * Returns a configuration settings from the GuzzleHTTP client instance.
-     * If headers are requested, the default client headers are merged with the headers currently associated
-     * with the client instance.
+     * Returns the HTTP headers currently associated with this client instance.
+     *
+     * @return array<string, string>
      */
-    public function getConfig($config)
+    public function getHeaders(): array
     {
-        if ($config == null) {
-            $message = "\$config is null. Expecting \$config to be a valid GuzzleHttp configuration setting";
-            throw new \InvalidArgumentException($message);
-        }
-
-        $parsedConfig =  $this->client->getConfig($config);
-
-        if ($config == 'headers') {
-            $parsedConfig = array_merge_recursive($parsedConfig, $this->headers);
-        }
-
-        return $parsedConfig;
+        return $this->headers;
     }
 
     /**
@@ -192,26 +188,23 @@ class ApiTestClient
      * from environment variables or fallback to a reasonable default if the environment variable
      * does not exist.
      *
-     * @param $authURL - The URL for authentication requests.
-     * @param $credentials - The credentials used for authentication requests (associative array/map)
-     * @return the authorization response
-     *
+     * @param array<string, string> $credentials The credentials used for authentication requests
      */
-    public function setAuthToken($authURL, $credentials = [], $client = 'private')
+    public function setAuthToken(string $authURL, array $credentials = [], string $client = 'private'): ResponseInterface
     {
-        if (!empty($credentials) && !array_key_exists("client_id", $credentials)) {
+        if ($credentials !== [] && !array_key_exists("client_id", $credentials)) {
             if (!array_key_exists("username", $credentials) || !array_key_exists("password", $credentials)) {
                 throw new \InvalidArgumentException("username and password credentials are required");
             }
         } else {
-            if (!empty($credentials['client_id'])) {
+            if (($credentials['client_id'] ?? '') !== '') {
                 $this->client_id = $credentials['client_id'];
             }
             $credentials["username"] = getenv("OE_USER", true) ?: "admin";
             $credentials["password"] = getenv("OE_PASS", true) ?: "pass";
         }
 
-        if (empty($this->client_id)) {
+        if ($this->client_id === null || $this->client_id === '') {
             $this->getClient($authURL, $client);
         }
 
@@ -233,33 +226,33 @@ class ApiTestClient
             "Accept" => "application/json",
             "Content-Type" => "application/json"
         ];
-        if ($authResponse->getStatusCode() == 200) {
-            $responseBody = json_decode($authResponse->getBody());
+        if ($authResponse->getStatusCode() === 200) {
+            /** @var \stdClass&object{access_token: string, id_token: string, refresh_token: string|null} $responseBody */
+            $responseBody = json_decode((string) $authResponse->getBody());
             $this->setBearer("Bearer " . $responseBody->access_token);
             $this->id_token = $responseBody->id_token;
             $this->access_token = $responseBody->access_token;
-            $this->refresh_token = $responseBody->refresh_token ?? null;
+            $this->refresh_token = $responseBody->refresh_token;
         } else {
             $errorMessage = "Authorization failed with status code: " . $authResponse->getStatusCode();
-            if ($authResponse->getBody()) {
-                $errorBody = json_decode($authResponse->getBody());
-                if (isset($errorBody->error)) {
-                    $errorMessage .= " - " . $errorBody->error;
-                }
-                if (isset($errorBody->error_description)) {
-                    $errorMessage .= ": " . $errorBody->error_description;
-                }
-                if (isset($errorBody->hint)) {
-                    $errorMessage .= ": " . $errorBody->hint;
-                }
+            /** @var \stdClass|null $errorBody */
+            $errorBody = json_decode((string) $authResponse->getBody());
+            if (isset($errorBody->error)) {
+                $errorMessage .= " - " . $errorBody->error;
             }
-            error_log($errorMessage);
+            if (isset($errorBody->error_description)) {
+                $errorMessage .= ": " . $errorBody->error_description;
+            }
+            if (isset($errorBody->hint)) {
+                $errorMessage .= ": " . $errorBody->hint;
+            }
+            $this->getSystemLogger()?->errorLogCaller($errorMessage);
         }
 
         return $authResponse;
     }
 
-    private function getClient($authURL, $client = 'private')
+    private function getClient(string $authURL, string $client = 'private'): void
     {
         $clientBody = [
             "application_type" => $client,
@@ -273,11 +266,12 @@ class ApiTestClient
         if ($clientResponse->getStatusCode() >= 400) {
             throw new \RuntimeException("Client registration failed with status code: " . $clientResponse->getStatusCode());
         }
-        $clientResponseBodyRaw = $clientResponse->getBody();
+        $clientResponseBodyRaw = (string) $clientResponse->getBody();
 
+        /** @var (\stdClass&object{client_id: string, client_secret: string})|null $clientResponseBody */
         $clientResponseBody = json_decode($clientResponseBodyRaw);
         if ($clientResponseBody === null) {
-            $this->getSystemLogger()->errorLogCaller("Failed to decode client registration response: ", ['rawBody' => $clientResponseBodyRaw]);
+            $this->getSystemLogger()?->errorLogCaller("Failed to decode client registration response: ", ['rawBody' => $clientResponseBodyRaw]);
             throw new \RuntimeException("Client registration response could not be decoded");
         }
         $this->client_id = $clientResponseBody->client_id;
@@ -286,74 +280,74 @@ class ApiTestClient
         $clientRepository = new ClientRepository();
         $logger = new SystemLogger(Level::Emergency); // suppress logging
         $clientRepository->setSystemLogger($logger);
-        $client = $clientRepository->getClientEntity($this->client_id);
-        $clientRepository->saveIsEnabled($client, true);
+        $clientEntity = $clientRepository->getClientEntity($this->client_id);
+        assert($clientEntity instanceof ClientEntity);
+        $clientRepository->saveIsEnabled($clientEntity, true);
     }
 
     /**
      * Removes the current authorization token from this instance's HTTP headers if present.
      */
-    public function removeAuthToken()
+    public function removeAuthToken(): void
     {
         if (array_key_exists(self::AUTHORIZATION_HEADER, $this->headers)) {
             unset($this->headers[self::AUTHORIZATION_HEADER]);
         }
     }
 
-    public function cleanupClient()
+    public function cleanupClient(): void
     {
         sqlStatementNoLog("DELETE FROM `oauth_clients` WHERE `client_id` = ?", [$this->client_id]);
         sqlStatementNoLog("DELETE FROM `api_token` WHERE `client_id` = ?", [$this->client_id]);
     }
 
-    public function cleanupRevokeAuth()
+    public function cleanupRevokeAuth(): ResponseInterface
     {
         return $this->get(self::OAUTH_LOGOUT_ENDPOINT, ['id_token_hint' => $this->id_token]);
     }
 
-    public function getClientId()
+    public function getClientId(): ?string
     {
         return $this->client_id;
     }
 
-    public function getClientSecret()
+    public function getClientSecret(): ?string
     {
         return $this->client_secret;
     }
 
-    public function getIdToken()
+    public function getIdToken(): ?string
     {
         return $this->id_token;
     }
 
-    public function getAccessToken()
+    public function getAccessToken(): ?string
     {
         return $this->access_token;
     }
 
-    public function getRefreshToken()
+    public function getRefreshToken(): ?string
     {
         return $this->refresh_token;
     }
 
-    public function setHeaders(array $headers)
+    /**
+     * @param array<string, string> $headers
+     */
+    public function setHeaders(array $headers): void
     {
-        return $this->headers = $headers;
+        $this->headers = $headers;
     }
 
-    public function setBearer(string $bearer)
+    public function setBearer(string $bearer): void
     {
-        return $this->headers[self::AUTHORIZATION_HEADER] = $bearer;
+        $this->headers[self::AUTHORIZATION_HEADER] = $bearer;
     }
 
     /**
      * Creates a client instance with "reasonable" defaults.
-     * @param $baseUrl - The base url (http://someserver) for the OpenEMR host.
-     * @param $isHttpErrorEnabled - Indicates if an exceptions are thrown within a HTTP error code is returned.
-     *  Defaults to true.
-     * @param $timeOut - The HTTP request timeout setting. Defaults to 10 seconds.
      */
-    public function __construct($baseUrl, $isHttpErrorEnabled = true, $timeOut = 10)
+    public function __construct(string $baseUrl, bool $isHttpErrorEnabled = true, int $timeOut = 10)
     {
         $clientOptions = [
             "verify" => false,
@@ -370,11 +364,10 @@ class ApiTestClient
 
     /**
      * Submits a HTTP POST Request.
-     * @param $url - The target URL (relative)
-     * @param $body - The POST request body (array)
-     * @return $postResponse - HTTP response
+     *
+     * @param array<string, mixed> $body
      */
-    public function post($url, $body, $json = true): ResponseInterface
+    public function post(string $url, array $body, bool $json = true): ResponseInterface
     {
         if ($json) {
             $postResponse = $this->client->post($url, [
@@ -392,12 +385,10 @@ class ApiTestClient
 
     /**
      * Submits a HTTP PUT Request.
-     * @param $url - The target URL (relative)
-     * @param $id - The resource id
-     * @param $body - The PUT request body (array)
-     * @return $putResponse - HTTP response
+     *
+     * @param array<string, mixed> $body
      */
-    public function put($url, $id, $body)
+    public function put(string $url, string $id, array $body): ResponseInterface
     {
         $resourceUrl = $url . "/" . $id;
 
@@ -410,12 +401,10 @@ class ApiTestClient
 
     /**
      * Submits a HTTP PATCH Request.
-     * @param $url - The target URL (relative)
-     * @param $id - The resource id
-     * @param $body - The PATCH request body (array)
-     * @return $patchResponse - HTTP response
+     *
+     * @param array<string, mixed> $body
      */
-    public function patch($url, $id, $body)
+    public function patch(string $url, string $id, array $body): ResponseInterface
     {
         $resourceUrl = $url . "/" . $id;
 
@@ -427,30 +416,35 @@ class ApiTestClient
     }
 
     /**
-     * Submits a HTTP GET request for a single resource.
-     * @param $url - The target URL (relative)
-     * @param $id - The resource id
-     * @return $getResponse - HTTP response
+     * Submits a HTTP DELETE request.
+     * @param string $url The target URL (relative)
+     * @param string|int $id The resource id
      */
-    public function getOne($url, $id)
+    public function delete(string $url, string|int $id): ResponseInterface
     {
         $resourceUrl = $url . "/" . $id;
-        $getResponse = $this->client->get($resourceUrl, ["headers" => $this->headers]);
-        return $getResponse;
+        return $this->client->delete($resourceUrl, ["headers" => $this->headers]);
+    }
+
+    /**
+     * Submits a HTTP GET request for a single resource.
+     */
+    public function getOne(string $url, string $id): ResponseInterface
+    {
+        $resourceUrl = $url . "/" . $id;
+        return $this->client->get($resourceUrl, ["headers" => $this->headers]);
     }
 
     /**
      * Submits a HTTP GET request for multiple resources.
-     * @param $url - The target URL (relative)
-     * @param $params - Array of search parameters. Defaults to empty array.
-     * @return $getResponse - HTTP response
+     *
+     * @param array<string, mixed> $params
      */
-    public function get($url, $params = [])
+    public function get(string $url, array $params = []): ResponseInterface
     {
-        $getResponse = $this->client->get($url, [
+        return $this->client->get($url, [
             "headers" => $this->headers,
             "query" => $params
-            ]);
-        return $getResponse;
+        ]);
     }
 }

@@ -4,7 +4,7 @@
 * forms.php
 *
 * @package   OpenEMR
-* @link      http://www.open-emr.org
+* @link      https://www.open-emr.org
 * @author    Brady Miller <brady.g.miller@gmail.com>
 * @author    Jerry Padgett <sjpadgett@gmail.com>
 * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
@@ -13,14 +13,17 @@
 */
 
 require_once(__DIR__ . "/../../globals.php");
+
 /**
-* @global $srcdir
-* @global $attendant_type
-* @global $therapy_group
-* @global $pid
-* @global $userauthorized
-* @global $rootdir
-*/
+ * @var string $srcdir
+ * @var string $rootdir
+ * @var string $attendant_type
+ * @var int $pid
+ * @var int $encounter
+ * @var int $userauthorized
+ * @var int $therapy_group
+ */
+
 require_once("$srcdir/encounter.inc.php");
 require_once("$srcdir/group.inc.php");
 require_once("$srcdir/patient.inc.php");
@@ -31,14 +34,14 @@ require_once("$srcdir/../controllers/C_Document.class.php");
 use ESign\Api;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Core\Header;
-use OpenEMR\Events\Encounter\EncounterFormsListRenderEvent;
-use OpenEMR\Events\Encounter\EncounterMenuEvent;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
-
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\Encounter\EncounterFormsListRenderEvent;
+use OpenEMR\Events\Encounter\EncounterMenuEvent;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\UserService;
 
@@ -61,7 +64,7 @@ if ($is_group && !AclMain::aclCheckCore("groups", "glog", false, ['view', 'write
     exit();
 }
 
-$eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+$eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 // instantiate the locator at the beginning so our file caching can be reused.
 $formLocator = new FormLocator();
 ?>
@@ -238,7 +241,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
             if ($('#med_reconc_perf').prop('checked')) {
                 var mode = "complete";
             } else {
-                var mode = "uncomplete";
+                var mode = "incomplete";
             }
             top.restoreSession();
             $.post("../../../library/ajax/amc_misc_data.php",
@@ -639,7 +642,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
     $encounterMenuEvent = new EncounterMenuEvent();
     $menu = $eventDispatcher->dispatch($encounterMenuEvent, EncounterMenuEvent::MENU_RENDER);
 
-    $twig = new TwigContainer(null, $GLOBALS['kernel']);
+    $twig = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
     $t = $twig->getTwig();
     echo $t->render('encounter/forms/navbar.html.twig', [
         'encounterDate' => oeFormatShortDate($encounter_date),
@@ -647,13 +650,15 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
         'isAdminSuper' => AclMain::aclCheckCore("admin", "super"),
         'enableFollowUpEncounters' => $GLOBALS['enable_follow_up_encounters'],
         'menuArray' => $menu->getMenuData(),
+        'encounter' => (int) $encounter, // @phpstan-ignore cast.int ($encounter comes from global scope)
+        'pid' => (int) $pid,
     ]);
     ?>
 
     <div id="encounter_forms" class="container-xl">
         <div class='encounter-summary-container'>
             <?php
-            $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+            $dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
             $event = new EncounterFormsListRenderEvent($session->get('encounter'), $attendant_type);
             $event->setGroupId($groupId ?? null);
             $event->setPid($pid ?? null);
@@ -1012,7 +1017,7 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
             echo xlt("Not authorized to view this encounter");
         }
 
-        $dispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
         $event = new EncounterFormsListRenderEvent($session->get('encounter'), $attendant_type);
         $event->setGroupId($groupId ?? null);
         $event->setPid($pid ?? null);

@@ -12,13 +12,14 @@
  *
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Terry Hill <terry@lillysystems.com>
  * @copyright 2016 Terry Hill <terry@lillysystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 use OpenEMR\Common\Session\SessionWrapperFactory;
+
 require_once("../globals.php");
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();

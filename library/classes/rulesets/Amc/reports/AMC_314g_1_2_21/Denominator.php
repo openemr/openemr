@@ -21,7 +21,7 @@
  * @package OpenEMR
  * @author  Ensoftek
  * @author  Brady Miller <brady.g.miller@gmail.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 class AMC_314g_1_2_21_Denominator implements AmcFilterIF
 {

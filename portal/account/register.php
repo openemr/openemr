@@ -5,7 +5,7 @@
  * twig loader for registration
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -63,7 +63,7 @@ $data = [
 ];
 
 // Render Register Twig template
-$twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
+$twig = (new TwigContainer(null, $globalsBag->getKernel()))->getTwig();
 try {
     echo $twig->render('portal/registration/portal_register.html.twig', $data);
 } catch (LoaderError | SyntaxError | RuntimeError $e) {

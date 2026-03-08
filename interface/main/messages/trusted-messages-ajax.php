@@ -4,7 +4,7 @@
  * trusted-messages-ajax.php takes data from the POST/GET request, validates the data and then sends a message via the
  * Direct protocol to the trusted email address.  Results / errors are returned via JSON
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -79,7 +79,7 @@ if (!CsrfUtils::verifyCsrfToken($csrf)) {
         $result['errorCode'] = 'permissionDenied';
         $isValid = false;
         (new SystemLogger())->error("Access was denied", ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage()]);
-    } catch (\Exception $error) {
+    } catch (\Throwable $error) {
         $result['errorCode'] = 'invalidRequest';
         (new SystemLogger())->error("Data was invalid", ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage()]);
         $isValid = false;
@@ -121,7 +121,7 @@ if ($isValid) {
             ]
         );
         $result['errorCode'] = 'invalidDocumentFormat';
-    } catch (\Exception $error) {
+    } catch (\Throwable $error) {
         (new SystemLogger())->error(
             "trusted-messages-ajax.php threw an exception when attempting to send",
             ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage(), 'pid' => $pid
@@ -135,7 +135,7 @@ if ($isValid) {
 try {
     (new SystemLogger())->debug("trusted-messages-ajax.php result object", $result);
     echo json_encode($result, JSON_THROW_ON_ERROR);
-} catch (\Exception $error) {
+} catch (\Throwable $error) {
     (new SystemLogger())->error("Failed to encode json response", ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage(), 'result' => $result]);
     http_response_code(500);
 }

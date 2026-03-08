@@ -22,14 +22,14 @@ Header("Content-Security-Policy: frame-ancestors 'none'");
 
 //setting the session & other config options
 
-use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
 use OpenEMR\Common\Auth\OneTimeAuth;
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
@@ -106,7 +106,7 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
         $ot = $oneTime->decodePortalOneTime($token, null, false);
         $pin_required = $ot['actions']['enforce_auth_pin'] ? 1 : 0;
         CsrfUtils::setupCsrfKey($session->getSymfonySession());
-        $twig = new TwigContainer(null, $globalsBag->get('kernel'));
+        $twig = new TwigContainer(null, $globalsBag->getKernel());
         echo $twig->getTwig()->render('portal/login/autologin.html.twig', [
             'action' => $globalsBag->getString('web_root') . '/portal/index.php',
             'service_auth' => $_GET['service_auth'],
@@ -166,7 +166,7 @@ if (!empty($_GET['forward_email_verify'])) {
         exit();
     }
 
-    $crypto = new CryptoGen();
+    $crypto = ServiceContainer::getCrypto();
     if (!$crypto->cryptCheckStandard($_GET['forward_email_verify'])) {
         (new SystemLogger())->debug("illegal token, so stopped attempt to use forward_email_verify token");
         SessionUtil::portalSessionCookieDestroy();
@@ -174,7 +174,7 @@ if (!empty($_GET['forward_email_verify'])) {
         exit();
     }
 
-    $token_one_time = $crypto->decryptStandard($_GET['forward_email_verify'], null, 'drive', 6);
+    $token_one_time = $crypto->decryptStandard($_GET['forward_email_verify'], minimumVersion: 6);
     if (empty($token_one_time)) {
         (new SystemLogger())->debug("unable to decrypt token, so stopped attempt to use forward_email_verify token");
         SessionUtil::portalSessionCookieDestroy();
@@ -252,9 +252,9 @@ if (!empty($_GET['forward_email_verify'])) {
     }
     $auth = false;
     if (strlen($_GET['forward']) >= 64) {
-        $crypto = new CryptoGen();
+        $crypto = ServiceContainer::getCrypto();
         if ($crypto->cryptCheckStandard($_GET['forward'])) {
-            $one_time = $crypto->decryptStandard($_GET['forward'], null, 'drive', 6);
+            $one_time = $crypto->decryptStandard($_GET['forward'], minimumVersion: 6);
             if (!empty($one_time)) {
                 $auth = sqlQueryNoLog("Select * From patient_access_onsite Where portal_onetime Like BINARY ?", [$one_time . '%']);
             }

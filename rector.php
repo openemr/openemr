@@ -4,6 +4,7 @@
 
 declare(strict_types=1);
 
+use OpenEMR\Rector\Rules\CatchExceptionToThrowableRector;
 use Rector\Caching\ValueObject\Storage\FileCacheStorage;
 use Rector\CodeQuality\Rector\If_\SimplifyIfElseToTernaryRector;
 use Rector\CodingStyle\Rector\FuncCall\CallUserFuncArrayToVariadicRector;
@@ -58,6 +59,7 @@ return RectorConfig::configure()
     ->withPhpVersion(PhpVersion::PHP_82)
     ->withRules([
         CallUserFuncArrayToVariadicRector::class,
+        CatchExceptionToThrowableRector::class,
         SimplifyIfElseToTernaryRector::class,
     ])
     ->withPhpSets()

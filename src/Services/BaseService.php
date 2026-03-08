@@ -4,7 +4,7 @@
  * Standard Services Base class
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
@@ -14,17 +14,16 @@
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldException;
-use OpenEMR\Services\Search\SearchFieldStatementResolver;
 use OpenEMR\Validators\ProcessingResult;
 use Particle\Validator\Exception\InvalidValueException;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -72,7 +71,7 @@ class BaseService implements BaseServiceInterface
         $this->fields = QueryUtils::listTableFields($table);
         $this->autoIncrements = self::getAutoIncrements($this->table);
         $this->setLogger(new SystemLogger());
-        $this->eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $this->eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     }
 
     public function setSession(SessionInterface $session): void
@@ -142,6 +141,9 @@ class BaseService implements BaseServiceInterface
         return $normalizedFields;
     }
 
+    /**
+     * @return string[]
+     */
     public function getUuidFields(): array
     {
         return [];
@@ -522,7 +524,8 @@ class BaseService implements BaseServiceInterface
 
     /**
      * Allows any mapping data conversion or other properties needed by a service to be returned.
-     * @param $row The record returned from the database
+     * @param array<string, mixed> $row The record returned from the database
+     * @return array<string, mixed>
      */
     protected function createResultRecordFromDatabaseResult($row)
     {

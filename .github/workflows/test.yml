@@ -371,7 +371,7 @@ jobs:
         curl -fsSL phpinfo.html http://localhost/ci/phpinfo.php | tee phpinfo.html
 
     - name: Upload PHP info to GitHub
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       if: ${{ hashFiles('phpinfo.html') != '' }}
       with:
         name: phpinfo-${{ steps.parse.outputs.docker_dir }}.html
@@ -470,6 +470,21 @@ jobs:
     - name: Hide api coverage files from subsequent uploads
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.api.clover.xml') != '' }}
       run: mv coverage.api.clover.xml api.saved-cov-data
+
+    # API test file coverage (collected by PHPUnit, not auto_prepend.php).
+    # This verifies the API test code itself is executing, separate from
+    # the server-side application coverage collected via auto_prepend.php.
+    - name: Upload api test file coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.api-tests.clover.xml') != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.api-tests.clover.xml
+        flags: api-tests,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    - name: Hide api test file coverage from subsequent uploads
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.api-tests.clover.xml') != '' }}
+      run: mv coverage.api-tests.clover.xml api-tests.saved-cov-data
 
     - name: Fixtures testing
       if: ${{ success() || failure() }}
@@ -729,9 +744,24 @@ jobs:
       if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.e2e.clover.xml') != '' }}
       run: mv coverage.e2e.clover.xml e2e.saved-cov-data
 
+    # E2E test file coverage (collected by PHPUnit, not auto_prepend.php).
+    # This verifies the e2e test code itself is executing, separate from
+    # the server-side application coverage collected via auto_prepend.php.
+    - name: Upload e2e test file coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.e2e-tests.clover.xml') != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.e2e-tests.clover.xml
+        flags: e2e-tests,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+
+    - name: Hide e2e test file coverage from subsequent uploads
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.e2e-tests.clover.xml') != '' }}
+      run: mv coverage.e2e-tests.clover.xml e2e-tests.saved-cov-data
+
     - name: Upload E2E test videos to GitHub
       if: ${{ !cancelled() && steps.parse.outputs.e2e_enabled == 'true' && hashFiles('selenium-videos/video.mp4') != '' }}
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: e2e-test-videos-${{ steps.parse.outputs.docker_dir }}
         path: selenium-videos/
@@ -750,7 +780,7 @@ jobs:
 
     - name: Upload JUnit test results to GitHub
       if: ${{ !cancelled() && hashFiles('junit-*.xml') != '' }}
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: junit-test-results-${{ steps.parse.outputs.docker_dir }}
         path: junit-*.xml

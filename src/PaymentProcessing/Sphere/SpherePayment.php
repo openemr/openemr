@@ -4,7 +4,7 @@
  * SpherePayment class.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,7 +12,7 @@
 
 namespace OpenEMR\PaymentProcessing\Sphere;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Services\UserService;
@@ -43,7 +43,7 @@ class SpherePayment
         $testing = empty($GLOBALS['gateway_mode_production']);
 
         // Collect the correct trxcustid and trxcustid_licensekey and url
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = ServiceContainer::getCrypto();
         if ($this->front == 'patient') {
             $frontSpecific = 'patient';
             $trxcustid = $cryptoGen->decryptStandard($GLOBALS['sphere_patientfront_trxcustid']);

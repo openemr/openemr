@@ -6,7 +6,7 @@
  * TODO: @adunsulag we should twigify this file.
  *
  * @package OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Kevin Yeh <kevin.y@integralemr.com>
@@ -23,11 +23,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Core\Header;
-use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
-use OpenEMR\FHIR\Config\ServerConfig;
-use OpenEMR\RestControllers\AuthorizationController;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
+use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
+use OpenEMR\Core\Header;
+use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\Services\DecisionSupportInterventionService;
 
 // not sure if we need the site id or not...

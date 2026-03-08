@@ -2,7 +2,7 @@
 
 /**
  * @package OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
@@ -10,8 +10,8 @@
 
 namespace OpenEMR\Tests\ECQM;
 
-use GuzzleHttp\Psr7\LazyOpenStream;
 use GuzzleHttp\Psr7;
+use GuzzleHttp\Psr7\LazyOpenStream;
 use OpenEMR\Cqm\CqmServiceManager;
 use OpenEMR\Services\Qdm\MeasureService;
 use OpenEMR\Services\Qdm\QdmBuilder;

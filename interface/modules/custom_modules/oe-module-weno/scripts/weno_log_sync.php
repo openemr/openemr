@@ -2,7 +2,7 @@
 
 /**
  * @package    OpenEMR
- * @link       http://www.open-emr.org
+ * @link       https://www.open-emr.org
  * @author     Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author     Jerry Padgett <sjpadgett@gmail.com>
  * @copyright  Copyright (c) 2021 Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -10,7 +10,7 @@
  * @license    https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Modules\WenoModule\Services\LogProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
@@ -36,7 +36,7 @@ function downloadWenoPharmacy(): void
     }
     $wenoLog = new WenoLogService();
     $wenoValidate = new WenoValidate();
-    $localPharmacyJson = new WenoPharmaciesJson(new CryptoGen());
+    $localPharmacyJson = new WenoPharmaciesJson(ServiceContainer::getCrypto());
 
     $isKey = $wenoValidate->validateAdminCredentials(true, "Pharmacy Directory");
     if ((int)$isKey >= 998) {
@@ -81,7 +81,7 @@ function downloadWenoPrescriptionLog(): void
     try {
         $logSync = new LogProperties();
         $rtn = $logSync->logSync('background');
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         $rtn = false;
         $wenoLog->insertWenoLog("Sync Report", $e->getMessage());
         error_log('Error syncing log: ' . errorLogEscape($e->getMessage()));

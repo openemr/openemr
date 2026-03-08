@@ -5,16 +5,16 @@ namespace OpenEMR\Tests\RestControllers\FHIR;
 use Monolog\Level;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
+use OpenEMR\RestControllers\FHIR\FhirOrganizationRestController;
+use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
 use OpenEMR\Tests\RestControllers\FHIR\Trait\FhirResponseAssertionTrait;
 use OpenEMR\Tests\RestControllers\FHIR\Trait\JsonResponseHandlerTrait;
 use PHPUnit\Framework\TestCase;
-use OpenEMR\RestControllers\FHIR\FhirOrganizationRestController;
-use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

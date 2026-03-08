@@ -27,7 +27,7 @@ class X125010837P
      * @param  $encounter
      * @param  $x12_partner
      * @param  $log
-     * @param  false $encounter_claim
+     * @param  bool $encounter_claim
      * @param  $SEFLAG
      * @param  $HLcount
      * @param  $edicount

@@ -2,7 +2,6 @@
 
 namespace OpenEMR\Cqm;
 
-use FontLib\Table\DirectoryEntry;
 use OpenEMR\Common\System\System;
 
 class CqmServiceManager

@@ -6,7 +6,7 @@
  * This
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author   Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Discover and Change, Inc.
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -53,7 +53,7 @@ class CalculatedObservationEventsSubscriber implements EventSubscriberInterface
             $vitalRecord['encounter'] = intval($vitalRecord['eid'] ?? 0);
             $vitalCalculations = new VitalsCalculatedService();
             $vitalCalculations->saveCalculatedVitalsForRecord($vitalRecord);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             (new SystemLogger())->errorLogCaller("Failed to save calculated record ", ['exception' => $exception->getMessage(),
                 'trace' => $exception->getTraceAsString(), 'form_vitals.id' => $vitalRecord['id']]);
         }

@@ -12,9 +12,9 @@
 
 namespace OpenEMR\Billing;
 
-use Omnipay\Omnipay;
 use Omnipay\Common\CreditCard;
-use OpenEMR\Common\Crypto\CryptoGen;
+use Omnipay\Omnipay;
+use OpenEMR\BC\ServiceContainer;
 
 class PaymentGateway
 {
@@ -28,7 +28,7 @@ class PaymentGateway
     {
         $this->production = !$GLOBALS['gateway_mode_production'];
 
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = ServiceContainer::getCrypto();
         $this->apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
         $this->transactionKey = $cryptoGen->decryptStandard($GLOBALS['gateway_transaction_key']);
 
@@ -67,7 +67,7 @@ class PaymentGateway
             $ccard->validate();
             $this->card = $card;
             return true;
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             return $ex->getMessage();
         }
     }
@@ -97,7 +97,7 @@ class PaymentGateway
                 // Payment failed
                 return $response->getMessage();
             }
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             return $ex->getMessage();
         }
     }
@@ -121,7 +121,7 @@ class PaymentGateway
                 // Payment failed
                 return $response->getMessage();
             }
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             return $ex->getMessage();
         }
     }

@@ -6,7 +6,7 @@
  * @package OpenEMR
  * @author Brady Miller <brady.g.miller@gmail.com>
  * @copyright (C) 2017 Brady Miller <brady.g.miller@gmail.com>
- * @link http://www.open-emr.org
+ * @link https://www.open-emr.org
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -18,8 +18,9 @@ require_once("$srcdir/report_database.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Core\Header;
-use OpenEMR\Events\PatientSelect\PatientSelectFilterEvent;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\BoundFilter;
+use OpenEMR\Events\PatientSelect\PatientSelectFilterEvent;
 
 if (!empty($_REQUEST)) {
     if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
@@ -211,7 +212,7 @@ if ($popup) {
 
     // Custom filtering which enables module developer to filter patients out of search
     $patientSelectFilterEvent = new PatientSelectFilterEvent(new BoundFilter());
-    $patientSelectFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientSelectFilterEvent, PatientSelectFilterEvent::EVENT_HANDLE, 10);
+    OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientSelectFilterEvent, PatientSelectFilterEvent::EVENT_HANDLE);
     $boundFilter = $patientSelectFilterEvent->getBoundFilter();
     $sqlBindArray = array_merge($boundFilter->getBoundValues(), $sqlBindArray);
     $customWhere = $boundFilter->getFilterClause();

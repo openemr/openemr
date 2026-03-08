@@ -4,7 +4,7 @@
  * This class is used to locate the form files for the encounter forms.
  * @package openemr
  * @license   There are segments of code in this file that have been generated via Claude.ai and are licensed as Public Domain.  They have been marked with a header and footer.
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,9 +14,10 @@
 namespace OpenEMR\Common\Forms;
 
 use OpenEMR\Common\Logging\SystemLogger;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Core\ModulesApplication;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Encounter\LoadEncounterFormFilterEvent;
+use Psr\Log\LoggerInterface;
 
 class FormLocator
 {
@@ -64,8 +65,9 @@ class FormLocator
         $event->setIsLayoutBasedForm($isLBF);
 
         // AI GENERATED CODE: HEADER END
-        $filteredEvent = $GLOBALS['kernel']->getEventDispatcher()->dispatch($event, LoadEncounterFormFilterEvent::EVENT_NAME);
+        $filteredEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($event, LoadEncounterFormFilterEvent::EVENT_NAME);
 
+        /** @var string */
         $finalPath = $filteredEvent->getFormIncludePath();
         if ($finalPath != $initialFilename) {
             if (ModulesApplication::isSafeModuleFileForInclude($finalPath)) {

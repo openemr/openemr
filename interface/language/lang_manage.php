@@ -4,7 +4,7 @@
  * lang_manage.php script
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -39,15 +39,7 @@ if (!empty($_POST['check']) || !empty($_POST['synchronize'])) {
     }
 
   // set up the mysql collation string to ensure case is sensitive in the mysql queries
-    if (!$disable_utf8_flag) {
-        if (!empty($sqlconf["db_encoding"]) && ($sqlconf["db_encoding"] == "utf8mb4")) {
-            $case_sensitive_collation = "COLLATE utf8mb4_bin";
-        } else {
-            $case_sensitive_collation = "COLLATE utf8_bin";
-        }
-    } else {
-        $case_sensitive_collation = "COLLATE latin1_bin";
-    }
+    $case_sensitive_collation = "COLLATE utf8mb4_bin";
 
     $difference = 0; //flag
 

@@ -2,9 +2,6 @@
 
 namespace OpenEMR\Services\Qdm;
 
-use GuzzleHttp\Psr7\LazyOpenStream;
-use GuzzleHttp\Psr7;
-
 class MeasureService
 {
     public function __construct()

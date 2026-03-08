@@ -12,20 +12,15 @@
 
 namespace Carecoordination\Controller;
 
-use Laminas\Db\Adapter\AdapterInterface;
+use Carecoordination\Form\ModuleconfigForm;
 use Laminas\InputFilter\InputFilter;
 use Laminas\InputFilter\InputFilterInterface;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
-use Carecoordination\Form\ModuleconfigForm;
 
 class ModuleconfigController extends AbstractActionController
 {
     protected InputFilterInterface $inputFilter;
-
-    public function __construct(private readonly ?AdapterInterface $dbAdapter = null)
-    {
-    }
 
     public function indexAction()
     {

@@ -3,7 +3,7 @@
 /*
  * ServerScopeListEntity.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -241,6 +241,7 @@ class ServerScopeListEntity
                 "user/practitioner.read",
                 "user/practitioner.write",
                 "user/prescription.read",
+                "user/prescription.write",
                 "user/procedure.read",
                 "user/product.read",
                 "user/soap_note.read",
@@ -282,7 +283,7 @@ class ServerScopeListEntity
                 ,'message' => ['c','u','d']
                 ,'patient' => ['c','r','u','s']
                 ,'practitioner' => ['c','r','u','s']
-                ,'prescription' => ['r','s']
+                ,'prescription' => ['c','r','d','s']
                 ,'procedure' => ['r','s']
                 ,'product' => ['s']
                 ,'soap_note' => ['c','r','u','s']

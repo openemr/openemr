@@ -15,7 +15,7 @@ use Ramsey\Uuid\Uuid;
  * - The "practitioner" related methods provide clear working examples.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -25,25 +25,39 @@ class PractitionerFixtureManager
     // use a prefix so we can easily remove fixtures
     const FIXTURE_PREFIX = "test-fixture";
 
+    /** @var array<string, mixed>[] */
     private $practitionerFixtures;
+    /** @var array<string, mixed>[] */
     private $fhirPractitionerFixtures;
 
     public function __construct()
     {
-        $this->practitionerFixtures = $this->loadJsonFile("practitioners.json");
+        $this->practitionerFixtures = $this->loadPhpFile("practitioners.php");
         $this->fhirPractitionerFixtures = $this->loadJsonFile("FHIR/practitioners.json");
     }
 
     /**
-     * Loads a JSON fixture from a file within the Fixture namespace, returning the data as an array of records.
-     * @param $fileName The file name to load.
-     * @return array of records.
+     * @return array<string, mixed>[]
      */
-    private function loadJsonFile($fileName)
+    private function loadPhpFile(string $fileName): array
     {
-        $filePath = __DIR__ . "/" . $fileName;
-        $jsonData = file_get_contents($filePath);
-        $parsedRecords = json_decode($jsonData, true);
+        $filePath = realpath(__DIR__ . '/' . $fileName);
+        if ($filePath === false || !str_starts_with($filePath, __DIR__ . '/')) {
+            throw new \RuntimeException('Fixture file not found or outside fixtures directory: ' . $fileName);
+        }
+        /** @var array<string, mixed>[] */
+        return require $filePath;
+    }
+
+    /**
+     * Load a JSON fixture file. Used for FHIR fixtures that stay in JSON format.
+     *
+     * @return array<string, mixed>[]
+     */
+    private function loadJsonFile(string $fileName): array
+    {
+        /** @var array<string, mixed>[] $parsedRecords */
+        $parsedRecords = json_decode((string) file_get_contents(__DIR__ . '/' . $fileName), true);
         return $parsedRecords;
     }
 
@@ -130,7 +144,8 @@ class PractitionerFixtureManager
     }
 
     /**
-     * @return random single entry from an array.
+     * @param array<string, mixed>[] $array
+     * @return array<string, mixed> Random single entry from the array.
      */
     private function getSingleEntry($array)
     {
@@ -139,7 +154,7 @@ class PractitionerFixtureManager
     }
 
     /**
-     * @return a random practitioner fixture.
+     * @return array<string, mixed>
      */
     public function getSinglePractitionerFixture()
     {

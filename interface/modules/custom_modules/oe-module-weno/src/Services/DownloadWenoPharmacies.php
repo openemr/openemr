@@ -2,7 +2,7 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023 Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -19,7 +19,6 @@ if (!$GLOBALS ?? null) {
 use Exception;
 use League\Csv\Reader;
 use League\Csv\Statement;
-use mysqli;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use ZipArchive;
 
@@ -142,7 +141,7 @@ class DownloadWenoPharmacies
 
             $connect->commit();
            // $connect->close();
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             $connect->rollback();
             error_log(text($e->getMessage()));
             return false;
@@ -189,7 +188,7 @@ class DownloadWenoPharmacies
 
         try {
             $zip = new ZipArchive();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log('Error extracting zip file: ' . errorLogEscape($e->getMessage()));
             return "PHPError_install_zip_archive";
         }

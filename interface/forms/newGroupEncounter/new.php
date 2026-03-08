@@ -4,7 +4,7 @@
  * Encounter form new script.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Amiel Elboim <amielel@matrix.co.il>
  * @author    Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @author    Brady Miller <brady.g.miller@gmail.com>

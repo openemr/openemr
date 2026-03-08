@@ -4,7 +4,7 @@
  * gad-7 form using forms api     new.php    create a new form
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ruth Moulton <moulton ruth@muswell.me.uk>
  * @copyright Copyright (c) 2021 ruth moulton <ruth@muswell.me.uk>
  *
@@ -15,6 +15,7 @@ require_once("gad7.inc.php"); //common strings, require_once(globals.php), other
 
 use OpenEMR\Common\Csrf\CsrfUtils;    // security module
 use OpenEMR\Core\Header;
+
 ?>
 <html>
 <head>

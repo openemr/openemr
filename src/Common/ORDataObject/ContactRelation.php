@@ -8,7 +8,7 @@
  * (patients, persons, companies, providers, etc.)
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    David Eschelbacher <psoas@tampabay.rr.com>
  * @copyright Copyright (c) 2025 David Eschelbacher <psoas@tampabay.rr.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,8 +16,8 @@
 
 namespace OpenEMR\Common\ORDataObject;
 
-use OpenEMR\Common\ORDataObject\Contact;
 use DateTime;
+use OpenEMR\Common\ORDataObject\Contact;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
 class ContactRelation extends ORDataObject implements \JsonSerializable, \Stringable
@@ -323,7 +323,7 @@ class ContactRelation extends ORDataObject implements \JsonSerializable, \String
                 if ($date === false) {
                     try {
                         $date = new DateTime($start_date);
-                    } catch (\Exception $e) {
+                    } catch (\Throwable $e) {
                         throw new \InvalidArgumentException("Invalid start_date format: " . $start_date . " - " . $e->getMessage());
                     }
                 }
@@ -352,7 +352,7 @@ class ContactRelation extends ORDataObject implements \JsonSerializable, \String
                 if ($date === false) {
                     try {
                         $date = new DateTime($end_date);
-                    } catch (\Exception $e) {
+                    } catch (\Throwable $e) {
                         throw new \InvalidArgumentException("Invalid end_date format: " . $end_date . " - " . $e->getMessage());
                     }
                 }

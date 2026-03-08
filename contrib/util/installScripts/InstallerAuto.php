@@ -68,7 +68,7 @@
  *          php -f /var/www/openemr/contrib/util/installScripts/InstallerAuto.php no_root_db_access=1 iuserpass=oemr123 login=oemrusr pass=${UPASSWD} > /dev/null 2>&1
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (C) 2010-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -81,6 +81,8 @@ if (!getenv('OPENEMR_ENABLE_INSTALLER_AUTO')) {
 
 // Include standard libraries/classes
 require_once __DIR__ . '/../../../vendor/autoload.php';
+
+use OpenEMR\Common\Logging\SystemLogger;
 
 // Set up default configuration settings
 $installSettings = [];
@@ -127,7 +129,7 @@ $installSettings = $tempInstallSettings;
 
 
 // Install and configure OpenEMR using the Installer class
-$installer = new Installer($installSettings);
+$installer = new Installer($installSettings, new SystemLogger());
 if (! $installer->quick_install()) {
   // Failed, report error
     echo "ERROR: " . $installer->error_message . "\n";

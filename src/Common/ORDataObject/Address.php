@@ -18,6 +18,8 @@
 
 namespace OpenEMR\Common\ORDataObject;
 
+use OpenEMR\Common\Database\QueryUtils;
+
 class Address extends ORDataObject implements \JsonSerializable
 {
     public $line1;
@@ -64,10 +66,7 @@ class Address extends ORDataObject implements \JsonSerializable
 
         $a = new Address();
         $sql = "SELECT id FROM  " . escape_table_name($a->_table) . " WHERE foreign_id " . $foreign_id_sql;
-        //echo $sql . "<bR />";
-        $results = sqlQ($sql, $sqlArray);
-        //echo "sql: $sql";
-        $row = sqlFetchArray($results);
+        $row = QueryUtils::querySingleRow($sql, $sqlArray);
 
         if (!empty($row)) {
             $a = new Address($row['id']);

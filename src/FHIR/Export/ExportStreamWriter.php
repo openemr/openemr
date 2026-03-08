@@ -6,7 +6,7 @@
  * the writer.  This allows the script to be processed in an asynchronous fashion.  The Writer tracks the last processed
  * fhir resource which can be used by callers to resume or retry a resource in the stream.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -88,7 +88,7 @@ class ExportStreamWriter
             }
         } catch (\JsonException $exception) {
             throw new ExportCannotEncodeException("Failed to encode resource for export", 0, $this->lastProcessedId, $exception);
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             throw new ExportException("Unknown error in writing to stream", 0, $this->lastProcessedId, $exception);
         }
     }

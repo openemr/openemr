@@ -15,13 +15,14 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Common\Csrf;
 
-use OpenEMR\Common\Utils\RandomGenUtils;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CsrfUtils
@@ -31,7 +32,7 @@ class CsrfUtils
     //  the csrf tokens.
     public static function setupCsrfKey(?SessionInterface $session = null)
     {
-        $privateKey = RandomGenUtils::produceRandomBytes(32);
+        $privateKey = random_bytes(32);
         if (!empty($session)) {
             $session->set('csrf_private_key', $privateKey);
             if (empty($session->get('csrf_private_key', null))) {
@@ -78,17 +79,38 @@ class CsrfUtils
         }
     }
 
-    // Function to manage when a csrf token is not verified
-    public static function csrfNotVerified($toScreen = true, $toLog = true, $die = true)
+    /**
+     * Record a CSRF violation: set HTTP 403, optionally echo and log.
+     *
+     * Use this when you need to record the failure but handle the
+     * response yourself (e.g. return a Response object or throw).
+     */
+    public static function csrfViolation(bool $toScreen = true, bool $toLog = true): void
     {
+        http_response_code(403);
         if ($toScreen) {
             echo xlt('Authentication Error');
         }
         if ($toLog) {
             error_log("OpenEMR CSRF token authentication error");
         }
-        if ($die) {
-            die;
+    }
+
+    /**
+     * Record a CSRF violation and terminate the request.
+     *
+     * @param ?(callable(): void) $beforeExit Optional callback to run before exiting
+     *                                         (e.g. render a template, clean up session)
+     */
+    public static function csrfNotVerified(
+        bool $toScreen = true,
+        bool $toLog = true,
+        ?callable $beforeExit = null,
+    ): never {
+        self::csrfViolation($toScreen, $toLog);
+        if ($beforeExit !== null) {
+            $beforeExit();
         }
+        exit;
     }
 }

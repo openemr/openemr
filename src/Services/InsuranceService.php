@@ -4,7 +4,7 @@
  * InsuranceService - Service class for patient insurance policy (coverage) data
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
@@ -568,14 +568,14 @@ class InsuranceService extends BaseService
                 ,'target' => $targetInsurance
             ];
             $processingResult->addData($result);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $processingResult->addInternalError($e->getMessage());
         } finally {
             try {
                 if (!$transactionCommitted) {
                     QueryUtils::rollbackTransaction();
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 (new SystemLogger())->errorLogCaller(
                     "Failed to rollback transaction " . $e->getMessage(),
                     ['type' => $targetType, 'insuranceUuid' => $insuranceUuid, 'pid' => $pid]

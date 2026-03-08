@@ -7,7 +7,7 @@
  * Greatly expanded from a core feature by Rod Roark for portal.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -21,10 +21,10 @@ namespace OpenEMR\Services\DocumentTemplates;
 
 use HTMLPurifier;
 use HTMLPurifier_Config;
-use RuntimeException;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\VersionService;
+use RuntimeException;
 
 require_once($GLOBALS['srcdir'] . '/appointments.inc.php');
 require_once($GLOBALS['srcdir'] . '/options.inc.php');

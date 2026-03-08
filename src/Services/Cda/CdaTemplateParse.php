@@ -12,9 +12,9 @@
 
 namespace OpenEMR\Services\Cda;
 
-use DOMDocument;
-use OpenEMR\Events\CDA\CDAPreParseEvent;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\CDA\CDAPostParseEvent;
+use OpenEMR\Events\CDA\CDAPreParseEvent;
 use OpenEMR\Services\CodeTypesService;
 
 class CdaTemplateParse
@@ -34,7 +34,7 @@ class CdaTemplateParse
         $this->templateData = [];
         $this->is_qrda_import = false;
         $this->codeService = new CodeTypesService();
-        $this->ed = $GLOBALS['kernel']->getEventDispatcher();
+        $this->ed = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     }
 
     public function parseCDAEntryComponents($components): array

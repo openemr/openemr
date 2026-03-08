@@ -21,7 +21,7 @@
  * @author  Ken Chapple <ken@mi-squared.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author Discover and Change, Inc. <snielson@discoverandchange.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 require_once(__DIR__ . "/../../library/RsFilterIF.php");
@@ -31,8 +31,8 @@ require_once(__DIR__ . "/../../../../clinical_rules.php");
 require_once(__DIR__ . "/../../../../amc.php");
 
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Reports\AMC\Trackers\AMCItemTracker;
 use OpenEMR\Reports\AMC\Trackers\AMCItemSkipTracker;
+use OpenEMR\Reports\AMC\Trackers\AMCItemTracker;
 
 abstract class AbstractAmcReport implements RsReportIF
 {

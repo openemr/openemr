@@ -1,9 +1,10 @@
 <?php
+
 /*
  * TokenIntrospectionRestController.php  handles OAuth2 token introspection requests as per RFC 7662 and SMART on FHIR v2.2 specifications.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
@@ -16,6 +17,7 @@
 namespace OpenEMR\RestControllers;
 
 use League\OAuth2\Server\Exception\OAuthServerException;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
 use OpenEMR\Common\Auth\OpenIDConnect\FhirUserClaim;
 use OpenEMR\Common\Auth\OpenIDConnect\JWT\JsonWebKeyParser;
@@ -23,7 +25,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
@@ -38,7 +40,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Exception;
 
 class TokenIntrospectionRestController {
 
@@ -52,7 +53,7 @@ class TokenIntrospectionRestController {
 
     protected ?JsonWebKeyParser $jsonWebKeyParser = null;
 
-    protected ?CryptoGen $cryptoGen = null;
+    protected ?CryptoInterface $cryptoGen = null;
 
     protected ?TrustedUserService $trustedUserService = null;
 
@@ -168,14 +169,14 @@ class TokenIntrospectionRestController {
         $this->trustedUserService = $trustedUserService;
     }
 
-    public function getCryptoGen(): CryptoGen {
+    public function getCryptoGen(): CryptoInterface {
         if (!isset($this->cryptoGen)) {
-            $this->cryptoGen = new CryptoGen();
+            $this->cryptoGen = ServiceContainer::getCrypto();
         }
         return $this->cryptoGen;
     }
 
-    public function setCryptoGen(CryptoGen $cryptoGen): void {
+    public function setCryptoGen(CryptoInterface $cryptoGen): void {
         $this->cryptoGen = $cryptoGen;
     }
 
@@ -441,7 +442,7 @@ class TokenIntrospectionRestController {
                 $result['exp'] = $result['exp']->getTimestamp();
             }
         }
-        catch (Exception $exception) {
+        catch (\Throwable $exception) {
             // something else went wrong
             $this->getSystemLogger()->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'client_id' => $clientId]);
             // something else went wrong

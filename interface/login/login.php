@@ -4,7 +4,7 @@
  * Login screen.
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @author  Kevin Yeh <kevin.y@integralemr.com>
@@ -29,13 +29,12 @@
 Header("X-Frame-Options: DENY");
 Header("Content-Security-Policy: frame-ancestors 'none'");
 
-use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\LogoService;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
@@ -51,7 +50,7 @@ $ignoreAuth = true;
 $sessionAllowWrite = true;
 require_once("../globals.php");
 
-$twig = new TwigContainer(null, $globalsBag->get("kernel"));
+$twig = new TwigContainer(null, $globalsBag->getKernel());
 $t = $twig->getTwig();
 
 $logoService = new LogoService();
@@ -260,7 +259,7 @@ $viewArgs = [
 /**
  * @var EventDispatcher;
  */
-$ed = $globalsBag->get('kernel')->getEventDispatcher();
+$ed = $globalsBag->getKernel()->getEventDispatcher();
 
 $templatePageEvent = new TemplatePageEvent('login/login.php', [], $layout, $viewArgs);
 $event = $ed->dispatch($templatePageEvent, TemplatePageEvent::RENDER_EVENT);

@@ -5,24 +5,21 @@
  * Manages relationships between contacts and other entities
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Services;
 
-use League\Csv\Exception;
-use OpenEMR\Common\ORDataObject\ContactRelation;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\ORDataObject\ContactRelation;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Services\ListService;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
-use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use OpenEMR\Validators\ProcessingResult;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class ContactRelationService extends BaseService
 {
@@ -92,7 +89,7 @@ class ContactRelationService extends BaseService
             ]);
 
             $processingResult->addData($relation->toArray());
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error creating relationship", [
                 'contact_id' => $contactId,
                 'target_table' => $targetTable,
@@ -134,7 +131,7 @@ class ContactRelationService extends BaseService
             ]);
 
             $processingResult->addData($relation->toArray());
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error updating relationship", [
                 'contact_relation_id' => $relationId,
                 'error' => $e->getMessage()
@@ -172,7 +169,7 @@ class ContactRelationService extends BaseService
             } else {
                 $processingResult->addInternalError("Failed to deactivate relationship");
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error deactivating relationship", [
                 'contact_relation_id' => $relationId,
                 'error' => $e->getMessage()
@@ -202,7 +199,7 @@ class ContactRelationService extends BaseService
                 'deleted' => true,
                 'contact_relation_id' => $relationId
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error deleting relationship", [
                 'contact_relation_id' => $relationId,
                 'error' => $e->getMessage()
@@ -388,7 +385,7 @@ class ContactRelationService extends BaseService
             foreach ($indexedResults as $recordUuid) {
                 $processingResult->addData($personByUuids[$recordUuid]);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error searching patient relationships", [
                 'error' => $e->getMessage()
             ]);
@@ -655,7 +652,7 @@ class ContactRelationService extends BaseService
                 'source_contact_id' => $sourceContactId,
                 'destination_contact_id' => $destinationContactId
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $this->getLogger()->error("Error transferring relationships", [
                 'error' => $e->getMessage()
             ]);
@@ -857,7 +854,7 @@ class ContactRelationService extends BaseService
                             'patient_id' => $targetId,
                             'person_id' => $targetPersonId
                         ]);
-                    } catch (\Exception $e) {
+                    } catch (\Throwable $e) {
                         $this->getLogger()->error("Failed to get/create person for patient", [
                             'patient_id' => $targetId,
                             'error' => $e->getMessage()
@@ -940,7 +937,7 @@ class ContactRelationService extends BaseService
 
             QueryUtils::commitTransaction();
             $committed = true;
-        } catch (Exception $exception) {
+        } catch (\Throwable $exception) {
             $this->getLogger()->error("Error batch saving relationships", [
                 'error' => $exception->getMessage()
             ]);

@@ -4,7 +4,7 @@
  * This file contains the FormPainMap class, used to model the data contents of a clickmap based form.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @copyright Copyright Medical Information Integration,LLC <info@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -22,9 +22,8 @@ class FormPainMap extends AbstractClickmapModel
     /**
      * The database table to place form data in/read form data from.
      *
-     * @var TABLE_NAME
+     * @var string
      */
-
     static $TABLE_NAME = "form_painmap";
 
     /* Initializer. just calls parent's initializer. */

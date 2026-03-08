@@ -26,7 +26,8 @@
 require_once($GLOBALS['srcdir'] . "/forms.inc.php");
 require_once($GLOBALS['srcdir'] . "/pnotes.inc.php");
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use phpseclib3\Net\SFTP;
@@ -1570,6 +1571,9 @@ function poll_hl7_results(&$info, $labs = 0)
             }
 
             $files = $sftp->nlist($pathname);
+            if (!is_array($files)) {
+                $files = [];
+            }
             foreach ($files as $file) {
                 if (str_starts_with((string) $file, '.')) {
                     continue;
@@ -1936,7 +1940,7 @@ function poll_hl7_results(&$info, $labs = 0)
 function hl7Crypt($content)
 {
     if ($GLOBALS['drive_encryption']) {
-        $content = (new CryptoGen())->encryptStandard($content, null, 'database');
+        $content = (ServiceContainer::getCrypto())->encryptStandard($content, null, KeySource::Database);
     }
 
     return $content;

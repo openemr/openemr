@@ -5,7 +5,7 @@
  * in the system.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
@@ -14,19 +14,11 @@
 
 namespace OpenEMR\Common\Command;
 
-use OpenEMR\Common\Command\Runner\AclModify;
-use OpenEMR\Common\Command\Runner\CcdaImport;
-use OpenEMR\Common\Command\Runner\CcdaNewpatient;
-use OpenEMR\Common\Command\Runner\CcdaNewpatientImport;
-use OpenEMR\Common\Command\Runner\IOpenEMRCommand;
-use OpenEMR\Common\Command\Runner\Register;
-use OpenEMR\Common\Command\Runner\ZfcModule;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Command\CommandRunnerFilterEvent;
 use OpenEMR\Services\IGlobalsAware;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Finder\Finder;
 
@@ -60,7 +52,7 @@ class SymfonyCommandRunner
     public function getEventDispatcher(): EventDispatcherInterface
     {
         if (!isset($this->eventDispatcher)) {
-            $this->eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+            $this->eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
         }
         return $this->eventDispatcher;
     }
@@ -103,7 +95,7 @@ class SymfonyCommandRunner
             // dispatch an event so modules can also add commands
             $this->getEventDispatcher()->dispatch($filterCommand, CommandRunnerFilterEvent::EVENT_NAME);
             return $filterCommand->getCommands();
-        } catch (\Exception $ex) {
+        } catch (\Throwable $ex) {
             echo "Error in attempting to find commands " . $ex->getMessage() . "\n";
             die();
         }

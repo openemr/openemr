@@ -4,7 +4,7 @@
  * get_claim_file.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>

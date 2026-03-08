@@ -4,7 +4,7 @@
  * SDOH (USCDI v3) SDOH list page (all assessments for a patient)
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,12 +12,13 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Services\SDOH\HistorySdohService;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Services\SDOH\HistorySdohService;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -27,7 +28,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', 'default', $ses
     CsrfUtils::csrfNotVerified();
 }
 if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
-    die(xlt("Not authorized"));
+    AccessDeniedHelper::deny('Unauthorized access to SDOH save');
 }
 
 if (empty($pid)) {
@@ -169,7 +170,7 @@ try {
         . "?pid=" . urlencode((string) $pid)
         . "&sdoh_id=" . urlencode((string) $id);
     header("Location: $redirectUrl");
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     $logger->errorLogCaller("Exception saving sdoh record: " . $e->getMessage());
     die(xlt("Error saving SDOH record."));
 }

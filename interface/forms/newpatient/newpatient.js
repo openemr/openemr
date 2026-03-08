@@ -191,6 +191,14 @@ window.NewPatientForm = function(window) {
             }
         }
 
+        // Show confirmation alert using Bootstrap when the form is submitted
+        const form = document.getElementById('new-encounter-form');
+        if (form) {
+            form.addEventListener('submit', function() {
+                asyncAlertMsg(xl('Encounter saved successfully.'), 3000, 'success');
+            });
+        }
+
         if (window.OeFormValidation) {
             window.OeFormValidation.init();
         }

@@ -1,7 +1,7 @@
 <?php
 
-use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\Globals\GlobalSetting;
 
 $fldid ??= '';
 $fldarr ??= [];
@@ -18,7 +18,7 @@ if (
         if (!empty($displaySection)) {
             echo $displaySection;
         }
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         ob_end_clean();
         (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getMessage()]);
         echo xlt("Error in rendering html display section.")

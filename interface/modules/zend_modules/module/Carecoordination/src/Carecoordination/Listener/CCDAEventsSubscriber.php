@@ -4,7 +4,7 @@
  * CCDAEventsSubscriber.php  Listens to events to retrieve, generate, manipulate CCD-A documents.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,14 +16,13 @@ use Carecoordination\Model\CcdaGenerator;
 use Carecoordination\Model\CcdaGlobalsConfiguration;
 use Carecoordination\Model\CcdaUserPreferencesTransformer;
 use DOMDocument;
-use HTML_TreeNode;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\PatientDocuments\PatientDocumentCreateCCDAEvent;
 use OpenEMR\Events\PatientDocuments\PatientDocumentTreeViewFilterEvent;
+use OpenEMR\Events\PatientDocuments\PatientDocumentViewCCDAEvent;
 use OpenEMR\Services\CDADocumentService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use OpenEMR\Events\PatientDocuments\PatientDocumentViewCCDAEvent;
 use XSLTProcessor;
 
 class CCDAEventsSubscriber implements EventSubscriberInterface
@@ -92,7 +91,7 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
                 $fileUrl = $cdaResult->getData()[0]['ccda_data'];
                 $event->setFileUrl($fileUrl);
             }
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()
                 , 'pid' => $event->getPid(), 'components' => $event->getComponentsAsString(), 'sections' => $event->getSectionsAsString()
                 , 'from' => $event->getDateFrom(), 'to' => $event->getDateTo()]);
@@ -149,7 +148,7 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
             }
             $event->setContent($updatedContent);
             return $event;
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()
                 , 'documentId' => $event->getDocumentId(), 'ccdaId' => $event->getCcdaId(), 'type' => $event->getCcdaType()]);
         }

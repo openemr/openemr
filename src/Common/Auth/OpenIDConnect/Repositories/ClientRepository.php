@@ -4,7 +4,7 @@
  * Authorization Server Member
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2020 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,41 +12,34 @@
 
 namespace OpenEMR\Common\Auth\OpenIDConnect\Repositories;
 
-use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Utils\HttpUtils;
-use OpenEMR\Common\Utils\RandomGenUtils;
-use Psr\Log\LoggerInterface;
 
 class ClientRepository implements ClientRepositoryInterface
 {
     use SystemLoggerAwareTrait;
 
-    private $cryptoGen;
+    private CryptoInterface $cryptoGen;
 
     public function __construct()
     {
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = ServiceContainer::getCrypto();
     }
 
-    /**
-     * @return CryptoGen
-     */
-    public function getCryptoGen(): CryptoGen
+    public function getCryptoGen(): CryptoInterface
     {
         return $this->cryptoGen;
     }
 
     /**
-     * @param CryptoGen $cryptoGen
      * @return ClientRepository
      */
-    public function setCryptoGen(CryptoGen $cryptoGen): ClientRepository
+    public function setCryptoGen(CryptoInterface $cryptoGen): ClientRepository
     {
         $this->cryptoGen = $cryptoGen;
         return $this;
@@ -130,12 +123,12 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function generateClientId()
     {
-        return HttpUtils::base64url_encode(RandomGenUtils::produceRandomBytes(32));
+        return HttpUtils::base64url_encode(random_bytes(32));
     }
 
     public function generateClientSecret()
     {
-        return HttpUtils::base64url_encode(RandomGenUtils::produceRandomBytes(64));
+        return HttpUtils::base64url_encode(random_bytes(64));
     }
 
     /**
@@ -199,7 +192,7 @@ class ClientRepository implements ClientRepositoryInterface
 
             // Validate client if is_confidential
             if (!empty($clientSecret) && !empty($client['is_confidential'])) {
-                $secret = (new CryptoGen())->decryptStandard($client['client_secret']);
+                $secret = (ServiceContainer::getCrypto())->decryptStandard($client['client_secret']);
                 if (empty($secret)) {
                     return false;
                 }
@@ -278,12 +271,12 @@ class ClientRepository implements ClientRepositoryInterface
 
     public function generateRegistrationAccessToken()
     {
-        return HttpUtils::base64url_encode(RandomGenUtils::produceRandomBytes(32));
+        return HttpUtils::base64url_encode(random_bytes(32));
     }
 
     public function generateRegistrationClientUriPath()
     {
-        return HttpUtils::base64url_encode(RandomGenUtils::produceRandomBytes(16));
+        return HttpUtils::base64url_encode(random_bytes(16));
     }
 
     public function saveSkipEHRLaunchFlow(ClientEntity $client, bool $skipFlow)

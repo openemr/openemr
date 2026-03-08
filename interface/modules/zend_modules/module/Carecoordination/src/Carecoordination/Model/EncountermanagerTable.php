@@ -13,23 +13,22 @@
 
 namespace Carecoordination\Model;
 
-// TODO: we need to refactor all of this so it can go into a class for this functionality
-require_once($GLOBALS['fileroot'] . '/ccr/transmitCCD.php');
-require_once($GLOBALS['fileroot'] . '/library/amc.php');
-
 use Application\Plugin\CommonPlugin;
 use CouchDB;
 use DOMDocument;
 use Dompdf\Dompdf;
-use Application\Model\ApplicationTable;
-use Laminas\Db\TableGateway\AbstractTableGateway;
-use Laminas\Db\Adapter\Driver\Pdo\Result;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\KeySource;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\DirectMessaging\ErrorConstants;
 use OpenEMR\Common\Logging\SystemLogger;
 use XSLTProcessor;
 
-class EncountermanagerTable extends AbstractTableGateway
+// TODO: we need to refactor all of this so it can go into a class for this functionality
+require_once($GLOBALS['fileroot'] . '/ccr/transmitCCD.php');
+require_once($GLOBALS['fileroot'] . '/library/amc.php');
+
+class EncountermanagerTable
 {
     public function getEncounters($data, $getCount = null)
     {
@@ -94,18 +93,13 @@ class EncountermanagerTable extends AbstractTableGateway
 
         $query .= " ORDER BY fe.pid, fe.date ";
 
-        $appTable = new ApplicationTable();
-
         if ($getCount) {
-            $res = $appTable->zQuery($query, $query_data);
-            $resCount = $res->count();
-            return $resCount;
+            $res = QueryUtils::fetchRecords($query, $query_data);
+            return count($res);
         }
 
         $query .= " LIMIT " . CommonPlugin::escapeLimit($data['limit_start']) . "," . CommonPlugin::escapeLimit($data['results']);
-        $resDetails = $appTable->zQuery($query, $query_data);
-
-        return $resDetails;
+        return QueryUtils::fetchRecords($query, $query_data);
     }
 
     public function getStatus($data)
@@ -127,9 +121,7 @@ class EncountermanagerTable extends AbstractTableGateway
 				LEFT JOIN form_encounter AS fe ON fe. pid = cc.pid AND fe.encounter = cc.encounter
 				LEFT JOIN users AS u ON u.id = cc.user_id
 				WHERE cc.pid in (?) ORDER BY cc.pid, cc.time desc";
-        $appTable = new ApplicationTable();
-        $result = $appTable->zQuery($query, [$pid]);
-        return $result;
+        return QueryUtils::fetchRecords($query, [$pid]);
     }
 
     public function convert_to_yyyymmdd($date)
@@ -171,15 +163,14 @@ class EncountermanagerTable extends AbstractTableGateway
     public function getFile($id)
     {
         $query = "select couch_docid, couch_revid, ccda_data, encrypted from ccda where id=?";
-        $appTable = new ApplicationTable();
-        $result = $appTable->zQuery($query, [$id]);
+        $result = QueryUtils::fetchRecords($query, [$id]);
         foreach ($result as $row) {
             if ($row['couch_docid'] != '') {
                 $couch = new CouchDB();
                 $resp = $couch->retrieve_doc($row['couch_docid']);
                 if ($row['encrypted']) {
-                    $cryptoGen = new CryptoGen();
-                    $content = $cryptoGen->decryptStandard($resp->data, null, 'database');
+                    $cryptoGen = ServiceContainer::getCrypto();
+                    $content = $cryptoGen->decryptStandard($resp->data, null, KeySource::Database);
                 } else {
                     $content = base64_decode((string) $resp->data);
                 }
@@ -189,8 +180,8 @@ class EncountermanagerTable extends AbstractTableGateway
                 }
                 $fccda = fopen($row['ccda_data'], "r");
                 if ($row['encrypted']) {
-                    $cryptoGen = new CryptoGen();
-                    $content = $cryptoGen->decryptStandard(fread($fccda, filesize($row['ccda_data'])), null, 'database');
+                    $cryptoGen = ServiceContainer::getCrypto();
+                    $content = $cryptoGen->decryptStandard(fread($fccda, filesize($row['ccda_data'])), null, KeySource::Database);
                 } else {
                     $content = fread($fccda, filesize($row['ccda_data']));
                 }
@@ -239,7 +230,6 @@ class EncountermanagerTable extends AbstractTableGateway
      */
     public function transmitCcdToRecipients($data = [])
     {
-        $appTable = new ApplicationTable();
         $ccda_combination = $data['ccda_combination'];
         $recipients = $data['recipients'];
         $xml_type = strtolower($data['xml_type'] ?? '');
@@ -259,7 +249,7 @@ class EncountermanagerTable extends AbstractTableGateway
                 $arr = explode('|', (string) $ccda_combination);
                 foreach ($arr as $value) {
                     $query = "SELECT id,transaction_id FROM  ccda WHERE pid = ? ORDER BY id DESC LIMIT 1";
-                    $result = $appTable->zQuery($query, [$value]);
+                    $result = QueryUtils::fetchRecords($query, [$value]);
                     // weird foreach loop considering the limit 1 up above?
                     foreach ($result as $val) {
                         $ccda_id = $val['id'];
@@ -304,7 +294,7 @@ class EncountermanagerTable extends AbstractTableGateway
                     }
                 }
             }
-        } catch (\Exception $exception) {
+        } catch (\Throwable $exception) {
             (new SystemLogger())->errorLogCaller($exception->getMessage(), ['data' => $data]);
             return ("Delivery failed to send");
         }
@@ -331,17 +321,11 @@ class EncountermanagerTable extends AbstractTableGateway
     public function getFileID($pid, $limit = 1)
     {
         $limit = CommonPlugin::escapeLimit($limit);
-        $appTable = new ApplicationTable();
         $query = "SELECT cc.id, pd.fname, pd.lname, pd.pid FROM ccda AS cc
 		    LEFT JOIN patient_data AS pd ON pd.pid=cc.pid
 		    WHERE cc.pid = ?
 		    ORDER BY cc.id DESC LIMIT $limit";
-        $res = $appTable->zQuery($query, [$pid]);
-        foreach ($res as $row) {
-            $res_cur[] = $row;
-        }
-
-        return $res_cur;
+        return QueryUtils::fetchRecords($query, [$pid]);
     }
 
     /*
@@ -357,8 +341,7 @@ class EncountermanagerTable extends AbstractTableGateway
         $fname = $data['fname'];
         $lname = $data['lname'];
         $direct_address = $data['direct_address'];
-        $appTable = new ApplicationTable();
         $query = "INSERT INTO users SET username = ? ,password = ? ,authorized = ?,fname = ?,lname = ?,email = ?,active = ?,abook_type = ?";
-        $appTable->zQuery($query, ['', '', 0, $fname, $lname, $direct_address, 1, 'emr_direct']);
+        QueryUtils::sqlStatementThrowException($query, ['', '', 0, $fname, $lname, $direct_address, 1, 'emr_direct']);
     }
 }

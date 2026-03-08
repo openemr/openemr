@@ -6,7 +6,7 @@
  * Proxies requests to NPPES API to avoid CORS issues
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
  * @copyright Copyright (c) 2025 Stephen Waite <stephen.waite@cmsvt.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,17 +14,17 @@
 
 require_once("../globals.php");
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\RequestException;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AccessDeniedResponseFormat;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use GuzzleHttp\Client as Client;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\ConnectException;
 
 // Check authorization
 if (!AclMain::aclCheckCore('admin', 'practice')) {
-    http_response_code(403);
-    echo json_encode(['error' => 'Unauthorized']);
-    exit;
+    AccessDeniedHelper::deny('Unauthorized access to NPI lookup', format: AccessDeniedResponseFormat::Json);
 }
 
 // Verify CSRF token for security
@@ -141,7 +141,7 @@ try {
         'message' => $GLOBALS['debug_mode'] ? $e->getMessage() : 'Registry error'
     ]);
     exit;
-} catch (\Exception $e) {
+} catch (\Throwable $e) {
     // Other errors
     error_log("NPI Lookup Error: " . $e->getMessage());
     http_response_code(500);

@@ -4,7 +4,7 @@
  * SignalWire Fax Client
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    SignalWire Integration
  * @copyright Copyright (c) 2024
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -15,13 +15,11 @@ namespace OpenEMR\Modules\FaxSMS\Controller;
 use Document;
 use Exception;
 use MyMailer;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Http\oeHttp;
-use OpenEMR\Common\Http\oeHttpRequest;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Exception\FaxDocumentException;
-use OpenEMR\Modules\FaxSMS\Exception\FaxNotFoundException;
 use SignalWire\Rest\Client;
 
 class SignalWireClient extends AppDispatch
@@ -32,7 +30,7 @@ class SignalWireClient extends AppDispatch
     protected $serverUrl;
     protected $credentials;
     public string $portalUrl;
-    protected CryptoGen $crypto;
+    protected CryptoInterface $crypto;
     private $client;
     private $spaceUrl;
     private $projectId;
@@ -46,7 +44,7 @@ class SignalWireClient extends AppDispatch
     {
         // Initialize properties before calling parent (like other controllers)
         $globals = OEGlobalsBag::getInstance();
-        $this->crypto = new CryptoGen();
+        $this->crypto = ServiceContainer::getCrypto();
         $this->baseDir = $globals->get('temporary_files_dir');
         $this->uriDir = $globals->get('OE_SITE_WEBROOT');
 
@@ -65,7 +63,7 @@ class SignalWireClient extends AppDispatch
             }
 
             $this->portalUrl = "https://" . ($this->credentials['space_url'] ?? 'example.signalwire.com');
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             error_log('SignalWire initialization error: ' . $e->getMessage());
             // Continue anyway to allow setup
         }
@@ -243,7 +241,7 @@ class SignalWireClient extends AppDispatch
                 'fax_sid' => $fax->sid,
                 'status' => $fax->status
             ]);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             error_log('SignalWire Fax Error: ' . $e->getMessage());
             return json_encode([
                 'success' => false,
@@ -313,7 +311,7 @@ class SignalWireClient extends AppDispatch
             $mediaUrl = $this->serverUrl . '/' . $relativeUploadDir . '/' . $filename;
             error_log("SignalWireClient.uploadFileForFax(): DEBUG - Generated media URL: " . $mediaUrl);
             return $mediaUrl;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             error_log('SignalWireClient.uploadFileForFax(): ERROR - ' . $e->getMessage());
             error_log('SignalWireClient.uploadFileForFax(): TRACE - ' . $e->getTraceAsString());
             return null;
@@ -608,7 +606,7 @@ class SignalWireClient extends AppDispatch
             } else {
                 return json_encode(['error' => $result['message']]);
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             error_log("SignalWireClient.assignFax(): ERROR - " . $e->getMessage());
             return json_encode(['error' => xlt('Failed to assign fax: ') . $e->getMessage()]);
         }
@@ -651,7 +649,7 @@ class SignalWireClient extends AppDispatch
             foreach ($faxes as $fax) {
                 $this->upsertFaxFromSignalWire($fax);
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             error_log("SignalWireClient.getPending(): ERROR - " . $e->getMessage());
         }
 
@@ -794,7 +792,7 @@ class SignalWireClient extends AppDispatch
                 $duration = $freshFax->duration ?? $duration;
                 $mediaUrl = $freshFax->mediaUrl ?? $mediaUrl;
                 error_log("SignalWireClient.upsertFaxFromSignalWire(): DEBUG - Fetched fresh data from API: status={$status}, pages={$numPages}");
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 error_log("SignalWireClient.upsertFaxFromSignalWire(): WARNING - Could not fetch fresh status: " . $e->getMessage());
             }
 
@@ -843,7 +841,7 @@ class SignalWireClient extends AppDispatch
                 QueryUtils::sqlStatementThrowException($sql, [$uid, $jobId, $from, $to, json_encode($faxData), $dateCreated, $direction, $status, $site_id, $mediaPath ?? null]);
                 error_log("SignalWireClient.upsertFaxFromSignalWire(): DEBUG - Inserted fax {$jobId}");
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             error_log("SignalWireClient.upsertFaxFromSignalWire(): ERROR - " . $e->getMessage());
         }
     }
@@ -895,7 +893,7 @@ class SignalWireClient extends AppDispatch
 
             error_log("SignalWireClient.downloadFaxMedia(): Successfully downloaded fax to {$filepath}");
             return $filepath;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             error_log("SignalWireClient.downloadFaxMedia(): ERROR - " . $e->getMessage());
             return null;
         }
@@ -931,7 +929,7 @@ class SignalWireClient extends AppDispatch
             }
 
             return $fileContent;
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             error_log("SignalWireClient.downloadFaxMediaContent(): ERROR - " . $e->getMessage());
             return null;
         }

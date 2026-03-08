@@ -3,16 +3,9 @@
 namespace OpenEMR\Tests\Integration\RestControllers\Subscriber;
 
 use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Core\Kernel;
 use OpenEMR\RestControllers\Subscriber\SiteSetupListener;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\HttpFoundation\HeaderBag;
-use Symfony\Component\HttpFoundation\ParameterBag;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\ServerBag;
-use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 class SiteSetupListenerTest extends TestCase
@@ -63,7 +56,7 @@ class SiteSetupListenerTest extends TestCase
 //        // now we need to check to make sure session was started
 //        $this->assertEquals(PHP_SESSION_ACTIVE, session_status(), "Session should be active after onKernelRequest call");
 //
-//        $this->assertInstanceOf(Kernel::class, $GLOBALS['kernel'], "Kernel should be set in globals after onKernelRequest call");
+//        $this->assertInstanceOf(Kernel::class, OEGlobalsBag::getInstance()->getKernel(), "Kernel should be set in globals after onKernelRequest call");
 //        $this->assertArrayHasKey("site_id", $_SESSION, "Session should have siteId set after onKernelRequest call");
 //        $this->assertEquals($site, $_SESSION['site_id'], "Session site_id should match the site set in onKernelRequest");
 //        $this->assertEquals('apiOpenEMR', session_name(), "Session name should be 'apiOpenEMR' after onKernelRequest call");

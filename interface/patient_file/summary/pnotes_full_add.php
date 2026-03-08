@@ -4,7 +4,7 @@
  * pnotes_full_add.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,6 +16,7 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/gprelations.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -46,12 +47,12 @@ if ($docid) {
 
 // Check authorization.
 if (!AclMain::aclCheckCore('patients', 'notes', '', ['write','addonly'])) {
-    die(xlt('Not authorized'));
+    AccessDeniedHelper::deny('Unauthorized access to patient notes');
 }
 
 $tmp = getPatientData($patient_id, "squad");
 if ($tmp['squad'] && !AclMain::aclCheckCore('squads', $tmp['squad'])) {
-    die(xlt('Not authorized for this squad.'));
+    AccessDeniedHelper::deny('Not authorized for squad: ' . $tmp['squad']);
 }
 
 //the number of records to display per screen

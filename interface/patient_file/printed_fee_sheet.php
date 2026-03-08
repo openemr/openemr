@@ -5,7 +5,7 @@
  * uses a session array of PIDS by Medical Information Integration, LLC - mi-squared.com
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ron Pulcer <rspulcer_2k@yahoo.com>
@@ -22,9 +22,9 @@ require_once("$srcdir/appointments.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/user.inc.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\FacilityService;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 

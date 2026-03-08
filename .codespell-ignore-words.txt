@@ -41,7 +41,6 @@ grp
 inout
 inpt
 insid
-interpretter
 keypair
 marge
 mis
@@ -117,5 +116,4 @@ esy
 hightlight
 occurance
 seperator
-uncomplete
 vlaue

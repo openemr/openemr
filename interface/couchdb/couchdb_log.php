@@ -4,7 +4,7 @@
  * will display the couchdb log
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,7 +12,8 @@
 
 require_once("../globals.php");
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\KeySource;
 
 $filename = $GLOBALS['OE_SITE_DIR'] . '/documents/couchdb/log.txt';
 
@@ -23,9 +24,9 @@ if (!file_exists($filename)) {
 
 $fh = file_get_contents($filename);
 
-$cryptoGen = new CryptoGen();
+$cryptoGen = ServiceContainer::getCrypto();
 if ($cryptoGen->cryptCheckStandard($fh)) {
-    $fh = $cryptoGen->decryptStandard($fh, null, 'database');
+    $fh = $cryptoGen->decryptStandard($fh, null, KeySource::Database);
 }
 
 if (!empty($fh)) {

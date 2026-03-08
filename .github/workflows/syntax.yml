@@ -30,10 +30,11 @@ jobs:
     steps:
     - uses: actions/checkout@v6
 
-    - name: Install PHP
-      uses: shivammathur/setup-php@v2
+    - name: Setup PHP
+      uses: ./.github/actions/setup-php-composer
       with:
         php-version: ${{ matrix.php }}
+        skip-composer-install: true
 
     - name: Report PHP Version
       run: php -v

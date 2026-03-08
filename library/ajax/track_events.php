@@ -24,7 +24,7 @@ header("Content-Type: application/json");
  * Main request handler that reads input, verifies the CSRF token, and delegates
  * to the appropriate telemetry service method.
  */
-function handleRequest(): void
+function ajax_handleRequest(): void
 {
     // Read JSON payload.
     $input_json = file_get_contents('php://input');
@@ -52,4 +52,4 @@ function handleRequest(): void
     }
 }
 
-handleRequest();
+ajax_handleRequest();

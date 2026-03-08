@@ -60,6 +60,7 @@ $allow_cloning_setup = false;
 require_once __DIR__ . "/vendor/autoload.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Utils\RandomGenUtils;
 
@@ -122,7 +123,7 @@ function recursive_writable_directory_test($dir)
 }
 
 $state = isset($_POST["state"]) ? ($_POST["state"]) : '';
-$installer = new Installer($_REQUEST);
+$installer = new Installer($_REQUEST, new SystemLogger());
 // Make this true for IPPF.
 $ippf_specific = false;
 
@@ -1651,6 +1652,9 @@ STP4TOP;
                         &nbsp;&nbsp;&lt;/Directory&gt;</code><br />
                         &nbsp;&nbsp;<code>&lt;Directory \"" . $docsDirectoryGlob . "\"&gt;<br />
                         &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all denied<br />
+                        &nbsp;&nbsp;&lt;/Directory&gt;</code><br />
+                        &nbsp;&nbsp;<code>&lt;Directory \"" . $openemrDirectory . "/bin\"&gt;<br />
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Require all denied<br />
                         &nbsp;&nbsp;&lt;/Directory&gt;</code><br /><br />
                         <p>If you are having difficulty finding your apache configuration file, then refer to the <a href='Documentation/INSTALL' rel='noopener' target='_blank'><u>'INSTALL'</u></a> manual for suggestions.</p>
                     </div>";
@@ -1658,9 +1662,12 @@ STP4TOP;
                     echo "
                     <div id='instructions_fpm'" . ($defaultWs === 'fpm' ? '' : " style='display:none'") . ">
                         <h5>1. Deny access to sensitive directories</h5>
-                        <p>The <code>\"" . $docsDirectoryGlob . "\"</code> directory contains patient information. Block all direct web access to it:</p>
+                        <p>The <code>\"" . $docsDirectoryGlob . "\"</code> directory contains patient information and the <code>bin/</code> directory contains CLI tools. Block all direct web access to them:</p>
                         <pre><code>"
-                            . text("location ~* ^/sites/*/(documents|edi|era) {") . "\n"
+                            . text("location ~* ^/sites/*/documents {") . "\n"
+                            . text("    deny all;") . "\n"
+                            . text("}") . "\n\n"
+                            . text("location ^~ /bin/ {") . "\n"
                             . text("    deny all;") . "\n"
                             . text("}")
                         . "</code></pre>

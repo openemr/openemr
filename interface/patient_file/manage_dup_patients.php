@@ -4,11 +4,15 @@
  * This tool helps with identifying and merging duplicate patients.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @author    Ruth Moulton <ruth@muswell.me.uk>
  * @copyright Copyright (c) 2017-2021 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ * @copyright Copyright (c) 2026 Ruth Moulton <ruth@muswell.me.uk>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,27 +20,31 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
-use OpenEMR\Services\FacilityService;
+use OpenEMR\Core\OEGlobalsBag;
 
 $first_time = true;
+$group = 1;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 /**
- * @param $row
- * @param $pid
+ * @param bool $first_time
+ * @param int $group
+ * @param array<string, string> $row
+ * @param string $pid
  * @return void
  */
-function displayRow($row, $pid = ''): void
+function displayRow(bool &$first_time, int &$group, $row, string $pid = ''): void
 {
-    global $first_time;
+    /** @var array<string, string> $row */
+    $is_csv = ($_POST['form_csvexport'] ?? '') === 'CSV';
 
-    if (empty($pid)) {
+    if ($pid === '') {
         $pid = $row['pid'];
     }
 
@@ -51,7 +59,10 @@ function displayRow($row, $pid = ''): void
             "<option value='U'>" . xlt('Mark as Unique') . "</option>" .
             "<option value='R'>" . xlt('Recompute Score') . "</option>";
         if (!$first_time) {
-            echo " <tr><td class='detail' colspan='12'>&nbsp;</td></tr>\n";
+            $group += 1;
+            if (!$is_csv) {
+                echo " <tr><td class='detail' colspan='12'>&nbsp;</td></tr>\n";
+            }
         }
     }
 
@@ -68,63 +79,75 @@ function displayRow($row, $pid = ''): void
         $phones[] = trim((string) $row['phone_cell']);
     }
     $phones = implode(', ', $phones);
-    $fac_name = '';
-    if ($row['home_facility']) {
-        $facrow = getFacility($row['home_facility']);
-        if (!empty($facrow['name'])) {
-            $fac_name = $facrow['name'];
-        }
-    }
-    $highlight_text = $row['dupscore'] > 17 ? xlt('Merge From') : '';
-    $highlight_class = $row['dupscore'] > 17 ? 'highlight' : '';
-    if (!empty($row['myscore']) && $row['myscore'] > 17) {
+
+    $highlight_text = (int) $row['dupscore'] > 17 ? xlt('Merge From') : '';
+    $highlight_class = (int) $row['dupscore'] > 17 ? 'highlight' : '';
+    if (isset($row['myscore']) && (int) $row['myscore'] > 17) {
         $highlight_class = 'highlight-master';
         $highlight_text = xlt('Merge To');
     }
-    echo "<tr class='$highlight_class'>";
-    ?>
-    <td>
-        <select onchange='selectChange(this, <?php echo attr_js($pid); ?>, <?php echo attr_js($row['pid']); ?>)' style='width:100%'>
-            <?php echo $options; // this is html and already escaped as required
-            ?>
-        </select>
-    </td>
-    <td>
-        <?php echo text($myscore); ?>
-    </td>
-    <td class="text-warning" onclick="openNewTopWindow(<?php echo attr_js($row['pid']); ?>)"
-        title="<?php echo xla('Click to open in a new window or tab'); ?>" style="cursor:pointer">
-        <?php echo text($row['pid']); ?>
-    </td>
-    <td>
-        <?php echo text($row['pubpid']); ?>
-    </td>
-    <td>
-        <?php echo $highlight_text; ?>
-    </td>
-    <td>
-        <?php echo text($ptname); ?>
-    </td>
-    <td>
-        <?php echo text(oeFormatShortDate($row['DOB'])); ?>
-    </td>
-    <td>
-        <?php echo text($row['sex']); ?>
-    </td>
-    <td>
-        <?php echo text($row['email']); ?>
-    </td>
-    <td>
-        <?php echo text($phones); ?>
-    </td>
-    <td>
-        <?php echo text(oeFormatShortDate($row['regdate'])); ?>
-    </td>
-    <td>
-        <?php echo text($row['street']); ?>
-    </td>
-    </tr>
-    <?php
+
+    $date_str = (string) oeFormatShortDate(substr($row['DOB'], 0, 10));
+    $regdate_str = (string) oeFormatShortDate($row['regdate']);
+
+    if ($is_csv) {
+        echo csvEscape(strval($group)) . ',';
+        echo csvEscape($myscore) . ',';
+        echo csvEscape($row['pid']) . ',';
+        echo csvEscape($row['pubpid']) . ',';
+        echo csvEscape($highlight_text) . ',';
+        echo csvEscape($ptname) . ',';
+        echo csvEscape($date_str) . ',';
+        echo csvEscape($row['sex']) . ',';
+        echo csvEscape($row['email']) . ',';
+        echo csvEscape($phones) . ',';
+        echo csvEscape($regdate_str) . ',';
+        echo csvEscape($row['street']) . "\n";
+    } else {
+        echo "<tr class='$highlight_class'>";
+        ?>
+        <td>
+            <select onchange='selectChange(this, <?php echo attr_js($pid); ?>, <?php echo attr_js($row['pid']); ?>)' style='width:100%'>
+                <?php echo $options; // this is html and already escaped as required ?>
+            </select>
+        </td>
+        <td>
+            <?php echo text($myscore); ?>
+        </td>
+        <td class="text-warning" onclick="openNewTopWindow(<?php echo attr_js($row['pid']); ?>)"
+            title="<?php echo xla('Click to open in a new window or tab'); ?>" style="cursor:pointer">
+            <?php echo text($row['pid']); ?>
+        </td>
+        <td>
+            <?php echo text($row['pubpid']); ?>
+        </td>
+        <td>
+            <?php echo $highlight_text; ?>
+        </td>
+        <td>
+            <?php echo text($ptname); ?>
+        </td>
+        <td>
+            <?php echo text($date_str); ?>
+        </td>
+        <td>
+            <?php echo text($row['sex']); ?>
+        </td>
+        <td>
+            <?php echo text($row['email']); ?>
+        </td>
+        <td>
+            <?php echo text($phones); ?>
+        </td>
+        <td>
+            <?php echo text($regdate_str); ?>
+        </td>
+        <td>
+            <?php echo text($row['street']); ?>
+        </td>
+        </tr>
+        <?php
+    }
 }
 
 /**
@@ -135,7 +158,6 @@ function calculateScores(): int
     sqlStatementNoLog("UPDATE patient_data SET dupscore = -9 WHERE dupscore != -1");
 
     $query_limit = 5000;
-    $endtime = time() + 365 * 24 * 60 * 60; // a year from now
     $endtime = time() + 240 * 60;
     $count = 0;
     $finished = false;
@@ -172,14 +194,25 @@ if (!empty($_POST)) {
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Duplicate Patient Management")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Duplicate Patient Management", xl("Duplicate Patient Management"));
 }
 
 $calc_count = calculateScores();
 $score_calculate = getDupScoreSQL();
+$is_csv = ($_POST['form_csvexport'] ?? '') === 'CSV';
 
-?>
+if ($is_csv) {
+    header("Pragma: public");
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Content-Type: application/force-download");
+    $today = date('YmdHi');
+    $instance_name = (string) OEGlobalsBag::getInstance()->get('openemr_name');
+    $filename = "duplicate_patients_" . $instance_name . "_" . $today . ".csv";
+    header("Content-Disposition: attachment; filename=" . $filename);
+    header("Content-Description: File Transfer");
+} else {
+    ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -252,7 +285,26 @@ $score_calculate = getDupScoreSQL();
             <div class="btn-sm-group mb-1 text-center">
                 <button class="btn btn-sm btn-primary btn-refresh" type='submit' name='form_refresh' value="Refresh"><?php echo xla('ReCalculate Scores') ?></button>
                 <button class="btn btn-sm btn-primary btn-print" type='button' value='Print' onclick='window.print()'><?php echo xla('Print'); ?></button>
+                <button class="btn btn-sm btn-primary btn-file" type='submit' name='form_csvexport' value='CSV'><?php echo xla('Generate a spreadsheet'); ?></button>
             </div>
+            <?php
+} // end HTML header
+
+if ($is_csv) {
+    echo csvEscape(xl('Group')) . ',';
+    echo csvEscape(xl('Score')) . ',';
+    echo csvEscape(xl('PID')) . ',';
+    echo csvEscape(xl('Public')) . ',';
+    echo csvEscape(xl('Scope')) . ',';
+    echo csvEscape(xl('Name')) . ',';
+    echo csvEscape(xl('DOB')) . ',';
+    echo csvEscape(xl('Gender')) . ',';
+    echo csvEscape(xl('Email')) . ',';
+    echo csvEscape(xl('Telephone')) . ',';
+    echo csvEscape(xl('Registered')) . ',';
+    echo csvEscape(xl('Address')) . "\n";
+} else {
+    ?>
             <table id='mymaintable' class='table table-sm table-bordered table-hover w-100 table-light'>
                 <thead class="thead-dark text-center">
                 <tr>
@@ -296,30 +348,55 @@ $score_calculate = getDupScoreSQL();
                 </thead>
                 <tbody class="text-center">
                 <?php
-                $form_action = $_POST['form_action'] ?? '';
-                if ($form_action == 'U') {
-                    sqlStatement(
-                        "UPDATE patient_data SET dupscore = -1 WHERE pid = ?",
-                        [$_POST['form_toppid']]
-                    );
-                } elseif ($form_action == 'R') {
-                    updateDupScore($_POST['form_toppid']);
-                }
+} // end HTML table headers
 
-                $query = "SELECT * FROM patient_data WHERE dupscore > 12 " . "ORDER BY dupscore DESC, pid DESC LIMIT 100";
-                $res1 = sqlStatement($query);
-                while ($row1 = sqlFetchArray($res1)) {
-                    displayRow($row1);
-                    $query = "SELECT p2.*, ($score_calculate) AS myscore " .
-                        "FROM patient_data AS p1, patient_data AS p2 WHERE " .
-                        "p1.pid = ? AND p2.pid < p1.pid AND ($score_calculate) > 12 " .
-                        "ORDER BY myscore DESC, p2.pid DESC";
-                    $res2 = sqlStatement($query, [$row1['pid']]);
-                    while ($row2 = sqlFetchArray($res2)) {
-                        displayRow($row2, $row1['pid']);
-                    }
-                }
-                ?>
+$form_action = $_POST['form_action'] ?? '';
+if ($form_action == 'U') {
+    sqlStatement(
+        "UPDATE patient_data SET dupscore = -1 WHERE pid = ?",
+        [$_POST['form_toppid']]
+    );
+} elseif ($form_action == 'R') {
+    updateDupScore($_POST['form_toppid']);
+}
+
+// Track displayed patients to avoid showing the same patient in multiple groups
+$displayed = [];
+$query = "SELECT * FROM patient_data WHERE dupscore > 12 ORDER BY dupscore DESC, pid DESC LIMIT 100";
+$res1 = sqlStatement($query);
+while ($row1 = sqlFetchArray($res1)) {
+    // Skip if this patient was already shown as part of another group
+    if (isset($displayed[$row1['pid']])) {
+        continue;
+    }
+    // Use symmetric comparison (p2.pid != p1.pid) to find all matches,
+    // not just lower PIDs. This allows detecting duplicates when a patient
+    // with a lower PID is edited to match one with a higher PID.
+    $query = "SELECT p2.*, ($score_calculate) AS myscore " .
+        "FROM patient_data AS p1, patient_data AS p2 WHERE " .
+        "p1.pid = ? AND p2.pid != p1.pid AND p2.dupscore != -1 AND ($score_calculate) > 12 " .
+        "ORDER BY myscore DESC, p2.pid DESC";
+    $res2 = sqlStatement($query, [$row1['pid']]);
+    $matches = [];
+    while ($row2 = sqlFetchArray($res2)) {
+        // Skip matches already displayed in a previous group
+        if (!isset($displayed[$row2['pid']])) {
+            $matches[] = $row2;
+        }
+    }
+    // Only display this group if there are actual matches (prevents orphans)
+    if (count($matches) > 0) {
+        displayRow($first_time, $group, $row1);
+        $displayed[$row1['pid']] = true;
+        foreach ($matches as $row2) {
+            displayRow($first_time, $group, $row2, (string) $row1['pid']);
+            $displayed[$row2['pid']] = true;
+        }
+    }
+}
+
+if (!$is_csv) {
+    ?>
                 </tbody>
             </table>
             <input type='hidden' name='form_action' value='' />
@@ -335,3 +412,5 @@ $score_calculate = getDupScoreSQL();
     </form>
 </body>
 </html>
+    <?php
+}

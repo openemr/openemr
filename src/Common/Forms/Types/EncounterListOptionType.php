@@ -4,7 +4,7 @@
  * Provider List Type represents a user selector widget for displaying local users that can be used in the LBF forms or independently in the system.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2024 Care Management Solutions, Inc. <stephen.waite@cmsvt.com>
@@ -13,7 +13,6 @@
 
 namespace OpenEMR\Common\Forms\Types;
 
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Layouts\LayoutsUtils;
 use OpenEMR\Services\EncounterService;
 

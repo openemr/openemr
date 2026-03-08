@@ -4,7 +4,7 @@
  * Fax SMS Authentication Module Member
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -74,7 +74,7 @@ trait AuthenticateTrait
             } else {
                 return $this->loginWithJWT();
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return text($e->getMessage());
         }
     }
@@ -133,7 +133,7 @@ trait AuthenticateTrait
                     continue;
                 }
                 return js_escape(['error' => "API Error: " . text($e->getMessage()) . " - " . text($e->getCode())]);
-            } catch (Exception $e) {
+            } catch (\Throwable $e) {
                 return js_escape(['error' => "Error: " . text($e->getMessage())]);
             }
         }

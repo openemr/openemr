@@ -12,10 +12,9 @@
 
 namespace Syndromicsurveillance\Controller;
 
+use Application\Listener\Listener;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
-use Laminas\View\Model\JsonModel;
-use Application\Listener\Listener;
 
 class SyndromicsurveillanceController extends AbstractActionController
 {

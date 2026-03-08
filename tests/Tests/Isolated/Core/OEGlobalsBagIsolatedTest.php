@@ -3,7 +3,7 @@
 /**
  * @package   OpenEMR
  *
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -13,16 +13,11 @@
 namespace OpenEMR\Tests\Isolated\Core;
 
 use OpenEMR\Core\OEGlobalsBag;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\Group;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 
 #[Group('isolated')]
 #[Group('core')]
-#[CoversClass(OEGlobalsBag::class)]
-#[CoversMethod(OEGlobalsBag::class, 'set')]
 class OEGlobalsBagIsolatedTest extends TestCase
 {
     public function testGlobalsBagInit(): void

@@ -9,7 +9,7 @@
  * as an async validation process.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -17,14 +17,15 @@
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\Cda\CdaValidateDocumentObject;
 
+// This file is a sub-template included by messages.php. $noteid is a required
+// parameter from the parent context. Return silently if it is missing — this
+// is a missing-parameter guard, not an authorisation failure, so showing the
+// unauthorized template would be misleading.
 if (empty($noteid)) {
-    $twig = new TwigContainer(null, $GLOBALS['kernel']);
-    echo $twig->render('core/unauthorized.html.twig', ['pageTitle' => xl("Linked Documents")]);
-    exit;
+    return;
 }
 
 // Get the related document IDs if any.
@@ -152,7 +153,7 @@ try {
     </div>
 </div>
     <?php }
-} catch (Exception $exception) {
+} catch (\Throwable $exception) {
     // if twig throws any exceptions we want to log it.
     (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
 }

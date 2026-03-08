@@ -5,7 +5,7 @@
  * Use this to diagnose CSRF token issues
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -17,12 +17,12 @@ $srcdir ??= ''; // should fatally fail but passes phpstan
 require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Services\PersonService;
-use OpenEMR\Services\ContactService;
-use OpenEMR\Services\PersonPatientLinkService;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ContactTelecomService;
+use OpenEMR\Services\PersonPatientLinkService;
+use OpenEMR\Services\PersonService;
 
 // Initialize logger early
 $logger = new SystemLogger();
@@ -90,7 +90,7 @@ try {
                 ]
             ], JSON_PRETTY_PRINT);
     }
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     $logger->error("Person search AJAX error", [
         'action' => $action,
         'error' => $e->getMessage(),
@@ -511,7 +511,7 @@ function handleCreatePerson(array $input, PersonService $personService, $contact
 //                'email' => $email
 //            ]);
 //        }
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         $logger->error("Exception adding telecoms", [
             'contact_id' => $contactId,
             'error' => $e->getMessage()

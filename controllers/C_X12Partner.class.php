@@ -4,7 +4,7 @@
  * controller class for x-12 partner screen
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Daniel Pflieger <daniel@mi-squared.com>, <daniel@growlingflea.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
@@ -12,7 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 
 class C_X12Partner extends Controller
 {
@@ -45,7 +45,7 @@ class C_X12Partner extends Controller
 
         // If we have an SFTP password set, decrypt it
         if ($this->x12_partners[0]->get_x12_sftp_pass()) {
-            $cryptoGen = new CryptoGen();
+            $cryptoGen = ServiceContainer::getCrypto();
             $this->x12_partners[0]->set_x12_sftp_pass($cryptoGen->decryptStandard($this->x12_partners[0]->get_x12_sftp_pass()));
         }
 
@@ -75,7 +75,7 @@ class C_X12Partner extends Controller
 
         // If we are setting the SFTP password, encrypt it
         if (!empty($_POST['x12_sftp_pass'])) {
-            $cryptoGen = new CryptoGen();
+            $cryptoGen = ServiceContainer::getCrypto();
             $this->x12_partners[0]->x12_sftp_pass = $cryptoGen->encryptStandard($this->x12_partners[0]->x12_sftp_pass);
         }
 

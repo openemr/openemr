@@ -5,7 +5,7 @@
  *  Will handle void and credits
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -15,8 +15,9 @@ namespace OpenEMR\PaymentProcessing\Sphere;
 
 use Exception;
 use GuzzleHttp\Client;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthGlobal;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 
@@ -52,10 +53,7 @@ class SphereRevert
      */
     private $returnUrl;
 
-    /**
-     * @var CryptoGen
-     */
-    private $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
 
     /**
      * @var SystemLogger
@@ -74,7 +72,7 @@ class SphereRevert
 
         $this->authGlobalPin = new AuthGlobal('sphere_credit_void_confirm_pin');
 
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = ServiceContainer::getCrypto();
         if ($front == 'patient') {
             $this->custid = $this->cryptoGen->decryptStandard($GLOBALS['sphere_patientfront_trxcustid']);
             $this->custpass = $this->cryptoGen->decryptStandard($GLOBALS['sphere_ecomm_tc_link_pass']);

@@ -5,7 +5,7 @@
  * Handles incoming fax notifications from SignalWire
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    SignalWire Integration
  * @copyright Copyright (c) 2025
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,7 +13,7 @@
 
 require_once(dirname(__DIR__, 4) . "/globals.php");
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\oeHttp;
 use OpenEMR\Common\Http\oeHttpRequest;
@@ -71,7 +71,7 @@ function downloadAndStoreFaxMedia(
             return;
         }
 
-        $crypto = new CryptoGen();
+        $crypto = ServiceContainer::getCrypto();
         $decrypted = $crypto->decryptStandard($credentials['credentials']);
         $creds = json_decode($decrypted, true);
 
@@ -109,7 +109,7 @@ function downloadAndStoreFaxMedia(
             if ($httpCode !== 200 || empty($mediaContent)) {
                 return;
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             error_log("SignalWire Webhook: HTTP request failed: " . $e->getMessage());
             return;
         }
@@ -143,7 +143,7 @@ function downloadAndStoreFaxMedia(
                 $siteId
             ]
         );
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         error_log("SignalWire Webhook: Error downloading/storing fax media: " . $e->getMessage());
     }
 }

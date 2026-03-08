@@ -20,7 +20,7 @@
 //   $patient_id - pid
 //   $object_category - specific item category (such as prescriptions, transactions etc.)
 //   $object_id  - specific item id (such as encounter id, prescription id, etc.)
-//   $date_created - specifically for the uncomplete_safe mode only to ensure safe for duplicate entries.
+//   $date_created - specifically for the incomplete_safe mode only to ensure safe for duplicate entries.
 function processAmcCall($amc_id, $complete, $mode, $patient_id, $object_category = '', $object_id = '0', $date_created = ''): void
 {
 
@@ -61,10 +61,10 @@ function processAmcCall($amc_id, $complete, $mode, $patient_id, $object_category
         amcComplete($amc_id, $patient_id, $object_category, $object_id);
     } elseif ($mode == "complete_safe") {
         amcCompleteSafe($amc_id, $patient_id, $object_category, $object_id, $date_created);
-    } elseif ($mode == "uncomplete") {
-        amcUnComplete($amc_id, $patient_id, $object_category, $object_id);
-    } elseif ($mode == "uncomplete_safe") {
-        amcUnCompleteSafe($amc_id, $patient_id, $object_category, $object_id, $date_created);
+    } elseif ($mode == "incomplete") {
+        amcInComplete($amc_id, $patient_id, $object_category, $object_id);
+    } elseif ($mode == "incomplete_safe") {
+        amcInCompleteSafe($amc_id, $patient_id, $object_category, $object_id, $date_created);
     } elseif ($mode == "soc_provided") {
         amcSoCProvided($amc_id, $patient_id, $object_category, $object_id);
     } elseif ($mode == "no_soc_provided") {
@@ -165,7 +165,7 @@ function amcCompleteSafe($amc_id, $patient_id, $object_category = '', $object_id
 //   $patient_id - pid
 //   $object_category - specific item category (such as prescriptions, transactions etc.)
 //   $object_id  - specific item id (such as encounter id, prescription id, etc.)
-function amcUnComplete($amc_id, $patient_id, $object_category = '', $object_id = '0'): void
+function amcInComplete($amc_id, $patient_id, $object_category = '', $object_id = '0'): void
 {
     sqlStatement("UPDATE `amc_misc_data` SET `date_completed`=NULL WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=?", [$amc_id,$patient_id,$object_category,$object_id]);
 }
@@ -177,7 +177,7 @@ function amcUnComplete($amc_id, $patient_id, $object_category = '', $object_id =
 //   $object_category - specific item category (such as prescriptions, transactions etc.)
 //   $object_id  - specific item id (such as encounter id, prescription id, etc.)
 //   $date_created - date created.
-function amcUnCompleteSafe($amc_id, $patient_id, $object_category = '', $object_id = '0', $date_created = ''): void
+function amcInCompleteSafe($amc_id, $patient_id, $object_category = '', $object_id = '0', $date_created = ''): void
 {
     sqlStatement("UPDATE `amc_misc_data` SET `date_completed`=NULL WHERE `amc_id`=? AND `pid`=? AND `map_category`=? AND `map_id`=? AND `date_created`=?", [$amc_id,$patient_id,$object_category,$object_id,$date_created]);
 }

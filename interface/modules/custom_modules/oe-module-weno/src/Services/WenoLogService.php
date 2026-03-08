@@ -4,15 +4,13 @@
  * WenoPharmacyService
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kofi Appiah <kkappiah@medsov.com>
  * @copyright Copyright (c) 2023 omega systems group international <info@omegasystemsgroup.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace OpenEMR\Modules\WenoModule\Services;
-
-use Exception;
 
 class WenoLogService
 {
@@ -57,7 +55,7 @@ class WenoLogService
         $sql = "INSERT INTO weno_download_log SET value = ?, status = ?, data_in_context = ?";
         try {
             sqlInsert($sql, $bind);
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
             return $e->getMessage();
         }
         return true;

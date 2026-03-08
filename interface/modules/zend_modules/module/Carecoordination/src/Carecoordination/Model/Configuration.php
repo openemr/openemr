@@ -2,11 +2,11 @@
 
 namespace Carecoordination\Model;
 
+use Laminas\Form\Form;
 use Laminas\InputFilter\Factory as InputFactory;
 use Laminas\InputFilter\InputFilter;
 use Laminas\InputFilter\InputFilterAwareInterface;
 use Laminas\InputFilter\InputFilterInterface;
-use Laminas\Form\Form;
 
 class Configuration extends Form implements InputFilterAwareInterface
 {

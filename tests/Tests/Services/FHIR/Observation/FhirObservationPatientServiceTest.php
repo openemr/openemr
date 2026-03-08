@@ -3,7 +3,7 @@
 /*
  * FhirObservationPatientServiceTest.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -19,10 +19,9 @@ use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\Services\FHIR\Observation\FhirObservationPatientService;
+use OpenEMR\Services\ListService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
-use OpenEMR\Services\ListService;
-use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -174,7 +173,7 @@ class FhirObservationPatientServiceTest extends TestCase
                     "DELETE FROM patient_data WHERE pid = ?",
                     [$this->testPatientData['pid']]
                 );
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $this->getSystemLogger()->errorLogCaller("Failed to cleanup test patient: " . $e->getMessage());
             }
         }
@@ -185,7 +184,7 @@ class FhirObservationPatientServiceTest extends TestCase
                     "DELETE FROM users WHERE id = ?",
                     [$this->testUserData['id']]
                 );
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $this->getSystemLogger()->errorLogCaller("Failed to cleanup test user: " . $e->getMessage());
             }
         }

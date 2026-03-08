@@ -13,8 +13,8 @@
 // These lists are based on the constants found in the
 // openemr/library/classes/Prescription.class.php file.
 
-use PHPMailer\PHPMailer\PHPMailer;
 use OpenEMR\Services\DrugSalesService;
+use PHPMailer\PHPMailer\PHPMailer;
 
 // Decision was made in June 2013 that a sale line item in the Fee Sheet may
 // come only from the specified warehouse. Set this to false if the decision

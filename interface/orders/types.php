@@ -4,7 +4,7 @@
  * types.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -15,8 +15,8 @@
 
 require_once("../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 // This script can be run either inside the OpenEMR frameset for order catalog
@@ -29,12 +29,10 @@ $order = isset($_GET['order']) ? $_GET['order'] + 0 : 0;
 $labid = isset($_GET['labid']) ? $_GET['labid'] + 0 : 0;
 
 if (!$popup && !AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Configure Orders and Results")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Configure Orders and Results", xl("Configure Orders and Results"));
 }
 if ($popup && !AclMain::aclCheckCore('patients', 'lab') && !AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Configure Orders and Results")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/lab or admin/super: Configure Orders and Results", xl("Configure Orders and Results"));
 }
 
 // If Save was clicked, set the result, close the window and exit.
@@ -153,7 +151,7 @@ if ($popup && $_POST['form_save'] ?? '') {
     ?>
 
     <?php
-    // Create array of IDs to pre-select, leaf to top.
+    // Create array of IDs to preselect, leaf to top.
     echo "preopen = [";
     echo $order > 0 ? $order : 0;
     for ($parentid = $order; $parentid > 0;) {

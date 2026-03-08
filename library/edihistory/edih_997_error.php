@@ -20,9 +20,9 @@
  *  <http://opensource.org/licenses/gpl-license.php>
  *
  *
- * @author Kevin McCormick
- * @link: https://www.open-emr.org
- * @package OpenEMR
+ * @author     Kevin McCormick
+ * @link       https://www.open-emr.org
+ * @package    OpenEMR
  * @subpackage ediHistory
  */
 

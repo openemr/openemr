@@ -16,7 +16,7 @@
  *              (see MedEx_background.php for configuration examples)
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    MedEx <support@MedExBank.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017 MedEx <support@MedExBank.com>

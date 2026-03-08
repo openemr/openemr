@@ -4,7 +4,7 @@
  * Audit Log Tamper Report.
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Anil N <aniln@ensoftek.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2014 Ensoftek
@@ -14,17 +14,18 @@
 
 require_once("../globals.php");
 
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 // Control access
 if (!AclMain::aclCheckCore('admin', 'super')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("Audit Log Tamper Report")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Audit Log Tamper Report", xl("Audit Log Tamper Report"));
 }
 
 if (!empty($_GET)) {
@@ -142,12 +143,12 @@ $sortby = $_GET['sortby'] ?? null;
 <tr><td>
 <span class="text"><?php echo xlt('Start Date'); ?>: </span>
 </td><td>
-<input type="text" size="18" class="datetimepicker" name="start_date" id="start_date" value="<?php echo attr(oeFormatDateTime($start_date, 'global', true)); ?>" title="<?php echo xla('Start date'); ?>" />
+<input type="text" size="18" class="datetimepicker" name="start_date" id="start_date" value="<?php echo attr(DateFormatterUtils::oeFormatDateTime($start_date, 'global', true)); ?>" title="<?php echo xla('Start date'); ?>" />
 </td>
 <td>
 <span class="text"><?php echo xlt('End Date'); ?>: </span>
 </td><td>
-<input type="text" size="18" class="datetimepicker" name="end_date" id="end_date" value="<?php echo attr(oeFormatDateTime($end_date, 'global', true)); ?>" title="<?php echo xla('End date'); ?>" />
+<input type="text" size="18" class="datetimepicker" name="end_date" id="end_date" value="<?php echo attr(DateFormatterUtils::oeFormatDateTime($end_date, 'global', true)); ?>" title="<?php echo xla('End date'); ?>" />
 </td>
 
 <td>
@@ -221,7 +222,7 @@ $check_sum = isset($_GET['check_sum']);
     $icnt = 1;
     if ($ret = EventAuditLogger::getInstance()->getEvents(['sdate' => $start_date,'edate' => $end_date, 'user' => $form_user, 'patient' => $form_pid, 'sortby' => ($_GET['sortby'] ?? null), 'levent' => $gev, 'tevent' => $tevent])) {
         // Set up crypto object (object will increase performance since caches used keys)
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = ServiceContainer::getCrypto();
 
         while ($iter = sqlFetchArray($ret)) {
             if (empty($iter["id"])) {
@@ -278,40 +279,20 @@ $check_sum = isset($_GET['check_sum']);
             $encryptVersion = !empty($iter['version']) ? $iter['version'] : 0;
 
             if ($commentEncrStatus == "Yes") {
-                if ($encryptVersion >= 3) {
-                    // Use new openssl method
-                    if (extension_loaded('openssl')) {
-                        $trans_comments = $cryptoGen->decryptStandard($iter["comments"]);
-                        if ($trans_comments !== false) {
-                            $trans_comments = preg_replace($patterns, $replace, trim($trans_comments));
-                        } else {
-                            $trans_comments = xl("Unable to decrypt these comments since decryption failed.");
-                        }
-                    } else {
-                        $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
-                    }
-                } elseif ($encryptVersion == 2) {
-                    // Use new openssl method
-                    if (extension_loaded('openssl')) {
-                        $trans_comments = $cryptoGen->aes256DecryptTwo($iter["comments"]);
-                        if ($trans_comments !== false) {
-                            $trans_comments = preg_replace($patterns, $replace, trim($trans_comments));
-                        } else {
-                            $trans_comments = xl("Unable to decrypt these comments since decryption failed.");
-                        }
-                    } else {
-                        $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
-                    }
-                } elseif ($encryptVersion == 1) {
-                    // Use new openssl method
-                    if (extension_loaded('openssl')) {
-                        $trans_comments = preg_replace($patterns, $replace, trim($cryptoGen->aes256DecryptOne($iter["comments"])));
-                    } else {
-                        $trans_comments = xl("Unable to decrypt these comments since the PHP openssl module is not installed.");
-                    }
-                } else { //$encryptVersion == 0
+                if ($encryptVersion === 0) {
                     // The old mcrypt method is no longer supported
                     $trans_comments = xl("Unable to decrypt these comments since the PHP mycrypt module is no longer available.");
+                } else {
+                    // For v1/v2, prepend version prefix. For v3+, data already has it.
+                    $comments = $encryptVersion < 3
+                        ? KeyVersion::from($encryptVersion)->toPaddedString() . $iter["comments"]
+                        : $iter["comments"];
+                    $trans_comments = $cryptoGen->decryptStandard($comments);
+                    if (is_string($trans_comments)) {
+                        $trans_comments = preg_replace($patterns, $replace, trim($trans_comments));
+                    } else {
+                        $trans_comments = xl("Unable to decrypt these comments since decryption failed.");
+                    }
                 }
             } else {
                 // base64 decode if applicable (note the $encryptVersion is a misnomer here, we have added in base64 encoding
@@ -329,7 +310,7 @@ $check_sum = isset($_GET['check_sum']);
      <TR class="oneresult">
           <TD class="text tamperColor"><?php echo text($logType); ?></TD>
           <TD class="text tamperColor"><?php echo text($iter["id"]); ?></TD>
-          <TD class="text tamperColor"><?php echo text(oeFormatDateTime($iter["date"], "global", true)); ?></TD>
+          <TD class="text tamperColor"><?php echo text(DateFormatterUtils::oeFormatDateTime($iter["date"], "global", true)); ?></TD>
           <TD class="text tamperColor"><?php echo text($iter["user"]); ?></TD>
           <TD class="text tamperColor"><?php echo text($iter["patient_id"]);?></TD>
                 <?php // Using mb_convert_encoding to change binary stuff (uuid) to just be '?' characters ?>

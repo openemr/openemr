@@ -4,7 +4,7 @@
  * Class to log audited events - must be high performance
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Kyle Wiering <kyle@softwareadvice.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
@@ -15,10 +15,10 @@
 namespace OpenEMR\Common\Logging;
 
 use DateTime;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Traits\SingletonTrait;
 
 class EventAuditLogger
@@ -41,7 +41,7 @@ class EventAuditLogger
     protected static function createInstance(): static
     {
         return new self(
-            new CryptoGen(),
+            ServiceContainer::getCrypto(),
         );
     }
 

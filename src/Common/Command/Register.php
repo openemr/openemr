@@ -26,7 +26,7 @@ class Register extends Command
         $this
             ->setName('openemr:register')
             ->setDescription('Register a zend module')
-            ->addUsage('--site=default --mtype=zend --modname=Multipledb')
+            ->addUsage('--site=default --mtype=zend --modname=Carecoordination')
             ->setDefinition(
                 new InputDefinition([
                     new InputOption('mtype', null, InputOption::VALUE_REQUIRED, 'Only "zend" is supported'),

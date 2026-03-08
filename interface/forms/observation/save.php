@@ -4,7 +4,7 @@
  * Observation Form Save
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jacob T Paul <jacob@zhservices.com>
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -21,12 +21,13 @@ global $srcdir;
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
-use Symfony\Component\HttpFoundation\Request;
-use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
-use OpenEMR\Services\ObservationService;
 use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Services\FormService;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\FormService;
+use OpenEMR\Services\ObservationService;
+use Symfony\Component\HttpFoundation\Request;
 
 $logger = new SystemLogger();
 
@@ -36,11 +37,11 @@ try {
     $service = new ObservationService();
     $formService = new FormService();
     // resolves to openemer/interface/  so that templates will be found in /forms/observation/templates
-    $twigContainer = new TwigContainer(__DIR__ . '/../../', $GLOBALS['kernel']);
+    $twigContainer = new TwigContainer(__DIR__ . '/../../', OEGlobalsBag::getInstance()->getKernel());
     $controller = new ObservationController($service, $formService, $twigContainer->getTwig());
     $response = $controller->saveAction($request);
     $response->send();
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     // Handle any exceptions that may occur
     $logger->errorLogCaller("Failed to create new observation form", [
         'error' => $e->getMessage(),

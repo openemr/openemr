@@ -46,8 +46,8 @@ use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Services\UserService;
 use SodiumException;
 
@@ -632,13 +632,6 @@ class AuthUtils
         if ($create && ($userInfo === false) && (!empty($new_username)) && (self::useActiveDirectory($new_username))) {
             $ldapDummyPassword = true;
             $newPwd = RandomGenUtils::produceRandomString(32, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-            if (empty($newPwd)) {
-                // Something is seriously wrong with the random generator
-                $this->clearFromMemory($newPwd);
-                error_log('OpenEMR Error : OpenEMR is not working because unable to create a random unique string.');
-                EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " OpenEMR Error : OpenEMR is not working because unable to create a random unique string.");
-                die("OpenEMR Error : OpenEMR is not working because unable to create a random unique string.");
-            }
         }
 
         // Ensure new password is not blank
@@ -832,10 +825,12 @@ class AuthUtils
         return $this->patientId;
     }
 
-    // Ensure user hash remains valid (for example, if user is deactivated or password is changed, then
-    //  this will not allow the same user in another session continue to use OpenEMR)
-    // This function is static since requires no class specific defines
     /**
+     * Ensure user hash remains valid (for example, if user is deactivated or password is changed, then
+     * this will not allow the same user in another session continue to use OpenEMR)
+     *
+     * This function is static since requires no class specific defines
+     *
      * @return bool
      */
     public static function authCheckSession()
@@ -864,9 +859,11 @@ class AuthUtils
         }
     }
 
-    // Check if the current or a specified user logs in with LDAP.
-    // This function is static since requires no class specific defines
     /**
+     * Check if the current or a specified user logs in with LDAP.
+     *
+     * This function is static since requires no class specific defines
+     *
      * @param $user
      * @return bool
      */
@@ -888,9 +885,11 @@ class AuthUtils
         return true;
     }
 
-    // Validation of user and password using LDAP.
-    // - $pass passed by reference to prevent storage of pass in memory
     /**
+     * Validation of user and password using LDAP.
+     *
+     * $pass passed by reference to prevent storage of pass in memory
+     *
      * @param $user
      * @param $pass
      * @return bool
@@ -975,10 +974,12 @@ class AuthUtils
         return false;
     }
 
-    // Function to centralize the rehash process
-    // It will return the new hash
-    // - $password passed by reference to prevent storage of pass in memory
     /**
+     * Function to centralize the rehash process
+     * It will return the new hash
+     *
+     * $password passed by reference to prevent storage of pass in memory
+     *
      * @param $username
      * @param $password
      * @return \s|string|void
@@ -988,12 +989,6 @@ class AuthUtils
         if (self::useActiveDirectory($username)) {
             // rehash for LDAP
             $newRandomDummyPassword = RandomGenUtils::produceRandomString(32, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-            if (empty($newRandomDummyPassword)) {
-                // Something is seriously wrong with the random generator
-                $this->clearFromMemory($password);
-                error_log('OpenEMR Error : OpenEMR is not working because unable to create a random unique string.');
-                die("OpenEMR Error : OpenEMR is not working because unable to create a random unique string.");
-            }
             $phash = $this->authHashAuth->passwordHash($newRandomDummyPassword);
             $this->clearFromMemory($newRandomDummyPassword);
         } else {
@@ -1111,7 +1106,7 @@ class AuthUtils
      * @param bool $showOnlyWithCount
      * @param bool $showOnlyManuallyBlocked
      * @param bool $showOnlyAutoBlocked
-     * @return false|\recordset
+     * @return false|\ADORecordSet
      */
     public static function collectIpLoginFailsSql(bool $showOnlyWithCount, bool $showOnlyManuallyBlocked, bool $showOnlyAutoBlocked)
     {
@@ -1399,10 +1394,12 @@ class AuthUtils
         }
     }
 
-    // Function to prevent timing attacks
-    //  For standard authentication, simulating a call to passwordVerify() run using the same hashing algorithm.
-    //  For ldap authentication, simulating a call to ldap server.
     /**
+     * Function to prevent timing attacks
+     *
+     * For standard authentication, simulating a call to passwordVerify() run using the same hashing algorithm.
+     * For ldap authentication, simulating a call to ldap server.
+     *
      * @return void
      */
     private function preventTimingAttack()
@@ -1417,9 +1414,11 @@ class AuthUtils
         }
     }
 
-    // Function to support clearing password from memory
-    // - $password passed by reference to prevent storage of pass in memory
     /**
+     * Function to support clearing password from memory
+     *
+     * $password passed by reference to prevent storage of pass in memory
+     *
      * @param $password
      * @return void
      * @throws SodiumException

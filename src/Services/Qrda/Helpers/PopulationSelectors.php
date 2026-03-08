@@ -2,7 +2,7 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
@@ -12,7 +12,7 @@ namespace OpenEMR\Services\Qrda\Helpers;
 
 trait PopulationSelectors
 {
-    public function numerator()
+    public function numerator(): bool
     {
         // populations.find {|pop| pop.type == 'NUMER'}
         foreach ($this->populations as $population) {
@@ -23,7 +23,7 @@ trait PopulationSelectors
         return false;
     }
 
-    public function denominator()
+    public function denominator(): bool
     {
         // populations.find {|pop| pop.type == 'DENOM'}
         foreach ($this->populations as $population) {
@@ -34,7 +34,7 @@ trait PopulationSelectors
         return false;
     }
 
-    public function denominator_exceptions()
+    public function denominator_exceptions(): bool
     {
         // populations.find {|pop| pop.type == 'DENEXCEP'}
         foreach ($this->populations as $population) {
@@ -45,7 +45,7 @@ trait PopulationSelectors
         return false;
     }
 
-    public function denominator_exclusions()
+    public function denominator_exclusions(): bool
     {
         // populations.find {|pop| pop.type == 'DENEX'}
         foreach ($this->populations as $population) {
@@ -56,7 +56,7 @@ trait PopulationSelectors
         return false;
     }
 
-    public function population_count($population_type, $population_id)
+    public function population_count(string $population_type, string $population_id): int
     {
         //           population = populations.find {|pop| pop.type == population_type && pop.id == population_id}
         //          if population
@@ -77,7 +77,7 @@ trait PopulationSelectors
         return $found;
     }
 
-    public function population_id($population_type)
+    public function population_id(string $population_type): string|false
     {
         // populations.find {|pop| pop.type == population_type}.id
         foreach ($this->populations as $population) {

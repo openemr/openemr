@@ -50,6 +50,7 @@
         "bacon/bacon-qr-code": "^3.0.3",
         "digitickets/lalit": "^3.4.0",
         "doctrine/dbal": "^4.4",
+        "doctrine/migrations": "^3.9",
         "dompdf/dompdf": "^3.1.4",
         "ezyang/htmlpurifier": "^4.19.0",
         "giggsey/libphonenumber-for-php": "^9.0",
@@ -61,7 +62,6 @@
         "knplabs/knp-snappy": "^1.5.1",
         "laminas/laminas-code": "^4.16",
         "laminas/laminas-config": "^3.10.1",
-        "laminas/laminas-db": "^2.20.0",
         "laminas/laminas-escaper": "^2.18.0",
         "laminas/laminas-eventmanager": "^3.15.0",
         "laminas/laminas-filter": "^2.42.0",
@@ -81,12 +81,14 @@
         "league/csv": "^9.28.0",
         "league/oauth2-server": "^8.4",
         "league/omnipay": "^3.2.1",
+        "moneyphp/money": "^4.8",
         "monolog/monolog": "^3.9.0",
         "mpdf/mpdf": "^8.2.7",
         "nyholm/psr7": "^1.8.2",
         "nyholm/psr7-server": "^1.1.0",
         "omnipay/stripe": "^3.2.0",
         "openemr/mustache": "^2.15.2",
+        "paragonie/constant_time_encoding": "^3.1.3",
         "particle/validator": "^2.3.6",
         "pear/archive_tar": "^1.6.0",
         "php-http/discovery": "^1.20.0",
@@ -96,6 +98,7 @@
         "phpoffice/phpspreadsheet": "^5.3.0",
         "phpseclib/phpseclib": "^3.0.48",
         "predis/predis": "^3.3.0",
+        "psr/clock": "^1.0",
         "psr/container": "^1.1",
         "psr/http-client": "^1.0",
         "psr/http-factory": "^1.1",
@@ -124,19 +127,23 @@
         "twilio/sdk": "^8.10.0",
         "vlucas/phpdotenv": "^5.6.3",
         "yubico/u2flib-server": "^1.0.2",
-        "zircote/swagger-php": "^3.0"
+        "zircote/swagger-php": "^6.0"
     },
     "require-dev": {
         "ergebnis/composer-normalize": "^2.48",
+        "iamcal/sql-parser": "^0.7.0",
         "maglnet/composer-require-checker": "^4.0",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
         "phpstan/phpstan-phpunit": "^2.0",
+        "phpstan/phpstan-strict-rules": "^2.0",
         "phpunit/php-code-coverage": "^11.0",
         "phpunit/phpunit": "^11.0",
         "ramsey/conventional-commits": "^1.5",
         "rector/rector": "^2.1",
         "shipmonk/phpstan-baseline-per-identifier": "^2.3",
+        "slevomat/coding-standard": "^8.28",
         "squizlabs/php_codesniffer": "^4.0",
         "symfony/panther": "^2.0"
     },
@@ -176,12 +183,14 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "OpenEMR\\PHPStan\\Rules\\": ".phpstan",
+            "OpenEMR\\PHPStan\\Rules\\": "tests/PHPStan/Rules",
+            "OpenEMR\\Rector\\Rules\\": "tests/Rector/Rules",
             "OpenEMR\\Tests\\": "tests\\Tests"
         }
     },
     "config": {
         "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": false,
             "ergebnis/composer-normalize": true,
             "openemr/oe-module-installer-plugin": true,
             "php-http/discovery": false,
@@ -273,8 +282,8 @@
         "codespell": "command -v codespell >/dev/null 2>&1 && codespell || echo 'codespell not found. Install with: brew install codespell OR pipx install codespell' >&2",
         "conventional-commits:check": "./vendor/bin/conventional-commits validate",
         "php-syntax-check": "git ls-files -z '*.php' | xargs -0 php -l | grep -vF 'No syntax errors detected in'",
-        "phpcbf": "php -d memory_limit=4g ./vendor/bin/phpcbf --standard=ci/phpcs.xml .",
-        "phpcs": "php -d memory_limit=4g ./vendor/bin/phpcs --standard=ci/phpcs.xml .",
+        "phpcbf": "phpcbf",
+        "phpcs": "phpcs",
         "phpstan": "phpstan analyze --memory-limit=4G --configuration=phpstan.neon.dist",
         "phpstan-baseline": [
             "phpstan analyze --memory-limit=8G --configuration=phpstan.neon.dist --generate-baseline=.phpstan/baseline/loader.php",

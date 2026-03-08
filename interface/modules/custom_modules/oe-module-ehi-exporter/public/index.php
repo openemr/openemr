@@ -4,15 +4,14 @@ namespace OpenEMR\Modules\EhiExporter;
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\Header;
-use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . "/../../../../globals.php");
 
 /**
  * @global OpenEMR\Core\ModulesClassLoader $classLoader
  */
-$bootstrap = Bootstrap::instantiate($GLOBALS['kernel']->getEventDispatcher(), $GLOBALS['kernel']);
+$bootstrap = Bootstrap::instantiate(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher(), OEGlobalsBag::getInstance()->getKernel());
 $exporter = $bootstrap->getExporter();
 
 
@@ -61,7 +60,7 @@ if (isset($_POST['submit'])) {
                 $taskId = intval($_POST['taskId'] ?? 0);
                 $task = $exporter->runExportTask($taskId);
                 echo json_encode($task->getJSON());
-            } catch (\Exception $exception) {
+            } catch (\Throwable $exception) {
                 $errorMessage = $exception->getMessage();
                 $bootstrap->getLogger()->errorLogCaller($errorMessage, ['trace' => $exception->getTraceAsString()]);
                 echo json_encode(['status' => 'failed', 'error_message' => $errorMessage, 'taskId' => $taskId]);
@@ -73,14 +72,14 @@ if (isset($_POST['submit'])) {
                 $task = $exporter->getExportTaskForStatusUpdate($taskId);
                 // will already have the encoded progress results in the task
                 echo json_encode($task->getJSON());
-            } catch (\Exception $exception) {
+            } catch (\Throwable $exception) {
                 $errorMessage = $exception->getMessage();
                 $bootstrap->getLogger()->errorLogCaller($errorMessage, ['trace' => $exception->getTraceAsString()]);
                 echo json_encode(['status' => 'failed', 'error_message' => $errorMessage, 'taskId' => $taskId]);
             }
             exit;
         }
-    } catch (\Exception $exception) {
+    } catch (\Throwable $exception) {
         $errorMessage = $exception->getMessage();
         $bootstrap->getLogger()->errorLogCaller($errorMessage, ['trace' => $exception->getTraceAsString()]);
     }

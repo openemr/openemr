@@ -12,7 +12,6 @@
 require_once($GLOBALS["srcdir"] . "/api.inc.php");
 
 use OpenEMR\Services\QuestionnaireResponseService;
-use OpenEMR\Services\QuestionnaireService;
 
 /**
  * @throws Exception
@@ -32,7 +31,7 @@ function questionnaire_assessments_report($pid, $encounter, $cols, $id): void
         }
         $html = $responseService->buildQuestionnaireResponseHtml($qr);
         echo $html;
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         echo xlt("Error") . " " . text($e->getMessage());
     }
 }

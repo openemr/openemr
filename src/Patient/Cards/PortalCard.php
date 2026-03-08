@@ -6,7 +6,7 @@
  * A class representing the Patient Portal card displayed on the MRD.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Robert Down <robertdown@live.com>
  * @copyright Copyright (c) 2022 Robert Down <robertdown@live.com
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,10 +14,11 @@
 
 namespace OpenEMR\Patient\Cards;
 
-use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
-use OpenEMR\Events\Patient\Card\Card;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
+use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
 use OpenEMR\Events\Patient\Summary\Card\SectionEvent;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class PortalCard extends CardModel
 {
@@ -27,15 +28,11 @@ class PortalCard extends CardModel
 
     private $opts = [];
 
-    /**
-     * @var EventDispatcher
-     */
-    private $ed;
+    private readonly EventDispatcherInterface $ed;
 
     public function __construct()
     {
-        global $GLOBALS;
-        $this->ed = $GLOBALS['kernel']->getEventDispatcher();
+        $this->ed = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 
         $this->setOpts();
         parent::__construct($this->opts);

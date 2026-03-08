@@ -14,12 +14,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Services\ContactService;
-use OpenEMR\Services\ContactAddressService;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\ORDataObject\Address;
 use OpenEMR\Common\ORDataObject\Contact;
 use OpenEMR\Common\ORDataObject\ContactAddress;
-use OpenEMR\Common\ORDataObject\Address;
+use OpenEMR\Services\ContactAddressService;
+use OpenEMR\Services\ContactService;
 
 /**
  * Save addresses for a patient from form data
@@ -88,7 +88,7 @@ function saveAddressesForPatient($pid, $addressData)
                         }
                         break;
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 $logger->error("Error processing address", [
                     'action' => $action,
                     'index' => $i,
@@ -102,7 +102,7 @@ function saveAddressesForPatient($pid, $addressData)
             'count' => count($savedAddresses)
         ]);
 
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         $logger->error("Error in saveAddressesForPatient", [
             'pid' => $pid,
             'error' => $e->getMessage()

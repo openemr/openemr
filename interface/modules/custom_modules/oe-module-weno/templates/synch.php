@@ -2,7 +2,7 @@
 
 /**
  * @package    OpenEMR
- * @link       http://www.open-emr.org
+ * @link       https://www.open-emr.org
  * @author     omegasystemsgroup.com
  * @author     Jerry Padgett <sjpadgett@gmail.com>
  * @copyright  Copyright (c) 2023 omega systems group international <info@omegasystemsgroup.com>
@@ -12,8 +12,8 @@
 
 require_once(dirname(__DIR__, 4) . "/globals.php");
 
-use OpenEMR\Modules\WenoModule\Services\LogProperties;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Modules\WenoModule\Services\LogProperties;
 use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
@@ -32,7 +32,7 @@ $task = $_REQUEST['key'] ?? $_POST['key'] ?? '';
 if ($task == 'downloadStatusLog') {
     try {
         $result = downloadWenoLogCsvAndZip();
-    } catch (Exception $e) {
+    } catch (\Throwable $e) {
         $result = false;
         $wenoLog->insertWenoLog("log download", text($e->getMessage()));
         error_log('Error downloading log: ' . errorLogEscape($e->getMessage()));
@@ -52,7 +52,7 @@ if ($task == 'downloadStatusLog') {
 // Check if the task is to sync the log
 try {
     $result = $logProperties->logSync($task);
-} catch (Exception $e) {
+} catch (\Throwable $e) {
     $result = false;
     $wenoLog->insertWenoLog("Sync Report", $e->getMessage());
     error_log('Error syncing log: ' . errorLogEscape($e->getMessage()));

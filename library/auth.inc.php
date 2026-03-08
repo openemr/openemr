@@ -21,7 +21,6 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionTracker;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Services\UserService;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 

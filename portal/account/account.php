@@ -4,7 +4,7 @@
  * Ajax Handler for Register
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017-2020 Jerry Padgett <sjpadgett@gmail.com>
@@ -12,7 +12,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 // Will start the (patient) portal OpenEMR session/cookie.
@@ -36,9 +39,6 @@ require_once(__DIR__ . "/../lib/portal_mail.inc.php");
 require_once("$srcdir/pnotes.inc.php");
 require_once("./account.lib.php");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Core\Header;
 
 $action = $_REQUEST['action'] ?? '';
 
@@ -47,9 +47,7 @@ if ($action == 'verify_email') {
         if (!empty($globalsBag->get('portal_onsite_two_register')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key'))) {
             // check csrf
             if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'verifyEmailCsrf', $session->getSymfonySession())) {
-                CsrfUtils::csrfNotVerified(true, true, false);
-                cleanupRegistrationSession();
-                exit;
+                CsrfUtils::csrfNotVerified(beforeExit: cleanupRegistrationSession(...));
             }
             // check recaptcha
             $recaptcha = processRecaptcha($_POST['g-recaptcha-response'] ?? '');
@@ -108,9 +106,7 @@ if ($action == 'reset_password') {
         if (!empty($globalsBag->get('portal_two_pass_reset')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key'))) {
             // check csrf
             if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'passwordResetCsrf', $session->getSymfonySession())) {
-                CsrfUtils::csrfNotVerified(true, true, false);
-                cleanupRegistrationSession();
-                exit;
+                CsrfUtils::csrfNotVerified(beforeExit: cleanupRegistrationSession(...));
             }
             // check recaptcha
             $recaptcha = processRecaptcha($_GET['g-recaptcha-response'] ?? '');

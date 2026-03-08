@@ -15,7 +15,6 @@ namespace OpenEMR\Services;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\FHIR\FhirCodeSystemConstants;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\TokenSearchField;
@@ -821,12 +820,12 @@ class PatientAdvanceDirectiveService extends BaseService
         try {
             $dateTime = new \DateTime($date);
             return $dateTime->format('Y-m-d\TH:i:s\Z');
-        } catch (\Exception) {
+        } catch (\Throwable) {
             // If it's just a date, format as date only
             try {
                 $dateTime = new \DateTime($date);
                 return $dateTime->format('Y-m-d');
-            } catch (\Exception) {
+            } catch (\Throwable) {
                 return $date; // Return as-is if can't parse
             }
         }

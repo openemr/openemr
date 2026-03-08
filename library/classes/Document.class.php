@@ -8,7 +8,7 @@
  *  which join on a documents id and categories which do the same.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Unknown -- No ownership was listed on this document prior to February 5th 2021
  * @author    Stephen Nielson <stephen@nielson.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -20,12 +20,14 @@
 require_once(__DIR__ . "/../pnotes.inc.php");
 require_once(__DIR__ . "/../gprelations.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\ORDataObject\ORDataObject;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDocuments\PatientDocumentStoreOffsite;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -249,7 +251,7 @@ class Document extends ORDataObject
             $this->populate();
         }
 
-        $this->eventDispatcher = $GLOBALS['kernel']->getEventDispatcher();
+        $this->eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     }
 
     /**
@@ -916,7 +918,7 @@ class Document extends ORDataObject
         // and leave it empty. Logically, documents are not tied to encounters.
 
         // Create a crypto object that will be used for for encryption/decryption
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = ServiceContainer::getCrypto();
 
         if ($GLOBALS['generate_doc_thumb']) {
             $thumb_size = ($GLOBALS['thumb_doc_max_size'] > 0) ? $GLOBALS['thumb_doc_max_size'] : null;
@@ -942,13 +944,13 @@ class Document extends ORDataObject
         if ($this->storagemethod == self::STORAGE_METHOD_COUCHDB) {
             // Store it using CouchDB.
             if ($GLOBALS['couchdb_encryption']) {
-                $document = $cryptoGen->encryptStandard($data, null, 'database');
+                $document = $cryptoGen->encryptStandard($data, null, KeySource::Database);
             } else {
                 $document = base64_encode($data);
             }
             if ($has_thumbnail) {
                 if ($GLOBALS['couchdb_encryption']) {
-                    $th_document = $cryptoGen->encryptStandard($thumbnail_data, null, 'database');
+                    $th_document = $cryptoGen->encryptStandard($thumbnail_data, null, KeySource::Database);
                 } else {
                     $th_document = base64_encode($thumbnail_data);
                 }
@@ -1038,7 +1040,7 @@ class Document extends ORDataObject
             }
 
             // Store the file.
-            $storedData = $GLOBALS['drive_encryption'] ? $cryptoGen->encryptStandard($data, null, 'database') : $data;
+            $storedData = $GLOBALS['drive_encryption'] ? $cryptoGen->encryptStandard($data, null, KeySource::Database) : $data;
             if (file_exists($filepath . $filenameUuid)) {
                 // this should never happen with current uuid mechanism
                 return xl('Failed since file already exists') . " $filepath$filenameUuid";
@@ -1051,7 +1053,7 @@ class Document extends ORDataObject
                 // Store the thumbnail.
                 $this->thumb_url = "file://" . $filepath . $this->get_thumb_name($filenameUuid);
                 if ($GLOBALS['drive_encryption']) {
-                    $storedThumbnailData = $cryptoGen->encryptStandard($thumbnail_data, null, 'database');
+                    $storedThumbnailData = $cryptoGen->encryptStandard($thumbnail_data, null, KeySource::Database);
                 } else {
                     $storedThumbnailData = $thumbnail_data;
                 }
@@ -1155,8 +1157,8 @@ class Document extends ORDataObject
      */
     public function decrypt_content($data)
     {
-        $cryptoGen = new CryptoGen();
-        $decryptedData = $cryptoGen->decryptStandard($data, null, 'database');
+        $cryptoGen = ServiceContainer::getCrypto();
+        $decryptedData = $cryptoGen->decryptStandard($data, null, KeySource::Database);
         if ($decryptedData === false) {
             throw new RuntimeException("Failed to decrypt the data");
         }

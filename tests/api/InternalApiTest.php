@@ -4,7 +4,7 @@
  * Testing script for the local/internal use of the api
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -15,7 +15,7 @@ if (!getenv('OPENEMR_ENABLE_INTERNAL_API_TEST')) {
     die('Set OPENEMR_ENABLE_INTERNAL_API_TEST=1 environment variable to enable this script');
 }
 
-$globalsBag = require_once(__DIR__ . "/../../interface/globals.php");
+require_once(__DIR__ . "/../../interface/globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
@@ -23,14 +23,12 @@ use OpenEMR\Common\Http\HttpRestRouteHandler;
 use OpenEMR\Common\Http\HttpSessionFactory;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Header;
-use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle;
-use OpenEMR\RestControllers\FHIR\Finder\FhirRouteFinder;
-use Symfony\Component\HttpKernel\Controller\ControllerResolver;
-use OpenEMR\Services\FacilityService;
+use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\RestControllers\FacilityRestController;
 use OpenEMR\RestControllers\Finder\StandardRouteFinder;
+use OpenEMR\Services\FacilityService;
+use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 
 ?>
 <html>
@@ -99,15 +97,16 @@ echo "<br /><br />";
 // CALL the api via route handler
 //  This allows same notation as the calls in the api (ie. '/api/facility'), but
 //  is limited to get requests at this time.
+$globalsBag = OEGlobalsBag::getInstance();
 $getParams = [];
 try {
     $restRequest = HttpRestRequest::create('/api/facility', 'GET');
     $restRequest->setRequestUserRole("users");
-    $sessionFactory = new HttpSessionFactory($restRequest, $globalsBag->get('webroot'), HttpSessionFactory::SESSION_TYPE_CORE);
+    $sessionFactory = new HttpSessionFactory($restRequest, $globalsBag->getString('webroot'), HttpSessionFactory::SESSION_TYPE_CORE);
     $sessionFactory->setUseExistingSessionBridge(true);
     $restRequest->setSession($sessionFactory->createSession());
     $getParams = $restRequest->getQueryParams();
-    $kernel = new OEHttpKernel($globalsBag->get('kernel')->getEventDispatcher(), new ControllerResolver());
+    $kernel = new OEHttpKernel($globalsBag->getKernel()->getEventDispatcher(), new ControllerResolver());
     $kernel->setSystemLogger(new SystemLogger());
     $dispatchHandler = new HttpRestRouteHandler($kernel);
     $routeFinder = new StandardRouteFinder($kernel);
@@ -128,7 +127,7 @@ try {
     echo "<b>api via route handler call returning json:</b><br />";
     $contents = $response->getBody()->getContents();
     echo $contents;
-} catch (\Exception $e) {
+} catch (\Throwable $e) {
     echo "<b>api via route handler call returned error:</b><br />";
     echo "Error Message: " . $e->getMessage() . "<br />";
 }

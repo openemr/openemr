@@ -8,7 +8,7 @@
  * TODO: adunsulag maybe we can rename this to be SearchFieldQueryConverter  I wonder if that will make more sense to people
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -224,12 +224,12 @@ class SearchFieldStatementResolver
             if ($modifier === SearchModifier::MISSING) {
                 if ($value->getCode() === false) {
                     // often our tokens get treated as string values so we will do this here also
-                    $clauses[] = "(" . $searchField->getField() . " IS NOT NULL AND " . $searchField->getField() . " != '') ";
+                    $clauses[] = "(" . $searchField->getField() . " IS NOT NULL AND CAST(" . $searchField->getField() . " AS CHAR) != '') ";
                 } else {
                     // TODO: @adunsulag do we want to compare token values to empty strings... it seems like that would be a missing value but
                     // could we get an inaccurate result here? or will we end up with a case with a number to string conversion on a field
                     // if the value is not a string?
-                    $clauses[] = "(" . $searchField->getField() . " IS NULL OR " . $searchField->getField() . " = '') ";
+                    $clauses[] = "(" . $searchField->getField() . " IS NULL OR CAST(" . $searchField->getField() . " AS CHAR) = '') ";
                 }
             // if we have other modifiers we would handle them here
             } else {

@@ -6,20 +6,20 @@
  * @category  Test
  * @package   OpenEMR\Tests\Unit\Common\Logging
  * @author    Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
+ * @copyright Copyright (c) 2025 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   GNU General Public License 3
- * @link      http://www.open-emr.org
- * @link      https://opencoreemr.com
+ * @link      https://www.open-emr.org
  */
 
 declare(strict_types=1);
 
 namespace OpenEMR\Tests\Unit\Common\Logging;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
 /**
@@ -108,7 +108,7 @@ final class EventAuditLoggerTest extends TestCase
 
         // Get EventAuditLogger instance (works with existing singleton)
         $this->eventAuditLogger = new EventAuditLogger(
-            new CryptoGen(),
+            ServiceContainer::getCrypto(),
         );
 
         // Setup default test environment
@@ -2668,7 +2668,7 @@ final class EventAuditLoggerTest extends TestCase
         try {
             $this->eventAuditLogger->sendAtnaAuditMsg('testuser', 'physicians', 'login', 123, 1, 'Test login');
             $this->addToAssertionCount(1);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // If an exception is thrown, it should not be due to our test setup
             $this->fail('sendAtnaAuditMsg should handle connection failures gracefully: ' . $e->getMessage());
         }

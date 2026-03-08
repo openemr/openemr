@@ -14,9 +14,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Services\ContactService;
-use OpenEMR\Services\ContactAddressService;
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\ContactAddressService;
+use OpenEMR\Services\ContactService;
 
 // Initialize services
 $contactService = new ContactService();
@@ -100,6 +101,6 @@ $templateVars = [
 ];
 
 // Render Twig template
-$twigContainer = new TwigContainer(null, $GLOBALS['kernel']);
+$twigContainer = new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel());
 $twig = $twigContainer->getTwig();
 echo $twig->render('patient/demographics/address_form.html.twig', $templateVars);

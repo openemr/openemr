@@ -27,7 +27,7 @@ class TranslationService
         $sql = "SELECT c.constant_name, d.definition FROM lang_definitions as d
         JOIN lang_constants AS c ON d.cons_id = c.cons_id
         WHERE d.lang_id = ?";
-        $tarns = sqlStatement($sql, $languageId);
+        $tarns = sqlStatement($sql, [$languageId]);
         $language_defs = [];
         while ($row = sqlFetchArray($tarns)) {
             $language_defs[$row['constant_name']] = $row['definition'];

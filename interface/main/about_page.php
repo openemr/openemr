@@ -7,11 +7,13 @@
  * If it have been entered in Globals along with the Manual and On Line Support Links
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Robert Down <robertdown@live.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2021-2023 Robert Down <robertdown@live.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -22,6 +24,8 @@ require_once("../globals.php");
 
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Services\ProductRegistrationService;
 use OpenEMR\Services\VersionService;
 
@@ -53,4 +57,7 @@ $viewArgs = [
     'emailRegistered' => $emailRegistered
 ];
 
-echo $t->render('core/about.html.twig', $viewArgs);
+$templatePageEvent = new TemplatePageEvent('about_page', [], 'core/about.html.twig', $viewArgs);
+$event = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($templatePageEvent, TemplatePageEvent::RENDER_EVENT);
+
+echo $t->render($event->getTwigTemplate(), $event->getTwigVariables());

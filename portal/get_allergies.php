@@ -18,7 +18,7 @@
  *
  * @package OpenEMR
  * @author  Cassian LUP <cassi.lup@gmail.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  */
 

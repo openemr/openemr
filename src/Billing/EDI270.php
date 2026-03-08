@@ -7,7 +7,7 @@
  * It also allows the reading and storing of the x12 271 file
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Terry Hill <terry@lilysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -24,14 +24,14 @@
 
 namespace OpenEMR\Billing;
 
-require_once(__DIR__ . "/../../library/edihistory/codes/edih_271_code_class.php");
-
 use edih_271_codes;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\MultipartStream;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\BillingProcessor\BillingClaimBatchControlNumber;
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Utils\RandomGenUtils;
+
+require_once(__DIR__ . "/../../library/edihistory/codes/edih_271_code_class.php");
 
 // @TODO global to become private var when this goes to a class.
 //
@@ -778,7 +778,7 @@ class EDI270
         }
         $boundary = RandomGenUtils::createUniqueToken(12);
 
-        $cryptoGen = new CryptoGen();
+        $cryptoGen = ServiceContainer::getCrypto();
         $decrypted_password = $cryptoGen->decryptStandard($X12info['x12_sftp_pass']);
         $rt_password = $decrypted_password;
         $rt_user = $X12info['x12_sftp_login'];

@@ -4,7 +4,7 @@
  * edih_view.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kevin McCormick Longview, Texas
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2012 Kevin McCormick Longview, Texas
@@ -14,15 +14,14 @@
 
 require_once(__DIR__ . '/../globals.php');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
 
 //
 if (!AclMain::aclCheckCore('acct', 'eob')) {
-    echo (new TwigContainer(null, $GLOBALS['kernel']))->getTwig()->render('core/unauthorized.html.twig', ['pageTitle' => xl("EDI History")]);
-    exit;
+    AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob: EDI History", xl("EDI History"));
 }
 
 ?>
