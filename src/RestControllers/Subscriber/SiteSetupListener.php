@@ -128,7 +128,7 @@ class SiteSetupListener implements EventSubscriberInterface
             $this->setupApiSession($request, $webroot, $siteId, $isOauth2Request);
         }
 
-        $globalsBag = $this->loadApplicationGlobals($event);
+        $globalsBag = $this->loadApplicationGlobals($event, $ignoreAuth);
 
         // need to do a bridge session
         if ($request->headers->get('APICSRFTOKEN')) {
@@ -175,9 +175,26 @@ class SiteSetupListener implements EventSubscriberInterface
     /**
      * Load globals.php and configure the kernel logger.
      * Override in tests to avoid requiring the full OpenEMR environment.
+     *
+     * globals.php reads several variables from the caller's local scope via
+     * PHP include semantics. Set them here so they remain visible to the
+     * included file.
      */
-    protected function loadApplicationGlobals(RequestEvent $event): mixed
+    protected function loadApplicationGlobals(RequestEvent $event, bool $ignoreAuth): mixed
     {
+        // globals.php line 236: $read_only = empty($sessionAllowWrite)
+        $sessionAllowWrite = true;
+
+        // globals.php line 220: if (isset($globalsBag)) — reuse the kernel's bag
+        // globals.php line 234: $globalsBag->set('eventDispatcher', $eventDispatcher ?? null)
+        if ($event->getKernel() instanceof OEHttpKernel) {
+            $eventDispatcher = $event->getKernel()->getEventDispatcher();
+            $globalsBag = $event->getKernel()->getGlobalsBag();
+        }
+
+        // globals.php line 251: if (empty($ignoreAuth) && empty($ignoreAuth_onsite_portal))
+        // $ignoreAuth is already a parameter in this scope.
+
         $globalsBag = require_once(__DIR__ . "/../../../interface/globals.php");
         if ($event->getKernel() instanceof OEHttpKernel) {
             $event->getKernel()->setSystemLogger(new SystemLogger());

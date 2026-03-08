@@ -49,9 +49,9 @@ class TestableSiteSetupListener extends SiteSetupListener
         ];
     }
 
-    protected function loadApplicationGlobals(RequestEvent $event): mixed
+    protected function loadApplicationGlobals(RequestEvent $event, bool $ignoreAuth): mixed
     {
-        $this->calls['loadApplicationGlobals'] = true;
+        $this->calls['loadApplicationGlobals'] = ['ignoreAuth' => $ignoreAuth];
         return null;
     }
 
@@ -198,6 +198,7 @@ class SiteSetupListenerTest extends TestCase
 
         // Globals and OAuth keys were initialized
         $this->assertArrayHasKey('loadApplicationGlobals', $listener->calls);
+        $this->assertTrue($listener->calls['loadApplicationGlobals']['ignoreAuth']);
         $this->assertArrayHasKey('setupOAuthKeys', $listener->calls);
     }
 
@@ -239,6 +240,7 @@ class SiteSetupListenerTest extends TestCase
 
         // Globals and OAuth keys still initialized
         $this->assertArrayHasKey('loadApplicationGlobals', $listener->calls);
+        $this->assertFalse($listener->calls['loadApplicationGlobals']['ignoreAuth']);
         $this->assertArrayHasKey('setupOAuthKeys', $listener->calls);
     }
 
