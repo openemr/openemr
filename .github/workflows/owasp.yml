@@ -1,0 +1,35 @@
+name: Dependency Scan
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+permissions:
+  contents: read
+
+jobs:
+  depcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Run OWASP Dependency-Check
+        uses: owasp/dependency-check-action@1.1.0
+        with:
+          project: 'OpenEMR'
+          path: '.'
+          format: 'HTML'
+          out: 'reports' # Where the report will be saved
+          args: >
+            --failOnCVSS 7
+            --enableRetired false
+
+      - name: Upload Report
+        uses: actions/upload-artifact@v4
+        if: always() # Ensures report is uploaded even if vulnerabilities are found
+        with:
+          name: DepCheck report
+          path: reports
