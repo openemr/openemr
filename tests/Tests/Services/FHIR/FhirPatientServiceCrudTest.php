@@ -40,7 +40,7 @@ class FhirPatientServiceCrudTest extends TestCase
     protected function setUp(): void
     {
         $this->fixtureManager = new FixtureManager();
-        $this->patientFixture = (array) $this->fixtureManager->getSinglePatientFixture();
+        $this->patientFixture = $this->fixtureManager->getSinglePatientFixture();
         $fixture = (array) $this->fixtureManager->getSingleFhirPatientFixture();
         $this->fhirPatientFixture = FhirPatientSerializer::deserialize($fixture);
         $this->fhirPatientService = new FhirPatientService();

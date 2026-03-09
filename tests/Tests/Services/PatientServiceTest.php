@@ -33,7 +33,7 @@ class PatientServiceTest extends TestCase
     {
         $this->patientService = new PatientService();
         $this->fixtureManager = new FixtureManager();
-        $this->patientFixture = (array) $this->fixtureManager->getSinglePatientFixture();
+        $this->patientFixture = $this->fixtureManager->getSinglePatientFixture();
     }
 
     protected function tearDown(): void
