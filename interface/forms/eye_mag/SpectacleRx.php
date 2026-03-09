@@ -21,6 +21,7 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/report.inc.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
@@ -1235,7 +1236,7 @@ if ($REFTYPE == "CTL") {
             </tr>
             <tr>
                 <?php
-                    $signature = $GLOBALS["webserver_root"] . "/interface/forms/eye_mag/images/sign_" . attr($_SESSION['authUserID']) . ".jpg";
+                    $signature = OEGlobalsBag::getInstance()->get("webserver_root") . "/interface/forms/eye_mag/images/sign_" . attr($_SESSION['authUserID']) . ".jpg";
                 if (file_exists($signature)) {
                     ?>
                 <td class="center" style="margin:25px auto;">

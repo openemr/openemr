@@ -19,6 +19,7 @@ require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 formHeader("Form: note");
 $returnurl = 'encounter_top.php';
@@ -39,14 +40,14 @@ if ($_GET['id'] != "") {
 
 <script>
 // required for textbox date verification
-var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+var mypcc = <?php echo js_escape(OEGlobalsBag::getInstance()->get('phone_country_code')); ?>;
 
 $(function () {
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });

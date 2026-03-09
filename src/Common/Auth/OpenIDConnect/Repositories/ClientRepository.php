@@ -19,6 +19,7 @@ use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Utils\HttpUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 class ClientRepository implements ClientRepositoryInterface
 {
@@ -75,7 +76,7 @@ class ClientRepository implements ClientRepositoryInterface
             $scopeRepo->hasScopesThatRequireManualApproval(
                 $is_confidential_client == 1,
                 $scopes,
-                $GLOBALS['oauth_app_manual_approval'] ?? '0'
+                OEGlobalsBag::getInstance()->get('oauth_app_manual_approval') ?? '0'
             )
         ) {
             $is_client_enabled = 0; // disabled

@@ -69,12 +69,12 @@ if ($pid) {
 }
 // $statii = array('married','single','divorced','widowed','separated','domestic partner');
 // $provideri = getProviderInfo();
-$insurancei = $GLOBALS['insurance_information'] != '0' ? getInsuranceProvidersExtra() : getInsuranceProviders();
+$insurancei = OEGlobalsBag::getInstance()->get('insurance_information') != '0' ? getInsuranceProvidersExtra() : getInsuranceProviders();
 //Check to see if only one insurance is allowed
-$insurance_array = $GLOBALS['insurance_only_one'] ? ['primary'] : ['primary', 'secondary', 'tertiary'];
+$insurance_array = OEGlobalsBag::getInstance()->get('insurance_only_one') ? ['primary'] : ['primary', 'secondary', 'tertiary'];
 
 //Check to see if only one insurance is allowed
-if ($GLOBALS['insurance_only_one']) {
+if (OEGlobalsBag::getInstance()->get('insurance_only_one')) {
     $insurance_headings = [xl("Primary Insurance Provider")];
 } else {
     $insurance_headings = [xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider")];
@@ -86,8 +86,8 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
 //$insrender(uranceTypes = array_unique($insuranceTypes);
 // we DO NOT want to allow users to add states/localities in this form per Business Rules
 // so if we have a state add button we are removing it here.
-$state_data_type = $GLOBALS['state_data_type'] === '26' ? '1' : $GLOBALS['state_data_type'];
-$country_data_type = $GLOBALS['country_data_type'] === '26' ? '1' : $GLOBALS['country_data_type'];
+$state_data_type = OEGlobalsBag::getInstance()->get('state_data_type') === '26' ? '1' : OEGlobalsBag::getInstance()->get('state_data_type');
+$country_data_type = OEGlobalsBag::getInstance()->get('country_data_type') === '26' ? '1' : OEGlobalsBag::getInstance()->get('country_data_type');
 echo $twig->render(
     "patient/insurance/insurance_edit.html.twig",
     [
@@ -96,18 +96,18 @@ echo $twig->render(
         'patient' => $result,
         'puuid' => UuidRegistry::uuidToString($result['uuid'])
         ,'insuranceProviderList' => $insurancei
-        ,'enableSwapSecondaryInsurance' => $GLOBALS['enable_swap_secondary_insurance']
-        ,'include_employers' => empty($GLOBALS['omit_employers']) === true
-        ,'useStateTerminology' => $GLOBALS['phone_country_code'] === '1'
-        ,'state_list' => $GLOBALS['state_list']
+        ,'enableSwapSecondaryInsurance' => OEGlobalsBag::getInstance()->get('enable_swap_secondary_insurance')
+        ,'include_employers' => empty(OEGlobalsBag::getInstance()->get('omit_employers')) === true
+        ,'useStateTerminology' => OEGlobalsBag::getInstance()->get('phone_country_code') === '1'
+        ,'state_list' => OEGlobalsBag::getInstance()->get('state_list')
         ,'state_data_type' => $state_data_type
         ,'country_data_type' => $country_data_type
-        ,'country_list' => $GLOBALS['country_list']
+        ,'country_list' => OEGlobalsBag::getInstance()->get('country_list')
         // policy_types is defined in patient.inc.php
-        ,'policy_types' => $GLOBALS['policy_types']
-        ,'uspsVerifyAddress' => $GLOBALS['usps_apiv3_client_id']
-        ,'languageDirection' => $GLOBALS['language_direction'] ?? ''
-        ,'rightJustifyLabels' => $GLOBALS['right_justify_labels_demographics']
+        ,'policy_types' => OEGlobalsBag::getInstance()->get('policy_types')
+        ,'uspsVerifyAddress' => OEGlobalsBag::getInstance()->get('usps_apiv3_client_id')
+        ,'languageDirection' => OEGlobalsBag::getInstance()->get('language_direction') ?? ''
+        ,'rightJustifyLabels' => OEGlobalsBag::getInstance()->get('right_justify_labels_demographics')
     ]
 );
 exit;

@@ -15,7 +15,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once($GLOBALS["srcdir"] . "/options.inc.php");
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once(OEGlobalsBag::getInstance()->get("srcdir") . "/options.inc.php");
 
 function care_plan_report($pid, $encounter, $cols, $id): void
 {

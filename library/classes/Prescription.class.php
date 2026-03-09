@@ -92,6 +92,7 @@ require_once(__DIR__ . "/../lists.inc.php");
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FHIR\Enum\FHIRMedicationIntentEnum;
 use OpenEMR\Services\ListService;
 
@@ -1028,7 +1029,7 @@ class Prescription extends ORDataObject
     }
     function get_prescription_display()
     {
-        $pconfig = $GLOBALS['oer_config']['prescriptions'];
+        $pconfig = OEGlobalsBag::getInstance()->get('oer_config')['prescriptions'];
 
         switch ($pconfig['format']) {
             case "FL":

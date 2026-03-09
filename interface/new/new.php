@@ -14,8 +14,9 @@ require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
-if ($GLOBALS['full_new_patient_form']) {
+if (OEGlobalsBag::getInstance()->get('full_new_patient_form')) {
     require("new_comprehensive.php");
     exit;
 }
@@ -40,14 +41,14 @@ $form_regdate   = $_POST['regdate'  ] ? trim((string) $_POST['regdate'  ]) : dat
 
 <?php
     Header::setupHeader('datetime-picker');
-    include_once($GLOBALS['srcdir'] . "/options.js.php");
+    include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/options.js.php");
 ?>
 
 <script>
 
  function validate() {
   var f = document.forms[0];
-<?php if ($GLOBALS['inhouse_pharmacy']) { ?>
+<?php if (OEGlobalsBag::getInstance()->get('inhouse_pharmacy')) { ?>
   if (f.refsource.selectedIndex <= 0) {
    alert('Please select a referral source!');
    return false;
@@ -74,14 +75,14 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
     $('.datetimepicker').datetimepicker({
         <?php $datetimepicker_timepicker = true; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });
@@ -102,13 +103,13 @@ $(function () {
 
 <center>
 
-<?php if ($GLOBALS['omit_employers']) { ?>
+<?php if (OEGlobalsBag::getInstance()->get('omit_employers')) { ?>
    <input type='hidden' name='title' value='' />
 <?php } ?>
 
 <table class="border-0">
 
-<?php if (!$GLOBALS['omit_employers']) { ?>
+<?php if (!OEGlobalsBag::getInstance()->get('omit_employers')) { ?>
  <tr>
   <td>
    <span class='font-weight-bold'><?php echo xlt('Title'); ?>:</span>
@@ -182,7 +183,7 @@ while ($orow = sqlFetchArray($ores)) {
   </td>
  </tr>
 
-<?php if ($GLOBALS['inhouse_pharmacy']) { ?>
+<?php if (OEGlobalsBag::getInstance()->get('inhouse_pharmacy')) { ?>
  <tr>
   <td>
    <span class='font-weight-bold'><?php echo xlt('Referral Source'); ?>: </span>

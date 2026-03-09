@@ -16,6 +16,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\ModuleService;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 use OpenEMR\Modules\WenoModule\Services\WenoValidate;
@@ -38,8 +39,8 @@ $vendors['weno_secondary_encryption_key'] = '';
 $vendors['weno_provider_email'] = '';
 $vendors['weno_provider_password'] = '';
 
-$facilityUrl = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-weno/templates/setup_facilities.php";
-$usersUrl = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-weno/templates/weno_users.php";
+$facilityUrl = OEGlobalsBag::getInstance()->get('web_root') . "/interface/modules/custom_modules/oe-module-weno/templates/setup_facilities.php";
+$usersUrl = OEGlobalsBag::getInstance()->get('web_root') . "/interface/modules/custom_modules/oe-module-weno/templates/weno_users.php";
 $saveAction = false;
 $saveActionPersist = false;
 $isValidKey = true;

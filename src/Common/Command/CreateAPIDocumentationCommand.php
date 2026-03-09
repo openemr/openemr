@@ -17,6 +17,7 @@ use OpenApi\Generator;
 use OpenApi\Processors\DocBlockDescriptions;
 use OpenApi\Processors\OperationId;
 use OpenApi\SourceFinder;
+use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
@@ -44,7 +45,7 @@ class CreateAPIDocumentationCommand extends Command
         // sets up $GLOBALS['fileroot'] before the command runs, but OEGlobalsBag
         // may not be fully initialized when --skip-globals is used.
         /** @var string $fileroot */
-        $fileroot = $GLOBALS['fileroot'];
+        $fileroot = OEGlobalsBag::getInstance()->get('fileroot');
         $fileDestinationFolder = $fileroot . DIRECTORY_SEPARATOR . "swagger" . DIRECTORY_SEPARATOR;
         $fileDestinationYaml =  $fileDestinationFolder . "openemr-api.yaml";
 

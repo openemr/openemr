@@ -13,6 +13,7 @@
 require_once(dirname(__DIR__, 4) . "/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\LogProperties;
 use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
@@ -111,7 +112,7 @@ function downloadWenoLogCsvAndZip()
     $csvFilePath = $tempDir . DIRECTORY_SEPARATOR . $csvFileName;
     $zipFileName = 'weno_support_debug.zip';
     $zipFilePath = $tempDir . DIRECTORY_SEPARATOR . $zipFileName;
-    $wenoDirectory = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/";
+    $wenoDirectory = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/weno/";
 
     // Create CSV of log content to temporary file
     $csvFile = fopen($csvFilePath, 'w');

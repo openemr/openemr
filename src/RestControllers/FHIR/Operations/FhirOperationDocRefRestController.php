@@ -17,6 +17,7 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROperationOutcome;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIssueSeverity;
@@ -108,7 +109,7 @@ class FhirOperationDocRefRestController
             foreach ($processingResult->getData() as $searchResult) {
                 // we actually need to truncate off the operation
                 $bundleEntry = [
-                    'fullUrl' => $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
+                    'fullUrl' => OEGlobalsBag::getInstance()->get('site_addr_oath') . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
                     'resource' => $searchResult
                 ];
                 $fhirBundleEntry = new FHIRBundleEntry($bundleEntry);

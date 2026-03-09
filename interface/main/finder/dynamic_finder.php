@@ -278,16 +278,16 @@ $loading = "";
             "columns": [ <?php echo $coljson; ?> ],
             "order": [ <?php echo $orderjson; ?> ],
             "lengthMenu": [10, 25, 50, 100],
-            "pageLength": <?php echo empty($GLOBALS['gbl_pt_list_page_size']) ? '10' : $GLOBALS['gbl_pt_list_page_size']; ?>,
+            "pageLength": <?php echo empty(OEGlobalsBag::getInstance()->get('gbl_pt_list_page_size')) ? '10' : OEGlobalsBag::getInstance()->get('gbl_pt_list_page_size'); ?>,
             <?php // Bring in the translations ?>
             <?php $translationsDatatablesOverride = ['search' => (xla('Search all columns') . ':')]; ?>
             <?php $translationsDatatablesOverride = ['processing' => $loading]; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/datatables-net.js.php'); ?>
         });
 
 
         <?php
-        $checked = (!empty($GLOBALS['gbl_pt_list_new_window'])) ? 'checked' : '';
+        $checked = (!empty(OEGlobalsBag::getInstance()->get('gbl_pt_list_new_window'))) ? 'checked' : '';
         ?>
         $("div.mytopdiv").html("<form name='myform'><div class='form-check form-check-inline'><label for='form_new_window' class='form-check-label' id='form_new_window_label'><input type='checkbox' class='form-check-input' id='form_new_window' name='form_new_window' value='1' <?php echo $checked; ?> /><?php echo xlt('Open in New Browser Tab'); ?></label></div><div class='form-check form-check-inline'><label for='setting_search_type' id='setting_search_type_label' class='form-check-label'><input type='checkbox' name='setting_search_type' class='form-check-input' id='setting_search_type' onchange='persistCriteria(this, event)' value='<?php echo attr($patient_finder_exact_search); ?>'<?php echo text($patient_finder_exact_search); ?>/><?php echo xlt('Search with exact method'); ?></label></div></form>");
 
@@ -379,7 +379,7 @@ $loading = "";
         $event->setPrimaryMenuItem(new BaseMenuItem([
             'displayText' => xl('Add New Patient'),
             'linkClassList' => ['btn-add'],
-            'id' => $GLOBALS['webroot'] . '/interface/new/new.php',
+            'id' => OEGlobalsBag::getInstance()->get('webroot') . '/interface/new/new.php',
             'acl' => ['patients', 'demo', ['write', 'addonly']]
         ]));
     });
@@ -421,7 +421,7 @@ function rp()
         $col_name = $v['option_id'];
         $dt_format = '';
         if (in_array($col_name, $date_cols) || in_array($col_name, $datetime_cols)) {
-            switch ($GLOBALS['date_display_format']) {
+            switch (OEGlobalsBag::getInstance()->get('date_display_format')) {
                 case 0: // mysql YYYY-MM-DD format
                     $dt_format = "'%Y-%m-%d";
                     break;
@@ -433,7 +433,7 @@ function rp()
                     break;
             }
             if (in_array($col_name, $datetime_cols)) {
-                switch ($GLOBALS['time_display_format']) {
+                switch (OEGlobalsBag::getInstance()->get('time_display_format')) {
                     case 0: // 24 Hr fmt
                         $dt_format .= " %T";
                         break;

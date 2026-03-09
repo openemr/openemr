@@ -15,6 +15,7 @@ require_once("../../globals.php");
 require_once("../../../custom/code_types.inc.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 ?>
 <html>
@@ -43,11 +44,11 @@ use OpenEMR\Core\Header;
 <dd><a class="text" href="copay.php" target="Codes" onclick="top.restoreSession()"><?php echo xlt('Copay'); ?></a></dd>
 <dd><a class="text" href="other.php" target="Codes" onclick="top.restoreSession()"><?php echo xlt('Other'); ?></a></dd><br />
 
-<?php if (!$GLOBALS['disable_prescriptions']) { ?>
+<?php if (!OEGlobalsBag::getInstance()->get('disable_prescriptions')) { ?>
 <dt><span href="coding.php" class="title"><?php echo xlt('Prescriptions'); ?></span></dt>
-<dd><a class="text" href="<?php echo $GLOBALS['webroot']?>/controller.php?prescription&list&id=<?php echo attr_url($pid); ?>"
+<dd><a class="text" href="<?php echo OEGlobalsBag::getInstance()->get('webroot')?>/controller.php?prescription&list&id=<?php echo attr_url($pid); ?>"
  target="Codes" onclick="top.restoreSession()"><?php echo xlt('List Prescriptions'); ?></a></dd>
-<dd><a class="text" href="<?php echo $GLOBALS['webroot']?>/controller.php?prescription&edit&id=&pid=<?php echo attr_url($pid); ?>"
+<dd><a class="text" href="<?php echo OEGlobalsBag::getInstance()->get('webroot')?>/controller.php?prescription&edit&id=&pid=<?php echo attr_url($pid); ?>"
  target="Codes" onclick="top.restoreSession()"><?php echo xlt('Add Prescription'); ?></a></dd>
 <?php }; // if (!$GLOBALS['disable_prescriptions']) ?>
 </dl>

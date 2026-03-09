@@ -1816,12 +1816,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/report_database.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n ", expected variable at offset 300 on line 13$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n ", expected variable at offset 333 on line 16$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty/plugins/function.assetVersionNumber.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 283 on line 12$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(array
+
+use OpenEMR\\\\Core\\\\OEGlobalsBag;\\)\\: Unexpected token "\\\\n", expected variable at offset 283 on line 12$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty/plugins/function.assetVersionNumber.php',
 ];
@@ -2051,12 +2053,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_checkboxes.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 1056 on line 25$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 1089 on line 28$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_image.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 1039 on line 24$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 1072 on line 27$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_image.php',
 ];

@@ -118,23 +118,18 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot use \\+\\+ on mixed\\.$#',
-    'count' => 3,
+    'count' => 2,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/library/AbstractAmcReport.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot use \\+\\+ on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Cqm/library/AbstractCqmReport.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot use \\+\\+ on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/smtp/smtp.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot use \\+\\+ on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/clinical_rules.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot use \\+\\+ on mixed\\.$#',

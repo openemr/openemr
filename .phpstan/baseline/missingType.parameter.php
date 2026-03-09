@@ -25172,6 +25172,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/formatting.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function add_escape_custom\\(\\) has parameter \\$s with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formdata.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function escape_identifier\\(\\) has parameter \\$whitelist_items with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/formdata.inc.php',

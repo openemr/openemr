@@ -178,7 +178,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 15,
+    'count' => 20,
     'path' => __DIR__ . '/../../interface/billing/edit_payment.php',
 ];
 $ignoreErrors[] = [
@@ -198,7 +198,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 3,
+    'count' => 9,
     'path' => __DIR__ . '/../../interface/billing/new_payment.php',
 ];
 $ignoreErrors[] = [
@@ -1403,7 +1403,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 2,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/patient_file/encounter/superbill_custom_full.php',
 ];
 $ignoreErrors[] = [
@@ -3040,6 +3040,16 @@ $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
     'count' => 8,
     'path' => __DIR__ . '/../../sphere/initial_response.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot cast mixed to string\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../sql_patch.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot cast mixed to string\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../sql_upgrade.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',

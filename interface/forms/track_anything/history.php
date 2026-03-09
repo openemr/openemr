@@ -13,10 +13,11 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once($GLOBALS["srcdir"] . "/api.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("srcdir") . "/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $returnurl = 'encounter_top.php';
 if (empty($formid)) {
@@ -67,7 +68,7 @@ echo "<html><head>";
 //******* **********************************
 ?>
 
-<?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
+<?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/dygraphs.js.php'; ?>
 
 <?php Header::setupHeader('dygraphs'); ?>
 
@@ -164,7 +165,7 @@ echo "<input type='hidden' name='fromencounter' value='" . attr($fromencounter) 
 // go to encounter or go to demographics
 //---------------------------------------------
 if ($fromencounter == 1) {
-    echo "<td>&nbsp;&nbsp;&nbsp;<a class='btn btn-primary' href='" . $GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>" . xlt('Back to encounter') . "</span></a></td>";
+    echo "<td>&nbsp;&nbsp;&nbsp;<a class='btn btn-primary' href='" . OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>" . xlt('Back to encounter') . "</span></a></td>";
 }
 
 if ($fromencounter == 0) {
@@ -421,7 +422,7 @@ echo "<input type='hidden' name='fromencounter' value='" . attr($fromencounter) 
 // go to encounter or go to demographics
 //---------------------------------------------
 if ($fromencounter == 1) {
-    echo "<td>&nbsp;&nbsp;&nbsp;<a class='btn btn-primary' href='" . $GLOBALS['webroot'] . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>" . xlt('Back to encounter') . "</span></a></td>";
+    echo "<td>&nbsp;&nbsp;&nbsp;<a class='btn btn-primary' href='" . OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/encounter/$returnurl' onclick='top.restoreSession()'><span>" . xlt('Back to encounter') . "</span></a></td>";
 }
 
 if ($fromencounter == 0) {

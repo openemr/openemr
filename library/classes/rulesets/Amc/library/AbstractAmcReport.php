@@ -31,6 +31,7 @@ require_once(__DIR__ . "/../../../../clinical_rules.php");
 require_once(__DIR__ . "/../../../../amc.php");
 
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Reports\AMC\Trackers\AMCItemSkipTracker;
 use OpenEMR\Reports\AMC\Trackers\AMCItemTracker;
 
@@ -98,7 +99,7 @@ abstract class AbstractAmcReport implements RsReportIF
         $this->_endMeasurement = $dateTarget['dateTarget'] ?? '';
         $this->_manualLabNumber = $options['labs_manual'] ?? 0;
 
-        if (isset($GLOBALS['report_itemizing_temp_flag_and_id']) && $GLOBALS['report_itemizing_temp_flag_and_id']) {
+        if (OEGlobalsBag::getInstance()->has('report_itemizing_temp_flag_and_id') && OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id')) {
             $this->_aggregator = $options['aggregator'] ?? new AMCItemTracker();
         } else {
             $this->_aggregator = new AMCItemSkipTracker();
@@ -139,8 +140,8 @@ abstract class AbstractAmcReport implements RsReportIF
         // Note that when AMC rules supports different patient populations and
         // numerator calculation, then it will need to change placement of
         // this and mimic the CQM rules mechanism
-        if ($GLOBALS['report_itemizing_temp_flag_and_id']) {
-            $GLOBALS['report_itemized_test_id_iterator']++;
+        if (OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id')) {
+            OEGlobalsBag::getInstance()->set('report_itemized_test_id_iterator', OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator') + 1);
         }
 
         $numerator = $this->createNumerator();
@@ -224,8 +225,8 @@ abstract class AbstractAmcReport implements RsReportIF
             }
             // If itemization is turned on, then record the "passed" item
             $this->_aggregator->addItem(
-                $GLOBALS['report_itemizing_temp_flag_and_id'],
-                $GLOBALS['report_itemized_test_id_iterator'],
+                OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'),
+                OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator'),
                 $this->_ruleId,
                 $tempBeginMeasurement,
                 $this->_endMeasurement,
@@ -282,8 +283,8 @@ abstract class AbstractAmcReport implements RsReportIF
                         $numeratorResultItemDetails = $numerator->getItemizedDataForLastTest();
                     }
                     $this->_aggregator->addItem(
-                        $GLOBALS['report_itemizing_temp_flag_and_id'],
-                        $GLOBALS['report_itemized_test_id_iterator'],
+                        OEGlobalsBag::getInstance()->get('report_itemizing_temp_flag_and_id'),
+                        OEGlobalsBag::getInstance()->get('report_itemized_test_id_iterator'),
                         $this->_ruleId,
                         $tempBeginMeasurement,
                         $this->_endMeasurement,

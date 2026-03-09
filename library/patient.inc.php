@@ -21,6 +21,7 @@
 use OpenEMR\Billing\InsurancePolicyTypes;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\EmployerService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\InsuranceCompanyService;
@@ -146,7 +147,7 @@ function getFacility($facid = 0)
         return $facilityService->getById($facid);
     }
 
-    if ($GLOBALS['login_into_facility']) {
+    if (OEGlobalsBag::getInstance()->get('login_into_facility')) {
         //facility is saved in sessions
         $facility  = $facilityService->getById($session->get('facilityId'));
     } else {
@@ -258,7 +259,7 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
     //(CHEMED) facility filter
     $param2 = "";
     if ($facility) {
-        if ($GLOBALS['restrict_user_facility']) {
+        if (OEGlobalsBag::getInstance()->get('restrict_user_facility')) {
             $param2 = " AND (facility_id = '" . add_escape_custom($facility) . "' OR  '" . add_escape_custom($facility) . "' IN (select facility_id from users_facility where tablename = 'users' and table_id = id))";
         } else {
             $param2 = " AND facility_id = '" . add_escape_custom($facility) . "' ";
@@ -477,11 +478,11 @@ function genPatientHeaderFooter($pid, $DOS = null)
 function _set_patient_inc_count($limit, $count, $where, $whereBindArray = []): void
 {
   // When the limit is exceeded, find out what the unlimited count would be.
-    $GLOBALS['PATIENT_INC_COUNT'] = $count;
+    OEGlobalsBag::getInstance()->set('PATIENT_INC_COUNT', $count);
   // if ($limit != "all" && $GLOBALS['PATIENT_INC_COUNT'] >= $limit) {
     if ($limit != "all") {
         $tmp = sqlQuery("SELECT count(*) AS count FROM patient_data WHERE $where", $whereBindArray);
-        $GLOBALS['PATIENT_INC_COUNT'] = $tmp['count'];
+        OEGlobalsBag::getInstance()->set('PATIENT_INC_COUNT', $tmp['count']);
     }
 }
 
@@ -555,11 +556,11 @@ function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, p
         array_push($sqlBindArray, $names['last'], $names['first']);
     }
 
-    if (!empty($GLOBALS['pt_restrict_field'])) {
-        if ($session->get("authUser") != 'admin' || $GLOBALS['pt_restrict_admin']) {
-            $where .= " AND ( patient_data." . add_escape_custom($GLOBALS['pt_restrict_field']) .
+    if (!empty(OEGlobalsBag::getInstance()->get('pt_restrict_field'))) {
+        if ($session->get("authUser") != 'admin' || OEGlobalsBag::getInstance()->get('pt_restrict_admin')) {
+            $where .= " AND ( patient_data." . add_escape_custom(OEGlobalsBag::getInstance()->get('pt_restrict_field')) .
                 " = ( SELECT facility_id FROM users WHERE username = ?) OR patient_data." .
-                add_escape_custom($GLOBALS['pt_restrict_field']) . " = '' ) ";
+                add_escape_custom(OEGlobalsBag::getInstance()->get('pt_restrict_field')) . " = '' ) ";
             array_push($sqlBindArray, $session->get("authUser"));
         }
     }
@@ -638,11 +639,11 @@ function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, provid
     $sqlBindArray = [];
     $where = "pubpid LIKE ? ";
     array_push($sqlBindArray, $pid . "%");
-    if (!empty($GLOBALS['pt_restrict_field']) && $GLOBALS['pt_restrict_by_id']) {
-        if ($session->get("authUser") != 'admin' || $GLOBALS['pt_restrict_admin']) {
-            $where .= "AND ( patient_data." . add_escape_custom($GLOBALS['pt_restrict_field']) .
+    if (!empty(OEGlobalsBag::getInstance()->get('pt_restrict_field')) && OEGlobalsBag::getInstance()->get('pt_restrict_by_id')) {
+        if ($session->get("authUser") != 'admin' || OEGlobalsBag::getInstance()->get('pt_restrict_admin')) {
+            $where .= "AND ( patient_data." . add_escape_custom(OEGlobalsBag::getInstance()->get('pt_restrict_field')) .
                     " = ( SELECT facility_id FROM users WHERE username = ?) OR patient_data." .
-                    add_escape_custom($GLOBALS['pt_restrict_field']) . " = '' ) ";
+                    add_escape_custom(OEGlobalsBag::getInstance()->get('pt_restrict_field')) . " = '' ) ";
             array_push($sqlBindArray, $session->get("authUser"));
         }
     }
@@ -909,11 +910,11 @@ function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $ord
     $sqlBindArray = [];
     $where = "DOB like ? ";
     array_push($sqlBindArray, $DOB . "%");
-    if (!empty($GLOBALS['pt_restrict_field'])) {
-        if ($session->get("authUser") != 'admin' || $GLOBALS['pt_restrict_admin']) {
-            $where .= "AND ( patient_data." . add_escape_custom($GLOBALS['pt_restrict_field']) .
+    if (!empty(OEGlobalsBag::getInstance()->get('pt_restrict_field'))) {
+        if ($session->get("authUser") != 'admin' || OEGlobalsBag::getInstance()->get('pt_restrict_admin')) {
+            $where .= "AND ( patient_data." . add_escape_custom(OEGlobalsBag::getInstance()->get('pt_restrict_field')) .
                     " = ( SELECT facility_id FROM users WHERE username = ?) OR patient_data." .
-                    add_escape_custom($GLOBALS['pt_restrict_field']) . " = '' ) ";
+                    add_escape_custom(OEGlobalsBag::getInstance()->get('pt_restrict_field')) . " = '' ) ";
             array_push($sqlBindArray, $session->get("authUser"));
         }
     }
@@ -1152,8 +1153,8 @@ function fixDate($date, $default = "0000-00-00")
             }
             // Determine if MDY date format is used, preferring Date Display Format from
             // global settings if it's not YMD, otherwise guessing from country code.
-            $using_mdy = empty($GLOBALS['date_display_format']) ?
-                ($GLOBALS['phone_country_code'] == 1) : ($GLOBALS['date_display_format'] == 1);
+            $using_mdy = empty(OEGlobalsBag::getInstance()->get('date_display_format')) ?
+                (OEGlobalsBag::getInstance()->get('phone_country_code') == 1) : (OEGlobalsBag::getInstance()->get('date_display_format') == 1);
             if ($using_mdy) {
                 $fixed_date = sprintf("%04u-%02u-%02u", $dmy[2], $dmy[0], $dmy[1]);
             } else {

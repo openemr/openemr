@@ -20,6 +20,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Utils\FileUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Export\ExportException;
 use OpenEMR\Modules\EhiExporter\Bootstrap;
 use OpenEMR\Modules\EhiExporter\Models;
@@ -477,7 +478,7 @@ class EhiExporter
     {
         $zip = new \ZipArchive();
 
-        $tempDir = $GLOBALS['temporary_files_dir'];
+        $tempDir = OEGlobalsBag::getInstance()->get('temporary_files_dir');
         if (!file_exists($tempDir)) {
             throw new \RuntimeException("Could not access globals temporary_files_dir location. Verify the property is set correctly and the webserver has write access to the location.");
         }
@@ -630,7 +631,7 @@ class EhiExporter
     {
         $additionalAssets = [
             'form_painmap' => [
-                ['name' => 'images/painmap.png', 'path' => $GLOBALS['webserver_root'] . "/interface/forms/painmap/templates/painmap.png"]
+                ['name' => 'images/painmap.png', 'path' => OEGlobalsBag::getInstance()->get('webserver_root') . "/interface/forms/painmap/templates/painmap.png"]
             ]
         ];
         $assets = $additionalAssets[$tableName] ?? [];
@@ -724,7 +725,7 @@ class EhiExporter
     {
         $maxDocSize = QueryUtils::fetchSingleValue("select max(size) as size FROM documents WHERE foreign_id != 0", 'size', []);
         $totalPatients = QueryUtils::fetchSingleValue("select count(*) as cnt FROM patient_data", 'cnt', []);
-        $freeSpace = disk_free_space($GLOBALS['OE_SITES_BASE']);
+        $freeSpace = disk_free_space(OEGlobalsBag::getInstance()->get('OE_SITES_BASE'));
         if ($freeSpace === false) {
             $freeSpace = xl("Could not read disk space");
         } else {
@@ -742,7 +743,7 @@ class EhiExporter
     private function addDocumentationReadme(\ZipArchive $zip)
     {
         $readmeContents = $this->twig->render(Bootstrap::MODULE_NAME . '/README.text.twig', [
-            'webBaseUrl' => $GLOBALS['site_addr_oath'] . $GLOBALS['webroot']
+            'webBaseUrl' => OEGlobalsBag::getInstance()->get('site_addr_oath') . OEGlobalsBag::getInstance()->get('webroot')
             // TODO: @brady.miller do we have a latest certified release version stored anywhere?
             ,'certifiedReleaseVersion' => Bootstrap::CERTIFIED_RELEASE_VERSION
         ]);

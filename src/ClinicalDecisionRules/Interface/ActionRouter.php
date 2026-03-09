@@ -15,6 +15,7 @@
 
 namespace OpenEMR\ClinicalDecisionRules\Interface;
 
+use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -31,7 +32,7 @@ class ActionRouter
     public function __construct(protected $controller, protected $action)
     {
         $this->appRoot = Common::base_dir();
-        $this->webRoot = $GLOBALS['webroot'];
+        $this->webRoot = OEGlobalsBag::getInstance()->get('webroot');
         $this->templateRoot = Common::template_dir();
     }
 

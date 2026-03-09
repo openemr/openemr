@@ -18,13 +18,14 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\KeySource;
+use OpenEMR\Core\OEGlobalsBag;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob or acct/bill: Billing Log", xl("Billing Log"));
 }
 
-$filename = $GLOBALS['OE_SITE_DIR'] . '/documents/edi/process_bills.log';
+$filename = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/edi/process_bills.log';
 
 if (!file_exists($filename)) {
     echo xlt("Billing log is empty");

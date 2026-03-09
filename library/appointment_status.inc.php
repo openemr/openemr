@@ -14,11 +14,13 @@
 // See sample code in: interface/patient_tracker/patient_tracker_status.php
 // This updates the patient tracker board as well as the appointment.
 
+use OpenEMR\Core\OEGlobalsBag;
+
 require_once(__DIR__ . '/patient_tracker.inc.php');
 
 function updateAppointmentStatus($pid, $encdate, $newstatus): void
 {
-    if (empty($GLOBALS['gbl_auto_update_appt_status'])) {
+    if (empty(OEGlobalsBag::getInstance()->get('gbl_auto_update_appt_status'))) {
         return;
     }
 

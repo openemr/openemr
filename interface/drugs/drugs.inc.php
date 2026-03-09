@@ -13,19 +13,20 @@
 // These lists are based on the constants found in the
 // openemr/library/classes/Prescription.class.php file.
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DrugSalesService;
 use PHPMailer\PHPMailer\PHPMailer;
 
 // Decision was made in June 2013 that a sale line item in the Fee Sheet may
 // come only from the specified warehouse. Set this to false if the decision
 // is reversed.
-$GLOBALS['SELL_FROM_ONE_WAREHOUSE'] = true;
+OEGlobalsBag::getInstance()->set('SELL_FROM_ONE_WAREHOUSE', true);
 
 $substitute_array = ['', xl('Allowed'), xl('Not Allowed')];
 
 function send_drug_email($subject, $body): void
 {
-    $recipient = $GLOBALS['practice_return_email_path'];
+    $recipient = OEGlobalsBag::getInstance()->get('practice_return_email_path');
     if (empty($recipient)) {
         return;
     }

@@ -17,6 +17,7 @@ use Carecoordination\Model\CcdaGlobalsConfiguration;
 use Carecoordination\Model\CcdaUserPreferencesTransformer;
 use DOMDocument;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\PatientDocuments\PatientDocumentCreateCCDAEvent;
 use OpenEMR\Events\PatientDocuments\PatientDocumentTreeViewFilterEvent;
@@ -34,7 +35,7 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
 
     public function __construct(private readonly CcdaGenerator $generator)
     {
-        $this->viewCcdaUrl = $GLOBALS['webroot'] . "/interface/modules/zend_modules/public/encountermanager/previewDocument";
+        $this->viewCcdaUrl = OEGlobalsBag::getInstance()->get('webroot') . "/interface/modules/zend_modules/public/encountermanager/previewDocument";
     }
 
     public static function getSubscribedEvents()

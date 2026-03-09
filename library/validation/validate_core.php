@@ -11,11 +11,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 /**get all the validation on the page
  * @param $title
  * @return array of validation rules and forms names
  */
+
+use OpenEMR\Core\OEGlobalsBag;
+
 function collectValidationPageRules($title, $active = true)
 {
 
@@ -47,7 +49,7 @@ function validateUsingPageRules($fileNamePath): void
 
     $path = '';
 
-    $path = $GLOBALS['webroot'] != '' ? str_replace($GLOBALS['webroot'], '', $fileNamePath) : $fileNamePath;
+    $path = OEGlobalsBag::getInstance()->get('webroot') != '' ? str_replace(OEGlobalsBag::getInstance()->get('webroot'), '', $fileNamePath) : $fileNamePath;
 
     print '<!--Page Form Validations-->';
 //if we would like to get all the page forms rules we need to call collectValidationPageRules($title) this way there is a
@@ -58,7 +60,7 @@ function validateUsingPageRules($fileNamePath): void
         echo("\r\n");
         //Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation
         $use_validate_js = 1;
-        require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php");
+        require_once(OEGlobalsBag::getInstance()->get('srcdir') . "/validation/validation_script.js.php");
         echo("\r\n");
         print '<script>';
         echo ("$(function () {");

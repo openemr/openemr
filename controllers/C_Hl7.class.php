@@ -10,18 +10,20 @@
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
+
 class C_Hl7 extends Controller
 {
     function __construct($template_mod = "general")
     {
         parent::__construct();
         $this->template_mod = $template_mod;
-        $this->assign("STYLE", $GLOBALS['style']);
+        $this->assign("STYLE", OEGlobalsBag::getInstance()->get('style'));
     }
 
     function default_action()
     {
-        return $this->fetch($GLOBALS['template_dir'] . "hl7/" . $this->template_mod . "_parse.html");
+        return $this->fetch(OEGlobalsBag::getInstance()->get('template_dir') . "hl7/" . $this->template_mod . "_parse.html");
     }
     function default_action_process()
     {

@@ -31,6 +31,7 @@
 require_once("../../interface/globals.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $res = sqlStatement("SELECT * FROM customlists as cl left outer join users as u on cl_creator=u.id WHERE cl_list_type=3 AND cl_deleted=0");
 ?>
@@ -38,7 +39,7 @@ $res = sqlStatement("SELECT * FROM customlists as cl left outer join users as u 
     <head>
         <title><!-- Insert your title here --></title>
         <?php Header::setupHeader('opener'); ?>
-        <script src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajax_functions_writer.js"></script>
+        <script src="<?php echo OEGlobalsBag::getInstance()->get('webroot') ?>/library/js/ajax_functions_writer.js"></script>
 
         <script>
         function delete_full_category(id){

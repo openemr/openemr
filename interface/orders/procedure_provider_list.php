@@ -19,6 +19,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('admin', 'users')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/users: Procedure Providers", xl("Procedure Providers"));
@@ -80,11 +81,11 @@ function doedclick_edit(ppid) {
 </head>
 <body>
     <?php
-    if ($GLOBALS['enable_help'] == 1) {
+    if (OEGlobalsBag::getInstance()->get('enable_help') == 1) {
         $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray700)" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
-    } elseif ($GLOBALS['enable_help'] == 2) {
+    } elseif (OEGlobalsBag::getInstance()->get('enable_help') == 2) {
         $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray300) !important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
-    } elseif ($GLOBALS['enable_help'] == 0) {
+    } elseif (OEGlobalsBag::getInstance()->get('enable_help') == 0) {
         $help_icon = '';
     }
     ?>
@@ -148,7 +149,7 @@ function doedclick_edit(ppid) {
     <?php
     //home of the help modal ;)
     //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
-    if ($GLOBALS['enable_help'] == 1) {
+    if (OEGlobalsBag::getInstance()->get('enable_help') == 1) {
         echo "<script>var helpFile = 'procedure_provider_help.php'</script>";
         //help_modal.php lives in interface, set path accordingly
         require "../help_modal.php";

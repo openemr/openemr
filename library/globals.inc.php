@@ -4459,8 +4459,8 @@ $GLOBALS_METADATA = [
 ];
 
 
-if (!empty($GLOBALS['ippf_specific'])) {
-    $GLOBALS['GLOBALS_METADATA']['IPPF Menu'] = [
+if (!empty(OEGlobalsBag::getInstance()->get('ippf_specific'))) {
+    OEGlobalsBag::getInstance()->get('GLOBALS_METADATA')['IPPF Menu'] = [
 
         'gbl_menu_stats_c3' => [
             xl('C3 Statistics Reporting'),
@@ -4484,7 +4484,7 @@ if (!empty($GLOBALS['ippf_specific'])) {
         ],
     ];
 
-    $GLOBALS['GLOBALS_METADATA']['IPPF Features'] = [
+    OEGlobalsBag::getInstance()->get('GLOBALS_METADATA')['IPPF Features'] = [
 
         'gbl_rapid_workflow' => [
             xl('Rapid Workflow Option'),

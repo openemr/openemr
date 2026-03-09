@@ -31,6 +31,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\InsuranceService;
 
@@ -312,7 +313,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -420,7 +421,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
         <div class="form-group col-auto">
             <label for="form_proc_codefull">
             <?php
-            if (!$GLOBALS['simplified_demographics']) {
+            if (!OEGlobalsBag::getInstance()->get('simplified_demographics')) {
                 echo xlt('Procedure/Service');
             }
             ?>
@@ -428,7 +429,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
             <input type='text' name='form_proc_codefull' id='form_proc_codefull' class='form-control' size='12' value='<?php echo attr($form_proc_codefull); ?>' onclick='sel_procedure()'
                 title='<?php echo xla('Click to select optional procedure code'); ?>'
             <?php
-            if ($GLOBALS['simplified_demographics']) {
+            if (OEGlobalsBag::getInstance()->get('simplified_demographics')) {
                 echo "style='display:none'";
             } ?> />
         </div>

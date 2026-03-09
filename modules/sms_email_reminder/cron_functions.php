@@ -6,6 +6,9 @@
 ////////////////////////////////////////////////////////////////////
 
 // larry :: somne global to be defined here
+
+use OpenEMR\Core\OEGlobalsBag;
+
 global $smsgateway_info;
 global $patient_info;
 global $data_info;
@@ -22,7 +25,7 @@ global $EMAIL_NOTIFICATION_HOUR;
 function cron_SendMail($to, $subject, $vBody, $from)
 {
     // check if smtp globals set
-    if ($GLOBALS['smtp_host_name'] == '') {
+    if (OEGlobalsBag::getInstance()->get('smtp_host_name') == '') {
         // larry :: debug
         //echo "\nDEBUG :: use mail method\n";
 
@@ -89,10 +92,10 @@ function cron_SendMail($to, $subject, $vBody, $from)
         //if( !$smtp )
         $smtp = new smtp_class();
 
-        $smtp->host_name = $GLOBALS['smtp_host_name'];
-        $smtp->host_port = $GLOBALS['smtp_host_port'];
-        $smtp->ssl = $GLOBALS['smtp_use_ssl'];
-        $smtp->localhost = $GLOBALS['smtp_localhost'];
+        $smtp->host_name = OEGlobalsBag::getInstance()->get('smtp_host_name');
+        $smtp->host_port = OEGlobalsBag::getInstance()->get('smtp_host_port');
+        $smtp->ssl = OEGlobalsBag::getInstance()->get('smtp_use_ssl');
+        $smtp->localhost = OEGlobalsBag::getInstance()->get('smtp_localhost');
         $smtp->direct_delivery = 0;
         $smtp->timeout = 10;
         $smtp->data_timeout = 0;
@@ -101,8 +104,8 @@ function cron_SendMail($to, $subject, $vBody, $from)
         $smtp->html_debug = 0;
         $smtp->pop3_auth_host = "";
 
-        $smtp->user = $GLOBALS['smtp_auth_user'];
-        $smtp->password = $GLOBALS['smtp_auth_pass'];
+        $smtp->user = OEGlobalsBag::getInstance()->get('smtp_auth_user');
+        $smtp->password = OEGlobalsBag::getInstance()->get('smtp_auth_pass');
 
         $smtp->realm = "";
         // Workstation name for NTLM authentication

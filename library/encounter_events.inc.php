@@ -16,6 +16,7 @@ require_once(__DIR__ . '/calendar.inc.php');
 require_once(__DIR__ . '/patient_tracker.inc.php');
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 //===============================================================================
 //This section handles the events of payment screen.
@@ -62,7 +63,7 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
 {
     global $today;
     $encounter = todaysEncounterIf($patient_id);
-    if ($encounter && (int)$GLOBALS['auto_create_new_encounters'] !== 2) {
+    if ($encounter && (int)OEGlobalsBag::getInstance()->get('auto_create_new_encounters') !== 2) {
         if ($return_existing) {
             return $encounter;
         } else {
@@ -80,7 +81,7 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
 
     $dos = $enc_date ?: $today;
     $visit_reason = $reason ?: xl('Please indicate visit reason');
-    if (!empty($GLOBALS['auto_create_prevent_reason'] ?? 0)) {
+    if (!empty(OEGlobalsBag::getInstance()->get('auto_create_prevent_reason') ?? 0)) {
         $visit_reason = 'Please indicate visit reason';
     }
     $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", [$_SESSION["authUserID"]]);
@@ -374,7 +375,7 @@ function InsertEvent($args, $from = 'general')
             manage_tracker_status($args['event_date'], $args['starttime'], $pc_eid, $form_pid, $_SESSION['authUser'], $args['form_apptstatus'], $args['form_room']);
         }
 
-            $GLOBALS['temporary-eid-for-manage-tracker'] = $pc_eid; //used by manage tracker module to set correct encounter in tracker when check in
+            OEGlobalsBag::getInstance()->set('temporary-eid-for-manage-tracker', $pc_eid); //used by manage tracker module to set correct encounter in tracker when check in
 
             return $pc_eid;
     } elseif ($from == 'payment') {
@@ -432,13 +433,13 @@ function &__increment($d, $m, $y, $f, $t)
         // and finally make sure we haven't landed on a end week days
         // adjust as necessary
         $nextWorkDOW = date('w', mktime(0, 0, 0, $m, ($d + $f), $y));
-        if (count($GLOBALS['weekend_days']) === 2) {
-            if ($nextWorkDOW == $GLOBALS['weekend_days'][0]) {
+        if (count(OEGlobalsBag::getInstance()->get('weekend_days')) === 2) {
+            if ($nextWorkDOW == OEGlobalsBag::getInstance()->get('weekend_days')[0]) {
                 $f += 2;
-            } elseif ($nextWorkDOW == $GLOBALS['weekend_days'][1]) {
+            } elseif ($nextWorkDOW == OEGlobalsBag::getInstance()->get('weekend_days')[1]) {
                 $f++;
             }
-        } elseif (count($GLOBALS['weekend_days']) === 1 && $nextWorkDOW === $GLOBALS['weekend_days'][0]) {
+        } elseif (count(OEGlobalsBag::getInstance()->get('weekend_days')) === 1 && $nextWorkDOW === OEGlobalsBag::getInstance()->get('weekend_days')[0]) {
             $f++;
         }
 

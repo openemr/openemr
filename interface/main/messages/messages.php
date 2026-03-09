@@ -32,6 +32,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
@@ -41,7 +42,7 @@ $collectthis = empty($collectthis) ? "{}" : json_sanitize($collectthis[array_key
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');
 
-if ($GLOBALS['medex_enable'] == '1') {
+if (OEGlobalsBag::getInstance()->get('medex_enable') == '1') {
     if ($_REQUEST['SMS_bot']) {
         $result = $MedEx->login('');
         $MedEx->display->SMS_bot($result);
@@ -75,7 +76,7 @@ if (
     <?php
     //validation library
     $use_validate_js = 1;
-    require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php");
+    require_once(OEGlobalsBag::getInstance()->get('srcdir') . "/validation/validation_script.js.php");
     ?>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -90,7 +91,7 @@ if (
         <?php require_once "$srcdir/restoreSession.php"; ?>
     </script>
 
-    <script src="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/main/messages/js/reminder_appts.js?v=<?php echo $v_js_includes; ?>"></script>
     <style>
         @media only screen and (max-width: 768px) {
             [class*="col-"] {
@@ -105,7 +106,7 @@ if (
     </style>
 
 <?php
-if (($GLOBALS['medex_enable'] == '1') && (empty($_REQUEST['nomenu'])) && ($GLOBALS['disable_rcb'] != '1')) {
+if ((OEGlobalsBag::getInstance()->get('medex_enable') == '1') && (empty($_REQUEST['nomenu'])) && (OEGlobalsBag::getInstance()->get('disable_rcb') != '1')) {
     $MedEx->display->navigation($logged_in);
     echo "<br /><br /><br />";
 }
@@ -143,15 +144,15 @@ if (!empty($_REQUEST['go'])) { ?>
 } else {
     //original message.php stuff
 
-    if ($GLOBALS['enable_help'] == 1) {
+    if (OEGlobalsBag::getInstance()->get('enable_help') == 1) {
         $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray)" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
-    } elseif ($GLOBALS['enable_help'] == 2) {
+    } elseif (OEGlobalsBag::getInstance()->get('enable_help') == 2) {
         $help_icon = '<a class="float-right oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color: var(--gray300) !important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
-    } elseif ($GLOBALS['enable_help'] == 0) {
+    } elseif (OEGlobalsBag::getInstance()->get('enable_help') == 0) {
          $help_icon = '';
     }
     $heading_caption = xlt('Messages') . ', ' . xlt('Reminders');
-    if ($GLOBALS['disable_rcb'] != '1') {
+    if (OEGlobalsBag::getInstance()->get('disable_rcb') != '1') {
         $heading_caption .= ', ' . xlt('Recalls');
     }
 
@@ -189,7 +190,7 @@ if (!empty($_REQUEST['go'])) { ?>
                     <li class="nav-item" id='li-remi' role="presentation">
                         <a href='#reminders-div' id='reminders-li' class="nav-link" data-toggle="pill" role="tab" aria-controls="<?php echo xla("Reminders");?>" aria-selected="true"><?php echo xlt('Reminders'); ?></a>
                     </li>
-                    <?php if ($GLOBALS['disable_rcb'] != '1') { ?>
+                    <?php if (OEGlobalsBag::getInstance()->get('disable_rcb') != '1') { ?>
                     <li class="nav-item" id='li-reca' role="presentation">
                         <a href='#recalls-div' id='recalls-li' class="nav-link" data-toggle="pill" role="tab" aria-controls="<?php echo xla("Recalls");?>" aria-selected="true"><?php echo xlt('Recalls'); ?></a>
                     </li>
@@ -472,7 +473,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                 <div class="row">
                                     <div class="col-12 oe-custom-line">
                                         <div class="row">
-                                            <?php if ($GLOBALS['messages_due_date']) { ?>
+                                            <?php if (OEGlobalsBag::getInstance()->get('messages_due_date')) { ?>
                                             <div class="col-6 col-sm-2">
                                                 <label for="form_note_type"><?php echo xlt('Due date'); ?>:</label>
                                                 <?php generate_form_field(['data_type' => 4, 'field_id' => 'datetime', 'edit_options' => 'F'], empty($datetime) ? date('Y-m-d H:i') : $datetime) ?>
@@ -526,7 +527,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             echo "  <td class='text'><span class='font-weight-bold'>" . xlt('Linked procedure order') . ":</span>\n";
                                             while ($gprow = sqlFetchArray($tmp)) {
                                                 echo "   <a href='";
-                                                echo $GLOBALS['webroot'] . "/interface/orders/single_order_results.php?orderid=";
+                                                echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/orders/single_order_results.php?orderid=";
                                                 echo attr_url($gprow['id1']);
                                                 echo "' target='_blank' onclick='top.restoreSession()'>";
                                                 echo text($gprow['id1']);
@@ -631,7 +632,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                                         <th width='20%' class='font-weight-bold'>&nbsp;" . xlt('From') . " $sortlink[0]</th>
                                                         <th width='20%' class='font-weight-bold'>&nbsp;" . xlt('Patient') . " $sortlink[1]</th>
                                                         <th class='font-weight-bold'>&nbsp;" . xlt('Type') . " $sortlink[2]</th>
-                                                        <th width='15%' class='font-weight-bold'>&nbsp;" . xlt($GLOBALS['messages_due_date'] ? 'Due date' : 'Date') . " $sortlink[3]</th>
+                                                        <th width='15%' class='font-weight-bold'>&nbsp;" . xlt(OEGlobalsBag::getInstance()->get('messages_due_date') ? 'Due date' : 'Date') . " $sortlink[3]</th>
                                                         <th width='15%' class='font-weight-bold'>&nbsp;" . xlt('Status') . " $sortlink[4]</th>
                                                     </tr>
                                                 </thead>";
@@ -688,7 +689,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                             xlt('Add New{{Message}}') . "</a> &nbsp; <a href=\"javascript:confirmDeleteSelected()\" class=\"btn btn-danger btn-delete\" onclick=\"top.restoreSession()\">" .
                                             xlt('Delete') . "</a>";
 
-                        if ($GLOBALS['phimail_enable']) {
+                        if (OEGlobalsBag::getInstance()->get('phimail_enable')) {
                             echo "&nbsp; <a href='trusted-messages.php' onclick='top.restoreSession()' class='btn btn-secondary btn-mail'>" . xlt("Compose Trusted Direct Message") . "</a>";
                             echo "&nbsp; <button class='btn btn-secondary btn-refresh trusted-messages-force-check'>" . xlt("Check New Trusted Messages") . "</button>";
                         }
@@ -781,7 +782,7 @@ if (!empty($_REQUEST['go'])) { ?>
                     <?php require_once '../dated_reminders/dated_reminders.php'; ?>
                 </div>
             </div><!--end of reminders div-->
-            <?php if ($GLOBALS['disable_rcb'] != '1') { ?>
+            <?php if (OEGlobalsBag::getInstance()->get('disable_rcb') != '1') { ?>
             <div class="row tab-pane" role="tabpanel" id="recalls-div">
                 <div class="col-sm-6 col-md-6 col-lg-6">
                     <h4><?php echo xlt('Recalls'); ?></h4>
@@ -810,7 +811,7 @@ if (!empty($_REQUEST['go'])) { ?>
     <?php
     //home of the help modal ;)
     //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
-    if ($GLOBALS['enable_help'] == 1) {
+    if (OEGlobalsBag::getInstance()->get('enable_help') == 1) {
         echo "<script>var helpFile = 'message_center_help.php'</script>";
         //help_modal.php lives in interface, set path accordingly
         require "../../help_modal.php";
@@ -820,17 +821,17 @@ if (!empty($_REQUEST['go'])) { ?>
         var collectvalidation = <?php echo $collectthis; ?>;
 
         $(function () {
-            var webRoot = <?php echo js_escape($GLOBALS['web_root']); ?>;
+            var webRoot = <?php echo js_escape(OEGlobalsBag::getInstance()->get('web_root')); ?>;
 
             $('.datetimepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 ,minDate : 0 //only future
             })
 
-            <?php if ($GLOBALS['phimail_enable']) : ?>
+            <?php if (OEGlobalsBag::getInstance()->get('phimail_enable')) : ?>
             $('.trusted-messages-force-check').click(function() {
                 window.top.restoreSession();
                 request = new FormData;

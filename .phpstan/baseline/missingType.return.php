@@ -16717,6 +16717,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/formatting.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function add_escape_custom\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formdata.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function getDocumentsByEncounter\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/forms.inc.php',

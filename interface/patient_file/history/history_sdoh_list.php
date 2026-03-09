@@ -25,6 +25,7 @@ require_once($srcdir . "/options.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $pid = (int)($_GET['pid'] ?? 0);
 if (!$pid) {
@@ -54,7 +55,7 @@ $res = sqlStatement(
         <div class="d-flex align-items-center justify-content-between mt-2 mb-3">
             <h4 class="m-0"><?php echo xlt("SDOH Assessments"); ?></h4>
             <a class="btn btn-primary btn-sm"
-                href="<?php echo attr($GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh.php?pid=" . urlencode((string) $pid) . "&new=1"); ?>">
+                href="<?php echo attr(OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/history/history_sdoh.php?pid=" . urlencode((string) $pid) . "&new=1"); ?>">
                 <?php echo xlt("New Assessment"); ?>
             </a>
         </div>
@@ -78,7 +79,7 @@ $res = sqlStatement(
                     <td><?php echo text($r['updated_at'] ?: ''); ?></td>
                     <td class="text-right">
                         <a class="btn btn-sm btn-secondary"
-                            href="<?php echo attr($GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh.php?pid=" . urlencode((string) $pid) . "&id=" . (int)$r['id']); ?>">
+                            href="<?php echo attr(OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/history/history_sdoh.php?pid=" . urlencode((string) $pid) . "&id=" . (int)$r['id']); ?>">
                             <?php echo xlt("Edit"); ?>
                         </a>
                     </td>
@@ -89,7 +90,7 @@ $res = sqlStatement(
 
         <div class="mt-3">
             <a class="btn btn-link"
-                href="<?php echo attr($GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid)); ?>">
+                href="<?php echo attr(OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid)); ?>">
                 &larr; <?php echo xlt("Back to Summary"); ?>
             </a>
         </div>

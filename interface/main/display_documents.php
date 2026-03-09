@@ -21,6 +21,7 @@ require_once("$srcdir/patient.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('patients', 'lab')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/lab: Lab Documents", xl("Lab Documents"));
@@ -34,9 +35,9 @@ $sub_date = date_format($curdate, 'Y-m-d');
 $form_from_doc_date = ($_GET['form_from_doc_date'] ?? oeFormatShortDate($sub_date));
 $form_to_doc_date = ($_GET['form_to_doc_date'] ?? oeFormatShortDate(date("Y-m-d")));
 
-if ($GLOBALS['date_display_format'] == 1) {
+if (OEGlobalsBag::getInstance()->get('date_display_format') == 1) {
     $title_tooltip = "MM/DD/YYYY";
-} elseif ($GLOBALS['date_display_format'] == 2) {
+} elseif (OEGlobalsBag::getInstance()->get('date_display_format') == 2) {
     $title_tooltip = "DD/MM/YYYY";
 } else {
     $title_tooltip = "YYYY-MM-DD";
@@ -95,7 +96,7 @@ $display_div = "style='display:block;'";
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -113,7 +114,7 @@ $display_div = "style='display:block;'";
             form_from_doc_date: frmdate,
             form_to_doc_date: todate
         });
-        document.location='<?php echo $GLOBALS['webroot']; ?>/interface/main/display_documents.php?' + params;
+        document.location='<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/main/display_documents.php?' + params;
     }
 
 </script>
@@ -185,7 +186,7 @@ $display_div = "style='display:block;'";
 
         // Get the category ID for lab reports.
         $query = "SELECT rght FROM categories WHERE name = ?";
-        $catIDRs = sqlQuery($query, [$GLOBALS['lab_results_category_name']]);
+        $catIDRs = sqlQuery($query, [OEGlobalsBag::getInstance()->get('lab_results_category_name')]);
         $catID = $catIDRs['rght'];
 
         $query = "SELECT d.*,CONCAT(pd.fname,' ',pd.lname) AS pname,GROUP_CONCAT(n.note ORDER BY n.date DESC SEPARATOR '|') AS docNotes,
@@ -212,7 +213,7 @@ $display_div = "style='display:block;'";
                 <?php
                 if (sqlNumRows($resultSet)) {
                     while ($row = sqlFetchArray($resultSet)) {
-                        $url = $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=" . attr_url($row["foreign_id"]) . "&document_id=" . attr_url($row["id"]) . '&as_file=false';
+                        $url = OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?document&retrieve&patient_id=" . attr_url($row["foreign_id"]) . "&document_id=" . attr_url($row["id"]) . '&as_file=false';
                         // Get the notes for this document.
                         $notes = [];
                         $note = '';
