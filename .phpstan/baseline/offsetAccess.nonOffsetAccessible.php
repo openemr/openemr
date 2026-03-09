@@ -29777,6 +29777,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/usergroup/user_admin.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'email\' on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/usergroup/user_admin.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'facility_id\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/usergroup/user_admin.php',
@@ -29969,6 +29974,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'authorized\' on mixed\\.$#',
     'count' => 2,
+    'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot access offset \'email\' on mixed\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin.php',
 ];
 $ignoreErrors[] = [
