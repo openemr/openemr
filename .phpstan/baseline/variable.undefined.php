@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-// total 8285 errors
+// total 8287 errors
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
@@ -13380,7 +13380,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$encounter might not be defined\\.$#',
-    'count' => 23,
+    'count' => 24,
     'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
 ];
 $ignoreErrors[] = [
@@ -13390,7 +13390,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$pid might not be defined\\.$#',
-    'count' => 19,
+    'count' => 20,
     'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
 ];
 $ignoreErrors[] = [
