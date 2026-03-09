@@ -687,6 +687,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Validators/CoverageValidator.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Offset 1 might not exist on array\\{0\\: \'onKernelRequest\', 1\\?\\: int\\}\\|string\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Isolated/RestControllers/Subscriber/SiteSetupListenerTest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Offset \'secondaryAddress\' might not exist on array\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/USPS/USPSAddressVerifyV3Test.php',
