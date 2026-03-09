@@ -203,7 +203,7 @@ class AuthUtils
             $this->clearFromMemory($password);
             $this->preventTimingAttack();
             return false;
-        } elseif (OEGlobalsBag::getInstance()->get('enforce_signin_email')) {
+        } elseif (OEGlobalsBag::getInstance()->getBoolean('enforce_signin_email')) {
             // Need to enforce email in credentials
             if (empty($email)) {
                 // Patient email was not included in credentials
@@ -871,7 +871,7 @@ class AuthUtils
     public static function useActiveDirectory($user = '')
     {
         $session = SessionWrapperFactory::getInstance()->getWrapper();
-        if (empty(OEGlobalsBag::getInstance()->get('gbl_ldap_enabled'))) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('gbl_ldap_enabled')) {
             return false;
         }
         if ($user == '') {
@@ -1061,7 +1061,7 @@ class AuthUtils
      */
     private function testPasswordStrength(&$pwd)
     {
-        if (OEGlobalsBag::getInstance()->get('secure_password')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('secure_password')) {
             $features = 0;
             $reg_security = ["/[a-z]+/","/[A-Z]+/","/\d+/","/[\W_]+/"];
             foreach ($reg_security as $expr) {
@@ -1406,7 +1406,7 @@ class AuthUtils
     private function preventTimingAttack()
     {
         $dummyPassword = "heyheyhey";
-        if (OEGlobalsBag::getInstance()->get('gbl_ldap_enabled')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('gbl_ldap_enabled')) {
             // ldap authentication simulation
             $this->activeDirectoryValidation("dummyCheck", $dummyPassword);
         } else {

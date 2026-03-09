@@ -103,7 +103,7 @@ $row = sqlFetchArray($res);
     <div class="row">
         <div class="col-sm-12">
             <form method='post' action='user_info.php' class='form-horizontal' onsubmit='return update_password()'>
-                <input type=hidden name=secure_pwd value="<?php echo attr(OEGlobalsBag::getInstance()->get('secure_password')); ?>">
+                <input type=hidden name=secure_pwd value="<?php echo attr((int) OEGlobalsBag::getInstance()->getBoolean('secure_password')); ?>">
                 <fieldset>
                     <legend><?php echo xlt('Change Password for') . " " . text($user_full_name); ?></legend>
                     <div class="form-group">

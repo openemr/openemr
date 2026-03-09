@@ -41,7 +41,7 @@ if (!empty($_SESSION['pid'])) {
     }
 }
 
-$verifyMessageReceivedChecked = OEGlobalsBag::getInstance()->get('phimail_verifyrecipientreceived_enable') == '1' ? "checked" : '';
+$verifyMessageReceivedChecked = OEGlobalsBag::getInstance()->getBoolean('phimail_verifyrecipientreceived_enable') ? "checked" : '';
 ?>
 <!DOCTYPE html>
 <html>

@@ -498,7 +498,7 @@ MSG;
     public function sendAtnaAuditMsg($user, $group, $event, $patient_id, $outcome, $comments)
     {
         /* If no ATNA repository server is configured, return */
-        if (empty(OEGlobalsBag::getInstance()->get('atna_audit_host')) || empty(OEGlobalsBag::getInstance()->get('enable_atna_audit'))) {
+        if (empty(OEGlobalsBag::getInstance()->get('atna_audit_host')) || !OEGlobalsBag::getInstance()->getBoolean('enable_atna_audit')) {
             return;
         }
 
@@ -530,8 +530,8 @@ MSG;
         $user =  $session->get('authUser') ?? "";
 
         /* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
-        if (empty(OEGlobalsBag::getInstance()->get('enable_auditlog'))) {
-            if (empty(OEGlobalsBag::getInstance()->get('gbl_force_log_breakglass')) || !$this->isBreakglassUser($user)) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('enable_auditlog')) {
+            if (!OEGlobalsBag::getInstance()->getBoolean('gbl_force_log_breakglass') || !$this->isBreakglassUser($user)) {
                 return;
             }
         }
@@ -560,8 +560,8 @@ MSG;
         }
 
         /* If query events are not enabled, don't log them. Exception for "emergency" users. */
-        if (($querytype == "select") && !OEGlobalsBag::getInstance()->get('audit_events_query')) {
-            if (empty(OEGlobalsBag::getInstance()->get('gbl_force_log_breakglass')) || !$this->isBreakglassUser($user)) {
+        if (($querytype == "select") && !OEGlobalsBag::getInstance()->getBoolean('audit_events_query')) {
+            if (!OEGlobalsBag::getInstance()->getBoolean('gbl_force_log_breakglass') || !$this->isBreakglassUser($user)) {
                 return;
             }
         }
@@ -643,7 +643,7 @@ MSG;
             }
         }
 
-        if (empty(OEGlobalsBag::getInstance()->get("audit_events_{$event}")) && (empty(OEGlobalsBag::getInstance()->get('gbl_force_log_breakglass') ?? null) || !$this->isBreakglassUser($user))) {
+        if (empty(OEGlobalsBag::getInstance()->get("audit_events_{$event}")) && (!OEGlobalsBag::getInstance()->getBoolean('gbl_force_log_breakglass') || !$this->isBreakglassUser($user))) {
             return;
         }
 
@@ -763,7 +763,7 @@ MSG;
         }
 
         // Encrypt if applicable
-        if (empty(OEGlobalsBag::getInstance()->get("enable_auditlog_encryption"))) {
+        if (!OEGlobalsBag::getInstance()->getBoolean("enable_auditlog_encryption")) {
             // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
             $comments = base64_encode((string) $comments);
             $encrypt = 'No';
@@ -860,7 +860,7 @@ MSG;
     {
         $session = SessionWrapperFactory::getInstance()->getWrapper();
         // Skip if audit logging or http request logging is disabled
-        if (empty(OEGlobalsBag::getInstance()->get('enable_auditlog')) || empty(OEGlobalsBag::getInstance()->get('audit_events_http-request'))) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('enable_auditlog') || !OEGlobalsBag::getInstance()->getBoolean('audit_events_http-request')) {
             return;
         }
 

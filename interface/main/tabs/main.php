@@ -119,7 +119,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
         // some globals to access using top.variable
         // note that 'let' or 'const' does not allow global scope here.
         // only use var
-        var isPortalEnabled = "<?php echo OEGlobalsBag::getInstance()->get('portal_onsite_two_enable') ?>";
+        var isPortalEnabled = "<?php echo OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable') ?>";
         // Set the csrf_token_js token that is used in the below js/tabs_view_model.js script
         var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
         var userDebug = <?php echo js_escape(OEGlobalsBag::getInstance()->get('user_debug')); ?>;
@@ -128,13 +128,13 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
         'ltr';
         var jsGlobals = {};
         // used in tabs_view_model.js.
-        jsGlobals.enable_group_therapy = <?php echo js_escape(OEGlobalsBag::getInstance()->get('enable_group_therapy')); ?>;
+        jsGlobals.enable_group_therapy = <?php echo js_escape((int) OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')); ?>;
         jsGlobals.languageDirection = jsLanguageDirection;
         jsGlobals.date_display_format = <?php echo js_escape(OEGlobalsBag::getInstance()->get('date_display_format')); ?>;
         jsGlobals.time_display_format = <?php echo js_escape(OEGlobalsBag::getInstance()->get('time_display_format')); ?>;
         jsGlobals.timezone = <?php echo js_escape(OEGlobalsBag::getInstance()->get('gbl_time_zone') ?? ''); ?>;
         jsGlobals.assetVersion = <?php echo js_escape(OEGlobalsBag::getInstance()->get('v_js_includes')); ?>;
-        var WindowTitleAddPatient = <?php echo(OEGlobalsBag::getInstance()->get('window_title_add_patient_name') ? 'true' : 'false'); ?>;
+        var WindowTitleAddPatient = <?php echo(OEGlobalsBag::getInstance()->getBoolean('window_title_add_patient_name') ? 'true' : 'false'); ?>;
         var WindowTitleBase = <?php echo js_escape($openemr_name); ?>;
         const isSms = "<?php echo !empty(OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? null); ?>";
         const isFax = "<?php echo !empty(OEGlobalsBag::getInstance()->get('oefax_enable_fax')) ?? null?>";
@@ -356,7 +356,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
     <?php
     // Below code block is to prepare certain elements for deciding what links to show on the menu
     // prepare Ensora eRx globals that are used in creating the menu
-    if (OEGlobalsBag::getInstance()->get('erx_enable')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('erx_enable')) {
         $newcrop_user_role_sql = sqlQuery("SELECT `newcrop_user_role` FROM `users` WHERE `username` = ?", [$_SESSION['authUser']]);
         OEGlobalsBag::getInstance()->set('newcrop_user_role', $newcrop_user_role_sql['newcrop_user_role']);
         if (OEGlobalsBag::getInstance()->get('newcrop_user_role') === 'erxadmin') {
@@ -457,7 +457,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
     ?>
     <div id="mainBox" <?php echo $disp_mainBox ?>>
         <nav class="navbar navbar-expand-xl navbar-light bg-light py-0">
-            <?php if (OEGlobalsBag::getInstance()->get('display_main_menu_logo') === '1') {
+            <?php if (OEGlobalsBag::getInstance()->getBoolean('display_main_menu_logo')) {
                 $bag = OEGlobalsBag::getInstance();
                 $logoLinkDefault = 'https://www.open-emr.org/';
                 $logoTitleDefault = xl('OpenEMR Website');

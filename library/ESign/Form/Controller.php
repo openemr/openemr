@@ -41,12 +41,12 @@ class Form_Controller extends Abstract_Controller
         $form->action = '#';
         $signable = new Form_Signable($form->formId, $form->formDir, $form->encounterId);
         $form->showLock = false;
-        $form->displayGoogleSignin = (!empty(OEGlobalsBag::getInstance()->get('google_signin_enabled')) && !empty(OEGlobalsBag::getInstance()->get('google_signin_client_id'))) ? true : false;
+        $form->displayGoogleSignin = (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(OEGlobalsBag::getInstance()->get('google_signin_client_id'))) ? true : false;
         $form->googleSigninClientID = OEGlobalsBag::getInstance()->get('google_signin_client_id');
         if (
             $signable->isLocked() === false &&
-            OEGlobalsBag::getInstance()->get('lock_esign_individual') &&
-            OEGlobalsBag::getInstance()->get('esign_lock_toggle')
+            OEGlobalsBag::getInstance()->getBoolean('lock_esign_individual') &&
+            OEGlobalsBag::getInstance()->getBoolean('esign_lock_toggle')
         ) {
             $form->showLock = true;
         }
@@ -86,7 +86,7 @@ class Form_Controller extends Abstract_Controller
         $usedGoogleSignin = $this->getRequest()->getParam('used_google_signin', '');
         $googleSigninToken = $this->getRequest()->getParam('google_signin_token', '');
         $force_google = (
-            !empty(OEGlobalsBag::getInstance()->get('google_signin_enabled')) &&
+            OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') &&
             !empty(OEGlobalsBag::getInstance()->get('google_signin_client_id')) &&
             !empty($usedGoogleSignin) &&
             !empty($googleSigninToken)
@@ -94,7 +94,7 @@ class Form_Controller extends Abstract_Controller
 
         // Always lock, unless esign_lock_toggle option is enable in globals
         $lock = true;
-        if (OEGlobalsBag::getInstance()->get('esign_lock_toggle')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('esign_lock_toggle')) {
             $lock = ( $this->getRequest()->getParam('lock', '') == 'on' ) ? true : false;
         }
 

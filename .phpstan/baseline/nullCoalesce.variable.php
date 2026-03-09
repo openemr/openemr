@@ -617,6 +617,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Controller/OnsiteDocumentController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Variable \\$allow_portal_uploads on left side of \\?\\? always exists and is not nullable\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/patient/templates/OnsiteDocumentListView.tpl.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Variable \\$state on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../setup.php',

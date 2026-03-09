@@ -88,7 +88,7 @@ class C_Document extends Controller
         $category_name = $this->tree->get_node_name($category_id);
         $this->assign("category_id", $category_id);
         $this->assign("category_name", $category_name);
-        $this->assign("hide_encryption", OEGlobalsBag::getInstance()->get('hide_document_encryption'));
+        $this->assign("hide_encryption", OEGlobalsBag::getInstance()->getBoolean('hide_document_encryption'));
         $this->assign("patient_id", $patient_id);
 
         // Added by Rod to support document template download from general_upload.html.
@@ -189,7 +189,7 @@ class C_Document extends Controller
         $encrypted = $_POST['encrypted'] ?? false;
         $passphrase = $_POST['passphrase'] ?? '';
         if (
-            !OEGlobalsBag::getInstance()->get('hide_document_encryption') &&
+            !OEGlobalsBag::getInstance()->getBoolean('hide_document_encryption') &&
             $encrypted && $passphrase
         ) {
             $doDecryption = true;
@@ -246,7 +246,7 @@ class C_Document extends Controller
                     if ($_FILES['file']['size'][$key] == 0) {
                         $error .= xl("The system does not permit uploading files of with size 0.") . "\n";
                     }
-                } elseif (OEGlobalsBag::getInstance()->get('secure_upload') && !isWhiteFile($_FILES['file']['tmp_name'][$key])) {
+                } elseif (OEGlobalsBag::getInstance()->getBoolean('secure_upload') && !isWhiteFile($_FILES['file']['tmp_name'][$key])) {
                     $error = xl("The system does not permit uploading files with MIME content type") . " - " . mime_content_type($_FILES['file']['tmp_name'][$key]) . ".\n";
                 } else {
                     // Test for a zip of DICOM images
@@ -396,7 +396,7 @@ class C_Document extends Controller
                 $couch = new CouchDB();
                 $resp = $couch->retrieve_doc($couch_docid);
                 $content = $resp->data;
-                if ($content == '' && OEGlobalsBag::getInstance()->get('couchdb_log') == 1) {
+                if ($content == '' && OEGlobalsBag::getInstance()->getBoolean('couchdb_log')) {
                     $log_content = date('Y-m-d H:i:s') . " ==> Retrieving document\r\n";
                     $log_content = date('Y-m-d H:i:s') . " ==> URL: " . $url . "\r\n";
                     $log_content .= date('Y-m-d H:i:s') . " ==> CouchDB Document Id: " . $couch_docid . "\r\n";
@@ -481,7 +481,7 @@ class C_Document extends Controller
         $this->assign("web_path", $this->_link("retrieve") . "document_id=" . urlencode((string) $d->get_id()) . "&");
         $this->assign("NOTE_ACTION", $this->_link("note"));
         $this->assign("MOVE_ACTION", $this->_link("move") . "document_id=" . urlencode((string) $d->get_id()) . "&process=true");
-        $this->assign("hide_encryption", OEGlobalsBag::getInstance()->get('hide_document_encryption'));
+        $this->assign("hide_encryption", OEGlobalsBag::getInstance()->getBoolean('hide_document_encryption'));
         $this->assign("assets_static_relative", OEGlobalsBag::getInstance()->get('assets_static_relative'));
         $this->assign("webroot", OEGlobalsBag::getInstance()->get('webroot'));
 
@@ -617,7 +617,7 @@ class C_Document extends Controller
         $passphrase = $_POST['passphrase'] ?? '';
         $doEncryption = false;
         if (
-            !OEGlobalsBag::getInstance()->get('hide_document_encryption') &&
+            !OEGlobalsBag::getInstance()->getBoolean('hide_document_encryption') &&
             $encrypted == "true" &&
             $passphrase
         ) {
@@ -705,7 +705,7 @@ class C_Document extends Controller
             $resp = $couch->retrieve_doc($couch_docid);
             //Take thumbnail file when is not null and file is presented online
             $content = !$as_file && !is_null($th_url) && !$show_original ? $resp->th_data : $resp->data;
-            if ($content == '' && OEGlobalsBag::getInstance()->get('couchdb_log') == 1) {
+            if ($content == '' && OEGlobalsBag::getInstance()->getBoolean('couchdb_log')) {
                 $log_content = date('Y-m-d H:i:s') . " ==> Retrieving document\r\n";
                 $log_content = date('Y-m-d H:i:s') . " ==> URL: " . $url . "\r\n";
                 $log_content .= date('Y-m-d H:i:s') . " ==> CouchDB Document Id: " . $couch_docid . "\r\n";
@@ -758,7 +758,7 @@ class C_Document extends Controller
                 } else {
                     $contentM = base64_decode((string) $respM->data);
                 }
-                if ($contentM == '' && OEGlobalsBag::getInstance()->get('couchdb_log') == 1) {
+                if ($contentM == '' && OEGlobalsBag::getInstance()->getBoolean('couchdb_log')) {
                     $log_content = date('Y-m-d H:i:s') . " ==> Retrieving document\r\n";
                     $log_content = date('Y-m-d H:i:s') . " ==> URL: " . $url . "\r\n";
                     $log_content .= date('Y-m-d H:i:s') . " ==> CouchDB Document Id: " . $couch_docid . "\r\n";
@@ -1292,7 +1292,7 @@ class C_Document extends Controller
         $LOG .= $content;
 
         if (!empty($LOG)) {
-            if (OEGlobalsBag::getInstance()->get('drive_encryption')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
                 $LOG = $this->cryptoGen->encryptStandard($LOG, null, KeySource::Database);
             }
             file_put_contents($log_path . $log_file, $LOG);

@@ -164,7 +164,7 @@ class EDI270
             $NM1[6] = "";                       // Data Element not required.
             $NM1[7] = "";                       // Data Element not required.
             $NM1[8] = "PI";                     // 5010 no longer uses "46"
-            $payerId = OEGlobalsBag::getInstance()->get('enable_eligibility_requests') ? $row['eligibility_id'] : $row['cms_id'];
+            $payerId = OEGlobalsBag::getInstance()->getBoolean('enable_eligibility_requests') ? $row['eligibility_id'] : $row['cms_id'];
             $NM1[9] = $payerId; // Application Sender's ID
         } elseif ($nm1Cast == 'FA') {
             $NM1[1] = "FA";                     // Entity ID Code - Facility [FA Facility]
@@ -1114,7 +1114,7 @@ class EDI270
                 }
             }
             // some debug logging
-            if (!OEGlobalsBag::getInstance()->get('disable_eligibility_log')) {
+            if (!OEGlobalsBag::getInstance()->getBoolean('disable_eligibility_log')) {
                 $log .= "*------------------- " . xlt("271 Returned") . " --------------------*\n" . $new . "\n" . (isset($AAA[0]) ? (xlt("AAA Segments") . ":\n" . print_r($AAA, true)) : "\n") . $elog;
                 $log .= self::makeEligibilityReport($subscribers);
             }

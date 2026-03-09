@@ -190,7 +190,7 @@ class AuthHash
             return false;
         }
 
-        if (OEGlobalsBag::getInstance()->get('gbl_debug_hash_verify_execution_time')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('gbl_debug_hash_verify_execution_time')) {
             // Reporting collection time to allow fine tuning of hashing algorithm
             $millisecondsStart = round(microtime(true) * 1000);
         }
@@ -223,7 +223,7 @@ class AuthHash
             }
         }
 
-        if (OEGlobalsBag::getInstance()->get('gbl_debug_hash_verify_execution_time')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('gbl_debug_hash_verify_execution_time')) {
             // Reporting collection time to allow fine tuning of hashing algorithm
             $millisecondsStop = round(microtime(true) * 1000);
             error_log("Password hash verification execution time was following (milliseconds): " . errorLogEscape($millisecondsStop - $millisecondsStart));

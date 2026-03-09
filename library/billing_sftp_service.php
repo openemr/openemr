@@ -22,7 +22,7 @@ use OpenEMR\Core\OEGlobalsBag;
  */
 function start_X12_SFTP(): void
 {
-    if (OEGlobalsBag::getInstance()->get('auto_sftp_claims_to_x12_partner')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('auto_sftp_claims_to_x12_partner')) {
         X12RemoteTracker::sftpSendWaitingFiles();
     }
 }

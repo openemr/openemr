@@ -103,13 +103,13 @@ $(function () {
 
 <center>
 
-<?php if (OEGlobalsBag::getInstance()->get('omit_employers')) { ?>
+<?php if (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) { ?>
    <input type='hidden' name='title' value='' />
 <?php } ?>
 
 <table class="border-0">
 
-<?php if (!OEGlobalsBag::getInstance()->get('omit_employers')) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('omit_employers')) { ?>
  <tr>
   <td>
    <span class='font-weight-bold'><?php echo xlt('Title'); ?>:</span>

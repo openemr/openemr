@@ -227,7 +227,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         // Only redirect to eRx.php if the user has an eRx role configured,
                         // otherwise allow them to add allergies via the normal interface.
                         $userHasErxRole = false;
-                        if (in_array($t, ['allergy', 'medications']) && OEGlobalsBag::getInstance()->get('erx_enable')) {
+                        if (in_array($t, ['allergy', 'medications']) && OEGlobalsBag::getInstance()->getBoolean('erx_enable')) {
                             $erxRoleRow = QueryUtils::fetchSingleValue(
                                 "SELECT newcrop_user_role FROM users WHERE id = ?",
                                 'newcrop_user_role',
@@ -249,7 +249,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         }
                     }
 
-                    $condition = (OEGlobalsBag::getInstance()->get('erx_enable') && OEGlobalsBag::getInstance()->get('erx_medication_display') && $t == 'medication') ? "AND erx_uploaded != '1'" :  '';
+                    $condition = (OEGlobalsBag::getInstance()->getBoolean('erx_enable') && OEGlobalsBag::getInstance()->getBoolean('erx_medication_display') && $t == 'medication') ? "AND erx_uploaded != '1'" :  '';
                     $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? $condition ORDER BY begdate", [$pid, $t]);
                     $noIssues = false;
                     $nothingRecorded = false;

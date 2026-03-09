@@ -276,7 +276,7 @@ function submitform(attr) {
                     </select>
                 </div>
 
-                <?php if (OEGlobalsBag::getInstance()->get('messages_due_date')) { ?>
+                <?php if (OEGlobalsBag::getInstance()->getBoolean('messages_due_date')) { ?>
                     <div class="form-group mt-3">
                         <label for='datetime' class='font-weight-bold'><?php echo xlt('Due date'); ?>:</label>
                         <?php

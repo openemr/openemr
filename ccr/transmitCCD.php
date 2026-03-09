@@ -49,7 +49,7 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
     $reqID = $_SESSION['authUserID'];
 
     $config_err = xl(ErrorConstants::MESSAGING_DISABLED) . " " . ErrorConstants::ERROR_CODE_ABBREVIATION . ":";
-    if (OEGlobalsBag::getInstance()->get('phimail_enable') == false) {
+    if (!OEGlobalsBag::getInstance()->getBoolean('phimail_enable')) {
         return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGING_DISABLED);
     }
 
@@ -179,7 +179,7 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
     }
 
     $config_err = xl(ErrorConstants::MESSAGING_DISABLED) . " " . ErrorConstants::ERROR_CODE_ABBREVIATION . ":";
-    if (OEGlobalsBag::getInstance()->get('phimail_enable') == false) {
+    if (!OEGlobalsBag::getInstance()->getBoolean('phimail_enable')) {
         return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGING_DISABLED);
     }
 

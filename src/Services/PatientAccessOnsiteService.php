@@ -150,9 +150,9 @@ class PatientAccessOnsiteService
         // Create the message
         $fhirServerConfig = new ServerConfig();
         $data = [
-            'portal_onsite_two_enable' => OEGlobalsBag::getInstance()->get('portal_onsite_two_enable')
+            'portal_onsite_two_enable' => OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable')
             , 'portal_onsite_two_address' => OEGlobalsBag::getInstance()->get('portal_onsite_two_address')
-            , 'enforce_signin_email' => OEGlobalsBag::getInstance()->get('enforce_signin_email')
+            , 'enforce_signin_email' => OEGlobalsBag::getInstance()->getBoolean('enforce_signin_email')
             , 'uname' => $username
             , 'login_uname' => $loginUsername
             , 'pwd' => $pwd
@@ -228,7 +228,7 @@ class PatientAccessOnsiteService
                 $trustedUserName = '';
             }
         }
-        if (empty(OEGlobalsBag::getInstance()->get('use_email_for_portal_username'))) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('use_email_for_portal_username')) {
             $trustedUserName = $row['fname'] . $row['lname'] . $row['id'];
         }
         return $trustedUserName;

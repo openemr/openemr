@@ -116,7 +116,7 @@ function show_graph(table_graph, name_graph, title_graph)
         error: function() {
             // hide the chart div
           $('#chart').hide();
-          <?php if (OEGlobalsBag::getInstance()->get('graph_data_warning')) { ?>
+          <?php if (OEGlobalsBag::getInstance()->getBoolean('graph_data_warning')) { ?>
           if(!title_graph){
               alert(<?php echo xlj('This item does not have enough data to graph');?> + ".\n" + <?php echo xlj('Please select an item that has more data');?> + ".");
           }

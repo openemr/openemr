@@ -1940,7 +1940,7 @@ function poll_hl7_results(&$info, $labs = 0)
  */
 function hl7Crypt($content)
 {
-    if (OEGlobalsBag::getInstance()->get('drive_encryption')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
         $content = (ServiceContainer::getCrypto())->encryptStandard($content, null, KeySource::Database);
     }
 

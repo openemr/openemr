@@ -146,7 +146,7 @@ if (empty($form_patient)) {
 <!-- Required for the popup date selectors -->
 <div id="overDiv"
     style="position: absolute; visibility: hidden; z-index: 1000;"></div>
-<?php if (OEGlobalsBag::getInstance()->get('drug_screen')) { #setting the title of the page based o if drug screening is enabled ?>
+<?php if (OEGlobalsBag::getInstance()->getBoolean('drug_screen')) { #setting the title of the page based o if drug screening is enabled ?>
 <span class='title'><?php echo xlt('Patient Flow Board'); ?> - <?php echo xlt('Drug Screen Report'); ?></span>
 <?php } else { ?>
 <span class='title'><?php echo xlt('Patient Flow Board Report'); ?></span>
@@ -249,7 +249,7 @@ if (empty($form_patient)) {
             <tr>
 
             </tr>
-            <?php if (OEGlobalsBag::getInstance()->get('drug_screen')) { ?>
+            <?php if (OEGlobalsBag::getInstance()->getBoolean('drug_screen')) { ?>
             <tr>
                 <?php # these two selects will are for the drug screen entries the Show Selected for Drug Screens will show all
                   # that have a yes for selected. If you just check the Show Status of Drug Screens all drug screens will be displayed

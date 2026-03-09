@@ -104,7 +104,7 @@ class CouchDB
 
     function send($method, $url, $post_data = null)
     {
-        if (OEGlobalsBag::getInstance()->get('couchdb_connection_ssl')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('couchdb_connection_ssl')) {
             // encrypt couchdb over the wire
             if (
                 file_exists(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/certificates/couchdb-ca") &&
@@ -135,7 +135,7 @@ class CouchDB
                 );
                 $s = stream_socket_client('ssl://' . $this->host . ":" . $this->port, $errno, $errstr, ini_get("default_socket_timeout"), STREAM_CLIENT_CONNECT, $stream_context);
             } else {
-                if (OEGlobalsBag::getInstance()->get('couchdb_ssl_allow_selfsigned')) {
+                if (OEGlobalsBag::getInstance()->getBoolean('couchdb_ssl_allow_selfsigned')) {
                     // support self-signed
                     $stream_context = stream_context_create(
                         [

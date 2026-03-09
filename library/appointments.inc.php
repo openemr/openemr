@@ -747,7 +747,7 @@ function fetchAppointmentCategories()
 {
      $catSQL = " SELECT pc_catid as id, pc_catname as category "
             . " FROM openemr_postcalendar_categories WHERE pc_active=1 and pc_recurrtype=0 and pc_cattype=0";
-    if (OEGlobalsBag::getInstance()->get('enable_group_therapy')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')) {
         $catSQL .= " OR pc_cattype=3";
     }
 

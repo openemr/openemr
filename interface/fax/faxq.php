@@ -28,7 +28,7 @@ $mlines = [];
 $dlines = [];
 $slines = [];
 
-if (OEGlobalsBag::getInstance()->get('enable_hylafax')) {
+if (OEGlobalsBag::getInstance()->getBoolean('enable_hylafax')) {
 // Get the recvq entries, parse and sort by filename.
     $statlines = [];
     exec("faxstat -r -l -h " . escapeshellarg((string) OEGlobalsBag::getInstance()->get('hylafax_server')), $statlines);
@@ -63,7 +63,7 @@ if (OEGlobalsBag::getInstance()->get('enable_hylafax')) {
 }
 
 $scandir = OEGlobalsBag::getInstance()->get('scanner_output_directory');
-if ($scandir && OEGlobalsBag::getInstance()->get('enable_scanner')) {
+if ($scandir && OEGlobalsBag::getInstance()->getBoolean('enable_scanner')) {
     // Get the directory entries, parse and sort by date and time.
     $dh = opendir($scandir);
     if (! $dh) {
@@ -182,21 +182,21 @@ function dosdclick(sfname) {
 <table class='w-100 h-100' cellspacing='0' cellpadding='0' style='margin: 0; border: 2px solid var(--black);' id='bigtable'>
  <tr style='height: 20px;'>
   <td width='33%' id='td_tab_faxin'  class='tabhead'
-    <?php if (OEGlobalsBag::getInstance()->get('enable_hylafax')) { ?>
+    <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_hylafax')) { ?>
    style='color: var(--danger); border-right: 2px solid var(--black); border-bottom: 2px solid transparent;'
     <?php } else { ?>
    style='color: var(--gray); border-right: 2px solid var(--black); border-bottom: 2px solid var(--black); cursor: pointer; display:none;'
     <?php } ?>
    onclick='tabclick("faxin")'><?php echo xlt('Faxes In'); ?></td>
   <td width='33%' id='td_tab_faxout' class='tabhead'
-    <?php if (OEGlobalsBag::getInstance()->get('enable_hylafax')) { ?>
+    <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_hylafax')) { ?>
    style='color: var(--gray); border-right: 2px solid var(--black); border-bottom: 2px solid var(--black); cursor: pointer;'
     <?php } else { ?>
    style='color: var(--gray); border-right: 2px solid var(--black); border-bottom: 2px solid var(--black); cursor: pointer; display:none;'
     <?php } ?>
    onclick='tabclick("faxout")'><?php echo xlt('Faxes Out'); ?></td>
   <td width='34%' id='td_tab_scanin' class='tabhead'
-    <?php if (OEGlobalsBag::getInstance()->get('enable_scanner')) { ?>
+    <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_scanner')) { ?>
    style='color: var(--gray); border-bottom: 2px solid var(--black); cursor: pointer;'
     <?php } else { ?>
    style='color: var(--danger); border-bottom: 2px solid transparent; display:none;'
@@ -209,7 +209,7 @@ function dosdclick(sfname) {
    <form method='post' action='faxq.php'>
 
    <table class='w-100' cellpadding='1' cellspacing='2' id='table_faxin'
-    <?php if (!OEGlobalsBag::getInstance()->get('enable_hylafax')) {
+    <?php if (!OEGlobalsBag::getInstance()->getBoolean('enable_hylafax')) {
         echo "style='display:none;'";
     } ?>>
     <tr class='head'>
@@ -282,7 +282,7 @@ foreach ($dlines as $matches) {
    </table>
 
    <table class='w-100' cellpadding='1' cellspacing='2' id='table_scanin'
-    <?php if (OEGlobalsBag::getInstance()->get('enable_hylafax')) {
+    <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_hylafax')) {
         echo "style='display:none;'";
     } ?>>
     <tr class='head'>

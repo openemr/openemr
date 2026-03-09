@@ -20,7 +20,7 @@ require_once(OEGlobalsBag::getInstance()->get('incdir') . "/main/holidays/Holida
 //
 function getUserFacilities($uID, $orderby = 'id', $inventory = false)
 {
-    $restrict = $inventory ? OEGlobalsBag::getInstance()->get('gbl_fac_warehouse_restrictions') : OEGlobalsBag::getInstance()->get('restrict_user_facility');
+    $restrict = $inventory ? OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions') : OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility');
     if ($restrict) {
         // No entries in this table means the user is not restricted.
         $countrow = sqlQuery(

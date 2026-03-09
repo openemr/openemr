@@ -159,7 +159,7 @@ if ($exclude_policy != "") {
     $clearinghouses = EDI270::getX12Partner();
 
     if (isset($_POST['form_xmit']) && !empty($_POST['form_xmit']) && $res) {
-        $eFlag = !OEGlobalsBag::getInstance()->get('disable_eligibility_log');
+        $eFlag = !OEGlobalsBag::getInstance()->getBoolean('disable_eligibility_log');
         // make the batch request
         $log = EDI270::requestRealTimeEligible($res, $X12info, $segTer, $compEleSep, $eFlag);
         $e = strpos((string) $log, "Error:");
@@ -434,7 +434,7 @@ if ($exclude_policy != "") {
                                                     <?php echo xlt('Create batch'); ?>
                                                     <input type='hidden' name='form_savefile' id='form_savefile' value=''></input>
 
-                                                    <?php if (OEGlobalsBag::getInstance()->get('enable_eligibility_requests')) {
+                                                    <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_eligibility_requests')) {
                                                         echo "<a href='#' class='btn btn-secondary btn-transmit' onclick='return validate_batch(true);'>" . xlt('Request Eligibility') . "</a>\n";
                                                     }
                                                     ?>

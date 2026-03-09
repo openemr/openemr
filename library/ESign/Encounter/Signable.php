@@ -54,7 +54,7 @@ class Encounter_Signable extends DbRow_Signable implements SignableIF
     public function isLocked()
     {
         $locked = false;
-        if (OEGlobalsBag::getInstance()->get('lock_esign_all')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('lock_esign_all')) {
             $locked = parent::isLocked();
         }
 

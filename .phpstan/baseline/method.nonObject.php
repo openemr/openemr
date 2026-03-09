@@ -1517,8 +1517,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/vitals/C_FormVitals.class.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method getBoolean\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/login/login.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
-    'count' => 4,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/login/login.php',
 ];
 $ignoreErrors[] = [
@@ -4582,13 +4587,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getString\\(\\) on mixed\\.$#',
-    'count' => 1,
+    'message' => '#^Cannot call method getBoolean\\(\\) on mixed\\.$#',
+    'count' => 3,
     'path' => __DIR__ . '/../../portal/home.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
-    'count' => 3,
+    'message' => '#^Cannot call method getString\\(\\) on mixed\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../portal/home.php',
 ];
 $ignoreErrors[] = [

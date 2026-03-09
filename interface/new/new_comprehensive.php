@@ -213,7 +213,7 @@ function trimlen(s) {
 function validate(f) {
   var errMsgs = new Array();
     <?php generate_layout_validation('DEM'); ?>
-    <?php if (OEGlobalsBag::getInstance()->get('erx_enable')) { ?>
+    <?php if (OEGlobalsBag::getInstance()->getBoolean('erx_enable')) { ?>
   alertMsg='';
   for(i=0;i<f.length;i++){
     if(f[i].type=='text' && f[i].value)
@@ -378,7 +378,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                 <div class="accordion" id="dem_according">
                 <form action='new_comprehensive_save.php' name='demographics_form' id='DEM'
                       method='post'
-                      onsubmit='return submitme(<?php echo OEGlobalsBag::getInstance()->get('new_validate') ? 1 : 0;?>,event,"DEM",constraints)'>
+                      onsubmit='return submitme(<?php echo OEGlobalsBag::getInstance()->getBoolean('new_validate') ? 1 : 0;?>,event,"DEM",constraints)'>
                     <!--  Was: class='form-inline' -->
                     <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
@@ -568,10 +568,10 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                     ?>
 
                     <?php
-                    if (!OEGlobalsBag::getInstance()->get('simplified_demographics')) {
+                    if (!OEGlobalsBag::getInstance()->getBoolean('simplified_demographics')) {
                         $insurancei = getInsuranceProviders();
                         $pid = 0;
-                        if (OEGlobalsBag::getInstance()->get('insurance_only_one')) {
+                        if (OEGlobalsBag::getInstance()->getBoolean('insurance_only_one')) {
                             $insurance_headings = [xl("Primary Insurance Provider")];
                             $insurance_info = [];
                             $insurance_info[1] = getInsuranceData($pid, "primary");
@@ -655,7 +655,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                           <div class="col-md-5 mb-2">
                             <input type='entry' class='form-control' size='11' name='i<?php echo attr($i); ?>subscriber_ss' value="<?php echo attr($result3["subscriber_ss"] ?? ''); ?>" />
                           </div>
-                            <?php echo (OEGlobalsBag::getInstance()->get('omit_employers')) ? "<div class='d-none'>" : ""; ?>
+                            <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "<div class='d-none'>" : ""; ?>
                             <label class="col-form-label col-md-1 mb-2 required"><?php echo xlt('Subscriber Employer (SE)'); ?>:</label>
                             <div class="col-md-5 mb-2">
                               <input type='entry' class='form-control' aria-describedby="seHelpBlock" size='25' name='i<?php echo attr($i); ?>subscriber_employer' value="<?php echo attr($result3["subscriber_employer"] ?? ''); ?>" onchange="capitalizeMe(this);" />
@@ -663,19 +663,19 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                                 <?php echo xlt('if unemployed enter Student'); ?>, <?php echo xlt('PT Student, or leave blank'); ?>.
                               </small>
                             </div>
-                            <?php echo (OEGlobalsBag::getInstance()->get('omit_employers')) ? "</div>" : ""; ?>
+                            <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "</div>" : ""; ?>
                           <label class='col-form-label col-md-1 mb-2'><?php echo xlt('Sex'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
                             generate_form_field(['data_type' => 1,'field_id' => ('i' . $i . 'subscriber_sex'),'list_id' => 'sex', 'smallform' => 'true'], $result3['subscriber_sex'] ?? '');
                             ?>
                           </div>
-                            <?php echo (OEGlobalsBag::getInstance()->get('omit_employers')) ? "<div class='d-none'>" : ""; ?>
+                            <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "<div class='d-none'>" : ""; ?>
                             <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('SE Address'); ?>:</label>
                             <div class="col-md-5 mb-2">
                               <input type='entry' class='form-control' size='25' name='i<?php echo attr($i); ?>subscriber_employer_street' value="<?php echo attr($result3["subscriber_employer_street"] ?? ''); ?>" onchange="capitalizeMe(this);" />
                             </div>
-                            <?php echo (OEGlobalsBag::getInstance()->get('omit_employers')) ? "</div>" : ""; ?>
+                            <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "</div>" : ""; ?>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('Subscriber Address Line 1'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <input type='entry' class='form-control' size='25' name='i<?php echo attr($i); ?>subscriber_street' value="<?php echo attr($result3["subscriber_street"] ?? ''); ?>" onchange="capitalizeMe(this);" />
@@ -684,41 +684,41 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                           <div class="col-md-5 mb-2">
                             <input type='entry' class='form-control' size='25' name='i<?php echo attr($i); ?>subscriber_street_line_2' value="<?php echo attr($result3["subscriber_street_line_2"] ?? ''); ?>" onchange="capitalizeMe(this);" />
                           </div>
-                            <?php echo (OEGlobalsBag::getInstance()->get('omit_employers')) ? "<div class='d-none'>" : ""; ?>
+                            <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "<div class='d-none'>" : ""; ?>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('SE City'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <input type='entry' class='form-control' size='15' name='i<?php echo attr($i); ?>subscriber_employer_city' value="<?php echo attr($result3["subscriber_employer_city"] ?? ''); ?>" onchange="capitalizeMe(this);" />
                           </div>
-                            <?php echo (OEGlobalsBag::getInstance()->get('omit_employers')) ? "</div>" : ""; ?>
+                            <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "</div>" : ""; ?>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('City'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <input type='entry' class='form-control' size='15' name='i<?php echo attr($i); ?>subscriber_city' value="<?php echo attr($result3["subscriber_city"] ?? ''); ?>" onchange="capitalizeMe(this);" />
                           </div>
-                            <?php echo (OEGlobalsBag::getInstance()->get('omit_employers')) ? "<div class='d-none'>" : ""; ?>
+                            <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "<div class='d-none'>" : ""; ?>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo (OEGlobalsBag::getInstance()->get('phone_country_code') == '1') ? xlt('SE State') : xlt('SE Locality') ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
                             generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('state_data_type'),'field_id' => ('i' . $i . 'subscriber_employer_state'),'list_id' => OEGlobalsBag::getInstance()->get('state_list'),'fld_length' => '15','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_employer_state'] ?? ''));
                             ?>
                           </div>
-                            <?php echo (OEGlobalsBag::getInstance()->get('omit_employers')) ? "</div>" : ""; ?>
+                            <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "</div>" : ""; ?>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo (OEGlobalsBag::getInstance()->get('phone_country_code') == '1') ? xlt('State') : xlt('Locality') ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
                             generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('state_data_type'), 'field_id' => ('i' . $i . 'subscriber_state'),'list_id' => OEGlobalsBag::getInstance()->get('state_list'),'fld_length' => '15','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_state'] ?? ''));
                             ?>
                           </div>
-                            <?php echo (OEGlobalsBag::getInstance()->get('omit_employers')) ? "<div class='d-none'>" : ""; ?>
+                            <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "<div class='d-none'>" : ""; ?>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo (OEGlobalsBag::getInstance()->get('phone_country_code') == '1') ? xlt('SE Zip Code') : xlt('SE Postal Code') ?>: </label>
                           <div class="col-md-5 mb-2">
                             <input type='entry' class='form-control' size='10' name='i<?php echo $i?>subscriber_employer_postal_code' value="<?php echo attr($result3["subscriber_employer_postal_code"] ?? ''); ?>" />
                           </div>
-                            <?php echo (OEGlobalsBag::getInstance()->get('omit_employers')) ? "</div>" : ""; ?>
+                            <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "</div>" : ""; ?>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo (OEGlobalsBag::getInstance()->get('phone_country_code') == '1') ? xlt('Zip Code') : xlt('Postal Code') ?>: </label>
                           <div class="col-md-5 mb-2">
                             <input type='entry' class='form-control' size='10' name='i<?php echo attr($i); ?>subscriber_postal_code' value="<?php echo attr($result3["subscriber_postal_code"] ?? ''); ?>" />
                           </div>
-                            <?php echo (OEGlobalsBag::getInstance()->get('omit_employers')) ? "<div class='d-none'>" : ""; ?>
+                            <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "<div class='d-none'>" : ""; ?>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('SE Country'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
@@ -731,7 +731,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                             generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('country_data_type'),'field_id' => ('i' . $i . 'subscriber_country'),'list_id' => OEGlobalsBag::getInstance()->get('country_list'),'fld_length' => '10','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_country'] ?? ''));
                             ?>
                           </div>
-                            <?php echo (OEGlobalsBag::getInstance()->get('omit_employers')) ? "</div>" : ""; ?>
+                            <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "</div>" : ""; ?>
                           <label class='col-form-label col-md-1 mb-2'><?php echo xlt('Subscriber Phone'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <input type='text' class='form-control' size='20' name='i<?php echo attr($i); ?>subscriber_phone' value='<?php echo attr($result3["subscriber_phone"] ?? ''); ?>' onkeyup='phonekeyup(this,mypcc)' />
@@ -791,7 +791,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 <script>
 
 // hard code validation for old validation, in the new validation possible to add match rules
-<?php if (OEGlobalsBag::getInstance()->get('new_validate') == 0) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('new_validate')) { ?>
 // fix inconsistently formatted phone numbers from the database
 var f = document.forms[0];
 if (f.form_phone_contact) phonekeyup(f.form_phone_contact,mypcc);
@@ -833,8 +833,8 @@ $(function () {
 
     var check = function(e) {
         var f = document.forms[0];
-        <?php if (OEGlobalsBag::getInstance()->get('new_validate')) {?>
-            var valid = submitme(<?php echo OEGlobalsBag::getInstance()->get('new_validate') ? 1 : 0;?>, e, "DEM", constraints);
+        <?php if (OEGlobalsBag::getInstance()->getBoolean('new_validate')) {?>
+            var valid = submitme(<?php echo OEGlobalsBag::getInstance()->getBoolean('new_validate') ? 1 : 0;?>, e, "DEM", constraints);
         <?php } else {?>
             top.restoreSession();
             var valid = validate(f);
@@ -999,7 +999,7 @@ $form_id = "DEM";
 
 <?php
 //LBF forms use the new validation depending on the global value
-$use_validate_js = OEGlobalsBag::getInstance()->get('new_validate');
+$use_validate_js = OEGlobalsBag::getInstance()->getBoolean('new_validate');
 include_once("$srcdir/validation/validation_script.js.php");?>
 <script>
     // Array of skip conditions for the checkSkipConditions() function.

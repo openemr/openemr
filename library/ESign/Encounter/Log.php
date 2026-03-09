@@ -67,7 +67,7 @@ class Encounter_Log implements LogIF
     public function isViewable()
     {
         $viewable = false;
-        if (OEGlobalsBag::getInstance()->get('esign_all')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('esign_all')) {
             $viewable = true;
         }
 

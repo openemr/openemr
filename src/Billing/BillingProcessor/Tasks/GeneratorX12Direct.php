@@ -280,7 +280,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
             $html = "<!DOCTYPE html><html><head></head><body><div style='overflow: hidden;'>";
 
             // If the global is enabled to SFTP claim files, tell the user
-            if (OEGlobalsBag::getInstance()->get('auto_sftp_claims_to_x12_partner')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('auto_sftp_claims_to_x12_partner')) {
                 $html .= "<div class='alert alert-primary' role='alert'>" . xlt("Sending Claims via STFP. Check status on the `Claim File Tracker`") . "</div>";
             }
 

@@ -34,7 +34,7 @@ if (
     && (
         // Either normal login or google sign-in
         (isset($_POST['authUser']) && isset($_POST['clearPass']))
-        || (!empty(OEGlobalsBag::getInstance()->get('google_signin_enabled')) && !empty(OEGlobalsBag::getInstance()->get('google_signin_client_id')) && !empty($_POST['used_google_signin']) && !empty($_POST['google_signin_token']))
+        || (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(OEGlobalsBag::getInstance()->get('google_signin_client_id')) && !empty($_POST['used_google_signin']) && !empty($_POST['google_signin_token']))
     )
 ) {
     // Attempt login
@@ -51,7 +51,7 @@ if (
 
     $login_success = false;
     if (
-        !empty(OEGlobalsBag::getInstance()->get('google_signin_enabled')) &&
+        OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') &&
         !empty(OEGlobalsBag::getInstance()->get('google_signin_client_id')) &&
         !empty($_POST['used_google_signin']) &&
         !empty($_POST['google_signin_token'])

@@ -81,7 +81,7 @@ function todaysEncounterCheck($patient_id, $enc_date = '', $reason = '', $fac_id
 
     $dos = $enc_date ?: $today;
     $visit_reason = $reason ?: xl('Please indicate visit reason');
-    if (!empty(OEGlobalsBag::getInstance()->get('auto_create_prevent_reason') ?? 0)) {
+    if (OEGlobalsBag::getInstance()->getBoolean('auto_create_prevent_reason')) {
         $visit_reason = 'Please indicate visit reason';
     }
     $tmprow = sqlQuery("SELECT username, facility, facility_id FROM users WHERE id = ?", [$_SESSION["authUserID"]]);

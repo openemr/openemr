@@ -367,7 +367,7 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
 <form id="app_form" method="POST" autocomplete="off">
     <div class="<?php echo $loginrow; ?> card m-5">
         <div class="<?php echo attr($logoarea); ?>">
-            <?php $extraLogo = OEGlobalsBag::getInstance()->get('extra_logo_login'); ?>
+            <?php $extraLogo = OEGlobalsBag::getInstance()->getBoolean('extra_logo_login'); ?>
             <?php if ($extraLogo) { ?>
                 <div class="text-center">
                     <span class="d-inline-block w-40">
@@ -383,15 +383,15 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
                     <?php echo file_get_contents(OEGlobalsBag::getInstance()->get('images_static_absolute') . "/login-logo.svg"); ?>
                 </div>
             <?php } ?>
-            <?php if (OEGlobalsBag::getInstance()->get('show_label_login')) { ?>
+            <?php if (OEGlobalsBag::getInstance()->getBoolean('show_label_login')) { ?>
             <div class="text-center login-title-label">
                     <?php echo text($openemr_name); ?>
             </div>
             <?php } ?>
             <?php
             // Figure out how to display the tiny logos
-            $t1 = OEGlobalsBag::getInstance()->get('tiny_logo_1');
-            $t2 = OEGlobalsBag::getInstance()->get('tiny_logo_2');
+            $t1 = OEGlobalsBag::getInstance()->getBoolean('tiny_logo_1');
+            $t2 = OEGlobalsBag::getInstance()->getBoolean('tiny_logo_2');
             if ($t1 && !$t2) {
                 echo $tinylogocode1;
             } if ($t2 && !$t1) {

@@ -36,7 +36,7 @@ class Form_Button implements ButtonIF
 
     public function isViewable()
     {
-        return OEGlobalsBag::getInstance()->get('esign_individual');
+        return OEGlobalsBag::getInstance()->getBoolean('esign_individual');
     }
 
     public function getViewScript()

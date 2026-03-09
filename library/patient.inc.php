@@ -147,7 +147,7 @@ function getFacility($facid = 0)
         return $facilityService->getById($facid);
     }
 
-    if (OEGlobalsBag::getInstance()->get('login_into_facility')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('login_into_facility')) {
         //facility is saved in sessions
         $facility  = $facilityService->getById($session->get('facilityId'));
     } else {
@@ -259,7 +259,7 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
     //(CHEMED) facility filter
     $param2 = "";
     if ($facility) {
-        if (OEGlobalsBag::getInstance()->get('restrict_user_facility')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility')) {
             $param2 = " AND (facility_id = '" . add_escape_custom($facility) . "' OR  '" . add_escape_custom($facility) . "' IN (select facility_id from users_facility where tablename = 'users' and table_id = id))";
         } else {
             $param2 = " AND facility_id = '" . add_escape_custom($facility) . "' ";

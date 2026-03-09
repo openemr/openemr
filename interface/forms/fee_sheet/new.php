@@ -42,7 +42,7 @@ $usbillstyle = OEGlobalsBag::getInstance()->get('ippf_specific') ? " style='disp
 $justifystyle = justifiers_are_used() ? "" : " style='display:none'";
 
 $liprovstyle = (OEGlobalsBag::getInstance()->has('support_fee_sheet_line_item_provider') &&
-  OEGlobalsBag::getInstance()->get('support_fee_sheet_line_item_provider') != 1) ? " style='display:none'" : "";
+  !OEGlobalsBag::getInstance()->getBoolean('support_fee_sheet_line_item_provider')) ? " style='display:none'" : "";
 
 // This flag comes from the LBFmsivd form and perhaps later others.
 $rapid_data_entry = empty($_GET['rde']) ? 0 : 1;
@@ -56,7 +56,7 @@ $alertmsg = '';
 $tmp = sqlQuery("SELECT COUNT(*) AS count FROM list_options where list_id = 'pricelevel' AND activity = 1");
 $price_levels_are_used = $tmp['count'] > 1;
 // For revenue codes
-$institutional = OEGlobalsBag::getInstance()->get('ub04_support') == "1" ? true : false;
+$institutional = OEGlobalsBag::getInstance()->getBoolean('ub04_support') ? true : false;
 // Helper function for creating drop-lists.
 function endFSCategory(): void
 {
@@ -612,7 +612,7 @@ if (!$alertmsg && (!empty($_POST['bn_save']) || !empty($_POST['bn_save_close']) 
 // If there was a checkout this will undo it unless the global 'void_checkout_reopen' is turned off
 // then it just reopens the fee sheet for editing
 if (!$alertmsg && (!empty($_POST['bn_reopen']) || !empty($_POST['form_reopen']))) {
-    if (OEGlobalsBag::getInstance()->get('void_checkout_reopen')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('void_checkout_reopen')) {
         BillingUtilities::doVoid(
             $fs->pid,
             $fs->encounter,
@@ -743,7 +743,7 @@ function voidwrap(form_reason, form_notes) {
 function validate(f) {
  if (f.bn_reopen) {
   var reopening = f.bn_reopen.clicked;
-  <?php if (OEGlobalsBag::getInstance()->get('void_checkout_reopen')) { ?>
+  <?php if (OEGlobalsBag::getInstance()->getBoolean('void_checkout_reopen')) { ?>
   var voiding = reopening && f.bn_reopen.clicked == 2;
   <?php } else { ?>
   var voiding = false;
@@ -1745,7 +1745,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
     </button>
     <button type='submit' class='btn btn-secondary btn-undo' name='bn_reopen'
      onclick='return this.clicked = 2;' value='<?php echo xla('Void All Checkouts and Re-Open'); ?>'>
-                                            <?php if (OEGlobalsBag::getInstance()->get('void_checkout_reopen')) {
+                                            <?php if (OEGlobalsBag::getInstance()->getBoolean('void_checkout_reopen')) {
                                                 echo xlt('Void Checkout and Re-Open');
                                             } else {
                                                 echo xla('Re-Open');

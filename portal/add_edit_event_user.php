@@ -129,7 +129,7 @@ if ($eid !== 0) {
         $min_name = $qmin['facility'];
 
         // multiple providers case
-        if ($globalsBag->get('select_multi_providers')) {
+        if ($globalsBag->getBoolean('select_multi_providers')) {
             $mul = $facility['pc_multiple'];
             sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = ? WHERE pc_multiple = ?", [$min, $mul]);
         }
@@ -295,7 +295,7 @@ if (($_POST['form_action'] ?? null) == "save") {
         // what is multiple key around this $eid?
         $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", [$eid]);
 
-        if ($globalsBag->get('select_multi_providers') && $row['pc_multiple']) {
+        if ($globalsBag->getBoolean('select_multi_providers') && $row['pc_multiple']) {
             /* ==========================================
             // multi providers BOS
             ==========================================*/
@@ -377,7 +377,7 @@ if (($_POST['form_action'] ?? null) == "save") {
           // multi providers EOS
             ==========================================*/
         } elseif (!$row['pc_multiple']) {
-            $prov = $globalsBag->get('select_multi_providers') ? $_POST['form_provider_ae'][0] : $_POST['form_provider_ae'];
+            $prov = $globalsBag->getBoolean('select_multi_providers') ? $_POST['form_provider_ae'][0] : $_POST['form_provider_ae'];
             $insert = false;
             // simple provider case
             sqlStatement("UPDATE openemr_postcalendar_events SET " .
@@ -488,7 +488,7 @@ if (($_POST['form_action'] ?? null) == "save") {
 // =======================================
 //  multi providers case
 // =======================================
-    if ($globalsBag->get('select_multi_providers')) {
+    if ($globalsBag->getBoolean('select_multi_providers')) {
         // what is multiple key around this $eid?
         $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", [$eid]);
         if ($row['pc_multiple']) {
