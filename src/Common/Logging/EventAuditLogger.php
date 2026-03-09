@@ -560,7 +560,7 @@ MSG;
         }
 
         /* If query events are not enabled, don't log them. Exception for "emergency" users. */
-        if (($querytype == "select") && !(array_key_exists('audit_events_query', $GLOBALS) && OEGlobalsBag::getInstance()->get('audit_events_query'))) {
+        if (($querytype == "select") && !OEGlobalsBag::getInstance()->get('audit_events_query')) {
             if (empty(OEGlobalsBag::getInstance()->get('gbl_force_log_breakglass')) || !$this->isBreakglassUser($user)) {
                 return;
             }
