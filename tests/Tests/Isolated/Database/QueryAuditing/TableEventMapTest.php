@@ -52,6 +52,10 @@ final class TableEventMapTest extends TestCase
         // Multiple tables - returns first match
         yield 'multiple_with_known' => [['unknown', 'patient_data'], AuditEventType::PatientRecord];
         yield 'multiple_unknown' => [['unknown1', 'unknown2'], AuditEventType::Other];
+
+        // Backtick-quoted table names (as returned by SQL parser)
+        yield 'backticked_patient_data' => [['`patient_data`'], AuditEventType::PatientRecord];
+        yield 'backticked_form_custom' => [['`form_custom`'], AuditEventType::PatientRecord];
     }
 
     public function testGetPrimaryTableReturnsFirstMapped(): void

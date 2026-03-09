@@ -172,7 +172,8 @@ final class QueryAuditor implements QueryAuditorInterface
     private function shouldSkipTables(array $tables): bool
     {
         foreach ($tables as $table) {
-            if (in_array($table, self::SKIP_TABLES, true)) {
+            $normalized = trim($table, '`"\'');
+            if (in_array($normalized, self::SKIP_TABLES, true)) {
                 return true;
             }
         }

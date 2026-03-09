@@ -111,6 +111,7 @@ final class TableEventMap
     public function getEventType(array $tables): AuditEventType
     {
         foreach ($tables as $table) {
+            $table = $this->normalizeTableName($table);
             // Check exact match first
             if (isset(self::TABLE_MAP[$table])) {
                 return self::TABLE_MAP[$table];
@@ -131,10 +132,22 @@ final class TableEventMap
     public function getPrimaryTable(array $tables): ?string
     {
         foreach ($tables as $table) {
-            if (isset(self::TABLE_MAP[$table]) || str_starts_with($table, 'form_')) {
-                return $table;
+            $normalized = $this->normalizeTableName($table);
+            if (isset(self::TABLE_MAP[$normalized]) || str_starts_with($normalized, 'form_')) {
+                return $normalized;
             }
         }
-        return $tables[0] ?? null;
+        $first = $tables[0] ?? null;
+        return $first !== null ? $this->normalizeTableName($first) : null;
+    }
+
+    /**
+     * Strip backticks and other quoting from table names.
+     *
+     * The SQL parser may return quoted identifiers like `table_name`.
+     */
+    private function normalizeTableName(string $table): string
+    {
+        return trim($table, '`"\'');
     }
 }
