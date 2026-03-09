@@ -87,27 +87,13 @@ class ThrowingOAuthKeyListener extends TestableSiteSetupListener
  */
 class RealCoreSessionListener extends SiteSetupListener
 {
-    /** @var array<string, mixed> */
-    public array $calls = [];
-
-    protected function setupApiSession(
-        HttpRestRequest $request,
-        string $webroot,
-        string $siteId,
-        bool $isOauth2Request
-    ): void {
-        $this->calls['setupApiSession'] = true;
-    }
-
     protected function loadApplicationGlobals(RequestEvent $event, bool $ignoreAuth): mixed
     {
-        $this->calls['loadApplicationGlobals'] = true;
         return null;
     }
 
     protected function setupOAuthKeys(mixed $globalsBag, HttpRestRequest $request): void
     {
-        $this->calls['setupOAuthKeys'] = true;
         $request->setApiBaseFullUrl('https://localhost/apis');
     }
 }
