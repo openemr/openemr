@@ -289,7 +289,7 @@ window.onload = function() {
     if (isset($_GET['pagesize'])) {
         $pagesize = $_GET['pagesize'];
     } else {
-        $pagesize = array_key_exists('encounter_page_size', $GLOBALS) ? OEGlobalsBag::getInstance()->get('encounter_page_size') : 0;
+        $pagesize = OEGlobalsBag::getInstance()->get('encounter_page_size', 0);
     }
     $pagestart = $_GET['pagestart'] ?? 0;
     $getStringForPage = "&pagesize=" . attr_url($pagesize) . "&pagestart=" . attr_url($pagestart);

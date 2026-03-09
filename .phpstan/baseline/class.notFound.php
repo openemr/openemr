@@ -3,7 +3,7 @@
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Call to static method getInstance\\(\\) on an unknown class OEGlobalsBag\\.$#',
-    'count' => 2,
+    'count' => 4,
     'path' => __DIR__ . '/../../gacl/profiler.inc.php',
 ];
 $ignoreErrors[] = [

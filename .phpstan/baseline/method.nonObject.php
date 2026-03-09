@@ -1147,6 +1147,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/profiler.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method has\\(\\) on mixed\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../gacl/profiler.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method startTimer\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/profiler.inc.php',

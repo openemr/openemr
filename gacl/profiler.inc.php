@@ -210,12 +210,12 @@ class Profiler {
 }
 
 function profiler_start($name): void {
-    if (array_key_exists("midcom_profiler",$GLOBALS))
+    if (OEGlobalsBag::getInstance()->has("midcom_profiler"))
       OEGlobalsBag::getInstance()->get("midcom_profiler")->startTimer ($name);
 }
 
 function profiler_stop($name): void {
-    if (array_key_exists("midcom_profiler",$GLOBALS))
+    if (OEGlobalsBag::getInstance()->has("midcom_profiler"))
       OEGlobalsBag::getInstance()->get("midcom_profiler")->stopTimer ($name);
 }
 
