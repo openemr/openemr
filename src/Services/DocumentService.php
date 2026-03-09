@@ -124,7 +124,7 @@ class DocumentService extends BaseService
     public function insertAtPath($pid, $path, $fileData, $eid)
     {
         // Ensure filetype is allowed
-        if (OEGlobalsBag::getInstance()->get('secure_upload') && !isWhiteFile($fileData["tmp_name"])) {
+        if (OEGlobalsBag::getInstance()->getBoolean('secure_upload') && !isWhiteFile($fileData["tmp_name"])) {
             error_log("OpenEMR API Error: Attempt to upload insecure patient document was declined");
             return false;
         }

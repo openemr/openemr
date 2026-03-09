@@ -47,7 +47,7 @@ use OpenEMR\Services\UserService;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
-$expand_default = (int)OEGlobalsBag::getInstance()->get('expand_form') ? 'show' : 'hide';
+$expand_default = (int)OEGlobalsBag::getInstance()->getBoolean('expand_form') ? 'show' : 'hide';
 $reviewMode = false;
 if (!empty($_REQUEST['review_id'])) {
     $reviewMode = true;
@@ -119,7 +119,7 @@ if (!empty($_GET['attachid'])) {
 
 <?php
 // If google sign-in enable then add scripts.
-if (!empty(OEGlobalsBag::getInstance()->get('google_signin_enabled')) && !empty(OEGlobalsBag::getInstance()->get('google_signin_client_id'))) { ?>
+if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(OEGlobalsBag::getInstance()->get('google_signin_client_id'))) { ?>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/js/gSignIn.js"></script>
 <?php } ?>
@@ -648,7 +648,7 @@ if (!empty(OEGlobalsBag::getInstance()->get('google_signin_enabled')) && !empty(
         'encounterDate' => oeFormatShortDate($encounter_date),
         'patientName' => $patientName,
         'isAdminSuper' => AclMain::aclCheckCore("admin", "super"),
-        'enableFollowUpEncounters' => OEGlobalsBag::getInstance()->get('enable_follow_up_encounters'),
+        'enableFollowUpEncounters' => OEGlobalsBag::getInstance()->getBoolean('enable_follow_up_encounters'),
         'menuArray' => $menu->getMenuData(),
         'encounter' => (int) $encounter, // @phpstan-ignore cast.int ($encounter comes from global scope)
         'pid' => (int) $pid,
@@ -705,7 +705,7 @@ if (!empty(OEGlobalsBag::getInstance()->get('google_signin_enabled')) && !empty(
                 } ?>
             </div>
             <div class='encounter-summary-column'>
-                <?php if (OEGlobalsBag::getInstance()->get('enable_amc_prompting')) { ?>
+                <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_amc_prompting')) { ?>
                     <div class="float-right border border-dark mb-2">
                         <a class="btn btn-link p-0 m-1 float-right" data-toggle="collapse" data-target="#amc-requires"><?php echo xlt('AMC Requires'); ?></a>
                         <div id="amc-requires" class="float-left m-2 collapse">

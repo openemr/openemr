@@ -57,7 +57,7 @@ if (
 }
 
 //set default start date of flow board to value based on globals
-if (!OEGlobalsBag::getInstance()->get('ptkr_date_range')) {
+if (!OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range')) {
     $from_date = date('Y-m-d');
 } elseif (!is_null($_REQUEST['form_from_date'] ?? null)) {
     $from_date = DateToYYYYMMDD($_REQUEST['form_from_date']);
@@ -83,7 +83,7 @@ if (!OEGlobalsBag::getInstance()->get('ptkr_date_range')) {
 }
 
 //set default end date of flow board to value based on globals
-if (OEGlobalsBag::getInstance()->get('ptkr_date_range')) {
+if (OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range')) {
     if (str_starts_with((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 'Y')) {
         $ptkr_time = substr((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 1, 1);
         $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d'), date('Y') + $ptkr_time);
@@ -118,7 +118,7 @@ while ($lrow = sqlFetchArray($lres)) {
     $statuses_list[$lrow['option_id']] = $title;
 }
 
-if (OEGlobalsBag::getInstance()->get('medex_enable') == '1') {
+if (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) {
     $query2 = "SELECT * FROM medex_icons";
     $iconed = sqlStatement($query2);
     while ($icon = sqlFetchArray($iconed)) {
@@ -157,7 +157,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
 
 <body>
     <?php
-    if ((OEGlobalsBag::getInstance()->get('medex_enable') == '1') && (empty($_REQUEST['nomenu']))) {
+    if ((OEGlobalsBag::getInstance()->getBoolean('medex_enable')) && (empty($_REQUEST['nomenu']))) {
         $logged_in = $MedEx->login();
         $MedEx->display->navigation($logged_in);
     }
@@ -260,7 +260,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                               </div>
                             </div>
                               <?php
-                                if (OEGlobalsBag::getInstance()->get('ptkr_date_range') == '1') {
+                                if (OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range')) {
                                     $type = 'date';
                                     $style = '';
                                 } else {
@@ -295,7 +295,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 <div class="col-sm-12 mx-auto">
                                     <div class="text-center pt-3 mx-auto">
 
-                                        <?php if (OEGlobalsBag::getInstance()->get('medex_enable') == '1') { ?>
+                                        <?php if (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) { ?>
                                           <b>MedEx:</b>
                                                 <a href="https://medexbank.com/cart/upload/index.php?route=information/campaigns&amp;g=rem"
                                                    target="_medex">
@@ -374,7 +374,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                     <table class="table table-bordered">
                     <thead class="table-primary">
                     <tr class="small font-weight-bold text-center">
-                        <?php if (OEGlobalsBag::getInstance()->get('ptkr_show_pid')) { ?>
+                        <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_pid')) { ?>
                             <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
                                 <?php echo xlt('PID'); ?>
                             </td>
@@ -382,18 +382,18 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         <td class="dehead text-center text-ovr-dark" style="max-width: 150px;">
                             <?php echo xlt('Patient'); ?>
                         </td>
-                        <?php if (OEGlobalsBag::getInstance()->get('ptkr_visit_reason') == '1') { ?>
+                        <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_visit_reason')) { ?>
                             <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
                                 <?php echo xlt('Appt Comment'); ?>
                             </td>
                         <?php } ?>
-                        <?php if (OEGlobalsBag::getInstance()->get('ptkr_show_encounter')) { ?>
+                        <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_encounter')) { ?>
                             <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
                                 <?php echo xlt('Encounter'); ?>
                             </td>
                         <?php } ?>
 
-                        <?php if (OEGlobalsBag::getInstance()->get('ptkr_date_range') == '1') { ?>
+                        <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range')) { ?>
                             <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
                                 <?php echo xlt('Appt Date'); ?>
                             </td>
@@ -434,14 +434,14 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             <?php echo xlt('Out Time'); ?>
                         </td>
                         <?php
-                        if (OEGlobalsBag::getInstance()->get('ptkr_show_staff')) { ?>
+                        if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_staff')) { ?>
                             <td class="dehead text-center text-ovr-dark" name="kiosk_hide">
                                 <?php echo xlt('Updated By'); ?>
                             </td>
                             <?php
                         }
                         if ($_REQUEST['kiosk'] != '1') {
-                            if (OEGlobalsBag::getInstance()->get('drug_screen')) { ?>
+                            if (OEGlobalsBag::getInstance()->getBoolean('drug_screen')) { ?>
                                 <td class="dehead center text-ovr-dark" name="kiosk_hide">
                                     <?php echo xlt('Random Drug Screen'); ?>
                                 </td>
@@ -568,7 +568,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         $appt_time = (!empty($appointment['appttime'])) ? $appointment['appttime'] : $appointment['pc_startTime'];
                         $tracker_id = $appointment['id'];
                         // reason for visit
-                        if (OEGlobalsBag::getInstance()->get('ptkr_visit_reason')) {
+                        if (OEGlobalsBag::getInstance()->getBoolean('ptkr_visit_reason')) {
                             $reason_visit = $appointment['pc_hometext'];
                         }
                         $newarrive = collect_checkin($tracker_id);
@@ -595,7 +595,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             class="text-small"
                             style="background-color:#' . attr($bgcolor) . ';" >';
 
-                        if (OEGlobalsBag::getInstance()->get('ptkr_show_pid')) {
+                        if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_pid')) {
                             ?>
                             <td class="detail text-center" name="kiosk_hide">
                                 <?php echo text($appt_pid); ?>
@@ -615,12 +615,12 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         </td>
 
                         <!-- reason -->
-                        <?php if (OEGlobalsBag::getInstance()->get('ptkr_visit_reason')) { ?>
+                        <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_visit_reason')) { ?>
                             <td class="detail text-center" name="kiosk_hide">
                                 <?php echo text($reason_visit) ?>
                             </td>
                         <?php } ?>
-                        <?php if (OEGlobalsBag::getInstance()->get('ptkr_show_encounter')) { ?>
+                        <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_encounter')) { ?>
                             <td class="detail text-center" name="kiosk_hide">
                                 <?php
                                 if ($appt_enc != 0) {
@@ -629,7 +629,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 ?>
                             </td>
                         <?php } ?>
-                        <?php if (OEGlobalsBag::getInstance()->get('ptkr_date_range') == '1') { ?>
+                        <?php if (OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range')) { ?>
                             <td class="detail text-center" name="kiosk_hide">
                                 <?php echo text(oeFormatShortDate($appointment['pc_eventDate']));
                                 ?>
@@ -726,14 +726,14 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                             ?>
                         </td>
                         <?php
-                        if (OEGlobalsBag::getInstance()->get('ptkr_show_staff') == '1') {
+                        if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_staff')) {
                             ?>
                                 <td class="detail text-center" name="kiosk_hide">
                                     <?php echo text($appointment['user']) ?>
                                 </td>
                             <?php
                         }
-                        if (OEGlobalsBag::getInstance()->get('drug_screen')) {
+                        if (OEGlobalsBag::getInstance()->getBoolean('drug_screen')) {
                             if (strtotime((string) $newarrive) != '') { ?>
                                 <td class="detail text-center" name="kiosk_hide">
                                     <?php

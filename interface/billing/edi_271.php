@@ -52,7 +52,7 @@ if (isset($_FILES) && !empty($_FILES)) {
     if (!isset($message)) {
         $cryptoGen = ServiceContainer::getCrypto();
         $uploadedFile = file_get_contents($_FILES['uploaded']['tmp_name']);
-        if (OEGlobalsBag::getInstance()->get('drive_encryption')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
             $uploadedFile = $cryptoGen->encryptStandard($uploadedFile, null, KeySource::Database);
         }
         if (file_put_contents($target, $uploadedFile)) {
@@ -73,7 +73,7 @@ if (isset($_FILES) && !empty($_FILES)) {
         $message .= xlt('Sorry, there was a problem uploading your file') . "<br /><br />";
     }
 }
-if ($batch_log && !OEGlobalsBag::getInstance()->get('disable_eligibility_log')) {
+if ($batch_log && !OEGlobalsBag::getInstance()->getBoolean('disable_eligibility_log')) {
     $fn = sprintf(
         'elig-batch_log_%s.txt',
         date("Y-m-d:H:i:s")

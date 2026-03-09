@@ -208,7 +208,7 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
 
         // Tell the billing_process.php script to initiate a download of this file
         // that's in the edi directory unless it's going to be sent via sftp
-        if (!OEGlobalsBag::getInstance()->get('auto_sftp_claims_to_x12_partner')) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('auto_sftp_claims_to_x12_partner')) {
             $this->logger->setLogCompleteCallback(function (): void {
                 // This uses our parent's method to print the JS that automatically initiates
                 // the download of this file, after the screen bill_log messages have printed

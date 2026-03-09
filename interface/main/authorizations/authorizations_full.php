@@ -78,7 +78,7 @@ if ($res = sqlStatement("select * from transactions where authorized=0 and group
     }
 }
 
-if (empty(OEGlobalsBag::getInstance()->get('ignore_pnotes_authorization'))) {
+if (!OEGlobalsBag::getInstance()->getBoolean('ignore_pnotes_authorization')) {
   //fetch pnotes information, exclude ALL deleted notes
     if ($res = sqlStatement("select * from pnotes where authorized=0 and deleted!=1 and groupname=?", [$groupname])) {
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {

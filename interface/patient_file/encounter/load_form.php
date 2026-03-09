@@ -57,6 +57,6 @@ if ($telemetryService->isTelemetryEnabled()) {
     ]);
 }
 
-if (!empty(OEGlobalsBag::getInstance()->get('text_templates_enabled')) && !($_GET['formname'] == 'fee_sheet')) { ?>
+if (OEGlobalsBag::getInstance()->getBoolean('text_templates_enabled') && !($_GET['formname'] == 'fee_sheet')) { ?>
     <script src="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/js/CustomTemplateLoader.js"></script>
 <?php } ?>

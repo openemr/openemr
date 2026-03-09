@@ -72,9 +72,9 @@ try {
     $data['issues'] = $portalPatientReportController->getIssues($ISSUE_TYPES, $pid);
     $data['encounters'] = $portalPatientReportController->getEncounters($pid);
     $data['procedureOrders'] = $portalPatientReportController->getProcedureOrders($pid);
-    $data['phimail_enable'] = $globalsBag->get('phimail_enable') ?? false;
-    $data['phimail_ccr_enable'] = $globalsBag->get('phimail_ccr_enable') ?? false;
-    $data['phimail_ccd_enable'] = $globalsBag->get('phimail_ccd_enable') ?? false;
+    $data['phimail_enable'] = $globalsBag->getBoolean('phimail_enable');
+    $data['phimail_ccr_enable'] = $globalsBag->getBoolean('phimail_ccr_enable');
+    $data['phimail_ccd_enable'] = $globalsBag->getBoolean('phimail_ccd_enable');
     $data['sections'] = [
         'demographics' => [
             'selected' => true
@@ -89,7 +89,7 @@ try {
             ,'label' => xl('Insurance')
         ]
         ,'billing' => [
-            'selected' => !$globalsBag->get('simplified_demographics')
+            'selected' => !$globalsBag->getBoolean('simplified_demographics')
             ,'label' => xl('Billing')
         ]
         ,'allergies' => [

@@ -190,7 +190,7 @@ while ($frow = sqlFetchArray($fres)) {
 // Save patient and employer data
 try {
     updatePatientData($pid, $newdata['patient_data']);
-    if (!OEGlobalsBag::getInstance()->get('omit_employers')) {
+    if (!OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
         updateEmployerData($pid, [], $newdata['employer_data']);
     }
 } catch (\Throwable $e) {

@@ -421,7 +421,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
         <div class="form-group col-auto">
             <label for="form_proc_codefull">
             <?php
-            if (!OEGlobalsBag::getInstance()->get('simplified_demographics')) {
+            if (!OEGlobalsBag::getInstance()->getBoolean('simplified_demographics')) {
                 echo xlt('Procedure/Service');
             }
             ?>
@@ -429,7 +429,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
             <input type='text' name='form_proc_codefull' id='form_proc_codefull' class='form-control' size='12' value='<?php echo attr($form_proc_codefull); ?>' onclick='sel_procedure()'
                 title='<?php echo xla('Click to select optional procedure code'); ?>'
             <?php
-            if (OEGlobalsBag::getInstance()->get('simplified_demographics')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('simplified_demographics')) {
                 echo "style='display:none'";
             } ?> />
         </div>

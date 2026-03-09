@@ -135,7 +135,7 @@ function create_HTML_statement($stmt)
     }
 
 #minimum_amount_due_to _print
-    if ($stmt['amount'] <= (OEGlobalsBag::getInstance()->get('minimum_amount_to_print')) && OEGlobalsBag::getInstance()->get('use_statement_print_exclusion') && ($_POST['form_category'] !== "All")) {
+    if ($stmt['amount'] <= (OEGlobalsBag::getInstance()->get('minimum_amount_to_print')) && OEGlobalsBag::getInstance()->getBoolean('use_statement_print_exclusion') && ($_POST['form_category'] !== "All")) {
         return "";
     }
 
@@ -170,7 +170,7 @@ function create_HTML_statement($stmt)
     // $stmt['dun_count'] number of statements run
     // $stmt['level_closed'] <= 3 insurance 4 = patient
 
-    if (OEGlobalsBag::getInstance()->get('use_dunning_message')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('use_dunning_message')) {
         if ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4) {
             // do collection messages
             switch ($stmt['age']) {
@@ -239,7 +239,7 @@ function create_HTML_statement($stmt)
 
     // This generates the detail lines.  Again, note that the values must be specified in the order used.
     foreach ($stmt['lines'] as $line) {
-        $description = OEGlobalsBag::getInstance()->get('use_custom_statement') ? substr((string) $line['desc'], 0, 30) : $line['desc'];
+        $description = OEGlobalsBag::getInstance()->getBoolean('use_custom_statement') ? substr((string) $line['desc'], 0, 30) : $line['desc'];
 
         $tmp = substr((string) $description, 0, 14);
         if (in_array($tmp, ['Procedure 9920', 'Procedure 9921', 'Procedure 9200', 'Procedure 9201'])) {
@@ -371,12 +371,12 @@ function create_HTML_statement($stmt)
 
     // This is the top portion of the page.
     $out .= "\n\n\n";
-    if (strlen((string) $stmt['bill_note']) != 0 && OEGlobalsBag::getInstance()->get('statement_bill_note_print')) {
+    if (strlen((string) $stmt['bill_note']) != 0 && OEGlobalsBag::getInstance()->getBoolean('statement_bill_note_print')) {
         $out .= sprintf("%-46s\n", $stmt['bill_note']);
         $count++;
     }
 
-    if (OEGlobalsBag::getInstance()->get('use_dunning_message')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('use_dunning_message')) {
         $out .= sprintf("%-46s\n", $dun_message);
         $count++;
     }
@@ -398,14 +398,14 @@ function create_HTML_statement($stmt)
     $out .= "\n";
     // $out .= sprintf("%-s\n", $billing_contact);
     $out .= sprintf("  %-s %-25s\n", $label_dept, $label_bill_phone);
-    if (OEGlobalsBag::getInstance()->get('statement_message_to_patient')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('statement_message_to_patient')) {
         $out .= "\n";
         $statement_message = OEGlobalsBag::getInstance()->get('statement_msg_text');
         $out .= sprintf("%-40s\n", $statement_message);
         $count++;
     }
 
-    if (OEGlobalsBag::getInstance()->get('show_aging_on_custom_statement')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('show_aging_on_custom_statement')) {
         # code for ageing
         $ageline .= ' | ' . xl('Over') . ' ' . ($age_index * 30) . ':' .
             sprintf(" %.2f", $aging[$age_index]);
@@ -578,7 +578,7 @@ function create_statement($stmt)
     }
 
     #minimum_amount_to _print
-    if ($stmt['amount'] <= (OEGlobalsBag::getInstance()->get('minimum_amount_to_print')) && OEGlobalsBag::getInstance()->get('use_statement_print_exclusion')) {
+    if ($stmt['amount'] <= (OEGlobalsBag::getInstance()->get('minimum_amount_to_print')) && OEGlobalsBag::getInstance()->getBoolean('use_statement_print_exclusion')) {
         return "";
     }
 
@@ -617,7 +617,7 @@ function create_statement($stmt)
     // $stmt['dun_count'] number of statements run
     // $stmt['level_closed'] <= 3 insurance 4 = patient
 
-    if (OEGlobalsBag::getInstance()->get('use_dunning_message')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('use_dunning_message')) {
         if ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4) {
             // do collection messages
             switch ($stmt['age']) {
@@ -718,7 +718,7 @@ function create_statement($stmt)
 
 
     foreach ($stmt['lines'] as $line) {
-        $description = OEGlobalsBag::getInstance()->get('use_custom_statement') ? substr((string) $line['desc'], 0, 30) : $line['desc'];
+        $description = OEGlobalsBag::getInstance()->getBoolean('use_custom_statement') ? substr((string) $line['desc'], 0, 30) : $line['desc'];
 
         $tmp = substr((string) $description, 0, 14);
         if (in_array($tmp, ['Procedure 9920', 'Procedure 9921', 'Procedure 9200', 'Procedure 9201'])) {
@@ -797,11 +797,11 @@ function create_statement($stmt)
 
     // This is the bottom portion of the page.
     $out .= "\n";
-    if (strlen((string) $stmt['bill_note']) != 0 && OEGlobalsBag::getInstance()->get('statement_bill_note_print')) {
+    if (strlen((string) $stmt['bill_note']) != 0 && OEGlobalsBag::getInstance()->getBoolean('statement_bill_note_print')) {
         $out .= sprintf("%-46s\n", $stmt['bill_note']);
     }
 
-    if (OEGlobalsBag::getInstance()->get('use_dunning_message')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('use_dunning_message')) {
         $out .= sprintf("%-46s\n", $dun_message);
     }
 
@@ -822,13 +822,13 @@ function create_statement($stmt)
     $out .= "\n";
     $out .= sprintf("%-s\n", $billing_contact);
     $out .= sprintf("  %-s %-25s\n", $label_dept, $label_bill_phone);
-    if (OEGlobalsBag::getInstance()->get('statement_message_to_patient')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('statement_message_to_patient')) {
         $out .= "\n";
         $statement_message = OEGlobalsBag::getInstance()->get('statement_msg_text');
         $out .= sprintf("%-40s\n", $statement_message);
     }
 
-    if (OEGlobalsBag::getInstance()->get('show_aging_on_custom_statement')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('show_aging_on_custom_statement')) {
         # code for ageing
         $ageline .= ' / ' . xl('Over') . '-' . ($age_index * 30) .
             sprintf(" %.2f", $aging[$age_index]);
@@ -877,7 +877,7 @@ function osp_create_HTML_statement($stmt)
     }
 
     #minimum_amount_due_to _print
-    if ($stmt['amount'] <= (OEGlobalsBag::getInstance()->get('minimum_amount_to_print')) && OEGlobalsBag::getInstance()->get('use_statement_print_exclusion')) {
+    if ($stmt['amount'] <= (OEGlobalsBag::getInstance()->get('minimum_amount_to_print')) && OEGlobalsBag::getInstance()->getBoolean('use_statement_print_exclusion')) {
         return "";
     }
 
@@ -914,7 +914,7 @@ function osp_create_HTML_statement($stmt)
     // $stmt['dun_count'] number of statements run
     // $stmt['level_closed'] <= 3 insurance 4 = patient
 
-    if (OEGlobalsBag::getInstance()->get('use_dunning_message')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('use_dunning_message')) {
         if ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4) {
             // do collection messages
             switch ($stmt['age']) {
@@ -983,7 +983,7 @@ function osp_create_HTML_statement($stmt)
 
     // This generates the detail lines.  Again, note that the values must be specified in the order used.
     foreach ($stmt['lines'] as $line) {
-        $description = OEGlobalsBag::getInstance()->get('use_custom_statement') ? substr((string) $line['desc'], 0, 30) : $line['desc'];
+        $description = OEGlobalsBag::getInstance()->getBoolean('use_custom_statement') ? substr((string) $line['desc'], 0, 30) : $line['desc'];
 
         $tmp = substr((string) $description, 0, 14);
         if (in_array($tmp, ['Procedure 9920', 'Procedure 9921', 'Procedure 9200', 'Procedure 9201'])) {
@@ -1059,12 +1059,12 @@ function osp_create_HTML_statement($stmt)
 
     // This is the top portion of the page.
     $out .= "\n";
-    if (strlen((string) $stmt['bill_note']) != 0 && OEGlobalsBag::getInstance()->get('statement_bill_note_print')) {
+    if (strlen((string) $stmt['bill_note']) != 0 && OEGlobalsBag::getInstance()->getBoolean('statement_bill_note_print')) {
         $out .= sprintf("%-46s\n", $stmt['bill_note']);
         $count++;
     }
 
-    if (OEGlobalsBag::getInstance()->get('use_dunning_message')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('use_dunning_message')) {
         $out .= sprintf("%-46s\n", $dun_message);
         $count++;
     }
@@ -1086,14 +1086,14 @@ function osp_create_HTML_statement($stmt)
     $out .= "\n";
     $out .= sprintf("%-s\n", $billing_contact);
     $out .= sprintf("  %-s %-25s\n", $label_dept, $label_bill_phone);
-    if (OEGlobalsBag::getInstance()->get('statement_message_to_patient')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('statement_message_to_patient')) {
         $out .= "\n";
         $statement_message = OEGlobalsBag::getInstance()->get('statement_msg_text');
         $out .= sprintf("%-40s\n", $statement_message);
         $count++;
     }
 
-    if (OEGlobalsBag::getInstance()->get('show_aging_on_custom_statement')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('show_aging_on_custom_statement')) {
         # code for ageing
         $ageline .= ' | ' . xl('Over') . ' ' . ($age_index * 30) . ':' .
             sprintf(" %.2f", $aging[$age_index]);

@@ -123,7 +123,7 @@ require_once(OEGlobalsBag::getInstance()->get('srcdir') . "/validation/validatio
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
 $have_group_global_enabled = true;
-if ((!$g_edit && !$g_view) || (!OEGlobalsBag::getInstance()->get('enable_group_therapy'))) {
+if ((!$g_edit && !$g_view) || (!OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy'))) {
     $_GET['group'] = false;
     $have_group_global_enabled = false;
 }
@@ -297,7 +297,7 @@ if ($eid) {
         $min_name = $qmin['facility'];
 
         // multiple providers case
-        if (OEGlobalsBag::getInstance()->get('select_multi_providers')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('select_multi_providers')) {
             $mul  = $facility['pc_multiple'];
             sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = ? WHERE pc_multiple = ?", [$min,$mul]);
         }
@@ -311,7 +311,7 @@ if ($eid) {
           // not edit event
         if (!$facility['pc_facility'] && $_SESSION['pc_facility']) {
             $e2f = $_SESSION['pc_facility'];
-        } elseif (!$facility['pc_facility'] && $_COOKIE['pc_facility'] && OEGlobalsBag::getInstance()->get('set_facility_cookie')) {
+        } elseif (!$facility['pc_facility'] && $_COOKIE['pc_facility'] && OEGlobalsBag::getInstance()->getBoolean('set_facility_cookie')) {
                 $e2f = $_COOKIE['pc_facility'];
         } else {
             $e2f = $facility['pc_facility'];
@@ -455,7 +455,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
         // ====================================
         // multiple providers
         // ====================================
-        if (OEGlobalsBag::getInstance()->get('select_multi_providers') && $row['pc_multiple']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('select_multi_providers') && $row['pc_multiple']) {
             // obtain current list of providers regarding the multiple key
             $up = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_multiple=?", [$row['pc_multiple']]);
             while ($current = sqlFetchArray($up)) {
@@ -631,7 +631,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
             // single provider
             // ====================================
         } elseif (!$row['pc_multiple']) {
-            if (OEGlobalsBag::getInstance()->get('select_multi_providers')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('select_multi_providers')) {
                 $prov = $_POST['form_provider'][0];
                 $_POST['form_provider'] = $prov;
             } else {
@@ -1493,7 +1493,7 @@ if ($_GET['group'] === true && $have_group_global_enabled) { ?>
     // =======================================
     // multi providers
     // =======================================
-    if (OEGlobalsBag::getInstance()->get('select_multi_providers')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('select_multi_providers')) {
         //  there are two possible situations: edit and new record
         $providers_array = [];
         // this is executed only on edit ($eid)
@@ -1756,7 +1756,7 @@ if (empty($_GET['prov'])) { ?>
     <div id="recurr_popup" class="col-sm input-group alert bg-warning text-left" style="display: none; position: relative; max-width: 400px;">
         <p class="lead small font-weight-bold" style="font-size: 16px;"><?php echo xlt('Option one, apply the changes to only the Current event. Option two, apply to this event and all Future occurrences or lastly, apply to All event occurrences?') ?></p>
         <br />
-        <?php if (OEGlobalsBag::getInstance()->get('submit_changes_for_all_appts_at_once')) {?>
+        <?php if (OEGlobalsBag::getInstance()->getBoolean('submit_changes_for_all_appts_at_once')) {?>
             <input type="button" class="btn btn-primary" name="all_events" id="all_events" value="<?php echo xla('All'); ?>" />
         <?php } ?>
         <input type="button" class="btn btn-primary" id="recurr_cancel" value="<?php echo xla('Cancel'); ?>" />
@@ -1766,7 +1766,7 @@ if (empty($_GET['prov'])) { ?>
 </div>
 <div class="form-row mx-2 mt-3">
     <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-primary" type='button' name='form_save' id='form_save' value='<?php echo xla('Save'); ?>' />
-    <?php if (!(OEGlobalsBag::getInstance()->get('select_multi_providers'))) { //multi providers appt is not supported by check slot avail window, so skip ?>
+    <?php if (!(OEGlobalsBag::getInstance()->getBoolean('select_multi_providers'))) { //multi providers appt is not supported by check slot avail window, so skip ?>
         <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-secondary" type='button' id='find_available' value='<?php echo xla('Find Available{{Provider}}'); ?>' />
     <?php } ?>
     <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-danger" type='button' name='form_delete' id='form_delete' value='<?php echo xla('Delete'); ?>'<?php echo (!$eid) ? " disabled" : ""; ?> />
@@ -1914,7 +1914,7 @@ function validateform(event,value){
         return false;
     }
 
-    <?php if (!OEGlobalsBag::getInstance()->get('allow_early_check_in')) { ?>
+    <?php if (!OEGlobalsBag::getInstance()->getBoolean('allow_early_check_in')) { ?>
         //Prevent from user to change status to Arrive before the time
         //Dependent in globals setting - allow_early_check_in
         if($('#form_apptstatus').val() == '@' && new Date(DateToYYYYMMDD_js($('#form_date').val())).getTime() > new Date().getTime()){
@@ -1946,7 +1946,7 @@ function validateform(event,value){
 
 
     <?php
-    if (OEGlobalsBag::getInstance()->get('select_multi_providers')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('select_multi_providers')) {
         ?>
     //If multiple providers is enabled, create provider validation (Note: if no provider is chosen it causes bugs when deleting recurrent events).
     if(typeof (collectvalidation) == 'undefined'){
@@ -2013,7 +2013,7 @@ function deleteEvent() {
 
 function SubmitForm() {
     var f = document.forms[0];
-    <?php if (!(OEGlobalsBag::getInstance()->get('select_multi_providers')) && empty($_GET['prov'])) { // multi providers appt is not supported by check slot avail window, so skip. && is not provider tab. ?>
+    <?php if (!(OEGlobalsBag::getInstance()->getBoolean('select_multi_providers')) && empty($_GET['prov'])) { // multi providers appt is not supported by check slot avail window, so skip. && is not provider tab. ?>
     if (f.form_action.value != 'delete') {
         // Check slot availability.
         var mins = parseInt(f.form_hour.value) * 60 + parseInt(f.form_minute.value);

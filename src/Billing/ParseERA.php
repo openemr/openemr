@@ -34,7 +34,7 @@ class ParseERA
             // from poorly reported payment reversals, in which case we may need to
             // create the 'Claim' service type here.
             //
-            if (OEGlobalsBag::getInstance()->get('force_claim_balancing')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('force_claim_balancing')) {
                 $chgtotal = floatval($out['amount_charged']);
                 $paytotal = floatval($out['amount_approved']);
                 $pattotal = floatval($out['amount_patient']);

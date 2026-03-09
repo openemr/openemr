@@ -169,7 +169,7 @@ if ((OEGlobalsBag::getInstance()->get('questionnaire_display_style') ?? 0) == 3)
 
 if ($isModule || $isDashboard || $isPortal) {
     $container = 'container-fluid';
-} elseif (!empty(OEGlobalsBag::getInstance()->get('questionnaire_display_fullscreen') ?? 0)) {
+} elseif (OEGlobalsBag::getInstance()->getBoolean('questionnaire_display_fullscreen')) {
     $container = 'container';
 } else {
     $container = 'container-fluid';
@@ -189,9 +189,9 @@ if ($isModule || $isDashboard || $isPortal) {
       }
     </style>
     <script>
-        let isPortal = <?php echo js_escape($isPortal); ?>;
-        let portalOther = <?php echo js_escape($patientPortalOther); ?>;
-        let allowCopyright = <?php echo js_escape(!((OEGlobalsBag::getInstance()->get('questionnaire_display_LOINCnote') ?? 0) == '3')); ?>;
+        let isPortal = <?php echo js_escape((int) $isPortal); ?>;
+        let portalOther = <?php echo js_escape((int) $patientPortalOther); ?>;
+        let allowCopyright = <?php echo js_escape((int) !((OEGlobalsBag::getInstance()->get('questionnaire_display_LOINCnote') ?? 0) == '3')); ?>;
         let formOptions = {
             "questionLayout": "vertical",
             "hideTreeLine": true,

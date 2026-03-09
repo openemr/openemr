@@ -51,9 +51,9 @@ $viewArgs = [
     'theUUID' => UniqueInstallationUuid::getUniqueInstallationUuid(),
     'userManualHref' => $userManual,
     'onlineSupportLink' => OEGlobalsBag::getInstance()->get('online_support_link') ?? false,
-    'displayAcknowledgements' => OEGlobalsBag::getInstance()->get('display_acknowledgements'),
-    'displayDonations' => OEGlobalsBag::getInstance()->get('display_donations_link'),
-    'displayReview' => OEGlobalsBag::getInstance()->get('display_review_link'),
+    'displayAcknowledgements' => OEGlobalsBag::getInstance()->getBoolean('display_acknowledgements'),
+    'displayDonations' => OEGlobalsBag::getInstance()->getBoolean('display_donations_link'),
+    'displayReview' => OEGlobalsBag::getInstance()->getBoolean('display_review_link'),
     'emailRegistered' => $emailRegistered
 ];
 

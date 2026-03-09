@@ -27,7 +27,7 @@ class PaymentGateway
 
     public function __construct($name)
     {
-        $this->production = !OEGlobalsBag::getInstance()->get('gateway_mode_production');
+        $this->production = !OEGlobalsBag::getInstance()->getBoolean('gateway_mode_production');
 
         $cryptoGen = ServiceContainer::getCrypto();
         $this->apiKey = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('gateway_api_key'));

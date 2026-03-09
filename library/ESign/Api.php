@@ -29,7 +29,7 @@ class Api
 {
     public function lockEncounters()
     {
-        return OEGlobalsBag::getInstance()->get('lock_esign_all');
+        return OEGlobalsBag::getInstance()->getBoolean('lock_esign_all');
     }
 
     public function formConfigToJson()

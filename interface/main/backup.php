@@ -473,7 +473,7 @@ if ($form_step == 0) {
     echo "  <td>" . xlt('Create and download a full backup') . "</td>\n";
     echo " </tr>\n";
   // The config import/export feature is optional.
-    if (!empty(OEGlobalsBag::getInstance()->get('configuration_import_export'))) {
+    if (OEGlobalsBag::getInstance()->getBoolean('configuration_import_export')) {
         echo " <tr>\n";
         echo "  <td><input class='btn btn-secondary' type='submit' name='form_export' value='" . attr($BTN_TEXT_EXPORT) . "' /></td>\n";
         echo "  <td>" . xlt('Download configuration data') . "</td>\n";
@@ -594,7 +594,7 @@ if ($form_step == 5) {   // create the final compressed tar containing all files
 
     chdir($cur_dir);
     /* To log the backup event */
-    if (OEGlobalsBag::getInstance()->get('audit_events_backup')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('audit_events_backup')) {
         EventAuditLogger::getInstance()->newEvent("backup", $_SESSION['authUser'], $_SESSION['authProvider'], 0, "Backup is completed");
     }
 

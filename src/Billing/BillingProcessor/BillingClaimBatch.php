@@ -169,7 +169,7 @@ class BillingClaimBatch
         // write the 'official' batch file
         if (
             true === $success &&
-            OEGlobalsBag::getInstance()->get('auto_sftp_claims_to_x12_partner')
+            OEGlobalsBag::getInstance()->getBoolean('auto_sftp_claims_to_x12_partner')
         ) {
             $unique_x12_partners = $this->extractUniqueX12PartnersFromClaims($this->claims);
             if (is_array($unique_x12_partners)) {

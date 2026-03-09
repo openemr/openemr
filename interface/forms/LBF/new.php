@@ -198,7 +198,7 @@ $LBF_REFERRALS_SECTION = !empty($lobj['grp_referrals']);
 $LBF_SECTION_DISPLAY_STYLE = $lobj['grp_init_open'] ? 'block' : 'none';
 
 // $LBF_ENABLE_SAVE_CLOSE = !empty($lobj['grp_save_close']);
-$LBF_ENABLE_SAVE_CLOSE = !empty(OEGlobalsBag::getInstance()->get('gbl_form_save_close'));
+$LBF_ENABLE_SAVE_CLOSE = OEGlobalsBag::getInstance()->getBoolean('gbl_form_save_close');
 
 // Check access control.
 if (!AclMain::aclCheckCore('admin', 'super') && !empty($LBF_ACO)) {
@@ -356,7 +356,7 @@ if (
     // until more testing can be done to understand impact of sequential field saving (which demographics_save and new_comprehensive_save don't do),
     // we will handle the employer_data saving this way for now.
     if (!empty($newPatientData)) {
-        if (!OEGlobalsBag::getInstance()->get('omit_employers')) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
             updateEmployerData($pid, [
                 'occupation' => $newPatientData['occupation']
                 ,'industry' => $newPatientData['industry']

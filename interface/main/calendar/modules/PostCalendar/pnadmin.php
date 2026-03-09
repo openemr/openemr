@@ -467,7 +467,7 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
     //=================================================================
 
     // create translations if applicable
-    if ((OEGlobalsBag::getInstance()->get('translate_appt_categories')) && ($_SESSION['language_choice'] > 1)) {
+    if ((OEGlobalsBag::getInstance()->getBoolean('translate_appt_categories')) && ($_SESSION['language_choice'] > 1)) {
         $sizeAllCat = count($all_categories);
         for ($m = 0; $m < $sizeAllCat; $m++) {
             $tempCategory = $all_categories[$m]["name"];

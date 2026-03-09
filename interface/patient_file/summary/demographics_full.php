@@ -347,7 +347,7 @@ $CPR = 4; // cells per row
             }
 
 //Patient Data validations
-            <?php if (OEGlobalsBag::getInstance()->get('erx_enable')) { ?>
+            <?php if (OEGlobalsBag::getInstance()->getBoolean('erx_enable')) { ?>
             alertMsg = '';
             for (i = 0; i < f.length; i++) {
                 if (f[i].type == 'text' && f[i].value) {
@@ -393,7 +393,7 @@ $CPR = 4; // cells per row
       }
 
       <?php
-        if (!empty(OEGlobalsBag::getInstance()->get('right_justify_labels_demographics')) && ($session->get('language_direction') == 'ltr')) { ?>
+        if (OEGlobalsBag::getInstance()->getBoolean('right_justify_labels_demographics') && ($session->get('language_direction') == 'ltr')) { ?>
       div.label_custom {
         text-align: right !important;
       }
@@ -418,7 +418,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 <body class="body_top">
 
         <form action='demographics_save.php' name='demographics_form' id="DEM" method='post' class='form-inline'
-        onsubmit="submitme(<?php echo OEGlobalsBag::getInstance()->get('new_validate') ? 1 : 0; ?>,event,'DEM',constraints)">
+        onsubmit="submitme(<?php echo OEGlobalsBag::getInstance()->getBoolean('new_validate') ? 1 : 0; ?>,event,'DEM',constraints)">
         <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
         <input type='hidden' name='mode' value='save' />
         <input type='hidden' name='db_id' value="<?php echo attr($result['id']); ?>" />
@@ -486,7 +486,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
         ];
 
         // hard code validation for old validation, in the new validation possible to add match rules
-        <?php if (OEGlobalsBag::getInstance()->get('new_validate') == 0) { ?>
+        <?php if (!OEGlobalsBag::getInstance()->getBoolean('new_validate')) { ?>
         // fix inconsistently formatted phone numbers from the database
         var f = document.forms[0];
         if (f.form_phone_contact) phonekeyup(f.form_phone_contact, mypcc);
@@ -494,7 +494,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
         if (f.form_phone_biz) phonekeyup(f.form_phone_biz, mypcc);
         if (f.form_phone_cell) phonekeyup(f.form_phone_cell, mypcc);
 
-            <?php if (!OEGlobalsBag::getInstance()->get('simplified_demographics')) { ?>
+            <?php if (!OEGlobalsBag::getInstance()->getBoolean('simplified_demographics')) { ?>
         phonekeyup(f.i1subscriber_phone, mypcc);
         phonekeyup(f.i2subscriber_phone, mypcc);
         phonekeyup(f.i3subscriber_phone, mypcc);
@@ -515,7 +515,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
     <?php /*Include the validation script and rules for this form*/
     $form_id = "DEM";
     //LBF forms use the new validation depending on the global value
-    $use_validate_js = OEGlobalsBag::getInstance()->get('new_validate');
+    $use_validate_js = OEGlobalsBag::getInstance()->getBoolean('new_validate');
 
     ?>
     <?php include_once("$srcdir/validation/validation_script.js.php"); ?>
@@ -541,7 +541,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
             top.restoreSession();
 
-            if (!submitme(<?php echo OEGlobalsBag::getInstance()->get('new_validate') ? 1 : 0;?>, event, 'DEM', constraints)) {
+            if (!submitme(<?php echo OEGlobalsBag::getInstance()->getBoolean('new_validate') ? 1 : 0;?>, event, 'DEM', constraints)) {
                 event.preventDefault();
                 return;
             }

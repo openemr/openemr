@@ -210,7 +210,7 @@ class C_EncounterVisitForm
         while ($row = sqlFetchArray($result)) {
             // Skip therapy group categories if not enabled
             // TODO: @adunsulag magic number 3 needs to be replaced as to wha        // TODO: t this value is...
-            if ($row['pc_cattype'] == 3 && !OEGlobalsBag::getInstance()->get('enable_group_therapy')) {
+            if ($row['pc_cattype'] == 3 && !OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')) {
                 continue;
             }
 
@@ -401,7 +401,7 @@ class C_EncounterVisitForm
             'isVisible' => false
         ];
 
-        if (!OEGlobalsBag::getInstance()->get('enable_group_therapy')) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')) {
             return $groupData;
         }
 
@@ -708,15 +708,15 @@ class C_EncounterVisitForm
             'defaultReferralSource' => $viewmode ? $encounter['referral_source'] : '',
             'parentEncounterId' => $parentEncounterId ?? '',
             // START AI GENERATED CODE
-            'showInCollection' => (OEGlobalsBag::getInstance()->get('hide_billing_widget') != 1),
+            'showInCollection' => (!OEGlobalsBag::getInstance()->getBoolean('hide_billing_widget')),
             'inCollectionOptions' => $inCollectionOptions,
             'dischargeDispositions' => $dischargeDispositions,
             'groupData' => $groupData,
             'therapyGroupCategories' => $therapyGroupCategories,
-            'enableGroupTherapy' => OEGlobalsBag::getInstance()->get('enable_group_therapy'),
-            'isPosEnabled' => !empty(OEGlobalsBag::getInstance()->get('set_pos_code_encounter')),
+            'enableGroupTherapy' => OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy'),
+            'isPosEnabled' => OEGlobalsBag::getInstance()->getBoolean('set_pos_code_encounter'),
             'posOptions' => $posOptions,
-            'textTemplatesEnabled' => OEGlobalsBag::getInstance()->get('text_templates_enabled') === '1',
+            'textTemplatesEnabled' => OEGlobalsBag::getInstance()->getBoolean('text_templates_enabled'),
             'duplicate' => $this->getDuplicateEncounterRecords($viewmode, $pid),
         ];
         // END AI GENERATED CODE
@@ -735,7 +735,7 @@ class C_EncounterVisitForm
     function getDefaultFacilityForNewEncounters($pid, FacilityService $facilityService)
     {
         $default_fac_override = null;
-        if (!empty(OEGlobalsBag::getInstance()->get('set_service_facility_encounter'))) {
+        if (OEGlobalsBag::getInstance()->getBoolean('set_service_facility_encounter')) {
             $default_fac_override = $this->getCareTeamFacilityForPatient($pid);
         }
         if (empty($default_fac_override)) {

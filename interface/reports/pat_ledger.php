@@ -153,7 +153,7 @@ function PrintCreditDetail($detail, $pat, $unassigned = false, $effectiveInsuran
         $uap_flag = false;
         if ($unassigned) {
             if (($pmt['pay_total'] - $pmt['applied']) == 0) {
-                if (!OEGlobalsBag::getInstance()->get('show_payment_history')) {
+                if (!OEGlobalsBag::getInstance()->getBoolean('show_payment_history')) {
                     continue;
                 }
                 $uap_flag = true;
@@ -874,7 +874,7 @@ if ($_REQUEST['form_refresh'] || $_REQUEST['form_csvexport']) {
     </table>
     <tr><td>&nbsp;</td></tr><br /><br />
         <?php
-        if (OEGlobalsBag::getInstance()->get('print_next_appointment_on_ledger') == 1) {
+        if (OEGlobalsBag::getInstance()->getBoolean('print_next_appointment_on_ledger')) {
             $next_day = mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'));
         # add one day to date so it will not get todays appointment
             $current_date2 = date('Y-m-d', $next_day);

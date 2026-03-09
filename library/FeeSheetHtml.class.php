@@ -45,7 +45,7 @@ class FeeSheetHtml extends FeeSheet
         $sqlarr = [$def_facility];
         $query = "SELECT id, lname, fname, facility_id FROM users WHERE " .
         "( authorized = 1 OR info LIKE '%provider%' ) AND username != '' ";
-        if (!OEGlobalsBag::getInstance()->get('include_inactive_providers')) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('include_inactive_providers')) {
             $query .= " AND active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' )";
         }
         // If restricting to providers matching user facility...
@@ -183,7 +183,7 @@ class FeeSheetHtml extends FeeSheet
         while ($lrow = sqlFetchArray($lres)) {
             $price = empty($lrow['pr_price']) ? 0 : $lrow['pr_price'];
             // if percent-based pricing is enabled...
-            if (OEGlobalsBag::getInstance()->get('enable_percent_pricing')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('enable_percent_pricing')) {
                 // Set standardPrice as the first price level (sorted by seq)
                 if ($standardPrice === 0) {
                     $standardPrice = $price;

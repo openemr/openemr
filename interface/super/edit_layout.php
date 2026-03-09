@@ -763,7 +763,7 @@ function writeFieldLine($linedata): void
     echo "</td>\n";
 
     // if not english and set to translate layout labels, then show the translation
-    if (OEGlobalsBag::getInstance()->get('translate_layout') && $_SESSION['language_choice'] > 1) {
+    if (OEGlobalsBag::getInstance()->getBoolean('translate_layout') && $_SESSION['language_choice'] > 1) {
         echo "<td class='text-center translation'>" . xlt($linedata['title']) . "</td>\n";
     }
 
@@ -918,7 +918,7 @@ function writeFieldLine($linedata): void
         attr($linedata['default_value']) . "' />";
         echo "</td>\n";
       // if not english and showing layout labels, then show the translation of Description
-        if (OEGlobalsBag::getInstance()->get('translate_layout') && $_SESSION['language_choice'] > 1) {
+        if (OEGlobalsBag::getInstance()->getBoolean('translate_layout') && $_SESSION['language_choice'] > 1) {
             echo "<td class='text-center translation'>" . xlt($linedata['description']) . "</td>\n";
         }
     }
@@ -1585,7 +1585,7 @@ if ($layout_id) {
                 "xla_move_down" => xla("Move Down"),
                 "xla_group_props" => xla("Group Properties"),
                 'text_group_name' => text($gdispname),
-                'translate_layout' => (OEGlobalsBag::getInstance()->get('translate_layout') && $_SESSION['language_choice'] > 1) ? xlt($gdispname) : "",
+                'translate_layout' => (OEGlobalsBag::getInstance()->getBoolean('translate_layout') && $_SESSION['language_choice'] > 1) ? xlt($gdispname) : "",
                 'attr_gmyname' => attr($gmyname),
             ];
             echo <<<HTML
@@ -1621,7 +1621,7 @@ if ($layout_id) {
         <th><?php echo xlt('ID'); ?>&nbsp;<span class="help" title='<?php echo xla('A unique value to identify this field, not visible to the user'); ?>' >(?)</span></th>
         <th><?php echo xlt('Label'); ?>&nbsp;<span class="help" title='<?php echo xla('The label that appears to the user on the form'); ?>' >(?)</span></th>
                 <?php // if not english and showing layout label translations, then show translation header for title
-                if (OEGlobalsBag::getInstance()->get('translate_layout') && $_SESSION['language_choice'] > 1) {
+                if (OEGlobalsBag::getInstance()->getBoolean('translate_layout') && $_SESSION['language_choice'] > 1) {
                     echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translated label that will appear on the form in current language') . "'>&nbsp;(?)</span></th>";
                 } ?>
           <th><?php echo xlt('UOR'); ?></th>
@@ -1635,7 +1635,7 @@ if ($layout_id) {
           <th><?php echo xlt('Options'); ?></th>
           <th><?php echo xlt('Description'); ?></th>
                 <?php // if not english and showing layout label translations, then show translation header for description
-                if (OEGlobalsBag::getInstance()->get('translate_layout') && $_SESSION['language_choice'] > 1) {
+                if (OEGlobalsBag::getInstance()->getBoolean('translate_layout') && $_SESSION['language_choice'] > 1) {
                     echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translation of description in current language') . "'>&nbsp;(?)</span></th>";
                 } ?>
           <th><?php echo xlt('Code(s)'); ?></th>

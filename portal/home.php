@@ -107,7 +107,7 @@ foreach ($msgs as $i) {
 }*/
 $messagesURL = "$web_root/portal/messaging/messages.php";
 
-$isEasyPro = $globalsBag->get('easipro_enable') && !empty($globalsBag->get('easipro_server')) && !empty($globalsBag->get('easipro_name'));
+$isEasyPro = $globalsBag->getBoolean('easipro_enable') && !empty($globalsBag->get('easipro_server')) && !empty($globalsBag->get('easipro_name'));
 
 $current_date2 = date('Y-m-d');
 $apptLimit = 10;
@@ -213,11 +213,11 @@ function buildNav($newcnt, $pid, $result): array
 
     $hideLedger = false;
     $hidePayment = false;
-    if (empty($globalsBag->get('portal_two_ledger'))) {
+    if (!$globalsBag->getBoolean('portal_two_ledger')) {
         $hideLedger = true;
     }
 
-    if (empty($globalsBag->get('portal_two_payments'))) {
+    if (!$globalsBag->getBoolean('portal_two_payments')) {
         $hidePayment = true;
     }
     $navItems = [
@@ -280,7 +280,7 @@ function buildNav($newcnt, $pid, $result): array
     // Build sub nav items
 
     for ($i = 0, $iMax = count($navItems); $i < $iMax; $i++) {
-        if ($globalsBag->get('allow_portal_appointments') && $navItems[$i]['label'] === xl('Menu')) {
+        if ($globalsBag->getBoolean('allow_portal_appointments') && $navItems[$i]['label'] === xl('Menu')) {
             $navItems[$i]['children'][] = [
                 'url' => '#appointmentcard',
                 'label' => xl('Appointments'),
@@ -361,14 +361,14 @@ try {
         'msgcnt' => $msgcnt,
         'newcnt' => $newcnt,
         'menuLogo' => $logoService->getLogo('portal/menu/primary'),
-        'allow_portal_appointments' => $globalsBag->get('allow_portal_appointments'),
+        'allow_portal_appointments' => $globalsBag->getBoolean('allow_portal_appointments'),
         'web_root' => $globalsBag->get('web_root'),
         'payment_gateway' => $globalsBag->get('payment_gateway'),
-        'gateway_mode_production' => $globalsBag->get('gateway_mode_production'),
-        'portal_two_payments' => $globalsBag->get('portal_two_payments'),
+        'gateway_mode_production' => $globalsBag->getBoolean('gateway_mode_production'),
+        'portal_two_payments' => $globalsBag->getBoolean('portal_two_payments'),
         'allow_portal_chat' => $globalsBag->get('allow_portal_chat') ?? false,
-        'portal_onsite_document_download' => $globalsBag->get('portal_onsite_document_download'),
-        'portal_two_ledger' => $globalsBag->get('portal_two_ledger'),
+        'portal_onsite_document_download' => $globalsBag->getBoolean('portal_onsite_document_download'),
+        'portal_two_ledger' => $globalsBag->getBoolean('portal_two_ledger'),
         'images_static_relative' => $globalsBag->get('images_static_relative'),
         'youHave' => xl('You have'),
         'navMenu' => $navMenu,
@@ -392,7 +392,7 @@ try {
         'current_theme' => $current_theme,
         'styleArray' => $styleArray,
         'ccdaOk' => $ccdaOk,
-        'allow_custom_report' => $globalsBag->get('allow_custom_report') ?? '0',
+        'allow_custom_report' => $globalsBag->getBoolean('allow_custom_report'),
         'healthSnapshot' => $filteredEvent->getDataElement('healthSnapshot'),
         'languageDirection' => $session->get('language_direction', 'ltr'),
         'dateDisplayFormat' => $globalsBag->get('date_display_format'),

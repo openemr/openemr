@@ -53,7 +53,7 @@ class CarecoordinationTable
         $this->codeService = new CodeTypesService();
         $this->importService = new CdaTemplateImportDispose();
         $this->validateDocument = new CdaValidateDocuments();
-        $this->validationIsDisabled = OEGlobalsBag::getInstance()->get('ccda_validation_disable') ?? false;
+        $this->validationIsDisabled = OEGlobalsBag::getInstance()->getBoolean('ccda_validation_disable');
     }
 
     /**

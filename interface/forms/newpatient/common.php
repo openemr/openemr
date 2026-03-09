@@ -23,7 +23,7 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lists.inc.php");
 
-if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('enable_group_therapy')) {
+if (\OpenEMR\Core\OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')) {
     require_once("$srcdir/group.inc.php");
 }
 // I'd prefer to pull this into src... but it breaks the modularity of this form.  Not sure how to handle that.

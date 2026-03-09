@@ -177,7 +177,7 @@ class TelemetryService
         $encEnabledForms = $this->repository->fetchEnabledEncounterForms();
 
         $settings = [
-            'portal_enabled' => OEGlobalsBag::getInstance()->get('portal_onsite_two_enable') ?? false,
+            'portal_enabled' => OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable'),
         ];
 
         $localeData = [

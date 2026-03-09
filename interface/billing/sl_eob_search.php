@@ -68,12 +68,12 @@ $alertmsg = '';
 $where = '';
 $eraname = '';
 $eracount = 0;
-$g_posting_adj_disable = OEGlobalsBag::getInstance()->get('posting_adj_disable') ? 'checked' : '';
+$g_posting_adj_disable = OEGlobalsBag::getInstance()->getBoolean('posting_adj_disable') ? 'checked' : '';
 $posting_adj_disable = prevSetting('sl_eob_search.', 'posting_adj_disable', 'posting_adj_disable', $g_posting_adj_disable);
 $form_cb = false;
 
 /* Load dependencies only if we need them */
-if (!empty(OEGlobalsBag::getInstance()->get('portal_onsite_two_enable'))) {
+if (OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable')) {
     /* Addition of onsite portal patient notify of invoice and reformatted invoice - sjpadgett 01/2017 */
     require_once("../../portal/lib/portal_mail.inc.php");
     require_once("../../portal/lib/appsql.class.php");
@@ -503,7 +503,7 @@ if (
         foreach ($invlines as $key => $value) {
             $line = [];
             $line['dos'] = $svcdate;
-            if (OEGlobalsBag::getInstance()->get('use_custom_statement')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('use_custom_statement')) {
                 $line['desc'] = ($key == 'CO-PAY') ? "Patient Payment" : $value['code_text'];
             } else {
                 $line['desc'] = ($key == 'CO-PAY') ? "Patient Payment" : "Procedure $key";

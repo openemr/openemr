@@ -132,7 +132,7 @@ if ($imauthorized && $see_auth > 1) {
         }
     }
 
-    if (empty(OEGlobalsBag::getInstance()->get('ignore_pnotes_authorization'))) {
+    if (!OEGlobalsBag::getInstance()->getBoolean('ignore_pnotes_authorization')) {
           //fetch pnotes information:
         if (
             $res = sqlStatement("select * from pnotes where authorized = 0 and " .

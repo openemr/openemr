@@ -652,7 +652,7 @@ foreach ($ar as $key => $val) {
                 $result = sqlStatement($sql, [$pid]);
             while ($row = sqlFetchArray($result)) {
               // Figure out which name to use (ie. from cvx list or from the custom list)
-                if ($globalsBag->get('use_custom_immun_list')) {
+                if ($globalsBag->getBoolean('use_custom_immun_list')) {
                      $vaccine_display = generate_display_field(['data_type' => '1','list_id' => 'immunizations'], $row['immunization_id']);
                 } else {
                     if (!empty($row['code_text_short'])) {
