@@ -13,10 +13,11 @@
  */
 
 require_once(__DIR__ . '/../../globals.php');
-require_once($GLOBALS["srcdir"] . "/api.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("srcdir") . "/api.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\OEGlobalsBag;
 
 // This function is invoked from printPatientForms in report.inc.php
 // when viewing a "comprehensive patient report".  Also from
@@ -25,7 +26,7 @@ use OpenEMR\Common\Acl\AclMain;
 function lbf_report($pid, $encounter, $cols, $id, $formname, $no_wrap = false): void
 {
     global $CPR;
-    require_once($GLOBALS["srcdir"] . "/options.inc.php");
+    require_once(OEGlobalsBag::getInstance()->get("srcdir") . "/options.inc.php");
 
     $grparr = [];
     getLayoutProperties($formname, $grparr, '*');

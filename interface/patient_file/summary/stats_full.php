@@ -15,15 +15,16 @@
  */
 
 require_once('../../globals.php');
-require_once($GLOBALS['srcdir'] . '/lists.inc.php');
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
-require_once($GLOBALS['srcdir'] . '/options.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/lists.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php');
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\ListService;
@@ -226,7 +227,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         // Only redirect to eRx.php if the user has an eRx role configured,
                         // otherwise allow them to add allergies via the normal interface.
                         $userHasErxRole = false;
-                        if (in_array($t, ['allergy', 'medications']) && $GLOBALS['erx_enable']) {
+                        if (in_array($t, ['allergy', 'medications']) && OEGlobalsBag::getInstance()->get('erx_enable')) {
                             $erxRoleRow = QueryUtils::fetchSingleValue(
                                 "SELECT newcrop_user_role FROM users WHERE id = ?",
                                 'newcrop_user_role',
@@ -248,7 +249,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         }
                     }
 
-                    $condition = ($GLOBALS['erx_enable'] && $GLOBALS['erx_medication_display'] && $t == 'medication') ? "AND erx_uploaded != '1'" :  '';
+                    $condition = (OEGlobalsBag::getInstance()->get('erx_enable') && OEGlobalsBag::getInstance()->get('erx_medication_display') && $t == 'medication') ? "AND erx_uploaded != '1'" :  '';
                     $pres = sqlStatement("SELECT * FROM lists WHERE pid = ? AND type = ? $condition ORDER BY begdate", [$pid, $t]);
                     $noIssues = false;
                     $nothingRecorded = false;

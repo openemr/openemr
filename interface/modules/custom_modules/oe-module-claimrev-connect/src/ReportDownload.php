@@ -15,6 +15,7 @@
 namespace OpenEMR\Modules\ClaimRevConnector;
 
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\BaseService;
 
 class ReportDownload extends BaseService
@@ -22,7 +23,7 @@ class ReportDownload extends BaseService
     public static function getWaitingFiles(): void
     {
         $reportTypes = ['999', '277'];
-        $siteDir = $GLOBALS['OE_SITE_DIR'];
+        $siteDir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR');
 
         try {
             $api = ClaimRevApi::makeFromGlobals();
@@ -64,7 +65,7 @@ class ReportDownload extends BaseService
 
     public static function download835(string $objectId): void
     {
-        $siteDir = $GLOBALS['OE_SITE_DIR'];
+        $siteDir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR');
 
         try {
             $api = ClaimRevApi::makeFromGlobals();

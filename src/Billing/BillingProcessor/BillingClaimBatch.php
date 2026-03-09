@@ -20,6 +20,8 @@
 
 namespace OpenEMR\Billing\BillingProcessor;
 
+use OpenEMR\Core\OEGlobalsBag;
+
 class BillingClaimBatch
 {
     protected $bat_type = ''; // will be edi or hcfa
@@ -60,7 +62,7 @@ class BillingClaimBatch
         $this->bat_yyyymmdd = date('Ymd', $this->bat_time);
         $this->bat_icn = (str_contains($this->context['claims'][0]->action ?? '', 'validate')) ? '000000001' : BillingClaimBatchControlNumber::getIsa13();
         $this->bat_filename = date("Y-m-d-His", $this->bat_time) . "-batch" . $this->ext;
-        $this->bat_filedir = $GLOBALS['OE_SITE_DIR'] . DIRECTORY_SEPARATOR . "documents" . DIRECTORY_SEPARATOR . "edi";
+        $this->bat_filedir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . DIRECTORY_SEPARATOR . "documents" . DIRECTORY_SEPARATOR . "edi";
         $this->bat_gs06 = (str_contains($this->context['claims'][0]->action ?? '', 'validate')) ? '2' : BillingClaimBatchControlNumber::getGs06();
     }
 
@@ -167,7 +169,7 @@ class BillingClaimBatch
         // write the 'official' batch file
         if (
             true === $success &&
-            $GLOBALS['auto_sftp_claims_to_x12_partner']
+            OEGlobalsBag::getInstance()->get('auto_sftp_claims_to_x12_partner')
         ) {
             $unique_x12_partners = $this->extractUniqueX12PartnersFromClaims($this->claims);
             if (is_array($unique_x12_partners)) {

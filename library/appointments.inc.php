@@ -18,6 +18,7 @@
 require_once(__DIR__ . "/encounter_events.inc.php");
 require_once(__DIR__ . "/../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php");
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Appointments\AppointmentsFilterEvent;
 use OpenEMR\Events\BoundFilter;
 
@@ -143,7 +144,7 @@ function fetchEvents($from_date, $to_date, $where_param = null, $orderby_param =
 
         // Filter out appointments based on a custom module filter
         $apptFilterEvent = new AppointmentsFilterEvent(new BoundFilter());
-        $apptFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($apptFilterEvent, AppointmentsFilterEvent::EVENT_HANDLE);
+        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($apptFilterEvent, AppointmentsFilterEvent::EVENT_HANDLE);
         $boundFilter = $apptFilterEvent->getBoundFilter();
         $sqlBindArray = array_merge($sqlBindArray, $boundFilter->getBoundValues());
         $where .= " AND " . $boundFilter->getFilterClause();
@@ -500,8 +501,8 @@ function fetchXPastAppts($pid2, $pastApptsNumber, $orderOfAppts = '1')
 // get the event slot size in seconds
 function getSlotSize()
 {
-    if (isset($GLOBALS['calendar_interval'])) {
-        return $GLOBALS['calendar_interval'] * 60;
+    if (OEGlobalsBag::getInstance()->has('calendar_interval')) {
+        return OEGlobalsBag::getInstance()->get('calendar_interval') * 60;
     }
 
     return 15 * 60;
@@ -553,7 +554,7 @@ function getAvailableSlots($from_date, $to_date, $provider_id = null, $facility_
                         // which prevents the next appointment time from being set
                         // for the $same_day assignment below, so this fix...
                         if ($appointments[$i]['pc_duration'] == 0) {
-                            $next_appointment_time = $GLOBALS['schedule_end'] . ":00";
+                            $next_appointment_time = OEGlobalsBag::getInstance()->get('schedule_end') . ":00";
                         } else {
                             $next_appointment_time = $appointments[$i]['pc_endTime'];
                         }
@@ -746,7 +747,7 @@ function fetchAppointmentCategories()
 {
      $catSQL = " SELECT pc_catid as id, pc_catname as category "
             . " FROM openemr_postcalendar_categories WHERE pc_active=1 and pc_recurrtype=0 and pc_cattype=0";
-    if ($GLOBALS['enable_group_therapy']) {
+    if (OEGlobalsBag::getInstance()->get('enable_group_therapy')) {
         $catSQL .= " OR pc_cattype=3";
     }
 

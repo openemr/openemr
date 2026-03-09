@@ -20,6 +20,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\TableTypes;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
 
@@ -211,7 +212,7 @@ class UserService
         //(CHEMED) facility filter
         $param2 = "";
         if (!empty($facility)) {
-            if ($GLOBALS['restrict_user_facility']) {
+            if (OEGlobalsBag::getInstance()->get('restrict_user_facility')) {
                 $param2 = " AND (facility_id = ? OR  ? IN (select facility_id from users_facility where tablename = 'users' and table_id = id))";
                 $bind[] = $facility;
                 $bind[] = $facility;

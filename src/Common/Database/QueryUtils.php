@@ -16,6 +16,7 @@ namespace OpenEMR\Common\Database;
 
 use ADORecordSet;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use Throwable;
 
 class QueryUtils
@@ -292,7 +293,7 @@ class QueryUtils
 
         // Return the correct last id generated using function
         //   that is safe with the audit engine.
-        return $GLOBALS['lastidado'] > 0 ? $GLOBALS['lastidado'] : $GLOBALS['adodb']['db']->Insert_ID();
+        return OEGlobalsBag::getInstance()->get('lastidado') > 0 ? OEGlobalsBag::getInstance()->get('lastidado') : OEGlobalsBag::getInstance()->get('adodb')['db']->Insert_ID();
     }
 
     /**
@@ -400,7 +401,7 @@ class QueryUtils
     {
         // Return the correct last id generated using function
         //   that is safe with the audit engine.
-        return ($GLOBALS['lastidado'] ?? 0) > 0 ? $GLOBALS['lastidado'] : $GLOBALS['adodb']['db']->Insert_ID();
+        return (OEGlobalsBag::getInstance()->get('lastidado') ?? 0) > 0 ? OEGlobalsBag::getInstance()->get('lastidado') : OEGlobalsBag::getInstance()->get('adodb')['db']->Insert_ID();
     }
 
     /**
@@ -459,9 +460,9 @@ class QueryUtils
      */
     public static function getLastError(): string
     {
-        return !empty($GLOBALS['last_mysql_error'])
-            ? (string) $GLOBALS['last_mysql_error']
-            : (string) $GLOBALS['adodb']['db']->ErrorMsg();
+        return !empty(OEGlobalsBag::getInstance()->get('last_mysql_error'))
+            ? (string) OEGlobalsBag::getInstance()->get('last_mysql_error')
+            : (string) OEGlobalsBag::getInstance()->get('adodb')['db']->ErrorMsg();
     }
 
     /**
@@ -469,6 +470,6 @@ class QueryUtils
      */
     private static function getADODB()
     {
-        return $GLOBALS['adodb']['db'];
+        return OEGlobalsBag::getInstance()->get('adodb')['db'];
     }
 }

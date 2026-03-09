@@ -17,6 +17,7 @@ require_once("../globals.php");
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (AuthUtils::useActiveDirectory()) {
     // this user should never of been directed to this screen
@@ -29,8 +30,8 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
 
 $result = privQuery("select `last_update_password` from `users_secure` where `id` = ?", [$_SESSION["authUserID"]]);
 $current_date = date("Y-m-d");
-$pwd_expires = date("Y-m-d", strtotime($result['last_update_password'] . "+" . $GLOBALS['password_expiration_days'] . " days"));
-$grace_time = date("Y-m-d", strtotime($pwd_expires . "+" . $GLOBALS['password_grace_time'] . " days"));
+$pwd_expires = date("Y-m-d", strtotime($result['last_update_password'] . "+" . OEGlobalsBag::getInstance()->get('password_expiration_days') . " days"));
+$grace_time = date("Y-m-d", strtotime($pwd_expires . "+" . OEGlobalsBag::getInstance()->get('password_grace_time') . " days"));
 
 // Determine the expiration message to display
 //  (note that user can not even get to this screen if credentials are expired)

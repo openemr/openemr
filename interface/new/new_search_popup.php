@@ -20,6 +20,7 @@ require_once("$srcdir/patient.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -29,7 +30,7 @@ if (!empty($_POST)) {
 
 $fstart = isset($_REQUEST['fstart']) ? $_REQUEST['fstart'] + 0 : 0;
 
-$searchcolor = empty($GLOBALS['layout_search_color']) ? 'var(--yellow)' : $GLOBALS['layout_search_color'];
+$searchcolor = empty(OEGlobalsBag::getInstance()->get('layout_search_color')) ? 'var(--yellow)' : OEGlobalsBag::getInstance()->get('layout_search_color');
 $simpleSearch = $_GET['simple_search'] ?? null;
 ?>
 <!DOCTYPE html>
@@ -162,7 +163,7 @@ $simpleSearch = $_GET['simple_search'] ?? null;
                     echo $paginator->render(
                         offset: $fstart,
                         pageSize: $MAXSHOW,
-                        totalCount: $GLOBALS['PATIENT_INC_COUNT'],
+                        totalCount: OEGlobalsBag::getInstance()->get('PATIENT_INC_COUNT'),
                         filename: basename(__FILE__),
                         separator: '&nbsp;'
                     );

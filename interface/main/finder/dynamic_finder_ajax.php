@@ -17,8 +17,9 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once($GLOBALS['srcdir'] . "/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/options.inc.php");
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\BoundFilter;
 use OpenEMR\Events\PatientFinder\ColumnFilter;
 use OpenEMR\Events\PatientFinder\PatientFinderFilterEvent;
@@ -97,8 +98,8 @@ function dateSearch($sSearch)
 {
     // Determine if MDY date format is used, preferring Date Display Format from
     // global settings if it's not YMD, otherwise guessing from country code.
-    $mdy = empty($GLOBALS['date_display_format']) ?
-        ($GLOBALS['phone_country_code'] == 1) : ($GLOBALS['date_display_format'] == 1);
+    $mdy = empty(OEGlobalsBag::getInstance()->get('date_display_format')) ?
+        (OEGlobalsBag::getInstance()->get('phone_country_code') == 1) : (OEGlobalsBag::getInstance()->get('date_display_format') == 1);
     // If no delimiters then just search the whole date.
     $mystr = "%$sSearch%";
     if (preg_match('/[^0-9]/', (string) $sSearch)) {
@@ -201,7 +202,7 @@ for ($i = 0; $i < count($aColumns); ++$i) {
 // This allows a module to subscribe to a 'patient-finder.filter' event and
 // add filtering before data ever gets to the user
 $patientFinderFilterEvent = new PatientFinderFilterEvent(new BoundFilter(), $aColumns, $columnFilters);
-$patientFinderFilterEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($patientFinderFilterEvent, PatientFinderFilterEvent::EVENT_HANDLE);
+OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientFinderFilterEvent, PatientFinderFilterEvent::EVENT_HANDLE);
 $boundFilter = $patientFinderFilterEvent->getBoundFilter();
 $customWhere = $boundFilter->getFilterClause();
 $srch_bind = array_merge($boundFilter->getBoundValues(), $srch_bind);

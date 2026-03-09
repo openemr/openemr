@@ -50,7 +50,7 @@ $ignoreAuth = true;
 $sessionAllowWrite = true;
 require_once("../globals.php");
 
-$twig = new TwigContainer(null, $globalsBag->get("kernel"));
+$twig = new TwigContainer(null, $globalsBag->getKernel());
 $t = $twig->getTwig();
 
 $logoService = new LogoService();
@@ -259,7 +259,7 @@ $viewArgs = [
 /**
  * @var EventDispatcher;
  */
-$ed = $globalsBag->get('kernel')->getEventDispatcher();
+$ed = $globalsBag->getKernel()->getEventDispatcher();
 
 $templatePageEvent = new TemplatePageEvent('login/login.php', [], $layout, $viewArgs);
 $event = $ed->dispatch($templatePageEvent, TemplatePageEvent::RENDER_EVENT);

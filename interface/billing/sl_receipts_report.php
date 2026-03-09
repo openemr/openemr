@@ -24,9 +24,9 @@
 // TODO: Replace tables with BS4 grid classes for GSoC
 
 require_once('../globals.php');
-require_once($GLOBALS['srcdir'] . '/patient.inc.php');
-require_once($GLOBALS['srcdir'] . '/options.inc.php');
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/patient.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
 // This determines if a particular procedure code corresponds to receipts
 // for the "Clinic" column as opposed to receipts for the practitioner.  Each
 // practice will have its own policies in this regard, so you'll probably
@@ -40,6 +40,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('acct', 'rep') && !AclMain::aclCheckCore('acct', 'rep_a')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep or acct/rep_a: Cash Receipts by Provider", xl("Cash Receipts by Provider"));
@@ -122,7 +123,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -245,7 +246,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                         <tr>
                             <td class='col-form-label'>
                                 <?php
-                                if (!$GLOBALS['simplified_demographics']) {
+                                if (!OEGlobalsBag::getInstance()->get('simplified_demographics')) {
                                     echo '&nbsp;' . xlt('Procedure/Service') . ':';
                                 } ?>
                             </td>
@@ -253,14 +254,14 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             <input type='text' class='form-control' name='form_proc_codefull' size='11' value='<?php echo attr($form_proc_codefull); ?>' onclick='sel_procedure()'
                                 title='<?php echo xla('Optional procedure/service code'); ?>'
                                 <?php
-                                if ($GLOBALS['simplified_demographics']) {
+                                if (OEGlobalsBag::getInstance()->get('simplified_demographics')) {
                                     echo "style='display:none'";
                                 } ?>>
                             </td>
 
                             <td class='col-form-label'>
                                 <?php
-                                if (!$GLOBALS['simplified_demographics']) {
+                                if (!OEGlobalsBag::getInstance()->get('simplified_demographics')) {
                                     echo '&nbsp;' . xlt('Diagnosis') . ':';
                                 } ?>
                             </td>
@@ -268,7 +269,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             <input type='text' class='form-control' name='form_dx_codefull' size='11' value='<?php echo attr($form_dx_codefull); ?>' onclick='sel_diagnosis()'
                                 title='<?php echo xla('Enter a diagnosis code to exclude all invoices not containing it'); ?>'
                                 <?php
-                                if ($GLOBALS['simplified_demographics']) {
+                                if (OEGlobalsBag::getInstance()->get('simplified_demographics')) {
                                     echo "style='display: none'";
                                 } ?>>
                             </td>
@@ -333,7 +334,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                     <?php if ($form_procedures) { ?>
                 <th>
                         <?php
-                        if ($GLOBALS['cash_receipts_report_invoice'] == '0') {
+                        if (OEGlobalsBag::getInstance()->get('cash_receipts_report_invoice') == '0') {
                             echo xlt('Invoice');
                         } else {
                             echo xlt('Name');
@@ -462,7 +463,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                                 $arows[$key]['docid'] = $row['docid'];
                                 $arows[$key]['project_id'] = 0;
                                 $arows[$key]['memo'] = '';
-                                if ($GLOBALS['cash_receipts_report_invoice'] == '0') {
+                                if (OEGlobalsBag::getInstance()->get('cash_receipts_report_invoice') == '0') {
                                     $arows[$key]['invnumber'] = "$patient_id.$encounter_id";
                                 } else {
                                     $arows[$key]['invnumber'] = "$patient_name";
@@ -589,7 +590,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             $arows[$key]['docid'] = $docid;
                             $arows[$key]['project_id'] = empty($row['payer_id']) ? 0 : $row['payer_id'];
                             $arows[$key]['memo'] = $row['code'];
-                            if ($GLOBALS['cash_receipts_report_invoice'] == '0') {
+                            if (OEGlobalsBag::getInstance()->get('cash_receipts_report_invoice') == '0') {
                                 $arows[$key]['invnumber'] = "$patient_id.$encounter_id";
                             } else {
                                 $arows[$key]['invnumber'] = "$patient_name";

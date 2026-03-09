@@ -77,7 +77,7 @@ class ObservationControllerTest extends TestCase
         // Mock global variables that may be used
         $globalsBag = OEGlobalsBag::getInstance();
         $this->globalWebrootBackup = $GLOBALS['webroot'] ?? null;
-        $this->globalKernelBackup = $globalsBag->get('kernel');
+        $this->globalKernelBackup = $globalsBag->getKernel();
         $this->globalDateFormat = $GLOBALS['date_display_format'] ?? null;
         $GLOBALS['webroot'] = '/openemr';
         $globalsBag->set('kernel', null);

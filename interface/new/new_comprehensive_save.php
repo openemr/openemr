@@ -16,6 +16,7 @@ require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\PatientBeforeCreatedAuxEvent;
 use OpenEMR\Services\ContactAddressService;
 use OpenEMR\Services\ContactService;
@@ -78,7 +79,7 @@ if (empty($pid)) {
     die("Internal error: setpid(" . text($pid) . ") failed!");
 }
 setpid($pid);
-if (!$GLOBALS['omit_employers']) {
+if (!OEGlobalsBag::getInstance()->get('omit_employers')) {
     updateEmployerData($pid, $newdata['employer_data'], true, $newdata['patient_data']);
 }
 
@@ -109,7 +110,7 @@ if (!empty($addressFieldsToSave)) {
  * Parse demographics data to listeners who want data that is not directly available in
  * the patient_data table on update
  */
-$GLOBALS["kernel"]->getEventDispatcher()->dispatch(new PatientBeforeCreatedAuxEvent($pid, $_POST), PatientBeforeCreatedAuxEvent::EVENT_HANDLE, 10);
+OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new PatientBeforeCreatedAuxEvent($pid, $_POST), PatientBeforeCreatedAuxEvent::EVENT_HANDLE);
 
 
 $i1dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i1subscriber_DOB"));
@@ -117,7 +118,7 @@ $i1date = DateToYYYYMMDD(filter_input(INPUT_POST, "i1effective_date"));
 
 newHistoryData($pid);
 // no need to save insurance for simple demos
-if (!$GLOBALS['simplified_demographics']) {
+if (!OEGlobalsBag::getInstance()->get('simplified_demographics')) {
     newInsuranceData(
         $pid,
         "primary",
@@ -150,7 +151,7 @@ if (!$GLOBALS['simplified_demographics']) {
     );
 
     //Dont save more than one insurance since only one is allowed / save space in DB
-    if (!$GLOBALS['insurance_only_one']) {
+    if (!OEGlobalsBag::getInstance()->get('insurance_only_one')) {
         $i2dob = DateToYYYYMMDD(filter_input(INPUT_POST, "i2subscriber_DOB"));
         $i2date = DateToYYYYMMDD(filter_input(INPUT_POST, "i2effective_date"));
 

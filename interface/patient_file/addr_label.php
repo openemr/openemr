@@ -14,6 +14,8 @@
 * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
+use OpenEMR\Core\OEGlobalsBag;
+
 require_once("../globals.php");
 
 //Get the data to place on labels
@@ -33,13 +35,13 @@ $dob = oeFormatShortDate($patdata['DOB']);
 //Keep in mind the envelope is shifted by 90 degrees.
 // Changes made by Daniel Pflieger, daniel@mi-squared.com growlingflea@gmail.com
 
-$x_width =  $GLOBALS['env_x_width'];
-$y_height = $GLOBALS['env_y_height'];
+$x_width =  OEGlobalsBag::getInstance()->get('env_x_width');
+$y_height = OEGlobalsBag::getInstance()->get('env_y_height');
 
 //printed text details
-$font_size = $GLOBALS['env_font_size'];
-$x         = $GLOBALS['env_x_dist'];  // Distance from the 'top' of the envelope in portrait position
-$y         = $GLOBALS['env_y_dist']; // Distance from the right most edge of the envelope in portrait position
+$font_size = OEGlobalsBag::getInstance()->get('env_font_size');
+$x         = OEGlobalsBag::getInstance()->get('env_x_dist');  // Distance from the 'top' of the envelope in portrait position
+$y         = OEGlobalsBag::getInstance()->get('env_y_dist'); // Distance from the right most edge of the envelope in portrait position
 $angle    = 90;   // rotation in degrees
 $black    = '000000'; // color in hexa
 

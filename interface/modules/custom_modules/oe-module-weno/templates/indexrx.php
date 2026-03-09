@@ -21,6 +21,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Modules\WenoModule\Services\TransmitProperties;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
@@ -121,7 +122,7 @@ $urlOut = $newRxUrl . urlencode((string) $provider_info['email']) . "&data=" . u
             $(function () {
                 const warnMsg = "<?php echo xlt('Internet connection problem. Returning to Patient chart when alert closes!'); ?>";
                 asyncAlertMsg(warnMsg, 8000, 'danger', 'lg').then(() => {
-                    window.location.href = "<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid ?? '')) ?>";
+                    window.location.href = "<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/interface/patient_file/summary/demographics.php?set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid ?? '')) ?>";
                 });
             });
             <?php } elseif (!$isValidKey) { ?>
@@ -176,7 +177,7 @@ $urlOut = $newRxUrl . urlencode((string) $provider_info['email']) . "&data=" . u
             <form>
                 <header class="bg-light text-dark text-center">
                     <h3>
-                        <a href="<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?resync=true&set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid)) ?>" class="text-primary" title="<?php echo xla("Return to Patient Demographics"); ?>"><?php echo xlt("e-Prescribe"); ?>
+                        <a href="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/interface/patient_file/summary/demographics.php?resync=true&set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid)) ?>" class="text-primary" title="<?php echo xla("Return to Patient Demographics"); ?>"><?php echo xlt("e-Prescribe"); ?>
                             <cite class="small font-weight-bold text-primary"><span class="h6"><?php echo xla("Return to Patient"); ?></span></cite>
                         </a>
                         <button type="submit" id="form_reset_key" name="form_reset_key" class="btn btn-danger btn-sm btn-refresh p-1 m-0 mt-1 mr-2 float-right d-none" value="Save" title="<?php echo xla("The Encryption key did not pass validation. Clicking this button will reset your encryption key so you may continue."); ?>"><?php echo xlt("Session is invalid!. Click to Reset?"); ?></button>
@@ -226,7 +227,7 @@ $urlOut = $newRxUrl . urlencode((string) $provider_info['email']) . "&data=" . u
             <iframe id="wenoIframe-compose" title="Weno Compose" width="100%" height="900" src="<?php echo attr($urlOut); ?>"></iframe>
         </div>
         <footer>
-            <a href="<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/summary/demographics.php?resync=true&set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid)) ?>" class="btn btn-primary float-right mt-2 mb-4 mr-3"><?php echo xlt("Return to Demographics"); ?></a>
+            <a href="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/interface/patient_file/summary/demographics.php?resync=true&set_pid=<?php echo urlencode(attr($_SESSION['pid'] ?? $pid)) ?>" class="btn btn-primary float-right mt-2 mb-4 mr-3"><?php echo xlt("Return to Demographics"); ?></a>
             <button id="triggerButton" class="btn btn-primary btn-sm m-2 ml-3" title="<?php echo xla("Download debug information to send to Weno support."); ?>"><i class="fa-solid fa-bug"></i></button>
             <?php $wenoLog->insertWenoLog("eRx Compose Frame", "Rendered Online Compose.", $urlOut); ?>
         </footer>

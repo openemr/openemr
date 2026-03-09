@@ -14,8 +14,9 @@ namespace Application\Plugin;
 
 use Application\Listener\Listener;
 use Laminas\Mvc\Controller\Plugin\AbstractPlugin;
+use OpenEMR\Core\OEGlobalsBag;
 
-require_once($GLOBALS['srcdir'] . '/direct_message_check.inc.php');
+require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/direct_message_check.inc.php');
 
 class Phimail extends AbstractPlugin
 {

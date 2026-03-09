@@ -14,6 +14,7 @@
 
 namespace MedExApi;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VersionService;
 
 error_reporting(0);
@@ -124,7 +125,7 @@ class Practice extends Base
         global $GLOBALS;
         $fields2 = [];
         $fields3 = [];
-        $callback = "https://" . $GLOBALS['_SERVER']['SERVER_NAME'] . $GLOBALS['_SERVER']['PHP_SELF'];
+        $callback = "https://" . OEGlobalsBag::getInstance()->get('_SERVER')['SERVER_NAME'] . OEGlobalsBag::getInstance()->get('_SERVER')['PHP_SELF'];
         $callback = str_replace('ajax/execute_background_services.php', 'MedEx/MedEx.php', $callback);
         $fields2['callback_url'] = $callback;
         $sqlQuery = "SELECT * FROM medex_prefs";
@@ -1288,13 +1289,13 @@ class Events extends Base
             // and finally make sure we haven't landed on a end week days
             // adjust as necessary
             $nextWorkDOW = date('w', mktime(0, 0, 0, $m, ($d + $f), $y));
-            if (count($GLOBALS['weekend_days']) === 2) {
-                if ($nextWorkDOW == $GLOBALS['weekend_days'][0]) {
+            if (count(OEGlobalsBag::getInstance()->get('weekend_days')) === 2) {
+                if ($nextWorkDOW == OEGlobalsBag::getInstance()->get('weekend_days')[0]) {
                     $f += 2;
-                } elseif ($nextWorkDOW == $GLOBALS['weekend_days'][1]) {
+                } elseif ($nextWorkDOW == OEGlobalsBag::getInstance()->get('weekend_days')[1]) {
                      $f++;
                 }
-            } elseif (count($GLOBALS['weekend_days']) === 1 && $nextWorkDOW === $GLOBALS['weekend_days'][0]) {
+            } elseif (count(OEGlobalsBag::getInstance()->get('weekend_days')) === 1 && $nextWorkDOW === OEGlobalsBag::getInstance()->get('weekend_days')[0]) {
                 $f++;
             }
             return date('Y-m-d', mktime(0, 0, 0, $m, ($d + $f), $y));
@@ -1493,7 +1494,7 @@ class Display extends Base
         function toggle_menu() {
                 var x = document.getElementById('hide_nav');
                 if (x.style.display === 'none') {
-                    $.post( "<?php echo $GLOBALS['webroot'] . "/interface/main/messages/messages.php"; ?>", {
+                    $.post( "<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/main/messages/messages.php"; ?>", {
                         'setting_bootstrap_submenu' : 'show',
                         success: function (data) {
                             x.style.display = 'block';
@@ -1501,7 +1502,7 @@ class Display extends Base
                         });
 
                 } else {
-                    $.post( "<?php echo $GLOBALS['webroot'] . "/interface/main/messages/messages.php"; ?>", {
+                    $.post( "<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/main/messages/messages.php"; ?>", {
                         'setting_bootstrap_submenu' : 'hide',
                         success: function (data) {
                             x.style.display = 'none';
@@ -1513,7 +1514,7 @@ class Display extends Base
 
         function SMS_bot_list() {
             top.restoreSession();
-            var myWindow = window.open('<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&dir=back&show=new','SMS_bot', 'width=400,height=650');
+            var myWindow = window.open('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&dir=back&show=new','SMS_bot', 'width=400,height=650');
             myWindow.focus();
             return false;
         }
@@ -1534,7 +1535,7 @@ class Display extends Base
                 </button>
                 <div class="collapse navbar-collapse" id="oer-navbar-collapse-1">
                     <ul class="navbar-nav">
-                        <?php if ($GLOBALS['medex_enable'] == '1') { ?>
+                        <?php if (OEGlobalsBag::getInstance()->get('medex_enable') == '1') { ?>
                             <li class="nav-item dropdown">
                                 <a class="nav-link" data-toggle="dropdown" id="menu_dropdown_file" role="button" aria-expanded="true"><?php echo xlt("File"); ?> </a>
                                 <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_file">
@@ -1545,7 +1546,7 @@ class Display extends Base
                                     } else {
                                         ?>
                                         <li id="menu_PREFERENCES"  name="menu_PREFERENCES" class="">
-                                        <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?go=setup&stage=1"><?php echo xlt("Setup MedEx"); ?></a></li>
+                                        <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/main/messages/messages.php?go=setup&stage=1"><?php echo xlt("Setup MedEx"); ?></a></li>
                                     <?php } ?>
                                  </ul>
                             </li>
@@ -1554,13 +1555,13 @@ class Display extends Base
                         <li class="nav-item dropdown">
                             <a class="nav-link" data-toggle="dropdown" id="menu_dropdown_msg" role="button" aria-expanded="true"><?php echo xlt("Messages"); ?> </a>
                             <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_msg">
-                                <li id="menu_new_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?showall=no&sortby=users.lname&sortorder=asc&begin=0&task=addnew&form_active=1"> <?php echo xlt("New Message"); ?></a></li>
+                                <li id="menu_new_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/main/messages/messages.php?showall=no&sortby=users.lname&sortorder=asc&begin=0&task=addnew&form_active=1"> <?php echo xlt("New Message"); ?></a></li>
                                 <li class="dropdown-divider"></li>
-                                <li id="menu_new_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=no&form_active=1"> <?php echo xlt("My Messages"); ?></a></li>
-                                <li id="menu_all_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("All Messages"); ?></a></li>
+                                <li id="menu_new_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/main/messages/messages.php?show_all=no&form_active=1"> <?php echo xlt("My Messages"); ?></a></li>
+                                <li id="menu_all_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("All Messages"); ?></a></li>
                                 <li class="dropdown-divider"></li>
-                                <li id="menu_active_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("Active Messages"); ?></a></li>
-                                <li id="menu_inactive_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?form_inactive=1"> <?php echo xlt("Inactive Messages"); ?></a></li>
+                                <li id="menu_active_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("Active Messages"); ?></a></li>
+                                <li id="menu_inactive_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/main/messages/messages.php?form_inactive=1"> <?php echo xlt("Inactive Messages"); ?></a></li>
                                 <li id="menu_log_msg"> <a class="dropdown-item" onclick="openLogScreen();" > <?php echo xlt("Message Log"); ?></a></li>
                             </ul>
                         </li>
@@ -1568,12 +1569,12 @@ class Display extends Base
                             <a class="nav-link" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Appt. Reminders"); ?></a>
                             <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_recalls">
                             <?php
-                            if ($GLOBALS['disable_calendar'] != '1') {  ?>
+                            if (OEGlobalsBag::getInstance()->get('disable_calendar') != '1') {  ?>
                                 <li><a class="dropdown-item" id="BUTTON_ApRem_menu" onclick="tabYourIt('cal','main/main_info.php');"> <?php echo xlt("Calendar"); ?></a></li>
                                 <li class="dropdown-divider"></li>
                                 <?php
                             }
-                            if ($GLOBALS['disable_pat_trkr'] != '1') {
+                            if (OEGlobalsBag::getInstance()->get('disable_pat_trkr') != '1') {
                                 ?>
                                 <li id="menu_pend_recalls" name="menu_pend_recalls"> <a class="dropdown-item" id="BUTTON_pend_recalls_menu" onclick="tabYourIt('flb','patient_tracker/patient_tracker.php?skip_timeout_reset=1');"> <?php echo xlt("Flow Board"); ?></a></li>
                                 <?php }
@@ -1588,7 +1589,7 @@ class Display extends Base
                          </li>
                                 <?php
 
-                                if ($GLOBALS['disable_rcb'] != '1') { ?>
+                                if (OEGlobalsBag::getInstance()->get('disable_rcb') != '1') { ?>
                                     <li class="nav-item dropdown">
                                         <a class="nav-link" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Patient Recalls"); ?> </a>
                                         <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_recalls">
@@ -1620,7 +1621,7 @@ class Display extends Base
             </nav>
         </div>
             <?php
-            if ($GLOBALS['medex_enable'] == '1') {
+            if (OEGlobalsBag::getInstance()->get('medex_enable') == '1') {
                 $error = $this->MedEx->getLastError();
                 if (!empty($error['ip'])) {
                     ?>
@@ -1852,14 +1853,14 @@ class Display extends Base
         $from_date = (!empty($_REQUEST['form_from_date'])) ? DateToYYYYMMDD($_REQUEST['form_from_date']) : date('Y-m-d', strtotime('-6 months'));
         //limit date range for initial Board to keep us sane and not tax the server too much
 
-        if (str_starts_with((string) $GLOBALS['ptkr_end_date'], 'Y')) {
-            $ptkr_time = substr((string) $GLOBALS['ptkr_end_date'], 1, 1);
+        if (str_starts_with((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 'Y')) {
+            $ptkr_time = substr((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 1, 1);
             $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d'), date('Y') + $ptkr_time);
-        } elseif (str_starts_with((string) $GLOBALS['ptkr_end_date'], 'M')) {
-            $ptkr_time = substr((string) $GLOBALS['ptkr_end_date'], 1, 1);
+        } elseif (str_starts_with((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 'M')) {
+            $ptkr_time = substr((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 1, 1);
             $ptkr_future_time = mktime(0, 0, 0, date('m') + $ptkr_time, date('d'), date('Y'));
-        } elseif (str_starts_with((string) $GLOBALS['ptkr_end_date'], 'D')) {
-             $ptkr_time = substr((string) $GLOBALS['ptkr_end_date'], 1, 1);
+        } elseif (str_starts_with((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 'D')) {
+             $ptkr_time = substr((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 1, 1);
              $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d') + $ptkr_time, date('Y'));
         }
         $to_date = date('Y-m-d', $ptkr_future_time);
@@ -1885,7 +1886,7 @@ class Display extends Base
             <div class="col-12 jumbotron p-4">
                 <div class="showRFlow text-center" id="show_recalls_params">
                     <?php
-                    if ($GLOBALS['medex_enable'] == '0') {
+                    if (OEGlobalsBag::getInstance()->get('medex_enable') == '0') {
                         $last_col_width = "nodisplay";
                     }
                     ?>
@@ -2037,7 +2038,7 @@ class Display extends Base
     <script>
         function toggleRcbSelectors() {
             if ($("#rcb_selectors").css('display') === 'none') {
-                $.post( "<?php echo $GLOBALS['webroot'] . "/interface/main/messages/messages.php"; ?>", {
+                $.post( "<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/main/messages/messages.php"; ?>", {
                     'rcb_selectors' : 'block',
                     success: function (data) {
                         $("#rcb_selectors").slideToggle();
@@ -2045,7 +2046,7 @@ class Display extends Base
                     }
                 });
             } else {
-                $.post( "<?php echo $GLOBALS['webroot'] . "/interface/main/messages/messages.php"; ?>", {
+                $.post( "<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/main/messages/messages.php"; ?>", {
                     'rcb_selectors' : 'none',
                     success: function (data) {
                         $("#rcb_selectors").slideToggle();
@@ -2059,7 +2060,7 @@ class Display extends Base
         function SMS_bot(pid) {
             top.restoreSession();
             pid = pid.replace('recall_','');
-            window.open('<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&pid=' + pid,'SMS_bot', 'width=370,height=600,resizable=0');
+            window.open('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&pid=' + pid,'SMS_bot', 'width=370,height=600,resizable=0');
             return false;
         }
         $(function () {
@@ -2069,7 +2070,7 @@ class Display extends Base
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -2169,7 +2170,7 @@ class Display extends Base
             $DOB = oeFormatShortDate($result2['DOB'] ?? '');
             $age = $MedEx->events->getAge($result2['DOB'] ?? 0);
             echo '<td class="divTableCell"><a href="#" onclick="show_patient(\'' . attr($recall['pid']) . '\');"> ' . text($recall['fname']) . ' ' . text($recall['lname']) . '</a>';
-            if ($GLOBALS['ptkr_show_pid']) {
+            if (OEGlobalsBag::getInstance()->get('ptkr_show_pid')) {
                 echo '<br /><span data-toggle="tooltip" data-placement="auto" title="' . xla("Patient ID") . '" class="small">' . xlt('PID') . ': ' . text($recall['pid']) . '</span>';
             }
             echo '<br /><span data-toggle="tooltip" data-placement="auto" title="' . xla("Most recent visit") . '" class="small">' . xlt("Last Visit") . ': ' . text(oeFormatShortDate($last_visit)) . '</span>';
@@ -2417,7 +2418,7 @@ class Display extends Base
                 $show['pc_eid'] = $result['pc_eid'];
                 $show['appt'] = oeFormatShortDate(date('Y-m-d', $phpdate)) . " @ " . date('g:iA', $phpdate);
                 $show['DONE'] = '1';
-            } elseif ($GLOBALS['medex_enable'] == '1') {
+            } elseif (OEGlobalsBag::getInstance()->get('medex_enable') == '1') {
                 if ($logged_in) {
                     if ($camps == '0') {
                         $show['status'] = "reddish"; //hey, nothing automatic left to do - manual processing required.
@@ -2428,7 +2429,7 @@ class Display extends Base
             } else {
                 $show['status'] = "whitish";
             }
-        } elseif (($GLOBALS['medex_enable'] == '1') && ($camps == '0')) {
+        } elseif ((OEGlobalsBag::getInstance()->get('medex_enable') == '1') && ($camps == '0')) {
                 $show['status'] = "reddish"; //hey, nothing automatic left to do - manual processing required.
         } else {
             $show['status'] = "whitish";
@@ -2483,7 +2484,7 @@ class Display extends Base
         } else {
             $pat['EMAIL'] = $icon['EMAIL']['ALLOWED'];
         }
-        if ($GLOBALS['medex_enable'] == '1') {
+        if (OEGlobalsBag::getInstance()->get('medex_enable') == '1') {
             $sql = "SELECT * FROM medex_prefs";
             $prefs = sqlFetchArray(sqlStatement($sql));
             $facs = explode('|', (string) $prefs['ME_facilities']);
@@ -2792,7 +2793,7 @@ class Display extends Base
                         <?php $datetimepicker_timepicker = false; ?>
                         <?php $datetimepicker_showseconds = false; ?>
                         <?php $datetimepicker_formatInput = true; ?>
-                        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
             });
@@ -3053,7 +3054,7 @@ class Setup extends Base
                                 <div class="form-group mt-3">
                                     <label for="new_email"><?php echo xlt('E-mail'); ?>:</label>
                                     <i id="email_check" name="email_check" class="top_right_corner nodisplay text-success fa fa-check"></i>
-                                    <input type="text" data-rule-email="true" class="form-control" id="new_email" name="new_email" value="<?php echo attr($GLOBALS['user_data']['email']); ?>" placeholder="<?php echo xla('your email address'); ?>" required />
+                                    <input type="text" data-rule-email="true" class="form-control" id="new_email" name="new_email" value="<?php echo attr(OEGlobalsBag::getInstance()->get('user_data')['email']); ?>" placeholder="<?php echo xla('your email address'); ?>" required />
                                     <div class="signup_help nodisplay" id="email_help" name="email_help"><?php echo xlt('Please provide a valid e-mail address to proceed'); ?>...</div>
                                 </div>
                                 <div class="form-group mt-3">
@@ -3335,7 +3336,7 @@ class MedEx
         global $GLOBALS;
 
         if ($sessionFile == 'cookiejar_MedExAPI') {
-            $sessionFile = $GLOBALS['temporary_files_dir'] . '/cookiejar_MedExAPI';
+            $sessionFile = OEGlobalsBag::getInstance()->get('temporary_files_dir') . '/cookiejar_MedExAPI';
         }
         $this->url      = rtrim('https://' . preg_replace('/^https?\:\/\//', '', (string) $url), '/') . '/cart/upload/index.php?route=api/';
         $this->curl     = new CurlRequest($sessionFile);
@@ -3407,7 +3408,7 @@ class MedEx
             empty($info['ME_username']) ||
             empty($info['ME_api_key']) ||
             empty($info['MedEx_id']) ||
-            ($GLOBALS['medex_enable'] !== '1')
+            (OEGlobalsBag::getInstance()->get('medex_enable') !== '1')
         ) {
             return false;
         }

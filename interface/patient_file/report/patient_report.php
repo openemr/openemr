@@ -107,7 +107,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             ?>
 
             <?php
-            if ($GLOBALS['activate_ccr_ccd_report']) { // show CCR/CCD reporting options ?>
+            if (OEGlobalsBag::getInstance()->get('activate_ccr_ccd_report')) { // show CCR/CCD reporting options ?>
                 <div class="mt-3" id="ccr_report">
                     <form name='ccr_form' id='ccr_form' method='post' action='../../../ccr/createCCR.php'>
                         <fieldset>
@@ -143,7 +143,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <button type="button" class="generateCCR_download_p btn btn-primary btn-download btn-sm" value="<?php echo xla('Download'); ?>" ><?php echo xlt('Download'); ?></button>
 
                                 <?php
-                                if ($GLOBALS['phimail_enable'] == true && $GLOBALS['phimail_ccr_enable'] == true) { ?>
+                                if (OEGlobalsBag::getInstance()->get('phimail_enable') == true && OEGlobalsBag::getInstance()->get('phimail_ccr_enable') == true) { ?>
                                     <button type="button" class="viewCCR_send_dialog btn btn-primary btn-transmit btn-sm" value="<?php echo xla('Transmit'); ?>"><?php echo xlt('Transmit'); ?></button>
                                     <br />
                                     <div id="ccr_send_dialog" style="display: none">
@@ -178,7 +178,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 <button type="button" class="viewNewCCD btn btn-primary btn-save btn-sm" value="<?php echo xla('Generate Report'); ?>" ><?php echo xlt('Generate New Report'); ?></button>
                                 <button type="button" class="viewCCD_download btn btn-primary btn-download btn-sm" value="<?php echo xla('Download'); ?>" ><?php echo xlt('Download'); ?></button>
                                 <?php
-                                if ($GLOBALS['phimail_enable'] == true && $GLOBALS['phimail_ccd_enable'] == true) { ?>
+                                if (OEGlobalsBag::getInstance()->get('phimail_enable') == true && OEGlobalsBag::getInstance()->get('phimail_ccd_enable') == true) { ?>
                                     <button type="button" class="viewCCD_send_dialog btn btn-primary btn-transmit btn-sm" value="<?php echo xla('Transmit'); ?>" ><?php echo xlt('Transmit'); ?></button>
                                     <br />
                                     <div id="ccd_send_dialog" style="display: none">
@@ -240,7 +240,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                     <br />
                                     <input type='checkbox' name='include_billing' id='include_billing' value="billing"
                                     <?php
-                                    if (!$GLOBALS['simplified_demographics']) {
+                                    if (!OEGlobalsBag::getInstance()->get('simplified_demographics')) {
                                         echo 'checked';
                                     } ?> /><?php echo xlt('Billing'); ?>
                                     <br />
@@ -526,7 +526,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     <ul>
                         <?php
                         // show available documents
-                        $db = $GLOBALS['adodb']['db'];
+                        $db = OEGlobalsBag::getInstance()->get('adodb')['db'];
                         $sql = "SELECT d.id, d.url, d.name as document_name, c.name, c.aco_spec FROM documents AS d " .
                                 "LEFT JOIN categories_to_documents AS ctd ON d.id=ctd.document_id " .
                                 "LEFT JOIN categories AS c ON c.id = ctd.category_id WHERE " .
@@ -564,7 +564,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = false; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 
@@ -671,7 +671,7 @@ $(function () {
         $("#ccr_form").submit();
     });
 
-    <?php if ($GLOBALS['phimail_enable'] == true && $GLOBALS['phimail_ccr_enable'] == true) { ?>
+    <?php if (OEGlobalsBag::getInstance()->get('phimail_enable') == true && OEGlobalsBag::getInstance()->get('phimail_ccr_enable') == true) { ?>
         $(".viewCCR_send_dialog").click(function() {
             $("#ccr_send_dialog").toggle();
         });
@@ -713,7 +713,7 @@ $(function () {
         });
     <?php }
 
-    if ($GLOBALS['phimail_enable'] == true && $GLOBALS['phimail_ccd_enable'] == true) { ?>
+    if (OEGlobalsBag::getInstance()->get('phimail_enable') == true && OEGlobalsBag::getInstance()->get('phimail_ccd_enable') == true) { ?>
         $(".viewCCD_send_dialog").click(function() {
             $("#ccd_send_dialog").toggle();
         });

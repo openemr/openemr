@@ -13,6 +13,7 @@
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 /**
  * Retrieve a note, given its ID
@@ -506,7 +507,7 @@ function updatePnote($id, $newtext, $title, $assigned_to, $message_status = "", 
         $sql .= " ,message_status = ?";
         $bindingParams[] = $message_status;
     }
-    if ($GLOBALS['messages_due_date']) {
+    if (OEGlobalsBag::getInstance()->get('messages_due_date')) {
         $sql .= " ,date = ?";
         $bindingParams[] = $datetime;
     }

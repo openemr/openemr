@@ -27,6 +27,9 @@
 /**
  * Include the main CDR engine library, email class and maviq class
  */
+
+use OpenEMR\Core\OEGlobalsBag;
+
 require_once(__DIR__ . "/clinical_rules.php");
 require_once(__DIR__ . "/maviq_phone_api.php");
 
@@ -364,8 +367,8 @@ function send_reminders()
         // Email to patient if Allow Email and set reminder sent flag.
         if ($hipaa_allowemail == "YES") {
             $mail = new MyMailer();
-            $sender_name = $GLOBALS['patient_reminder_sender_name'];
-            $email_address = $GLOBALS['patient_reminder_sender_email'];
+            $sender_name = OEGlobalsBag::getInstance()->get('patient_reminder_sender_name');
+            $email_address = OEGlobalsBag::getInstance()->get('patient_reminder_sender_email');
             $mail->FromName = $sender_name;  // required
             $mail->Sender = $email_address;    // required
             $mail->From = $email_address;    // required

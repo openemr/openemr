@@ -12,6 +12,7 @@
  */
 
 use OpenEMR\Billing\BillingProcessor\X12RemoteTracker;
+use OpenEMR\Core\OEGlobalsBag;
 
 /**
  * This function is called by background services,
@@ -21,7 +22,7 @@ use OpenEMR\Billing\BillingProcessor\X12RemoteTracker;
  */
 function start_X12_SFTP(): void
 {
-    if ($GLOBALS['auto_sftp_claims_to_x12_partner']) {
+    if (OEGlobalsBag::getInstance()->get('auto_sftp_claims_to_x12_partner')) {
         X12RemoteTracker::sftpSendWaitingFiles();
     }
 }

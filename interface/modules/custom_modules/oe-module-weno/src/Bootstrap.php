@@ -17,6 +17,7 @@ namespace OpenEMR\Modules\WenoModule;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\Patient\PatientBeforeCreatedAuxEvent;
 use OpenEMR\Events\Patient\PatientUpdatedEventAux;
@@ -72,7 +73,7 @@ class Bootstrap
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher
     ) {
-        $this->installPath = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-weno";
+        $this->installPath = OEGlobalsBag::getInstance()->get('web_root') . "/interface/modules/custom_modules/oe-module-weno";
         $this->globalsConfig = new WenoGlobalConfig();
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->modulePath = dirname(__DIR__);
@@ -127,7 +128,7 @@ class Bootstrap
         $service->addUserSpecificTab(self::MODULE_MENU_NAME);
 
         foreach ($settings as $key => $config) {
-            $value = $GLOBALS[$key] ?? $config['default'];
+            $value = OEGlobalsBag::getInstance()->get($key) ?? $config['default'];
             if ($userMode) {
                 $service->appendToSection(
                     self::MODULE_MENU_NAME,

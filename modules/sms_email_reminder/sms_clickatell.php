@@ -28,6 +28,9 @@
  * require_once ("sms_api.php");
  * $mysms = new sms();
  * echo $mysms->session;
+
+use OpenEMR\Core\OEGlobalsBag;
+
  * echo $mysms->getbalance();
  * // $mysms->token_pay("1234567890123456"); //spend voucher with SMS credits
  * $mysms->send ("38160123", "netsector", "TEST MESSAGE");
@@ -324,7 +327,7 @@ class sms_clickatell implements sms_interface
     function _curl($command)
     {
         $this->_chk_curl();
-        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+        $httpVerifySsl = (bool) (OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
         $ch = curl_init($command);
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

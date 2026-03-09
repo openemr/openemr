@@ -22,7 +22,7 @@ use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
 
-$assetBase = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-faxsms/public";
+$assetBase = OEGlobalsBag::getInstance()->get('web_root') . "/interface/modules/custom_modules/oe-module-faxsms/public";
 
 $serviceType = $_REQUEST['type'] ?? '';
 $clientApp = AppDispatch::getApiService($serviceType);
@@ -36,8 +36,8 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?php echo $tabTitle ?? ''; ?></title>
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/dropzone/dist/dropzone.css">
-    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/utif2/UTIF.js"></script>
+    <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->get('assets_static_relative'); ?>/dropzone/dist/dropzone.css">
+    <script src="<?php echo OEGlobalsBag::getInstance()->get('assets_static_relative'); ?>/utif2/UTIF.js"></script>
     <?php
     if (!$clientApp->verifyAcl()) {
         die("<h3>" . xlt("Not Authorised!") . "</h3>");
@@ -47,7 +47,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
         ";let currentService=" . js_escape($service) . ";let serviceType=" . js_escape($serviceType) . "</script>";
     echo ServiceType::renderJsConstants();
     ?>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/dropzone/dist/dropzone.js"></script>
+    <script type="text/javascript" src="<?php echo OEGlobalsBag::getInstance()->get('assets_static_relative'); ?>/dropzone/dist/dropzone.js"></script>
 
     <script>
         $(function () {
@@ -56,7 +56,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                 $datetimepicker_timepicker = false;
                 $datetimepicker_showseconds = false;
                 $datetimepicker_formatInput = false;
-                require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
+                require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
                 ?>
             });
             let dateRange = new Date(new Date().setDate(new Date().getDate() - 1));

@@ -2,6 +2,7 @@
 
 return ['includes' => [
     __DIR__ . '/argument.byRef.php',
+    __DIR__ . '/argument.templateType.php',
     __DIR__ . '/argument.type.php',
     __DIR__ . '/argument.unpackNonIterable.php',
     __DIR__ . '/arguments.count.php',

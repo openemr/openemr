@@ -19,6 +19,7 @@ require_once("../../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Forms\FormLocator;
+use OpenEMR\Core\OEGlobalsBag;
 
 $clean_id = sanitizeNumber($_GET["id"]);
 
@@ -49,6 +50,6 @@ $file = $formLocator->findFile($_GET['formname'], $pageName, 'load_form.php');
 require_once($file);
 
 $id = $clean_id;
-if (!empty($GLOBALS['text_templates_enabled'])) { ?>
-    <script src="<?php echo $GLOBALS['web_root'] ?>/library/js/CustomTemplateLoader.js"></script>
+if (!empty(OEGlobalsBag::getInstance()->get('text_templates_enabled'))) { ?>
+    <script src="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/js/CustomTemplateLoader.js"></script>
 <?php } ?>

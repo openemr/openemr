@@ -92,7 +92,7 @@ class Bootstrap
 
     public function getAssetPath()
     {
-        return $GLOBALS['webroot'] . self::MODULE_INSTALLATION_PATH . $this->moduleDirectoryName . "/public/assets/";
+        return OEGlobalsBag::getInstance()->get('webroot') . self::MODULE_INSTALLATION_PATH . $this->moduleDirectoryName . "/public/assets/";
     }
 
     public function getLogger()
@@ -102,10 +102,10 @@ class Bootstrap
 
     public function getExporter()
     {
-        $xmlConfigPath = $GLOBALS['webserver_root'] . DIRECTORY_SEPARATOR . 'Documentation' . DIRECTORY_SEPARATOR . 'EHI_Export';
+        $xmlConfigPath = OEGlobalsBag::getInstance()->get('webserver_root') . DIRECTORY_SEPARATOR . 'Documentation' . DIRECTORY_SEPARATOR . 'EHI_Export';
         // . DIRECTORY_SEPARATOR . 'docs' . DIRECTORY_SEPARATOR . 'openemr.openemr.xml';
         return new EhiExporter(
-            $GLOBALS['webserver_root'] . $this->getPublicPath(),
+            OEGlobalsBag::getInstance()->get('webserver_root') . $this->getPublicPath(),
             $this->getPublicPath(),
             $xmlConfigPath,
             $this->getTwig()

@@ -14,6 +14,7 @@ namespace OpenEMR\RestControllers\FHIR;
 
 use OpenApi\Attributes as OA;
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\FhirAllergyIntoleranceService;
@@ -214,7 +215,7 @@ class FhirAllergyIntoleranceRestController
         $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
-                'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
+                'fullUrl' =>  OEGlobalsBag::getInstance()->get('site_addr_oath') . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
                 'resource' => $searchResult
             ];
             $fhirBundleEntry = new FHIRBundleEntry($bundleEntry);

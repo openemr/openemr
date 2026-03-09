@@ -53,7 +53,7 @@ class InsuranceCompanyApiTest extends TestCase
     public function testGetOneReturns404ForMissingId(): void
     {
         /** @var \Psr\Http\Message\ResponseInterface $response */
-        $response = $this->testClient->getOne(self::API_ENDPOINT, 999999999);
+        $response = $this->testClient->getOne(self::API_ENDPOINT, '999999999');
         $this->assertEquals(404, $response->getStatusCode());
     }
 

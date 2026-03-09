@@ -29,6 +29,7 @@ use OpenEMR\Services\{
 };
 use OpenEMR\Validators\InsuranceCompanyValidator;
 use OpenEMR\Validators\ProcessingResult;
+use OpenEMR\Core\OEGlobalsBag;
 
 class InsuranceCompanyService extends BaseService
 {
@@ -79,7 +80,7 @@ class InsuranceCompanyService extends BaseService
     }
     public static function getDisplayNameForInsuranceRecord($insuranceCompany)
     {
-        switch ($GLOBALS['insurance_information']) {
+        switch (OEGlobalsBag::getInstance()->get('insurance_information')) {
             case '1':
                 $returnval = $insuranceCompany['name'] . " (" . $insuranceCompany['line1'] . ", " . $insuranceCompany['line2'] . ")";
                 break;

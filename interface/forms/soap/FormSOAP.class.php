@@ -11,6 +11,7 @@
  */
 
 use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Core\OEGlobalsBag;
 
 define("EVENT_VEHICLE", 1);
 define("EVENT_WORK_RELATED", 2);
@@ -61,7 +62,7 @@ class FormSOAP extends ORDataObject
 
         $this->_table = "form_soap";
         $this->activity = 1;
-        $this->pid = $GLOBALS['pid'];
+        $this->pid = OEGlobalsBag::getInstance()->get('pid');
         if ($id != "") {
             $this->populate();
             //$this->date = $this->get_date();

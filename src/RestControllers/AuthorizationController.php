@@ -58,7 +58,6 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\HttpUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\Core\TemplatePageEvent;
@@ -74,7 +73,6 @@ use OpenIDConnectServer\ClaimExtractor;
 use OpenIDConnectServer\Entities\ClaimSetEntity;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use RuntimeException;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\HttpClient\Exception\JsonException;
 use Symfony\Component\HttpFoundation\Response;
@@ -205,10 +203,7 @@ class AuthorizationController
         if (!isset($this->twig)) {
             // TODO: @adunsulag look at refactoring this.  I don't like how this kernel has ended up and is incompatible
             // with our current kernel.
-            $oeKernel = $this->globalsBag->get("kernel");
-            if (!$oeKernel instanceof Kernel) {
-                throw new RuntimeException("OpenEMR Error: Unable to get OpenEMR Kernel from globals bag");
-            }
+            $oeKernel = $this->globalsBag->getKernel();
             $twigContainer = new TwigContainer(__DIR__ . "/../../oauth2/", $oeKernel);
             $this->twig = $twigContainer->getTwig();
         }

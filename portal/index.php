@@ -106,7 +106,7 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
         $ot = $oneTime->decodePortalOneTime($token, null, false);
         $pin_required = $ot['actions']['enforce_auth_pin'] ? 1 : 0;
         CsrfUtils::setupCsrfKey($session->getSymfonySession());
-        $twig = new TwigContainer(null, $globalsBag->get('kernel'));
+        $twig = new TwigContainer(null, $globalsBag->getKernel());
         echo $twig->getTwig()->render('portal/login/autologin.html.twig', [
             'action' => $globalsBag->getString('web_root') . '/portal/index.php',
             'service_auth' => $_GET['service_auth'],

@@ -43,7 +43,7 @@ use OpenEMR\Services\FacilityService;
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $globalsBag = OEGlobalsBag::getInstance();
-$twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
+$twig = (new TwigContainer(null, $globalsBag->getKernel()))->getTwig();
 
 if (!empty($_REQUEST['receipt']) && empty($_POST['form_save'])) {
     if (!AclMain::aclCheckCore('acct', 'bill') && !AclMain::aclCheckCore('acct', 'rep_a') && !AclMain::aclCheckCore('patients', 'rx')) {
@@ -66,13 +66,13 @@ $recorder = new Recorder();
 <html>
 <head>
 <?php Header::setupHeader(['opener']);?>
-    <?php if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
+    <?php if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'Stripe') { ?>
         <script src="https://js.stripe.com/v3/"></script>
     <?php } ?>
-    <?php if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') {
+    <?php if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'AuthorizeNet') {
         // Must be loaded from their server
         $script = "https://jstest.authorize.net/v1/Accept.js"; // test script
-        if ($GLOBALS['gateway_mode_production']) {
+        if (OEGlobalsBag::getInstance()->get('gateway_mode_production')) {
             $script = "https://js.authorize.net/v1/Accept.js"; // Production script
         } ?>
         <script src=<?php echo $script; ?> charset="utf-8"></script>
@@ -366,7 +366,7 @@ if ($alertmsg === '' && (!empty($_POST['form_save']) || !empty($_REQUEST['receip
     <?php Header::setupHeader(); ?>
 <script>
 
-    <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
 
 $(function () {
     var win = top.printLogSetup ? top : opener.top;
@@ -549,8 +549,8 @@ function toencounter(enc, datestr, topframe) {
 
                     </div>
                     <div class="section-1">
-                        <?php if (file_exists($GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_1.png")) { ?>
-                            <img src=<?php echo $GLOBALS['OE_SITE_WEBROOT'] . "/images/logo_1.png" ?> alt="facility_logo" class="img-fluid">
+                        <?php if (file_exists(OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT') . "/images/logo_1.png")) { ?>
+                            <img src=<?php echo OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT') . "/images/logo_1.png" ?> alt="facility_logo" class="img-fluid">
                         <?php } ?>
 
                         <table class="mini_table text-center">
@@ -682,18 +682,18 @@ function toencounter(enc, datestr, topframe) {
 <script>
     var mypcc = '1';
 </script>
-    <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
+    <?php include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/ajax/payment_ajax_jav.inc.php"); ?>
 <script>
     document.onclick=HideTheAjaxDivs;
 </script>
 
     <?php Header::setupAssets('topdialog'); ?>
 
-<script src="<?php echo $GLOBALS['assets_static_relative']; ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
+<script src="<?php echo OEGlobalsBag::getInstance()->get('assets_static_relative'); ?>/jquery-creditcardvalidator/jquery.creditCardValidator.js"></script>
 
 <script>
     var chargeMsg = <?php echo xlj('Payment was successfully authorized and charged. Thank You.'); ?>;
-    var publicKey = <?php echo json_encode($cryptoGen->decryptStandard($GLOBALS['gateway_public_key'])); ?>;
+    var publicKey = <?php echo json_encode($cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('gateway_public_key'))); ?>;
 $(function() {
     $('#openPayModal').on('show.bs.modal', function () {
         let total = $("[name='form_paytotal']").val();
@@ -711,7 +711,7 @@ $(function() {
         $("#paymentAmount").val(total);
     });
 });
-    <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
 function closeHow(e) {
     if (opener) {
         dlgclose();
@@ -1404,12 +1404,12 @@ function make_insurance() {
                         <div class="col-sm-12 text-left position-override">
                             <div class="form-group" role="group" id="button-group">
                                 <button type='submit' class="btn btn-primary btn-save" name='form_save' value='<?php echo xla('Generate Invoice');?>'><?php echo xlt('Generate Invoice');?></button>
-                                <?php if (!empty($GLOBALS['cc_front_payments']) && $GLOBALS['payment_gateway'] != 'InHouse') {
-                                    if ($GLOBALS['payment_gateway'] == 'Sphere') {
+                                <?php if (!empty(OEGlobalsBag::getInstance()->get('cc_front_payments')) && OEGlobalsBag::getInstance()->get('payment_gateway') != 'InHouse') {
+                                    if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'Sphere') {
                                         echo SpherePayment::renderSphereHtml('clinic');
                                     } else {
                                         echo '<button type="button" id="paynowbutton" class="btn btn-success btn-transmit mx-1" data-toggle="modal" data-target="#openPayModal">' . xlt("Credit Card Pay") . '</button>';
-                                        if (!empty($GLOBALS['cc_stripe_terminal'])) {
+                                        if (!empty(OEGlobalsBag::getInstance()->get('cc_stripe_terminal'))) {
                                             echo '<button type="button" class="btn btn-success btn-transmit mx-1" onclick="posDialog()">' . xlt("POS Payment") . '</button>';
                                         }
                                     }
@@ -1435,7 +1435,7 @@ function make_insurance() {
                         <h4><?php echo xlt('Submit Payment for Authorization'); ?></h4>
                     </div>
                     <div class="modal-body">
-                        <?php if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') { ?>
+                        <?php if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'AuthorizeNet') { ?>
                             <form id='paymentForm' method='post' action='./front_payment_cc.php'>
                                 <fieldset>
                                     <div class="form-group">
@@ -1519,7 +1519,7 @@ function make_insurance() {
                         <?php } elseif ($globalsBag->getString('payment_gateway') === 'Rainforest') { ?>
                             <div id="payment-form"><!-- will be filled in by rainforest.js --></div>
                         <?php }
-                        if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
+                        if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'Stripe') { ?>
                             <form class="form" method="post" name="payment-form" id="payment-form">
                                 <fieldset>
                                     <div class="form-group">
@@ -1552,11 +1552,11 @@ function make_insurance() {
                         <div class="button-group">
                             <button type="button" class="btn btn-default" data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
                             <?php
-                            if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') { ?>
+                            if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'AuthorizeNet') { ?>
                                 <button id="payAurhorizeNet" class="btn btn-primary"
                                     onclick="sendPaymentDataToAnet(event)"><?php echo xlt('Pay Now'); ?></button>
                             <?php }
-                            if ($GLOBALS['payment_gateway'] == 'Stripe') { ?>
+                            if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'Stripe') { ?>
                                 <button id="stripeSubmit" class="btn btn-primary"><?php echo xlt('Pay Now'); ?></button>
                             <?php } ?>
                         </div>
@@ -1565,7 +1565,7 @@ function make_insurance() {
             </div>
         </div>
 
-        <?php if ($GLOBALS['payment_gateway'] == 'AuthorizeNet') {
+        <?php if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'AuthorizeNet') {
             // Include Authorize.Net dependency to tokenize card.
             // Will return a token to use for payment request keeping
             // credit info off the server.
@@ -1681,7 +1681,7 @@ function make_insurance() {
             </script>
         <?php }  // end authorize.net ?>
 
-        <?php if ($GLOBALS['payment_gateway'] == 'Stripe') { // Begin Include Stripe ?>
+        <?php if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'Stripe') { // Begin Include Stripe ?>
             <script>
                 // await validation function.
                 const waitValidate = async (state = false) => {
@@ -1789,7 +1789,7 @@ function make_insurance() {
                     });
                 }
                 // terminal
-                <?php if (!empty($GLOBALS['cc_stripe_terminal'])) { ?>
+                <?php if (!empty(OEGlobalsBag::getInstance()->get('cc_stripe_terminal'))) { ?>
                 // Dialog function for Stripe terminal payment.
                 // Will post on successful credit payment.
                 function posDialog() {
@@ -1836,7 +1836,7 @@ function make_insurance() {
         <?php } ?>
 
         <?php
-        if ($GLOBALS['payment_gateway'] == 'Sphere') {
+        if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'Sphere') {
             echo (new SpherePayment('clinic', $pid))->renderSphereJs();
         }
         if ($globalsBag->get('payment_gateway') === 'Rainforest') {

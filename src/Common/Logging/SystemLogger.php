@@ -4,6 +4,7 @@ namespace OpenEMR\Common\Logging;
 
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
+use OpenEMR\Core\OEGlobalsBag;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -44,7 +45,7 @@ class SystemLogger implements LoggerInterface
 
         // Set log level per global setting (if set) if not hardcoded above
         if (empty($logLevel)) {
-            if (!empty($GLOBALS['system_error_logging']) && ($GLOBALS['system_error_logging'] == "DEBUG")) {
+            if (!empty(OEGlobalsBag::getInstance()->get('system_error_logging')) && (OEGlobalsBag::getInstance()->get('system_error_logging') == "DEBUG")) {
                 $logLevel = Logger::DEBUG;
             } else {
                 $logLevel = Logger::WARNING;

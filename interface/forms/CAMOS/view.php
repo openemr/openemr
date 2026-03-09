@@ -27,6 +27,7 @@ require_once("../../../library/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 formHeader("Form: CAMOS");
 $textarea_rows = 22;
@@ -78,7 +79,7 @@ function show_edit(t) {
 <input type="submit" name="delete" value="<?php echo xla('Delete Selected Items'); ?>" />
 <input type="submit" name="update" value="<?php echo xla('Update Selected Items'); ?>" />
 <?php
-echo "<a href='{$GLOBALS['form_exit_url']}'>[" . xlt('do nothing') . "]</a>";
+echo "<a href='" . OEGlobalsBag::getInstance()->get('form_exit_url') . "'>[" . xlt('do nothing') . "]</a>";
 ?>
 <br/><br/>
 <input type='button' value='<?php echo xla('Select All'); ?>'
@@ -89,8 +90,8 @@ echo "<a href='{$GLOBALS['form_exit_url']}'>[" . xlt('do nothing') . "]</a>";
 <?php
 //experimental code start
 
-$pid = $GLOBALS['pid'];
-$encounter = $GLOBALS['encounter'];
+$pid = OEGlobalsBag::getInstance()->get('pid');
+$encounter = OEGlobalsBag::getInstance()->get('encounter');
 
 $query = "select t1.id, t1.content from " . mitigateSqlTableUpperCase("form_CAMOS") . " as t1 join forms as t2 " .
   "on (t1.id = t2.form_id) where t2.form_name like 'CAMOS%' " .

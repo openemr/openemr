@@ -18,6 +18,7 @@ require_once("../../../library/registry.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Forms\FormLocator;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Telemetry\TelemetryService;
 
 /**
@@ -51,11 +52,11 @@ if ($telemetryService->isTelemetryEnabled()) {
     $telemetryService->reportClickEvent([
         'eventType' => 'encounterForm',
         'eventLabel' => $_GET['formname'] ?? 'Unknown',
-        'eventUrl' => str_replace($GLOBALS['fileroot'], '', $file),
+        'eventUrl' => str_replace(OEGlobalsBag::getInstance()->get('fileroot'), '', $file),
         'eventTarget' => $pageName,
     ]);
 }
 
-if (!empty($GLOBALS['text_templates_enabled']) && !($_GET['formname'] == 'fee_sheet')) { ?>
-    <script src="<?php echo $GLOBALS['web_root'] ?>/library/js/CustomTemplateLoader.js"></script>
+if (!empty(OEGlobalsBag::getInstance()->get('text_templates_enabled')) && !($_GET['formname'] == 'fee_sheet')) { ?>
+    <script src="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/js/CustomTemplateLoader.js"></script>
 <?php } ?>

@@ -26,7 +26,7 @@ class CarePlanFixtureManager extends BaseFixtureManager
     {
         $patientFixtureManager = new FixtureManager();
         $this->encounterFixtureManager = new EncounterFixtureManager(null, $patientFixtureManager);
-        parent::__construct("care-plan.json", "form_care_plan");
+        parent::__construct("care-plan.php", "form_care_plan");
     }
 
     public function installFixtures()

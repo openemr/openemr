@@ -22,11 +22,12 @@ use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\DirectMessaging\ErrorConstants;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use XSLTProcessor;
 
 // TODO: we need to refactor all of this so it can go into a class for this functionality
-require_once($GLOBALS['fileroot'] . '/ccr/transmitCCD.php');
-require_once($GLOBALS['fileroot'] . '/library/amc.php');
+require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/ccr/transmitCCD.php');
+require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/library/amc.php');
 
 class EncountermanagerTable
 {
@@ -237,11 +238,11 @@ class EncountermanagerTable
         $d_Address = '';
         // no point in continuing if we are not setup here
         $config_err = xl(ErrorConstants::MESSAGING_DISABLED) . " " . ErrorConstants::ERROR_CODE_ABBREVIATION . ":";
-        if ($GLOBALS['phimail_enable'] == false) {
+        if (OEGlobalsBag::getInstance()->get('phimail_enable') == false) {
             return ("$config_err " . ErrorConstants::ERROR_CODE_MESSAGING_DISABLED);
         }
 
-        $verifyMessageReceivedChecked = $GLOBALS['phimail_verifyrecipientreceived_enable'] == '1' ? true : false;
+        $verifyMessageReceivedChecked = OEGlobalsBag::getInstance()->get('phimail_verifyrecipientreceived_enable') == '1' ? true : false;
 
         try {
             foreach ($rec_arr as $recipient) {

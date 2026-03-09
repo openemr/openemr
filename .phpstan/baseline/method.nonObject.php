@@ -1517,49 +1517,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/vitals/C_FormVitals.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/login/login.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/login/login.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getTwigTemplate\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/login/login.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getTwigVariables\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/login/login.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/login/login.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/about_page.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/about_page.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getTwigTemplate\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/about_page.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getTwigVariables\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/about_page.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method _get_plugin_filepath\\(\\) on mixed\\.$#',
@@ -1575,21 +1535,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method _get_plugin_filepath\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/modifier.pc_date_format.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getCustomWhereFilter\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getData\\(\\) on bool\\|OpenEMR\\\\Validators\\\\ProcessingResult\\|null\\.$#',
@@ -1610,56 +1555,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method setPrimaryMenuItem\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder_ajax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getBoundFilter\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder_ajax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getBoundValues\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder_ajax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder_ajax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getFilterClause\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder_ajax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/patient_select.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getBoundFilter\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/patient_select.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getBoundValues\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/patient_select.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/patient_select.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getFilterClause\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/patient_select.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method create_events\\(\\) on mixed\\.$#',
@@ -1917,11 +1812,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Validators/TelehealthPatientValidator.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dashboard-context/openemr.bootstrap.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method debug\\(\\) on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dashboard-context/src/Bootstrap.php',
@@ -2125,16 +2015,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method verifyAcl\\(\\) on OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\ClickatellSMSClient\\|OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\EmailClient\\|OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\EtherFaxActions\\|OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\RCFaxClient\\|OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\SignalWireClient\\|OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\TwilioSMSClient\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/contact.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/api_onetime.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/api_onetime.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getCredentials\\(\\) on OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\ClickatellSMSClient\\|OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\EmailClient\\|OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\EtherFaxActions\\|OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\RCFaxClient\\|OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\SignalWireClient\\|OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\TwilioSMSClient\\|null\\.$#',
@@ -2947,16 +2827,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/PatientFilter/Module.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method setBoundValues\\(\\) on string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/PatientFilter/Module.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setFilterClause\\(\\) on string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/PatientFilter/Module.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method addSubscriber\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/PatientFlowBoard/Module.php',
@@ -3067,16 +2937,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/public/index.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/new/new_comprehensive_save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/new/new_comprehensive_save.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method get_address\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/gen_hl7_order.inc.php',
@@ -3125,6 +2985,11 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method get_zip\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/orders/order_manifest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/birthday_alert/birthday_pop.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method Execute\\(\\) on mixed\\.$#',
@@ -3267,11 +3132,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/dashboard_header.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method authorized\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method canAdd\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
@@ -3287,11 +3147,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getAcl\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
@@ -3299,11 +3154,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getBackgroundColorClass\\(\\) on mixed\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 4,
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
 ];
 $ignoreErrors[] = [
@@ -3335,31 +3185,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method isInitiallyCollapsed\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method authorized\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/demographics_full.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/demographics_full.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/demographics_full.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/demographics_save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/demographics_save.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method login\\(\\) on mixed\\.$#',
@@ -3857,31 +3682,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/person_search_ajax.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/appointments.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getBoundFilter\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/appointments.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getBoundValues\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/appointments.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/appointments.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getFilterClause\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/appointments.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method Execute\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/CategoryTree.class.php',
@@ -4292,6 +4092,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method has\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method edih_delimiters\\(\\) on mixed\\.$#',
     'count' => 9,
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
@@ -4327,31 +4137,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/globals.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/globals.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getGlobalsService\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/globals.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method save\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/globals.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getAllBillingLocations\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/options.inc.php',
@@ -4364,11 +4149,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getById\\(\\) on mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/options.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../library/options.inc.php',
 ];
 $ignoreErrors[] = [
@@ -4395,6 +4175,11 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method assign\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty/plugins/function.amcCollect.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty/plugins/function.assetVersionNumber.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method trigger_error\\(\\) on mixed\\.$#',
@@ -4697,6 +4482,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_image.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_image.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method trigger_error\\(\\) on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_image.php',
@@ -4787,24 +4577,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sql.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/home.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getAppointment\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/home.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getDataElement\\(\\) on mixed\\.$#',
+    'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../portal/home.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/home.php',
+    'path' => __DIR__ . '/../../modules/sms_email_reminder/sms_clickatell.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getString\\(\\) on mixed\\.$#',
@@ -4852,16 +4627,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/import_template.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/import_template_ui.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/import_template_ui.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method Output\\(\\) on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../portal/lib/doc_lib.php',
@@ -4895,16 +4660,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method isSuccessful\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/lib/paylib.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/messaging/messages.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../portal/messaging/messages.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getAttribute\\(\\) on mixed\\.$#',
@@ -5610,16 +5365,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method renderLog\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/report/portal_custom_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method dispatch\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/report/portal_patient_report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/report/portal_patient_report.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getPathname\\(\\) on mixed\\.$#',
@@ -7794,26 +7539,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getAll\\(\\) on mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/PrescriptionRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getData\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/PrescriptionRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getOne\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/PrescriptionRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method hasErrors\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/PrescriptionRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getAll\\(\\) on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/ProcedureRestController.php',
 ];
 $ignoreErrors[] = [
@@ -9237,11 +8962,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/PractitionerService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method validateId\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/PrescriptionService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method calculate\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qdm/CqmCalculator.php',
@@ -9797,126 +9517,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../templates/super/rules/controllers/review/view.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getBody\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/AllergyIntoleranceFhirApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getContents\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/AllergyIntoleranceFhirApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getStatusCode\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/AllergyIntoleranceFhirApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method errorLogCaller\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getConfig\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method patch\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method post\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method put\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getBody\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClientTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getStatusCode\\(\\) on mixed\\.$#',
-    'count' => 16,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClientTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getIdentifier\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/BulkAPITestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getBody\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/CapabilityFhirTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getStatusCode\\(\\) on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../tests/Tests/Api/CapabilityFhirTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getBody\\(\\) on mixed\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../tests/Tests/Api/FacilityApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getOne\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Api/FacilityApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getStatusCode\\(\\) on mixed\\.$#',
-    'count' => 10,
-    'path' => __DIR__ . '/../../tests/Tests/Api/FacilityApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/FacilityApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method post\\(\\) on mixed\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../tests/Tests/Api/FacilityApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method put\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Api/FacilityApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getBody\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/GroupExportFhirApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getContents\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/GroupExportFhirApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getHeaders\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Api/GroupExportFhirApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getStatusCode\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Api/GroupExportFhirApiTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method cleanupClient\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Api/PatientApiTest.php',
@@ -9967,107 +9567,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Api/PatientApiTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getBody\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/PatientFhirApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getContents\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/PatientFhirApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getStatusCode\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Api/PatientFhirApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getBody\\(\\) on mixed\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../tests/Tests/Api/PractitionerApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getStatusCode\\(\\) on mixed\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../tests/Tests/Api/PractitionerApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method installPractitionerFixtures\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/PractitionerApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method removePractitionerFixtures\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/PractitionerApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getStatusCode\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ProvenanceFhirApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getStatusCode\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Api/SmartConfigurationTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getIdentifier\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G10_Certification/BulkPatientExport311APITest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getBody\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G10_Certification/SinglePatientApi/Observation/ObservationHeartRateTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getContents\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G10_Certification/SinglePatientApi/Observation/ObservationHeartRateTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getStatusCode\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G10_Certification/SinglePatientApi/Observation/ObservationHeartRateTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getBody\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G10_Certification/SinglePatientApi/Observation/ObservationScreeningAndAssessmentsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getContents\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G10_Certification/SinglePatientApi/Observation/ObservationScreeningAndAssessmentsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getStatusCode\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G10_Certification/SinglePatientApi/Observation/ObservationScreeningAndAssessmentsTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method C14N\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getAttribute\\(\\) on DOMNameSpaceNode\\|DOMNode\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getBody\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getContents\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getStatusCode\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G9_Certification/CCDADocRefGenerationTest.php',
 ];
@@ -10675,11 +10180,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method isValid\\(\\) on mixed\\.$#',
     'count' => 18,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Validators/PractitionerValidatorTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getStatusCode\\(\\) on mixed\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../tests/Tests/RestControllers/FHIR/FhirPatientRestControllerTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getStatusCode\\(\\) on mixed\\.$#',
@@ -11877,23 +11377,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/api/InternalApiTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/api/InternalApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/api/InternalApiTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getAttribute\\(\\) on Psr\\\\Http\\\\Message\\\\ResponseInterface\\|null\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../tests/api/InternalFhirTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getEventDispatcher\\(\\) on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../tests/api/InternalFhirTest.php',
 ];
 $ignoreErrors[] = [

@@ -12,6 +12,8 @@
 
 namespace OpenEMR\Modules\FaxSMS;
 
+use OpenEMR\Core\OEGlobalsBag;
+
 /**
  * Companion to event bootstrapping
  */
@@ -158,8 +160,8 @@ class BootstrapService
         $vendor = '_persisted';
         $authUserId = 0;
         $globals = sqlQuery("SELECT `credentials` FROM `module_faxsms_credentials` WHERE `auth_user` = ? AND `vendor` = ?", [$authUserId, $vendor]) ?? [];
-        if (is_string($globals['credentials'])) {
-            return json_decode($globals['credentials'], true) ?? [];
+        if (is_string(OEGlobalsBag::getInstance()->get('credentials'))) {
+            return json_decode(OEGlobalsBag::getInstance()->get('credentials'), true) ?? [];
         }
         return [];
     }

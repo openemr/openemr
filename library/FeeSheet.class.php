@@ -35,6 +35,7 @@ use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\Recorder;
 
 // For logging checksums set this to true.
@@ -97,11 +98,11 @@ class FeeSheet
     {
         $session = SessionWrapperFactory::getInstance()->getWrapper();
         if (empty($pid)) {
-            $pid = $GLOBALS['pid'];
+            $pid = OEGlobalsBag::getInstance()->get('pid');
         }
 
         if (empty($encounter)) {
-            $encounter = $GLOBALS['encounter'];
+            $encounter = OEGlobalsBag::getInstance()->get('encounter');
         }
 
         $this->pid = $pid;
@@ -111,7 +112,7 @@ class FeeSheet
         $this->payer_id = $primary_insurance['provider'];
 
         // IPPF doesn't want any payments to be made or displayed in the Fee Sheet.
-        $this->ALLOW_COPAYS = empty($GLOBALS['ippf_specific']);
+        $this->ALLOW_COPAYS = empty(OEGlobalsBag::getInstance()->get('ippf_specific'));
 
         // Get the user's default warehouse and an indicator if there's a choice of warehouses.
         $wrow = sqlQuery("SELECT count(*) AS count FROM list_options WHERE list_id = 'warehouse' AND activity = 1");
@@ -138,7 +139,7 @@ class FeeSheet
         $this->supervisor_id = $visit_row['supervisor_id'];
         // This flag is specific to IPPF validation at form submit time.  It indicates
         // that most contraceptive services and products should match up on the fee sheet.
-        $this->match_services_to_products = $GLOBALS['ippf_specific'] &&
+        $this->match_services_to_products = OEGlobalsBag::getInstance()->get('ippf_specific') &&
           !empty($visit_row['extra_validation']);
 
         // Get some information about the patient.
@@ -459,7 +460,7 @@ class FeeSheet
         $del         = !empty($args['del']);
 
         // If using line item billing and user wishes to default to a selected provider, then do so.
-        if (!empty($GLOBALS['default_fee_sheet_line_item_provider']) && !empty($GLOBALS['support_fee_sheet_line_item_provider'])) {
+        if (!empty(OEGlobalsBag::getInstance()->get('default_fee_sheet_line_item_provider')) && !empty(OEGlobalsBag::getInstance()->get('support_fee_sheet_line_item_provider'))) {
             if ($provider_id == 0) {
                 $provider_id = (int) $this->findProvider();
             }
@@ -522,7 +523,7 @@ class FeeSheet
                     $fee = $prrow['pr_price'];
 
                     // if percent-based pricing is enabled...
-                    if ($GLOBALS['enable_percent_pricing']) {
+                    if (OEGlobalsBag::getInstance()->get('enable_percent_pricing')) {
                         // if this price level is a percentage, calculate price from default price
                         if (!empty($prrow['notes']) && strpos((string) $prrow['notes'], '%') > -1 && !empty($prdefault)) {
                             $percent = intval(str_replace('%', '', $prrow['notes']));
@@ -551,7 +552,7 @@ class FeeSheet
         // This logic is only used for family planning clinics, and then only when
         // the option is chosen to use or auto-generate Contraception forms.
         // It adds contraceptive method and effectiveness to relevant lines.
-        if ($GLOBALS['ippf_specific'] && $GLOBALS['gbl_new_acceptor_policy'] && $codetype == 'MA') {
+        if (OEGlobalsBag::getInstance()->get('ippf_specific') && OEGlobalsBag::getInstance()->get('gbl_new_acceptor_policy') && $codetype == 'MA') {
             $codesrow = sqlQuery(
                 "SELECT related_code, cyp_factor FROM codes WHERE " .
                 "code_type = ? AND code = ? ORDER BY active DESC, id LIMIT 1",
@@ -705,7 +706,7 @@ class FeeSheet
                 $fee = $prrow['pr_price'];
 
                 // if percent-based pricing is enabled...
-                if ($GLOBALS['enable_percent_pricing']) {
+                if (OEGlobalsBag::getInstance()->get('enable_percent_pricing')) {
                     // if this price level is a percentage, calculate price from default price
                     if (!empty($prrow['notes']) && strpos((string) $prrow['notes'], '%') > -1 && !empty($prdefault)) {
                         $percent = intval(str_replace('%', '', $prrow['notes']));
@@ -737,7 +738,7 @@ class FeeSheet
         // This logic is only used for family planning clinics, and then only when
         // the option is chosen to use or auto-generate Contraception forms.
         // It adds contraceptive method and effectiveness to relevant lines.
-        if ($GLOBALS['ippf_specific'] && $GLOBALS['gbl_new_acceptor_policy']) {
+        if (OEGlobalsBag::getInstance()->get('ippf_specific') && OEGlobalsBag::getInstance()->get('gbl_new_acceptor_policy')) {
             $this->checkRelatedForContraception($drow['related_code']);
             if ($this->line_contra_code) {
                 $li['hidden']['method'  ] = $this->line_contra_code;
@@ -1035,13 +1036,13 @@ class FeeSheet
                 }
 
                         # Code to create justification for all codes based on first justification
-                if ($GLOBALS['replicate_justification'] == '1') {
+                if (OEGlobalsBag::getInstance()->get('replicate_justification') == '1') {
                     if ($justify != '') {
                          $autojustify = $justify;
                     }
                 }
 
-                if (($GLOBALS['replicate_justification'] == '1') && ($justify == '') && check_is_code_type_justify($code_type)) {
+                if ((OEGlobalsBag::getInstance()->get('replicate_justification') == '1') && ($justify == '') && check_is_code_type_justify($code_type)) {
                     $justify =  $autojustify;
                 }
 
@@ -1328,7 +1329,7 @@ class FeeSheet
                         }
 
                           // Delete Rx if $rxid and flag not set.
-                        if ($GLOBALS['gbl_auto_create_rx'] && $rxid && empty($iter['rx'])) {
+                        if (OEGlobalsBag::getInstance()->get('gbl_auto_create_rx') && $rxid && empty($iter['rx'])) {
                             sqlStatement("UPDATE drug_sales SET prescription_id = 0 WHERE sale_id = ?", [$sale_id]);
                             sqlStatement("DELETE FROM prescriptions WHERE id = ?", [$rxid]);
                         }
@@ -1499,7 +1500,7 @@ class FeeSheet
                         "DELETE FROM lbf_data WHERE form_id = ? AND field_id = ''",
                         [$newid]
                     );
-                    addForm($this->encounter, 'Contraception Summary', $newid, 'LBFcontra', $this->pid, $GLOBALS['userauthorized']);
+                    addForm($this->encounter, 'Contraception Summary', $newid, 'LBFcontra', $this->pid, OEGlobalsBag::getInstance()->get('userauthorized'));
                     // Now add the needed visit fields.
                     $this->insert_lbf_item('cgen_newmauser', $newmauser);
                     $this->insert_lbf_item('cgen_MethAdopt', "IPPFCM:$ippfconmeth");

@@ -18,6 +18,7 @@ require_once("$srcdir/encounter.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
@@ -44,9 +45,9 @@ if (empty($patient)) {
 }
 $puuid = UuidRegistry::uuidToString($patient['uuid']);
 
-if ($_POST['mode'] == 'new' && ($GLOBALS['enc_service_date'] == 'hide_both' || $GLOBALS['enc_service_date'] == 'show_edit')) {
+if ($_POST['mode'] == 'new' && (OEGlobalsBag::getInstance()->get('enc_service_date') == 'hide_both' || OEGlobalsBag::getInstance()->get('enc_service_date') == 'show_edit')) {
     $date = (new DateTime())->format('Y-m-d H:i:s');
-} elseif ($_POST['mode'] == 'update' && ($GLOBALS['enc_service_date'] == 'hide_both' || $GLOBALS['enc_service_date'] == 'show_new')) {
+} elseif ($_POST['mode'] == 'update' && (OEGlobalsBag::getInstance()->get('enc_service_date') == 'hide_both' || OEGlobalsBag::getInstance()->get('enc_service_date') == 'show_new')) {
     $enc_from_id = sqlQuery("SELECT `encounter` FROM `form_encounter` WHERE `id` = ?", [intval($_POST['id'])]);
     $enc = $encounterService->getEncounterById($enc_from_id['encounter']);
     $enc_data = $enc->getData();

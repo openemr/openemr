@@ -13,6 +13,7 @@
 namespace OpenEMR\Modules\FaxSMS\EtherFax;
 
 use DateTime;
+use OpenEMR\Core\OEGlobalsBag;
 
 class EtherFaxClient
 {
@@ -37,7 +38,7 @@ class EtherFaxClient
         // set credentials, default timeout
         $this->setCredentials($account, $user, $password, $key);
         $this->timeout = EtherFaxClient::DEFAULT_TIMEOUT;
-        if (empty($GLOBALS['oefax_enable_fax'] ?? null)) {
+        if (empty(OEGlobalsBag::getInstance()->get('oefax_enable_fax') ?? null)) {
             throw new \RuntimeException(xlt("Access denied! Module not enabled"));
         }
     }
@@ -124,7 +125,7 @@ class EtherFaxClient
         }
 
         try {
-            $httpVerifySsl = (bool)($GLOBALS['http_verify_ssl'] ?? true);
+            $httpVerifySsl = (bool)(OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
             $client = new \GuzzleHttp\Client([
                 "defaults" => [
                     "allow_redirects" => true,

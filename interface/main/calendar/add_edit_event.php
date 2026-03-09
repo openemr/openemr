@@ -42,14 +42,14 @@
  */
 
 require_once(__DIR__ . '/../../globals.php');
-require_once($GLOBALS['srcdir'] . '/patient.inc.php');
-require_once($GLOBALS['srcdir'] . '/forms.inc.php');
-require_once($GLOBALS['srcdir'] . '/calendar.inc.php');
-require_once($GLOBALS['srcdir'] . '/options.inc.php');
-require_once($GLOBALS['srcdir'] . '/encounter_events.inc.php');
-require_once($GLOBALS['srcdir'] . '/patient_tracker.inc.php');
-require_once($GLOBALS['incdir'] . "/main/holidays/Holidays_Controller.php");
-require_once($GLOBALS['srcdir'] . '/group.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/patient.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/forms.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/calendar.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/encounter_events.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/patient_tracker.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('incdir') . "/main/holidays/Holidays_Controller.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/group.inc.php');
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -69,7 +69,7 @@ if (!AclMain::aclCheckCore('patients', 'appt', '', ['write','wsome'])) {
 $eid           = $_GET['eid'] ?? null; // only for existing events
 $date          = $_GET['date'] ?? null;        // this and below only for new events
 $userid        = $_GET['userid'] ?? null;
-$default_catid = !empty($_GET['catid']) ? $_GET['catid'] : (!empty($GLOBALS['default_visit_category'] ?? '') ? $GLOBALS['default_visit_category'] : '5');
+$default_catid = !empty($_GET['catid']) ? $_GET['catid'] : (!empty(OEGlobalsBag::getInstance()->get('default_visit_category') ?? '') ? OEGlobalsBag::getInstance()->get('default_visit_category') : '5');
 
 // form logic fails if not set to boolean
 if (isset($_GET['group'])) {
@@ -90,7 +90,7 @@ if (isset($_GET['starttimem'])) {
 
 if (isset($_GET['starttimeh'])) {
     $starttimeh = $_GET['starttimeh'];
-    if ($GLOBALS['time_display_format']  == 1 && isset($_GET['startampm'])) {
+    if (OEGlobalsBag::getInstance()->get('time_display_format')  == 1 && isset($_GET['startampm'])) {
         if ($_GET['startampm'] == '2' && $starttimeh < 12) {
             $starttimeh += 12;
         }
@@ -119,11 +119,11 @@ $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher(
 <!--//Not lbf forms use the new validation, please make sure you have the corresponding values in the list Page validation-->
 <?php
 $use_validate_js = 1;
-require_once($GLOBALS['srcdir'] . "/validation/validation_script.js.php");
+require_once(OEGlobalsBag::getInstance()->get('srcdir') . "/validation/validation_script.js.php");
 //Gets validation rules from Page Validation list.
 //Note that for technical reasons, we are bypassing the standard validateUsingPageRules() call.
 $have_group_global_enabled = true;
-if ((!$g_edit && !$g_view) || (!$GLOBALS['enable_group_therapy'])) {
+if ((!$g_edit && !$g_view) || (!OEGlobalsBag::getInstance()->get('enable_group_therapy'))) {
     $_GET['group'] = false;
     $have_group_global_enabled = false;
 }
@@ -220,7 +220,7 @@ function DOBandEncounter($pc_eid): void
         $is_tracker = is_tracker_encounter_exist($event_date, $appttime, $_POST['form_pid'], $_GET['eid']);
         $is_checkin = is_checkin($_POST['form_apptstatus']);
         if (
-            (int)$GLOBALS['auto_create_new_encounters']
+            (int)OEGlobalsBag::getInstance()->get('auto_create_new_encounters')
             && $event_date == date('Y-m-d')
             && $is_checkin == '1'
             && !$is_tracker
@@ -232,12 +232,12 @@ function DOBandEncounter($pc_eid): void
             }
 
             # Capture the appt status and room number for patient tracker. This will map the encounter to it also.
-            if (isset($GLOBALS['temporary-eid-for-manage-tracker']) || !empty($_GET['eid'])) {
+            if (OEGlobalsBag::getInstance()->has('temporary-eid-for-manage-tracker') || !empty($_GET['eid'])) {
                 // Note that the temporary-eid-for-manage-tracker is used to capture the eid for new appointments and when separate a recurring
                 // appointment. It is set in the InsertEvent() function. Note that in the case of separating a recurrent appointment, the get eid
                 // parameter is actually erroneous(is eid of the recurrent appt and not the new separated appt), so need to use the
                 // temporary-eid-for-manage-tracker global instead.
-                $temp_eid = $GLOBALS['temporary-eid-for-manage-tracker'] ?? $_GET['eid'];
+                $temp_eid = OEGlobalsBag::getInstance()->get('temporary-eid-for-manage-tracker') ?? $_GET['eid'];
                 manage_tracker_status($event_date, $appttime, $temp_eid, $_POST['form_pid'], $_SESSION["authUser"], $_POST['form_apptstatus'], $_POST['form_room'], $encounter);
             }
         } else {
@@ -251,7 +251,7 @@ function DOBandEncounter($pc_eid): void
     // auto create encounter for therapy group
     if (!empty($_POST['form_gid'])) {
         // status Took Place is the check in of therapy group
-        if ($GLOBALS['auto_create_new_encounters'] && $event_date == date('Y-m-d') && $_POST['form_apptstatus'] == '=') {
+        if (OEGlobalsBag::getInstance()->get('auto_create_new_encounters') && $event_date == date('Y-m-d') && $_POST['form_apptstatus'] == '=') {
             $encounter = todaysTherapyGroupEncounterCheck($_POST['form_gid'], $event_date, $_POST['form_comments'], $_POST['facility'], $_POST['billing_facility'], $_POST['form_provider'], $_POST['form_category'], false, $pc_eid);
             if ($encounter) {
                 $info_msg .= xl("New group encounter created with id");
@@ -297,7 +297,7 @@ if ($eid) {
         $min_name = $qmin['facility'];
 
         // multiple providers case
-        if ($GLOBALS['select_multi_providers']) {
+        if (OEGlobalsBag::getInstance()->get('select_multi_providers')) {
             $mul  = $facility['pc_multiple'];
             sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = ? WHERE pc_multiple = ?", [$min,$mul]);
         }
@@ -311,7 +311,7 @@ if ($eid) {
           // not edit event
         if (!$facility['pc_facility'] && $_SESSION['pc_facility']) {
             $e2f = $_SESSION['pc_facility'];
-        } elseif (!$facility['pc_facility'] && $_COOKIE['pc_facility'] && $GLOBALS['set_facility_cookie']) {
+        } elseif (!$facility['pc_facility'] && $_COOKIE['pc_facility'] && OEGlobalsBag::getInstance()->get('set_facility_cookie')) {
                 $e2f = $_COOKIE['pc_facility'];
         } else {
             $e2f = $facility['pc_facility'];
@@ -455,7 +455,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
         // ====================================
         // multiple providers
         // ====================================
-        if ($GLOBALS['select_multi_providers'] && $row['pc_multiple']) {
+        if (OEGlobalsBag::getInstance()->get('select_multi_providers') && $row['pc_multiple']) {
             // obtain current list of providers regarding the multiple key
             $up = sqlStatement("SELECT pc_aid FROM openemr_postcalendar_events WHERE pc_multiple=?", [$row['pc_multiple']]);
             while ($current = sqlFetchArray($up)) {
@@ -631,7 +631,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
             // single provider
             // ====================================
         } elseif (!$row['pc_multiple']) {
-            if ($GLOBALS['select_multi_providers']) {
+            if (OEGlobalsBag::getInstance()->get('select_multi_providers')) {
                 $prov = $_POST['form_provider'][0];
                 $_POST['form_provider'] = $prov;
             } else {
@@ -917,16 +917,16 @@ if ($groupid) {
     $startampm = '1';
     if ($starttimeh >= 12) { // p.m. starts at noon and not 12:01
         $startampm = '2';
-        if ($starttimeh > 12 && $GLOBALS['time_display_format'] == 1) {
+        if ($starttimeh > 12 && OEGlobalsBag::getInstance()->get('time_display_format') == 1) {
             $starttimeh -= 12;
         }
     }
 
     ?>
 <script>
-<?php require $GLOBALS['srcdir'] . "/formatting_DateToYYYYMMDD_js.js.php" ?>
+<?php require OEGlobalsBag::getInstance()->get('srcdir') . "/formatting_DateToYYYYMMDD_js.js.php" ?>
 
- var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+ var mypcc = <?php echo js_escape(OEGlobalsBag::getInstance()->get('phone_country_code')); ?>;
 
  var durations = new Array();
 
@@ -993,7 +993,7 @@ while ($crow = sqlFetchArray($cres)) {
 }
 ?>
 
-<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+<?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
 
 // This is for callback by the find-patient popup.
 function setpatient(pid, lname, fname, dob) {
@@ -1108,7 +1108,7 @@ function set_allday() {
     document.getElementById('tdallday5').style.color = color2;
     f.form_hour.disabled = timeDisabled;
     f.form_minute.disabled = timeDisabled;
-    <?php if ($GLOBALS['time_display_format'] == 1) { ?>
+    <?php if (OEGlobalsBag::getInstance()->get('time_display_format') == 1) { ?>
         f.form_ampm.disabled = durationDisabled;
     <?php } ?>
     f.form_duration.disabled = durationDisabled;
@@ -1236,7 +1236,7 @@ function setappt(year,mon,mday,hours,minutes) {
     $('#form_save').attr('disabled', false);
     var f = document.forms[0];
     <?php
-    $currentDateFormat = $GLOBALS['date_display_format'];
+    $currentDateFormat = OEGlobalsBag::getInstance()->get('date_display_format');
     if ($currentDateFormat == 0) { ?>
     f.form_date.value =  '' + year + '-' +
         ('' + (mon  + 100)).substring(1) + '-' +
@@ -1251,7 +1251,7 @@ function setappt(year,mon,mday,hours,minutes) {
         '' + year;
     <?php } ?>
     f.form_hour.value = hours;
-    <?php if ($GLOBALS['time_display_format'] == 1) { ?>
+    <?php if (OEGlobalsBag::getInstance()->get('time_display_format') == 1) { ?>
         f.form_hour.value = (hours > 12) ? hours - 12 : hours;
         f.form_ampm.selectedIndex = (hours >= 12) ? 1 : 0;
     <?php } ?>
@@ -1277,7 +1277,7 @@ function find_available(extra) {
     var c = document.forms[0].form_category;
     var formDate = document.forms[0].form_date;
     let title = <?php echo xlj('Available Appointments Calendar'); ?>;
-    dlgopen('<?php echo $GLOBALS['web_root']; ?>/interface/main/calendar/find_appt_popup.php' +
+    dlgopen('<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/main/calendar/find_appt_popup.php' +
         '?providerid=' + s +
         '&catid=' + c.options[c.selectedIndex].value +
         '&facility=' + f +
@@ -1493,7 +1493,7 @@ if ($_GET['group'] === true && $have_group_global_enabled) { ?>
     // =======================================
     // multi providers
     // =======================================
-    if ($GLOBALS['select_multi_providers']) {
+    if (OEGlobalsBag::getInstance()->get('select_multi_providers')) {
         //  there are two possible situations: edit and new record
         $providers_array = [];
         // this is executed only on edit ($eid)
@@ -1611,7 +1611,7 @@ function isRegularRepeat($repeat)
         </div>
         <input class='col-sm form-control' type='text' size='2' name='form_hour' value='<?php echo attr($starttimeh) ?>' title='<?php echo xla('Event start time'); ?>' />
         <input class='col-sm form-control' type='text' size='2' name='form_minute' value='<?php echo attr($starttimem) ?>' title='<?php echo xla('Event start time'); ?>' />
-        <?php if ($GLOBALS['time_display_format'] == 1) : ?>
+        <?php if (OEGlobalsBag::getInstance()->get('time_display_format') == 1) : ?>
         <select class='input-sm' name='form_ampm' title='<?php echo xla("Note: 12:00 noon is PM, not AM"); ?>'>
             <option value='1'><?php echo xlt('AM'); ?></option>
             <option value='2'<?php echo ($startampm == '2') ? " selected" : ""; ?>><?php echo xlt('PM'); ?></option>
@@ -1664,7 +1664,7 @@ function isRegularRepeat($repeat)
             } else {
                 $tmptitle .= "\n";
             }
-            $max = $GLOBALS['number_of_ex_appts_to_show'];
+            $max = OEGlobalsBag::getInstance()->get('number_of_ex_appts_to_show');
             $exdates = explode(",", (string) $repeatexdate);
             if (!empty($exdates)) {
                 $exdates = array_slice($exdates, 0, $max, true);
@@ -1756,7 +1756,7 @@ if (empty($_GET['prov'])) { ?>
     <div id="recurr_popup" class="col-sm input-group alert bg-warning text-left" style="display: none; position: relative; max-width: 400px;">
         <p class="lead small font-weight-bold" style="font-size: 16px;"><?php echo xlt('Option one, apply the changes to only the Current event. Option two, apply to this event and all Future occurrences or lastly, apply to All event occurrences?') ?></p>
         <br />
-        <?php if ($GLOBALS['submit_changes_for_all_appts_at_once']) {?>
+        <?php if (OEGlobalsBag::getInstance()->get('submit_changes_for_all_appts_at_once')) {?>
             <input type="button" class="btn btn-primary" name="all_events" id="all_events" value="<?php echo xla('All'); ?>" />
         <?php } ?>
         <input type="button" class="btn btn-primary" id="recurr_cancel" value="<?php echo xla('Cancel'); ?>" />
@@ -1766,7 +1766,7 @@ if (empty($_GET['prov'])) { ?>
 </div>
 <div class="form-row mx-2 mt-3">
     <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-primary" type='button' name='form_save' id='form_save' value='<?php echo xla('Save'); ?>' />
-    <?php if (!($GLOBALS['select_multi_providers'])) { //multi providers appt is not supported by check slot avail window, so skip ?>
+    <?php if (!(OEGlobalsBag::getInstance()->get('select_multi_providers'))) { //multi providers appt is not supported by check slot avail window, so skip ?>
         <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-secondary" type='button' id='find_available' value='<?php echo xla('Find Available{{Provider}}'); ?>' />
     <?php } ?>
     <input class="col-sm mx-sm-2 my-2 my-sm-auto btn btn-danger" type='button' name='form_delete' id='form_delete' value='<?php echo xla('Delete'); ?>'<?php echo (!$eid) ? " disabled" : ""; ?> />
@@ -1830,7 +1830,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
     // add wanted classes to api generated elements.
@@ -1914,7 +1914,7 @@ function validateform(event,value){
         return false;
     }
 
-    <?php if (!$GLOBALS['allow_early_check_in']) { ?>
+    <?php if (!OEGlobalsBag::getInstance()->get('allow_early_check_in')) { ?>
         //Prevent from user to change status to Arrive before the time
         //Dependent in globals setting - allow_early_check_in
         if($('#form_apptstatus').val() == '@' && new Date(DateToYYYYMMDD_js($('#form_date').val())).getTime() > new Date().getTime()){
@@ -1946,7 +1946,7 @@ function validateform(event,value){
 
 
     <?php
-    if ($GLOBALS['select_multi_providers']) {
+    if (OEGlobalsBag::getInstance()->get('select_multi_providers')) {
         ?>
     //If multiple providers is enabled, create provider validation (Note: if no provider is chosen it causes bugs when deleting recurrent events).
     if(typeof (collectvalidation) == 'undefined'){
@@ -2013,11 +2013,11 @@ function deleteEvent() {
 
 function SubmitForm() {
     var f = document.forms[0];
-    <?php if (!($GLOBALS['select_multi_providers']) && empty($_GET['prov'])) { // multi providers appt is not supported by check slot avail window, so skip. && is not provider tab. ?>
+    <?php if (!(OEGlobalsBag::getInstance()->get('select_multi_providers')) && empty($_GET['prov'])) { // multi providers appt is not supported by check slot avail window, so skip. && is not provider tab. ?>
     if (f.form_action.value != 'delete') {
         // Check slot availability.
         var mins = parseInt(f.form_hour.value) * 60 + parseInt(f.form_minute.value);
-        <?php if ($GLOBALS['time_display_format']  == 1) :
+        <?php if (OEGlobalsBag::getInstance()->get('time_display_format')  == 1) :
             ?>if (f.form_ampm.value == '2' && mins < 720) mins += 720;<?php endif ?>
         find_available('&cktime=' + mins);
     }

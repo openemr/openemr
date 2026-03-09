@@ -12,8 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
-require_once($GLOBALS['fileroot'] . "/library/patient.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/forms.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\BmiCategory;
@@ -48,7 +48,7 @@ class C_FormVitals
 
     public function __construct(public $template_mod = "general", public $context = '')
     {
-        $this->units_of_measurement = $GLOBALS['units_of_measurement'];
+        $this->units_of_measurement = OEGlobalsBag::getInstance()->get('units_of_measurement');
         $this->interpretationsList = $this->get_interpretation_list_options();
         $this->template_dir = __DIR__ . "/templates/vitals/";
     }
@@ -78,13 +78,13 @@ class C_FormVitals
         }
 
         // get the patient's current age
-        $patient_data = getPatientData($GLOBALS['pid']);
+        $patient_data = getPatientData(OEGlobalsBag::getInstance()->get('pid'));
         $patient_dob = $patient_data['DOB'];
         $patient_age = getPatientAge($patient_dob);
 
         $i = 1;
         // eventually we want this just to use the service search date but we will move this here.
-        $records = $vitalsService->getVitalsHistoryForPatient($GLOBALS['pid'], $form_id);
+        $records = $vitalsService->getVitalsHistoryForPatient(OEGlobalsBag::getInstance()->get('pid'), $form_id);
 
         foreach ($records as $result) {
             $historicalVitals = new FormVitals();
@@ -249,7 +249,7 @@ class C_FormVitals
                 ,'unitMetricLabel' => xl('cm')
                 ,'precision' => 2
                 // hide_circumferences
-                ,'hide' => $GLOBALS['gbl_vitals_options'] > 0
+                ,'hide' => OEGlobalsBag::getInstance()->get('gbl_vitals_options') > 0
                 ,'codes' => "LOINC:9843-4"
             ]
             ,[
@@ -265,7 +265,7 @@ class C_FormVitals
                 ,'unitMetricLabel' => xl('cm')
                 ,'precision' => 2
                 // hide_circumferences
-                ,'hide' => $GLOBALS['gbl_vitals_options'] > 0
+                ,'hide' => OEGlobalsBag::getInstance()->get('gbl_vitals_options') > 0
                 ,'codes' => "LOINC:9843-4"
             ]
             ,[
@@ -326,7 +326,7 @@ class C_FormVitals
         $resultsCount = count($results ?? []);
         $hasMoreVitals = false;
         $vitalsHistoryLookback = [];
-        $maxHistoryCols = $GLOBALS['gbl_vitals_max_history_cols'] ?? 2;
+        $maxHistoryCols = OEGlobalsBag::getInstance()->get('gbl_vitals_max_history_cols') ?? 2;
         if ($maxHistoryCols > 0 && $resultsCount > $maxHistoryCols) {
             $vitalsHistoryLookback = array_slice($results, 0, $maxHistoryCols);
             $hasMoreVitals = true;
@@ -337,15 +337,15 @@ class C_FormVitals
         $data = [
             'vitals' => $vitals
             ,'vitalFields' => $vitalFields
-            ,'FORM_ACTION' => $GLOBALS['web_root']
-            ,'DONT_SAVE_LINK' => $GLOBALS['form_exit_url']
-            ,'STYLE' => $GLOBALS['style']
+            ,'FORM_ACTION' => OEGlobalsBag::getInstance()->get('web_root')
+            ,'DONT_SAVE_LINK' => OEGlobalsBag::getInstance()->get('form_exit_url')
+            ,'STYLE' => OEGlobalsBag::getInstance()->get('style')
             ,'units_of_measurement' => $this->units_of_measurement
             ,'MEASUREMENT_METRIC_ONLY' => FormVitals::MEASUREMENT_METRIC_ONLY
             ,'MEASUREMENT_USA_ONLY' => FormVitals::MEASUREMENT_USA_ONLY
             ,'MEASUREMENT_PERSIST_IN_METRIC' => FormVitals::MEASUREMENT_PERSIST_IN_METRIC
             ,'MEASUREMENT_PERSIST_IN_USA' => FormVitals::MEASUREMENT_PERSIST_IN_USA
-            ,'hide_circumferences' => $GLOBALS['gbl_vitals_options'] > 0
+            ,'hide_circumferences' => OEGlobalsBag::getInstance()->get('gbl_vitals_options') > 0
             ,'CSRF_TOKEN_FORM' => CsrfUtils::collectCsrfToken()
             ,'results' => $results ?? null
             ,'vitalsHistoryLookback' => $vitalsHistoryLookback
@@ -450,13 +450,13 @@ class C_FormVitals
 
         $this->populate_session_user_information($obj);
 
-        if ($GLOBALS['encounter'] < 1) {
-            $GLOBALS['encounter'] = date("Ymd");
+        if (OEGlobalsBag::getInstance()->get('encounter') < 1) {
+            OEGlobalsBag::getInstance()->set('encounter', date("Ymd"));
         }
 
         // have to set these global settings in order for us to save.
-        $obj->set_encounter($GLOBALS['encounter']);
-        $obj->set_pid($GLOBALS['pid']);
+        $obj->set_encounter(OEGlobalsBag::getInstance()->get('encounter'));
+        $obj->set_pid(OEGlobalsBag::getInstance()->get('pid'));
         $obj->set_authorized($_SESSION['userauthorized']);
 
         // handle all of the vital details that we need here.
