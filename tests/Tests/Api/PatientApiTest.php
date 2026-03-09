@@ -29,7 +29,7 @@ class PatientApiTest extends TestCase
         $this->testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
 
         $this->fixtureManager = new FixtureManager();
-        $this->patientRecord = (array) $this->fixtureManager->getSinglePatientFixture();
+        $this->patientRecord = $this->fixtureManager->getSinglePatientFixture();
     }
 
     protected function tearDown(): void
