@@ -44,6 +44,9 @@ final class QueryContext implements QueryContextInterface
         if ($pid === null || $pid === '') {
             return null;
         }
+        if (!is_numeric($pid)) {
+            return null;
+        }
         return (int) $pid;
     }
 

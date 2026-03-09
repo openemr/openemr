@@ -208,7 +208,10 @@ final class QueryAuditor implements QueryAuditorInterface
 
         $formatted = [];
         foreach ($params as $value) {
-            $formatted[] = "'" . addslashes((string) $value) . "'";
+            $stringValue = is_scalar($value) || $value === null
+                ? (string) $value
+                : gettype($value);
+            $formatted[] = "'" . addslashes($stringValue) . "'";
         }
 
         return $sql . ' (' . implode(',', $formatted) . ')';
