@@ -460,7 +460,7 @@ class FeeSheet
         $del         = !empty($args['del']);
 
         // If using line item billing and user wishes to default to a selected provider, then do so.
-        if (!empty(OEGlobalsBag::getInstance()->get('default_fee_sheet_line_item_provider')) && !empty(OEGlobalsBag::getInstance()->get('support_fee_sheet_line_item_provider'))) {
+        if (OEGlobalsBag::getInstance()->getBoolean('default_fee_sheet_line_item_provider') && OEGlobalsBag::getInstance()->getBoolean('support_fee_sheet_line_item_provider')) {
             if ($provider_id == 0) {
                 $provider_id = (int) $this->findProvider();
             }
@@ -523,7 +523,7 @@ class FeeSheet
                     $fee = $prrow['pr_price'];
 
                     // if percent-based pricing is enabled...
-                    if (OEGlobalsBag::getInstance()->get('enable_percent_pricing')) {
+                    if (OEGlobalsBag::getInstance()->getBoolean('enable_percent_pricing')) {
                         // if this price level is a percentage, calculate price from default price
                         if (!empty($prrow['notes']) && strpos((string) $prrow['notes'], '%') > -1 && !empty($prdefault)) {
                             $percent = intval(str_replace('%', '', $prrow['notes']));
@@ -706,7 +706,7 @@ class FeeSheet
                 $fee = $prrow['pr_price'];
 
                 // if percent-based pricing is enabled...
-                if (OEGlobalsBag::getInstance()->get('enable_percent_pricing')) {
+                if (OEGlobalsBag::getInstance()->getBoolean('enable_percent_pricing')) {
                     // if this price level is a percentage, calculate price from default price
                     if (!empty($prrow['notes']) && strpos((string) $prrow['notes'], '%') > -1 && !empty($prdefault)) {
                         $percent = intval(str_replace('%', '', $prrow['notes']));
@@ -1036,13 +1036,13 @@ class FeeSheet
                 }
 
                         # Code to create justification for all codes based on first justification
-                if (OEGlobalsBag::getInstance()->get('replicate_justification') == '1') {
+                if (OEGlobalsBag::getInstance()->getBoolean('replicate_justification')) {
                     if ($justify != '') {
                          $autojustify = $justify;
                     }
                 }
 
-                if ((OEGlobalsBag::getInstance()->get('replicate_justification') == '1') && ($justify == '') && check_is_code_type_justify($code_type)) {
+                if ((OEGlobalsBag::getInstance()->getBoolean('replicate_justification')) && ($justify == '') && check_is_code_type_justify($code_type)) {
                     $justify =  $autojustify;
                 }
 

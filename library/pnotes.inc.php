@@ -507,7 +507,7 @@ function updatePnote($id, $newtext, $title, $assigned_to, $message_status = "", 
         $sql .= " ,message_status = ?";
         $bindingParams[] = $message_status;
     }
-    if (OEGlobalsBag::getInstance()->get('messages_due_date')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('messages_due_date')) {
         $sql .= " ,date = ?";
         $bindingParams[] = $datetime;
     }

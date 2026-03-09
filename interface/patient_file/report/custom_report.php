@@ -432,7 +432,7 @@ function getContent()
                             $result = sqlStatement($sql, [$pid]);
                             while ($row = sqlFetchArray($result)) {
                                 // Figure out which name to use (ie. from cvx list or from the custom list)
-                                if (OEGlobalsBag::getInstance()->get('use_custom_immun_list')) {
+                                if (OEGlobalsBag::getInstance()->getBoolean('use_custom_immun_list')) {
                                     $vaccine_display = generate_display_field(['data_type' => '1', 'list_id' => 'immunizations'], $row['immunization_id']);
                                 } else {
                                     if (!empty($row['code_text_short'])) {
@@ -637,7 +637,7 @@ function getContent()
                             echo "<hr />";
                             echo "<div class='text documents'>";
                             foreach ($val as $poid) {
-                                if (empty(OEGlobalsBag::getInstance()->get('esign_report_show_only_signed'))) {
+                                if (!OEGlobalsBag::getInstance()->getBoolean('esign_report_show_only_signed')) {
                                     echo '<h4>' . xlt('Procedure Order') . ':</h4>';
                                     echo "<br />\n";
                                     generate_order_report($poid, false, !$PDF_OUTPUT);
@@ -748,9 +748,9 @@ function getContent()
                                 <?php
                                 if (!empty($res[1])) {
                                     $esign = $esignApi->createFormESign($formId, $res[1], $form_encounter);
-                                    if ($esign->isSigned('report') && !empty(OEGlobalsBag::getInstance()->get('esign_report_show_only_signed'))) {
+                                    if ($esign->isSigned('report') && OEGlobalsBag::getInstance()->getBoolean('esign_report_show_only_signed')) {
                                         $reportRenderer->renderReport($res[1], 'custom_report.php', $pid, $form_encounter, $N, $form_id, $res[1]);
-                                    } elseif (empty(OEGlobalsBag::getInstance()->get('esign_report_show_only_signed'))) {
+                                    } elseif (!OEGlobalsBag::getInstance()->getBoolean('esign_report_show_only_signed')) {
                                         $reportRenderer->renderReport($res[1], 'custom_report.php', $pid, $form_encounter, $N, $form_id, $res[1]);
                                     } else {
                                         echo "<h6>" . xlt("Not signed.") . "</h6>";

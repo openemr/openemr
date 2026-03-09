@@ -230,7 +230,7 @@ function auto_populate_employer_address(){
 <td><span class='text'><?php echo text($result3['policy_number']);?></span></td>
 </tr>
 
-    <?php if (empty(OEGlobalsBag::getInstance()->get('omit_employers'))) { ?>
+    <?php if (!OEGlobalsBag::getInstance()->getBoolean('omit_employers')) { ?>
 <tr>
 <td><span class='text'><?php echo xlt('Subscriber Employer'); ?>:</span></td>
 <td><span class='text'><?php echo text($result3['subscriber_employer']);?></span></td>

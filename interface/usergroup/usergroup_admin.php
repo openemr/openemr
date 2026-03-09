@@ -165,7 +165,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             //END (CHEMED)
         }
 
-        if (!empty(OEGlobalsBag::getInstance()->get('gbl_fac_warehouse_restrictions')) || !empty(OEGlobalsBag::getInstance()->get('restrict_user_facility'))) {
+        if (OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions') || OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility')) {
             if (empty($_POST["schedule_facility"])) {
                 $_POST["schedule_facility"] = [];
             }
@@ -748,7 +748,7 @@ function resetCounter(username) {
                 </table>
             </div>
             <?php
-            if (empty(OEGlobalsBag::getInstance()->get('disable_non_default_groups'))) {
+            if (!OEGlobalsBag::getInstance()->getBoolean('disable_non_default_groups')) {
                 $res = sqlStatement("select * from `groups` order by name");
                 for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
                     $result5[$iter] = $row;

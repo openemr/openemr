@@ -320,14 +320,14 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             f.bn_external.disabled = !can_generate;
             <?php } else { ?>
             f.bn_x12_support.disabled = !can_generate;
-                <?php if (OEGlobalsBag::getInstance()->get('support_encounter_claims')) { ?>
+                <?php if (OEGlobalsBag::getInstance()->getBoolean('support_encounter_claims')) { ?>
             f.bn_x12_encounter.disabled = !can_generate;
             <?php } ?>
             f.bn_process_hcfa_support.disabled = !can_generate;
-                <?php if (OEGlobalsBag::getInstance()->get('preprinted_cms_1500')) { ?>
+                <?php if (OEGlobalsBag::getInstance()->getBoolean('preprinted_cms_1500')) { ?>
             f.bn_process_hcfa_form.disabled = !can_generate;
             <?php } ?>
-                <?php if (OEGlobalsBag::getInstance()->get('ub04_support')) { ?>
+                <?php if (OEGlobalsBag::getInstance()->getBoolean('ub04_support')) { ?>
             f.bn_process_ub04_support.disabled = !can_generate;
             <?php } ?>
             f.bn_hcfa_txt_file.disabled = !can_generate;
@@ -767,14 +767,14 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 </button>
                             </li>
                             <?php } ?>
-                            <?php if (OEGlobalsBag::getInstance()->get('ub04_support')) { ?>
+                            <?php if (OEGlobalsBag::getInstance()->getBoolean('ub04_support')) { ?>
                             <li class="nav-item">
                                 <button type="submit" class="btn nav-link btn-link btn-download" name="bn_ub04_x12" onclick="confirmActions(event, '1');" title="<?php echo xla('Generate Institutional X12 837I') ?>">
                                     <?php echo xlt('Generate X12 837I') ?>
                                 </button>
                             </li>
                             <?php } ?>
-                            <?php if (OEGlobalsBag::getInstance()->get('support_encounter_claims')) { ?>
+                            <?php if (OEGlobalsBag::getInstance()->getBoolean('support_encounter_claims')) { ?>
                             <li class="nav-item">
                                 <button type="submit" class="btn nav-link btn-link btn-download" name="bn_x12_encounter" onclick="confirmActions(event, '1');" title="<?php echo xla('Generate and download X12 encounter claim batch') ?>">
                                     <?php echo xlt('Generate X12 Encounter') ?>
@@ -793,7 +793,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     <?php echo xlt('CMS 1500 PDF') ?>
                                 </button>
                             </li>
-                            <?php if (OEGlobalsBag::getInstance()->get('preprinted_cms_1500')) { ?>
+                            <?php if (OEGlobalsBag::getInstance()->getBoolean('preprinted_cms_1500')) { ?>
                             <li class="nav-item">
                                 <button type="button" class="btn nav-link btn-link btn-download" onclick="confirmActions(event, '2');" name="bn_process_hcfa_form" title="<?php echo xla('Generate and download CMS 1500 paper claims on Preprinted form') ?>">
                                     <?php echo xlt('CMS 1500 Form') ?>
@@ -807,7 +807,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             </li>
                         </ul>
                     </div>
-                    <?php if (OEGlobalsBag::getInstance()->get('ub04_support')) { ?>
+                    <?php if (OEGlobalsBag::getInstance()->getBoolean('ub04_support')) { ?>
                     <div class="btn-group dropdown">
                         <button type="button" class="btn nav-link btn-link dropdown-toggle" data-toggle="dropdown" name="bn_process_ub04_support" title=""><?php echo xlt('UB04 FORM') ?>
                             <span class="caret"></span>
@@ -1297,7 +1297,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             }
                             $rhtml .= "</span></td>\n";
                             $rhtml .= '<td><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
-                            if (OEGlobalsBag::getInstance()->get('display_units_in_billing') != 0) {
+                            if (OEGlobalsBag::getInstance()->getBoolean('display_units_in_billing')) {
                                 if ($iter['id']) {
                                     $rhtml .= xlt("Units") . ":" . text($iter["units"]);
                                 }

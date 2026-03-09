@@ -379,11 +379,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to int\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/history/encounters.php',
 ];
 $ignoreErrors[] = [

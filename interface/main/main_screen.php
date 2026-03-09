@@ -390,7 +390,7 @@ SessionTracker::setupSessionDatabaseTracker();
 
 $_SESSION["encounter"] = '';
 
-if (OEGlobalsBag::getInstance()->get('login_into_facility')) {
+if (OEGlobalsBag::getInstance()->getBoolean('login_into_facility')) {
     $facility_id = $_POST['facility'];
     if ($facility_id === 'user_default') {
         //get the default facility of login user from users table
@@ -399,7 +399,7 @@ if (OEGlobalsBag::getInstance()->get('login_into_facility')) {
         $facility_id = $facility['id'];
     }
     $_SESSION['facilityId'] = $facility_id;
-    if (OEGlobalsBag::getInstance()->get('set_facility_cookie')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('set_facility_cookie')) {
         // set cookie with facility for the calendar screens
         setcookie("pc_facility", (string) $_SESSION['facilityId'], ['expires' => time() + (3600 * 365), 'path' => OEGlobalsBag::getInstance()->get('webroot')]);
     }

@@ -176,7 +176,7 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
 
         // Add the target(and rule id and room for future elements as needed) to the $current_targets array.
         // Only when $mode is reminders-due
-        if ($mode == "reminders-due" && OEGlobalsBag::getInstance()->get('enable_alert_log')) {
+        if ($mode == "reminders-due" && OEGlobalsBag::getInstance()->getBoolean('enable_alert_log')) {
             $target_temp = $action['category'] . ":" . $action['item'];
             $current_targets[$target_temp] =  ['rule_id' => $action['rule_id'],'due_status' => $action['due_status']];
         }
@@ -186,9 +186,9 @@ function clinical_summary_widget($patient_id, $mode, $dateTarget = '', $organize
 
   // Compare the current with most recent action log (this function will also log the current actions)
   // Only when $mode is reminders-due
-    if ($mode == "reminders-due" && OEGlobalsBag::getInstance()->get('enable_alert_log')) {
+    if ($mode == "reminders-due" && OEGlobalsBag::getInstance()->getBoolean('enable_alert_log')) {
         $new_targets = compare_log_alerts($patient_id, $current_targets, 'clinical_reminder_widget', $session->get('authUserID'));
-        if (!empty($new_targets) && OEGlobalsBag::getInstance()->get('enable_cdr_new_crp')) {
+        if (!empty($new_targets) && OEGlobalsBag::getInstance()->getBoolean('enable_cdr_new_crp')) {
             $message = xl('New Due Clinical Reminders') . "\n\n";
 
             // coached claude sonnet 4.5 to rework
@@ -272,7 +272,7 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
 
         // Add the target(and rule id and room for future elements as needed) to the $current_targets array.
         // Only when $mode is reminders-due and $test is FALSE
-        if (($mode == "reminders-due") && ($test === false) && (OEGlobalsBag::getInstance()->get('enable_alert_log'))) {
+        if (($mode == "reminders-due") && ($test === false) && (OEGlobalsBag::getInstance()->getBoolean('enable_alert_log'))) {
             $target_temp = $action['category'] . ":" . $action['item'];
             $current_targets[$target_temp] =  ['rule_id' => $action['rule_id'],'due_status' => $action['due_status']];
         }
@@ -280,7 +280,7 @@ function active_alert_summary($patient_id, $mode, $dateTarget = '', $organize_mo
 
   // Compare the current with most recent action log (this function will also log the current actions)
   // Only when $mode is reminders-due and $test is FALSE
-    if (($mode == "reminders-due") && ($test === false) && (OEGlobalsBag::getInstance()->get('enable_alert_log'))) {
+    if (($mode == "reminders-due") && ($test === false) && (OEGlobalsBag::getInstance()->getBoolean('enable_alert_log'))) {
         $new_targets = compare_log_alerts($patient_id, $current_targets, 'active_reminder_popup', $session->get('authUserID'));
         if (!empty($new_targets)) {
             $returnOutput .= "<br />" . xlt('New Items (see above for details)') . ":<br />";
@@ -365,7 +365,7 @@ function allergy_conflict($patient_id, $mode, $user, $test = false)
 
   // If there are conflicts, $test is FALSE, and alert logging is on, then run through compare_log_alerts
     $new_conflicts = [];
-    if ((!empty($conflicts_unique)) && OEGlobalsBag::getInstance()->get('enable_alert_log') && ($test === false)) {
+    if ((!empty($conflicts_unique)) && OEGlobalsBag::getInstance()->getBoolean('enable_alert_log') && ($test === false)) {
         $new_conflicts = compare_log_alerts($patient_id, $conflicts_unique, 'allergy_alert', $session->get('authUserID'), $mode);
     }
 
@@ -564,9 +564,9 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
 
   // Set ability to itemize report if this feature is turned on
     if (
-        ( ($type == "active_alert" || $type == "passive_alert")          && (OEGlobalsBag::getInstance()->get('report_itemizing_standard')) ) ||
-        ( (in_array($type, ["cqm", "cqm_2011", "cqm_2014"])) && (OEGlobalsBag::getInstance()->get('report_itemizing_cqm'))      ) ||
-        ( (CertificationReportTypes::isAMCReportType($type)) && (OEGlobalsBag::getInstance()->get('report_itemizing_amc'))      )
+        ( ($type == "active_alert" || $type == "passive_alert")          && (OEGlobalsBag::getInstance()->getBoolean('report_itemizing_standard')) ) ||
+        ( (in_array($type, ["cqm", "cqm_2011", "cqm_2014"])) && (OEGlobalsBag::getInstance()->getBoolean('report_itemizing_cqm'))      ) ||
+        ( (CertificationReportTypes::isAMCReportType($type)) && (OEGlobalsBag::getInstance()->getBoolean('report_itemizing_amc'))      )
     ) {
         OEGlobalsBag::getInstance()->set('report_itemizing_temp_flag_and_id', $report_id);
     } else {

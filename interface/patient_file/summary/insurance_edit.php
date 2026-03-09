@@ -71,10 +71,10 @@ if ($pid) {
 // $provideri = getProviderInfo();
 $insurancei = OEGlobalsBag::getInstance()->get('insurance_information') != '0' ? getInsuranceProvidersExtra() : getInsuranceProviders();
 //Check to see if only one insurance is allowed
-$insurance_array = OEGlobalsBag::getInstance()->get('insurance_only_one') ? ['primary'] : ['primary', 'secondary', 'tertiary'];
+$insurance_array = OEGlobalsBag::getInstance()->getBoolean('insurance_only_one') ? ['primary'] : ['primary', 'secondary', 'tertiary'];
 
 //Check to see if only one insurance is allowed
-if (OEGlobalsBag::getInstance()->get('insurance_only_one')) {
+if (OEGlobalsBag::getInstance()->getBoolean('insurance_only_one')) {
     $insurance_headings = [xl("Primary Insurance Provider")];
 } else {
     $insurance_headings = [xl("Primary Insurance Provider"), xl("Secondary Insurance Provider"), xl("Tertiary Insurance provider")];
@@ -96,8 +96,8 @@ echo $twig->render(
         'patient' => $result,
         'puuid' => UuidRegistry::uuidToString($result['uuid'])
         ,'insuranceProviderList' => $insurancei
-        ,'enableSwapSecondaryInsurance' => OEGlobalsBag::getInstance()->get('enable_swap_secondary_insurance')
-        ,'include_employers' => empty(OEGlobalsBag::getInstance()->get('omit_employers')) === true
+        ,'enableSwapSecondaryInsurance' => OEGlobalsBag::getInstance()->getBoolean('enable_swap_secondary_insurance')
+        ,'include_employers' => !OEGlobalsBag::getInstance()->getBoolean('omit_employers') === true
         ,'useStateTerminology' => OEGlobalsBag::getInstance()->get('phone_country_code') === '1'
         ,'state_list' => OEGlobalsBag::getInstance()->get('state_list')
         ,'state_data_type' => $state_data_type
@@ -107,7 +107,7 @@ echo $twig->render(
         ,'policy_types' => OEGlobalsBag::getInstance()->get('policy_types')
         ,'uspsVerifyAddress' => OEGlobalsBag::getInstance()->get('usps_apiv3_client_id')
         ,'languageDirection' => OEGlobalsBag::getInstance()->get('language_direction') ?? ''
-        ,'rightJustifyLabels' => OEGlobalsBag::getInstance()->get('right_justify_labels_demographics')
+        ,'rightJustifyLabels' => OEGlobalsBag::getInstance()->getBoolean('right_justify_labels_demographics')
     ]
 );
 exit;

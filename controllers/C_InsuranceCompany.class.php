@@ -17,8 +17,8 @@ class C_InsuranceCompany extends Controller
         $this->assign("FORM_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . attr($_SERVER['QUERY_STRING']));
         $this->assign("CURRENT_ACTION", OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?" . "practice_settings&insurance_company&");
         $this->assign("STYLE", OEGlobalsBag::getInstance()->get('style'));
-        $this->assign("SUPPORT_ENCOUNTER_CLAIMS", OEGlobalsBag::getInstance()->get('support_encounter_claims'));
-        $this->assign("SUPPORT_ELIGIBILITY_REQUESTS", OEGlobalsBag::getInstance()->get('enable_eligibility_requests'));
+        $this->assign("SUPPORT_ENCOUNTER_CLAIMS", OEGlobalsBag::getInstance()->getBoolean('support_encounter_claims'));
+        $this->assign("SUPPORT_ELIGIBILITY_REQUESTS", OEGlobalsBag::getInstance()->getBoolean('enable_eligibility_requests'));
         $this->InsuranceCompany = new InsuranceCompany();
     }
 

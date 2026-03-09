@@ -121,7 +121,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         $temp_bodytext = str_replace("{" . $value . "}", "{" . $key . "}", $temp_bodytext);
     }
 
-    if (OEGlobalsBag::getInstance()->get('drive_encryption')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
         $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, null, KeySource::Database);
     }
 
@@ -283,7 +283,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         $temp_bodytext = str_replace("{" . $value . "}", "{" . $key . "}", $temp_bodytext);
     }
 
-    if (OEGlobalsBag::getInstance()->get('drive_encryption')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
         $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, null, KeySource::Database);
     }
 
@@ -325,7 +325,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         $temp_bodytext = str_replace("{" . $value . "}", "{" . $key . "}", $temp_bodytext);
     }
 
-    if (OEGlobalsBag::getInstance()->get('drive_encryption')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
         $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, null, KeySource::Database);
     }
 

@@ -123,12 +123,12 @@ class C_Prescription extends Controller
         $prescription = $this->prescriptions[0];
         $this->assign("prescription", $prescription);
         $vars = $this->getTemplateVars();
-        $vars['enable_amc_prompting'] = OEGlobalsBag::getInstance()->get('enable_amc_prompting') ?? false;
+        $vars['enable_amc_prompting'] = OEGlobalsBag::getInstance()->getBoolean('enable_amc_prompting');
         $vars['weno_rx_enable'] = OEGlobalsBag::getInstance()->get('weno_rx_enable') ?? false;
         $vars['topActionBarDisplay'] = FormActionBarSettings::shouldDisplayTopActionBar();
         $vars['bottomActionBarDisplay'] = FormActionBarSettings::shouldDisplayBottomActionBar();
 
-        if (OEGlobalsBag::getInstance()->get('enable_amc_prompting')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('enable_amc_prompting')) {
             $vars['amcCollectReturnFlag'] = amcCollect('e_prescribe_amc', $prescription->patient->id, 'prescriptions', $prescription->id);
             $vars['amcCollectReturnFormulary'] = amcCollect('e_prescribe_chk_formulary_amc', $prescription->patient->id, 'prescriptions', $prescription->id);
             $vars['amcCollectReturnControlledSubstances'] = amcCollect('e_prescribe_cont_subst_amc', $prescription->patient->id, 'prescriptions', $prescription->id);
@@ -183,7 +183,7 @@ class C_Prescription extends Controller
         }
 
         // Collect interactions if the global is turned on
-        if (OEGlobalsBag::getInstance()->get('rx_show_drug_drug')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('rx_show_drug_drug')) {
             $interaction = "";
             // Ensure RxNorm installed
             $rxn = sqlQuery("SELECT table_name FROM information_schema.tables WHERE table_name = 'RXNCONSO' OR table_name = 'rxconso'");
@@ -232,17 +232,17 @@ class C_Prescription extends Controller
 
         $vars = $this->getTemplateVars();
         $vars['pid'] = $id;
-        $vars['rx_send_email'] = OEGlobalsBag::getInstance()->get('rx_send_email') ?? false;
-        $vars['rx_show_drug_drug'] = OEGlobalsBag::getInstance()->get('rx_show_drug_drug') ?? false;
-        $vars['rx_zend_pdf_template'] = OEGlobalsBag::getInstance()->get('rx_zend_pdf_template') ?? false;
+        $vars['rx_send_email'] = OEGlobalsBag::getInstance()->getBoolean('rx_send_email');
+        $vars['rx_show_drug_drug'] = OEGlobalsBag::getInstance()->getBoolean('rx_show_drug_drug');
+        $vars['rx_zend_pdf_template'] = OEGlobalsBag::getInstance()->getBoolean('rx_zend_pdf_template');
         $vars['baseModDir'] = OEGlobalsBag::getInstance()->get('baseModDir') ?? '';
         $vars['zendModDir'] = OEGlobalsBag::getInstance()->get('zendModDir') ?? '';
         $vars['printm'] = null; // TODO: figure out where printm is used or defined
         $vars['rx_zend_pdf_action'] = OEGlobalsBag::getInstance()->get('rx_zend_pdf_action') ?? '';
-        $vars['rx_zend_html_template'] = OEGlobalsBag::getInstance()->get('rx_zend_html_template') ?? '';
+        $vars['rx_zend_html_template'] = OEGlobalsBag::getInstance()->getBoolean('rx_zend_html_template');
         $vars['rx_zend_html_action'] = OEGlobalsBag::getInstance()->get('rx_zend_pdf_action') ?? '';
-        $vars['rx_use_fax_template'] = OEGlobalsBag::getInstance()->get('rx_use_fax_template') ?? '';
-        $vars['rx_send_email'] = OEGlobalsBag::getInstance()->get('rx_send_email') ?? false;
+        $vars['rx_use_fax_template'] = OEGlobalsBag::getInstance()->getBoolean('rx_use_fax_template');
+        $vars['rx_send_email'] = OEGlobalsBag::getInstance()->getBoolean('rx_send_email');
         $vars['faxSignatureMissing'] = false;
         if (!($this->pconfig['use_signature'] && $this->current_user_has_signature())) {
             $vars['faxSignatureMissing'] = true;
@@ -461,24 +461,24 @@ class C_Prescription extends Controller
     // configurable option.  Faxed prescriptions were not changed.  -- Rod
     // Now it is configurable. Change value in
     //     Administration->Globals->Rx
-        if (OEGlobalsBag::getInstance()->get('rx_enable_DEA')) {
-            if ($this->is_faxing || OEGlobalsBag::getInstance()->get('rx_show_DEA')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_DEA')) {
+            if ($this->is_faxing || OEGlobalsBag::getInstance()->getBoolean('rx_show_DEA')) {
                 $pdf->ezText('<b>' . xl('DEA') . ':</b>' . $p->provider->federal_drug_id, 12);
             } else {
                 $pdf->ezText('<b>' . xl('DEA') . ':</b> ________________________', 12);
             }
         }
 
-        if (OEGlobalsBag::getInstance()->get('rx_enable_NPI')) {
-            if ($this->is_faxing || OEGlobalsBag::getInstance()->get('rx_show_NPI')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_NPI')) {
+            if ($this->is_faxing || OEGlobalsBag::getInstance()->getBoolean('rx_show_NPI')) {
                     $pdf->ezText('<b>' . xl('NPI') . ':</b>' . $p->provider->npi, 12);
             } else {
                 $pdf->ezText('<b>' . xl('NPI') . ':</b> _________________________', 12);
             }
         }
 
-        if (OEGlobalsBag::getInstance()->get('rx_enable_SLN')) {
-            if ($this->is_faxing || OEGlobalsBag::getInstance()->get('rx_show_SLN')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_SLN')) {
+            if ($this->is_faxing || OEGlobalsBag::getInstance()->getBoolean('rx_show_SLN')) {
                 $pdf->ezText('<b>' . xl('State Lic. #') . ':</b>' . $p->provider->state_license_number, 12);
             } else {
                 $pdf->ezText('<b>' . xl('State Lic. #') . ':</b> ___________________', 12);
@@ -543,24 +543,24 @@ class C_Prescription extends Controller
         echo ("<td>\n");
         echo ('<b><span class="large">' .  $p->provider->get_name_display() . '</span></b>' . '<br />');
 
-        if (OEGlobalsBag::getInstance()->get('rx_enable_DEA')) {
-            if (OEGlobalsBag::getInstance()->get('rx_show_DEA')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_DEA')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('rx_show_DEA')) {
                 echo ('<span class="large"><b>' . xl('DEA') . ':</b>' . $p->provider->federal_drug_id . '</span><br />');
             } else {
                 echo ('<b><span class="large">' . xl('DEA') . ':</span></b> ________________________<br />' );
             }
         }
 
-        if (OEGlobalsBag::getInstance()->get('rx_enable_NPI')) {
-            if (OEGlobalsBag::getInstance()->get('rx_show_NPI')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_NPI')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('rx_show_NPI')) {
                 echo ('<span class="large"><b>' . xl('NPI') . ':</b>' . $p->provider->npi . '</span><br />');
             } else {
                 echo ('<b><span class="large">' . xl('NPI') . ':</span></b> ________________________<br />');
             }
         }
 
-        if (OEGlobalsBag::getInstance()->get('rx_enable_SLN')) {
-            if (OEGlobalsBag::getInstance()->get('rx_show_SLN')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_SLN')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('rx_show_SLN')) {
                 echo ('<span class="large"><b>' . xl('State Lic. #') . ':</b>' . $p->provider->state_license_number . '</span><br />');
             } else {
                 echo ('<b><span class="large">' . xl('State Lic. #') . ':</span></b> ________________________<br />');
@@ -854,24 +854,24 @@ class C_Prescription extends Controller
         echo ("\n");
         echo ($p->provider->get_name_display()) . "\n";
 
-        if (OEGlobalsBag::getInstance()->get('rx_enable_DEA')) {
-            if (OEGlobalsBag::getInstance()->get('rx_show_DEA')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_DEA')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('rx_show_DEA')) {
                 echo (xl('DEA') . ':' . $p->provider->federal_drug_id . "\n");
             } else {
                 echo (xl('DEA') . ": ________________________\n" );
             }
         }
 
-        if (OEGlobalsBag::getInstance()->get('rx_enable_NPI')) {
-            if (OEGlobalsBag::getInstance()->get('rx_show_NPI')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_NPI')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('rx_show_NPI')) {
                 echo (xl('NPI') . ':' . $p->provider->npi . '') . "\n";
             } else {
                 echo ('' . xl('NPI') . ": ________________________\n");
             }
         }
 
-        if (OEGlobalsBag::getInstance()->get('rx_enable_SLN')) {
-            if (OEGlobalsBag::getInstance()->get('rx_show_SLN')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('rx_enable_SLN')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('rx_show_SLN')) {
                 echo (xl('State Lic. #') . ':' . $p->provider->state_license_number . "\n");
             } else {
                 echo (xl('State Lic. #') . ": ________________________\n");

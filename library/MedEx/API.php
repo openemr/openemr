@@ -1535,7 +1535,7 @@ class Display extends Base
                 </button>
                 <div class="collapse navbar-collapse" id="oer-navbar-collapse-1">
                     <ul class="navbar-nav">
-                        <?php if (OEGlobalsBag::getInstance()->get('medex_enable') == '1') { ?>
+                        <?php if (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) { ?>
                             <li class="nav-item dropdown">
                                 <a class="nav-link" data-toggle="dropdown" id="menu_dropdown_file" role="button" aria-expanded="true"><?php echo xlt("File"); ?> </a>
                                 <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_file">
@@ -1569,12 +1569,12 @@ class Display extends Base
                             <a class="nav-link" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Appt. Reminders"); ?></a>
                             <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_recalls">
                             <?php
-                            if (OEGlobalsBag::getInstance()->get('disable_calendar') != '1') {  ?>
+                            if (!OEGlobalsBag::getInstance()->getBoolean('disable_calendar')) {  ?>
                                 <li><a class="dropdown-item" id="BUTTON_ApRem_menu" onclick="tabYourIt('cal','main/main_info.php');"> <?php echo xlt("Calendar"); ?></a></li>
                                 <li class="dropdown-divider"></li>
                                 <?php
                             }
-                            if (OEGlobalsBag::getInstance()->get('disable_pat_trkr') != '1') {
+                            if (!OEGlobalsBag::getInstance()->getBoolean('disable_pat_trkr')) {
                                 ?>
                                 <li id="menu_pend_recalls" name="menu_pend_recalls"> <a class="dropdown-item" id="BUTTON_pend_recalls_menu" onclick="tabYourIt('flb','patient_tracker/patient_tracker.php?skip_timeout_reset=1');"> <?php echo xlt("Flow Board"); ?></a></li>
                                 <?php }
@@ -1589,7 +1589,7 @@ class Display extends Base
                          </li>
                                 <?php
 
-                                if (OEGlobalsBag::getInstance()->get('disable_rcb') != '1') { ?>
+                                if (!OEGlobalsBag::getInstance()->getBoolean('disable_rcb')) { ?>
                                     <li class="nav-item dropdown">
                                         <a class="nav-link" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Patient Recalls"); ?> </a>
                                         <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_recalls">
@@ -1621,7 +1621,7 @@ class Display extends Base
             </nav>
         </div>
             <?php
-            if (OEGlobalsBag::getInstance()->get('medex_enable') == '1') {
+            if (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) {
                 $error = $this->MedEx->getLastError();
                 if (!empty($error['ip'])) {
                     ?>
@@ -1886,7 +1886,7 @@ class Display extends Base
             <div class="col-12 jumbotron p-4">
                 <div class="showRFlow text-center" id="show_recalls_params">
                     <?php
-                    if (OEGlobalsBag::getInstance()->get('medex_enable') == '0') {
+                    if (!OEGlobalsBag::getInstance()->getBoolean('medex_enable')) {
                         $last_col_width = "nodisplay";
                     }
                     ?>
@@ -2170,7 +2170,7 @@ class Display extends Base
             $DOB = oeFormatShortDate($result2['DOB'] ?? '');
             $age = $MedEx->events->getAge($result2['DOB'] ?? 0);
             echo '<td class="divTableCell"><a href="#" onclick="show_patient(\'' . attr($recall['pid']) . '\');"> ' . text($recall['fname']) . ' ' . text($recall['lname']) . '</a>';
-            if (OEGlobalsBag::getInstance()->get('ptkr_show_pid')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_pid')) {
                 echo '<br /><span data-toggle="tooltip" data-placement="auto" title="' . xla("Patient ID") . '" class="small">' . xlt('PID') . ': ' . text($recall['pid']) . '</span>';
             }
             echo '<br /><span data-toggle="tooltip" data-placement="auto" title="' . xla("Most recent visit") . '" class="small">' . xlt("Last Visit") . ': ' . text(oeFormatShortDate($last_visit)) . '</span>';
@@ -2418,7 +2418,7 @@ class Display extends Base
                 $show['pc_eid'] = $result['pc_eid'];
                 $show['appt'] = oeFormatShortDate(date('Y-m-d', $phpdate)) . " @ " . date('g:iA', $phpdate);
                 $show['DONE'] = '1';
-            } elseif (OEGlobalsBag::getInstance()->get('medex_enable') == '1') {
+            } elseif (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) {
                 if ($logged_in) {
                     if ($camps == '0') {
                         $show['status'] = "reddish"; //hey, nothing automatic left to do - manual processing required.
@@ -2429,7 +2429,7 @@ class Display extends Base
             } else {
                 $show['status'] = "whitish";
             }
-        } elseif ((OEGlobalsBag::getInstance()->get('medex_enable') == '1') && ($camps == '0')) {
+        } elseif ((OEGlobalsBag::getInstance()->getBoolean('medex_enable')) && ($camps == '0')) {
                 $show['status'] = "reddish"; //hey, nothing automatic left to do - manual processing required.
         } else {
             $show['status'] = "whitish";
@@ -2484,7 +2484,7 @@ class Display extends Base
         } else {
             $pat['EMAIL'] = $icon['EMAIL']['ALLOWED'];
         }
-        if (OEGlobalsBag::getInstance()->get('medex_enable') == '1') {
+        if (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) {
             $sql = "SELECT * FROM medex_prefs";
             $prefs = sqlFetchArray(sqlStatement($sql));
             $facs = explode('|', (string) $prefs['ME_facilities']);
@@ -3408,7 +3408,7 @@ class MedEx
             empty($info['ME_username']) ||
             empty($info['ME_api_key']) ||
             empty($info['MedEx_id']) ||
-            (OEGlobalsBag::getInstance()->get('medex_enable') !== '1')
+            (!OEGlobalsBag::getInstance()->getBoolean('medex_enable'))
         ) {
             return false;
         }

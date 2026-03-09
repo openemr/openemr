@@ -32,7 +32,7 @@ $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 <?php
 $all_allergy_alerts = [];
-if (OEGlobalsBag::getInstance()->get('enable_allergy_check')) {
+if (OEGlobalsBag::getInstance()->getBoolean('enable_allergy_check')) {
   // Will show allergy and medication/prescription conflicts here
     $all_allergy_alerts = allergy_conflict($pid, 'all', $session->get('authUser'));
 }

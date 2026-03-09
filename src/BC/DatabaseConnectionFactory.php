@@ -144,7 +144,7 @@ class DatabaseConnectionFactory
         }
 
         // Check if pooling is enabled via globals or session
-        if (!empty(OEGlobalsBag::getInstance()->get('enable_database_connection_pooling'))) {
+        if (OEGlobalsBag::getInstance()->getBoolean('enable_database_connection_pooling')) {
             return true;
         }
         if (!empty($_SESSION['enable_database_connection_pooling'])) {

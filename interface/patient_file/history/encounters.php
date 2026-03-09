@@ -21,7 +21,7 @@ require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/lists.inc.php");
 require_once(__DIR__ . "/../../../custom/code_types.inc.php");
-if (\OpenEMR\Core\OEGlobalsBag::getInstance()->get('enable_group_therapy')) {
+if (\OpenEMR\Core\OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')) {
     require_once("$srcdir/group.inc.php");
 }
 
@@ -374,19 +374,19 @@ window.onload = function() {
                     <th scope="col">&nbsp;<?php echo (OEGlobalsBag::getInstance()->get('weight_loss_clinic')) ? xlt('Payment') : xlt('Insurance'); ?></th>
                     <?php } ?>
 
-                    <?php if (OEGlobalsBag::getInstance()->get('enable_group_therapy') && !$billing_view && $therapy_group == 0) { ?>
+                    <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy') && !$billing_view && $therapy_group == 0) { ?>
                         <th scope="col"><?php echo xlt('Encounter type'); ?></th>
                     <?php }?>
 
-                    <?php if (OEGlobalsBag::getInstance()->get('enable_follow_up_encounters')) { ?>
+                    <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_follow_up_encounters')) { ?>
                         <th scope="col"></th>
                     <?php }?>
 
-                    <?php if (OEGlobalsBag::getInstance()->get('enable_group_therapy') && !$billing_view && $therapy_group == 0) { ?>
+                    <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy') && !$billing_view && $therapy_group == 0) { ?>
                         <th scope="col"><?php echo xlt('Group name'); ?></th>
                     <?php }?>
 
-                    <?php if (OEGlobalsBag::getInstance()->get('enable_follow_up_encounters')) { ?>
+                    <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_follow_up_encounters')) { ?>
                         <th scope="col"></th>
                     <?php }?>
                 </tr>
@@ -829,24 +829,24 @@ window.onload = function() {
                     echo "<td>" . $insured . "</td>\n";
                 }
 
-                if (OEGlobalsBag::getInstance()->get('enable_group_therapy') && !$billing_view && $therapy_group == 0) {
+                if (OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy') && !$billing_view && $therapy_group == 0) {
                     $encounter_type = sqlQuery("SELECT pc_catname, pc_cattype FROM openemr_postcalendar_categories where pc_catid = ?", [$result4['pc_catid']]);
                     echo "<td>" . xlt($encounter_type['pc_catname']) . "</td>\n";
                 }
 
-                if (OEGlobalsBag::getInstance()->get('enable_follow_up_encounters')) {
+                if (OEGlobalsBag::getInstance()->getBoolean('enable_follow_up_encounters')) {
                     $symbol = ( !empty($result4['parent_encounter_id']) ) ? '<span class="fa fa-fw fa-undo p-1"></span>' : null;
 
                     echo "<td> " . $symbol . " </td>\n";
                 }
 
-                if (OEGlobalsBag::getInstance()->get('enable_group_therapy') && !$billing_view && $therapy_group == 0) {
+                if (OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy') && !$billing_view && $therapy_group == 0) {
                     $group_name = ($encounter_type['pc_cattype'] == 3 && is_numeric($result4['external_id'])) ? getGroup($result4['external_id'])['group_name']  : "";
                     echo "<td>" . text($group_name) . "</td>\n";
                 }
 
 
-                if (OEGlobalsBag::getInstance()->get('enable_follow_up_encounters')) {
+                if (OEGlobalsBag::getInstance()->getBoolean('enable_follow_up_encounters')) {
                     $encounterId = ( !empty($result4['parent_encounter_id']) ) ? $result4['parent_encounter_id'] : $result4['id'];
                     echo "<td> <div style='z-index: 9999'>  <a href='#' class='btn btn-sm btn-primary' onclick='createFollowUpEncounter(event," . attr_js($encounterId) . ")'><span>" . xlt('Create follow-up encounter') . "</span></a> </div></td>\n";
                 }

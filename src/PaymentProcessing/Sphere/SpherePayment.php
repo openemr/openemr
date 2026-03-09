@@ -41,7 +41,7 @@ class SpherePayment
     public function __construct(private readonly string $front, private readonly int $patientIdCc)
     {
         // Set if in testing mode (or false for production mode)
-        $testing = empty(OEGlobalsBag::getInstance()->get('gateway_mode_production'));
+        $testing = !OEGlobalsBag::getInstance()->getBoolean('gateway_mode_production');
 
         // Collect the correct trxcustid and trxcustid_licensekey and url
         $cryptoGen = ServiceContainer::getCrypto();

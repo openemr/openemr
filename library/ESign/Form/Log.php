@@ -71,7 +71,7 @@ class Form_Log implements LogIF
     public function isViewable()
     {
         $viewable = false;
-        if (OEGlobalsBag::getInstance()->get('esign_individual')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('esign_individual')) {
             $viewable = true;
         }
 

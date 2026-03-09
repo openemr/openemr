@@ -379,7 +379,7 @@ if (!empty($_POST['form_refresh'])) {
                     $billed = "";
                 }
 
-                if (!OEGlobalsBag::getInstance()->get('simplified_demographics') && !$brow['authorized']) {
+                if (!OEGlobalsBag::getInstance()->getBoolean('simplified_demographics') && !$brow['authorized']) {
                     postError(xl('Needs Auth'));
                 }
 
@@ -472,7 +472,7 @@ if (!empty($_POST['form_refresh'])) {
            /*****************************************************************/
 
             if (!$billed) {
-                postError(OEGlobalsBag::getInstance()->get('simplified_demographics') ?
+                postError(OEGlobalsBag::getInstance()->getBoolean('simplified_demographics') ?
                 xl('Not checked out') : xl('Not billed'));
             }
 

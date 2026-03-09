@@ -246,7 +246,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                         <tr>
                             <td class='col-form-label'>
                                 <?php
-                                if (!OEGlobalsBag::getInstance()->get('simplified_demographics')) {
+                                if (!OEGlobalsBag::getInstance()->getBoolean('simplified_demographics')) {
                                     echo '&nbsp;' . xlt('Procedure/Service') . ':';
                                 } ?>
                             </td>
@@ -254,14 +254,14 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             <input type='text' class='form-control' name='form_proc_codefull' size='11' value='<?php echo attr($form_proc_codefull); ?>' onclick='sel_procedure()'
                                 title='<?php echo xla('Optional procedure/service code'); ?>'
                                 <?php
-                                if (OEGlobalsBag::getInstance()->get('simplified_demographics')) {
+                                if (OEGlobalsBag::getInstance()->getBoolean('simplified_demographics')) {
                                     echo "style='display:none'";
                                 } ?>>
                             </td>
 
                             <td class='col-form-label'>
                                 <?php
-                                if (!OEGlobalsBag::getInstance()->get('simplified_demographics')) {
+                                if (!OEGlobalsBag::getInstance()->getBoolean('simplified_demographics')) {
                                     echo '&nbsp;' . xlt('Diagnosis') . ':';
                                 } ?>
                             </td>
@@ -269,7 +269,7 @@ $form_facility   = $_POST['form_facility'] ?? null;
                             <input type='text' class='form-control' name='form_dx_codefull' size='11' value='<?php echo attr($form_dx_codefull); ?>' onclick='sel_diagnosis()'
                                 title='<?php echo xla('Enter a diagnosis code to exclude all invoices not containing it'); ?>'
                                 <?php
-                                if (OEGlobalsBag::getInstance()->get('simplified_demographics')) {
+                                if (OEGlobalsBag::getInstance()->getBoolean('simplified_demographics')) {
                                     echo "style='display: none'";
                                 } ?>>
                             </td>

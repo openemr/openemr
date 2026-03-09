@@ -548,7 +548,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 12,
+    'count' => 11,
     'path' => __DIR__ . '/../../interface/main/tabs/main.php',
 ];
 $ignoreErrors[] = [

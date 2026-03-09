@@ -45,7 +45,7 @@ if (isset($_SESSION['pc_username'])) {
 }
 
 // different frame source page depending on session vars
-if ($_SESSION['userauthorized'] && OEGlobalsBag::getInstance()->get('docs_see_entire_calendar')) {
+if ($_SESSION['userauthorized'] && OEGlobalsBag::getInstance()->getBoolean('docs_see_entire_calendar')) {
     $framesrc = "calendar/index.php?module=PostCalendar&viewtype=" . attr_url($viewtype) . "&func=view";
 } elseif ($_SESSION['userauthorized']) {
     $framesrc = "calendar/index.php?module=PostCalendar&viewtype=" . attr_url($viewtype) . "&func=view&" . $pcuStr;

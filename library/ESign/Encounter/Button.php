@@ -32,7 +32,7 @@ class Encounter_Button implements ButtonIF
 
     public function isViewable()
     {
-        return OEGlobalsBag::getInstance()->get('esign_all');
+        return OEGlobalsBag::getInstance()->getBoolean('esign_all');
     }
 
     public function getViewScript()

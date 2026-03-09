@@ -93,7 +93,7 @@ function submitform() {
 
     top.restoreSession();
     var flag=0;
-<?php if (empty(OEGlobalsBag::getInstance()->get('gbl_ldap_enabled')) || empty(OEGlobalsBag::getInstance()->get('gbl_ldap_exclusions'))) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('gbl_ldap_enabled') || empty(OEGlobalsBag::getInstance()->get('gbl_ldap_exclusions'))) { ?>
     if(document.forms[0].clearPass.value!="")
     {
         //Checking for the strong password if the 'secure password' feature is enabled
@@ -143,7 +143,7 @@ function submitform() {
     }
   }
 
-        <?php if (OEGlobalsBag::getInstance()->get('erx_enable')) { ?>
+        <?php if (OEGlobalsBag::getInstance()->getBoolean('erx_enable')) { ?>
     alertMsg='';
     f=document.forms[0];
     for(i=0;i<f.length;i++){
@@ -297,12 +297,12 @@ function toggle_password() {
 <TR>
     <TD style="width:180px;"><span class=text><?php echo xlt('Username'); ?>: </span></TD>
     <TD style="width:270px;"><input type="text" name=username style="width:150px;" class="form-control" value="<?php echo attr($iter["username"]); ?>" disabled></td>
-<?php if (empty(OEGlobalsBag::getInstance()->get('gbl_ldap_enabled')) || empty(OEGlobalsBag::getInstance()->get('gbl_ldap_exclusions'))) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('gbl_ldap_enabled') || empty(OEGlobalsBag::getInstance()->get('gbl_ldap_exclusions'))) { ?>
         <TD style="width:200px;"><span class=text>*<?php echo xlt('Your Password'); ?>*: </span></TD>
         <TD class='text' style="width:280px;"><input type='password' name=adminPass style="width:150px;"  class="form-control" value="" autocomplete='off'><font class="mandatory"></font></TD>
 <?php } ?>
 </TR>
-<?php if (empty(OEGlobalsBag::getInstance()->get('gbl_ldap_enabled')) || empty(OEGlobalsBag::getInstance()->get('gbl_ldap_exclusions'))) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('gbl_ldap_enabled') || empty(OEGlobalsBag::getInstance()->get('gbl_ldap_exclusions'))) { ?>
 <TR>
     <TD style="width:180px;"><span class=text></span></TD>
     <TD style="width:270px;"></td>
@@ -379,7 +379,7 @@ if ($fres) {
 
 </tr>
 
-<?php if (OEGlobalsBag::getInstance()->get('restrict_user_facility')) { ?>
+<?php if (OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility')) { ?>
 <tr>
  <td colspan=2>&nbsp;</td>
  <td><span class=text><?php echo xlt('Schedule Facilities:');?></td>
@@ -533,14 +533,14 @@ foreach ([1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')
 <?php } ?>
 
 <!-- facility and warehouse restrictions, optional -->
-<?php if (!empty(OEGlobalsBag::getInstance()->get('gbl_fac_warehouse_restrictions')) || !empty(OEGlobalsBag::getInstance()->get('restrict_user_facility'))) { ?>
+<?php if (OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions') || OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility')) { ?>
  <tr title="<?php echo xla('If nothing is selected here then all are permitted.'); ?>">
-  <td class="text"><?php echo !empty(OEGlobalsBag::getInstance()->get('gbl_fac_warehouse_restrictions')) ?
+  <td class="text"><?php echo OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions') ?
     xlt('Facility and warehouse permissions') : xlt('Facility permissions'); ?>:</td>
   <td colspan="3">
    <select name="schedule_facility[]" multiple style="width:490px;">
     <?php
-    $userFacilities = getUserFacilities($_GET['id'], 'id', OEGlobalsBag::getInstance()->get('gbl_fac_warehouse_restrictions'));
+    $userFacilities = getUserFacilities($_GET['id'], 'id', OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions'));
     $ufid = [];
     foreach ($userFacilities as $uf) {
         $ufid[] = $uf['id'];
@@ -558,7 +558,7 @@ foreach ([1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')
             echo " value='" . attr($frow['id']) . "'>" . text($frow['name']) . "</option>\n";
             // Then generate an option for each of the facility's warehouses.
             // Does not apply if the site does not use warehouse restrictions.
-            if (!empty(OEGlobalsBag::getInstance()->get('gbl_fac_warehouse_restrictions'))) {
+            if (OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions')) {
                 $lres = sqlStatement(
                     "SELECT option_id, title FROM list_options WHERE " .
                     "list_id = ? AND option_value = ? ORDER BY seq, title",
@@ -659,7 +659,7 @@ Display red alert if entered password matched one of last three passwords/Displa
 <INPUT TYPE="HIDDEN" NAME="mode" VALUE="update">
 <INPUT TYPE="HIDDEN" NAME="privatemode" VALUE="user_admin">
 
-<INPUT TYPE="HIDDEN" NAME="secure_pwd" VALUE="<?php echo attr(OEGlobalsBag::getInstance()->get('secure_password')); ?>">
+<INPUT TYPE="HIDDEN" NAME="secure_pwd" VALUE="<?php echo attr((int) OEGlobalsBag::getInstance()->getBoolean('secure_password')); ?>">
 </FORM>
 <script>
 $(function () {

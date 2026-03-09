@@ -74,7 +74,7 @@ function create_client_cert(): void
 {
     global $error_msg;
 
-    if (!OEGlobalsBag::getInstance()->get('is_client_ssl_enabled')) {
+    if (!OEGlobalsBag::getInstance()->getBoolean('is_client_ssl_enabled')) {
         $error_msg .= xl('Error, User Certificate Authentication is not enabled in OpenEMR');
         return;
     }
@@ -480,7 +480,7 @@ if (!empty($_SESSION["zip_error"])) {
   </ul>
   <br />
         <?php
-        if (OEGlobalsBag::getInstance()->get('certificate_authority_crt') != "" && OEGlobalsBag::getInstance()->get('is_client_ssl_enabled')) {
+        if (OEGlobalsBag::getInstance()->get('certificate_authority_crt') != "" && OEGlobalsBag::getInstance()->getBoolean('is_client_ssl_enabled')) {
             echo xlt('OpenEMR already has a Certificate Authority configured.');
         }
         ?>
@@ -620,7 +620,7 @@ if (!empty($_SESSION["zip_error"])) {
     <br />
         <?php
         if (
-            !OEGlobalsBag::getInstance()->get('is_client_ssl_enabled') ||
+            !OEGlobalsBag::getInstance()->getBoolean('is_client_ssl_enabled') ||
             OEGlobalsBag::getInstance()->get('certificate_authority_crt') == ""
         ) {
             echo "<font class='redtext'>" . xlt('OpenEMR must be configured to use certificates before it can create client certificates.') . "</font><br />";

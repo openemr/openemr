@@ -169,7 +169,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
     $encounter = $ferow['encounter'];
     $svcdate = substr((string) $ferow['date'], 0, 10);
 
-    if (OEGlobalsBag::getInstance()->get('receipts_by_provider')) {
+    if (OEGlobalsBag::getInstance()->getBoolean('receipts_by_provider')) {
         if (isset($ferow['provider_id'])) {
             $encprovider = $ferow['provider_id'];
         } elseif (isset($patdata['providerID'])) {
@@ -673,7 +673,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
 
       // Post discount.
         if ($_POST['form_discount']) {
-            if (OEGlobalsBag::getInstance()->get('discount_by_money')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('discount_by_money')) {
                 $amount  = sprintf('%01.2f', trim((string) $_POST['form_discount']));
             } else {
                 $form_discount = trim((string) $_POST['form_discount']) ?? 0;
@@ -907,7 +907,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                 if (isNaN(discount)) {
                     discount = 0;
                 }
-                <?php if (!OEGlobalsBag::getInstance()->get('discount_by_money')) { ?>
+                <?php if (!OEGlobalsBag::getInstance()->getBoolean('discount_by_money')) { ?>
                 // This site discounts by percentage, so convert it to a money amount.
                 if (discount > 100) {
                     discount = 100;
@@ -1128,7 +1128,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                             <legend><?php echo xlt('Collect Payment'); ?></legend>
                             <div class="row oe-custom-line">
                                 <div class="col-3 offset-lg-3">
-                                    <label class="control-label" for="form_discount"><?php echo OEGlobalsBag::getInstance()->get('discount_by_money') ? xlt('Discount Amount') : xlt('Discount Percentage'); ?>:</label>
+                                    <label class="control-label" for="form_discount"><?php echo OEGlobalsBag::getInstance()->getBoolean('discount_by_money') ? xlt('Discount Amount') : xlt('Discount Percentage'); ?>:</label>
                                 </div>
                                 <div class="col-3">
                                     <input maxlength='8' name='form_discount' id='form_discount' onkeyup='computeTotals()' class= 'form-control' type='text' value='' />

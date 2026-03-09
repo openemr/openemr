@@ -30,7 +30,7 @@ class CdaValidateDocuments
 
     public function __construct()
     {
-        $this->externalValidatorEnabled = !empty(OEGlobalsBag::getInstance()->get('mdht_conformance_server_enable') ?? false);
+        $this->externalValidatorEnabled = OEGlobalsBag::getInstance()->getBoolean('mdht_conformance_server_enable');
         if (empty(OEGlobalsBag::getInstance()->get('mdht_conformance_server'))) {
             $this->externalValidatorEnabled = false;
         }

@@ -51,7 +51,7 @@ class BillingViewCard extends CardModel
     {
         $pid = $this->pid;
         $ed = $this->getEventDispatcher();
-        $forceBillingExpandAlways = (OEGlobalsBag::getInstance()->get('force_billing_widget_open')) ? true : false;
+        $forceBillingExpandAlways = (OEGlobalsBag::getInstance()->getBoolean('force_billing_widget_open')) ? true : false;
         $patientbalance = get_patient_balance($pid, false);
         $insurancebalance = get_patient_balance($pid, true) - $patientbalance;
         $totalbalance = $patientbalance + $insurancebalance;

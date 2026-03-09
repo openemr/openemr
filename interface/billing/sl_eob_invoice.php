@@ -36,7 +36,7 @@ use OpenEMR\Core\OEGlobalsBag;
 $debug = 0; // set to 1 for debugging mode
 $save_stay = (!empty($_REQUEST['form_save']) && ($_REQUEST['form_save'] == '1')) ? true : false;
 $from_posting = (0 + ($_REQUEST['isPosting'] ?? null)) ? 1 : 0;
-$g_posting_adj_disable = OEGlobalsBag::getInstance()->get('posting_adj_disable') ? 'checked' : '';
+$g_posting_adj_disable = OEGlobalsBag::getInstance()->getBoolean('posting_adj_disable') ? 'checked' : '';
 if ($from_posting) {
     $posting_adj_disable = prevSetting('sl_eob_search.', 'posting_adj_disable', 'posting_adj_disable', $g_posting_adj_disable);
 } else {

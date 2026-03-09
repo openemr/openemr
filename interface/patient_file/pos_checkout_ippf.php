@@ -324,7 +324,7 @@ function ippfReceiptDetailLine(
         $charge = 0;
         [$payer, $code_type, $code] = explode('|', $code);
         $memo = $description;
-        $description = OEGlobalsBag::getInstance()->get('simplified_demographics') ? '' : "$payer ";
+        $description = OEGlobalsBag::getInstance()->getBoolean('simplified_demographics') ? '' : "$payer ";
         $description .= $code ? xl('Item Adjustment') : xl('Invoice Adjustment');
         $quantity = '';
     } else {
@@ -1290,7 +1290,7 @@ function write_form_line_ippf(
     $memo = '';
     $adjust = pull_adjustment($code_type, $code, $billtime, $memo);
     $total = formatMoneyNumber($amount - $adjust);
-    if (empty(OEGlobalsBag::getInstance()->get('discount_by_money'))) {
+    if (!OEGlobalsBag::getInstance()->getBoolean('discount_by_money')) {
         // Convert $adjust to a percentage of the amount, up to 4 decimal places.
         $adjust = round(100 * $adjust / $amount, 4);
     }
@@ -1392,7 +1392,7 @@ function write_form_line_ippf(
         );
         echo "</td>\n";
         echo "  <td class='text' align='right' nowrap>";
-        echo empty(OEGlobalsBag::getInstance()->get('discount_by_money')) ? '' : text(OEGlobalsBag::getInstance()->get('gbl_currency_symbol'));
+        echo !OEGlobalsBag::getInstance()->getBoolean('discount_by_money') ? '' : text(OEGlobalsBag::getInstance()->get('gbl_currency_symbol'));
         echo "<input type='text' name='line[$lino][adjust]' size='6'";
         echo " value='" . attr(formatMoneyNumber($adjust)) . "'";
         // Modifying discount requires the acct/disc permission.
@@ -1402,7 +1402,7 @@ function write_form_line_ippf(
             echo " style='text-align:right' maxlength='8' onkeyup='lineDiscountChanged($lino)'";
         }
         echo " /> ";
-        echo empty(OEGlobalsBag::getInstance()->get('discount_by_money')) ? '%' : '';
+        echo !OEGlobalsBag::getInstance()->getBoolean('discount_by_money') ? '%' : '';
         echo "</td>\n";
     }
 
@@ -1640,7 +1640,7 @@ if (!empty($_POST['form_save']) && !$alertmsg) {
 
     // Post discount.
     if ($_POST['form_discount'] != 0) {
-        if (OEGlobalsBag::getInstance()->get('discount_by_money')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('discount_by_money')) {
             $amount  = formatMoneyNumber(trim((string) $_POST['form_discount']));
         } else {
             $amount  = formatMoneyNumber(trim((string) $_POST['form_discount']) * $form_amount / 100);
@@ -1975,7 +1975,7 @@ while ($urow = sqlFetchArray($ures)) {
         if (isNaN(discount)) {
             discount = 0;
         }
-<?php if (!OEGlobalsBag::getInstance()->get('discount_by_money')) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('discount_by_money')) { ?>
         // This site discounts by percentage, so convert it to a money amount.
         if (discount > 100) {
             discount = 100;
@@ -2027,7 +2027,7 @@ while ($urow = sqlFetchArray($ures)) {
         if (isNaN(charge)) {
             charge = 0;
         }
-<?php if (!OEGlobalsBag::getInstance()->get('discount_by_money')) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('discount_by_money')) { ?>
         // This site discounts by percentage, so convert it to a money amount.
         if (discount > 100) {
             discount = 100;
@@ -2063,7 +2063,7 @@ while ($urow = sqlFetchArray($ures)) {
         if (isNaN(discount)) {
             discount = 0;
         }
-<?php if (!OEGlobalsBag::getInstance()->get('discount_by_money')) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('discount_by_money')) { ?>
         // This site discounts by percentage, so convert it to a money amount.
         if (discount > 100) {
             discount = 100;
@@ -2088,7 +2088,7 @@ while ($urow = sqlFetchArray($ures)) {
         var charges = computeDiscountedTotals(0, false);
         var payment = computePaymentTotal();
         var discount = charges - payment;
-<?php if (!OEGlobalsBag::getInstance()->get('discount_by_money')) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('discount_by_money')) { ?>
         // This site discounts by percentage, so convert to that.
         discount = charges ? (100 * discount / charges) : 0;
         f.form_discount.value = discount.toFixed(4);

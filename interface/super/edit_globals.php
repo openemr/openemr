@@ -126,7 +126,7 @@ function checkBackgroundServices(): void
     }
 
     //Set up phimail service
-    $phimail_active = empty(OEGlobalsBag::getInstance()->get('phimail_enable')) ? '0' : '1';
+    $phimail_active = !OEGlobalsBag::getInstance()->getBoolean('phimail_enable') ? '0' : '1';
     $phimail_interval = max(0, (int)OEGlobalsBag::getInstance()->get('phimail_interval'));
     updateBackgroundService('phimail', $phimail_active, $phimail_interval);
 
@@ -135,7 +135,7 @@ function checkBackgroundServices(): void
     // See library/billing_sftp_service.php for the entry point to this service.
     // It is very lightweight if there is no work to do, so running every minute should
     // be OK to provider users with the best experience.
-    $auto_sftp_x12 = empty(OEGlobalsBag::getInstance()->get('auto_sftp_claims_to_x12_partner')) ? '0' : '1';
+    $auto_sftp_x12 = !OEGlobalsBag::getInstance()->getBoolean('auto_sftp_claims_to_x12_partner') ? '0' : '1';
     updateBackgroundService('X12_SFTP', $auto_sftp_x12, 1);
 
     /**
@@ -220,8 +220,8 @@ function checkBackgroundServices(): void
 
         // Aug 22, 2014: Ensoftek: For Auditable events and tamper-resistance (MU2)
         // Check the current status of Audit Logging
-        $auditLogStatusFieldOld = OEGlobalsBag::getInstance()->get('enable_auditlog');
-        $forceBreakglassLogStatusFieldOld = OEGlobalsBag::getInstance()->get('gbl_force_log_breakglass');
+        $auditLogStatusFieldOld = OEGlobalsBag::getInstance()->getBoolean('enable_auditlog');
+        $forceBreakglassLogStatusFieldOld = OEGlobalsBag::getInstance()->getBoolean('gbl_force_log_breakglass');
 
         /*
          * Compare form values with old database values.
@@ -690,7 +690,7 @@ function checkBackgroundServices(): void
                                                             continue;
                                                         }
 
-                                                        if ($row['pc_cattype'] == 3 && !OEGlobalsBag::getInstance()->get('enable_group_therapy')) {
+                                                        if ($row['pc_cattype'] == 3 && !OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')) {
                                                             continue;
                                                         }
 

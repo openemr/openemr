@@ -58,7 +58,7 @@ class InsuranceViewCard extends CardModel
                 'btnLink' => "insurance_edit.php",
                 'linkMethod' => 'html',
                 'initiallyCollapsed' => $initiallyCollapsed ? true : false,
-                'enable_eligibility_requests' => OEGlobalsBag::getInstance()->get('enable_eligibility_requests'),
+                'enable_eligibility_requests' => OEGlobalsBag::getInstance()->getBoolean('enable_eligibility_requests'),
                 'auth' => $authCheck
             ]
         ];
@@ -81,7 +81,7 @@ class InsuranceViewCard extends CardModel
     private function getInsuranceTypeArray()
     {
         // TODO: @adunsulag should we move this into a class?  It's copied everywhere...
-        $insurance_array = OEGlobalsBag::getInstance()->get('insurance_only_one') ? ['primary'] : ['primary', 'secondary', 'tertiary'];
+        $insurance_array = OEGlobalsBag::getInstance()->getBoolean('insurance_only_one') ? ['primary'] : ['primary', 'secondary', 'tertiary'];
         return $insurance_array;
     }
     private function getInsuranceData()
@@ -160,7 +160,7 @@ class InsuranceViewCard extends CardModel
     {
         $output = '';
         $pid = $this->pid;
-        if (OEGlobalsBag::getInstance()->get("enable_eligibility_requests")) {
+        if (OEGlobalsBag::getInstance()->getBoolean("enable_eligibility_requests")) {
             if (($_POST['status_update'] ?? '') === 'true') {
                 unset($_POST['status_update']);
                 $showEligibility = true;
