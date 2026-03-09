@@ -42,7 +42,7 @@ if (empty($group)) {
 
 // $encounter is already in scope from globals.php / load_form.php.
 // Guard against missing encounter (the scenario that caused #10844):
-if (!isset($encounter) || (int) $encounter === 0) { // @phpstan-ignore cast.int ($encounter comes from global scope)
+if (!isset($encounter) || (int) $encounter === 0) {
     formHeader(xlt('Error'));
     echo '<div class="alert alert-danger">' .
         xlt('No active encounter. Please select or create an encounter first.') .
@@ -51,7 +51,7 @@ if (!isset($encounter) || (int) $encounter === 0) { // @phpstan-ignore cast.int 
     exit;
 }
 
-$encounterAttr = attr($encounter); // @phpstan-ignore argument.type ($encounter validated above)
+$encounterAttr = attr($encounter);
 
 $query = "select * from form_encounter where pid =? and encounter= ?";
 $encounter_data = sqlQuery($query, [$pid,$encounter]);
