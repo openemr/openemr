@@ -36,8 +36,7 @@ return [
 
     // DB connection config
     DatabaseConnectionOptions::class => function (TC $c) {
-        $site = $c->get('OPENEMR_SITE');
-        assert(is_string($site));
+        $site = $c->getString('OPENEMR_SITE');
         return DatabaseConnectionOptions::forSite("sites/$site");
     },
 
