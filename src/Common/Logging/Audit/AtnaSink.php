@@ -67,7 +67,7 @@ MSG;
     }
 
     // Future: handle a better-typed DTO
-    public function record($user, $group, $event, $patientId, $outcome, $comments): void
+    public function record(string $user, string $group, string $event, int $patientId, int $outcome, string $comments): void
     {
         if (!$this->isEnabled()) {
             return;
@@ -97,7 +97,7 @@ MSG;
      * @param  $comments
      * @return string
      */
-    protected function createRfc3881Msg($user, $group, $event, $patient_id, $outcome, $comments): string
+    protected function createRfc3881Msg(string $user, string $group, string $event, int $patient_id, int $outcome, string $comments): string
     {
         $eventActionCode = $this->determineRFC3881EventActionCode($event);
         $eventIdDisplayName = $this->determineRFC3881EventIdDisplayName($event);
