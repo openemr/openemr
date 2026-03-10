@@ -71,8 +71,8 @@ MSG;
             writer: $writer,
             enabled: $bag->getBoolean('enable_atna_audit'),
             host: $bag->getString('atna_audit_host'),
-            serverName: $_SERVER['SERVER_NAME'],
-            serverAddress: $_SERVER['SERVER_ADDR'],
+            serverName: $_SERVER['SERVER_NAME'] ?? '',
+            serverAddress: $_SERVER['SERVER_ADDR'] ?? '',
         );
     }
 
