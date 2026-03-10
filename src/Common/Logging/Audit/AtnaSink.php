@@ -31,32 +31,32 @@ readonly class AtnaSink
     private const EVENT_ACTION_CODE_UPDATE = 'U';
     private const EVENT_ACTION_CODE_DELETE = 'D';
 
-    private const RFC3881_MSG_PRIMARY_TEMPLATE = <<<XML
-    <13>%s %s
-    <?xml version="1.0" encoding="ASCII"?>
-     <AuditMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="healthcare-security-audit.xsd">
-      <EventIdentification EventActionCode="%s" EventDateTime="%s" EventOutcomeIndicator="%s">
-       <EventID code="eventIDcode" displayName="%s" codeSystemName="DCM" />
-      </EventIdentification>
-      <ActiveParticipant UserID="%s" UserIsRequestor="true" NetworkAccessPointID="%s" NetworkAccessPointTypeCode="2" >
-       <RoleIDCode code="110153" displayName="Source" codeSystemName="DCM" />
-      </ActiveParticipant>
-      <ActiveParticipant UserID="%s" UserIsRequestor="false" NetworkAccessPointID="%s" NetworkAccessPointTypeCode="2" >
-       <RoleIDCode code="110152" displayName="Destination" codeSystemName="DCM" />
-      </ActiveParticipant>
-      <AuditSourceIdentification AuditSourceID="%s" />
-      <ParticipantObjectIdentification ParticipantObjectID="%s" ParticipantObjectTypeCode="1" ParticipantObjectTypeCodeRole="6" >
-       <ParticipantObjectIDTypeCode code="11" displayName="User Identifier" codeSystemName="RFC-3881" />
-      </ParticipantObjectIdentification>
-      %s
-     </AuditMessage>
-    XML;
+    private const RFC3881_MSG_PRIMARY_TEMPLATE = <<<MSG
+<13>%s %s
+<?xml version="1.0" encoding="ASCII"?>
+ <AuditMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="healthcare-security-audit.xsd">
+  <EventIdentification EventActionCode="%s" EventDateTime="%s" EventOutcomeIndicator="%s">
+   <EventID code="eventIDcode" displayName="%s" codeSystemName="DCM" />
+  </EventIdentification>
+  <ActiveParticipant UserID="%s" UserIsRequestor="true" NetworkAccessPointID="%s" NetworkAccessPointTypeCode="2" >
+   <RoleIDCode code="110153" displayName="Source" codeSystemName="DCM" />
+  </ActiveParticipant>
+  <ActiveParticipant UserID="%s" UserIsRequestor="false" NetworkAccessPointID="%s" NetworkAccessPointTypeCode="2" >
+   <RoleIDCode code="110152" displayName="Destination" codeSystemName="DCM" />
+  </ActiveParticipant>
+  <AuditSourceIdentification AuditSourceID="%s" />
+  <ParticipantObjectIdentification ParticipantObjectID="%s" ParticipantObjectTypeCode="1" ParticipantObjectTypeCodeRole="6" >
+   <ParticipantObjectIDTypeCode code="11" displayName="User Identifier" codeSystemName="RFC-3881" />
+  </ParticipantObjectIdentification>
+  %s
+ </AuditMessage>
+MSG;
 
-    private const RFC3881_MSG_PATIENT_TEMPLATE = <<<XML
-    <ParticipantObjectIdentification ParticipantObjectID="%s" ParticipantObjectTypeCode="1" ParticipantObjectTypeCodeRole="1">
-     <ParticipantObjectIDTypeCode code="2" displayName="Patient Number" codeSystemName="RFC-3881" />
-    </ParticipantObjectIdentification>
-    XML;
+    private const RFC3881_MSG_PATIENT_TEMPLATE = <<<MSG
+<ParticipantObjectIdentification ParticipantObjectID="%s" ParticipantObjectTypeCode="1" ParticipantObjectTypeCodeRole="1">
+ <ParticipantObjectIDTypeCode code="2" displayName="Patient Number" codeSystemName="RFC-3881" />
+</ParticipantObjectIdentification>
+MSG;
 
     public static function fromGlobals(OEGlobalsBag $bag): AtnaSink
     {
