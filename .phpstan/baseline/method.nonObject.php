@@ -1807,11 +1807,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Services/TelehealthRegistrationCodeService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method context\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Validators/TelehealthPatientValidator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method required\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-comlink-telehealth/src/Validators/TelehealthPatientValidator.php',
@@ -6202,26 +6197,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Http/oeHttpRequest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getBody\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttpResponse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getHeader\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttpResponse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getHeaders\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttpResponse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getStatusCode\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/oeHttpResponse.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method deleteToken\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/oeOAuth.php',
@@ -7772,31 +7747,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getAttribute\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getElementsByTagName\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method item\\(\\) on DOMNodeList\\<DOMNameSpaceNode\\|DOMNode\\>\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method item\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method lookupNamespaceURI\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method errorLogCaller\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
@@ -9043,12 +8993,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getHealth\\(\\) on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Services/Qrda/QrdaReportService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method start\\(\\) on mixed\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/Qrda/QrdaReportService.php',
 ];
 $ignoreErrors[] = [
@@ -9272,99 +9217,19 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method context\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Validators/AllergyIntoleranceValidator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method required\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Validators/AllergyIntoleranceValidator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getMessages\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Validators/BaseValidator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method validate\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Validators/BaseValidator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method context\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Validators/ConditionValidator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method required\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Validators/ConditionValidator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method callback\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Validators/CoverageValidator.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method context\\(\\) on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Validators/CoverageValidator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method required\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Validators/CoverageValidator.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method context\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Validators/EncounterValidator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method required\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Validators/EncounterValidator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method context\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Validators/FacilityValidator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method required\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Validators/FacilityValidator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method context\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Validators/InsuranceCompanyValidator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method required\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Validators/InsuranceCompanyValidator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method context\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Validators/PatientValidator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method required\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Validators/PatientValidator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method context\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Validators/PractitionerValidator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method required\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Validators/PractitionerValidator.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method access_control\\(\\) on mixed\\.$#',
@@ -9947,16 +9812,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getHealth\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method start\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method installFixtures\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/CarePlanFixtureManager.php',
@@ -10057,11 +9912,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Validators/AllergyIntoleranceValidatorTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method context\\(\\) on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Validators/BaseValidatorTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method lengthBetween\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Validators/BaseValidatorTest.php',
@@ -10088,11 +9938,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method callback\\(\\) on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Validators/CoverageValidatorTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method context\\(\\) on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Validators/CoverageValidatorTest.php',
 ];

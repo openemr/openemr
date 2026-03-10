@@ -17,7 +17,7 @@ class StringSearchField extends BasicSearchField
 {
     private const VALID_MODIFIERS = [SearchModifier::CONTAINS, SearchModifier::EXACT, SearchModifier::PREFIX
         , SearchModifier::SUFFIX, SearchModifier::MISSING, SearchModifier::NOT_EQUALS_EXACT];
-    public function __construct($field, $values, $modifier = null, $isAnd = null)
+    public function __construct(string $field, array $values, ?string $modifier = null, ?bool $isAnd = null)
     {
         if (array_search($modifier, self::VALID_MODIFIERS) === false) {
             $modifier = SearchModifier::PREFIX;

@@ -25,16 +25,17 @@ abstract class BaseValidator
     public const DATABASE_INSERT_CONTEXT = "db-insert";
     public const DATABASE_UPDATE_CONTEXT = "db-update";
 
-    protected $validator;
+    protected Validator $validator;
 
-    protected $supportedContexts;
+    /** @var list<string> */
+    protected array $supportedContexts;
 
     /**
      * Configures the validator instance with validation requirements and rules.
      * This default implementation sets the validator's supported context to include
      * database inserts and updates.
      */
-    protected function configureValidator()
+    protected function configureValidator(): void
     {
         array_push($this->supportedContexts, self::DATABASE_INSERT_CONTEXT, self::DATABASE_UPDATE_CONTEXT);
     }

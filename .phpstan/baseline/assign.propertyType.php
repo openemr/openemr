@@ -72,6 +72,21 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\CodeInfo\\:\\:\\$create_problem \\(bool\\|null\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_justify.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\CodeInfo\\:\\:\\$db_id \\(string\\|null\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_justify.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Forms\\\\FeeSheet\\\\Review\\\\CodeInfo\\:\\:\\$db_id \\(string\\|null\\) does not accept mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/fee_sheet/review/fee_sheet_queries.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Forms\\\\NewPatient\\\\C_EncounterVisitForm\\:\\:\\$mode \\(string\\) does not accept string\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/newpatient/C_EncounterVisitForm.class.php',
@@ -1452,6 +1467,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ScopeEntity.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ScopePermissionObject\\:\\:\\$constraints \\(array\\<string, mixed\\>\\) does not accept array\\<int\\|string, array\\<mixed\\>\\|string\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ScopePermissionObject.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\IdTokenSMARTResponse\\:\\:\\$contextForNewTokens \\(array\\) does not accept array\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/IdTokenSMARTResponse.php',
@@ -2027,7 +2047,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/InsuranceCompanyService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\ObservationService\\:\\:\\$reasonCodes \\(array\\<string\\>\\) does not accept mixed\\.$#',
+    'message' => '#^Property OpenEMR\\\\Services\\\\ObservationService\\:\\:\\$reasonCodes \\(array\\<string\\>\\) does not accept array\\<string, array\\<string, string\\>\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ObservationService.php',
 ];

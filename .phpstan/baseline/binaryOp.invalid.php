@@ -19527,36 +19527,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Utils/FileUtils.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "/" between mixed and 2\\.54 results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Utils/MeasurementUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\*" between 1\\.8 and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Utils/MeasurementUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\*" between mixed and 0\\.45359237 results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Utils/MeasurementUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\*" between mixed and 2\\.20462262185 results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Utils/MeasurementUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\*" between mixed and 2\\.54 results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Utils/MeasurementUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\-" between mixed and 32 results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Utils/MeasurementUtils.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'SELECT `\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Uuid/UuidMapping.php',
@@ -19650,11 +19620,6 @@ $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'/\'\\|\'\\\\\\\\\' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Core/ModulesClassLoader.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'/\'\\|\'\\\\\\\\\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Cqm/CqmServiceManager.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'OpenEMR\\\\\\\\Cqm\\\\\\\\Qdm\\\\\\\\\' and mixed results in an error\\.$#',
@@ -19775,16 +19740,6 @@ $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'\\|\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Forms/FeeSheet/Review/CodeInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Forms/FeeSheet/Review/CodeInfo.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'acl_get_groups_\' and mixed results in an error\\.$#',

@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Validators;
 
+use Particle\Validator\Chain;
 use Particle\Validator\Validator;
 
 /**
@@ -20,7 +21,7 @@ class FacilityValidator extends BaseValidator
      * The update use-case is comprised of the same fields as the insert use-case.
      * The update use-case differs from the insert use-case in that fields other than uuid are not required.
      */
-    protected function configureValidator()
+    protected function configureValidator(): void
     {
         parent::configureValidator();
 
@@ -62,8 +63,10 @@ class FacilityValidator extends BaseValidator
             function (Validator $context): void {
                 $context->copyContext(
                     self::DATABASE_INSERT_CONTEXT,
-                    function ($rules): void {
+                    /** @param Chain[] $rules */
+                    function (array $rules): void {
                         foreach ($rules as $chain) {
+                            /** @var Chain $chain */
                             $chain->required(false);
                         }
                     }

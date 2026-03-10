@@ -22,13 +22,13 @@ class DemographicsViewCard extends CardModel
 
     private const CARD_ID = 'demographics';
 
-    public function __construct(private $patientData, private $employerData, array $opts = [])
+    public function __construct(private readonly mixed $patientData, private readonly mixed $employerData, array $opts = [])
     {
         $opts = $this->setupOpts($opts);
         parent::__construct($opts);
     }
 
-    private function setupOpts(array $opts)
+    private function setupOpts(array $opts): array
     {
         $opts['acl'] = ['patients', 'demo'];
         $opts['title'] = xl('Demographics');
@@ -52,7 +52,7 @@ class DemographicsViewCard extends CardModel
         return array_merge($templateVars, $dataVars);
     }
 
-    private function setupDemographicsData()
+    private function setupDemographicsData(): array
     {
         $dispatchResult = $this->getEventDispatcher()->dispatch(new RenderEvent(self::CARD_ID), RenderEvent::EVENT_HANDLE);
         $auth = ACLMain::aclCheckCore('patients', 'demo', '', 'write');

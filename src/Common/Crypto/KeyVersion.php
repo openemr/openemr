@@ -88,7 +88,7 @@ enum KeyVersion: int
      *
      * @param string $version The string version (e.g., "one", "two", etc.)
      * @return self
-     * @throws InvalidArgumentException If version string is invalid
+     * @throws \InvalidArgumentException If version string is invalid
      */
     public static function fromString(string $version): self
     {

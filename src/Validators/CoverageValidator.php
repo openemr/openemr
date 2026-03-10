@@ -41,7 +41,7 @@ class CoverageValidator extends BaseValidator
      * The update use-case is comprised of the same fields as the insert use-case.
      * The update use-case differs from the insert use-case in that fields other than uuid & type are not required.
      */
-    protected function configureValidator()
+    protected function configureValidator(): void
     {
         parent::configureValidator();
         array_push($this->supportedContexts, self::DATABASE_SWAP_CONTEXT);

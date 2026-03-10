@@ -15,14 +15,14 @@ use OpenEMR\Services\Qdm\Interfaces\QdmRequestInterface;
 
 class QdmRequestOne implements QdmRequestInterface
 {
-    protected $filter = null;
+    protected BoundFilter $filter;
 
     /**
      * QdmQuery constructor.
      *
      * @param $pid
      */
-    public function __construct(protected $pid)
+    public function __construct(protected string $pid)
     {
         $this->filter = new BoundFilter();
         $this->filter->setFilterClause("pid = ?");
@@ -30,7 +30,7 @@ class QdmRequestOne implements QdmRequestInterface
     }
 
 
-    public function getFilter()
+    public function getFilter(): BoundFilter
     {
         return $this->filter;
     }

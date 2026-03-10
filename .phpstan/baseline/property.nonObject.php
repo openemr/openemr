@@ -5162,16 +5162,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Cda/CdaComponentParseHelpers.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$documentElement on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$textContent on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$code on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',

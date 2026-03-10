@@ -587,11 +587,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirCareTeamRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Access to an undefined property DOMNode\\:\\:\\$tagName\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Access to an undefined property DOMNameSpaceNode\\|DOMNode\\:\\:\\$textContent\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../src/Services/Cda/ClinicalNoteParser.php',

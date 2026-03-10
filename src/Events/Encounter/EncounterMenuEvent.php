@@ -36,15 +36,15 @@ class EncounterMenuEvent extends Event
     }
 
     /**
-     * @return mixed
+     * @return array<string, mixed>
      */
-    public function getMenuData()
+    public function getMenuData(): array
     {
         return $this->menu;
     }
 
     /**
-     * @param mixed $menu
+     * @param array<string, mixed> $menu
      */
     public function setMenuData(array $menu): void
     {

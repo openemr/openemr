@@ -3857,11 +3857,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/MiscBillingOptions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\AMC\\\\CertificationReportTypes\\:\\:getReportTypeRecords\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/ClinicalDecisionRules/AMC/CertificationReportTypes.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\Common\\:\\:implode_funcs\\(\\) has parameter \\$funcs with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/Common.php',
@@ -4010,21 +4005,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ResourceScopeEntityList\\:\\:getContainedScopes\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ResourceScopeEntityList.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ScopePermissionObject\\:\\:addConstraints\\(\\) has parameter \\$constraints with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ScopePermissionObject.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ScopePermissionObject\\:\\:getConstraints\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ScopePermissionObject.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ScopePermissionObject\\:\\:\\$constraints type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ScopePermissionObject.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ServerScopeListEntity\\:\\:apiScopes\\(\\) return type has no value type specified in iterable type array\\.$#',
@@ -4218,6 +4198,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\SMARTSessionTokenContextBuilder\\:\\:getContextForScopesWithExistingContext\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/SMARTSessionTokenContextBuilder.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\SMARTSessionTokenContextBuilder\\:\\:getContextForScopes\\(\\) has parameter \\$scopes with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/SMARTSessionTokenContextBuilder.php',
 ];
@@ -4977,21 +4962,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Events/Appointments/CalendarUserGetEventsFilter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\BoundFilter\\:\\:getBoundValues\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/BoundFilter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\BoundFilter\\:\\:setBoundValues\\(\\) has parameter \\$boundValues with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/BoundFilter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Events\\\\BoundFilter\\:\\:\\$boundValues type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/BoundFilter.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Events\\\\CDA\\\\CDAPostParseEvent\\:\\:__construct\\(\\) has parameter \\$component with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/CDA/CDAPostParseEvent.php',
@@ -5035,16 +5005,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Events\\\\CDA\\\\CDAPreParseEvent\\:\\:setComponents\\(\\) has parameter \\$components with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/CDA/CDAPreParseEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\Codes\\\\CodeTypeInstalledEvent\\:\\:getDetails\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/Codes/CodeTypeInstalledEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\Codes\\\\CodeTypeInstalledEvent\\:\\:setDetails\\(\\) has parameter \\$details with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/Codes/CodeTypeInstalledEvent.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Events\\\\Command\\\\CommandRunnerFilterEvent\\:\\:getCommands\\(\\) return type has no value type specified in iterable type array\\.$#',
@@ -5133,11 +5093,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Events\\\\Encounter\\\\EncounterMenuEvent\\:\\:__construct\\(\\) has parameter \\$menu with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/Encounter/EncounterMenuEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\Encounter\\\\EncounterMenuEvent\\:\\:setMenuData\\(\\) has parameter \\$menu with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/Encounter/EncounterMenuEvent.php',
 ];
@@ -5317,36 +5272,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Events/PatientFinder/PatientFinderFilterEvent.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\PatientPortal\\\\AppointmentFilterEvent\\:\\:getAppointment\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/PatientPortal/AppointmentFilterEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\PatientPortal\\\\AppointmentFilterEvent\\:\\:getDbRecord\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/PatientPortal/AppointmentFilterEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\PatientPortal\\\\AppointmentFilterEvent\\:\\:setAppointment\\(\\) has parameter \\$appointment with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/PatientPortal/AppointmentFilterEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\PatientPortal\\\\AppointmentFilterEvent\\:\\:setDbRecord\\(\\) has parameter \\$dbRecord with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/PatientPortal/AppointmentFilterEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Events\\\\PatientPortal\\\\AppointmentFilterEvent\\:\\:\\$appointment type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/PatientPortal/AppointmentFilterEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Events\\\\PatientPortal\\\\AppointmentFilterEvent\\:\\:\\$dbRecord type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/PatientPortal/AppointmentFilterEvent.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Events\\\\PatientReport\\\\PatientReportFilterEvent\\:\\:getDataAsArray\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/PatientReport/PatientReportFilterEvent.php',
@@ -5375,16 +5300,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Events\\\\RestApiExtend\\\\RestApiScopeEvent\\:\\:\\$scopes type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/RestApiExtend/RestApiScopeEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\Services\\\\DornLabEvent\\:\\:getMessages\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/Services/DornLabEvent.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Events\\\\Services\\\\DornLabEvent\\:\\:\\$messages type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/Services/DornLabEvent.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Events\\\\Services\\\\ServiceDeleteEvent\\:\\:__construct\\(\\) has parameter \\$recordId with no value type specified in iterable type array\\.$#',
@@ -8947,11 +8862,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Health/HealthCheckResult.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Health\\\\HealthChecker\\:\\:getResultsArray\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Health/HealthChecker.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Menu\\\\BaseMenuItem\\:\\:__construct\\(\\) has parameter \\$opts with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Menu/BaseMenuItem.php',
@@ -9162,7 +9072,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Patient/Cards/DemographicsViewCard.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Patient\\\\Cards\\\\DemographicsViewCard\\:\\:setupDemographicsData\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Patient/Cards/DemographicsViewCard.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Patient\\\\Cards\\\\DemographicsViewCard\\:\\:setupOpts\\(\\) has parameter \\$opts with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Patient/Cards/DemographicsViewCard.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Patient\\\\Cards\\\\DemographicsViewCard\\:\\:setupOpts\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Patient/Cards/DemographicsViewCard.php',
 ];
@@ -9372,11 +9292,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirSpecimenRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\Finder\\\\FhirRouteFinder\\:\\:find\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/FHIR/Finder/FhirRouteFinder.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\Operations\\\\FhirOperationExportRestController\\:\\:getResourcesForRequest\\(\\) has parameter \\$resources with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/Operations/FhirOperationExportRestController.php',
@@ -9400,11 +9315,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\Finder\\\\PortalRouteFinder\\:\\:find\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Finder/PortalRouteFinder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\Finder\\\\StandardRouteFinder\\:\\:find\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/Finder/StandardRouteFinder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\PatientRestController\\:\\:getAll\\(\\) has parameter \\$search with no value type specified in iterable type array\\.$#',
@@ -9720,16 +9630,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaTemplateParse\\:\\:parseUnstructuredComponents\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTemplateParse.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaTextParser\\:\\:generateConsolidatedTextNote\\(\\) has parameter \\$notes with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaTextParser\\:\\:parseSectionByCode\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Cda\\\\CdaValidateDocuments\\:\\:validateDocument\\(\\) return type has no value type specified in iterable type array\\.$#',
@@ -14935,6 +14835,11 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\Search\\\\SearchQueryConfig\\:\\:\\$searchFieldOrders type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/SearchQueryConfig.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\Search\\\\StringSearchField\\:\\:__construct\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/Search/StringSearchField.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\SocialHistoryService\\:\\:dispatchSaveEvent\\(\\) has parameter \\$saveData with no value type specified in iterable type array\\.$#',

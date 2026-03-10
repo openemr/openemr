@@ -43,6 +43,7 @@ return ['includes' => [
     __DIR__ . '/echo.nonString.php',
     __DIR__ . '/elseif.alwaysTrue.php',
     __DIR__ . '/empty.expr.php',
+    __DIR__ . '/empty.initializedProperty.php',
     __DIR__ . '/empty.notAllowed.php',
     __DIR__ . '/empty.offset.php',
     __DIR__ . '/empty.property.php',
