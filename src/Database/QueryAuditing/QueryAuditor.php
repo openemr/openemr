@@ -65,11 +65,22 @@ final class QueryAuditor implements QueryAuditorInterface
 
     public function audit(string $sql, ?array $params, bool $success): void
     {
-        // Recursion guard
+        // Recursion guard - set early to prevent any nested queries (like
+        // breakglass checks) from triggering audit recursion
         if ($this->isAuditing) {
             return;
         }
+        $this->isAuditing = true;
 
+        try {
+            $this->doAudit($sql, $params, $success);
+        } finally {
+            $this->isAuditing = false;
+        }
+    }
+
+    private function doAudit(string $sql, ?array $params, bool $success): void
+    {
         $user = $this->context->getUser();
         $isBreakglass = $this->shouldForceLog($user);
 
@@ -148,20 +159,15 @@ final class QueryAuditor implements QueryAuditorInterface
         }
 
         // Write the audit record
-        $this->isAuditing = true;
-        try {
-            $this->auditLogger->recordLogItem(
-                success: $success ? 1 : 0,
-                event: $event,
-                user: $user ?? '',
-                group: $this->context->getGroup() ?? '',
-                comments: $comments,
-                patientId: $patientId,
-                category: $category?->value,
-            );
-        } finally {
-            $this->isAuditing = false;
-        }
+        $this->auditLogger->recordLogItem(
+            success: $success ? 1 : 0,
+            event: $event,
+            user: $user ?? '',
+            group: $this->context->getGroup() ?? '',
+            comments: $comments,
+            patientId: $patientId,
+            category: $category?->value,
+        );
     }
 
     /**
