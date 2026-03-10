@@ -37,7 +37,7 @@ Services added here **must** support constructor-based dependency injection. Thi
 
 ### On Singletons
 
-By default, the container itself will re-use services as they are requested.
+By default, the container itself will reuse services as they are requested.
 Like (just about) all PHP code, there is still a fresh instance per request.
 
 In the rare case that this behavior is inappropriate for the service, the definition can be wrapped in a `factory()` call.
