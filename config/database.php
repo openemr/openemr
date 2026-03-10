@@ -13,6 +13,7 @@
 declare(strict_types=1);
 
 use Doctrine\DBAL\{
+    Configuration,
     Connection,
     DriverManager,
 };
@@ -25,13 +26,34 @@ use Doctrine\Migrations\Configuration\{
 use Doctrine\Migrations\DependencyFactory;
 use Firehed\Container\TypedContainerInterface as TC;
 use OpenEMR\BC\DatabaseConnectionOptions;
+use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Database\QueryAuditing\{
+    AuditSettingsInterface,
+    BreakglassChecker,
+    BreakglassCheckerInterface,
+    CategoryResolver,
+    GlobalsAuditSettings,
+    Middleware\AuditingMiddleware,
+    NullQueryContext,
+    QueryAuditor,
+    QueryAuditorInterface,
+    QueryContext,
+    QueryContextInterface,
+    TableEventMap,
+};
 use Psr\Log\LoggerInterface;
 
 return [
-    // DBAL
+    // DBAL with auditing middleware
     Connection::class => function (TC $c) {
         $opts = $c->get(DatabaseConnectionOptions::class);
-        return DriverManager::getConnection($opts->toDbalParams());
+        $config = new Configuration();
+        $config->setMiddlewares([
+            $c->get(AuditingMiddleware::class),
+        ]);
+        return DriverManager::getConnection($opts->toDbalParams(), $config);
     },
 
     // DB connection config
@@ -48,5 +70,30 @@ return [
         $c->get(ConnectionLoader::class),
         $c->get(LoggerInterface::class),
     ),
+
+    // Query Auditing
+    AuditingMiddleware::class => fn (TC $c) => new AuditingMiddleware(
+        $c->get(QueryAuditorInterface::class),
+    ),
+    QueryAuditorInterface::class => fn (TC $c) => new QueryAuditor(
+        $c->get(AuditSettingsInterface::class),
+        $c->get(BreakglassCheckerInterface::class),
+        $c->get(QueryContextInterface::class),
+        new TableEventMap(),
+        new CategoryResolver(),
+        EventAuditLogger::getInstance(),
+    ),
+    AuditSettingsInterface::class => fn () => new GlobalsAuditSettings(
+        OEGlobalsBag::getInstance(),
+    ),
+    BreakglassCheckerInterface::class => fn () => new BreakglassChecker(),
+    QueryContextInterface::class => function () {
+        if (php_sapi_name() === 'cli') {
+            return new NullQueryContext();
+        }
+        return new QueryContext(
+            SessionWrapperFactory::getInstance()->getWrapper(),
+        );
+    },
 
 ];
