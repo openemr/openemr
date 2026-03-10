@@ -17,13 +17,14 @@ require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 
 /* Modify the static create patient */
 $job_id = (($_REQUEST['jobId'] ?? null));
 $search = (($_REQUEST['pop_add_chart'] ?? null)) == 1;
 $data = json_decode(($_REQUEST['data'] ?? ''), true);
-$SHORT_FORM  = (in_array($GLOBALS['full_new_patient_form'], ['2', '3', '4']));
+$SHORT_FORM  = (in_array(OEGlobalsBag::getInstance()->get('full_new_patient_form'), ['2', '3', '4']));
 $title = xlt('Create Patient');
 if ($search) {
     $title = xlt('Copy Fax to Patient');
@@ -158,7 +159,7 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim((string) $_POST['regdate']) : dat
 <head>
     <?php
     Header::setupHeader(['datetime-picker', 'opener']);
-    include_once($GLOBALS['srcdir'] . "/options.js.php");
+    include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/options.js.php");
     ?>
 
     <script>
@@ -189,14 +190,14 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim((string) $_POST['regdate']) : dat
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
 
@@ -212,7 +213,7 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim((string) $_POST['regdate']) : dat
                     return false;
                 }
                 const f = document.forms[0];
-                let url = <?php echo js_escape($GLOBALS['web_root'] . '/interface/new/new_search_popup.php'); ?>;
+                let url = <?php echo js_escape(OEGlobalsBag::getInstance()->get('web_root') . '/interface/new/new_search_popup.php'); ?>;
                 let flds = ['fname', 'mname', 'lname', 'DOB'];
                 let separator = '?';
                 for (let i = 0; i < flds.length; ++i) {

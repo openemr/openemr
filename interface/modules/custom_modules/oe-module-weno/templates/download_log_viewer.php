@@ -5,6 +5,7 @@ require_once(dirname(__DIR__, 4) . "/globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -37,7 +38,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             });
         });
     </script>
@@ -56,7 +57,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
             $('#btn-pharm-full').attr("disabled", true);
             $('#presc-btn').attr("disabled", true);
             $.ajax({
-                url: "<?php echo $GLOBALS['webroot']; ?>" + "/interface/modules/custom_modules/oe-module-weno/scripts/file_download.php?daily=" + encodeURIComponent(daily),
+                url: "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>" + "/interface/modules/custom_modules/oe-module-weno/scripts/file_download.php?daily=" + encodeURIComponent(daily),
                 type: "GET",
                 success: function (data) {
                     if (data.includes('Error') || data.includes('failed')) {
@@ -91,7 +92,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
             $('#btn-pharm-full').attr("disabled", true);
             $('#presc-btn').attr("disabled", true);
             $.ajax({
-                url: "<?php echo $GLOBALS['webroot']; ?>" + "/interface/modules/custom_modules/oe-module-weno/templates/synch.php",
+                url: "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>" + "/interface/modules/custom_modules/oe-module-weno/templates/synch.php",
                 type: "GET",
                 data: {key: 'downloadLog'},
                 success: function (data) {
@@ -124,7 +125,7 @@ $endDate = $_GET['endDate'] ?? date('m/d/Y');
             let yn = confirm(<?php echo xlj("Are you sure you want to download logs?"); ?>);
             if (yn) {
                 top.restoreSession();
-                let url = "<?php echo $GLOBALS['webroot']; ?>" + "/interface/modules/custom_modules/oe-module-weno/templates/synch.php?key=" + encodeURIComponent('downloadStatusLog')
+                let url = "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>" + "/interface/modules/custom_modules/oe-module-weno/templates/synch.php?key=" + encodeURIComponent('downloadStatusLog')
                 window.location.href = url;
             }
             return false;

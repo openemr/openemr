@@ -657,14 +657,19 @@ return [
     },
     "GET /api/prescription" => function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "patients", "med");
-        $return = (new PrescriptionRestController())->getAll();
-
-        return $return;
+        return (new PrescriptionRestController())->getAll($request);
     },
     "GET /api/prescription/:uuid" => function ($uuid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "patients", "med");
-        $return = (new PrescriptionRestController())->getOne($uuid);
-
-        return $return;
+        return (new PrescriptionRestController())->getOne($uuid, $request);
+    },
+    "POST /api/prescription" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        $data = (array) (json_decode(file_get_contents("php://input")));
+        return (new PrescriptionRestController())->post($data, $request);
+    },
+    "DELETE /api/prescription/:uuid" => function ($uuid, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "patients", "med");
+        return (new PrescriptionRestController())->delete($uuid, $request);
     }
 ];

@@ -17,6 +17,7 @@ require_once(__DIR__ . "/FeeSheet.class.php");
 require_once(__DIR__ . "/api.inc.php");
 
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 class FeeSheetHtml extends FeeSheet
 {
@@ -44,11 +45,11 @@ class FeeSheetHtml extends FeeSheet
         $sqlarr = [$def_facility];
         $query = "SELECT id, lname, fname, facility_id FROM users WHERE " .
         "( authorized = 1 OR info LIKE '%provider%' ) AND username != '' ";
-        if (!$GLOBALS['include_inactive_providers']) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('include_inactive_providers')) {
             $query .= " AND active = 1 AND ( info IS NULL OR info NOT LIKE '%Inactive%' )";
         }
         // If restricting to providers matching user facility...
-        if (!empty($GLOBALS['gbl_restrict_provider_facility'])) {
+        if (!empty(OEGlobalsBag::getInstance()->get('gbl_restrict_provider_facility'))) {
             $query .= " AND ( facility_id = 0 OR facility_id = ? )";
             $query .= " ORDER BY lname, fname";
         } else { // If not restricting then sort the matching providers first.
@@ -65,7 +66,7 @@ class FeeSheetHtml extends FeeSheet
             }
 
             $s .= ">";
-            if (empty($GLOBALS['gbl_restrict_provider_facility']) && $def_facility && ($row['facility_id'] == $def_facility)) {
+            if (empty(OEGlobalsBag::getInstance()->get('gbl_restrict_provider_facility')) && $def_facility && ($row['facility_id'] == $def_facility)) {
                 // Mark providers in the matching facility with an asterisk.
                 $s .= "* ";
             }
@@ -182,7 +183,7 @@ class FeeSheetHtml extends FeeSheet
         while ($lrow = sqlFetchArray($lres)) {
             $price = empty($lrow['pr_price']) ? 0 : $lrow['pr_price'];
             // if percent-based pricing is enabled...
-            if ($GLOBALS['enable_percent_pricing']) {
+            if (OEGlobalsBag::getInstance()->getBoolean('enable_percent_pricing')) {
                 // Set standardPrice as the first price level (sorted by seq)
                 if ($standardPrice === 0) {
                     $standardPrice = $price;
@@ -223,7 +224,7 @@ class FeeSheetHtml extends FeeSheet
     public function generateContraceptionSelector($tagname = 'newmauser')
     {
         $s = '';
-        if ($GLOBALS['gbl_new_acceptor_policy'] == '1') {
+        if (OEGlobalsBag::getInstance()->get('gbl_new_acceptor_policy') == '1') {
 
 
             /**********************************************************
@@ -433,7 +434,7 @@ function jsLineItemValidation(f) {
  }
 ";
         } // end match services to products
-        if (isset($GLOBALS['code_types']['MA'])) {
+        if (isset(OEGlobalsBag::getInstance()->get('code_types')['MA'])) {
             $s .= "
  if (required_code_count == 0) {
   if (!confirm(" . xlj('You have not entered any clinical services or products. Click Cancel to add them. Or click OK if you want to save as-is.') . ")) {

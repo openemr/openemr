@@ -17,6 +17,7 @@
  */
 
 use Mpdf\Mpdf;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\FacilityService;
 
@@ -68,7 +69,7 @@ function make_task($ajax_req): void
     } elseif (($task['ID'] ?? '') && $task['COMPLETED'] >= '1') {
         if ($task['DOC_TYPE'] == 'Fax') {
             $send['DOC_link'] = "<a href=\"JavaScript:void(0);\"
-                                    onclick=\"openNewForm('" . $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');\"
+                                    onclick=\"openNewForm('" . OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');\"
                                     title='" . xla('View the Summary Report sent to') .
                                             text($task['to_name']) . " " . xla('via') . " " . text($task['to_fax']) . " " . xla('on') . " " . text($sent_date) . "'>
 								    <i class='far fa-file-pdf fa-fw'></i>
@@ -127,7 +128,7 @@ function process_tasks($task)
 
     if ($task['DOC_TYPE'] == "Fax") {
         //now return any objects you need to Eye Form
-        $send['DOC_link'] = "<a onclick=\"openNewForm('" . $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');\"
+        $send['DOC_link'] = "<a onclick=\"openNewForm('" . OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?document&view&patient_id=" . attr($task['PATIENT_ID']) . "&doc_id=" . attr($task['DOC_ID']) . "', 'Fax Report');\"
                                 href=\"JavaScript:void(0);\"
                                 title='" . xlt('Report was faxed to') . " " . attr($task['to_name']) . " @ " . attr($task['to_fax']) . " on " .
                                 text($task['COMPLETED_DATE']) . ". " . xla('Click to view.') . "'><i class='far fa-file-pdf fa-fw'></i></a>";
@@ -189,14 +190,14 @@ function deliver_document($task)
         $from_name .= ", " . $from_data['suffix'];
     }
     $from_fax       = preg_replace("/[^0-9]/", "", (string) $facility_data['fax']);
-    $email_sender   = $GLOBALS['patient_reminder_sender_email'];
+    $email_sender   = OEGlobalsBag::getInstance()->get('patient_reminder_sender_email');
 
     $to_data        = sqlQuery($query, [$task['TO_ID']]);
     $to_fax         = preg_replace("/[^0-9]/", "", (string) $to_data['fax']);
 
     $mail           = new MyMailer();
 
-    $to_email       = $to_fax . "@" . $GLOBALS['hylafax_server'];
+    $to_email       = $to_fax . "@" . OEGlobalsBag::getInstance()->get('hylafax_server');
     //consider using admin email = Notification Email Address
     //this must be a fax server approved From: address
     $file_to_attach = preg_replace('/^file:\/\//', "", (string) $task['DOC_url']);
@@ -276,7 +277,7 @@ function make_document($task)
     $encounter      = $task['ENC_ID'];
 
  //   $mail           = new MyMailer();
-    $to_email       = $to_fax . "@" . $GLOBALS['hylafax_server'];
+    $to_email       = $to_fax . "@" . OEGlobalsBag::getInstance()->get('hylafax_server');
 
     $query = "select  *,form_encounter.date as encounter_date
 
@@ -313,7 +314,7 @@ function make_document($task)
     $visit_date     = oeFormatShortDate($dated);
     $pid            = $task['PATIENT_ID'];
 
-    $filepath = $GLOBALS['oer_config']['documents']['repository'] . $task['PATIENT_ID'];
+    $filepath = OEGlobalsBag::getInstance()->get('oer_config')['documents']['repository'] . $task['PATIENT_ID'];
 
     // So far we make A "Report", one per encounter, and "Faxes", as many as we need per encounter.
     // So delete any prior report if that is what we are doing. and replace it.
@@ -553,7 +554,7 @@ mpdf-->
     $pdf->WriteHTML($header);
     $pdf->writeHTML($content);
 
-    $temp_filename = tempnam($GLOBALS['temporary_files_dir'], "oer");
+    $temp_filename = tempnam(OEGlobalsBag::getInstance()->get('temporary_files_dir'), "oer");
     $pdf->Output($temp_filename, 'F');
 
     $type = "application/pdf";

@@ -17,6 +17,7 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 ?>
 <script>
@@ -303,7 +304,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
     strokeWidths: [1, 2, 3, 5, 8, 12],
     defaultStrokeWidth: 2,
     backgroundShapes: [shape],
-    imageURLPrefix: '<?php echo $GLOBALS['assets_static_relative'] ?>/literallycanvas/img'
+    imageURLPrefix: '<?php echo OEGlobalsBag::getInstance()->get('assets_static_relative') ?>/literallycanvas/img'
 });
     if (canHeight > 261) {
     // TBD: Do something to make the widget bigger?
@@ -364,14 +365,14 @@ use OpenEMR\Common\Csrf\CsrfUtils;
     function sel_patient(ename, epid) {
     elem_patient_name = ename;
     elem_patient_id = epid;
-    dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/calendar/find_patient_popup.php', '_blank', 500, 400);
+    dlgopen('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/main/calendar/find_patient_popup.php', '_blank', 500, 400);
 }
 
     // This is a wrapper for specialty forms dialog
     // ajax mode allows calling script to be in the same scope as options.inc.php.
     function specialtyFormDialog(mode = 'iframe', size = 'modal-sm', formHandler = 'name_history') {
     event.preventDefault();
-    let url = '<?php echo $GLOBALS['webroot']; ?>/library/specialty_forms.php?';
+    let url = '<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/library/specialty_forms.php?';
     url += "form_handler=" + encodeURIComponent(formHandler);
     url += "&csrf_token_form=" + <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
     let title = xl("Add to History");

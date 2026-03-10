@@ -18,6 +18,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\SDOH\HistorySdohService;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
@@ -166,7 +167,7 @@ try {
     // TODO: there doesn't appear to be any error handling if the save fails... this seems pretty important.
     // Return to demographics (or wherever you prefer)
     // Redirect to health concerns selection page
-    $redirectUrl = $GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_health_concerns.php"
+    $redirectUrl = OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/history/history_sdoh_health_concerns.php"
         . "?pid=" . urlencode((string) $pid)
         . "&sdoh_id=" . urlencode((string) $id);
     header("Location: $redirectUrl");

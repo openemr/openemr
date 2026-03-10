@@ -66,6 +66,7 @@ namespace OpenEMR\Common\Session;
 
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\Predis\SentinelUtil;
+use OpenEMR\Core\OEGlobalsBag;
 use SessionHandlerInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -140,7 +141,7 @@ class SessionUtil
             // session open for write.
             session_write_close();
         }
-        self::coreSessionStart($GLOBALS['webroot'], false);
+        self::coreSessionStart(OEGlobalsBag::getInstance()->get('webroot'), false);
         if (is_array($session_key_or_array)) {
             foreach ($session_key_or_array as $key => $value) {
                 $_SESSION[$key] = $value;
@@ -172,7 +173,7 @@ class SessionUtil
             // session open for write.
             session_write_close();
         }
-        self::coreSessionStart($GLOBALS['webroot'], false);
+        self::coreSessionStart(OEGlobalsBag::getInstance()->get('webroot'), false);
         if (is_array($session_key_or_array)) {
             foreach ($session_key_or_array as $value) {
                 unset($_SESSION[$value]);
@@ -200,7 +201,7 @@ class SessionUtil
             // session open for write.
             session_write_close();
         }
-        self::coreSessionStart($GLOBALS['webroot'], false);
+        self::coreSessionStart(OEGlobalsBag::getInstance()->get('webroot'), false);
         foreach ($setArray as $key => $value) {
             $_SESSION[$key] = $value;
             foreach (self::$SESSION_INSTANCES as $symfonySessionInstance) {

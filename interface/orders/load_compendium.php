@@ -30,6 +30,7 @@ require_once("../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 // This array is an important reference for the supported labs and their NPI
 // numbers as known to this program.  The clinic must define at least one
@@ -76,7 +77,7 @@ if (!empty($_POST['form_import'])) {
 $auto_continue = false;
 
 // Set up main paths.
-$EXPORT_FILE = $GLOBALS['temporary_files_dir'] . "/openemr_config.sql";
+$EXPORT_FILE = OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/openemr_config.sql";
 ?>
 <html>
 

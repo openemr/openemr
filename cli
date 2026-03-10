@@ -12,7 +12,6 @@ use Firehed\Container\TypedContainerInterface;
 use OpenEMR\Console\Command\DebugLoadFacilityCommand;
 use Symfony\Component\Console\Application;
 
-// This will be used shortly
 $container = require_once __DIR__ . '/bootstrap.php';
 assert($container instanceof TypedContainerInterface);
 

@@ -125,57 +125,19 @@ class SiteSetupListener implements EventSubscriberInterface
             $ignoreAuth = false;
         } else {
             $ignoreAuth = true;
-            // Will start the api OpenEMR session/cookie, if its oauth2 it uses a different session cookie
-            $sessionFactory = new HttpSessionFactory(
-                $request,
-                $webroot,
-                $isOauth2Request ? HttpSessionFactory::SESSION_TYPE_OAUTH : HttpSessionFactory::SESSION_TYPE_API
-            );
-            if ($isOauth2Request) {
-                $request->attributes->set('is_oauth2_request', true);
-            }
-            $session = $sessionFactory->createSession();
-            $request->setSession($session);
-            $session->set('site_id', $siteId); // set the site id in the session
+            $this->setupApiSession($request, $webroot, $siteId, $isOauth2Request);
         }
 
-        // Set $sessionAllowWrite to true here for following reasons:
-        //  1. !$isLocalApi - not applicable since use the SessionUtil::apiSessionStart session, which was set above
-        //  2. $isLocalApi - in this case, basically setting this to true downstream after some session sets via session_write_close() call
-        $sessionAllowWrite = true;
+        $globalsBag = $this->loadApplicationGlobals($event, $ignoreAuth);
 
-        // setup the globals... would be nice to not have to do this, but we need the globals for the rest of OpenEMR
-        if ($event->getKernel() instanceof OEHttpKernel) {
-            $eventDispatcher = $event->getKernel()->getEventDispatcher();
-            $globalsBag = $event->getKernel()->getGlobalsBag();
-        }
-        // if this is a local api request, the session gets setup in this call... so we have to handle that properly.
-        $globalsBag = require_once(__DIR__ . "/../../../interface/globals.php");
-        // now that globals are setup, setup our centralized logger that will respect the global settings
-        if ($event->getKernel() instanceof OEHttpKernel) {
-            $event->getKernel()->setSystemLogger(new SystemLogger());
-        }
         // need to do a bridge session
         if ($request->headers->get('APICSRFTOKEN')) {
-            // setup the existing session bridge for local api requests
-            $sessionFactory = new HttpSessionFactory(
-                $request,
-                $webroot,
-                HttpSessionFactory::SESSION_TYPE_CORE
-            );
-            $sessionFactory->setUseExistingSessionBridge(true);
-            $session = $sessionFactory->createSession();
-            $request->setSession($session);
+            $this->setupCoreSessionBridge($request, $webroot);
         }
+
         // need to make sure the keys are always created
         try {
-            $serverConfig = new ServerConfig();
-            // check for key existence, if public key not there, we want to make sure we create it
-            if (!file_exists($serverConfig->getPublicRestKey())) {
-                $oauth2KeyConfig = new OAuth2KeyConfig($globalsBag->get('OE_SITE_DIR'));
-                $oauth2KeyConfig->configKeyPairs();
-            }
-            $request->setApiBaseFullUrl($serverConfig->getBaseApiUrl());
+            $this->setupOAuthKeys($globalsBag, $request);
         } catch (OAuth2KeyException $e) {
             throw new HttpException(500, $e->getMessage(), $e);
         }
@@ -183,9 +145,95 @@ class SiteSetupListener implements EventSubscriberInterface
             'siteId' => $siteId,
             'webroot' => $webroot,
             'isOauth2Request' => $isOauth2Request,
-            'sessionAllowWrite' => $sessionAllowWrite,
             'apiBaseUrl' => $request->getApiBaseFullUrl()
         ]);
+    }
+
+    /**
+     * Start the API or OAuth session for non-local-API requests.
+     * Override in tests to avoid starting real PHP sessions.
+     *
+     */
+    protected function setupApiSession(
+        HttpRestRequest $request,
+        string $webroot,
+        string $siteId,
+        bool $isOauth2Request
+    ): void {
+        $sessionFactory = new HttpSessionFactory(
+            $request,
+            $webroot,
+            $isOauth2Request ? HttpSessionFactory::SESSION_TYPE_OAUTH : HttpSessionFactory::SESSION_TYPE_API
+        );
+        if ($isOauth2Request) {
+            $request->attributes->set('is_oauth2_request', true);
+        }
+        $session = $sessionFactory->createSession();
+        $request->setSession($session);
+        $session->set('site_id', $siteId);
+    }
+
+    /**
+     * Load globals.php and configure the kernel logger.
+     * Override in tests to avoid requiring the full OpenEMR environment.
+     *
+     * globals.php reads several variables from the caller's local scope via
+     * PHP include semantics. Set them here so they remain visible to the
+     * included file.
+     *
+     */
+    protected function loadApplicationGlobals(RequestEvent $event, bool $ignoreAuth): mixed
+    {
+        // globals.php line 236: $read_only = empty($sessionAllowWrite)
+        $sessionAllowWrite = true;
+
+        // globals.php line 220: if (isset($globalsBag)) — reuse the kernel's bag
+        // globals.php line 234: $globalsBag->set('eventDispatcher', $eventDispatcher ?? null)
+        if ($event->getKernel() instanceof OEHttpKernel) {
+            $eventDispatcher = $event->getKernel()->getEventDispatcher();
+            $globalsBag = $event->getKernel()->getGlobalsBag();
+        }
+
+        // globals.php line 251: if (empty($ignoreAuth) && empty($ignoreAuth_onsite_portal))
+        // $ignoreAuth is already a parameter in this scope.
+
+        $globalsBag = require_once(__DIR__ . "/../../../interface/globals.php");
+        if ($event->getKernel() instanceof OEHttpKernel) {
+            $event->getKernel()->setSystemLogger(new SystemLogger());
+        }
+        return $globalsBag;
+    }
+
+    /**
+     * Create a core session bridge for local API requests (APICSRFTOKEN).
+     * Override in tests to avoid starting real PHP sessions.
+     *
+     */
+    protected function setupCoreSessionBridge(HttpRestRequest $request, string $webroot): void
+    {
+        $sessionFactory = new HttpSessionFactory(
+            $request,
+            $webroot,
+            HttpSessionFactory::SESSION_TYPE_CORE
+        );
+        $sessionFactory->setUseExistingSessionBridge(true);
+        $session = $sessionFactory->createSession();
+        $request->setSession($session);
+    }
+
+    /**
+     * Ensure OAuth2 key pairs exist and set the API base URL.
+     * Override in tests to avoid filesystem/config dependencies.
+     *
+     */
+    protected function setupOAuthKeys(mixed $globalsBag, HttpRestRequest $request): void
+    {
+        $serverConfig = new ServerConfig();
+        if (!file_exists($serverConfig->getPublicRestKey())) {
+            $oauth2KeyConfig = new OAuth2KeyConfig($globalsBag->get('OE_SITE_DIR'));
+            $oauth2KeyConfig->configKeyPairs();
+        }
+        $request->setApiBaseFullUrl($serverConfig->getBaseApiUrl());
     }
 
     private function checkForOauth2Request(HttpRestRequest $request): bool

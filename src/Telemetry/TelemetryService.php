@@ -13,6 +13,7 @@ namespace OpenEMR\Telemetry;
 use OpenEMR\Common\Database\DatabaseQueryTrait;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VersionService;
 use OpenEMR\Services\VersionServiceInterface;
 use Psr\Log\LoggerInterface;
@@ -168,7 +169,7 @@ class TelemetryService
         $interval = date("Ym", strtotime("-33 Days"));
 
         $timeZoneResult = $this->querySingleRow("SELECT `gl_value` as zone FROM `globals` WHERE `gl_value` > '' AND `gl_name` = 'gbl_time_zone' LIMIT 1", []);
-        $time_zone = $timeZoneResult['zone'] ?? $GLOBALS['gbl_time_zone'] ?? '';
+        $time_zone = $timeZoneResult['zone'] ?? OEGlobalsBag::getInstance()->get('gbl_time_zone') ?? '';
 
         $usageRecords = $this->repository->fetchUsageRecords();
         $populationData = $this->repository->fetchSitePopulationData();
@@ -176,7 +177,7 @@ class TelemetryService
         $encEnabledForms = $this->repository->fetchEnabledEncounterForms();
 
         $settings = [
-            'portal_enabled' => $GLOBALS['portal_onsite_two_enable'] ?? false,
+            'portal_enabled' => OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable'),
         ];
 
         $localeData = [
@@ -241,7 +242,7 @@ class TelemetryService
         $parsed = parse_url($url);
         $path = $parsed['path'] ?? '';
         $fragment = isset($parsed['fragment']) ? '#' . $parsed['fragment'] : '';
-        $normalized = !empty($GLOBALS['webroot']) ? preg_replace('#^(' . $GLOBALS['webroot'] . ')?#', '', $path) : $path;
+        $normalized = !empty(OEGlobalsBag::getInstance()->get('webroot')) ? preg_replace('#^(' . OEGlobalsBag::getInstance()->get('webroot') . ')?#', '', $path) : $path;
         return ($normalized . $fragment);
     }
 
@@ -280,7 +281,7 @@ class TelemetryService
      */
     protected function executeCurlRequest(string $endpoint, string $payload): array
     {
-        $httpVerifySsl = (bool)($GLOBALS['http_verify_ssl'] ?? true);
+        $httpVerifySsl = (bool)(OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
         $ch = curl_init($endpoint);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);

@@ -17,12 +17,13 @@
 
 namespace ESign;
 
-require_once $GLOBALS['srcdir'] . '/ESign/Abstract/Controller.php';
-require_once $GLOBALS['srcdir'] . '/ESign/Form/Configuration.php';
-require_once $GLOBALS['srcdir'] . '/ESign/Form/Factory.php';
-require_once $GLOBALS['srcdir'] . '/ESign/Form/Log.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Abstract/Controller.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Form/Configuration.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Form/Factory.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Form/Log.php';
 
 use OpenEMR\Common\Auth\AuthUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 class Form_Controller extends Abstract_Controller
 {
@@ -40,12 +41,12 @@ class Form_Controller extends Abstract_Controller
         $form->action = '#';
         $signable = new Form_Signable($form->formId, $form->formDir, $form->encounterId);
         $form->showLock = false;
-        $form->displayGoogleSignin = (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_client_id'])) ? true : false;
-        $form->googleSigninClientID = $GLOBALS['google_signin_client_id'];
+        $form->displayGoogleSignin = (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(OEGlobalsBag::getInstance()->get('google_signin_client_id'))) ? true : false;
+        $form->googleSigninClientID = OEGlobalsBag::getInstance()->get('google_signin_client_id');
         if (
             $signable->isLocked() === false &&
-            $GLOBALS['lock_esign_individual'] &&
-            $GLOBALS['esign_lock_toggle']
+            OEGlobalsBag::getInstance()->getBoolean('lock_esign_individual') &&
+            OEGlobalsBag::getInstance()->getBoolean('esign_lock_toggle')
         ) {
             $form->showLock = true;
         }
@@ -85,15 +86,15 @@ class Form_Controller extends Abstract_Controller
         $usedGoogleSignin = $this->getRequest()->getParam('used_google_signin', '');
         $googleSigninToken = $this->getRequest()->getParam('google_signin_token', '');
         $force_google = (
-            !empty($GLOBALS['google_signin_enabled']) &&
-            !empty($GLOBALS['google_signin_client_id']) &&
+            OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') &&
+            !empty(OEGlobalsBag::getInstance()->get('google_signin_client_id')) &&
             !empty($usedGoogleSignin) &&
             !empty($googleSigninToken)
         ) ? 1 : 0;
 
         // Always lock, unless esign_lock_toggle option is enable in globals
         $lock = true;
-        if ($GLOBALS['esign_lock_toggle']) {
+        if (OEGlobalsBag::getInstance()->getBoolean('esign_lock_toggle')) {
             $lock = ( $this->getRequest()->getParam('lock', '') == 'on' ) ? true : false;
         }
 

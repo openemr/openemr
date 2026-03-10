@@ -30,9 +30,7 @@ class EncounterServiceTest extends TestCase
      */
     private $fixtureManager;
 
-    /**
-     * @var EncounterFixture
-     */
+    /** @var array<string, mixed> */
     private $fixture;
 
     protected function setUp(): void

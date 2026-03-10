@@ -10,6 +10,8 @@
  // This program implements the XML Writer to generate PQRI 2009 XML.
 
 
+use OpenEMR\Core\OEGlobalsBag;
+
 class PQRIXml extends XmlWriterOemr
 {
     function __construct($indent = '  ')
@@ -50,8 +52,8 @@ class PQRIXml extends XmlWriterOemr
     {
 
         $this->push('registry');
-        $this->element('registry-name', $GLOBALS['pqri_registry_name']);
-        $this->element('registry-id', $GLOBALS['pqri_registry_id']);
+        $this->element('registry-name', OEGlobalsBag::getInstance()->get('pqri_registry_name'));
+        $this->element('registry-id', OEGlobalsBag::getInstance()->get('pqri_registry_id'));
         $this->element('submit-method', $submission_method);
         $this->pop();
     }

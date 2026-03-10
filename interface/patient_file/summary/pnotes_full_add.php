@@ -22,6 +22,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -275,7 +276,7 @@ function submitform(attr) {
                     </select>
                 </div>
 
-                <?php if ($GLOBALS['messages_due_date']) { ?>
+                <?php if (OEGlobalsBag::getInstance()->getBoolean('messages_due_date')) { ?>
                     <div class="form-group mt-3">
                         <label for='datetime' class='font-weight-bold'><?php echo xlt('Due date'); ?>:</label>
                         <?php
@@ -460,7 +461,7 @@ $(function () {
         <?php $datetimepicker_timepicker = true; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         ,minDate : 0 //only future
     });
 

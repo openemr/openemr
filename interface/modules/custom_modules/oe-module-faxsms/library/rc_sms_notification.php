@@ -18,6 +18,7 @@
 
 //hack add for command line version
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 use OpenEMR\Modules\FaxSMS\Exception\EmailSendFailedException;
 use OpenEMR\Modules\FaxSMS\Exception\InvalidEmailAddressException;
@@ -56,7 +57,7 @@ if (php_sapi_name() === 'cli') {
 // so service can set some settings if needed on init.
 $sessionAllowWrite = true;
 require_once(__DIR__ . "/../../../../globals.php");
-require_once($GLOBALS['srcdir'] . "/appointments.inc.php");
+require_once(OEGlobalsBag::getInstance()->get('srcdir') . "/appointments.inc.php");
 
 // Check for help argument
 if ($argc > 1 && (in_array('--help', $argv) || in_array('-h', $argv))) {

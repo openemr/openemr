@@ -106,7 +106,7 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
         $ot = $oneTime->decodePortalOneTime($token, null, false);
         $pin_required = $ot['actions']['enforce_auth_pin'] ? 1 : 0;
         CsrfUtils::setupCsrfKey($session->getSymfonySession());
-        $twig = new TwigContainer(null, $globalsBag->get('kernel'));
+        $twig = new TwigContainer(null, $globalsBag->getKernel());
         echo $twig->getTwig()->render('portal/login/autologin.html.twig', [
             'action' => $globalsBag->getString('web_root') . '/portal/index.php',
             'service_auth' => $_GET['service_auth'],
@@ -159,7 +159,7 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
 }
 
 if (!empty($_GET['forward_email_verify'])) {
-    if (empty($globalsBag->get('portal_onsite_two_register')) || empty($globalsBag->get('google_recaptcha_site_key')) || empty($globalsBag->get('google_recaptcha_secret_key'))) {
+    if (!$globalsBag->getBoolean('portal_onsite_two_register') || empty($globalsBag->get('google_recaptcha_site_key')) || empty($globalsBag->get('google_recaptcha_secret_key'))) {
         (new SystemLogger())->debug("registration not supported, so stopped attempt to use forward_email_verify token");
         SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
@@ -244,7 +244,7 @@ if (!empty($_GET['forward_email_verify'])) {
         exit();
     }
 } elseif (isset($_GET['forward'])) {
-    if ((empty($globalsBag->get('portal_two_pass_reset')) && empty($globalsBag->get('portal_onsite_two_register'))) || empty($globalsBag->get('google_recaptcha_site_key')) || empty($globalsBag->get('google_recaptcha_secret_key'))) {
+    if ((!$globalsBag->getBoolean('portal_two_pass_reset') && !$globalsBag->getBoolean('portal_onsite_two_register')) || empty($globalsBag->get('google_recaptcha_site_key')) || empty($globalsBag->get('google_recaptcha_secret_key'))) {
         (new SystemLogger())->debug("reset password and registration not supported, so stopped attempt to use forward token");
         SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w&u');
@@ -291,7 +291,7 @@ $session->set('itsme', 1);
 // Deal with language selection
 //
 // collect default language id (skip this if this is a password update or reset)
-if (!($session->has('password_update') || (!empty($globalsBag->get('portal_two_pass_reset')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key')) && isset($_GET['requestNew'])))) {
+if (!($session->has('password_update') || ($globalsBag->getBoolean('portal_two_pass_reset') && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key')) && isset($_GET['requestNew'])))) {
     $res2 = sqlStatement("select * from lang_languages where lang_description = ?", [$globalsBag->get('language_default')]);
     for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
         $result2[$iter] = $row;
@@ -438,7 +438,7 @@ if (!($session->has('password_update') || (!empty($globalsBag->get('portal_two_p
         });
     </script>
 
-    <?php if (!empty($globalsBag->get('portal_two_pass_reset')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key')) && isset($_GET['requestNew'])) { ?>
+    <?php if ($globalsBag->getBoolean('portal_two_pass_reset') && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key')) && isset($_GET['requestNew'])) { ?>
         <script src="https://www.google.com/recaptcha/api.js" async defer></script>
         <script>
             function enableVerifyBtn() {
@@ -529,7 +529,7 @@ if (!($session->has('password_update') || (!empty($globalsBag->get('portal_two_p
                         <input class="form-control" name="pass_new_confirm" id="pass_new_confirm" type="password" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" />
                     </div>
                 </div>
-                <?php if ($globalsBag->get('enforce_signin_email')) { ?>
+                <?php if ($globalsBag->getBoolean('enforce_signin_email')) { ?>
                     <div class="form-row my-3">
                         <label class="col-md-2 col-form-label" for="passaddon"><?php echo xlt('Confirm Email Address'); ?></label>
                         <div class="col-md">
@@ -541,7 +541,7 @@ if (!($session->has('password_update') || (!empty($globalsBag->get('portal_two_p
                     echo "&redirect=" . attr_url($redirectUrl); } ?>');" value="<?php echo xla('Cancel'); ?>" />
                 <input class="btn btn-primary" type="submit" value="<?php echo xla('Log In'); ?>" />
             </form>
-        <?php } elseif (!empty($globalsBag->get('portal_two_pass_reset')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key')) && isset($_GET['requestNew'])) { ?>
+        <?php } elseif ($globalsBag->getBoolean('portal_two_pass_reset') && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key')) && isset($_GET['requestNew'])) { ?>
             <form id="resetPass" action="#" method="post">
                 <input type='hidden' id='csrf_token_form' name='csrf_token_form' value='<?php echo attr(CsrfUtils::collectCsrfToken('passwordResetCsrf', $session->getSymfonySession())); ?>' />
                 <?php if (isset($redirectUrl)) { ?>
@@ -592,18 +592,18 @@ if (!($session->has('password_update') || (!empty($globalsBag->get('portal_two_p
         <div class="container-xl p-1">
             <!-- Optionally show two logos, and in either order -->
             <?php if ($globalsBag->get('secondary_portal_logo_position') === 'second') { ?>
-                <?php if ($globalsBag->get('show_portal_primary_logo')) { ?>
+                <?php if ($globalsBag->getBoolean('show_portal_primary_logo')) { ?>
                     <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logoSrc; ?>'></div>
                 <?php } ?>
-                <?php if ($globalsBag->get('extra_portal_logo_login')) { ?>
+                <?php if ($globalsBag->getBoolean('extra_portal_logo_login')) { ?>
                     <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logo2ndSrc; ?>'></div>
                 <?php } ?>
             <?php } else {
                 if ($globalsBag->get('secondary_portal_logo_position') === 'first') { ?>
-                    <?php if ($globalsBag->get('extra_portal_logo_login')) { ?>
+                    <?php if ($globalsBag->getBoolean('extra_portal_logo_login')) { ?>
                         <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logo2ndSrc; ?>'></div>
                     <?php } ?>
-                    <?php if ($globalsBag->get('show_portal_primary_logo')) { ?>
+                    <?php if ($globalsBag->getBoolean('show_portal_primary_logo')) { ?>
                         <div class="img-fluid text-center"><img class="login-logo" src='<?php echo $logoSrc; ?>'></div>
                     <?php } ?>
                 <?php } ?>
@@ -628,7 +628,7 @@ if (!($session->has('password_update') || (!empty($globalsBag->get('portal_two_p
                             </div>
                         </div>
                     </div>
-                <?php if ($globalsBag->get('enforce_signin_email')) { ?>
+                <?php if ($globalsBag->getBoolean('enforce_signin_email')) { ?>
                     <div class="form-group">
                         <label for="passaddon"><?php echo xlt('E-Mail Address') ?></label>
                         <input class="form-control" name="passaddon" id="passaddon" type="email" autocomplete="none" />
@@ -643,15 +643,15 @@ if (!($session->has('password_update') || (!empty($globalsBag->get('portal_two_p
                         echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
                             text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";
                         foreach ($result3 as $iter) {
-                            if ($globalsBag->get('language_menu_showall')) {
-                                if (!$globalsBag->get('allow_debug_language') && $iter['lang_description'] == 'dummy') {
+                            if ($globalsBag->getBoolean('language_menu_showall')) {
+                                if (!$globalsBag->getBoolean('allow_debug_language') && $iter['lang_description'] == 'dummy') {
                                     continue; // skip the dummy language
                                 }
                                 echo "<option value='" . attr($iter['lang_id']) . "'>" .
                                     text($iter['trans_lang_description']) . "</option>\n";
                             } else {
                                 if (in_array($iter['lang_description'], $globalsBag->get('language_menu_show'))) {
-                                    if (!$globalsBag->get('allow_debug_language') && $iter['lang_description'] == 'dummy') {
+                                    if (!$globalsBag->getBoolean('allow_debug_language') && $iter['lang_description'] == 'dummy') {
                                         continue; // skip the dummy language
                                     }
                                     echo "<option value='" . attr($iter['lang_id']) . "'>" .
@@ -666,10 +666,10 @@ if (!($session->has('password_update') || (!empty($globalsBag->get('portal_two_p
                 </div>
                 <div class="col col-md col-sm">
                     <button class="btn btn-success btn-block" type="submit"><?php echo xlt('Log In'); ?></button>
-                    <?php if (!empty($globalsBag->get('portal_onsite_two_register')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key'))) { ?>
+                    <?php if ($globalsBag->getBoolean('portal_onsite_two_register') && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key'))) { ?>
                         <button class="btn btn-secondary btn-block" onclick="location.replace('./account/verify.php?site=<?php echo attr_url($session->get('site_id')); ?>')"><?php echo xlt('Register'); ?></button>
                     <?php } ?>
-                    <?php if (!empty($globalsBag->get('portal_two_pass_reset')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key')) && isset($_GET['w']) && (isset($_GET['u']) || isset($_GET['p']))) { ?>
+                    <?php if ($globalsBag->getBoolean('portal_two_pass_reset') && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key')) && isset($_GET['w']) && (isset($_GET['u']) || isset($_GET['p']))) { ?>
                         <button class="btn btn-danger btn-block" onclick="location.replace('./index.php?requestNew=1&site=<?php echo attr_url($session->get('site_id')); ?><?php if (!empty($redirectUrl)) {
                                 echo "&redirect=" . attr_url($redirectUrl); } ?>')"><?php echo xlt('Reset Credentials'); ?></button>
                     <?php } ?>
@@ -704,7 +704,7 @@ if (!($session->has('password_update') || (!empty($globalsBag->get('portal_two_p
 
         $(function () {
             <?php // if something went wrong
-            if (!empty($globalsBag->get('portal_two_pass_reset')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key')) && isset($_GET['requestNew'])) {
+            if ($globalsBag->getBoolean('portal_two_pass_reset') && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key')) && isset($_GET['requestNew'])) {
                 $session->set('register', true);
                 $session->set('authUser', 'portal-user');
                 $session->set('pid', true);

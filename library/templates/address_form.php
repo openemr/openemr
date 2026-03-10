@@ -97,7 +97,7 @@ $templateVars = [
     'widget_constants' => $widgetConstants,
     'edit_options' => $edit_options ?? null,
     'contact_id' => $contact ? $contact->get_id() : null,
-    'srcdir' => $GLOBALS['srcdir']
+    'srcdir' => OEGlobalsBag::getInstance()->get('srcdir')
 ];
 
 // Render Twig template

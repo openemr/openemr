@@ -21,6 +21,8 @@
 
 namespace OpenEMR\Gacl;
 
+use OpenEMR\Core\OEGlobalsBag;
+
 class GaclAdminApi extends GaclApi {
 
     /*
@@ -47,7 +49,7 @@ class GaclAdminApi extends GaclApi {
      */
     function return_page($url=""): never {
         $return_page = basename((string) $url);
-        header('Location: ' . $GLOBALS['web_root'] . "/gacl/admin/" . $return_page);
+        header('Location: ' . OEGlobalsBag::getInstance()->get('web_root') . "/gacl/admin/" . $return_page);
         exit;
     }
 

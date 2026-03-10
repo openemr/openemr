@@ -29,6 +29,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 
 //ensure user has proper access
@@ -43,13 +44,13 @@ $daysheet = false;
 $daysheet_total = false;
 $provider_run = false;
 
-if ($GLOBALS['use_custom_daysheet'] != 0) {
+if (OEGlobalsBag::getInstance()->get('use_custom_daysheet') != 0) {
     $daysheet = true;
-    if ($GLOBALS['daysheet_provider_totals'] == 1) {
+    if (OEGlobalsBag::getInstance()->get('daysheet_provider_totals') == 1) {
         $daysheet_total = true;
         $provider_run = false;
     }
-    if ($GLOBALS['daysheet_provider_totals'] == 0) {
+    if (OEGlobalsBag::getInstance()->get('daysheet_provider_totals') == 0) {
         $daysheet_total = false;
         $provider_run = true;
     }
@@ -93,16 +94,16 @@ $my_authorized = $_POST["authorized"] ?? '';
 // are to be reported.
 $missing_mods_only = (isset($_POST['missing_mods_only']) && !empty($_POST['missing_mods_only']));
 
-$left_margin = $_POST["left_margin"] ?? $GLOBALS['cms_left_margin_default'];
-$top_margin = $_POST["top_margin"] ?? $GLOBALS['cms_top_margin_default'];
+$left_margin = $_POST["left_margin"] ?? OEGlobalsBag::getInstance()->get('cms_left_margin_default');
+$top_margin = $_POST["top_margin"] ?? OEGlobalsBag::getInstance()->get('cms_top_margin_default');
 if ($left_margin + 0 === 20 && $top_margin + 0 === 24) {
 // defaults are flipped. No easy way to reset existing. Global defaults fixed.
     $left_margin = '24';
     $top_margin = '20';
 }
 if ($ub04_support) {
-    $left_ubmargin = $_POST["left_ubmargin"] ?? $GLOBALS['left_ubmargin_default'];
-    $top_ubmargin = $_POST["top_ubmargin"] ?? $GLOBALS['top_ubmargin_default'];
+    $left_ubmargin = $_POST["left_ubmargin"] ?? OEGlobalsBag::getInstance()->get('left_ubmargin_default');
+    $top_ubmargin = $_POST["top_ubmargin"] ?? OEGlobalsBag::getInstance()->get('top_ubmargin_default');
 }
 $ofrom_date = $from_date;
 $oto_date = $to_date;
@@ -319,14 +320,14 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             f.bn_external.disabled = !can_generate;
             <?php } else { ?>
             f.bn_x12_support.disabled = !can_generate;
-                <?php if ($GLOBALS['support_encounter_claims']) { ?>
+                <?php if (OEGlobalsBag::getInstance()->getBoolean('support_encounter_claims')) { ?>
             f.bn_x12_encounter.disabled = !can_generate;
             <?php } ?>
             f.bn_process_hcfa_support.disabled = !can_generate;
-                <?php if ($GLOBALS['preprinted_cms_1500']) { ?>
+                <?php if (OEGlobalsBag::getInstance()->getBoolean('preprinted_cms_1500')) { ?>
             f.bn_process_hcfa_form.disabled = !can_generate;
             <?php } ?>
-                <?php if ($GLOBALS['ub04_support']) { ?>
+                <?php if (OEGlobalsBag::getInstance()->getBoolean('ub04_support')) { ?>
             f.bn_process_ub04_support.disabled = !can_generate;
             <?php } ?>
             f.bn_hcfa_txt_file.disabled = !can_generate;
@@ -368,7 +369,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 set_encounterid: enc,
                 set_pid: newpid
             });
-            top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?" + params;
+            top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/patient_file/summary/demographics.php?" + params;
         }
 
         function popMBO(pid, enc, mboid) {
@@ -382,7 +383,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 isBilling: '1',
                 pid: pid
             });
-            const href = "<?php echo $GLOBALS['web_root']?>/interface/patient_file/encounter/view_form.php?" + params;
+            const href = "<?php echo OEGlobalsBag::getInstance()->get('web_root')?>/interface/patient_file/encounter/view_form.php?" + params;
             dlgopen(href, 'mbopop', 'modal-lg', 750, false, '', {
                 sizeHeight: 'full' // override min height auto size.
             });
@@ -397,7 +398,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 enc: enc,
                 pid: pid
             });
-            const href = "<?php echo $GLOBALS['web_root']?>/interface/billing/ub04_form.php?" + params;
+            const href = "<?php echo OEGlobalsBag::getInstance()->get('web_root')?>/interface/billing/ub04_form.php?" + params;
             dlgopen(href, 'ub04pop', 1175, 750, false, '', {
                 sizeHeight: 'full' // override min height auto size.
             });
@@ -434,13 +435,13 @@ $partners = $x->_utility_array($x->x12_partner_factory());
             if (!ProcessBeforeSubmitting()) return false;
             top.restoreSession();
             document.the_form.target = 'new';
-            <?php if ($GLOBALS['use_custom_daysheet'] == 1) { ?>
+            <?php if (OEGlobalsBag::getInstance()->get('use_custom_daysheet') == 1) { ?>
             document.the_form.action = 'print_daysheet_report_num1.php';
             <?php } ?>
-            <?php if ($GLOBALS['use_custom_daysheet'] == 2) { ?>
+            <?php if (OEGlobalsBag::getInstance()->get('use_custom_daysheet') == 2) { ?>
             document.the_form.action = 'print_daysheet_report_num2.php';
             <?php } ?>
-            <?php if ($GLOBALS['use_custom_daysheet'] == 3) { ?>
+            <?php if (OEGlobalsBag::getInstance()->get('use_custom_daysheet') == 3) { ?>
             document.the_form.action = 'print_daysheet_report_num3.php';
             <?php } ?>
             document.the_form.submit();
@@ -529,7 +530,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
     <?php require_once "$srcdir/../interface/reports/report.script.php"; ?>
     <!-- Criteria Section common javascript page-->
     <!-- =============Included for Insurance ajax criteria==== -->
-    <?php require_once "{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"; ?>
+    <?php require_once OEGlobalsBag::getInstance()->get('srcdir') . "/ajax/payment_ajax_jav.inc.php"; ?>
     <style>
         #ajax_div_insurance {
             position: absolute;
@@ -766,14 +767,14 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 </button>
                             </li>
                             <?php } ?>
-                            <?php if ($GLOBALS['ub04_support']) { ?>
+                            <?php if (OEGlobalsBag::getInstance()->getBoolean('ub04_support')) { ?>
                             <li class="nav-item">
                                 <button type="submit" class="btn nav-link btn-link btn-download" name="bn_ub04_x12" onclick="confirmActions(event, '1');" title="<?php echo xla('Generate Institutional X12 837I') ?>">
                                     <?php echo xlt('Generate X12 837I') ?>
                                 </button>
                             </li>
                             <?php } ?>
-                            <?php if ($GLOBALS['support_encounter_claims']) { ?>
+                            <?php if (OEGlobalsBag::getInstance()->getBoolean('support_encounter_claims')) { ?>
                             <li class="nav-item">
                                 <button type="submit" class="btn nav-link btn-link btn-download" name="bn_x12_encounter" onclick="confirmActions(event, '1');" title="<?php echo xla('Generate and download X12 encounter claim batch') ?>">
                                     <?php echo xlt('Generate X12 Encounter') ?>
@@ -792,7 +793,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     <?php echo xlt('CMS 1500 PDF') ?>
                                 </button>
                             </li>
-                            <?php if ($GLOBALS['preprinted_cms_1500']) { ?>
+                            <?php if (OEGlobalsBag::getInstance()->getBoolean('preprinted_cms_1500')) { ?>
                             <li class="nav-item">
                                 <button type="button" class="btn nav-link btn-link btn-download" onclick="confirmActions(event, '2');" name="bn_process_hcfa_form" title="<?php echo xla('Generate and download CMS 1500 paper claims on Preprinted form') ?>">
                                     <?php echo xlt('CMS 1500 Form') ?>
@@ -806,7 +807,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             </li>
                         </ul>
                     </div>
-                    <?php if ($GLOBALS['ub04_support']) { ?>
+                    <?php if (OEGlobalsBag::getInstance()->getBoolean('ub04_support')) { ?>
                     <div class="btn-group dropdown">
                         <button type="button" class="btn nav-link btn-link dropdown-toggle" data-toggle="dropdown" name="bn_process_ub04_support" title=""><?php echo xlt('UB04 FORM') ?>
                             <span class="caret"></span>
@@ -1101,7 +1102,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                 $lhtml .= "</div>";
                                 $divnos += 1;
                                 $lhtml .= "&nbsp;&nbsp;&nbsp;<a onclick='divtoggle(" . attr_js("spanid_" . $divnos) . "," . attr_js("divid_" . $divnos) . ");' class='small' id='aid_" . attr($divnos) . "' href=\"JavaScript:void(0);" . "\">(<span id=spanid_" . attr($divnos) . " class=\"indicator\">" . xlt('Expand') . '</span>)<br /></a>';
-                                if ($GLOBALS['notes_to_display_in_Billing'] == 2 || $GLOBALS['notes_to_display_in_Billing'] == 3) {
+                                if (OEGlobalsBag::getInstance()->get('notes_to_display_in_Billing') == 2 || OEGlobalsBag::getInstance()->get('notes_to_display_in_Billing') == 3) {
                                     $lhtml .= '<span class="font-weight-bold text-danger" style="margin-left: 20px;">' . text($billing_note) . '</span>';
                                 }
 
@@ -1148,7 +1149,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                                     $lhtml .= "</select></span>";
                                     $divPut = true;
 
-                                    if ($GLOBALS['notes_to_display_in_Billing'] == 1 || $GLOBALS['notes_to_display_in_Billing'] == 3) {
+                                    if (OEGlobalsBag::getInstance()->get('notes_to_display_in_Billing') == 1 || OEGlobalsBag::getInstance()->get('notes_to_display_in_Billing') == 3) {
                                         $lhtml .= "<br /><span class='font-weight-bold text-success ml-3'>" . text($enc_billing_note[$iter['enc_encounter']]) . "</span>";
                                     }
                                     $lhtml .= "<br />\n&nbsp;<div id='divid_" . attr($divnos) . "' style='display:none'>" . text(oeFormatShortDate(substr((string) $iter['date'], 0, 10))) . text(substr((string) $iter['date'], 10, 6)) . " " . xlt("Encounter was coded");
@@ -1296,7 +1297,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                             }
                             $rhtml .= "</span></td>\n";
                             $rhtml .= '<td><span style="font-size:8pt;">&nbsp;&nbsp;&nbsp;';
-                            if ($GLOBALS['display_units_in_billing'] != 0) {
+                            if (OEGlobalsBag::getInstance()->getBoolean('display_units_in_billing')) {
                                 if ($iter['id']) {
                                     $rhtml .= xlt("Units") . ":" . text($iter["units"]);
                                 }
@@ -1451,7 +1452,7 @@ $partners = $x->_utility_array($x->x12_partner_factory());
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = false; ?>
-                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             // jquery-ui tooltip converted to bootstrap tooltip

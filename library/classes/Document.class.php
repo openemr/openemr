@@ -651,7 +651,7 @@ class Document extends ORDataObject
         }
         $from_pathname_array = array_reverse($from_pathname_array);
         $from_pathname = implode("/", $from_pathname_array);
-        $filepath = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $from_pathname . '/' . $from_filename;
+        $filepath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/' . $from_pathname . '/' . $from_filename;
         return $filepath;
     }
     /**
@@ -920,8 +920,8 @@ class Document extends ORDataObject
         // Create a crypto object that will be used for for encryption/decryption
         $cryptoGen = ServiceContainer::getCrypto();
 
-        if ($GLOBALS['generate_doc_thumb']) {
-            $thumb_size = ($GLOBALS['thumb_doc_max_size'] > 0) ? $GLOBALS['thumb_doc_max_size'] : null;
+        if (OEGlobalsBag::getInstance()->getBoolean('generate_doc_thumb')) {
+            $thumb_size = (OEGlobalsBag::getInstance()->get('thumb_doc_max_size') > 0) ? OEGlobalsBag::getInstance()->get('thumb_doc_max_size') : null;
             $thumbnail_class = new Thumbnail($thumb_size);
 
             $has_thumbnail = !is_null($tmpfile) ? $thumbnail_class->file_support_thumbnail($tmpfile) : false;
@@ -939,17 +939,17 @@ class Document extends ORDataObject
         }
 
         $encounter_id = $eid;
-        $this->storagemethod = $GLOBALS['document_storage_method'];
+        $this->storagemethod = OEGlobalsBag::getInstance()->get('document_storage_method');
         $this->mimetype = $mimetype;
         if ($this->storagemethod == self::STORAGE_METHOD_COUCHDB) {
             // Store it using CouchDB.
-            if ($GLOBALS['couchdb_encryption']) {
+            if (OEGlobalsBag::getInstance()->getBoolean('couchdb_encryption')) {
                 $document = $cryptoGen->encryptStandard($data, null, KeySource::Database);
             } else {
                 $document = base64_encode($data);
             }
             if ($has_thumbnail) {
-                if ($GLOBALS['couchdb_encryption']) {
+                if (OEGlobalsBag::getInstance()->getBoolean('couchdb_encryption')) {
                     $th_document = $cryptoGen->encryptStandard($thumbnail_data, null, KeySource::Database);
                 } else {
                     $th_document = base64_encode($thumbnail_data);
@@ -994,12 +994,12 @@ class Document extends ORDataObject
              * Else resume the local file storage
              */
 
-            if ($GLOBALS['documentStoredRemotely'] ?? '') {
+            if (OEGlobalsBag::getInstance()->get('documentStoredRemotely') ?? '') {
                 return xlt("Document was uploaded to remote storage"); // terminate processing
             }
 
             // Storing document files locally.
-            $repository = $GLOBALS['oer_config']['documents']['repository'];
+            $repository = OEGlobalsBag::getInstance()->get('oer_config')['documents']['repository'];
             $higher_level_path = preg_replace("/[^A-Za-z0-9\/]/", "_", $higher_level_path);
             $validPatientId = ValidationUtils::validateInt($patient_id, min: 1);
             if ((!empty($higher_level_path)) && $validPatientId !== false) {
@@ -1040,7 +1040,7 @@ class Document extends ORDataObject
             }
 
             // Store the file.
-            $storedData = $GLOBALS['drive_encryption'] ? $cryptoGen->encryptStandard($data, null, KeySource::Database) : $data;
+            $storedData = OEGlobalsBag::getInstance()->getBoolean('drive_encryption') ? $cryptoGen->encryptStandard($data, null, KeySource::Database) : $data;
             if (file_exists($filepath . $filenameUuid)) {
                 // this should never happen with current uuid mechanism
                 return xl('Failed since file already exists') . " $filepath$filenameUuid";
@@ -1052,7 +1052,7 @@ class Document extends ORDataObject
             if ($has_thumbnail) {
                 // Store the thumbnail.
                 $this->thumb_url = "file://" . $filepath . $this->get_thumb_name($filenameUuid);
-                if ($GLOBALS['drive_encryption']) {
+                if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
                     $storedThumbnailData = $cryptoGen->encryptStandard($thumbnail_data, null, KeySource::Database);
                 } else {
                     $storedThumbnailData = $thumbnail_data;
@@ -1073,8 +1073,8 @@ class Document extends ORDataObject
         }
 
         if (
-            ($GLOBALS['drive_encryption'] && ($this->storagemethod != 1))
-            || ($GLOBALS['couchdb_encryption'] && ($this->storagemethod == 1))
+            (OEGlobalsBag::getInstance()->getBoolean('drive_encryption') && ($this->storagemethod != 1))
+            || (OEGlobalsBag::getInstance()->getBoolean('couchdb_encryption') && ($this->storagemethod == 1))
         ) {
             $this->set_encrypted(self::ENCRYPTED_ON);
         } else {

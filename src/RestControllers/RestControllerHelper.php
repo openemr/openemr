@@ -228,7 +228,7 @@ class RestControllerHelper
             } else {
                 $pagination = $processingResult->getPagination();
                 // if site_addr_oauth is not set then we set it to be empty so we can handle relative urls
-                $bundleUrl = ($GLOBALS['site_addr_oath'] ?? '') . ($_SERVER['REDIRECT_URL'] ?? '');
+                $bundleUrl = (OEGlobalsBag::getInstance()->get('site_addr_oath') ?? '') . ($_SERVER['REDIRECT_URL'] ?? '');
                 $getParams = $_GET;
                 // cleanup _limit and _offset
                 unset($getParams['_limit']);
@@ -276,7 +276,7 @@ class RestControllerHelper
             } else {
                 $pagination = $processingResult->getPagination();
                 // if site_addr_oauth is not set then we set it to be empty so we can handle relative urls
-                $bundleUrl = ($GLOBALS['site_addr_oath'] ?? '') . ($request->server->get('REDIRECT_URL', ''));
+                $bundleUrl = (OEGlobalsBag::getInstance()->get('site_addr_oath') ?? '') . ($request->server->get('REDIRECT_URL', ''));
                 $getParams = $request->query->all();
                 // cleanup _limit and _offset
                 unset($getParams['_limit']);

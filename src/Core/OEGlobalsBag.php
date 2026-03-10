@@ -52,6 +52,13 @@ class OEGlobalsBag extends ParameterBag
 
     public function get(string $key, mixed $default = null): mixed
     {
+        // During the transition from $GLOBALS to OEGlobalsBag, legacy code may
+        // still write to or unset from $GLOBALS directly. For the singleton
+        // instance, use $GLOBALS as the sole source of truth.
+        if ($this === (self::$instances[static::class] ?? null)) {
+            return array_key_exists($key, $GLOBALS) ? $GLOBALS[$key] : $default;
+        }
+
         if (!parent::has($key) && array_key_exists($key, $GLOBALS)) {
             return $GLOBALS[$key];
         }

@@ -30,6 +30,7 @@ use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\Globals\GlobalSetting;
@@ -54,14 +55,14 @@ function checkCreateCDB()
   ('couchdb_host','couchdb_user','couchdb_pass','couchdb_port','couchdb_dbase','document_storage_method')");
     $options = [];
     while ($globalsrow = sqlFetchArray($globalsres)) {
-        $GLOBALS[$globalsrow['gl_name']] = $globalsrow['gl_value'];
+        OEGlobalsBag::getInstance()->set($globalsrow['gl_name'], $globalsrow['gl_value']);
     }
 
     $directory_created = false;
-    if (!empty($GLOBALS['document_storage_method'])) {
+    if (!empty(OEGlobalsBag::getInstance()->get('document_storage_method'))) {
         // /documents/temp/ folder is required for CouchDB
-        if (!is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/temp/')) {
-            $directory_created = mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/temp/', 0777, true);
+        if (!is_dir(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/temp/')) {
+            $directory_created = mkdir(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/temp/', 0777, true);
             if (!$directory_created) {
                 echo xlt("Failed to create temporary folder. CouchDB will not work.");
             }
@@ -73,7 +74,7 @@ function checkCreateCDB()
             return false;
         }
 
-        if ($GLOBALS['couchdb_host'] || $GLOBALS['couchdb_port'] || $GLOBALS['couchdb_dbase']) {
+        if (OEGlobalsBag::getInstance()->get('couchdb_host') || OEGlobalsBag::getInstance()->get('couchdb_port') || OEGlobalsBag::getInstance()->get('couchdb_dbase')) {
             $couch->createDB();
         }
     }
@@ -121,12 +122,12 @@ function checkBackgroundServices(): void
         )"
     );
     while ($globalsrow = sqlFetchArray($bgservices)) {
-        $GLOBALS[$globalsrow['gl_name']] = $globalsrow['gl_value'];
+        OEGlobalsBag::getInstance()->set($globalsrow['gl_name'], $globalsrow['gl_value']);
     }
 
     //Set up phimail service
-    $phimail_active = empty($GLOBALS['phimail_enable']) ? '0' : '1';
-    $phimail_interval = max(0, (int)$GLOBALS['phimail_interval']);
+    $phimail_active = !OEGlobalsBag::getInstance()->getBoolean('phimail_enable') ? '0' : '1';
+    $phimail_interval = max(0, (int)OEGlobalsBag::getInstance()->get('phimail_interval'));
     updateBackgroundService('phimail', $phimail_active, $phimail_interval);
 
     // When auto SFTP is enabled in globals, set up background task to run every minute
@@ -134,14 +135,14 @@ function checkBackgroundServices(): void
     // See library/billing_sftp_service.php for the entry point to this service.
     // It is very lightweight if there is no work to do, so running every minute should
     // be OK to provider users with the best experience.
-    $auto_sftp_x12 = empty($GLOBALS['auto_sftp_claims_to_x12_partner']) ? '0' : '1';
+    $auto_sftp_x12 = !OEGlobalsBag::getInstance()->getBoolean('auto_sftp_claims_to_x12_partner') ? '0' : '1';
     updateBackgroundService('X12_SFTP', $auto_sftp_x12, 1);
 
     /**
      * Setup background services for Weno when it is enabled
      * this is to sync the prescription logs
      */
-    $wenoservices = ($GLOBALS['weno_rx_enable'] ?? '') == 1 ? '1' : '0';
+    $wenoservices = (OEGlobalsBag::getInstance()->get('weno_rx_enable') ?? '') == 1 ? '1' : '0';
     updateBackgroundService('WenoExchange', $wenoservices, 60);
     updateBackgroundService('WenoExchangePharmacies', $wenoservices, 1440);
 }
@@ -219,8 +220,8 @@ function checkBackgroundServices(): void
 
         // Aug 22, 2014: Ensoftek: For Auditable events and tamper-resistance (MU2)
         // Check the current status of Audit Logging
-        $auditLogStatusFieldOld = $GLOBALS['enable_auditlog'];
-        $forceBreakglassLogStatusFieldOld = $GLOBALS['gbl_force_log_breakglass'];
+        $auditLogStatusFieldOld = OEGlobalsBag::getInstance()->getBoolean('enable_auditlog');
+        $forceBreakglassLogStatusFieldOld = OEGlobalsBag::getInstance()->getBoolean('gbl_force_log_breakglass');
 
         /*
          * Compare form values with old database values.
@@ -689,7 +690,7 @@ function checkBackgroundServices(): void
                                                             continue;
                                                         }
 
-                                                        if ($row['pc_cattype'] == 3 && !$GLOBALS['enable_group_therapy']) {
+                                                        if ($row['pc_cattype'] == 3 && !OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')) {
                                                             continue;
                                                         }
 

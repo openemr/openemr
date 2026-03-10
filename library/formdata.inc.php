@@ -12,17 +12,19 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-
 /**
  * Escape a parameter to prepare for a sql query.
  *
  * @param   string $s  Parameter to be escaped.
  * @return  string     Escaped parameter.
  */
+
+use OpenEMR\Core\OEGlobalsBag;
+
 function add_escape_custom($s)
 {
     //prepare for safe mysql insertion
-    $s = mysqli_real_escape_string($GLOBALS['dbh'], ($s ?? ''));
+    $s = mysqli_real_escape_string(OEGlobalsBag::getInstance()->get('dbh'), ($s ?? ''));
     return $s;
 }
 

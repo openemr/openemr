@@ -14,6 +14,7 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 use PHPMailer\PHPMailer\PHPMailer;
 
@@ -21,7 +22,7 @@ $facilityService = new FacilityService();
 
 function send_email($subject, $body): void
 {
-    $recipient = $GLOBALS['practice_return_email_path'];
+    $recipient = OEGlobalsBag::getInstance()->get('practice_return_email_path');
     if (empty($recipient)) {
         return;
     }
@@ -167,7 +168,7 @@ $row = sqlQuery("SELECT " .
     "p.pid = s.pid AND " .
     "u.id = r.provider_id", [$sale_id]);
 
-$dconfig = $GLOBALS['oer_config']['druglabels'];
+$dconfig = OEGlobalsBag::getInstance()->get('oer_config')['druglabels'];
 
 $header_text = $row['ufname'] . ' ' . $row['umname'] . ' ' . $row['ulname'] . "\n" .
 $frow['street'] . "\n" .

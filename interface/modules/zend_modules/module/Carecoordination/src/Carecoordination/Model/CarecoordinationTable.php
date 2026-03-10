@@ -22,6 +22,7 @@ use DOMDocument;
 use Exception;
 use OpenEMR\Common\Command\Trait\CommandLineDebugStylerTrait;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaComponentParseHelpers;
 use OpenEMR\Services\Cda\CdaTemplateImportDispose;
 use OpenEMR\Services\Cda\CdaTemplateParse;
@@ -52,7 +53,7 @@ class CarecoordinationTable
         $this->codeService = new CodeTypesService();
         $this->importService = new CdaTemplateImportDispose();
         $this->validateDocument = new CdaValidateDocuments();
-        $this->validationIsDisabled = $GLOBALS['ccda_validation_disable'] ?? false;
+        $this->validationIsDisabled = OEGlobalsBag::getInstance()->getBoolean('ccda_validation_disable');
     }
 
     /**

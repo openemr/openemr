@@ -19,6 +19,7 @@
  */
 
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 require_once("../globals.php");
 
@@ -31,28 +32,28 @@ $pid_list = $session->get('pidList');
 #get label type and number of labels on sheet
 #
 
-if ($GLOBALS['chart_label_type'] == '1') {
+if (OEGlobalsBag::getInstance()->get('chart_label_type') == '1') {
     $pdf = new PDF_Label('5160');
     $last = 30;
-} elseif ($GLOBALS['chart_label_type'] == '2') {
+} elseif (OEGlobalsBag::getInstance()->get('chart_label_type') == '2') {
     $pdf = new PDF_Label('5161');
     $last = 20;
-} elseif ($GLOBALS['chart_label_type'] == '3') {
+} elseif (OEGlobalsBag::getInstance()->get('chart_label_type') == '3') {
     $pdf = new PDF_Label('5162');
     $last = 14;
-} elseif ($GLOBALS['chart_label_type'] == '4') {
+} elseif (OEGlobalsBag::getInstance()->get('chart_label_type') == '4') {
     $pdf = new PDF_Label('5163');
     $last = 14; //not sure about $last from here on down
-} elseif ($GLOBALS['chart_label_type'] == '5') {
+} elseif (OEGlobalsBag::getInstance()->get('chart_label_type') == '5') {
     $pdf = new PDF_Label('5164');
     $last = 14;
-} elseif ($GLOBALS['chart_label_type'] == '6') {
+} elseif (OEGlobalsBag::getInstance()->get('chart_label_type') == '6') {
     $pdf = new PDF_Label('8600');
     $last = 14;
-} elseif ($GLOBALS['chart_label_type'] == '7') {
+} elseif (OEGlobalsBag::getInstance()->get('chart_label_type') == '7') {
     $pdf = new PDF_Label('L7163');
     $last = 14;
-} elseif ($GLOBALS['chart_label_type'] == '8') {
+} elseif (OEGlobalsBag::getInstance()->get('chart_label_type') == '8') {
     $pdf = new PDF_Label('3422');
     $last = 14;
 } else {

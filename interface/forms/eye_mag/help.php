@@ -17,6 +17,7 @@ require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/api.inc.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $form_folder = "eye_mag";
 $showit    = $_REQUEST['zone'];
@@ -40,7 +41,7 @@ if ($showit == 'ext') {
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container">
                 <a class="navbar-brand" href="#">
-                    <img src="<?php echo $GLOBALS['webroot']; ?>/sites/default/images/login_logo.gif" width="30" height="30" alt="">
+                    <img src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/sites/default/images/login_logo.gif" width="30" height="30" alt="">
                     OpenEMR: Eye Exam <span class="font-weight-bold">Shorthand Help</span>
                 </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar">
@@ -222,7 +223,7 @@ if ($showit == 'ext') {
                             <textarea class="form-control" style="min-height: 6rem;">CC:"My eyes are tearing and there is a yellow discharge";hpi:The symptoms began last week and the discharged turned yellow yesterday.  No photophobia.  The redness spread from the right to the left eye two days ago.;
                             </textarea>
                             <br />
-                            <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_hpi.png" class="img-fluid" alt="Shorthand Example: Anterior Segment" />
+                            <img src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/eye_mag/images/sh_hpi.png" class="img-fluid" alt="Shorthand Example: Anterior Segment" />
                         </div>
                     </div>
                 </div>
@@ -246,7 +247,7 @@ if ($showit == 'ext') {
                                 Trazadone 50mg PO QHS.Famvir 500mg PO TID;Surg:Appendectomy 1998.
                                 Choly 2010.Lap Band 2014.;All:sulfa - hives.PCN - SOB;
                             </textarea>
-                            <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_pmh.png" class="img-fluid" alt="Shorthand Example: Anterior Segment" />
+                            <img src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/eye_mag/images/sh_pmh.png" class="img-fluid" alt="Shorthand Example: Anterior Segment" />
                             <br />
                         </div>
                     </div>
@@ -268,7 +269,7 @@ if ($showit == 'ext') {
                         <h4><u>Shorthand</u></h4>
                         <textarea class="form-control">D;bll:+2 meibomitis;rll:frank ect, 7x6mm lid margin bcc lat.a;bul:2mm ptosis;rul.+3 dermato.a
                         </textarea>
-                        <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_ext.png" class="img-fluid" alt="Shorthand Example: Anterior Segment" />
+                        <img src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/eye_mag/images/sh_ext.png" class="img-fluid" alt="Shorthand Example: Anterior Segment" />
                         <br />
                       </div>
                     </div>
@@ -299,13 +300,13 @@ if ($showit == 'ext') {
                                 <div class="col-12 col-md-6">
                                     <div class="border border-dark p-2">
                                         <h4>Eye Exam</h4>
-                                        <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_ext_EMR.png" class="img-fluid" width="95%" alt="Shorthand Example: openEMR">
+                                        <img src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/eye_mag/images/sh_ext_EMR.png" class="img-fluid" width="95%" alt="Shorthand Example: openEMR">
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <div class="border border-dark p-2">
                                         <h4>Reports</h4>
-                                        <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_ext_report.png" class="img-fluid" width="75%" alt="Shorthand Example: Reports">
+                                        <img src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/eye_mag/images/sh_ext_report.png" class="img-fluid" width="75%" alt="Shorthand Example: Reports">
                                     </div>
                                 </div>
                             </div>
@@ -636,7 +637,7 @@ if ($showit == 'ext') {
                             <h4><u>Shorthand</u></h4>
                             <textarea class="form-control">D;bc:+2 inj;bk:med pter;rk:mod endo gut.a;bac:+1 fc, +1 pig cells
                             </textarea>
-                            <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_antseg.png" class="img-fluid" alt="Shorthand Example: Anterior Segment" />
+                            <img src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/eye_mag/images/sh_antseg.png" class="img-fluid" alt="Shorthand Example: Anterior Segment" />
                             <br />
                         </div>
                     </div>
@@ -667,13 +668,13 @@ if ($showit == 'ext') {
                                 <div class="col-12 col-md-6">
                                     <div class="border border-dark p-2">
                                         <h4>Eye Exam</h4>
-                                        <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_antseg_EMR.png" class="img-fluid" width="90%" alt="Shorthand Example: openEMR">
+                                        <img src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/eye_mag/images/sh_antseg_EMR.png" class="img-fluid" width="90%" alt="Shorthand Example: openEMR">
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <div class="border border-dark p-2">
                                         <h4>Reports</h4>
-                                        <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_antseg_report.png" class="img-fluid" width="95%" alt="Shorthand Example: Reports">
+                                        <img src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/eye_mag/images/sh_antseg_report.png" class="img-fluid" width="95%" alt="Shorthand Example: Reports">
                                     </div>
                                 </div>
                             </div>
@@ -986,7 +987,7 @@ if ($showit == 'ext') {
                             <h4><u>Shorthand</u></h4>
                             <textarea class="form-control">D;bd.+2 bowtie pallor;rcup.0.6Vx0.4H w/ inf notch;lcup.0.5;rmac.+2 BDR, +CSME;lmac.flat, tr BDR;v.+PPDR, ++venous beading;rp.ht 1 o,no vh;
                             </textarea>
-                            <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_retina.png" class="img-fluid" alt="Shorthand Example: Anterior Segment">
+                            <img src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/eye_mag/images/sh_retina.png" class="img-fluid" alt="Shorthand Example: Anterior Segment">
                             <br />
                         </div>
                     </div>
@@ -1017,13 +1018,13 @@ if ($showit == 'ext') {
                                 <div class="col-12 col-md-6">
                                     <div class="border border-dark p-2">
                                         <h4>Eye Exam</h4>
-                                        <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_retina_EMR.png" width="95%" alt="Shorthand Example: openEMR" />
+                                        <img src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/eye_mag/images/sh_retina_EMR.png" width="95%" alt="Shorthand Example: openEMR" />
                                     </div>
                                 </div>
                                 <div class="col-12 col-md-6">
                                     <div class="border border-dark p-2">
                                         <h4>Reports</h4>
-                                        <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_retina_report.png" width="95%" alt="Shorthand Example: Reports" />
+                                        <img src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/eye_mag/images/sh_retina_report.png" width="95%" alt="Shorthand Example: Reports" />
                                     </div>
                                 </div>
                             </div>
@@ -1371,7 +1372,7 @@ if ($showit == 'ext') {
                             <h4><u>Shorthand</u></h4>
                             <textarea class="form-control">scDist;5:8ix 1rht;4:10ix;6:6ix;2:15xt;8:5ix;ccDist;4:5ix;5:ortho;6:ortho;
                             </textarea>
-                            <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_neuro.png" class="img-fluid" alt="Shorthand Example: Anterior Segment" />
+                            <img src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/eye_mag/images/sh_neuro.png" class="img-fluid" alt="Shorthand Example: Anterior Segment" />
                             <br />
                         </div>
                     </div>
@@ -1404,10 +1405,10 @@ if ($showit == 'ext') {
                                         <h4>Eye Exam</h4>
                                         <div class="row">
                                             <div class="col-12 col-md-6 text-sm-center">
-                                                <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_neuro_EMR1.png" class="img-fluid" alt="Shorthand Example: openEMR" />
+                                                <img src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/eye_mag/images/sh_neuro_EMR1.png" class="img-fluid" alt="Shorthand Example: openEMR" />
                                             </div>
                                             <div class="col-12 col-md-6 text-sm-center">
-                                                <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_neuro_EMR2.png" class="img-fluid" alt="Shorthand Example: openEMR" />
+                                                <img src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/eye_mag/images/sh_neuro_EMR2.png" class="img-fluid" alt="Shorthand Example: openEMR" />
                                             </div>
                                         </div>
                                     </div>
@@ -1415,7 +1416,7 @@ if ($showit == 'ext') {
                                 <div class="col-12 col-md-6">
                                     <div class="border border-dark p-2">
                                         <h4>Reports</h4>
-                                        <img src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/eye_mag/images/sh_neuro_report.png" class="img-fluid" width="75%" alt="Shorthand Example: Reports" />
+                                        <img src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/eye_mag/images/sh_neuro_report.png" class="img-fluid" width="75%" alt="Shorthand Example: Reports" />
                                     </div>
                                 </div>
                             </div>

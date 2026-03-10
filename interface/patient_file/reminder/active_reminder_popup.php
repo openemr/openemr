@@ -15,6 +15,7 @@ require_once("$srcdir/clinical_rules.php");
 
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -31,7 +32,7 @@ $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 <?php
 $all_allergy_alerts = [];
-if ($GLOBALS['enable_allergy_check']) {
+if (OEGlobalsBag::getInstance()->getBoolean('enable_allergy_check')) {
   // Will show allergy and medication/prescription conflicts here
     $all_allergy_alerts = allergy_conflict($pid, 'all', $session->get('authUser'));
 }

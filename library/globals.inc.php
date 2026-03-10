@@ -77,6 +77,7 @@
 //   Vietnamese                     // xl('Vietnamese')
 
 use OpenEMR\Common\Forms\FormActionBarSettings;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\OeUI\RenderFormFieldHelper;
 use OpenEMR\Services\Globals\GlobalAppearanceEnum;
@@ -4458,8 +4459,8 @@ $GLOBALS_METADATA = [
 ];
 
 
-if (!empty($GLOBALS['ippf_specific'])) {
-    $GLOBALS['GLOBALS_METADATA']['IPPF Menu'] = [
+if (!empty(OEGlobalsBag::getInstance()->get('ippf_specific'))) {
+    OEGlobalsBag::getInstance()->get('GLOBALS_METADATA')['IPPF Menu'] = [
 
         'gbl_menu_stats_c3' => [
             xl('C3 Statistics Reporting'),
@@ -4483,7 +4484,7 @@ if (!empty($GLOBALS['ippf_specific'])) {
         ],
     ];
 
-    $GLOBALS['GLOBALS_METADATA']['IPPF Features'] = [
+    OEGlobalsBag::getInstance()->get('GLOBALS_METADATA')['IPPF Features'] = [
 
         'gbl_rapid_workflow' => [
             xl('Rapid Workflow Option'),
@@ -4576,6 +4577,6 @@ if (!empty($GLOBALS['ippf_specific'])) {
 
 if (empty($skipGlobalEvent)) {
     $globalsInitEvent = new GlobalsInitializedEvent(new GlobalsService($GLOBALS_METADATA, $USER_SPECIFIC_GLOBALS, $USER_SPECIFIC_TABS));
-    $globalsInitEvent = $GLOBALS["kernel"]->getEventDispatcher()->dispatch($globalsInitEvent, GlobalsInitializedEvent::EVENT_HANDLE);
+    $globalsInitEvent = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($globalsInitEvent, GlobalsInitializedEvent::EVENT_HANDLE);
     $globalsService = $globalsInitEvent->getGlobalsService()->save();
 }

@@ -21,6 +21,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\UserEntity;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenIDConnectServer\Repositories\IdentityProviderInterface;
 
 class UserRepository implements UserRepositoryInterface, IdentityProviderInterface
@@ -87,7 +88,7 @@ class UserRepository implements UserRepositoryInterface, IdentityProviderInterfa
      */
     protected function getAccountByPassword(UserEntity $user, $userrole, $username, $password, $email = ''): bool
     {
-        if (($userrole == UuidUserAccount::USER_ROLE_USERS) && (($GLOBALS['oauth_password_grant'] == 1) || ($GLOBALS['oauth_password_grant'] == 3))) {
+        if (($userrole == UuidUserAccount::USER_ROLE_USERS) && ((OEGlobalsBag::getInstance()->get('oauth_password_grant') == 1) || (OEGlobalsBag::getInstance()->get('oauth_password_grant') == 3))) {
             $auth = new AuthUtils('api');
             if ($auth->confirmPassword($username, $password)) {
                 $id = $auth->getUserId();
@@ -129,7 +130,7 @@ class UserRepository implements UserRepositoryInterface, IdentityProviderInterfa
 
                 return true;
             }
-        } elseif (($userrole == UuidUserAccount::USER_ROLE_PATIENT) && (($GLOBALS['oauth_password_grant'] == 2) || ($GLOBALS['oauth_password_grant'] == 3))) {
+        } elseif (($userrole == UuidUserAccount::USER_ROLE_PATIENT) && ((OEGlobalsBag::getInstance()->get('oauth_password_grant') == 2) || (OEGlobalsBag::getInstance()->get('oauth_password_grant') == 3))) {
             $auth = new AuthUtils('portal-api');
             if ($auth->confirmPassword($username, $password, $email)) {
                 $id = $auth->getPatientId();

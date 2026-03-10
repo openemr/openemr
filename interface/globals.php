@@ -532,14 +532,14 @@ if (!empty($glrow)) {
     // Set any user settings that are not also in GLOBALS.
     // This is for modules support.
     foreach ($gl_user as $setting) {
-        if (!array_key_exists($setting['setting_label'], $GLOBALS)) {
+        if (!$globalsBag->has($setting['setting_label'])) {
             $globalsBag->set($setting['setting_label'], $setting['setting_value']);
         }
     }
 
     // Language cleanup stuff.
     $globalsBag->set('language_menu_login', false);
-    if ((!empty($globalsBag->get('language_menu_show')) && count($globalsBag->get('language_menu_show')) > 1) || $globalsBag->get('language_menu_showall')) {
+    if ((!empty($globalsBag->get('language_menu_show')) && count($globalsBag->get('language_menu_show')) > 1) || $globalsBag->getBoolean('language_menu_showall')) {
         $globalsBag->set('language_menu_login', true);
     }
 
@@ -668,7 +668,7 @@ if (empty($globalsBag->getString('qualified_site_addr'))) {
 // Also important to note that changes to this global setting will not take effect during the same
 //  session (ie. user needs to logout) since not worth it to use resources to open session and write to it
 //  for every call to interface/globals.php .
-$session->set("enable_database_connection_pooling", $globalsBag->get("enable_database_connection_pooling", null));
+$session->set("enable_database_connection_pooling", $globalsBag->getBoolean("enable_database_connection_pooling", false));
 
 // If >0 this will enforce a separate PHP session for each top-level
 // browser window.  You must log in separately for each.  This is not
@@ -713,7 +713,7 @@ $globalsBag->set('backpic', $backpic ?? '');
 
 // 1 = send email message to given id for Emergency Login user activation,
 // else 0.
-$globalsBag->set('Emergency_Login_email', empty($GLOBALS['Emergency_Login_email_id']) ? 0 : 1);
+$globalsBag->set('Emergency_Login_email', $globalsBag->get('Emergency_Login_email_id') ? 1 : 0);
 
 // Include the authentication module code here, but the rule is
 // if the file has the word "login" in the source code file name,
@@ -841,7 +841,7 @@ if (empty($skipAuditLog)) {
 }
 
 // Warm translation cache if configured
-if (!empty($GLOBALS['translation_preload_cache'])) {
+if ($globalsBag->getBoolean('translation_preload_cache')) {
     xlWarmCache();
 }
 

@@ -7,6 +7,7 @@ namespace OpenEMR\BC;
 use ADODB_mysqli_log;
 use mysqli;
 use OpenEMR\Common\Session\SessionWrapperInterface;
+use OpenEMR\Core\OEGlobalsBag;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
@@ -138,12 +139,12 @@ class DatabaseConnectionFactory
     public static function detectConnectionPersistenceFromGlobalState(): bool
     {
         // If connection pooling is explicitly disabled, return false
-        if (!empty($GLOBALS['connection_pooling_off'])) {
+        if (!empty(OEGlobalsBag::getInstance()->get('connection_pooling_off'))) {
             return false;
         }
 
         // Check if pooling is enabled via globals or session
-        if (!empty($GLOBALS['enable_database_connection_pooling'])) {
+        if (OEGlobalsBag::getInstance()->getBoolean('enable_database_connection_pooling')) {
             return true;
         }
         if (!empty($_SESSION['enable_database_connection_pooling'])) {

@@ -33,7 +33,7 @@ class FormLocator
         }
         $this->logger = $logger;
     // AI GENERATED CODE: HEADER START
-        $this->fileRoot = $GLOBALS['fileroot'];
+        $this->fileRoot = OEGlobalsBag::getInstance()->get('fileroot');
     }
 
     public function findFile(string $formDir, string $fileName, string $page): string

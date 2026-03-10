@@ -17,6 +17,7 @@ require_once("../../globals.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -36,7 +37,7 @@ if ($is_lbf) {
 
 //Bring in the style sheet
 ?>
-<?php require $GLOBALS['srcdir'] . '/js/xl/dygraphs.js.php'; ?>
+<?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/dygraphs.js.php'; ?>
 
 <?php
 // Special case where not setting up the header for a script, so using setupAssets function,
@@ -115,7 +116,7 @@ function show_graph(table_graph, name_graph, title_graph)
         error: function() {
             // hide the chart div
           $('#chart').hide();
-          <?php if ($GLOBALS['graph_data_warning']) { ?>
+          <?php if (OEGlobalsBag::getInstance()->getBoolean('graph_data_warning')) { ?>
           if(!title_graph){
               alert(<?php echo xlj('This item does not have enough data to graph');?> + ".\n" + <?php echo xlj('Please select an item that has more data');?> + ".");
           }
