@@ -942,16 +942,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Cda/CdaComponentParseHelpers.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method DOMNameSpaceNode\\|DOMNode\\:\\:getElementsByTagName\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to an undefined method DOMNode\\:\\:getElementsByTagName\\(\\)\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to an undefined method DOMNameSpaceNode\\|DOMNode\\:\\:C14N\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/ClinicalNoteParser.php',

@@ -16,6 +16,7 @@ use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Crypto;
 use OpenEMR\Common\Logging;
+use DateTimeZone;
 use Lcobucci\Clock\SystemClock;
 use OpenEMR\Common\Http\Psr17Factory;
 use Psr\Clock\ClockInterface;
@@ -91,7 +92,7 @@ class ServiceContainer
 
     public static function getClock(): ClockInterface
     {
-        return self::resolve(ClockInterface::class) ?? SystemClock::fromSystemTimezone();
+        return self::resolve(ClockInterface::class) ?? new SystemClock(new DateTimeZone(date_default_timezone_get()));
     }
 
     public static function getCrypto(): Crypto\CryptoInterface

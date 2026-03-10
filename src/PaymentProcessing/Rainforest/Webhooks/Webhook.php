@@ -29,6 +29,8 @@ readonly class Webhook
 
     public function getMerchantId(): ?string
     {
-        return $this->data['merchant_id'] ?? null;
+        /** @var ?string $merchantId */
+        $merchantId = $this->data['merchant_id'] ?? null;
+        return $merchantId;
     }
 }

@@ -14,36 +14,45 @@ namespace OpenEMR\Common\Http;
 
 class oeHttpResponse
 {
-    public function __construct(private $response)
+    public function __construct(private readonly \Psr\Http\Message\ResponseInterface $response)
     {
     }
 
-    public function body()
+    public function body(): string
     {
         return (string)$this->response->getBody();
     }
 
-    public function json($asArray = true)
+    public function json(bool $asArray = true): mixed
     {
         return json_decode((string) $this->response->getBody(), $asArray);
     }
 
-    public function header($header, $asArray = false)
+    /**
+     * @return string[]
+     */
+    public function header(string $header): array
     {
-        return $this->response->getHeader($header, $asArray);
+        return $this->response->getHeader($header);
     }
 
-    public function headers()
+    /**
+     * @return array<string, string[]>
+     */
+    public function headers(): array
     {
         return $this->response->getHeaders();
     }
 
-    public function status()
+    public function status(): int
     {
         return $this->response->getStatusCode();
     }
 
-    public function __call($method, $args)
+    /**
+     * @param array<int, mixed> $args
+     */
+    public function __call(string $method, array $args): mixed
     {
         return $this->response->{$method}(...$args);
     }

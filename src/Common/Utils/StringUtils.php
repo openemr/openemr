@@ -23,8 +23,8 @@ namespace OpenEMR\Common\Utils;
 
 class StringUtils
 {
-    public static function trimExcessWhitespace($string)
+    public static function trimExcessWhitespace(string $string): string
     {
-        return trim((string) preg_replace('/\s+/', ' ', (string) $string));
+        return trim((string) preg_replace('/\s+/', ' ', $string));
     }
 }

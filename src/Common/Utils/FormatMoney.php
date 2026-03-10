@@ -31,7 +31,7 @@ class FormatMoney
         $globals ??= OEGlobalsBag::getInstance();
 
         $s = number_format(
-            floatval($amount),
+            floatval((string) $amount),
             $globals->getInt('currency_decimals', 2),
             $globals->getString('currency_dec_point', '.'),
             $globals->getString('currency_thousands_sep', ',')

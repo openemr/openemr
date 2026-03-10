@@ -22,21 +22,24 @@ namespace OpenEMR\Forms\FeeSheet\Review;
 class Procedure extends CodeInfo
 {
     public function __construct(
-        $code,
-        $code_type,
-        $description,
-        public $fee,
-        public $justify,
-        public $modifiers,
-        public $units,
-        public $mod_size,
-        public $ndc_info,
-        $selected = true
+        string $code,
+        string $code_type,
+        string $description,
+        public string $fee,
+        public string $justify,
+        public string $modifiers,
+        public string $units,
+        public ?int $mod_size,
+        public string $ndc_info,
+        bool $selected = true
     ) {
         parent::__construct($code, $code_type, $description, $selected);
     }
 
-    public function addProcParameters(&$params)
+    /**
+     * @param array<mixed> $params
+     */
+    public function addProcParameters(array &$params): void
     {
         array_push($params, $this->modifiers, $this->units, $this->fee, $this->ndc_info, $this->justify);
     }

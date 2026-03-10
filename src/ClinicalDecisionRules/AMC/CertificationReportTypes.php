@@ -44,9 +44,9 @@ class CertificationReportTypes
      * code_col is the column used in the database table for the AMC rule description
      * the array key is the amc_<system_type>_flag in the database
      *
-     * @return array
+     * @return array<string, array{abbr: string, title: string, ruleset_title: string, code_col: string}>
      */
-    public static function getReportTypeRecords()
+    public static function getReportTypeRecords(): array
     {
 
         $amc_report_types = [

@@ -17,7 +17,7 @@ class ServiceField
     const TYPE_NUMBER = "number";
     const TYPE_UUID = "uuid";
 
-    public function __construct(private $field, private $type = self::TYPE_STRING)
+    public function __construct(private readonly string $field, private readonly string $type = self::TYPE_STRING)
     {
     }
 

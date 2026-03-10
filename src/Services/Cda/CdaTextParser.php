@@ -17,9 +17,9 @@ use DOMXPath;
 
 class CdaTextParser
 {
-    private $xml;
+    private readonly DOMDocument $xml;
 
-    public function __construct($xmlContent, private readonly mixed $title = "Imported CarePlan Notes.")
+    public function __construct(string $xmlContent, private readonly string $title = "Imported CarePlan Notes.")
     {
         $dom = new DOMDocument();
         $dom->loadXML($xmlContent);
@@ -30,7 +30,7 @@ class CdaTextParser
      * Parse the section with a specific code to extract notes.
      *
      * @param string $sectionCode Section code to search for.
-     * @return array Extracted notes.
+     * @return array<int, array{id: string, caption: string, content: string}> Extracted notes.
      */
     public function parseSectionByCode($sectionCode): array
     {
@@ -38,18 +38,26 @@ class CdaTextParser
         $xpath = new DOMXPath($this->xml);
 
         // Register namespaces
-        $namespaces = $this->xml->documentElement->lookupNamespaceURI(null);
-        if ($namespaces) {
+        $namespaces = $this->xml->documentElement?->lookupNamespaceURI(null);
+        if ($namespaces !== null) {
             $xpath->registerNamespace('ns', $namespaces); // 'ns' is a generic prefix
         }
 
         // use namespace prefix if present
-        $query = $namespaces ? "//ns:section[ns:code[@code='{$sectionCode}']]" : "//section[code[@code='{$sectionCode}']]";
+        $query = $namespaces !== null ? "//ns:section[ns:code[@code='{$sectionCode}']]" : "//section[code[@code='{$sectionCode}']]";
         $sections = $xpath->query($query);
 
+        if ($sections === false) {
+            return $notes;
+        }
+
         foreach ($sections as $section) {
-            $list = $xpath->query(".//ns:list | .//list", $section)->item(0);
-            if ($list) {
+            if (!$section instanceof DOMElement) {
+                continue;
+            }
+            $listResult = $xpath->query(".//ns:list | .//list", $section);
+            $list = $listResult !== false ? $listResult->item(0) : null;
+            if ($list instanceof DOMElement) {
                 foreach ($list->getElementsByTagName("item") as $item) {
                     $id = $item->getAttribute("ID") ?: "";
                     $caption = $item->getElementsByTagName("caption")->item(0)?->textContent ?: "";
@@ -84,7 +92,7 @@ class CdaTextParser
                 if ($text !== '') {
                     $contentLines[] = $indent . $text;
                 }
-            } elseif ($child->nodeType === XML_ELEMENT_NODE) {
+            } elseif ($child instanceof DOMElement) {
                 if ($child->tagName === 'list') {
                     // Recursive parsing for nested lists
                     foreach ($child->getElementsByTagName("item") as $nestedItem) {
@@ -108,12 +116,12 @@ class CdaTextParser
     /**
      * Generate textareas from parsed notes.
      *
-     * @param array $notes Parsed notes.
+     * @param array<int, array{id: string, caption: string, content: string}> $notes Parsed notes.
      * @return string Generated HTML.
      */
-    public function generateConsolidatedTextNote($notes): string
+    public function generateConsolidatedTextNote(array $notes): string
     {
-        if (empty($notes)) {
+        if (count($notes) === 0) {
             return '';
         }
         $text = "\n{$this->title}\n";

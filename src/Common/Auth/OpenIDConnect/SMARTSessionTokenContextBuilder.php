@@ -109,7 +109,7 @@ class SMARTSessionTokenContextBuilder
      * @return array
      * @throws OAuthServerException
      */
-    public function getContextForScopes($scopes): array
+    public function getContextForScopes(array $scopes): array
     {
         $context = [];
         $this->getSystemLogger()->debug("SMARTSessionTokenContextBuilder->getContextForScopes()");

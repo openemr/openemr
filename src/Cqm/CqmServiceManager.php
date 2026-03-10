@@ -7,9 +7,9 @@ use OpenEMR\Core\OEGlobalsBag;
 
 class CqmServiceManager
 {
-    public static function makeCqmClient()
+    public static function makeCqmClient(): CqmClient
     {
-        $servicePath = OEGlobalsBag::getInstance()->get('fileroot') . DIRECTORY_SEPARATOR .
+        $servicePath = OEGlobalsBag::getInstance()->getString('fileroot') . DIRECTORY_SEPARATOR .
             'ccdaservice/node_modules' . DIRECTORY_SEPARATOR .
             'oe-cqm-service' . DIRECTORY_SEPARATOR .
             'server.js';
