@@ -1,22 +1,19 @@
 <?php
 
+/**
+ * TLS TCP writer for ATNA audit messages
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Eric Stern <erics@opencoreemr.com>
+ * @copyright Copyright (c) 2026 Eric Stern
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
 declare(strict_types=1);
 
 namespace OpenEMR\Common\Logging\Audit;
 
-/**
- * Create a TLS (SSLv3) connection to the given host/port.
- * $localcert is the path to a PEM file with a client certificate and private key.
- * $cafile is the path to the CA certificate file, for
- *  authenticating the remote machine's certificate.
- * If $cafile is "", the remote machine's certificate is not verified.
- * If $localcert is "", we don't pass a client certificate in the connection.
- *
- * Return a stream resource that can be used with fwrite(), fread(), etc.
- * Returns FALSE on error.
- *
- * @return resource|false
- */
 class TcpWriter implements WriterInterface
 {
     public function __construct(
