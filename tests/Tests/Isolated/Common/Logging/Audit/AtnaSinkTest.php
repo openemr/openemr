@@ -15,8 +15,8 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Common\Logging\Audit;
 
 use DateTimeImmutable;
-use OpenEMR\Common\Logging\Audit\AtnaSink;
 use OpenEMR\Common\Logging\Audit\Atna\WriterInterface;
+use OpenEMR\Common\Logging\Audit\AtnaSink;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 

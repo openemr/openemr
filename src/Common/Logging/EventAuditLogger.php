@@ -14,7 +14,6 @@
 
 namespace OpenEMR\Common\Logging;
 
-use DateTime;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
