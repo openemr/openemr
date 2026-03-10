@@ -16,6 +16,12 @@ namespace OpenEMR\Common\Logging\Audit\Atna;
 
 class TcpWriter implements WriterInterface
 {
+    /**
+     * Host and port are required and must be nonempty.
+     *
+     * $localCert and $caCert behave in accordance with SSL context options.
+     * @see https://www.php.net/manual/en/context.ssl.php
+     */
     public function __construct(
         private string $host,
         private int $port,
