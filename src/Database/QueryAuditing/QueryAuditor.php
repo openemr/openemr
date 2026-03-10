@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace OpenEMR\Database\QueryAuditing;
 
 use Doctrine\DBAL\Driver\Connection;
-use OpenEMR\Common\Logging\EventAuditLogger;
 use PhpMyAdmin\SqlParser\Parser;
 use PhpMyAdmin\SqlParser\Utils\Query;
 use PhpMyAdmin\SqlParser\Utils\StatementType;
@@ -60,7 +59,7 @@ final class QueryAuditor implements QueryAuditorInterface
         private readonly QueryContextInterface $context,
         private readonly TableEventMap $tableEventMap,
         private readonly CategoryResolver $categoryResolver,
-        private readonly EventAuditLogger $auditLogger,
+        private readonly AuditRecordWriterInterface $writer,
     ) {
     }
 
@@ -163,7 +162,8 @@ final class QueryAuditor implements QueryAuditorInterface
         }
 
         // Write the audit record
-        $this->auditLogger->recordLogItem(
+        $this->writer->write(
+            connection: $connection,
             success: $success ? 1 : 0,
             event: $event,
             user: $user ?? '',

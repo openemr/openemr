@@ -26,10 +26,12 @@ use Doctrine\Migrations\Configuration\{
 use Doctrine\Migrations\DependencyFactory;
 use Firehed\Container\TypedContainerInterface as TC;
 use OpenEMR\BC\DatabaseConnectionOptions;
-use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Database\QueryAuditing\{
+    AuditRecordWriter,
+    AuditRecordWriterInterface,
     AuditSettingsInterface,
     BreakglassChecker,
     BreakglassCheckerInterface,
@@ -81,7 +83,11 @@ return [
         $c->get(QueryContextInterface::class),
         new TableEventMap(),
         new CategoryResolver(),
-        EventAuditLogger::getInstance(),
+        $c->get(AuditRecordWriterInterface::class),
+    ),
+    AuditRecordWriterInterface::class => fn (TC $c) => new AuditRecordWriter(
+        $c->get(AuditSettingsInterface::class),
+        new CryptoGen(),
     ),
     AuditSettingsInterface::class => fn () => new GlobalsAuditSettings(
         OEGlobalsBag::getInstance(),

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Database\QueryAuditing;
 
 use Doctrine\DBAL\Driver\Connection;
-use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Database\QueryAuditing\AuditEventType;
+use OpenEMR\Database\QueryAuditing\AuditRecordWriterInterface;
 use OpenEMR\Database\QueryAuditing\AuditSettingsInterface;
 use OpenEMR\Database\QueryAuditing\BreakglassCheckerInterface;
 use OpenEMR\Database\QueryAuditing\CategoryResolver;
@@ -24,7 +24,7 @@ final class QueryAuditorTest extends TestCase
     private AuditSettingsInterface&MockObject $settings;
     private BreakglassCheckerInterface&MockObject $breakglassChecker;
     private QueryContextInterface&MockObject $context;
-    private EventAuditLogger&MockObject $auditLogger;
+    private AuditRecordWriterInterface&MockObject $writer;
     private QueryAuditor $auditor;
 
     protected function setUp(): void
@@ -33,7 +33,7 @@ final class QueryAuditorTest extends TestCase
         $this->settings = $this->createMock(AuditSettingsInterface::class);
         $this->breakglassChecker = $this->createMock(BreakglassCheckerInterface::class);
         $this->context = $this->createMock(QueryContextInterface::class);
-        $this->auditLogger = $this->createMock(EventAuditLogger::class);
+        $this->writer = $this->createMock(AuditRecordWriterInterface::class);
 
         $this->auditor = new QueryAuditor(
             $this->settings,
@@ -41,7 +41,7 @@ final class QueryAuditorTest extends TestCase
             $this->context,
             new TableEventMap(),
             new CategoryResolver(),
-            $this->auditLogger,
+            $this->writer,
         );
     }
 
@@ -51,7 +51,7 @@ final class QueryAuditorTest extends TestCase
         $this->settings->method('isBreakglassLoggingForced')->willReturn(false);
         $this->context->method('getUser')->willReturn('testuser');
 
-        $this->auditLogger->expects(self::never())->method('recordLogItem');
+        $this->writer->expects(self::never())->method('write');
 
         $this->auditor->audit($this->connection, 'SELECT * FROM patient_data', null, true);
     }
@@ -65,9 +65,10 @@ final class QueryAuditorTest extends TestCase
         $this->context->method('getGroup')->willReturn('admin');
         $this->context->method('getPatientId')->willReturn(123);
 
-        $this->auditLogger->expects(self::once())
-            ->method('recordLogItem')
+        $this->writer->expects(self::once())
+            ->method('write')
             ->with(
+                connection: $this->connection,
                 success: 1,
                 event: 'patient-record-select',
                 user: 'testuser',
@@ -85,7 +86,7 @@ final class QueryAuditorTest extends TestCase
         $this->settings->method('isAuditingEnabled')->willReturn(true);
         $this->context->method('getUser')->willReturn('testuser');
 
-        $this->auditLogger->expects(self::never())->method('recordLogItem');
+        $this->writer->expects(self::never())->method('write');
 
         $this->auditor->audit($this->connection, 'INSERT INTO log (event) VALUES (?)', ['test'], true);
     }
@@ -95,7 +96,7 @@ final class QueryAuditorTest extends TestCase
         $this->settings->method('isAuditingEnabled')->willReturn(true);
         $this->context->method('getUser')->willReturn('testuser');
 
-        $this->auditLogger->expects(self::never())->method('recordLogItem');
+        $this->writer->expects(self::never())->method('write');
 
         $this->auditor->audit($this->connection, 'UPDATE sequences SET id = id + 1', null, true);
     }
@@ -106,7 +107,7 @@ final class QueryAuditorTest extends TestCase
         $this->settings->method('isQueryLoggingEnabled')->willReturn(true);
         $this->context->method('getUser')->willReturn('testuser');
 
-        $this->auditLogger->expects(self::never())->method('recordLogItem');
+        $this->writer->expects(self::never())->method('write');
 
         $this->auditor->audit($this->connection, 'SELECT * FROM some_unknown_table', null, true);
     }
@@ -119,9 +120,10 @@ final class QueryAuditorTest extends TestCase
         $this->context->method('getGroup')->willReturn('admin');
         $this->context->method('getPatientId')->willReturn(null);
 
-        $this->auditLogger->expects(self::once())
-            ->method('recordLogItem')
+        $this->writer->expects(self::once())
+            ->method('write')
             ->with(
+                connection: $this->connection,
                 success: 1,
                 event: 'other-insert',
                 user: 'testuser',
@@ -141,7 +143,7 @@ final class QueryAuditorTest extends TestCase
         $this->settings->method('isBreakglassLoggingForced')->willReturn(false);
         $this->context->method('getUser')->willReturn('testuser');
 
-        $this->auditLogger->expects(self::never())->method('recordLogItem');
+        $this->writer->expects(self::never())->method('write');
 
         $this->auditor->audit($this->connection, 'SELECT * FROM patient_data', null, true);
     }
@@ -157,9 +159,10 @@ final class QueryAuditorTest extends TestCase
         $this->context->method('getGroup')->willReturn('admin');
         $this->context->method('getPatientId')->willReturn(456);
 
-        $this->auditLogger->expects(self::once())
-            ->method('recordLogItem')
+        $this->writer->expects(self::once())
+            ->method('write')
             ->with(
+                connection: $this->connection,
                 success: 1,
                 event: 'patient-record-select',
                 user: 'emergency_user',
@@ -180,9 +183,10 @@ final class QueryAuditorTest extends TestCase
         $this->context->method('getGroup')->willReturn('admin');
         $this->context->method('getPatientId')->willReturn(123);
 
-        $this->auditLogger->expects(self::once())
-            ->method('recordLogItem')
+        $this->writer->expects(self::once())
+            ->method('write')
             ->with(
+                connection: $this->connection,
                 success: 1,
                 event: 'patient-record-update',
                 user: 'testuser',
@@ -208,9 +212,10 @@ final class QueryAuditorTest extends TestCase
         $this->context->method('getGroup')->willReturn('admin');
         $this->context->method('getPatientId')->willReturn(null);
 
-        $this->auditLogger->expects(self::once())
-            ->method('recordLogItem')
+        $this->writer->expects(self::once())
+            ->method('write')
             ->with(
+                connection: $this->connection,
                 success: 0,
                 event: 'patient-record-insert',
                 user: 'testuser',
@@ -234,7 +239,7 @@ final class QueryAuditorTest extends TestCase
         $this->settings->method('isQueryLoggingEnabled')->willReturn(true);
         $this->context->method('getUser')->willReturn('testuser');
 
-        $this->auditLogger->expects(self::never())->method('recordLogItem');
+        $this->writer->expects(self::never())->method('write');
 
         $this->auditor->audit($this->connection, 'SELECT COUNT(*) FROM patient_data', null, true);
     }
