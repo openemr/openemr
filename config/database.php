@@ -36,7 +36,7 @@ use Doctrine\ORM\{
     ORMSetup,
 };
 use Firehed\Container\TypedContainerInterface as TC;
-use OpenEMR\Entities\EventSubscriber\TimestampSubscriber;
+use OpenEMR\Entities\EventSubscriber\AutoValueSubscriber;
 use OpenEMR\BC\DatabaseConnectionOptions;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\{
@@ -88,7 +88,7 @@ return [
         // the DI defs with this setup, but whatever.
         $em->getEventManager()->addEventListener(
             [Events::prePersist, Events::preUpdate],
-            $c->get(TimestampSubscriber::class),
+            $c->get(AutoValueSubscriber::class),
         );
         return $em;
     },

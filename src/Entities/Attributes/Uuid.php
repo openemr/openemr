@@ -23,7 +23,7 @@ use Attribute;
  *     #[Uuid]
  *     public readonly UuidInterface $uuid;
  *
- * @see \OpenEMR\Entities\EventSubscriber\TimestampSubscriber
+ * @see \OpenEMR\Entities\EventSubscriber\AutoValueSubscriber
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Uuid

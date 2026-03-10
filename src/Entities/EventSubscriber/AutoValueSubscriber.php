@@ -21,23 +21,25 @@ use Ramsey\Uuid\Uuid;
 use ReflectionObject;
 
 /**
- * Doctrine event subscriber that automatically sets timestamp properties
- * on entities.
+ * Doctrine event subscriber that automatically sets values on entity
+ * properties based on attributes.
  *
  * Properties marked with #[CreatedAt] are set during prePersist.
  * Properties marked with #[UpdatedAt] are set during prePersist and preUpdate.
+ * Properties marked with #[Uuid] are set during prePersist.
  *
  * Register with the EntityManager's event manager:
  *
  *     $em->getEventManager()->addEventListener(
  *         [Events::prePersist, Events::preUpdate],
- *         new TimestampSubscriber(),
+ *         new AutoValueSubscriber(),
  *     );
  *
  * @see CreatedAt
  * @see UpdatedAt
+ * @see Uuid
  */
-readonly class TimestampSubscriber
+readonly class AutoValueSubscriber
 {
     public function __construct(
         private ClockInterface $clock,

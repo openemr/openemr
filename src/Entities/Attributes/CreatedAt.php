@@ -22,7 +22,7 @@ use Attribute;
  *     #[CreatedAt]
  *     public readonly DateTimeImmutable $createdAt;
  *
- * @see \OpenEMR\Entities\EventSubscriber\TimestampSubscriber
+ * @see \OpenEMR\Entities\EventSubscriber\AutoValueSubscriber
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class CreatedAt
