@@ -180,63 +180,63 @@ $res = listingReportDatabase($form_begin_date, $form_end_date);
 while ($row = sqlFetchArray($res)) {
   // Figure out the title and link
     if ($row['type'] == "cqm") {
-        if (!OEGlobalsBag::getInstance()->get('enable_cqm')) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('enable_cqm')) {
             continue;
         }
 
         $type_title = xl('Clinical Quality Measures (CQM)');
         $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } elseif ($row['type'] == "cqm_2011") {
-        if (!OEGlobalsBag::getInstance()->get('enable_cqm')) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('enable_cqm')) {
             continue;
         }
 
         $type_title = xl('2011 Clinical Quality Measures (CQM)');
         $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } elseif ($row['type'] == "cqm_2014") {
-        if (!OEGlobalsBag::getInstance()->get('enable_cqm')) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('enable_cqm')) {
             continue;
         }
 
         $type_title = xl('2014 Clinical Quality Measures (CQM)');
         $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } elseif (CertificationReportTypes::isAMCReportType($row['type'])) {
-        if (!OEGlobalsBag::getInstance()->get('enable_amc')) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('enable_amc')) {
             continue;
         }
         $record = $amc_report_types[$row['type']];
         $type_title = $record['ruleset_title'];
         $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } elseif ($row['type'] == "process_reminders") {
-        if (!OEGlobalsBag::getInstance()->get('enable_cdr')) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('enable_cdr')) {
             continue;
         }
 
         $type_title = xl('Processing Patient Reminders');
         $link = "../batchcom/batch_reminders.php?report_id=" . attr_url($row["report_id"]);
     } elseif ($row['type'] == "process_send_reminders") {
-        if (!OEGlobalsBag::getInstance()->get('enable_cdr')) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('enable_cdr')) {
             continue;
         }
 
         $type_title = xl('Processing and Sending Patient Reminders');
         $link = "../batchcom/batch_reminders.php?report_id=" . attr_url($row["report_id"]);
     } elseif ($row['type'] == "passive_alert") {
-        if (!OEGlobalsBag::getInstance()->get('enable_cdr')) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('enable_cdr')) {
             continue;
         }
 
         $type_title = xl('Standard Measures (Passive Alerts)');
         $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } elseif ($row['type'] == "active_alert") {
-        if (!OEGlobalsBag::getInstance()->get('enable_cdr')) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('enable_cdr')) {
             continue;
         }
 
         $type_title = xl('Standard Measures (Active Alerts)');
         $link = "cqm.php?report_id=" . attr_url($row["report_id"]) . "&back=list";
     } elseif ($row['type'] == "patient_reminder") {
-        if (!OEGlobalsBag::getInstance()->get('enable_cdr')) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('enable_cdr')) {
             continue;
         }
 

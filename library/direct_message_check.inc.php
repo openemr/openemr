@@ -43,7 +43,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 function phimail_connect(&$phimail_error)
 {
 
-    if (OEGlobalsBag::getInstance()->get('phimail_enable') == false) {
+    if (!OEGlobalsBag::getInstance()->getBoolean('phimail_enable')) {
         $phimail_error = 'C1';
         return false; //for safety
     }
@@ -54,11 +54,11 @@ function phimail_connect(&$phimail_error)
     $phimail_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('phimail_password'));
 
     // if test mode is disabled we use the production cert, otherwise we use the test certificate.
-    if (OEGlobalsBag::getInstance()->has('phimail_testmode_disabled') && OEGlobalsBag::getInstance()->get('phimail_testmode_disabled') == '1') {
+    if (OEGlobalsBag::getInstance()->has('phimail_testmode_disabled') && OEGlobalsBag::getInstance()->getBoolean('phimail_testmode_disabled')) {
         $phimail_cafile = OEGlobalsBag::getInstance()->get('fileroot') . '/public/certs/phimail/phimail_server.pem';
     } else {
         $phimail_cafile = OEGlobalsBag::getInstance()->get('fileroot') . '/public/certs/phimail/EMRDirectTestCA.pem';
-        (new SystemLogger())->debug("running phimail_connect in test mode.  This should not be used for production", ['ca' => $phimail_cafile, 'testmode' => OEGlobalsBag::getInstance()->get('phimail_testmode_disabled')]);
+        (new SystemLogger())->debug("running phimail_connect in test mode.  This should not be used for production", ['ca' => $phimail_cafile, 'testmode' => OEGlobalsBag::getInstance()->getBoolean('phimail_testmode_disabled')]);
     }
     if (!file_exists($phimail_cafile)) {
         $phimail_cafile = '';

@@ -51,11 +51,11 @@ function getListData($pid, $type)
     }
 
 
-    if (OEGlobalsBag::getInstance()->get('erx_enable') && OEGlobalsBag::getInstance()->get('erx_medication_display') && $type == 'medication') {
+    if (OEGlobalsBag::getInstance()->getBoolean('erx_enable') && OEGlobalsBag::getInstance()->getBoolean('erx_medication_display') && $type == 'medication') {
         $sqlArr[] = "and erx_uploaded != '1'";
     }
 
-    if (OEGlobalsBag::getInstance()->get('erx_enable') && OEGlobalsBag::getInstance()->get('erx_allergy_display') && $type == 'allergy') {
+    if (OEGlobalsBag::getInstance()->getBoolean('erx_enable') && OEGlobalsBag::getInstance()->getBoolean('erx_allergy_display') && $type == 'allergy') {
         $sqlArr[] = "and erx_uploaded != '1'";
     }
 
@@ -146,10 +146,10 @@ foreach ($ISSUE_TYPES as $key => $arr) {
         continue;
     }
 
-    if ($old_key == "medication" && OEGlobalsBag::getInstance()->get('erx_enable') && $erx_upload_complete == 1) {
+    if ($old_key == "medication" && OEGlobalsBag::getInstance()->getBoolean('erx_enable') && $erx_upload_complete == 1) {
         $display_current_medications_below = 0;
 
-        if (OEGlobalsBag::getInstance()->get('erx_enable')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('erx_enable')) {
             $res = sqlStatement("SELECT * FROM prescriptions WHERE patient_id=? AND active='1'", [$pid]);
             $list = [];
             $rxArr = [];
@@ -183,7 +183,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
     //
     if (count($issues) > 0 || $arr[4] == 1) {
         $old_key = $key;
-        if (OEGlobalsBag::getInstance()->get('erx_enable') && $key == "medication") {
+        if (OEGlobalsBag::getInstance()->getBoolean('erx_enable') && $key == "medication") {
             $sqlUploadedArr = [
                 "SELECT * FROM lists WHERE pid = ? AND type = 'medication' AND",
                 dateEmptySql('enddate'),
@@ -209,7 +209,7 @@ foreach ($ISSUE_TYPES as $key => $arr) {
         ];
 
         $btnLinkBase = "return load_location('" . OEGlobalsBag::getInstance()->get('webroot') . "/interface/__page__')";
-        if (in_array($key, ["allergy", "medication"]) && OEGlobalsBag::getInstance()->get("erx_enable")) {
+        if (in_array($key, ["allergy", "medication"]) && OEGlobalsBag::getInstance()->getBoolean("erx_enable")) {
             $viewArgs['btnLabel'] = "Add";
             $btnLinkPage = "eRx.php?page=medentry";
         } else {
@@ -265,7 +265,7 @@ foreach (['treatment_protocols', 'injury_log'] as $formname) {
 }
 
 // Render the Immunizations card if turned on
-if (!OEGlobalsBag::getInstance()->get('disable_immunizations') && !OEGlobalsBag::getInstance()->get('weight_loss_clinic')) :
+if (!OEGlobalsBag::getInstance()->getBoolean('disable_immunizations') && !OEGlobalsBag::getInstance()->get('weight_loss_clinic')) :
     $sql = "SELECT i1.id AS id, i1.immunization_id AS immunization_id, i1.cvx_code AS cvx_code, c.code_text_short AS cvx_text,
                 IF(i1.administered_date, concat(i1.administered_date,' - ',c.code_text_short),
                 IF(i1.note,substring(i1.note,1,20),c.code_text_short)) AS immunization_data
@@ -282,7 +282,7 @@ if (!OEGlobalsBag::getInstance()->get('disable_immunizations') && !OEGlobalsBag:
         $row['immunization_data'] = text($row['immunization_data']);
 
         // Figure out which name to use (ie. from cvx list or from the custom list)
-        if (OEGlobalsBag::getInstance()->get('use_custom_immun_list')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('use_custom_immun_list')) {
             $row['field'] = generate_display_field(['data_type' => '1', 'list_id' => 'immunizations'], $row['immunization_id']);
         } else {
             if (!(empty($row['cvx_text']))) {

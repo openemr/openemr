@@ -72,7 +72,7 @@ $recorder = new Recorder();
     <?php if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'AuthorizeNet') {
         // Must be loaded from their server
         $script = "https://jstest.authorize.net/v1/Accept.js"; // test script
-        if (OEGlobalsBag::getInstance()->get('gateway_mode_production')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('gateway_mode_production')) {
             $script = "https://js.authorize.net/v1/Accept.js"; // Production script
         } ?>
         <script src=<?php echo $script; ?> charset="utf-8"></script>
@@ -1404,12 +1404,12 @@ function make_insurance() {
                         <div class="col-sm-12 text-left position-override">
                             <div class="form-group" role="group" id="button-group">
                                 <button type='submit' class="btn btn-primary btn-save" name='form_save' value='<?php echo xla('Generate Invoice');?>'><?php echo xlt('Generate Invoice');?></button>
-                                <?php if (!empty(OEGlobalsBag::getInstance()->get('cc_front_payments')) && OEGlobalsBag::getInstance()->get('payment_gateway') != 'InHouse') {
+                                <?php if (OEGlobalsBag::getInstance()->getBoolean('cc_front_payments') && OEGlobalsBag::getInstance()->get('payment_gateway') != 'InHouse') {
                                     if (OEGlobalsBag::getInstance()->get('payment_gateway') == 'Sphere') {
                                         echo SpherePayment::renderSphereHtml('clinic');
                                     } else {
                                         echo '<button type="button" id="paynowbutton" class="btn btn-success btn-transmit mx-1" data-toggle="modal" data-target="#openPayModal">' . xlt("Credit Card Pay") . '</button>';
-                                        if (!empty(OEGlobalsBag::getInstance()->get('cc_stripe_terminal'))) {
+                                        if (OEGlobalsBag::getInstance()->getBoolean('cc_stripe_terminal')) {
                                             echo '<button type="button" class="btn btn-success btn-transmit mx-1" onclick="posDialog()">' . xlt("POS Payment") . '</button>';
                                         }
                                     }
@@ -1789,7 +1789,7 @@ function make_insurance() {
                     });
                 }
                 // terminal
-                <?php if (!empty(OEGlobalsBag::getInstance()->get('cc_stripe_terminal'))) { ?>
+                <?php if (OEGlobalsBag::getInstance()->getBoolean('cc_stripe_terminal')) { ?>
                 // Dialog function for Stripe terminal payment.
                 // Will post on successful credit payment.
                 function posDialog() {

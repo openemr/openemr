@@ -407,7 +407,7 @@ function writeOptionLine($option_id, $title, $seq, $default, $value, $mapping = 
     echo "</td>\n";
 
     // if not english and translating lists then show the translation
-    if (OEGlobalsBag::getInstance()->get('translate_lists') && $_SESSION['language_choice'] > 1) {
+    if (OEGlobalsBag::getInstance()->getBoolean('translate_lists') && $_SESSION['language_choice'] > 1) {
         echo "  <td align='center' class='translation'>" . xlt($title) . "</td>\n";
     }
     echo "  <td>";
@@ -712,7 +712,7 @@ function writeCTLine($ct_array): void
         xl('Label for this type')
     );
     // if not english and translating lists then show the translation
-    if (OEGlobalsBag::getInstance()->get('translate_lists') && $_SESSION['language_choice'] > 1) {
+    if (OEGlobalsBag::getInstance()->getBoolean('translate_lists') && $_SESSION['language_choice'] > 1) {
         echo "  <td align='center' class='translation'>" . xlt($ct_array['ct_label']) . "</td>\n";
     }
     echo ctGenCell(
@@ -826,17 +826,17 @@ function writeITLine($it_array): void
     echo ctGenCell($opt_line_no, $it_array, 'type', 15, 75, xl('Issue Type'));
     echo ctGenCell($opt_line_no, $it_array, 'plural', 15, 75, xl('Plural'));
     // if not english and translating lists then show the translation
-    if (OEGlobalsBag::getInstance()->get('translate_lists') && $_SESSION['language_choice'] > 1) {
+    if (OEGlobalsBag::getInstance()->getBoolean('translate_lists') && $_SESSION['language_choice'] > 1) {
         echo "  <td align='center' class='translation'>" . xlt($it_array['plural']) . "</td>\n";
     }
     echo ctGenCell($opt_line_no, $it_array, 'singular', 15, 75, xl('Singular'));
     // if not english and translating lists then show the translation
-    if (OEGlobalsBag::getInstance()->get('translate_lists') && $_SESSION['language_choice'] > 1) {
+    if (OEGlobalsBag::getInstance()->getBoolean('translate_lists') && $_SESSION['language_choice'] > 1) {
         echo "  <td align='center' class='translation'>" . xlt($it_array['singular']) . "</td>\n";
     }
     echo ctGenCell($opt_line_no, $it_array, 'abbreviation', 5, 10, xl('Abbreviation'));
     // if not english and translating lists then show the translation
-    if (OEGlobalsBag::getInstance()->get('translate_lists') && $_SESSION['language_choice'] > 1) {
+    if (OEGlobalsBag::getInstance()->getBoolean('translate_lists') && $_SESSION['language_choice'] > 1) {
         echo "  <td align='center' class='translation'>" . xlt($it_array['abbreviation']) . "</td>\n";
     }
     echo ctSelector($opt_line_no, $it_array, 'style', $ISSUE_TYPE_STYLES, xl('Standard; Simplified: only title, start date, comments and an Active checkbox;no diagnosis, occurrence, end date, referred-by or sports fields. ; Football Injury'));
@@ -1155,7 +1155,7 @@ function writeITLine($it_array): void
                             // List order depends on language translation options.
                             $lang_id = empty($_SESSION['language_choice']) ? '1' : $_SESSION['language_choice'];
 
-                            if (!OEGlobalsBag::getInstance()->get('translate_lists')) {
+                            if (!OEGlobalsBag::getInstance()->getBoolean('translate_lists')) {
                                 $res = sqlStatement("SELECT option_id, title FROM list_options WHERE " .
                                     "list_id = 'lists' ORDER BY title, seq");
                             } else {
@@ -1251,7 +1251,7 @@ function writeITLine($it_array): void
                     <th><?php echo xlt('ID'); ?></th>
                     <th><?php echo xlt('Label'); ?></th>
                     <?php //show translation column if not english and the translation lists flag is set
-                    if (OEGlobalsBag::getInstance()->get('translate_lists') && $_SESSION['language_choice'] > 1) {
+                    if (OEGlobalsBag::getInstance()->getBoolean('translate_lists') && $_SESSION['language_choice'] > 1) {
                         echo "<th class='font-weight-bold'>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
                     } ?>
                     <th><?php echo xlt('Seq'); ?></th>
@@ -1286,17 +1286,17 @@ function writeITLine($it_array): void
                     <th><?php echo xlt('Type'); ?></th>
                     <th><?php echo xlt('Plural'); ?></th>
                     <?php //show translation column if not english and the translation lists flag is set
-                    if (OEGlobalsBag::getInstance()->get('translate_lists') && $_SESSION['language_choice'] > 1) {
+                    if (OEGlobalsBag::getInstance()->getBoolean('translate_lists') && $_SESSION['language_choice'] > 1) {
                         echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
                     } ?>
                     <th><?php echo xlt('Singular'); ?></th>
                     <?php //show translation column if not english and the translation lists flag is set
-                    if (OEGlobalsBag::getInstance()->get('translate_lists') && $_SESSION['language_choice'] > 1) {
+                    if (OEGlobalsBag::getInstance()->getBoolean('translate_lists') && $_SESSION['language_choice'] > 1) {
                         echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
                     } ?>
                     <th><?php echo xlt('Mini'); ?></th>
                     <?php //show translation column if not english and the translation lists flag is set
-                    if (OEGlobalsBag::getInstance()->get('translate_lists') && $_SESSION['language_choice'] > 1) {
+                    if (OEGlobalsBag::getInstance()->getBoolean('translate_lists') && $_SESSION['language_choice'] > 1) {
                         echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
                     } ?>
                     <th><?php echo xlt('Style'); ?></th>
@@ -1306,7 +1306,7 @@ function writeITLine($it_array): void
                     <th title='<?php echo xla('Click to edit'); ?>'><?php echo xlt('ID'); ?></th>
                     <th><?php echo xlt('Title'); ?></th>
                     <?php //show translation column if not english and the translation lists flag is set
-                    if (OEGlobalsBag::getInstance()->get('translate_lists') && $_SESSION['language_choice'] > 1) {
+                    if (OEGlobalsBag::getInstance()->getBoolean('translate_lists') && $_SESSION['language_choice'] > 1) {
                         echo "<th>" . xlt('Translation') . "<span class='help' title='" . xla('The translated Title that will appear in current language') . "'> (?)</span></th>";
                     } ?>
                     <th><?php echo xlt('Order{{Sequence}}'); ?></th>

@@ -95,7 +95,7 @@ class BillingLogger
     {
         // If the hlog isn't empty, write the log to disk
         if (!empty($this->hlog)) {
-            if (OEGlobalsBag::getInstance()->get('drive_encryption')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
                 $this->hlog = $this->cryptoGen->encryptStandard($this->hlog, null, KeySource::Database);
             }
             file_put_contents(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/edi/process_bills.log", $this->hlog);

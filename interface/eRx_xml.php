@@ -788,7 +788,7 @@ function PatientMedication($doc, $r, $pid, $med_limit)
 {
     global $msg;
     $active = '';
-    if (OEGlobalsBag::getInstance()->get('erx_upload_active') == 1) {
+    if (OEGlobalsBag::getInstance()->getBoolean('erx_upload_active')) {
         $active = " and (enddate is null or enddate = '0000-00-00' )";
     }
 

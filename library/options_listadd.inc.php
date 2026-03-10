@@ -46,7 +46,7 @@ use OpenEMR\Core\OEGlobalsBag;
 <script>
 
     // collect the custom state widget flag
-    var stateCustomFlag = <?php echo json_encode(OEGlobalsBag::getInstance()->get('state_custom_addlist_widget')); ?>;
+    var stateCustomFlag = <?php echo json_encode(OEGlobalsBag::getInstance()->getBoolean('state_custom_addlist_widget')); ?>;
 
     // generic form for input box
     var generic = "<input type='text' class='form-control' name='newlistitem_value' id='newlistitem_value' size='20' maxlength='50' />";

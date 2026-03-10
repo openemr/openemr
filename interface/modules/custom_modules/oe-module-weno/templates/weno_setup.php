@@ -104,10 +104,10 @@ $vendors = $boot->getVendorGlobals();
     <script>
         $(function () {
             const form = document.querySelector('#set_form');
-            let isValidKey = <?php echo js_escape($isValidKey); ?>;
-            let saveAction = <?php echo js_escape($saveAction); ?>;
+            let isValidKey = <?php echo js_escape((int) $isValidKey); ?>;
+            let saveAction = <?php echo js_escape((int) $saveAction); ?>;
             let isPersistEvent = false;
-            let saveActionPersist = <?php echo js_escape($saveActionPersist); ?>;
+            let saveActionPersist = <?php echo js_escape((int) $saveActionPersist); ?>;
             let scrollPosition = 0;
 
             // Persist form submit so to scroll where left off.

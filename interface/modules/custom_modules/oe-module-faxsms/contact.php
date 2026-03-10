@@ -81,7 +81,7 @@ $interface_pid = $interface_pid == 0 ? '' : $interface_pid;
     <?php Header::setupHeader();
     echo "<script>var pid=" . js_escape($interface_pid ?: $pid) . ";var isFax=" . js_escape($isFax) . ";var isOnetime=" . js_escape($isOnetime) . ";var isEmail=" . js_escape($isEmail) . ";var isSms=" . js_escape($isSMS) . ";var isForward=" . js_escape($isForward) . ";var recipient=" . js_escape($recipient_phone) . ";var isUniversal=" . js_escape($isUniversal) . ";</script>";
     ?>
-    <?php if (!empty(OEGlobalsBag::getInstance()->get('text_templates_enabled'))) { ?>
+    <?php if (OEGlobalsBag::getInstance()->getBoolean('text_templates_enabled')) { ?>
         <script src="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/js/CustomTemplateLoader.js"></script>
     <?php } ?>
     <script>

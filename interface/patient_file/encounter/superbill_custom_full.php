@@ -39,7 +39,7 @@ if (!($thisauthwrite || $thisauthview)) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/superbill: Codes", xl("Codes"));
 }
 // For revenue codes
-$institutional = OEGlobalsBag::getInstance()->get('ub04_support') == "1" ? true : false;
+$institutional = OEGlobalsBag::getInstance()->getBoolean('ub04_support') ? true : false;
 
 // Translation for form fields.
 function ffescape($field)
@@ -181,7 +181,7 @@ if (isset($mode) && $thisauthwrite) {
 
     // If codes history is enabled in the billing globals save data to codes history table
     if (
-        OEGlobalsBag::getInstance()->get('save_codes_history') && $alertmsg == '' &&
+        OEGlobalsBag::getInstance()->getBoolean('save_codes_history') && $alertmsg == '' &&
         (in_array($mode, ["add", "modify_complete", "delete"]))
     ) {
         $action_type = empty($_POST['code_id']) ? 'new' : $mode;

@@ -441,7 +441,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         </div>
                         <div class="forms col-sm-5">
                             <?php
-                            if (OEGlobalsBag::getInstance()->get('enable_amc_prompting') && 'LBTref' == $form_id) { ?>
+                            if (OEGlobalsBag::getInstance()->getBoolean('enable_amc_prompting') && 'LBTref' == $form_id) { ?>
                                 <div class='oe-pull-away' style='margin-right:25px;border-style:solid;border-width:1px;'>
                                     <div style='margin:5px 5px 5px 5px;'>
 

@@ -539,7 +539,7 @@ if (!empty($glrow)) {
 
     // Language cleanup stuff.
     $globalsBag->set('language_menu_login', false);
-    if ((!empty($globalsBag->get('language_menu_show')) && count($globalsBag->get('language_menu_show')) > 1) || $globalsBag->get('language_menu_showall')) {
+    if ((!empty($globalsBag->get('language_menu_show')) && count($globalsBag->get('language_menu_show')) > 1) || $globalsBag->getBoolean('language_menu_showall')) {
         $globalsBag->set('language_menu_login', true);
     }
 
@@ -668,7 +668,7 @@ if (empty($globalsBag->getString('qualified_site_addr'))) {
 // Also important to note that changes to this global setting will not take effect during the same
 //  session (ie. user needs to logout) since not worth it to use resources to open session and write to it
 //  for every call to interface/globals.php .
-$session->set("enable_database_connection_pooling", $globalsBag->get("enable_database_connection_pooling", null));
+$session->set("enable_database_connection_pooling", $globalsBag->getBoolean("enable_database_connection_pooling", false));
 
 // If >0 this will enforce a separate PHP session for each top-level
 // browser window.  You must log in separately for each.  This is not
@@ -841,7 +841,7 @@ if (empty($skipAuditLog)) {
 }
 
 // Warm translation cache if configured
-if ($globalsBag->get('translation_preload_cache')) {
+if ($globalsBag->getBoolean('translation_preload_cache')) {
     xlWarmCache();
 }
 

@@ -212,7 +212,7 @@ class UserService
         //(CHEMED) facility filter
         $param2 = "";
         if (!empty($facility)) {
-            if (OEGlobalsBag::getInstance()->get('restrict_user_facility')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility')) {
                 $param2 = " AND (facility_id = ? OR  ? IN (select facility_id from users_facility where tablename = 'users' and table_id = id))";
                 $bind[] = $facility;
                 $bind[] = $facility;

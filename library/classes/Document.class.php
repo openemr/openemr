@@ -920,7 +920,7 @@ class Document extends ORDataObject
         // Create a crypto object that will be used for for encryption/decryption
         $cryptoGen = ServiceContainer::getCrypto();
 
-        if (OEGlobalsBag::getInstance()->get('generate_doc_thumb')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('generate_doc_thumb')) {
             $thumb_size = (OEGlobalsBag::getInstance()->get('thumb_doc_max_size') > 0) ? OEGlobalsBag::getInstance()->get('thumb_doc_max_size') : null;
             $thumbnail_class = new Thumbnail($thumb_size);
 
@@ -943,13 +943,13 @@ class Document extends ORDataObject
         $this->mimetype = $mimetype;
         if ($this->storagemethod == self::STORAGE_METHOD_COUCHDB) {
             // Store it using CouchDB.
-            if (OEGlobalsBag::getInstance()->get('couchdb_encryption')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('couchdb_encryption')) {
                 $document = $cryptoGen->encryptStandard($data, null, KeySource::Database);
             } else {
                 $document = base64_encode($data);
             }
             if ($has_thumbnail) {
-                if (OEGlobalsBag::getInstance()->get('couchdb_encryption')) {
+                if (OEGlobalsBag::getInstance()->getBoolean('couchdb_encryption')) {
                     $th_document = $cryptoGen->encryptStandard($thumbnail_data, null, KeySource::Database);
                 } else {
                     $th_document = base64_encode($thumbnail_data);
@@ -1040,7 +1040,7 @@ class Document extends ORDataObject
             }
 
             // Store the file.
-            $storedData = OEGlobalsBag::getInstance()->get('drive_encryption') ? $cryptoGen->encryptStandard($data, null, KeySource::Database) : $data;
+            $storedData = OEGlobalsBag::getInstance()->getBoolean('drive_encryption') ? $cryptoGen->encryptStandard($data, null, KeySource::Database) : $data;
             if (file_exists($filepath . $filenameUuid)) {
                 // this should never happen with current uuid mechanism
                 return xl('Failed since file already exists') . " $filepath$filenameUuid";
@@ -1052,7 +1052,7 @@ class Document extends ORDataObject
             if ($has_thumbnail) {
                 // Store the thumbnail.
                 $this->thumb_url = "file://" . $filepath . $this->get_thumb_name($filenameUuid);
-                if (OEGlobalsBag::getInstance()->get('drive_encryption')) {
+                if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
                     $storedThumbnailData = $cryptoGen->encryptStandard($thumbnail_data, null, KeySource::Database);
                 } else {
                     $storedThumbnailData = $thumbnail_data;
@@ -1073,8 +1073,8 @@ class Document extends ORDataObject
         }
 
         if (
-            (OEGlobalsBag::getInstance()->get('drive_encryption') && ($this->storagemethod != 1))
-            || (OEGlobalsBag::getInstance()->get('couchdb_encryption') && ($this->storagemethod == 1))
+            (OEGlobalsBag::getInstance()->getBoolean('drive_encryption') && ($this->storagemethod != 1))
+            || (OEGlobalsBag::getInstance()->getBoolean('couchdb_encryption') && ($this->storagemethod == 1))
         ) {
             $this->set_encrypted(self::ENCRYPTED_ON);
         } else {

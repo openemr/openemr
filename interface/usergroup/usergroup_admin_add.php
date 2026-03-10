@@ -119,7 +119,7 @@ function submitform() {
         return false;
     }
 
-    <?php if (OEGlobalsBag::getInstance()->get('erx_enable')) { ?>
+    <?php if (OEGlobalsBag::getInstance()->getBoolean('erx_enable')) { ?>
    alertMsg='';
    f=document.forms[0];
    for(i=0;i<f.length;i++){
@@ -221,7 +221,7 @@ function authorized_clicked() {
 <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
 <input type='hidden' name='mode' value='new_user'>
-<input type='hidden' name='secure_pwd' value="<?php echo attr(OEGlobalsBag::getInstance()->get('secure_password')); ?>">
+<input type='hidden' name='secure_pwd' value="<?php echo attr((int) OEGlobalsBag::getInstance()->getBoolean('secure_password')); ?>">
 
 <span class="font-weight-bold">&nbsp;</span>
 <table class="border-0" cellpadding='0' cellspacing='0' style="width:600px;">
@@ -238,7 +238,7 @@ function authorized_clicked() {
 </tr>
 <tr>
 <td style="width:150px;"><span class="text"><?php echo xlt('Username'); ?>: </span></td><td style="width:220px;"><input type="text" name="rumple" style="width:120px;" class="form-control"><span class="mandatory"></span></td>
-<?php if (empty(OEGlobalsBag::getInstance()->get('gbl_ldap_enabled')) || empty(OEGlobalsBag::getInstance()->get('gbl_ldap_exclusions'))) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('gbl_ldap_enabled') || empty(OEGlobalsBag::getInstance()->get('gbl_ldap_exclusions'))) { ?>
 <td style="width:150px;">
     <span class="text"><?php echo xlt('Password'); ?>:</span>
 </td>
@@ -262,9 +262,9 @@ function authorized_clicked() {
 
 </tr>
 <tr>
-<td><span class="text"<?php echo (OEGlobalsBag::getInstance()->get('disable_non_default_groups')) ? " style='display: none'" : ""; ?>><?php echo xlt('Groupname'); ?>: </span></td>
+<td><span class="text"<?php echo (OEGlobalsBag::getInstance()->getBoolean('disable_non_default_groups')) ? " style='display: none'" : ""; ?>><?php echo xlt('Groupname'); ?>: </span></td>
 <td>
-<select name="groupname" class="form-control"<?php echo (OEGlobalsBag::getInstance()->get('disable_non_default_groups')) ? " style='display:none'" : ""; ?>>
+<select name="groupname" class="form-control"<?php echo (OEGlobalsBag::getInstance()->getBoolean('disable_non_default_groups')) ? " style='display:none'" : ""; ?>>
 <?php
 $res = sqlStatement("select distinct name from `groups`");
 $result2 = [];
@@ -429,15 +429,15 @@ foreach ([1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')
 <?php } ?>
 
 <!-- facility and warehouse restrictions, optional -->
-<?php if (!empty(OEGlobalsBag::getInstance()->get('gbl_fac_warehouse_restrictions')) || !empty(OEGlobalsBag::getInstance()->get('restrict_user_facility'))) { ?>
+<?php if (OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions') || OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility')) { ?>
  <tr title="<?php echo xla('If nothing is selected here then all are permitted.'); ?>">
-  <td class="text"><?php echo !empty(OEGlobalsBag::getInstance()->get('gbl_fac_warehouse_restrictions')) ?
+  <td class="text"><?php echo OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions') ?
     xlt('Facility and warehouse permissions') : xlt('Facility permissions'); ?>:</td>
   <td colspan="3">
    <select name="schedule_facility[]" multiple style="width:490px;">
     <?php
     $user_id = 0; // in user_admin.php this is intval($_GET["id"]).
-    $userFacilities = getUserFacilities($user_id, 'id', OEGlobalsBag::getInstance()->get('gbl_fac_warehouse_restrictions'));
+    $userFacilities = getUserFacilities($user_id, 'id', OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions'));
     $ufid = [];
     foreach ($userFacilities as $uf) {
         $ufid[] = $uf['id'];
@@ -455,7 +455,7 @@ foreach ([1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')
             echo " value='" . attr($frow['id']) . "'>" . text($frow['name']) . "</option>\n";
             // Then generate an option for each of the facility's warehouses.
             // Does not apply if the site does not use warehouse restrictions.
-            if (!empty(OEGlobalsBag::getInstance()->get('gbl_fac_warehouse_restrictions'))) {
+            if (OEGlobalsBag::getInstance()->getBoolean('gbl_fac_warehouse_restrictions')) {
                 $lres = sqlStatement(
                     "SELECT option_id, title FROM list_options WHERE " .
                     "list_id = ? AND option_value = ? ORDER BY seq, title",
@@ -545,7 +545,7 @@ foreach ($list_acl_groups as $value) {
 
 </tr>
 
-<tr<?php echo (OEGlobalsBag::getInstance()->get('disable_non_default_groups')) ? " style='display:none'" : ""; ?>>
+<tr<?php echo (OEGlobalsBag::getInstance()->getBoolean('disable_non_default_groups')) ? " style='display:none'" : ""; ?>>
 
 <td valign='top'>
 <form name='new_group' method='post' action="usergroup_admin.php"
@@ -577,7 +577,7 @@ foreach ($result as $iter) {
 </td>
 
 </tr>
-<tr<?php echo (OEGlobalsBag::getInstance()->get('disable_non_default_groups')) ? " style='display:none'" : ""; ?>>
+<tr<?php echo (OEGlobalsBag::getInstance()->getBoolean('disable_non_default_groups')) ? " style='display:none'" : ""; ?>>
 
 <td valign='top'>
 <form name='new_group' method='post' action="usergroup_admin.php"
@@ -626,7 +626,7 @@ foreach ($result2 as $iter) {
 </table>
 
 <?php
-if (empty(OEGlobalsBag::getInstance()->get('disable_non_default_groups'))) {
+if (!OEGlobalsBag::getInstance()->getBoolean('disable_non_default_groups')) {
     $res = sqlStatement("select * from `groups` order by name");
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
         $result5[$iter] = $row;

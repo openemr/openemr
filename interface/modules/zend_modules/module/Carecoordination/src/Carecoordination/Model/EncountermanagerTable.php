@@ -238,11 +238,11 @@ class EncountermanagerTable
         $d_Address = '';
         // no point in continuing if we are not setup here
         $config_err = xl(ErrorConstants::MESSAGING_DISABLED) . " " . ErrorConstants::ERROR_CODE_ABBREVIATION . ":";
-        if (OEGlobalsBag::getInstance()->get('phimail_enable') == false) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('phimail_enable')) {
             return ("$config_err " . ErrorConstants::ERROR_CODE_MESSAGING_DISABLED);
         }
 
-        $verifyMessageReceivedChecked = OEGlobalsBag::getInstance()->get('phimail_verifyrecipientreceived_enable') == '1' ? true : false;
+        $verifyMessageReceivedChecked = OEGlobalsBag::getInstance()->getBoolean('phimail_verifyrecipientreceived_enable') ? true : false;
 
         try {
             foreach ($rec_arr as $recipient) {

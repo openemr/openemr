@@ -44,7 +44,7 @@ use OpenEMR\Core\OEGlobalsBag;
 <dd><a class="text" href="copay.php" target="Codes" onclick="top.restoreSession()"><?php echo xlt('Copay'); ?></a></dd>
 <dd><a class="text" href="other.php" target="Codes" onclick="top.restoreSession()"><?php echo xlt('Other'); ?></a></dd><br />
 
-<?php if (!OEGlobalsBag::getInstance()->get('disable_prescriptions')) { ?>
+<?php if (!OEGlobalsBag::getInstance()->getBoolean('disable_prescriptions')) { ?>
 <dt><span href="coding.php" class="title"><?php echo xlt('Prescriptions'); ?></span></dt>
 <dd><a class="text" href="<?php echo OEGlobalsBag::getInstance()->get('webroot')?>/controller.php?prescription&list&id=<?php echo attr_url($pid); ?>"
  target="Codes" onclick="top.restoreSession()"><?php echo xlt('List Prescriptions'); ?></a></dd>

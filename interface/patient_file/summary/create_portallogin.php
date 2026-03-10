@@ -86,7 +86,7 @@ echo $patientAccessOnSiteService->filterTwigTemplateData($pid, 'patient/portal_l
     , 'uname' => $credentials['portal_username'] ?: $credentials['fname'] . $credentials['lname'] . $credentials['id']
     , 'login_uname' => $credentials['portal_login_username'] ?? $trustedUserName
     , 'pwd' => $patientAccessOnSiteService->getRandomPortalPassword()
-    , 'enforce_signin_email' => OEGlobalsBag::getInstance()->get('enforce_signin_email')
+    , 'enforce_signin_email' => OEGlobalsBag::getInstance()->getBoolean('enforce_signin_email')
     , 'email_direct' => trim((string) $trustedEmail['email_direct'])
     , 'forced_reset_disable' => $forced_reset_disable
     , 'forced_reset_option' => $option

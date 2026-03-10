@@ -106,7 +106,7 @@ if (isset($_GET['mode'])) {
         $immunization_id = $cvx_code = $manufacturer = $lot_number = $administered_by_id = $note = $id = $ordered_by_id = "";
         $administered_by = $vis_date = "";
         $newid = $_GET['id'] ?: $newid;
-        if (OEGlobalsBag::getInstance()->get('observation_results_immunization')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('observation_results_immunization')) {
             saveImmunizationObservationResults($newid, $_GET);
         }
     } elseif ($_GET['mode'] == "delete") {
@@ -189,7 +189,7 @@ if (isset($_GET['mode'])) {
 $observation_criteria = getImmunizationObservationLists('1');
 $observation_criteria_value = getImmunizationObservationLists('2');
 // Decide whether using the CVX list or the custom list in list_options
-if (OEGlobalsBag::getInstance()->get('use_custom_immun_list')) {
+if (OEGlobalsBag::getInstance()->getBoolean('use_custom_immun_list')) {
     // user forces the use of the custom list
     $useCVX = false;
 } else {
@@ -553,7 +553,7 @@ tr.selected {
                                 <p><?php echo xlt('Entered By'); ?> <?php echo text($entered_by); ?></p>
                             <?php } ?>
 
-                            <?php if (OEGlobalsBag::getInstance()->get('observation_results_immunization')) { ?>
+                            <?php if (OEGlobalsBag::getInstance()->getBoolean('observation_results_immunization')) { ?>
                             <button type="button" class="btn btn-primary" onclick="showObservationResultSection();" title='<?php echo xla('Click here to see observation results'); ?>'>
                                 <?php echo xlt('See observation results'); ?>
                             </button>
@@ -784,7 +784,7 @@ tr.selected {
                             }
 
                             // Figure out which name to use (ie. from cvx list or from the custom list)
-                            if (OEGlobalsBag::getInstance()->get('use_custom_immun_list')) {
+                            if (OEGlobalsBag::getInstance()->getBoolean('use_custom_immun_list')) {
                                 $vaccine_display = generate_display_field(['data_type' => '1','list_id' => 'immunizations'], $row['immunization_id']);
                             } else {
                                 if (!empty($row['code_text_short'])) {

@@ -374,7 +374,7 @@ class AppointmentService extends BaseService
         // =======================================
         //  multi providers event
         // =======================================
-        if (OEGlobalsBag::getInstance()->get('select_multi_providers')) {
+        if (OEGlobalsBag::getInstance()->getBoolean('select_multi_providers')) {
             // what is multiple key around this $eid?
             $row = sqlQuery("SELECT pc_multiple FROM openemr_postcalendar_events WHERE pc_eid = ?", [$eid]);
 
@@ -641,7 +641,7 @@ class AppointmentService extends BaseService
         );
 
         $visit_reason = $appointment['pc_hometext'] ?? xl('Please indicate visit reason');
-        if (!empty(OEGlobalsBag::getInstance()->get('auto_create_prevent_reason') ?? 0)) {
+        if (OEGlobalsBag::getInstance()->getBoolean('auto_create_prevent_reason')) {
             $visit_reason = 'Please indicate visit reason';
         }
         $data = [

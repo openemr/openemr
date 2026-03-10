@@ -223,7 +223,7 @@ function generate_select_list(
 
         // sort by title
         $order_by_sql = (OEGlobalsBag::getInstance()->get('gb_how_sort_list') == '0') ? "seq, title" : "title, seq";
-        if (!OEGlobalsBag::getInstance()->get('translate_lists')) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('translate_lists')) {
             // do not translate
             $lres = sqlStatement("SELECT * FROM list_options WHERE list_id = ? AND activity = ? ORDER BY $order_by_sql", [$list_id, $active]);
         } else {
@@ -3499,7 +3499,7 @@ function display_layout_rows($formtype, $result1, $result2 = ''): void
             if ($formtype == 'DEM') {
                 if (str_starts_with((string) $field_id, 'em_')) {
                     // Skip employer related fields, if it's disabled.
-                    if (OEGlobalsBag::getInstance()->get('omit_employers')) {
+                    if (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
                         continue;
                     }
 
@@ -3522,7 +3522,7 @@ function display_layout_rows($formtype, $result1, $result2 = ''): void
             if (strcmp((string) $this_group, (string) $last_group) != 0) {
                 $group_name = $grparr[$this_group]['grp_title'];
                 // totally skip generating the employer category, if it's disabled.
-                if ($group_name === 'Employer' && OEGlobalsBag::getInstance()->get('omit_employers')) {
+                if ($group_name === 'Employer' && OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
                     continue;
                 }
 
@@ -3639,7 +3639,7 @@ function display_layout_tabs($formtype, $result1, $result2 = ''): void
             }
             $prev_group = $this_group;
             $group_name = $grparr[$this_group]['grp_title'];
-            if ($group_name === 'Employer' && OEGlobalsBag::getInstance()->get('omit_employers')) {
+            if ($group_name === 'Employer' && OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
                 continue;
             }
             ?>
@@ -3694,7 +3694,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = ''): void
         while ($frow = sqlFetchArray($fres)) {
             $this_group = $frow['group_id'] ?? "" ;
 
-            if ($grparr[$this_group]['grp_title'] === 'Employer' && OEGlobalsBag::getInstance()->get('omit_employers')) {
+            if ($grparr[$this_group]['grp_title'] === 'Employer' && OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
                 continue;
             }
             $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
@@ -3732,7 +3732,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = ''): void
                 if ($formtype == 'DEM') {
                     if (str_starts_with((string) $field_id, 'em_')) {
                         // Skip employer related fields, if it's disabled.
-                        if (OEGlobalsBag::getInstance()->get('omit_employers')) {
+                        if (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
                             continue;
                         }
 
@@ -3764,7 +3764,7 @@ function display_layout_tabs_data($formtype, $result1, $result2 = ''): void
                 if (strcmp($this_group, $last_group) != 0) {
                     $group_name = $grparr[$this_group]['grp_title'];
                     // totally skip generating the employer category, if it's disabled.
-                    if ($group_name === 'Employer' && OEGlobalsBag::getInstance()->get('omit_employers')) {
+                    if ($group_name === 'Employer' && OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
                         continue;
                     }
                     $last_group = $this_group;
@@ -3945,7 +3945,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = ''): 
             $group_name = $grparr[$this_group]['grp_title'];
             $group_name_esc = text($group_name);
 
-            if ($grparr[$this_group]['grp_title'] === 'Employer' && OEGlobalsBag::getInstance()->get('omit_employers')) {
+            if ($grparr[$this_group]['grp_title'] === 'Employer' && OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
                 continue;
             }
             $CPR = empty($grparr[$this_group]['grp_columns']) ? $TOPCPR : $grparr[$this_group]['grp_columns'];
@@ -4037,7 +4037,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = ''): 
                 if ($formtype == 'DEM') {
                     if (str_starts_with((string) $field_id, 'em_')) {
                         // Skip employer related fields, if it's disabled.
-                        if (OEGlobalsBag::getInstance()->get('omit_employers')) {
+                        if (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
                             continue;
                         }
 
@@ -4059,7 +4059,7 @@ function display_layout_tabs_data_editable($formtype, $result1, $result2 = ''): 
                 // Handle a data category (group) change.
                 if (strcmp((string) $this_group, (string) $last_group) != 0) {
                     // totally skip generating the employer category, if it's disabled.
-                    if ($group_name === 'Employer' && OEGlobalsBag::getInstance()->get('omit_employers')) {
+                    if ($group_name === 'Employer' && OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
                         continue;
                     }
 

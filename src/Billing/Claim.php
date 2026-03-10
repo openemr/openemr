@@ -189,7 +189,7 @@ class Claim
             $referrer_id = $this->billing_options['provider_id'];
         } elseif ($this->encounterService->getReferringProviderID($this->pid, $this->encounter_id) ?? '') {
             $referrer_id = $this->encounterService->getReferringProviderID($this->pid, $this->encounter_id);
-        } elseif (empty(OEGlobalsBag::getInstance()->get('MedicareReferrerIsRenderer')) || ($this->insurance_numbers['provider_number_type'] ?? '') != '1C') {
+        } elseif (!OEGlobalsBag::getInstance()->getBoolean('MedicareReferrerIsRenderer') || ($this->insurance_numbers['provider_number_type'] ?? '') != '1C') {
             $referrer_id = $this->patient_data['ref_providerID'];
         } else {
             $referrer_id = $this->encounter['provider_id'];
@@ -653,7 +653,7 @@ class Claim
 //***MS Add - since we are a TPA we need to include this
     public function x12_submitter_name()
     {
-        if (OEGlobalsBag::getInstance()->get('gen_x12_based_on_ins_co') != 1) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('gen_x12_based_on_ins_co')) {
             return false;
         }
 

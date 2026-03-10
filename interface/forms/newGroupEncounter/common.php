@@ -261,7 +261,7 @@ $help_icon = '';
                         </div>
                         <div class="col-md-6 form-group row"
                             <?php
-                            if (!OEGlobalsBag::getInstance()->get('gbl_visit_referral_source')) {
+                            if (!OEGlobalsBag::getInstance()->getBoolean('gbl_visit_referral_source')) {
                                 echo "style='display:none'";
                             } ?>>">
                             <label  class="col-form-label col-sm-2"><?php echo xlt('Referral Source'); ?>:</label>
@@ -270,7 +270,7 @@ $help_icon = '';
                             </div>
                             <div class="clearfix"></div>
                         </div>
-                        <?php if (OEGlobalsBag::getInstance()->get('enable_group_therapy')) { ?>
+                        <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')) { ?>
                             <div class="col-md-6 form-group row" id="therapy_group_name" style="display: none">
                                 <label for="form_group" class="col-form-label col-sm-2"><?php echo xlt('Group name'); ?>:</label>
                                 <div class="col-sm-3">
@@ -280,7 +280,7 @@ $help_icon = '';
                                 <div class="clearfix"></div>
                             </div>
                         <?php }?>
-                        <?php if (OEGlobalsBag::getInstance()->get('set_pos_code_encounter')) { ?>
+                        <?php if (OEGlobalsBag::getInstance()->getBoolean('set_pos_code_encounter')) { ?>
                             <div class="col-md-6 form-group row">
                                 <label for='facility_id' class="col-form-label col-sm-2"><?php echo xlt('POS Code'); ?>:</label>
                                 <div class="col-sm-8">

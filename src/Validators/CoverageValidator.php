@@ -57,7 +57,7 @@ class CoverageValidator extends BaseValidator
                 $context->required('pid')->numeric();
                 $context->required('type')->inArray(['primary', 'secondary', 'tertiary'])
                     ->callback(function ($value) {
-                        if (OEGlobalsBag::getInstance()->get('insurance_only_one')) {
+                        if (OEGlobalsBag::getInstance()->getBoolean('insurance_only_one')) {
                             if ($value !== 'primary') {
                                 throw new InvalidValueException("only primary insurance allowed with insurance_only_one global setting enabled", "INSURANCE_ONLY_ONE::INVALID_INSURANCE_TYPE");
                             }

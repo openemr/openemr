@@ -73,7 +73,7 @@ if (isset($_GET['docUpdateId'])) {
             echo "<thead>\n<tr>";
             echo "<th class='text' >" . xlt('From') . "</th>\n";
             echo "<th class='text' >" . xlt('To{{Destination}}') . "</th>\n";
-            if (OEGlobalsBag::getInstance()->get('messages_due_date')) {
+            if (OEGlobalsBag::getInstance()->getBoolean('messages_due_date')) {
                 echo "<th class='text' >" . xlt('Due date') . "</th>\n";
             } else {
                 echo "<th class='text' >" . xlt('Date') . "</th>\n";
