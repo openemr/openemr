@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Database\QueryAuditing\Middleware;
 
+use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\Middleware\AbstractStatementMiddleware;
 use Doctrine\DBAL\Driver\Result as ResultInterface;
 use Doctrine\DBAL\Driver\Statement as StatementInterface;
@@ -35,6 +36,7 @@ final class AuditingStatement extends AbstractStatementMiddleware
     public function __construct(
         StatementInterface $statement,
         private readonly QueryAuditorInterface $auditor,
+        private readonly Connection $connection,
         private readonly string $sql,
     ) {
         parent::__construct($statement);
@@ -49,7 +51,7 @@ final class AuditingStatement extends AbstractStatementMiddleware
     public function execute(): ResultInterface
     {
         $result = parent::execute();
-        $this->auditor->audit($this->sql, $this->params, true);
+        $this->auditor->audit($this->connection, $this->sql, $this->params, true);
         return $result;
     }
 }

@@ -30,10 +30,10 @@ use OpenEMR\Database\QueryAuditing\QueryAuditorInterface;
 final class AuditingConnection extends AbstractConnectionMiddleware
 {
     public function __construct(
-        ConnectionInterface $connection,
+        private readonly ConnectionInterface $wrappedConnection,
         private readonly QueryAuditorInterface $auditor,
     ) {
-        parent::__construct($connection);
+        parent::__construct($wrappedConnection);
     }
 
     public function prepare(string $sql): DriverStatement
@@ -41,6 +41,7 @@ final class AuditingConnection extends AbstractConnectionMiddleware
         return new AuditingStatement(
             parent::prepare($sql),
             $this->auditor,
+            $this->wrappedConnection,
             $sql,
         );
     }
@@ -48,14 +49,14 @@ final class AuditingConnection extends AbstractConnectionMiddleware
     public function query(string $sql): Result
     {
         $result = parent::query($sql);
-        $this->auditor->audit($sql, null, true);
+        $this->auditor->audit($this->wrappedConnection, $sql, null, true);
         return $result;
     }
 
     public function exec(string $sql): int|string
     {
         $result = parent::exec($sql);
-        $this->auditor->audit($sql, null, true);
+        $this->auditor->audit($this->wrappedConnection, $sql, null, true);
         return $result;
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Database\QueryAuditing;
 
+use Doctrine\DBAL\Driver\Connection;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Database\QueryAuditing\AuditEventType;
 use OpenEMR\Database\QueryAuditing\AuditSettingsInterface;
@@ -19,6 +20,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(QueryAuditor::class)]
 final class QueryAuditorTest extends TestCase
 {
+    private Connection&MockObject $connection;
     private AuditSettingsInterface&MockObject $settings;
     private BreakglassCheckerInterface&MockObject $breakglassChecker;
     private QueryContextInterface&MockObject $context;
@@ -27,6 +29,7 @@ final class QueryAuditorTest extends TestCase
 
     protected function setUp(): void
     {
+        $this->connection = $this->createMock(Connection::class);
         $this->settings = $this->createMock(AuditSettingsInterface::class);
         $this->breakglassChecker = $this->createMock(BreakglassCheckerInterface::class);
         $this->context = $this->createMock(QueryContextInterface::class);
@@ -50,7 +53,7 @@ final class QueryAuditorTest extends TestCase
 
         $this->auditLogger->expects(self::never())->method('recordLogItem');
 
-        $this->auditor->audit('SELECT * FROM patient_data', null, true);
+        $this->auditor->audit($this->connection, 'SELECT * FROM patient_data', null, true);
     }
 
     public function testAuditLogsWhenEnabled(): void
@@ -74,7 +77,7 @@ final class QueryAuditorTest extends TestCase
                 category: 'Patient Demographics',
             );
 
-        $this->auditor->audit('SELECT * FROM patient_data', null, true);
+        $this->auditor->audit($this->connection, 'SELECT * FROM patient_data', null, true);
     }
 
     public function testAuditSkipsLogTable(): void
@@ -84,7 +87,7 @@ final class QueryAuditorTest extends TestCase
 
         $this->auditLogger->expects(self::never())->method('recordLogItem');
 
-        $this->auditor->audit('INSERT INTO log (event) VALUES (?)', ['test'], true);
+        $this->auditor->audit($this->connection, 'INSERT INTO log (event) VALUES (?)', ['test'], true);
     }
 
     public function testAuditSkipsSequencesTable(): void
@@ -94,7 +97,7 @@ final class QueryAuditorTest extends TestCase
 
         $this->auditLogger->expects(self::never())->method('recordLogItem');
 
-        $this->auditor->audit('UPDATE sequences SET id = id + 1', null, true);
+        $this->auditor->audit($this->connection, 'UPDATE sequences SET id = id + 1', null, true);
     }
 
     public function testAuditSkipsSelectOnUnknownTable(): void
@@ -105,7 +108,7 @@ final class QueryAuditorTest extends TestCase
 
         $this->auditLogger->expects(self::never())->method('recordLogItem');
 
-        $this->auditor->audit('SELECT * FROM some_unknown_table', null, true);
+        $this->auditor->audit($this->connection, 'SELECT * FROM some_unknown_table', null, true);
     }
 
     public function testAuditLogsInsertOnUnknownTable(): void
@@ -128,7 +131,7 @@ final class QueryAuditorTest extends TestCase
                 category: null,
             );
 
-        $this->auditor->audit("INSERT INTO custom_table (col) VALUES ('val')", null, true);
+        $this->auditor->audit($this->connection, "INSERT INTO custom_table (col) VALUES ('val')", null, true);
     }
 
     public function testAuditSkipsSelectWhenQueryLoggingDisabled(): void
@@ -140,7 +143,7 @@ final class QueryAuditorTest extends TestCase
 
         $this->auditLogger->expects(self::never())->method('recordLogItem');
 
-        $this->auditor->audit('SELECT * FROM patient_data', null, true);
+        $this->auditor->audit($this->connection, 'SELECT * FROM patient_data', null, true);
     }
 
     public function testAuditLogsBreakglassUserEvenWhenDisabled(): void
@@ -166,7 +169,7 @@ final class QueryAuditorTest extends TestCase
                 category: 'Patient Demographics',
             );
 
-        $this->auditor->audit('SELECT * FROM patient_data', null, true);
+        $this->auditor->audit($this->connection, 'SELECT * FROM patient_data', null, true);
     }
 
     public function testAuditFormatsParameters(): void
@@ -190,6 +193,7 @@ final class QueryAuditorTest extends TestCase
             );
 
         $this->auditor->audit(
+            $this->connection,
             'UPDATE patient_data SET fname = ? WHERE id = ?',
             ['John', '123'],
             true,
@@ -217,6 +221,7 @@ final class QueryAuditorTest extends TestCase
             );
 
         $this->auditor->audit(
+            $this->connection,
             'INSERT INTO patient_data (fname) VALUES (?)',
             ['John'],
             false,
@@ -231,6 +236,6 @@ final class QueryAuditorTest extends TestCase
 
         $this->auditLogger->expects(self::never())->method('recordLogItem');
 
-        $this->auditor->audit('SELECT COUNT(*) FROM patient_data', null, true);
+        $this->auditor->audit($this->connection, 'SELECT COUNT(*) FROM patient_data', null, true);
     }
 }

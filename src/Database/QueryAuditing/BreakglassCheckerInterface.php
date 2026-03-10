@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Database\QueryAuditing;
 
+use Doctrine\DBAL\Driver\Connection;
+
 /**
  * Checks if a user is a "breakglass" (emergency access) user.
  *
@@ -25,7 +27,8 @@ interface BreakglassCheckerInterface
     /**
      * Check if the given username is a breakglass user.
      *
+     * @param Connection $connection Connection to use for the lookup
      * @param string $username The username to check
      */
-    public function isBreakglassUser(string $username): bool;
+    public function isBreakglassUser(Connection $connection, string $username): bool;
 }

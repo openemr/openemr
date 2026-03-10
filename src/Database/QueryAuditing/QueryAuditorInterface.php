@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Database\QueryAuditing;
 
+use Doctrine\DBAL\Driver\Connection;
+
 /**
  * Audits SQL query executions for compliance logging.
  *
@@ -25,9 +27,10 @@ interface QueryAuditorInterface
     /**
      * Audit a SQL query execution.
      *
+     * @param Connection $connection The connection used (for internal queries)
      * @param string $sql The SQL statement that was executed
      * @param array<int|string, mixed>|null $params Bound parameters (if any)
      * @param bool $success Whether the query executed successfully
      */
-    public function audit(string $sql, ?array $params, bool $success): void;
+    public function audit(Connection $connection, string $sql, ?array $params, bool $success): void;
 }

@@ -14,7 +14,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Database\QueryAuditing;
 
-use Doctrine\DBAL\Connection;
+use Doctrine\DBAL\Driver\Connection;
+use Doctrine\DBAL\ParameterType;
 
 /**
  * Checks if a user belongs to the breakglass (emergency access) group.
@@ -29,12 +30,7 @@ final class BreakglassChecker implements BreakglassCheckerInterface
     /** @var array<string, bool> */
     private array $cache = [];
 
-    public function __construct(
-        private readonly Connection $connection,
-    ) {
-    }
-
-    public function isBreakglassUser(string $username): bool
+    public function isBreakglassUser(Connection $connection, string $username): bool
     {
         if ($username === '') {
             return false;
@@ -55,9 +51,12 @@ final class BreakglassChecker implements BreakglassCheckerInterface
             AND BINARY `gacl_aro`.`value` = ?
             SQL;
 
-        $result = $this->connection->fetchOne($sql, [$username]);
+        $stmt = $connection->prepare($sql);
+        $stmt->bindValue(1, $username, ParameterType::STRING);
+        $result = $stmt->execute();
+        $row = $result->fetchOne();
 
-        $this->cache[$username] = $result !== false;
+        $this->cache[$username] = $row !== false;
 
         return $this->cache[$username];
     }

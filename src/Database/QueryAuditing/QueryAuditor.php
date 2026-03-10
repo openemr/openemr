@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Database\QueryAuditing;
 
+use Doctrine\DBAL\Driver\Connection;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use PhpMyAdmin\SqlParser\Parser;
 use PhpMyAdmin\SqlParser\Utils\Query;
@@ -63,7 +64,7 @@ final class QueryAuditor implements QueryAuditorInterface
     ) {
     }
 
-    public function audit(string $sql, ?array $params, bool $success): void
+    public function audit(Connection $connection, string $sql, ?array $params, bool $success): void
     {
         // Recursion guard - set early to prevent any nested queries (like
         // breakglass checks) from triggering audit recursion
@@ -73,16 +74,19 @@ final class QueryAuditor implements QueryAuditorInterface
         $this->isAuditing = true;
 
         try {
-            $this->doAudit($sql, $params, $success);
+            $this->doAudit($connection, $sql, $params, $success);
         } finally {
             $this->isAuditing = false;
         }
     }
 
-    private function doAudit(string $sql, ?array $params, bool $success): void
+    /**
+     * @param array<int|string, mixed>|null $params
+     */
+    private function doAudit(Connection $connection, string $sql, ?array $params, bool $success): void
     {
         $user = $this->context->getUser();
-        $isBreakglass = $this->shouldForceLog($user);
+        $isBreakglass = $this->shouldForceLog($connection, $user);
 
         // Check if auditing is enabled
         if (!$this->settings->isAuditingEnabled() && !$isBreakglass) {
@@ -189,7 +193,7 @@ final class QueryAuditor implements QueryAuditorInterface
     /**
      * Check if logging should be forced for this user.
      */
-    private function shouldForceLog(?string $user): bool
+    private function shouldForceLog(Connection $connection, ?string $user): bool
     {
         if ($user === null || $user === '') {
             return false;
@@ -199,7 +203,7 @@ final class QueryAuditor implements QueryAuditorInterface
             return false;
         }
 
-        return $this->breakglassChecker->isBreakglassUser($user);
+        return $this->breakglassChecker->isBreakglassUser($connection, $user);
     }
 
     /**
