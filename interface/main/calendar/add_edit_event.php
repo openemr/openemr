@@ -926,7 +926,7 @@ if ($groupid) {
 <script>
 <?php require OEGlobalsBag::getInstance()->get('srcdir') . "/formatting_DateToYYYYMMDD_js.js.php" ?>
 
- var mypcc = <?php echo js_escape(OEGlobalsBag::getInstance()->get('phone_country_code')); ?>;
+ var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
  var durations = new Array();
 
@@ -1664,7 +1664,7 @@ function isRegularRepeat($repeat)
             } else {
                 $tmptitle .= "\n";
             }
-            $max = OEGlobalsBag::getInstance()->get('number_of_ex_appts_to_show');
+            $max = OEGlobalsBag::getInstance()->getInt('number_of_ex_appts_to_show');
             $exdates = explode(",", (string) $repeatexdate);
             if (!empty($exdates)) {
                 $exdates = array_slice($exdates, 0, $max, true);

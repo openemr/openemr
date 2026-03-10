@@ -39,7 +39,7 @@ class Therapy_Groups_Events
     public function getGroupEvents($gid)
     {
 
-        $appts_to_show = OEGlobalsBag::getInstance()->get('number_of_group_appts_to_show');
+        $appts_to_show = OEGlobalsBag::getInstance()->getInt('number_of_group_appts_to_show');
         $current_date = date('Y-m-d');
         $events = fetchNextXAppts($current_date, null, $appts_to_show, $gid);
         return $events;

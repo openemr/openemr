@@ -639,7 +639,7 @@ function resetCounter(username) {
                             <th><?php echo xlt('MFA'); ?></th>
                             <?php
                             $checkPassExp = false;
-                            if ((OEGlobalsBag::getInstance()->get('password_expiration_days') != 0) && (check_integer(OEGlobalsBag::getInstance()->get('password_expiration_days'))) && (check_integer(OEGlobalsBag::getInstance()->get('password_grace_time')))) {
+                            if ((OEGlobalsBag::getInstance()->getInt('password_expiration_days') != 0) && (check_integer(OEGlobalsBag::getInstance()->getInt('password_expiration_days'))) && (check_integer(OEGlobalsBag::getInstance()->getInt('password_grace_time')))) {
                                 $checkPassExp = true;
                                 echo '<th>' . xlt('Password Expiration') . '</th>';
                             }
@@ -678,8 +678,8 @@ function resetCounter(username) {
                             if ($checkPassExp && !empty($iter["active"])) {
                                 $current_date = date("Y-m-d");
                                 $userSecure = privQuery("SELECT `last_update_password` FROM `users_secure` WHERE `id` = ?", [$iter['id']]);
-                                $pwd_expires = date("Y-m-d", strtotime($userSecure['last_update_password'] . "+" . OEGlobalsBag::getInstance()->get('password_expiration_days') . " days"));
-                                $grace_time = date("Y-m-d", strtotime($pwd_expires . "+" . OEGlobalsBag::getInstance()->get('password_grace_time') . " days"));
+                                $pwd_expires = date("Y-m-d", strtotime($userSecure['last_update_password'] . "+" . OEGlobalsBag::getInstance()->getInt('password_expiration_days') . " days"));
+                                $grace_time = date("Y-m-d", strtotime($pwd_expires . "+" . OEGlobalsBag::getInstance()->getInt('password_grace_time') . " days"));
                             }
 
                             print "<tr>
@@ -720,11 +720,11 @@ function resetCounter(username) {
                                     echo ' ' . '<button type="button" class="btn btn-sm btn-danger ml-1" onclick="resetCounter(' . attr_js($iter["username"]) . ')">' . xlt("Reset Counter") . '</button>';
                                     $autoBlocked = false;
                                     $autoBlockEnd = null;
-                                    if ((int)OEGlobalsBag::getInstance()->get('password_max_failed_logins') != 0 && ($queryCounter['login_fail_counter'] > (int)OEGlobalsBag::getInstance()->get('password_max_failed_logins'))) {
-                                        if ((int)OEGlobalsBag::getInstance()->get('time_reset_password_max_failed_logins') != 0) {
-                                            if ($queryCounter['seconds_last_login_fail'] < (int)OEGlobalsBag::getInstance()->get('time_reset_password_max_failed_logins')) {
+                                    if (OEGlobalsBag::getInstance()->getInt('password_max_failed_logins') != 0 && ($queryCounter['login_fail_counter'] > OEGlobalsBag::getInstance()->getInt('password_max_failed_logins'))) {
+                                        if (OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins') != 0) {
+                                            if ($queryCounter['seconds_last_login_fail'] < OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins')) {
                                                 $autoBlocked = true;
-                                                $autoBlockEnd = date('Y-m-d H:i:s', (time() + ((int)OEGlobalsBag::getInstance()->get('time_reset_password_max_failed_logins') - $queryCounter['seconds_last_login_fail'])));
+                                                $autoBlockEnd = date('Y-m-d H:i:s', (time() + (OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins') - $queryCounter['seconds_last_login_fail'])));
                                             }
                                         } else {
                                             $autoBlocked = true;

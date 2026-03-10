@@ -1749,7 +1749,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $displayAppts = true;
                         $current_date2 = date('Y-m-d');
                         $events = [];
-                        $apptNum = (int)OEGlobalsBag::getInstance()->get('number_of_appts_to_show');
+                        $apptNum = OEGlobalsBag::getInstance()->getInt('number_of_appts_to_show');
                         $apptNum2 = ($apptNum != 0) ? abs($apptNum) : 10;
 
                         $mode1 = !OEGlobalsBag::getInstance()->getBoolean('appt_display_sets_option');
@@ -1942,11 +1942,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     // Show PAST appointments.
                     // added by Terry Hill to allow reverse sorting of the appointments
                     $direction = '1';
-                    if (OEGlobalsBag::getInstance()->get('num_past_appointments_to_show') < 0) {
+                    if (OEGlobalsBag::getInstance()->getInt('num_past_appointments_to_show') < 0) {
                         $direction = '2';
-                        ($showpast = -1 * OEGlobalsBag::getInstance()->get('num_past_appointments_to_show'));
+                        ($showpast = -1 * OEGlobalsBag::getInstance()->getInt('num_past_appointments_to_show'));
                     } else {
-                        $showpast = OEGlobalsBag::getInstance()->get('num_past_appointments_to_show');
+                        $showpast = OEGlobalsBag::getInstance()->getInt('num_past_appointments_to_show');
                     }
 
                     if (isset($pid) && !OEGlobalsBag::getInstance()->getBoolean('disable_calendar') && $showpast > 0 && AclMain::aclCheckCore('patients', 'appt')) {

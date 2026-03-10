@@ -121,8 +121,8 @@ if ($PDF_OUTPUT) {
     $config_mpdf = Config_Mpdf::getConfigMpdf();
     $config_mpdf['margin_top'] *= 1.5;
     $config_mpdf['margin_bottom'] *= 1.5;
-    $config_mpdf['margin_header'] = OEGlobalsBag::getInstance()->get('pdf_top_margin');
-    $config_mpdf['margin_footer'] =  OEGlobalsBag::getInstance()->get('pdf_bottom_margin');
+    $config_mpdf['margin_header'] = OEGlobalsBag::getInstance()->getInt('pdf_top_margin');
+    $config_mpdf['margin_footer'] =  OEGlobalsBag::getInstance()->getInt('pdf_bottom_margin');
     $pdf = new mPDF($config_mpdf);
     $pdf->SetDisplayMode('real');
     if ($_SESSION['language_direction'] == 'rtl') {

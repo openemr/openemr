@@ -512,11 +512,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/postmaster.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property MyMailer\\:\\:\\$Port \\(int\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/postmaster.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property MyMailer\\:\\:\\$SMTPAuth \\(bool\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/postmaster.php',

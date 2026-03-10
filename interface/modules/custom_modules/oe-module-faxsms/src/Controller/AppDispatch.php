@@ -488,11 +488,11 @@ abstract class AppDispatch
                 'notification_email' => OEGlobalsBag::getInstance()->get('practice_return_email_path'),
                 'email_transport' => OEGlobalsBag::getInstance()->get('EMAIL_METHOD'),
                 'smtp_host' => OEGlobalsBag::getInstance()->get('SMTP_HOST'),
-                'smtp_port' => OEGlobalsBag::getInstance()->get('SMTP_PORT'),
+                'smtp_port' => OEGlobalsBag::getInstance()->getInt('SMTP_PORT'),
                 'smtp_user' => OEGlobalsBag::getInstance()->get('SMTP_USER'),
                 'smtp_password' => OEGlobalsBag::getInstance()->get('SMTP_PASS'),
                 'smtp_security' => OEGlobalsBag::getInstance()->get('SMTP_SECURE'),
-                'notification_hours' => OEGlobalsBag::getInstance()->get('EMAIL_NOTIFICATION_HOUR'),
+                'notification_hours' => OEGlobalsBag::getInstance()->getInt('EMAIL_NOTIFICATION_HOUR'),
                 'email_message' => OEGlobalsBag::getInstance()->get('EMAIL_MESSAGE') ?? '',
             ];
             if (empty($credentials['email_message'] ?? '')) {

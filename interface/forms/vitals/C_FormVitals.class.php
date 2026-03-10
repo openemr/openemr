@@ -326,7 +326,7 @@ class C_FormVitals
         $resultsCount = count($results ?? []);
         $hasMoreVitals = false;
         $vitalsHistoryLookback = [];
-        $maxHistoryCols = OEGlobalsBag::getInstance()->get('gbl_vitals_max_history_cols') ?? 2;
+        $maxHistoryCols = OEGlobalsBag::getInstance()->getInt('gbl_vitals_max_history_cols');
         if ($maxHistoryCols > 0 && $resultsCount > $maxHistoryCols) {
             $vitalsHistoryLookback = array_slice($results, 0, $maxHistoryCols);
             $hasMoreVitals = true;

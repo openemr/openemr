@@ -174,7 +174,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
 
     if ($form_format == "pdf") {
         $pdf = new Cezpdf(OEGlobalsBag::getInstance()->get('rx_paper_size'));
-        $pdf->ezSetMargins(OEGlobalsBag::getInstance()->get('rx_top_margin'), OEGlobalsBag::getInstance()->get('rx_bottom_margin'), OEGlobalsBag::getInstance()->get('rx_left_margin'), OEGlobalsBag::getInstance()->get('rx_right_margin'));
+        $pdf->ezSetMargins(OEGlobalsBag::getInstance()->getInt('rx_top_margin'), OEGlobalsBag::getInstance()->getInt('rx_bottom_margin'), OEGlobalsBag::getInstance()->getInt('rx_left_margin'), OEGlobalsBag::getInstance()->getInt('rx_right_margin'));
         if (file_exists(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/custom_pdf.php")) {
             include(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/custom_pdf.php");
         } else {

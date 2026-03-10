@@ -94,16 +94,16 @@ $my_authorized = $_POST["authorized"] ?? '';
 // are to be reported.
 $missing_mods_only = (isset($_POST['missing_mods_only']) && !empty($_POST['missing_mods_only']));
 
-$left_margin = $_POST["left_margin"] ?? OEGlobalsBag::getInstance()->get('cms_left_margin_default');
-$top_margin = $_POST["top_margin"] ?? OEGlobalsBag::getInstance()->get('cms_top_margin_default');
+$left_margin = $_POST["left_margin"] ?? OEGlobalsBag::getInstance()->getInt('cms_left_margin_default');
+$top_margin = $_POST["top_margin"] ?? OEGlobalsBag::getInstance()->getInt('cms_top_margin_default');
 if ($left_margin + 0 === 20 && $top_margin + 0 === 24) {
 // defaults are flipped. No easy way to reset existing. Global defaults fixed.
     $left_margin = '24';
     $top_margin = '20';
 }
 if ($ub04_support) {
-    $left_ubmargin = $_POST["left_ubmargin"] ?? OEGlobalsBag::getInstance()->get('left_ubmargin_default');
-    $top_ubmargin = $_POST["top_ubmargin"] ?? OEGlobalsBag::getInstance()->get('top_ubmargin_default');
+    $left_ubmargin = $_POST["left_ubmargin"] ?? OEGlobalsBag::getInstance()->getInt('left_ubmargin_default');
+    $top_ubmargin = $_POST["top_ubmargin"] ?? OEGlobalsBag::getInstance()->getInt('top_ubmargin_default');
 }
 $ofrom_date = $from_date;
 $oto_date = $to_date;

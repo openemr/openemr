@@ -810,7 +810,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
         <?php Header::setupHeader(['datetime-picker']);?>
 
         <script>
-            var mypcc = <?php echo js_escape(OEGlobalsBag::getInstance()->get('phone_country_code')); ?>;
+            var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
             <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
 

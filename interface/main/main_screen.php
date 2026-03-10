@@ -407,7 +407,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('login_into_facility')) {
 
 // Fetch the password expiration date (note LDAP skips this)
 $is_expired = false;
-if ((!AuthUtils::useActiveDirectory()) && (OEGlobalsBag::getInstance()->get('password_expiration_days') != 0) && (check_integer(OEGlobalsBag::getInstance()->get('password_expiration_days')))) {
+if ((!AuthUtils::useActiveDirectory()) && (OEGlobalsBag::getInstance()->getInt('password_expiration_days') != 0) && (check_integer(OEGlobalsBag::getInstance()->getInt('password_expiration_days')))) {
     $result = privQuery("select `last_update_password` from `users_secure` where `id` = ?", [$_SESSION['authUserID']]);
     $current_date = date('Y-m-d');
     if (!empty($result['last_update_password'])) {
@@ -418,7 +418,7 @@ if ((!AuthUtils::useActiveDirectory()) && (OEGlobalsBag::getInstance()->get('pas
     }
 
     // Display the password expiration message (will show during the grace time)
-    $pwd_alert_date = date('Y-m-d', strtotime($pwd_last_update . '+' . OEGlobalsBag::getInstance()->get('password_expiration_days') . ' days'));
+    $pwd_alert_date = date('Y-m-d', strtotime($pwd_last_update . '+' . OEGlobalsBag::getInstance()->getInt('password_expiration_days') . ' days'));
 
     if (empty(strtotime($pwd_alert_date))) {
         error_log("OpenEMR ERROR: there is a problem when trying to check if user's password is expired");

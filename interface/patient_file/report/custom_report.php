@@ -64,8 +64,8 @@ if ($PDF_OUTPUT) {
     // special settings for patient custom report that are necessary for mpdf
     $config_mpdf['margin_top'] *= 1.5;
     $config_mpdf['margin_bottom'] *= 1.5;
-    $config_mpdf['margin_header'] = OEGlobalsBag::getInstance()->get('pdf_top_margin');
-    $config_mpdf['margin_footer'] =  OEGlobalsBag::getInstance()->get('pdf_bottom_margin');
+    $config_mpdf['margin_header'] = OEGlobalsBag::getInstance()->getInt('pdf_top_margin');
+    $config_mpdf['margin_footer'] =  OEGlobalsBag::getInstance()->getInt('pdf_bottom_margin');
     $pdf = new mPDF($config_mpdf);
     if ($session->get('language_direction') == 'rtl') {
         $pdf->SetDirectionality('rtl');

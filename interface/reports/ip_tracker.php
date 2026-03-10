@@ -234,11 +234,11 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
                             <?php
                             $autoBlocked = false;
                             $autoBlockEnd = null;
-                            if ((int)OEGlobalsBag::getInstance()->get('ip_max_failed_logins') != 0 && ($row['ip_login_fail_counter'] > (int)OEGlobalsBag::getInstance()->get('ip_max_failed_logins'))) {
-                                if ((int)OEGlobalsBag::getInstance()->get('ip_time_reset_password_max_failed_logins') != 0) {
-                                    if ($row['seconds_last_ip_login_fail'] < (int)OEGlobalsBag::getInstance()->get('ip_time_reset_password_max_failed_logins')) {
+                            if (OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins') != 0 && ($row['ip_login_fail_counter'] > OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins'))) {
+                                if (OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins') != 0) {
+                                    if ($row['seconds_last_ip_login_fail'] < OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins')) {
                                         $autoBlocked = true;
-                                        $autoBlockEnd = date('Y-m-d H:i:s', (time() + ((int)OEGlobalsBag::getInstance()->get('ip_time_reset_password_max_failed_logins') - $row['seconds_last_ip_login_fail'])));
+                                        $autoBlockEnd = date('Y-m-d H:i:s', (time() + (OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins') - $row['seconds_last_ip_login_fail'])));
                                     }
                                 } else {
                                     $autoBlocked = true;

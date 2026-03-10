@@ -367,7 +367,7 @@ window.onload = function() {
                     <th class='text-right' scope="col"><?php echo xlt('Adj'); ?></th>
                     <th class='text-right' scope="col"><?php echo xlt('Bal'); ?></th>
                     <?php } elseif ($attendant_type == 'pid') { ?>
-                    <th colspan='5' scope="col"><?php echo (OEGlobalsBag::getInstance()->get('phone_country_code') == '1') ? xlt('Billing') : xlt('Coding'); ?></th>
+                    <th colspan='5' scope="col"><?php echo (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1) ? xlt('Billing') : xlt('Coding'); ?></th>
                     <?php } ?>
 
                     <?php if ($attendant_type == 'pid' && !OEGlobalsBag::getInstance()->get('ippf_specific')) { ?>
