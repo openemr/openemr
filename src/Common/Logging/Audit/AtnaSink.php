@@ -112,16 +112,13 @@ readonly class AtnaSink
         /* For EventOutcomeIndicator, 0 = success and 4 = minor error */
         $eventOutcome = ($outcome === 1) ? 0 : 4;
 
-        /*
-         * Variables used in ActiveParticipant section, which identifies
-         * the IP address and application of the source and destination.
-         */
+        // Variables used in ActiveParticipant section, which identifies
+        // the IP address and application of the source and destination.
         $srcUserID = $this->serverName . '|OpenEMR';
 
         $patientRecordForMsg = ($eventIdDisplayName === 'Patient Record' && $patientId !== 0)
             ? sprintf(self::RFC3881_MSG_PATIENT_TEMPLATE, $patientId)
             : '';
-        /* Add the syslog header  with $eventDateTime and $_SERVER['SERVER_NAME'] */
         return sprintf(
             self::RFC3881_MSG_PRIMARY_TEMPLATE,
             $eventDateTime,
