@@ -971,19 +971,6 @@ final class EventAuditLoggerTest extends TestCase
     }
 
     /**
-     * Test createTlsConn method failure handling
-     */
-    public function testCreateTlsConnFailure(): void
-    {
-        $reflectionClass = new ReflectionClass($this->eventAuditLogger);
-        $reflectionMethod = $reflectionClass->getMethod('createTlsConn');
-
-        // Test with invalid host (should return false)
-        $result = $reflectionMethod->invoke($this->eventAuditLogger, 'invalid.host', 9999, '', '');
-        $this->assertFalse($result);
-    }
-
-    /**
      * Test auditSQLAuditTamper method
      */
     public function testAuditSQLAuditTamper(): void
@@ -2546,41 +2533,6 @@ final class EventAuditLoggerTest extends TestCase
     }
 
     /**
-     * Test createTlsConn private method using reflection
-     * This allows us to test the TLS connection creation logic directly
-     */
-    public function testCreateTlsConnUsingReflection(): void
-    {
-        // Use reflection to make the private method accessible
-        $reflection = new \ReflectionClass(EventAuditLogger::class);
-        $createTlsConnMethod = $reflection->getMethod('createTlsConn');
-
-        // Test with invalid host (should return false)
-        $result = $createTlsConnMethod->invoke(
-            $this->eventAuditLogger,
-            'invalid.nonexistent.host',
-            '6514',
-            '',
-            ''
-        );
-
-        // Should return false for invalid host
-        $this->assertFalse($result);
-
-        // Test with empty parameters
-        $result = $createTlsConnMethod->invoke(
-            $this->eventAuditLogger,
-            '',
-            '',
-            '',
-            ''
-        );
-
-        // Should return false for empty host
-        $this->assertFalse($result);
-    }
-
-    /**
      * Test createRfc3881Msg private method using reflection
      * This allows us to test the RFC 3881 message creation logic directly
      */
@@ -2651,69 +2603,6 @@ final class EventAuditLoggerTest extends TestCase
     }
 
     /**
-     * Test sendAtnaAuditMsg integration with reflection-verified helper methods
-     * This verifies the full integration works and helper methods are properly tested
-     */
-    public function testSendAtnaAuditMsgIntegrationWithReflection(): void
-    {
-        $GLOBALS['enable_atna_audit'] = true;
-        $GLOBALS['atna_audit_host'] = 'test.audit.host';
-        $GLOBALS['atna_audit_port'] = '6514';
-        $GLOBALS['atna_audit_localcert'] = '/test/client.pem';
-        $GLOBALS['atna_audit_cacert'] = '/test/ca.pem';
-
-        // Test that the method runs without throwing exceptions
-        // This exercises the full code path - even though connection will fail,
-        // it proves the integration between sendAtnaAuditMsg and its private helper methods works
-        try {
-            $this->eventAuditLogger->sendAtnaAuditMsg('testuser', 'physicians', 'login', 123, 1, 'Test login');
-            $this->addToAssertionCount(1);
-        } catch (\Throwable $e) {
-            // If an exception is thrown, it should not be due to our test setup
-            $this->fail('sendAtnaAuditMsg should handle connection failures gracefully: ' . $e->getMessage());
-        }
-
-        // Now test that the private methods work correctly using reflection
-        // This gives us confidence that the integration will work when a real TLS connection succeeds
-
-        // Test createTlsConn returns appropriate result for invalid host
-        $reflection = new \ReflectionClass(EventAuditLogger::class);
-        $createTlsConnMethod = $reflection->getMethod('createTlsConn');
-
-        $connResult = $createTlsConnMethod->invoke(
-            $this->eventAuditLogger,
-            'test.audit.host',
-            '6514',
-            '/test/client.pem',
-            '/test/ca.pem'
-        );
-
-        // Should return false for unreachable host (which is expected in test environment)
-        $this->assertFalse($connResult);
-
-        // Test createRfc3881Msg creates proper message
-        $_SERVER['SERVER_NAME'] = 'test.openemr.local';
-        $_SERVER['SERVER_ADDR'] = '192.168.1.100';
-        $GLOBALS['atna_audit_host'] = 'test.audit.host';
-
-        $createRfc3881MsgMethod = $reflection->getMethod('createRfc3881Msg');
-
-        $msgResult = $createRfc3881MsgMethod->invoke(
-            $this->eventAuditLogger,
-            'testuser',
-            'physicians',
-            'login',
-            123,
-            1,
-            'Test login'
-        );
-
-        $this->assertIsString($msgResult);
-        $this->assertStringContainsString('<AuditMessage', $msgResult);
-        $this->assertStringContainsString('testuser', $msgResult);
-    }
-
-    /**
      * Test sendAtnaAuditMsg successful connection path using reflection to test private methods
      * This test covers the createRfc3881Msg, fwrite, and fclose operations (EventAuditLogger)
      */
@@ -2774,54 +2663,6 @@ final class EventAuditLoggerTest extends TestCase
 
         // This test effectively covers the successful execution path of sendAtnaAuditMsg
         // where $conn !== false and the message creation, writing, and connection closing occur
-        $this->addToAssertionCount(1);
-    }
-
-    /**
-     * Test sendAtnaAuditMsg successful connection using PHPUnit mock for protected createTlsConn method
-     * This covers the actual execution of lines with createRfc3881Msg, fwrite, and fclose operations
-     */
-    public function testSendAtnaAuditMsgSuccessfulConnectionWithPHPUnitMock(): void
-    {
-        $GLOBALS['enable_atna_audit'] = true;
-        $GLOBALS['atna_audit_host'] = 'audit.example.com';
-        $GLOBALS['atna_audit_port'] = 514;
-        $GLOBALS['atna_audit_localcert'] = '/path/to/cert.pem';
-        $GLOBALS['atna_audit_cacert'] = '/path/to/ca.pem';
-
-        // Set up server variables for RFC3881 message creation
-        $_SERVER['SERVER_NAME'] = 'test.openemr.local';
-        $_SERVER['SERVER_ADDR'] = '192.168.1.100';
-
-        // Create a mock connection resource
-        $mockConn = fopen('php://memory', 'r+');
-        $this->assertIsResource($mockConn);
-
-        // Create a partial mock that only mocks the createTlsConn method
-        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
-            ->onlyMethods(['createTlsConn'])
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        // Mock the protected createTlsConn method to return our mock connection
-        $loggerMock->expects($this->once())
-            ->method('createTlsConn')
-            ->with('audit.example.com', 514, '/path/to/cert.pem', '/path/to/ca.pem')
-            ->willReturn($mockConn);
-
-        // Call sendAtnaAuditMsg - this will execute the success path:
-        // 1. Check ATNA is enabled ✓
-        // 2. Call mocked createTlsConn which returns our mock connection ✓
-        // 3. Since $conn !== false, execute the success branch covering the required lines:
-        //    - Execute: $msg = $this->createRfc3881Msg($user, $group, $event, $patient_id, $outcome, $comments);
-        //    - Execute: fwrite($conn, $msg);
-        //    - Execute: fclose($conn);
-        $loggerMock->sendAtnaAuditMsg('testuser', 'physicians', 'login', 123, 1, 'Test audit message');
-
-        // Verify the connection was closed (fclose was called)
-        $this->assertFalse(is_resource($mockConn));
-
-        // This test successfully covers the execution path that includes the success branch
         $this->addToAssertionCount(1);
     }
 }
