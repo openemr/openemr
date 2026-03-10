@@ -102,7 +102,7 @@ MSG;
      * The parameters passed are the column values (from table 'log')
      * for a single audit record.
      */
-    protected function createRfc3881Msg(string $user, string $group, string $event, int $patient_id, int $outcome, string $comments): string
+    protected function createRfc3881Msg(string $user, string $group, string $event, int $patientId, int $outcome, string $comments): string
     {
         $eventActionCode = $this->determineRFC3881EventActionCode($event);
         $eventIdDisplayName = $this->determineRFC3881EventIdDisplayName($event);
@@ -118,8 +118,8 @@ MSG;
          */
         $srcUserID = $this->serverName . '|OpenEMR';
 
-        $patientRecordForMsg = ($eventIdDisplayName === 'Patient Record' && $patient_id !== 0)
-            ? sprintf(self::RFC3881_MSG_PATIENT_TEMPLATE, $patient_id)
+        $patientRecordForMsg = ($eventIdDisplayName === 'Patient Record' && $patientId !== 0)
+            ? sprintf(self::RFC3881_MSG_PATIENT_TEMPLATE, $patientId)
             : '';
         /* Add the syslog header  with $eventDateTime and $_SERVER['SERVER_NAME'] */
         return sprintf(
