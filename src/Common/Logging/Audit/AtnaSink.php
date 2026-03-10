@@ -120,7 +120,7 @@ MSG;
         $destUserID = OEGlobalsBag::getInstance()->get('atna_audit_host');
         $destNetwork = OEGlobalsBag::getInstance()->get('atna_audit_host');
 
-        $patientRecordForMsg = ($eventIdDisplayName == 'Patient Record' && $patient_id != 0)
+        $patientRecordForMsg = ($eventIdDisplayName == 'Patient Record' && $patient_id !== 0)
             ? sprintf(self::RFC3881_MSG_PATIENT_TEMPLATE, $patient_id)
             : '';
         /* Add the syslog header  with $eventDateTime and $_SERVER['SERVER_NAME'] */
@@ -148,7 +148,7 @@ MSG;
      */
     protected function determineRFC3881EventActionCode(string $event): string
     {
-        return match (substr((string) $event, -7)) {
+        return match (substr($event, -7)) {
             '-create' => self::EVENT_ACTION_CODE_CREATE,
             '-insert' => self::EVENT_ACTION_CODE_INSERT,
             '-select' => self::EVENT_ACTION_CODE_SELECT,
@@ -165,24 +165,15 @@ MSG;
      */
     protected function determineRFC3881EventIdDisplayName(string $event): string
     {
-
-        $eventIdDisplayName = $event;
-
-        if (str_contains((string) $event, 'patient-record')) {
-            $eventIdDisplayName = 'Patient Record';
-        } elseif (str_contains((string) $event, 'view')) {
-            $eventIdDisplayName = 'Patient Record';
-        } elseif (str_contains((string) $event, 'login')) {
-            $eventIdDisplayName = 'Login';
-        } elseif (str_contains((string) $event, 'logout')) {
-            $eventIdDisplayName = 'Logout';
-        } elseif (str_contains((string) $event, 'scheduling')) {
-            $eventIdDisplayName = 'Patient Care Assignment';
-        } elseif (str_contains((string) $event, 'security-administration')) {
-            $eventIdDisplayName = 'Security Administration';
-        }
-
-        return $eventIdDisplayName;
+        return match (true) {
+            str_contains($event, 'patient-record') => 'Patient Record',
+            str_contains($event, 'view') => 'Patient Record',
+            str_contains($event, 'login') => 'Login',
+            str_contains($event, 'logout') => 'Logout',
+            str_contains($event, 'scheduling') => 'Patient Care Assignment',
+            str_contains($event, 'security-administration') => 'Security Administration',
+            default => $event,
+        };
     }
 
 
