@@ -42,12 +42,16 @@ class CcdaServiceDocumentRequestorTest extends TestCase
         // Enable C-CDA alternate service for dashboard context
         // 1 = Dashboard only, 2 = Portal only, 3 = Both
         $GLOBALS['ccda_alt_service_enable'] = 3;
+        $GLOBALS['ccda_service_host'] = '127.0.0.1';
+        $GLOBALS['ccda_service_port'] = '6661';
     }
 
     protected function tearDown(): void
     {
         // Clean up global settings
         unset($GLOBALS['ccda_alt_service_enable']);
+        unset($GLOBALS['ccda_service_host']);
+        unset($GLOBALS['ccda_service_port']);
         parent::tearDown();
     }
 
