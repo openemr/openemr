@@ -327,7 +327,16 @@ class EventAuditLogger
     public function sendAtnaAuditMsg($user, $group, $event, $patient_id, $outcome, $comments)
     {
         $sink = Audit\AtnaSink::fromGlobals(OEGlobalsBag::getInstance());
-        $sink->record($user, $group, $event, $patient_id, $outcome, $comments);
+        // The receiving end has native type hints; since this file has
+        // basically no type safety, do some casting based on expected values.
+        $sink->record(
+            (string) ($user ?? ''),
+            (string) ($group ?? ''),
+            (string) ($event ?? ''),
+            (int) ($patient_id ?? 0),
+            (int) ($outcome ?? 0),
+            (string) ($comments ?? ''),
+        );
     }
 
     /**
