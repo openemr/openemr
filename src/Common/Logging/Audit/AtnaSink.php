@@ -50,56 +50,41 @@ MSG;
 
     public static function fromGlobals(OEGlobalsBag $bag): AtnaSink
     {
-        return new AtnaSink(
-            clock: ServiceContainer::getClock(),
-            enabled: $bag->getBoolean('enable_atna_audit'),
+        $writer = new TcpWriter(
             host: $bag->getString('atna_audit_host'),
             port: $bag->getInt('atna_audit_port'),
             localCert: $bag->getString('atna_audit_localcert'),
             caCert: $bag->getString('atna_audit_cacert'),
         );
+        return new AtnaSink(
+            clock: ServiceContainer::getClock(),
+            writer: $writer,
+            enabled: $bag->getBoolean('enable_atna_audit'),
+        );
     }
 
     public function __construct(
         private ClockInterface $clock,
+        private WriterInterface $writer,
         private bool $enabled,
-        private string $host,
-        private int $port,
-        private string $localCert,
-        private string $caCert,
     ) {
     }
 
     // Future: handle a better-typed DTO
     public function record(string $user, string $group, string $event, int $patientId, int $outcome, string $comments): void
     {
-        if (!$this->isEnabled()) {
-            return;
-        }
-
-        $connection = $this->createTlsConn();
-        if ($connection === false) {
-            // Log that this failed?
+        if (!$this->enabled) {
             return;
         }
 
         $message = $this->createRfc3881Msg($user, $group, $event, $patientId, $outcome, $comments);
-        fwrite($connection, $message);
-        fclose($connection);
+        $this->writer->writeMessage($message);
     }
 
     /**
      * Create an XML audit record corresponding to RFC 3881.
      * The parameters passed are the column values (from table 'log')
      * for a single audit record.
-     *
-     * @param  $user
-     * @param  $group
-     * @param string $event
-     * @param  $patient_id
-     * @param  $outcome
-     * @param  $comments
-     * @return string
      */
     protected function createRfc3881Msg(string $user, string $group, string $event, int $patient_id, int $outcome, string $comments): string
     {
@@ -174,52 +159,5 @@ MSG;
             str_contains($event, 'security-administration') => 'Security Administration',
             default => $event,
         };
-    }
-
-
-    private function isEnabled(): bool
-    {
-        return $this->enabled && $this->host !== '';
-    }
-
-    /**
-     * Create a TLS (SSLv3) connection to the given host/port.
-     * $localcert is the path to a PEM file with a client certificate and private key.
-     * $cafile is the path to the CA certificate file, for
-     *  authenticating the remote machine's certificate.
-     * If $cafile is "", the remote machine's certificate is not verified.
-     * If $localcert is "", we don't pass a client certificate in the connection.
-     *
-     * Return a stream resource that can be used with fwrite(), fread(), etc.
-     * Returns FALSE on error.
-     *
-     * @return resource|false
-     */
-    private function createTlsConn()
-    {
-        $sslopts = [];
-        if ($this->caCert !== '') {
-            $sslopts['cafile'] = $this->caCert;
-            $sslopts['verify_peer'] = true;
-            $sslopts['verify_depth'] = 10;
-        }
-
-        if ($this->localCert !== '') {
-            $sslopts['local_cert'] = $this->localCert;
-        }
-
-        $opts = ['tls' => $sslopts, 'ssl' => $sslopts];
-        $ctx = stream_context_create($opts);
-        $timeout = 60;
-        $flags = STREAM_CLIENT_CONNECT;
-
-        return @stream_socket_client(
-            'tls://' . $this->host . ":" . $this->port,
-            $errno,
-            $errstr,
-            $timeout,
-            $flags,
-            $ctx
-        );
     }
 }
