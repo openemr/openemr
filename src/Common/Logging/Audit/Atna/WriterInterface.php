@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Interface for audit message writers
+ * Interface for ATNA audit message writers
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -12,7 +12,7 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Common\Logging\Audit;
+namespace OpenEMR\Common\Logging\Audit\Atna;
 
 interface WriterInterface
 {

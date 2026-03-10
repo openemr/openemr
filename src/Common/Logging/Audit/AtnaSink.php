@@ -60,7 +60,7 @@ MSG;
 
     public static function fromGlobals(OEGlobalsBag $bag): AtnaSink
     {
-        $writer = new TcpWriter(
+        $writer = new Atna\TcpWriter(
             host: $bag->getString('atna_audit_host'),
             port: $bag->getInt('atna_audit_port'),
             localCert: $bag->getString('atna_audit_localcert'),
@@ -78,7 +78,7 @@ MSG;
 
     public function __construct(
         private ClockInterface $clock,
-        private WriterInterface $writer,
+        private Atna\WriterInterface $writer,
         private bool $enabled,
         private string $host,
         private string $serverName,

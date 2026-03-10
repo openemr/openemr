@@ -12,7 +12,7 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Common\Logging\Audit;
+namespace OpenEMR\Common\Logging\Audit\Atna;
 
 class TcpWriter implements WriterInterface
 {
