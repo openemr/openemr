@@ -18,11 +18,12 @@ use DateTimeImmutable;
 use OpenEMR\Common\Logging\Audit\Atna\WriterInterface;
 use OpenEMR\Common\Logging\Audit\AtnaSink;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Clock\ClockInterface;
 
 class AtnaSinkTest extends TestCase
 {
-    private ClockInterface $clock;
+    private ClockInterface&MockObject $clock;
 
     protected function setUp(): void
     {
