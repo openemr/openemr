@@ -71,10 +71,10 @@ class AtnaSinkTest extends TestCase
         $writer = $this->createMock(WriterInterface::class);
         $writer->expects($this->once())
             ->method('writeMessage')
-            ->with($this->callback(function (string $message): bool {
-                $this->assertStringContainsString('AuditMessage', $message);
-                $this->assertStringContainsString('testuser', $message);
-                $this->assertStringContainsString('Login', $message);
+            ->with(self::callback(function (string $message): bool {
+                self::assertStringContainsString('AuditMessage', $message);
+                self::assertStringContainsString('testuser', $message);
+                self::assertStringContainsString('Login', $message);
                 return true;
             }));
 
@@ -98,8 +98,8 @@ class AtnaSinkTest extends TestCase
         $writer = $this->createMock(WriterInterface::class);
         $writer->expects($this->once())
             ->method('writeMessage')
-            ->with($this->callback(function (string $message) use ($expectedCode): bool {
-                $this->assertStringContainsString("EventActionCode=\"{$expectedCode}\"", $message);
+            ->with(self::callback(function (string $message) use ($expectedCode): bool {
+                self::assertStringContainsString("EventActionCode=\"{$expectedCode}\"", $message);
                 return true;
             }));
 
@@ -138,8 +138,8 @@ class AtnaSinkTest extends TestCase
         $writer = $this->createMock(WriterInterface::class);
         $writer->expects($this->once())
             ->method('writeMessage')
-            ->with($this->callback(function (string $message) use ($expectedDisplayName): bool {
-                $this->assertStringContainsString("displayName=\"{$expectedDisplayName}\"", $message);
+            ->with(self::callback(function (string $message) use ($expectedDisplayName): bool {
+                self::assertStringContainsString("displayName=\"{$expectedDisplayName}\"", $message);
                 return true;
             }));
 
@@ -176,8 +176,8 @@ class AtnaSinkTest extends TestCase
         $writer = $this->createMock(WriterInterface::class);
         $writer->expects($this->once())
             ->method('writeMessage')
-            ->with($this->callback(function (string $message): bool {
-                $this->assertStringContainsString('EventOutcomeIndicator="0"', $message);
+            ->with(self::callback(function (string $message): bool {
+                self::assertStringContainsString('EventOutcomeIndicator="0"', $message);
                 return true;
             }));
 
@@ -198,8 +198,8 @@ class AtnaSinkTest extends TestCase
         $writer = $this->createMock(WriterInterface::class);
         $writer->expects($this->once())
             ->method('writeMessage')
-            ->with($this->callback(function (string $message): bool {
-                $this->assertStringContainsString('EventOutcomeIndicator="4"', $message);
+            ->with(self::callback(function (string $message): bool {
+                self::assertStringContainsString('EventOutcomeIndicator="4"', $message);
                 return true;
             }));
 
@@ -220,9 +220,9 @@ class AtnaSinkTest extends TestCase
         $writer = $this->createMock(WriterInterface::class);
         $writer->expects($this->once())
             ->method('writeMessage')
-            ->with($this->callback(function (string $message): bool {
-                $this->assertStringContainsString('ParticipantObjectID="12345"', $message);
-                $this->assertStringContainsString('Patient Number', $message);
+            ->with(self::callback(function (string $message): bool {
+                self::assertStringContainsString('ParticipantObjectID="12345"', $message);
+                self::assertStringContainsString('Patient Number', $message);
                 return true;
             }));
 
@@ -243,8 +243,8 @@ class AtnaSinkTest extends TestCase
         $writer = $this->createMock(WriterInterface::class);
         $writer->expects($this->once())
             ->method('writeMessage')
-            ->with($this->callback(function (string $message): bool {
-                $this->assertStringNotContainsString('Patient Number', $message);
+            ->with(self::callback(function (string $message): bool {
+                self::assertStringNotContainsString('Patient Number', $message);
                 return true;
             }));
 
