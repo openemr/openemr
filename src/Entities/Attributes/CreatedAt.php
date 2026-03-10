@@ -20,9 +20,7 @@ use Attribute;
  * Usage:
  *     #[Mapping\Column(name: 'date_created')]
  *     #[CreatedAt]
- *     public DateTimeImmutable $createdAt;
- *
- * The property will be set to the current time during prePersist.
+ *     public readonly DateTimeImmutable $createdAt;
  *
  * @see \OpenEMR\Entities\EventSubscriber\TimestampSubscriber
  */

@@ -23,8 +23,9 @@ use Attribute;
  *     #[UpdatedAt]
  *     public DateTimeImmutable $updatedAt;
  *
- * The property will be set to the current time during prePersist and
- * preUpdate.
+ * The property MUST NOT be marked `readonly`; however, once OpenEMR's minimum
+ * PHP version supports asymmetric visibility (8.4+), it should be marked
+ * `public private(set)`.
  *
  * @see \OpenEMR\Entities\EventSubscriber\TimestampSubscriber
  */
