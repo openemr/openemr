@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Logging\Audit;
 
+use Psr\Clock\ClockInterface;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 
 readonly class AtnaSink
@@ -49,6 +51,7 @@ MSG;
     public static function fromGlobals(OEGlobalsBag $bag): AtnaSink
     {
         return new AtnaSink(
+            clock: ServiceContainer::getClock(),
             enabled: $bag->getBoolean('enable_atna_audit'),
             host: $bag->getString('atna_audit_host'),
             port: $bag->getInt('atna_audit_port'),
@@ -58,6 +61,7 @@ MSG;
     }
 
     public function __construct(
+        private ClockInterface $clock,
         private bool $enabled,
         private string $host,
         private int $port,
@@ -102,7 +106,7 @@ MSG;
         $eventActionCode = $this->determineRFC3881EventActionCode($event);
         $eventIdDisplayName = $this->determineRFC3881EventIdDisplayName($event);
 
-        $eventDateTime = (new DateTime())->format(DATE_ATOM);
+        $eventDateTime = $this->clock->now()->format(DATE_ATOM);
 
         /* For EventOutcomeIndicator, 0 = success and 4 = minor error */
         $eventOutcome = ($outcome === 1) ? 0 : 4;
