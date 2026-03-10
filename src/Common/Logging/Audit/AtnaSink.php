@@ -60,6 +60,9 @@ MSG;
             clock: ServiceContainer::getClock(),
             writer: $writer,
             enabled: $bag->getBoolean('enable_atna_audit'),
+            host: $bag->getString('atna_audit_host'),
+            serverName: $_SERVER['SERVER_NAME'],
+            serverAddress: $_SERVER['SERVER_ADDR'],
         );
     }
 
@@ -67,13 +70,16 @@ MSG;
         private ClockInterface $clock,
         private WriterInterface $writer,
         private bool $enabled,
+        private string $host,
+        private string $serverName,
+        private string $serverAddress,
     ) {
     }
 
     // Future: handle a better-typed DTO
     public function record(string $user, string $group, string $event, int $patientId, int $outcome, string $comments): void
     {
-        if (!$this->enabled) {
+        if (!$this->isEnabled()) {
             return;
         }
 
@@ -100,27 +106,24 @@ MSG;
          * Variables used in ActiveParticipant section, which identifies
          * the IP address and application of the source and destination.
          */
-        $srcUserID = $_SERVER['SERVER_NAME'] . '|OpenEMR';
-        $srcNetwork = $_SERVER['SERVER_ADDR'];
-        $destUserID = OEGlobalsBag::getInstance()->get('atna_audit_host');
-        $destNetwork = OEGlobalsBag::getInstance()->get('atna_audit_host');
+        $srcUserID = $this->serverName . '|OpenEMR';
 
-        $patientRecordForMsg = ($eventIdDisplayName == 'Patient Record' && $patient_id !== 0)
+        $patientRecordForMsg = ($eventIdDisplayName === 'Patient Record' && $patient_id !== 0)
             ? sprintf(self::RFC3881_MSG_PATIENT_TEMPLATE, $patient_id)
             : '';
         /* Add the syslog header  with $eventDateTime and $_SERVER['SERVER_NAME'] */
         return sprintf(
             self::RFC3881_MSG_PRIMARY_TEMPLATE,
             $eventDateTime,
-            $_SERVER['SERVER_NAME'],
+            $this->serverName,
             $eventActionCode,
             $eventDateTime,
             $eventOutcome,
             $eventIdDisplayName,
             $srcUserID,
-            $srcNetwork,
-            $destUserID,
-            $destNetwork,
+            $this->serverAddress,
+            $this->host,
+            $this->host,
             $srcUserID,
             $user,
             $patientRecordForMsg,
@@ -159,5 +162,10 @@ MSG;
             str_contains($event, 'security-administration') => 'Security Administration',
             default => $event,
         };
+    }
+
+    private function isEnabled(): bool
+    {
+        return $this->enabled && $this->host !== '';
     }
 }
