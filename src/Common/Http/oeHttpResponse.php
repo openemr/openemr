@@ -14,7 +14,10 @@ namespace OpenEMR\Common\Http;
 
 class oeHttpResponse
 {
-    public function __construct(private readonly \Psr\Http\Message\ResponseInterface $response)
+    public function __construct(
+        /** @var \Psr\Http\Message\ResponseInterface */
+        private readonly object $response
+    )
     {
     }
 
