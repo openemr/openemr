@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Logging\Audit\Atna;
 
-class TcpWriter implements WriterInterface
+readonly class TcpWriter implements WriterInterface
 {
     /**
      * Host and port are required and must be nonempty.
