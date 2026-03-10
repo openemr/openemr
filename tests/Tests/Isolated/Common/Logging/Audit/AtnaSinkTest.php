@@ -17,8 +17,8 @@ namespace OpenEMR\Tests\Isolated\Common\Logging\Audit;
 use DateTimeImmutable;
 use OpenEMR\Common\Logging\Audit\Atna\WriterInterface;
 use OpenEMR\Common\Logging\Audit\AtnaSink;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 
 class AtnaSinkTest extends TestCase
