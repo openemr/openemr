@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-// total 8287 errors
+// total 8284 errors
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
@@ -13375,12 +13375,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$attendant_type might not be defined\\.$#',
-    'count' => 7,
+    'count' => 6,
     'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$encounter might not be defined\\.$#',
-    'count' => 24,
+    'count' => 25,
     'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
 ];
 $ignoreErrors[] = [
@@ -15735,7 +15735,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$name_alt might not be defined\\.$#',
-    'count' => 6,
+    'count' => 3,
     'path' => __DIR__ . '/../../library/ajax/graphs.php',
 ];
 $ignoreErrors[] = [

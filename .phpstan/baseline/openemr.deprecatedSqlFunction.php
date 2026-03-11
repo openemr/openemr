@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-// total 5805 errors
+// total 5806 errors
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
@@ -3120,7 +3120,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use QueryUtils\\:\\:querySingleRow\\(\\) or QueryUtils\\:\\:fetchRecords\\(\\) instead of sqlQuery\\(\\)\\.$#',
-    'count' => 5,
+    'count' => 6,
     'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
 ];
 $ignoreErrors[] = [
