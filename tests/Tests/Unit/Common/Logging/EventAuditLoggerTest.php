@@ -1537,7 +1537,8 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testNullPatientIdHandling(): void
     {
-        // Test with string "NULL"
+        // Test with string "NULL" (there's an internal workaround for getting
+        // this sort of invalid data)
         $this->eventAuditLogger->recordLogItem(1, 'test', 'user', 'group', 'comment', 'NULL');
 
         // Test with actual null
