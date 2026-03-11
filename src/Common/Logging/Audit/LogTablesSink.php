@@ -26,7 +26,8 @@ class LogTablesSink
             $comments = $this->crypto->encryptStandard($event->comments);
             if ($api !== null) {
                 $api['request_url'] = ($api['request_url'] === '') ? '' : $this->crypto->encryptStandard($api['request_url']);
-                // request_body/response
+                $api['request_body'] = ($api['request_body'] === '') ? '' : $this->crypto->encryptStandard($api['request_body']);
+                $api['response'] = ($api['response'] === '') ? '' : $this->crypto->encryptStandard($api['response']);
             }
         } else {
             // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
