@@ -74,10 +74,9 @@ class LogTablesSink
         $lastLogId = QueryUtils::sqlInsert($logSql, $logParams);
         $checksum = hash('sha3-512', implode('', $logParams));
 
-        if ($event->api === null) {
+        if ($api === null) {
             $checksumGenerateApi = '';
         } else {
-            $api = $event->api;
             //...
             // api log
             $ipAddress = collectIpAddresses()['ip_string'];
