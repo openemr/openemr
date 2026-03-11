@@ -4,16 +4,23 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Logging\Audit;
 
+use Doctrine\DBAL\Connection;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
 
 class LogTablesSink
 {
     /**
+     * CRITICAL: The connection must be separate from the one used for other
+     * database operations. If it's not, autoincrement IDs will start
+     * cross-talking during SQL events being logged, since it's stateful across
+     * the connection rather than the query.
+     *
      * If $crypto is set, the api body data will be stored encrypted and
      * marked as such. If null, they will be blanked out.
      */
     public function __construct(
+        private Connection $conn,
         private CryptoInterface $crypto,
         private bool $shouldEncrypt,
     ) {
@@ -38,41 +45,25 @@ class LogTablesSink
 
 
         // 1. insert entry into log table
-        $logSql = <<<SQL
-        INSERT INTO `log` (
-            `date`,
-            `event`,
-            `category`,
-            `user`,
-            `groupname`,
-            `comments`,
-            `user_notes`,
-            `patient_id`,
-            `success`,
-            `crt_user`,
-            `log_from`,
-            `menu_item_id`,
-            `ccda_doc_id`
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        SQL;
-        $logParams = [
-            $event->current_datetime,
-            $event->event,
-            $event->category,
-            $event->user,
-            $event->group,
-            $comments,
-            $event->user_notes,
-            $event->patientId,
-            $event->success,
-            $event->SSL_CLIENT_S_DN_CN,
-            $event->logFrom,
-            $event->menuItemId,
-            $event->ccdaDocId,
+        $logData = [
+            'date' => $event->current_datetime,
+            'event' => $event->event,
+            'category' => $event->category,
+            'user' => $event->user,
+            'groupname' => $event->group,
+            'comments' => $comments,
+            'user_notes' => $event->user_notes,
+            'patient_id' => $event->patientId,
+            'success' => $event->success,
+            'crt_user' => $event->SSL_CLIENT_S_DN_CN,
+            'log_from' => $event->logFrom,
+            'menu_item_id' => $event->menuItemId,
+            'ccda_doc_id' => $event->ccdaDocId,
         ];
+        $this->conn->insert('log', $logData);
+        $lastLogId = $this->conn->lastInsertId();
 
-        $lastLogId = QueryUtils::sqlInsert($logSql, $logParams);
-        $checksum = hash('sha3-512', implode('', $logParams));
+        $checksum = hash('sha3-512', implode('', array_values($logData)));
 
         if ($api === null) {
             $checksumGenerateApi = '';
