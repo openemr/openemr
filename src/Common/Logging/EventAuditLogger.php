@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Common\Logging;
 
+use Doctrine\DBAL\Connection;
 use OpenEMR\BC\{
     DatabaseConnectionFactory,
     DatabaseConnectionOptions,
@@ -35,13 +36,19 @@ class EventAuditLogger
 
     protected static function createInstance(): static
     {
+        $site = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
+        $opts = DatabaseConnectionOptions::forSite($site);
+        $conn = DatabaseConnectionFactory::createDbal($opts, false);
+
         return new self(
-            ServiceContainer::getCrypto(),
+            cryptoGen: ServiceContainer::getCrypto(),
+            connection: $conn,
         );
     }
 
     public function __construct(
         private readonly CryptoInterface $cryptoGen,
+        private readonly Connection $connection,
     ) {
     }
 
@@ -666,12 +673,8 @@ class EventAuditLogger
             $api,
         );
 
-        $site = $bag->getString('OE_SITE_DIR');
-        $opts = DatabaseConnectionOptions::forSite($site);
-        $conn = DatabaseConnectionFactory::createDbal($opts, false);
-
         $logTableSink = new Audit\LogTablesSink(
-            conn: $conn,
+            conn: $this->connection,
             crypto: $this->cryptoGen,
             shouldEncrypt: $shouldEncrypt,
         );
