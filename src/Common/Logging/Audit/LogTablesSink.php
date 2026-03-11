@@ -7,7 +7,7 @@ namespace OpenEMR\Common\Logging\Audit;
 use Doctrine\DBAL\Connection;
 use OpenEMR\Common\Crypto\CryptoInterface;
 
-class LogTablesSink
+readonly class LogTablesSink
 {
     /**
      * CRITICAL: The connection must be separate from the one used for other
