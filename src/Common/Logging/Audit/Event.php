@@ -20,6 +20,7 @@ readonly class Event
         public $logFrom,
         public $menuItemId,
         public $ccdaDocId,
+        public $api,
     ) {
     }
 }

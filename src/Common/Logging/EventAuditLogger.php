@@ -631,7 +631,6 @@ class EventAuditLogger
         //  3. if api log entry, then insert insert associated entry into api_log
         //  4. if atna server is on, then send entry to atna server
         //
-        // 1. insert entry into log table
         $auditEvent = new Audit\Event(
             $current_datetime,
             $event,
@@ -645,43 +644,13 @@ class EventAuditLogger
             $SSL_CLIENT_S_DN_CN,
             $logFrom,
             $menuItemId,
-            $ccdaDocId
+            $ccdaDocId,
+            $api,
         );
 
         $logTableSink = new Audit\LogTableSink();
         $logTableSink->record($auditEvent);
 
-        // 2. insert associated entry (in addition to calculating and storing applicable checksums) into log_comment_encrypt
-        $last_log_id = QueryUtils::getLastInsertId();
-        $checksumGenerate = hash('sha3-512', implode('', $logEntry));
-        if (!empty($api)) {
-            // api log
-            $ipAddress = collectIpAddresses()['ip_string'];
-            $apiLogEntry = [
-                $last_log_id,
-                $api['user_id'],
-                $api['patient_id'],
-                $ipAddress,
-                $api['method'],
-                $api['request'],
-                $api['request_url'],
-                $api['request_body'],
-                $api['response'],
-                $current_datetime
-            ];
-            $checksumGenerateApi = hash('sha3-512', implode('', $apiLogEntry));
-        } else {
-            $checksumGenerateApi = '';
-        }
-        sqlInsertClean_audit(
-            "INSERT INTO `log_comment_encrypt` (`log_id`, `encrypt`, `checksum`, `checksum_api`, `version`) VALUES (?, ?, ?, ?, '4')",
-            [
-                $last_log_id,
-                $encrypt,
-                $checksumGenerate,
-                $checksumGenerateApi
-            ]
-        );
         // 3. if api log entry, then insert insert associated entry into api_log
         if (!empty($api)) {
             // api log
