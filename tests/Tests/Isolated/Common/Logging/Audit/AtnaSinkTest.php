@@ -17,6 +17,7 @@ namespace OpenEMR\Tests\Isolated\Common\Logging\Audit;
 use DateTimeImmutable;
 use OpenEMR\Common\Logging\Audit\Atna\WriterInterface;
 use OpenEMR\Common\Logging\Audit\AtnaSink;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
@@ -90,9 +91,7 @@ class AtnaSinkTest extends TestCase
         $sink->record('testuser', 'testgroup', 'login', 0, 1, 'Test login');
     }
 
-    /**
-     * @dataProvider eventActionCodeProvider
-     */
+    #[DataProvider('eventActionCodeProvider')]
     public function testEventActionCodesAreCorrect(string $event, string $expectedCode): void
     {
         $writer = $this->createMock(WriterInterface::class);
@@ -130,9 +129,7 @@ class AtnaSinkTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider eventDisplayNameProvider
-     */
+    #[DataProvider('eventDisplayNameProvider')]
     public function testEventDisplayNamesAreCorrect(string $event, string $expectedDisplayName): void
     {
         $writer = $this->createMock(WriterInterface::class);
