@@ -379,7 +379,15 @@ final class EventAuditLoggerTest extends TestCase
             1, // menu_item_id (result of successful array_search)
             0, // ccda_doc_id
             '', // crt_user
-            [] // api_data
+            [
+                'user_id' => 1,
+                'patient_id' => 1,
+                'method' => 'foo',
+                'request' => 'foo',
+                'request_body' => 'foo',
+                'request_url' => 'foo',
+                'response' => 'foo',
+            ] // api_data
         );
 
         // Test passes if no exceptions are thrown
