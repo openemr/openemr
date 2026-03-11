@@ -28,7 +28,7 @@ class LogTablesSink
             `ccda_doc_id`
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         SQL;
-        $params = [
+        $logParams = [
             $event->current_datetime,
             $event->event,
             $event->category,
@@ -44,8 +44,8 @@ class LogTablesSink
             $event->ccdaDocId,
         ];
 
-        $lastLogId = QueryUtils::sqlInsert($logSql, $params);
-        $checksum = hash('sha3-512', implode('', $params));
+        $lastLogId = QueryUtils::sqlInsert($logSql, $logParams);
+        $checksum = hash('sha3-512', implode('', $logParams));
 
         if ($event->api === null) {
             $checksumGenerateApi = '';
@@ -66,7 +66,7 @@ class LogTablesSink
                 $api['response'],
                 $event->current_datetime,
             ];
-            $checksumGenerateApi = hash('sha3-512', implode('', $apiLogEntry));
+            $checksumGenerateApi = hash('sha3-512', implode('', $apiLogParams));
         }
 
         $logCommentSql = <<<SQL
@@ -89,7 +89,7 @@ class LogTablesSink
 
         // 2. insert associated entry (in addition to calculating and storing applicable checksums) into log_comment_encrypt
         $last_log_id = QueryUtils::getLastInsertId();
-        $checksumGenerate = hash('sha3-512', implode('', $logEntry));
+        $checksumGenerate = hash('sha3-512', implode('', $logParams));
         sqlInsertClean_audit(
             "INSERT INTO `log_comment_encrypt` (`log_id`, `encrypt`, `checksum`, `checksum_api`, `version`) VALUES (?, ?, ?, ?, '4')",
             [
