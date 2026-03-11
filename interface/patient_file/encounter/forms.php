@@ -7,8 +7,10 @@
 * @link      http://www.open-emr.org
 * @author    Brady Miller <brady.g.miller@gmail.com>
 * @author    Jerry Padgett <sjpadgett@gmail.com>
+* @author    Michael A. Smith <michael@opencoreemr.com>
 * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
 * @copyright Copyright (c) 2018-2021 Jerry Padgett <sjpadgett@gmail.com>
+* @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
 * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 */
 
@@ -551,7 +553,9 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
     $eventDispatcher->addListener(EncounterMenuEvent::MENU_RENDER, function (EncounterMenuEvent $menuEvent) {
         $menuArray = $menuEvent->getMenuData();
         $reg = getFormsByCategory();
-        $sensitivity = sqlQuery("SELECT sensitivity FROM form_encounter WHERE encounter = ?", [$GLOBALS["encounter"] ?? null])['sensitivity'] ?? null;
+        // Check sensitivity from the appropriate table based on encounter type
+        $sensitivityTable = ($GLOBALS['attendant_type'] ?? 'pid') === 'pid' ? 'form_encounter' : 'form_groups_encounter';
+        $sensitivity = sqlQuery("SELECT sensitivity FROM " . escape_table_name($sensitivityTable) . " WHERE encounter = ?", [$GLOBALS["encounter"] ?? null])['sensitivity'] ?? null;
         $pass_sens = true;
         if (($sensitivity && !AclMain::aclCheckCore('sensitivities', $sensitivity))) {
             $pass_sens = false;
@@ -678,7 +682,13 @@ if (!empty($GLOBALS['google_signin_enabled']) && !empty($GLOBALS['google_signin_
                     }
 
                     // Check for no access to the encounter's sensitivity level.
-                    $sensitivity = (new EncounterService())->getSensitivity($pid, $encounter);
+                    // Use appropriate table based on whether this is a patient or group encounter
+                    if ($attendant_type === 'pid') {
+                        $sensitivity = (new EncounterService())->getSensitivity($pid, $encounter);
+                    } else {
+                        $sensitivityResult = sqlQuery("SELECT sensitivity FROM form_groups_encounter WHERE encounter = ?", [$encounter]);
+                        $sensitivity = $sensitivityResult['sensitivity'] ?? null;
+                    }
                     if (($sensitivity && !AclMain::aclCheckCore('sensitivities', $sensitivity)) || (!$authPostCalendarCategory ?? '')) {
                         $pass_sens_squad = false;
                     }
