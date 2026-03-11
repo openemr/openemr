@@ -632,7 +632,7 @@ class EventAuditLogger
         //  4. if atna server is on, then send entry to atna server
         //
         // 1. insert entry into log table
-        $logEntry = new Audit\Event(
+        $auditEvent = new Audit\Event(
             $current_datetime,
             $event,
             $category,
@@ -647,7 +647,10 @@ class EventAuditLogger
             $menuItemId,
             $ccdaDocId
         );
-        sqlInsertClean_audit("insert into `log` (`date`, `event`, `category`, `user`, `groupname`, `comments`, `user_notes`, `patient_id`, `success`, `crt_user`, `log_from`, `menu_item_id`, `ccda_doc_id`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $logEntry);
+
+        $logTableSink = new Audit\LogTableSink();
+        $logTableSink->record($auditEvent);
+
         // 2. insert associated entry (in addition to calculating and storing applicable checksums) into log_comment_encrypt
         $last_log_id = QueryUtils::getLastInsertId();
         $checksumGenerate = hash('sha3-512', implode('', $logEntry));
