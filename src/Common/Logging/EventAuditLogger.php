@@ -14,7 +14,11 @@
 
 namespace OpenEMR\Common\Logging;
 
-use OpenEMR\BC\ServiceContainer;
+use OpenEMR\BC\{
+    DatabaseConnectionFactory,
+    DatabaseConnectionOptions,
+    ServiceContainer,
+};
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -606,7 +610,8 @@ class EventAuditLogger
             $patientId = null;
         }
 
-        $shouldEncrypt = OEGlobalsBag::getInstance()->getBoolean('enable_auditlog_encryption');
+        $bag = OEGlobalsBag::getInstance();
+        $shouldEncrypt = $bag->getBoolean('enable_auditlog_encryption');
 
         // Collect timestamp and if pertinent, collect client cert name
         $current_datetime = date("Y-m-d H:i:s");
@@ -639,7 +644,12 @@ class EventAuditLogger
             $api,
         );
 
+        $site = $bag->getString('OE_SITE_DIR');
+        $opts = DatabaseConnectionOptions::forSite($site);
+        $conn = DatabaseConnectionFactory::createDbal($opts, false);
+
         $logTableSink = new Audit\LogTablesSink(
+            conn: $conn,
             crypto: $this->cryptoGen,
             shouldEncrypt: $shouldEncrypt,
         );
