@@ -651,9 +651,6 @@ class EventAuditLogger
         $logTableSink = new Audit\LogTablesSink();
         $logTableSink->record($auditEvent);
 
-        $apiLogTableSink = new Audit\ApiLogTableSink();
-        $apiLogTableSink->record($auditEvent);
-
         // 4. if atna server is on, then send entry to atna server
         if ($patientId == null) {
             $patientId = 0;
