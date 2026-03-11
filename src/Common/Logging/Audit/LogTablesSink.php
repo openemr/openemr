@@ -71,57 +71,34 @@ class LogTablesSink
             //...
             // api log
             $ipAddress = collectIpAddresses()['ip_string'];
-            $apiLogParams = [
-                $lastLogId,
-                $api['user_id'],
-                $api['patient_id'],
-                $ipAddress,
-                $api['method'],
-                $api['request'],
-                $api['request_url'],
-                $api['request_body'],
-                $api['response'],
-                $event->current_datetime,
+            $apiLogData = [
+                'log_id' => $lastLogId,
+                'user_id' => $api['user_id'],
+                'patient_id' => $api['patient_id'],
+                'ip_address' => $ipAddress,
+                'method' => $api['method'],
+                'request' => $api['request'],
+                'request_url' => $api['request_url'],
+                'request_body' => $api['request_body'],
+                'response' => $api['response'],
+                'created_time' => $event->current_datetime,
             ];
-            $checksumGenerateApi = hash('sha3-512', implode('', $apiLogParams));
+            $checksumGenerateApi = hash('sha3-512', implode('', array_values($apiLogData)));
         }
 
         // 2. insert associated entry (in addition to calculating and storing applicable checksums) into log_comment_encrypt
-        $logCommentSql = <<<SQL
-        INSERT INTO `log_comment_encrypt` (
-            `log_id`,
-            `encrypt`,
-            `checksum`,
-            `checksum_api`,
-            `version`
-        ) VALUES (?, ?, ?, ?, ?)
-        SQL;
-        $logCommentParams = [
-            $lastLogId,
-            $this->shouldEncrypt ? 'Yes' : 'No', // DB is a Yes/No enum instead of bool :(
-            $checksum,
-            $checksumGenerateApi,
-            '4',
+        $logCommentData = [
+            'log_id' => $lastLogId,
+            'encrypt' => $this->shouldEncrypt ? 'Yes' : 'No', // DB is a Yes/No enum instead of bool :(
+            'checksum' => $checksum,
+            'checksum_api' => $checksumGenerateApi,
+            'version' => '4',
         ];
-        QueryUtils::sqlInsert($logCommentSql, $logCommentParams);
+        $this->conn->insert('log_comment_encrypt', $logCommentData);
 
         // 3. if api log entry, then insert insert associated entry into api_log
-        if ($event->api !== null) {
-            $apiLogSql = <<<SQL
-            INSERT INTO `api_log` (
-                `log_id`,
-                `user_id`,
-                `patient_id`,
-                `ip_address`,
-                `method`,
-                `request`,
-                `request_url`,
-                `request_body`,
-                `response`,
-                `created_time`
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            SQL;
-            QueryUtils::sqlInsert($apiLogSql, $apiLogParams);
+        if ($api !== null) {
+            $this->conn->insert('api_log', $apiLogData);
         }
 
         return true;
