@@ -53,8 +53,8 @@ jobs:
       id: diff
       run: |
         # Exclude removed files and paths that should not ship in a patch.
-        # Production installs do not need CI, testing, build tooling, docs,
-        # or Docker configuration.
+        # Production installs do not need CI, testing, build tooling, or
+        # Docker configuration.
         git diff --name-only --diff-filter=d \
           '${{ inputs.version_start }}'..'${{ inputs.version_branch }}' \
           -- . \
@@ -125,16 +125,13 @@ jobs:
           if [[ -z "$file" ]]; then
             continue
           fi
-          dir=$(dirname "$file")
-          if [[ "$dir" != '.' ]]; then
-            mkdir -p "${patch_dir}/${dir}"
-          fi
+          mkdir -p "${patch_dir}/${file%/*}"
           cp "$file" "${patch_dir}/${file}"
         done < /tmp/changed-files.txt
 
         # Copy compiled themes if requested
         if [[ '${{ inputs.copy_styles }}' = 'true' ]]; then
-          printf 'Copying compiled theme styles\n'
+          echo 'Copying compiled theme styles'
           mkdir -p "${patch_dir}/public/themes"
           cp -R public/themes/* "${patch_dir}/public/themes/"
         fi
@@ -147,27 +144,67 @@ jobs:
         cp sql_patch.php "${patch_dir}/sql_patch.php"
 
         # Standardize file permissions
-        find "$patch_dir" -type f -print0 | xargs -0 chmod 0644
+        find "$patch_dir" -type f -execdir chmod 0644 {} +
 
         # Report contents
-        printf '\nPatch file count:\n'
+        echo
+        echo 'Patch file count:'
         find "$patch_dir" -type f | wc -l
-        printf '\nPatch file listing:\n'
+        echo
+        echo 'Patch file listing:'
         find "$patch_dir" -type f -printf '%P\n' | sort
 
     - name: Create patch zip and checksums
       run: |
-        cd patch-output
-        zip -r '../${{ inputs.patch_filename }}' .
-        cd ..
+        (
+            cd patch-output &&
+            zip -r '../${{ inputs.patch_filename }}' .
+        )
 
+        md5sum '${{ inputs.patch_filename }}' > '${{ inputs.patch_filename }}.md5'
         sha256sum '${{ inputs.patch_filename }}' > '${{ inputs.patch_filename }}.sha256'
         sha512sum '${{ inputs.patch_filename }}' > '${{ inputs.patch_filename }}.sha512'
 
-        printf '\nSHA-256:\n'
+        echo
+        echo 'MD5:'
+        cat '${{ inputs.patch_filename }}.md5'
+        echo
+        echo 'SHA-256:'
         cat '${{ inputs.patch_filename }}.sha256'
-        printf '\nSHA-512:\n'
+        echo
+        echo 'SHA-512:'
         cat '${{ inputs.patch_filename }}.sha512'
+
+    - name: Build summary
+      env:
+        RELEASE_TAG: ${{ inputs.release_tag }}
+      run: |
+        # shellcheck disable=SC2016
+        {
+          echo '## Patch Build Results'
+          echo
+          echo '### Inputs'
+          echo '| Parameter | Value |'
+          echo '|-----------|-------|'
+          echo '| Start tag | `${{ inputs.version_start }}` |'
+          echo '| Release branch | `${{ inputs.version_branch }}` |'
+          echo '| Patch filename | `${{ inputs.patch_filename }}` |'
+          echo "| Release tag | \`${RELEASE_TAG:-(dry run)}\` |"
+          echo '| Dry run | `${{ inputs.dry_run }}` |'
+          echo '| Copy styles | `${{ inputs.copy_styles }}` |'
+          echo
+          echo '### Checksums'
+          echo '```'
+          cat '${{ inputs.patch_filename }}.md5'
+          cat '${{ inputs.patch_filename }}.sha256'
+          cat '${{ inputs.patch_filename }}.sha512'
+          echo '```'
+          echo
+          echo '### Changed files'
+          echo '```'
+          cat /tmp/changed-files.txt
+          echo '```'
+        } >> "$GITHUB_STEP_SUMMARY"
 
     - name: Upload workflow artifact (dry run)
       if: inputs.dry_run
@@ -176,29 +213,44 @@ jobs:
         name: ${{ inputs.patch_filename }}
         path: |
           ${{ inputs.patch_filename }}
+          ${{ inputs.patch_filename }}.md5
           ${{ inputs.patch_filename }}.sha256
           ${{ inputs.patch_filename }}.sha512
         retention-days: 7
 
-    - name: Upload to GitHub release
+    - name: Create annotated tag and GitHub release
       if: '!inputs.dry_run'
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
         tag='${{ inputs.release_tag }}'
 
+        # Create an annotated tag. gh release create only makes lightweight
+        # tags, which are not copied into forks and are invisible to
+        # git describe without --tags.
+        git config user.name 'github-actions[bot]'
+        git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+        if git rev-parse "$tag" > /dev/null 2>&1; then
+          echo "Tag $tag already exists, skipping tag creation"
+        else
+          git tag -a -m "Patch release $tag" "$tag" '${{ inputs.version_branch }}'
+          git push origin "$tag"
+        fi
+
         # Create the release if it does not already exist
         if ! gh release view "$tag" > /dev/null 2>&1; then
-          printf 'Creating release %s\n' "$tag"
+          echo "Creating release $tag"
           gh release create "$tag" \
-            --target '${{ inputs.version_branch }}' \
             --title "$tag" \
-            --notes "Patch release $tag"
+            --notes "Patch release $tag" \
+            --verify-tag
         fi
 
         # Upload patch zip and checksums
         gh release upload "$tag" \
           '${{ inputs.patch_filename }}' \
+          '${{ inputs.patch_filename }}.md5' \
           '${{ inputs.patch_filename }}.sha256' \
           '${{ inputs.patch_filename }}.sha512' \
           --clobber
