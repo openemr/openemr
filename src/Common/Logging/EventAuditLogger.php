@@ -606,22 +606,7 @@ class EventAuditLogger
             $patientId = null;
         }
 
-        // Encrypt if applicable
-        if (!OEGlobalsBag::getInstance()->getBoolean("enable_auditlog_encryption")) {
-            // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
-            $comments = base64_encode((string) $comments);
-            $encrypt = 'No';
-        } else {
-            // encrypt the comments field
-            $comments =  $this->cryptoGen->encryptStandard($comments);
-            if (!empty($api)) {
-                // api log
-                $api['request_url'] = (!empty($api['request_url'])) ? $this->cryptoGen->encryptStandard($api['request_url']) : '';
-                $api['request_body'] = (!empty($api['request_body'])) ? $this->cryptoGen->encryptStandard($api['request_body']) : '';
-                $api['response'] =  (!empty($api['response'])) ? $this->cryptoGen->encryptStandard($api['response']) : '';
-            }
-            $encrypt = 'Yes';
-        }
+        $shouldEncrypt = OEGlobalsBag::getInstance()->getBoolean('enable_auditlog_encryption');
 
         // Collect timestamp and if pertinent, collect client cert name
         $current_datetime = date("Y-m-d H:i:s");
@@ -654,8 +639,13 @@ class EventAuditLogger
             $api,
         );
 
-        $logTableSink = new Audit\LogTablesSink();
+        $logTableSink = new Audit\LogTablesSink(
+            crypto: $this->cryptoGen,
+            shouldEncrypt: $shouldEncrypt,
+        );
         $logTableSink->record($auditEvent);
+
+        // TODO: convert ATNA to same style/interface
 
         // 4. if atna server is on, then send entry to atna server
         if ($patientId == null) {
