@@ -63,7 +63,6 @@ jobs:
           ':(exclude).git/**' \
           ':(exclude)ci/**' \
           ':(exclude)docker/**' \
-          ':(exclude)Documentation/**' \
           ':(exclude)tests/**' \
           ':(exclude)tools/**' \
           ':!.codespell*' \
