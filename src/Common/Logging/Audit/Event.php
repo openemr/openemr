@@ -4,8 +4,23 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Logging\Audit;
 
+/**
+ * (inferred from ApiResponseLoggerListener)
+ * @phpstan-type ApiData array{
+ *   user_id: int,
+ *   patient_id: int,
+ *   method: string,
+ *   request: string,
+ *   request_url: string,
+ *   request_body: string,
+ *   response: string,
+ * }
+ */
 readonly class Event
 {
+    /**
+     * @param ?ApiData $api
+     */
     public function __construct(
         public $current_datetime,
         public $event,

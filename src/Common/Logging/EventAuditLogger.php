@@ -21,6 +21,9 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Traits\SingletonTrait;
 
+/**
+ * @phpstan-import-type ApiData from Audit\Event
+ */
 class EventAuditLogger
 {
     use SingletonTrait;
@@ -594,6 +597,9 @@ class EventAuditLogger
         sqlInsertClean_audit($sql);
     }
 
+    /**
+     * @param ?ApiData $api
+     */
     public function recordLogItem($success, $event, $user, $group, $comments, $patientId = null, $category = null, $logFrom = 'open-emr', $menuItemId = null, $ccdaDocId = null, $user_notes = '', $api = null)
     {
         if ($patientId == "NULL") {
