@@ -325,7 +325,21 @@ class EventAuditLogger
      */
     public function sendAtnaAuditMsg($user, $group, $event, $patient_id, $outcome, $comments)
     {
-        $sink = Audit\AtnaSink::fromGlobals(OEGlobalsBag::getInstance());
+        $bag = OEGlobalsBag::getInstance();
+        $writer = new Audit\Atna\TcpWriter(
+            host: $bag->getString('atna_audit_host'),
+            port: $bag->getInt('atna_audit_port'),
+            localCert: $bag->getString('atna_audit_localcert'),
+            caCert: $bag->getString('atna_audit_cacert'),
+        );
+        $sink = new Audit\AtnaSink(
+            clock: ServiceContainer::getClock(),
+            writer: $writer,
+            enabled: $bag->getBoolean('enable_atna_audit'),
+            host: $bag->getString('atna_audit_host'),
+            serverName: $_SERVER['SERVER_NAME'] ?? '',
+            serverAddress: $_SERVER['SERVER_ADDR'] ?? '',
+        );
         // The receiving end has native type hints; since this file has
         // basically no type safety, do some casting based on expected values.
         $sink->record(

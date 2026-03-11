@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace OpenEMR\Common\Logging\Audit;
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Core\OEGlobalsBag;
 use Psr\Clock\ClockInterface;
 
 readonly class AtnaSink
@@ -57,24 +56,6 @@ MSG;
  <ParticipantObjectIDTypeCode code="2" displayName="Patient Number" codeSystemName="RFC-3881" />
 </ParticipantObjectIdentification>
 MSG;
-
-    public static function fromGlobals(OEGlobalsBag $bag): AtnaSink
-    {
-        $writer = new Atna\TcpWriter(
-            host: $bag->getString('atna_audit_host'),
-            port: $bag->getInt('atna_audit_port'),
-            localCert: $bag->getString('atna_audit_localcert'),
-            caCert: $bag->getString('atna_audit_cacert'),
-        );
-        return new AtnaSink(
-            clock: ServiceContainer::getClock(),
-            writer: $writer,
-            enabled: $bag->getBoolean('enable_atna_audit'),
-            host: $bag->getString('atna_audit_host'),
-            serverName: $_SERVER['SERVER_NAME'] ?? '',
-            serverAddress: $_SERVER['SERVER_ADDR'] ?? '',
-        );
-    }
 
     public function __construct(
         private ClockInterface $clock,
