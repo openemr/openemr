@@ -15,6 +15,14 @@ on:
         description: Patch zip filename (e.g., 8-0-0-Patch-1.zip)
         required: true
         type: string
+      milestone:
+        description: GitHub milestone name for changelog (e.g., 8.0.0.1)
+        required: true
+        type: string
+      patch_number:
+        description: Patch number to set in version.php $v_realpatch (e.g., 1)
+        required: true
+        type: string
       release_tag:
         description: GitHub release tag to upload to (e.g., v8_0_0_1). Required unless dry run.
         required: false
@@ -48,6 +56,105 @@ jobs:
         ref: ${{ inputs.version_branch }}
         filter: blob:none
         fetch-depth: 0
+
+    - name: Bump version.php
+      if: '!inputs.dry_run'
+      env:
+        PATCH_NUMBER: ${{ inputs.patch_number }}
+      run: |
+        sed -i "s/^\$v_realpatch = '[0-9]*';/\$v_realpatch = '${PATCH_NUMBER}';/" version.php
+
+        echo 'Updated version.php:'
+        grep -n 'v_realpatch' version.php
+
+        git config user.name 'github-actions[bot]'
+        git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+        git add version.php
+        git commit -m "chore: bump \$v_realpatch to ${PATCH_NUMBER} for patch release"
+        git push origin HEAD:'${{ inputs.version_branch }}'
+
+    - name: Generate changelog
+      env:
+        GH_TOKEN: ${{ github.token }}
+        MILESTONE_NAME: ${{ inputs.milestone }}
+      run: |
+        # Find the milestone number from the name
+        milestone_number=$(
+          gh api repos/openemr/openemr/milestones --paginate \
+            --jq ".[] | select(.title == \"${MILESTONE_NAME}\") | .number"
+        )
+
+        if [[ -z "$milestone_number" ]]; then
+          echo "::warning::Milestone '${MILESTONE_NAME}' not found — skipping changelog"
+          echo 'No changelog generated (milestone not found).' > /tmp/changelog.md
+          exit 0
+        fi
+
+        milestone_url="https://github.com/openemr/openemr/milestone/${milestone_number}?closed=1"
+        today=$(date +%Y-%m-%d)
+
+        # Fetch all closed issues for this milestone
+        gh api "repos/openemr/openemr/issues?milestone=${milestone_number}&state=closed&per_page=100" \
+          --paginate --jq '.[] | {
+            number,
+            title,
+            url: .html_url,
+            developer: ([.labels[].name] | any(. == "developers"))
+          }' > /tmp/issues.jsonl
+
+        # Generate changelog in the same format as the PHP command
+        {
+          echo "## [${MILESTONE_NAME}](${milestone_url}) - ${today}"
+          echo
+
+          for dev_filter in false true; do
+            if [[ "$dev_filter" = 'true' ]]; then
+              echo '### OpenEMR Developer Changes'
+              echo
+            fi
+
+            for section in Added Fixed Changed; do
+              matches=()
+              while IFS= read -r line; do
+                [[ -z "$line" ]] && continue
+
+                is_dev=$(echo "$line" | jq -r '.developer')
+                [[ "$is_dev" != "$dev_filter" ]] && continue
+
+                title=$(echo "$line" | jq -r '.title')
+                number=$(echo "$line" | jq -r '.number')
+                url=$(echo "$line" | jq -r '.url')
+
+                # Parse category from title prefix
+                if [[ "$title" =~ ^([a-zA-Z]+):\ *(.*) ]]; then
+                  category="${BASH_REMATCH[1]}"
+                  clean_title="${BASH_REMATCH[2]}"
+                else
+                  category='bug'
+                  clean_title="$title"
+                fi
+
+                case $section in
+                  Added)  [[ "$category" != 'feat' ]] && continue ;;
+                  Fixed)  [[ "$category" != 'bug' ]] && continue ;;
+                  Changed)
+                    [[ "$category" = 'feat' || "$category" = 'bug' ]] && continue ;;
+                esac
+
+                matches+=("  - ${clean_title} ([#${number}](${url}))")
+              done < /tmp/issues.jsonl
+
+              if (( ${#matches[@]} > 0 )); then
+                echo "### ${section}"
+                printf '%s\n' "${matches[@]}" | sort
+                echo
+              fi
+            done
+          done
+        } > /tmp/changelog.md
+
+        echo 'Generated changelog:'
+        cat /tmp/changelog.md
 
     - name: Generate changed file list
       id: diff
@@ -178,6 +285,8 @@ jobs:
     - name: Build summary
       env:
         RELEASE_TAG: ${{ inputs.release_tag }}
+        MILESTONE: ${{ inputs.milestone }}
+        PATCH_NUMBER: ${{ inputs.patch_number }}
       run: |
         # shellcheck disable=SC2016
         {
@@ -189,6 +298,8 @@ jobs:
           echo '| Start tag | `${{ inputs.version_start }}` |'
           echo '| Release branch | `${{ inputs.version_branch }}` |'
           echo '| Patch filename | `${{ inputs.patch_filename }}` |'
+          echo "| Milestone | \`${MILESTONE}\` |"
+          echo "| Patch number | \`${PATCH_NUMBER}\` |"
           echo "| Release tag | \`${RELEASE_TAG:-(dry run)}\` |"
           echo '| Dry run | `${{ inputs.dry_run }}` |'
           echo '| Copy styles | `${{ inputs.copy_styles }}` |'
@@ -200,10 +311,44 @@ jobs:
           cat '${{ inputs.patch_filename }}.sha512'
           echo '```'
           echo
+          echo '### Changelog'
+          cat /tmp/changelog.md
+          echo
           echo '### Changed files'
           echo '```'
           cat /tmp/changed-files.txt
           echo '```'
+          echo
+          echo '---'
+          echo
+          echo '### Announcement template'
+          echo
+          echo 'Copy and adapt the following for forums, social media, etc.:'
+          echo
+          echo '> **OpenEMR '"${MILESTONE}"' Patch Release**'
+          echo '>'
+          echo '> OpenEMR '"${MILESTONE}"' has been released. This patch includes'
+          echo "> $(wc -l < /tmp/changed-files.txt) updated files with bug fixes and improvements."
+          echo '>'
+          echo "> Download: https://github.com/openemr/openemr/releases/tag/${RELEASE_TAG:-(tag)}"
+          echo '>'
+          echo '> Changelog:'
+          echo '>'
+          # Indent changelog for blockquote
+          sed 's/^/> /' /tmp/changelog.md
+          echo
+          echo '---'
+          echo
+          echo '### Manual steps remaining'
+          echo
+          echo '- [ ] Upload patch to [website-openemr-files](https://github.com/openemr/website-openemr-files) repo'
+          echo '- [ ] Import via OpenEMR website tool'
+          echo '- [ ] Update [OpenEMR Patches](https://www.open-emr.org/wiki/index.php/OpenEMR_Patches) download page'
+          echo '- [ ] Trigger Docker build in [openemr-devops](https://github.com/openemr/openemr-devops/actions) (update tags first)'
+          echo '- [ ] Update DockerHub readme'
+          echo '- [ ] Update [Release History](https://www.open-emr.org/wiki/index.php/OpenEMR_Downloads) on wiki'
+          echo '- [ ] Point demo farm to new tag'
+          echo '- [ ] Announce: forums, chat, Twitter, Facebook, Diaspora, Mastodon, LinkedIn group+company, Reddit, Hacker News, registered users'
         } >> "$GITHUB_STEP_SUMMARY"
 
     - name: Upload workflow artifact (dry run)
@@ -238,12 +383,12 @@ jobs:
           git push origin "$tag"
         fi
 
-        # Create the release if it does not already exist
+        # Create the release with changelog as release notes
         if ! gh release view "$tag" > /dev/null 2>&1; then
           echo "Creating release $tag"
           gh release create "$tag" \
             --title "$tag" \
-            --notes "Patch release $tag" \
+            --notes-file /tmp/changelog.md \
             --verify-tag
         fi
 
