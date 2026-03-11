@@ -22,7 +22,7 @@ readonly class Event
      * @param ?ApiData $api
      */
     public function __construct(
-        public $current_datetime,
+        public string $current_datetime,
         public $event,
         public $category,
         public $user,
@@ -35,7 +35,7 @@ readonly class Event
         public $logFrom,
         public $menuItemId,
         public $ccdaDocId,
-        public $api,
+        public ?array $api,
     ) {
     }
 }
