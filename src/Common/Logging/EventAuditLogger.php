@@ -651,11 +651,9 @@ class EventAuditLogger
         $logTableSink = new Audit\LogTableSink();
         $logTableSink->record($auditEvent);
 
-        // 3. if api log entry, then insert insert associated entry into api_log
-        if (!empty($api)) {
-            // api log
-            sqlInsertClean_audit("INSERT INTO `api_log` (`log_id`, `user_id`, `patient_id`, `ip_address`, `method`, `request`, `request_url`, `request_body`, `response`, `created_time`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $apiLogEntry);
-        }
+        $apiLogTableSink = new Audit\ApiLogTableSink();
+        $apiLogTableSink->record($auditEvent);
+
         // 4. if atna server is on, then send entry to atna server
         if ($patientId == null) {
             $patientId = 0;
