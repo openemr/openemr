@@ -14,7 +14,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Logging\Audit;
 
-use OpenEMR\BC\ServiceContainer;
 use Psr\Clock\ClockInterface;
 
 readonly class AtnaSink
