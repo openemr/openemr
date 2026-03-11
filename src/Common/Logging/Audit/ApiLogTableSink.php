@@ -13,6 +13,24 @@ class ApiLogTableSink
             return false;
         }
 
-        sqlInsertClean_audit("INSERT INTO `api_log` (`log_id`, `user_id`, `patient_id`, `ip_address`, `method`, `request`, `request_url`, `request_body`, `response`, `created_time`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $apiLogEntry);
+        $sql = <<<SQL
+        INSERT INTO `api_log` (
+            `log_id`,
+            `user_id`,
+            `patient_id`,
+            `ip_address`,
+            `method`,
+            `request`,
+            `request_url`,
+            `request_body`,
+            `response`,
+            `created_time`
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        SQL;
+        $params = [
+            $
+        ];
+
+        sqlInsertClean_audit("INSERT INTO `api_log` (", $apiLogEntry);
     }
 }
