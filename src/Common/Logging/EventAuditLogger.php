@@ -602,10 +602,33 @@ class EventAuditLogger
     }
 
     /**
+     * @param int $success (yes this SHOULD be a boolean)
+     * @param string $event
+     * @param ?string $user
+     * @param ?string $group
+     * @param string $comments
+     * @param string $user_notes
+     * @param ?int $patientId
+     * @param ?string $category
+     * @param string $logFrom,
+     * @param ?int $menuItemId
+     * @param ?int $ccdaDocId
      * @param ?ApiData $api
      */
-    public function recordLogItem($success, $event, $user, $group, $comments, $patientId = null, $category = null, $logFrom = 'open-emr', $menuItemId = null, $ccdaDocId = null, $user_notes = '', $api = null)
-    {
+    public function recordLogItem(
+        $success,
+        $event,
+        $user,
+        $group,
+        $comments,
+        $patientId = null,
+        $category = null,
+        $logFrom = 'open-emr',
+        $menuItemId = null,
+        $ccdaDocId = null,
+        $user_notes = '',
+        $api = null
+    ) {
         if ($patientId == "NULL") {
             $patientId = null;
         }
