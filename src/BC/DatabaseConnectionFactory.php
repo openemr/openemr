@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace OpenEMR\BC;
 
 use ADODB_mysqli_log;
+use Doctrine\DBAL\{
+    Connection,
+    DriverManager,
+};
 use mysqli;
 use OpenEMR\Common\Session\SessionWrapperInterface;
 use OpenEMR\Core\OEGlobalsBag;
@@ -66,6 +70,17 @@ class DatabaseConnectionFactory
         // Other paths may end up customizing this further.
 
         return $conn;
+    }
+
+    public static function createDbal(
+        DatabaseConnectionOptions $config,
+        bool $persistent,
+    ): Connection {
+        $params = $config->toDbalParams();
+        if ($persistent) {
+            $params['persistent'] = true;
+        }
+        return DriverManager::getConnection($params);
     }
 
     /**

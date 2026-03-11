@@ -14,7 +14,6 @@ namespace OpenEMR\BC;
 
 use Doctrine\DBAL\{
     Connection,
-    DriverManager,
     Exception as DBALException,
     Exception\DriverException,
     Result,
@@ -57,7 +56,7 @@ class Database
     {
         if (self::$instance === null) {
             $options = self::readLegacyConfig();
-            $connection = DriverManager::getConnection($options->toDbalParams());
+            $connection = DatabaseConnectionFactory::createDbal($options, false);
             // Legacy: disable strict SQL mode for backwards compatibility
             // When this becomes generalized to future code, this should NOT
             // run (or it should explicitly set full strict)
