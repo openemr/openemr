@@ -54,7 +54,7 @@ class LogTablesSink
             //...
             // api log
             $ipAddress = collectIpAddresses()['ip_string'];
-            $apiLogEntry = [
+            $apiLogParams = [
                 $lastLogId,
                 $api['user_id'],
                 $api['patient_id'],
@@ -103,29 +103,24 @@ class LogTablesSink
 
 
         // 3. if api log entry, then insert insert associated entry into api_log
-        if ($event->api === null) {
-            return false;
+        if ($event->api !== null) {
+            $apiLogSql = <<<SQL
+            INSERT INTO `api_log` (
+                `log_id`,
+                `user_id`,
+                `patient_id`,
+                `ip_address`,
+                `method`,
+                `request`,
+                `request_url`,
+                `request_body`,
+                `response`,
+                `created_time`
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            SQL;
+            QueryUtils::sqlInsert($apiLogSql, $apiLogParams);
         }
 
-        $sql = <<<SQL
-        INSERT INTO `api_log` (
-            `log_id`,
-            `user_id`,
-            `patient_id`,
-            `ip_address`,
-            `method`,
-            `request`,
-            `request_url`,
-            `request_body`,
-            `response`,
-            `created_time`
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        SQL;
-        $params = [
-            $
-        ];
-
-        sqlInsertClean_audit("INSERT INTO `api_log` (", $apiLogEntry);
-
+        return true;
     }
 }
