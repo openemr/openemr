@@ -6,7 +6,7 @@ namespace OpenEMR\Common\Logging\Audit;
 
 use OpenEMR\Common\Database\QueryUtils;
 
-class LogTableSink
+class LogTablesSink
 {
     public function record(Event $event): bool
     {

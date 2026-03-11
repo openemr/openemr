@@ -648,7 +648,7 @@ class EventAuditLogger
             $api,
         );
 
-        $logTableSink = new Audit\LogTableSink();
+        $logTableSink = new Audit\LogTablesSink();
         $logTableSink->record($auditEvent);
 
         $apiLogTableSink = new Audit\ApiLogTableSink();
