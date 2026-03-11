@@ -4,6 +4,15 @@
 
 ### Fixed
 - Security fixes
+  - https://github.com/openemr/openemr/security/advisories/GHSA-v8q6-h79f-736x
+  - https://github.com/openemr/openemr/security/advisories/GHSA-752v-x6m4-6cf8
+  - https://github.com/openemr/openemr/security/advisories/GHSA-244w-vxhp-7x99
+  - https://github.com/openemr/openemr/security/advisories/GHSA-9hw7-22mr-qhfc
+  - https://github.com/openemr/openemr/security/advisories/GHSA-j4mm-wg7q-v57q
+  - https://github.com/openemr/openemr/security/advisories/GHSA-rwf9-px3c-3prw
+  - https://github.com/openemr/openemr/security/advisories/GHSA-68fr-xm3v-p4vw
+  - https://github.com/openemr/openemr/security/advisories/GHSA-4gh4-q39r-45wf
+  - https://github.com/openemr/openemr/security/advisories/GHSA-55qj-x8wh-m4rm
 - Backport #10408 (sms class rename) to rel-800 to fix non-deterministic PHPStan baseline ([#11013](https://github.com/openemr/openemr/issues/11013))
 
 ### Changed
