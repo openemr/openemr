@@ -69,6 +69,7 @@ class LogTablesSink
             $checksumGenerateApi = hash('sha3-512', implode('', $apiLogParams));
         }
 
+        // 2. insert associated entry (in addition to calculating and storing applicable checksums) into log_comment_encrypt
         $logCommentSql = <<<SQL
         INSERT INTO `log_comment_encrypt` (
             `log_id`,
@@ -85,22 +86,6 @@ class LogTablesSink
             $checksumGenerateApi,
             '4',
         ];
-
-
-        // 2. insert associated entry (in addition to calculating and storing applicable checksums) into log_comment_encrypt
-        $last_log_id = QueryUtils::getLastInsertId();
-        $checksumGenerate = hash('sha3-512', implode('', $logParams));
-        sqlInsertClean_audit(
-            "INSERT INTO `log_comment_encrypt` (`log_id`, `encrypt`, `checksum`, `checksum_api`, `version`) VALUES (?, ?, ?, ?, '4')",
-            [
-                $last_log_id,
-                $encrypt,
-                $checksumGenerate,
-                $checksumGenerateApi
-            ]
-        );
-
-
 
         // 3. if api log entry, then insert insert associated entry into api_log
         if ($event->api !== null) {
