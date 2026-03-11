@@ -1,0 +1,158 @@
+<?php
+
+/**
+ * ATNA audit sink for sending RFC 3881 audit messages
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Eric Stern <erics@opencoreemr.com>
+ * @copyright Copyright (c) 2026 Eric Stern
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Common\Logging\Audit;
+
+use Psr\Clock\ClockInterface;
+
+readonly class AtnaSink
+{
+    /**
+     * Event action codes indicate whether the event is read/write.
+     * C = create, R = read, U = update, D = delete, E = execute
+     */
+    private const EVENT_ACTION_CODE_EXECUTE = 'E';
+    private const EVENT_ACTION_CODE_CREATE = 'C';
+    private const EVENT_ACTION_CODE_INSERT = 'C';
+    private const EVENT_ACTION_CODE_SELECT = 'R';
+    private const EVENT_ACTION_CODE_UPDATE = 'U';
+    private const EVENT_ACTION_CODE_DELETE = 'D';
+
+    private const RFC3881_MSG_PRIMARY_TEMPLATE = <<<MSG
+<13>%s %s
+<?xml version="1.0" encoding="ASCII"?>
+ <AuditMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="healthcare-security-audit.xsd">
+  <EventIdentification EventActionCode="%s" EventDateTime="%s" EventOutcomeIndicator="%s">
+   <EventID code="eventIDcode" displayName="%s" codeSystemName="DCM" />
+  </EventIdentification>
+  <ActiveParticipant UserID="%s" UserIsRequestor="true" NetworkAccessPointID="%s" NetworkAccessPointTypeCode="2" >
+   <RoleIDCode code="110153" displayName="Source" codeSystemName="DCM" />
+  </ActiveParticipant>
+  <ActiveParticipant UserID="%s" UserIsRequestor="false" NetworkAccessPointID="%s" NetworkAccessPointTypeCode="2" >
+   <RoleIDCode code="110152" displayName="Destination" codeSystemName="DCM" />
+  </ActiveParticipant>
+  <AuditSourceIdentification AuditSourceID="%s" />
+  <ParticipantObjectIdentification ParticipantObjectID="%s" ParticipantObjectTypeCode="1" ParticipantObjectTypeCodeRole="6" >
+   <ParticipantObjectIDTypeCode code="11" displayName="User Identifier" codeSystemName="RFC-3881" />
+  </ParticipantObjectIdentification>
+  %s
+ </AuditMessage>
+MSG;
+
+    private const RFC3881_MSG_PATIENT_TEMPLATE = <<<MSG
+<ParticipantObjectIdentification ParticipantObjectID="%s" ParticipantObjectTypeCode="1" ParticipantObjectTypeCodeRole="1">
+ <ParticipantObjectIDTypeCode code="2" displayName="Patient Number" codeSystemName="RFC-3881" />
+</ParticipantObjectIdentification>
+MSG;
+
+    public function __construct(
+        private ClockInterface $clock,
+        private Atna\WriterInterface $writer,
+        private bool $enabled,
+        private string $host,
+        private string $serverName,
+        private string $serverAddress,
+    ) {
+    }
+
+    // Future: handle a better-typed DTO
+    public function record(string $user, string $group, string $event, int $patientId, int $outcome, string $comments): void
+    {
+        if (!$this->isEnabled()) {
+            return;
+        }
+
+        $message = $this->createRfc3881Msg($user, $group, $event, $patientId, $outcome, $comments);
+        $this->writer->writeMessage($message);
+    }
+
+    /**
+     * Create an XML audit record corresponding to RFC 3881.
+     * The parameters passed are the column values (from table 'log')
+     * for a single audit record.
+     */
+    protected function createRfc3881Msg(string $user, string $group, string $event, int $patientId, int $outcome, string $comments): string
+    {
+        $eventActionCode = $this->determineRFC3881EventActionCode($event);
+        $eventIdDisplayName = $this->determineRFC3881EventIdDisplayName($event);
+
+        $eventDateTime = $this->clock->now()->format(DATE_ATOM);
+
+        /* For EventOutcomeIndicator, 0 = success and 4 = minor error */
+        $eventOutcome = ($outcome === 1) ? 0 : 4;
+
+        // Variables used in ActiveParticipant section, which identifies
+        // the IP address and application of the source and destination.
+        $srcUserID = $this->serverName . '|OpenEMR';
+
+        $patientRecordForMsg = ($eventIdDisplayName === 'Patient Record' && $patientId !== 0)
+            ? sprintf(self::RFC3881_MSG_PATIENT_TEMPLATE, $patientId)
+            : '';
+        return sprintf(
+            self::RFC3881_MSG_PRIMARY_TEMPLATE,
+            $eventDateTime,
+            $this->serverName,
+            $eventActionCode,
+            $eventDateTime,
+            $eventOutcome,
+            $eventIdDisplayName,
+            $srcUserID,
+            $this->serverAddress,
+            $this->host,
+            $this->host,
+            $srcUserID,
+            $user,
+            $patientRecordForMsg,
+        );
+    }
+
+    /**
+     * Event action codes indicate whether the event is read/write.
+     * C = create, R = read, U = update, D = delete, E = execute
+     */
+    protected function determineRFC3881EventActionCode(string $event): string
+    {
+        return match (substr($event, -7)) {
+            '-create' => self::EVENT_ACTION_CODE_CREATE,
+            '-insert' => self::EVENT_ACTION_CODE_INSERT,
+            '-select' => self::EVENT_ACTION_CODE_SELECT,
+            '-update' => self::EVENT_ACTION_CODE_UPDATE,
+            '-delete' => self::EVENT_ACTION_CODE_DELETE,
+            default => self::EVENT_ACTION_CODE_EXECUTE,
+        };
+    }
+
+    /**
+     * The choice of event codes is up to OpenEMR.
+     * We're using the same event codes as
+     * https://iheprofiles.projects.openhealthtools.org/
+     */
+    protected function determineRFC3881EventIdDisplayName(string $event): string
+    {
+        return match (true) {
+            str_contains($event, 'patient-record') => 'Patient Record',
+            str_contains($event, 'view') => 'Patient Record',
+            str_contains($event, 'login') => 'Login',
+            str_contains($event, 'logout') => 'Logout',
+            str_contains($event, 'scheduling') => 'Patient Care Assignment',
+            str_contains($event, 'security-administration') => 'Security Administration',
+            default => $event,
+        };
+    }
+
+    private function isEnabled(): bool
+    {
+        return $this->enabled && $this->host !== '';
+    }
+}
