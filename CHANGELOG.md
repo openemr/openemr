@@ -1,5 +1,20 @@
 # CHANGELOG.md
 
+## [8.0.0.1](https://github.com/openemr/openemr/milestone/26?closed=1) - 2026-03-11
+
+### Fixed
+- Security fixes
+- Backport #10408 (sms class rename) to rel-800 to fix non-deterministic PHPStan baseline ([#11013](https://github.com/openemr/openemr/issues/11013))
+
+### Changed
+-  Unable to edit/add prescriptions after 7.0.4 upgrade ([#10834](https://github.com/openemr/openemr/issues/10834))
+-  Update path for phpstan baseline artifacts ([#10242](https://github.com/openemr/openemr/pull/10242))
+-  pass encounter/pid in navbar form URLs to prevent stale session ([#10865](https://github.com/openemr/openemr/pull/10865))
+-  voice vendor ID 6 breaks UI after upgrade ([#10947](https://github.com/openemr/openemr/issues/10947))
+-  use AccessDeniedHelper for ACL denial patterns ([#10683](https://github.com/openemr/openemr/pull/10683))
+-  Split conflicting class name definitions ([#10408](https://github.com/openemr/openemr/pull/10408))
+
+
 ## [8.0.0](https://github.com/openemr/openemr/milestone/23?closed=1) - 2026-02-11
 
 ### Added
