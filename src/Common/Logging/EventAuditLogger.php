@@ -38,6 +38,8 @@ class EventAuditLogger
     {
         $site = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
         $opts = DatabaseConnectionOptions::forSite($site);
+        // IMPORTANT: this needs to *not* reuse the main connection for most DB
+        // operations. See note in LogTablesSink.
         $conn = DatabaseConnectionFactory::createDbal($opts, false);
 
         return new self(
