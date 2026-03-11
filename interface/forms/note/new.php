@@ -33,7 +33,7 @@ $form_name = "note";
     <?php Header::setupHeader('datetime-picker'); ?>
     <script>
         // required for textbox date verification
-        const mypcc = <?php echo js_escape(OEGlobalsBag::getInstance()->get('phone_country_code')); ?>;
+        const mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
         $(function () {
             $('.datepicker').datetimepicker({

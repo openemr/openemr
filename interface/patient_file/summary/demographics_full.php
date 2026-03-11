@@ -222,7 +222,7 @@ $CPR = 4; // cells per row
             }
         });
 
-        var mypcc = <?php echo js_escape(OEGlobalsBag::getInstance()->get('phone_country_code')); ?>;
+        var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
         //code used from http://tech.irt.org/articles/js037/
         function replace(string, text, by) {

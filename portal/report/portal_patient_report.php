@@ -67,7 +67,7 @@ $twig = (new TwigContainer(null, $globalsBag->getKernel()))->getTwig();
 $issues = [];
 $data = [];
 try {
-    $data['phone_country_code'] = $globalsBag->get('phone_country_code') ?? '';
+    $data['phone_country_code'] = $globalsBag->getInt('phone_country_code');
     $data['returnurl'] = (!empty($returnurl)) ? "$rootdir/patient_file/encounter/$returnurl" : '';
     $data['issues'] = $portalPatientReportController->getIssues($ISSUE_TYPES, $pid);
     $data['encounters'] = $portalPatientReportController->getEncounters($pid);

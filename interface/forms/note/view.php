@@ -40,7 +40,7 @@ if ($_GET['id'] != "") {
 
 <script>
 // required for textbox date verification
-var mypcc = <?php echo js_escape(OEGlobalsBag::getInstance()->get('phone_country_code')); ?>;
+var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
 $(function () {
             $('.datepicker').datetimepicker({

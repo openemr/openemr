@@ -387,7 +387,7 @@ try {
         'pastAppointmentCount' => $pastCount ?? null,
         'displayLimitLabel' => xl('Display limit reached'),
         'site_id' => $session->get('site_id', null) ?? ($_GET['site'] ?? 'default'), // one way or another, we will have a site_id.
-        'portal_timeout' => $globalsBag->get('portal_timeout') ?? 1800, // timeout is in seconds
+        'portal_timeout' => $globalsBag->getInt('portal_timeout'), // timeout is in seconds
         'language_defs' => $language_defs,
         'current_theme' => $current_theme,
         'styleArray' => $styleArray,

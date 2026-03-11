@@ -1154,7 +1154,7 @@ function fixDate($date, $default = "0000-00-00")
             // Determine if MDY date format is used, preferring Date Display Format from
             // global settings if it's not YMD, otherwise guessing from country code.
             $using_mdy = empty(OEGlobalsBag::getInstance()->get('date_display_format')) ?
-                (OEGlobalsBag::getInstance()->get('phone_country_code') == 1) : (OEGlobalsBag::getInstance()->get('date_display_format') == 1);
+                (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1) : (OEGlobalsBag::getInstance()->get('date_display_format') == 1);
             if ($using_mdy) {
                 $fixed_date = sprintf("%04u-%02u-%02u", $dmy[2], $dmy[0], $dmy[1]);
             } else {

@@ -98,7 +98,7 @@ echo $twig->render(
         ,'insuranceProviderList' => $insurancei
         ,'enableSwapSecondaryInsurance' => OEGlobalsBag::getInstance()->getBoolean('enable_swap_secondary_insurance')
         ,'include_employers' => !OEGlobalsBag::getInstance()->getBoolean('omit_employers') === true
-        ,'useStateTerminology' => OEGlobalsBag::getInstance()->get('phone_country_code') === '1'
+        ,'useStateTerminology' => OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1
         ,'state_list' => OEGlobalsBag::getInstance()->get('state_list')
         ,'state_data_type' => $state_data_type
         ,'country_data_type' => $country_data_type

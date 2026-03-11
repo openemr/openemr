@@ -145,7 +145,7 @@ class EmailClient extends AppDispatch
             throw new SmtpNotConfiguredException(sprintf(
                 "SMTP not configured (SMTP_HOST=%s, SMTP_PORT=%s, SMTP_USER=%s)",
                 OEGlobalsBag::getInstance()->get('SMTP_HOST') ?? 'NOT_SET',
-                OEGlobalsBag::getInstance()->get('SMTP_PORT') ?? 'NOT_SET',
+                OEGlobalsBag::getInstance()->getInt('SMTP_PORT'),
                 !empty(OEGlobalsBag::getInstance()->get('SMTP_USER')) ? 'SET' : 'NOT_SET'
             ));
         }

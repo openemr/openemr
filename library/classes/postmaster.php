@@ -194,7 +194,7 @@ class MyMailer extends PHPMailer
                 $this->Username = OEGlobalsBag::getInstance()->get('SMTP_USER');
                 $cryptoGen = ServiceContainer::getCrypto();
                 $this->Password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('SMTP_PASS'));
-                $this->Port = OEGlobalsBag::getInstance()->get('SMTP_PORT');
+                $this->Port = OEGlobalsBag::getInstance()->getInt('SMTP_PORT');
                 $this->SMTPSecure = OEGlobalsBag::getInstance()->get('SMTP_SECURE');
                 break;
             case "SENDMAIL":

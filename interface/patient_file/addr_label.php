@@ -39,9 +39,9 @@ $x_width =  OEGlobalsBag::getInstance()->get('env_x_width');
 $y_height = OEGlobalsBag::getInstance()->get('env_y_height');
 
 //printed text details
-$font_size = OEGlobalsBag::getInstance()->get('env_font_size');
-$x         = OEGlobalsBag::getInstance()->get('env_x_dist');  // Distance from the 'top' of the envelope in portrait position
-$y         = OEGlobalsBag::getInstance()->get('env_y_dist'); // Distance from the right most edge of the envelope in portrait position
+$font_size = OEGlobalsBag::getInstance()->getInt('env_font_size');
+$x         = OEGlobalsBag::getInstance()->getInt('env_x_dist');  // Distance from the 'top' of the envelope in portrait position
+$y         = OEGlobalsBag::getInstance()->getInt('env_y_dist'); // Distance from the right most edge of the envelope in portrait position
 $angle    = 90;   // rotation in degrees
 $black    = '000000'; // color in hexa
 

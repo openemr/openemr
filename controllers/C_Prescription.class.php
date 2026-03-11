@@ -782,10 +782,12 @@ class C_Prescription extends Controller
 
         $pdf->ezSetY($my_y);
         $pdf->ezText($d, 10);
-        $pdf->ez['leftMargin'] = OEGlobalsBag::getInstance()->get('rx_left_margin');
-        $pdf->ez['rightMargin'] = OEGlobalsBag::getInstance()->get('rx_right_margin');
+        $pdf->ez['leftMargin'] = OEGlobalsBag::getInstance()->getInt('rx_left_margin');
+        $pdf->ez['rightMargin'] = OEGlobalsBag::getInstance()->getInt('rx_right_margin');
         $pdf->ezText('');
-        $pdf->line($pdf->ez['leftMargin'], $pdf->y, $pdf->ez['pageWidth'] - $pdf->ez['rightMargin'], $pdf->y);
+        /** @var int $pageWidth */
+        $pageWidth = $pdf->ez['pageWidth'];
+        $pdf->line($pdf->ez['leftMargin'], $pdf->y, $pageWidth - $pdf->ez['rightMargin'], $pdf->y);
         $pdf->ezText('');
     }
 
@@ -1018,7 +1020,7 @@ class C_Prescription extends Controller
     function print_prescription($p, &$toFile)
     {
         $pdf = new Cezpdf(OEGlobalsBag::getInstance()->get('rx_paper_size'));
-        $pdf->ezSetMargins(OEGlobalsBag::getInstance()->get('rx_top_margin'), OEGlobalsBag::getInstance()->get('rx_bottom_margin'), OEGlobalsBag::getInstance()->get('rx_left_margin'), OEGlobalsBag::getInstance()->get('rx_right_margin'));
+        $pdf->ezSetMargins(OEGlobalsBag::getInstance()->getInt('rx_top_margin'), OEGlobalsBag::getInstance()->getInt('rx_bottom_margin'), OEGlobalsBag::getInstance()->getInt('rx_left_margin'), OEGlobalsBag::getInstance()->getInt('rx_right_margin'));
 
         $pdf->selectFont('Helvetica');
 
@@ -1173,7 +1175,7 @@ class C_Prescription extends Controller
     private function generatePdfObjectForPrescriptionIds(mixed $id): array
     {
         $pdf = new Cezpdf(OEGlobalsBag::getInstance()->get('rx_paper_size'));
-        $pdf->ezSetMargins(OEGlobalsBag::getInstance()->get('rx_top_margin'), OEGlobalsBag::getInstance()->get('rx_bottom_margin'), OEGlobalsBag::getInstance()->get('rx_left_margin'), OEGlobalsBag::getInstance()->get('rx_right_margin'));
+        $pdf->ezSetMargins(OEGlobalsBag::getInstance()->getInt('rx_top_margin'), OEGlobalsBag::getInstance()->getInt('rx_bottom_margin'), OEGlobalsBag::getInstance()->getInt('rx_left_margin'), OEGlobalsBag::getInstance()->getInt('rx_right_margin'));
         $pdf->selectFont('Helvetica');
 
         // $print_header = true;

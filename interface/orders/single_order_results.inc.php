@@ -415,7 +415,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
 
     <?php if (empty(OEGlobalsBag::getInstance()->get('PATIENT_REPORT_ACTIVE'))) { ?>
 <script>
-    var mypcc = <?php echo js_escape(OEGlobalsBag::getInstance()->get('phone_country_code')); ?>;
+    var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
     if (typeof top.webroot_url === "undefined") {
         if (typeof opener.top.webroot_url !== "undefined") {
             top.webroot_url = opener.top.webroot_url;

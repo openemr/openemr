@@ -99,7 +99,7 @@ function dateSearch($sSearch)
     // Determine if MDY date format is used, preferring Date Display Format from
     // global settings if it's not YMD, otherwise guessing from country code.
     $mdy = empty(OEGlobalsBag::getInstance()->get('date_display_format')) ?
-        (OEGlobalsBag::getInstance()->get('phone_country_code') == 1) : (OEGlobalsBag::getInstance()->get('date_display_format') == 1);
+        (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1) : (OEGlobalsBag::getInstance()->get('date_display_format') == 1);
     // If no delimiters then just search the whole date.
     $mystr = "%$sSearch%";
     if (preg_match('/[^0-9]/', (string) $sSearch)) {
