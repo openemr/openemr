@@ -112,6 +112,7 @@ class LogTablesSink
             $checksumGenerateApi,
             '4',
         ];
+        QueryUtils::sqlInsert($logCommentSql, $logCommentParams);
 
         // 3. if api log entry, then insert insert associated entry into api_log
         if ($event->api !== null) {
