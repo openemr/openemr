@@ -30,7 +30,14 @@ class PHPSessionWrapper implements SessionWrapperInterface
         $globalsBag = OEGlobalsBag::getInstance();
         // Empty webroot is valid - means OpenEMR is at document root
         $webroot = $globalsBag->get('webroot') ?? '';
-        SessionUtil::coreSessionStart($webroot, false);
+
+        // Respect sessionAllowWrite global: if not set/empty, open in read-only mode.
+        // This follows the pattern in globals.php: $read_only = empty($sessionAllowWrite)
+        // Allows read_and_close mechanism to reduce session lock contention on concurrent requests.
+        $sessionAllowWrite = $globalsBag->get('sessionAllowWrite');
+        $readOnly = empty($sessionAllowWrite);
+
+        SessionUtil::coreSessionStart($webroot, $readOnly);
     }
 
     public function getId(): string
