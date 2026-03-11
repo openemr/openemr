@@ -4,12 +4,37 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Logging\Audit;
 
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
 
 class LogTablesSink
 {
+    /**
+     * If $crypto is set, the api body data will be stored encrypted and
+     * marked as such. If null, they will be blanked out.
+     */
+    public function __construct(
+        private CryptoInterface $crypto,
+        private bool $shouldEncrypt,
+    ) {
+    }
+
     public function record(Event $event): bool
     {
+        $api = $event->api;
+        if ($this->shouldEncrypt) {
+            $comments = $this->crypto->encryptStandard($event->comments);
+            if ($api !== null) {
+                $api['request_url'] = ($api['request_url'] === '') ? '' : $this->crypto->encryptStandard($api['request_url']);
+                // other two
+            }
+        } else {
+            $comments = base64_encode($event->comments);
+            // Should this blank out the api fields? Previous behavior was that
+            // it did not.
+        }
+
+
         // 1. insert entry into log table
         $logSql = <<<SQL
         INSERT INTO `log` (
@@ -34,7 +59,7 @@ class LogTablesSink
             $event->category,
             $event->user,
             $event->group,
-            $event->comments,
+            $comments,
             $event->user_notes,
             $event->patientId,
             $event->success,
@@ -81,7 +106,7 @@ class LogTablesSink
         SQL;
         $logCommentParams = [
             $lastLogId,
-            $encrypt,
+            $this->shouldEncrypt ? 'Yes' : 'No', // DB is a Yes/No enum instead of bool :(
             $checksum,
             $checksumGenerateApi,
             '4',
