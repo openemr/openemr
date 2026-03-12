@@ -143,7 +143,7 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="lang_id">lang_id</span></td>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="lang_id">lang_id</span></td>
                                     <td>INT</td>
                                     <td>10</td>
                                     <td title=''></td>
@@ -218,6 +218,12 @@
                                     <td><span title='Ascending'>Asc</span></td>
                                     <td>def_id</td>
                                 </tr>
+                                <tr>
+                                    <td title='Indexed'>lang_cons</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span></td>
+                                    <td>lang_id + cons_id</td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div><!-- /.box-body -->
@@ -239,8 +245,10 @@
                                 </ul>
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
-                                        
-                                        <a name='diagram'><object type="image/svg+xml" id="oneDegreeImg" data="../diagrams/tables/lang_definitions.1degree.svg" class="diagram" border="0" align="left"></object></a>
+                                        <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
+<area shape="rect" id="node1" href="lang_definitions.html" target="_top" title="lang_definitions" alt="" coords="5,5,384,196">
+</map>
+                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/lang_definitions.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                 </div>
                             </div>

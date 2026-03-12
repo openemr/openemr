@@ -124,11 +124,11 @@
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="id">id</span></td>
-                                    <td>INT</td>
-                                    <td>10</td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="created_by">created_by</span></td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
                                     <td title=''></td>
-                                    <td title='Automatically updated by the database'>√</td>
+                                    <td title=''></td>
                                     <td>null</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
@@ -136,31 +136,19 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="care_team.created_by references users.id"><a href='users.html'>users</a><span class='relatedKey'>.id</span></td>
+                                                <td class="constraint detail">Defined in XML</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="uuid">uuid</span></td>
-                                    <td>BINARY</td>
-                                    <td>16</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>NULL</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
+                                    <td><p>The id of the user that initially created this record</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="pid">pid</span></td>
-                                    <td>INT</td>
-                                    <td>10</td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
                                     <td title=''></td>
                                     <td title=''></td>
                                     <td>null</td>
@@ -181,11 +169,11 @@
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="status">status</span></td>
-                                    <td>VARCHAR</td>
-                                    <td>100</td>
-                                    <td title='nullable'>√</td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
                                     <td title=''></td>
-                                    <td>&#39;active&#39;</td>
+                                    <td title=''></td>
+                                    <td>null</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -202,102 +190,12 @@
                                     <td><p>fk to list_options.option_id WHERE list_options.list_id=&lsquo;Care_Team_Status&rsquo;</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="team_name">team_name</span></td>
-                                    <td>VARCHAR</td>
-                                    <td>255</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>NULL</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="note">note</span></td>
-                                    <td>TEXT</td>
-                                    <td>65535</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>NULL</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="date_created">date_created</span></td>
-                                    <td>DATETIME</td>
-                                    <td>19</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>current_timestamp()</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="date_updated">date_updated</span></td>
-                                    <td>DATETIME</td>
-                                    <td>19</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>current_timestamp()</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="created_by">created_by</span></td>
-                                    <td>BIGINT</td>
-                                    <td>19</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>NULL</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                            <tr>
-                                                <td title="care_team.created_by references users.id"><a href='users.html'>users</a><span class='relatedKey'>.id</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                    <td><p>The id of the user that initially created this record</p></td>
-                                </tr>
-                                <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="updated_by">updated_by</span></td>
-                                    <td>BIGINT</td>
-                                    <td>19</td>
-                                    <td title='nullable'>√</td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
                                     <td title=''></td>
-                                    <td>NULL</td>
+                                    <td title=''></td>
+                                    <td>null</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -319,48 +217,6 @@
                     </div>
                     <div class="box box-primary">
                         <div class="box-header with-border">
-                            <i class="fa fa-sitemap"></i>
-                            <h3 id="Indexes" class="box-title">Indexes</h3>
-                            <div class="box-tools pull-right">
-                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
-                            </div>
-                        </div>
-                        <div class="box-body">
-                            <table
-                                    id="indexes_table"
-                                    class="table table-bordered table-striped dataTable"
-                                    role="grid"
-                                    data-paging="false"
-                                    data-page-length="10"
-                                    data-length-change="false">
-                                <thead>
-                                <tr>
-                                    <th>Constraint Name</th>
-                                    <th>Type</th>
-                                    <th>Sort</th>
-                                    <th>Column(s)</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr>
-                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey'></i> PRIMARY</td>
-                                    <td>Primary key</td>
-                                    <td><span title='Ascending'>Asc</span></td>
-                                    <td>id</td>
-                                </tr>
-                                <tr>
-                                    <td class='uniqueKey' title='Unique Key'><i class='icon ion-key iconkey'></i> uuid</td>
-                                    <td>Must be unique</td>
-                                    <td><span title='Ascending'>Asc</span></td>
-                                    <td>uuid</td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div><!-- /.box-body -->
-                    </div>
-                    <div class="box box-primary">
-                        <div class="box-header with-border">
                             <i class="fa fa-code-fork"></i>
                             <h3 id="Relationships" class="box-title">Relationships</h3>
                             <div class="box-tools pull-right">
@@ -377,12 +233,138 @@
                                 </ul>
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
-                                        
-                                        <a name='diagram'><object type="image/svg+xml" id="oneDegreeImg" data="../diagrams/tables/care_team.1degree.svg" class="diagram" border="0" align="left"></object></a>
+                                        <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
+<area shape="rect" id="node1" href="care_team.html" target="_top" title="care_team" alt="" coords="728,143,985,333">
+<area shape="rect" id="node2" href="users.html" target="_top" title="users" alt="" coords="5,247,249,546">
+<area shape="rect" id="node3" href="patient_data.html" target="_top" title="patient_data" alt="" coords="293,84,684,618">
+<area shape="rect" id="node4" href="list_options.html" target="_top" title="list_options" alt="" coords="29,564,226,717">
+</map>
+                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/care_team.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
-                                        
-                                        <a name='diagram'><object type="image/svg+xml" id="twodegreesDegreeImg" data="../diagrams/tables/care_team.2degrees.svg" class="diagram" border="0" align="left"></object></a>
+                                        <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
+<area shape="rect" id="node1" href="amendments.html" target="_top" title="amendments" alt="" coords="942,316,1142,410">
+<area shape="rect" id="node2" href="list_options.html" target="_top" title="list_options" alt="" coords="195,6252,381,6346">
+<area shape="rect" id="node3" href="users.html" target="_top" title="users" alt="" coords="222,8348,354,8442">
+<area shape="rect" id="node4" href="patient_data.html" target="_top" title="patient_data" alt="" coords="493,5487,690,5581">
+<area shape="rect" id="node12" href="facility.html" target="_top" title="facility" alt="" coords="5,10900,150,10994">
+<area shape="rect" id="node99" href="pharmacies.html" target="_top" title="pharmacies" alt="" coords="194,6472,382,6566">
+<area shape="rect" id="node5" href="amendments_history.html" target="_top" title="amendments_history" alt="" coords="1380,84,1652,178">
+<area shape="rect" id="node6" href="ar_activity.html" target="_top" title="ar_activity" alt="" coords="1427,1185,1604,1279">
+<area shape="rect" id="node7" href="form_encounter.html" target="_top" title="form_encounter" alt="" coords="930,5336,1155,5430">
+<area shape="rect" id="node8" href="ar_session.html" target="_top" title="ar_session" alt="" coords="954,428,1131,522">
+<area shape="rect" id="node9" href="billing.html" target="_top" title="billing" alt="" coords="1446,5336,1586,5430">
+<area shape="rect" id="node10" href="groups.html" target="_top" title="groups" alt="" coords="518,9148,664,9242">
+<area shape="rect" id="node11" href="care_team_member.html" target="_top" title="care_team_member" alt="" coords="913,7243,1171,7337">
+<area shape="rect" id="node13" href="claims.html" target="_top" title="claims" alt="" coords="1445,1829,1586,1923">
+<area shape="rect" id="node14" href="clinical_notes_documents.html" target="_top" title="clinical_notes_documents" alt="" coords="1793,959,2105,1053">
+<area shape="rect" id="node15" href="form_clinical_notes.html" target="_top" title="form_clinical_notes" alt="" coords="914,695,1170,789">
+<area shape="rect" id="node16" href="documents.html" target="_top" title="documents" alt="" coords="1425,1368,1607,1462">
+<area shape="rect" id="node23" href="lists.html" target="_top" title="lists" alt="" coords="982,6137,1103,6231">
+<area shape="rect" id="node17" href="clinical_notes_procedure_results.html" target="_top" title="clinical_notes_procedure_results" alt="" coords="1328,1587,1704,1681">
+<area shape="rect" id="node18" href="clinical_plans.html" target="_top" title="clinical_plans" alt="" coords="941,1653,1143,1747">
+<area shape="rect" id="node19" href="contact_address.html" target="_top" title="contact_address" alt="" coords="476,7363,706,7457">
+<area shape="rect" id="node20" href="contact_relation.html" target="_top" title="contact_relation" alt="" coords="477,7216,706,7310">
+<area shape="rect" id="node21" href="contact_telecom.html" target="_top" title="contact_telecom" alt="" coords="476,5,706,99">
+<area shape="rect" id="node22" href="document_templates.html" target="_top" title="document_templates" alt="" coords="906,1765,1178,1859">
+<area shape="rect" id="node24" href="drug_sales.html" target="_top" title="drug_sales" alt="" coords="1426,6025,1606,6119">
+<area shape="rect" id="node25" href="employer_data.html" target="_top" title="employer_data" alt="" coords="934,6585,1150,6679">
+<area shape="rect" id="node26" href="esign_signatures.html" target="_top" title="esign_signatures" alt="" coords="473,10769,709,10863">
+<area shape="rect" id="node27" href="extended_log.html" target="_top" title="extended_log" alt="" coords="940,1948,1144,2042">
+<area shape="rect" id="node28" href="external_encounters.html" target="_top" title="external_encounters" alt="" coords="908,2060,1176,2154">
+<area shape="rect" id="node29" href="external_procedures.html" target="_top" title="external_procedures" alt="" coords="1382,3463,1650,3557">
+<area shape="rect" id="node30" href="form_care_plan.html" target="_top" title="form_care_plan" alt="" coords="932,6249,1152,6343">
+<area shape="rect" id="node31" href="form_clinical_instructions.html" target="_top" title="form_clinical_instructions" alt="" coords="886,2243,1199,2337">
+<area shape="rect" id="node32" href="form_dictation.html" target="_top" title="form_dictation" alt="" coords="935,2355,1149,2449">
+<area shape="rect" id="node33" href="form_eye_acuity.html" target="_top" title="form_eye_acuity" alt="" coords="928,2467,1157,2561">
+<area shape="rect" id="node34" href="form_eye_antseg.html" target="_top" title="form_eye_antseg" alt="" coords="924,2579,1160,2673">
+<area shape="rect" id="node35" href="form_eye_base.html" target="_top" title="form_eye_base" alt="" coords="934,2691,1150,2785">
+<area shape="rect" id="node36" href="form_eye_biometrics.html" target="_top" title="form_eye_biometrics" alt="" coords="908,2803,1177,2897">
+<area shape="rect" id="node37" href="form_eye_external.html" target="_top" title="form_eye_external" alt="" coords="918,2915,1167,3009">
+<area shape="rect" id="node38" href="form_eye_hpi.html" target="_top" title="form_eye_hpi" alt="" coords="941,3027,1143,3121">
+<area shape="rect" id="node39" href="form_eye_locking.html" target="_top" title="form_eye_locking" alt="" coords="923,3139,1161,3233">
+<area shape="rect" id="node40" href="form_eye_mag_dispense.html" target="_top" title="form_eye_mag_dispense" alt="" coords="892,3251,1193,3345">
+<area shape="rect" id="node41" href="form_eye_mag_impplan.html" target="_top" title="form_eye_mag_impplan" alt="" coords="896,3363,1189,3457">
+<area shape="rect" id="node42" href="form_eye_mag_orders.html" target="_top" title="form_eye_mag_orders" alt="" coords="902,3475,1182,3569">
+<area shape="rect" id="node43" href="form_eye_mag_wearing.html" target="_top" title="form_eye_mag_wearing" alt="" coords="896,3587,1189,3681">
+<area shape="rect" id="node44" href="form_eye_neuro.html" target="_top" title="form_eye_neuro" alt="" coords="929,3699,1155,3793">
+<area shape="rect" id="node45" href="form_eye_postseg.html" target="_top" title="form_eye_postseg" alt="" coords="920,3811,1165,3905">
+<area shape="rect" id="node46" href="form_eye_refraction.html" target="_top" title="form_eye_refraction" alt="" coords="910,3923,1174,4017">
+<area shape="rect" id="node47" href="form_eye_ros.html" target="_top" title="form_eye_ros" alt="" coords="941,4035,1143,4129">
+<area shape="rect" id="node48" href="form_eye_vitals.html" target="_top" title="form_eye_vitals" alt="" coords="930,4147,1154,4241">
+<area shape="rect" id="node49" href="form_functional_cognitive_status.html" target="_top" title="form_functional_cognitive_status" alt="" coords="852,4259,1232,4353">
+<area shape="rect" id="node50" href="form_group_attendance.html" target="_top" title="form_group_attendance" alt="" coords="2194,10476,2491,10570">
+<area shape="rect" id="node51" href="form_groups_encounter.html" target="_top" title="form_groups_encounter" alt="" coords="1801,10977,2097,11071">
+<area shape="rect" id="node52" href="forms.html" target="_top" title="forms" alt="" coords="1448,8939,1584,9033">
+<area shape="rect" id="node53" href="openemr_postcalendar_events.html" target="_top" title="openemr_postcalendar_events" alt="" coords="864,10920,1221,11014">
+<area shape="rect" id="node54" href="form_history_sdoh.html" target="_top" title="form_history_sdoh" alt="" coords="1392,885,1640,979">
+<area shape="rect" id="node55" href="form_history_sdoh_health_concerns.html" target="_top" title="form_history_sdoh_health_concerns" alt="" coords="1748,6208,2150,6302">
+<area shape="rect" id="node56" href="form_misc_billing_options.html" target="_top" title="form_misc_billing_options" alt="" coords="1359,3765,1673,3859">
+<area shape="rect" id="node57" href="form_observation.html" target="_top" title="form_observation" alt="" coords="1828,6923,2069,7017">
+<area shape="rect" id="node58" href="questionnaire_repository.html" target="_top" title="questionnaire_repository" alt="" coords="888,7621,1197,7715">
+<area shape="rect" id="node59" href="form_questionnaire_assessments.html" target="_top" title="form_questionnaire_assessments" alt="" coords="1758,7604,2140,7698">
+<area shape="rect" id="node60" href="questionnaire_response.html" target="_top" title="questionnaire_response" alt="" coords="1367,7568,1665,7662">
+<area shape="rect" id="node61" href="form_reviewofs.html" target="_top" title="form_reviewofs" alt="" coords="932,4371,1153,4465">
+<area shape="rect" id="node62" href="form_ros.html" target="_top" title="form_ros" alt="" coords="961,4483,1123,4577">
+<area shape="rect" id="node63" href="form_soap.html" target="_top" title="form_soap" alt="" coords="954,4595,1130,4689">
+<area shape="rect" id="node64" href="form_taskman.html" target="_top" title="form_taskman" alt="" coords="937,4707,1147,4801">
+<area shape="rect" id="node65" href="form_vital_details.html" target="_top" title="form_vital_details" alt="" coords="1395,7952,1637,8046">
+<area shape="rect" id="node66" href="form_vitals.html" target="_top" title="form_vitals" alt="" coords="951,8541,1133,8635">
+<area shape="rect" id="node67" href="form_vitals_calculation.html" target="_top" title="form_vitals_calculation" alt="" coords="1371,4257,1660,4351">
+<area shape="rect" id="node68" href="history_data.html" target="_top" title="history_data" alt="" coords="944,8072,1140,8166">
+<area shape="rect" id="node69" href="immunization_observation.html" target="_top" title="immunization_observation" alt="" coords="1788,847,2109,941">
+<area shape="rect" id="node70" href="immunizations.html" target="_top" title="immunizations" alt="" coords="1408,196,1624,290">
+<area shape="rect" id="node71" href="insurance_data.html" target="_top" title="insurance_data" alt="" coords="932,4853,1152,4947">
+<area shape="rect" id="node72" href="issue_encounter.html" target="_top" title="issue_encounter" alt="" coords="1401,6137,1630,6231">
+<area shape="rect" id="node73" href="lists_medication.html" target="_top" title="lists_medication" alt="" coords="1401,8167,1630,8261">
+<area shape="rect" id="node74" href="prescriptions.html" target="_top" title="prescriptions" alt="" coords="941,8267,1143,8361">
+<area shape="rect" id="node75" href="medex_recalls.html" target="_top" title="medex_recalls" alt="" coords="937,11083,1147,11177">
+<area shape="rect" id="node76" href="notes.html" target="_top" title="notes" alt="" coords="1882,6321,2015,6415">
+<area shape="rect" id="node77" href="onsite_documents.html" target="_top" title="onsite_documents" alt="" coords="1393,6547,1639,6641">
+<area shape="rect" id="node78" href="onsite_portal_activity.html" target="_top" title="onsite_portal_activity" alt="" coords="904,5000,1181,5094">
+<area shape="rect" id="node79" href="onsite_signatures.html" target="_top" title="onsite_signatures" alt="" coords="1395,5129,1637,5223">
+<area shape="rect" id="node80" href="care_team.html" target="_top" title="care_team" alt="" coords="914,10552,1171,10742">
+<area shape="rect" id="node81" href="form_aftercare_plan.html" target="_top" title="form_aftercare_plan" alt="" coords="910,8776,1174,8870">
+<area shape="rect" id="node82" href="form_ankleinjury.html" target="_top" title="form_ankleinjury" alt="" coords="925,8888,1159,8982">
+<area shape="rect" id="node83" href="form_bronchitis.html" target="_top" title="form_bronchitis" alt="" coords="930,9000,1154,9094">
+<area shape="rect" id="node84" href="form_CAMOS.html" target="_top" title="form_CAMOS" alt="" coords="943,5112,1141,5206">
+<area shape="rect" id="node85" href="form_CAMOS_category.html" target="_top" title="form_CAMOS_category" alt="" coords="899,9112,1185,9206">
+<area shape="rect" id="node86" href="form_CAMOS_item.html" target="_top" title="form_CAMOS_item" alt="" coords="918,9259,1166,9353">
+<area shape="rect" id="node87" href="form_CAMOS_subcategory.html" target="_top" title="form_CAMOS_subcategory" alt="" coords="883,5224,1201,5318">
+<area shape="rect" id="node88" href="form_gad7.html" target="_top" title="form_gad7" alt="" coords="1860,9497,2038,9591">
+<area shape="rect" id="node89" href="form_note.html" target="_top" title="form_note" alt="" coords="1862,6436,2036,6530">
+<area shape="rect" id="node90" href="form_painmap.html" target="_top" title="form_painmap" alt="" coords="1843,9207,2055,9301">
+<area shape="rect" id="node91" href="form_phq9.html" target="_top" title="form_phq9" alt="" coords="1860,8873,2038,8967">
+<area shape="rect" id="node92" href="form_prior_auth.html" target="_top" title="form_prior_auth" alt="" coords="1836,6553,2062,6647">
+<area shape="rect" id="node93" href="form_sdoh.html" target="_top" title="form_sdoh" alt="" coords="1860,9364,2037,9458">
+<area shape="rect" id="node94" href="form_track_anything.html" target="_top" title="form_track_anything" alt="" coords="1815,6676,2083,6770">
+<area shape="rect" id="node95" href="form_transfer_summary.html" target="_top" title="form_transfer_summary" alt="" coords="1800,6809,2098,6903">
+<area shape="rect" id="node96" href="form_treatment_plan.html" target="_top" title="form_treatment_plan" alt="" coords="1813,9072,2085,9166">
+<area shape="rect" id="node97" href="patient_access_onsite.html" target="_top" title="patient_access_onsite" alt="" coords="902,5448,1182,5542">
+<area shape="rect" id="node98" href="patient_care_experience_preferences.html" target="_top" title="patient_care_experience_preferences" alt="" coords="833,6361,1251,6455">
+<area shape="rect" id="node100" href="patient_history.html" target="_top" title="patient_history" alt="" coords="932,9785,1152,9879">
+<area shape="rect" id="node101" href="patient_reminders.html" target="_top" title="patient_reminders" alt="" coords="918,6697,1166,6791">
+<area shape="rect" id="node102" href="rule_action_item.html" target="_top" title="rule_action_item" alt="" coords="475,6581,707,6675">
+<area shape="rect" id="node103" href="patient_tracker.html" target="_top" title="patient_tracker" alt="" coords="1405,10548,1626,10642">
+<area shape="rect" id="node104" href="patient_tracker_element.html" target="_top" title="patient_tracker_element" alt="" coords="1797,10627,2101,10721">
+<area shape="rect" id="node105" href="patient_treatment_intervention__11811af1.html" target="_top" title="patient_treatment_intervention_preferences" alt="" coords="800,6473,1284,6567">
+<area shape="rect" id="node106" href="person.html" target="_top" title="person" alt="" coords="519,10551,664,10645">
+<area shape="rect" id="node107" href="person_patient_link.html" target="_top" title="person_patient_link" alt="" coords="912,10440,1172,10534">
+<area shape="rect" id="node108" href="pnotes.html" target="_top" title="pnotes" alt="" coords="970,8429,1115,8523">
+<area shape="rect" id="node109" href="pro_assessments.html" target="_top" title="pro_assessments" alt="" coords="924,7008,1161,7102">
+<area shape="rect" id="node110" href="procedure_order.html" target="_top" title="procedure_order" alt="" coords="1399,9645,1632,9739">
+<area shape="rect" id="node111" href="procedure_report.html" target="_top" title="procedure_report" alt="" coords="1829,9645,2069,9739">
+<area shape="rect" id="node112" href="procedure_specimen.html" target="_top" title="procedure_specimen" alt="" coords="1814,9880,2083,9974">
+<area shape="rect" id="node113" href="procedure_type.html" target="_top" title="procedure_type" alt="" coords="479,488,703,582">
+<area shape="rect" id="node114" href="rule_patient_data.html" target="_top" title="rule_patient_data" alt="" coords="922,6809,1163,6903">
+<area shape="rect" id="node115" href="shared_attributes.html" target="_top" title="shared_attributes" alt="" coords="1394,5667,1638,5761">
+<area shape="rect" id="node116" href="therapy_groups_counselors.html" target="_top" title="therapy_groups_counselors" alt="" coords="426,10120,756,10214">
+<area shape="rect" id="node117" href="therapy_groups_participant_attendance.html" target="_top" title="therapy_groups_participant_attendance" alt="" coords="2535,10400,2977,10494">
+<area shape="rect" id="node118" href="therapy_groups_participants.html" target="_top" title="therapy_groups_participants" alt="" coords="872,5595,1213,5689">
+<area shape="rect" id="node119" href="transactions.html" target="_top" title="transactions" alt="" coords="944,5707,1140,5801">
+<area shape="rect" id="node120" href="voids.html" target="_top" title="voids" alt="" coords="1451,5779,1581,5873">
+</map>
+                                        <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/care_team.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                 </div>
                             </div>

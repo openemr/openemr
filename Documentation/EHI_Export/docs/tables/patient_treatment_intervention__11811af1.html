@@ -177,7 +177,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>fk to patient_data.pid</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="observation_code">observation_code</span></td>
@@ -255,7 +255,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>fk to preference_value_sets.answer_code</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="value_code_system">value_code_system</span></td>
@@ -277,7 +277,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>fk to preference_value_sets.answer_system</p></td>
                                 </tr>
                                 <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="value_display">value_display</span></td>
@@ -299,7 +299,7 @@
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>fk to preference_value_sets.answer_display</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="value_text">value_text</span></td>
@@ -367,7 +367,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>valid options are final,amended,preliminary</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="note">note</span></td>
@@ -468,12 +468,128 @@
                                 </ul>
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
-                                        
-                                        <a name='diagram'><object type="image/svg+xml" id="oneDegreeImg" data="../diagrams/tables/patient_treatment_intervention__11811af1.1degree.svg" class="diagram" border="0" align="left"></object></a>
+                                        <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
+<area shape="rect" id="node1" href="patient_data.html" target="_top" title="patient_data" alt="" coords="247,5,637,539">
+<area shape="rect" id="node2" href="list_options.html" target="_top" title="list_options" alt="" coords="5,372,203,525">
+<area shape="rect" id="node3" href="patient_treatment_intervention__11811af1.html" target="_top" title="patient_treatment_intervention_preferences" alt="" coords="681,472,1393,956">
+<area shape="rect" id="node4" href="preference_value_sets.html" target="_top" title="preference_value_sets" alt="" coords="300,592,584,833">
+</map>
+                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/patient_treatment_intervention__11811af1.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
-                                        
-                                        <a name='diagram'><object type="image/svg+xml" id="twodegreesDegreeImg" data="../diagrams/tables/patient_treatment_intervention__11811af1.2degrees.svg" class="diagram" border="0" align="left"></object></a>
+                                        <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
+<area shape="rect" id="node1" href="amendments.html" target="_top" title="amendments" alt="" coords="821,7734,1020,7828">
+<area shape="rect" id="node2" href="list_options.html" target="_top" title="list_options" alt="" coords="6,1417,192,1511">
+<area shape="rect" id="node3" href="users.html" target="_top" title="users" alt="" coords="33,8731,165,8825">
+<area shape="rect" id="node4" href="patient_data.html" target="_top" title="patient_data" alt="" coords="280,4650,477,4744">
+<area shape="rect" id="node91" href="pharmacies.html" target="_top" title="pharmacies" alt="" coords="5,6331,193,6425">
+<area shape="rect" id="node5" href="amendments_history.html" target="_top" title="amendments_history" alt="" coords="1342,7725,1614,7819">
+<area shape="rect" id="node6" href="ar_activity.html" target="_top" title="ar_activity" alt="" coords="1389,6547,1566,6641">
+<area shape="rect" id="node7" href="form_encounter.html" target="_top" title="form_encounter" alt="" coords="808,4085,1033,4179">
+<area shape="rect" id="node8" href="ar_session.html" target="_top" title="ar_session" alt="" coords="832,7487,1009,7581">
+<area shape="rect" id="node9" href="billing.html" target="_top" title="billing" alt="" coords="1408,2697,1548,2791">
+<area shape="rect" id="node10" href="care_team_member.html" target="_top" title="care_team_member" alt="" coords="791,7151,1050,7245">
+<area shape="rect" id="node11" href="claims.html" target="_top" title="claims" alt="" coords="1407,3577,1548,3671">
+<area shape="rect" id="node12" href="clinical_plans.html" target="_top" title="clinical_plans" alt="" coords="819,4375,1022,4469">
+<area shape="rect" id="node13" href="contact_address.html" target="_top" title="contact_address" alt="" coords="264,7803,494,7897">
+<area shape="rect" id="node14" href="contact_relation.html" target="_top" title="contact_relation" alt="" coords="264,7691,493,7785">
+<area shape="rect" id="node15" href="contact_telecom.html" target="_top" title="contact_telecom" alt="" coords="264,1089,494,1183">
+<area shape="rect" id="node16" href="document_templates.html" target="_top" title="document_templates" alt="" coords="785,4487,1056,4581">
+<area shape="rect" id="node17" href="documents.html" target="_top" title="documents" alt="" coords="1386,5359,1569,5453">
+<area shape="rect" id="node18" href="lists.html" target="_top" title="lists" alt="" coords="860,7846,981,7940">
+<area shape="rect" id="node19" href="drug_sales.html" target="_top" title="drug_sales" alt="" coords="1388,3801,1568,3895">
+<area shape="rect" id="node20" href="employer_data.html" target="_top" title="employer_data" alt="" coords="813,6445,1028,6539">
+<area shape="rect" id="node21" href="extended_log.html" target="_top" title="extended_log" alt="" coords="819,4742,1022,4836">
+<area shape="rect" id="node22" href="external_encounters.html" target="_top" title="external_encounters" alt="" coords="787,4854,1054,4948">
+<area shape="rect" id="node23" href="external_procedures.html" target="_top" title="external_procedures" alt="" coords="1344,3689,1612,3783">
+<area shape="rect" id="node24" href="form_care_plan.html" target="_top" title="form_care_plan" alt="" coords="811,6557,1030,6651">
+<area shape="rect" id="node25" href="form_clinical_instructions.html" target="_top" title="form_clinical_instructions" alt="" coords="764,4966,1077,5060">
+<area shape="rect" id="node26" href="form_clinical_notes.html" target="_top" title="form_clinical_notes" alt="" coords="793,6669,1048,6763">
+<area shape="rect" id="node27" href="form_dictation.html" target="_top" title="form_dictation" alt="" coords="813,5078,1028,5172">
+<area shape="rect" id="node28" href="form_eye_acuity.html" target="_top" title="form_eye_acuity" alt="" coords="806,5190,1035,5284">
+<area shape="rect" id="node29" href="form_eye_antseg.html" target="_top" title="form_eye_antseg" alt="" coords="803,5302,1038,5396">
+<area shape="rect" id="node30" href="form_eye_base.html" target="_top" title="form_eye_base" alt="" coords="813,5414,1028,5508">
+<area shape="rect" id="node31" href="form_eye_biometrics.html" target="_top" title="form_eye_biometrics" alt="" coords="786,5526,1055,5620">
+<area shape="rect" id="node32" href="form_eye_external.html" target="_top" title="form_eye_external" alt="" coords="796,5638,1045,5732">
+<area shape="rect" id="node33" href="form_eye_hpi.html" target="_top" title="form_eye_hpi" alt="" coords="819,5750,1022,5844">
+<area shape="rect" id="node34" href="form_eye_locking.html" target="_top" title="form_eye_locking" alt="" coords="801,5862,1040,5956">
+<area shape="rect" id="node35" href="form_eye_mag_dispense.html" target="_top" title="form_eye_mag_dispense" alt="" coords="770,5974,1071,6068">
+<area shape="rect" id="node36" href="form_eye_mag_impplan.html" target="_top" title="form_eye_mag_impplan" alt="" coords="774,1451,1067,1545">
+<area shape="rect" id="node37" href="form_eye_mag_orders.html" target="_top" title="form_eye_mag_orders" alt="" coords="781,1563,1060,1657">
+<area shape="rect" id="node38" href="form_eye_mag_wearing.html" target="_top" title="form_eye_mag_wearing" alt="" coords="774,1675,1067,1769">
+<area shape="rect" id="node39" href="form_eye_neuro.html" target="_top" title="form_eye_neuro" alt="" coords="807,1787,1034,1881">
+<area shape="rect" id="node40" href="form_eye_postseg.html" target="_top" title="form_eye_postseg" alt="" coords="798,1899,1043,1993">
+<area shape="rect" id="node41" href="form_eye_refraction.html" target="_top" title="form_eye_refraction" alt="" coords="789,2011,1052,2105">
+<area shape="rect" id="node42" href="form_eye_ros.html" target="_top" title="form_eye_ros" alt="" coords="819,2123,1022,2217">
+<area shape="rect" id="node43" href="form_eye_vitals.html" target="_top" title="form_eye_vitals" alt="" coords="809,2235,1032,2329">
+<area shape="rect" id="node44" href="form_functional_cognitive_status.html" target="_top" title="form_functional_cognitive_status" alt="" coords="731,2347,1110,2441">
+<area shape="rect" id="node45" href="form_history_sdoh.html" target="_top" title="form_history_sdoh" alt="" coords="1354,561,1602,655">
+<area shape="rect" id="node46" href="form_misc_billing_options.html" target="_top" title="form_misc_billing_options" alt="" coords="1320,4059,1635,4153">
+<area shape="rect" id="node47" href="form_observation.html" target="_top" title="form_observation" alt="" coords="1750,689,1990,783">
+<area shape="rect" id="node48" href="forms.html" target="_top" title="forms" alt="" coords="1410,9877,1546,9971">
+<area shape="rect" id="node49" href="questionnaire_repository.html" target="_top" title="questionnaire_repository" alt="" coords="766,334,1075,428">
+<area shape="rect" id="node50" href="form_questionnaire_assessments.html" target="_top" title="form_questionnaire_assessments" alt="" coords="1679,801,2061,895">
+<area shape="rect" id="node51" href="questionnaire_response.html" target="_top" title="questionnaire_response" alt="" coords="1328,1999,1627,2093">
+<area shape="rect" id="node52" href="form_reviewofs.html" target="_top" title="form_reviewofs" alt="" coords="810,2494,1031,2588">
+<area shape="rect" id="node53" href="form_ros.html" target="_top" title="form_ros" alt="" coords="839,2606,1002,2700">
+<area shape="rect" id="node54" href="form_soap.html" target="_top" title="form_soap" alt="" coords="833,2718,1008,2812">
+<area shape="rect" id="node55" href="form_taskman.html" target="_top" title="form_taskman" alt="" coords="815,2830,1026,2924">
+<area shape="rect" id="node56" href="form_vital_details.html" target="_top" title="form_vital_details" alt="" coords="1356,282,1599,376">
+<area shape="rect" id="node57" href="form_vitals.html" target="_top" title="form_vitals" alt="" coords="829,6781,1012,6875">
+<area shape="rect" id="node58" href="form_vitals_calculation.html" target="_top" title="form_vitals_calculation" alt="" coords="1333,4171,1622,4265">
+<area shape="rect" id="node59" href="history_data.html" target="_top" title="history_data" alt="" coords="823,8301,1018,8395">
+<area shape="rect" id="node60" href="immunization_observation.html" target="_top" title="immunization_observation" alt="" coords="1710,6907,2030,7001">
+<area shape="rect" id="node61" href="immunizations.html" target="_top" title="immunizations" alt="" coords="1370,6907,1586,7001">
+<area shape="rect" id="node62" href="insurance_data.html" target="_top" title="insurance_data" alt="" coords="811,2977,1030,3071">
+<area shape="rect" id="node63" href="issue_encounter.html" target="_top" title="issue_encounter" alt="" coords="1363,7846,1592,7940">
+<area shape="rect" id="node64" href="lists_medication.html" target="_top" title="lists_medication" alt="" coords="1363,7593,1592,7687">
+<area shape="rect" id="node65" href="prescriptions.html" target="_top" title="prescriptions" alt="" coords="819,9085,1022,9179">
+<area shape="rect" id="node66" href="medex_recalls.html" target="_top" title="medex_recalls" alt="" coords="815,8413,1026,8507">
+<area shape="rect" id="node67" href="onsite_documents.html" target="_top" title="onsite_documents" alt="" coords="1354,3947,1601,4041">
+<area shape="rect" id="node68" href="onsite_portal_activity.html" target="_top" title="onsite_portal_activity" alt="" coords="782,3201,1059,3295">
+<area shape="rect" id="node69" href="onsite_signatures.html" target="_top" title="onsite_signatures" alt="" coords="1356,4283,1599,4377">
+<area shape="rect" id="node70" href="care_team.html" target="_top" title="care_team" alt="" coords="833,7375,1008,7469">
+<area shape="rect" id="node71" href="form_aftercare_plan.html" target="_top" title="form_aftercare_plan" alt="" coords="789,8525,1052,8619">
+<area shape="rect" id="node72" href="form_ankleinjury.html" target="_top" title="form_ankleinjury" alt="" coords="803,8637,1038,8731">
+<area shape="rect" id="node73" href="form_bronchitis.html" target="_top" title="form_bronchitis" alt="" coords="809,8749,1032,8843">
+<area shape="rect" id="node74" href="form_CAMOS.html" target="_top" title="form_CAMOS" alt="" coords="821,3347,1020,3441">
+<area shape="rect" id="node75" href="form_CAMOS_category.html" target="_top" title="form_CAMOS_category" alt="" coords="777,8861,1064,8955">
+<area shape="rect" id="node76" href="form_CAMOS_item.html" target="_top" title="form_CAMOS_item" alt="" coords="797,8973,1044,9067">
+<area shape="rect" id="node77" href="form_CAMOS_subcategory.html" target="_top" title="form_CAMOS_subcategory" alt="" coords="761,3459,1080,3553">
+<area shape="rect" id="node78" href="form_gad7.html" target="_top" title="form_gad7" alt="" coords="1781,9877,1959,9971">
+<area shape="rect" id="node79" href="form_note.html" target="_top" title="form_note" alt="" coords="1783,4486,1957,4580">
+<area shape="rect" id="node80" href="form_painmap.html" target="_top" title="form_painmap" alt="" coords="1764,9989,1976,10083">
+<area shape="rect" id="node81" href="form_phq9.html" target="_top" title="form_phq9" alt="" coords="1781,10101,1959,10195">
+<area shape="rect" id="node82" href="form_prior_auth.html" target="_top" title="form_prior_auth" alt="" coords="1757,5585,1983,5679">
+<area shape="rect" id="node83" href="form_sdoh.html" target="_top" title="form_sdoh" alt="" coords="1782,9653,1958,9747">
+<area shape="rect" id="node84" href="form_track_anything.html" target="_top" title="form_track_anything" alt="" coords="1736,5949,2004,6043">
+<area shape="rect" id="node85" href="form_transfer_summary.html" target="_top" title="form_transfer_summary" alt="" coords="1721,6563,2019,6657">
+<area shape="rect" id="node86" href="form_treatment_plan.html" target="_top" title="form_treatment_plan" alt="" coords="1734,9765,2006,9859">
+<area shape="rect" id="node87" href="openemr_postcalendar_events.html" target="_top" title="openemr_postcalendar_events" alt="" coords="742,3089,1099,3183">
+<area shape="rect" id="node88" href="patient_access_onsite.html" target="_top" title="patient_access_onsite" alt="" coords="781,3571,1060,3665">
+<area shape="rect" id="node89" href="patient_care_experience_preferences.html" target="_top" title="patient_care_experience_preferences" alt="" coords="711,10203,1130,10297">
+<area shape="rect" id="node90" href="preference_value_sets.html" target="_top" title="preference_value_sets" alt="" coords="237,10319,521,10560">
+<area shape="rect" id="node92" href="patient_history.html" target="_top" title="patient_history" alt="" coords="811,7263,1030,7357">
+<area shape="rect" id="node93" href="patient_reminders.html" target="_top" title="patient_reminders" alt="" coords="797,7,1044,101">
+<area shape="rect" id="node94" href="rule_action_item.html" target="_top" title="rule_action_item" alt="" coords="263,119,495,213">
+<area shape="rect" id="node95" href="patient_tracker.html" target="_top" title="patient_tracker" alt="" coords="1367,3089,1588,3183">
+<area shape="rect" id="node96" href="patient_tracker_element.html" target="_top" title="patient_tracker_element" alt="" coords="1718,913,2022,1007">
+<area shape="rect" id="node97" href="patient_treatment_intervention__11811af1.html" target="_top" title="patient_treatment_intervention_preferences" alt="" coords="565,10315,1276,10799">
+<area shape="rect" id="node98" href="person_patient_link.html" target="_top" title="person_patient_link" alt="" coords="791,8077,1050,8171">
+<area shape="rect" id="node99" href="pnotes.html" target="_top" title="pnotes" alt="" coords="848,7039,993,7133">
+<area shape="rect" id="node100" href="pro_assessments.html" target="_top" title="pro_assessments" alt="" coords="802,8189,1039,8283">
+<area shape="rect" id="node101" href="procedure_order.html" target="_top" title="procedure_order" alt="" coords="1361,1025,1594,1119">
+<area shape="rect" id="node102" href="procedure_report.html" target="_top" title="procedure_report" alt="" coords="1750,1025,1990,1119">
+<area shape="rect" id="node103" href="procedure_specimen.html" target="_top" title="procedure_specimen" alt="" coords="1736,1137,2004,1231">
+<area shape="rect" id="node104" href="procedure_type.html" target="_top" title="procedure_type" alt="" coords="267,1483,491,1577">
+<area shape="rect" id="node105" href="rule_patient_data.html" target="_top" title="rule_patient_data" alt="" coords="800,119,1041,213">
+<area shape="rect" id="node106" href="shared_attributes.html" target="_top" title="shared_attributes" alt="" coords="1356,4395,1600,4489">
+<area shape="rect" id="node107" href="therapy_groups_participant_attendance.html" target="_top" title="therapy_groups_participant_attendance" alt="" coords="699,1165,1142,1259">
+<area shape="rect" id="node108" href="therapy_groups_participants.html" target="_top" title="therapy_groups_participants" alt="" coords="750,3754,1091,3848">
+<area shape="rect" id="node109" href="transactions.html" target="_top" title="transactions" alt="" coords="823,3866,1018,3960">
+<area shape="rect" id="node110" href="voids.html" target="_top" title="voids" alt="" coords="1412,4507,1543,4601">
+</map>
+                                        <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/patient_treatment_intervention__11811af1.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                 </div>
                             </div>
