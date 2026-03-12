@@ -111,8 +111,8 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
             $fhirSearchResult = $this->searchServices($services, $fhirSearchParameters, $puuidBind);
         } catch (SearchFieldException $exception) {
             $systemLogger = new SystemLogger();
-            $systemLogger->errorLogCaller("exception thrown", ['message' => $exception->getMessage(),
-                'field' => $exception->getField(), 'trace' => $exception->getTraceAsString()]);
+            $systemLogger->error("exception thrown", ['exception' => $exception,
+                'field' => $exception->getField()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }

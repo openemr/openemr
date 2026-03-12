@@ -133,7 +133,7 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
 
             $this->addListOptionsValueSetsForSearch($fhirSearchResult, $fhirSearchParameters, $puuidBind);
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->errorLogCaller("search exception thrown", ['message' => $exception->getMessage(),
+            (new SystemLogger())->error("search exception thrown", ['exception' => $exception,
                 'field' => $exception->getField()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);

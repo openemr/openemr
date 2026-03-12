@@ -190,7 +190,7 @@ class TeleHealthRemoteRegistrationService
                 $userId = $this->userRepository->saveUser($userSaveRecord);
                 $this->logger->debug("Registered user on comlink api ", ['username' => $request->getUsername(), 'id' => $userId]);
             } catch (SqlQueryException $exception) {
-                $this->logger->errorLogCaller("User registered on comlink api but did not save to database", ['record' => $userSaveRecord]);
+                $this->logger->error("User registered on comlink api but did not save to database", ['exception' => $exception, 'record' => $userSaveRecord]);
                 throw $exception;
             }
             return $userId;

@@ -172,7 +172,7 @@ try {
         . "&sdoh_id=" . urlencode((string) $id);
     header("Location: $redirectUrl");
 } catch (\Throwable $e) {
-    $logger->errorLogCaller("Exception saving sdoh record: " . $e->getMessage());
+    $logger->error("Exception saving sdoh record: " . $e->getMessage(), ['exception' => $e]);
     die(xlt("Error saving SDOH record."));
 }
 //header("Location: " . $GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_widget.php?pid=" . urlencode((string) $pid));

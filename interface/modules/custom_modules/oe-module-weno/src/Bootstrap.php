@@ -414,9 +414,9 @@ class Bootstrap
             $sqlUpgradeService->upgradeFromSqlFile($fileName, $dir);
             return true;
         } catch (SqlQueryException $exception) {
-            (new SystemLogger())->errorLogCaller(
+            (new SystemLogger())->error(
                 "Error: " . $exception->getMessage(),
-                ['statement' => $exception->getSqlStatement(), 'trace' => $exception->getTraceAsString()]
+                ['exception' => $exception, 'statement' => $exception->getSqlStatement()]
             );
             return false;
         }

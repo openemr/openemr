@@ -20,7 +20,7 @@ if (
         }
     } catch (\Throwable $e) {
         ob_end_clean();
-        (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getMessage()]);
+        (new SystemLogger())->error($e->getMessage(), ['exception' => $e]);
         echo xlt("Error in rendering html display section.")
             . xlt("Field name") . " '" . text($fldname) . "'";
     }

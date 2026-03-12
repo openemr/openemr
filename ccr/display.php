@@ -64,8 +64,8 @@ try {
     }
     echo $updatedViewCCDAEvent->getContent();
 } catch (\Throwable $exception) {
-    (new SystemLogger())->errorLogCaller(
+    (new SystemLogger())->error(
         "Failed to generate ccda for view",
-        ['type' => $type, 'document_id' => $document_id, 'message' => $exception, 'trace' => $exception->getTraceAsString()]
+        ['exception' => $exception, 'type' => $type, 'document_id' => $document_id]
     );
 }

@@ -163,11 +163,11 @@ class InstModuleTable
                 $sqlUpgradeService->upgradeFromSqlFile($fileName, $dir);
                 return true;
             } catch (\Throwable $exception) {
-                $context = ['trace' => $exception->getTraceAsString()];
+                $context = ['exception' => $exception];
                 if ($exception instanceof SqlQueryException) {
                     $context['statement'] = $exception->getSqlStatement();
                 }
-                (new SystemLogger())->errorLogCaller("Error: " . $exception->getMessage(), $context);
+                (new SystemLogger())->error("Error: " . $exception->getMessage(), $context);
                 return false;
             }
         } else {

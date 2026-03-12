@@ -40,10 +40,7 @@ function observation_report($pid, $encounter, $cols, $id): void
         $response->send();
     } catch (\Throwable $e) {
         // Handle any exceptions that may occur
-        $logger->errorLogCaller("Failed to render observation form report.php", [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
+        $logger->error("Failed to render observation form report.php", ['exception' => $e]);
         echo xlt("An error occurred while trying to render this form. Please try again later.");
     }
 }

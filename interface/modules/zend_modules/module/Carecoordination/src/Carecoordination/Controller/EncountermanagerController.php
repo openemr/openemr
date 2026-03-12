@@ -276,9 +276,9 @@ class EncountermanagerController extends AbstractActionController
             echo $updatedContent;
         } catch (\Throwable $exception) {
             echo "Failed to generate preview for docId " . text($docId);
-            (new SystemLogger())->errorLogCaller(
+            (new SystemLogger())->error(
                 "Failed to generate preview for ccda document",
-                ['docId' => $docId, 'message' => $exception, 'trace' => $exception->getTraceAsString()]
+                ['exception' => $exception, 'docId' => $docId]
             );
         }
         $view = new ViewModel();
