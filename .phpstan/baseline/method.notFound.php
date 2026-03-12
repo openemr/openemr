@@ -637,7 +637,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Syndromicsurveillance/src/Syndromicsurveillance/Controller/SyndromicsurveillanceController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:logError\\(\\)\\.$#',
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:logError\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/appointments_report.php',
 ];
@@ -657,7 +657,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/soap_functions/soap_patientfullmedication.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:logError\\(\\)\\.$#',
+    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:logError\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/immunization_export.php',
 ];
