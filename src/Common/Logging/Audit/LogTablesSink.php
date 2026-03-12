@@ -33,28 +33,12 @@ readonly class LogTablesSink
      */
     public function __construct(
         private Connection $conn,
-        private CryptoInterface $crypto,
-        private bool $shouldEncrypt,
     ) {
     }
 
     public function record(Event $event): bool
     {
         $api = $event->api;
-        if ($this->shouldEncrypt) {
-            $comments = $this->crypto->encryptStandard($event->comments);
-            if ($api !== null) {
-                $api['request_url'] = ($api['request_url'] === '') ? '' : $this->crypto->encryptStandard($api['request_url']);
-                $api['request_body'] = ($api['request_body'] === '') ? '' : $this->crypto->encryptStandard($api['request_body']);
-                $api['response'] = ($api['response'] === '') ? '' : $this->crypto->encryptStandard($api['response']);
-            }
-        } else {
-            // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
-            $comments = base64_encode($event->comments);
-            // Should this blank out the api fields? Previous behavior was that
-            // it did not.
-        }
-
 
         // 1. insert entry into log table
         $logData = [
@@ -63,7 +47,7 @@ readonly class LogTablesSink
             'category' => $event->category,
             'user' => $event->user ?? '',
             'groupname' => $event->group ?? '',
-            'comments' => $comments,
+            'comments' => $event->comments,
             'user_notes' => $event->user_notes,
             'patient_id' => $event->patientId,
             'success' => $event->success,
@@ -101,7 +85,7 @@ readonly class LogTablesSink
         // 2. insert associated entry (in addition to calculating and storing applicable checksums) into log_comment_encrypt
         $logCommentData = [
             'log_id' => $lastLogId,
-            'encrypt' => $this->shouldEncrypt ? 'Yes' : 'No', // DB is a Yes/No enum instead of bool :(
+            'encrypt' => $event->isEncrypted ? 'Yes' : 'No', // DB is a Yes/No enum instead of bool :(
             'checksum' => $checksum,
             'checksum_api' => $checksumGenerateApi,
             'version' => '4',

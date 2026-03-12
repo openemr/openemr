@@ -643,6 +643,20 @@ class EventAuditLogger
 
         $bag = OEGlobalsBag::getInstance();
         $shouldEncrypt = $bag->getBoolean('enable_auditlog_encryption');
+        if ($shouldEncrypt) {
+            $comments = $this->cryptoGen->encryptStandard($comments);
+            if ($api !== null) {
+                $api['request_url'] = ($api['request_url'] === '') ? '' : $this->cryptoGen->encryptStandard($api['request_url']);
+                $api['request_body'] = ($api['request_body'] === '') ? '' : $this->cryptoGen->encryptStandard($api['request_body']);
+                $api['response'] = ($api['response'] === '') ? '' : $this->cryptoGen->encryptStandard($api['response']);
+            }
+        } else {
+            // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
+            $comments = base64_encode($comments);
+
+            // Should this blank out the api fields? Previous behavior was that
+            // it did not.
+        }
 
         // Collect timestamp and if pertinent, collect client cert name
         $current_datetime = date("Y-m-d H:i:s");
@@ -659,6 +673,7 @@ class EventAuditLogger
         //  4. if atna server is on, then send entry to atna server
         //
         $auditEvent = new Audit\Event(
+            $shouldEncrypt,
             $current_datetime,
             $event,
             $category,
@@ -677,8 +692,6 @@ class EventAuditLogger
 
         $logTableSink = new Audit\LogTablesSink(
             conn: $this->connection,
-            crypto: $this->cryptoGen,
-            shouldEncrypt: $shouldEncrypt,
         );
         $logTableSink->record($auditEvent);
 
