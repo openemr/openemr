@@ -76,7 +76,7 @@ class CdaValidateDocuments
         try {
             $result = $this->ettValidateDocumentRequest($xml);
         } catch (\Throwable $e) {
-            (new SystemLogger())->errorLogCaller($e->getMessage(), ["trace" => $e->getTraceAsString()]);
+            (new SystemLogger())->error($e->getMessage(), ['exception' => $e]);
             return [];
         }
         // translate result to our common render array

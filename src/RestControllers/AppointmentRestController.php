@@ -296,7 +296,7 @@ class AppointmentRestController
             $this->appointmentService->deleteAppointmentRecord($eid);
             $serviceResult = ['message' => 'record deleted'];
         } catch (\Throwable $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'eid' => $eid]);
+            (new SystemLogger())->error($exception->getMessage(), ['exception' => $exception, 'eid' => $eid]);
             return RestControllerHelper::responseHandler(['message' => 'Failed to delete appointment'], null, 500);
         }
         return RestControllerHelper::responseHandler($serviceResult, null, 200);

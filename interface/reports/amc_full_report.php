@@ -175,8 +175,7 @@ function getRuleObjectForId($ruleId)
         $report = $reportManager->createReport($rule, ['id' => $ruleId], [], [], []);
         return $report;
     } catch (\Throwable $error) {
-        (new SystemLogger())->errorLogCaller("Failed to instantiate rule class for rule", ['rule_id' => $ruleId
-            , 'message' => $error->getTraceAsString()]);
+        (new SystemLogger())->error("Failed to instantiate rule class for rule", ['exception' => $error, 'rule_id' => $ruleId]);
     }
     return null;
 }

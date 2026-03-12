@@ -98,7 +98,7 @@ class EhiExporter
                 try {
                     $this->jobService->update($job);
                 } catch (\Throwable $exception) {
-                    $this->logger->errorLogCaller("Failed to mark job as failed ", [$exception->getMessage()]);
+                    $this->logger->error("Failed to mark job as failed ", ['exception' => $exception]);
                     return $job;
                 }
             }
@@ -120,7 +120,7 @@ class EhiExporter
                 try {
                     $this->jobService->update($job);
                 } catch (\Throwable $exception) {
-                    $this->logger->errorLogCaller("Failed to mark job as failed ", [$exception->getMessage()]);
+                    $this->logger->error("Failed to mark job as failed ", ['exception' => $exception]);
                     return $job;
                 }
             }
@@ -142,7 +142,7 @@ class EhiExporter
                 try {
                     $this->jobService->update($job);
                 } catch (\Throwable $exception) {
-                    $this->logger->errorLogCaller("Failed to mark job as failed ", [$exception->getMessage()]);
+                    $this->logger->error("Failed to mark job as failed ", ['exception' => $exception]);
                     return $job;
                 }
             }
@@ -162,7 +162,7 @@ class EhiExporter
                 try {
                     $this->jobService->update($job);
                 } catch (\Throwable $exception) {
-                    $this->logger->errorLogCaller("Failed to mark job as failed ", [$exception->getMessage()]);
+                    $this->logger->error("Failed to mark job as failed ", ['exception' => $exception]);
                     return $job;
                 }
             }

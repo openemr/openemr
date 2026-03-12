@@ -75,8 +75,8 @@ class TeleHealthVideoRegistrationController
             $patient['uuid'] = UuidRegistry::uuidToString($patient['uuid']); // convert uuid to a string value
             $this->createPatientRegistration($patient);
         } catch (\Throwable $exception) {
-            $this->logger->errorLogCaller("Failed to create patient registration. Error: "
-                . $exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'patient' => $patient['uuid']]);
+            $this->logger->error("Failed to create patient registration. Error: "
+                . $exception->getMessage(), ['exception' => $exception, 'patient' => $patient['uuid']]);
         }
     }
 
@@ -98,8 +98,8 @@ class TeleHealthVideoRegistrationController
                 $this->createPatientRegistration($patient);
             }
         } catch (\Throwable $exception) {
-            $this->logger->errorLogCaller("Failed to create patient registration. Error: "
-                . $exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'patient' => $patient['uuid'] ?? '']);
+            $this->logger->error("Failed to create patient registration. Error: "
+                . $exception->getMessage(), ['exception' => $exception, 'patient' => $patient['uuid'] ?? '']);
         }
     }
 
@@ -130,8 +130,8 @@ class TeleHealthVideoRegistrationController
                 );
             }
         } catch (\Throwable $exception) {
-            $this->logger->errorLogCaller("Failed to create user registration. Error: "
-                . $exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'user' => $user['uuid']]);
+            $this->logger->error("Failed to create user registration. Error: "
+                . $exception->getMessage(), ['exception' => $exception, 'user' => $user['uuid']]);
         }
     }
 
@@ -192,8 +192,8 @@ class TeleHealthVideoRegistrationController
                 }
             }
         } catch (\Throwable $exception) {
-            $this->logger->errorLogCaller("Failed to create user registration. Error: "
-                . $exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'user' => $user]);
+            $this->logger->error("Failed to create user registration. Error: "
+                . $exception->getMessage(), ['exception' => $exception, 'user' => $user]);
         }
     }
 

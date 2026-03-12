@@ -236,7 +236,7 @@ class Bootstrap
                 $loader->prependPath($this->getTemplatePath());
             }
         } catch (LoaderError $error) {
-            $this->logger->errorLogCaller("Failed to create template loader", ['innerMessage' => $error->getMessage(), 'trace' => $error->getTraceAsString()]);
+            $this->logger->error("Failed to create template loader", ['exception' => $error]);
         }
     }
 

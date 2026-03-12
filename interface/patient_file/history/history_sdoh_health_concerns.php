@@ -135,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: " . $redirectUrl);
         exit();
     } catch (SqlQueryException $exception) {
-        (new SystemLogger())->errorLogCaller("Failed to save health concerns: " . $exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+        (new SystemLogger())->error("Failed to save health concerns: " . $exception->getMessage(), ['exception' => $exception]);
         die(xlt("An error occurred while saving health concerns."));
     } finally {
         if (!$committed) {

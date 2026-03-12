@@ -576,9 +576,9 @@ class InsuranceService extends BaseService
                     QueryUtils::rollbackTransaction();
                 }
             } catch (\Throwable $e) {
-                (new SystemLogger())->errorLogCaller(
+                (new SystemLogger())->error(
                     "Failed to rollback transaction " . $e->getMessage(),
-                    ['type' => $targetType, 'insuranceUuid' => $insuranceUuid, 'pid' => $pid]
+                    ['exception' => $e, 'type' => $targetType, 'insuranceUuid' => $insuranceUuid, 'pid' => $pid]
                 );
             }
         }

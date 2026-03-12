@@ -93,7 +93,7 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
                 $event->setFileUrl($fileUrl);
             }
         } catch (\Throwable $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()
+            (new SystemLogger())->error($exception->getMessage(), ['exception' => $exception
                 , 'pid' => $event->getPid(), 'components' => $event->getComponentsAsString(), 'sections' => $event->getSectionsAsString()
                 , 'from' => $event->getDateFrom(), 'to' => $event->getDateTo()]);
         }
@@ -150,7 +150,7 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
             $event->setContent($updatedContent);
             return $event;
         } catch (\Throwable $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()
+            (new SystemLogger())->error($exception->getMessage(), ['exception' => $exception
                 , 'documentId' => $event->getDocumentId(), 'ccdaId' => $event->getCcdaId(), 'type' => $event->getCcdaType()]);
         }
         return $event;

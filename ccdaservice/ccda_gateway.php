@@ -87,7 +87,7 @@ try {
             die(xlt("Error: Invalid action requested."));
     }
 } catch (\Throwable $e) {
-    (new SystemLogger())->errorLogCaller($e->getMessage(), ['action' => $action, 'pid' => $pid]);
+    (new SystemLogger())->error($e->getMessage(), ['exception' => $e, 'action' => $action, 'pid' => $pid]);
     http_response_code(500);
     die(xlt("Error generating CDA document. Please contact support."));
 }

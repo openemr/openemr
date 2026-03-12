@@ -71,7 +71,7 @@ class FhirGroupService extends FhirServiceBase implements IFhirExportableResourc
 
             $fhirSearchResult = $this->searchAllServicesWithSupportedFields($fhirSearchParameters, $puuidBind);
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->errorLogCaller("exception thrown while searching", ['message' => $exception->getMessage(),
+            (new SystemLogger())->error("exception thrown while searching", ['exception' => $exception,
                 'field' => $exception->getField()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);

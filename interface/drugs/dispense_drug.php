@@ -142,7 +142,7 @@ try {
 } catch (\Throwable $e) {
     // TODO: we moved the die statements out of the service into exceptions, but this is still terrible and needs to be
     // revisited.
-    (new SystemLogger())->errorLogCaller("Dispense drug error: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+    (new SystemLogger())->error("Dispense drug error: " . $e->getMessage(), ['exception' => $e]);
     die(text($e->getMessage()));
 }
 

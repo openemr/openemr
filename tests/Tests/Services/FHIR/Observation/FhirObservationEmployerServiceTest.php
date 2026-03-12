@@ -169,14 +169,10 @@ class FhirObservationEmployerServiceTest extends TestCase
     private function cleanupEmployerData(): void
     {
         if (!empty($this->testEmployerData['uuid'])) {
-            try {
                 QueryUtils::sqlStatementThrowException(
                     "DELETE FROM employer_data WHERE uuid = ?",
                     [$this->testEmployerData['uuid']]
                 );
-            } catch (\Throwable $e) {
-                $this->getSystemLogger()->errorLogCaller("Failed to cleanup test employer data: ", ['message' => $e->getMessage()]);
-            }
         }
     }
 
@@ -188,25 +184,17 @@ class FhirObservationEmployerServiceTest extends TestCase
     private function cleanupTestPatientAndUser(): void
     {
         if (!empty($this->testPatientData['pid'])) {
-            try {
-                QueryUtils::sqlStatementThrowException(
-                    "DELETE FROM patient_data WHERE pid = ?",
-                    [$this->testPatientData['pid']]
-                );
-            } catch (\Throwable $e) {
-                $this->getSystemLogger()->errorLogCaller("Failed to cleanup test patient: " . $e->getMessage());
-            }
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM patient_data WHERE pid = ?",
+                [$this->testPatientData['pid']]
+            );
         }
 
         if (!empty($this->testUserData['id'])) {
-            try {
-                QueryUtils::sqlStatementThrowException(
-                    "DELETE FROM users WHERE id = ?",
-                    [$this->testUserData['id']]
-                );
-            } catch (\Throwable $e) {
-                $this->getSystemLogger()->errorLogCaller("Failed to cleanup test user: " . $e->getMessage());
-            }
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM users WHERE id = ?",
+                [$this->testUserData['id']]
+            );
         }
     }
 

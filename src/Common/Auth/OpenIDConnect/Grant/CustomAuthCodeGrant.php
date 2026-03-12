@@ -106,7 +106,7 @@ class CustomAuthCodeGrant extends AuthCodeGrant
                 // check to see if we can deserialize the launch token
                 SMARTLaunchToken::deserializeToken($launch);
             } catch (\Throwable $exception) {
-                $this->getSystemLogger()->errorLogCaller("CustomAuthCodeGrant::validateAuthorizationRequest:Failed to deserialize launch token", ['launch' => $launch, 'message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
+                $this->getSystemLogger()->error("CustomAuthCodeGrant::validateAuthorizationRequest:Failed to deserialize launch token", ['exception' => $exception, 'launch' => $launch]);
                 throw OAuthServerException::invalidRequest('launch', "launch parameter was incorrectly formatted or did not originate from this server");
             }
         }
@@ -124,9 +124,9 @@ class CustomAuthCodeGrant extends AuthCodeGrant
             // make sure we log the error so we have more details on what is going on here
             parent::validateRedirectUri($redirectUri, $client, $request);
         } catch (OAuthServerException $exception) {
-            $this->getSystemLogger()->errorLogCaller(
+            $this->getSystemLogger()->error(
                 "Invalid client detected.  Failed to validate redirect uri",
-                ['redirectUri' => $redirectUri, 'client' => $client->getIdentifier(), 'message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
+                ['exception' => $exception, 'redirectUri' => $redirectUri, 'client' => $client->getIdentifier()]
             );
             throw $exception;
         }

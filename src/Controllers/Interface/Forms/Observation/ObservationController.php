@@ -154,8 +154,8 @@ class ObservationController
 
             return $this->createResponse($content);
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->errorLogCaller("Error rendering observation form", [
-                'error' => $e->getMessage(),
+            $this->getSystemLogger()->error("Error rendering observation form", [
+                'exception' => $e,
                 'formId' => $formId,
                 'pid' => $pid,
                 'encounter' => $encounter
@@ -216,8 +216,8 @@ class ObservationController
 
             return $this->createResponse($content);
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->errorLogCaller("Error rendering observation list", [
-                'error' => $e->getMessage(),
+            $this->getSystemLogger()->error("Error rendering observation list", [
+                'exception' => $e,
                 'pid' => $pid,
                 'encounter' => $encounter
             ]);
@@ -262,8 +262,8 @@ class ObservationController
                 . "&status=saved"
             );
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->errorLogCaller("Error saving observation", [
-                'error' => $e->getMessage(),
+            $this->getSystemLogger()->error("Error saving observation", [
+                'exception' => $e,
                 'formId' => $formId,
                 'postData' => $postData
             ]);
@@ -363,9 +363,9 @@ class ObservationController
 
             return $result ? (int)$result : null;
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->errorLogCaller("Error converting FHIR ID to local ID", [
-                'fhir_id' => $fhirId,
-                'error' => $e->getMessage()
+            $this->getSystemLogger()->error("Error converting FHIR ID to local ID", [
+                'exception' => $e,
+                'fhir_id' => $fhirId
             ]);
             return null;
         }
@@ -405,9 +405,9 @@ class ObservationController
                 'questionnaire_data' => $questionnaireData
             ];
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->errorLogCaller("Error getting QuestionnaireResponse details", [
-                'questionnaire_response_id' => $questionnaireResponseId,
-                'error' => $e->getMessage()
+            $this->getSystemLogger()->error("Error getting QuestionnaireResponse details", [
+                'exception' => $e,
+                'questionnaire_response_id' => $questionnaireResponseId
             ]);
             return null;
         }
@@ -504,8 +504,8 @@ class ObservationController
                 . "&status=delete_success" // still redirect to list with success to avoid error loops
             );
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->errorLogCaller("Error deleting observation", [
-                'error' => $e->getMessage(),
+            $this->getSystemLogger()->error("Error deleting observation", [
+                'exception' => $e,
                 'formId' => $formId
             ]);
             return $this->createRedirectResponse(

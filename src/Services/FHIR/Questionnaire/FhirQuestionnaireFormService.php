@@ -106,11 +106,9 @@ class FhirQuestionnaireFormService extends FhirServiceBase implements IResourceR
         } catch (JsonException $exception) {
             // log the error and move on
             $innerData = []; // nothing we can do here, but skip the questionnaire data as its invalid
-            (new SystemLogger())->errorLogCaller(
+            (new SystemLogger())->error(
                 "Unable to parse questionnaire json",
-                ['uuid' => $dataRecord['uuid'] ?? '', 'message' => $exception->getMessage()
-                    ,
-                    'trace' => $exception->getTraceAsString()]
+                ['exception' => $exception, 'uuid' => $dataRecord['uuid'] ?? '']
             );
         }
         $fhirResource = new FHIRQuestionnaire($innerData);

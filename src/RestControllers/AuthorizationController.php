@@ -370,7 +370,7 @@ class AuthorizationController
 
                 $clientSaved = true;
             } catch (\Throwable $exception) {
-                $this->getSystemLogger()->errorLogCaller("Failed to create account Exception: " . $exception->getMessage(), ['trace' => $exception->getMessage()]);
+                $this->getSystemLogger()->error("Failed to create account Exception: " . $exception->getMessage(), ['exception' => $exception]);
                 throw OAuthServerException::serverError("Try again. Unable to create account", $exception);
             } finally {
                 if ($clientSaved) {
@@ -379,7 +379,7 @@ class AuthorizationController
                     try {
                         $this->rollbackTransaction();
                     } catch (\Throwable $exception) {
-                        $this->getSystemLogger()->errorLogCaller("Error rolling back transaction", ['trace' => $exception->getMessage()]);
+                        $this->getSystemLogger()->error("Error rolling back transaction", ['exception' => $exception]);
                     }
                 }
             }
@@ -890,7 +890,7 @@ class AuthorizationController
         } catch (Throwable $error) {
             $loginTwigVars['mfaRequired'] = true;
             $loginTwigVars['invalid'] = xl("Sorry, an error occurred while processing your request. Please try again later.");
-            $this->getSystemLogger()->errorLogCaller("failed to process MFA Error:" . $error->getMessage(), ['trace' => $error->getTraceAsString()]);
+            $this->getSystemLogger()->error("failed to process MFA Error:" . $error->getMessage(), ['exception' => $error]);
             // NOTE: if twig throws an exception, we have a problem here.
             return $this->renderTwigPage('oauth2/authorize/login', 'oauth2/oauth2-login.html.twig', $loginTwigVars);
         }
@@ -936,7 +936,7 @@ class AuthorizationController
         try {
             $responseBody = $twig->render($template, $vars);
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->errorLogCaller("caught exception rendering template", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            $this->getSystemLogger()->error("caught exception rendering template", ['exception' => $e]);
             $responseBody = $twig->render("error/general_http_error.html.twig", ['statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR]);
         }
         $factory = new Psr17Factory();
@@ -1411,7 +1411,7 @@ class AuthorizationController
             }
             return true;
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->errorLogCaller("AuthorizationController->saveTrustedUser() Exception occurred while saving trusted user", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            $this->getSystemLogger()->error("AuthorizationController->saveTrustedUser() Exception occurred while saving trusted user", ['exception' => $e]);
             return false;
         }
     }

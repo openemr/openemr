@@ -643,7 +643,7 @@ function phimail_store($name, $mime_type, $fn)
             $return['filesize'] = $filesize;
         }
     } catch (\Throwable $exception) {
-        (new SystemLogger())->errorLogCaller($exception->getMessage(), ['name' => $name, 'mime_type' => $mime_type, 'fn' => $fn]);
+        (new SystemLogger())->error($exception->getMessage(), ['exception' => $exception, 'name' => $name, 'mime_type' => $mime_type, 'fn' => $fn]);
         phimail_logit(0, "problem storing attachment in OpenEMR");
         $return = false;
     } finally {

@@ -40,13 +40,13 @@ try {
     );
 } catch (NotFoundHttpException $e) {
     // Log the exception
-    (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getTraceAsString()]);
+    (new SystemLogger())->error($e->getMessage(), ['exception' => $e]);
     $contents = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('error/404.html.twig');
     // Send the error response
     $response = new Response($contents, 404);
 } catch (\Throwable $e) {
     // Log the exception
-    (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getTraceAsString()]);
+    (new SystemLogger())->error($e->getMessage(), ['exception' => $e]);
     $contents =  (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig()->render('error/general_http_error.html.twig');
     // Send the error response
     $response = new Response($contents, 500);

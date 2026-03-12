@@ -116,7 +116,7 @@ class JsonWebKeySet implements Key
         } catch (RequestException | ConnectException $exception) {
             throw new JWKValidatorException("failed to retrieve jwk contents from jwk_uri", 0, $exception);
         } catch (\Throwable $exception) {
-            (new SystemLogger())->errorLogCaller("Failed to retrieve jwk contents from jwk_uri and unknown error occurred", ['jwk_uri' => $jwk_uri]);
+            (new SystemLogger())->error("Failed to retrieve jwk contents from jwk_uri and unknown error occurred", ['exception' => $exception, 'jwk_uri' => $jwk_uri]);
             throw new JWKValidatorException("failed to retrieve jwk contents from jwk_uri", 0, $exception);
         }
     }
