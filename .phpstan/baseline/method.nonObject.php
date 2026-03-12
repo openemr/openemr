@@ -2567,16 +2567,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method debug\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaServiceDocumentRequestor.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaServiceDocumentRequestor.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method saveXML\\(\\) on SimpleXMLElement\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncountermanagerTable.php',
@@ -5932,41 +5922,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method debug\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 11,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomAuthCodeGrant.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomAuthCodeGrant.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method debug\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomClientCredentialsGrant.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomClientCredentialsGrant.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method debug\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 7,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomRefreshTokenGrant.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomRefreshTokenGrant.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method debug\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/IdTokenSMARTResponse.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getIdentifier\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/IdTokenSMARTResponse.php',
@@ -5992,54 +5947,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/JWT/Validation/UniqueID.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method debug\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/AccessTokenRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method debug\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ClientRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ClientRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method debug\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/RefreshTokenRepository.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method containsScope\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ScopeRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method debug\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ScopeRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ScopeRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/UserRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method debug\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/SMARTSessionTokenContextBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/SMARTSessionTokenContextBuilder.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method build\\(\\) on mixed\\.$#',
@@ -6147,11 +6057,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Http/HttpClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method debug\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/HttpRestParsedRoute.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getContents\\(\\) on Http\\\\Message\\\\Encoding\\\\GzipDecodeStream\\|resource\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/HttpRestRequest.php',
@@ -6170,16 +6075,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method getResource\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/HttpRestRequest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method debug\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/HttpSessionFactory.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/HttpSessionFactory.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method contentType\\(\\) on mixed\\.$#',
@@ -6314,11 +6209,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot call method deleteObservationById\\(\\) on OpenEMR\\\\Services\\\\ObservationService\\|null\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../src/Controllers/Interface/Forms/Observation/ObservationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 6,
     'path' => __DIR__ . '/../../src/Controllers/Interface/Forms/Observation/ObservationController.php',
 ];
 $ignoreErrors[] = [
@@ -6652,16 +6542,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/AppointmentRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method debug\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 11,
-    'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 14,
-    'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getAttributes\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Authorization/BearerTokenAuthorizationStrategy.php',
@@ -6679,16 +6559,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot call method containsScope\\(\\) on mixed\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method debug\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 40,
-    'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 20,
     'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
 ];
 $ignoreErrors[] = [
@@ -7567,11 +7437,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/SMART/SMARTAuthorizationController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method debug\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/RestControllers/Subscriber/ApiResponseLoggerListener.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method authorizeRequest\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Subscriber/AuthorizationListener.php',
@@ -7582,27 +7447,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/Subscriber/AuthorizationListener.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method debug\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/Subscriber/SiteSetupListener.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Subscriber/SiteSetupListener.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method createResponse\\(\\) on OpenEMR\\\\Common\\\\Http\\\\Psr17Factory\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/TokenIntrospectionRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method debug\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/RestControllers/TokenIntrospectionRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/TokenIntrospectionRestController.php',
 ];
@@ -7775,11 +7625,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method lookupNamespaceURI\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method item\\(\\) on DOMNodeList\\<DOMNameSpaceNode\\|DOMNode\\>\\|false\\.$#',
@@ -8042,11 +7887,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirDiagnosticReportService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method debug\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDocRefService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getEndDate\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirDocRefService.php',
@@ -8177,21 +8017,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationDispenseService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationRequestService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method debug\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirObservationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirObservationService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getAll\\(\\) on mixed\\.$#',
     'count' => 8,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirObservationService.php',
@@ -8227,11 +8052,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirObservationService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirOrganizationService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getAll\\(\\) on mixed\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirOrganizationService.php',
@@ -8252,22 +8072,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirOrganizationService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirPatientService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getValues\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPatientService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method setValues\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirPatientService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method warning\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirPatientService.php',
 ];
@@ -8357,16 +8167,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceBase.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method debug\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceBase.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceBase.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getData\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceBase.php',
@@ -8402,17 +8202,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Group/FhirPatientProviderGroupService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/MedicationDispense/FhirMedicationDispenseLocalDispensaryService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method setText\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/MedicationDispense/FhirMedicationDispenseLocalDispensaryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method warning\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/MedicationDispense/FhirMedicationDispenseLocalDispensaryService.php',
 ];
@@ -8422,16 +8212,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationAdvanceDirectiveService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method debug\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationAdvanceDirectiveService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationAdvanceDirectiveService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getCode\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationAdvanceDirectiveService.php',
@@ -8447,17 +8227,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationCareExperiencePreferenceService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method warning\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationCareExperiencePreferenceService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getCode\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationEmployerService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method warning\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationEmployerService.php',
 ];
@@ -8465,16 +8235,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method getCode\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationHistorySdohService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method warning\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationHistorySdohService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method warning\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationLaboratoryService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getCode\\(\\) on mixed\\.$#',
@@ -8487,37 +8247,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationObservationFormService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method warning\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationObservationFormService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationPatientService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getCode\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationPatientService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method warning\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationPatientService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method warning\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationQuestionnaireItemService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getCode\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationSocialHistoryService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method warning\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationSocialHistoryService.php',
 ];
@@ -8530,16 +8265,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method getSystem\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationTreatmentInterventionPreferenceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method warning\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationTreatmentInterventionPreferenceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationVitalsService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getCode\\(\\) on mixed\\.$#',
@@ -8565,11 +8290,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method format\\(\\) on DateTime\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/QuestionnaireResponse/FhirQuestionnaireResponseFormService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method debug\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Utils/SearchRequestNormalizer.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method format\\(\\) on DateTime\\|true\\.$#',
@@ -8675,11 +8395,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method has\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/JWTClientAuthenticationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\|null\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/PatientAdvanceDirectiveService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method addData\\(\\) on mixed\\.$#',
