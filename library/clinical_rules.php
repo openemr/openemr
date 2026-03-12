@@ -526,7 +526,7 @@ function test_rules_clinic_batch_method($provider = '', $type = '', $dateTarget 
         $totalNumberBatches = floor($totalNumPatients / $batchSize);
     }
 
-    (ServiceContainer::getLogger())->debug(
+    ServiceContainer::getLogger()->debug(
         "test_rules_clinic_batch_method()",
         ['totalNumPatients' => $totalNumPatients, 'totalNumberBatches' => $totalNumberBatches]
     );
@@ -679,7 +679,7 @@ function rules_clinic_get_providers($billing_facility, $pat_prov_rel)
  */
 function test_rules_clinic_group_calculation($type = '', array $dateArray = [], $mode = '', $patient_id = '', $plan = '', $organize_mode = 'default', $options = [], $pat_prov_rel = 'primary', $start = null, $batchSize = null, $user = '')
 {
-    (ServiceContainer::getLogger())->debug(
+    ServiceContainer::getLogger()->debug(
         "test_rules_clinic_group_calculation()",
         array_combine(
             ['type', 'dateArray', 'mode', 'patient_id', 'plan', 'organize_mode'
@@ -717,7 +717,7 @@ function test_rules_clinic_group_calculation($type = '', array $dateArray = [], 
             $options['billing_facility_id'] = $frow['id'];
             $patientData = buildPatientArray($patient_id, 'group_calculation', $pat_prov_rel, $start, $batchSize, false, $frow['id']);
 
-            (ServiceContainer::getLogger())->debug(
+            ServiceContainer::getLogger()->debug(
                 "test_rules_clinic_group_calculation() patientIds retrieved for facility",
                 ['facilityId' => $frow['id'], 'patientData' => $patientData]
             );
@@ -735,7 +735,7 @@ function test_rules_clinic_group_calculation($type = '', array $dateArray = [], 
                     if (!empty($tempResults)) {
                         $results = array_merge($results, $tempResults);
                     }
-                    (ServiceContainer::getLogger())->debug(
+                    ServiceContainer::getLogger()->debug(
                         "test_rules_clinic_group_calculation() results returned for facility",
                         ['facilityId' => $frow['id'], 'results' => $tempResults]
                     );
@@ -1361,7 +1361,7 @@ function test_rules_clinic($provider = '', $type = '', $dateTarget = '', $mode =
  */
 function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'primary', $start = null, $batchSize = null, $onlyCount = false, $billing_facility = null)
 {
-    (ServiceContainer::getLogger())->debug(
+    ServiceContainer::getLogger()->debug(
         "buildPatientArray()",
         ['patient_id' => $patient_id, 'provider' => $provider, 'pat_prov_rel' => $pat_prov_rel, 'start' => $start
         ,

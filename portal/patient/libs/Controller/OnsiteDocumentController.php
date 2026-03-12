@@ -367,7 +367,7 @@ class OnsiteDocumentController extends AppBasePortalController
                         !is_dir($purifyTempDir)
                     ) {
                         if (!mkdir($purifyTempDir, 0700, true)) {
-                            (ServiceContainer::getLogger())->error("Could not create directory ", [$purifyTempDir]);
+                            ServiceContainer::getLogger()->error("Could not create directory ", [$purifyTempDir]);
                         }
                     }
                     $config->set('Cache.SerializerPath', $purifyTempDir);

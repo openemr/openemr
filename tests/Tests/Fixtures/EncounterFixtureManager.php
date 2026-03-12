@@ -48,7 +48,7 @@ class EncounterFixtureManager extends BaseFixtureManager
         try {
             QueryUtils::sqlStatementThrowException($sql, []);
         } catch (SqlQueryException $exception) {
-            (ServiceContainer::getLogger())->error("Failed to delete form_encounter data ", ['message' => $exception, 'trace' => $exception->getTraceAsString()]);
+            ServiceContainer::getLogger()->error("Failed to delete form_encounter data ", ['message' => $exception, 'trace' => $exception->getTraceAsString()]);
             throw $exception;
         } finally {
             $this->patientFixtureManager->removePatientFixtures();

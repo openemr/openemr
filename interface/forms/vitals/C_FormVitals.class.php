@@ -487,7 +487,7 @@ class C_FormVitals
                     $details->set_interpretation_codes($value); // for now the option_id is the code
                     $details->set_interpretation_title($interpretation['title']);
                 } else {
-                    (ServiceContainer::getLogger())->error(
+                    ServiceContainer::getLogger()->error(
                         "Passed in interpretation does not exist in list options, clearing interpretation id",
                         ['form_id' => $this->vitals->get_id(), 'column' => $column, 'interpretation' => $value]
                     );

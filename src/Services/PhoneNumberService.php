@@ -238,7 +238,7 @@ class PhoneNumberService extends BaseService
         }
         $formatted = self::formatPhone($phone, $defaultRegion);
         if ($formatted === '') {
-            (ServiceContainer::getLogger())->warning("Could not format phone number", ['phone' => $phone]);
+            ServiceContainer::getLogger()->warning("Could not format phone number", ['phone' => $phone]);
             return $phone;
         }
         return $formatted;

@@ -39,7 +39,7 @@ class CalendarUtils
     public static function isUserLastSeenTimeInActiveRange(\DateTime $dateTime)
     {
         $currentDateTime = new \DateTime();
-        (ServiceContainer::getLogger())->debug("checking time ", ['user_last_update_time' => $currentDateTime->format("Y-m-d H:i:s"), 'now' => $currentDateTime->format("Y-m-d H:i:s")]);
+        ServiceContainer::getLogger()->debug("checking time ", ['user_last_update_time' => $currentDateTime->format("Y-m-d H:i:s"), 'now' => $currentDateTime->format("Y-m-d H:i:s")]);
         return $currentDateTime < $dateTime->add(new \DateInterval("PT15S"));
     }
 

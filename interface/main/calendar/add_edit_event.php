@@ -765,7 +765,7 @@ if (!empty($_POST['form_action'])) {
     // to the calendar appointment flow for their own workflow dialogs here they will need
     // to implement the dialog closing and duplicate the logic of what happens here in this closing event.
     if ($event->isPropagationStopped()) {
-        (ServiceContainer::getLogger())->debug("add_edit_event.php: event propagation stopped before closing dialog, exiting");
+        ServiceContainer::getLogger()->debug("add_edit_event.php: event propagation stopped before closing dialog, exiting");
         exit();
     }
     // Close this window and refresh the calendar (or the patient_tracker) display.

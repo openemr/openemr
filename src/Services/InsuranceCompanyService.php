@@ -196,10 +196,10 @@ class InsuranceCompanyService extends BaseService
             }
         } catch (SqlQueryException $exception) {
             // we shouldn't hit a query exception
-            (ServiceContainer::getLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             $processingResult->addInternalError("Error selecting data from database");
         } catch (SearchFieldException $exception) {
-            (ServiceContainer::getLogger())->error(
+            ServiceContainer::getLogger()->error(
                 $exception->getMessage(),
                 ['trace' => $exception->getTraceAsString(),
                  'field' => $exception->getField()]

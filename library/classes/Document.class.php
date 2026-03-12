@@ -417,7 +417,7 @@ class Document extends ORDataObject
         $sql = "SELECT id FROM " . escape_table_name($d->_table) . " WHERE foreign_reference_table = ? "
         . "AND foreign_reference_id " . $foreign_reference_id_sql;
 
-        (ServiceContainer::getLogger())->debug(
+        ServiceContainer::getLogger()->debug(
             "documents_factory_for_foreign_reference",
             ['sql' => $sql,
             'sqlArray' => $sqlArray]

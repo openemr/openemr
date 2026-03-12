@@ -79,7 +79,7 @@ class ExportStreamWriter
             $this->incrementRecordCount();
             $this->lastProcessedId = $resource->getId();
             if ($this->willShutdown()) {
-                (ServiceContainer::getLogger())->debug(
+                ServiceContainer::getLogger()->debug(
                     "ExportStreamWriter->append() reached shutdown time limit for export",
                     ['lastProcessedId' => $this->lastProcessedId, 'resource' => $resource->get_fhirElementName()]
                 );

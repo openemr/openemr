@@ -54,7 +54,7 @@ if ($method === 'POST') {
             // Handle the exception
             http_response_code(400);
             echo json_encode(["message" => xlt("An internal error occurred while processing your request.")]);
-            (ServiceContainer::getLogger())->error(
+            ServiceContainer::getLogger()->error(
                 "Product Email Registration Error, GenericProductRegistrationException occurred",
                 ['trace' => $e->getTraceAsString()]
             );
@@ -63,7 +63,7 @@ if ($method === 'POST') {
             // Handle any other exceptions
             http_response_code(500);
             echo json_encode(["message" => xlt("An internal error occurred while processing your request.")]);
-            (ServiceContainer::getLogger())->error(
+            ServiceContainer::getLogger()->error(
                 "Product Email Registration Error, Exception occurred",
                 ['trace' => $e->getTraceAsString()]
             );
@@ -73,7 +73,7 @@ if ($method === 'POST') {
         if (empty($email) && !is_null($submitRegistration)) {
             http_response_code(400);
             echo json_encode(["message" => xlt("An internal error occurred while processing your request.")]);
-            (ServiceContainer::getLogger())->error(
+            ServiceContainer::getLogger()->error(
                 "Product Email Registration Error, error occurred on submit empty email",
                 ['email' => $email, 'submitRegistration' => $submitRegistration]
             );
@@ -82,7 +82,7 @@ if ($method === 'POST') {
         if (!empty($email) && ($submitRegistration != $email)) {
             http_response_code(400);
             echo json_encode(["message" => xlt("An internal error occurred while processing your request.")]);
-            (ServiceContainer::getLogger())->error(
+            ServiceContainer::getLogger()->error(
                 "Product Email Registration Error, error occurred on submit '" . $email . "' email",
                 ['email' => $email, 'submitRegistration' => $submitRegistration]
             );
@@ -125,7 +125,7 @@ if ($method === 'POST') {
             // Error, should never happen
             http_response_code(400);
             echo json_encode(["message" => xlt("An internal error occurred while processing your request.")]);
-            (ServiceContainer::getLogger())->error(
+            ServiceContainer::getLogger()->error(
                 "Product Telemetry Registration Error, missing entry",
                 ['id' => $id, 'auth_by_id' => $auth_by_id, 'telemetry_disabled' => $telemetry_disabled, 'last_ask_date' => $last_ask_date, 'last_ask_version' => $last_ask_version, 'options' => $options]
             );
@@ -150,7 +150,7 @@ if ($method === 'POST') {
         } else {
             http_response_code(500);
             echo json_encode(["message" => xlt("Failed to update registration")]);
-            (ServiceContainer::getLogger())->error(
+            ServiceContainer::getLogger()->error(
                 "Product Telemetry Registration Error, failed to update registration",
                 ['id' => $id, 'auth_by_id' => $auth_by_id, 'telemetry_disabled' => $telemetry_disabled, 'last_ask_date' => $last_ask_date, 'last_ask_version' => $last_ask_version, 'options' => $options]
             );

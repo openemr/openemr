@@ -63,7 +63,7 @@ class ExportCat3Service
                 $measure->measure_path = $measurePath;
                 $measureObjs[] = $measure;
             } else {
-                (ServiceContainer::getLogger())->error("Measure JSON not found. Verify measures are installed correctly", ['path' => $measurePath]);
+                ServiceContainer::getLogger()->error("Measure JSON not found. Verify measures are installed correctly", ['path' => $measurePath]);
             }
         }
         // note that much of this function is following the logic in the cypress test suite

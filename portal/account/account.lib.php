@@ -47,20 +47,20 @@ function processRecaptcha($gRecaptchaResponse): bool
     $globalsBag = OEGlobalsBag::getInstance();
 
     if (empty($gRecaptchaResponse)) {
-        (ServiceContainer::getLogger())->error("processRecaptcha function: gRecaptchaResponse is empty, so unable to verify recaptcha");
+        ServiceContainer::getLogger()->error("processRecaptcha function: gRecaptchaResponse is empty, so unable to verify recaptcha");
         return false;
     }
     if (empty($globalsBag->get('google_recaptcha_site_key'))) {
-        (ServiceContainer::getLogger())->error("processRecaptcha function: google_recaptcha_site_key is empty, so unable to verify recaptcha");
+        ServiceContainer::getLogger()->error("processRecaptcha function: google_recaptcha_site_key is empty, so unable to verify recaptcha");
         return false;
     }
     if (empty($globalsBag->get('google_recaptcha_secret_key'))) {
-        (ServiceContainer::getLogger())->error("processRecaptcha function: google_recaptcha_secret_key is empty, so unable to verify recaptcha");
+        ServiceContainer::getLogger()->error("processRecaptcha function: google_recaptcha_secret_key is empty, so unable to verify recaptcha");
         return false;
     }
     $googleRecaptchaSecretKey = (ServiceContainer::getCrypto())->decryptStandard($globalsBag->get('google_recaptcha_secret_key'));
     if (empty($googleRecaptchaSecretKey)) {
-        (ServiceContainer::getLogger())->error("processRecaptcha function: decrypted google_recaptcha_secret_key global is empty, so unable to verify recaptcha");
+        ServiceContainer::getLogger()->error("processRecaptcha function: decrypted google_recaptcha_secret_key global is empty, so unable to verify recaptcha");
         return false;
     }
 
@@ -75,20 +75,20 @@ function processRecaptcha($gRecaptchaResponse): bool
         ]
     ]);
     $responseArray = json_decode($response->getBody(), true);
-    (ServiceContainer::getLogger())->debug("processRecaptcha function: recaptcha verification returned following", ['returnJson' => $responseArray]);
+    ServiceContainer::getLogger()->debug("processRecaptcha function: recaptcha verification returned following", ['returnJson' => $responseArray]);
     if (empty($responseArray)) {
-        (ServiceContainer::getLogger())->debug("processRecaptcha function: recaptcha verification was unsuccessful since empty response from google");
+        ServiceContainer::getLogger()->debug("processRecaptcha function: recaptcha verification was unsuccessful since empty response from google");
         return false;
     }
     if (empty($responseArray['success'])) {
-        (ServiceContainer::getLogger())->debug("processRecaptcha function: recaptcha verification was unsuccessful since empty success status from google");
+        ServiceContainer::getLogger()->debug("processRecaptcha function: recaptcha verification was unsuccessful since empty success status from google");
         return false;
     }
     if ($responseArray['success'] === true) {
-        (ServiceContainer::getLogger())->debug("processRecaptcha function: recaptcha verification was successful from host " . ($responseArray['hostname'] ?? ''));
+        ServiceContainer::getLogger()->debug("processRecaptcha function: recaptcha verification was successful from host " . ($responseArray['hostname'] ?? ''));
         return true;
     } else {
-        (ServiceContainer::getLogger())->debug("processRecaptcha function: recaptcha verification was not successful from host " . ($responseArray['hostname'] ?? ''), ['errorCodes' => ($responseArray['error-codes'] ?? '')]);
+        ServiceContainer::getLogger()->debug("processRecaptcha function: recaptcha verification was not successful from host " . ($responseArray['hostname'] ?? ''), ['errorCodes' => ($responseArray['error-codes'] ?? '')]);
         return false;
     }
 }
@@ -102,12 +102,12 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
     $globalsBag = OEGlobalsBag::getInstance();
     if (empty($languageChoice) || empty($fname) || empty($lname) || empty($dob) || empty($email)) {
         // only optional setting is the mname
-        (ServiceContainer::getLogger())->error("a required verifyEmail function parameter is empty");
+        ServiceContainer::getLogger()->error("a required verifyEmail function parameter is empty");
         return false;
     }
 
     if (!ValidationUtils::isValidEmail($email)) {
-        (ServiceContainer::getLogger())->debug("verifyEmail function is using a email that failed validEmail test, so can not use");
+        ServiceContainer::getLogger()->debug("verifyEmail function is using a email that failed validEmail test, so can not use");
         return true;
     }
     $twigContainer = new TwigContainer(null, $globalsBag->getKernel());
@@ -127,10 +127,10 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
 
     if (!empty($sql['pid'])) {
         $templateData = ['email' => $email];
-        (ServiceContainer::getLogger())->debug("verifyEmail function: the email is already in use, so can not use");
+        ServiceContainer::getLogger()->debug("verifyEmail function: the email is already in use, so can not use");
         $emailPrepSend = true;
     } else {
-        (ServiceContainer::getLogger())->debug("verifyEmail function: the email will be used to register the patient");
+        ServiceContainer::getLogger()->debug("verifyEmail function: the email will be used to register the patient");
 
         // create token (1 hour expiry) and ensure the token is unique
         $unique = false;
@@ -141,7 +141,7 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
             $token_encrypt = (ServiceContainer::getCrypto())->encryptStandard($token_raw);
             if (empty($token_encrypt)) {
                 // Serious issue if this is case, so return that something bad happened.
-                (ServiceContainer::getLogger())->error("OpenEMR Error : Portal email verification token encryption broken - exiting");
+                ServiceContainer::getLogger()->error("OpenEMR Error : Portal email verification token encryption broken - exiting");
                 return false;
             }
             $token_database = $token_raw . bin2hex($expiry->format('U'));
@@ -151,11 +151,11 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
                 $unique = true;
                 break;
             } else {
-                (ServiceContainer::getLogger())->error("was unable to create a unique token in verifyEmail function, which is very odd, so will try again (will try up to 10 times)");
+                ServiceContainer::getLogger()->error("was unable to create a unique token in verifyEmail function, which is very odd, so will try again (will try up to 10 times)");
             }
         }
         if (!$unique) {
-            (ServiceContainer::getLogger())->error("was unable to create a unique token in verifyEmail function, so failed");
+            ServiceContainer::getLogger()->error("was unable to create a unique token in verifyEmail function, so failed");
             return false;
         }
 
@@ -224,12 +224,12 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
 
         if ($mail->Send()) {
             EventAuditLogger::getInstance()->newEvent('patient-reg-email-verify', '', '', 1, "The patient registration verification email was successfully sent to " . $email);
-            (ServiceContainer::getLogger())->debug("The patient registration verification email was successfully sent to " . $email);
+            ServiceContainer::getLogger()->debug("The patient registration verification email was successfully sent to " . $email);
             return true;
         } else {
             $email_status = $mail->ErrorInfo;
             EventAuditLogger::getInstance()->newEvent('patient-reg-email-verify', '', '', 0, "The patient registration verification email was not successfully sent to " . $email . " because of following issue: " . $email_status);
-            (ServiceContainer::getLogger())->error("The patient registration verification email was not successfully sent to " . $email . " because of following issue: " . $email_status);
+            ServiceContainer::getLogger()->error("The patient registration verification email was not successfully sent to " . $email . " because of following issue: " . $email_status);
             return false;
         }
     }
@@ -243,7 +243,7 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
 function resetPassword(string $dob, string $lname, string $fname, string $email): int
 {
     if (empty($dob) || empty($lname) || empty($fname) || empty($email)) {
-        (ServiceContainer::getLogger())->error("a resetPassword function parameter is empty");
+        ServiceContainer::getLogger()->error("a resetPassword function parameter is empty");
         return 0;
     }
 
@@ -260,18 +260,18 @@ function resetPassword(string $dob, string $lname, string $fname, string $email)
 
     if (sqlNumRows($sql) > 1) {
         EventAuditLogger::getInstance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: Multiple patients were found in patient_data for search of: " . $fname . " " . $lname . " " . $dob . " " . $email);
-        (ServiceContainer::getLogger())->error("resetPassword function selected more than 1 patient from patient_data, so was unable to reset the password");
+        ServiceContainer::getLogger()->error("resetPassword function selected more than 1 patient from patient_data, so was unable to reset the password");
         return 1;
     }
     if (!sqlNumRows($sql)) {
         EventAuditLogger::getInstance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: No patient was found in patient_data for search of: " . $fname . " " . $lname . " " . $dob . " " . $email);
-        (ServiceContainer::getLogger())->debug("resetPassword function found no patient in patient_data, so was unable to reset the password");
+        ServiceContainer::getLogger()->debug("resetPassword function found no patient in patient_data, so was unable to reset the password");
         return 1;
     }
     $row = sqlFetchArray($sql);
     if (empty($row['pid'])) {
         EventAuditLogger::getInstance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: No patient was found in patient_data for search of: " . $fname . " " . $lname . " " . $dob . " " . $email);
-        (ServiceContainer::getLogger())->debug("resetPassword function found no patient in patient_data, so was unable to reset the password");
+        ServiceContainer::getLogger()->debug("resetPassword function found no patient in patient_data, so was unable to reset the password");
         return 1;
     }
     $tempPid = $row['pid'];
@@ -279,18 +279,18 @@ function resetPassword(string $dob, string $lname, string $fname, string $email)
     $sql = sqlStatement("SELECT `pid` FROM `patient_access_onsite` WHERE `pid`=?", [$tempPid]);
     if (sqlNumRows($sql) > 1) {
         EventAuditLogger::getInstance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: Multiple patients were found in patient_access_onsite for search of pid " . $tempPid);
-        (ServiceContainer::getLogger())->error("resetPassword function selected more than 1 patient from patient_access_onsite, so was unable to reset the password");
+        ServiceContainer::getLogger()->error("resetPassword function selected more than 1 patient from patient_access_onsite, so was unable to reset the password");
         return 1;
     }
     if (!sqlNumRows($sql)) {
         EventAuditLogger::getInstance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: No patient was found in patient_access_onsite for search of pid " . $tempPid);
-        (ServiceContainer::getLogger())->debug("resetPassword function found no patient in patient_access_onsite, so was unable to reset the password");
+        ServiceContainer::getLogger()->debug("resetPassword function found no patient in patient_access_onsite, so was unable to reset the password");
         return 1;
     }
     $row = sqlFetchArray($sql);
     if (empty($row['pid'])) {
         EventAuditLogger::getInstance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: No patient was found in patient_access_onsite for search of pid " . $tempPid);
-        (ServiceContainer::getLogger())->debug("resetPassword function found no patient in patient_access_onsite, so was unable to reset the password");
+        ServiceContainer::getLogger()->debug("resetPassword function found no patient in patient_access_onsite, so was unable to reset the password");
         return 1;
     }
 
@@ -351,11 +351,11 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
     // ensure pid exists
     if (empty($newpd)) {
         if ($resetPass) {
-            (ServiceContainer::getLogger())->error("doCredentials function did not find a patient from patient_data for " . $pid . " (this should never happen since checked in resetPassword function), so was unable to reset the password");
+            ServiceContainer::getLogger()->error("doCredentials function did not find a patient from patient_data for " . $pid . " (this should never happen since checked in resetPassword function), so was unable to reset the password");
             return true;
         } else { // !$resetPass
             EventAuditLogger::getInstance()->newEvent('patient-registration', '', '', 0, "Patient credential creation failure: Following pid did not exist: " . $pid);
-            (ServiceContainer::getLogger())->error("doCredentials function did not find a patient from patient_data for " . $pid . " , so was unable to create credentials");
+            ServiceContainer::getLogger()->error("doCredentials function did not find a patient from patient_data for " . $pid . " , so was unable to create credentials");
             return false;
         }
     }
@@ -363,19 +363,19 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
     // ensure email is valid
     if ($resetPass) {
         if ((empty($resetPassEmail)) || ((($newpd['email'] ?? '') != $resetPassEmail) && (($newpd['email_direct'] ?? '') != $resetPassEmail))) {
-            (ServiceContainer::getLogger())->error("doCredentials function with empty email or unable to find correct email " . $resetPassEmail . " in patient from patient_data for pid " . $pid . " (this should never happen since checked in resetPassword function), so was unable to reset the password");
+            ServiceContainer::getLogger()->error("doCredentials function with empty email or unable to find correct email " . $resetPassEmail . " in patient from patient_data for pid " . $pid . " (this should never happen since checked in resetPassword function), so was unable to reset the password");
             return true;
         }
         if (!ValidationUtils::isValidEmail($resetPassEmail)) {
             EventAuditLogger::getInstance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: Email " . $resetPassEmail . " was not considered valid for pid: " . $pid);
-            (ServiceContainer::getLogger())->error("doCredentials function with email " . $resetPassEmail . " for pid " . $pid . " that was not valid per validEmail function, so was unable to reset the password");
+            ServiceContainer::getLogger()->error("doCredentials function with email " . $resetPassEmail . " for pid " . $pid . " that was not valid per validEmail function, so was unable to reset the password");
             return false;
         }
         $newpd['email'] = $resetPassEmail;
     } else { // !$resetPass
         if (!ValidationUtils::isValidEmail($newpd['email'])) {
             EventAuditLogger::getInstance()->newEvent('patient-registration', '', '', 0, "Patient password reset failure: Email " . $newpd['email'] . " was not considered valid for pid: " . $pid);
-            (ServiceContainer::getLogger())->error("doCredentials function with email " . $newpd['email'] . " for pid " . $pid . " was not valid per validEmail function, so was unable to complete the registration");
+            ServiceContainer::getLogger()->error("doCredentials function with email " . $newpd['email'] . " for pid " . $pid . " was not valid per validEmail function, so was unable to complete the registration");
             return false;
         }
     }
@@ -397,11 +397,11 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
         // Serious issue if this is case, so exit.
         if ($resetPass) {
             EventAuditLogger::getInstance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure secondary critical encryption error for email " . $newpd['email'] . " and pid: " . $pid);
-            (ServiceContainer::getLogger())->error("Error : Token encryption failed during patient password reset - exiting");
+            ServiceContainer::getLogger()->error("Error : Token encryption failed during patient password reset - exiting");
             return false;
         } else { // !$resetPass
             EventAuditLogger::getInstance()->newEvent('patient-registration', '', '', 0, "Patient credential creation registration failure secondary critical encryption error for email " . $newpd['email'] . " and pid: " . $pid);
-            (ServiceContainer::getLogger())->error("Error : Token encryption failed during patient registration - exiting");
+            ServiceContainer::getLogger()->error("Error : Token encryption failed during patient registration - exiting");
             return false;
         }
     }
@@ -423,7 +423,7 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
         if (empty($newHash)) {
             // Serious issue if this is case, so exit.
             EventAuditLogger::getInstance()->newEvent('patient-registration', '', '', 0, "Patient credential creation registration failure secondary critical hashing error for email " . $newpd['email'] . " and pid: " . $pid);
-            (ServiceContainer::getLogger())->error("Error : Hashing failed during patient registration - exiting");
+            ServiceContainer::getLogger()->error("Error : Hashing failed during patient registration - exiting");
             return false;
         }
     }
@@ -442,7 +442,7 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
         if (sqlNumRows($res)) {
             // this should never happen in current use case where these credentials are created after a new patient registers, so will return error
             EventAuditLogger::getInstance()->newEvent('patient-registration', '', '', 0, "Patient credential creation registration failure secondary to credentials already existing for email " . $newpd['email'] . " and pid: " . $pid);
-            (ServiceContainer::getLogger())->error("OpenEMR Error : doCredentials for registration - already credentials exists, so unable to create new credentials.");
+            ServiceContainer::getLogger()->error("OpenEMR Error : doCredentials for registration - already credentials exists, so unable to create new credentials.");
             return false;
         } else {
             sqlStatementNoLog("INSERT INTO patient_access_onsite SET portal_username=?,portal_onetime=?,portal_pwd=?,portal_pwd_status=0,pid=?", $query_parameters);
@@ -479,20 +479,20 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
     if ($mail->Send()) {
         if ($resetPass) {
             EventAuditLogger::getInstance()->newEvent('patient-password-reset', '', '', 1, "The patient reset email was successfully sent to " . $newpd['email'] . " for pid " . $pid . ".");
-            (ServiceContainer::getLogger())->debug("The patient reset email was successfully sent to " . $newpd['email'] . " for pid " . $pid . ".");
+            ServiceContainer::getLogger()->debug("The patient reset email was successfully sent to " . $newpd['email'] . " for pid " . $pid . ".");
         } else { // !$resetPass
             EventAuditLogger::getInstance()->newEvent('patient-registration', '', '', 1, "The patient registration credentials email was successfully sent to " . $newpd['email'] . " for pid " . $pid . ".");
-            (ServiceContainer::getLogger())->debug("The patient registration credentials email was successfully sent to " . $newpd['email'] . " for pid " . $pid . ".");
+            ServiceContainer::getLogger()->debug("The patient registration credentials email was successfully sent to " . $newpd['email'] . " for pid " . $pid . ".");
         }
         return true;
     } else {
         $email_status = $mail->ErrorInfo;
         if ($resetPass) {
             EventAuditLogger::getInstance()->newEvent('patient-password-reset', '', '', 0, "Patient password reset failure: The reset email to " . $newpd['email'] . " for pid " . $pid . " was not successful because of following issue: " . $email_status);
-            (ServiceContainer::getLogger())->error("Patient password reset failure: The reset email to " . $newpd['email'] . " for pid " . $pid . " was not successful because of following issue: " . $email_status);
+            ServiceContainer::getLogger()->error("Patient password reset failure: The reset email to " . $newpd['email'] . " for pid " . $pid . " was not successful because of following issue: " . $email_status);
         } else { // !$resetPass
             EventAuditLogger::getInstance()->newEvent('patient-registration', '', '', 0, "The patient registration credentials email was not successfully sent to " . $newpd['email'] . " for pid " . $pid . " because of following issue: " . $email_status);
-            (ServiceContainer::getLogger())->error("The patient registration credentials email was not successfully sent to " . $newpd['email'] . " for pid " . $pid . " because of following issue: " . $email_status);
+            ServiceContainer::getLogger()->error("The patient registration credentials email was not successfully sent to " . $newpd['email'] . " for pid " . $pid . " because of following issue: " . $email_status);
             // notify admin of failure.
             $title = xlt("Failed Registration");
             $admin_msg = "\n" . xlt("A new patients credentials could not be sent after portal registration.");
@@ -515,7 +515,7 @@ function getPidHolder($preventRaceCondition = false): int
     $session = SessionWrapperFactory::getInstance()->getWrapper();
     $tokenIdHolder = $session->get('token_id_holder');
     if (empty($tokenIdHolder)) {
-        (ServiceContainer::getLogger())->debug("getPidHolder function failed because token_id_holder session variable was not set");
+        ServiceContainer::getLogger()->debug("getPidHolder function failed because token_id_holder session variable was not set");
         return 0;
     }
     if ($preventRaceCondition) {
@@ -528,7 +528,7 @@ function getPidHolder($preventRaceCondition = false): int
         if (!$preventRaceCondition) {
             return 0;
         } else { // $preventRaceCondition
-            (ServiceContainer::getLogger())->debug("getPidHolder function sleeping fo 5 seconds to deal with race condition");
+            ServiceContainer::getLogger()->debug("getPidHolder function sleeping fo 5 seconds to deal with race condition");
             sleep(5);
             return getPidHolder();
         }

@@ -58,7 +58,7 @@ if ($formid > 0) {
         [$formid]
     );
     if ($formOwner === null || (int) $formOwner['pid'] !== $patientid || (int) $formOwner['encounter'] !== $visitid) {
-        (ServiceContainer::getLogger())->warning(
+        ServiceContainer::getLogger()->warning(
             "An attempt was made to view an LBF form belonging to a different patient or encounter",
             ['user-id' => $_SESSION['authUserID'] ?? '', 'requested-formid' => $formid, 'session-pid' => $patientid, 'session-encounter' => $visitid]
         );

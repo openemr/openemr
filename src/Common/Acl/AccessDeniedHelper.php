@@ -49,7 +49,7 @@ class AccessDeniedHelper
         $user = $session->get('authUser', 'unknown');
         $group = $session->get('authProvider', '');
 
-        (ServiceContainer::getLogger())->warning("Access denied: $comment", [
+        ServiceContainer::getLogger()->warning("Access denied: $comment", [
             'user' => $user,
         ]);
 
@@ -131,7 +131,7 @@ class AccessDeniedHelper
         $user = $session->get('authUser', 'unknown');
         $group = $session->get('authProvider', '');
 
-        (ServiceContainer::getLogger())->warning("Access denied: $comment", [
+        ServiceContainer::getLogger()->warning("Access denied: $comment", [
             'user' => $user,
         ]);
 

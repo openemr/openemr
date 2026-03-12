@@ -112,7 +112,7 @@ class FhirDiagnosticReportService extends FhirServiceBase implements IPatientCom
                 $fhirSearchResult = $this->searchAllServices($fhirSearchParameters, $puuidBind);
             }
         } catch (SearchFieldException $exception) {
-            (ServiceContainer::getLogger())->error("FhirServiceBase->getAll() exception thrown", ['message' => $exception->getMessage(),
+            ServiceContainer::getLogger()->error("FhirServiceBase->getAll() exception thrown", ['message' => $exception->getMessage(),
                 'field' => $exception->getField()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);

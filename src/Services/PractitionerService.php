@@ -183,7 +183,7 @@ class PractitionerService extends BaseService
         if (count($data) > 1) {
             // we will log this error and return just the single value
             $results->setData([$data[0]]);
-            (ServiceContainer::getLogger())->error("PractionerService->getOne() Duplicate records found for uuid", ['uuid' => $uuid]);
+            ServiceContainer::getLogger()->error("PractionerService->getOne() Duplicate records found for uuid", ['uuid' => $uuid]);
         }
         return $results;
     }

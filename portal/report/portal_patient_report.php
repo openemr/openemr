@@ -134,10 +134,10 @@ try {
     $updatedData  = $event->getDataAsArray();
     echo $twig->render("portal/portal_patient_report.html.twig", $updatedData);
 } catch (SyntaxError $exception) {
-    (ServiceContainer::getLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'file' => $exception->getFile()]);
+    ServiceContainer::getLogger()->error($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'file' => $exception->getFile()]);
     echo $twig->render("error/general_http_error.html.twig", []);
 } catch (\Throwable $exception) {
-    (ServiceContainer::getLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+    ServiceContainer::getLogger()->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
     echo $twig->render("error/general_http_error.html.twig", []);
 }
 die();

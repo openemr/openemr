@@ -78,10 +78,10 @@ if (!CsrfUtils::verifyCsrfToken($csrf)) {
         http_response_code(401);
         $result['errorCode'] = 'permissionDenied';
         $isValid = false;
-        (ServiceContainer::getLogger())->error("Access was denied", ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage()]);
+        ServiceContainer::getLogger()->error("Access was denied", ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage()]);
     } catch (\Throwable $error) {
         $result['errorCode'] = 'invalidRequest';
-        (ServiceContainer::getLogger())->error("Data was invalid", ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage()]);
+        ServiceContainer::getLogger()->error("Data was invalid", ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage()]);
         $isValid = false;
     }
 }
@@ -114,7 +114,7 @@ if ($isValid) {
             $result['success'] = true;
         }
     } catch (\InvalidArgumentException $error) {
-        (ServiceContainer::getLogger())->error(
+        ServiceContainer::getLogger()->error(
             "trusted-messages-ajax.php received an invalid document mime type",
             ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage(), 'pid' => $pid
                 , 'document' => $documentId, 'requestor' => $requested_by, 'recipient' => $recipient
@@ -122,7 +122,7 @@ if ($isValid) {
         );
         $result['errorCode'] = 'invalidDocumentFormat';
     } catch (\Throwable $error) {
-        (ServiceContainer::getLogger())->error(
+        ServiceContainer::getLogger()->error(
             "trusted-messages-ajax.php threw an exception when attempting to send",
             ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage(), 'pid' => $pid
                 , 'document' => $documentId, 'requestor' => $requested_by, 'recipient' => $recipient
@@ -133,10 +133,10 @@ if ($isValid) {
 }
 
 try {
-    (ServiceContainer::getLogger())->debug("trusted-messages-ajax.php result object", $result);
+    ServiceContainer::getLogger()->debug("trusted-messages-ajax.php result object", $result);
     echo json_encode($result, JSON_THROW_ON_ERROR);
 } catch (\Throwable $error) {
-    (ServiceContainer::getLogger())->error("Failed to encode json response", ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage(), 'result' => $result]);
+    ServiceContainer::getLogger()->error("Failed to encode json response", ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage(), 'result' => $result]);
     http_response_code(500);
 }
 exit;

@@ -417,7 +417,7 @@ class QueryUtils
     {
         /** @var mixed $params */
         if (!is_array($params)) {
-            (ServiceContainer::getLogger())->debug('Non-array $params passed to {method}: {trace}', [
+            ServiceContainer::getLogger()->debug('Non-array $params passed to {method}: {trace}', [
                 'method' => __METHOD__,
                 'trace' => (new \Exception())->getTraceAsString(),
             ]);

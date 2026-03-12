@@ -553,7 +553,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
                 $processingResult->addData($vitalsRecord);
                 unset($observationCodesToReturn[self::VITALS_PANEL_LOINC_CODE]);
             } else {
-                (ServiceContainer::getLogger())->error("FhirVitalsService->parseVitalsIntoObservationRecords() Cannot return vitals panel as mapping uuid is missing for code " . self::VITALS_PANEL_LOINC_CODE);
+                ServiceContainer::getLogger()->error("FhirVitalsService->parseVitalsIntoObservationRecords() Cannot return vitals panel as mapping uuid is missing for code " . self::VITALS_PANEL_LOINC_CODE);
             }
         }
 

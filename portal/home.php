@@ -413,7 +413,7 @@ try {
 } catch (LoaderError | RuntimeError | SyntaxError $e) {
     SessionUtil::portalSessionCookieDestroy();
     if ($e instanceof SyntaxError) {
-        (ServiceContainer::getLogger())->error($e->getMessage(), ['file' => $e->getFile(), 'trace' => $e->getTraceAsString()]);
+        ServiceContainer::getLogger()->error($e->getMessage(), ['file' => $e->getFile(), 'trace' => $e->getTraceAsString()]);
     }
     die(text($e->getMessage()));
 }

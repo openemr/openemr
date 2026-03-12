@@ -24,7 +24,7 @@ class TeleHealthSessionRepository
     public function createSession($pc_eid, $user_id, $encounter, $pid): ?array
     {
         $sql = "INSERT INTO " . self::TABLE_NAME . " (pc_eid, user_id, encounter, pid) VALUES (?,?,?,?)";
-        (ServiceContainer::getLogger())->debug("Attempting to create session ", ['pc_eid' => $pc_eid, 'user_id' => $user_id, 'encounter' => $encounter, 'pid' => $pid]);
+        ServiceContainer::getLogger()->debug("Attempting to create session ", ['pc_eid' => $pc_eid, 'user_id' => $user_id, 'encounter' => $encounter, 'pid' => $pid]);
         QueryUtils::sqlInsert($sql, [$pc_eid, $user_id, $encounter, $pid]);
         // now return the record.  Should be a 1:1 relationship with appointments.  Encounters can be a m:1 relationship
         return $this->getSessionByAppointmentId($pc_eid, $user_id);
@@ -97,7 +97,7 @@ class TeleHealthSessionRepository
             . " ,pid = ? WHERE pc_eid = ? AND pid = ? ";
             $oldPid = $session['pid'];
             $newPid = $appt['pc_pid'];
-            (ServiceContainer::getLogger())->info(
+            ServiceContainer::getLogger()->info(
                 "TelehealthSessionRepository->updatePatientFromAppointment() "
                 . "changing session patient assignment for appointment",
                 ['pc_eid' => $appt['pc_eid'], 'pid' => $oldPid, 'pc_pid' => $newPid]

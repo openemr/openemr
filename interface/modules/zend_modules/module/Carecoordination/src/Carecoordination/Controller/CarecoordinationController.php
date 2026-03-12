@@ -946,7 +946,7 @@ class CarecoordinationController extends AbstractActionController
         $z->open($zipLocation);
         for ($i = 0; $i < $z->numFiles; $i++) {
             $stat = $z->statIndex($i);
-            (ServiceContainer::getLogger())->error("File in zip is " . $stat['name']);
+            ServiceContainer::getLogger()->error("File in zip is " . $stat['name']);
         }
         $z->close();
     }

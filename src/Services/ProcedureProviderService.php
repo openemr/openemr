@@ -77,10 +77,10 @@ class ProcedureProviderService extends BaseService
             }
         } catch (SqlQueryException $exception) {
             // we shouldn't hit a query exception
-            (ServiceContainer::getLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             $processingResult->addInternalError("Error selecting data from database");
         } catch (SearchFieldException $exception) {
-            (ServiceContainer::getLogger())->error($exception->getMessage(), $exception);
+            ServiceContainer::getLogger()->error($exception->getMessage(), $exception);
             $processingResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }
         return $processingResult;

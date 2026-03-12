@@ -25,7 +25,7 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'udi')) {
 
 $udi = $_GET["udi"] ?? null;
 if (empty($udi)) {
-    (ServiceContainer::getLogger())->error("OpenEMR ERROR: Called udi.php script without sending a udi");
+    ServiceContainer::getLogger()->error("OpenEMR ERROR: Called udi.php script without sending a udi");
     die;
 }
 

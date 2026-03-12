@@ -128,26 +128,26 @@ if ($action == 'do_signup') {
         if ($globalsBag->getBoolean('portal_onsite_two_register') && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key'))) {
             $pidHolder = getPidHolder();
             if ($pidHolder == 0) {
-                (ServiceContainer::getLogger())->error("account.php action do_signup failed because unable to collect pid from pid_holder");
+                ServiceContainer::getLogger()->error("account.php action do_signup failed because unable to collect pid from pid_holder");
                 cleanupRegistrationSession();
                 exit();
             }
             $rtn = doCredentials($pidHolder);
             if ($rtn) {
-                (ServiceContainer::getLogger())->debug("account.php action do_signup apparently successful");
+                ServiceContainer::getLogger()->debug("account.php action do_signup apparently successful");
                 if (!empty($_GET['provider'])) {
                     notifyAdmin($pidHolder, $_GET['provider']);
-                    (ServiceContainer::getLogger())->debug("account.php action do_signup apparently successful, so sent a pnote to the provider");
+                    ServiceContainer::getLogger()->debug("account.php action do_signup apparently successful, so sent a pnote to the provider");
                 }
                 Header::setupHeader();
                 echo '<div class="alert alert-success" role="alert">' . xlt("Your new credentials have been sent. Check your email inbox and also possibly your spam folder. Once you log into your patient portal feel free to make an appointment or send us a secure message. We look forward to seeing you soon.") . '</div>';
             } else {
-                (ServiceContainer::getLogger())->debug("account.php action do_signup apparently not successful");
+                ServiceContainer::getLogger()->debug("account.php action do_signup apparently not successful");
                 Header::setupHeader();
                 echo '<div class="alert alert-danger" role="alert">' . xlt("There was a problem registering you. Recommend contacting clinic for assistance.") . '</div>';
             }
         } else {
-            (ServiceContainer::getLogger())->error("account.php action do_signup attempted without registration module on, so failed");
+            ServiceContainer::getLogger()->error("account.php action do_signup attempted without registration module on, so failed");
         }
     }
     cleanupRegistrationSession();
@@ -159,14 +159,14 @@ if ($action == 'new_insurance') {
         if ($globalsBag->getBoolean('portal_onsite_two_register') && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key'))) {
             $pidHolder = getPidHolder(true);
             if ($pidHolder == 0) {
-                (ServiceContainer::getLogger())->error("account.php action new_insurance was not successful because unable to collect pid from pid_holder. will still complete registration process, which will not include insurance.");
+                ServiceContainer::getLogger()->error("account.php action new_insurance was not successful because unable to collect pid from pid_holder. will still complete registration process, which will not include insurance.");
                 exit();
             }
             saveInsurance($pidHolder);
-            (ServiceContainer::getLogger())->debug("account.php action new_insurance was apparently successful");
+            ServiceContainer::getLogger()->debug("account.php action new_insurance was apparently successful");
             exit();
         } else {
-            (ServiceContainer::getLogger())->error("account.php action new_insurance attempted without registration module on, so failed");
+            ServiceContainer::getLogger()->error("account.php action new_insurance attempted without registration module on, so failed");
             cleanupRegistrationSession();
             exit();
         }

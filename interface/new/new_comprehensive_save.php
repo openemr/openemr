@@ -98,7 +98,7 @@ if (!empty($addressFieldsToSave)) {
             }
         }
     } catch (\Throwable $e) {
-        (ServiceContainer::getLogger())->error("Fatal error in address processing", [
+        ServiceContainer::getLogger()->error("Fatal error in address processing", [
             'pid' => $pid,
             'error' => $e->getMessage(),
             'trace' => $e->getTraceAsString()

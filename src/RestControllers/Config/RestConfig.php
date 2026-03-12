@@ -210,11 +210,11 @@ class RestConfig
                 $scope = $scopeType . '/' . $resource . '.' . $permission;
             }
             if (!in_array($scope, OEGlobalsBag::getInstance()->get('oauth_scopes'))) {
-                (ServiceContainer::getLogger())->debug("RestConfig::scope_check scope not in access token", ['scope' => $scope, 'scopes_granted' => OEGlobalsBag::getInstance()->get('oauth_scopes')]);
+                ServiceContainer::getLogger()->debug("RestConfig::scope_check scope not in access token", ['scope' => $scope, 'scopes_granted' => OEGlobalsBag::getInstance()->get('oauth_scopes')]);
                 throw new AccessDeniedException($scope, '', 'You do not have permission to access this resource');
             }
         } else {
-            (ServiceContainer::getLogger())->error("RestConfig::scope_check global scope array is empty");
+            ServiceContainer::getLogger()->error("RestConfig::scope_check global scope array is empty");
             throw new HttpException(Response::HTTP_UNAUTHORIZED, 'Unauthorized Access');
         }
     }

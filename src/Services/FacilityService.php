@@ -307,7 +307,7 @@ class FacilityService extends BaseService
             }
             return $returnRecords;
         } catch (SqlQueryException $exception) {
-            (ServiceContainer::getLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             throw $exception;
         }
     }
