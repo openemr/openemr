@@ -95,7 +95,7 @@ class UserRepository implements UserRepositoryInterface, IdentityProviderInterfa
                 UuidRegistry::createMissingUuidsForTables(['users']);
                 $uuid = sqlQueryNoLog("SELECT `uuid` FROM `users` WHERE `id` = ?", [$id])['uuid'];
                 if (empty($uuid)) {
-                    $this->getSystemLogger()->errorLogCaller("OpenEMR Error: unable to map uuid for user when creating oauth password grant token");
+                    $this->getSystemLogger()->error("Unable to map uuid for user when creating oauth password grant token");
                     return false;
                 }
                 $user->setIdentifier(UuidRegistry::uuidToString($uuid));
@@ -137,7 +137,7 @@ class UserRepository implements UserRepositoryInterface, IdentityProviderInterfa
                 UuidRegistry::createMissingUuidsForTables(['patient_data']);
                 $uuid = sqlQueryNoLog("SELECT `uuid` FROM `patient_data` WHERE `pid` = ?", [$id])['uuid'];
                 if (empty($uuid)) {
-                    $this->getSystemLogger()->errorLogCaller("OpenEMR Error: unable to map uuid for patient when creating oauth password grant token");
+                    $this->getSystemLogger()->error("Unable to map uuid for patient when creating oauth password grant token");
                     return false;
                 }
                 $user->setIdentifier(UuidRegistry::uuidToString($uuid));

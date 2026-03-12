@@ -406,7 +406,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             $orgService = $this->getFhirOrganizationService();
             $primaryBusinessEntity = $orgService->getPrimaryBusinessEntityReference();
             if (empty($primaryBusinessEntity)) {
-                $this->getSystemLogger()->errorLogCaller("No primary organization found for reported field population in MedicationRequest FHIR resource.");
+                $this->getSystemLogger()->error("No primary organization found for reported field population in MedicationRequest FHIR resource");
                 // as a fallback we will set reported to true
                 $medRequestResource->setReportedBoolean('0' === ($dataRecord['is_primary_record'] ?? '1'));
             }

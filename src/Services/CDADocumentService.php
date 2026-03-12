@@ -133,7 +133,7 @@ class CDADocumentService extends BaseService
         unset($result);
 
         if (str_starts_with($content, 'ERROR:')) {
-            (new SystemLogger())->errorLogCaller("Error generating CCDA", ['message' => $content]);
+            (new SystemLogger())->error("Error generating CCDA: {message}", ['message' => $content]);
             throw new Exception(xlt("Error generating CCDA") . ": " . $content);
         }
 
@@ -280,7 +280,7 @@ class CDADocumentService extends BaseService
         if ($xml === false) {
             $errors = libxml_get_errors();
             libxml_clear_errors();
-            (new SystemLogger())->errorLogCaller("Failed to parse CCDA XML", ['errors' => $errors]);
+            (new SystemLogger())->error("Failed to parse CCDA XML", ['errors' => $errors]);
             throw new RuntimeException(xlt("Failed to parse CCDA XML"));
         }
 
@@ -313,8 +313,8 @@ class CDADocumentService extends BaseService
         } finally {
             if (file_exists($outputFile)) {
                 if (!unlink($outputFile)) {
-                    (new SystemLogger())->errorLogCaller(
-                        "Failed to unlink temporary CDA output. This could expose PHI.",
+                    (new SystemLogger())->error(
+                        "Failed to unlink temporary CDA output {filename}. This could expose PHI.",
                         ['filename' => $outputFile]
                     );
                 }

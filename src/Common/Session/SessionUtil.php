@@ -110,7 +110,7 @@ class SessionUtil
         if (isset($saveHandler)) {
             $success = session_set_save_handler($saveHandler, true);
             if (!$success) {
-                (new SystemLogger())->errorLogCaller("Failed to set session handler for Predis Sentinel.");
+                (new SystemLogger())->error("Failed to set session handler for Predis Sentinel.");
                 throw new \RuntimeException("Failed to set session handler for Predis Sentinel.");
             }
             (new SystemLogger())->debug("Successfully set session handler for Predis Sentinel.");

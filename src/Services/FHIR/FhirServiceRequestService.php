@@ -301,7 +301,7 @@ class FhirServiceRequestService extends FhirServiceBase implements
         // Log validation issues
         if (!empty($validation['errors'])) {
             $errorMsg = "US Core 8.0 validation errors: " . implode("; ", $validation['errors']);
-            (new SystemLogger())->errorLogCaller($errorMsg, ['dataRecord_keys' => array_keys($dataRecord)]);
+            (new SystemLogger())->error($errorMsg, ['dataRecord_keys' => array_keys($dataRecord)]);
 
             // In strict mode, throw exception
             if ($this->strictValidation) {

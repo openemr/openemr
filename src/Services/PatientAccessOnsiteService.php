@@ -294,7 +294,7 @@ class PatientAccessOnsiteService
             return true;
         } else {
             $email_status = $mail->ErrorInfo;
-            $this->logger->errorLogCaller("Failed to send email through Mymailer ", ['ErrorInfo' => $email_status]);
+            $this->logger->error("Failed to send email through Mymailer: {ErrorInfo}", ['ErrorInfo' => $email_status]);
             return false;
         }
     }

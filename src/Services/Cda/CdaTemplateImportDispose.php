@@ -2160,8 +2160,8 @@ class CdaTemplateImportDispose
             $id_data = $insuranceData->insert($data);
         }
         if (!$id_data->isValid()) {
-            (new SystemLogger())->errorLogCaller(
-                'Error inserting insurance data',
+            (new SystemLogger())->error(
+                'Error inserting insurance data: {validationErrors} {internalErrors}',
                 [
                     'internalErrors' => $id_data->getInternalErrors(), 'validationErrors' => $id_data->getValidationMessages()
                 ]

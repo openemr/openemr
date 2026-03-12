@@ -110,12 +110,12 @@ class CustomPasswordGrant extends PasswordGrant
     {
         $client = parent::validateClient($request);
         if (!($client instanceof ClientEntity)) {
-            $this->logger->errorLogCaller("client returned was not a valid ClientEntity ", ['client' => $client->getIdentifier()]);
+            $this->logger->error("Client {client} returned was not a valid ClientEntity", ['client' => $client->getIdentifier()]);
             throw OAuthServerException::invalidClient($request);
         }
 
         if (!$client->isEnabled()) {
-            $this->logger->errorLogCaller("client returned was not enabled", ['client' => $client->getIdentifier()]);
+            $this->logger->error("Client {client} returned was not enabled", ['client' => $client->getIdentifier()]);
             throw OAuthServerException::invalidClient($request);
         }
         return $client;

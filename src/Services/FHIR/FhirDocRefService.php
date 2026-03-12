@@ -135,7 +135,7 @@ class FhirDocRefService
         $patientService = new PatientService();
         $patient = $patientService->search([$field => $newSearchField])->getData() ?? null;
         if (empty($patient)) {
-            (new SystemLogger())->errorLogCaller("Failed to find patient with uuid", ['uuids' => $searchPatient->getValues()]);
+            (new SystemLogger())->error("Failed to find patient with uuid {uuids}", ['uuids' => $searchPatient->getValues()]);
             throw new SearchFieldException($field, "Invalid argument");
         } else {
             $patient = $patient[0];

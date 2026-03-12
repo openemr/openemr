@@ -36,7 +36,7 @@ class FormReportRenderer
             if (function_exists($formDir . "_report")) {
                 ($formDir . "_report")($attendant_id, $encounter, $columns, $formId);
             } else {
-                $this->logger->errorLogCaller("form is missing report function", ['formdir' => $formDir, 'formId' => $formId]);
+                $this->logger->error("Form {formdir} is missing report function for formId {formId}", ['formdir' => $formDir, 'formId' => $formId]);
             }
         }
     }

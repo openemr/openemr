@@ -241,7 +241,7 @@ class FhirObservationPatientService extends FhirServiceBase implements IPatientC
                 continue;
             }
             if (!isset($uuidMappings[$code])) {
-                $this->getSystemLogger()->errorLogCaller("No UUID mapping for patient_data record ", ['uuid' => $record['uuid'], 'code' => $code]);
+                $this->getSystemLogger()->error("No UUID mapping for patient_data record {uuid} for code {code}", ['uuid' => $record['uuid'], 'code' => $code]);
                 continue;
             }
 
