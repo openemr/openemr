@@ -48962,21 +48962,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Unit\\\\ClinicalDecisionRules\\\\ControllerRouterTest\\:\\:createActionRouter\\(\\) has parameter \\$action with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerRouterTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Unit\\\\ClinicalDecisionRules\\\\ControllerRouterTest\\:\\:createActionRouter\\(\\) has parameter \\$controller with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerRouterTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Unit\\\\ClinicalDecisionRules\\\\ControllerRouterTest\\:\\:createActionRouter\\(\\) has parameter \\$controllerDir with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerRouterTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Unit\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Grant\\\\CustomClientCredentialsGrantTest\\:\\:createJWTForKeys\\(\\) has parameter \\$aud with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Auth/OpenIDConnect/Grant/CustomClientCredentialsGrantTest.php',

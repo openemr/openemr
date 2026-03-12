@@ -30607,11 +30607,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerEditTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Unit\\\\ClinicalDecisionRules\\\\ControllerRouterTest\\:\\:createActionRouter\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerRouterTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Unit\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Grant\\\\CustomClientCredentialsGrantTest\\:\\:createJWTForKeys\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Auth/OpenIDConnect/Grant/CustomClientCredentialsGrantTest.php',
