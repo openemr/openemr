@@ -22,6 +22,9 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @phpstan-import-type ApiData from Event
+ */
 #[CoversClass(LogTablesSink::class)]
 class LogTablesSinkTest extends TestCase
 {
@@ -34,6 +37,9 @@ class LogTablesSinkTest extends TestCase
         $this->crypto = $this->createMock(CryptoInterface::class);
     }
 
+    /**
+     * @param ?ApiData $api
+     */
     private function createEvent(?array $api = null): Event
     {
         return new Event(
@@ -58,27 +64,27 @@ class LogTablesSinkTest extends TestCase
     {
         $event = $this->createEvent();
 
+        $callCount = 0;
         $this->connection->expects($this->exactly(2))
             ->method('insert')
-            ->willReturnCallback(function (string $table, array $data): int {
-                static $callCount = 0;
+            ->willReturnCallback(function (string $table, array $data) use (&$callCount): int {
                 $callCount++;
 
                 if ($callCount === 1) {
-                    $this->assertSame('log', $table);
-                    $this->assertSame('2026-03-11 12:00:00', $data['date']);
-                    $this->assertSame('test-event', $data['event']);
-                    $this->assertSame('test-category', $data['category']);
-                    $this->assertSame('testuser', $data['user']);
-                    $this->assertSame('testgroup', $data['groupname']);
-                    $this->assertSame(base64_encode('Test comment'), $data['comments']);
-                    $this->assertSame('User notes', $data['user_notes']);
-                    $this->assertSame(123, $data['patient_id']);
-                    $this->assertSame(1, $data['success']);
-                    $this->assertSame('cert-user', $data['crt_user']);
-                    $this->assertSame('open-emr', $data['log_from']);
+                    self::assertSame('log', $table);
+                    self::assertSame('2026-03-11 12:00:00', $data['date']);
+                    self::assertSame('test-event', $data['event']);
+                    self::assertSame('test-category', $data['category']);
+                    self::assertSame('testuser', $data['user']);
+                    self::assertSame('testgroup', $data['groupname']);
+                    self::assertSame(base64_encode('Test comment'), $data['comments']);
+                    self::assertSame('User notes', $data['user_notes']);
+                    self::assertSame(123, $data['patient_id']);
+                    self::assertSame(1, $data['success']);
+                    self::assertSame('cert-user', $data['crt_user']);
+                    self::assertSame('open-emr', $data['log_from']);
                 } elseif ($callCount === 2) {
-                    $this->assertSame('log_comment_encrypt', $table);
+                    self::assertSame('log_comment_encrypt', $table);
                 }
 
                 return 1;
@@ -93,7 +99,7 @@ class LogTablesSinkTest extends TestCase
         );
 
         $result = $sink->record($event);
-        $this->assertTrue($result);
+        self::assertTrue($result);
     }
 
     public function testRecordInsertsIntoLogCommentEncryptWithCorrectChecksum(): void
@@ -121,13 +127,14 @@ class LogTablesSinkTest extends TestCase
 
         $sink->record($event);
 
-        $this->assertNotNull($capturedLogCommentData);
-        $this->assertSame('99', $capturedLogCommentData['log_id']);
-        $this->assertSame('No', $capturedLogCommentData['encrypt']);
-        $this->assertSame('', $capturedLogCommentData['checksum_api']);
-        $this->assertSame('4', $capturedLogCommentData['version']);
+        self::assertIsArray($capturedLogCommentData);
+        self::assertSame('99', $capturedLogCommentData['log_id']);
+        self::assertSame('No', $capturedLogCommentData['encrypt']);
+        self::assertSame('', $capturedLogCommentData['checksum_api']);
+        self::assertSame('4', $capturedLogCommentData['version']);
         // Checksum should be a sha3-512 hash (128 hex chars)
-        $this->assertSame(128, strlen((string) $capturedLogCommentData['checksum']));
+        self::assertIsString($capturedLogCommentData['checksum']);
+        self::assertSame(128, strlen($capturedLogCommentData['checksum']));
     }
 
     public function testRecordEncryptsCommentsWhenEnabled(): void
@@ -159,7 +166,8 @@ class LogTablesSinkTest extends TestCase
 
         $sink->record($event);
 
-        $this->assertSame('encrypted-comment', $capturedLogData['comments']);
+        self::assertIsArray($capturedLogData);
+        self::assertSame('encrypted-comment', $capturedLogData['comments']);
     }
 
     public function testRecordBase64EncodesCommentsWhenNotEncrypting(): void
@@ -188,7 +196,8 @@ class LogTablesSinkTest extends TestCase
 
         $sink->record($event);
 
-        $this->assertSame(base64_encode('Test comment'), $capturedLogData['comments']);
+        self::assertIsArray($capturedLogData);
+        self::assertSame(base64_encode('Test comment'), $capturedLogData['comments']);
     }
 
     public function testRecordSetsEncryptFlagToYesWhenEncrypting(): void
@@ -217,7 +226,8 @@ class LogTablesSinkTest extends TestCase
 
         $sink->record($event);
 
-        $this->assertSame('Yes', $capturedLogCommentData['encrypt']);
+        self::assertIsArray($capturedLogCommentData);
+        self::assertSame('Yes', $capturedLogCommentData['encrypt']);
     }
 
     public function testRecordSetsEncryptFlagToNoWhenNotEncrypting(): void
@@ -244,7 +254,8 @@ class LogTablesSinkTest extends TestCase
 
         $sink->record($event);
 
-        $this->assertSame('No', $capturedLogCommentData['encrypt']);
+        self::assertIsArray($capturedLogCommentData);
+        self::assertSame('No', $capturedLogCommentData['encrypt']);
     }
 
     public function testRecordHandlesNullUserAndGroup(): void
@@ -287,8 +298,9 @@ class LogTablesSinkTest extends TestCase
         $sink->record($event);
 
         // Null user/group should be converted to empty string
-        $this->assertSame('', $capturedLogData['user']);
-        $this->assertSame('', $capturedLogData['groupname']);
+        self::assertIsArray($capturedLogData);
+        self::assertSame('', $capturedLogData['user']);
+        self::assertSame('', $capturedLogData['groupname']);
     }
 
     public function testRecordHandlesNullPatientId(): void
@@ -330,10 +342,14 @@ class LogTablesSinkTest extends TestCase
 
         $sink->record($event);
 
-        $this->assertNull($capturedLogData['patient_id']);
-        $this->assertNull($capturedLogData['category']);
+        self::assertIsArray($capturedLogData);
+        self::assertNull($capturedLogData['patient_id']);
+        self::assertNull($capturedLogData['category']);
     }
 
+    /**
+     * @return ApiData
+     */
     private function createApiData(): array
     {
         return [
@@ -369,7 +385,7 @@ class LogTablesSinkTest extends TestCase
 
         $sink->record($event);
 
-        $this->assertSame(['log', 'log_comment_encrypt', 'api_log'], $insertedTables);
+        self::assertSame(['log', 'log_comment_encrypt', 'api_log'], $insertedTables);
     }
 
     public function testRecordDoesNotInsertIntoApiLogWhenNoApiData(): void
@@ -394,7 +410,7 @@ class LogTablesSinkTest extends TestCase
 
         $sink->record($event);
 
-        $this->assertSame(['log', 'log_comment_encrypt'], $insertedTables);
+        self::assertSame(['log', 'log_comment_encrypt'], $insertedTables);
     }
 
     public function testRecordApiLogContainsCorrectData(): void
@@ -422,18 +438,18 @@ class LogTablesSinkTest extends TestCase
 
         $sink->record($event);
 
-        $this->assertNotNull($capturedApiLogData);
-        $this->assertSame('55', $capturedApiLogData['log_id']);
-        $this->assertSame(1, $capturedApiLogData['user_id']);
-        $this->assertSame(123, $capturedApiLogData['patient_id']);
-        $this->assertSame('GET', $capturedApiLogData['method']);
-        $this->assertSame('/api/patient', $capturedApiLogData['request']);
-        $this->assertSame('https://example.com/api/patient', $capturedApiLogData['request_url']);
-        $this->assertSame('{"foo":"bar"}', $capturedApiLogData['request_body']);
-        $this->assertSame('{"status":"ok"}', $capturedApiLogData['response']);
-        $this->assertSame('2026-03-11 12:00:00', $capturedApiLogData['created_time']);
+        self::assertNotNull($capturedApiLogData);
+        self::assertSame('55', $capturedApiLogData['log_id']);
+        self::assertSame(1, $capturedApiLogData['user_id']);
+        self::assertSame(123, $capturedApiLogData['patient_id']);
+        self::assertSame('GET', $capturedApiLogData['method']);
+        self::assertSame('/api/patient', $capturedApiLogData['request']);
+        self::assertSame('https://example.com/api/patient', $capturedApiLogData['request_url']);
+        self::assertSame('{"foo":"bar"}', $capturedApiLogData['request_body']);
+        self::assertSame('{"status":"ok"}', $capturedApiLogData['response']);
+        self::assertSame('2026-03-11 12:00:00', $capturedApiLogData['created_time']);
         // IP address comes from collectIpAddresses()
-        $this->assertArrayHasKey('ip_address', $capturedApiLogData);
+        self::assertArrayHasKey('ip_address', $capturedApiLogData);
     }
 
     public function testRecordEncryptsApiFieldsWhenEnabled(): void
@@ -465,9 +481,10 @@ class LogTablesSinkTest extends TestCase
 
         $sink->record($event);
 
-        $this->assertSame('encrypted:https://example.com/api/patient', $capturedApiLogData['request_url']);
-        $this->assertSame('encrypted:{"foo":"bar"}', $capturedApiLogData['request_body']);
-        $this->assertSame('encrypted:{"status":"ok"}', $capturedApiLogData['response']);
+        self::assertIsArray($capturedApiLogData);
+        self::assertSame('encrypted:https://example.com/api/patient', $capturedApiLogData['request_url']);
+        self::assertSame('encrypted:{"foo":"bar"}', $capturedApiLogData['request_body']);
+        self::assertSame('encrypted:{"status":"ok"}', $capturedApiLogData['response']);
     }
 
     public function testRecordDoesNotEncryptEmptyApiFields(): void
@@ -509,9 +526,10 @@ class LogTablesSinkTest extends TestCase
 
         $sink->record($event);
 
-        $this->assertSame('', $capturedApiLogData['request_url']);
-        $this->assertSame('', $capturedApiLogData['request_body']);
-        $this->assertSame('', $capturedApiLogData['response']);
+        self::assertIsArray($capturedApiLogData);
+        self::assertSame('', $capturedApiLogData['request_url']);
+        self::assertSame('', $capturedApiLogData['request_body']);
+        self::assertSame('', $capturedApiLogData['response']);
     }
 
     public function testRecordApiChecksumIsPopulatedWhenApiDataPresent(): void
@@ -539,6 +557,8 @@ class LogTablesSinkTest extends TestCase
         $sink->record($event);
 
         // API checksum should be a sha3-512 hash (128 hex chars)
-        $this->assertSame(128, strlen((string) $capturedLogCommentData['checksum_api']));
+        self::assertIsArray($capturedLogCommentData);
+        self::assertIsString($capturedLogCommentData['checksum_api']);
+        self::assertSame(128, strlen($capturedLogCommentData['checksum_api']));
     }
 }
