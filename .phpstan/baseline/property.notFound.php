@@ -582,11 +582,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Menu/PatientMenuRole.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Access to an undefined property OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirCareTeamRestController\\:\\:\\$systemLogger\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirCareTeamRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Access to an undefined property DOMNode\\:\\:\\$tagName\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',

@@ -19,6 +19,7 @@ use OpenEMR\Services\Search\SearchFieldType;
 use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\ProcessingResult;
+use Psr\Log\LoggerInterface;
 
 /**
  * FHIR Condition Service
@@ -52,7 +53,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
         $this->conditionService = new ConditionService();
     }
 
-    public function setSystemLogger(SystemLogger $systemLogger): void
+    public function setSystemLogger(LoggerInterface $systemLogger): void
     {
         $this->logger = $systemLogger;
         foreach ($this->getMappedServices() as $service) {
