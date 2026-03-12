@@ -64,7 +64,7 @@ try {
             $targetContact = $contactService->getOrCreateForEntity('person', $targetId);
             $targetContactId = $targetContact->get_id();
             if (empty($targetContactId)) {
-                $logger->errorLogCaller("No contact found for related person", [
+                $logger->error("No contact found for related person {person_id}", [
                     'person_id' => $targetId,
                     'owner_contact_relation_id' => $record['owner_contact_relation_id']
                 ]);

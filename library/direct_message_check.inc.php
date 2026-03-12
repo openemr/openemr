@@ -509,7 +509,7 @@ function phimail_close($fp): void
 function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check"): void
 {
     if (!$success) {
-        (new SystemLogger())->errorLogCaller($event, ['success' => $success, 'text' => $text, 'pid' => $pid]);
+        (new SystemLogger())->error("phimail_logit {event}: {text}", ['event' => $event, 'text' => $text, 'pid' => $pid]);
     }
     EventAuditLogger::getInstance()->newEvent($event, "phimail-service", 0, $success, $text, $pid);
 }

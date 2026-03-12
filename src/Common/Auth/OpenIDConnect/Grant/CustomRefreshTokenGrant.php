@@ -183,12 +183,12 @@ class CustomRefreshTokenGrant extends RefreshTokenGrant
     {
         $client = parent::validateClient($request);
         if (!($client instanceof ClientEntity)) {
-            $this->getSystemLogger()->errorLogCaller("client returned was not a valid ClientEntity ", ['client' => $client->getIdentifier()]);
+            $this->getSystemLogger()->error("Client {client} returned was not a valid ClientEntity", ['client' => $client->getIdentifier()]);
             throw OAuthServerException::invalidClient($request);
         }
 
         if (!$client->isEnabled()) {
-            $this->getSystemLogger()->errorLogCaller("client returned was not enabled", ['client' => $client->getIdentifier()]);
+            $this->getSystemLogger()->error("Client {client} returned was not enabled", ['client' => $client->getIdentifier()]);
             throw OAuthServerException::invalidClient($request);
         }
         return $client;

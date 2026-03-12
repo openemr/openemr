@@ -128,7 +128,7 @@ class TeleHealthParticipantInvitationMailerService
             if (isset($oneTime['encoded_link'])) {
                 return $oneTime['encoded_link'];
             } else {
-                (new SystemLogger())->errorLogCaller("Failed to generate encoded_link with onetime service");
+                (new SystemLogger())->error("TeleHealthParticipantInvitationMailerService: Failed to generate encoded_link with onetime service");
                 return $this->publicPathFQDN . "index-portal.php";
             }
         } else {

@@ -237,7 +237,7 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
     {
         $processingResult = new ProcessingResult();
         if (empty($this->serviceLocator)) {
-            (new SystemLogger())->errorLogCaller("class was not properly configured with the service locator");
+            (new SystemLogger())->error("FhirProvenanceService was not properly configured with the service locator");
         }
 
         $searchParams = $this->filterSupportedSearchParams($fhirSearchParameters);
@@ -355,13 +355,13 @@ class FhirProvenanceService extends FhirServiceBase implements IResourceUSCIGPro
 
         // lastUpdated is a timesecond instant so we are going to get int value for comparison
         if (empty($resource->getMeta())) {
-            (new SystemLogger())->errorLogCaller(
-                "Resource missing required Meta field",
+            (new SystemLogger())->error(
+                "Resource {resource} of type {type} missing required Meta field",
                 ['resource' => $resource->getId(), 'type' => $resource->get_fhirElementName()]
             );
         } else if (empty($resource->getMeta()->getLastUpdated())) {
-            (new SystemLogger())->errorLogCaller(
-                "Resource missing required Meta->lastUpdated field",
+            (new SystemLogger())->error(
+                "Resource {resource} of type {type} missing required Meta->lastUpdated field",
                 ['resource' => $resource->getId(), 'type' => $resource->get_fhirElementName()]
             );
         // patients were the only ones who actually were tracking a valid last updated date instead of the most

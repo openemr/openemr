@@ -123,7 +123,7 @@ class TeleHealthCalendarController
                             $eventViewClasses[] = "event_telehealth_active";
                         }
                     } else if ($dateTime == false) {
-                        $this->logger->errorLogCaller("Failed to create DateTime object for calendar event", ['pc_eid' => $eventsByDay[$key][$i]['eid']]);
+                        $this->logger->error("TeleHealthCalendarController: Failed to create DateTime object for calendar event pc_eid={pc_eid}", ['pc_eid' => $eventsByDay[$key][$i]['eid']]);
                     }
                     $eventsByDay[$key][$i]['eventViewClass'] = implode(" ", $eventViewClasses);
                 }
@@ -218,7 +218,7 @@ class TeleHealthCalendarController
         $eventDateTimeString = $row['pc_eventDate'] . " " . $row['pc_startTime'];
         $dateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $eventDateTimeString);
         if ($dateTime === false) {
-            (new SystemLogger())->errorLogCaller("appointment date time string was invalid", ['pc_eid' => $row['pc_eid'], 'dateTime' => $eventDateTimeString]);
+            (new SystemLogger())->error("TeleHealthCalendarController: appointment date time string {dateTime} was invalid for pc_eid={pc_eid}", ['pc_eid' => $row['pc_eid'], 'dateTime' => $eventDateTimeString]);
             return;
         }
 

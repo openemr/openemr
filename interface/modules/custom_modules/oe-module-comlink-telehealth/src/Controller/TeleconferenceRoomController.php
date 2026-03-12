@@ -1152,14 +1152,14 @@ class TeleconferenceRoomController
             $appointment = $appointment[0];
         }
         if ($this->isPendingAppointment($appointment)) { // pending status
-            (new SystemLogger())->errorLogCaller("Telehealth appointment was launched for pending appointment.  This should not happen.", ['pc_eid' => $pc_eid, 'appointment' => $appointment]);
+            (new SystemLogger())->error("TeleconferenceRoomController: Telehealth appointment was launched for pending appointment pc_eid={pc_eid}. This should not happen.", ['pc_eid' => $pc_eid, 'appointment' => $appointment]);
             throw new InvalidArgumentException("appointment status cannot be initialized as the appointment was not confirmed by the provider" . $pc_eid);
         }
 
         if (!$appointmentService->isCheckInStatus($appointment['pc_apptstatus'])) {
             if ($appointmentService->isCheckOutStatus($appointment['pc_apptstatus'])) {
                 // we need to log this... we shouldn't even be launching a telehealth session if this is a checkout appointment
-                (new SystemLogger())->errorLogCaller("Telehealth appointment was launched for completed appointment", ['pc_eid' => $pc_eid, 'appointment' => $appointment]);
+                (new SystemLogger())->error("TeleconferenceRoomController: Telehealth appointment was launched for completed appointment pc_eid={pc_eid}", ['pc_eid' => $pc_eid, 'appointment' => $appointment]);
             } else {
                 // need to check them in.
                 // else set appointment to '@'

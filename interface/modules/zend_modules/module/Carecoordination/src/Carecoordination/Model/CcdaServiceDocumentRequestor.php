@@ -31,7 +31,7 @@ class CcdaServiceDocumentRequestor
         // we're local service
         if (OEGlobalsBag::getInstance()->get('ccda_alt_service_enable') > 0) {
         } else {
-            $this->getSystemLogger()->errorLogCaller("C-CDA Service is not enabled in Global Settings");
+            $this->getSystemLogger()->error("CcdaServiceDocumentRequestor: C-CDA Service is not enabled in Global Settings");
             throw new CcdaServiceConnectionException("Please Enable C-CDA Alternate Service in Global Settings");
         }
         $output = "";
@@ -59,7 +59,7 @@ class CcdaServiceDocumentRequestor
                     throw new CcdaServiceConnectionException("Failed to start local ccdaservice");
                 }
                 if (pclose($pipeHandle) === -1) {
-                    $this->getSystemLogger()->errorLogCaller("Failed to close pipehandle for ccdaservice");
+                    $this->getSystemLogger()->error("CcdaServiceDocumentRequestor: Failed to close pipehandle for ccdaservice");
                 }
             } else {
                 $command = 'node';
@@ -68,7 +68,7 @@ class CcdaServiceDocumentRequestor
                         // older or custom Ubuntu systems that have nodejs rather than node command
                         $command = 'nodejs';
                     } else {
-                        $this->getSystemLogger()->errorLogCaller("Node is not installed on the system.  Connection failed");
+                        $this->getSystemLogger()->error("CcdaServiceDocumentRequestor: Node is not installed on the system. Connection failed");
                         throw new CcdaServiceConnectionException('Connection Failed.');
                     }
                 }
@@ -82,7 +82,7 @@ class CcdaServiceDocumentRequestor
             if ($result === false) {
                 $errorCode = socket_last_error($socket);
                 $errorMsg = socket_strerror($errorCode);
-                $this->getSystemLogger()->errorLogCaller("Socket connection error $errorCode: $errorMsg");
+                $this->getSystemLogger()->error("CcdaServiceDocumentRequestor: Socket connection error {errorCode}: {errorMsg}", ['errorCode' => $errorCode, 'errorMsg' => $errorMsg]);
                 throw new CcdaServiceConnectionException("Connection Failed: $errorMsg");
             }
 
@@ -93,7 +93,7 @@ class CcdaServiceDocumentRequestor
         // Set default buffer size to target data array size.
         $good_buf = socket_set_option($socket, SOL_SOCKET, SO_SNDBUF, $len);
         if ($good_buf === false) { // Can't set buffer
-            $this->getSystemLogger()->errorLogCaller("Failed to set socket buffer to " . $len);
+            $this->getSystemLogger()->error("CcdaServiceDocumentRequestor: Failed to set socket buffer to {len}", ['len' => $len]);
         }
         // make writeSize chunk either the size set above or the default buffer size (64Kb).
         $writeSize = socket_get_option($socket, SOL_SOCKET, SO_SNDBUF);

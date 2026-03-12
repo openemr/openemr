@@ -56,7 +56,7 @@ class ReportManager
             $report->execute();
             $results = $report->getResults();
         } else {
-            (new SystemLogger())->errorLogCaller("Rule class does not implement valid interfaces", ['ruleId' => $ruleId, 'class' => ReportTypes::getClassName($ruleId)]);
+            (new SystemLogger())->error("Rule {ruleId} class {class} does not implement valid interfaces", ['ruleId' => $ruleId, 'class' => ReportTypes::getClassName($ruleId)]);
         }
 
         return RsHelper::formatClinicalRules($results);
