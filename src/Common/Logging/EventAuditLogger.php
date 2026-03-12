@@ -323,51 +323,6 @@ class EventAuditLogger
     }
 
     /**
-     * This function is used to send audit records to an Audit Repository Server,
-     * as described in the Audit Trail and Node Authentication (ATNA) standard.
-     * Given the fields in a single audit record:
-     * - Create an XML audit message according to RFC 3881, including the RFC5425 syslog header.
-     * - Create a TLS connection that performs bi-directions certificate authentication,
-     *   according to RFC 5425.
-     * - Send the XML message on the TLS connection.
-     *
-     * @param $user
-     * @param $group
-     * @param $event
-     * @param $patient_id
-     * @param $outcome
-     * @param $comments
-     */
-    public function sendAtnaAuditMsg($user, $group, $event, $patient_id, $outcome, $comments)
-    {
-        $bag = OEGlobalsBag::getInstance();
-        $writer = new Audit\Atna\TcpWriter(
-            host: $bag->getString('atna_audit_host'),
-            port: $bag->getInt('atna_audit_port'),
-            localCert: $bag->getString('atna_audit_localcert'),
-            caCert: $bag->getString('atna_audit_cacert'),
-        );
-        $sink = new Audit\AtnaSink(
-            clock: ServiceContainer::getClock(),
-            writer: $writer,
-            enabled: $bag->getBoolean('enable_atna_audit'),
-            host: $bag->getString('atna_audit_host'),
-            serverName: $_SERVER['SERVER_NAME'] ?? '',
-            serverAddress: $_SERVER['SERVER_ADDR'] ?? '',
-        );
-        // The receiving end has native type hints; since this file has
-        // basically no type safety, do some casting based on expected values.
-        $sink->record(
-            (string) ($user ?? ''),
-            (string) ($group ?? ''),
-            (string) ($event ?? ''),
-            (int) ($patient_id ?? 0),
-            (int) ($outcome ?? 0),
-            (string) ($comments ?? ''),
-        );
-    }
-
-    /**
      * Add an entry into the audit log table, indicating that an
      * SQL query was performed. $outcome is true if the statement
      * successfully completed.  Determine the event type based on
@@ -695,13 +650,22 @@ class EventAuditLogger
         );
         $logTableSink->record($auditEvent);
 
-        // TODO: convert ATNA to same style/interface
-
         // 4. if atna server is on, then send entry to atna server
-        if ($patientId == null) {
-            $patientId = 0;
-        }
-        $this->sendAtnaAuditMsg($user, $group, $event, $patientId, $success, $comments);
+        $writer = new Audit\Atna\TcpWriter(
+            host: $bag->getString('atna_audit_host'),
+            port: $bag->getInt('atna_audit_port'),
+            localCert: $bag->getString('atna_audit_localcert'),
+            caCert: $bag->getString('atna_audit_cacert'),
+        );
+        $atnaSink = new Audit\AtnaSink(
+            clock: ServiceContainer::getClock(),
+            writer: $writer,
+            enabled: $bag->getBoolean('enable_atna_audit'),
+            host: $bag->getString('atna_audit_host'),
+            serverName: $_SERVER['SERVER_NAME'] ?? '',
+            serverAddress: $_SERVER['SERVER_ADDR'] ?? '',
+        );
+        $atnaSink->record($auditEvent);
     }
 
     /**

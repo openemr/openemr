@@ -19,7 +19,7 @@ namespace OpenEMR\Common\Logging\Audit;
 
 use Doctrine\DBAL\Connection;
 
-readonly class LogTablesSink
+readonly class LogTablesSink implements SinkInterface
 {
     /**
      * CRITICAL: The connection must be separate from the one used for other

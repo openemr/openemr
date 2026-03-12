@@ -17,6 +17,7 @@ namespace OpenEMR\Tests\Isolated\Common\Logging\Audit;
 use DateTimeImmutable;
 use OpenEMR\Common\Logging\Audit\Atna\WriterInterface;
 use OpenEMR\Common\Logging\Audit\AtnaSink;
+use OpenEMR\Common\Logging\Audit\Event;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -33,6 +34,33 @@ class AtnaSinkTest extends TestCase
             ->willReturn(new DateTimeImmutable('2026-03-10T12:00:00+00:00'));
     }
 
+    private function createEvent(
+        string $event,
+        string $user = 'testuser',
+        string $group = 'testgroup',
+        int $patientId = 0,
+        int $success = 1,
+        string $comments = 'Test comment',
+    ): Event {
+        return new Event(
+            isEncrypted: false,
+            current_datetime: '2026-03-10 12:00:00',
+            event: $event,
+            category: 'test',
+            user: $user,
+            group: $group,
+            comments: $comments,
+            user_notes: '',
+            patientId: $patientId,
+            success: $success,
+            SSL_CLIENT_S_DN_CN: '',
+            logFrom: 'open-emr',
+            menuItemId: null,
+            ccdaDocId: null,
+            api: null,
+        );
+    }
+
     public function testRecordDoesNothingWhenDisabled(): void
     {
         $writer = $this->createMock(WriterInterface::class);
@@ -47,7 +75,7 @@ class AtnaSinkTest extends TestCase
             serverAddress: '192.168.1.1',
         );
 
-        $sink->record('testuser', 'testgroup', 'login', 0, 1, 'Test login');
+        $sink->record($this->createEvent('login'));
     }
 
     public function testRecordDoesNothingWhenHostIsEmpty(): void
@@ -64,7 +92,7 @@ class AtnaSinkTest extends TestCase
             serverAddress: '192.168.1.1',
         );
 
-        $sink->record('testuser', 'testgroup', 'login', 0, 1, 'Test login');
+        $sink->record($this->createEvent('login'));
     }
 
     public function testRecordCallsWriterWhenEnabled(): void
@@ -88,7 +116,7 @@ class AtnaSinkTest extends TestCase
             serverAddress: '192.168.1.1',
         );
 
-        $sink->record('testuser', 'testgroup', 'login', 0, 1, 'Test login');
+        $sink->record($this->createEvent('login'));
     }
 
     #[DataProvider('eventActionCodeProvider')]
@@ -111,7 +139,7 @@ class AtnaSinkTest extends TestCase
             serverAddress: '192.168.1.1',
         );
 
-        $sink->record('user', 'group', $event, 0, 1, 'comment');
+        $sink->record($this->createEvent($event));
     }
 
     /**
@@ -149,7 +177,7 @@ class AtnaSinkTest extends TestCase
             serverAddress: '192.168.1.1',
         );
 
-        $sink->record('user', 'group', $event, 0, 1, 'comment');
+        $sink->record($this->createEvent($event));
     }
 
     /**
@@ -187,7 +215,7 @@ class AtnaSinkTest extends TestCase
             serverAddress: '192.168.1.1',
         );
 
-        $sink->record('user', 'group', 'login', 0, 1, 'comment');
+        $sink->record($this->createEvent('login'));
     }
 
     public function testFailureOutcomeIs4(): void
@@ -209,7 +237,7 @@ class AtnaSinkTest extends TestCase
             serverAddress: '192.168.1.1',
         );
 
-        $sink->record('user', 'group', 'login', 0, 0, 'comment');
+        $sink->record($this->createEvent('login', success: 0));
     }
 
     public function testPatientIdIncludedForPatientRecordEvents(): void
@@ -232,7 +260,7 @@ class AtnaSinkTest extends TestCase
             serverAddress: '192.168.1.1',
         );
 
-        $sink->record('user', 'group', 'patient-record-select', 12345, 1, 'comment');
+        $sink->record($this->createEvent('patient-record-select', patientId: 12345));
     }
 
     public function testPatientIdNotIncludedWhenZero(): void
@@ -254,6 +282,6 @@ class AtnaSinkTest extends TestCase
             serverAddress: '192.168.1.1',
         );
 
-        $sink->record('user', 'group', 'patient-record-select', 0, 1, 'comment');
+        $sink->record($this->createEvent('patient-record-select'));
     }
 }
