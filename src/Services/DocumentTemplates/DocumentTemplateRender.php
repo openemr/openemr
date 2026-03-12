@@ -21,7 +21,8 @@ namespace OpenEMR\Services\DocumentTemplates;
 
 use HTMLPurifier;
 use HTMLPurifier_Config;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\VersionService;
@@ -52,15 +53,15 @@ class DocumentTemplateRender
     private readonly mixed $encounter;
     public $version;
     private readonly DocumentTemplateService $templateService;
-    private readonly SystemLogger $logger;
+    private readonly LoggerInterface $logger;
 
-    public function __construct(private $pid, $user, $encounter = null)
+    public function __construct(private $pid, $user, $encounter = null, ?LoggerInterface $logger = null)
     {
         $this->user = $user ?: $_SESSION['authUserID'] ?? 0;
         $this->encounter = $encounter ?: OEGlobalsBag::getInstance()->get('encounter');
         $this->version = (new VersionService())->asString();
         $this->templateService = new DocumentTemplateService();
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     /**

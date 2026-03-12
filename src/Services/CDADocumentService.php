@@ -19,7 +19,6 @@ use DOMDocument;
 use Exception;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\KeySource;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use RuntimeException;
@@ -133,7 +132,7 @@ class CDADocumentService extends BaseService
         unset($result);
 
         if (str_starts_with($content, 'ERROR:')) {
-            (new SystemLogger())->error("Error generating CCDA: {message}", ['message' => $content]);
+            ServiceContainer::getLogger()->error("Error generating CCDA: {message}", ['message' => $content]);
             throw new Exception(xlt("Error generating CCDA") . ": " . $content);
         }
 
@@ -280,7 +279,7 @@ class CDADocumentService extends BaseService
         if ($xml === false) {
             $errors = libxml_get_errors();
             libxml_clear_errors();
-            (new SystemLogger())->error("Failed to parse CCDA XML", ['errors' => $errors]);
+            ServiceContainer::getLogger()->error("Failed to parse CCDA XML", ['errors' => $errors]);
             throw new RuntimeException(xlt("Failed to parse CCDA XML"));
         }
 
@@ -313,7 +312,7 @@ class CDADocumentService extends BaseService
         } finally {
             if (file_exists($outputFile)) {
                 if (!unlink($outputFile)) {
-                    (new SystemLogger())->error(
+                    ServiceContainer::getLogger()->error(
                         "Failed to unlink temporary CDA output {filename}. This could expose PHI.",
                         ['filename' => $outputFile]
                     );

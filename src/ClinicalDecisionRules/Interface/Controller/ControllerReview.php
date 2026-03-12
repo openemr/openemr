@@ -10,7 +10,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ControllerReview extends BaseController
@@ -82,7 +82,7 @@ class ControllerReview extends BaseController
         // note some browser implementations appear to screw up on html maxlength attribute due to line breaks and other weird characters
         // so we need to check the length here, but note that the client side may see a different length in certain edge cases.
         if (mb_strlen((string) $rule->getFeedback()) > 2048) {
-            (new SystemLogger())->error("Rule {ruleId} feedback length exceeded, client side should have caught this", ['ruleId' => $ruleId]);
+            ServiceContainer::getLogger()->error("Rule {ruleId} feedback length exceeded, client side should have caught this", ['ruleId' => $ruleId]);
             return $this->redirect("index.php?action=review!view&rule_id=" . urlencode($ruleId) . '&pid=' . urlencode((string) $pid) . '&csrf_token_form=' . urlencode((string) CsrfUtils::collectCsrfToken())
                 . '&message=' . self::ERROR_MESSAGE_INVALID);
         }
@@ -107,7 +107,7 @@ class ControllerReview extends BaseController
                 . '&message=' . self::ERROR_MESSAGE_SUCCESS);
         } else {
             // TODO: if there is no feedback... we never should have gotten here... log an error and throw an exception
-            (new SystemLogger())->error("No rule {ruleId} found in clinical rule log. This should never have been reached", ['ruleId' => $ruleId]);
+            ServiceContainer::getLogger()->error("No rule {ruleId} found in clinical rule log. This should never have been reached", ['ruleId' => $ruleId]);
             return $this->redirect("index.php?action=review!view&rule_id=" . urlencode($ruleId) . '&pid=' . urlencode((string) $pid) . '&csrf_token_form=' . urlencode((string) CsrfUtils::collectCsrfToken())
                 . '&message=' . self::ERROR_MESSAGE_FAILED);
         }

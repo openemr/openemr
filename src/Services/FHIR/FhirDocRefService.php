@@ -12,7 +12,6 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -135,7 +134,7 @@ class FhirDocRefService
         $patientService = new PatientService();
         $patient = $patientService->search([$field => $newSearchField])->getData() ?? null;
         if (empty($patient)) {
-            (new SystemLogger())->error("Failed to find patient with uuid {uuids}", ['uuids' => $searchPatient->getValues()]);
+            $this->getSystemLogger()->error("Failed to find patient with uuid {uuids}", ['uuids' => $searchPatient->getValues()]);
             throw new SearchFieldException($field, "Invalid argument");
         } else {
             $patient = $patient[0];

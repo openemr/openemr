@@ -15,7 +15,6 @@ namespace OpenEMR\Services\Cda;
 use CURLFile;
 use DOMDocument;
 use Exception;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\System\System;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -76,7 +75,7 @@ class CdaValidateDocuments
         try {
             $result = $this->ettValidateDocumentRequest($xml);
         } catch (\Throwable $e) {
-            (new SystemLogger())->error($e->getMessage(), ['exception' => $e]);
+            $this->getSystemLogger()->error($e->getMessage(), ['exception' => $e]);
             return [];
         }
         // translate result to our common render array

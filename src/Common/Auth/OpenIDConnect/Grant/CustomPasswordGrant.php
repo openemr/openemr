@@ -20,20 +20,18 @@ use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use League\OAuth2\Server\Repositories\UserRepositoryInterface;
 use League\OAuth2\Server\RequestEvent;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CustomPasswordGrant extends PasswordGrant
 {
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
     public function __construct(private readonly SessionInterface $session, UserRepositoryInterface $userRepository, RefreshTokenRepositoryInterface $refreshTokenRepository)
     {
-        $this->logger = new SystemLogger();
+        $this->logger = ServiceContainer::getLogger();
         parent::__construct($userRepository, $refreshTokenRepository);
     }
 

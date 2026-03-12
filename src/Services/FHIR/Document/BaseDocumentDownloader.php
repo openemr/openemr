@@ -14,7 +14,7 @@ namespace OpenEMR\Services\FHIR\Document;
 
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
@@ -25,12 +25,15 @@ class BaseDocumentDownloader implements IDocumentDownloader
      */
     const EXPIRES_HEADER_DATE_TIME_FORMAT = 'D, d M Y H:i:s \G\M\T';
 
+    private readonly LoggerInterface $logger;
+
     /**
      * BaseDocumentDownloader constructor.
      * @param LoggerInterface|null $logger
      */
-    public function __construct(private readonly ?LoggerInterface $logger = new SystemLogger())
+    public function __construct(?LoggerInterface $logger = null)
     {
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     /**

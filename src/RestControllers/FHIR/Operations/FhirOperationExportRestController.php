@@ -7,7 +7,7 @@ use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Export\ExportException;
 use OpenEMR\FHIR\Export\ExportJob;
@@ -96,9 +96,10 @@ class FhirOperationExportRestController
      */
     public function __construct(
         private readonly HttpRestRequest $request,
-        OEGlobalsBag $globalsBag
+        OEGlobalsBag $globalsBag,
+        ?LoggerInterface $logger = null,
     ) {
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
         $this->fhirExportJobService = new FhirExportJobService();
         $this->isExportDisabled = $globalsBag->getInt('rest_system_scopes_api', 0) === 0;
         $serviceLocator = $this->request->attributes->get('_serviceLocator');

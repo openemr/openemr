@@ -10,7 +10,7 @@ use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -71,7 +71,7 @@ class ControllerLog extends BaseController
                 ]);
             } catch (\Throwable $e) {
                 // TODO: @adunsulag need to figure out error handling in addition to just logging the error
-                (new SystemLogger())->error($e->getMessage(), ['exception' => $e]);
+                ServiceContainer::getLogger()->error($e->getMessage(), ['exception' => $e]);
             }
         }
         $fileName = date(\DateTimeImmutable::ATOM) . "_log.csv";

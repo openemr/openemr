@@ -12,7 +12,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\ORDataObject\ContactAddress;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROperationOutcome;
@@ -210,7 +210,7 @@ class UtilsService
             $format = str_contains((string) $dataRecord['period_start'], ':') ? "Y-m-d H:i:s" : "Y-m-d";
             $date = \DateTimeImmutable::createFromFormat($format, $dataRecord['period_start'], new \DateTimeZone(date('P')));
             if ($date === false) {
-                (new SystemLogger())->error(
+                ServiceContainer::getLogger()->error(
                     "Failed to format period_start date {start} for contact_address_id {contact_address_id}",
                     ['start' => $dataRecord['period_start'], 'contact_address_id' => ($dataRecord['contact_address_id'] ?? null)]
                 );
@@ -228,7 +228,7 @@ class UtilsService
         if (!empty($dataRecord['period_end'])) {
             $date = DateFormatterUtils::dateStringToDateTime($dataRecord['period_end'], true);
             if ($date === false) {
-                (new SystemLogger())->error(
+                ServiceContainer::getLogger()->error(
                     "Failed to format period_end date {date} for contact_address_id {contact_address_id}",
                     ['date' => $dataRecord['period_end'], 'contact_address_id' => ($dataRecord['contact_address_id'] ?? null)]
                 );

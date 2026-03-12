@@ -2,7 +2,6 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Services\ConditionService;
 use OpenEMR\Services\FHIR\Condition\FhirConditionEncounterDiagnosisService;
@@ -111,7 +110,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
             }
             $fhirSearchResult = $this->searchServices($services, $fhirSearchParameters, $puuidBind);
         } catch (SearchFieldException $exception) {
-            $systemLogger = new SystemLogger();
+            $systemLogger = $this->getSystemLogger();
             $systemLogger->error("exception thrown", ['exception' => $exception,
                 'field' => $exception->getField()]);
             // put our exception information here

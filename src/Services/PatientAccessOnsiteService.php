@@ -26,7 +26,8 @@ use MyMailer;
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Utils\ValidationUtils;
@@ -52,18 +53,15 @@ class PatientAccessOnsiteService
      */
     private $twig;
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
-    public function __construct()
+    public function __construct(?LoggerInterface $logger = null)
     {
         $this->authUser = $_SESSION['authUser'];
         $this->authProvider = $_SESSION['authProvider'];
         $this->kernel = OEGlobalsBag::getInstance()->getKernel();
         $this->twig = (new TwigContainer(null, $this->kernel))->getTwig();
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     /**

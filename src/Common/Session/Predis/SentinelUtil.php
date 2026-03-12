@@ -15,7 +15,7 @@
 
 namespace OpenEMR\Common\Session\Predis;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use Predis\Client;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\RedisSessionHandler;
@@ -45,8 +45,12 @@ class SentinelUtil
     private readonly ?string $masterCertFile;
     private readonly ?string $masterKeyFile;
 
-    public function __construct(private readonly ?LoggerInterface $logger = new SystemLogger())
+    private readonly LoggerInterface $logger;
+
+    public function __construct(?LoggerInterface $logger = null)
     {
+        $this->logger = $logger ?? ServiceContainer::getLogger();
+
         // required to ensure running correct mode
         $this->sessionStorageMode = getenv('SESSION_STORAGE_MODE', true) ?? null;
         if ($this->sessionStorageMode !== 'predis-sentinel') {
