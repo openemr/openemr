@@ -17,7 +17,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Utils\FileUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -64,16 +64,16 @@ class EhiExporter
     // average size we estimate to be 100KB per patient in data exports so we will add that up per patient
     const PATIENT_SIZE_PER_RECORD = 100 * 1024;
 
-    private readonly SystemLogger $logger;
+    private readonly LoggerInterface $logger;
     private readonly EhiExportJobTaskService $taskService;
     private readonly CryptoInterface $cryptoGen;
     private readonly EhiExportJobService $jobService;
 
     private ?Session $session = null;
 
-    public function __construct(private $modulePublicDir, private $modulePublicUrl, private $xmlConfigPath, private Environment $twig)
+    public function __construct(private $modulePublicDir, private $modulePublicUrl, private $xmlConfigPath, private Environment $twig, ?LoggerInterface $logger = null)
     {
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
         $this->taskService = new EhiExportJobTaskService();
         $this->jobService = new EhiExportJobService();
         $this->twig = $twig;

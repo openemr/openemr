@@ -17,7 +17,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthProviderReposi
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\The;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Events\Appointments\AppointmentJavascriptEventNames;
 use OpenEMR\Events\Appointments\AppointmentRenderEvent;
@@ -218,7 +218,7 @@ class TeleHealthCalendarController
         $eventDateTimeString = $row['pc_eventDate'] . " " . $row['pc_startTime'];
         $dateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $eventDateTimeString);
         if ($dateTime === false) {
-            (new SystemLogger())->error("TeleHealthCalendarController: appointment date time string {dateTime} was invalid for pc_eid={pc_eid}", ['pc_eid' => $row['pc_eid'], 'dateTime' => $eventDateTimeString]);
+            ServiceContainer::getLogger()->error("TeleHealthCalendarController: appointment date time string {dateTime} was invalid for pc_eid={pc_eid}", ['pc_eid' => $row['pc_eid'], 'dateTime' => $eventDateTimeString]);
             return;
         }
 

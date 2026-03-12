@@ -12,10 +12,10 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -39,7 +39,7 @@ if (empty($pid)) {
 
 $instrument_score = isset($_POST['instrument_score']) ? (int)$_POST['instrument_score'] : null;
 $declined_flag = !empty($_POST['declined_flag']) ? 1 : 0;
-$logger = new SystemLogger();
+$logger = ServiceContainer::getLogger();
 
 // --- Functional sub-observations -> JSON (disability_scale)
 $dscale = $_POST['dscale'] ?? [];

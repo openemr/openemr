@@ -15,9 +15,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaValidateDocumentObject;
 
@@ -156,7 +156,7 @@ try {
     <?php }
 } catch (\Throwable $exception) {
     // if twig throws any exceptions we want to log it.
-    (new SystemLogger())->error($exception->getMessage(), ['exception' => $exception]);
+    ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception]);
 }
 ?>
 

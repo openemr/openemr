@@ -29,7 +29,7 @@ if (\OpenEMR\Core\OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy'
 // I'd prefer to pull this into src... but it breaks the modularity of this form.  Not sure how to handle that.
 require_once "C_EncounterVisitForm.class.php";
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Forms\NewPatient\C_EncounterVisitForm;
 
@@ -44,7 +44,7 @@ try {
     $controller->render($pid);
 } catch (\Throwable $e) {
     // any twig errors or other errors are caught
-    (new SystemLogger())->error($e->getMessage(), ['trace' => $e->getTraceAsString(), 'pid' => $pid]);
+    ServiceContainer::getLogger()->error($e->getMessage(), ['trace' => $e->getTraceAsString(), 'pid' => $pid]);
     echo $e->getMessage();
     die();
 }

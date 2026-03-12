@@ -7,7 +7,7 @@
 // of the License, or (at your option) any later version.
 //
 require_once("ReportTypes.php");
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 
 class ReportManager
 {
@@ -56,7 +56,7 @@ class ReportManager
             $report->execute();
             $results = $report->getResults();
         } else {
-            (new SystemLogger())->error("Rule {ruleId} class {class} does not implement valid interfaces", ['ruleId' => $ruleId, 'class' => ReportTypes::getClassName($ruleId)]);
+            ServiceContainer::getLogger()->error("Rule {ruleId} class {class} does not implement valid interfaces", ['ruleId' => $ruleId, 'class' => ReportTypes::getClassName($ruleId)]);
         }
 
         return RsHelper::formatClinicalRules($results);
