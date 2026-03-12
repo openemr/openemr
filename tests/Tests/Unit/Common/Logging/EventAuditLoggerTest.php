@@ -15,7 +15,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Unit\Common\Logging;
 
-use Doctrine\DBAL\Connection;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -108,10 +107,9 @@ final class EventAuditLoggerTest extends TestCase
         }
 
         // Get EventAuditLogger instance (works with existing singleton)
-        $connection = $this->createMock(Connection::class);
         $this->eventAuditLogger = new EventAuditLogger(
             ServiceContainer::getCrypto(),
-            $connection,
+            sinks: [],
         );
 
         // Setup default test environment
@@ -482,10 +480,9 @@ final class EventAuditLoggerTest extends TestCase
         $GLOBALS['enable_auditlog'] = false;
         $GLOBALS['enable_auditlog_encryption'] = false;
 
-        $connection = $this->createMock(Connection::class);
         $eventAuditLogger = new EventAuditLogger(
             $this->createMock(CryptoGen::class),
-            $connection,
+            sinks: [],
         );
 
         // Call recordLogItem - will return early due to disabled audit logging
@@ -527,8 +524,7 @@ final class EventAuditLoggerTest extends TestCase
                 fn(string $value): string => 'encrypted_' . $value
             );
 
-        $connection = $this->createMock(Connection::class);
-        $eventAuditLogger = new EventAuditLogger($cryptoMock, $connection);
+        $eventAuditLogger = new EventAuditLogger($cryptoMock, sinks: []);
 
         try {
             // This should execute the full recordLogItem flow including encryption
@@ -626,8 +622,7 @@ final class EventAuditLoggerTest extends TestCase
                 fn(string $value): string => 'encrypted_' . $value
             );
 
-        $connection = $this->createMock(Connection::class);
-        $eventAuditLogger = new EventAuditLogger($cryptoMock, $connection);
+        $eventAuditLogger = new EventAuditLogger($cryptoMock, sinks: []);
 
         // Call recordLogItem with API data - this should execute the encryption code:
         // Line 767: $api['request_url'] = (!empty($api['request_url'])) ? $this->cryptoGen->encryptStandard($api['request_url']) : '';
