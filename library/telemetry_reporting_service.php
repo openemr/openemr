@@ -23,7 +23,7 @@ function reportTelemetryTask(): void
 
     $telemetryRepo = new TelemetryRepository();
     $versionService = new VersionService();
-    $logger = new SystemLogger();
+    $logger = \OpenEMR\BC\ServiceContainer::getLogger();
     $telemetryService = new TelemetryService($telemetryRepo, $versionService, $logger);
 
     $telemetryService->reportUsageData();

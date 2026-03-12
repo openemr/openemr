@@ -266,7 +266,7 @@ class Header
 
         if (($thisCnt = count(array_diff($selectedAssets, $foundAssets))) > 0) {
             if ($thisCnt !== $excludedCount) {
-                (new SystemLogger())->error("Not all selected assets were included in header", ['selectedAssets' => $selectedAssets, 'foundAssets' => $foundAssets]);
+                (\OpenEMR\BC\ServiceContainer::getLogger())->error("Not all selected assets were included in header", ['selectedAssets' => $selectedAssets, 'foundAssets' => $foundAssets]);
             }
         }
     }

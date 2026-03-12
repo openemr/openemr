@@ -38,7 +38,7 @@ class FhirUserClaim {
         } else if ($userRole == UuidUserAccount::USER_ROLE_PATIENT) {
             $fhirUserResource = "Patient";
         } else {
-            (new SystemLogger())->error("user role not supported for fhirUser claim ", ['role' => $userRole]);
+            (\OpenEMR\BC\ServiceContainer::getLogger())->error("user role not supported for fhirUser claim ", ['role' => $userRole]);
         }
         $fhirUser = $this->getFhirBaseUrl() . "/" . $fhirUserResource . "/" . $fhirUserId;
         return $fhirUser;

@@ -52,7 +52,7 @@ class RsaSha384Signer implements Signer
 
     public function __construct()
     {
-        $this->logger = new SystemLogger();
+        $this->logger = \OpenEMR\BC\ServiceContainer::getLogger();
         $this->headers = [];
     }
 

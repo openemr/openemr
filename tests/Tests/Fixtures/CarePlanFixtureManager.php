@@ -47,7 +47,7 @@ class CarePlanFixtureManager extends BaseFixtureManager
         try {
             QueryUtils::sqlStatementThrowException($sql, []);
         } catch (SqlQueryException $exception) {
-            (new SystemLogger())->error("Failed to delete form_care_plan data ", ['message' => $exception, 'trace' => $exception->getTraceAsString()]);
+            (\OpenEMR\BC\ServiceContainer::getLogger())->error("Failed to delete form_care_plan data ", ['message' => $exception, 'trace' => $exception->getTraceAsString()]);
             throw $exception;
         } finally {
             $this->encounterFixtureManager->removeFixtures();

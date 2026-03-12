@@ -781,7 +781,7 @@ return [
         return $return;
     },
     "GET /fhir/Questionnaire" => function (HttpRestRequest $request) {
-        $logger = new SystemLogger();
+        $logger = \OpenEMR\BC\ServiceContainer::getLogger();
         $fhirQuestionnaireService = new FhirQuestionnaireService();
         $fhirFormService = new FhirQuestionnaireFormService();
         $fhirQuestionnaireService->addMappedService($fhirFormService);

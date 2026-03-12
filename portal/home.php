@@ -413,7 +413,7 @@ try {
 } catch (LoaderError | RuntimeError | SyntaxError $e) {
     SessionUtil::portalSessionCookieDestroy();
     if ($e instanceof SyntaxError) {
-        (new SystemLogger())->error($e->getMessage(), ['file' => $e->getFile(), 'trace' => $e->getTraceAsString()]);
+        (\OpenEMR\BC\ServiceContainer::getLogger())->error($e->getMessage(), ['file' => $e->getFile(), 'trace' => $e->getTraceAsString()]);
     }
     die(text($e->getMessage()));
 }

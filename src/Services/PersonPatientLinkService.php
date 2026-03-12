@@ -26,7 +26,7 @@ class PersonPatientLinkService extends BaseService
     public function __construct()
     {
         parent::__construct(self::TABLE_NAME);
-        $this->logger = new SystemLogger();
+        $this->logger = \OpenEMR\BC\ServiceContainer::getLogger();
     }
 
     /**

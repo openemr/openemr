@@ -70,7 +70,7 @@ class BaseService implements BaseServiceInterface
     ) {
         $this->fields = QueryUtils::listTableFields($table);
         $this->autoIncrements = self::getAutoIncrements($this->table);
-        $this->setLogger(new SystemLogger());
+        $this->setLogger(\OpenEMR\BC\ServiceContainer::getLogger());
         $this->eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     }
 

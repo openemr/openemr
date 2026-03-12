@@ -35,6 +35,6 @@ try {
         $spreadsheet->downloadSpreadsheet('Xls');
     }
 } catch (\Throwable $e) {
-    $logger = new SystemLogger();
+    $logger = \OpenEMR\BC\ServiceContainer::getLogger();
     $logger->logError($e->getMessage());
 }

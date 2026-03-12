@@ -34,7 +34,7 @@ use OpenEMR\Core\Kernel;
 use OpenEMR\Core\ModulesApplication;
 use OpenEMR\Core\OEGlobalsBag;
 
-$logger = new SystemLogger();
+$logger = \OpenEMR\BC\ServiceContainer::getLogger();
 
 // Throw error if the php openssl module is not installed.
 if (!(extension_loaded('openssl'))) {

@@ -71,7 +71,7 @@ class FhirQuestionnaireRestControllerIntegrationTest extends TestCase
         $formService = new FhirQuestionnaireFormService();
         $questionnaireService = new FhirQuestionnaireService();
         $questionnaireService->addMappedService($formService);
-        $controller = new FhirQuestionnaireRestController(new SystemLogger(), $questionnaireService);
+        $controller = new FhirQuestionnaireRestController(\OpenEMR\BC\ServiceContainer::getLogger(), $questionnaireService);
         $request = $this->createMock(HttpRestRequest::class);
         $response = $controller->one($request, $uuid);
 
@@ -111,7 +111,7 @@ class FhirQuestionnaireRestControllerIntegrationTest extends TestCase
         $formService = new FhirQuestionnaireFormService();
         $questionnaireService = new FhirQuestionnaireService();
         $questionnaireService->addMappedService($formService);
-        $controller = new FhirQuestionnaireRestController(new SystemLogger(), $questionnaireService);
+        $controller = new FhirQuestionnaireRestController(\OpenEMR\BC\ServiceContainer::getLogger(), $questionnaireService);
         $request = $this->createMock(HttpRestRequest::class);
         $request->method('getQueryParams')->willReturn([]);
         $response = $controller->list($request);
@@ -146,7 +146,7 @@ class FhirQuestionnaireRestControllerIntegrationTest extends TestCase
         $formService = new FhirQuestionnaireFormService();
         $questionnaireService = new FhirQuestionnaireService();
         $questionnaireService->addMappedService($formService);
-        $controller = new FhirQuestionnaireRestController(new SystemLogger(), $questionnaireService);
+        $controller = new FhirQuestionnaireRestController(\OpenEMR\BC\ServiceContainer::getLogger(), $questionnaireService);
         $request = $this->createMock(HttpRestRequest::class);
         // modifier
         $request->method('getQueryParams')->willReturn([

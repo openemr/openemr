@@ -45,9 +45,9 @@ try {
 } catch (CsrfInvalidException) {
     CsrfUtils::csrfNotVerified();
 } catch (AccessDeniedException $exception) {
-    (new SystemLogger())->critical($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);
+    (\OpenEMR\BC\ServiceContainer::getLogger())->critical($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);
     die();
 } catch (\Throwable $exception) {
-    (new SystemLogger())->error($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);
+    (\OpenEMR\BC\ServiceContainer::getLogger())->error($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);
     die("Unknown system error occurred");
 }

@@ -212,16 +212,16 @@ class RestControllerHelper
         if (!$processingResult->isValid()) {
             http_response_code(400);
             $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
-            (new SystemLogger())->debug("RestControllerHelper::handleProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
+            (\OpenEMR\BC\ServiceContainer::getLogger())->debug("RestControllerHelper::handleProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
         } elseif ($processingResult->hasInternalErrors()) {
             http_response_code(500);
             $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
-            (new SystemLogger())->debug("RestControllerHelper::handleProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
+            (\OpenEMR\BC\ServiceContainer::getLogger())->debug("RestControllerHelper::handleProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
         } else {
             http_response_code($successStatusCode ?? 0);
             $dataResult = $processingResult->getData();
             $recordsCount = count($dataResult);
-            (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() Records found", ['count' => $recordsCount]);
+            (\OpenEMR\BC\ServiceContainer::getLogger())->debug("RestControllerHelper::handleFhirProcessingResult() Records found", ['count' => $recordsCount]);
 
             if (!$isMultipleResultResponse) {
                 $dataResult = ($recordsCount === 0) ? [] : $dataResult[0];
@@ -261,15 +261,15 @@ class RestControllerHelper
         if (!$processingResult->isValid()) {
             $statusCode = Response::HTTP_BAD_REQUEST;
             $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
-            (new SystemLogger())->debug("RestControllerHelper::handleProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
+            (\OpenEMR\BC\ServiceContainer::getLogger())->debug("RestControllerHelper::handleProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
         } elseif ($processingResult->hasInternalErrors()) {
             $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR;
             $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
-            (new SystemLogger())->debug("RestControllerHelper::handleProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
+            (\OpenEMR\BC\ServiceContainer::getLogger())->debug("RestControllerHelper::handleProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
         } else {
             $dataResult = $processingResult->getData();
             $recordsCount = count($dataResult);
-            (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() Records found", ['count' => $recordsCount]);
+            (\OpenEMR\BC\ServiceContainer::getLogger())->debug("RestControllerHelper::handleFhirProcessingResult() Records found", ['count' => $recordsCount]);
 
             if (!$isMultipleResultResponse) {
                 $dataResult = ($recordsCount === 0) ? [] : $dataResult[0];
@@ -316,18 +316,18 @@ class RestControllerHelper
         $httpResponseBody = [];
         if (!$processingResult->isValid()) {
             $httpResponseBody["validationErrors"] = $processingResult->getValidationMessages();
-            (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
+            (\OpenEMR\BC\ServiceContainer::getLogger())->debug("RestControllerHelper::handleFhirProcessingResult() 400 error", ['validationErrors' => $processingResult->getValidationMessages()]);
             return new JsonResponse($httpResponseBody, Response::HTTP_BAD_REQUEST);
         } elseif (count($processingResult->getData()) <= 0) {
-            (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() 404 records not found");
+            (\OpenEMR\BC\ServiceContainer::getLogger())->debug("RestControllerHelper::handleFhirProcessingResult() 404 records not found");
             return new JsonResponse([], Response::HTTP_NOT_FOUND);
         } elseif ($processingResult->hasInternalErrors()) {
-            (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
+            (\OpenEMR\BC\ServiceContainer::getLogger())->debug("RestControllerHelper::handleFhirProcessingResult() 500 error", ['internalErrors' => $processingResult->getValidationMessages()]);
             $httpResponseBody["internalErrors"] = $processingResult->getInternalErrors();
             return new JsonResponse($httpResponseBody, Response::HTTP_INTERNAL_SERVER_ERROR);
         } else {
             $dataResult = $processingResult->getData();
-            (new SystemLogger())->debug("RestControllerHelper::handleFhirProcessingResult() Records found", ['count' => count($dataResult)]);
+            (\OpenEMR\BC\ServiceContainer::getLogger())->debug("RestControllerHelper::handleFhirProcessingResult() Records found", ['count' => count($dataResult)]);
             return new JsonResponse($dataResult[0], $successStatusCode);
         }
     }
@@ -438,7 +438,7 @@ class RestControllerHelper
             $fhirOperation->setDefinition(new FHIRCanonical('http://hl7.org/fhir/us/core/OperationDefinition/docref'));
             $capResource->addOperation($fhirOperation);
         } elseif (is_string($operation) && str_starts_with($operation, '$')) {
-            (new SystemLogger())->debug("Found operation that is not supported in system", ['resource' => $resource, 'operation' => $operation, 'items' => $items]);
+            (\OpenEMR\BC\ServiceContainer::getLogger())->debug("Found operation that is not supported in system", ['resource' => $resource, 'operation' => $operation, 'items' => $items]);
         }
     }
 

@@ -39,7 +39,7 @@ class UniqueID implements Constraint
         }
         $existingJWT = $this->jwtRepository->getJwtGrantHistoryForJTI($jti, $expCheck);
         if (!empty($existingJWT)) {
-            (new SystemLogger())->emergency(
+            (\OpenEMR\BC\ServiceContainer::getLogger())->emergency(
                 static::class . "->assert() Attempted duplicate usage of JWT token.  This could be a replay attack",
                 ['clientId' => $iss, 'exp' => $exp, 'jti' => $jti]
             );

@@ -39,7 +39,7 @@ class OEHttpKernel extends HttpKernel
     public function getSystemLogger(): LoggerInterface
     {
         if (empty($this->logger)) {
-            $this->logger = new SystemLogger();
+            $this->logger = \OpenEMR\BC\ServiceContainer::getLogger();
         }
         return $this->logger;
     }

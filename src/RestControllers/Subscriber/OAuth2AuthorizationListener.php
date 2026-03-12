@@ -49,7 +49,7 @@ class OAuth2AuthorizationListener implements EventSubscriberInterface
     public function getLogger(): LoggerInterface
     {
         if (!isset($this->logger)) {
-            $this->logger = new SystemLogger();
+            $this->logger = \OpenEMR\BC\ServiceContainer::getLogger();
         }
         return $this->logger;
     }

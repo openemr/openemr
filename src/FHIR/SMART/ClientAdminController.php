@@ -97,7 +97,7 @@ class ClientAdminController
             $this->externalCDRController = new RouteController(
                 $this->session,
                 $this->clientRepo,
-                $this->getSystemLogger() ?? new SystemLogger(),
+                $this->getSystemLogger() ?? \OpenEMR\BC\ServiceContainer::getLogger(),
                 $this->getTwig(),
                 $this->actionUrlBuilder,
                 new DecisionSupportInterventionService()

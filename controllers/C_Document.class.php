@@ -211,7 +211,7 @@ class C_Document extends Controller
             if (AclMain::aclCheckAcoSpec($acoSpec) === false) {
                 $error = xl("Not authorized to upload to the selected category.\n");
                 $skipUpload = true;
-                (new SystemLogger())->debug("An attempt was made to upload a document to an unauthorized category", ['user-id' => $session->get('authUserID'), 'patient-id' => $patient_id, 'category-id' => $category_id]);
+                (\OpenEMR\BC\ServiceContainer::getLogger())->debug("An attempt was made to upload a document to an unauthorized category", ['user-id' => $session->get('authUserID'), 'patient-id' => $patient_id, 'category-id' => $category_id]);
             }
         }
 
@@ -458,7 +458,7 @@ class C_Document extends Controller
         // Verify the document belongs to the requested patient to prevent IDOR.
         $doc_pid = $d->get_foreign_id();
         if ($patient_id !== null && (int)$doc_pid !== (int)$patient_id) {
-            (new SystemLogger())->warning(
+            (\OpenEMR\BC\ServiceContainer::getLogger())->warning(
                 "An attempt was made to view a document belonging to a different patient",
                 ['user-id' => $session->get('authUserID'), 'requested-patient-id' => $patient_id, 'document-patient-id' => $doc_pid, 'document-id' => $doc_id]
             );
@@ -878,7 +878,7 @@ class C_Document extends Controller
         }
 
         if (!file_exists($url)) {
-            (new SystemLogger())->error(
+            (\OpenEMR\BC\ServiceContainer::getLogger())->error(
                 "Document file not found or insufficient permissions",
                 ['url' => $url, 'document_id' => $document_id, 'patient_id' => $patient_id]
             );

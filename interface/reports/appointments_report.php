@@ -528,7 +528,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                 $spreadsheet->downloadSpreadsheet();
             }
         } catch (RuntimeException $e) {
-            $logger = new SystemLogger();
+            $logger = \OpenEMR\BC\ServiceContainer::getLogger();
             $logger->logError($e->getMessage());
         }
     } else {

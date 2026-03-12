@@ -27,7 +27,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Services\SDOH\HistorySdohService;
 
-$logger = new SystemLogger();
+$logger = \OpenEMR\BC\ServiceContainer::getLogger();
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 /** Lookup a list option title by (list_id, option_id). */

@@ -307,7 +307,7 @@ class FacilityService extends BaseService
             }
             return $returnRecords;
         } catch (SqlQueryException $exception) {
-            (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            (\OpenEMR\BC\ServiceContainer::getLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             throw $exception;
         }
     }

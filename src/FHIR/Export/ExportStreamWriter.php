@@ -79,7 +79,7 @@ class ExportStreamWriter
             $this->incrementRecordCount();
             $this->lastProcessedId = $resource->getId();
             if ($this->willShutdown()) {
-                (new SystemLogger())->debug(
+                (\OpenEMR\BC\ServiceContainer::getLogger())->debug(
                     "ExportStreamWriter->append() reached shutdown time limit for export",
                     ['lastProcessedId' => $this->lastProcessedId, 'resource' => $resource->get_fhirElementName()]
                 );

@@ -946,7 +946,7 @@ class CarecoordinationController extends AbstractActionController
         $z->open($zipLocation);
         for ($i = 0; $i < $z->numFiles; $i++) {
             $stat = $z->statIndex($i);
-            (new SystemLogger())->error("File in zip is " . $stat['name']);
+            (\OpenEMR\BC\ServiceContainer::getLogger())->error("File in zip is " . $stat['name']);
         }
         $z->close();
     }

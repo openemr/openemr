@@ -227,7 +227,7 @@ abstract class BaseFixtureManager
                 return new SearchQueryFragment($sql, [$searchValue]);
             }
         } catch (SqlQueryException $exception) {
-            (new SystemLogger())->error("Failed to escape column for foreign key reference ", ['reference' => $reference]);
+            (\OpenEMR\BC\ServiceContainer::getLogger())->error("Failed to escape column for foreign key reference ", ['reference' => $reference]);
             throw $exception;
         }
     }

@@ -199,7 +199,7 @@ class SiteSetupListener implements EventSubscriberInterface
 
         $globalsBag = require_once(__DIR__ . "/../../../interface/globals.php");
         if ($event->getKernel() instanceof OEHttpKernel) {
-            $event->getKernel()->setSystemLogger(new SystemLogger());
+            $event->getKernel()->setSystemLogger(\OpenEMR\BC\ServiceContainer::getLogger());
         }
         return $globalsBag;
     }

@@ -48,7 +48,7 @@ class FhirDocumentRestController
     {
         $this->mimeTypeHandlers = [];
         $this->defaultMimeTypeHandler = new BaseDocumentDownloader();
-        $this->logger = new SystemLogger();
+        $this->logger = \OpenEMR\BC\ServiceContainer::getLogger();
         $this->session = $request->getSession();
     }
 

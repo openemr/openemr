@@ -119,7 +119,7 @@ class FhirOperationDocRefRestController
             $response = $this->createResponseForCode(StatusCode::OK);
             $response->getBody()->write(json_encode($bundleSearchResult));
         } catch (SearchFieldException $exception) {
-            $systemLogger = new SystemLogger();
+            $systemLogger = \OpenEMR\BC\ServiceContainer::getLogger();
             $systemLogger->error(static::class . "->getAll() exception thrown", ['message' => $exception->getMessage(),
                 'field' => $exception->getField(), 'trace' => $exception->getTraceAsString()]);
             // put our exception information here

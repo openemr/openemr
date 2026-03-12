@@ -25,7 +25,7 @@ use OpenEMR\Services\PersonPatientLinkService;
 use OpenEMR\Services\PersonService;
 
 // Initialize logger early
-$logger = new SystemLogger();
+$logger = \OpenEMR\BC\ServiceContainer::getLogger();
 
 // Set JSON header
 header('Content-Type: application/json');

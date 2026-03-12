@@ -49,7 +49,7 @@ class AccessDeniedHelper
         $user = $session->get('authUser', 'unknown');
         $group = $session->get('authProvider', '');
 
-        (new SystemLogger())->warning("Access denied: $comment", [
+        (\OpenEMR\BC\ServiceContainer::getLogger())->warning("Access denied: $comment", [
             'user' => $user,
         ]);
 
@@ -131,7 +131,7 @@ class AccessDeniedHelper
         $user = $session->get('authUser', 'unknown');
         $group = $session->get('authProvider', '');
 
-        (new SystemLogger())->warning("Access denied: $comment", [
+        (\OpenEMR\BC\ServiceContainer::getLogger())->warning("Access denied: $comment", [
             'user' => $user,
         ]);
 

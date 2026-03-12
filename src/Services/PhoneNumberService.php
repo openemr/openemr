@@ -238,7 +238,7 @@ class PhoneNumberService extends BaseService
         }
         $formatted = self::formatPhone($phone, $defaultRegion);
         if ($formatted === '') {
-            (new SystemLogger())->warning("Could not format phone number", ['phone' => $phone]);
+            (\OpenEMR\BC\ServiceContainer::getLogger())->warning("Could not format phone number", ['phone' => $phone]);
             return $phone;
         }
         return $formatted;

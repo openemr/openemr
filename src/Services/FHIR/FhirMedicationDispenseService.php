@@ -116,7 +116,7 @@ class FhirMedicationDispenseService extends FhirServiceBase implements
             }
             $fhirSearchResult = $this->searchServices($services, $fhirSearchParameters, $puuidBind);
         } catch (SearchFieldException $exception) {
-            $systemLogger = new SystemLogger();
+            $systemLogger = \OpenEMR\BC\ServiceContainer::getLogger();
             $systemLogger->error("FhirMedicationDispenseService->getAll() exception thrown", [
                 'message' => $exception->getMessage(),
                 'field' => $exception->getField(),

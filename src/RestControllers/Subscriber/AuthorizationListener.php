@@ -78,7 +78,7 @@ class AuthorizationListener implements EventSubscriberInterface
         // Implementation details would depend on the specific requirements of the application.
         if (!isset($this->logger)) {
             // If the logger is not set, we can initialize it here.
-            $this->logger = new SystemLogger();
+            $this->logger = \OpenEMR\BC\ServiceContainer::getLogger();
         }
         return $this->logger;
     }

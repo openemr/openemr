@@ -41,7 +41,7 @@ class FhirRelatedPersonRestController
 
     public function __construct()
     {
-        $this->logger = new SystemLogger();
+        $this->logger = \OpenEMR\BC\ServiceContainer::getLogger();
         $this->fhirService = new FhirResourcesService();
         $this->fhirRelatedPersonService = new FhirRelatedPersonService();
     }

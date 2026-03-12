@@ -30,7 +30,7 @@ use OpenEMR\Services\ContactService;
  */
 function saveAddressesForPatient($pid, $addressData)
 {
-    $logger = new SystemLogger();
+    $logger = \OpenEMR\BC\ServiceContainer::getLogger();
     $logger->debug("Saving addresses for patient", [
         'pid' => $pid,
         'addressData' => $addressData
@@ -117,7 +117,7 @@ function saveAddressesForPatient($pid, $addressData)
  */
 function handleAddAddress(Contact $contact, array $addressData, int $index, ContactAddressService $addressService)
 {
-    $logger = new SystemLogger();
+    $logger = \OpenEMR\BC\ServiceContainer::getLogger();
 
     // Build address data array
     $data = extractAddressDataFromForm($addressData, $index);
@@ -155,7 +155,7 @@ function handleAddAddress(Contact $contact, array $addressData, int $index, Cont
  */
 function handleUpdateAddress(array $addressData, int $index, ContactAddressService $addressService)
 {
-    $logger = new SystemLogger();
+    $logger = \OpenEMR\BC\ServiceContainer::getLogger();
     $contactAddressId = $addressData['contact_address_id'][$index] ?? null;
 
     if (!$contactAddressId) {
@@ -200,7 +200,7 @@ function handleUpdateAddress(array $addressData, int $index, ContactAddressServi
  */
 function handleInactivateAddress(array $addressData, int $index, ContactAddressService $cotactAddressService)
 {
-    $logger = new SystemLogger();
+    $logger = \OpenEMR\BC\ServiceContainer::getLogger();
     $contactAddressId = $addressData['contact_address_id'][$index] ?? null;
 
     if (!$contactAddressId) {
@@ -258,7 +258,7 @@ function populateAddressFromData(Address $address, array $data): void
  */
 function populateContactAddressFromData(ContactAddress $contactAddress, array $data): void
 {
-    $logger = new SystemLogger();
+    $logger = \OpenEMR\BC\ServiceContainer::getLogger();
 
     // Set type and use
     $contactAddress->set_type($data['type']);

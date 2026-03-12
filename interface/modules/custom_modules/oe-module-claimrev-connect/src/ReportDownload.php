@@ -57,7 +57,7 @@ class ReportDownload extends BaseService
                     file_put_contents($filePathName, $fileText);
                     chmod($filePathName, 0640);
                 } else {
-                    (new SystemLogger())->error('Unable to find property fileText in response', ['class' => self::class, 'method' => 'getWaitingFiles']);
+                    (\OpenEMR\BC\ServiceContainer::getLogger())->error('Unable to find property fileText in response', ['class' => self::class, 'method' => 'getWaitingFiles']);
                 }
             }
         }
@@ -82,7 +82,7 @@ class ReportDownload extends BaseService
         try {
             $data = $api->getFileForDownload($objectId);
         } catch (ClaimRevApiException $e) {
-            (new SystemLogger())->error('Unable to download file', ['class' => self::class, 'method' => 'download835', 'exception' => $e->getMessage()]);
+            (\OpenEMR\BC\ServiceContainer::getLogger())->error('Unable to download file', ['class' => self::class, 'method' => 'download835', 'exception' => $e->getMessage()]);
             return;
         }
 
@@ -93,7 +93,7 @@ class ReportDownload extends BaseService
             file_put_contents($filePathName, $fileText);
             chmod($filePathName, 0640);
         } else {
-            (new SystemLogger())->error('Unable to find property fileText in response', ['class' => self::class, 'method' => 'download835']);
+            (\OpenEMR\BC\ServiceContainer::getLogger())->error('Unable to find property fileText in response', ['class' => self::class, 'method' => 'download835']);
         }
     }
 }

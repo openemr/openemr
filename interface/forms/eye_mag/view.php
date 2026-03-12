@@ -72,7 +72,7 @@ if ($id > 0) {
         die(xlt('Form not found'));
     }
     if ((int) $formOwner['pid'] !== $pid || (int) $formOwner['encounter'] !== $encounter) {
-        (new SystemLogger())->warning(
+        (\OpenEMR\BC\ServiceContainer::getLogger())->warning(
             "An attempt was made to view an eye form belonging to a different patient or encounter",
             ['user-id' => $_SESSION['authUserID'] ?? '', 'requested-form-id' => $id, 'session-pid' => $pid, 'session-encounter' => $encounter]
         );

@@ -261,7 +261,7 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
                 // empty files with no data?
                 return; // nothing to export here as we have no patients
             }
-            (new SystemLogger())->debug(
+            (\OpenEMR\BC\ServiceContainer::getLogger())->debug(
                 "FhirLocationService->export() filtering by patient uuids",
                 ['export-type' => 'group', 'patients' => $patientUuids, 'resource-class' => static::class]
             );

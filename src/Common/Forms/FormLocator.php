@@ -29,7 +29,7 @@ class FormLocator
     public function __construct(?LoggerInterface $logger = null)
     {
         if (!$logger) {
-            $logger = new SystemLogger();
+            $logger = \OpenEMR\BC\ServiceContainer::getLogger();
         }
         $this->logger = $logger;
     // AI GENERATED CODE: HEADER START

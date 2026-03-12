@@ -107,7 +107,7 @@ try {
     $restRequest->setSession($sessionFactory->createSession());
     $getParams = $restRequest->getQueryParams();
     $kernel = new OEHttpKernel($globalsBag->getKernel()->getEventDispatcher(), new ControllerResolver());
-    $kernel->setSystemLogger(new SystemLogger());
+    $kernel->setSystemLogger(\OpenEMR\BC\ServiceContainer::getLogger());
     $dispatchHandler = new HttpRestRouteHandler($kernel);
     $routeFinder = new StandardRouteFinder($kernel);
     $routes = $routeFinder->find($restRequest);

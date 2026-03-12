@@ -129,7 +129,7 @@ $installSettings = $tempInstallSettings;
 
 
 // Install and configure OpenEMR using the Installer class
-$installer = new Installer($installSettings, new SystemLogger());
+$installer = new Installer($installSettings, \OpenEMR\BC\ServiceContainer::getLogger());
 if (! $installer->quick_install()) {
   // Failed, report error
     echo "ERROR: " . $installer->error_message . "\n";

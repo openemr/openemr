@@ -30,7 +30,7 @@ use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ContactTelecomService;
 
 // Initialize logger
-$logger = new SystemLogger();
+$logger = \OpenEMR\BC\ServiceContainer::getLogger();
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();

@@ -164,7 +164,7 @@ class SMARTAuthorizationControllerTest extends TestCase
         $kernel->method('getEventDispatcher')
             ->willReturn($dispatcher);
         $kernel->method('getSystemLogger')
-            ->willReturn(new SystemLogger());
+            ->willReturn(\OpenEMR\BC\ServiceContainer::getLogger());
 
         $controller = new SMARTAuthorizationController(
             $session,

@@ -150,7 +150,7 @@ class FhirObservationService extends FhirServiceBase implements IResourceSearcha
             }
             $fhirSearchResult = $this->searchServices($services, $fhirSearchParameters, $puuidBind);
         } catch (SearchFieldException $exception) {
-            $systemLogger = new SystemLogger();
+            $systemLogger = \OpenEMR\BC\ServiceContainer::getLogger();
             $systemLogger->error("FhirObservationService->getAll() exception thrown", ['message' => $exception->getMessage(),
                 'field' => $exception->getField(), 'trace' => $exception->getTraceAsString()]);
             // put our exception information here

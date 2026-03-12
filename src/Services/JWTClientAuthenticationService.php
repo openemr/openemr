@@ -83,7 +83,7 @@ class JWTClientAuthenticationService
          */
         private ?ClientInterface $httpClient = null
     ) {
-        $this->logger = new SystemLogger();
+        $this->logger = \OpenEMR\BC\ServiceContainer::getLogger();
     }
 
 

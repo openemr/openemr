@@ -63,7 +63,7 @@ class ExportCat3Service
                 $measure->measure_path = $measurePath;
                 $measureObjs[] = $measure;
             } else {
-                (new SystemLogger())->error("Measure JSON not found. Verify measures are installed correctly", ['path' => $measurePath]);
+                (\OpenEMR\BC\ServiceContainer::getLogger())->error("Measure JSON not found. Verify measures are installed correctly", ['path' => $measurePath]);
             }
         }
         // note that much of this function is following the logic in the cypress test suite
@@ -602,7 +602,7 @@ XML;
      */
     private function logCalculationResults($patients, $results)
     {
-        $logger = new SystemLogger();
+        $logger = \OpenEMR\BC\ServiceContainer::getLogger();
         $patientsById = [];
         foreach ($patients as $patient) {
             $patientsById[$patient->id->value] = $patient;

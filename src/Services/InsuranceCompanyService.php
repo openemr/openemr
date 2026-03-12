@@ -196,10 +196,10 @@ class InsuranceCompanyService extends BaseService
             }
         } catch (SqlQueryException $exception) {
             // we shouldn't hit a query exception
-            (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            (\OpenEMR\BC\ServiceContainer::getLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             $processingResult->addInternalError("Error selecting data from database");
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error(
+            (\OpenEMR\BC\ServiceContainer::getLogger())->error(
                 $exception->getMessage(),
                 ['trace' => $exception->getTraceAsString(),
                  'field' => $exception->getField()]
