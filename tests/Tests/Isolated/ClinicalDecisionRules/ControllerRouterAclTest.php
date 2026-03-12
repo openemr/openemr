@@ -2,9 +2,9 @@
 
 namespace OpenEMR\Tests\Isolated\ClinicalDecisionRules;
 
+use OpenEMR\ClinicalDecisionRules\Interface\ControllerRouter;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use OpenEMR\ClinicalDecisionRules\Interface\ControllerRouter;
 
 class ControllerRouterAclTest extends TestCase
 {
