@@ -108,8 +108,9 @@ final class EventAuditLoggerTest extends TestCase
 
         // Get EventAuditLogger instance (works with existing singleton)
         $this->eventAuditLogger = new EventAuditLogger(
-            ServiceContainer::getCrypto(),
             sinks: [],
+            cryptoGen: ServiceContainer::getCrypto(),
+            shouldEncrypt: false,
         );
 
         // Setup default test environment
@@ -481,8 +482,9 @@ final class EventAuditLoggerTest extends TestCase
         $GLOBALS['enable_auditlog_encryption'] = false;
 
         $eventAuditLogger = new EventAuditLogger(
-            $this->createMock(CryptoGen::class),
             sinks: [],
+            cryptoGen: $this->createMock(CryptoGen::class),
+            shouldEncrypt: false,
         );
 
         // Call recordLogItem - will return early due to disabled audit logging
@@ -524,7 +526,7 @@ final class EventAuditLoggerTest extends TestCase
                 fn(string $value): string => 'encrypted_' . $value
             );
 
-        $eventAuditLogger = new EventAuditLogger($cryptoMock, sinks: []);
+        $eventAuditLogger = new EventAuditLogger(sinks: [], cryptoGen: $cryptoMock, shouldEncrypt: true);
 
         try {
             // This should execute the full recordLogItem flow including encryption
@@ -622,7 +624,7 @@ final class EventAuditLoggerTest extends TestCase
                 fn(string $value): string => 'encrypted_' . $value
             );
 
-        $eventAuditLogger = new EventAuditLogger($cryptoMock, sinks: []);
+        $eventAuditLogger = new EventAuditLogger(sinks: [], cryptoGen: $cryptoMock, shouldEncrypt: true);
 
         // Call recordLogItem with API data - this should execute the encryption code:
         // Line 767: $api['request_url'] = (!empty($api['request_url'])) ? $this->cryptoGen->encryptStandard($api['request_url']) : '';
