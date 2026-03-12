@@ -14,7 +14,6 @@
 
 namespace OpenEMR\Common\Logging;
 
-use Doctrine\DBAL\Connection;
 use OpenEMR\BC\{
     DatabaseConnectionFactory,
     DatabaseConnectionOptions,
