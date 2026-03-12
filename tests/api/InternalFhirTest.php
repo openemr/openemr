@@ -19,11 +19,11 @@ if (!getenv('OPENEMR_ENABLE_INTERNAL_FHIR_TEST')) {
 
 require_once(__DIR__ . "/../../interface/globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpRestRouteHandler;
 use OpenEMR\Common\Http\HttpSessionFactory;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
@@ -112,7 +112,7 @@ try {
     $restRequest->setSession($sessionFactory->createSession());
     $getParams = $restRequest->getQueryParams();
     $kernel = new OEHttpKernel($globalsBag->getKernel()->getEventDispatcher(), new ControllerResolver());
-    $kernel->setSystemLogger(\OpenEMR\BC\ServiceContainer::getLogger());
+    $kernel->setSystemLogger(ServiceContainer::getLogger());
     $dispatchHandler = new HttpRestRouteHandler($kernel);
     $routeFinder = new FhirRouteFinder($kernel);
     $routes = $routeFinder->find($restRequest);

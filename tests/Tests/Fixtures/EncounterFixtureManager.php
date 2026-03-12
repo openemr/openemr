@@ -11,9 +11,9 @@
 
 namespace OpenEMR\Tests\Fixtures;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
 
 class EncounterFixtureManager extends BaseFixtureManager
 {
@@ -48,7 +48,7 @@ class EncounterFixtureManager extends BaseFixtureManager
         try {
             QueryUtils::sqlStatementThrowException($sql, []);
         } catch (SqlQueryException $exception) {
-            (\OpenEMR\BC\ServiceContainer::getLogger())->error("Failed to delete form_encounter data ", ['message' => $exception, 'trace' => $exception->getTraceAsString()]);
+            (ServiceContainer::getLogger())->error("Failed to delete form_encounter data ", ['message' => $exception, 'trace' => $exception->getTraceAsString()]);
             throw $exception;
         } finally {
             $this->patientFixtureManager->removePatientFixtures();

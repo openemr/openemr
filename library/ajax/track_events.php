@@ -12,8 +12,8 @@
 
 require_once("../../interface/globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\VersionService;
 use OpenEMR\Telemetry\TelemetryRepository;
 use OpenEMR\Telemetry\TelemetryService;
@@ -37,7 +37,7 @@ function ajax_handleRequest(): void
 
     $telemetryRepo = new TelemetryRepository();
     $versionService = new VersionService();
-    $logger = \OpenEMR\BC\ServiceContainer::getLogger();
+    $logger = ServiceContainer::getLogger();
     $telemetryService = new TelemetryService($telemetryRepo, $versionService, $logger);
 
     $action = $data['action'] ?? '';

@@ -20,9 +20,9 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/FeeSheetHtml.class.php");
 include_once("../../forms/eye_mag/php/eye_mag_functions.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -72,7 +72,7 @@ if ($id > 0) {
         die(xlt('Form not found'));
     }
     if ((int) $formOwner['pid'] !== $pid || (int) $formOwner['encounter'] !== $encounter) {
-        (\OpenEMR\BC\ServiceContainer::getLogger())->warning(
+        (ServiceContainer::getLogger())->warning(
             "An attempt was made to view an eye form belonging to a different patient or encounter",
             ['user-id' => $_SESSION['authUserID'] ?? '', 'requested-form-id' => $id, 'session-pid' => $pid, 'session-encounter' => $encounter]
         );

@@ -14,11 +14,11 @@
 
 namespace OpenEMR\RestControllers\Subscriber;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\RestApiExtend\RestApiSecurityCheckEvent;
@@ -78,7 +78,7 @@ class AuthorizationListener implements EventSubscriberInterface
         // Implementation details would depend on the specific requirements of the application.
         if (!isset($this->logger)) {
             // If the logger is not set, we can initialize it here.
-            $this->logger = \OpenEMR\BC\ServiceContainer::getLogger();
+            $this->logger = ServiceContainer::getLogger();
         }
         return $this->logger;
     }

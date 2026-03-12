@@ -14,7 +14,7 @@
 
 namespace OpenEMR\Services\Qrda;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Cqm\Qdm\Patient;
 use OpenEMR\Services\Qdm\CqmCalculator;
@@ -63,7 +63,7 @@ class ExportCat3Service
                 $measure->measure_path = $measurePath;
                 $measureObjs[] = $measure;
             } else {
-                (\OpenEMR\BC\ServiceContainer::getLogger())->error("Measure JSON not found. Verify measures are installed correctly", ['path' => $measurePath]);
+                (ServiceContainer::getLogger())->error("Measure JSON not found. Verify measures are installed correctly", ['path' => $measurePath]);
             }
         }
         // note that much of this function is following the logic in the cypress test suite
@@ -602,7 +602,7 @@ XML;
      */
     private function logCalculationResults($patients, $results)
     {
-        $logger = \OpenEMR\BC\ServiceContainer::getLogger();
+        $logger = ServiceContainer::getLogger();
         $patientsById = [];
         foreach ($patients as $patient) {
             $patientsById[$patient->id->value] = $patient;

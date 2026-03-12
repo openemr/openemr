@@ -12,8 +12,8 @@
 
 namespace OpenEMR\MedicalDevice;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Http\oeHttp;
-use OpenEMR\Common\Logging\SystemLogger;
 
 class MedicalDevice
 {
@@ -121,7 +121,7 @@ class MedicalDevice
 
     public static function createStandardJson($udi)
     {
-        $logger = \OpenEMR\BC\ServiceContainer::getLogger();
+        $logger = ServiceContainer::getLogger();
 
         # Request with udi and return result
         $logger->debug("MedicalDevice::createStandardJson will collect information for udi", ['udi' => $udi]);

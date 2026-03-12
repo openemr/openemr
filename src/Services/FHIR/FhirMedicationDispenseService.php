@@ -12,7 +12,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Services\FHIR\MedicationDispense\FhirMedicationDispenseLocalDispensaryService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
@@ -116,7 +116,7 @@ class FhirMedicationDispenseService extends FhirServiceBase implements
             }
             $fhirSearchResult = $this->searchServices($services, $fhirSearchParameters, $puuidBind);
         } catch (SearchFieldException $exception) {
-            $systemLogger = \OpenEMR\BC\ServiceContainer::getLogger();
+            $systemLogger = ServiceContainer::getLogger();
             $systemLogger->error("FhirMedicationDispenseService->getAll() exception thrown", [
                 'message' => $exception->getMessage(),
                 'field' => $exception->getField(),

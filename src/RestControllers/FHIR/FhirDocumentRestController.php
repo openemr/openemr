@@ -15,10 +15,10 @@
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenApi\Attributes as OA;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\FHIR\Document\BaseDocumentDownloader;
@@ -48,7 +48,7 @@ class FhirDocumentRestController
     {
         $this->mimeTypeHandlers = [];
         $this->defaultMimeTypeHandler = new BaseDocumentDownloader();
-        $this->logger = \OpenEMR\BC\ServiceContainer::getLogger();
+        $this->logger = ServiceContainer::getLogger();
         $this->session = $request->getSession();
     }
 

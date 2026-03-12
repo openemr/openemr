@@ -12,7 +12,7 @@
 
 /** import supporting libraries */
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateRender;
 use OpenEMR\Services\Utils\TranslationService;
@@ -367,7 +367,7 @@ class OnsiteDocumentController extends AppBasePortalController
                         !is_dir($purifyTempDir)
                     ) {
                         if (!mkdir($purifyTempDir, 0700, true)) {
-                            (\OpenEMR\BC\ServiceContainer::getLogger())->error("Could not create directory ", [$purifyTempDir]);
+                            (ServiceContainer::getLogger())->error("Could not create directory ", [$purifyTempDir]);
                         }
                     }
                     $config->set('Cache.SerializerPath', $purifyTempDir);

@@ -51,9 +51,9 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/patien
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('incdir') . "/main/holidays/Holidays_Controller.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/group.inc.php');
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Appointments\AppointmentDialogCloseEvent;
@@ -765,7 +765,7 @@ if (!empty($_POST['form_action'])) {
     // to the calendar appointment flow for their own workflow dialogs here they will need
     // to implement the dialog closing and duplicate the logic of what happens here in this closing event.
     if ($event->isPropagationStopped()) {
-        (\OpenEMR\BC\ServiceContainer::getLogger())->debug("add_edit_event.php: event propagation stopped before closing dialog, exiting");
+        (ServiceContainer::getLogger())->debug("add_edit_event.php: event propagation stopped before closing dialog, exiting");
         exit();
     }
     // Close this window and refresh the calendar (or the patient_tracker) display.

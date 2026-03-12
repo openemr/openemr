@@ -15,7 +15,7 @@
 namespace OpenEMR\Common\Database;
 
 use ADORecordSet;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use Throwable;
 
@@ -417,7 +417,7 @@ class QueryUtils
     {
         /** @var mixed $params */
         if (!is_array($params)) {
-            (\OpenEMR\BC\ServiceContainer::getLogger())->debug('Non-array $params passed to {method}: {trace}', [
+            (ServiceContainer::getLogger())->debug('Non-array $params passed to {method}: {trace}', [
                 'method' => __METHOD__,
                 'trace' => (new \Exception())->getTraceAsString(),
             ]);

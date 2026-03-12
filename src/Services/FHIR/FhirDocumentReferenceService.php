@@ -11,7 +11,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Services\FHIR\DocumentReference\FhirClinicalNotesService;
 use OpenEMR\Services\FHIR\DocumentReference\FhirDocumentReferenceAdvanceCareDirectiveService;
 use OpenEMR\Services\FHIR\DocumentReference\FhirPatientDocumentReferenceService;
@@ -112,7 +112,7 @@ class FhirDocumentReferenceService extends FhirServiceBase implements IPatientCo
                 $fhirSearchResult = $this->searchAllServices($fhirSearchParameters, $puuidBind);
             }
         } catch (SearchFieldException $exception) {
-            (\OpenEMR\BC\ServiceContainer::getLogger())->error("FhirDocumentReferenceService->getAll() exception thrown", ['message' => $exception->getMessage(),
+            (ServiceContainer::getLogger())->error("FhirDocumentReferenceService->getAll() exception thrown", ['message' => $exception->getMessage(),
                 'field' => $exception->getField()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);

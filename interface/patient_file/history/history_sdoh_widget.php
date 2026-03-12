@@ -19,15 +19,15 @@ $srcdir = dirname(__FILE__, 4) . "/library";
 require_once(dirname(__FILE__, 3) . "/globals.php");
 require_once($srcdir . "/options.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Services\SDOH\HistorySdohService;
 
-$logger = \OpenEMR\BC\ServiceContainer::getLogger();
+$logger = ServiceContainer::getLogger();
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 /** Lookup a list option title by (list_id, option_id). */

@@ -18,9 +18,9 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\RestControllers\Config\RestConfig;
 use OpenEMR\RestControllers\FHIR\FhirAllergyIntoleranceRestController;
@@ -781,7 +781,7 @@ return [
         return $return;
     },
     "GET /fhir/Questionnaire" => function (HttpRestRequest $request) {
-        $logger = \OpenEMR\BC\ServiceContainer::getLogger();
+        $logger = ServiceContainer::getLogger();
         $fhirQuestionnaireService = new FhirQuestionnaireService();
         $fhirFormService = new FhirQuestionnaireFormService();
         $fhirQuestionnaireService->addMappedService($fhirFormService);

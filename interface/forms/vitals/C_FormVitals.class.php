@@ -15,12 +15,12 @@
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/forms.inc.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/patient.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\BmiCategory;
 use OpenEMR\Common\Forms\FormVitalDetails;
 use OpenEMR\Common\Forms\FormVitals;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -487,7 +487,7 @@ class C_FormVitals
                     $details->set_interpretation_codes($value); // for now the option_id is the code
                     $details->set_interpretation_title($interpretation['title']);
                 } else {
-                    (\OpenEMR\BC\ServiceContainer::getLogger())->error(
+                    (ServiceContainer::getLogger())->error(
                         "Passed in interpretation does not exist in list options, clearing interpretation id",
                         ['form_id' => $this->vitals->get_id(), 'column' => $column, 'interpretation' => $value]
                     );

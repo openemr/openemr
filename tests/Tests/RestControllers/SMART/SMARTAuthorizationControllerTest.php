@@ -3,6 +3,7 @@
 namespace OpenEMR\Tests\RestControllers\SMART;
 
 use Monolog\Level;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
@@ -164,7 +165,7 @@ class SMARTAuthorizationControllerTest extends TestCase
         $kernel->method('getEventDispatcher')
             ->willReturn($dispatcher);
         $kernel->method('getSystemLogger')
-            ->willReturn(\OpenEMR\BC\ServiceContainer::getLogger());
+            ->willReturn(ServiceContainer::getLogger());
 
         $controller = new SMARTAuthorizationController(
             $session,

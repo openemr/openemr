@@ -14,8 +14,8 @@
 
 require_once("../globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\PatientBeforeCreatedAuxEvent;
 use OpenEMR\Services\ContactAddressService;
@@ -98,7 +98,7 @@ if (!empty($addressFieldsToSave)) {
             }
         }
     } catch (\Throwable $e) {
-        (\OpenEMR\BC\ServiceContainer::getLogger())->error("Fatal error in address processing", [
+        (ServiceContainer::getLogger())->error("Fatal error in address processing", [
             'pid' => $pid,
             'error' => $e->getMessage(),
             'trace' => $e->getTraceAsString()

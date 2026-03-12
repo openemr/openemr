@@ -16,16 +16,16 @@ require_once(__DIR__ . "/../../interface/globals.php");
 $srcdir ??= ''; // should fatally fail but passes phpstan
 require_once("$srcdir/api.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ContactTelecomService;
 use OpenEMR\Services\PersonPatientLinkService;
 use OpenEMR\Services\PersonService;
 
 // Initialize logger early
-$logger = \OpenEMR\BC\ServiceContainer::getLogger();
+$logger = ServiceContainer::getLogger();
 
 // Set JSON header
 header('Content-Type: application/json');

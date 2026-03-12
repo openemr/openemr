@@ -16,8 +16,8 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\ValueObjects\PhoneNumber;
 use Particle\Validator\Validator;
 
@@ -238,7 +238,7 @@ class PhoneNumberService extends BaseService
         }
         $formatted = self::formatPhone($phone, $defaultRegion);
         if ($formatted === '') {
-            (\OpenEMR\BC\ServiceContainer::getLogger())->warning("Could not format phone number", ['phone' => $phone]);
+            (ServiceContainer::getLogger())->warning("Could not format phone number", ['phone' => $phone]);
             return $phone;
         }
         return $formatted;

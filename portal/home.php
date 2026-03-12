@@ -16,8 +16,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -413,7 +413,7 @@ try {
 } catch (LoaderError | RuntimeError | SyntaxError $e) {
     SessionUtil::portalSessionCookieDestroy();
     if ($e instanceof SyntaxError) {
-        (\OpenEMR\BC\ServiceContainer::getLogger())->error($e->getMessage(), ['file' => $e->getFile(), 'trace' => $e->getTraceAsString()]);
+        (ServiceContainer::getLogger())->error($e->getMessage(), ['file' => $e->getFile(), 'trace' => $e->getTraceAsString()]);
     }
     die(text($e->getMessage()));
 }

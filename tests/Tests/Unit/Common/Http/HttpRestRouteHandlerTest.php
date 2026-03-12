@@ -2,9 +2,9 @@
 
 namespace OpenEMR\Tests\Unit\Common\Http;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpRestRouteHandler;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\RestApiExtend\RestApiSecurityCheckEvent;
 use PHPUnit\Framework\TestCase;
@@ -46,7 +46,7 @@ class HttpRestRouteHandlerTest extends TestCase
         // make sure controller is being called correctly
         $kernel = $this->createMock(OEHttpKernel::class);
         $kernel->method('getSystemLogger')
-            ->willReturn(\OpenEMR\BC\ServiceContainer::getLogger());
+            ->willReturn(ServiceContainer::getLogger());
         $kernel->expects($this->once())
             ->method('getEventDispatcher')
             ->willReturn($eventDispatcher);
@@ -73,7 +73,7 @@ class HttpRestRouteHandlerTest extends TestCase
         // make sure controller is being called correctly
         $kernel = $this->createMock(OEHttpKernel::class);
         $kernel->method('getSystemLogger')
-            ->willReturn(\OpenEMR\BC\ServiceContainer::getLogger());
+            ->willReturn(ServiceContainer::getLogger());
         $kernel->expects($this->once())
             ->method('getEventDispatcher')
             ->willReturn($eventDispatcher);

@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -70,7 +71,7 @@ class BaseService implements BaseServiceInterface
     ) {
         $this->fields = QueryUtils::listTableFields($table);
         $this->autoIncrements = self::getAutoIncrements($this->table);
-        $this->setLogger(\OpenEMR\BC\ServiceContainer::getLogger());
+        $this->setLogger(ServiceContainer::getLogger());
         $this->eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     }
 

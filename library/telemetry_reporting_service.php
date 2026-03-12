@@ -10,7 +10,7 @@
  * @license        https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Services\VersionService;
 use OpenEMR\Telemetry\TelemetryRepository;
 use OpenEMR\Telemetry\TelemetryService;
@@ -23,7 +23,7 @@ function reportTelemetryTask(): void
 
     $telemetryRepo = new TelemetryRepository();
     $versionService = new VersionService();
-    $logger = \OpenEMR\BC\ServiceContainer::getLogger();
+    $logger = ServiceContainer::getLogger();
     $telemetryService = new TelemetryService($telemetryRepo, $versionService, $logger);
 
     $telemetryService->reportUsageData();

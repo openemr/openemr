@@ -2,10 +2,10 @@
 
 namespace OpenEMR\RestControllers\Config;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
 use Symfony\Component\HttpFoundation\Response;
@@ -210,11 +210,11 @@ class RestConfig
                 $scope = $scopeType . '/' . $resource . '.' . $permission;
             }
             if (!in_array($scope, OEGlobalsBag::getInstance()->get('oauth_scopes'))) {
-                (\OpenEMR\BC\ServiceContainer::getLogger())->debug("RestConfig::scope_check scope not in access token", ['scope' => $scope, 'scopes_granted' => OEGlobalsBag::getInstance()->get('oauth_scopes')]);
+                (ServiceContainer::getLogger())->debug("RestConfig::scope_check scope not in access token", ['scope' => $scope, 'scopes_granted' => OEGlobalsBag::getInstance()->get('oauth_scopes')]);
                 throw new AccessDeniedException($scope, '', 'You do not have permission to access this resource');
             }
         } else {
-            (\OpenEMR\BC\ServiceContainer::getLogger())->error("RestConfig::scope_check global scope array is empty");
+            (ServiceContainer::getLogger())->error("RestConfig::scope_check global scope array is empty");
             throw new HttpException(Response::HTTP_UNAUTHORIZED, 'Unauthorized Access');
         }
     }

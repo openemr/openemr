@@ -13,7 +13,7 @@ namespace OpenEMR\Services\FHIR\Observation;
 
 use BadMethodCallException;
 use InvalidArgumentException;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
@@ -553,7 +553,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
                 $processingResult->addData($vitalsRecord);
                 unset($observationCodesToReturn[self::VITALS_PANEL_LOINC_CODE]);
             } else {
-                (\OpenEMR\BC\ServiceContainer::getLogger())->error("FhirVitalsService->parseVitalsIntoObservationRecords() Cannot return vitals panel as mapping uuid is missing for code " . self::VITALS_PANEL_LOINC_CODE);
+                (ServiceContainer::getLogger())->error("FhirVitalsService->parseVitalsIntoObservationRecords() Cannot return vitals panel as mapping uuid is missing for code " . self::VITALS_PANEL_LOINC_CODE);
             }
         }
 

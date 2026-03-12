@@ -18,10 +18,10 @@ require_once("../../globals.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\PatientUpdatedEventAux;
 use OpenEMR\Services\ContactAddressService;
@@ -30,7 +30,7 @@ use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ContactTelecomService;
 
 // Initialize logger
-$logger = \OpenEMR\BC\ServiceContainer::getLogger();
+$logger = ServiceContainer::getLogger();
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();

@@ -14,7 +14,7 @@
 
 namespace OpenEMR\FHIR\Export;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\FHIR\R4\FHIRResource;
 
 class ExportStreamWriter
@@ -79,7 +79,7 @@ class ExportStreamWriter
             $this->incrementRecordCount();
             $this->lastProcessedId = $resource->getId();
             if ($this->willShutdown()) {
-                (\OpenEMR\BC\ServiceContainer::getLogger())->debug(
+                (ServiceContainer::getLogger())->debug(
                     "ExportStreamWriter->append() reached shutdown time limit for export",
                     ['lastProcessedId' => $this->lastProcessedId, 'resource' => $resource->get_fhirElementName()]
                 );

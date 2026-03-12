@@ -8,7 +8,7 @@
 
 namespace OpenEMR\Core;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
@@ -266,7 +266,7 @@ class Header
 
         if (($thisCnt = count(array_diff($selectedAssets, $foundAssets))) > 0) {
             if ($thisCnt !== $excludedCount) {
-                (\OpenEMR\BC\ServiceContainer::getLogger())->error("Not all selected assets were included in header", ['selectedAssets' => $selectedAssets, 'foundAssets' => $foundAssets]);
+                (ServiceContainer::getLogger())->error("Not all selected assets were included in header", ['selectedAssets' => $selectedAssets, 'foundAssets' => $foundAssets]);
             }
         }
     }

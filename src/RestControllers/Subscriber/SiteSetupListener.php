@@ -2,11 +2,11 @@
 
 namespace OpenEMR\RestControllers\Subscriber;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
 use OpenEMR\Common\Auth\OAuth2KeyException;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpSessionFactory;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\FHIR\Config\ServerConfig;
@@ -199,7 +199,7 @@ class SiteSetupListener implements EventSubscriberInterface
 
         $globalsBag = require_once(__DIR__ . "/../../../interface/globals.php");
         if ($event->getKernel() instanceof OEHttpKernel) {
-            $event->getKernel()->setSystemLogger(\OpenEMR\BC\ServiceContainer::getLogger());
+            $event->getKernel()->setSystemLogger(ServiceContainer::getLogger());
         }
         return $globalsBag;
     }

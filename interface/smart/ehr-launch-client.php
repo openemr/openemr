@@ -12,10 +12,10 @@
 
 require_once("../globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\SMART\SmartLaunchController;
 
 $controller = new SmartLaunchController();
@@ -32,9 +32,9 @@ try {
 } catch (CsrfInvalidException) {
     CsrfUtils::csrfNotVerified();
 } catch (AccessDeniedException $exception) {
-    (\OpenEMR\BC\ServiceContainer::getLogger())->critical($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);
+    (ServiceContainer::getLogger())->critical($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);
     die();
 } catch (\Throwable $exception) {
-    (\OpenEMR\BC\ServiceContainer::getLogger())->error($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);
+    (ServiceContainer::getLogger())->error($exception->getMessage(), ["trace" => $exception->getTraceAsString()]);
     die("Unknown system error occurred");
 }

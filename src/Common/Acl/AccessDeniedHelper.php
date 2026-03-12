@@ -19,8 +19,8 @@
 
 namespace OpenEMR\Common\Acl;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
@@ -49,7 +49,7 @@ class AccessDeniedHelper
         $user = $session->get('authUser', 'unknown');
         $group = $session->get('authProvider', '');
 
-        (\OpenEMR\BC\ServiceContainer::getLogger())->warning("Access denied: $comment", [
+        (ServiceContainer::getLogger())->warning("Access denied: $comment", [
             'user' => $user,
         ]);
 
@@ -131,7 +131,7 @@ class AccessDeniedHelper
         $user = $session->get('authUser', 'unknown');
         $group = $session->get('authProvider', '');
 
-        (\OpenEMR\BC\ServiceContainer::getLogger())->warning("Access denied: $comment", [
+        (ServiceContainer::getLogger())->warning("Access denied: $comment", [
             'user' => $user,
         ]);
 

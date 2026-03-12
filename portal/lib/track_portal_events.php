@@ -10,8 +10,8 @@
  * @license        https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\VersionService;
@@ -60,7 +60,7 @@ function portal_handleRequest(): void
 
     $telemetryRepo = new TelemetryRepository();
     $versionService = new VersionService();
-    $logger = \OpenEMR\BC\ServiceContainer::getLogger();
+    $logger = ServiceContainer::getLogger();
     $telemetryService = new TelemetryService($telemetryRepo, $versionService, $logger);
 
     $action = $data['action'] ?? '';

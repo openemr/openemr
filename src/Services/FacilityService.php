@@ -17,8 +17,8 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Facility\FacilityCreatedEvent;
@@ -307,7 +307,7 @@ class FacilityService extends BaseService
             }
             return $returnRecords;
         } catch (SqlQueryException $exception) {
-            (\OpenEMR\BC\ServiceContainer::getLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            (ServiceContainer::getLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             throw $exception;
         }
     }

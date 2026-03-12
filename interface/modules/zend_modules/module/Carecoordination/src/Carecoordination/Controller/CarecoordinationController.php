@@ -23,7 +23,7 @@ use Documents\Controller\DocumentsController;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
 
@@ -946,7 +946,7 @@ class CarecoordinationController extends AbstractActionController
         $z->open($zipLocation);
         for ($i = 0; $i < $z->numFiles; $i++) {
             $stat = $z->statIndex($i);
-            (\OpenEMR\BC\ServiceContainer::getLogger())->error("File in zip is " . $stat['name']);
+            (ServiceContainer::getLogger())->error("File in zip is " . $stat['name']);
         }
         $z->close();
     }

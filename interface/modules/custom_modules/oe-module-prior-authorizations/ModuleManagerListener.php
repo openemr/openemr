@@ -30,7 +30,7 @@
     $classLoader->registerNamespaceIfNotExists("OpenEMR\\Modules\\ClaimRevConnector\\", __DIR__ . DIRECTORY_SEPARATOR . 'src');
 */
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\AbstractModuleActionListener;
 
 /* Allows maintenance of background tasks depending on Module Manager action. */
@@ -129,7 +129,7 @@ class ModuleManagerListener extends AbstractModuleActionListener
         if (empty($records)) { // Check if the records array is empty
             $sql = "DROP TABLE `module_prior_authorizations`"; // Drop the module_prior_authorizations table if it is empty
             sqlStatement($sql); // Execute the SQL statement
-            (\OpenEMR\BC\ServiceContainer::getLogger())->error('Prior Auth table have been removed if empty else manually remove'); // Log the status of the SQL statement
+            (ServiceContainer::getLogger())->error('Prior Auth table have been removed if empty else manually remove'); // Log the status of the SQL statement
         }
         return $currentActionStatus;
     }
