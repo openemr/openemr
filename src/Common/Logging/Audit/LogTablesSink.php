@@ -18,7 +18,6 @@ declare(strict_types=1);
 namespace OpenEMR\Common\Logging\Audit;
 
 use Doctrine\DBAL\Connection;
-use OpenEMR\Common\Crypto\CryptoInterface;
 
 readonly class LogTablesSink
 {
