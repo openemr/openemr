@@ -244,7 +244,7 @@ class EncounterccdadispatchController extends AbstractActionController
                 if ($view && !$downloadccda) {
                     if (str_starts_with($content, 'ERROR:')) {
                         echo "<h3>" . text($content) . "</h3>";
-                        (new SystemLogger())->errorLogCaller("Error generating CCDA", ['message' => $content]);
+                        (new SystemLogger())->error("EncounterccdadispatchController: Error generating CCDA: {message}", ['message' => $content]);
                         die();
                     }
                     $xml = simplexml_load_string($content);
@@ -260,7 +260,7 @@ class EncounterccdadispatchController extends AbstractActionController
                     $htmlContent = file_get_contents($outputFile);
                     $result = unlink($outputFile); // remove the file so we don't have PHI left around on the filesystem
                     if (!$result) {
-                        (new SystemLogger())->errorLogCaller("Failed to unlink temporary CDA output on hard drive. This could expose PHI and needs to be investigated.", ['filename' => $outputFile]);
+                        (new SystemLogger())->error("EncounterccdadispatchController: Failed to unlink temporary CDA output {filename}. This could expose PHI and needs to be investigated.", ['filename' => $outputFile]);
                     }
                     echo $htmlContent;
                 }
@@ -391,8 +391,9 @@ class EncounterccdadispatchController extends AbstractActionController
 
             return $content;
         } catch (\Throwable $e) {
-            (new SystemLogger())->errorLogCaller("Error generating consolidated QRDA III content", [
-                'message' => $e->getMessage()
+            (new SystemLogger())->error("EncounterccdadispatchController: Error generating consolidated QRDA III content: {message}", [
+                'message' => $e->getMessage(),
+                'exception' => $e
             ]);
 
             return "ERROR: " . $e->getMessage();

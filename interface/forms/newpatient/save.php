@@ -40,7 +40,7 @@ $patientService = new PatientService();
  */
 $patient = $patientService->findByPid($pid);
 if (empty($patient)) {
-    (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller("Patient not found, this should never happen");
+    (new \OpenEMR\Common\Logging\SystemLogger())->error("newpatient/save.php: Patient not found, this should never happen");
     die("Patient not found");
 }
 $puuid = UuidRegistry::uuidToString($patient['uuid']);

@@ -153,7 +153,7 @@ if (!empty($_REQUEST['service_auth'] ?? null)) {
             exit();
         }
     } else {
-        (new SystemLogger())->errorLogCaller("Invalid service_auth request - should never reach here");
+        (new SystemLogger())->error("Invalid service_auth request - should never reach here");
         exit();
     }
 }

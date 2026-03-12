@@ -147,7 +147,7 @@ try {
         $data['updated_by'] = $uid;
         $result = $sdohService->update($rec_id, $data);
         if (!$result->isValid()) {
-            $logger->errorLogCaller("Failed to insert sdoh record", ['validationErrors' => $result->getValidationMessages(), 'internalErrors' => $result->getInternalErrors()]);
+            $logger->error("history_sdoh_save: Failed to update sdoh record", ['validationErrors' => $result->getValidationMessages(), 'internalErrors' => $result->getInternalErrors()]);
         }
         $id = $rec_id;
     } else {
@@ -156,7 +156,7 @@ try {
         $data['created_by'] = $uid;
         $result = $sdohService->insert($data);
         if (!$result->isValid()) {
-            $logger->errorLogCaller("Failed to insert sdoh record", ['validationErrors' => $result->getValidationMessages(), 'internalErrors' => $result->getInternalErrors()]);
+            $logger->error("history_sdoh_save: Failed to insert sdoh record", ['validationErrors' => $result->getValidationMessages(), 'internalErrors' => $result->getInternalErrors()]);
             throw new Exception("Failed to insert sdoh record.");
         } else {
             $id = $result->getFirstDataResult()['id'];

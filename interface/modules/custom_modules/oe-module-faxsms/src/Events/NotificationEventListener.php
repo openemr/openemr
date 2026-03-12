@@ -159,7 +159,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $service = new OneTimeAuth();
         $oneTime = $service->createPortalOneTime($parameters);
         if (!isset($oneTime['encoded_link'])) {
-            (new SystemLogger())->errorLogCaller("Failed to generate encoded_link with onetime service");
+            (new SystemLogger())->error("NotificationEventListener: Failed to generate encoded_link with onetime service");
             return 'Failed! Redirect link.';
         }
 
@@ -259,7 +259,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $oneTime = $service->createPortalOneTime($parameters); // create the token.
 
         if (!isset($oneTime['encoded_link'])) {
-            (new SystemLogger())->errorLogCaller("Failed to generate encoded_link with onetime service");
+            (new SystemLogger())->error("NotificationEventListener: Failed to generate encoded_link with onetime service");
             return 'Failed! Redirect link.';
         }
 

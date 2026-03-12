@@ -44,7 +44,7 @@ $logger = new SystemLogger();
 
 // TODO: @adunsulag all of this needs to be wrapped into a Response and Controller for better structure
 if (!$pid || !$sdoh_id) {
-    $logger->errorLogCaller("Missing required parameters", ['pid' => $pid, "sdoh_id" => $sdoh_id]);
+    $logger->error("history_sdoh_health_concerns: Missing required parameters pid={pid} sdoh_id={sdoh_id}", ['pid' => $pid, "sdoh_id" => $sdoh_id]);
     die(xlt("Missing required parameters."));
 }
 
@@ -55,7 +55,7 @@ if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
 $sdohService = new HistorySdohService();
 $result = $sdohService->search(['id' => $sdoh_id, 'pid' => $pid]);
 if (!$result->hasData()) {
-    $logger->errorLogCaller("SDOH assessment not found", ['pid' => $pid, "sdoh_id" => $sdoh_id]);
+    $logger->error("history_sdoh_health_concerns: SDOH assessment not found for pid={pid} sdoh_id={sdoh_id}", ['pid' => $pid, "sdoh_id" => $sdoh_id]);
     die("SDOH assessment not found.");
 }
 $assessmentConcerns = HistorySdohService::concernsFromAssessmentV3($result->getFirstDataResult());

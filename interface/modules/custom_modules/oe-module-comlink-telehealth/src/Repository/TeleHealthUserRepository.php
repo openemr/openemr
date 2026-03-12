@@ -108,7 +108,7 @@ class TeleHealthUserRepository extends BaseService
             if ($date !== false) {
                 $user->setDateRegistered($date);
             } else {
-                $this->logger->errorLogCaller('failed to create date_registered', ['value' => $row['date_registered']]);
+                $this->logger->error('TeleHealthUserRepository: failed to create date_registered from {value}', ['value' => $row['date_registered']]);
             }
         }
         if (isset($row['date_created'])) {
@@ -116,7 +116,7 @@ class TeleHealthUserRepository extends BaseService
             if ($date !== false) {
                 $user->setDateCreated($date);
             } else {
-                $this->logger->errorLogCaller('failed to create date_created', ['value' => $row['date_created']]);
+                $this->logger->error('TeleHealthUserRepository: failed to create date_created from {value}', ['value' => $row['date_created']]);
             }
         }
         if (isset($row['date_updated'])) {
@@ -124,7 +124,7 @@ class TeleHealthUserRepository extends BaseService
             if ($date !== false) {
                 $user->setDateUpdated($date);
             } else {
-                $this->logger->errorLogCaller('failed to create date_updated', ['value' => $row['date_updated']]);
+                $this->logger->error('TeleHealthUserRepository: failed to create date_updated from {value}', ['value' => $row['date_updated']]);
             }
         }
         return $user;

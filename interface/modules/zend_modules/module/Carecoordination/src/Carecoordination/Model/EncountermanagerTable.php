@@ -296,7 +296,7 @@ class EncountermanagerTable
                 }
             }
         } catch (\Throwable $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['data' => $data]);
+            (new SystemLogger())->error("EncountermanagerTable: " . $exception->getMessage(), ['data' => $data, 'exception' => $exception]);
             return ("Delivery failed to send");
         }
 

@@ -246,7 +246,7 @@ class ApiTestClient
             if (isset($errorBody->hint)) {
                 $errorMessage .= ": " . $errorBody->hint;
             }
-            $this->getSystemLogger()?->errorLogCaller($errorMessage);
+            $this->getSystemLogger()?->error("ApiTestClient: " . $errorMessage);
         }
 
         return $authResponse;
@@ -271,7 +271,7 @@ class ApiTestClient
         /** @var (\stdClass&object{client_id: string, client_secret: string})|null $clientResponseBody */
         $clientResponseBody = json_decode($clientResponseBodyRaw);
         if ($clientResponseBody === null) {
-            $this->getSystemLogger()?->errorLogCaller("Failed to decode client registration response: ", ['rawBody' => $clientResponseBodyRaw]);
+            $this->getSystemLogger()?->error("ApiTestClient: Failed to decode client registration response", ['rawBody' => $clientResponseBodyRaw]);
             throw new \RuntimeException("Client registration response could not be decoded");
         }
         $this->client_id = $clientResponseBody->client_id;

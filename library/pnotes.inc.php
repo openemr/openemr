@@ -543,7 +543,7 @@ function updatePnotePatient($id, $patient_id): void
     $pid = $row['pid'];
 
     if ($pid != 0 || (int)$patient_id < 1) {
-        (new SystemLogger())->errorLogCaller("invalid operation", ['id' => $id, 'patient_id' => $patient_id, 'pid' => $pid]);
+        (new SystemLogger())->error("updatePnotePatient invalid operation for id {id}, patient_id {patient_id}, pid {pid}", ['id' => $id, 'patient_id' => $patient_id, 'pid' => $pid]);
         die("updatePnotePatient invalid operation");
     }
 
