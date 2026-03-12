@@ -127,7 +127,7 @@ class LogTablesSinkTest extends TestCase
         $this->assertSame('', $capturedLogCommentData['checksum_api']);
         $this->assertSame('4', $capturedLogCommentData['version']);
         // Checksum should be a sha3-512 hash (128 hex chars)
-        $this->assertSame(128, strlen($capturedLogCommentData['checksum']));
+        $this->assertSame(128, strlen((string) $capturedLogCommentData['checksum']));
     }
 
     public function testRecordEncryptsCommentsWhenEnabled(): void
@@ -539,6 +539,6 @@ class LogTablesSinkTest extends TestCase
         $sink->record($event);
 
         // API checksum should be a sha3-512 hash (128 hex chars)
-        $this->assertSame(128, strlen($capturedLogCommentData['checksum_api']));
+        $this->assertSame(128, strlen((string) $capturedLogCommentData['checksum_api']));
     }
 }
