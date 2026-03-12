@@ -47,7 +47,7 @@ class FhirPractitionerRestController
     public function setSystemLogger(SystemLogger $systemLogger): void
     {
         $this->fhirPractitionerService->setSystemLogger($systemLogger);
-        $this->systemLogger = $systemLogger;
+        $this->logger = $systemLogger;
     }
 
     /**

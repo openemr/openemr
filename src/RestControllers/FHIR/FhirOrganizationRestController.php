@@ -46,7 +46,7 @@ class FhirOrganizationRestController
     public function setSystemLogger(SystemLogger $systemLogger): void
     {
         $this->fhirOrganizationService->setSystemLogger($systemLogger);
-        $this->systemLogger = $systemLogger;
+        $this->logger = $systemLogger;
     }
 
 

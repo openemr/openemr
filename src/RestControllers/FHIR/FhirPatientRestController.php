@@ -60,8 +60,8 @@ class FhirPatientRestController
         if (!isset($this->fhirPatientService)) {
             $this->fhirPatientService = new FhirPatientService();
             $this->fhirPatientService->setGlobalsBag($this->getOEGlobals());
-            if (isset($this->systemLogger)) {
-                $this->fhirPatientService->setSystemLogger($this->systemLogger);
+            if ($this->logger !== null) {
+                $this->fhirPatientService->setSystemLogger($this->logger);
             }
         }
         return $this->fhirPatientService;
@@ -75,7 +75,7 @@ class FhirPatientRestController
     public function setSystemLogger(SystemLogger $systemLogger): void
     {
         $this->getFhirPatientService()->setSystemLogger($systemLogger);
-        $this->systemLogger = $systemLogger;
+        $this->logger = $systemLogger;
     }
 
     /**
