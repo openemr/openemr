@@ -205,7 +205,6 @@ trait G10ApiTestTrait
                     break;
                 }
             } catch (ServerException $exception) {
-                (new SystemLogger())->errorLogCaller("Server exception occurred ", [$exception->getMessage()]);
                 if ($errorCount++ >= $maxErrorRetries) {
                     throw $exception;
                 }
