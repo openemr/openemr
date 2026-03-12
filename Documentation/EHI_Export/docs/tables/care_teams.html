@@ -157,7 +157,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>fk to patient_data.pid</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="status">status</span></td>
@@ -165,7 +165,7 @@
                                     <td>100</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>NULL</td>
+                                    <td>&#39;active&#39;</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -174,7 +174,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>fk to list_options.option_id where list_id=Care_Team_Status</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="team_name">team_name</span></td>
@@ -259,7 +259,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>fk to users.id for user who created this record</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="updated_by">updated_by</span></td>
@@ -276,7 +276,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>fk to users.id for user who last updated this record</p></td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -341,8 +341,10 @@
                                 </ul>
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
-                                        
-                                        <a name='diagram'><object type="image/svg+xml" id="oneDegreeImg" data="../diagrams/tables/care_teams.1degree.svg" class="diagram" border="0" align="left"></object></a>
+                                        <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
+<area shape="rect" id="node1" href="care_teams.html" target="_top" title="care_teams" alt="" coords="5,5,290,372">
+</map>
+                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/care_teams.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                 </div>
                             </div>

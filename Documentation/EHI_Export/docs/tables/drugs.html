@@ -605,12 +605,26 @@
                                 </ul>
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
-                                        
-                                        <a name='diagram'><object type="image/svg+xml" id="oneDegreeImg" data="../diagrams/tables/drugs.1degree.svg" class="diagram" border="0" align="left"></object></a>
+                                        <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
+<area shape="rect" id="node1" href="drug_sales.html" target="_top" title="drug_sales" alt="" coords="371,5,624,334">
+<area shape="rect" id="node2" href="drugs.html" target="_top" title="drugs" alt="" coords="5,278,313,1056">
+<area shape="rect" id="node3" href="prescriptions.html" target="_top" title="prescriptions" alt="" coords="357,352,637,769">
+</map>
+                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/drugs.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
-                                        
-                                        <a name='diagram'><object type="image/svg+xml" id="twodegreesDegreeImg" data="../diagrams/tables/drugs.2degrees.svg" class="diagram" border="0" align="left"></object></a>
+                                        <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
+<area shape="rect" id="node1" href="drug_sales.html" target="_top" title="drug_sales" alt="" coords="913,5,1166,334">
+<area shape="rect" id="node2" href="users.html" target="_top" title="users" alt="" coords="33,1187,165,1281">
+<area shape="rect" id="node3" href="drugs.html" target="_top" title="drugs" alt="" coords="237,356,545,1133">
+<area shape="rect" id="node4" href="form_encounter.html" target="_top" title="form_encounter" alt="" coords="616,156,842,250">
+<area shape="rect" id="node5" href="list_options.html" target="_top" title="list_options" alt="" coords="6,1437,192,1531">
+<area shape="rect" id="node6" href="patient_data.html" target="_top" title="patient_data" alt="" coords="292,1187,490,1281">
+<area shape="rect" id="node9" href="pharmacies.html" target="_top" title="pharmacies" alt="" coords="5,1075,193,1169">
+<area shape="rect" id="node7" href="lists_medication.html" target="_top" title="lists_medication" alt="" coords="925,1533,1154,1627">
+<area shape="rect" id="node8" href="prescriptions.html" target="_top" title="prescriptions" alt="" coords="589,1080,869,1497">
+</map>
+                                        <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/drugs.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                 </div>
                             </div>

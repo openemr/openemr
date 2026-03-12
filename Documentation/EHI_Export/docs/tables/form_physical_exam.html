@@ -124,9 +124,26 @@
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="forms_id">forms_id</span></td>
-                                    <td>BIGINT</td>
-                                    <td>19</td>
+                                    <td><span id="diagnosis">diagnosis</span></td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="forms_id">forms_id</span></td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
                                     <td title=''></td>
                                     <td title=''></td>
                                     <td>null</td>
@@ -146,9 +163,9 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="line_id">line_id</span></td>
-                                    <td>CHAR</td>
-                                    <td>8</td>
+                                    <td><span id="line_id">line_id</span></td>
+                                    <td>Unknown</td>
+                                    <td>0</td>
                                     <td title=''></td>
                                     <td title=''></td>
                                     <td>null</td>
@@ -158,84 +175,6 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
-                                            <tr>
-                                                <td title="form_physical_exam.line_id references form_physical_exam_diagnoses.line_id"><a href='form_physical_exam_diagnoses.html'>form_physical_exam_diagnoses</a><span class='relatedKey'>.line_id</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="wnl">wnl</span></td>
-                                    <td>BOOLEAN</td>
-                                    <td>3</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>0</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="abn">abn</span></td>
-                                    <td>BOOLEAN</td>
-                                    <td>3</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>0</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="diagnosis">diagnosis</span></td>
-                                    <td>VARCHAR</td>
-                                    <td>255</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>&#39;&#39;</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                            <tr>
-                                                <td title="form_physical_exam.diagnosis references form_physical_exam_diagnoses.diagnosis"><a href='form_physical_exam_diagnoses.html'>form_physical_exam_diagnoses</a><span class='relatedKey'>.diagnosis</span></td>
-                                                <td class="constraint detail">Defined in XML</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="comments">comments</span></td>
-                                    <td>VARCHAR</td>
-                                    <td>255</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>&#39;&#39;</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
                                     <td></td>
@@ -243,42 +182,6 @@
                                 </tbody>
                             </table>
                         </div>
-                    </div>
-                    <div class="box box-primary">
-                        <div class="box-header with-border">
-                            <i class="fa fa-sitemap"></i>
-                            <h3 id="Indexes" class="box-title">Indexes</h3>
-                            <div class="box-tools pull-right">
-                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
-                            </div>
-                        </div>
-                        <div class="box-body">
-                            <table
-                                    id="indexes_table"
-                                    class="table table-bordered table-striped dataTable"
-                                    role="grid"
-                                    data-paging="false"
-                                    data-page-length="10"
-                                    data-length-change="false">
-                                <thead>
-                                <tr>
-                                    <th>Constraint Name</th>
-                                    <th>Type</th>
-                                    <th>Sort</th>
-                                    <th>Column(s)</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr>
-                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey'></i> PRIMARY</td>
-                                    <td>Primary key</td>
-                                    <td><span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span></td>
-                                    <td>forms_id + line_id</td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div><!-- /.box-body -->
                     </div>
                     <div class="box box-primary">
                         <div class="box-header with-border">
@@ -298,12 +201,36 @@
                                 </ul>
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
-                                        
-                                        <a name='diagram'><object type="image/svg+xml" id="oneDegreeImg" data="../diagrams/tables/form_physical_exam.1degree.svg" class="diagram" border="0" align="left"></object></a>
+                                        <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
+<area shape="rect" id="node1" href="form_physical_exam.html" target="_top" title="form_physical_exam" alt="" coords="255,5,632,167">
+<area shape="rect" id="node2" href="forms.html" target="_top" title="forms" alt="" coords="5,36,211,394">
+</map>
+                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/form_physical_exam.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
-                                        
-                                        <a name='diagram'><object type="image/svg+xml" id="twodegreesDegreeImg" data="../diagrams/tables/form_physical_exam.2degrees.svg" class="diagram" border="0" align="left"></object></a>
+                                        <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
+<area shape="rect" id="node1" href="form_group_attendance.html" target="_top" title="form_group_attendance" alt="" coords="1360,961,1657,1055">
+<area shape="rect" id="node2" href="form_groups_encounter.html" target="_top" title="form_groups_encounter" alt="" coords="980,5,1275,99">
+<area shape="rect" id="node3" href="therapy_groups.html" target="_top" title="therapy_groups" alt="" coords="422,192,646,286">
+<area shape="rect" id="node4" href="groups.html" target="_top" title="groups" alt="" coords="206,1267,353,1361">
+<area shape="rect" id="node5" href="forms.html" target="_top" title="forms" alt="" coords="690,644,895,1002">
+<area shape="rect" id="node6" href="users.html" target="_top" title="users" alt="" coords="5,1016,137,1110">
+<area shape="rect" id="node8" href="patient_data.html" target="_top" title="patient_data" alt="" coords="181,796,378,890">
+<area shape="rect" id="node9" href="lists.html" target="_top" title="lists" alt="" coords="473,1016,594,1110">
+<area shape="rect" id="node7" href="form_observation.html" target="_top" title="form_observation" alt="" coords="1007,376,1248,470">
+<area shape="rect" id="node10" href="form_clinic_note.html" target="_top" title="form_clinic_note" alt="" coords="1013,891,1242,985">
+<area shape="rect" id="node11" href="form_gad7.html" target="_top" title="form_gad7" alt="" coords="1038,1037,1217,1131">
+<area shape="rect" id="node12" href="form_note.html" target="_top" title="form_note" alt="" coords="1040,667,1215,761">
+<area shape="rect" id="node13" href="form_painmap.html" target="_top" title="form_painmap" alt="" coords="1022,1149,1233,1243">
+<area shape="rect" id="node14" href="form_phq9.html" target="_top" title="form_phq9" alt="" coords="1038,1373,1217,1467">
+<area shape="rect" id="node15" href="form_physical_exam.html" target="_top" title="form_physical_exam" alt="" coords="939,488,1316,649">
+<area shape="rect" id="node16" href="form_prior_auth.html" target="_top" title="form_prior_auth" alt="" coords="1014,779,1241,873">
+<area shape="rect" id="node17" href="form_sdoh.html" target="_top" title="form_sdoh" alt="" coords="1039,1261,1216,1355">
+<area shape="rect" id="node18" href="form_track_anything.html" target="_top" title="form_track_anything" alt="" coords="994,117,1261,211">
+<area shape="rect" id="node19" href="form_transfer_summary.html" target="_top" title="form_transfer_summary" alt="" coords="978,264,1277,358">
+<area shape="rect" id="node20" href="form_treatment_plan.html" target="_top" title="form_treatment_plan" alt="" coords="992,1485,1263,1579">
+</map>
+                                        <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/form_physical_exam.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                 </div>
                             </div>

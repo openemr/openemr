@@ -389,6 +389,23 @@
                                     <td></td>
                                 </tr>
                                 <tr>
+                                    <td><span id="grp_unchecked">grp_unchecked</span></td>
+                                    <td>BOOLEAN</td>
+                                    <td>3</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>0</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
+                                <tr>
                                     <td><span id="grp_services">grp_services</span></td>
                                     <td>VARCHAR</td>
                                     <td>4095</td>
@@ -446,23 +463,6 @@
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>NULL</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="grp_unchecked">grp_unchecked</span></td>
-                                    <td>BOOLEAN</td>
-                                    <td>3</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>0</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -531,12 +531,21 @@
                                 </ul>
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
-                                        
-                                        <a name='diagram'><object type="image/svg+xml" id="oneDegreeImg" data="../diagrams/tables/layout_group_properties.1degree.svg" class="diagram" border="0" align="left"></object></a>
+                                        <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
+<area shape="rect" id="node1" href="layout_options.html" target="_top" title="layout_options" alt="" coords="496,5,711,217">
+<area shape="rect" id="node2" href="layout_group_properties.html" target="_top" title="layout_group_properties" alt="" coords="5,17,452,677">
+</map>
+                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/layout_group_properties.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
-                                        
-                                        <a name='diagram'><object type="image/svg+xml" id="twodegreesDegreeImg" data="../diagrams/tables/layout_group_properties.2degrees.svg" class="diagram" border="0" align="left"></object></a>
+                                        <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
+<area shape="rect" id="node1" href="layout_options.html" target="_top" title="layout_options" alt="" coords="496,85,711,297">
+<area shape="rect" id="node2" href="layout_group_properties.html" target="_top" title="layout_group_properties" alt="" coords="5,97,452,757">
+<area shape="rect" id="node3" href="lbf_data.html" target="_top" title="lbf_data" alt="" coords="799,5,955,99">
+<area shape="rect" id="node4" href="lbt_data.html" target="_top" title="lbt_data" alt="" coords="799,117,955,211">
+<area shape="rect" id="node5" href="shared_attributes.html" target="_top" title="shared_attributes" alt="" coords="755,229,999,323">
+</map>
+                                        <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/layout_group_properties.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                 </div>
                             </div>

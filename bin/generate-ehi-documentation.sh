@@ -3,7 +3,7 @@
 DB_USER=openemr
 DB_NAME=openemr
 DB_SCHEMA=openemr
-DB_HOST=172.18.0.6
+DB_HOST=mysql
 DB_PORT=3306
 DB_PASSWORD=openemr
 EHI_ROOT_FILE=../Documentation/EHI_Export/schemaspy
@@ -42,4 +42,4 @@ FILTER_CLAUSE="-i ${TABLES_INCLUDE}"
 # -noDbObjectPaging
 # schema file is named openemr.meta.xml
 
-java -jar "${JAR_FILES}"/schemaspy.jar -t "${TYPE}" -host "${DB_HOST}" -port "${DB_PORT}" -db "${DB_NAME}" -u "${DB_USER}" -p "${DB_PASSWORD}" -o "${DOC_OUTPUT}" -s "${DB_SCHEMA}" -dp "${JAVA_CONNECTOR}" -vizjs -norows -noimplied -nopages "${FILTER_CLAUSE}" -meta "${SCHEMA_LOCATION}" -template "${TEMPLATE_LOCATION}"
+java -jar "${JAR_FILES}"/schemaspy.jar -t "${TYPE}" -host "${DB_HOST}" -port "${DB_PORT}" -db "${DB_NAME}" -u "${DB_USER}" -p "${DB_PASSWORD}" -o "${DOC_OUTPUT}" -s "${DB_SCHEMA}" -dp "${JAVA_CONNECTOR}" -norows -noimplied -nopages "${FILTER_CLAUSE}" -meta "${SCHEMA_LOCATION}" -template "${TEMPLATE_LOCATION}"
