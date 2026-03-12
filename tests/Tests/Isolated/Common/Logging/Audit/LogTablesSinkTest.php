@@ -211,10 +211,10 @@ class LogTablesSinkTest extends TestCase
 
         $sink->record($event);
 
-        // Null user/group should be converted to empty string
+        // Null user/group should remain null
         self::assertIsArray($capturedLogData);
-        self::assertSame('', $capturedLogData['user']);
-        self::assertSame('', $capturedLogData['groupname']);
+        self::assertNull($capturedLogData['user']);
+        self::assertNull($capturedLogData['groupname']);
     }
 
     public function testRecordHandlesNullPatientId(): void
