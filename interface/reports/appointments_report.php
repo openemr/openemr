@@ -43,6 +43,7 @@ use OpenEMR\Common\{
 use OpenEMR\Core\Header;
 use OpenEMR\Services\SpreadSheetService;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\BC\ServiceContainer;
 
 
 if (!empty($_POST)) {
@@ -528,7 +529,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                 $spreadsheet->downloadSpreadsheet();
             }
         } catch (RuntimeException $e) {
-            $logger = new SystemLogger();
+            $logger = ServiceContainer::getLogger();
             $logger->logError($e->getMessage());
         }
     } else {

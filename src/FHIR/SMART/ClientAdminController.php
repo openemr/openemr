@@ -13,6 +13,7 @@ namespace OpenEMR\FHIR\SMART;
 
 use Exception;
 use JsonException;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\OAuth2KeyConfig;
@@ -24,7 +25,6 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\RefreshTokenRepository;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -97,7 +97,7 @@ class ClientAdminController
             $this->externalCDRController = new RouteController(
                 $this->session,
                 $this->clientRepo,
-                $this->getSystemLogger() ?? new SystemLogger(),
+                $this->getSystemLogger() ?? ServiceContainer::getLogger(),
                 $this->getTwig(),
                 $this->actionUrlBuilder,
                 new DecisionSupportInterventionService()
