@@ -69,7 +69,7 @@ class PhoneNumberService extends BaseService
         $phoneNumbersSql .= "     type=?,";
         $phoneNumbersSql .= "     foreign_id=?";
 
-        $phoneNumbersSqlResults = QueryUtils::sqlInsert(
+        QueryUtils::sqlInsert(
             $phoneNumbersSql,
             [
                 $freshId,
@@ -81,10 +81,6 @@ class PhoneNumberService extends BaseService
                 $this->foreignId
             ]
         );
-
-        if (!$phoneNumbersSqlResults) {
-            return false;
-        }
 
         return $freshId;
     }
