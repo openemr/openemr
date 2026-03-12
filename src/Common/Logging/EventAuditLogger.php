@@ -14,13 +14,20 @@
 
 namespace OpenEMR\Common\Logging;
 
-use OpenEMR\BC\ServiceContainer;
+use Doctrine\DBAL\Connection;
+use OpenEMR\BC\{
+    DatabaseConnectionFactory,
+    DatabaseConnectionOptions,
+    ServiceContainer,
+};
 use OpenEMR\Common\Crypto\CryptoInterface;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Traits\SingletonTrait;
 
+/**
+ * @phpstan-import-type ApiData from Audit\Event
+ */
 class EventAuditLogger
 {
     use SingletonTrait;
@@ -29,13 +36,21 @@ class EventAuditLogger
 
     protected static function createInstance(): static
     {
+        $site = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
+        $opts = DatabaseConnectionOptions::forSite($site);
+        // IMPORTANT: this needs to *not* reuse the main connection for most DB
+        // operations. See note in LogTablesSink.
+        $conn = DatabaseConnectionFactory::createDbal($opts, false);
+
         return new self(
-            ServiceContainer::getCrypto(),
+            cryptoGen: ServiceContainer::getCrypto(),
+            connection: $conn,
         );
     }
 
     public function __construct(
         private readonly CryptoInterface $cryptoGen,
+        private readonly Connection $connection,
     ) {
     }
 
@@ -594,27 +609,53 @@ class EventAuditLogger
         sqlInsertClean_audit($sql);
     }
 
-    public function recordLogItem($success, $event, $user, $group, $comments, $patientId = null, $category = null, $logFrom = 'open-emr', $menuItemId = null, $ccdaDocId = null, $user_notes = '', $api = null)
-    {
+    /**
+     * @param int $success (yes this SHOULD be a boolean)
+     * @param string $event
+     * @param ?string $user
+     * @param ?string $group
+     * @param string $comments
+     * @param string $user_notes
+     * @param ?int $patientId
+     * @param ?string $category
+     * @param string $logFrom,
+     * @param ?int $menuItemId
+     * @param ?int $ccdaDocId
+     * @param ?ApiData $api
+     */
+    public function recordLogItem(
+        $success,
+        $event,
+        $user,
+        $group,
+        $comments,
+        $patientId = null,
+        $category = null,
+        $logFrom = 'open-emr',
+        $menuItemId = null,
+        $ccdaDocId = null,
+        $user_notes = '',
+        $api = null
+    ) {
         if ($patientId == "NULL") {
             $patientId = null;
         }
 
-        // Encrypt if applicable
-        if (!OEGlobalsBag::getInstance()->getBoolean("enable_auditlog_encryption")) {
-            // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
-            $comments = base64_encode((string) $comments);
-            $encrypt = 'No';
-        } else {
-            // encrypt the comments field
-            $comments =  $this->cryptoGen->encryptStandard($comments);
-            if (!empty($api)) {
-                // api log
-                $api['request_url'] = (!empty($api['request_url'])) ? $this->cryptoGen->encryptStandard($api['request_url']) : '';
-                $api['request_body'] = (!empty($api['request_body'])) ? $this->cryptoGen->encryptStandard($api['request_body']) : '';
-                $api['response'] =  (!empty($api['response'])) ? $this->cryptoGen->encryptStandard($api['response']) : '';
+        $bag = OEGlobalsBag::getInstance();
+        $shouldEncrypt = $bag->getBoolean('enable_auditlog_encryption');
+        if ($shouldEncrypt) {
+            $comments = $this->cryptoGen->encryptStandard($comments);
+            if ($api !== null) {
+                $api['request_url'] = ($api['request_url'] === '') ? '' : $this->cryptoGen->encryptStandard($api['request_url']);
+                $api['request_body'] = ($api['request_body'] === '') ? '' : $this->cryptoGen->encryptStandard($api['request_body']);
+                $api['response'] = ($api['response'] === '') ? '' : $this->cryptoGen->encryptStandard($api['response']);
             }
-            $encrypt = 'Yes';
+        } else {
+            // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
+            $comments = base64_encode($comments);
+
+            // Should this blank out the api fields? Previous behavior was that
+            // it did not.
         }
 
         // Collect timestamp and if pertinent, collect client cert name
@@ -631,8 +672,8 @@ class EventAuditLogger
         //  3. if api log entry, then insert insert associated entry into api_log
         //  4. if atna server is on, then send entry to atna server
         //
-        // 1. insert entry into log table
-        $logEntry = [
+        $auditEvent = new Audit\Event(
+            $shouldEncrypt,
             $current_datetime,
             $event,
             $category,
@@ -645,45 +686,17 @@ class EventAuditLogger
             $SSL_CLIENT_S_DN_CN,
             $logFrom,
             $menuItemId,
-            $ccdaDocId
-        ];
-        sqlInsertClean_audit("insert into `log` (`date`, `event`, `category`, `user`, `groupname`, `comments`, `user_notes`, `patient_id`, `success`, `crt_user`, `log_from`, `menu_item_id`, `ccda_doc_id`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $logEntry);
-        // 2. insert associated entry (in addition to calculating and storing applicable checksums) into log_comment_encrypt
-        $last_log_id = QueryUtils::getLastInsertId();
-        $checksumGenerate = hash('sha3-512', implode('', $logEntry));
-        if (!empty($api)) {
-            // api log
-            $ipAddress = collectIpAddresses()['ip_string'];
-            $apiLogEntry = [
-                $last_log_id,
-                $api['user_id'],
-                $api['patient_id'],
-                $ipAddress,
-                $api['method'],
-                $api['request'],
-                $api['request_url'],
-                $api['request_body'],
-                $api['response'],
-                $current_datetime
-            ];
-            $checksumGenerateApi = hash('sha3-512', implode('', $apiLogEntry));
-        } else {
-            $checksumGenerateApi = '';
-        }
-        sqlInsertClean_audit(
-            "INSERT INTO `log_comment_encrypt` (`log_id`, `encrypt`, `checksum`, `checksum_api`, `version`) VALUES (?, ?, ?, ?, '4')",
-            [
-                $last_log_id,
-                $encrypt,
-                $checksumGenerate,
-                $checksumGenerateApi
-            ]
+            $ccdaDocId,
+            $api,
         );
-        // 3. if api log entry, then insert insert associated entry into api_log
-        if (!empty($api)) {
-            // api log
-            sqlInsertClean_audit("INSERT INTO `api_log` (`log_id`, `user_id`, `patient_id`, `ip_address`, `method`, `request`, `request_url`, `request_body`, `response`, `created_time`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $apiLogEntry);
-        }
+
+        $logTableSink = new Audit\LogTablesSink(
+            conn: $this->connection,
+        );
+        $logTableSink->record($auditEvent);
+
+        // TODO: convert ATNA to same style/interface
+
         // 4. if atna server is on, then send entry to atna server
         if ($patientId == null) {
             $patientId = 0;

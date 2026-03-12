@@ -17397,11 +17397,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sanitize.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function collectIpAddresses\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sanitize.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function convert_safe_file_dir_name\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/sanitize.inc.php',

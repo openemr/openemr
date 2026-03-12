@@ -15927,11 +15927,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sanitize.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \' \\(\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sanitize.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'/js/xl/jquery…\' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty/plugins/function.datetimepickerSupport.php',
@@ -18927,23 +18922,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/AuthHash.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'API failure\\: \'\\|\'Auth failure\\: \'\\|\'failure\\: \' and mixed results in an error\\.$#',
-    'count' => 13,
-    'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'Auth success via…\' and mixed results in an error\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'Auth success\\: \' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'Google Failure\\: \' and mixed results in an error\\.$#',
-    'count' => 9,
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
 ];
 $ignoreErrors[] = [
@@ -18953,22 +18933,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'Password change…\' and mixed results in an error\\.$#',
-    'count' => 5,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'Password create…\' and mixed results in an error\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'Portal API failure\\: \' and mixed results in an error\\.$#',
-    'count' => 13,
-    'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'success\\: \' and mixed results in an error\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
 ];
 $ignoreErrors[] = [
@@ -18988,7 +18958,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 14,
+    'count' => 8,
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
 ];
 $ignoreErrors[] = [

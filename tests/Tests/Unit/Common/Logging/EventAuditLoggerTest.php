@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Unit\Common\Logging;
 
+use Doctrine\DBAL\Connection;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -107,8 +108,10 @@ final class EventAuditLoggerTest extends TestCase
         }
 
         // Get EventAuditLogger instance (works with existing singleton)
+        $connection = $this->createMock(Connection::class);
         $this->eventAuditLogger = new EventAuditLogger(
             ServiceContainer::getCrypto(),
+            $connection,
         );
 
         // Setup default test environment
@@ -379,7 +382,15 @@ final class EventAuditLoggerTest extends TestCase
             1, // menu_item_id (result of successful array_search)
             0, // ccda_doc_id
             '', // crt_user
-            [] // api_data
+            [
+                'user_id' => 1,
+                'patient_id' => 1,
+                'method' => 'foo',
+                'request' => 'foo',
+                'request_body' => 'foo',
+                'request_url' => 'foo',
+                'response' => 'foo',
+            ] // api_data
         );
 
         // Test passes if no exceptions are thrown
@@ -471,8 +482,10 @@ final class EventAuditLoggerTest extends TestCase
         $GLOBALS['enable_auditlog'] = false;
         $GLOBALS['enable_auditlog_encryption'] = false;
 
+        $connection = $this->createMock(Connection::class);
         $eventAuditLogger = new EventAuditLogger(
-            $this->createMock(CryptoGen::class)
+            $this->createMock(CryptoGen::class),
+            $connection,
         );
 
         // Call recordLogItem - will return early due to disabled audit logging
@@ -514,7 +527,8 @@ final class EventAuditLoggerTest extends TestCase
                 fn(string $value): string => 'encrypted_' . $value
             );
 
-        $eventAuditLogger = new EventAuditLogger($cryptoMock);
+        $connection = $this->createMock(Connection::class);
+        $eventAuditLogger = new EventAuditLogger($cryptoMock, $connection);
 
         try {
             // This should execute the full recordLogItem flow including encryption
@@ -612,7 +626,8 @@ final class EventAuditLoggerTest extends TestCase
                 fn(string $value): string => 'encrypted_' . $value
             );
 
-        $eventAuditLogger = new EventAuditLogger($cryptoMock);
+        $connection = $this->createMock(Connection::class);
+        $eventAuditLogger = new EventAuditLogger($cryptoMock, $connection);
 
         // Call recordLogItem with API data - this should execute the encryption code:
         // Line 767: $api['request_url'] = (!empty($api['request_url'])) ? $this->cryptoGen->encryptStandard($api['request_url']) : '';
@@ -1529,7 +1544,8 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testNullPatientIdHandling(): void
     {
-        // Test with string "NULL"
+        // Test with string "NULL" (there's an internal workaround for getting
+        // this sort of invalid data)
         $this->eventAuditLogger->recordLogItem(1, 'test', 'user', 'group', 'comment', 'NULL');
 
         // Test with actual null
