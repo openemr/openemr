@@ -133,10 +133,9 @@ abstract class BaseFixtureManager
                 }
             }
             $sqlColumnValues = rtrim($sqlColumnValues, " ,");
-            $isInserted = QueryUtils::sqlInsert($sqlInsert . $sqlColumnValues, $sqlBinds);
-            if ($isInserted) {
-                $insertCount += 1;
-            }
+            // sqlInsert throws on failure, so if we get here the insert succeeded
+            QueryUtils::sqlInsert($sqlInsert . $sqlColumnValues, $sqlBinds);
+            $insertCount += 1;
         }
         return $insertCount;
     }
