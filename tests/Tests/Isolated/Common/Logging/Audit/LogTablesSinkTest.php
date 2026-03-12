@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Common\Logging\Audit;
 
 use Doctrine\DBAL\Connection;
-use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Logging\Audit\Event;
 use OpenEMR\Common\Logging\Audit\LogTablesSink;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -29,20 +28,19 @@ use PHPUnit\Framework\TestCase;
 class LogTablesSinkTest extends TestCase
 {
     private Connection&MockObject $connection;
-    private CryptoInterface&MockObject $crypto;
 
     protected function setUp(): void
     {
         $this->connection = $this->createMock(Connection::class);
-        $this->crypto = $this->createMock(CryptoInterface::class);
     }
 
     /**
      * @param ?ApiData $api
      */
-    private function createEvent(?array $api = null): Event
+    private function createEvent(bool $isEncrypted = false, ?array $api = null): Event
     {
         return new Event(
+            isEncrypted: $isEncrypted,
             current_datetime: '2026-03-11 12:00:00',
             event: 'test-event',
             category: 'test-category',
@@ -77,7 +75,7 @@ class LogTablesSinkTest extends TestCase
                     self::assertSame('test-category', $data['category']);
                     self::assertSame('testuser', $data['user']);
                     self::assertSame('testgroup', $data['groupname']);
-                    self::assertSame(base64_encode('Test comment'), $data['comments']);
+                    self::assertSame('Test comment', $data['comments']);
                     self::assertSame('User notes', $data['user_notes']);
                     self::assertSame(123, $data['patient_id']);
                     self::assertSame(1, $data['success']);
@@ -92,11 +90,7 @@ class LogTablesSinkTest extends TestCase
 
         $this->connection->method('lastInsertId')->willReturn('42');
 
-        $sink = new LogTablesSink(
-            conn: $this->connection,
-            crypto: $this->crypto,
-            shouldEncrypt: false,
-        );
+        $sink = new LogTablesSink(conn: $this->connection);
 
         $result = $sink->record($event);
         self::assertTrue($result);
@@ -119,11 +113,7 @@ class LogTablesSinkTest extends TestCase
 
         $this->connection->method('lastInsertId')->willReturn('99');
 
-        $sink = new LogTablesSink(
-            conn: $this->connection,
-            crypto: $this->crypto,
-            shouldEncrypt: false,
-        );
+        $sink = new LogTablesSink(conn: $this->connection);
 
         $sink->record($event);
 
@@ -137,74 +127,9 @@ class LogTablesSinkTest extends TestCase
         self::assertSame(128, strlen($capturedLogCommentData['checksum']));
     }
 
-    public function testRecordEncryptsCommentsWhenEnabled(): void
+    public function testRecordSetsEncryptFlagToYesWhenEventIsEncrypted(): void
     {
-        $event = $this->createEvent();
-
-        $this->crypto->expects($this->once())
-            ->method('encryptStandard')
-            ->with('Test comment')
-            ->willReturn('encrypted-comment');
-
-        $capturedLogData = null;
-        $this->connection->expects($this->exactly(2))
-            ->method('insert')
-            ->willReturnCallback(function (string $table, array $data) use (&$capturedLogData): int {
-                if ($table === 'log') {
-                    $capturedLogData = $data;
-                }
-                return 1;
-            });
-
-        $this->connection->method('lastInsertId')->willReturn('1');
-
-        $sink = new LogTablesSink(
-            conn: $this->connection,
-            crypto: $this->crypto,
-            shouldEncrypt: true,
-        );
-
-        $sink->record($event);
-
-        self::assertIsArray($capturedLogData);
-        self::assertSame('encrypted-comment', $capturedLogData['comments']);
-    }
-
-    public function testRecordBase64EncodesCommentsWhenNotEncrypting(): void
-    {
-        $event = $this->createEvent();
-
-        $this->crypto->expects($this->never())->method('encryptStandard');
-
-        $capturedLogData = null;
-        $this->connection->expects($this->exactly(2))
-            ->method('insert')
-            ->willReturnCallback(function (string $table, array $data) use (&$capturedLogData): int {
-                if ($table === 'log') {
-                    $capturedLogData = $data;
-                }
-                return 1;
-            });
-
-        $this->connection->method('lastInsertId')->willReturn('1');
-
-        $sink = new LogTablesSink(
-            conn: $this->connection,
-            crypto: $this->crypto,
-            shouldEncrypt: false,
-        );
-
-        $sink->record($event);
-
-        self::assertIsArray($capturedLogData);
-        self::assertSame(base64_encode('Test comment'), $capturedLogData['comments']);
-    }
-
-    public function testRecordSetsEncryptFlagToYesWhenEncrypting(): void
-    {
-        $event = $this->createEvent();
-
-        $this->crypto->method('encryptStandard')->willReturn('encrypted');
+        $event = $this->createEvent(isEncrypted: true);
 
         $capturedLogCommentData = null;
         $this->connection->expects($this->exactly(2))
@@ -218,11 +143,7 @@ class LogTablesSinkTest extends TestCase
 
         $this->connection->method('lastInsertId')->willReturn('1');
 
-        $sink = new LogTablesSink(
-            conn: $this->connection,
-            crypto: $this->crypto,
-            shouldEncrypt: true,
-        );
+        $sink = new LogTablesSink(conn: $this->connection);
 
         $sink->record($event);
 
@@ -230,9 +151,9 @@ class LogTablesSinkTest extends TestCase
         self::assertSame('Yes', $capturedLogCommentData['encrypt']);
     }
 
-    public function testRecordSetsEncryptFlagToNoWhenNotEncrypting(): void
+    public function testRecordSetsEncryptFlagToNoWhenEventIsNotEncrypted(): void
     {
-        $event = $this->createEvent();
+        $event = $this->createEvent(isEncrypted: false);
 
         $capturedLogCommentData = null;
         $this->connection->expects($this->exactly(2))
@@ -246,11 +167,7 @@ class LogTablesSinkTest extends TestCase
 
         $this->connection->method('lastInsertId')->willReturn('1');
 
-        $sink = new LogTablesSink(
-            conn: $this->connection,
-            crypto: $this->crypto,
-            shouldEncrypt: false,
-        );
+        $sink = new LogTablesSink(conn: $this->connection);
 
         $sink->record($event);
 
@@ -261,6 +178,7 @@ class LogTablesSinkTest extends TestCase
     public function testRecordHandlesNullUserAndGroup(): void
     {
         $event = new Event(
+            isEncrypted: false,
             current_datetime: '2026-03-11 12:00:00',
             event: 'test-event',
             category: 'test-category',
@@ -289,11 +207,7 @@ class LogTablesSinkTest extends TestCase
 
         $this->connection->method('lastInsertId')->willReturn('1');
 
-        $sink = new LogTablesSink(
-            conn: $this->connection,
-            crypto: $this->crypto,
-            shouldEncrypt: false,
-        );
+        $sink = new LogTablesSink(conn: $this->connection);
 
         $sink->record($event);
 
@@ -306,6 +220,7 @@ class LogTablesSinkTest extends TestCase
     public function testRecordHandlesNullPatientId(): void
     {
         $event = new Event(
+            isEncrypted: false,
             current_datetime: '2026-03-11 12:00:00',
             event: 'test-event',
             category: null,
@@ -334,11 +249,7 @@ class LogTablesSinkTest extends TestCase
 
         $this->connection->method('lastInsertId')->willReturn('1');
 
-        $sink = new LogTablesSink(
-            conn: $this->connection,
-            crypto: $this->crypto,
-            shouldEncrypt: false,
-        );
+        $sink = new LogTablesSink(conn: $this->connection);
 
         $sink->record($event);
 
@@ -365,7 +276,7 @@ class LogTablesSinkTest extends TestCase
 
     public function testRecordInsertsIntoApiLogWhenApiDataPresent(): void
     {
-        $event = $this->createEvent($this->createApiData());
+        $event = $this->createEvent(api: $this->createApiData());
 
         $insertedTables = [];
         $this->connection->expects($this->exactly(3))
@@ -377,11 +288,7 @@ class LogTablesSinkTest extends TestCase
 
         $this->connection->method('lastInsertId')->willReturn('42');
 
-        $sink = new LogTablesSink(
-            conn: $this->connection,
-            crypto: $this->crypto,
-            shouldEncrypt: false,
-        );
+        $sink = new LogTablesSink(conn: $this->connection);
 
         $sink->record($event);
 
@@ -390,7 +297,7 @@ class LogTablesSinkTest extends TestCase
 
     public function testRecordDoesNotInsertIntoApiLogWhenNoApiData(): void
     {
-        $event = $this->createEvent(null);
+        $event = $this->createEvent(api: null);
 
         $insertedTables = [];
         $this->connection->expects($this->exactly(2))
@@ -402,11 +309,7 @@ class LogTablesSinkTest extends TestCase
 
         $this->connection->method('lastInsertId')->willReturn('1');
 
-        $sink = new LogTablesSink(
-            conn: $this->connection,
-            crypto: $this->crypto,
-            shouldEncrypt: false,
-        );
+        $sink = new LogTablesSink(conn: $this->connection);
 
         $sink->record($event);
 
@@ -416,7 +319,7 @@ class LogTablesSinkTest extends TestCase
     public function testRecordApiLogContainsCorrectData(): void
     {
         $apiData = $this->createApiData();
-        $event = $this->createEvent($apiData);
+        $event = $this->createEvent(api: $apiData);
 
         $capturedApiLogData = null;
         $this->connection->expects($this->exactly(3))
@@ -430,11 +333,7 @@ class LogTablesSinkTest extends TestCase
 
         $this->connection->method('lastInsertId')->willReturn('55');
 
-        $sink = new LogTablesSink(
-            conn: $this->connection,
-            crypto: $this->crypto,
-            shouldEncrypt: false,
-        );
+        $sink = new LogTablesSink(conn: $this->connection);
 
         $sink->record($event);
 
@@ -452,89 +351,9 @@ class LogTablesSinkTest extends TestCase
         self::assertArrayHasKey('ip_address', $capturedApiLogData);
     }
 
-    public function testRecordEncryptsApiFieldsWhenEnabled(): void
-    {
-        $apiData = $this->createApiData();
-        $event = $this->createEvent($apiData);
-
-        $this->crypto->expects($this->exactly(4))
-            ->method('encryptStandard')
-            ->willReturnCallback(fn(string $value) => "encrypted:$value");
-
-        $capturedApiLogData = null;
-        $this->connection->expects($this->exactly(3))
-            ->method('insert')
-            ->willReturnCallback(function (string $table, array $data) use (&$capturedApiLogData): int {
-                if ($table === 'api_log') {
-                    $capturedApiLogData = $data;
-                }
-                return 1;
-            });
-
-        $this->connection->method('lastInsertId')->willReturn('1');
-
-        $sink = new LogTablesSink(
-            conn: $this->connection,
-            crypto: $this->crypto,
-            shouldEncrypt: true,
-        );
-
-        $sink->record($event);
-
-        self::assertIsArray($capturedApiLogData);
-        self::assertSame('encrypted:https://example.com/api/patient', $capturedApiLogData['request_url']);
-        self::assertSame('encrypted:{"foo":"bar"}', $capturedApiLogData['request_body']);
-        self::assertSame('encrypted:{"status":"ok"}', $capturedApiLogData['response']);
-    }
-
-    public function testRecordDoesNotEncryptEmptyApiFields(): void
-    {
-        $apiData = [
-            'user_id' => 1,
-            'patient_id' => 123,
-            'method' => 'GET',
-            'request' => '/api/patient',
-            'request_url' => '',
-            'request_body' => '',
-            'response' => '',
-        ];
-        $event = $this->createEvent($apiData);
-
-        // Only comments should be encrypted, not the empty API fields
-        $this->crypto->expects($this->once())
-            ->method('encryptStandard')
-            ->with('Test comment')
-            ->willReturn('encrypted-comment');
-
-        $capturedApiLogData = null;
-        $this->connection->expects($this->exactly(3))
-            ->method('insert')
-            ->willReturnCallback(function (string $table, array $data) use (&$capturedApiLogData): int {
-                if ($table === 'api_log') {
-                    $capturedApiLogData = $data;
-                }
-                return 1;
-            });
-
-        $this->connection->method('lastInsertId')->willReturn('1');
-
-        $sink = new LogTablesSink(
-            conn: $this->connection,
-            crypto: $this->crypto,
-            shouldEncrypt: true,
-        );
-
-        $sink->record($event);
-
-        self::assertIsArray($capturedApiLogData);
-        self::assertSame('', $capturedApiLogData['request_url']);
-        self::assertSame('', $capturedApiLogData['request_body']);
-        self::assertSame('', $capturedApiLogData['response']);
-    }
-
     public function testRecordApiChecksumIsPopulatedWhenApiDataPresent(): void
     {
-        $event = $this->createEvent($this->createApiData());
+        $event = $this->createEvent(api: $this->createApiData());
 
         $capturedLogCommentData = null;
         $this->connection->expects($this->exactly(3))
@@ -548,11 +367,7 @@ class LogTablesSinkTest extends TestCase
 
         $this->connection->method('lastInsertId')->willReturn('1');
 
-        $sink = new LogTablesSink(
-            conn: $this->connection,
-            crypto: $this->crypto,
-            shouldEncrypt: false,
-        );
+        $sink = new LogTablesSink(conn: $this->connection);
 
         $sink->record($event);
 
