@@ -658,7 +658,7 @@ class EventAuditLogger
         //  4. if atna server is on, then send entry to atna server
         //
         $auditEvent = new Audit\Event(
-            $shouldEncrypt,
+            $this->shouldEncrypt,
             $current_datetime,
             $event,
             $category,
