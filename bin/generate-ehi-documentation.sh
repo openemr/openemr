@@ -1,9 +1,12 @@
 #!/bin/bash
+# NOTE: This script is intended to be run inside the easy-dev docker container.
+# Before running, ensure the following packages are installed:
+#   apk add openjdk17-jre graphviz ttf-dejavu
 
 DB_USER=openemr
 DB_NAME=openemr
 DB_SCHEMA=openemr
-DB_HOST=mysql
+DB_HOST=${DOCKERMYSQLHOST:-mysql}
 DB_PORT=3306
 DB_PASSWORD=openemr
 EHI_ROOT_FILE=../Documentation/EHI_Export/schemaspy
