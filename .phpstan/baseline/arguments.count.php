@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-// total 25 errors
+// total 24 errors
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
@@ -92,11 +92,6 @@ $ignoreErrors[] = [
     'message' => '#^Class OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\ActionRouter constructor invoked with 3 parameters, 2 required\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ActionRouterTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Class OpenEMR\\\\ClinicalDecisionRules\\\\Interface\\\\ActionRouter constructor invoked with 3 parameters, 2 required\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerRouterTest.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];
