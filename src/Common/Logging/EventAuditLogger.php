@@ -34,8 +34,6 @@ class EventAuditLogger
 
     private ?bool $breakglassUser = null;
 
-    // private array $sinks;
-
     protected static function createInstance(): static
     {
         $bag = OEGlobalsBag::getInstance();
@@ -73,9 +71,9 @@ class EventAuditLogger
         }
 
         return new self(
-            cryptoGen: ServiceContainer::getCrypto(),
             sinks: $sinks,
-            // connection: $conn,
+            cryptoGen: ServiceContainer::getCrypto(),
+            shouldEncrypt: $bag->getBoolean('enable_auditlog_encryption'),
         );
     }
 
@@ -83,8 +81,9 @@ class EventAuditLogger
      * @param Audit\SinkInterface[] $sinks
      */
     public function __construct(
+        private readonly array $sinks,
         private readonly CryptoInterface $cryptoGen,
-        private array $sinks,
+        private readonly bool $shouldEncrypt,
     ) {
     }
 
@@ -630,9 +629,7 @@ class EventAuditLogger
             $patientId = null;
         }
 
-        $bag = OEGlobalsBag::getInstance();
-        $shouldEncrypt = $bag->getBoolean('enable_auditlog_encryption');
-        if ($shouldEncrypt) {
+        if ($this->shouldEncrypt) {
             $comments = $this->cryptoGen->encryptStandard($comments);
             if ($api !== null) {
                 $api['request_url'] = ($api['request_url'] === '') ? '' : $this->cryptoGen->encryptStandard($api['request_url']);
