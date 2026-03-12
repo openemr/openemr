@@ -11,6 +11,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -47,7 +48,16 @@ class ADODB_mysqli_log extends ADODB_mysqli
         // Skip SQL audit logging if $skipAuditLog is set (e.g., health checks)
         global $skipAuditLog;
         if (empty($skipAuditLog)) {
-            EventAuditLogger::getInstance()->auditSQLEvent($sql, $outcome, $inputarr);
+            try {
+                EventAuditLogger::getInstance()->auditSQLEvent($sql, $outcome, $inputarr);
+            } catch (\Throwable $e) {
+                // If audit logging fails (e.g., site not configured yet during
+                // test fixtures or installation), skip it rather than fail the query.
+                ServiceContainer::getLogger()->warning(
+                    'Audit logging failed',
+                    ['exception' => $e],
+                );
+            }
         }
         return $retval;
     }
