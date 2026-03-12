@@ -16,7 +16,7 @@ namespace OpenEMR\Common\Logging\Audit;
 
 use Psr\Clock\ClockInterface;
 
-readonly class AtnaSink
+readonly class AtnaSink implements SinkInterface
 {
     /**
      * Event action codes indicate whether the event is read/write.
@@ -66,15 +66,21 @@ MSG;
     ) {
     }
 
-    // Future: handle a better-typed DTO
-    public function record(string $user, string $group, string $event, int $patientId, int $outcome, string $comments): void
+    public function record(Event $event): bool
     {
         if (!$this->isEnabled()) {
-            return;
+            return false;
         }
 
-        $message = $this->createRfc3881Msg($user, $group, $event, $patientId, $outcome, $comments);
-        $this->writer->writeMessage($message);
+        $message = $this->createRfc3881Msg(
+            $event->user ?? '',
+            $event->group ?? '',
+            $event->event,
+            $event->patientId ?? 0,
+            $event->success,
+            $event->comments,
+        );
+        return $this->writer->writeMessage($message);
     }
 
     /**
