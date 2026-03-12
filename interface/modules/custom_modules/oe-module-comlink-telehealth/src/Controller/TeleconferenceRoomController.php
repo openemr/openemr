@@ -644,17 +644,17 @@ class TeleconferenceRoomController
             );
             echo json_encode(['status' => 'success']);
         } catch (InvalidArgumentException $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
+            (new SystemLogger())->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(400);
             echo json_encode(['error' => 'invalid argument sent.  Check server logs for details']);
         } catch (AccessDeniedException $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
+            (new SystemLogger())->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(403);
             echo json_encode(['error' => 'Access denied to patient telehealth information.']);
         } catch (\Throwable $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
+            (new SystemLogger())->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(500);
             echo json_encode(['error' => 'server error occurred.  Check server logs for details']);
@@ -690,7 +690,7 @@ class TeleconferenceRoomController
             header('Content-Type: application/json');
             echo json_encode(['error' => 'Telehealth Provisioning Failed', 'code' => $exception->getCode()]);
         } catch (\Throwable $exception) {
-            $this->logger->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
+            $this->logger->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(500);
             header('Content-Type: application/json');
@@ -749,7 +749,7 @@ class TeleconferenceRoomController
             $escapedParticipants = textArray($participants);
             echo json_encode(['status' => 'success', 'participantList' => $escapedParticipants]);
         } catch (\Throwable $exception) {
-            $this->logger->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
+            $this->logger->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(500);
             echo json_encode(['error' => 'server error occurred.  Check server logs for details']);
@@ -828,12 +828,12 @@ class TeleconferenceRoomController
             }
             echo json_encode(textArray($result));
         } catch (AccessDeniedException $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
+            (new SystemLogger())->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(401);
             echo json_encode(['error' => 'Access Denied']);
         } catch (\Throwable $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
+            (new SystemLogger())->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(500);
             echo json_encode(['error' => 'server error occurred.  Check server logs for details']);
@@ -868,7 +868,7 @@ class TeleconferenceRoomController
             $this->logger->debug("check registration finished ", ['settings' => $jsonSettings]);
             echo $jsonSettings;
         } catch (\Throwable $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
+            (new SystemLogger())->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(500);
             echo json_encode(['error' => 'server error occurred.  Check server logs for details']);
@@ -1043,12 +1043,12 @@ class TeleconferenceRoomController
             ];
             echo text(json_encode($jsonData));
         } catch (InvalidArgumentException $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
+            (new SystemLogger())->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(400);
             echo json_encode(['error' => 'invalid argument sent.  Check server logs for details']);
         } catch (\Throwable $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(),
+            (new SystemLogger())->error($exception->getMessage(), ['exception' => $exception,
                 'queryVars' => $queryVars]);
             http_response_code(500);
             echo json_encode(['error' => 'server error occurred.  Check server logs for details']);

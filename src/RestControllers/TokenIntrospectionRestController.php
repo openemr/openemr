@@ -444,7 +444,7 @@ class TokenIntrospectionRestController {
         }
         catch (\Throwable $exception) {
             // something else went wrong
-            $this->getSystemLogger()->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'client_id' => $clientId]);
+            $this->getSystemLogger()->error($exception->getMessage(), ['exception' => $exception, 'client_id' => $clientId]);
             // something else went wrong
             // NOTE : per RFC7662 we must return active:false on error for invalid tokens
             return $this->returnInactiveResponse($request);

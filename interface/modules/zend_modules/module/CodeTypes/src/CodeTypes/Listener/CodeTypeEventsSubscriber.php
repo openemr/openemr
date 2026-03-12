@@ -239,7 +239,7 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
             }
             \sqlCommitTrans();
         } catch (\Throwable $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            (new SystemLogger())->error($exception->getMessage(), ['exception' => $exception]);
             if (!empty($logger) && is_callable($logger)) {
                 $logger(xl('Failed') . ' - (sql=`"' . ($sql ?? 'N/A') . '`, values=`' . var_export($values ?? [], true) . "`)");
             }
@@ -270,7 +270,7 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
             }
             \sqlCommitTrans();
         } catch (\Throwable $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            (new SystemLogger())->error($exception->getMessage(), ['exception' => $exception]);
             \sqlRollbackTrans();
         }
     }

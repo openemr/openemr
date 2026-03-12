@@ -249,11 +249,11 @@ class ClientAdminController
             $vars = $updatedTemplatePageEvent->getTwigVariables();
             $responseBody = $this->twig->render($template, $vars);
         } catch (\Throwable $e) {
-            $this->getSystemLogger()?->errorLogCaller("caught exception rendering template", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            $this->getSystemLogger()?->error("caught exception rendering template", ['exception' => $e]);
             try {
                 $responseBody = $this->twig->render("error/general_http_error.html.twig", ['statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR]);
             } catch (\Throwable $e) {
-                $this->getSystemLogger()?->errorLogCaller("caught exception rendering error template", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+                $this->getSystemLogger()?->error("caught exception rendering error template", ['exception' => $e]);
                 $responseBody = "Error rendering template";
             }
         }
@@ -838,7 +838,7 @@ class ClientAdminController
                 }
             }
         } catch (\Throwable $exception) {
-            $this->getSystemLogger()?->errorLogCaller("caught exception parsing token", ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
+            $this->getSystemLogger()?->error("caught exception parsing token", ['exception' => $exception]);
             $message = xl('Failed to parse token. Check system logs');
             $parts = [];
             $databaseRecord = null;

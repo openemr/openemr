@@ -156,7 +156,7 @@ try {
     <?php }
 } catch (\Throwable $exception) {
     // if twig throws any exceptions we want to log it.
-    (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+    (new SystemLogger())->error($exception->getMessage(), ['exception' => $exception]);
 }
 ?>
 

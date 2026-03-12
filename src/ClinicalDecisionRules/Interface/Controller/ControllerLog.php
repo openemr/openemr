@@ -71,7 +71,7 @@ class ControllerLog extends BaseController
                 ]);
             } catch (\Throwable $e) {
                 // TODO: @adunsulag need to figure out error handling in addition to just logging the error
-                (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getTraceAsString()]);
+                (new SystemLogger())->error($e->getMessage(), ['exception' => $e]);
             }
         }
         $fileName = date(\DateTimeImmutable::ATOM) . "_log.csv";

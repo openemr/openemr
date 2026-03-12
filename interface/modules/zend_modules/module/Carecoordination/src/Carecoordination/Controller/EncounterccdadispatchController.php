@@ -300,7 +300,7 @@ class EncounterccdadispatchController extends AbstractActionController
         } catch (CcdaServiceConnectionException $exception) {
             http_response_code(StatusCode::INTERNAL_SERVER_ERROR);
             echo xlt("Failed to connect to ccdaservice. Verify your environment is setup correctly by following the instructions in the ccdaservice's Readme file");
-            (new SystemLogger())->errorLogCaller("Connection error with ccda service", ['message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
+            (new SystemLogger())->error("Connection error with ccda service", ['exception' => $exception]);
             die();
         }
 
@@ -358,10 +358,7 @@ class EncounterccdadispatchController extends AbstractActionController
             echo xlt("Failed to generate consolidated QRDA III report. Please try again.");
 
             // Log using your existing logging pattern
-            (new SystemLogger())->errorLogCaller("Error generating consolidated QRDA III", [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
+            (new SystemLogger())->error("Error generating consolidated QRDA III", ['exception' => $e]);
         }
     }
 
