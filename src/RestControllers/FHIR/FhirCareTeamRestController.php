@@ -21,9 +21,12 @@ use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\FhirCareTeamService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\Services\Globals\GlobalConnectorsEnum;
+use Psr\Log\LoggerAwareTrait;
 
 class FhirCareTeamRestController
 {
+    use LoggerAwareTrait;
+
     /**
      * @var FhirCareTeamService
      */
@@ -57,8 +60,8 @@ class FhirCareTeamRestController
             $globals = $this->getOEGlobals();
             $defaultVersion = $globals->getString(GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value, FhirCareTeamService::PROFILE_VERSION_8_0_0);
             $this->fhirCareTeamService->setHighestCompatibleUSCoreProfileVersion($defaultVersion);
-            if (isset($this->systemLogger)) {
-                $this->fhirCareTeamService->setSystemLogger($this->systemLogger);
+            if ($this->logger !== null) {
+                $this->fhirCareTeamService->setSystemLogger($this->logger);
             }
         }
         return $this->fhirCareTeamService;
