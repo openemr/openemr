@@ -557,8 +557,10 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
         $menuArray = $menuEvent->getMenuData();
         $reg = getFormsByCategory();
         // Check sensitivity from the appropriate table based on encounter type
-        $sensitivityTable = ($attendant_type ?? 'pid') === 'pid' ? 'form_encounter' : 'form_groups_encounter';
-        $sensitivity = sqlQuery("SELECT sensitivity FROM " . escape_table_name($sensitivityTable) . " WHERE encounter = ?", [OEGlobalsBag::getInstance()->get("encounter") ?? null])['sensitivity'] ?? null;
+        $sensitivityQuery = ($attendant_type ?? 'pid') === 'pid'
+            ? "SELECT sensitivity FROM form_encounter WHERE encounter = ?"
+            : "SELECT sensitivity FROM form_groups_encounter WHERE encounter = ?";
+        $sensitivity = sqlQuery($sensitivityQuery, [OEGlobalsBag::getInstance()->get("encounter") ?? null])['sensitivity'] ?? null;
         $pass_sens = true;
         if (($sensitivity && !AclMain::aclCheckCore('sensitivities', $sensitivity))) {
             $pass_sens = false;
