@@ -74,7 +74,7 @@ class FhirOrganizationService implements IResourceSearchableService, IResourceRe
                 $service->setSystemLogger($systemLogger);
             }
         }
-        $this->systemLogger = $systemLogger;
+        $this->logger = $systemLogger;
     }
 
     /**

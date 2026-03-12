@@ -54,7 +54,7 @@ class FhirConditionService extends FhirServiceBase implements IResourceUSCIGProf
 
     public function setSystemLogger(SystemLogger $systemLogger): void
     {
-        $this->systemLogger = $systemLogger;
+        $this->logger = $systemLogger;
         foreach ($this->getMappedServices() as $service) {
             $service->setSystemLogger($systemLogger);
         }
