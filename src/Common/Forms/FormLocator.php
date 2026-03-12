@@ -13,7 +13,7 @@
 // AI GENERATED CODE: HEADER START
 namespace OpenEMR\Common\Forms;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\ModulesApplication;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Encounter\LoadEncounterFormFilterEvent;
@@ -29,7 +29,7 @@ class FormLocator
     public function __construct(?LoggerInterface $logger = null)
     {
         if (!$logger) {
-            $logger = new SystemLogger();
+            $logger = ServiceContainer::getLogger();
         }
         $this->logger = $logger;
     // AI GENERATED CODE: HEADER START

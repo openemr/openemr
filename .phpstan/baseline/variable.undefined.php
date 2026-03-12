@@ -15288,7 +15288,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$name_alt might not be defined\\.$#',
-    'count' => 6,
+    'count' => 3,
     'path' => __DIR__ . '/../../library/ajax/graphs.php',
 ];
 $ignoreErrors[] = [
