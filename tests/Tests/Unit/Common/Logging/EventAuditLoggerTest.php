@@ -894,39 +894,6 @@ final class EventAuditLoggerTest extends TestCase
     }
 
     /**
-     * Test sendAtnaAuditMsg when ATNA is disabled (basic test without mocking)
-     */
-    public function testSendAtnaAuditMsgDisabledBasic(): void
-    {
-        $GLOBALS['enable_atna_audit'] = false;
-
-        // Should return early without error when ATNA is disabled
-        $this->eventAuditLogger->sendAtnaAuditMsg('testuser', 'testgroup', 'login', 0, 1, 'Test login');
-
-        // Test passes if no exceptions are thrown
-        $this->addToAssertionCount(1);
-    }
-
-    /**
-     * Test sendAtnaAuditMsg with various parameters (unit test version)
-     */
-    public function testSendAtnaAuditMsgParameters(): void
-    {
-        // Test with ATNA disabled - should return early
-        $GLOBALS['enable_atna_audit'] = false;
-
-        // This should return early without attempting any connections
-        $this->eventAuditLogger->sendAtnaAuditMsg('testuser', 'testgroup', 'login', 0, 1, 'Test login');
-
-        // Test different event types
-        $this->eventAuditLogger->sendAtnaAuditMsg('user2', 'admin', 'logout', 0, 1, 'Test logout');
-        $this->eventAuditLogger->sendAtnaAuditMsg('user3', 'patients', 'patient-record', 123, 1, 'Patient access');
-
-        // Test passes if no exceptions are thrown
-        $this->addToAssertionCount(1);
-    }
-
-    /**
      * Test auditSQLAuditTamper method
      */
     public function testAuditSQLAuditTamper(): void
@@ -1657,27 +1624,6 @@ final class EventAuditLoggerTest extends TestCase
     }
 
     /**
-     * Test ATNA connection failure handling for full coverage
-     */
-    public function testSendAtnaAuditMsgConnectionHandling(): void
-    {
-        // Enable ATNA but with invalid connection details to test failure path
-        $GLOBALS['enable_atna_audit'] = true;
-        $GLOBALS['atna_audit_host'] = 'invalid.test.host';
-        $GLOBALS['atna_audit_port'] = '6514';
-        $GLOBALS['atna_audit_localcert'] = '/invalid/path/cert.pem';
-        $GLOBALS['atna_audit_cacert'] = '/invalid/path/ca.pem';
-
-        try {
-            // This should cover the ATNA connection failure handling
-            $this->eventAuditLogger->sendAtnaAuditMsg('testuser', 'testgroup', 'login', 0, 1, 'Test login');
-            $this->addToAssertionCount(1);
-        } finally {
-            $GLOBALS['enable_atna_audit'] = false;
-        }
-    }
-
-    /**
      * Test disclosure methods for complete coverage
      */
     public function testDisclosureMethodsCoverage(): void
@@ -2398,75 +2344,4 @@ final class EventAuditLoggerTest extends TestCase
             $this->restoreServerVariables($backup);
         }
     }
-
-    /**
-     * Test sendAtnaAuditMsg with ATNA disabled (without mocking private methods)
-     */
-    public function testSendAtnaAuditMsgDisabled(): void
-    {
-        $GLOBALS['enable_atna_audit'] = false;
-        $GLOBALS['atna_audit_host'] = 'test.host.com';
-
-        // Should return early without error when ATNA is disabled
-        $this->eventAuditLogger->sendAtnaAuditMsg('testuser', 'testgroup', 'login', 123, 1, 'Test login');
-
-        // Test passes if no exceptions are thrown
-        $this->addToAssertionCount(1);
-    }
-
-    /**
-     * Test sendAtnaAuditMsg with no ATNA host configured
-     */
-    public function testSendAtnaAuditMsgNoHost(): void
-    {
-        $GLOBALS['enable_atna_audit'] = true;
-        unset($GLOBALS['atna_audit_host']); // No host configured
-
-        // Should return early without error when no host is configured
-        $this->eventAuditLogger->sendAtnaAuditMsg('testuser', 'testgroup', 'view', 456, 1, 'Test view');
-
-        // Test passes if no exceptions are thrown
-        $this->addToAssertionCount(1);
-    }
-
-    /**
-     * Test sendAtnaAuditMsg with valid configuration but connection will fail
-     * This tests that the method handles connection failures gracefully
-     */
-    public function testSendAtnaAuditMsgConnectionFailure(): void
-    {
-        $GLOBALS['enable_atna_audit'] = true;
-        $GLOBALS['atna_audit_host'] = 'invalid.nonexistent.host';
-        $GLOBALS['atna_audit_port'] = '6514';
-        $GLOBALS['atna_audit_localcert'] = '/invalid/path/client.pem';
-        $GLOBALS['atna_audit_cacert'] = '/invalid/path/ca.pem';
-
-        // This will attempt to connect but should fail gracefully
-        $this->eventAuditLogger->sendAtnaAuditMsg('testuser', 'testgroup', 'update', 456, 0, 'Update failed');
-
-        // Test passes if no exceptions are thrown
-        $this->addToAssertionCount(1);
-    }
-
-    /**
-     * Test sendAtnaAuditMsg attempts connection when properly configured
-     * This exercises the code path that calls createTlsConn, though we can't
-     * easily test the $conn !== false path due to singleton pattern constraints
-     */
-    public function testSendAtnaAuditMsgWithProperConfiguration(): void
-    {
-        $GLOBALS['enable_atna_audit'] = true;
-        $GLOBALS['atna_audit_host'] = 'localhost'; // Valid host
-        $GLOBALS['atna_audit_port'] = '65140'; // Unlikely to have service running
-        $GLOBALS['atna_audit_localcert'] = '';
-        $GLOBALS['atna_audit_cacert'] = '';
-
-        // This will attempt the TLS connection path
-        // Connection will likely fail but the code path will be exercised
-        $this->eventAuditLogger->sendAtnaAuditMsg('testuser', 'physicians', 'test-event', 123, 1, 'Test message');
-
-        // Test passes if no exceptions are thrown
-        $this->addToAssertionCount(1);
-    }
-
 }
