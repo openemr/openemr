@@ -34,23 +34,57 @@ class EventAuditLogger
 
     private ?bool $breakglassUser = null;
 
+    // private array $sinks;
+
     protected static function createInstance(): static
     {
-        $site = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
+        $bag = OEGlobalsBag::getInstance();
+
+        $sinks = [];
+
+        $site = $bag->getString('OE_SITE_DIR');
         $opts = DatabaseConnectionOptions::forSite($site);
         // IMPORTANT: this needs to *not* reuse the main connection for most DB
         // operations. See note in LogTablesSink.
         $conn = DatabaseConnectionFactory::createDbal($opts, false);
+        $logTableSink = new Audit\LogTablesSink(
+            conn: $conn,
+        );
+        $sinks[] = $logTableSink;
+
+
+        $enableAtna = $bag->getBoolean('enable_atna_audit');
+        if ($enableAtna) {
+            $writer = new Audit\Atna\TcpWriter(
+                host: $bag->getString('atna_audit_host'),
+                port: $bag->getInt('atna_audit_port'),
+                localCert: $bag->getString('atna_audit_localcert'),
+                caCert: $bag->getString('atna_audit_cacert'),
+            );
+            $atnaSink = new Audit\AtnaSink(
+                clock: ServiceContainer::getClock(),
+                writer: $writer,
+                host: $bag->getString('atna_audit_host'),
+                serverName: $_SERVER['SERVER_NAME'] ?? '',
+                serverAddress: $_SERVER['SERVER_ADDR'] ?? '',
+            );
+
+            $sinks[] = $atnaSink;
+        }
 
         return new self(
             cryptoGen: ServiceContainer::getCrypto(),
-            connection: $conn,
+            sinks: $sinks,
+            // connection: $conn,
         );
     }
 
+    /**
+     * @param Audit\SinkInterface[] $sinks
+     */
     public function __construct(
         private readonly CryptoInterface $cryptoGen,
-        private readonly Connection $connection,
+        private array $sinks,
     ) {
     }
 
@@ -645,27 +679,9 @@ class EventAuditLogger
             $api,
         );
 
-        $logTableSink = new Audit\LogTablesSink(
-            conn: $this->connection,
-        );
-        $logTableSink->record($auditEvent);
-
-        // 4. if atna server is on, then send entry to atna server
-        $writer = new Audit\Atna\TcpWriter(
-            host: $bag->getString('atna_audit_host'),
-            port: $bag->getInt('atna_audit_port'),
-            localCert: $bag->getString('atna_audit_localcert'),
-            caCert: $bag->getString('atna_audit_cacert'),
-        );
-        $atnaSink = new Audit\AtnaSink(
-            clock: ServiceContainer::getClock(),
-            writer: $writer,
-            enabled: $bag->getBoolean('enable_atna_audit'),
-            host: $bag->getString('atna_audit_host'),
-            serverName: $_SERVER['SERVER_NAME'] ?? '',
-            serverAddress: $_SERVER['SERVER_ADDR'] ?? '',
-        );
-        $atnaSink->record($auditEvent);
+        foreach ($this->sinks as $sink) {
+            $sink->record($auditEvent);
+        }
     }
 
     /**
