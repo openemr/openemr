@@ -11,13 +11,12 @@
 
 namespace OpenEMR\Tests\Unit\Common\Auth\OpenIDConnect\Repositories;
 
-use Monolog\Level;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ResourceScopeEntityList;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
-use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\FHIR\Config\ServerConfig;
 use PHPUnit\Framework\TestCase;
 
@@ -90,7 +89,7 @@ class ScopeRepositoryTest extends TestCase
             ]);
         $scopeRepository = $this->scopeRepository;
         // skip over expected error logs
-        $scopeRepository->setSystemLogger(new SystemLogger(Level::Critical));
+        $scopeRepository->setSystemLogger($this->createMock(LoggerInterface::class));
         $scopeRepository->setServerScopeList($serverScopeListEntity);
 
         $validSubSets = [

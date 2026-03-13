@@ -3,8 +3,6 @@
 namespace OpenEMR\Services\FHIR\Utils;
 
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use Psr\Log\LoggerInterface;
 
 class SearchRequestNormalizer

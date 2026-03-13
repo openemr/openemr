@@ -13,8 +13,8 @@
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenApi\Attributes as OA;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\RestControllers\RestControllerHelper;
@@ -72,7 +72,7 @@ class FhirPatientRestController
         $this->fhirPatientService = $fhirPatientService;
     }
 
-    public function setSystemLogger(SystemLogger $systemLogger): void
+    public function setSystemLogger(LoggerInterface $systemLogger): void
     {
         $this->getFhirPatientService()->setSystemLogger($systemLogger);
         $this->logger = $systemLogger;

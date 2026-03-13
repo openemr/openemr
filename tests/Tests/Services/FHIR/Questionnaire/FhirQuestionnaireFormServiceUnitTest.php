@@ -11,8 +11,7 @@
 
 namespace OpenEMR\Tests\Services\FHIR\Questionnaire;
 
-use Monolog\Level;
-use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
 use PHPUnit\Framework\TestCase;
 
@@ -35,7 +34,7 @@ class FhirQuestionnaireFormServiceUnitTest extends TestCase
     public function testParseOpenEMRRecord(): void
     {
         $service = new FhirQuestionnaireFormService();
-        $service->setSystemLogger(new SystemLogger(Level::Critical));
+        $service->setSystemLogger($this->createMock(LoggerInterface::class));
         $jsonQuestionnaire = file_get_contents(__DIR__ . '/../../../data/Services/FHIR/Questionnaire/questionnaire-sdc-pathology.json');
         $dataToParse = [
             'questionnaire' => $jsonQuestionnaire

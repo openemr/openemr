@@ -16,7 +16,6 @@ namespace OpenEMR\Services;
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
@@ -36,7 +35,7 @@ class BaseService implements BaseServiceInterface
     private $autoIncrements;
 
     /**
-     * @var SystemLogger
+     * @var LoggerInterface
      */
     private $logger;
 

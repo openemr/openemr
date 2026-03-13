@@ -11,9 +11,8 @@
 
 namespace OpenEMR\Tests\Services\FHIR\Observation;
 
-use Monolog\Level;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -49,12 +48,12 @@ class FhirObservationPatientServiceTest extends TestCase
         parent::setUp();
 
         // disable debug logs so we don't see them on unit tests
-        $systemLogger = new SystemLogger(Level::Warning);
+        $mockLogger = $this->createMock(LoggerInterface::class);
         // AI GENERATED CODE - START: Service initialization
         $this->fhirService = new FhirObservationPatientService();
-        $this->fhirService->setSystemLogger($systemLogger);
+        $this->fhirService->setSystemLogger($mockLogger);
         $this->patientService = new PatientService();
-        $this->patientService->setLogger($systemLogger);
+        $this->patientService->setLogger($mockLogger);
         $this->userService = new UserService();
         $this->listService = new ListService();
         // AI GENERATED CODE - END

@@ -14,9 +14,8 @@
 
 namespace OpenEMR\Tests\Unit\Controllers\Interface\Forms\Observation;
 
-use Monolog\Level;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
 use OpenEMR\Core\Kernel;
@@ -242,7 +241,7 @@ class ObservationControllerTest extends TestCase
             ->with('observation')
             ->willReturn(true);
 
-        $this->controller->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->controller->setSystemLogger($this->createMock(LoggerInterface::class));
         $response = $this->controller->deleteAction($request);
 
         $this->assertEquals(Response::HTTP_SEE_OTHER, $response->getStatusCode());
@@ -278,7 +277,7 @@ class ObservationControllerTest extends TestCase
             ->with(1, 123)
             ->willReturn($mockObservation);
 
-        $this->controller->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->controller->setSystemLogger($this->createMock(LoggerInterface::class));
         $response = $this->controller->deleteAction($request);
 
         $this->assertEquals(Response::HTTP_SEE_OTHER, $response->getStatusCode());
@@ -489,7 +488,7 @@ class ObservationControllerTest extends TestCase
             ->method('getNewObservationTemplate')
             ->willThrowException(new \Exception('Database error'));
 
-        $this->controller->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->controller->setSystemLogger($this->createMock(LoggerInterface::class));
         $response = $this->controller->saveAction($request);
 
         $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());
