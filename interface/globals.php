@@ -851,4 +851,17 @@ if ($globalsBag->getBoolean('translation_preload_cache')) {
  */
 const OPENEMR_GLOBALS_LOADED = true;
 
+register_shutdown_function(function ()  use ($logger) {
+    if (!defined('FRONT_CONTROLLER_USED')) {
+        $logger->warning(
+            'Your request did not go through the front controller. This ' .
+            'means your web server may not be configured correctly. See ' .
+            '{url} for more details.',
+            [
+                'url' => 'https://need-some-page',
+            ],
+        );
+    }
+});
+
 return $globalsBag; // if anyone wants to use the global bag they can just use the return value
