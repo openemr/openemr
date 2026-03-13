@@ -22,6 +22,9 @@ require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRxStore
 require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRxXMLBuilder.php');
 require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRxPage.php');
 
+use OpenEMR\Rx\CredentialValidator;
+use OpenEMR\Core\OEGlobalsBag;
+
 set_time_limit(0);
 
 function array_key_exists_default($key, $search, $default = null)
@@ -65,6 +68,12 @@ if (count($missingExtensions) > 0) {
             } ?>
         <ul>
     <?php
+} elseif (!CredentialValidator::hasRequiredCredentials($GLOBALS)) {
+    // Missing credentials - display Ensora subscription page
+    $twigContainer = OEGlobalsBag::getInstance()->get('twigContainer');
+    echo $twigContainer->getEnvironment()->render('eRx/ensora_subscription.html.twig', [
+        'errorType' => 'missing_credentials',
+    ]);
 } else {
     $messages = $eRxPage->buildXML();
 
@@ -122,14 +131,24 @@ if (count($missingExtensions) > 0) {
         $errors = $eRxPage->checkError($xml);
 
         if (count($errors) > 0) {
-            ?>
+            // Check if this is an authentication failure
+            if (CredentialValidator::isAuthenticationError($xml)) {
+                // Authentication failed - display Ensora subscription page
+                $twigContainer = OEGlobalsBag::getInstance()->get('twigContainer');
+                echo $twigContainer->getEnvironment()->render('eRx/ensora_subscription.html.twig', [
+                    'errorType' => 'authentication_failed',
+                ]);
+            } else {
+                // Other errors - display error messages
+                ?>
         <strong><?php echo xlt('Ensora call failed'); ?></strong>
         <ul>
-            <?php foreach ($errors as $message) {
-                echo '<li>' . text($message) . '</li>';
-            } ?>
+                <?php foreach ($errors as $message) {
+                    echo '<li>' . text($message) . '</li>';
+                } ?>
         <ul>
-            <?php
+                <?php
+            }
         } else {
             $eRxPage->updatePatientData();
 
