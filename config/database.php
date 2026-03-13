@@ -15,6 +15,7 @@ declare(strict_types=1);
 use Doctrine\DBAL\{
     Connection,
     DriverManager,
+    Types\Type,
 };
 use Doctrine\Migrations\Configuration\{
     Connection\ConnectionLoader,
@@ -23,9 +24,25 @@ use Doctrine\Migrations\Configuration\{
     Migration\PhpFile,
 };
 use Doctrine\Migrations\DependencyFactory;
+use Doctrine\ORM\{
+    Configuration,
+    EntityManager,
+    EntityManagerInterface,
+    Events,
+    Mapping\DefaultTypedFieldMapper,
+    Mapping\NamingStrategy,
+    Mapping\TypedFieldMapper,
+    Mapping\UnderscoreNamingStrategy,
+    ORMSetup,
+};
 use Firehed\Container\TypedContainerInterface as TC;
+use OpenEMR\Entities\EventSubscriber\AutoValueSubscriber;
 use OpenEMR\BC\DatabaseConnectionOptions;
 use Psr\Log\LoggerInterface;
+use Ramsey\Uuid\{
+    Doctrine\UuidBinaryType,
+    UuidInterface,
+};
 
 return [
     // DBAL
@@ -48,5 +65,39 @@ return [
         $c->get(ConnectionLoader::class),
         $c->get(LoggerInterface::class),
     ),
+
+    // ORM
+    Configuration::class => function (TC $c): Configuration {
+        $paths = [
+            'src/Entities',
+            // TODO: integrate module-vended entity paths.
+        ];
+        $isDevMode = $c->get('OPENEMR__ENVIRONMENT') === 'dev';
+        $config = ORMSetup::createAttributeMetadataConfiguration($paths, $isDevMode);
+        $config->setNamingStrategy($c->get(NamingStrategy::class));
+        $config->setTypedFieldMapper($c->get(TypedFieldMapper::class));
+
+        return $config;
+    },
+    EntityManagerInterface::class => function (TC $c): EntityManagerInterface {
+        $em = new EntityManager(
+            conn: $c->get(Connection::class),
+            config: $c->get(Configuration::class),
+        );
+        // In theory, this EM could be fully autowired and have EventManager in
+        // the DI defs with this setup, but whatever.
+        $em->getEventManager()->addEventListener(
+            [Events::prePersist, Events::preUpdate],
+            $c->get(AutoValueSubscriber::class),
+        );
+        return $em;
+    },
+    NamingStrategy::class => fn () => new UnderscoreNamingStrategy(case: CASE_LOWER),
+    TypedFieldMapper::class => function (): TypedFieldMapper {
+        Type::addType(UuidBinaryType::NAME, UuidBinaryType::class);
+        return new DefaultTypedFieldMapper([
+            UuidInterface::class => UuidBinaryType::NAME,
+        ]);
+    },
 
 ];

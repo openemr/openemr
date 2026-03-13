@@ -4,8 +4,12 @@
 declare(strict_types=1);
 
 use Doctrine\Migrations\DependencyFactory;
-use Doctrine\Migrations\Tools\Console\ConsoleRunner;
+use Doctrine\Migrations\Tools\Console\ConsoleRunner as MigrationsConsoleRunner;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Tools\Console\ConsoleRunner as ORMConsoleRunner;
+use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
 use Firehed\Container\TypedContainerInterface;
+use OpenEMR\Console\Command\DebugLoadFacilityCommand;
 use Symfony\Component\Console\Application;
 
 $container = require_once __DIR__ . '/bootstrap.php';
@@ -22,7 +26,15 @@ file_put_contents(
 );
 
 $application = new Application();
+$application->add($container->get(DebugLoadFacilityCommand::class));
 
 // Doctrine Migrations integration
-ConsoleRunner::addCommands($application, $container->get(DependencyFactory::class));
+MigrationsConsoleRunner::addCommands($application, $container->get(DependencyFactory::class));
+
+// Doctrine ORM integration
+ORMConsoleRunner::addCommands(
+    $application,
+    new SingleManagerProvider($container->get(EntityManagerInterface::class)),
+);
+
 $application->run();

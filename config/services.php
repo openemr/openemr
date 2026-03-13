@@ -17,8 +17,11 @@ use Lcobucci\Clock\SystemClock;
 use Monolog\Level;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Entities\EventSubscriber\AutoValueSubscriber;
 
 return [
+    AutoValueSubscriber::class,
+
     Level::class => fn (TC $c) => Level::fromName($c->get('LOG_LEVEL')),
 
     Psr17Factory::class,
@@ -26,5 +29,4 @@ return [
     SystemClock::class => fn () => SystemClock::fromSystemTimezone(),
 
     SystemLogger::class => fn (TC $c) => new SystemLogger($c->get(Level::class)),
-
 ];
