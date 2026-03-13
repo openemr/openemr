@@ -18,6 +18,7 @@ use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Logging\Audit\Event;
 use OpenEMR\Common\Logging\Audit\SinkInterface;
 use OpenEMR\Common\Logging\AuditConfig;
+use OpenEMR\Common\Logging\BreakglassCheckerInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperInterface;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -28,6 +29,7 @@ class EventAuditLoggerTest extends TestCase
     private CryptoInterface&MockObject $crypto;
     private SessionWrapperInterface&MockObject $session;
     private AuditConfig $config;
+    private BreakglassCheckerInterface&MockObject $breakglassChecker;
 
     protected function setUp(): void
     {
@@ -40,6 +42,7 @@ class EventAuditLoggerTest extends TestCase
             httpRequestEvents: true,
             eventTypeFlags: [],
         );
+        $this->breakglassChecker = $this->createMock(BreakglassCheckerInterface::class);
     }
 
     public function testRecordLogItemDispatchesToAllSinks(): void
@@ -62,6 +65,7 @@ class EventAuditLoggerTest extends TestCase
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
         );
 
         $logger->recordLogItem(
@@ -95,6 +99,7 @@ class EventAuditLoggerTest extends TestCase
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
         );
 
         $logger->recordLogItem(
@@ -130,6 +135,7 @@ class EventAuditLoggerTest extends TestCase
             shouldEncrypt: true,
             session: $this->session,
             config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
         );
 
         $logger->recordLogItem(
@@ -158,6 +164,7 @@ class EventAuditLoggerTest extends TestCase
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
         );
 
         $logger->recordLogItem(
@@ -177,6 +184,7 @@ class EventAuditLoggerTest extends TestCase
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
         );
 
         $logger->recordLogItem(
@@ -209,6 +217,7 @@ class EventAuditLoggerTest extends TestCase
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
         );
 
         $logger->recordLogItem(
@@ -244,6 +253,7 @@ class EventAuditLoggerTest extends TestCase
             shouldEncrypt: true,
             session: $this->session,
             config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
         );
 
         $logger->recordLogItem(
@@ -281,6 +291,7 @@ class EventAuditLoggerTest extends TestCase
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
         );
 
         // Legacy code sometimes passes "NULL" as a string

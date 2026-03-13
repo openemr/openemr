@@ -18,6 +18,7 @@ namespace OpenEMR\Tests\Unit\Common\Logging;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\AuditConfig;
+use OpenEMR\Common\Logging\BreakglassCheckerInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperInterface;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -53,6 +54,8 @@ final class EventAuditLoggerTest extends TestCase
     private SessionWrapperInterface&MockObject $session;
 
     private AuditConfig $config;
+
+    private BreakglassCheckerInterface&MockObject $breakglassChecker;
 
     /**
      * @var array<string, mixed> Original $_SESSION backup
@@ -100,6 +103,7 @@ final class EventAuditLoggerTest extends TestCase
             httpRequestEvents: true,
             eventTypeFlags: [],
         );
+        $this->breakglassChecker = $this->createMock(BreakglassCheckerInterface::class);
 
         // Backup original superglobals
         /**
@@ -128,6 +132,7 @@ final class EventAuditLoggerTest extends TestCase
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
         );
 
         // Setup default test environment
@@ -504,6 +509,7 @@ final class EventAuditLoggerTest extends TestCase
             shouldEncrypt: false,
             session: $this->session,
             config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
         );
 
         // Call recordLogItem - will return early due to disabled audit logging

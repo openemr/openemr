@@ -32,24 +32,18 @@ class EventAuditLogger
 {
     use SingletonTrait;
 
-    private ?bool $breakglassUser = null;
-
     protected static function createInstance(): static
     {
         $bag = OEGlobalsBag::getInstance();
 
-        $sinks = [];
-
         $site = $bag->getString('OE_SITE_DIR');
         $opts = DatabaseConnectionOptions::forSite($site);
-        // IMPORTANT: this needs to *not* reuse the main connection for most DB
-        // operations. See note in LogTablesSink.
-        $conn = DatabaseConnectionFactory::createDbal($opts, false);
-        $logTableSink = new Audit\LogTablesSink(
-            conn: $conn,
-        );
-        $sinks[] = $logTableSink;
+        // IMPORTANT: this connection must be separate from the main application
+        // connection. See notes in LogTablesSink and BreakglassChecker.
+        $auditConn = DatabaseConnectionFactory::createDbal($opts, false);
 
+        $sinks = [];
+        $sinks[] = new Audit\LogTablesSink(conn: $auditConn);
 
         $enableAtna = $bag->getBoolean('enable_atna_audit');
         if ($enableAtna) {
@@ -92,6 +86,7 @@ class EventAuditLogger
             shouldEncrypt: $bag->getBoolean('enable_auditlog_encryption'),
             session: SessionWrapperFactory::getInstance()->getWrapper(),
             config: $auditConfig,
+            breakglassChecker: new BreakglassChecker($auditConn),
         );
     }
 
@@ -104,6 +99,7 @@ class EventAuditLogger
         private readonly bool $shouldEncrypt,
         private readonly SessionWrapperInterface $session,
         private readonly AuditConfig $config,
+        private readonly BreakglassCheckerInterface $breakglassChecker,
     ) {
     }
 
@@ -387,11 +383,11 @@ class EventAuditLogger
      */
     public function auditSQLEvent($statement, $outcome, $binds = null)
     {
-        $user = $this->session->get('authUser') ?? "";
+        $user = (string) ($this->session->get('authUser') ?? '');
 
         /* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
         if (!$this->config->enabled) {
-            if (!$this->config->forceBreakglass || !$this->isBreakglassUser($user)) {
+            if (!$this->config->forceBreakglass || !$this->breakglassChecker->isBreakglassUser($user)) {
                 return;
             }
         }
@@ -421,7 +417,7 @@ class EventAuditLogger
 
         /* If query events are not enabled, don't log them. Exception for "emergency" users. */
         if (($querytype == "select") && !$this->config->queryEvents) {
-            if (!$this->config->forceBreakglass || !$this->isBreakglassUser($user)) {
+            if (!$this->config->forceBreakglass || !$this->breakglassChecker->isBreakglassUser($user)) {
                 return;
             }
         }
@@ -496,7 +492,7 @@ class EventAuditLogger
             }
         }
 
-        if (!$this->config->isEventTypeEnabled($event) && (!$this->config->forceBreakglass || !$this->isBreakglassUser($user))) {
+        if (!$this->config->isEventTypeEnabled($event) && (!$this->config->forceBreakglass || !$this->breakglassChecker->isBreakglassUser($user))) {
             return;
         }
 
@@ -803,35 +799,5 @@ class EventAuditLogger
         }
 
         return $event;
-    }
-
-    // Goal of this function is to increase performance in logging engine to check
-    //  if a user is a breakglass user (in this case, will log all activities if the
-    //  setting is turned on in Administration->Logging->'Audit all Emergency User Queries').
-    protected function isBreakglassUser($user)
-    {
-        // return false if $user is empty
-        if (empty($user)) {
-            return false;
-        }
-
-        // Return the breakglass user flag if it exists already (it is cached by this singleton class to speed the logging engine up)
-        if (isset($this->breakglassUser)) {
-            return $this->breakglassUser;
-        }
-
-        // see if current user is in the breakglass group
-        //  note we are bypassing gacl standard api to improve performance
-        $queryUser = sqlQueryNoLog(
-            "SELECT `gacl_aro`.`value`
-            FROM `gacl_aro`, `gacl_groups_aro_map`, `gacl_aro_groups`
-            WHERE `gacl_aro`.`id` = `gacl_groups_aro_map`.`aro_id`
-            AND `gacl_groups_aro_map`.`group_id` = `gacl_aro_groups`.`id`
-            AND `gacl_aro_groups`.`value` = 'breakglass'
-            AND BINARY `gacl_aro`.`value` = ?",
-            [$user]
-        );
-        $this->breakglassUser = !empty($queryUser);
-        return $this->breakglassUser;
     }
 }
