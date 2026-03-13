@@ -14,7 +14,6 @@
 
 namespace OpenEMR\Common\Logging;
 
-use Doctrine\DBAL\Connection;
 use OpenEMR\BC\{
     DatabaseConnectionFactory,
     DatabaseConnectionOptions,
@@ -36,21 +35,54 @@ class EventAuditLogger
 
     protected static function createInstance(): static
     {
-        $site = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
+        $bag = OEGlobalsBag::getInstance();
+
+        $sinks = [];
+
+        $site = $bag->getString('OE_SITE_DIR');
         $opts = DatabaseConnectionOptions::forSite($site);
         // IMPORTANT: this needs to *not* reuse the main connection for most DB
         // operations. See note in LogTablesSink.
         $conn = DatabaseConnectionFactory::createDbal($opts, false);
+        $logTableSink = new Audit\LogTablesSink(
+            conn: $conn,
+        );
+        $sinks[] = $logTableSink;
+
+
+        $enableAtna = $bag->getBoolean('enable_atna_audit');
+        if ($enableAtna) {
+            $writer = new Audit\Atna\TcpWriter(
+                host: $bag->getString('atna_audit_host'),
+                port: $bag->getInt('atna_audit_port'),
+                localCert: $bag->getString('atna_audit_localcert'),
+                caCert: $bag->getString('atna_audit_cacert'),
+            );
+            $atnaSink = new Audit\AtnaSink(
+                clock: ServiceContainer::getClock(),
+                writer: $writer,
+                host: $bag->getString('atna_audit_host'),
+                serverName: $_SERVER['SERVER_NAME'] ?? '',
+                serverAddress: $_SERVER['SERVER_ADDR'] ?? '',
+            );
+
+            $sinks[] = $atnaSink;
+        }
 
         return new self(
+            sinks: $sinks,
             cryptoGen: ServiceContainer::getCrypto(),
-            connection: $conn,
+            shouldEncrypt: $bag->getBoolean('enable_auditlog_encryption'),
         );
     }
 
+    /**
+     * @param Audit\SinkInterface[] $sinks
+     */
     public function __construct(
+        private readonly array $sinks,
         private readonly CryptoInterface $cryptoGen,
-        private readonly Connection $connection,
+        private readonly bool $shouldEncrypt,
     ) {
     }
 
@@ -596,9 +628,7 @@ class EventAuditLogger
             $patientId = null;
         }
 
-        $bag = OEGlobalsBag::getInstance();
-        $shouldEncrypt = $bag->getBoolean('enable_auditlog_encryption');
-        if ($shouldEncrypt) {
+        if ($this->shouldEncrypt) {
             $comments = $this->cryptoGen->encryptStandard($comments);
             if ($api !== null) {
                 $api['request_url'] = ($api['request_url'] === '') ? '' : $this->cryptoGen->encryptStandard($api['request_url']);
@@ -628,7 +658,7 @@ class EventAuditLogger
         //  4. if atna server is on, then send entry to atna server
         //
         $auditEvent = new Audit\Event(
-            $shouldEncrypt,
+            $this->shouldEncrypt,
             $current_datetime,
             $event,
             $category,
@@ -645,27 +675,9 @@ class EventAuditLogger
             $api,
         );
 
-        $logTableSink = new Audit\LogTablesSink(
-            conn: $this->connection,
-        );
-        $logTableSink->record($auditEvent);
-
-        // 4. if atna server is on, then send entry to atna server
-        $writer = new Audit\Atna\TcpWriter(
-            host: $bag->getString('atna_audit_host'),
-            port: $bag->getInt('atna_audit_port'),
-            localCert: $bag->getString('atna_audit_localcert'),
-            caCert: $bag->getString('atna_audit_cacert'),
-        );
-        $atnaSink = new Audit\AtnaSink(
-            clock: ServiceContainer::getClock(),
-            writer: $writer,
-            enabled: $bag->getBoolean('enable_atna_audit'),
-            host: $bag->getString('atna_audit_host'),
-            serverName: $_SERVER['SERVER_NAME'] ?? '',
-            serverAddress: $_SERVER['SERVER_ADDR'] ?? '',
-        );
-        $atnaSink->record($auditEvent);
+        foreach ($this->sinks as $sink) {
+            $sink->record($auditEvent);
+        }
     }
 
     /**

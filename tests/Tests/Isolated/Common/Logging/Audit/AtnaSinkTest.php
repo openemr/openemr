@@ -61,23 +61,6 @@ class AtnaSinkTest extends TestCase
         );
     }
 
-    public function testRecordDoesNothingWhenDisabled(): void
-    {
-        $writer = $this->createMock(WriterInterface::class);
-        $writer->expects($this->never())->method('writeMessage');
-
-        $sink = new AtnaSink(
-            clock: $this->clock,
-            writer: $writer,
-            enabled: false,
-            host: 'audit.example.com',
-            serverName: 'emr.example.com',
-            serverAddress: '192.168.1.1',
-        );
-
-        $sink->record($this->createEvent('login'));
-    }
-
     public function testRecordDoesNothingWhenHostIsEmpty(): void
     {
         $writer = $this->createMock(WriterInterface::class);
@@ -86,7 +69,6 @@ class AtnaSinkTest extends TestCase
         $sink = new AtnaSink(
             clock: $this->clock,
             writer: $writer,
-            enabled: true,
             host: '',
             serverName: 'emr.example.com',
             serverAddress: '192.168.1.1',
@@ -110,7 +92,6 @@ class AtnaSinkTest extends TestCase
         $sink = new AtnaSink(
             clock: $this->clock,
             writer: $writer,
-            enabled: true,
             host: 'audit.example.com',
             serverName: 'emr.example.com',
             serverAddress: '192.168.1.1',
@@ -133,7 +114,6 @@ class AtnaSinkTest extends TestCase
         $sink = new AtnaSink(
             clock: $this->clock,
             writer: $writer,
-            enabled: true,
             host: 'audit.example.com',
             serverName: 'emr.example.com',
             serverAddress: '192.168.1.1',
@@ -171,7 +151,6 @@ class AtnaSinkTest extends TestCase
         $sink = new AtnaSink(
             clock: $this->clock,
             writer: $writer,
-            enabled: true,
             host: 'audit.example.com',
             serverName: 'emr.example.com',
             serverAddress: '192.168.1.1',
@@ -209,7 +188,6 @@ class AtnaSinkTest extends TestCase
         $sink = new AtnaSink(
             clock: $this->clock,
             writer: $writer,
-            enabled: true,
             host: 'audit.example.com',
             serverName: 'emr.example.com',
             serverAddress: '192.168.1.1',
@@ -231,7 +209,6 @@ class AtnaSinkTest extends TestCase
         $sink = new AtnaSink(
             clock: $this->clock,
             writer: $writer,
-            enabled: true,
             host: 'audit.example.com',
             serverName: 'emr.example.com',
             serverAddress: '192.168.1.1',
@@ -254,7 +231,6 @@ class AtnaSinkTest extends TestCase
         $sink = new AtnaSink(
             clock: $this->clock,
             writer: $writer,
-            enabled: true,
             host: 'audit.example.com',
             serverName: 'emr.example.com',
             serverAddress: '192.168.1.1',
@@ -276,7 +252,6 @@ class AtnaSinkTest extends TestCase
         $sink = new AtnaSink(
             clock: $this->clock,
             writer: $writer,
-            enabled: true,
             host: 'audit.example.com',
             serverName: 'emr.example.com',
             serverAddress: '192.168.1.1',
