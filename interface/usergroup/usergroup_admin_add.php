@@ -119,6 +119,12 @@ function submitform() {
         return false;
     }
 
+    // Validate email (if provided)
+    if(document.new_user.email.value != "" && !isValidEmail(document.new_user.email.value)) {
+        alert(<?php echo xlj('Email provided is invalid/not properly formatted (e.g. name@example.com)') ?>);
+        return false;
+    }
+
     <?php if (OEGlobalsBag::getInstance()->getBoolean('erx_enable')) { ?>
    alertMsg='';
    f=document.forms[0];
@@ -400,6 +406,9 @@ foreach ([1 => xl('None{{Authorization}}'), 2 => xl('Only Mine'), 3 => xl('All')
 <tr>
 <td><span class="text"><?php echo xlt('Weno Provider ID'); ?>: </span></td><td><input type="text" name="erxprid" style="width:120px;" class="form-control" value="<?php echo attr($iter["weno_prov_id"] ?? ''); ?>"></td>
 <td><span class="text"><?php echo xlt('Google Email for Login'); ?>: </span></td><td><input type="text" name="google_signin_email" style="width:150px;" class="form-control" value="<?php echo attr($iter["google_signin_email"] ?? ''); ?>"></td>
+</tr>
+<tr>
+<td><span class="text"><?php echo xlt('Email'); ?>: </span></td><td><input type="email" name="email" style="width:120px;" class="form-control"></td>
 </tr>
 <?php if (OEGlobalsBag::getInstance()->get('inhouse_pharmacy')) { ?>
 <tr>

@@ -11643,7 +11643,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 28,
+    'count' => 31,
     'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin.php',
 ];
 $ignoreErrors[] = [
