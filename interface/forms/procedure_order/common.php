@@ -29,6 +29,7 @@ require_once(__DIR__ . "/../../../custom/code_types.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
+use OpenEMR\Common\Orders\Hl7OrderGeneratorFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -319,36 +320,11 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                 $ed->dispatch($event, DornLabEvent::GEN_HL7_ORDER);
                 $alertmsg .= $event->getMessagesAsString('Generate Order:', true);
             } else {
-                // Lab-specific configuration: maps lab identifier to required files
-                $interfaceDir = realpath(dirname(__DIR__, 2));
-                $procToolsDir = $interfaceDir . DIRECTORY_SEPARATOR . 'procedure_tools';
-                $labConfigs = [
-                    'ammon' => ["{$procToolsDir}/gen_universal_hl7/gen_hl7_order.inc.php"],
-                    'clarity' => ["{$procToolsDir}/gen_universal_hl7/gen_hl7_order.inc.php"],
-                    'labcorp' => [
-                        "{$procToolsDir}/labcorp/ereq_form.php",
-                        "{$procToolsDir}/labcorp/gen_hl7_order.inc.php",
-                    ],
-                    'quest' => ["{$procToolsDir}/quest/gen_hl7_order.inc.php"],
-                    'default' => [
-                        "{$procToolsDir}/ereqs/ereq_universal_form.php",
-                        "{$interfaceDir}/orders/gen_hl7_order.inc.php",
-                    ],
-                ];
-                // Load the appropriate implementation files
-                $requiredFiles = $labConfigs[$gbl_lab] ?? $labConfigs['default'];
-                foreach ($requiredFiles as $file) {
-                    require_once($file);
-                }
+                $interfaceDir = (string) realpath(dirname(__DIR__, 2));
+                $generator = Hl7OrderGeneratorFactory::create($gbl_lab, $interfaceDir);
 
                 try {
-                    // Generate the HL7 order using lab-specific function
-                    $result = match ($gbl_lab) {
-                        'labcorp' => labcorp_gen_hl7_order($formid),
-                        'quest' => quest_gen_hl7_order($formid),
-                        'ammon', 'clarity' => universal_gen_hl7_order($formid),
-                        default => default_gen_hl7_order($formid),
-                    };
+                    $result = $generator->generate($formid);
                     $hl7 = $result->hl7;
                     $reqStr = $result->requisitionData;
                 } catch (Hl7OrderGenerationException $e) {
@@ -384,12 +360,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                             }
                         }
                     } else {
-                        $alertmsg = match ($gbl_lab) {
-                            'labcorp' => labcorp_send_hl7_order($ppid, $hl7),
-                            'quest' => quest_send_hl7_order($ppid, $hl7),
-                            'ammon', 'clarity' => universal_send_hl7_order($ppid, $hl7),
-                            default => default_send_hl7_order($ppid, $hl7),
-                        };
+                        $alertmsg = $generator->send($ppid, (string) $hl7);
                     }
                 }
             } else {
