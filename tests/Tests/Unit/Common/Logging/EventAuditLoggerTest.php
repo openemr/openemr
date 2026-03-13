@@ -17,6 +17,7 @@ namespace OpenEMR\Tests\Unit\Common\Logging;
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Logging\AuditConfig;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperInterface;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -50,6 +51,8 @@ final class EventAuditLoggerTest extends TestCase
     private $eventAuditLogger;
 
     private SessionWrapperInterface&MockObject $session;
+
+    private AuditConfig $config;
 
     /**
      * @var array<string, mixed> Original $_SESSION backup
@@ -90,6 +93,13 @@ final class EventAuditLoggerTest extends TestCase
         parent::setUp();
 
         $this->session = $this->createMock(SessionWrapperInterface::class);
+        $this->config = new AuditConfig(
+            enabled: true,
+            forceBreakglass: false,
+            queryEvents: true,
+            httpRequestEvents: true,
+            eventTypeFlags: [],
+        );
 
         // Backup original superglobals
         /**
@@ -117,6 +127,7 @@ final class EventAuditLoggerTest extends TestCase
             cryptoGen: ServiceContainer::getCrypto(),
             shouldEncrypt: false,
             session: $this->session,
+            config: $this->config,
         );
 
         // Setup default test environment
@@ -492,6 +503,7 @@ final class EventAuditLoggerTest extends TestCase
             cryptoGen: $this->createMock(CryptoGen::class),
             shouldEncrypt: false,
             session: $this->session,
+            config: $this->config,
         );
 
         // Call recordLogItem - will return early due to disabled audit logging
@@ -533,7 +545,7 @@ final class EventAuditLoggerTest extends TestCase
                 fn(string $value): string => 'encrypted_' . $value
             );
 
-        $eventAuditLogger = new EventAuditLogger(sinks: [], cryptoGen: $cryptoMock, shouldEncrypt: true, session: $this->session);
+        $eventAuditLogger = new EventAuditLogger(sinks: [], cryptoGen: $cryptoMock, shouldEncrypt: true, session: $this->session, config: $this->config);
 
         try {
             // This should execute the full recordLogItem flow including encryption
@@ -631,7 +643,7 @@ final class EventAuditLoggerTest extends TestCase
                 fn(string $value): string => 'encrypted_' . $value
             );
 
-        $eventAuditLogger = new EventAuditLogger(sinks: [], cryptoGen: $cryptoMock, shouldEncrypt: true, session: $this->session);
+        $eventAuditLogger = new EventAuditLogger(sinks: [], cryptoGen: $cryptoMock, shouldEncrypt: true, session: $this->session, config: $this->config);
 
         // Call recordLogItem with API data - this should execute the encryption code:
         // Line 767: $api['request_url'] = (!empty($api['request_url'])) ? $this->cryptoGen->encryptStandard($api['request_url']) : '';

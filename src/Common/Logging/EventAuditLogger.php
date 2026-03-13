@@ -70,11 +70,28 @@ class EventAuditLogger
             $sinks[] = $atnaSink;
         }
 
+        $auditConfig = new AuditConfig(
+            enabled: $bag->getBoolean('enable_auditlog'),
+            forceBreakglass: $bag->getBoolean('gbl_force_log_breakglass'),
+            queryEvents: $bag->getBoolean('audit_events_query'),
+            httpRequestEvents: $bag->getBoolean('audit_events_http-request'),
+            eventTypeFlags: [
+                'patient-record' => $bag->getBoolean('audit_events_patient-record'),
+                'scheduling' => $bag->getBoolean('audit_events_scheduling'),
+                'order' => $bag->getBoolean('audit_events_order'),
+                'lab-order' => $bag->getBoolean('audit_events_lab-order'),
+                'lab-results' => $bag->getBoolean('audit_events_lab-results'),
+                'security-administration' => $bag->getBoolean('audit_events_security-administration'),
+                'other' => $bag->getBoolean('audit_events_other'),
+            ],
+        );
+
         return new self(
             sinks: $sinks,
             cryptoGen: ServiceContainer::getCrypto(),
             shouldEncrypt: $bag->getBoolean('enable_auditlog_encryption'),
             session: SessionWrapperFactory::getInstance()->getWrapper(),
+            config: $auditConfig,
         );
     }
 
@@ -86,6 +103,7 @@ class EventAuditLogger
         private readonly CryptoInterface $cryptoGen,
         private readonly bool $shouldEncrypt,
         private readonly SessionWrapperInterface $session,
+        private readonly AuditConfig $config,
     ) {
     }
 
@@ -372,8 +390,8 @@ class EventAuditLogger
         $user = $this->session->get('authUser') ?? "";
 
         /* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
-        if (!OEGlobalsBag::getInstance()->getBoolean('enable_auditlog')) {
-            if (!OEGlobalsBag::getInstance()->getBoolean('gbl_force_log_breakglass') || !$this->isBreakglassUser($user)) {
+        if (!$this->config->enabled) {
+            if (!$this->config->forceBreakglass || !$this->isBreakglassUser($user)) {
                 return;
             }
         }
@@ -402,8 +420,8 @@ class EventAuditLogger
         }
 
         /* If query events are not enabled, don't log them. Exception for "emergency" users. */
-        if (($querytype == "select") && !OEGlobalsBag::getInstance()->getBoolean('audit_events_query')) {
-            if (!OEGlobalsBag::getInstance()->getBoolean('gbl_force_log_breakglass') || !$this->isBreakglassUser($user)) {
+        if (($querytype == "select") && !$this->config->queryEvents) {
+            if (!$this->config->forceBreakglass || !$this->isBreakglassUser($user)) {
                 return;
             }
         }
@@ -485,7 +503,7 @@ class EventAuditLogger
             }
         }
 
-        if (empty(OEGlobalsBag::getInstance()->get("audit_events_{$event}")) && (!OEGlobalsBag::getInstance()->getBoolean('gbl_force_log_breakglass') || !$this->isBreakglassUser($user))) {
+        if (!$this->config->isEventTypeEnabled($event) && (!$this->config->forceBreakglass || !$this->isBreakglassUser($user))) {
             return;
         }
 
@@ -687,7 +705,7 @@ class EventAuditLogger
     public function logHttpRequest()
     {
         // Skip if audit logging or http request logging is disabled
-        if (!OEGlobalsBag::getInstance()->getBoolean('enable_auditlog') || !OEGlobalsBag::getInstance()->getBoolean('audit_events_http-request')) {
+        if (!$this->config->enabled || !$this->config->httpRequestEvents) {
             return;
         }
 
