@@ -29,9 +29,14 @@ class CustomPasswordGrant extends PasswordGrant
 {
     private readonly LoggerInterface $logger;
 
-    public function __construct(private readonly SessionInterface $session, UserRepositoryInterface $userRepository, RefreshTokenRepositoryInterface $refreshTokenRepository)
+    public function __construct(
+        private readonly SessionInterface $session,
+        UserRepositoryInterface $userRepository,
+        RefreshTokenRepositoryInterface $refreshTokenRepository,
+        ?LoggerInterface $logger = null,
+    )
     {
-        $this->logger = ServiceContainer::getLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
         parent::__construct($userRepository, $refreshTokenRepository);
     }
 
