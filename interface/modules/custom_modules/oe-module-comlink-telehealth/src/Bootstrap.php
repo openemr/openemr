@@ -95,7 +95,7 @@ class Bootstrap
      */
     private $providerRepository;
 
-    private LoggerInterface $logger;
+    private readonly LoggerInterface $logger;
 
     /**
      * @var TeleHealthCalendarController

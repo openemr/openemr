@@ -39,7 +39,7 @@ class TeleHealthVideoRegistrationController
     private $userRepository;
 
 
-    private LoggerInterface $logger;
+    private readonly LoggerInterface $logger;
 
     public function __construct(
         private readonly TeleHealthRemoteRegistrationService $remoteService,

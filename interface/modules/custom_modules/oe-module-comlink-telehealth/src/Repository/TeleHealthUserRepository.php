@@ -28,7 +28,7 @@ class TeleHealthUserRepository extends BaseService
 {
     const TABLE_NAME = "comlink_telehealth_auth";
 
-    private LoggerInterface $logger;
+    private readonly LoggerInterface $logger;
 
     public function __construct(?LoggerInterface $logger = null)
     {

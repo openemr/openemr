@@ -59,7 +59,7 @@ class Bootstrap
      */
     private $twig;
 
-    private LoggerInterface $logger;
+    private readonly LoggerInterface $logger;
 
     /**
      * @param EventDispatcherInterface $eventDispatcher The object responsible for sending and subscribing to events through the OpenEMR system

@@ -57,7 +57,7 @@ abstract class AbstractAmcReport implements RsReportIF
      */
     protected $_aggregator;
 
-    private LoggerInterface $logger;
+    private readonly LoggerInterface $logger;
 
     /*
      * @var int|null

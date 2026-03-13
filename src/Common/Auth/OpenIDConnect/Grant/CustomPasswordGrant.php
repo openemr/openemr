@@ -27,7 +27,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CustomPasswordGrant extends PasswordGrant
 {
-    private LoggerInterface $logger;
+    private readonly LoggerInterface $logger;
 
     public function __construct(private readonly SessionInterface $session, UserRepositoryInterface $userRepository, RefreshTokenRepositoryInterface $refreshTokenRepository)
     {

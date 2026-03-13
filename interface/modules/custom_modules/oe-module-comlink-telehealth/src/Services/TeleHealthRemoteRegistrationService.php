@@ -68,7 +68,7 @@ class TeleHealthRemoteRegistrationService
      */
     private $institutionName;
 
-    private LoggerInterface $logger;
+    private readonly LoggerInterface $logger;
 
     private TeleHealthUserRepository $userRepository;
 

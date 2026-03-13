@@ -50,7 +50,7 @@ class Bootstrap
      */
     private $twig;
 
-    private LoggerInterface $logger;
+    private readonly LoggerInterface $logger;
 
     private static self $instance;
 

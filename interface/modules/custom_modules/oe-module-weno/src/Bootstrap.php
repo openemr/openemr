@@ -50,7 +50,7 @@ class Bootstrap
      */
     private $globalsConfig;
 
-    private LoggerInterface $logger;
+    private readonly LoggerInterface $logger;
 
     private readonly string $modulePath;
 

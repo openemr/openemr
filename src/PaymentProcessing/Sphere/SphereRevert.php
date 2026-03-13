@@ -56,7 +56,7 @@ class SphereRevert
 
     private readonly CryptoInterface $cryptoGen;
 
-    private LoggerInterface $logger;
+    private readonly LoggerInterface $logger;
 
     public function __construct(string $front, ?LoggerInterface $logger = null)
     {

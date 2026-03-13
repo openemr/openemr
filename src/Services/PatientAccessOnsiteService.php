@@ -53,7 +53,7 @@ class PatientAccessOnsiteService
      */
     private $twig;
 
-    private LoggerInterface $logger;
+    private readonly LoggerInterface $logger;
 
     public function __construct(?LoggerInterface $logger = null)
     {
