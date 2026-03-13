@@ -88,7 +88,6 @@ class ScopeRepositoryTest extends TestCase
                 ,'user/medical_problem.cruds'
             ]);
         $scopeRepository = $this->scopeRepository;
-        // skip over expected error logs
         $scopeRepository->setSystemLogger($this->createMock(LoggerInterface::class));
         $scopeRepository->setServerScopeList($serverScopeListEntity);
 

@@ -269,7 +269,7 @@ class Bootstrap
     {
         return new TeleconferenceRoomController(
             $this->getTwig(),
-            ServiceContainer::getLogger(),
+            $this->logger,
             $this->getRegistrationController(),
             $this->getMailerService(),
             $this->getFrontendSettingsController(),

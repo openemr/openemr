@@ -94,9 +94,9 @@ class Bootstrap
         return OEGlobalsBag::getInstance()->get('webroot') . self::MODULE_INSTALLATION_PATH . $this->moduleDirectoryName . "/public/assets/";
     }
 
-    public function getLogger()
+    public function getLogger(): LoggerInterface
     {
-        return ServiceContainer::getLogger();
+        return $this->logger;
     }
 
     public function getExporter()

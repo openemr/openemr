@@ -42,10 +42,15 @@ class OneTimeAuth
      * @param string $scope   scope = portal/service tasks (reset, register).
      * @param string $profile
      */
-    public function __construct(private $context = 'portal', private $scope = 'redirect', private $profile = 'default')
+    public function __construct(
+        private $context = 'portal',
+        private $scope = 'redirect',
+        private $profile = 'default',
+        ?LoggerInterface $logger = null,
+    )
     {
         $this->cryptoGen = ServiceContainer::getCrypto();
-        $this->systemLogger = ServiceContainer::getLogger();
+        $this->systemLogger = $logger ?? ServiceContainer::getLogger();
         $this->session = SessionWrapperFactory::getInstance()->getWrapper();
         $this->globalsBag = OEGlobalsBag::getInstance();
     }

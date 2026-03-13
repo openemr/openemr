@@ -47,7 +47,6 @@ class FhirObservationPatientServiceTest extends TestCase
     {
         parent::setUp();
 
-        // disable debug logs so we don't see them on unit tests
         $mockLogger = $this->createMock(LoggerInterface::class);
         // AI GENERATED CODE - START: Service initialization
         $this->fhirService = new FhirObservationPatientService();

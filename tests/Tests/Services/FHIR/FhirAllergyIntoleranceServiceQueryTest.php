@@ -60,7 +60,6 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
         $this->fixtureManager = new FixtureManager();
         $this->fixtureManager->installAllergyIntoleranceFixtures();
         $this->fhirService = new FhirAllergyIntoleranceService(self::$apiBaseURL);
-        // suppress logging below critical level as that's part of the tests.
         $this->fhirService->setSystemLogger($this->createMock(LoggerInterface::class));
     }
 
