@@ -16,9 +16,8 @@
 
 namespace OpenEMR\Tests\Integration\Services\FHIR;
 
-use Monolog\Level;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\Export\ExportJob;
 use OpenEMR\FHIR\Export\ExportMemoryStreamWriter;
@@ -54,7 +53,7 @@ class FhirLocationServiceIntegrationTest extends TestCase
         parent::setUp();
 
         $this->fhirLocationService = new FhirLocationService();
-        $this->fhirLocationService->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->fhirLocationService->setSystemLogger($this->createMock(LoggerInterface::class));
         $this->locationService = new LocationService();
     }
 

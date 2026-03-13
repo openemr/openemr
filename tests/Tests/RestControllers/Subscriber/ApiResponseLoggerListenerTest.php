@@ -2,10 +2,9 @@
 
 namespace OpenEMR\Tests\RestControllers\Subscriber;
 
-use Monolog\Level;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\RestControllers\Subscriber\ApiResponseLoggerListener;
@@ -19,7 +18,6 @@ use Symfony\Component\HttpKernel\Event\TerminateEvent;
 
 class ApiResponseLoggerListenerTest extends TestCase
 {
-    const LOG_LEVEL = Level::Critical;
     /**
      * @return void
      * @throws Exception
@@ -72,7 +70,7 @@ class ApiResponseLoggerListenerTest extends TestCase
                 // void return
             });
         $apiResponseLoggerListener = new ApiResponseLoggerListener();
-        $apiResponseLoggerListener->setSystemLogger(new SystemLogger(self::LOG_LEVEL));
+        $apiResponseLoggerListener->setSystemLogger($this->createMock(LoggerInterface::class));
         $apiResponseLoggerListener->setEventAuditLogger($auditLogger);
         $apiResponseLoggerListener->onRequestTerminated($terminatedEvent);
     }
@@ -135,7 +133,7 @@ class ApiResponseLoggerListenerTest extends TestCase
                 // void return
             });
         $apiResponseLoggerListener = new ApiResponseLoggerListener();
-        $apiResponseLoggerListener->setSystemLogger(new SystemLogger(self::LOG_LEVEL));
+        $apiResponseLoggerListener->setSystemLogger($this->createMock(LoggerInterface::class));
         $apiResponseLoggerListener->setEventAuditLogger($auditLogger);
         $apiResponseLoggerListener->onRequestTerminated($terminatedEvent);
     }

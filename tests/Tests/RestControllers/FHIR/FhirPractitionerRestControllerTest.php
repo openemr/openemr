@@ -2,8 +2,7 @@
 
 namespace OpenEMR\Tests\RestControllers\FHIR;
 
-use Monolog\Level;
-use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\RestControllers\FHIR\FhirPractitionerRestController;
 use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
@@ -35,7 +34,7 @@ class FhirPractitionerRestControllerTest extends TestCase
     protected function setUp(): void
     {
         $this->fhirPractitionerController = new FhirPractitionerRestController();
-        $this->fhirPractitionerController->setSystemLogger(new SystemLogger(Level::Emergency));
+        $this->fhirPractitionerController->setSystemLogger($this->createMock(LoggerInterface::class));
         $this->fixtureManager = new PractitionerFixtureManager();
 
         $this->fhirFixture = (array) $this->fixtureManager->getSingleFhirPractitionerFixture();

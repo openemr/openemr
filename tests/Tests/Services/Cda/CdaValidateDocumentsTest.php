@@ -12,8 +12,7 @@
 
 namespace OpenEMR\Tests\Services\Cda;
 
-use Monolog\Level;
-use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
 use PHPUnit\Framework\TestCase;
 
@@ -24,7 +23,7 @@ class CdaValidateDocumentsTest extends TestCase {
     {
         $ccda = file_get_contents(self::EXAMPLE_DIR . "ccda-example-response1.xml");
         $cdaDocumentValidator = new CdaValidateDocuments();
-        $cdaDocumentValidator->setSystemLogger(new SystemLogger(Level::Critical));
+        $cdaDocumentValidator->setSystemLogger($this->createMock(LoggerInterface::class));
         $validationResponse = $cdaDocumentValidator->validateDocument($ccda, 'ccda');
         $this->assertNotEmpty($validationResponse);
         $this->assertArrayHasKey('errorCount', $validationResponse);

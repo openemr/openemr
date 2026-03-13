@@ -2,8 +2,7 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
-use Monolog\Level;
-use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPatient;
 use OpenEMR\Services\FHIR\FhirPatientService;
@@ -39,7 +38,7 @@ class FhirPatientServiceQueryTest extends TestCase
         $this->fixtureManager = new FixtureManager();
         $this->fixtureManager->installPatientFixtures();
         $this->fhirPatientService = new FhirPatientService();
-        $this->fhirPatientService->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->fhirPatientService->setSystemLogger($this->createMock(LoggerInterface::class));
     }
 
     protected function tearDown(): void

@@ -11,13 +11,12 @@
 
 namespace OpenEMR\Tests\Api;
 
-use Monolog\Level;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\RestControllers\AuthorizationController;
@@ -245,7 +244,7 @@ class AuthorizationGrantFlowTest extends TestCase
     private function getAuthorizationController(Session $session, OEHttpKernel $kernel): AuthorizationController
     {
         $authController = new AuthorizationController($session, $kernel, true);
-        $authController->setSystemLogger(new SystemLogger(Level::Error));
+        $authController->setSystemLogger($this->createMock(LoggerInterface::class));
         return $authController;
     }
 

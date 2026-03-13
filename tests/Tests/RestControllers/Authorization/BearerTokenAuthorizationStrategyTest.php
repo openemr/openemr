@@ -3,7 +3,6 @@
 namespace OpenEMR\Tests\RestControllers\Authorization;
 
 use League\OAuth2\Server\CryptKey;
-use Monolog\Level;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\AccessTokenEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
@@ -11,7 +10,7 @@ use OpenEMR\Common\Auth\OpenIDConnect\Repositories\AccessTokenRepository;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\RestControllers\Authorization\BearerTokenAuthorizationStrategy;
 use OpenEMR\Services\TrustedUserService;
@@ -131,8 +130,8 @@ class BearerTokenAuthorizationStrategyTest extends TestCase
     {
         // TODO: @adunsulag do we want to assert any of the audit logger events?
         $auditLogger = $this->createMock(EventAuditLogger::class);
-        $logger = new SystemLogger(Level::Critical);
-        $strategy = new BearerTokenAuthorizationStrategy(new OEGlobalsBag(), $auditLogger, $logger);
+        $mockLogger = $this->createMock(LoggerInterface::class);
+        $strategy = new BearerTokenAuthorizationStrategy(new OEGlobalsBag(), $auditLogger, $mockLogger);
         return $strategy;
     }
 

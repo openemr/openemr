@@ -13,9 +13,8 @@ namespace OpenEMR\Tests\Services\Modules\CareCoordination\Model;
 use Carecoordination\Model\CcdaServiceDocumentRequestor;
 use DOMDocument;
 use DOMXPath;
-use Monolog\Level;
-use OpenEMR\Common\Logging\SystemLogger;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class CcdaServiceDocumentRequestorTest extends TestCase
 {
@@ -59,7 +58,7 @@ class CcdaServiceDocumentRequestorTest extends TestCase
         $data = trim($data); // trim whitespace as CCDA service requires the <CCDA> and </CCDA> tag to be at the start and end of the data
 
         $docRequestor = new CcdaServiceDocumentRequestor();
-        $docRequestor->setSystemLogger(new SystemLogger(Level::Critical));
+        $docRequestor->setSystemLogger($this->createMock(LoggerInterface::class));
         $response = $docRequestor->socket_get($data);
 
         $this->assertNotEmpty($response);

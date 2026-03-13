@@ -19,7 +19,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthProviderReposi
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TelehealthRegistrationCodeService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthRemoteRegistrationService;
-use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use PHPUnit\Framework\TestCase;
 use Twig\Environment;
@@ -46,7 +46,7 @@ class TeleHealthVideoRegistrationControllerTest extends TestCase
         parent::setUp();
         $globalsConfig = new TelehealthGlobalConfig("", $this->createMock(Environment::class));
         $this->telehealthConfig = $globalsConfig;
-        $providerRepo = new TeleHealthProviderRepository(new SystemLogger(), $globalsConfig);
+        $providerRepo = new TeleHealthProviderRepository($this->createMock(LoggerInterface::class), $globalsConfig);
         $userRepo = new TeleHealthUserRepository();
         $this->registrationCodeService = new TelehealthRegistrationCodeService($globalsConfig, $userRepo);
         $remoteRepo = new TeleHealthRemoteRegistrationService($globalsConfig, $this->registrationCodeService);

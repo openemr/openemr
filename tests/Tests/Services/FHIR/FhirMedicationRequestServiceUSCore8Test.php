@@ -17,8 +17,7 @@
 namespace OpenEMR\Tests\Services\FHIR;
 
 // AI GENERATED CODE - START
-use Monolog\Level;
-use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationRequest;
 use OpenEMR\FHIR\R4\FHIRElement;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -45,7 +44,7 @@ class FhirMedicationRequestServiceUSCore8Test extends TestCase
     protected function setUp(): void
     {
         $this->fhirMedicationRequestService = new FhirMedicationRequestService();
-        $this->fhirMedicationRequestService->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->fhirMedicationRequestService->setSystemLogger($this->createMock(LoggerInterface::class));
 
         // US Core compliant medication request data with all required and must support elements
         $this->compliantMedicationRequestData = [
