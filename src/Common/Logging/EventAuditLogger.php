@@ -428,17 +428,10 @@ class EventAuditLogger
 
         $comments = $statement;
 
-        if (is_array($binds)) {
-            // Need to include the binded variable elements in the logging
-            $processed_binds = "";
-            foreach ($binds as $value_bind) {
-                $processed_binds .= "'" . add_escape_custom($value_bind) . "',";
-            }
-            rtrim($processed_binds, ',');
-
-            if (!empty($processed_binds)) {
-                $comments .= " (" . $processed_binds . ")";
-            }
+        if (is_array($binds) && $binds !== []) {
+            // Include the bound variable elements in the logging
+            $quoted = array_map(fn ($v) => "'" . (string) $v . "'", $binds);
+            $comments .= " (" . implode(",", $quoted) . ")";
         }
 
         /* Determine the audit event based on the database tables */
