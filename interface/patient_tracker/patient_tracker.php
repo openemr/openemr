@@ -577,11 +577,11 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         $bgcolor = $colorevents['color'];
                         $statalert = $colorevents['time_alert'];
                         // process the time to allow items with a check out status to be displayed
-                        if (is_checkout($status) && ((OEGlobalsBag::getInstance()->get('checkout_roll_off') > 0) && strlen($form_apptstatus) != 1)) {
+                        if (is_checkout($status) && ((OEGlobalsBag::getInstance()->getInt('checkout_roll_off') > 0) && strlen($form_apptstatus) != 1)) {
                             $to_time = strtotime((string) $newend);
                             $from_time = strtotime($datetime);
                             $display_check_out = round(abs($from_time - $to_time) / 60, 0);
-                            if ($display_check_out >= OEGlobalsBag::getInstance()->get('checkout_roll_off')) {
+                            if ($display_check_out >= OEGlobalsBag::getInstance()->getInt('checkout_roll_off')) {
                                 continue;
                             }
                         }

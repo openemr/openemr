@@ -907,11 +907,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ActionRouterTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with \'Symfony\\\\\\\\Component\\\\\\\\HttpFoundation\\\\\\\\Response\' and Symfony\\\\Component\\\\HttpFoundation\\\\Response will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/ClinicalDecisionRules/ControllerRouterTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertInstanceOf\\(\\) with \'Psr\\\\\\\\Http\\\\\\\\Message\\\\\\\\ResponseInterface\' and Psr\\\\Http\\\\Message\\\\ResponseInterface will always evaluate to true\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Auth/OpenIDConnect/IdTokenSMARTResponseTest.php',

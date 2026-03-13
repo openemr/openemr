@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Api;
 
 use GuzzleHttp\Client;
-use Monolog\Level;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\NullLogger;
 
 /**
  * A simple and lightweight test client based off of GuzzleHttp, used in Rest Controller/API test cases.
@@ -30,8 +28,6 @@ use Psr\Http\Message\ResponseInterface;
  */
 class ApiTestClient
 {
-    use SystemLoggerAwareTrait;
-
     const AUTHORIZATION_HEADER = "Authorization";
     const OPENEMR_AUTH_ENDPOINT = "/oauth2/default";
     const OAUTH_LOGOUT_ENDPOINT = "/oauth2/default/logout";
@@ -39,8 +35,32 @@ class ApiTestClient
     const OAUTH_INTROSPECTION_ENDPOINT = "/oauth2/default/introspect";
     const BOGUS_CLIENTID = "ugk_IdaC2szz-k0vIqhE6DYIjevkYo41neRGGpZvYfsgg";
     const BOGUS_CLIENTSECRET = "jJVKPZveRiyjAtfWFzxx_MF-3K2rGpDfzzrBjwq52L5_BvnqkCiKitcQDGgz_goJHiQt9yMTh3hu33vhp_UQOg";
-    const BOGUS_ACCESS_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJRRl80RlRkV2h4eGJlb1Y4SGU5c1ZRQUl3STlQZWdYM3IyVUdiTTVjaWtNIiwianRpIjoiYWZmYWEyOTk5NWY5MjRjZDlmMjc0YTdhZGM5NmM0YzJmZTYwNGE3MjA0ODFkMTdmMWZiYTg2ZDg4ZWIxOWI0YWVlM2RhZTM1Zjg3MjcwMDAiLCJpYXQiOjE2MDcyMTc5MTksIm5iZiI6MTYwNzIxNzkxOSwiZXhwIjoxNjA3MjIxNTE5LCJzdWIiOiI5MjJjYzYzNi01NTNiLTQ1MGQtYTJkZC1hNmRjYmM4ZDNiMDciLCJzY29wZXMiOlsib3BlbmlkIiwic2l0ZTpkZWZhdWx0Il19.u2Ujtln3vEKIR8E0rSd-xr6m-3huCxiFMaTm9_NQplVNsBkrc6Y3KLy9FRZVS3xSY1Qgav-UvOxikYT2zNNlK-LotEoEvZdtj87X6fh4wh-h5BU87lHh9aNjXFUemSO9DGKJLSZdLSeC_2w4YmbhQykGFISiltD2_PAJRKuKbpcBo3-Lafe2N83mF5i8mZXSCu_fbLrmTMYPCnsRaU_sWStzFp6p0SM3zGfLt1kjw-hcE82Ci1puqRS2nR5Z3kEOXz-hQOdXmQMq0s_gkeQZvLPOJwLGfEX5d4eIU4BfngksjGkKQhC7rUKT-_2F-U_z30P3izzZM6m4dZ10IiP80g";
-    const BOGUS_REFRESH_TOKEN = "def50200cd30606a46a09d2ba242e77528d247769112924ccff8e5d9ff9785ad032b6e91e22c9d716106efa0735b134f1bde452c9902ac75e1360ec2b8061b39c4b980ff0ffd18f9d66644c1bb3383feaa2594afd137475f60157ea6f5014cad0f5fa4e142fba5b414b7189e964ca154bbe9ffae90d0843dbf988f47485b41195eae073b5d1fa55c0b5c4a9ff5e876903d55ddd9ca1fbf7d70a0a6dcb70a76a91287b9cfd7e89ae91b4401142e46379ea7a573f9973a282fbd837a176051e25845300bf141033c2fcf28a7675106cc25e405852b13b4ab653eef2ac9f3c43db12f94a15b155c9533d2bad577e316194d179df281124280a993e438a806c5ba6a5b5c31c5a8893e3071ffb1df8507001f7b387c2882e8cd1e0ed50000dc2ad7954d243bdd4fac41e0bbced450a4f87e87317372cda3a6c22a5f9b6b6d8aab66e4d68739588bb4c5412a21d0e4f561fcb081eea24d7e79ba446630a53ebd05634735440181d73268f584ffa0b05e0708b0781ec5f8f3e2e92c0375d71d90f1f8e470d54cc4cb24b15545c4231edae046a9d9dd2fc78cc63768c66ffb19a9008fdd39952cd8e0e626747ac6f1dfdfc373f8064499533914d00452b70fe8a0353626a04ca57723e743";
+    const BOGUS_ACCESS_TOKEN = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQi' .
+        'OiJRRl80RlRkV2h4eGJlb1Y4SGU5c1ZRQUl3STlQZWdYM3IyVUdiTTVjaWtNIiwianRp' .
+        'IjoiYWZmYWEyOTk5NWY5MjRjZDlmMjc0YTdhZGM5NmM0YzJmZTYwNGE3MjA0ODFkMTdm' .
+        'MWZiYTg2ZDg4ZWIxOWI0YWVlM2RhZTM1Zjg3MjcwMDAiLCJpYXQiOjE2MDcyMTc5MTks' .
+        'Im5iZiI6MTYwNzIxNzkxOSwiZXhwIjoxNjA3MjIxNTE5LCJzdWIiOiI5MjJjYzYzNi01' .
+        'NTNiLTQ1MGQtYTJkZC1hNmRjYmM4ZDNiMDciLCJzY29wZXMiOlsib3BlbmlkIiwic2l0' .
+        'ZTpkZWZhdWx0Il19.u2Ujtln3vEKIR8E0rSd-xr6m-3huCxiFMaTm9_NQplVNsBkrc6Y' .
+        '3KLy9FRZVS3xSY1Qgav-UvOxikYT2zNNlK-LotEoEvZdtj87X6fh4wh-h5BU87lHh9aN' .
+        'jXFUemSO9DGKJLSZdLSeC_2w4YmbhQykGFISiltD2_PAJRKuKbpcBo3-Lafe2N83mF5i' .
+        '8mZXSCu_fbLrmTMYPCnsRaU_sWStzFp6p0SM3zGfLt1kjw-hcE82Ci1puqRS2nR5Z3kE' .
+        'OXz-hQOdXmQMq0s_gkeQZvLPOJwLGfEX5d4eIU4BfngksjGkKQhC7rUKT-_2F-U_z30P' .
+        '3izzZM6m4dZ10IiP80g';
+    const BOGUS_REFRESH_TOKEN = "def50200cd30606a46a09d2ba242e77528d247769112' .
+        '924ccff8e5d9ff9785ad032b6e91e22c9d716106efa0735b134f1bde452c9902ac75' .
+        'e1360ec2b8061b39c4b980ff0ffd18f9d66644c1bb3383feaa2594afd137475f6015' .
+        '7ea6f5014cad0f5fa4e142fba5b414b7189e964ca154bbe9ffae90d0843dbf988f47' .
+        '485b41195eae073b5d1fa55c0b5c4a9ff5e876903d55ddd9ca1fbf7d70a0a6dcb70a' .
+        '76a91287b9cfd7e89ae91b4401142e46379ea7a573f9973a282fbd837a176051e258' .
+        '45300bf141033c2fcf28a7675106cc25e405852b13b4ab653eef2ac9f3c43db12f94' .
+        'a15b155c9533d2bad577e316194d179df281124280a993e438a806c5ba6a5b5c31c5' .
+        'a8893e3071ffb1df8507001f7b387c2882e8cd1e0ed50000dc2ad7954d243bdd4fac' .
+        '41e0bbced450a4f87e87317372cda3a6c22a5f9b6b6d8aab66e4d68739588bb4c541' .
+        '2a21d0e4f561fcb081eea24d7e79ba446630a53ebd05634735440181d73268f584ff' .
+        'a0b05e0708b0781ec5f8f3e2e92c0375d71d90f1f8e470d54cc4cb24b15545c4231e' .
+        'dae046a9d9dd2fc78cc63768c66ffb19a9008fdd39952cd8e0e626747ac6f1dfdfc3' .
+        '73f8064499533914d00452b70fe8a0353626a04ca57723e743";
 
     const ALL_SCOPES = [
         'openid',
@@ -246,7 +266,6 @@ class ApiTestClient
             if (isset($errorBody->hint)) {
                 $errorMessage .= ": " . $errorBody->hint;
             }
-            $this->getSystemLogger()?->errorLogCaller($errorMessage);
         }
 
         return $authResponse;
@@ -271,15 +290,13 @@ class ApiTestClient
         /** @var (\stdClass&object{client_id: string, client_secret: string})|null $clientResponseBody */
         $clientResponseBody = json_decode($clientResponseBodyRaw);
         if ($clientResponseBody === null) {
-            $this->getSystemLogger()?->errorLogCaller("Failed to decode client registration response: ", ['rawBody' => $clientResponseBodyRaw]);
             throw new \RuntimeException("Client registration response could not be decoded");
         }
         $this->client_id = $clientResponseBody->client_id;
         $this->client_secret = $clientResponseBody->client_secret;
         // we need to enable the app otherwise we can't use it.
         $clientRepository = new ClientRepository();
-        $logger = new SystemLogger(Level::Emergency); // suppress logging
-        $clientRepository->setSystemLogger($logger);
+        $clientRepository->setSystemLogger(new NullLogger());
         $clientEntity = $clientRepository->getClientEntity($this->client_id);
         assert($clientEntity instanceof ClientEntity);
         $clientRepository->saveIsEnabled($clientEntity, true);

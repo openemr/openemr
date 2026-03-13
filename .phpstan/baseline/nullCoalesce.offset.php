@@ -97,7 +97,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'email_message\' on array\\{sender_name\\: mixed, sender_email\\: mixed, notification_email\\: mixed, email_transport\\: mixed, smtp_host\\: mixed, smtp_port\\: mixed, smtp_user\\: mixed, smtp_password\\: mixed, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'email_message\' on array\\{sender_name\\: mixed, sender_email\\: mixed, notification_email\\: mixed, email_transport\\: mixed, smtp_host\\: mixed, smtp_port\\: int, smtp_user\\: mixed, smtp_password\\: mixed, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/AppDispatch.php',
 ];

@@ -423,7 +423,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\-" between mixed and mixed results in an error\\.$#',
-    'count' => 6,
+    'count' => 5,
     'path' => __DIR__ . '/../../controllers/C_Prescription.class.php',
 ];
 $ignoreErrors[] = [
@@ -523,11 +523,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'/library/registry…\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../controllers/C_Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'\\<br /\\>\' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../controllers/C_Prescription.class.php',
 ];
@@ -5202,11 +5197,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/main_screen.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/main_screen.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\+" between mixed and 1 results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/messages/messages.php',
@@ -5388,7 +5378,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 3,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/main/pwd_expires_alert.php',
 ];
 $ignoreErrors[] = [
@@ -6003,7 +5993,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'Failed to add \' and mixed results in an error\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Services/EhiExporter.php',
 ];
 $ignoreErrors[] = [
@@ -8077,21 +8067,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/orders/types_edit.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\*" between 0\\.2 and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/addr_label.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+" between mixed and 0 results in an error\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/patient_file/addr_label.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+" between mixed and float results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/addr_label.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "/" between mixed and 2 results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/barcode_label.php',
@@ -9310,11 +9285,6 @@ $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between string and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/create_portallogin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\*" between \\-1 and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\*" between mixed and 1\\.333333 results in an error\\.$#',
@@ -11673,7 +11643,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 30,
+    'count' => 28,
     'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin.php',
 ];
 $ignoreErrors[] = [
@@ -12397,11 +12367,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/graphs.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'SELECT ld\\.field…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/ajax/graphs.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../library/ajax/graphs.php',
@@ -12518,11 +12483,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \' 23\\:59\\:59\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/appointments.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'\\:00\' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/appointments.inc.php',
 ];
@@ -15967,11 +15927,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/sanitize.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \' \\(\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/sanitize.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'/js/xl/jquery…\' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty/plugins/function.datetimepickerSupport.php',
@@ -18967,23 +18922,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/AuthHash.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'API failure\\: \'\\|\'Auth failure\\: \'\\|\'failure\\: \' and mixed results in an error\\.$#',
-    'count' => 13,
-    'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'Auth success via…\' and mixed results in an error\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'Auth success\\: \' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'Google Failure\\: \' and mixed results in an error\\.$#',
-    'count' => 9,
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
 ];
 $ignoreErrors[] = [
@@ -18993,22 +18933,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'Password change…\' and mixed results in an error\\.$#',
-    'count' => 5,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'Password create…\' and mixed results in an error\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'Portal API failure\\: \' and mixed results in an error\\.$#',
-    'count' => 13,
-    'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'success\\: \' and mixed results in an error\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
 ];
 $ignoreErrors[] = [
@@ -19028,7 +18958,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 14,
+    'count' => 8,
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
 ];
 $ignoreErrors[] = [
@@ -19392,23 +19322,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Logging/EventAuditLogger.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'tls\\://\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/EventAuditLogger.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'%%\' results in an error\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Logging/EventAuditLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'\\|OpenEMR\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/EventAuditLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Logging/EventAuditLogger.php',
 ];
 $ignoreErrors[] = [

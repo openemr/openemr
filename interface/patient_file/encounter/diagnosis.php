@@ -244,7 +244,7 @@ if (!$thisauth) {
 <dl>
 <dt>
 <a href="diagnosis_full.php" target="<?php echo attr($target); ?>" onclick="top.restoreSession()">
-<span class='title'><?php echo (OEGlobalsBag::getInstance()->get('phone_country_code') == '1') ? xlt('Billing') : xlt('Coding'); ?></span>
+<span class='title'><?php echo (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1) ? xlt('Billing') : xlt('Coding'); ?></span>
 <span class='more'><?php echo text($tmore); ?></span></a>
 
 <?php

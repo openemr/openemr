@@ -127,7 +127,7 @@ function checkBackgroundServices(): void
 
     //Set up phimail service
     $phimail_active = !OEGlobalsBag::getInstance()->getBoolean('phimail_enable') ? '0' : '1';
-    $phimail_interval = max(0, (int)OEGlobalsBag::getInstance()->get('phimail_interval'));
+    $phimail_interval = max(0, OEGlobalsBag::getInstance()->getInt('phimail_interval'));
     updateBackgroundService('phimail', $phimail_active, $phimail_interval);
 
     // When auto SFTP is enabled in globals, set up background task to run every minute

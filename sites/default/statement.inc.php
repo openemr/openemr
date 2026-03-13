@@ -174,19 +174,19 @@ function create_HTML_statement($stmt)
         if ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4) {
             // do collection messages
             switch ($stmt['age']) {
-                case $stmt['age'] <= OEGlobalsBag::getInstance()->get('first_dun_msg_set'):
+                case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('first_dun_msg_set'):
                     $dun_message = OEGlobalsBag::getInstance()->get('first_dun_msg_text');
                     break;
-                case $stmt['age'] <= OEGlobalsBag::getInstance()->get('second_dun_msg_set'):
+                case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('second_dun_msg_set'):
                     $dun_message = OEGlobalsBag::getInstance()->get('second_dun_msg_text');
                     break;
-                case $stmt['age'] <= OEGlobalsBag::getInstance()->get('third_dun_msg_set'):
+                case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('third_dun_msg_set'):
                     $dun_message = OEGlobalsBag::getInstance()->get('third_dun_msg_text');
                     break;
-                case $stmt['age'] <= OEGlobalsBag::getInstance()->get('fourth_dun_msg_set'):
+                case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('fourth_dun_msg_set'):
                     $dun_message = OEGlobalsBag::getInstance()->get('fourth_dun_msg_text');
                     break;
-                case $stmt['age'] >= OEGlobalsBag::getInstance()->get('fifth_dun_msg_set'):
+                case $stmt['age'] >= OEGlobalsBag::getInstance()->getInt('fifth_dun_msg_set'):
                     $dun_message = OEGlobalsBag::getInstance()->get('fifth_dun_msg_text');
                     break;
             }
@@ -413,9 +413,9 @@ function create_HTML_statement($stmt)
         $count++;
     }
 
-    if (OEGlobalsBag::getInstance()->get('number_appointments_on_statement') != 0) {
+    if (OEGlobalsBag::getInstance()->getInt('number_appointments_on_statement') != 0) {
         $out .= "\n";
-        $num_appts = OEGlobalsBag::getInstance()->get('number_appointments_on_statement');
+        $num_appts = OEGlobalsBag::getInstance()->getInt('number_appointments_on_statement');
         $next_day = mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'));
         # add one day to date so it will not get todays appointment
         $current_date2 = date('Y-m-d', $next_day);
@@ -621,19 +621,19 @@ function create_statement($stmt)
         if ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4) {
             // do collection messages
             switch ($stmt['age']) {
-                case $stmt['age'] <= OEGlobalsBag::getInstance()->get('first_dun_msg_set'):
+                case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('first_dun_msg_set'):
                     $dun_message = OEGlobalsBag::getInstance()->get('first_dun_msg_text');
                     break;
-                case $stmt['age'] <= OEGlobalsBag::getInstance()->get('second_dun_msg_set'):
+                case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('second_dun_msg_set'):
                     $dun_message = OEGlobalsBag::getInstance()->get('second_dun_msg_text');
                     break;
-                case $stmt['age'] <= OEGlobalsBag::getInstance()->get('third_dun_msg_set'):
+                case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('third_dun_msg_set'):
                     $dun_message = OEGlobalsBag::getInstance()->get('third_dun_msg_text');
                     break;
-                case $stmt['age'] <= OEGlobalsBag::getInstance()->get('fourth_dun_msg_set'):
+                case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('fourth_dun_msg_set'):
                     $dun_message = OEGlobalsBag::getInstance()->get('fourth_dun_msg_text');
                     break;
-                case $stmt['age'] >= OEGlobalsBag::getInstance()->get('fifth_dun_msg_set'):
+                case $stmt['age'] >= OEGlobalsBag::getInstance()->getInt('fifth_dun_msg_set'):
                     $dun_message = OEGlobalsBag::getInstance()->get('fifth_dun_msg_text');
                     break;
             }
@@ -835,9 +835,9 @@ function create_statement($stmt)
         $out .= "\n" . $ageline . "\n\n";
     }
 
-    if (OEGlobalsBag::getInstance()->get('number_appointments_on_statement') != 0) {
+    if (OEGlobalsBag::getInstance()->getInt('number_appointments_on_statement') != 0) {
         $out .= "\n";
-        $num_appts = OEGlobalsBag::getInstance()->get('number_appointments_on_statement');
+        $num_appts = OEGlobalsBag::getInstance()->getInt('number_appointments_on_statement');
         $next_day = mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'));
         # add one day to date so it will not get todays appointment
         $current_date2 = date('Y-m-d', $next_day);
@@ -918,19 +918,19 @@ function osp_create_HTML_statement($stmt)
         if ($stmt['ins_paid'] != 0 || $stmt['level_closed'] == 4) {
             // do collection messages
             switch ($stmt['age']) {
-                case $stmt['age'] <= OEGlobalsBag::getInstance()->get('first_dun_msg_set'):
+                case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('first_dun_msg_set'):
                     $dun_message = OEGlobalsBag::getInstance()->get('first_dun_msg_text');
                     break;
-                case $stmt['age'] <= OEGlobalsBag::getInstance()->get('second_dun_msg_set'):
+                case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('second_dun_msg_set'):
                     $dun_message = OEGlobalsBag::getInstance()->get('second_dun_msg_text');
                     break;
-                case $stmt['age'] <= OEGlobalsBag::getInstance()->get('third_dun_msg_set'):
+                case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('third_dun_msg_set'):
                     $dun_message = OEGlobalsBag::getInstance()->get('third_dun_msg_text');
                     break;
-                case $stmt['age'] <= OEGlobalsBag::getInstance()->get('fourth_dun_msg_set'):
+                case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('fourth_dun_msg_set'):
                     $dun_message = OEGlobalsBag::getInstance()->get('fourth_dun_msg_text');
                     break;
-                case $stmt['age'] >= OEGlobalsBag::getInstance()->get('fifth_dun_msg_set'):
+                case $stmt['age'] >= OEGlobalsBag::getInstance()->getInt('fifth_dun_msg_set'):
                     $dun_message = OEGlobalsBag::getInstance()->get('fifth_dun_msg_text');
                     break;
             }
@@ -1101,9 +1101,9 @@ function osp_create_HTML_statement($stmt)
         $count++;
     }
 
-    if (OEGlobalsBag::getInstance()->get('number_appointments_on_statement') != 0) {
+    if (OEGlobalsBag::getInstance()->getInt('number_appointments_on_statement') != 0) {
         $out .= "\n";
-        $num_appts = OEGlobalsBag::getInstance()->get('number_appointments_on_statement');
+        $num_appts = OEGlobalsBag::getInstance()->getInt('number_appointments_on_statement');
         $next_day = mktime(0, 0, 0, date('m'), date('d') + 1, date('Y'));
         # add one day to date so it will not get todays appointment
         $current_date2 = date('Y-m-d', $next_day);

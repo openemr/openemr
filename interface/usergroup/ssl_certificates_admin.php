@@ -106,7 +106,7 @@ function create_client_cert(): void
         $serial,
         OEGlobalsBag::getInstance()->get('certificate_authority_crt'),
         OEGlobalsBag::getInstance()->get('certificate_authority_key'),
-        OEGlobalsBag::getInstance()->get('client_certificate_valid_in_days')
+        OEGlobalsBag::getInstance()->getInt('client_certificate_valid_in_days')
     );
     if ($data === false) {
         $error_msg .= xl('Error, unable to create client certificate.');

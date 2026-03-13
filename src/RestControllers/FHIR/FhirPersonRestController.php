@@ -15,7 +15,7 @@
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenApi\Attributes as OA;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\RestControllers\RestControllerHelper;
@@ -39,7 +39,7 @@ class FhirPersonRestController
 
     public function __construct()
     {
-        $this->logger = new SystemLogger();
+        $this->logger = ServiceContainer::getLogger();
         $this->fhirService = new FhirResourcesService();
         $this->fhirPersonService = new FhirPersonService();
         $this->fhirValidate = new FhirValidationService();

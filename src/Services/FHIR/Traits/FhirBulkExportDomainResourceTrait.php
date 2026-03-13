@@ -13,7 +13,7 @@
 
 namespace OpenEMR\Services\FHIR\Traits;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\FHIR\Export\ExportCannotEncodeException;
 use OpenEMR\FHIR\Export\ExportException;
 use OpenEMR\FHIR\Export\ExportJob;
@@ -60,7 +60,7 @@ trait FhirBulkExportDomainResourceTrait
                     // empty files with no data?
                     return; // nothing to export here as we have no patients
                 }
-                (new SystemLogger())->debug(
+                ServiceContainer::getLogger()->debug(
                     "FhirBulkExportDomainResourceTrait->export() filtering by patient uuids",
                     ['export-type' => 'group', 'patients' => $patientUuids, 'resource-class' => $this::class]
                 );

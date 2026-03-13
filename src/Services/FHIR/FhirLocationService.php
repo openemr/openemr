@@ -12,9 +12,9 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Enum\PlaceOfServiceEnum;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\Export\ExportCannotEncodeException;
 use OpenEMR\FHIR\Export\ExportException;
 use OpenEMR\FHIR\Export\ExportJob;
@@ -261,7 +261,7 @@ class FhirLocationService extends FhirServiceBase implements IFhirExportableReso
                 // empty files with no data?
                 return; // nothing to export here as we have no patients
             }
-            (new SystemLogger())->debug(
+            ServiceContainer::getLogger()->debug(
                 "FhirLocationService->export() filtering by patient uuids",
                 ['export-type' => 'group', 'patients' => $patientUuids, 'resource-class' => static::class]
             );

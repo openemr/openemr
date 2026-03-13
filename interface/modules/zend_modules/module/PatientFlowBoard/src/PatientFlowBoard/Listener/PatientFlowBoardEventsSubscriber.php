@@ -54,8 +54,8 @@ class PatientFlowBoardEventsSubscriber implements EventSubscriberInterface
         if (!empty($status)) {
             $apptService = new AppointmentService();
             if ($apptService->isCheckInStatus($status)) {
-                $yearly_limit = OEGlobalsBag::getInstance()->get('maximum_drug_test_yearly');
-                $percentage = OEGlobalsBag::getInstance()->get('drug_testing_percentage');
+                $yearly_limit = OEGlobalsBag::getInstance()->getInt('maximum_drug_test_yearly');
+                $percentage = OEGlobalsBag::getInstance()->getInt('drug_testing_percentage');
                 $this->random_drug_test($trackerData['id'], $percentage, $yearly_limit);
             }
         }

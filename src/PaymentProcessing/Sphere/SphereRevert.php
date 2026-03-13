@@ -19,8 +19,8 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthGlobal;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
+use Psr\Log\LoggerInterface;
 
 class SphereRevert
 {
@@ -56,14 +56,11 @@ class SphereRevert
 
     private readonly CryptoInterface $cryptoGen;
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private readonly LoggerInterface $logger;
 
-    public function __construct(string $front)
+    public function __construct(string $front, ?LoggerInterface $logger = null)
     {
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
 
         if (!in_array($front, ['patient', 'clinic-phone', 'clinic-retail'])) {
             $this->logger->error("SphereRevert getToken front needs to be patient or clinic-phone or clinic-retail. Exiting.");

@@ -13,7 +13,6 @@
 namespace OpenEMR\FHIR\SMART;
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Logging\SystemLogger;
 
 class SMARTLaunchToken
 {
@@ -129,7 +128,7 @@ class SMARTLaunchToken
         // return to system
         $cryptoGen = ServiceContainer::getCrypto();
         $jsonEncoded = json_encode($context);
-        (new SystemLogger())->debug(self::class . "->serialize() Context before encryption", ['context' => $context, 'json' => $jsonEncoded]);
+        ServiceContainer::getLogger()->debug(self::class . "->serialize() Context before encryption", ['context' => $context, 'json' => $jsonEncoded]);
         $launchParams = $cryptoGen->encryptStandard($jsonEncoded);
         return base64_encode($launchParams); // make it URL safe
     }
@@ -165,7 +164,7 @@ class SMARTLaunchToken
 
         // invalid json let it throw here
         $context = json_decode($jsonEncoded, true, 512, JSON_THROW_ON_ERROR);
-        (new SystemLogger())->debug(self::class . "->deserialize() Decoded context is ", $context);
+        ServiceContainer::getLogger()->debug(self::class . "->deserialize() Decoded context is ", $context);
         if (!empty($context['p'])) {
             $this->setPatient($context['p']);
         }

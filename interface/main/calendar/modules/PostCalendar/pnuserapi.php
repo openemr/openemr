@@ -75,8 +75,8 @@ function postcalendar_userapi_buildView($args)
     $show_days = pnVarCleanFromInput('show_days');
     extract($args);
     unset($args);
-    $schedule_start = OEGlobalsBag::getInstance()->get('schedule_start');
-    $schedule_end = OEGlobalsBag::getInstance()->get('schedule_end');
+    $schedule_start = OEGlobalsBag::getInstance()->getInt('schedule_start');
+    $schedule_end = OEGlobalsBag::getInstance()->getInt('schedule_end');
 
     // $times is an array of associative arrays, where each sub-array
     // has keys 'hour', 'minute' and 'mer'.

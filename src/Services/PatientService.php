@@ -708,7 +708,7 @@ class PatientService extends BaseService
     {
         if (OEGlobalsBag::getInstance()->get('age_display_format') == '1') {
             $ageYMD = $this->getPatientAgeYMD($dobYMD, $asOfYMD);
-            if (OEGlobalsBag::getInstance()->has('age_display_limit') && $ageYMD['age'] <= OEGlobalsBag::getInstance()->get('age_display_limit')) {
+            if (OEGlobalsBag::getInstance()->has('age_display_limit') && $ageYMD['age'] <= OEGlobalsBag::getInstance()->getInt('age_display_limit')) {
                 return $ageYMD['ageinYMD'];
             } else {
                 return $this->getPatientAge($dobYMD, $asOfYMD);
@@ -960,7 +960,7 @@ class PatientService extends BaseService
         // Push the new patient to the front of the FIFO list
         array_unshift($rp, $patient);
         // Cap out at max count as set in globals
-        $rp = array_slice($rp, 0, OEGlobalsBag::getInstance()->get('recent_patient_count'));
+        $rp = array_slice($rp, 0, OEGlobalsBag::getInstance()->getInt('recent_patient_count'));
         $_rp = serialize($rp);
 
         $sql = "INSERT INTO recent_patients (user_id, patients) VALUES (?, ?) ON DUPLICATE KEY UPDATE patients=?";

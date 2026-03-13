@@ -512,11 +512,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/postmaster.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property MyMailer\\:\\:\\$Port \\(int\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/postmaster.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property MyMailer\\:\\:\\$SMTPAuth \\(bool\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/postmaster.php',
@@ -1945,11 +1940,6 @@ $ignoreErrors[] = [
     'message' => '#^Property DateInterval\\:\\:\\$s \\(int\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/AppointmentService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\BaseService\\:\\:\\$logger \\(OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\) does not accept Psr\\\\Log\\\\LoggerInterface\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/BaseService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\CarePlanService\\:\\:\\$carePlanType \\(string\\) does not accept mixed\\.$#',

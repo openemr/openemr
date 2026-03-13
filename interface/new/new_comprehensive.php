@@ -83,7 +83,7 @@ if((top.window.parent) && (parent.window)){
         wname.syncRadios();
 }//Visolve - sync the radio buttons - End
 
-var mypcc = <?php echo js_escape(OEGlobalsBag::getInstance()->get('phone_country_code')); ?>;
+var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
 // This may be changed to true by the AJAX search script.
 var force_submit = false;
@@ -695,26 +695,26 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                             <input type='entry' class='form-control' size='15' name='i<?php echo attr($i); ?>subscriber_city' value="<?php echo attr($result3["subscriber_city"] ?? ''); ?>" onchange="capitalizeMe(this);" />
                           </div>
                             <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "<div class='d-none'>" : ""; ?>
-                          <label class='col-form-label col-md-1 mb-2 required'><?php echo (OEGlobalsBag::getInstance()->get('phone_country_code') == '1') ? xlt('SE State') : xlt('SE Locality') ?>:</label>
+                          <label class='col-form-label col-md-1 mb-2 required'><?php echo (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1) ? xlt('SE State') : xlt('SE Locality') ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
                             generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('state_data_type'),'field_id' => ('i' . $i . 'subscriber_employer_state'),'list_id' => OEGlobalsBag::getInstance()->get('state_list'),'fld_length' => '15','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_employer_state'] ?? ''));
                             ?>
                           </div>
                             <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "</div>" : ""; ?>
-                          <label class='col-form-label col-md-1 mb-2 required'><?php echo (OEGlobalsBag::getInstance()->get('phone_country_code') == '1') ? xlt('State') : xlt('Locality') ?>:</label>
+                          <label class='col-form-label col-md-1 mb-2 required'><?php echo (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1) ? xlt('State') : xlt('Locality') ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
                             generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('state_data_type'), 'field_id' => ('i' . $i . 'subscriber_state'),'list_id' => OEGlobalsBag::getInstance()->get('state_list'),'fld_length' => '15','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_state'] ?? ''));
                             ?>
                           </div>
                             <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "<div class='d-none'>" : ""; ?>
-                          <label class='col-form-label col-md-1 mb-2 required'><?php echo (OEGlobalsBag::getInstance()->get('phone_country_code') == '1') ? xlt('SE Zip Code') : xlt('SE Postal Code') ?>: </label>
+                          <label class='col-form-label col-md-1 mb-2 required'><?php echo (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1) ? xlt('SE Zip Code') : xlt('SE Postal Code') ?>: </label>
                           <div class="col-md-5 mb-2">
                             <input type='entry' class='form-control' size='10' name='i<?php echo $i?>subscriber_employer_postal_code' value="<?php echo attr($result3["subscriber_employer_postal_code"] ?? ''); ?>" />
                           </div>
                             <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "</div>" : ""; ?>
-                          <label class='col-form-label col-md-1 mb-2 required'><?php echo (OEGlobalsBag::getInstance()->get('phone_country_code') == '1') ? xlt('Zip Code') : xlt('Postal Code') ?>: </label>
+                          <label class='col-form-label col-md-1 mb-2 required'><?php echo (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1) ? xlt('Zip Code') : xlt('Postal Code') ?>: </label>
                           <div class="col-md-5 mb-2">
                             <input type='entry' class='form-control' size='10' name='i<?php echo attr($i); ?>subscriber_postal_code' value="<?php echo attr($result3["subscriber_postal_code"] ?? ''); ?>" />
                           </div>

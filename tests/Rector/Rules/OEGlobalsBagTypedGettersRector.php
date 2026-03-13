@@ -26,6 +26,7 @@ use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\BinaryOp;
 use PhpParser\Node\Expr\BooleanNot;
 use PhpParser\Node\Expr\Cast\Bool_ as BoolCast;
+use PhpParser\Node\Expr\Cast\Int_ as IntCast;
 use PhpParser\Node\Expr\Empty_;
 use PhpParser\Node\Expr\MethodCall;
 use PhpParser\Node\Expr\StaticCall;
@@ -49,9 +50,8 @@ class OEGlobalsBagTypedGettersRector extends AbstractRector
      */
     private const TYPE_TO_METHOD = [
         'bool' => 'getBoolean',
-        // Uncomment these when ready to expand beyond booleans:
-        // 'num' => 'getInt',
-        // 'hour' => 'getInt',
+        'num' => 'getInt',
+        'hour' => 'getInt',
         // 'text' => 'getString',
         // 'encrypted' => 'getString',
         // 'encrypted_hash' => 'getString',
@@ -126,17 +126,19 @@ CODE_SAMPLE
             BinaryOp\NotIdentical::class,
             // (bool) ->get('bool')
             BoolCast::class,
+            // (int) ->get('num')
+            IntCast::class,
             // !empty(->get('bool')) — handle at BooleanNot level to avoid double negation
             BooleanNot::class,
             // empty(->get('bool')) without ! prefix
             Empty_::class,
-            // Standalone ->get('bool') calls not in a comparison
+            // Standalone ->get('key') calls not in a comparison
             MethodCall::class,
         ];
     }
 
     /**
-     * @param BinaryOp|BoolCast|BooleanNot|Empty_|MethodCall $node
+     * @param BinaryOp|BoolCast|IntCast|BooleanNot|Empty_|MethodCall $node
      */
     public function refactor(Node $node): ?Node
     {
@@ -146,6 +148,10 @@ CODE_SAMPLE
 
         if ($node instanceof BoolCast) {
             return $this->refactorBoolCast($node);
+        }
+
+        if ($node instanceof IntCast) {
+            return $this->refactorIntCast($node);
         }
 
         if ($node instanceof BooleanNot) {
@@ -169,6 +175,9 @@ CODE_SAMPLE
      * ->get('bool') === '1' → ->getBoolean('bool')
      * ->get('bool') !== '0' → ->getBoolean('bool')
      * '1' == ->get('bool') → ->getBoolean('bool')  (reversed operand order)
+     *
+     * Only applies to boolean globals — integer globals in comparisons
+     * are left for the standalone handler.
      */
     private function refactorComparison(BinaryOp $node): ?Node
     {
@@ -176,10 +185,10 @@ CODE_SAMPLE
         $getCall = null;
         $literal = null;
 
-        if ($this->isBoolGlobalGet($node->left)) {
+        if ($this->isTypedGlobalGet($node->left, 'getBoolean')) {
             $getCall = $node->left;
             $literal = $node->right;
-        } elseif ($this->isBoolGlobalGet($node->right)) {
+        } elseif ($this->isTypedGlobalGet($node->right, 'getBoolean')) {
             $getCall = $node->right;
             $literal = $node->left;
         }
@@ -216,7 +225,19 @@ CODE_SAMPLE
      */
     private function refactorBoolCast(BoolCast $node): ?Node
     {
-        if (!$this->isBoolGlobalGet($node->expr)) {
+        if (!$this->isTypedGlobalGet($node->expr, 'getBoolean')) {
+            return null;
+        }
+
+        return $this->convertToTypedGetter($node->expr);
+    }
+
+    /**
+     * (int) ->get('num') → ->getInt('num')
+     */
+    private function refactorIntCast(IntCast $node): ?Node
+    {
+        if (!$this->isTypedGlobalGet($node->expr, 'getInt')) {
             return null;
         }
 
@@ -230,7 +251,7 @@ CODE_SAMPLE
     private function refactorBooleanNot(BooleanNot $node): ?Node
     {
         // !empty(->get('bool')) → getBoolean('bool')
-        if ($node->expr instanceof Empty_ && $this->isBoolGlobalGet($node->expr->expr)) {
+        if ($node->expr instanceof Empty_ && $this->isTypedGlobalGet($node->expr->expr, 'getBoolean')) {
             return $this->convertToTypedGetter($node->expr->expr);
         }
 
@@ -243,7 +264,7 @@ CODE_SAMPLE
      */
     private function refactorEmpty(Empty_ $node): ?Node
     {
-        if (!$this->isBoolGlobalGet($node->expr)) {
+        if (!$this->isTypedGlobalGet($node->expr, 'getBoolean')) {
             return null;
         }
 
@@ -258,11 +279,11 @@ CODE_SAMPLE
     }
 
     /**
-     * Standalone ->get('bool') not in a comparison/cast/empty context
+     * Standalone ->get('key') not in a comparison/cast/empty context
      */
     private function refactorStandaloneGet(MethodCall $node): ?Node
     {
-        if (!$this->isBoolGlobalGet($node)) {
+        if (!$this->isKnownGlobalGet($node)) {
             return null;
         }
 
@@ -274,6 +295,7 @@ CODE_SAMPLE
             || $parent instanceof BinaryOp\Identical
             || $parent instanceof BinaryOp\NotIdentical
             || $parent instanceof BoolCast
+            || $parent instanceof IntCast
             || $parent instanceof Empty_
         ) {
             // Check if the other side of the comparison is a bool-ish literal
@@ -291,9 +313,9 @@ CODE_SAMPLE
     }
 
     /**
-     * Check if a node is an OEGlobalsBag->get('known_bool_key') call
+     * Check if a node is an OEGlobalsBag->get() call for a known global
      */
-    private function isBoolGlobalGet(Expr $node): bool
+    private function isKnownGlobalGet(Expr $node): bool
     {
         if (!$node instanceof MethodCall) {
             return false;
@@ -321,7 +343,23 @@ CODE_SAMPLE
     }
 
     /**
-     * Convert ->get('key') or ->get('key', default) to ->getBoolean('key')
+     * Check if a node is an OEGlobalsBag->get() call for a global with a specific target method
+     */
+    private function isTypedGlobalGet(Expr $node, string $expectedMethod): bool
+    {
+        if (!$this->isKnownGlobalGet($node)) {
+            return false;
+        }
+
+        assert($node instanceof MethodCall);
+        $key = $node->getArgs()[0]->value;
+        assert($key instanceof String_);
+
+        return ($this->settingMethodMap[$key->value] ?? null) === $expectedMethod;
+    }
+
+    /**
+     * Convert ->get('key') or ->get('key', default) to the typed getter
      */
     private function convertToTypedGetter(MethodCall $node): MethodCall
     {

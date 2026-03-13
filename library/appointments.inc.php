@@ -554,7 +554,7 @@ function getAvailableSlots($from_date, $to_date, $provider_id = null, $facility_
                         // which prevents the next appointment time from being set
                         // for the $same_day assignment below, so this fix...
                         if ($appointments[$i]['pc_duration'] == 0) {
-                            $next_appointment_time = OEGlobalsBag::getInstance()->get('schedule_end') . ":00";
+                            $next_appointment_time = OEGlobalsBag::getInstance()->getInt('schedule_end') . ":00";
                         } else {
                             $next_appointment_time = $appointments[$i]['pc_endTime'];
                         }

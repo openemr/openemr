@@ -20,7 +20,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\OEGlobalsBag;
 
 $days_to_show = 30;
-$alerts_to_show = OEGlobalsBag::getInstance()->get('dated_reminders_max_alerts_to_show');
+$alerts_to_show = OEGlobalsBag::getInstance()->getInt('dated_reminders_max_alerts_to_show');
 $updateDelay = 60; // time is seconds
 
 

@@ -119,6 +119,6 @@ $vars = [
 try {
     echo (new TwigContainer(null, $globalsBag->getKernel()))->getTwig()->render("portal/portal-credentials-settings.html.twig", $vars);
 } catch (\Throwable $exception) {
-    (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+    (new \OpenEMR\Common\Logging\SystemLogger())->error($exception->getMessage(), ['exception' => $exception]);
     die(xlt("Failed to render twig file"));
 }

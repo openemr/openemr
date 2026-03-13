@@ -53,7 +53,7 @@ class SessionTracker
             error_log("OpenEMR Error: isSessionExpired error (last_updated time is ahead of current time which should be impossible)");
             return true;
         }
-        if (($current_time - $last_updated) > OEGlobalsBag::getInstance()->get('timeout')) {
+        if (($current_time - $last_updated) > OEGlobalsBag::getInstance()->getInt('timeout')) {
             return true;
         }
 

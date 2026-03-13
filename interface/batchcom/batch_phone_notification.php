@@ -37,7 +37,7 @@ $facilityService = new FacilityService();
 $type = "Phone";
 $before_trigger_hours = 72; // 3 days is default
 //Get the values from Global
-$before_trigger_hours = OEGlobalsBag::getInstance()->get('phone_notification_hour');
+$before_trigger_hours = OEGlobalsBag::getInstance()->getInt('phone_notification_hour');
 //set up the phone notification settings for external phone service
 $phone_url = OEGlobalsBag::getInstance()->get('phone_gateway_url') ;
 $phone_id = OEGlobalsBag::getInstance()->get('phone_gateway_username');

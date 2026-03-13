@@ -1085,14 +1085,14 @@ class AuthUtils
      */
     private function checkPasswordNotExpired($user)
     {
-        if ((OEGlobalsBag::getInstance()->get('password_expiration_days') == 0) || self::useActiveDirectory($user)) {
+        if ((OEGlobalsBag::getInstance()->getInt('password_expiration_days') === 0) || self::useActiveDirectory($user)) {
             // skip the check if turned off or using active directory for login
             return true;
         }
         $query = privQuery("SELECT `last_update_password` FROM `users_secure` WHERE BINARY `username` = ?", [$user]);
-        if ((!empty($query)) && (!empty($query['last_update_password'])) && (check_integer(OEGlobalsBag::getInstance()->get('password_expiration_days'))) && (check_integer(OEGlobalsBag::getInstance()->get('password_grace_time')))) {
+        if ((!empty($query)) && (!empty($query['last_update_password'])) && (check_integer(OEGlobalsBag::getInstance()->getInt('password_expiration_days'))) && (check_integer(OEGlobalsBag::getInstance()->getInt('password_grace_time')))) {
             $current_date = date("Y-m-d");
-            $expiredPlusGraceTime = date("Y-m-d", strtotime($query['last_update_password'] . "+" . ((int)OEGlobalsBag::getInstance()->get('password_expiration_days') + (int)OEGlobalsBag::getInstance()->get('password_grace_time')) . " days"));
+            $expiredPlusGraceTime = date("Y-m-d", strtotime($query['last_update_password'] . "+" . (OEGlobalsBag::getInstance()->getInt('password_expiration_days') + OEGlobalsBag::getInstance()->getInt('password_grace_time')) . " days"));
             if (strtotime($current_date) > strtotime($expiredPlusGraceTime)) {
                 error_log("OpenEMR Notice: Password is expired and outside of grace period. User: " . $user);
                 return false;
@@ -1120,13 +1120,13 @@ class AuthUtils
             $where[] = ' (`ip_force_block` = 1) ';
         }
         if ($showOnlyAutoBlocked) {
-            if ((int)OEGlobalsBag::getInstance()->get('ip_max_failed_logins') != 0) {
-                if (!empty((int)OEGlobalsBag::getInstance()->get('ip_time_reset_password_max_failed_logins')) && (int)OEGlobalsBag::getInstance()->get('ip_time_reset_password_max_failed_logins') > 0) {
+            if (OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins') != 0) {
+                if (!empty(OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins')) && OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins') > 0) {
                     $where[] = ' (ip_login_fail_counter > ? AND TIMESTAMPDIFF(SECOND, `ip_last_login_fail`, NOW()) < ?) ';
-                    array_push($sqlBind, (int)OEGlobalsBag::getInstance()->get('ip_max_failed_logins'), (int)OEGlobalsBag::getInstance()->get('ip_time_reset_password_max_failed_logins'));
+                    array_push($sqlBind, OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins'), OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins'));
                 } else {
                     $where[] = ' (ip_login_fail_counter > ?) ';
-                    array_push($sqlBind, (int)OEGlobalsBag::getInstance()->get('ip_max_failed_logins'));
+                    array_push($sqlBind, OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins'));
                 }
             }
         }
@@ -1162,18 +1162,18 @@ class AuthUtils
      */
     private function checkLoginFailedCounter(string $user): array
     {
-        if ((int)OEGlobalsBag::getInstance()->get('password_max_failed_logins') == 0) {
+        if (OEGlobalsBag::getInstance()->getInt('password_max_failed_logins') === 0) {
             // skip the check if turned off
             return ['pass' => true, 'email_notification' => null];
         }
 
         $query = privQuery("SELECT `auto_block_emailed`, `login_fail_counter`, TIMESTAMPDIFF(SECOND, `last_login_fail`, NOW()) as `seconds_last_login_fail` FROM `users_secure` WHERE BINARY `username` = ?", [$user]);
-        if ($query['login_fail_counter'] >= (int)OEGlobalsBag::getInstance()->get('password_max_failed_logins')) {
+        if ($query['login_fail_counter'] >= OEGlobalsBag::getInstance()->getInt('password_max_failed_logins')) {
             if (
-                !empty((int)OEGlobalsBag::getInstance()->get('time_reset_password_max_failed_logins')) &&
-                (int)OEGlobalsBag::getInstance()->get('time_reset_password_max_failed_logins') > 0 &&
+                !empty(OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins')) &&
+                OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins') > 0 &&
                 !empty($query['seconds_last_login_fail']) &&
-                $query['seconds_last_login_fail'] > (int)OEGlobalsBag::getInstance()->get('time_reset_password_max_failed_logins')
+                $query['seconds_last_login_fail'] > OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins')
             ) {
                 // the last login fail was longer than the timeout required to reset the failed logins, so will pass
                 //  (also need to reset the counter)
@@ -1198,7 +1198,7 @@ class AuthUtils
             $ipString = 'blank';
         }
 
-        if ((int)OEGlobalsBag::getInstance()->get('ip_max_failed_logins') == 0) {
+        if (OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins') === 0) {
             // skip the check if turned off
             return ['pass' => true, 'force_block' => null, 'skip_timing_attack' => null, 'email_notification' => null];
         }
@@ -1211,12 +1211,12 @@ class AuthUtils
                 return ['pass' => false, 'force_block' => true, 'skip_timing_attack' => false, 'email_notification' => false];
             }
         }
-        if ($query['ip_login_fail_counter'] >= (int)OEGlobalsBag::getInstance()->get('ip_max_failed_logins')) {
+        if ($query['ip_login_fail_counter'] >= OEGlobalsBag::getInstance()->getInt('ip_max_failed_logins')) {
             if (
-                !empty((int)OEGlobalsBag::getInstance()->get('ip_time_reset_password_max_failed_logins')) &&
-                (int)OEGlobalsBag::getInstance()->get('ip_time_reset_password_max_failed_logins') > 0 &&
+                !empty(OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins')) &&
+                OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins') > 0 &&
                 !empty($query['seconds_last_ip_login_fail']) &&
-                $query['seconds_last_ip_login_fail'] > (int)OEGlobalsBag::getInstance()->get('ip_time_reset_password_max_failed_logins')
+                $query['seconds_last_ip_login_fail'] > OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins')
             ) {
                 // the last ip login fail was longer than the timeout required to reset the failed logins, so will pass
                 //  (also need to reset the counter)
@@ -1261,13 +1261,13 @@ class AuthUtils
     {
         // If there is a timeout set for the autoblock, then need to check it when incrementing the counter
         if (
-            !empty((int)OEGlobalsBag::getInstance()->get('time_reset_password_max_failed_logins')) &&
-            (int)OEGlobalsBag::getInstance()->get('time_reset_password_max_failed_logins') > 0
+            !empty(OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins')) &&
+            OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins') > 0
         ) {
             $query = privQuery("SELECT TIMESTAMPDIFF(SECOND, `last_login_fail`, NOW()) as `seconds_last_login_fail` FROM `users_secure` WHERE BINARY `username` = ?", [$user]);
             if (
                 !empty($query['seconds_last_login_fail']) &&
-                $query['seconds_last_login_fail'] > (int)OEGlobalsBag::getInstance()->get('time_reset_password_max_failed_logins')
+                $query['seconds_last_login_fail'] > OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins')
             ) {
                 // the last login fail was longer than the timeout required to reset the failed logins, so will set the login_fail_counter to 1 (ie. reset the counter to 0 and add the 1 for the most recent fail)
                 privStatement("UPDATE `users_secure` SET `total_login_fail_counter` = total_login_fail_counter+1, `login_fail_counter` = 1, `last_login_fail` = NOW(), `auto_block_emailed` = 0 WHERE BINARY `username` = ?", [$user]);
@@ -1291,13 +1291,13 @@ class AuthUtils
 
         // If there is a timeout set for the autoblock, then need to check it when incrementing the counter
         if (
-            !empty((int)OEGlobalsBag::getInstance()->get('ip_time_reset_password_max_failed_logins')) &&
-            (int)OEGlobalsBag::getInstance()->get('ip_time_reset_password_max_failed_logins') > 0
+            !empty(OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins')) &&
+            OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins') > 0
         ) {
             $query = sqlQuery("SELECT TIMESTAMPDIFF(SECOND, `ip_last_login_fail`, NOW()) as `seconds_last_ip_login_fail` FROM `ip_tracking` WHERE `ip_string` = ?", [$ipString]);
             if (
                 !empty($query['seconds_last_ip_login_fail']) &&
-                $query['seconds_last_ip_login_fail'] > (int)OEGlobalsBag::getInstance()->get('ip_time_reset_password_max_failed_logins')
+                $query['seconds_last_ip_login_fail'] > OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins')
             ) {
                 // the last login fail was longer than the timeout required to reset the failed logins, so will set the login_fail_counter to 1 (ie. reset the counter to 0 and add the 1 for the most recent fail)
                 sqlStatement("UPDATE `ip_tracking` SET `total_ip_login_fail_counter` = total_ip_login_fail_counter+1, `ip_login_fail_counter` = 1, `ip_last_login_fail` = NOW(), `ip_auto_block_emailed` = 0 WHERE `ip_string` = ?", [$ipString]);
@@ -1362,7 +1362,7 @@ class AuthUtils
         sqlStatement("UPDATE `ip_tracking` SET `ip_auto_block_emailed` = 1 WHERE `ip_string` = ?", [$ip_string]);
 
         if (!empty(OEGlobalsBag::getInstance()->get('patient_reminder_sender_email')) && !empty(OEGlobalsBag::getInstance()->get('practice_return_email_path'))) {
-            if (empty((int)OEGlobalsBag::getInstance()->get('ip_time_reset_password_max_failed_logins'))) {
+            if (empty(OEGlobalsBag::getInstance()->getInt('ip_time_reset_password_max_failed_logins'))) {
                 $message = "IP address '" . text($ip_string) . "' has been blocked.";
             } else {
                 $message = "IP address '" . text($ip_string) . "' has been temporarily blocked.";
@@ -1383,7 +1383,7 @@ class AuthUtils
         privStatement("UPDATE `users_secure` SET `auto_block_emailed` = 1 WHERE BINARY `username` = ?", [$username]);
 
         if (!empty(OEGlobalsBag::getInstance()->get('patient_reminder_sender_email')) && !empty(OEGlobalsBag::getInstance()->get('practice_return_email_path'))) {
-            if (empty((int)OEGlobalsBag::getInstance()->get('time_reset_password_max_failed_logins'))) {
+            if (empty(OEGlobalsBag::getInstance()->getInt('time_reset_password_max_failed_logins'))) {
                 $message = "Username '" . text($username) . "' has been blocked.";
             } else {
                 $message = "Username '" . text($username) . "' has been temporarily blocked.";

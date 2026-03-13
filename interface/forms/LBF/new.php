@@ -569,7 +569,7 @@ if (
             });
         });
 
-        var mypcc = <?php echo js_escape(OEGlobalsBag::getInstance()->get('phone_country_code')); ?>;
+        var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
         // Supports customizable forms.
         function divclick(cb, divid) {

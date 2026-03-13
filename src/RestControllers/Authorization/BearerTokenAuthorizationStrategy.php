@@ -373,7 +373,7 @@ class BearerTokenAuthorizationStrategy implements IAuthorizationStrategy
             (self::is_api_request($resource) && !in_array('api:oemr', $oauthScopes)) ||
             (self::is_portal_request($resource) && !in_array('api:port', $oauthScopes))
         ) {
-            $this->getSystemLogger()->errorLogCaller("api call with token that does not cover the requested route");
+            $this->getSystemLogger()->error("API call with token that does not cover the requested route");
             throw new HttpException(403, "OpenEMR Error: API call failed due to insufficient permissions for the requested resource.");
         }
         // ensure user role has access to the resource

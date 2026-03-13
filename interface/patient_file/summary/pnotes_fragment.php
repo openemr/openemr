@@ -39,7 +39,7 @@ if (isset($_GET['docUpdateId'])) {
   <div class='tab current'>
     <?php
     //display all of the notes for the day, as well as others that are active from previous dates, up to a certain number, $N
-    $N = OEGlobalsBag::getInstance()->get('num_of_messages_displayed');
+    $N = OEGlobalsBag::getInstance()->getInt('num_of_messages_displayed');
     $has_note = 0;
     $thisauth = AclMain::aclCheckCore('patients', 'notes');
     if ($thisauth) {
@@ -124,7 +124,7 @@ if (isset($_GET['docUpdateId'])) {
             <br/>
             <span class='text'>
             <?php echo xlt('Displaying the following number of most recent messages'); ?>:
-            <b><?php echo text($N);?></b><br />
+            <b><?php echo $N;?></b><br />
             <a href='pnotes_full.php?s=0' onclick='top.restoreSession()'><?php echo xlt('Click here to view them all.'); ?></a>
         </span><?php
         } ?>
