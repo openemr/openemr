@@ -448,175 +448,889 @@
         "total_entries": 87957
     },
     {
-        "commit": "397e0abb16",
-        "date": "2026-02-11T10:41:34-08:00",
-        "subject": "feat(ci): add PHPStan baseline tracking and visualization",
-        "total_count": 168008,
-        "total_entries": 87957,
+        "commit": "3858722d55",
+        "date": "2026-02-11T10:42:45-08:00",
+        "subject": "refactor(modules): Fix a few missing/incorrect types (#10691)",
+        "total_count": 167815,
+        "total_entries": 87916
+    },
+    {
+        "commit": "912a6f2bb3",
+        "date": "2026-02-11T11:23:28-08:00",
+        "subject": "fix(phpstan): add @var annotations to reduce variable.undefined baseline (#10693)",
+        "total_count": 167148,
+        "total_entries": 87781
+    },
+    {
+        "commit": "98aadc150b",
+        "date": "2026-02-11T11:51:11-08:00",
+        "subject": "fix: rename 'uncomplete' mode to 'incomplete' in AMC tracking (#10698)",
+        "total_count": 167148,
+        "total_entries": 87781
+    },
+    {
+        "commit": "f1e6aae86d",
+        "date": "2026-02-11T12:53:23-08:00",
+        "subject": "refactor(ccr): remove dead code and fix undefined variables (#10689)",
+        "total_count": 167134,
+        "total_entries": 87774
+    },
+    {
+        "commit": "6096e4a18f",
+        "date": "2026-02-11T13:36:38-08:00",
+        "subject": "refactor(db): Doctrine/DBAL initial integration (#9980)",
+        "total_count": 167126,
+        "total_entries": 87766
+    },
+    {
+        "commit": "9ebe118b8e",
+        "date": "2026-02-12T03:22:37+02:00",
+        "subject": "chore: reused SingletonTrait at OEGlobalsBag (#10515)",
+        "total_count": 167125,
+        "total_entries": 87765
+    },
+    {
+        "commit": "3a034219ec",
+        "date": "2026-02-11T18:42:32-08:00",
+        "subject": "fix(phpstan): Fail if baseline doesn't match generator (#10703)",
+        "total_count": 167125,
+        "total_entries": 87765
+    },
+    {
+        "commit": "6891541450",
+        "date": "2026-02-11T19:21:52-08:00",
+        "subject": "refactor(cron): Avoid duplicate function definitions (#10713)",
+        "total_count": 167115,
+        "total_entries": 87755
+    },
+    {
+        "commit": "fd5eb5f6bd",
+        "date": "2026-02-12T11:18:46-08:00",
+        "subject": "feat(phpstan): Add deprecation rules for PHPStan (#10715)",
+        "total_count": 167589,
+        "total_entries": 87977
+    },
+    {
+        "commit": "ac5bb730d2",
+        "date": "2026-02-12T15:24:00-05:00",
+        "subject": "fix(billing): create ERA directory and add overwrite confirmation (#10728)",
+        "total_count": 167577,
+        "total_entries": 87971
+    },
+    {
+        "commit": "9c900053ef",
+        "date": "2026-02-12T16:04:42-05:00",
+        "subject": "fix(sql): handle objects in sql helpfuldie",
+        "total_count": 167575,
+        "total_entries": 87970
+    },
+    {
+        "commit": "1988857aa4",
+        "date": "2026-02-12T17:50:32-05:00",
+        "subject": "fix(e2e): wait for active tab element before checking content (#10749)",
+        "total_count": 164430,
+        "total_entries": 87693
+    },
+    {
+        "commit": "6d4c87e9e9",
+        "date": "2026-02-12T18:29:04-05:00",
+        "subject": "fix(claimrev): save all subscribers in eligibility request (#10750)",
+        "total_count": 164429,
+        "total_entries": 87692
+    },
+    {
+        "commit": "cd1a72e712",
+        "date": "2026-02-12T19:04:21-05:00",
+        "subject": "feat(phpstan): add generator for database table type aliases (#10720)",
+        "total_count": 164401,
+        "total_entries": 87693
+    },
+    {
+        "commit": "8da20b0923",
+        "date": "2026-02-12T19:11:34-05:00",
+        "subject": "fix(claimrev): prevent HTML escaping of ERA file downloads (#10754)",
+        "total_count": 164401,
+        "total_entries": 87692
+    },
+    {
+        "commit": "a40d3dce55",
+        "date": "2026-02-12T19:12:40-05:00",
+        "subject": "fix(modules): remove dead methods referencing undefined constants (#10755)",
+        "total_count": 164393,
+        "total_entries": 87686
+    },
+    {
+        "commit": "00fd569196",
+        "date": "2026-02-13T09:45:16-05:00",
+        "subject": "fix(claimrev): add input validation for ERA ID parameter (#10758)",
+        "total_count": 164392,
+        "total_entries": 87685
+    },
+    {
+        "commit": "fe8ee6ace3",
+        "date": "2026-02-13T10:26:25-05:00",
+        "subject": "fix(claimrev): use $postData parameter instead of $_POST (#10763)",
+        "total_count": 164390,
+        "total_entries": 87683
+    },
+    {
+        "commit": "796b93aadf",
+        "date": "2026-02-13T11:16:43-05:00",
+        "subject": "fix(claimrev): replace hardcoded dev URLs with configurable settings (#10759)",
+        "total_count": 164377,
+        "total_entries": 87672
+    },
+    {
+        "commit": "a769fc3a74",
+        "date": "2026-02-13T12:01:11-05:00",
+        "subject": "fix(claimrev): throw exceptions on API failures instead of returning error values (#10752)",
+        "total_count": 164399,
+        "total_entries": 87666
+    },
+    {
+        "commit": "818ae3c47d",
+        "date": "2026-02-13T17:43:31-08:00",
+        "subject": "refactor(gacl): Narrow scope and apply correct type to Gacl properties (#10761)",
+        "total_count": 163868,
+        "total_entries": 87612
+    },
+    {
+        "commit": "4d90ff1c48",
+        "date": "2026-02-17T09:35:43-08:00",
+        "subject": "refactor: Fix most duplicate class definitions (#10779)",
+        "total_count": 163734,
+        "total_entries": 87563
+    },
+    {
+        "commit": "c2fcf064ee",
+        "date": "2026-02-17T15:40:09-05:00",
+        "subject": "fix(labs): PHP warnings interface/orders (#10788)",
+        "total_count": 163733,
+        "total_entries": 87562
+    },
+    {
+        "commit": "11c74c1fe3",
+        "date": "2026-02-17T17:48:17-08:00",
+        "subject": "fix(phpstan): correct custom rule implementations (#10791)",
+        "total_count": 163762,
+        "total_entries": 87579
+    },
+    {
+        "commit": "bd7777fdcf",
+        "date": "2026-02-18T09:51:31-05:00",
+        "subject": "chore(deps-dev): bump the development group with 5 updates (#10780)",
+        "total_count": 163762,
+        "total_entries": 87579
+    },
+    {
+        "commit": "1f464e07c5",
+        "date": "2026-02-18T09:26:12-08:00",
+        "subject": "refactor: Deduplicate more global functions (#10790)",
+        "total_count": 163530,
+        "total_entries": 87532
+    },
+    {
+        "commit": "ba62660526",
+        "date": "2026-02-18T10:03:24-08:00",
+        "subject": "chore(db): Remove legacy non-utf8 connection support (#10789)",
+        "total_count": 163490,
+        "total_entries": 87510
+    },
+    {
+        "commit": "2390be5bc6",
+        "date": "2026-02-18T10:23:18-08:00",
+        "subject": "feat(phpstan): Add rule for blocking direct instantiation of certain classes (#10795)",
+        "total_count": 164129,
+        "total_entries": 87861
+    },
+    {
+        "commit": "b0ace41d15",
+        "date": "2026-02-18T12:23:35-08:00",
+        "subject": "feat(db): Migrate ADODB setup in Gacl to new factory method (#10778)",
+        "total_count": 164089,
+        "total_entries": 87839
+    },
+    {
+        "commit": "d002850057",
+        "date": "2026-02-18T12:25:17-08:00",
+        "subject": "refactor(calendar): Update PostNuke internals to DBAL (#10773)",
+        "total_count": 163908,
+        "total_entries": 87764
+    },
+    {
+        "commit": "c354203e3d",
+        "date": "2026-02-18T17:17:10-08:00",
+        "subject": "refactor(db): centralize connection persistence detection (#10803)",
+        "total_count": 163896,
+        "total_entries": 87770
+    },
+    {
+        "commit": "5066e04e5f",
+        "date": "2026-02-19T10:12:31-08:00",
+        "subject": "fix(phpstan): fix invalid return type annotations (#10804)",
+        "total_count": 163815,
+        "total_entries": 87675
+    },
+    {
+        "commit": "29b96b4742",
+        "date": "2026-02-19T11:05:26-08:00",
+        "subject": "refactor: Deduplicate more global functions (#10729)",
+        "total_count": 163778,
+        "total_entries": 87641
+    },
+    {
+        "commit": "4953158e3d",
+        "date": "2026-02-19T12:09:15-08:00",
+        "subject": "fix(eye-mag): correct Schirmer field name typos in copy_forward ANTSEG zone (#10814)",
+        "total_count": 163778,
+        "total_entries": 87637
+    },
+    {
+        "commit": "7766652b4d",
+        "date": "2026-02-19T16:21:24-05:00",
+        "subject": "refactor(claimrev): use PSR-18 HTTP client (#10770)",
+        "total_count": 163517,
+        "total_entries": 87536
+    },
+    {
+        "commit": "cbf3c4bd4b",
+        "date": "2026-02-20T07:06:40-08:00",
+        "subject": "fix(phone): Use correct locale-aware formatting for phone number display (#10772)",
+        "total_count": 163521,
+        "total_entries": 87539
+    },
+    {
+        "commit": "6d920cf364",
+        "date": "2026-02-20T13:19:32-08:00",
+        "subject": "chore(db): Convert legacy Phreeze to updated connection handling (#10802)",
+        "total_count": 163508,
+        "total_entries": 87529
+    },
+    {
+        "commit": "a19b555f0e",
+        "date": "2026-02-21T17:19:35-05:00",
+        "subject": "fix(db): rename misspelled 'interpretter' column to 'interpreter' (#10846)",
+        "total_count": 163508,
+        "total_entries": 87529
+    },
+    {
+        "commit": "283511c290",
+        "date": "2026-02-21T18:33:01-05:00",
+        "subject": "refactor(format-money): use OEGlobalsBag and add isolated tests (#10840)",
+        "total_count": 163495,
+        "total_entries": 87520
+    },
+    {
+        "commit": "ef3ea0cd5b",
+        "date": "2026-02-21T21:10:10-05:00",
+        "subject": "refactor(billing): return booleans instead of string values in connectivity checks (#10850)",
+        "total_count": 163494,
+        "total_entries": 87519
+    },
+    {
+        "commit": "ed5119b2ad",
+        "date": "2026-02-21T22:20:18-05:00",
+        "subject": "refactor(dates): migrate oeFormatDateTime to DateFormatterUtils and add tests (#10847)",
+        "total_count": 163373,
+        "total_entries": 87462
+    },
+    {
+        "commit": "f588a0bd7c",
+        "date": "2026-02-22T10:04:39-05:00",
+        "subject": "fix(payments): use theme-stable colors for receipt background contrast (#10851)",
+        "total_count": 163407,
+        "total_entries": 87472
+    },
+    {
+        "commit": "91998b210b",
+        "date": "2026-02-22T14:20:54-08:00",
+        "subject": "feat(api): add missing appointment fields and auto-set pc_time/pc_informant (#8932)",
+        "total_count": 163408,
+        "total_entries": 87473
+    },
+    {
+        "commit": "59745da3c8",
+        "date": "2026-02-22T19:13:43-08:00",
+        "subject": "chore(phpstan): Add/fix common type hints (#10816)",
+        "total_count": 166255,
+        "total_entries": 87956
+    },
+    {
+        "commit": "47e1b0333f",
+        "date": "2026-02-22T23:37:55-05:00",
+        "subject": "fix(ci): rector cache masks violations on unchanged files (#10871)",
+        "total_count": 166255,
+        "total_entries": 87954
+    },
+    {
+        "commit": "0bbbece0b7",
+        "date": "2026-02-23T23:54:47Z",
+        "subject": "fix(ehi-export): initialize variables in createExportTasksFromJobWith\u2026 (#10830)",
+        "total_count": 166253,
+        "total_entries": 87952
+    },
+    {
+        "commit": "c75b524e61",
+        "date": "2026-02-24T08:10:05-05:00",
+        "subject": "fix(eye): Dispense glasses Rx: manifest/dispensed refraction (#10882)",
+        "total_count": 166248,
+        "total_entries": 87950
+    },
+    {
+        "commit": "9bf0045919",
+        "date": "2026-02-24T10:06:25-08:00",
+        "subject": "feat(db): Migrate ADODB setup in sql.inc to new factory method (#10777)",
+        "total_count": 166215,
+        "total_entries": 87951
+    },
+    {
+        "commit": "2b79957b88",
+        "date": "2026-02-24T10:11:47-08:00",
+        "subject": "refactor(db): change $_db property from public to protected (#10889)",
+        "total_count": 166213,
+        "total_entries": 87950
+    },
+    {
+        "commit": "4aea19824a",
+        "date": "2026-02-24T13:12:38-08:00",
+        "subject": "refactor(db): Remove support for secure_sqlconf.php (#10883)",
+        "total_count": 166202,
+        "total_entries": 87944
+    },
+    {
+        "commit": "56769bbfc8",
+        "date": "2026-02-24T16:00:14-08:00",
+        "subject": "refactor(crypto): remove silent failure handling from RandomGenUtils (#10913)",
+        "total_count": 166191,
+        "total_entries": 87944
+    },
+    {
+        "commit": "4414443923",
+        "date": "2026-02-25T14:24:14-08:00",
+        "subject": "refactor(db): migrate get_db() calls to QueryUtils (#10884)",
+        "total_count": 166156,
+        "total_entries": 87929
+    },
+    {
+        "commit": "d6b93b4fd0",
+        "date": "2026-02-26T10:43:36-08:00",
+        "subject": "refactor(db): Remove sqlconfig event (#10920)",
+        "total_count": 166143,
+        "total_entries": 87916
+    },
+    {
+        "commit": "345dc63ace",
+        "date": "2026-02-27T08:13:11-08:00",
+        "subject": "chore(db): Remove multipledb module (#10927)",
+        "total_count": 165971,
+        "total_entries": 87794
+    },
+    {
+        "commit": "9535707664",
+        "date": "2026-02-27T10:25:21-08:00",
+        "subject": "fix(database): return falsy column values from fetchSingleValue instead of null (#10813)",
+        "total_count": 165970,
+        "total_entries": 87794
+    },
+    {
+        "commit": "cbc74f9639",
+        "date": "2026-02-27T12:04:49-08:00",
+        "subject": "refactor(installer): use centralized database connection factory (#10805)",
+        "total_count": 165948,
+        "total_entries": 87792
+    },
+    {
+        "commit": "68e4b4b4b5",
+        "date": "2026-02-27T12:28:25-08:00",
+        "subject": "chore(ci): Add unused use statement linting (#10938)",
+        "total_count": 165919,
+        "total_entries": 87763
+    },
+    {
+        "commit": "6c89a0fb64",
+        "date": "2026-02-27T16:27:42-08:00",
+        "subject": "chore(api): Upgrade swagger-php to 6.x with PHP 8 attributes (#10921)",
+        "total_count": 165848,
+        "total_entries": 87719
+    },
+    {
+        "commit": "ea5c96ab91",
+        "date": "2026-03-01T19:46:42-05:00",
+        "subject": "fix(session): replace direct $_SESSION writes with SessionUtil::setSession() (#10939)",
+        "total_count": 165841,
+        "total_entries": 87718
+    },
+    {
+        "commit": "f74fa5ce6c",
+        "date": "2026-03-01T21:43:04-05:00",
+        "subject": "fix(api): pass HttpRestRequest to PatientRestController::getOne() in portal route (#10823)",
+        "total_count": 165840,
+        "total_entries": 87717
+    },
+    {
+        "commit": "9eb0020733",
+        "date": "2026-03-01T21:51:15-05:00",
+        "subject": "refactor(faxsms): replace magic vendor IDs with ServiceType enum (#10948)",
+        "total_count": 165838,
+        "total_entries": 87715
+    },
+    {
+        "commit": "f7d7cf5814",
+        "date": "2026-03-02T09:24:56-05:00",
+        "subject": "chore(deps-dev): bump phpstan/phpstan from 2.1.39 to 2.1.40 in the development group (#10958)",
+        "total_count": 165793,
+        "total_entries": 87706
+    },
+    {
+        "commit": "4cfcf7dac6",
+        "date": "2026-03-02T11:48:30-08:00",
+        "subject": "chore(db): Remove most of ApplicationTable & Laminas DB coupling (#10930)",
+        "total_count": 164470,
+        "total_entries": 87250
+    },
+    {
+        "commit": "30aafccdab",
+        "date": "2026-03-02T15:09:12-08:00",
+        "subject": "chore(db): Remove laminas-db package dependency (#10965)",
+        "total_count": 164408,
+        "total_entries": 87202
+    },
+    {
+        "commit": "f0249f8b82",
+        "date": "2026-03-02T16:57:39-08:00",
+        "subject": "refactor(db): Update backup script to central config reads; exclude phpstan info (#10966)",
+        "total_count": 164276,
+        "total_entries": 87194
+    },
+    {
+        "commit": "4bea5635fc",
+        "date": "2026-03-03T08:42:52-08:00",
+        "subject": "refactor(phpstan): Add and correct missing type info (#10967)",
+        "total_count": 162731,
+        "total_entries": 86640
+    },
+    {
+        "commit": "6ddf773da0",
+        "date": "2026-03-03T15:06:17-05:00",
+        "subject": "fix(recalls): improve recall board filtering and form validation (#10557)",
+        "total_count": 162749,
+        "total_entries": 86645
+    },
+    {
+        "commit": "6f8056e271",
+        "date": "2026-03-04T11:12:12-05:00",
+        "subject": "test(isolated): add coverage for 7 previously untested classes (#10974)",
+        "total_count": 162701,
+        "total_entries": 86625
+    },
+    {
+        "commit": "3a7547c14f",
+        "date": "2026-03-04T15:30:46-08:00",
+        "subject": "refactor(crypto): Encapsulate legacy decryption methods (#10981)",
+        "total_count": 162699,
+        "total_entries": 86622
+    },
+    {
+        "commit": "6f1daaa654",
+        "date": "2026-03-05T15:49:54Z",
+        "subject": "feat(patients): optionally generate csv file of duplicate patients (#10806)",
+        "total_count": 162654,
+        "total_entries": 86599
+    },
+    {
+        "commit": "7010712afb",
+        "date": "2026-03-05T11:39:45-05:00",
+        "subject": "test(isolated): add EncounterRestController tests (#10987)",
+        "total_count": 162523,
+        "total_entries": 86534
+    },
+    {
+        "commit": "3967019fe8",
+        "date": "2026-03-05T09:36:05-08:00",
+        "subject": "refactor(crypto): Migrate CryptoGen to CryptoInterface (#10982)",
+        "total_count": 162414,
+        "total_entries": 86449
+    },
+    {
+        "commit": "3e3ce1aef4",
+        "date": "2026-03-06T06:45:41-08:00",
+        "subject": "fix(db): remove dynamically created onsite_activity_view (#10998)",
+        "total_count": 162409,
+        "total_entries": 86445
+    },
+    {
+        "commit": "3e560449d7",
+        "date": "2026-03-06T16:12:48+01:00",
+        "subject": "fix(messages): replace misleading unauthorized template with silent return (#10686) (#11004)",
+        "total_count": 162407,
+        "total_entries": 86444
+    },
+    {
+        "commit": "2fe55b074f",
+        "date": "2026-03-06T11:31:01-05:00",
+        "subject": "fix(phpstan): add types and fix errors in ClientAdminController (#11007)",
+        "total_count": 162308,
+        "total_entries": 86382
+    },
+    {
+        "commit": "09fe2ca030",
+        "date": "2026-03-06T15:05:55-05:00",
+        "subject": "refactor: use OEGlobalsBag::getKernel() instead of ->get('kernel') (#11014)",
+        "total_count": 162176,
+        "total_entries": 86290
+    },
+    {
+        "commit": "64f7b0343c",
+        "date": "2026-03-06T19:20:26-05:00",
+        "subject": "fix(auth): correct assignment typo in AuthHash SHA512 fallback (#11019)",
+        "total_count": 162175,
+        "total_entries": 86289
+    },
+    {
+        "commit": "b80a5d33fc",
+        "date": "2026-03-07T08:26:42-05:00",
+        "subject": "refactor(tests): add native PHP types to ApiTestClient and BulkAPITestClient (#11023)",
+        "total_count": 161688,
+        "total_entries": 86052
+    },
+    {
+        "commit": "821827d52d",
+        "date": "2026-03-07T15:11:54-05:00",
+        "subject": "refactor(tests): convert non-FHIR JSON fixtures to PHP files (#11025)",
+        "total_count": 161677,
+        "total_entries": 86042
+    },
+    {
+        "commit": "d7189537b8",
+        "date": "2026-03-08T13:05:10-04:00",
+        "subject": "feat(api): add prescription REST API endpoints with tests (#10837)",
+        "total_count": 161617,
+        "total_entries": 86004
+    },
+    {
+        "commit": "be636987b7",
+        "date": "2026-03-09T09:17:11-04:00",
+        "subject": "refactor: replace $GLOBALS access with OEGlobalsBag across the codebase (#11017)",
+        "total_count": 158539,
+        "total_entries": 85444
+    },
+    {
+        "commit": "9bda01b6a2",
+        "date": "2026-03-09T10:01:53-04:00",
+        "subject": "test(api): enable isolated SiteSetupListener tests (#11030)",
+        "total_count": 158545,
+        "total_entries": 85449
+    },
+    {
+        "commit": "64110a2e9e",
+        "date": "2026-03-09T10:13:20-04:00",
+        "subject": "refactor: convert remaining $GLOBALS existence checks to OEGlobalsBag (#11048)",
+        "total_count": 158534,
+        "total_entries": 85444
+    },
+    {
+        "commit": "c28f4a0305",
+        "date": "2026-03-09T18:57:02-04:00",
+        "subject": "refactor(globals): use getBoolean() for boolean OEGlobalsBag settings (#11050)",
+        "total_count": 158442,
+        "total_entries": 85442
+    },
+    {
+        "commit": "9197e7ab1e",
+        "date": "2026-03-10T09:21:34-07:00",
+        "subject": "feat(config): Start to set up PSR-11 DI container (#11001)",
+        "total_count": 158445,
+        "total_entries": 85445
+    },
+    {
+        "commit": "4fd9aae1fb",
+        "date": "2026-03-11T10:15:22-04:00",
+        "subject": "refactor(globals): use getInt() for numeric OEGlobalsBag settings (#11068)",
+        "total_count": 158359,
+        "total_entries": 85414
+    },
+    {
+        "commit": "106e2420c4",
+        "date": "2026-03-11T10:18:31-07:00",
+        "subject": "refactor(audit): Extract ATNA logging (#11069)",
+        "total_count": 158334,
+        "total_entries": 85392
+    },
+    {
+        "commit": "0bcb221e5c",
+        "date": "2026-03-11T15:36:25-07:00",
+        "subject": "refactor(db): Move dbal connection into factory (#11082)",
+        "total_count": 158335,
+        "total_entries": 85393
+    },
+    {
+        "commit": "337b148ae9",
+        "date": "2026-03-12T10:59:11-04:00",
+        "subject": "fix(security): escape patient data in prescription print view (#11092)",
+        "total_count": 158334,
+        "total_entries": 85391
+    },
+    {
+        "commit": "cf9a33aae5",
+        "date": "2026-03-12T11:12:23-04:00",
+        "subject": "fix(security): escape Track Anything graph titles and labels (#11095)",
+        "total_count": 158336,
+        "total_entries": 85391
+    },
+    {
+        "commit": "02a1cca7a0",
+        "date": "2026-03-12T12:10:52-04:00",
+        "subject": "fix(security): remove user input from SQL alias in graphs (#11093)",
+        "total_count": 158332,
+        "total_entries": 85389
+    },
+    {
+        "commit": "68350bf4cb",
+        "date": "2026-03-12T12:36:53-04:00",
+        "subject": "fix(security): negate ACL condition in CDR ControllerRouter (#11094)",
+        "total_count": 158325,
+        "total_entries": 85382
+    },
+    {
+        "commit": "323b4c5f77",
+        "date": "2026-03-12T12:39:02-04:00",
+        "subject": "fix(security): escape code descriptions in dynamic code picker (#11096)",
+        "total_count": 158329,
+        "total_entries": 85382
+    },
+    {
+        "commit": "7d67c79243",
+        "date": "2026-03-12T09:57:25-07:00",
+        "subject": "refactor(log): Update many SystemLogger to Psr LoggerInterface (#11088)",
+        "total_count": 158122,
+        "total_entries": 85285
+    },
+    {
+        "commit": "b0cf80848a",
+        "date": "2026-03-12T13:10:34-04:00",
+        "subject": "fix(security): check sensitivity from correct table for group encounters (#11097)",
+        "total_count": 158126,
+        "total_entries": 85287
+    },
+    {
+        "commit": "b9409108b4",
+        "date": "2026-03-12T12:34:43-07:00",
+        "subject": "refactor(logging): Avoid errorLogCaller() where exception context available (#11100)",
+        "total_count": 158111,
+        "total_entries": 85278
+    },
+    {
+        "commit": "76a593a1e0",
+        "date": "2026-03-12T12:45:17-07:00",
+        "subject": "refactor(audit): Extract DB loggers from EventAuditLogger (#11078)",
+        "total_count": 157978,
+        "total_entries": 85266
+    },
+    {
+        "commit": "1fa8e96105",
+        "date": "2026-03-12T14:34:51-07:00",
+        "subject": "refactor(audit): Have log table and ATNA implement common interface (#11102)",
+        "total_count": 157965,
+        "total_entries": 85258
+    },
+    {
+        "commit": "1d87026fdd",
+        "date": "2026-03-12T15:42:21-07:00",
+        "subject": "refactor(logging): Remove remaining dependence on errorLogCaller (#11106)",
+        "total_count": 157912,
+        "total_entries": 85210
+    },
+    {
+        "commit": "e9b76a305f",
+        "date": "2026-03-12T19:49:20-07:00",
+        "subject": "refactor(logging): Remove most remaining coupling to SystemLogger (#11108)",
+        "total_count": 157770,
+        "total_entries": 85157
+    },
+    {
+        "commit": "edd30e53ea",
+        "date": "2026-03-13T09:19:16-07:00",
+        "subject": "refactor(audit): Make audit destinations (\"sinks\") configurable (#11105)",
+        "total_count": 157771,
+        "total_entries": 85158,
         "categories": {
-            "offsetAccess.nonOffsetAccessible": 27858,
-            "argument.type": 25621,
-            "binaryOp.invalid": 11592,
-            "missingType.parameter": 10161,
-            "method.nonObject": 9422,
-            "empty.notAllowed": 8945,
-            "isset.property": 8187,
-            "variable.undefined": 7996,
-            "missingType.return": 6494,
-            "missingType.property": 6405,
-            "openemr.deprecatedSqlFunction": 5590,
-            "cast.string": 5256,
-            "openemr.forbiddenGlobalsAccess": 3514,
-            "missingType.iterableValue": 3321,
-            "encapsedStringPart.nonString": 2761,
-            "return.type": 2600,
-            "property.nonObject": 2510,
-            "foreach.nonIterable": 2052,
-            "echo.nonString": 1911,
-            "offsetAccess.invalidOffset": 1652,
-            "assignOp.invalid": 1624,
-            "openemr.noGlobalNsFunctions": 1540,
-            "method.notFound": 1003,
-            "phpDoc.parseError": 911,
-            "class.notFound": 883,
-            "openemr.forbiddenGlobalKeyword": 572,
-            "assign.propertyType": 458,
-            "cast.int": 436,
-            "property.notFound": 397,
-            "openemr.forbiddenErrorLog": 381,
-            "nullCoalesce.expr": 375,
-            "method.childReturnType": 329,
-            "method.alreadyNarrowedType": 286,
-            "openemr.forbiddenCurlFunction": 258,
-            "if.alwaysTrue": 229,
-            "offsetAccess.notFound": 201,
-            "method.childParameterType": 200,
-            "return.empty": 187,
-            "nullCoalesce.variable": 181,
-            "parameter.notFound": 172,
-            "constant.notFound": 161,
-            "nullCoalesce.property": 159,
-            "method.nameCase": 151,
-            "function.alreadyNarrowedType": 143,
-            "parameter.defaultValue": 130,
+            "argument.byRef": 10,
+            "argument.templateType": 3,
+            "argument.type": 30237,
+            "argument.unpackNonIterable": 1,
+            "arguments.count": 16,
             "array.invalidKey": 106,
-            "notIdentical.alwaysTrue": 105,
-            "deadCode.unreachable": 101,
-            "function.nameCase": 99,
-            "empty.variable": 97,
-            "nullCoalesce.offset": 92,
-            "property.onlyWritten": 90,
-            "booleanNot.alwaysFalse": 83,
-            "identical.alwaysFalse": 79,
-            "offsetAccess.nonArray": 75,
-            "empty.expr": 69,
-            "booleanAnd.alwaysFalse": 66,
-            "openemr.deprecatedLaminasDb": 65,
-            "postInc.type": 62,
-            "preInc.type": 61,
-            "isset.variable": 59,
-            "function.impossibleType": 54,
-            "notIdentical.alwaysFalse": 53,
-            "if.alwaysFalse": 51,
-            "return.phpDocType": 49,
-            "classConstant.nonObject": 47,
-            "missingType.generics": 47,
-            "offsetAssign.dimType": 47,
-            "callable.nonCallable": 46,
-            "method.unused": 46,
-            "property.unused": 46,
-            "booleanNot.alwaysTrue": 42,
-            "booleanOr.alwaysTrue": 37,
-            "ternary.alwaysTrue": 37,
-            "equal.invalid": 35,
-            "return.missing": 33,
-            "cast.double": 31,
-            "equal.alwaysFalse": 30,
-            "booleanAnd.leftAlwaysTrue": 29,
-            "class.nameCase": 28,
-            "parameter.phpDocType": 28,
-            "arguments.count": 27,
-            "isset.offset": 26,
-            "method.impossibleType": 24,
-            "property.defaultValue": 24,
-            "return.unusedType": 24,
-            "empty.offset": 22,
-            "equal.alwaysTrue": 22,
-            "instanceof.alwaysTrue": 20,
-            "nullsafe.neverNull": 20,
-            "parameterByRef.type": 20,
-            "greater.alwaysTrue": 19,
-            "booleanAnd.rightAlwaysTrue": 17,
-            "empty.property": 16,
-            "notEqual.alwaysTrue": 16,
-            "function.notFound": 14,
-            "postDec.type": 14,
-            "staticMethod.nameCase": 14,
-            "foreach.emptyArray": 13,
-            "preDec.type": 12,
-            "argument.byRef": 11,
-            "booleanOr.rightAlwaysTrue": 11,
-            "expr.resultUnused": 11,
-            "method.void": 11,
-            "print.nonString": 11,
-            "unaryOp.invalid": 11,
-            "catch.neverThrown": 10,
-            "classConstant.unused": 10,
-            "identical.alwaysTrue": 10,
-            "property.unusedType": 10,
-            "varTag.nativeType": 10,
-            "greater.alwaysFalse": 9,
-            "notEqual.alwaysFalse": 9,
-            "ternary.alwaysFalse": 9,
+            "arrayValues.list": 1,
+            "assign.propertyType": 480,
+            "assignOp.invalid": 1549,
+            "binaryOp.invalid": 9312,
+            "booleanAnd.alwaysFalse": 62,
             "booleanAnd.alwaysTrue": 8,
-            "staticMethod.nonObject": 8,
             "booleanAnd.leftAlwaysFalse": 7,
-            "booleanOr.leftAlwaysTrue": 7,
-            "staticMethod.resultUnused": 7,
-            "function.resultUnused": 6,
-            "return.void": 6,
-            "smaller.alwaysFalse": 6,
-            "include.fileNotFound": 5,
-            "property.phpDocType": 5,
-            "throws.notThrowable": 5,
-            "varTag.misplaced": 5,
-            "varTag.type": 5,
-            "varTag.variableNotFound": 5,
-            "while.alwaysTrue": 5,
-            "booleanOr.alwaysFalse": 4,
-            "booleanOr.rightAlwaysFalse": 4,
-            "classConstant.notFound": 4,
-            "instanceof.alwaysFalse": 4,
-            "property.onlyRead": 4,
-            "requireOnce.fileNotFound": 4,
-            "smaller.alwaysTrue": 4,
+            "booleanAnd.leftAlwaysTrue": 29,
             "booleanAnd.rightAlwaysFalse": 3,
+            "booleanAnd.rightAlwaysTrue": 17,
+            "booleanNot.alwaysFalse": 77,
+            "booleanNot.alwaysTrue": 40,
+            "booleanOr.alwaysFalse": 4,
+            "booleanOr.alwaysTrue": 37,
+            "booleanOr.leftAlwaysFalse": 1,
+            "booleanOr.leftAlwaysTrue": 7,
+            "booleanOr.rightAlwaysFalse": 3,
+            "booleanOr.rightAlwaysTrue": 11,
+            "callable.nonCallable": 46,
+            "cast.double": 31,
+            "cast.int": 388,
+            "cast.string": 5032,
+            "catch.neverThrown": 8,
+            "class.extendsDeprecatedClass": 4,
+            "class.nameCase": 26,
+            "class.notFound": 296,
+            "classConstant.deprecated": 5,
+            "classConstant.nonObject": 47,
+            "classConstant.unused": 8,
+            "clone.nonObject": 1,
+            "constant.deprecated": 2,
+            "constant.notFound": 161,
+            "deadCode.unreachable": 100,
+            "echo.nonString": 973,
+            "elseif.alwaysTrue": 2,
+            "empty.expr": 70,
+            "empty.notAllowed": 8774,
+            "empty.offset": 21,
+            "empty.property": 16,
+            "empty.variable": 94,
+            "encapsedStringPart.nonString": 2582,
+            "equal.alwaysFalse": 31,
+            "equal.alwaysTrue": 22,
+            "equal.invalid": 35,
+            "expr.resultUnused": 10,
+            "foreach.emptyArray": 13,
+            "foreach.nonIterable": 2012,
+            "function.alreadyNarrowedType": 147,
+            "function.deprecated": 303,
+            "function.impossibleType": 50,
+            "function.nameCase": 99,
+            "function.notFound": 14,
+            "function.resultUnused": 6,
+            "greater.alwaysFalse": 9,
+            "greater.alwaysTrue": 22,
+            "greater.invalid": 1,
             "greaterOrEqual.alwaysFalse": 3,
             "greaterOrEqual.alwaysTrue": 3,
-            "varTag.noVariable": 3,
-            "doWhile.alwaysFalse": 2,
-            "elseif.alwaysTrue": 2,
-            "notEqual.invalid": 2,
-            "smaller.invalid": 2,
-            "smallerOrEqual.alwaysTrue": 2,
-            "throws.unusedType": 2,
-            "throws.void": 2,
-            "trait.unused": 2,
-            "argument.unpackNonIterable": 1,
-            "arrayValues.list": 1,
-            "booleanOr.leftAlwaysFalse": 1,
-            "clone.nonObject": 1,
-            "greater.invalid": 1,
+            "identical.alwaysFalse": 77,
+            "identical.alwaysTrue": 11,
+            "if.alwaysFalse": 51,
+            "if.alwaysTrue": 149,
+            "include.fileNotFound": 5,
             "includeOnce.fileNotFound": 1,
+            "instanceof.alwaysFalse": 3,
+            "instanceof.alwaysTrue": 22,
+            "isset.offset": 28,
+            "isset.property": 8187,
+            "isset.variable": 50,
             "logicalAnd.alwaysFalse": 1,
             "logicalAnd.leftAlwaysTrue": 1,
             "match.unhandled": 1,
+            "method.alreadyNarrowedType": 283,
+            "method.childParameterType": 200,
+            "method.childReturnType": 319,
+            "method.deprecated": 334,
+            "method.deprecatedClass": 3,
+            "method.impossibleType": 19,
+            "method.nameCase": 164,
+            "method.nonObject": 5423,
+            "method.notFound": 626,
             "method.resultUnused": 1,
+            "method.unused": 46,
+            "method.void": 14,
+            "missingType.generics": 43,
+            "missingType.iterableValue": 3318,
+            "missingType.parameter": 9851,
+            "missingType.property": 6296,
+            "missingType.return": 6203,
+            "new.deprecatedClass": 11,
+            "notEqual.alwaysFalse": 9,
+            "notEqual.alwaysTrue": 16,
+            "notEqual.invalid": 1,
+            "notIdentical.alwaysFalse": 31,
+            "notIdentical.alwaysTrue": 104,
+            "nullCoalesce.expr": 383,
+            "nullCoalesce.offset": 94,
+            "nullCoalesce.property": 159,
+            "nullCoalesce.variable": 189,
+            "nullsafe.neverNull": 20,
+            "offsetAccess.invalidOffset": 1660,
+            "offsetAccess.nonArray": 67,
+            "offsetAccess.nonOffsetAccessible": 26344,
+            "offsetAccess.notFound": 199,
+            "offsetAssign.dimType": 47,
+            "offsetAssign.valueType": 3,
+            "openemr.deprecatedSqlFunction": 5653,
+            "openemr.forbiddenCurlFunction": 186,
+            "openemr.forbiddenErrorLog": 357,
+            "openemr.forbiddenGlobalKeyword": 562,
+            "openemr.forbiddenGlobalsAccess": 95,
+            "openemr.forbiddenInstantiation": 82,
+            "openemr.noGlobalNsFunctions": 1536,
+            "openemr.untypedGlobalGet": 1,
+            "parameter.defaultValue": 123,
+            "parameter.notFound": 167,
+            "parameter.phpDocType": 23,
+            "parameterByRef.type": 22,
+            "phpDoc.parseError": 892,
+            "postDec.type": 13,
+            "postInc.type": 56,
+            "preDec.type": 12,
+            "preInc.type": 61,
+            "print.nonString": 10,
+            "property.defaultValue": 19,
+            "property.deprecated": 1,
+            "property.nonObject": 2309,
+            "property.notFound": 285,
+            "property.onlyRead": 4,
+            "property.onlyWritten": 89,
+            "property.phpDocType": 4,
+            "property.unused": 46,
+            "property.unusedType": 11,
+            "requireOnce.fileNotFound": 4,
+            "return.deprecatedClass": 6,
+            "return.empty": 185,
+            "return.missing": 32,
+            "return.phpDocType": 37,
+            "return.type": 2454,
             "return.unresolvableType": 1,
+            "return.unusedType": 25,
+            "return.void": 6,
+            "smaller.alwaysFalse": 6,
+            "smaller.alwaysTrue": 4,
+            "smaller.invalid": 1,
+            "smallerOrEqual.alwaysTrue": 2,
+            "staticMethod.deprecated": 97,
+            "staticMethod.deprecatedClass": 13,
             "staticMethod.impossibleType": 1,
+            "staticMethod.nameCase": 8,
+            "staticMethod.nonObject": 8,
+            "staticMethod.resultUnused": 7,
+            "staticProperty.deprecated": 1,
+            "ternary.alwaysFalse": 9,
+            "ternary.alwaysTrue": 36,
             "ternary.resultUnused": 1,
+            "throws.notThrowable": 4,
+            "throws.unusedType": 2,
+            "throws.void": 2,
+            "trait.unused": 2,
+            "traitUse.deprecatedTrait": 35,
+            "unaryOp.invalid": 11,
             "varTag.differentVariable": 1,
-            "void.pure": 1
+            "varTag.misplaced": 5,
+            "varTag.nativeType": 8,
+            "varTag.noVariable": 2,
+            "varTag.type": 5,
+            "varTag.variableNotFound": 5,
+            "variable.undefined": 7565,
+            "void.pure": 1,
+            "while.alwaysTrue": 5
         }
     }
 ]
