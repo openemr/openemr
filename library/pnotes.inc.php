@@ -11,7 +11,7 @@
  * 2013-02-08 EMR Direct: changes to allow notes added by background-services with pid=0
  */
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -543,7 +543,7 @@ function updatePnotePatient($id, $patient_id): void
     $pid = $row['pid'];
 
     if ($pid != 0 || (int)$patient_id < 1) {
-        (new SystemLogger())->error("updatePnotePatient invalid operation for id {id}, patient_id {patient_id}, pid {pid}", ['id' => $id, 'patient_id' => $patient_id, 'pid' => $pid]);
+        ServiceContainer::getLogger()->error("updatePnotePatient invalid operation for id {id}, patient_id {patient_id}, pid {pid}", ['id' => $id, 'patient_id' => $patient_id, 'pid' => $pid]);
         die("updatePnotePatient invalid operation");
     }
 

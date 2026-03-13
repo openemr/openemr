@@ -14,11 +14,11 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule\Repository;
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthPersonSettings;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 
 class TeleHealthPersonSettingsRepository
 {
-    public function __construct(private readonly SystemLogger $logger)
+    public function __construct(private readonly LoggerInterface $logger)
     {
     }
 

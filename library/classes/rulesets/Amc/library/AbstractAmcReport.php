@@ -30,10 +30,11 @@ require_once('IAmcItemizedReport.php');
 require_once(__DIR__ . "/../../../../clinical_rules.php");
 require_once(__DIR__ . "/../../../../amc.php");
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Reports\AMC\Trackers\AMCItemSkipTracker;
 use OpenEMR\Reports\AMC\Trackers\AMCItemTracker;
+use Psr\Log\LoggerInterface;
 
 abstract class AbstractAmcReport implements RsReportIF
 {
@@ -56,10 +57,7 @@ abstract class AbstractAmcReport implements RsReportIF
      */
     protected $_aggregator;
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private readonly LoggerInterface $logger;
 
     /*
      * @var int|null
@@ -71,7 +69,7 @@ abstract class AbstractAmcReport implements RsReportIF
      */
     protected $_providerId;
 
-    public function __construct(array $rowRule, array $patientIdArray, $dateTarget, $options)
+    public function __construct(array $rowRule, array $patientIdArray, $dateTarget, $options, ?LoggerInterface $logger = null)
     {
         // require all .php files in the report's sub-folder
         // TODO: This really needs to be moved to using our namespace autoloader... no point in doing a file stat check
@@ -104,7 +102,7 @@ abstract class AbstractAmcReport implements RsReportIF
         } else {
             $this->_aggregator = new AMCItemSkipTracker();
         }
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
         $this->logger->debug(static::class . "->__construct() finished", ['patients' => $patientIdArray]);
 
         $this->_billingFacilityId = $options['billing_facility_id'] ?? null;

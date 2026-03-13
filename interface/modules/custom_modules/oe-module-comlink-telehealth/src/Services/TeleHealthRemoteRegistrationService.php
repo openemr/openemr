@@ -19,8 +19,9 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Rfc4122\UuidV4;
 
 class TeleHealthRemoteRegistrationService
@@ -67,14 +68,11 @@ class TeleHealthRemoteRegistrationService
      */
     private $institutionName;
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private readonly LoggerInterface $logger;
 
     private TeleHealthUserRepository $userRepository;
 
-    public function __construct(TelehealthGlobalConfig $config, private readonly TelehealthRegistrationCodeService $codeService)
+    public function __construct(TelehealthGlobalConfig $config, private readonly TelehealthRegistrationCodeService $codeService, ?LoggerInterface $logger = null)
     {
         $this->apiURL = $config->getRegistrationAPIURI();
         $this->apiId = $config->getRegistrationAPIUserId();
@@ -84,7 +82,7 @@ class TeleHealthRemoteRegistrationService
         $this->institutionName = $config->getInstitutionName();
         $this->userRepository = new TeleHealthUserRepository();
         $this->httpClient = new Client();
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     public function createPatientRegistration($patient)
@@ -174,7 +172,7 @@ class TeleHealthRemoteRegistrationService
         $response = $this->sendAPIRequest($this->getEndpointUrl("userprovision"), $httpDataRequest);
 
         if ($response['status'] != 200) {
-            (new SystemLogger())->error("TeleHealthRemoteRegistrationService: Failed to provision user {username}", ['username' => $request->getUsername()
+            ServiceContainer::getLogger()->error("TeleHealthRemoteRegistrationService: Failed to provision user {username}", ['username' => $request->getUsername()
                 , 'response' => $response]);
             return false;
         } else {

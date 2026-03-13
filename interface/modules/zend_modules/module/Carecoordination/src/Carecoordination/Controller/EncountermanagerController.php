@@ -24,7 +24,7 @@ use Laminas\Hydrator\Exception\RuntimeException;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
@@ -276,7 +276,7 @@ class EncountermanagerController extends AbstractActionController
             echo $updatedContent;
         } catch (\Throwable $exception) {
             echo "Failed to generate preview for docId " . text($docId);
-            (new SystemLogger())->error(
+            ServiceContainer::getLogger()->error(
                 "Failed to generate preview for ccda document",
                 ['exception' => $exception, 'docId' => $docId]
             );

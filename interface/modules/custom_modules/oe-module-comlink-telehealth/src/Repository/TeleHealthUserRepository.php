@@ -15,8 +15,8 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule\Repository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\BaseService;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\UuidFactory;
 
 if (!defined('OPENEMR_GLOBALS_LOADED')) {
@@ -28,15 +28,12 @@ class TeleHealthUserRepository extends BaseService
 {
     const TABLE_NAME = "comlink_telehealth_auth";
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private readonly LoggerInterface $logger;
 
-    public function __construct()
+    public function __construct(?LoggerInterface $logger = null)
     {
         parent::__construct(self::TABLE_NAME);
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     public function saveUser(TeleHealthUser $user)

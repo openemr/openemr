@@ -2,14 +2,13 @@
 
 namespace OpenEMR\Tests\RestControllers\FHIR;
 
-use Monolog\Level;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\RestControllers\FHIR\FhirOrganizationRestController;
 use OpenEMR\Tests\Fixtures\FacilityFixtureManager;
 use OpenEMR\Tests\RestControllers\FHIR\Trait\FhirResponseAssertionTrait;
 use OpenEMR\Tests\RestControllers\FHIR\Trait\JsonResponseHandlerTrait;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -23,8 +22,6 @@ class FhirOrganizationRestControllerTest extends TestCase
 {
     use JsonResponseHandlerTrait;
     use FhirResponseAssertionTrait;
-
-    const LOG_LEVEL = Level::Emergency; // Set the log level to Emergency for testing so we skip most logging that is used for testing
     /**
      * @var FhirOrganizationRestController
      */
@@ -41,7 +38,7 @@ class FhirOrganizationRestControllerTest extends TestCase
     {
         $this->fhirOrganizationController = new FhirOrganizationRestController();
         // disable regular error logging
-        $this->fhirOrganizationController->setSystemLogger(new SystemLogger(self::LOG_LEVEL));
+        $this->fhirOrganizationController->setSystemLogger($this->createMock(LoggerInterface::class));
         $this->fixtureManager = new FacilityFixtureManager();
 
         $this->fhirFixture = (array) $this->fixtureManager->getSingleFhirFacilityFixture();

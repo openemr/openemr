@@ -23,12 +23,12 @@ $srcdir = dirname(__FILE__, 4) . "/library";
 require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -40,7 +40,7 @@ $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 $pid = (int)($_GET['pid'] ?? 0);
 $sdoh_id = (int)($_GET['sdoh_id'] ?? 0);
-$logger = new SystemLogger();
+$logger = ServiceContainer::getLogger();
 
 // TODO: @adunsulag all of this needs to be wrapped into a Response and Controller for better structure
 if (!$pid || !$sdoh_id) {
@@ -135,7 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: " . $redirectUrl);
         exit();
     } catch (SqlQueryException $exception) {
-        (new SystemLogger())->error("Failed to save health concerns: " . $exception->getMessage(), ['exception' => $exception]);
+        $logger->error("Failed to save health concerns: " . $exception->getMessage(), ['exception' => $exception]);
         die(xlt("An error occurred while saving health concerns."));
     } finally {
         if (!$committed) {

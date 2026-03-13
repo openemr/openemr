@@ -16,8 +16,8 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Events\TelehealthNotificationSendEv
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\NotificationSendAddress;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use MyMailer;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OneTimeAuth;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\LogoService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
@@ -128,7 +128,7 @@ class TeleHealthParticipantInvitationMailerService
             if (isset($oneTime['encoded_link'])) {
                 return $oneTime['encoded_link'];
             } else {
-                (new SystemLogger())->error("TeleHealthParticipantInvitationMailerService: Failed to generate encoded_link with onetime service");
+                ServiceContainer::getLogger()->error("TeleHealthParticipantInvitationMailerService: Failed to generate encoded_link with onetime service");
                 return $this->publicPathFQDN . "index-portal.php";
             }
         } else {
@@ -145,7 +145,7 @@ class TeleHealthParticipantInvitationMailerService
         // TODO: @adunsulag need to check to see if the SMTP notifications are configured.  If they are not we need to
         // skip over the email notifications.
         if (!$this->config->isEmailNotificationsConfigured()) {
-            (new SystemLogger())->info(
+            ServiceContainer::getLogger()->info(
                 self::class
                 . "->sendMessageToPatient() skipping email notification as email notifications are not configured",
                 ['pid' => $patient['pid'], 'messageId' => $messageId]

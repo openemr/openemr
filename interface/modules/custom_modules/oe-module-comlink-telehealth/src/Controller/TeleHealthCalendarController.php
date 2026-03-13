@@ -17,7 +17,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthProviderReposi
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use Comlink\OpenEMR\Modules\TeleHealthModule\The;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Events\Appointments\AppointmentJavascriptEventNames;
 use OpenEMR\Events\Appointments\AppointmentRenderEvent;
@@ -25,6 +25,7 @@ use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
 use OpenEMR\Services\AppointmentService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 
@@ -50,14 +51,13 @@ class TeleHealthCalendarController
     /**
      * @param TelehealthGlobalConfig $config
      * @param Environment $twig Twig container
-     * @param SystemLogger $logger
      * @param mixed $assetPath
      * @param mixed $loggedInUserId
      */
     public function __construct(
         TelehealthGlobalConfig $config,
         private readonly Environment $twig,
-        private readonly SystemLogger $logger,
+        private readonly LoggerInterface $logger,
         private $assetPath,
         $loggedInUserId
     ) {
@@ -218,7 +218,7 @@ class TeleHealthCalendarController
         $eventDateTimeString = $row['pc_eventDate'] . " " . $row['pc_startTime'];
         $dateTime = \DateTime::createFromFormat("Y-m-d H:i:s", $eventDateTimeString);
         if ($dateTime === false) {
-            (new SystemLogger())->error("TeleHealthCalendarController: appointment date time string {dateTime} was invalid for pc_eid={pc_eid}", ['pc_eid' => $row['pc_eid'], 'dateTime' => $eventDateTimeString]);
+            ServiceContainer::getLogger()->error("TeleHealthCalendarController: appointment date time string {dateTime} was invalid for pc_eid={pc_eid}", ['pc_eid' => $row['pc_eid'], 'dateTime' => $eventDateTimeString]);
             return;
         }
 

@@ -14,9 +14,9 @@
 
 namespace OpenEMR\Modules\WenoModule;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\Patient\PatientBeforeCreatedAuxEvent;
@@ -28,6 +28,7 @@ use OpenEMR\Modules\WenoModule\Services\ModuleService;
 use OpenEMR\Modules\WenoModule\Services\SelectedPatientPharmacy;
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Utils\SQLUpgradeService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 
@@ -49,10 +50,7 @@ class Bootstrap
      */
     private $globalsConfig;
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private readonly LoggerInterface $logger;
 
     private readonly string $modulePath;
 
@@ -71,13 +69,14 @@ class Bootstrap
      * @param EventDispatcherInterface $eventDispatcher The object responsible for sending and subscribing to events through the OpenEMR system
      */
     public function __construct(
-        private readonly EventDispatcherInterface $eventDispatcher
+        private readonly EventDispatcherInterface $eventDispatcher,
+        ?LoggerInterface $logger = null,
     ) {
         $this->installPath = OEGlobalsBag::getInstance()->get('web_root') . "/interface/modules/custom_modules/oe-module-weno";
         $this->globalsConfig = new WenoGlobalConfig();
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->modulePath = dirname(__DIR__);
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
         $this->selectedPatientPharmacy = new SelectedPatientPharmacy();
         $this->isWenoUser = !empty($this->isWenoUser());
         $this->isAuthorized = AclMain::aclCheckCore('patients', 'rx');
@@ -414,7 +413,7 @@ class Bootstrap
             $sqlUpgradeService->upgradeFromSqlFile($fileName, $dir);
             return true;
         } catch (SqlQueryException $exception) {
-            (new SystemLogger())->error(
+            ServiceContainer::getLogger()->error(
                 "Error: " . $exception->getMessage(),
                 ['exception' => $exception, 'statement' => $exception->getSqlStatement()]
             );

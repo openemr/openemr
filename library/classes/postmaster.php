@@ -15,7 +15,6 @@
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -81,7 +80,7 @@ class MyMailer extends PHPMailer
             QueryUtils::sqlInsert("INSERT into `email_queue` (`sender`, `recipient`, `subject`, `body`,  `template_name`, `datetime_queued`) VALUES (?, ?, ?, ?, ?, NOW())", [$sender, $recipient, $subject, $body, $template]);
             return true;
         } catch (\Throwable $e) {
-            (new SystemLogger())->error("Failed to add email to queue notification error " . $e->getMessage(), ['exception' => $e]);
+            ServiceContainer::getLogger()->error("Failed to add email to queue notification error " . $e->getMessage(), ['exception' => $e]);
         }
         return false;
     }
@@ -155,7 +154,7 @@ class MyMailer extends PHPMailer
                             $mail->smtpClose();
                         }
                     } catch (\Throwable $e) {
-                        (new SystemLogger())->error("Failed to generate email contents: " . $e->getMessage(), ['exception' => $e, 'id' => $ret['id']]);
+                        ServiceContainer::getLogger()->error("Failed to generate email contents: " . $e->getMessage(), ['exception' => $e, 'id' => $ret['id']]);
                         throw $e; // Ensure rollback in case of failure
                     }
                 } else {
@@ -168,7 +167,7 @@ class MyMailer extends PHPMailer
         } catch (\Throwable $e) {
             // Failed so Rollback transaction.
             QueryUtils::rollbackTransaction();
-            (new SystemLogger())->error("Failed to send email" . ': ' . $e->getMessage(), ['exception' => $e]);
+            ServiceContainer::getLogger()->error("Failed to send email" . ': ' . $e->getMessage(), ['exception' => $e]);
             // So we can still send, reset previously set sent flag since failed to send email
             sqlStatement("UPDATE `email_queue` SET `sent` = 0, `datetime_sent` = null WHERE `id` = ?", [$ret['id']]);
             // set the error flag and message

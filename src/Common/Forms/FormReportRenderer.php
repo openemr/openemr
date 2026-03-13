@@ -12,13 +12,16 @@
 
 namespace OpenEMR\Common\Forms;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use Psr\Log\LoggerInterface;
 
 class FormReportRenderer
 {
-    public function __construct(private readonly ?FormLocator $locator = new FormLocator(), private readonly ?LoggerInterface $logger = new SystemLogger())
+    private readonly LoggerInterface $logger;
+
+    public function __construct(private readonly FormLocator $locator = new FormLocator(), ?LoggerInterface $logger = null)
     {
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     public function renderReport(string $formDir, string $page, $attendant_id, $encounter, $columns, $formId, $noWrap = true)

@@ -13,8 +13,8 @@
 
 namespace OpenEMR\ZendModules\CodeTypes\Listener;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Events\Codes\CodeTypeInstalledEvent;
 use OpenEMR\Events\Core\SQLUpgradeEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -149,7 +149,7 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
         // make sure our table is installed
         $table_records = QueryUtils::fetchRecords("select * from code_types WHERE `ct_active`=1 AND ct_key = ? ", [$codeType]);
         if (empty($table_records)) {
-            (new SystemLogger())->debug("code_type is not active in system", ['codeType' => $codeType]);
+            ServiceContainer::getLogger()->debug("code_type is not active in system", ['codeType' => $codeType]);
         }
         return !empty($table_records);
     }
@@ -165,7 +165,7 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
             $code_id = QueryUtils::fetchSingleValue("SELECT `code` FROM codes WHERE code_text =? "
                 . " AND code_type IN (SELECT ct_id FROM code_types WHERE ct_key = 'CPT4')", 'code', [$code_text]);
             if (empty($code_id)) {
-                (new SystemLogger())->debug(
+                ServiceContainer::getLogger()->debug(
                     "Failed to find cpt4 code in codes with code_text. Skipping option_id",
                     ['code_text' => $code_text, 'option_id' => $option_id]
                 );
@@ -239,7 +239,7 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
             }
             \sqlCommitTrans();
         } catch (\Throwable $exception) {
-            (new SystemLogger())->error($exception->getMessage(), ['exception' => $exception]);
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception]);
             if (!empty($logger) && is_callable($logger)) {
                 $logger(xl('Failed') . ' - (sql=`"' . ($sql ?? 'N/A') . '`, values=`' . var_export($values ?? [], true) . "`)");
             }
@@ -256,7 +256,7 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
                 $code_id = QueryUtils::fetchSingleValue("SELECT `code` FROM codes WHERE code_text =? "
                     . " AND code_type IN (SELECT ct_id FROM code_types WHERE ct_key = 'CPT4')", 'code', [$code_text]);
                 if (empty($code_id)) {
-                    (new SystemLogger())->debug(
+                    ServiceContainer::getLogger()->debug(
                         "Failed to find cpt4 code in codes with code_text. Skipping option_id",
                         ['code_text' => $code_text, 'option_id' => $option_id]
                     );
@@ -270,7 +270,7 @@ class CodeTypeEventsSubscriber implements EventSubscriberInterface
             }
             \sqlCommitTrans();
         } catch (\Throwable $exception) {
-            (new SystemLogger())->error($exception->getMessage(), ['exception' => $exception]);
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception]);
             \sqlRollbackTrans();
         }
     }

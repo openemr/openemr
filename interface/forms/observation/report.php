@@ -16,7 +16,7 @@
 require_once(__DIR__ . "/../../globals.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("srcdir") . "/api.inc.php");
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
 use OpenEMR\Core\OEGlobalsBag;
@@ -25,7 +25,7 @@ use OpenEMR\Services\ObservationService;
 
 function observation_report($pid, $encounter, $cols, $id): void
 {
-    $logger = new SystemLogger();
+    $logger = ServiceContainer::getLogger();
 
 // Output the response
     try {

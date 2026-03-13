@@ -16,7 +16,6 @@ namespace OpenEMR\Services;
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
@@ -35,10 +34,7 @@ class BaseService implements BaseServiceInterface
     private $fields;
     private $autoIncrements;
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
     private const PREFIXES = [
         'eq' => "=",
@@ -67,11 +63,12 @@ class BaseService implements BaseServiceInterface
      * @param string $table Passed in data should be vetted and fully qualified from calling service class. Expect to see some search helpers here as well.
      */
     public function __construct(
-        private $table
+        private $table,
+        ?LoggerInterface $logger = null,
     ) {
         $this->fields = QueryUtils::listTableFields($table);
         $this->autoIncrements = self::getAutoIncrements($this->table);
-        $this->setLogger(ServiceContainer::getLogger());
+        $this->logger = $logger ?? ServiceContainer::getLogger();
         $this->eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     }
 
@@ -183,7 +180,7 @@ class BaseService implements BaseServiceInterface
         return $this->selectHelper($sql, $map);
     }
 
-    public function setLogger(LoggerInterface $logger)
+    public function setLogger(LoggerInterface $logger): void
     {
         $this->logger = $logger;
     }
