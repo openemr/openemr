@@ -252,7 +252,7 @@ final class EventAuditLoggerTest extends TestCase
      * Get constructor args for EventAuditLogger mocks
      *
      * @param array<string, mixed> $sessionValues Session values to return from mock (defaults to testuser/testprovider)
-     * @return array<mixed>
+     * @return list<mixed>
      */
     private function getLoggerConstructorArgs(?AuditConfig $config = null, ?array $sessionValues = null): array
     {
@@ -261,13 +261,15 @@ final class EventAuditLoggerTest extends TestCase
         $sessionMock->method('get')
             ->willReturnCallback(fn(string $key) => $sessionValues[$key] ?? null);
 
+        // Return positional array matching constructor parameter order:
+        // sinks, cryptoGen, shouldEncrypt, session, config, breakglassChecker
         return [
-            'sinks' => [],
-            'cryptoGen' => $this->createMock(CryptoGen::class),
-            'shouldEncrypt' => false,
-            'session' => $sessionMock,
-            'config' => $config ?? $this->config,
-            'breakglassChecker' => $this->breakglassChecker,
+            [],                                         // sinks
+            $this->createMock(CryptoGen::class),        // cryptoGen
+            false,                                      // shouldEncrypt
+            $sessionMock,                               // session
+            $config ?? $this->config,                   // config
+            $this->breakglassChecker,                   // breakglassChecker
         ];
     }
 
