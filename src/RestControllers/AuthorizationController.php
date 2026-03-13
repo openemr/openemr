@@ -1669,7 +1669,7 @@ class AuthorizationController
         // if we have come back from an autosubmit we are going to check to see if we are logged in
 
         $launch = $request->getQueryParams()['launch'];
-        SMARTLaunchToken::deserializeToken($launch);
+        $launchToken = SMARTLaunchToken::deserializeToken($launch);
 
         $client = $authRequest->getClient();
         // only authorize scopes specifically allowed by the client regardless of what is sent in the request
@@ -1693,6 +1693,11 @@ class AuthorizationController
         parse_str($authorization, $code);
         $code = $code["code"];
         $apiSession['launch'] = $launch;
+        // Preserve patient context from the launch token in the skip-auth flow
+        $patientUuid = $launchToken->getPatient();
+        if ($patientUuid) {
+            $apiSession['puuid'] = $patientUuid;
+        }
         $apiSession['client_id'] = $client->getIdentifier();
         $apiSession['user_id'] = $userUuid;
         // scopes in the session are a single string.
