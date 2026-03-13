@@ -1,0 +1,401 @@
+name: Build Patch Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_start:
+        description: Start tag (e.g., v8_0_0)
+        required: true
+        type: string
+      version_branch:
+        description: Release branch (e.g., rel-800)
+        required: true
+        type: string
+      patch_filename:
+        description: Patch zip filename (e.g., 8-0-0-Patch-1.zip)
+        required: true
+        type: string
+      milestone:
+        description: GitHub milestone name for changelog (e.g., 8.0.0.1)
+        required: true
+        type: string
+      patch_number:
+        description: Patch number to set in version.php $v_realpatch (e.g., 1)
+        required: true
+        type: string
+      release_tag:
+        description: GitHub release tag to upload to (e.g., v8_0_0_1). Required unless dry run.
+        required: false
+        type: string
+      dry_run:
+        description: Dry run — build and upload as workflow artifact only, skip GitHub release
+        type: boolean
+        default: true
+      copy_styles:
+        description: Build and include compiled theme styles
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build-patch:
+    runs-on: ubuntu-24.04
+    name: Build Patch
+    steps:
+    - name: Validate inputs
+      if: "!inputs.dry_run && inputs.release_tag == ''"
+      run: |
+        printf '::error::release_tag is required when dry_run is false\n'
+        exit 1
+
+    - name: Checkout release branch (blobless for speed)
+      uses: actions/checkout@v6
+      with:
+        ref: ${{ inputs.version_branch }}
+        filter: blob:none
+        fetch-depth: 0
+
+    - name: Bump version.php
+      if: '!inputs.dry_run'
+      env:
+        PATCH_NUMBER: ${{ inputs.patch_number }}
+      run: |
+        sed -i "s/^\$v_realpatch = '[0-9]*';/\$v_realpatch = '${PATCH_NUMBER}';/" version.php
+
+        echo 'Updated version.php:'
+        grep -n 'v_realpatch' version.php
+
+        git config user.name 'github-actions[bot]'
+        git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+        git add version.php
+        git commit -m "chore: bump \$v_realpatch to ${PATCH_NUMBER} for patch release"
+        git push origin HEAD:'${{ inputs.version_branch }}'
+
+    - name: Generate changelog
+      env:
+        GH_TOKEN: ${{ github.token }}
+        MILESTONE_NAME: ${{ inputs.milestone }}
+      run: |
+        # Find the milestone number from the name
+        milestone_number=$(
+          gh api repos/openemr/openemr/milestones --paginate \
+            --jq ".[] | select(.title == \"${MILESTONE_NAME}\") | .number"
+        )
+
+        if [[ -z "$milestone_number" ]]; then
+          echo "::warning::Milestone '${MILESTONE_NAME}' not found — skipping changelog"
+          echo 'No changelog generated (milestone not found).' > /tmp/changelog.md
+          exit 0
+        fi
+
+        milestone_url="https://github.com/openemr/openemr/milestone/${milestone_number}?closed=1"
+        today=$(date +%Y-%m-%d)
+
+        # Fetch all closed issues for this milestone
+        gh api "repos/openemr/openemr/issues?milestone=${milestone_number}&state=closed&per_page=100" \
+          --paginate --jq '.[] | {
+            number,
+            title,
+            url: .html_url,
+            developer: ([.labels[].name] | any(. == "developers"))
+          }' > /tmp/issues.jsonl
+
+        # Generate changelog in the same format as the PHP command
+        {
+          echo "## [${MILESTONE_NAME}](${milestone_url}) - ${today}"
+          echo
+
+          for dev_filter in false true; do
+            if [[ "$dev_filter" = 'true' ]]; then
+              echo '### OpenEMR Developer Changes'
+              echo
+            fi
+
+            for section in Added Fixed Changed; do
+              matches=()
+              while IFS= read -r line; do
+                [[ -z "$line" ]] && continue
+
+                is_dev=$(echo "$line" | jq -r '.developer')
+                [[ "$is_dev" != "$dev_filter" ]] && continue
+
+                title=$(echo "$line" | jq -r '.title')
+                number=$(echo "$line" | jq -r '.number')
+                url=$(echo "$line" | jq -r '.url')
+
+                # Parse category from title prefix
+                if [[ "$title" =~ ^([a-zA-Z]+):\ *(.*) ]]; then
+                  category="${BASH_REMATCH[1]}"
+                  clean_title="${BASH_REMATCH[2]}"
+                else
+                  category='bug'
+                  clean_title="$title"
+                fi
+
+                case $section in
+                  Added)  [[ "$category" != 'feat' ]] && continue ;;
+                  Fixed)  [[ "$category" != 'bug' ]] && continue ;;
+                  Changed)
+                    [[ "$category" = 'feat' || "$category" = 'bug' ]] && continue ;;
+                esac
+
+                matches+=("  - ${clean_title} ([#${number}](${url}))")
+              done < /tmp/issues.jsonl
+
+              if (( ${#matches[@]} > 0 )); then
+                echo "### ${section}"
+                printf '%s\n' "${matches[@]}" | sort
+                echo
+              fi
+            done
+          done
+        } > /tmp/changelog.md
+
+        echo 'Generated changelog:'
+        cat /tmp/changelog.md
+
+    - name: Generate changed file list
+      id: diff
+      run: |
+        # Exclude removed files and paths that should not ship in a patch.
+        # Production installs do not need CI, testing, build tooling, or
+        # Docker configuration.
+        git diff --name-only --diff-filter=d \
+          '${{ inputs.version_start }}'..'${{ inputs.version_branch }}' \
+          -- . \
+          ':(exclude).github/**' \
+          ':(exclude).phpstan/**' \
+          ':(exclude).git/**' \
+          ':(exclude)ci/**' \
+          ':(exclude)docker/**' \
+          ':(exclude)tests/**' \
+          ':(exclude)tools/**' \
+          ':!.codespell*' \
+          ':!.composer-require-checker.json' \
+          ':!.dclintrc.yaml' \
+          ':!.editorconfig' \
+          ':!.gitattributes' \
+          ':!.gitignore' \
+          ':!.gitmodules' \
+          ':!.hadolint.yaml' \
+          ':!.pre-commit-config.yaml' \
+          ':!.shellcheckrc' \
+          ':!.stylelintignore' \
+          ':!.stylelintrc.json' \
+          ':!build.xml' \
+          ':!cloudbuild.yaml' \
+          ':!codecov.yml' \
+          ':!composer.json' \
+          ':!composer.lock' \
+          ':!eslint.config.mjs' \
+          ':!gulpfile.js' \
+          ':!jest.config.js' \
+          ':!package.json' \
+          ':!package-lock.json' \
+          ':!phpcs.xml.dist' \
+          ':!phpstan.neon.dist' \
+          ':!phpunit*.xml' \
+          ':!rector*.php' \
+          ':!run-semgrep.sh' \
+          ':!semgrep.yaml' \
+          ':!CLAUDE.md' \
+          ':!CONTRIBUTING.md' \
+          ':!CODE_OF_CONDUCT.md' \
+          ':!DOCKER_README.md' \
+          ':!README-Isolated-Testing.md' \
+          > /tmp/changed-files.txt
+
+        file_count=$(wc -l < /tmp/changed-files.txt)
+        printf 'Changed files (excluding removals): %d\n' "$file_count"
+        cat /tmp/changed-files.txt
+
+    - name: Build theme styles
+      if: inputs.copy_styles
+      uses: actions/setup-node@v6
+      with:
+        node-version: '22'
+    - name: Install npm and build styles
+      if: inputs.copy_styles
+      run: |
+        npm ci
+        npm run build
+
+    - name: Assemble patch directory
+      run: |
+        patch_dir='patch-output'
+        mkdir "$patch_dir"
+
+        # Copy each changed file, preserving directory structure
+        while IFS= read -r file; do
+          if [[ -z "$file" ]]; then
+            continue
+          fi
+          mkdir -p "${patch_dir}/${file%/*}"
+          cp "$file" "${patch_dir}/${file}"
+        done < /tmp/changed-files.txt
+
+        # Copy compiled themes if requested
+        if [[ '${{ inputs.copy_styles }}' = 'true' ]]; then
+          echo 'Copying compiled theme styles'
+          mkdir -p "${patch_dir}/public/themes"
+          cp -R public/themes/* "${patch_dir}/public/themes/"
+        fi
+
+        # Blank out setup.php — patch should not re-run setup
+        true > "${patch_dir}/setup.php"
+
+        # Always include version.php and sql_patch.php
+        cp version.php "${patch_dir}/version.php"
+        cp sql_patch.php "${patch_dir}/sql_patch.php"
+
+        # Standardize file permissions
+        find "$patch_dir" -type f -execdir chmod 0644 {} +
+
+        # Report contents
+        echo
+        echo 'Patch file count:'
+        find "$patch_dir" -type f | wc -l
+        echo
+        echo 'Patch file listing:'
+        find "$patch_dir" -type f -printf '%P\n' | sort
+
+    - name: Create patch zip and checksums
+      run: |
+        (
+            cd patch-output &&
+            zip -r '../${{ inputs.patch_filename }}' .
+        )
+
+        md5sum '${{ inputs.patch_filename }}' > '${{ inputs.patch_filename }}.md5'
+        sha256sum '${{ inputs.patch_filename }}' > '${{ inputs.patch_filename }}.sha256'
+        sha512sum '${{ inputs.patch_filename }}' > '${{ inputs.patch_filename }}.sha512'
+
+        echo
+        echo 'MD5:'
+        cat '${{ inputs.patch_filename }}.md5'
+        echo
+        echo 'SHA-256:'
+        cat '${{ inputs.patch_filename }}.sha256'
+        echo
+        echo 'SHA-512:'
+        cat '${{ inputs.patch_filename }}.sha512'
+
+    - name: Build summary
+      env:
+        RELEASE_TAG: ${{ inputs.release_tag }}
+        MILESTONE: ${{ inputs.milestone }}
+        PATCH_NUMBER: ${{ inputs.patch_number }}
+      run: |
+        # shellcheck disable=SC2016
+        {
+          echo '## Patch Build Results'
+          echo
+          echo '### Inputs'
+          echo '| Parameter | Value |'
+          echo '|-----------|-------|'
+          echo '| Start tag | `${{ inputs.version_start }}` |'
+          echo '| Release branch | `${{ inputs.version_branch }}` |'
+          echo '| Patch filename | `${{ inputs.patch_filename }}` |'
+          echo "| Milestone | \`${MILESTONE}\` |"
+          echo "| Patch number | \`${PATCH_NUMBER}\` |"
+          echo "| Release tag | \`${RELEASE_TAG:-(dry run)}\` |"
+          echo '| Dry run | `${{ inputs.dry_run }}` |'
+          echo '| Copy styles | `${{ inputs.copy_styles }}` |'
+          echo
+          echo '### Checksums'
+          echo '```'
+          cat '${{ inputs.patch_filename }}.md5'
+          cat '${{ inputs.patch_filename }}.sha256'
+          cat '${{ inputs.patch_filename }}.sha512'
+          echo '```'
+          echo
+          echo '### Changelog'
+          cat /tmp/changelog.md
+          echo
+          echo '### Changed files'
+          echo '```'
+          cat /tmp/changed-files.txt
+          echo '```'
+          echo
+          echo '---'
+          echo
+          echo '### Announcement template'
+          echo
+          echo 'Copy and adapt the following for forums, social media, etc.:'
+          echo
+          echo '> **OpenEMR '"${MILESTONE}"' Patch Release**'
+          echo '>'
+          echo '> OpenEMR '"${MILESTONE}"' has been released. This patch includes'
+          echo "> $(wc -l < /tmp/changed-files.txt) updated files with bug fixes and improvements."
+          echo '>'
+          echo "> Download: https://github.com/openemr/openemr/releases/tag/${RELEASE_TAG:-(tag)}"
+          echo '>'
+          echo '> Changelog:'
+          echo '>'
+          # Indent changelog for blockquote
+          sed 's/^/> /' /tmp/changelog.md
+          echo
+          echo '---'
+          echo
+          echo '### Manual steps remaining'
+          echo
+          echo '- [ ] Upload patch to [website-openemr-files](https://github.com/openemr/website-openemr-files) repo'
+          echo '- [ ] Import via OpenEMR website tool'
+          echo '- [ ] Update [OpenEMR Patches](https://www.open-emr.org/wiki/index.php/OpenEMR_Patches) download page'
+          echo '- [ ] Trigger Docker build in [openemr-devops](https://github.com/openemr/openemr-devops/actions) (update tags first)'
+          echo '- [ ] Update DockerHub readme'
+          echo '- [ ] Update [Release History](https://www.open-emr.org/wiki/index.php/OpenEMR_Downloads) on wiki'
+          echo '- [ ] Point demo farm to new tag'
+          echo '- [ ] Announce: forums, chat, Twitter, Facebook, Diaspora, Mastodon, LinkedIn group+company, Reddit, Hacker News, registered users'
+        } >> "$GITHUB_STEP_SUMMARY"
+
+    - name: Upload workflow artifact (dry run)
+      if: inputs.dry_run
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.patch_filename }}
+        path: |
+          ${{ inputs.patch_filename }}
+          ${{ inputs.patch_filename }}.md5
+          ${{ inputs.patch_filename }}.sha256
+          ${{ inputs.patch_filename }}.sha512
+        retention-days: 7
+
+    - name: Create annotated tag and GitHub release
+      if: '!inputs.dry_run'
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        tag='${{ inputs.release_tag }}'
+
+        # Create an annotated tag. gh release create only makes lightweight
+        # tags, which are not copied into forks and are invisible to
+        # git describe without --tags.
+        git config user.name 'github-actions[bot]'
+        git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+        if git rev-parse "$tag" > /dev/null 2>&1; then
+          echo "Tag $tag already exists, skipping tag creation"
+        else
+          git tag -a -m "Patch release $tag" "$tag" '${{ inputs.version_branch }}'
+          git push origin "$tag"
+        fi
+
+        # Create the release with changelog as release notes
+        if ! gh release view "$tag" > /dev/null 2>&1; then
+          echo "Creating release $tag"
+          gh release create "$tag" \
+            --title "$tag" \
+            --notes-file /tmp/changelog.md \
+            --verify-tag
+        fi
+
+        # Upload patch zip and checksums
+        gh release upload "$tag" \
+          '${{ inputs.patch_filename }}' \
+          '${{ inputs.patch_filename }}.md5' \
+          '${{ inputs.patch_filename }}.sha256' \
+          '${{ inputs.patch_filename }}.sha512' \
+          --clobber
