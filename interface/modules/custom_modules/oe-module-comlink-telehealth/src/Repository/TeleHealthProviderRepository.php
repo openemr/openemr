@@ -14,14 +14,14 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule\Repository;
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthPersonSettings;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
-use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Services\UserService;
 
 class TeleHealthProviderRepository
 {
     private readonly TeleHealthPersonSettingsRepository $personSettings;
 
-    public function __construct(SystemLogger $logger, private readonly TelehealthGlobalConfig $config)
+    public function __construct(LoggerInterface $logger, private readonly TelehealthGlobalConfig $config)
     {
         $this->personSettings = new TeleHealthPersonSettingsRepository($logger);
     }

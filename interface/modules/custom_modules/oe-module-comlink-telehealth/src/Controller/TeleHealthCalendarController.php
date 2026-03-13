@@ -19,6 +19,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\The;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Utils\CacheUtils;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Events\Appointments\AppointmentJavascriptEventNames;
 use OpenEMR\Events\Appointments\AppointmentRenderEvent;
 use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
@@ -50,14 +51,13 @@ class TeleHealthCalendarController
     /**
      * @param TelehealthGlobalConfig $config
      * @param Environment $twig Twig container
-     * @param SystemLogger $logger
      * @param mixed $assetPath
      * @param mixed $loggedInUserId
      */
     public function __construct(
         TelehealthGlobalConfig $config,
         private readonly Environment $twig,
-        private readonly SystemLogger $logger,
+        private readonly LoggerInterface $logger,
         private $assetPath,
         $loggedInUserId
     ) {
