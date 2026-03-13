@@ -551,7 +551,7 @@ final class EventAuditLoggerTest extends TestCase
                 fn(string $value): string => 'encrypted_' . $value
             );
 
-        $eventAuditLogger = new EventAuditLogger(sinks: [], cryptoGen: $cryptoMock, shouldEncrypt: true, session: $this->session, config: $this->config);
+        $eventAuditLogger = new EventAuditLogger(sinks: [], cryptoGen: $cryptoMock, shouldEncrypt: true, session: $this->session, config: $this->config, breakglassChecker: $this->breakglassChecker);
 
         try {
             // This should execute the full recordLogItem flow including encryption
@@ -649,7 +649,7 @@ final class EventAuditLoggerTest extends TestCase
                 fn(string $value): string => 'encrypted_' . $value
             );
 
-        $eventAuditLogger = new EventAuditLogger(sinks: [], cryptoGen: $cryptoMock, shouldEncrypt: true, session: $this->session, config: $this->config);
+        $eventAuditLogger = new EventAuditLogger(sinks: [], cryptoGen: $cryptoMock, shouldEncrypt: true, session: $this->session, config: $this->config, breakglassChecker: $this->breakglassChecker);
 
         // Call recordLogItem with API data - this should execute the encryption code:
         // Line 767: $api['request_url'] = (!empty($api['request_url'])) ? $this->cryptoGen->encryptStandard($api['request_url']) : '';
