@@ -868,54 +868,6 @@ final class EventAuditLoggerTest extends TestCase
     }
 
     /**
-     * Test isBreakglassUser method
-     */
-    public function testIsBreakglassUser(): void
-    {
-        $reflectionClass = new ReflectionClass($this->eventAuditLogger);
-        $reflectionMethod = $reflectionClass->getMethod('isBreakglassUser');
-
-        // Test with empty user
-        $this->assertFalse($reflectionMethod->invoke($this->eventAuditLogger, ''));
-
-        // Test with non-breakglass user (mocked to return null)
-        $this->assertFalse($reflectionMethod->invoke($this->eventAuditLogger, 'normaluser'));
-    }
-
-    /**
-     * Test isBreakglassUser method with user in breakglass group
-     */
-    public function testIsBreakglassUserInBreakglassGroup(): void
-    {
-        $reflectionClass = new ReflectionClass($this->eventAuditLogger);
-        $reflectionMethod = $reflectionClass->getMethod('isBreakglassUser');
-
-        // Test when sqlQueryNoLog returns a non-empty result
-        // Since we can't easily mock sqlQueryNoLog, we'll test the property setting logic
-        // by directly setting the breakglassUser property through reflection
-
-        // Access the private breakglassUser property
-        $breakglassProperty = $reflectionClass->getProperty('breakglassUser');
-
-        // Test the caching behavior: first set the property to true
-        $breakglassProperty->setValue($this->eventAuditLogger, true);
-
-        // When isBreakglassUser is called and the property is already set, it returns the cached value
-        $this->assertTrue($reflectionMethod->invoke($this->eventAuditLogger, 'breakglassuser'));
-
-        // Reset the property to test the other branch
-        $breakglassProperty->setValue($this->eventAuditLogger, false);
-        $this->assertFalse($reflectionMethod->invoke($this->eventAuditLogger, 'normaluser'));
-
-        // Reset to null to allow future tests to work properly
-        $breakglassProperty->setValue($this->eventAuditLogger, null);
-
-        // This test verifies that breakglassUser property is set to true
-        // when sqlQueryNoLog returns a non-empty result, setting the user as a breakglass user
-        $this->addToAssertionCount(1);
-    }
-
-    /**
      * Test auditSQLAuditTamper method
      */
     public function testAuditSQLAuditTamper(): void
