@@ -14,10 +14,11 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Common\Logging;
 
-use OpenEMR\Common\Database\DatabaseConnectionFactory;
-use OpenEMR\Common\Logging\BreakglassChecker;
+use OpenEMR\Common\Logging\BreakglassCheckerInterface;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Tests\Fixtures\GaclFixtureManager;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 final class EventAuditLoggerBreakglassTest extends TestCase
 {
@@ -45,9 +46,12 @@ final class EventAuditLoggerBreakglassTest extends TestCase
         $insertCount = $this->gaclFixtureManager->installFixtures();
         $this->assertGreaterThan(0, $insertCount, 'GACL fixtures should be installed');
 
-        // Create a BreakglassChecker with a real database connection
-        $conn = DatabaseConnectionFactory::createDbal();
-        $checker = new BreakglassChecker($conn);
+        // Get the BreakglassChecker from EventAuditLogger singleton via reflection
+        $logger = EventAuditLogger::getInstance();
+        $reflectionClass = new ReflectionClass($logger);
+        $property = $reflectionClass->getProperty('breakglassChecker');
+        /** @var BreakglassCheckerInterface $checker */
+        $checker = $property->getValue($logger);
 
         // Test breakglass user
         $result = $checker->isBreakglassUser('testbreakglassuser');
