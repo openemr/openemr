@@ -32,6 +32,7 @@ require_once "qrda_functions.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
@@ -1485,7 +1486,7 @@ $xml->close_clinicaldocument();
 
 //QRDA File Download Folder in site/cqm_qrda folder
 $qrda_fname = "QRDA_III_" . date("YmdHis") . ".xml";
-$qrda_file_path = $GLOBALS['OE_SITE_DIR'] . "/documents/cqm_qrda/";
+$qrda_file_path = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/cqm_qrda/";
 if (!file_exists($qrda_file_path)) {
     mkdir($qrda_file_path, 0777, true);
 }

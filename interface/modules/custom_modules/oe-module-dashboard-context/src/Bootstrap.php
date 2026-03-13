@@ -12,7 +12,7 @@
 
 namespace OpenEMR\Modules\DashboardContext;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\PatientDemographics\RenderEvent;
 use OpenEMR\Events\PatientDemographics\RenderEvent as pRenderEvent;
@@ -44,7 +44,7 @@ class Bootstrap
         $this->installPath = OEGlobalsBag::getInstance()->get('web_root') . self::MODULE_INSTALLATION_PATH;
         $this->moduleDirectoryName = basename(dirname(__DIR__));
         $this->modulePath = dirname(__DIR__);
-        $this->logger = new SystemLogger();
+        $this->logger = ServiceContainer::getLogger();
     }
 
     /**

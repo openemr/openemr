@@ -49,7 +49,7 @@ $apiKey = $cryptoGen->decryptStandard($globals->get('gateway_api_key'));
 **Purpose:** Prevents use of legacy functions:
 - Legacy `sql.inc.php` functions in the `src/` directory
 - `call_user_func()` and `call_user_func_array()` functions (use modern PHP syntax instead)
-- `error_log()` function (use `SystemLogger` instead)
+- `error_log()` function (use `Psr\Log\LoggerInterface` instead, through OpenEMR\BC\ServiceContainer::getLogger() if needed)
 
 **Rationale for SQL functions:** Contributors should use `QueryUtils` or `DatabaseQueryTrait` instead for modern database patterns.
 
@@ -91,9 +91,9 @@ $result = $callable(...$args);
 ```
 
 **Rationale for error_log:**
-- **Structured logging** - `SystemLogger` supports PSR-3 log levels and context arrays
+- **Structured logging** - Use PSR-3 log levels and context arrays
 - **Centralized configuration** - Log destinations and formats can be configured globally
-- **Testability** - `SystemLogger` can be mocked in unit tests
+- **Testability** - `LoggerInterface` can be mocked in unit tests
 - **Consistency** - Uniform logging pattern across the codebase
 
 **Before (❌ Forbidden):**
@@ -104,9 +104,9 @@ error_log("User {$userId} logged in");
 
 **After (✅ Recommended):**
 ```php
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer();
 
-$logger = new SystemLogger();
+$logger = ServiceContainer::getLogger();
 $logger->error("Something went wrong", ['error' => $error]);
 $logger->info("User logged in", ['userId' => $userId]);
 ```
@@ -262,7 +262,7 @@ try {
     $data = json_decode($response->getBody()->getContents(), true);
 } catch (GuzzleException $e) {
     // handle error with proper exception
-    (new SystemLogger())->error('API request failed', ['exception' => $e]);
+    $this->logger->error('API request failed', ['exception' => $e]);
 }
 ```
 

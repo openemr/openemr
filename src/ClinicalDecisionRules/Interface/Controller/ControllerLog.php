@@ -4,13 +4,13 @@ namespace OpenEMR\ClinicalDecisionRules\Interface\Controller;
 
 use League\Csv\EscapeFormula;
 use League\Csv\Writer;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\ClinicalDecisionRules\Interface\BaseController;
 use OpenEMR\ClinicalDecisionRules\Interface\Common;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -71,7 +71,7 @@ class ControllerLog extends BaseController
                 ]);
             } catch (\Throwable $e) {
                 // TODO: @adunsulag need to figure out error handling in addition to just logging the error
-                (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getTraceAsString()]);
+                ServiceContainer::getLogger()->error($e->getMessage(), ['exception' => $e]);
             }
         }
         $fileName = date(\DateTimeImmutable::ATOM) . "_log.csv";

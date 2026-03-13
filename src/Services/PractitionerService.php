@@ -13,7 +13,7 @@
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\CompositeSearchField;
 use OpenEMR\Services\Search\ISearchField;
@@ -183,7 +183,7 @@ class PractitionerService extends BaseService
         if (count($data) > 1) {
             // we will log this error and return just the single value
             $results->setData([$data[0]]);
-            (new SystemLogger())->error("PractionerService->getOne() Duplicate records found for uuid", ['uuid' => $uuid]);
+            ServiceContainer::getLogger()->error("PractionerService->getOne() Duplicate records found for uuid", ['uuid' => $uuid]);
         }
         return $results;
     }

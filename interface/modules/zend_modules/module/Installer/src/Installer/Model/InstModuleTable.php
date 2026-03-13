@@ -17,9 +17,10 @@
 namespace Installer\Model;
 
 use Interop\Container\ContainerInterface;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\SQLUpgradeService;
 
 class InstModuleTable
@@ -37,8 +38,8 @@ class InstModuleTable
     public function __construct(
         private readonly ContainerInterface $container
     ) {
-        $this->module_zend_path = $GLOBALS['srcdir'] . DIRECTORY_SEPARATOR
-            . ".." . DIRECTORY_SEPARATOR . $GLOBALS['baseModDir'] . $GLOBALS['zendModDir'] . DIRECTORY_SEPARATOR . "module";
+        $this->module_zend_path = OEGlobalsBag::getInstance()->get('srcdir') . DIRECTORY_SEPARATOR
+            . ".." . DIRECTORY_SEPARATOR . OEGlobalsBag::getInstance()->get('baseModDir') . OEGlobalsBag::getInstance()->get('zendModDir') . DIRECTORY_SEPARATOR . "module";
     }
 
     /**
@@ -162,11 +163,11 @@ class InstModuleTable
                 $sqlUpgradeService->upgradeFromSqlFile($fileName, $dir);
                 return true;
             } catch (\Throwable $exception) {
-                $context = ['trace' => $exception->getTraceAsString()];
+                $context = ['exception' => $exception];
                 if ($exception instanceof SqlQueryException) {
                     $context['statement'] = $exception->getSqlStatement();
                 }
-                (new SystemLogger())->errorLogCaller("Error: " . $exception->getMessage(), $context);
+                ServiceContainer::getLogger()->error("Error: " . $exception->getMessage(), $context);
                 return false;
             }
         } else {
@@ -233,8 +234,8 @@ class InstModuleTable
             $added = "";
             $typeSet = "";
 
-            if (file_exists($GLOBALS['srcdir'] . "/../interface/modules/$base/$added$directory/info.txt")) {
-                $lines = @file($GLOBALS['srcdir'] . "/../interface/modules/$base/$added$directory/info.txt");
+            if (file_exists(OEGlobalsBag::getInstance()->get('srcdir') . "/../interface/modules/$base/$added$directory/info.txt")) {
+                $lines = @file(OEGlobalsBag::getInstance()->get('srcdir') . "/../interface/modules/$base/$added$directory/info.txt");
             }
             $name = !empty($lines) ? $lines[0] : $directory;
 

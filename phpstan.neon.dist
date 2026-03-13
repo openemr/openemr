@@ -16,6 +16,7 @@ parameters:
   - apis
   - ccdaservice
   - ccr
+  - config
   - contrib
   - controller.php
   - controllers

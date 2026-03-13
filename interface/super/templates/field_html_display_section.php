@@ -1,6 +1,6 @@
 <?php
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Services\Globals\GlobalSetting;
 
 $fldid ??= '';
@@ -20,7 +20,7 @@ if (
         }
     } catch (\Throwable $e) {
         ob_end_clean();
-        (new SystemLogger())->errorLogCaller($e->getMessage(), ['trace' => $e->getMessage()]);
+        ServiceContainer::getLogger()->error($e->getMessage(), ['exception' => $e]);
         echo xlt("Error in rendering html display section.")
             . xlt("Field name") . " '" . text($fldname) . "'";
     }

@@ -16,7 +16,8 @@ use Carecoordination\Model\CcdaGenerator;
 use Carecoordination\Model\CcdaGlobalsConfiguration;
 use Carecoordination\Model\CcdaUserPreferencesTransformer;
 use DOMDocument;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\PatientDocuments\PatientDocumentCreateCCDAEvent;
 use OpenEMR\Events\PatientDocuments\PatientDocumentTreeViewFilterEvent;
@@ -34,7 +35,7 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
 
     public function __construct(private readonly CcdaGenerator $generator)
     {
-        $this->viewCcdaUrl = $GLOBALS['webroot'] . "/interface/modules/zend_modules/public/encountermanager/previewDocument";
+        $this->viewCcdaUrl = OEGlobalsBag::getInstance()->get('webroot') . "/interface/modules/zend_modules/public/encountermanager/previewDocument";
     }
 
     public static function getSubscribedEvents()
@@ -92,7 +93,7 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
                 $event->setFileUrl($fileUrl);
             }
         } catch (\Throwable $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception
                 , 'pid' => $event->getPid(), 'components' => $event->getComponentsAsString(), 'sections' => $event->getSectionsAsString()
                 , 'from' => $event->getDateFrom(), 'to' => $event->getDateTo()]);
         }
@@ -149,7 +150,7 @@ class CCDAEventsSubscriber implements EventSubscriberInterface
             $event->setContent($updatedContent);
             return $event;
         } catch (\Throwable $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception
                 , 'documentId' => $event->getDocumentId(), 'ccdaId' => $event->getCcdaId(), 'type' => $event->getCcdaType()]);
         }
         return $event;

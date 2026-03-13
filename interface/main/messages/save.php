@@ -18,6 +18,7 @@ require_once "$srcdir/MedEx/API.php";
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Core\OEGlobalsBag;
 
 $MedEx = new MedExApi\MedEx('MedExBank.com');
 if ($_REQUEST['go'] == 'sms_search') {
@@ -107,7 +108,7 @@ if ($_REQUEST['MedEx'] == "start") {
         if (!file_exists($practice_logo)) {
             $data['logo_url'] = $prefix . $_SERVER['HTTP_HOST'] . $web_root . "/sites/" . $_SESSION["site_id"] . "/images/practice_logo.gif";
         } else {
-            $data['logo_url'] = $prefix . $_SERVER['HTTP_HOST'] . $GLOBALS['images_static_relative'] . "/menu-logo.png";
+            $data['logo_url'] = $prefix . $_SERVER['HTTP_HOST'] . OEGlobalsBag::getInstance()->get('images_static_relative') . "/menu-logo.png";
         }
         $response = $MedEx->setup->autoReg($data);
         if (($response['API_key'] > '') && ($response['customer_id'] > '')) {

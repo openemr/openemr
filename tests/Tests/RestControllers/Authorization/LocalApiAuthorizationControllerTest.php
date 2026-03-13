@@ -2,28 +2,24 @@
 
 namespace OpenEMR\Tests\RestControllers\Authorization;
 
-use Monolog\Level;
 use OpenEMR\Common\Auth\UuidUserAccount;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\RestControllers\Authorization\LocalApiAuthorizationController;
 use OpenEMR\Services\UserService;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorageFactory;
 use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 class LocalApiAuthorizationControllerTest extends TestCase
 {
-    // Define the log level for the tests, can change this in order to debug issues
-    const LOG_LEVEL = Level::Critical;
-
     private function getLocalApiAuthorizationController(): LocalApiAuthorizationController
     {
-        $systemLogger = new SystemLogger(self::LOG_LEVEL);
-        return new LocalApiAuthorizationController($systemLogger, new OEGlobalsBag());
+        $mockLogger = $this->createMock(LoggerInterface::class);
+        return new LocalApiAuthorizationController($mockLogger, new OEGlobalsBag());
     }
     public function testShouldProcessRequest(): void
     {
@@ -45,7 +41,8 @@ class LocalApiAuthorizationControllerTest extends TestCase
     public function testAuthorizeRequest(): void
     {
         $globalsBag = new OEGlobalsBag();
-        $controller = new LocalApiAuthorizationController(new SystemLogger(self::LOG_LEVEL), $globalsBag);
+        $mockLogger = $this->createMock(LoggerInterface::class);
+        $controller = new LocalApiAuthorizationController($mockLogger, $globalsBag);
         $uuid = '123e4567-e89b-12d3-a456-426614174000'; // Example UUID
         $userId = 1;
         $userUsername = "testuser";

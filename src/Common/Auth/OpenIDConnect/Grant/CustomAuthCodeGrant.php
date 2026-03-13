@@ -89,7 +89,7 @@ class CustomAuthCodeGrant extends AuthCodeGrant
         //  (note that this check is forced below if using launch scenario; so it is skipped here in the launch scenario)
         if (!empty($audience) && empty($launch)) {
             if (!in_array($audience, $this->expectedAudience)) {
-                $this->getSystemLogger()->errorLogCaller("CustomAuthCodeGrant::validateAuthorizationRequest:Aud parameter did not match authorized server in non-launch scenario", ['audience' => $audience, 'expected' => $this->expectedAudience]);
+                $this->getSystemLogger()->error("CustomAuthCodeGrant::validateAuthorizationRequest: Aud parameter {audience} did not match authorized server in non-launch scenario", ['audience' => $audience, 'expected' => $this->expectedAudience]);
                 throw OAuthServerException::invalidRequest("aud", "Aud parameter did not match authorized server");
             }
         } else if (empty($audience) && empty($launch)) {
@@ -99,14 +99,14 @@ class CustomAuthCodeGrant extends AuthCodeGrant
         // let's validate the launch param
         if (!empty($launch)) {
             if (!in_array($audience, $this->expectedAudience)) {
-                $this->getSystemLogger()->errorLogCaller("CustomAuthCodeGrant::validateAuthorizationRequest:Aud parameter did not match authorized server in launch scenario", ['audience' => $audience, 'expected' => $this->expectedAudience]);
+                $this->getSystemLogger()->error("CustomAuthCodeGrant::validateAuthorizationRequest: Aud parameter {audience} did not match authorized server in launch scenario", ['audience' => $audience, 'expected' => $this->expectedAudience]);
                 throw OAuthServerException::invalidRequest("aud", "Aud parameter did not match authorized server");
             }
             try {
                 // check to see if we can deserialize the launch token
                 SMARTLaunchToken::deserializeToken($launch);
             } catch (\Throwable $exception) {
-                $this->getSystemLogger()->errorLogCaller("CustomAuthCodeGrant::validateAuthorizationRequest:Failed to deserialize launch token", ['launch' => $launch, 'message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]);
+                $this->getSystemLogger()->error("CustomAuthCodeGrant::validateAuthorizationRequest:Failed to deserialize launch token", ['exception' => $exception, 'launch' => $launch]);
                 throw OAuthServerException::invalidRequest('launch', "launch parameter was incorrectly formatted or did not originate from this server");
             }
         }
@@ -124,9 +124,9 @@ class CustomAuthCodeGrant extends AuthCodeGrant
             // make sure we log the error so we have more details on what is going on here
             parent::validateRedirectUri($redirectUri, $client, $request);
         } catch (OAuthServerException $exception) {
-            $this->getSystemLogger()->errorLogCaller(
+            $this->getSystemLogger()->error(
                 "Invalid client detected.  Failed to validate redirect uri",
-                ['redirectUri' => $redirectUri, 'client' => $client->getIdentifier(), 'message' => $exception->getMessage(), 'trace' => $exception->getTraceAsString()]
+                ['exception' => $exception, 'redirectUri' => $redirectUri, 'client' => $client->getIdentifier()]
             );
             throw $exception;
         }
@@ -219,13 +219,13 @@ class CustomAuthCodeGrant extends AuthCodeGrant
             $logger->debug('CustomAuthCodeGrant::validateClient: Using traditional client secret authentication');
             $client = parent::validateClient($request);
             if (!($client instanceof ClientEntity)) {
-                $logger->errorLogCaller("CustomAuthCodeGrant::validateClient client returned was not a valid ClientEntity ", ['client' => $client->getIdentifier()]);
+                $logger->error("CustomAuthCodeGrant::validateClient: Client {client} returned was not a valid ClientEntity", ['client' => $client->getIdentifier()]);
                 throw OAuthServerException::invalidClient($request);
             }
         }
 
         if (!$client->isEnabled()) {
-            $this->getSystemLogger()->errorLogCaller("client returned was not enabled", ['client' => $client->getIdentifier()]);
+            $this->getSystemLogger()->error("CustomAuthCodeGrant::validateClient: Client {client} returned was not enabled", ['client' => $client->getIdentifier()]);
             throw OAuthServerException::invalidClient($request);
         }
         $this->getSystemLogger()->debug("CustomAuthCodeGrant::validateClient exit");

@@ -81,7 +81,7 @@ $ignoreAuth_onsite_portal = true;
 require_once('../interface/globals.php');
 
 if (
-    $globalsBag->get('enforce_signin_email')
+    $globalsBag->getBoolean('enforce_signin_email')
     && (!isset($_POST['passaddon']) || empty($_POST['passaddon']))
 ) {
     SessionUtil::portalSessionCookieDestroy();
@@ -201,7 +201,7 @@ if ($userData = sqlQuery($sql, [$auth['pid']])) { // if query gets executed
         exit();
     }
 
-    if ($userData['email'] != ($_POST['passaddon'] ?? '') && $globalsBag->get('enforce_signin_email')) {
+    if ($userData['email'] != ($_POST['passaddon'] ?? '') && $globalsBag->getBoolean('enforce_signin_email')) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid email'), '', '0');
         SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w');

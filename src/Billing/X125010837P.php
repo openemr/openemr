@@ -19,6 +19,7 @@ namespace OpenEMR\Billing;
 
 use OpenEMR\Billing\BillingProcessor\BillingClaimBatchControlNumber;
 use OpenEMR\Billing\Claim;
+use OpenEMR\Core\OEGlobalsBag;
 
 class X125010837P
 {
@@ -90,10 +91,10 @@ class X125010837P
         if (
             (
                 $HLcount == 1 // HLcount passed in to function by GeneratorX12Direct class
-                && !empty($GLOBALS['gen_x12_based_on_ins_co'])
+                && OEGlobalsBag::getInstance()->getBoolean('gen_x12_based_on_ins_co')
             )
             || (
-                empty($GLOBALS['gen_x12_based_on_ins_co'])
+                !OEGlobalsBag::getInstance()->getBoolean('gen_x12_based_on_ins_co')
             )
         ) {
             ++$edicount;
@@ -373,7 +374,7 @@ class X125010837P
             // NM1*PE, N3, N4, REF*2U, REF*EI
         }
 
-        if (!empty($GLOBALS['gen_x12_based_on_ins_co'])) {
+        if (OEGlobalsBag::getInstance()->getBoolean('gen_x12_based_on_ins_co')) {
             $HLcount += $patSegmentCount;
         }
 
@@ -1290,12 +1291,17 @@ class X125010837P
             $out .= $claim->x12Zip($claim->payerZip($ins));
             $out .= "~\n";
 
+            // Segment REF*F8 (Other Payer Claim Control Number).
+            if ($claim->medicaidOriginalReference()) {
+                $out .= "REF" . "*" . "F8" . "*" . $claim->medicaidOriginalReference();
+                $out .= "~\n";
+            }
+
             // Segment DTP*573 (Claim Check or Remittance Date) omitted.
             // Segment REF (Other Payer Secondary Identifier) omitted.
             // Segment REF*G1 (Other Payer Prior Authorization Number) omitted.
             // Segment REF*9F (Other Payer Referral Number) omitted.
             // Segment REF*T4 (Other Payer Claim Adjustment Indicator) omitted.
-            // Segment REF*F8 (Other Payer Claim Control Number) omitted.
             // Segment NM1 (Other Payer Referring Provider) omitted.
             // Segment REF (Other Payer Referring Provider Secondary Identification) omitted.
             // Segment NM1 (Other Payer Rendering Provider) omitted.
@@ -1604,7 +1610,7 @@ class X125010837P
 
         if (
             $SEFLAG == true
-            || empty($GLOBALS['gen_x12_based_on_ins_co'])
+            || !OEGlobalsBag::getInstance()->getBoolean('gen_x12_based_on_ins_co')
         ) {
             ++$edicount; //todo: This might have to go into the SE flag spot //***MS Modify
 

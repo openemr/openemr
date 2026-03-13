@@ -17,9 +17,10 @@ require_once(__DIR__ . '/../../globals.php');
 require_once("$srcdir/dated_reminder_functions.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 $days_to_show = 30;
-$alerts_to_show = $GLOBALS['dated_reminders_max_alerts_to_show'];
+$alerts_to_show = OEGlobalsBag::getInstance()->getInt('dated_reminders_max_alerts_to_show');
 $updateDelay = 60; // time is seconds
 
 
@@ -105,14 +106,14 @@ $(function () {
 function openAddScreen(id){
   if (id == 0){
     top.restoreSession();
-    dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders_add.php', '_drAdd', 700, 500);
+    dlgopen('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/main/dated_reminders/dated_reminders_add.php', '_drAdd', 700, 500);
   } else {
     top.restoreSession();
     const params = new URLSearchParams({
         csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
         mID: id
     });
-    dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders_add.php?' + params, '_drAdd', 700, 500);
+    dlgopen('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/main/dated_reminders/dated_reminders_add.php?' + params, '_drAdd', 700, 500);
   }
 }
 
@@ -130,7 +131,7 @@ function updateme(id){
 
   // Send the skip_timeout_reset parameter to not count this as a manual entry in the
   // timing out mechanism in OpenEMR.
-  $.post("<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders.php",
+  $.post("<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/main/dated_reminders/dated_reminders.php",
     {
       drR: id,
       skip_timeout_reset: "1",
@@ -153,7 +154,7 @@ function updateme(id){
 
 function openLogScreen(){
   top.restoreSession();
-    dlgopen('<?php echo $GLOBALS['webroot']; ?>/interface/main/dated_reminders/dated_reminders_log.php', '_drLog', 'modal-mlg', 850);
+    dlgopen('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/main/dated_reminders/dated_reminders_log.php', '_drLog', 'modal-mlg', 850);
 }
 
 function goPid(pid) {

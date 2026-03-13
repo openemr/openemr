@@ -13,7 +13,6 @@
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenApi\Attributes as OA;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
@@ -22,6 +21,7 @@ use OpenEMR\Services\FHIR\FhirPatientService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\Services\FHIR\FhirValidationService;
 use OpenEMR\Services\FHIR\Serialization\FhirPatientSerializer;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -60,8 +60,8 @@ class FhirPatientRestController
         if (!isset($this->fhirPatientService)) {
             $this->fhirPatientService = new FhirPatientService();
             $this->fhirPatientService->setGlobalsBag($this->getOEGlobals());
-            if (isset($this->systemLogger)) {
-                $this->fhirPatientService->setSystemLogger($this->systemLogger);
+            if ($this->logger !== null) {
+                $this->fhirPatientService->setSystemLogger($this->logger);
             }
         }
         return $this->fhirPatientService;
@@ -72,10 +72,10 @@ class FhirPatientRestController
         $this->fhirPatientService = $fhirPatientService;
     }
 
-    public function setSystemLogger(SystemLogger $systemLogger): void
+    public function setSystemLogger(LoggerInterface $systemLogger): void
     {
         $this->getFhirPatientService()->setSystemLogger($systemLogger);
-        $this->systemLogger = $systemLogger;
+        $this->logger = $systemLogger;
     }
 
     /**
@@ -269,7 +269,7 @@ class FhirPatientRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function post($fhirJson)
+    public function post($fhirJson): Response
     {
         $fhirValidate = $this->fhirValidate->validate($fhirJson);
         if (!empty($fhirValidate)) {
@@ -405,7 +405,7 @@ class FhirPatientRestController
         ],
         security: [['openemr_auth' => []]]
     )]
-    public function put(string $fhirId, array $fhirJson)
+    public function put(string $fhirId, array $fhirJson): Response
     {
         $fhirValidate = $this->fhirValidate->validate($fhirJson);
         if (!empty($fhirValidate)) {
@@ -733,7 +733,7 @@ class FhirPatientRestController
         $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
-                'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
+                'fullUrl' =>  OEGlobalsBag::getInstance()->get('site_addr_oath') . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
                 'resource' => $searchResult
             ];
             $fhirBundleEntry = new FHIRBundleEntry($bundleEntry);

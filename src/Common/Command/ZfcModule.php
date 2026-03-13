@@ -14,6 +14,7 @@ namespace OpenEMR\Common\Command;
 
 use Installer\Controller\InstallerController;
 use Installer\Model\InstModuleTable;
+use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
@@ -51,7 +52,7 @@ class ZfcModule extends Command
 
         $modname = $input->getOption('modname');
         $modaction = $input->getOption('modaction');
-        (new InstallerController($GLOBALS['modules_application']->getServiceManager()->build(InstModuleTable::class)))->commandInstallModuleAction($modname, $modaction);
+        (new InstallerController(OEGlobalsBag::getInstance()->get('modules_application')->getServiceManager()->build(InstModuleTable::class)))->commandInstallModuleAction($modname, $modaction);
         return 0;
     }
 }

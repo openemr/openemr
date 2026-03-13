@@ -99,7 +99,7 @@ $N = 7;
             </div>
         </div>
     </div>
-    <?php if ($globalsBag->get('show_insurance_in_profile')) { ?>
+    <?php if ($globalsBag->getBoolean('show_insurance_in_profile')) { ?>
     <div class='insurance table-sm table-responsive'>
         <div class="card">
             <header class="card-header border border-bottom-0"><?php echo xlt('Primary Insurance'); ?></header>

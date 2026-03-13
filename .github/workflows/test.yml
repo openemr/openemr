@@ -1,6 +1,10 @@
 ##
 # Reusable workflow for running OpenEMR tests
 # Accepts a docker directory name and parses all configuration from it
+#
+# Architecture:
+#   setup job  - checkout, build deps, docker up, install OpenEMR, dump DB
+#   test matrix - fan out test suites in parallel, each restoring the DB snapshot
 
 name: Test
 
@@ -67,8 +71,23 @@ permissions:
   contents: read
 
 jobs:
-  run:
+  setup:
     runs-on: ubuntu-24.04
+    outputs:
+      php: ${{ steps.parse.outputs.php }}
+      node_version: ${{ steps.parse.outputs.node_version }}
+      webserver: ${{ steps.parse.outputs.webserver }}
+      database: ${{ steps.parse.outputs.database }}
+      db: ${{ steps.parse.outputs.db }}
+      docker_dir: ${{ steps.parse.outputs.docker_dir }}
+      e2e_enabled: ${{ steps.parse.outputs.e2e_enabled }}
+      openemr_dir: ${{ steps.parse.outputs.openemr_dir }}
+      suites: ${{ steps.compute-suites.outputs.suites }}
+      compose_file: ${{ steps.parse-env.outputs.compose_file }}
+      # Cache keys for restore in test jobs
+      vendor_key: ${{ steps.cache-keys.outputs.vendor }}
+      npm_build_key: ${{ steps.cache-keys.outputs.npm-build }}
+      ccda_build_key: ${{ steps.cache-keys.outputs.ccda-build }}
     steps:
     - name: Checkout Code
       uses: actions/checkout@v6
@@ -87,6 +106,20 @@ jobs:
 
         # Add ENABLE_COVERAGE to GITHUB_ENV
         echo "ENABLE_COVERAGE=${{ inputs.enable_coverage }}" >> "$GITHUB_ENV"
+
+    - name: Extract COMPOSE_FILE for downstream jobs
+      id: parse-env
+      run: |
+        jq -r '"compose_file=\(.[0].env.COMPOSE_FILE)"' parsed_config.json >> "$GITHUB_OUTPUT"
+
+    - name: Compute test suite list
+      id: compute-suites
+      run: |
+        if [[ '${{ steps.parse.outputs.e2e_enabled }}' = 'true' ]]; then
+          echo 'suites=["unit","api","fixtures","services","validators","controllers","common","email","e2e"]' >> "$GITHUB_OUTPUT"
+        else
+          echo 'suites=["unit","api","fixtures","services","validators","controllers","common","email"]' >> "$GITHUB_OUTPUT"
+        fi
 
     - name: Setup PHP
       uses: shivammathur/setup-php@v2
@@ -368,7 +401,7 @@ jobs:
 
     - name: PHP info
       run: |
-        curl -fsSL phpinfo.html http://localhost/ci/phpinfo.php | tee phpinfo.html
+        curl -fsSL http://localhost/ci/phpinfo.php | tee phpinfo.html
 
     - name: Upload PHP info to GitHub
       uses: actions/upload-artifact@v7
@@ -377,6 +410,124 @@ jobs:
         name: phpinfo-${{ steps.parse.outputs.docker_dir }}.html
         path: phpinfo.html
 
+    - name: Dump database snapshot
+      run: |
+        . ci/ciLibrary.source
+        dump_database > db-dump.sql
+        echo "DB dump size: $(du -h db-dump.sql | cut -f1)"
+
+    ##
+    # Copy the configured sqlconf.php for the artifact.
+    # install_configure writes DB credentials into this file (shared via bind mount).
+    # Test jobs need it to connect to their own database.
+    - name: Copy sqlconf.php for artifact
+      run: cp sites/default/sqlconf.php sqlconf.php
+
+    - name: Upload setup snapshot
+      uses: actions/upload-artifact@v7
+      with:
+        name: setup-snapshot-${{ inputs.docker_dir }}
+        path: |
+          db-dump.sql
+          sqlconf.php
+        retention-days: 1
+
+  test:
+    name: ${{ matrix.suite }}
+    needs: setup
+    runs-on: ubuntu-24.04
+    if: ${{ !cancelled() && needs.setup.result == 'success' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: ${{ fromJson(needs.setup.outputs.suites) }}
+    env:
+      COMPOSE_FILE: ${{ needs.setup.outputs.compose_file }}
+      DOCKER_DIR: ${{ needs.setup.outputs.docker_dir }}
+      OPENEMR_DIR: ${{ needs.setup.outputs.openemr_dir }}
+      ENABLE_COVERAGE: ${{ inputs.enable_coverage }}
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v6
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ needs.setup.outputs.php }}
+
+    - name: Install npm package
+      if: ${{ matrix.suite == 'e2e' }}
+      uses: actions/setup-node@v6
+      with:
+        node-version: ${{ needs.setup.outputs.node_version }}
+
+    ##
+    # Restore build artifacts from GHA cache (populated by setup job)
+    - name: Restore vendor artifacts
+      uses: actions/cache/restore@v5
+      with:
+        key: ${{ needs.setup.outputs.vendor_key }}
+        path: vendor/
+        restore-keys: |
+          ${{ runner.os }}-vendor-${{ needs.setup.outputs.php }}-
+          ${{ runner.os }}-vendor-
+
+    - name: Restore npm build artifacts
+      uses: actions/cache/restore@v5
+      with:
+        key: ${{ needs.setup.outputs.npm_build_key }}
+        path: |
+          node_modules/
+          public/assets/
+          public/themes/
+        restore-keys: |
+          ${{ runner.os }}-npm-build-${{ needs.setup.outputs.node_version }}-
+          ${{ runner.os }}-npm-build-
+
+    - name: Restore CCDA build artifacts
+      uses: actions/cache/restore@v5
+      with:
+        key: ${{ needs.setup.outputs.ccda_build_key }}
+        path: |
+          ccdaservice/node_modules/
+          ccdaservice/packages/oe-cqm-service/node_modules/
+        restore-keys: |
+          ${{ runner.os }}-ccda-build-${{ needs.setup.outputs.node_version }}-
+          ${{ runner.os }}-ccda-build-
+
+    - name: Download setup snapshot
+      uses: actions/download-artifact@v8
+      with:
+        name: setup-snapshot-${{ needs.setup.outputs.docker_dir }}
+
+    ##
+    # Restore sqlconf.php on the host BEFORE chmod/docker start.
+    # The container bind-mounts sites/default/ from the host, so the file
+    # must be in place on the host filesystem before containers start.
+    - name: Restore sqlconf.php
+      run: cp sqlconf.php sites/default/sqlconf.php
+
+    - name: Chmod
+      run: |
+        # HACK Docker runs with a different uid/gid than the host.
+        # See #9233
+        sudo chmod -R 0777 .
+
+    - name: Dockers environment start
+      env:
+        # E2E needs selenium/video containers
+        COMPOSE_PROFILES: ${{ matrix.suite == 'e2e' && 'video-recording' || '' }}
+      run: |
+        . ci/ciLibrary.source
+        dockers_env_start
+
+    - name: Import database snapshot
+      run: |
+        . ci/ciLibrary.source
+        import_database < db-dump.sql
+        # Reload privilege tables so imported users (e.g., openemr) take effect
+        dc exec -T mysql sh -c 'mariadb -u root -proot -e "FLUSH PRIVILEGES" 2>/dev/null || mysql -u root -proot -e "FLUSH PRIVILEGES"'
+
     - name: Prepare for coverage reporting
       if: ${{ env.ENABLE_COVERAGE == 'true' }}
       run: |
@@ -384,308 +535,33 @@ jobs:
         configure_coverage
 
     ##
-    # Setup auto_prepend.php for API and E2E test coverage collection
+    # Setup auto_prepend.php for API and E2E test coverage collection.
+    # Only needed for suites that exercise the web server.
     - name: Setup auto_prepend for coverage
-      if: ${{ env.ENABLE_COVERAGE == 'true' }}
+      if: ${{ env.ENABLE_COVERAGE == 'true' && (matrix.suite == 'api' || matrix.suite == 'e2e') }}
       run: |
         . ci/ciLibrary.source
-        setup_e2e_bookends ${{ steps.parse.outputs.webserver }}
+        setup_e2e_bookends ${{ needs.setup.outputs.webserver }}
 
-    - name: Unit testing
+    - name: Run ${{ matrix.suite }} tests
       if: ${{ success() || failure() }}
       run: |
         . ci/ciLibrary.source
-        build_test unit
-
-    - name: Upload unit test results to Codecov
-      if: ${{ !cancelled() && hashFiles('junit-unit.xml') != '' }}
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: junit-unit.xml
-        flags: unit,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
-        report_type: test_results
-
-    - name: Hide unit test results from subsequent uploads
-      if: ${{ !cancelled() && hashFiles('junit-unit.xml') != '' }}
-      run: mv junit-unit.xml junit-unit.saved-test-data
-
-    - name: Upload unit test coverage to Codecov
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.unit.clover.xml') != '' }}
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: coverage.unit.clover.xml
-        flags: unit,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
+        build_test ${{ matrix.suite }}
 
     ##
-    # Hide coverage files after uploading to prevent codecov from re-uploading them
-    # in subsequent test steps. We'll unhide them before the combine step.
-    # This solves the issue where disable_search: true was preventing codecov
-    # from properly processing source code.
-    # We rename to .saved-cov-data to fully obscure from codecov's file detection.
-    - name: Hide unit coverage files from subsequent uploads
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.unit.clover.xml') != '' }}
-      run: mv coverage.unit.clover.xml unit.saved-cov-data
-
-    - name: Api testing
-      if: ${{ success() || failure() }}
-      run: |
-        . ci/ciLibrary.source
-        build_test api
-        if [[ ${ENABLE_COVERAGE:-false} = true ]]; then
-          echo "Checking for API coverage files in container..."
-          dc exec openemr sh -c 'ls -laR /tmp/openemr-coverage/api 2>/dev/null || echo "No API coverage directory found"'
-        fi
-
-    - name: Upload api test results to Codecov
-      if: ${{ !cancelled() && hashFiles('junit-api.xml') != '' }}
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: junit-api.xml
-        flags: api,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
-        report_type: test_results
-
-    - name: Hide api test results from subsequent uploads
-      if: ${{ !cancelled() && hashFiles('junit-api.xml') != '' }}
-      run: mv junit-api.xml junit-api.saved-test-data
-
+    # Coverage conversion for suites that use auto_prepend.php
+    # (server-side coverage stored as raw PHP files in /tmp/openemr-coverage/)
     - name: Convert API coverage to Clover XML
-      if: ${{ !cancelled() && env.ENABLE_COVERAGE == 'true' }}
+      if: ${{ !cancelled() && env.ENABLE_COVERAGE == 'true' && matrix.suite == 'api' }}
       run: |
         . ci/ciLibrary.source
         convert_coverage /tmp/openemr-coverage/api \
                          /dev/null \
                          --clover=coverage.api.clover.xml
 
-    - name: Upload api test coverage to Codecov
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.api.clover.xml') != '' }}
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: coverage.api.clover.xml
-        flags: api,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
-
-    - name: Hide api coverage files from subsequent uploads
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.api.clover.xml') != '' }}
-      run: mv coverage.api.clover.xml api.saved-cov-data
-
-    # API test file coverage (collected by PHPUnit, not auto_prepend.php).
-    # This verifies the API test code itself is executing, separate from
-    # the server-side application coverage collected via auto_prepend.php.
-    - name: Upload api test file coverage to Codecov
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.api-tests.clover.xml') != '' }}
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: coverage.api-tests.clover.xml
-        flags: api-tests,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
-
-    - name: Hide api test file coverage from subsequent uploads
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.api-tests.clover.xml') != '' }}
-      run: mv coverage.api-tests.clover.xml api-tests.saved-cov-data
-
-    - name: Fixtures testing
-      if: ${{ success() || failure() }}
-      run: |
-        . ci/ciLibrary.source
-        build_test fixtures
-
-    - name: Upload fixtures test results to Codecov
-      if: ${{ !cancelled() && hashFiles('junit-fixtures.xml') != '' }}
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: junit-fixtures.xml
-        flags: fixtures,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
-        report_type: test_results
-
-    - name: Hide fixtures test results from subsequent uploads
-      if: ${{ !cancelled() && hashFiles('junit-fixtures.xml') != '' }}
-      run: mv junit-fixtures.xml junit-fixtures.saved-test-data
-
-    - name: Upload fixtures test coverage to Codecov
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.fixtures.clover.xml') != '' }}
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: coverage.fixtures.clover.xml
-        flags: fixtures,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
-
-    - name: Hide fixtures coverage files from subsequent uploads
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.fixtures.clover.xml') != '' }}
-      run: mv coverage.fixtures.clover.xml fixtures.saved-cov-data
-
-    - name: Services testing
-      if: ${{ success() || failure() }}
-      run: |
-        . ci/ciLibrary.source
-        build_test services
-
-    - name: Upload services test results to Codecov
-      if: ${{ !cancelled() && hashFiles('junit-services.xml') != '' }}
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: junit-services.xml
-        flags: services,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
-        report_type: test_results
-
-    - name: Hide services test results from subsequent uploads
-      if: ${{ !cancelled() && hashFiles('junit-services.xml') != '' }}
-      run: mv junit-services.xml junit-services.saved-test-data
-
-    - name: Upload services test coverage to Codecov
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.services.clover.xml') != '' }}
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: coverage.services.clover.xml
-        flags: services,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
-
-    - name: Hide services coverage files from subsequent uploads
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.services.clover.xml') != '' }}
-      run: mv coverage.services.clover.xml services.saved-cov-data
-
-    - name: Validators testing
-      if: ${{ success() || failure() }}
-      run: |
-        . ci/ciLibrary.source
-        build_test validators
-
-    - name: Upload validators test results to Codecov
-      if: ${{ !cancelled() && hashFiles('junit-validators.xml') != '' }}
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: junit-validators.xml
-        flags: validators,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
-        report_type: test_results
-
-    - name: Hide validators test results from subsequent uploads
-      if: ${{ !cancelled() && hashFiles('junit-validators.xml') != '' }}
-      run: mv junit-validators.xml junit-validators.saved-test-data
-
-    - name: Upload validators test coverage to Codecov
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.validators.clover.xml') != '' }}
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: coverage.validators.clover.xml
-        flags: validators,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
-
-    - name: Hide validators coverage files from subsequent uploads
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.validators.clover.xml') != '' }}
-      run: mv coverage.validators.clover.xml validators.saved-cov-data
-
-    - name: Controllers testing
-      if: ${{ success() || failure() }}
-      run: |
-        . ci/ciLibrary.source
-        build_test controllers
-
-    - name: Upload controllers test results to Codecov
-      if: ${{ !cancelled() && hashFiles('junit-controllers.xml') != '' }}
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: junit-controllers.xml
-        flags: controllers,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
-        report_type: test_results
-
-    - name: Hide controllers test results from subsequent uploads
-      if: ${{ !cancelled() && hashFiles('junit-controllers.xml') != '' }}
-      run: mv junit-controllers.xml junit-controllers.saved-test-data
-
-    - name: Upload controllers test coverage to Codecov
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.controllers.clover.xml') != '' }}
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: coverage.controllers.clover.xml
-        flags: controllers,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
-
-    - name: Hide controllers coverage files from subsequent uploads
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.controllers.clover.xml') != '' }}
-      run: mv coverage.controllers.clover.xml controllers.saved-cov-data
-
-    - name: Common testing
-      if: ${{ success() || failure() }}
-      run: |
-        . ci/ciLibrary.source
-        build_test common
-
-    - name: Upload common test results to Codecov
-      if: ${{ !cancelled() && hashFiles('junit-common.xml') != '' }}
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: junit-common.xml
-        flags: common,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
-        report_type: test_results
-
-    - name: Hide common test results from subsequent uploads
-      if: ${{ !cancelled() && hashFiles('junit-common.xml') != '' }}
-      run: mv junit-common.xml junit-common.saved-test-data
-
-    - name: Upload common test coverage to Codecov
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.common.clover.xml') != '' }}
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: coverage.common.clover.xml
-        flags: common,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
-
-    - name: Hide common coverage files from subsequent uploads
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.common.clover.xml') != '' }}
-      run: mv coverage.common.clover.xml common.saved-cov-data
-
-    - name: Email testing
-      if: ${{ success() || failure() }}
-      run: |
-        . ci/ciLibrary.source
-        build_test email
-
-    - name: Upload email test results to Codecov
-      if: ${{ !cancelled() && hashFiles('junit-email.xml') != '' }}
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: junit-email.xml
-        flags: email,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
-        report_type: test_results
-
-    - name: Hide email test results from subsequent uploads
-      if: ${{ !cancelled() && hashFiles('junit-email.xml') != '' }}
-      run: mv junit-email.xml junit-email.saved-test-data
-
-    - name: Upload email test coverage to Codecov
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.email.clover.xml') != '' }}
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: coverage.email.clover.xml
-        flags: email,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
-
-    - name: Hide email coverage files from subsequent uploads
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.email.clover.xml') != '' }}
-      run: mv coverage.email.clover.xml email.saved-cov-data
-
-    ##
-    # To skip E2E tests for specific docker directories,
-    # rename the docker directory to end with "_no-e2e".
-    - name: E2e testing
-      if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' }}
-      env:
-        # Change this to just 'selenium' to disable video recording.
-        COMPOSE_PROFILES: video-recording
-      run: |
-        . ci/ciLibrary.source
-        build_test e2e
-
     - name: Convert E2E coverage to Clover XML
-      if: ${{ (success() || failure()) && steps.parse.outputs.e2e_enabled == 'true' && env.ENABLE_COVERAGE == 'true' }}
+      if: ${{ !cancelled() && env.ENABLE_COVERAGE == 'true' && matrix.suite == 'e2e' }}
       run: |
         . ci/ciLibrary.source
         convert_coverage /tmp/openemr-coverage/e2e \
@@ -693,97 +569,80 @@ jobs:
                          --clover=coverage.e2e.clover.xml
 
     ##
-    # The logs for the e2e run are directly in the container logs for nginx/php-fpm
-    # but in /var/log/apache2/error.log for apache.
+    # Upload test results to Codecov
+    - name: Upload test results to Codecov
+      if: ${{ !cancelled() && hashFiles(format('junit-{0}.xml', matrix.suite)) != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: junit-${{ matrix.suite }}.xml
+        flags: ${{ matrix.suite }},php${{ needs.setup.outputs.php }},${{ needs.setup.outputs.webserver }},${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db }}
+        report_type: test_results
+
+    ##
+    # Upload coverage to Codecov.
+    # Standard suites produce coverage.<suite>.clover.xml via PHPUnit.
+    # API and E2E produce server-side coverage via auto_prepend.php (converted above)
+    # plus test-file coverage (coverage.<suite>-tests.clover.xml).
+    - name: Upload test coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles(format('coverage.{0}.clover.xml', matrix.suite)) != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.${{ matrix.suite }}.clover.xml
+        flags: ${{ matrix.suite }},php${{ needs.setup.outputs.php }},${{ needs.setup.outputs.webserver }},${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db }}
+
+    # API/E2E test file coverage (collected by PHPUnit, not auto_prepend.php).
+    # Verifies the test code itself is executing, separate from server-side coverage.
+    - name: Upload test file coverage to Codecov
+      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && (matrix.suite == 'api' || matrix.suite == 'e2e') && hashFiles(format('coverage.{0}-tests.clover.xml', matrix.suite)) != '' }}
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: coverage.${{ matrix.suite }}-tests.clover.xml
+        flags: ${{ matrix.suite }}-tests,php${{ needs.setup.outputs.php }},${{ needs.setup.outputs.webserver }},${{ needs.setup.outputs.database }}${{ needs.setup.outputs.db }}
+
+    ##
+    # Upload JUnit results to GitHub
+    - name: Upload JUnit test results to GitHub
+      if: ${{ !cancelled() && hashFiles(format('junit-{0}.xml', matrix.suite)) != '' }}
+      uses: actions/upload-artifact@v7
+      with:
+        name: junit-${{ needs.setup.outputs.docker_dir }}-${{ matrix.suite }}
+        path: junit-${{ matrix.suite }}.xml
+
+    ##
+    # E2E-specific post-test steps
     - name: E2e container logs
-      if: ${{ !cancelled() && steps.parse.outputs.e2e_enabled == 'true' }}
+      if: ${{ !cancelled() && matrix.suite == 'e2e' }}
       run: |
         . ci/ciLibrary.source
         dc logs openemr
 
     - name: E2e error logs
-      if: ${{ !cancelled() && steps.parse.outputs.e2e_enabled == 'true' && steps.parse.outputs.webserver == 'apache' }}
+      if: ${{ !cancelled() && matrix.suite == 'e2e' && needs.setup.outputs.webserver == 'apache' }}
       run: |
         . ci/ciLibrary.source
-        dump_error_log ${{ steps.parse.outputs.webserver }}
+        dump_error_log ${{ needs.setup.outputs.webserver }}
 
     - name: E2e selenium logs
-      if: ${{ !cancelled() && steps.parse.outputs.e2e_enabled == 'true' }}
+      if: ${{ !cancelled() && matrix.suite == 'e2e' }}
       run: |
         . ci/ciLibrary.source
         dc logs selenium
 
     - name: E2e video logs
-      if: ${{ !cancelled() && steps.parse.outputs.e2e_enabled == 'true' }}
+      if: ${{ !cancelled() && matrix.suite == 'e2e' }}
       run: |
         . ci/ciLibrary.source
         dc logs video
 
-    - name: Upload e2e test results to Codecov
-      if: ${{ !cancelled() && hashFiles('junit-e2e.xml') != '' }}
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: junit-e2e.xml
-        flags: e2e,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
-        report_type: test_results
-
-    - name: Hide e2e test results from subsequent uploads
-      if: ${{ !cancelled() && hashFiles('junit-e2e.xml') != '' }}
-      run: mv junit-e2e.xml junit-e2e.saved-test-data
-
-    - name: Upload e2e test coverage to Codecov
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.e2e.clover.xml') != '' }}
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: coverage.e2e.clover.xml
-        flags: e2e,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
-
-    - name: Hide e2e coverage files from subsequent uploads
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.e2e.clover.xml') != '' }}
-      run: mv coverage.e2e.clover.xml e2e.saved-cov-data
-
-    # E2E test file coverage (collected by PHPUnit, not auto_prepend.php).
-    # This verifies the e2e test code itself is executing, separate from
-    # the server-side application coverage collected via auto_prepend.php.
-    - name: Upload e2e test file coverage to Codecov
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.e2e-tests.clover.xml') != '' }}
-      uses: codecov/codecov-action@v5
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        files: coverage.e2e-tests.clover.xml
-        flags: e2e-tests,php${{ steps.parse.outputs.php }},${{ steps.parse.outputs.webserver }},${{ steps.parse.outputs.database }}${{ steps.parse.outputs.db }}
-
-    - name: Hide e2e test file coverage from subsequent uploads
-      if: ${{ env.ENABLE_COVERAGE == 'true' && !cancelled() && hashFiles('coverage.e2e-tests.clover.xml') != '' }}
-      run: mv coverage.e2e-tests.clover.xml e2e-tests.saved-cov-data
-
     - name: Upload E2E test videos to GitHub
-      if: ${{ !cancelled() && steps.parse.outputs.e2e_enabled == 'true' && hashFiles('selenium-videos/video.mp4') != '' }}
+      if: ${{ !cancelled() && matrix.suite == 'e2e' && hashFiles('selenium-videos/video.mp4') != '' }}
       uses: actions/upload-artifact@v7
       with:
-        name: e2e-test-videos-${{ steps.parse.outputs.docker_dir }}
+        name: e2e-test-videos-${{ needs.setup.outputs.docker_dir }}
         path: selenium-videos/
-
-    # Unhide junit files before uploading to GitHub
-    - name: Unhide JUnit test results for GitHub upload
-      if: ${{ !cancelled() }}
-      run: |
-        shopt -s nullglob
-        for hidden in junit-*.saved-test-data; do
-          # Convert junit-unit.saved-test-data back to junit-unit.xml
-          file="${hidden%.saved-test-data}.xml"
-          echo "Unhiding: $hidden -> $file"
-          mv "$hidden" "$file"
-        done
-
-    - name: Upload JUnit test results to GitHub
-      if: ${{ !cancelled() && hashFiles('junit-*.xml') != '' }}
-      uses: actions/upload-artifact@v7
-      with:
-        name: junit-test-results-${{ steps.parse.outputs.docker_dir }}
-        path: junit-*.xml
 
     - name: Test Summary
       if: ${{ always() }}
@@ -791,21 +650,21 @@ jobs:
         # Determine status emoji
         case "${{ job.status }}" in
           success)
-            status_emoji="✅"
+            status_emoji="pass"
             ;;
           failure)
-            status_emoji="❌"
+            status_emoji="FAIL"
             ;;
           cancelled)
-            status_emoji="🚫"
+            status_emoji="skip"
             ;;
           *)
-            status_emoji="❓"
+            status_emoji="?"
             ;;
         esac
 
         {
-          echo "| Status | PHP | Webserver | Database | E2E | Coverage | Docker Dir |"
+          echo "| Status | Suite | PHP | Webserver | Database | Coverage | Docker Dir |"
           echo "| --- | --- | --- | --- | --- | --- | --- |"
-          echo "| ${status_emoji} ${{ job.status }} | ${{ steps.parse.outputs.php }} | ${{ steps.parse.outputs.webserver }} | ${{ steps.parse.outputs.database }} ${{ steps.parse.outputs.db }} | ${{ steps.parse.outputs.e2e_enabled }} | ${{ env.ENABLE_COVERAGE }} | ${{ steps.parse.outputs.docker_dir }} |"
+          echo "| ${status_emoji} | ${{ matrix.suite }} | ${{ needs.setup.outputs.php }} | ${{ needs.setup.outputs.webserver }} | ${{ needs.setup.outputs.database }} ${{ needs.setup.outputs.db }} | ${{ env.ENABLE_COVERAGE }} | ${{ needs.setup.outputs.docker_dir }} |"
         } >> "$GITHUB_STEP_SUMMARY"

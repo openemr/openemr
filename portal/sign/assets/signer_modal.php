@@ -10,7 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -54,11 +54,11 @@ $twigVars = [
     ,'cpid' => $cpid
     ,'aud' => $is_portal ? $aud = 'patient-signature' : $aud
 ];
-$twigContainer = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
+$twigContainer = (new TwigContainer(null, $globalsBag->getKernel()))->getTwig();
 try {
     $modal = $twigContainer->render("portal/partial/_signer_modal.html.twig", $twigVars);
 } catch (\Throwable $exception) {
-    (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+    ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception]);
     // we want the json to fail
     die(json_encode(['error' => 'Server died']));
 }

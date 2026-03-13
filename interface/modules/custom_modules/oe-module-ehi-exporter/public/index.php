@@ -50,7 +50,7 @@ if (isset($_POST['submit'])) {
                     'result' => $result
                     ,'job' => $job
                     , 'assetPath' => $bootstrap->getAssetPath()
-                    ,'postUrl' => $GLOBALS['webroot'] . Bootstrap::MODULE_INSTALLATION_PATH . '/'
+                    ,'postUrl' => OEGlobalsBag::getInstance()->get('webroot') . Bootstrap::MODULE_INSTALLATION_PATH . '/'
                                     . Bootstrap::MODULE_NAME . '/public/index.php'
                 ]
             );
@@ -62,7 +62,7 @@ if (isset($_POST['submit'])) {
                 echo json_encode($task->getJSON());
             } catch (\Throwable $exception) {
                 $errorMessage = $exception->getMessage();
-                $bootstrap->getLogger()->errorLogCaller($errorMessage, ['trace' => $exception->getTraceAsString()]);
+                $bootstrap->getLogger()->error($errorMessage, ['exception' => $exception]);
                 echo json_encode(['status' => 'failed', 'error_message' => $errorMessage, 'taskId' => $taskId]);
             }
             exit;
@@ -74,14 +74,14 @@ if (isset($_POST['submit'])) {
                 echo json_encode($task->getJSON());
             } catch (\Throwable $exception) {
                 $errorMessage = $exception->getMessage();
-                $bootstrap->getLogger()->errorLogCaller($errorMessage, ['trace' => $exception->getTraceAsString()]);
+                $bootstrap->getLogger()->error($errorMessage, ['exception' => $exception]);
                 echo json_encode(['status' => 'failed', 'error_message' => $errorMessage, 'taskId' => $taskId]);
             }
             exit;
         }
     } catch (\Throwable $exception) {
         $errorMessage = $exception->getMessage();
-        $bootstrap->getLogger()->errorLogCaller($errorMessage, ['trace' => $exception->getTraceAsString()]);
+        $bootstrap->getLogger()->error($errorMessage, ['exception' => $exception]);
     }
 } else {
     $exportSizeSettings = $exporter->getExportSizeSettings($defaultZipSize);
@@ -95,7 +95,7 @@ if (isset($_POST['submit'])) {
             // TODO: @adunsulag add most recent exports here.
             , 'errorMessage' => $errorMessage
             , 'postAction' => $_SERVER['PHP_SELF']
-            , 'site_addr_oath' => trim($GLOBALS['site_addr_oath'] ?? '')
+            , 'site_addr_oath' => trim(OEGlobalsBag::getInstance()->get('site_addr_oath') ?? '')
             , 'assetPath' => $bootstrap->getAssetPath()
         ]
     );

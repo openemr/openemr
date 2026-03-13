@@ -11,9 +11,10 @@ require_once("../globals.php");
 require_once("drugs.inc.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 use PHPMailer\PHPMailer\PHPMailer;
 
@@ -21,7 +22,7 @@ $facilityService = new FacilityService();
 
 function send_email($subject, $body): void
 {
-    $recipient = $GLOBALS['practice_return_email_path'];
+    $recipient = OEGlobalsBag::getInstance()->get('practice_return_email_path');
     if (empty($recipient)) {
         return;
     }
@@ -141,7 +142,7 @@ try {
 } catch (\Throwable $e) {
     // TODO: we moved the die statements out of the service into exceptions, but this is still terrible and needs to be
     // revisited.
-    (new SystemLogger())->errorLogCaller("Dispense drug error: " . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+    ServiceContainer::getLogger()->error("Dispense drug error: " . $e->getMessage(), ['exception' => $e]);
     die(text($e->getMessage()));
 }
 
@@ -167,7 +168,7 @@ $row = sqlQuery("SELECT " .
     "p.pid = s.pid AND " .
     "u.id = r.provider_id", [$sale_id]);
 
-$dconfig = $GLOBALS['oer_config']['druglabels'];
+$dconfig = OEGlobalsBag::getInstance()->get('oer_config')['druglabels'];
 
 $header_text = $row['ufname'] . ' ' . $row['umname'] . ' ' . $row['ulname'] . "\n" .
 $frow['street'] . "\n" .

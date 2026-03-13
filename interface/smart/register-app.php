@@ -26,6 +26,7 @@
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\Services\DecisionSupportInterventionService;
 
@@ -34,7 +35,7 @@ $ignoreAuth = true;
 require_once("../globals.php");
 
 // exit if fhir api is not turned on
-if (empty($GLOBALS['rest_fhir_api'])) {
+if (empty(OEGlobalsBag::getInstance()->get('rest_fhir_api'))) {
     die(xlt("Not Authorized"));
 }
 
@@ -45,11 +46,11 @@ $loginrow = "row login-row bg-white shadow-lg align-items-center my-sm-5";
 
 // Apply these classes to the logo area if the login page is left or right
 $lrArr = ['left', 'right'];
-$logoarea .= (in_array($GLOBALS['login_page_layout'], $lrArr)) ? " col-md-6" : " col-md-12";
-$formarea .= (in_array($GLOBALS['login_page_layout'], $lrArr)) ? " col-md-6" : " col-md-12";
+$logoarea .= (in_array(OEGlobalsBag::getInstance()->get('login_page_layout'), $lrArr)) ? " col-md-6" : " col-md-12";
+$formarea .= (in_array(OEGlobalsBag::getInstance()->get('login_page_layout'), $lrArr)) ? " col-md-6" : " col-md-12";
 
 // More finite control on a per-setting basis
-switch ($GLOBALS['login_page_layout']) {
+switch (OEGlobalsBag::getInstance()->get('login_page_layout')) {
     case 'left':
         $logoarea .= " order-md-2";
         $formarea .= " order-md-1";
@@ -366,11 +367,11 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
 <form id="app_form" method="POST" autocomplete="off">
     <div class="<?php echo $loginrow; ?> card m-5">
         <div class="<?php echo attr($logoarea); ?>">
-            <?php $extraLogo = $GLOBALS['extra_logo_login']; ?>
+            <?php $extraLogo = OEGlobalsBag::getInstance()->getBoolean('extra_logo_login'); ?>
             <?php if ($extraLogo) { ?>
                 <div class="text-center">
                     <span class="d-inline-block w-40">
-                        <?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/login-logo.svg"); ?>
+                        <?php echo file_get_contents(OEGlobalsBag::getInstance()->get('images_static_absolute') . "/login-logo.svg"); ?>
                     </span>
                     <span class="d-inline-block w-15 login-bg-text-color"><i class="fas fa-plus fa-2x"></i></span>
                     <span class="d-inline-block w-40">
@@ -379,18 +380,18 @@ $dsiTypesStringNames = DecisionSupportInterventionService::DSI_TYPES_CLIENT_STRI
                 </div>
             <?php } else { ?>
                 <div class="mx-auto m-4 w-75">
-                    <?php echo file_get_contents($GLOBALS['images_static_absolute'] . "/login-logo.svg"); ?>
+                    <?php echo file_get_contents(OEGlobalsBag::getInstance()->get('images_static_absolute') . "/login-logo.svg"); ?>
                 </div>
             <?php } ?>
-            <?php if ($GLOBALS['show_label_login']) { ?>
+            <?php if (OEGlobalsBag::getInstance()->getBoolean('show_label_login')) { ?>
             <div class="text-center login-title-label">
                     <?php echo text($openemr_name); ?>
             </div>
             <?php } ?>
             <?php
             // Figure out how to display the tiny logos
-            $t1 = $GLOBALS['tiny_logo_1'];
-            $t2 = $GLOBALS['tiny_logo_2'];
+            $t1 = OEGlobalsBag::getInstance()->getBoolean('tiny_logo_1');
+            $t2 = OEGlobalsBag::getInstance()->getBoolean('tiny_logo_2');
             if ($t1 && !$t2) {
                 echo $tinylogocode1;
             } if ($t2 && !$t1) {

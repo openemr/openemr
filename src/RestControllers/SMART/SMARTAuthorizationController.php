@@ -337,7 +337,7 @@ class SMARTAuthorizationController
                 ->withHeader('Content-Type', 'text/html; charset=UTF-8')
                 ->withBody((new Psr17Factory())->createStream($twig->render($template, $vars)));
         } catch (\Throwable $e) {
-            $this->logger->errorLogCaller("caught exception rendering template", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            $this->logger->error("caught exception rendering template", ['exception' => $e]);
             return (new Psr17Factory())->createResponse()
                 ->withStatus(Response::HTTP_INTERNAL_SERVER_ERROR)
                 ->withHeader('Content-Type', 'text/html; charset=UTF-8')
@@ -360,7 +360,7 @@ class SMARTAuthorizationController
             $resolvedTemplate = $twig->resolveTemplate($templates);
             $response = new JsonResponse($resolvedTemplate->render($vars));
         } catch (\Throwable $e) {
-            $this->logger->errorLogCaller("caught exception rendering template", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            $this->logger->error("caught exception rendering template", ['exception' => $e]);
             $response = new JsonResponse($twig->render("error/general_http_error.json.twig", ['statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR]), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
         $psrFactory = new PsrHttpFactory();

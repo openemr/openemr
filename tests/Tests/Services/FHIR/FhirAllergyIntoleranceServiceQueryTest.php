@@ -2,9 +2,7 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
-use Monolog\Level;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAllergyIntolerance;
 use OpenEMR\Services\FHIR\FhirAllergyIntoleranceService;
@@ -12,6 +10,7 @@ use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * FHIR Allergy Intolerance Service Query Tests
@@ -61,9 +60,7 @@ class FhirAllergyIntoleranceServiceQueryTest extends TestCase
         $this->fixtureManager = new FixtureManager();
         $this->fixtureManager->installAllergyIntoleranceFixtures();
         $this->fhirService = new FhirAllergyIntoleranceService(self::$apiBaseURL);
-        // suppress logging below critical level as that's part of the tests.
-        $systemLogger = new SystemLogger(Level::Critical);
-        $this->fhirService->setSystemLogger($systemLogger);
+        $this->fhirService->setSystemLogger($this->createMock(LoggerInterface::class));
     }
 
     protected function tearDown(): void

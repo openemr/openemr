@@ -29,6 +29,7 @@ require_once("../../interface/globals.php");
 require_once("$srcdir/maviq_phone_api.php");
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
@@ -36,13 +37,13 @@ $facilityService = new FacilityService();
 $type = "Phone";
 $before_trigger_hours = 72; // 3 days is default
 //Get the values from Global
-$before_trigger_hours = $GLOBALS['phone_notification_hour'];
+$before_trigger_hours = OEGlobalsBag::getInstance()->getInt('phone_notification_hour');
 //set up the phone notification settings for external phone service
-$phone_url = $GLOBALS['phone_gateway_url'] ;
-$phone_id = $GLOBALS['phone_gateway_username'];
+$phone_url = OEGlobalsBag::getInstance()->get('phone_gateway_url') ;
+$phone_id = OEGlobalsBag::getInstance()->get('phone_gateway_username');
 $cryptoGen = ServiceContainer::getCrypto();
-$phone_token = $cryptoGen->decryptStandard($GLOBALS['phone_gateway_password']);
-$phone_time_range = $GLOBALS['phone_time_range'];
+$phone_token = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('phone_gateway_password'));
+$phone_time_range = OEGlobalsBag::getInstance()->get('phone_time_range');
 
 //get the facility_id-message map
 $facilities = cron_getFacilitiesMap($facilityService);
@@ -70,7 +71,7 @@ for ($p = 0; $p < count($db_patient); $p++) {
     $greeting = $fac_msg_map[$prow['pc_facility']];
     if ($greeting == null) {
             //Use the default when the message is not found
-            $greeting = $GLOBALS['phone_appt_message']['Default'];
+            $greeting = OEGlobalsBag::getInstance()->get('phone_appt_message')['Default'];
     }
 
     //Set up the parameters for the call
@@ -128,7 +129,7 @@ function cron_InsertNotificationLogEntryBatchcom($prow, $phone_msg, $phone_gatew
  */
 function batchcom_WriteLog($data): void
 {
-    $log_file = $GLOBALS['phone_reminder_log_dir'];
+    $log_file = OEGlobalsBag::getInstance()->get('phone_reminder_log_dir');
 
     if ($log_file != null) {
         $filename = $log_file . "/" . "phone_reminder_cronlog_" . date("Ymd") . ".html";

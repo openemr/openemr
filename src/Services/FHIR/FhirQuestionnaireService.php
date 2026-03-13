@@ -15,7 +15,7 @@
 namespace OpenEMR\Services\FHIR;
 
 use BadMethodCallException;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaire;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
@@ -80,9 +80,9 @@ class FhirQuestionnaireService extends FhirServiceBase implements IResourceReada
                 $fhirSearchResult = $this->searchAllServices($fhirSearchParameters, $puuidBind);
             }
         } catch (SearchFieldException $exception) {
-            $systemLogger = new SystemLogger();
-            $systemLogger->errorLogCaller("Failed to retrieve records", ['message' => $exception->getMessage(),
-                'field' => $exception->getField(), 'trace' => $exception->getTraceAsString()]);
+            $systemLogger = ServiceContainer::getLogger();
+            $systemLogger->error("Failed to retrieve records", ['exception' => $exception,
+                'field' => $exception->getField()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);
         }

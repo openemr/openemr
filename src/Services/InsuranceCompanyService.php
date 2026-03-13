@@ -18,7 +18,6 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Address\AddressData;
 use OpenEMR\Services\{
@@ -29,6 +28,8 @@ use OpenEMR\Services\{
 };
 use OpenEMR\Validators\InsuranceCompanyValidator;
 use OpenEMR\Validators\ProcessingResult;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\BC\ServiceContainer;
 
 class InsuranceCompanyService extends BaseService
 {
@@ -79,7 +80,7 @@ class InsuranceCompanyService extends BaseService
     }
     public static function getDisplayNameForInsuranceRecord($insuranceCompany)
     {
-        switch ($GLOBALS['insurance_information']) {
+        switch (OEGlobalsBag::getInstance()->get('insurance_information')) {
             case '1':
                 $returnval = $insuranceCompany['name'] . " (" . $insuranceCompany['line1'] . ", " . $insuranceCompany['line2'] . ")";
                 break;
@@ -195,10 +196,10 @@ class InsuranceCompanyService extends BaseService
             }
         } catch (SqlQueryException $exception) {
             // we shouldn't hit a query exception
-            (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+            ServiceContainer::getLogger()->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
             $processingResult->addInternalError("Error selecting data from database");
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error(
+            ServiceContainer::getLogger()->error(
                 $exception->getMessage(),
                 ['trace' => $exception->getTraceAsString(),
                  'field' => $exception->getField()]

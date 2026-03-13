@@ -21,20 +21,21 @@ require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/lists.inc.php");
 require_once(__DIR__ . "/../../../custom/code_types.inc.php");
-if ($GLOBALS['enable_group_therapy']) {
+if (\OpenEMR\Core\OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy')) {
     require_once("$srcdir/group.inc.php");
 }
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -52,7 +53,7 @@ $issue = empty($_GET['issue']) ? 0 : 0 + $_GET['issue'];
  // $N = 12;
 
  //Get the default encounter from Globals
- $default_encounter = $GLOBALS['default_encounter_view']; //'0'=clinical, '1' = billing
+ $default_encounter = OEGlobalsBag::getInstance()->get('default_encounter_view'); //'0'=clinical, '1' = billing
 
 // Get relevant ACL info.
 $auth_notes_a = AclMain::aclCheckCore('encounters', 'notes_a');
@@ -82,7 +83,7 @@ if (isset($_GET['billing'])) {
 
 // form locator will cache form locations (so modules can extend)
 // form report renderer will render the form reports
-$logger = new SystemLogger();
+$logger = ServiceContainer::getLogger();
 $formLocator = new FormLocator($logger);
 $formReportRenderer = new FormReportRenderer($formLocator, $logger);
 
@@ -116,7 +117,7 @@ function getDocListByEncID($encounter, $raw_encounter_date, $pid): void
             }
             $docTitle = $note ?: xl("View document");
 
-            $docHref = $GLOBALS['webroot'] . "/controller.php?document&view&patient_id=" . attr_url($pid) . "&doc_id=" . attr_url($documentrow['id']);
+            $docHref = OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?document&view&patient_id=" . attr_url($pid) . "&doc_id=" . attr_url($documentrow['id']);
             echo "<div class='text docrow' id='" . attr($documentrow['id']) . "'data-toggle='tooltip' data-placement='top' title='" . attr($docTitle) . "'>\n";
             echo "<a href='$docHref' onclick='top.restoreSession()' >" . xlt('Document') . ": " . text($documentrow['document_name'])  . '-' . $documentrow['id'] . ' (' . text(xl_document_category($documentrow['name'])) . ')' . "</a>";
             echo "</div>";
@@ -188,14 +189,14 @@ function generatePageElement($start, $pagesize, $billing, $issue, $text): void
 <head>
 <!-- Main style sheet comes after the page-specific stylesheet to facilitate overrides. -->
 <?php if ($session->get('language_direction') == "rtl") { ?>
-  <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/rtl_encounters.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
+  <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->get('themes_static_relative'); ?>/misc/rtl_encounters.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
 <?php } else { ?>
-  <link rel="stylesheet" href="<?php echo $GLOBALS['themes_static_relative']; ?>/misc/encounters.css?v=<?php echo $GLOBALS['v_js_includes']; ?>" />
+  <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->get('themes_static_relative'); ?>/misc/encounters.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
 <?php } ?>
 <!-- Not sure why we don't want this ui to be B.S responsive. -->
 <?php Header::setupHeader(['no_textformat']); ?>
 
-<script src="<?php echo $GLOBALS['webroot'] ?>/library/js/ajtooltip.js"></script>
+<script src="<?php echo OEGlobalsBag::getInstance()->get('webroot') ?>/library/js/ajtooltip.js"></script>
 
 <script>
 
@@ -231,7 +232,7 @@ function todocument(docid) {
     patient_id: <?php echo js_escape($pid); ?>,
     view: ''
   });
-  h = '<?php echo $GLOBALS['webroot'] ?>/controller.php?' + params;
+  h = '<?php echo OEGlobalsBag::getInstance()->get('webroot') ?>/controller.php?' + params;
   top.restoreSession();
   location.href = h;
 }
@@ -288,7 +289,7 @@ window.onload = function() {
     if (isset($_GET['pagesize'])) {
         $pagesize = $_GET['pagesize'];
     } else {
-        $pagesize = array_key_exists('encounter_page_size', $GLOBALS) ? $GLOBALS['encounter_page_size'] : 0;
+        $pagesize = OEGlobalsBag::getInstance()->get('encounter_page_size', 0);
     }
     $pagestart = $_GET['pagestart'] ?? 0;
     $getStringForPage = "&pagesize=" . attr_url($pagesize) . "&pagestart=" . attr_url($pagestart);
@@ -366,26 +367,26 @@ window.onload = function() {
                     <th class='text-right' scope="col"><?php echo xlt('Adj'); ?></th>
                     <th class='text-right' scope="col"><?php echo xlt('Bal'); ?></th>
                     <?php } elseif ($attendant_type == 'pid') { ?>
-                    <th colspan='5' scope="col"><?php echo ($GLOBALS['phone_country_code'] == '1') ? xlt('Billing') : xlt('Coding'); ?></th>
+                    <th colspan='5' scope="col"><?php echo (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1) ? xlt('Billing') : xlt('Coding'); ?></th>
                     <?php } ?>
 
-                    <?php if ($attendant_type == 'pid' && !$GLOBALS['ippf_specific']) { ?>
-                    <th scope="col">&nbsp;<?php echo ($GLOBALS['weight_loss_clinic']) ? xlt('Payment') : xlt('Insurance'); ?></th>
+                    <?php if ($attendant_type == 'pid' && !OEGlobalsBag::getInstance()->get('ippf_specific')) { ?>
+                    <th scope="col">&nbsp;<?php echo (OEGlobalsBag::getInstance()->get('weight_loss_clinic')) ? xlt('Payment') : xlt('Insurance'); ?></th>
                     <?php } ?>
 
-                    <?php if ($GLOBALS['enable_group_therapy'] && !$billing_view && $therapy_group == 0) { ?>
+                    <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy') && !$billing_view && $therapy_group == 0) { ?>
                         <th scope="col"><?php echo xlt('Encounter type'); ?></th>
                     <?php }?>
 
-                    <?php if ($GLOBALS['enable_follow_up_encounters']) { ?>
+                    <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_follow_up_encounters')) { ?>
                         <th scope="col"></th>
                     <?php }?>
 
-                    <?php if ($GLOBALS['enable_group_therapy'] && !$billing_view && $therapy_group == 0) { ?>
+                    <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy') && !$billing_view && $therapy_group == 0) { ?>
                         <th scope="col"><?php echo xlt('Group name'); ?></th>
                     <?php }?>
 
-                    <?php if ($GLOBALS['enable_follow_up_encounters']) { ?>
+                    <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_follow_up_encounters')) { ?>
                         <th scope="col"></th>
                     <?php }?>
                 </tr>
@@ -790,7 +791,7 @@ window.onload = function() {
                 }
 
                     // show insurance
-                if ($attendant_type == 'pid' && !$GLOBALS['ippf_specific']) {
+                if ($attendant_type == 'pid' && !OEGlobalsBag::getInstance()->get('ippf_specific')) {
                     $insured = oeFormatShortDate($raw_encounter_date);
                     if ($auth_demo) {
                         $responsible = -1;
@@ -828,24 +829,24 @@ window.onload = function() {
                     echo "<td>" . $insured . "</td>\n";
                 }
 
-                if ($GLOBALS['enable_group_therapy'] && !$billing_view && $therapy_group == 0) {
+                if (OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy') && !$billing_view && $therapy_group == 0) {
                     $encounter_type = sqlQuery("SELECT pc_catname, pc_cattype FROM openemr_postcalendar_categories where pc_catid = ?", [$result4['pc_catid']]);
                     echo "<td>" . xlt($encounter_type['pc_catname']) . "</td>\n";
                 }
 
-                if ($GLOBALS['enable_follow_up_encounters']) {
+                if (OEGlobalsBag::getInstance()->getBoolean('enable_follow_up_encounters')) {
                     $symbol = ( !empty($result4['parent_encounter_id']) ) ? '<span class="fa fa-fw fa-undo p-1"></span>' : null;
 
                     echo "<td> " . $symbol . " </td>\n";
                 }
 
-                if ($GLOBALS['enable_group_therapy'] && !$billing_view && $therapy_group == 0) {
+                if (OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy') && !$billing_view && $therapy_group == 0) {
                     $group_name = ($encounter_type['pc_cattype'] == 3 && is_numeric($result4['external_id'])) ? getGroup($result4['external_id'])['group_name']  : "";
                     echo "<td>" . text($group_name) . "</td>\n";
                 }
 
 
-                if ($GLOBALS['enable_follow_up_encounters']) {
+                if (OEGlobalsBag::getInstance()->getBoolean('enable_follow_up_encounters')) {
                     $encounterId = ( !empty($result4['parent_encounter_id']) ) ? $result4['parent_encounter_id'] : $result4['id'];
                     echo "<td> <div style='z-index: 9999'>  <a href='#' class='btn btn-sm btn-primary' onclick='createFollowUpEncounter(event," . attr_js($encounterId) . ")'><span>" . xlt('Create follow-up encounter') . "</span></a> </div></td>\n";
                 }

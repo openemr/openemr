@@ -22,10 +22,10 @@ require_once("$srcdir/options.inc.php");
 require_once("$srcdir/lists.inc.php");
 require_once("$srcdir/report.inc.php");
 require_once(__DIR__ . "/../../../custom/code_types.inc.php");
-require_once $GLOBALS['srcdir'] . '/ESign/Api.php';
-require_once($GLOBALS["include_root"] . "/orders/single_order_results.inc.php");
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Api.php';
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("include_root") . "/orders/single_order_results.inc.php");
 require_once("$srcdir/appointments.inc.php");
-require_once($GLOBALS['fileroot'] . "/controllers/C_Document.class.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/controllers/C_Document.class.php");
 
 use ESign\Api;
 use Mpdf\Mpdf;
@@ -34,6 +34,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Forms\FormReportRenderer;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\MedicalDevice\MedicalDevice;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\FacilityService;
@@ -50,7 +51,7 @@ $staged_docs = [];
 $archive_name = '';
 
 // For those who care that this is the patient report.
-$GLOBALS['PATIENT_REPORT_ACTIVE'] = true;
+OEGlobalsBag::getInstance()->set('PATIENT_REPORT_ACTIVE', true);
 
 $PDF_OUTPUT = empty($_POST['pdf']) ? 0 : intval($_POST['pdf']);
 $PDF_FAX = empty($_POST['fax']) ? 0 : intval($_POST['fax']);
@@ -63,8 +64,8 @@ if ($PDF_OUTPUT) {
     // special settings for patient custom report that are necessary for mpdf
     $config_mpdf['margin_top'] *= 1.5;
     $config_mpdf['margin_bottom'] *= 1.5;
-    $config_mpdf['margin_header'] = $GLOBALS['pdf_top_margin'];
-    $config_mpdf['margin_footer'] =  $GLOBALS['pdf_bottom_margin'];
+    $config_mpdf['margin_header'] = OEGlobalsBag::getInstance()->getInt('pdf_top_margin');
+    $config_mpdf['margin_footer'] =  OEGlobalsBag::getInstance()->getInt('pdf_bottom_margin');
     $pdf = new mPDF($config_mpdf);
     if ($session->get('language_direction') == 'rtl') {
         $pdf->SetDirectionality('rtl');
@@ -197,7 +198,7 @@ function getContent()
 
                 $logo = "";
                 if (file_exists($practice_logo)) {
-                    $logo = $GLOBALS['OE_SITE_WEBROOT'] . "/images/" . basename((string) $practice_logo);
+                    $logo = OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT') . "/images/" . basename((string) $practice_logo);
                 }
 
                 echo genFacilityTitle(getPatientName($pid), $session->get('pc_facility'), $logo); ?>
@@ -431,7 +432,7 @@ function getContent()
                             $result = sqlStatement($sql, [$pid]);
                             while ($row = sqlFetchArray($result)) {
                                 // Figure out which name to use (ie. from cvx list or from the custom list)
-                                if ($GLOBALS['use_custom_immun_list']) {
+                                if (OEGlobalsBag::getInstance()->getBoolean('use_custom_immun_list')) {
                                     $vaccine_display = generate_display_field(['data_type' => '1', 'list_id' => 'immunizations'], $row['immunization_id']);
                                 } else {
                                     if (!empty($row['code_text_short'])) {
@@ -527,7 +528,7 @@ function getContent()
                                 $tempCDoc->onReturnRetrieveKey();
                                 $tempFile = $tempCDoc->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
                                 // tmp file in temporary_files_dir
-                                $tempFileName = tempnam($GLOBALS['temporary_files_dir'], "oer");
+                                $tempFileName = tempnam(OEGlobalsBag::getInstance()->get('temporary_files_dir'), "oer");
                                 file_put_contents($tempFileName, $tempFile);
                                 $image_data = getimagesize($tempFileName);
                                 $extension = image_type_to_extension($image_data[2]);
@@ -542,7 +543,7 @@ function getContent()
                                     $tempDocC->onReturnRetrieveKey();
                                     $fileTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
                                     // tmp file in ../documents/temp since need to be available via webroot
-                                    $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'] . '/documents/temp', "oer");
+                                    $from_file_tmp_web_name = tempnam(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/temp', "oer");
                                     file_put_contents($from_file_tmp_web_name, $fileTemp);
                                     echo "<img src='$from_file_tmp_web_name'";
                                     // Flag images with excessive width for possible stylesheet action.
@@ -553,7 +554,7 @@ function getContent()
                                     $tmp_files_remove[] = $from_file_tmp_web_name;
                                     echo " /><br /><br />";
                                 } else {
-                                    echo "<img src='" . $GLOBALS['webroot'] .
+                                    echo "<img src='" . OEGlobalsBag::getInstance()->get('webroot') .
                                         "/controller.php?document&retrieve&patient_id=&document_id=" .
                                         attr_url($document_id) . "&as_file=false&original_file=true&disable_exit=false&show_original=true'><br /><br />";
                                 }
@@ -572,7 +573,7 @@ function getContent()
                                         $tempDocC->onReturnRetrieveKey();
                                         $pdfTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
                                         // tmp file in temporary_files_dir
-                                        $from_file_tmp_name = tempnam($GLOBALS['temporary_files_dir'], "oer");
+                                        $from_file_tmp_name = tempnam(OEGlobalsBag::getInstance()->get('temporary_files_dir'), "oer");
                                         file_put_contents($from_file_tmp_name, $pdfTemp);
 
                                         $pagecount = $pdf->setSourceFile($from_file_tmp_name);
@@ -584,7 +585,7 @@ function getContent()
                                     } catch (\Throwable) {
                                         // chances are PDF is > v1.4 and compression level not supported.
                                         // regardless, we're here so lets dispose in different way.
-                                        $archive_name = ($GLOBALS['temporary_files_dir'] . '/' . report_basename($pid)['base'] . ".zip");
+                                        $archive_name = (OEGlobalsBag::getInstance()->get('temporary_files_dir') . '/' . report_basename($pid)['base'] . ".zip");
                                         $rtn = zip_content(basename((string) $d->url), $archive_name, $pdfTemp ?? '');
                                         $err = "<span>" . xlt('PDF Document Parse Error and not included. Check if included in archive.') . " : " . text($fname) . "</span>";
                                         $pdf->writeHTML($err);
@@ -616,7 +617,7 @@ function getContent()
                                         $tempDocC->onReturnRetrieveKey();
                                         $fileTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, false, true, true);
                                         // tmp file in ../documents/temp since need to be available via webroot
-                                        $from_file_tmp_web_name = tempnam($GLOBALS['OE_SITE_DIR'] . '/documents/temp', "oer");
+                                        $from_file_tmp_web_name = tempnam(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/temp', "oer");
                                         file_put_contents($from_file_tmp_web_name, $fileTemp);
                                         echo "<img src='$from_file_tmp_web_name'><br /><br />";
                                         $tmp_files_remove[] = $from_file_tmp_web_name;
@@ -624,7 +625,7 @@ function getContent()
                                         if ($extension === '.pdf' || $extension === '.zip') {
                                             echo "<strong>" . xlt('Available Document') . ":</strong><em> " . text($fname) . "</em><br />";
                                         } else {
-                                            echo "<img src='" . $GLOBALS['webroot'] . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br /><br />";
+                                            echo "<img src='" . OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?document&retrieve&patient_id=&document_id=" . attr_url($document_id) . "&as_file=false&original_file=false'><br /><br />";
                                         }
                                     }
                                 }
@@ -636,7 +637,7 @@ function getContent()
                             echo "<hr />";
                             echo "<div class='text documents'>";
                             foreach ($val as $poid) {
-                                if (empty($GLOBALS['esign_report_show_only_signed'])) {
+                                if (!OEGlobalsBag::getInstance()->getBoolean('esign_report_show_only_signed')) {
                                     echo '<h4>' . xlt('Procedure Order') . ':</h4>';
                                     echo "<br />\n";
                                     generate_order_report($poid, false, !$PDF_OUTPUT);
@@ -747,9 +748,9 @@ function getContent()
                                 <?php
                                 if (!empty($res[1])) {
                                     $esign = $esignApi->createFormESign($formId, $res[1], $form_encounter);
-                                    if ($esign->isSigned('report') && !empty($GLOBALS['esign_report_show_only_signed'])) {
+                                    if ($esign->isSigned('report') && OEGlobalsBag::getInstance()->getBoolean('esign_report_show_only_signed')) {
                                         $reportRenderer->renderReport($res[1], 'custom_report.php', $pid, $form_encounter, $N, $form_id, $res[1]);
-                                    } elseif (empty($GLOBALS['esign_report_show_only_signed'])) {
+                                    } elseif (!OEGlobalsBag::getInstance()->getBoolean('esign_report_show_only_signed')) {
                                         $reportRenderer->renderReport($res[1], 'custom_report.php', $pid, $form_encounter, $N, $form_id, $res[1]);
                                     } else {
                                         echo "<h6>" . xlt("Not signed.") . "</h6>";
@@ -822,7 +823,7 @@ function getContent()
             try {
                 if ($PDF_FAX === 1) {
                     $fax_pdf = $pdf->Output($fn, 'S');
-                    $tmp_file = $GLOBALS['temporary_files_dir'] . '/' . $fn; // is deleted in sendFax...
+                    $tmp_file = OEGlobalsBag::getInstance()->get('temporary_files_dir') . '/' . $fn; // is deleted in sendFax...
                     file_put_contents($tmp_file, $fax_pdf);
                     echo $tmp_file;
                     exit();
@@ -843,7 +844,7 @@ function getContent()
 
                         unlink($archive_name);
                     } else {
-                        $pdf->Output($fn, $GLOBALS['pdf_output']); // D = Download, I = Inline
+                        $pdf->Output($fn, OEGlobalsBag::getInstance()->get('pdf_output')); // D = Download, I = Inline
                     }
                 }
             } catch (MpdfException $exception) {
@@ -879,7 +880,7 @@ function getContent()
     } else {
         ?>
         <?php if (!$printable) { ?>
-        <script src="<?php echo $GLOBALS['web_root'] ?>/interface/patient_file/report/custom_report.js?v=<?php echo $v_js_includes; ?>"></script>
+        <script src="<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/interface/patient_file/report/custom_report.js?v=<?php echo $v_js_includes; ?>"></script>
         <script>
             const searchBarHeight = document.querySelectorAll('.report_search_bar')[0].clientHeight;
             document.getElementById('backLink').style.marginTop = `${searchBarHeight}px`;

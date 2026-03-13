@@ -12,8 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -44,7 +44,7 @@ $action = $_REQUEST['action'] ?? '';
 
 if ($action == 'verify_email') {
     if ($session->get('verifyPortalEmail') === true) {
-        if (!empty($globalsBag->get('portal_onsite_two_register')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key'))) {
+        if ($globalsBag->getBoolean('portal_onsite_two_register') && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key'))) {
             // check csrf
             if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'verifyEmailCsrf', $session->getSymfonySession())) {
                 CsrfUtils::csrfNotVerified(beforeExit: cleanupRegistrationSession(...));
@@ -103,7 +103,7 @@ if ($action == 'userIsUnique') {
 if ($action == 'reset_password') {
     if ($session->get('register', null) === true && $session->has('pid')) {
         $rtn = 0;
-        if (!empty($globalsBag->get('portal_two_pass_reset')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key'))) {
+        if ($globalsBag->getBoolean('portal_two_pass_reset') && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key'))) {
             // check csrf
             if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'passwordResetCsrf', $session->getSymfonySession())) {
                 CsrfUtils::csrfNotVerified(beforeExit: cleanupRegistrationSession(...));
@@ -125,29 +125,29 @@ if ($action == 'reset_password') {
 
 if ($action == 'do_signup') {
     if ($session->get('register_silo_ajax', null) === true && $session->get('register', null) === true && $session->has('pid')) {
-        if (!empty($globalsBag->get('portal_onsite_two_register')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key'))) {
+        if ($globalsBag->getBoolean('portal_onsite_two_register') && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key'))) {
             $pidHolder = getPidHolder();
             if ($pidHolder == 0) {
-                (new SystemLogger())->error("account.php action do_signup failed because unable to collect pid from pid_holder");
+                ServiceContainer::getLogger()->error("account.php action do_signup failed because unable to collect pid from pid_holder");
                 cleanupRegistrationSession();
                 exit();
             }
             $rtn = doCredentials($pidHolder);
             if ($rtn) {
-                (new SystemLogger())->debug("account.php action do_signup apparently successful");
+                ServiceContainer::getLogger()->debug("account.php action do_signup apparently successful");
                 if (!empty($_GET['provider'])) {
                     notifyAdmin($pidHolder, $_GET['provider']);
-                    (new SystemLogger())->debug("account.php action do_signup apparently successful, so sent a pnote to the provider");
+                    ServiceContainer::getLogger()->debug("account.php action do_signup apparently successful, so sent a pnote to the provider");
                 }
                 Header::setupHeader();
                 echo '<div class="alert alert-success" role="alert">' . xlt("Your new credentials have been sent. Check your email inbox and also possibly your spam folder. Once you log into your patient portal feel free to make an appointment or send us a secure message. We look forward to seeing you soon.") . '</div>';
             } else {
-                (new SystemLogger())->debug("account.php action do_signup apparently not successful");
+                ServiceContainer::getLogger()->debug("account.php action do_signup apparently not successful");
                 Header::setupHeader();
                 echo '<div class="alert alert-danger" role="alert">' . xlt("There was a problem registering you. Recommend contacting clinic for assistance.") . '</div>';
             }
         } else {
-            (new SystemLogger())->error("account.php action do_signup attempted without registration module on, so failed");
+            ServiceContainer::getLogger()->error("account.php action do_signup attempted without registration module on, so failed");
         }
     }
     cleanupRegistrationSession();
@@ -156,17 +156,17 @@ if ($action == 'do_signup') {
 
 if ($action == 'new_insurance') {
     if ($session->get('register_silo_ajax', null) === true && $session->get('register', null) === true && $session->has('pid')) {
-        if (!empty($globalsBag->get('portal_onsite_two_register')) && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key'))) {
+        if ($globalsBag->getBoolean('portal_onsite_two_register') && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key'))) {
             $pidHolder = getPidHolder(true);
             if ($pidHolder == 0) {
-                (new SystemLogger())->error("account.php action new_insurance was not successful because unable to collect pid from pid_holder. will still complete registration process, which will not include insurance.");
+                ServiceContainer::getLogger()->error("account.php action new_insurance was not successful because unable to collect pid from pid_holder. will still complete registration process, which will not include insurance.");
                 exit();
             }
             saveInsurance($pidHolder);
-            (new SystemLogger())->debug("account.php action new_insurance was apparently successful");
+            ServiceContainer::getLogger()->debug("account.php action new_insurance was apparently successful");
             exit();
         } else {
-            (new SystemLogger())->error("account.php action new_insurance attempted without registration module on, so failed");
+            ServiceContainer::getLogger()->error("account.php action new_insurance attempted without registration module on, so failed");
             cleanupRegistrationSession();
             exit();
         }

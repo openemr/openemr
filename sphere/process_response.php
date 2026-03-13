@@ -19,6 +19,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\PaymentProcessing\PaymentProcessing;
 
 // Will start the (patient) portal OpenEMR session/cookie.
@@ -42,7 +43,7 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token"], 'sphere', $session->getSymf
     CsrfUtils::csrfNotVerified();
 }
 
-if ($GLOBALS['payment_gateway'] != 'Sphere') {
+if (OEGlobalsBag::getInstance()->get('payment_gateway') != 'Sphere') {
     die(xlt("Feature not activated"));
 }
 ?>

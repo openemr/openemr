@@ -14,11 +14,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
+
 require_once(__DIR__ . '/globals.php');
-require_once($GLOBALS['fileroot'] . '/interface/eRxGlobals.php');
-require_once($GLOBALS['fileroot'] . '/interface/eRxStore.php');
-require_once($GLOBALS['fileroot'] . '/interface/eRxXMLBuilder.php');
-require_once($GLOBALS['fileroot'] . '/interface/eRxPage.php');
+require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRxGlobals.php');
+require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRxStore.php');
+require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRxXMLBuilder.php');
+require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/eRxPage.php');
 
 set_time_limit(0);
 
@@ -83,7 +85,7 @@ if (count($missingExtensions) > 0) {
         ?>
         <script>
             window.setTimeout(function() {
-                window.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics_full.php";
+                window.location = "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/patient_file/summary/demographics_full.php";
             }, <?php echo (count($messages) * 2000) + 3000; ?>);
         </script>
         <?php
@@ -133,9 +135,9 @@ if (count($missingExtensions) > 0) {
 
             ?>
         <script>
-            <?php require($GLOBALS['srcdir'] . '/restoreSession.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/restoreSession.php'); ?>
         </script>
-        <form name="info" method="post" action="<?php echo $GLOBALS['erx_newcrop_path']; ?>" onsubmit="return top.restoreSession()">
+        <form name="info" method="post" action="<?php echo OEGlobalsBag::getInstance()->get('erx_newcrop_path'); ?>" onsubmit="return top.restoreSession()">
             <input type="submit" style="display:none">
             <input type="hidden" id="RxInput" name="RxInput" value="<?php echo attr($xml); ?>">
         </form>

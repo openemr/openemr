@@ -19,14 +19,15 @@ $srcdir = dirname(__FILE__, 4) . "/library";
 require_once(dirname(__FILE__, 3) . "/globals.php");
 require_once($srcdir . "/options.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Services\SDOH\HistorySdohService;
 
-$logger = new SystemLogger();
+$logger = ServiceContainer::getLogger();
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 /** Lookup a list option title by (list_id, option_id). */
@@ -82,8 +83,8 @@ function hs_badge_class(?string $val): string
 
 $authorized = AclMain::aclCheckCore('patients', 'med');
 $siteId = $session->get('site_id');
-$self_form = $GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh.php";
-$list_url  = $GLOBALS['webroot'] . "/interface/patient_file/history/history_sdoh_list.php";
+$self_form = OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/history/history_sdoh.php";
+$list_url  = OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_file/history/history_sdoh_list.php";
 
 $info = [];
 if ($authorized && !empty($pid)) {

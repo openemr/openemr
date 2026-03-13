@@ -23,6 +23,7 @@ require_once("$srcdir/patient_tracker.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -89,7 +90,7 @@ if (empty($form_patient)) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -145,7 +146,7 @@ if (empty($form_patient)) {
 <!-- Required for the popup date selectors -->
 <div id="overDiv"
     style="position: absolute; visibility: hidden; z-index: 1000;"></div>
-<?php if ($GLOBALS['drug_screen']) { #setting the title of the page based o if drug screening is enabled ?>
+<?php if (OEGlobalsBag::getInstance()->getBoolean('drug_screen')) { #setting the title of the page based o if drug screening is enabled ?>
 <span class='title'><?php echo xlt('Patient Flow Board'); ?> - <?php echo xlt('Drug Screen Report'); ?></span>
 <?php } else { ?>
 <span class='title'><?php echo xlt('Patient Flow Board Report'); ?></span>
@@ -248,7 +249,7 @@ if (empty($form_patient)) {
             <tr>
 
             </tr>
-            <?php if ($GLOBALS['drug_screen']) { ?>
+            <?php if (OEGlobalsBag::getInstance()->getBoolean('drug_screen')) { ?>
             <tr>
                 <?php # these two selects will are for the drug screen entries the Show Selected for Drug Screens will show all
                   # that have a yes for selected. If you just check the Show Status of Drug Screens all drug screens will be displayed

@@ -27,6 +27,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -77,7 +78,7 @@ function deleter_row_delete(string $table, string $where): void
 
     if ($count) {
         $query = "DELETE FROM " . escape_table_name($table) . " WHERE $where";
-        if (!$GLOBALS['sql_string_no_show_screen']) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('sql_string_no_show_screen')) {
             echo text($query) . "<br />\n";
         }
 
@@ -96,7 +97,7 @@ function deleter_row_modify(string $table, string $set, string $where): void
     if (sqlQuery("SELECT * FROM " . escape_table_name($table) . " WHERE $where")) {
         EventAuditLogger::getInstance()->newEvent("deactivate", $session->get('authUser'), $session->get('authProvider'), 1, "$table: $where");
         $query = "UPDATE " . escape_table_name($table) . " SET $set WHERE $where";
-        if (!$GLOBALS['sql_string_no_show_screen']) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('sql_string_no_show_screen')) {
             echo text($query) . "<br />\n";
         }
 
@@ -207,7 +208,7 @@ function popup_close() {
             }
 
             if ($patient) {
-                if (!AclMain::aclCheckCore('admin', 'super') || !$GLOBALS['allow_pat_delete']) {
+                if (!AclMain::aclCheckCore('admin', 'super') || !OEGlobalsBag::getInstance()->getBoolean('allow_pat_delete')) {
                     AccessDeniedHelper::deny('Unauthorized patient deletion attempt');
                 }
 
@@ -427,7 +428,7 @@ function popup_close() {
                     })(message, 2000)
                     .then(res => {";
                     // auto close on msg timeout with just enough time to show success or errors.
-                    if ($GLOBALS['sql_string_no_show_screen']) {
+                    if (OEGlobalsBag::getInstance()->getBoolean('sql_string_no_show_screen')) {
                         echo "dlgclose();";
                     }
                     echo "});"; // close function.
@@ -437,7 +438,7 @@ function popup_close() {
                     echo " dlgclose('imdeleted', false);\n";
                 }
             } else {
-                if ($GLOBALS['sql_string_no_show_screen']) {
+                if (OEGlobalsBag::getInstance()->getBoolean('sql_string_no_show_screen')) {
                     echo " dlgclose('imdeleted', " . js_escape($encounterid) . ");\n";
                 } else { // this allows dialog to stay open then close with button or X.
                     echo " opener.dlgSetCallBack('imdeleted', " . js_escape($encounterid) . ");\n";

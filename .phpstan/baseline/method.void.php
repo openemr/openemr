@@ -12,6 +12,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/finder/dynamic_finder.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Result of method OpenEMR\\\\Core\\\\OEGlobalsBag\\:\\:set\\(\\) \\(void\\) is used\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/TransmitProperties.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Result of method Laminas\\\\EventManager\\\\EventManagerInterface\\:\\:detach\\(\\) \\(void\\) is used\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Listener/Listener.php',

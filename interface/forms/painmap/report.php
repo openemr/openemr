@@ -10,10 +10,13 @@
  */
 
 /* include globals.php, required. */
+
+use OpenEMR\Core\OEGlobalsBag;
+
 require_once(__DIR__ . '/../../globals.php');
 
 /* include api.inc.php, required. */
-require_once($GLOBALS['srcdir'] . '/api.inc.php');
+require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/api.inc.php');
 
 /* include our smarty derived controller class. */
 require('C_FormPainMap.class.php');

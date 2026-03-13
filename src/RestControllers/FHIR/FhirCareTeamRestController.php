@@ -15,12 +15,14 @@
 namespace OpenEMR\RestControllers\FHIR;
 
 use OpenApi\Attributes as OA;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\FHIR\FhirCareTeamService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\Services\Globals\GlobalConnectorsEnum;
+use Psr\Log\LoggerInterface;
 
 class FhirCareTeamRestController
 {
@@ -31,10 +33,13 @@ class FhirCareTeamRestController
     private $fhirService;
 
     private ?OEGlobalsBag $oeGlobalsBag = null;
+    private readonly LoggerInterface $logger;
 
-    public function __construct()
+
+    public function __construct(?LoggerInterface $logger = null)
     {
         $this->fhirService = new FhirResourcesService();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     public function getOEGlobals(): OEGlobalsBag
@@ -57,9 +62,7 @@ class FhirCareTeamRestController
             $globals = $this->getOEGlobals();
             $defaultVersion = $globals->getString(GlobalConnectorsEnum::FHIR_US_CORE_MAX_SUPPORTED_PROFILE_VERSION->value, FhirCareTeamService::PROFILE_VERSION_8_0_0);
             $this->fhirCareTeamService->setHighestCompatibleUSCoreProfileVersion($defaultVersion);
-            if (isset($this->systemLogger)) {
-                $this->fhirCareTeamService->setSystemLogger($this->systemLogger);
-            }
+            $this->fhirCareTeamService->setSystemLogger($this->logger);
         }
         return $this->fhirCareTeamService;
     }
@@ -253,7 +256,7 @@ class FhirCareTeamRestController
         $bundleEntries = [];
         foreach ($processingResult->getData() as $searchResult) {
             $bundleEntry = [
-                'fullUrl' =>  $GLOBALS['site_addr_oath'] . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
+                'fullUrl' =>  OEGlobalsBag::getInstance()->get('site_addr_oath') . ($_SERVER['REDIRECT_URL'] ?? '') . '/' . $searchResult->getId(),
                 'resource' => $searchResult
             ];
             $fhirBundleEntry = new FHIRBundleEntry($bundleEntry);

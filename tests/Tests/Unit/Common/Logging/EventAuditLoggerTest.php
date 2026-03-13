@@ -15,6 +15,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Unit\Common\Logging;
 
+use Doctrine\DBAL\Connection;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -107,8 +108,10 @@ final class EventAuditLoggerTest extends TestCase
         }
 
         // Get EventAuditLogger instance (works with existing singleton)
+        $connection = $this->createMock(Connection::class);
         $this->eventAuditLogger = new EventAuditLogger(
             ServiceContainer::getCrypto(),
+            $connection,
         );
 
         // Setup default test environment
@@ -379,7 +382,15 @@ final class EventAuditLoggerTest extends TestCase
             1, // menu_item_id (result of successful array_search)
             0, // ccda_doc_id
             '', // crt_user
-            [] // api_data
+            [
+                'user_id' => 1,
+                'patient_id' => 1,
+                'method' => 'foo',
+                'request' => 'foo',
+                'request_body' => 'foo',
+                'request_url' => 'foo',
+                'response' => 'foo',
+            ] // api_data
         );
 
         // Test passes if no exceptions are thrown
@@ -471,8 +482,10 @@ final class EventAuditLoggerTest extends TestCase
         $GLOBALS['enable_auditlog'] = false;
         $GLOBALS['enable_auditlog_encryption'] = false;
 
+        $connection = $this->createMock(Connection::class);
         $eventAuditLogger = new EventAuditLogger(
-            $this->createMock(CryptoGen::class)
+            $this->createMock(CryptoGen::class),
+            $connection,
         );
 
         // Call recordLogItem - will return early due to disabled audit logging
@@ -514,7 +527,8 @@ final class EventAuditLoggerTest extends TestCase
                 fn(string $value): string => 'encrypted_' . $value
             );
 
-        $eventAuditLogger = new EventAuditLogger($cryptoMock);
+        $connection = $this->createMock(Connection::class);
+        $eventAuditLogger = new EventAuditLogger($cryptoMock, $connection);
 
         try {
             // This should execute the full recordLogItem flow including encryption
@@ -612,7 +626,8 @@ final class EventAuditLoggerTest extends TestCase
                 fn(string $value): string => 'encrypted_' . $value
             );
 
-        $eventAuditLogger = new EventAuditLogger($cryptoMock);
+        $connection = $this->createMock(Connection::class);
+        $eventAuditLogger = new EventAuditLogger($cryptoMock, $connection);
 
         // Call recordLogItem with API data - this should execute the encryption code:
         // Line 767: $api['request_url'] = (!empty($api['request_url'])) ? $this->cryptoGen->encryptStandard($api['request_url']) : '';
@@ -715,65 +730,6 @@ final class EventAuditLoggerTest extends TestCase
             );
 
         $loggerMock->logHttpRequest();
-    }
-
-    /**
-     * Test determineRFC3881EventActionCode method
-     */
-    public function testDetermineRFC3881EventActionCode(): void
-    {
-        $reflectionClass = new ReflectionClass($this->eventAuditLogger);
-        $reflectionMethod = $reflectionClass->getMethod('determineRFC3881EventActionCode');
-
-        $this->assertEquals('C', $reflectionMethod->invoke($this->eventAuditLogger, 'patient-create'));
-        $this->assertEquals('C', $reflectionMethod->invoke($this->eventAuditLogger, 'patient-insert'));
-        $this->assertEquals('R', $reflectionMethod->invoke($this->eventAuditLogger, 'patient-select'));
-        $this->assertEquals('U', $reflectionMethod->invoke($this->eventAuditLogger, 'patient-update'));
-        $this->assertEquals('D', $reflectionMethod->invoke($this->eventAuditLogger, 'patient-delete'));
-        $this->assertEquals('E', $reflectionMethod->invoke($this->eventAuditLogger, 'login'));
-        $this->assertEquals('E', $reflectionMethod->invoke($this->eventAuditLogger, 'other-event'));
-    }
-
-    /**
-     * Test determineRFC3881EventIdDisplayName method
-     */
-    public function testDetermineRFC3881EventIdDisplayName(): void
-    {
-        $reflectionClass = new ReflectionClass($this->eventAuditLogger);
-        $reflectionMethod = $reflectionClass->getMethod('determineRFC3881EventIdDisplayName');
-
-        $this->assertEquals('Patient Record', $reflectionMethod->invoke($this->eventAuditLogger, 'patient-record'));
-        $this->assertEquals('Patient Record', $reflectionMethod->invoke($this->eventAuditLogger, 'view'));
-        $this->assertEquals('Login', $reflectionMethod->invoke($this->eventAuditLogger, 'login'));
-        $this->assertEquals('Logout', $reflectionMethod->invoke($this->eventAuditLogger, 'logout'));
-        $this->assertEquals('Patient Care Assignment', $reflectionMethod->invoke($this->eventAuditLogger, 'scheduling'));
-        $this->assertEquals('Security Administration', $reflectionMethod->invoke($this->eventAuditLogger, 'security-administration'));
-        $this->assertEquals('other-event', $reflectionMethod->invoke($this->eventAuditLogger, 'other-event'));
-    }
-
-    /**
-     * Test createRfc3881Msg method
-     */
-    public function testCreateRfc3881Msg(): void
-    {
-        $reflectionClass = new ReflectionClass($this->eventAuditLogger);
-        $reflectionMethod = $reflectionClass->getMethod('createRfc3881Msg');
-
-        $message = $reflectionMethod->invoke(
-            $this->eventAuditLogger,
-            'testuser',
-            'testgroup',
-            'patient-record-select',
-            123,
-            1,
-            'Test audit message'
-        );
-
-        $this->assertIsString($message);
-        $this->assertStringContainsString('<AuditMessage', $message);
-        $this->assertStringContainsString('EventActionCode="R"', $message);
-        $this->assertStringContainsString('testuser', $message);
-        $this->assertStringContainsString('ParticipantObjectID="123"', $message);
     }
 
     /**
@@ -935,52 +891,6 @@ final class EventAuditLoggerTest extends TestCase
         // This test verifies that breakglassUser property is set to true
         // when sqlQueryNoLog returns a non-empty result, setting the user as a breakglass user
         $this->addToAssertionCount(1);
-    }
-
-    /**
-     * Test sendAtnaAuditMsg when ATNA is disabled (basic test without mocking)
-     */
-    public function testSendAtnaAuditMsgDisabledBasic(): void
-    {
-        $GLOBALS['enable_atna_audit'] = false;
-
-        // Should return early without error when ATNA is disabled
-        $this->eventAuditLogger->sendAtnaAuditMsg('testuser', 'testgroup', 'login', 0, 1, 'Test login');
-
-        // Test passes if no exceptions are thrown
-        $this->addToAssertionCount(1);
-    }
-
-    /**
-     * Test sendAtnaAuditMsg with various parameters (unit test version)
-     */
-    public function testSendAtnaAuditMsgParameters(): void
-    {
-        // Test with ATNA disabled - should return early
-        $GLOBALS['enable_atna_audit'] = false;
-
-        // This should return early without attempting any connections
-        $this->eventAuditLogger->sendAtnaAuditMsg('testuser', 'testgroup', 'login', 0, 1, 'Test login');
-
-        // Test different event types
-        $this->eventAuditLogger->sendAtnaAuditMsg('user2', 'admin', 'logout', 0, 1, 'Test logout');
-        $this->eventAuditLogger->sendAtnaAuditMsg('user3', 'patients', 'patient-record', 123, 1, 'Patient access');
-
-        // Test passes if no exceptions are thrown
-        $this->addToAssertionCount(1);
-    }
-
-    /**
-     * Test createTlsConn method failure handling
-     */
-    public function testCreateTlsConnFailure(): void
-    {
-        $reflectionClass = new ReflectionClass($this->eventAuditLogger);
-        $reflectionMethod = $reflectionClass->getMethod('createTlsConn');
-
-        // Test with invalid host (should return false)
-        $result = $reflectionMethod->invoke($this->eventAuditLogger, 'invalid.host', 9999, '', '');
-        $this->assertFalse($result);
     }
 
     /**
@@ -1601,7 +1511,8 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testNullPatientIdHandling(): void
     {
-        // Test with string "NULL"
+        // Test with string "NULL" (there's an internal workaround for getting
+        // this sort of invalid data)
         $this->eventAuditLogger->recordLogItem(1, 'test', 'user', 'group', 'comment', 'NULL');
 
         // Test with actual null
@@ -1713,27 +1624,6 @@ final class EventAuditLoggerTest extends TestCase
     }
 
     /**
-     * Test ATNA connection failure handling for full coverage
-     */
-    public function testSendAtnaAuditMsgConnectionHandling(): void
-    {
-        // Enable ATNA but with invalid connection details to test failure path
-        $GLOBALS['enable_atna_audit'] = true;
-        $GLOBALS['atna_audit_host'] = 'invalid.test.host';
-        $GLOBALS['atna_audit_port'] = '6514';
-        $GLOBALS['atna_audit_localcert'] = '/invalid/path/cert.pem';
-        $GLOBALS['atna_audit_cacert'] = '/invalid/path/ca.pem';
-
-        try {
-            // This should cover the ATNA connection failure handling
-            $this->eventAuditLogger->sendAtnaAuditMsg('testuser', 'testgroup', 'login', 0, 1, 'Test login');
-            $this->addToAssertionCount(1);
-        } finally {
-            $GLOBALS['enable_atna_audit'] = false;
-        }
-    }
-
-    /**
      * Test disclosure methods for complete coverage
      */
     public function testDisclosureMethodsCoverage(): void
@@ -1791,26 +1681,6 @@ final class EventAuditLoggerTest extends TestCase
         $this->assertEquals('Scheduling', $reflectionMethod->invoke($this->eventAuditLogger, 'SELECT * FROM openemr_postcalendar_events', 'select', 'openemr_postcalendar_events'));
         $this->assertEquals('Lab Order', $reflectionMethod->invoke($this->eventAuditLogger, 'SELECT * FROM procedure_order', 'select', 'procedure_order'));
         $this->assertEquals('Lab Result', $reflectionMethod->invoke($this->eventAuditLogger, 'SELECT * FROM procedure_result', 'select', 'procedure_result'));
-    }
-
-    /**
-     * Test createRFC3881Msg with various parameters for full coverage
-     */
-    public function testCreateRFC3881MsgFullCoverage(): void
-    {
-        $reflectionClass = new ReflectionClass($this->eventAuditLogger);
-        $reflectionMethod = $reflectionClass->getMethod('createRFC3881Msg');
-
-        // Test with different event types and parameters
-        $result1 = $reflectionMethod->invoke($this->eventAuditLogger, 'testuser', 'providers', 'login', 1, 'Login successful', null, 'Security');
-        $this->assertIsString($result1);
-        $this->assertStringContainsString('AuditMessage', $result1);
-
-        $result2 = $reflectionMethod->invoke($this->eventAuditLogger, 'testuser', 'patients', 'patient-record', 1, 'Patient access', 123, 'Patient Record');
-        $this->assertIsString($result2);
-        $this->assertStringContainsString('AuditMessage', $result2);
-        // The patient ID might be transformed, so just check that it contains some patient identifier
-        $this->assertStringContainsString('ParticipantObjectID', $result2); // patient ID should be included
     }
 
     /**
@@ -2473,355 +2343,5 @@ final class EventAuditLoggerTest extends TestCase
         } finally {
             $this->restoreServerVariables($backup);
         }
-    }
-
-    /**
-     * Test sendAtnaAuditMsg with ATNA disabled (without mocking private methods)
-     */
-    public function testSendAtnaAuditMsgDisabled(): void
-    {
-        $GLOBALS['enable_atna_audit'] = false;
-        $GLOBALS['atna_audit_host'] = 'test.host.com';
-
-        // Should return early without error when ATNA is disabled
-        $this->eventAuditLogger->sendAtnaAuditMsg('testuser', 'testgroup', 'login', 123, 1, 'Test login');
-
-        // Test passes if no exceptions are thrown
-        $this->addToAssertionCount(1);
-    }
-
-    /**
-     * Test sendAtnaAuditMsg with no ATNA host configured
-     */
-    public function testSendAtnaAuditMsgNoHost(): void
-    {
-        $GLOBALS['enable_atna_audit'] = true;
-        unset($GLOBALS['atna_audit_host']); // No host configured
-
-        // Should return early without error when no host is configured
-        $this->eventAuditLogger->sendAtnaAuditMsg('testuser', 'testgroup', 'view', 456, 1, 'Test view');
-
-        // Test passes if no exceptions are thrown
-        $this->addToAssertionCount(1);
-    }
-
-    /**
-     * Test sendAtnaAuditMsg with valid configuration but connection will fail
-     * This tests that the method handles connection failures gracefully
-     */
-    public function testSendAtnaAuditMsgConnectionFailure(): void
-    {
-        $GLOBALS['enable_atna_audit'] = true;
-        $GLOBALS['atna_audit_host'] = 'invalid.nonexistent.host';
-        $GLOBALS['atna_audit_port'] = '6514';
-        $GLOBALS['atna_audit_localcert'] = '/invalid/path/client.pem';
-        $GLOBALS['atna_audit_cacert'] = '/invalid/path/ca.pem';
-
-        // This will attempt to connect but should fail gracefully
-        $this->eventAuditLogger->sendAtnaAuditMsg('testuser', 'testgroup', 'update', 456, 0, 'Update failed');
-
-        // Test passes if no exceptions are thrown
-        $this->addToAssertionCount(1);
-    }
-
-    /**
-     * Test sendAtnaAuditMsg attempts connection when properly configured
-     * This exercises the code path that calls createTlsConn, though we can't
-     * easily test the $conn !== false path due to singleton pattern constraints
-     */
-    public function testSendAtnaAuditMsgWithProperConfiguration(): void
-    {
-        $GLOBALS['enable_atna_audit'] = true;
-        $GLOBALS['atna_audit_host'] = 'localhost'; // Valid host
-        $GLOBALS['atna_audit_port'] = '65140'; // Unlikely to have service running
-        $GLOBALS['atna_audit_localcert'] = '';
-        $GLOBALS['atna_audit_cacert'] = '';
-
-        // This will attempt the TLS connection path
-        // Connection will likely fail but the code path will be exercised
-        $this->eventAuditLogger->sendAtnaAuditMsg('testuser', 'physicians', 'test-event', 123, 1, 'Test message');
-
-        // Test passes if no exceptions are thrown
-        $this->addToAssertionCount(1);
-    }
-
-    /**
-     * Test createTlsConn private method using reflection
-     * This allows us to test the TLS connection creation logic directly
-     */
-    public function testCreateTlsConnUsingReflection(): void
-    {
-        // Use reflection to make the private method accessible
-        $reflection = new \ReflectionClass(EventAuditLogger::class);
-        $createTlsConnMethod = $reflection->getMethod('createTlsConn');
-
-        // Test with invalid host (should return false)
-        $result = $createTlsConnMethod->invoke(
-            $this->eventAuditLogger,
-            'invalid.nonexistent.host',
-            '6514',
-            '',
-            ''
-        );
-
-        // Should return false for invalid host
-        $this->assertFalse($result);
-
-        // Test with empty parameters
-        $result = $createTlsConnMethod->invoke(
-            $this->eventAuditLogger,
-            '',
-            '',
-            '',
-            ''
-        );
-
-        // Should return false for empty host
-        $this->assertFalse($result);
-    }
-
-    /**
-     * Test createRfc3881Msg private method using reflection
-     * This allows us to test the RFC 3881 message creation logic directly
-     */
-    public function testCreateRfc3881MsgUsingReflection(): void
-    {
-        // Set up required global variables for the message creation
-        $_SERVER['SERVER_NAME'] = 'test.openemr.local';
-        $_SERVER['SERVER_ADDR'] = '192.168.1.100';
-        $GLOBALS['atna_audit_host'] = 'audit.test.com';
-
-        // Use reflection to make the private method accessible
-        $reflection = new \ReflectionClass(EventAuditLogger::class);
-        $createRfc3881MsgMethod = $reflection->getMethod('createRfc3881Msg');
-
-        // Test message creation with various parameters
-        $result = $createRfc3881MsgMethod->invoke(
-            $this->eventAuditLogger,
-            'testuser',
-            'physicians',
-            'login',
-            123,
-            1,
-            'User logged in successfully'
-        );
-
-        // Verify the result is a string (XML message)
-        $this->assertIsString($result);
-
-        // Verify it contains XML structure
-        $this->assertStringContainsString('<?xml version="1.0"', $result);
-        $this->assertStringContainsString('<AuditMessage', $result);
-        $this->assertStringContainsString('</AuditMessage>', $result);
-
-        // Verify it contains our test data
-        $this->assertStringContainsString('testuser', $result);
-        $this->assertStringContainsString('test.openemr.local', $result);
-        $this->assertStringContainsString('audit.test.com', $result);
-
-        // Test with patient record event
-        $result = $createRfc3881MsgMethod->invoke(
-            $this->eventAuditLogger,
-            'doctor1',
-            'physicians',
-            'patient-record-select',
-            456,
-            1,
-            'Viewed patient record'
-        );
-
-        $this->assertIsString($result);
-        $this->assertStringContainsString('Patient Record', $result);
-        $this->assertStringContainsString('doctor1', $result);
-        $this->assertStringContainsString('456', $result); // Patient ID should be included
-
-        // Test with failure outcome
-        $result = $createRfc3881MsgMethod->invoke(
-            $this->eventAuditLogger,
-            'baduser',
-            'staff',
-            'login',
-            0,
-            0,
-            'Login failed - invalid credentials'
-        );
-
-        $this->assertIsString($result);
-        $this->assertStringContainsString('EventOutcomeIndicator="4"', $result); // 4 = minor error
-    }
-
-    /**
-     * Test sendAtnaAuditMsg integration with reflection-verified helper methods
-     * This verifies the full integration works and helper methods are properly tested
-     */
-    public function testSendAtnaAuditMsgIntegrationWithReflection(): void
-    {
-        $GLOBALS['enable_atna_audit'] = true;
-        $GLOBALS['atna_audit_host'] = 'test.audit.host';
-        $GLOBALS['atna_audit_port'] = '6514';
-        $GLOBALS['atna_audit_localcert'] = '/test/client.pem';
-        $GLOBALS['atna_audit_cacert'] = '/test/ca.pem';
-
-        // Test that the method runs without throwing exceptions
-        // This exercises the full code path - even though connection will fail,
-        // it proves the integration between sendAtnaAuditMsg and its private helper methods works
-        try {
-            $this->eventAuditLogger->sendAtnaAuditMsg('testuser', 'physicians', 'login', 123, 1, 'Test login');
-            $this->addToAssertionCount(1);
-        } catch (\Throwable $e) {
-            // If an exception is thrown, it should not be due to our test setup
-            $this->fail('sendAtnaAuditMsg should handle connection failures gracefully: ' . $e->getMessage());
-        }
-
-        // Now test that the private methods work correctly using reflection
-        // This gives us confidence that the integration will work when a real TLS connection succeeds
-
-        // Test createTlsConn returns appropriate result for invalid host
-        $reflection = new \ReflectionClass(EventAuditLogger::class);
-        $createTlsConnMethod = $reflection->getMethod('createTlsConn');
-
-        $connResult = $createTlsConnMethod->invoke(
-            $this->eventAuditLogger,
-            'test.audit.host',
-            '6514',
-            '/test/client.pem',
-            '/test/ca.pem'
-        );
-
-        // Should return false for unreachable host (which is expected in test environment)
-        $this->assertFalse($connResult);
-
-        // Test createRfc3881Msg creates proper message
-        $_SERVER['SERVER_NAME'] = 'test.openemr.local';
-        $_SERVER['SERVER_ADDR'] = '192.168.1.100';
-        $GLOBALS['atna_audit_host'] = 'test.audit.host';
-
-        $createRfc3881MsgMethod = $reflection->getMethod('createRfc3881Msg');
-
-        $msgResult = $createRfc3881MsgMethod->invoke(
-            $this->eventAuditLogger,
-            'testuser',
-            'physicians',
-            'login',
-            123,
-            1,
-            'Test login'
-        );
-
-        $this->assertIsString($msgResult);
-        $this->assertStringContainsString('<AuditMessage', $msgResult);
-        $this->assertStringContainsString('testuser', $msgResult);
-    }
-
-    /**
-     * Test sendAtnaAuditMsg successful connection path using reflection to test private methods
-     * This test covers the createRfc3881Msg, fwrite, and fclose operations (EventAuditLogger)
-     */
-    public function testSendAtnaAuditMsgSuccessfulConnectionWithReflection(): void
-    {
-        $GLOBALS['enable_atna_audit'] = true;
-        $GLOBALS['atna_audit_host'] = 'audit.example.com';
-        $GLOBALS['atna_audit_port'] = 514;
-        $GLOBALS['atna_audit_localcert'] = '/path/to/cert.pem';
-        $GLOBALS['atna_audit_cacert'] = '/path/to/ca.pem';
-
-        // Set up server variables for RFC3881 message creation
-        $_SERVER['SERVER_NAME'] = 'test.openemr.local';
-        $_SERVER['SERVER_ADDR'] = '192.168.1.100';
-
-        // Create a valid file resource for testing
-        $mockConn = fopen('php://memory', 'r+');
-        $this->assertIsResource($mockConn);
-
-        // Use reflection to access and test the private methods directly
-        $reflection = new \ReflectionClass(EventAuditLogger::class);
-
-        // Test createRfc3881Msg private method
-        $createRfc3881MsgMethod = $reflection->getMethod('createRfc3881Msg');
-
-        $msgResult = $createRfc3881MsgMethod->invoke(
-            $this->eventAuditLogger,
-            'testuser',
-            'physicians',
-            'login',
-            123,
-            1,
-            'Test message'
-        );
-
-        $this->assertIsString($msgResult);
-        $this->assertStringContainsString('<AuditMessage', $msgResult);
-        $this->assertStringContainsString('testuser', $msgResult);
-
-        // Test the successful connection path manually by simulating what happens
-        // when createTlsConn returns a valid connection resource
-        if (is_resource($mockConn)) {
-            // This simulates the success path: fwrite($conn, $msg) and fclose($conn)
-            $bytesWritten = fwrite($mockConn, $msgResult);
-            $this->assertGreaterThan(0, $bytesWritten);
-
-            // Verify the message was written correctly
-            rewind($mockConn);
-            $writtenContent = stream_get_contents($mockConn);
-            $this->assertEquals($msgResult, $writtenContent);
-
-            // Close the connection (this simulates fclose($conn))
-            fclose($mockConn);
-
-            // Verify connection was properly closed
-            $this->assertFalse(is_resource($mockConn));
-        }
-
-        // This test effectively covers the successful execution path of sendAtnaAuditMsg
-        // where $conn !== false and the message creation, writing, and connection closing occur
-        $this->addToAssertionCount(1);
-    }
-
-    /**
-     * Test sendAtnaAuditMsg successful connection using PHPUnit mock for protected createTlsConn method
-     * This covers the actual execution of lines with createRfc3881Msg, fwrite, and fclose operations
-     */
-    public function testSendAtnaAuditMsgSuccessfulConnectionWithPHPUnitMock(): void
-    {
-        $GLOBALS['enable_atna_audit'] = true;
-        $GLOBALS['atna_audit_host'] = 'audit.example.com';
-        $GLOBALS['atna_audit_port'] = 514;
-        $GLOBALS['atna_audit_localcert'] = '/path/to/cert.pem';
-        $GLOBALS['atna_audit_cacert'] = '/path/to/ca.pem';
-
-        // Set up server variables for RFC3881 message creation
-        $_SERVER['SERVER_NAME'] = 'test.openemr.local';
-        $_SERVER['SERVER_ADDR'] = '192.168.1.100';
-
-        // Create a mock connection resource
-        $mockConn = fopen('php://memory', 'r+');
-        $this->assertIsResource($mockConn);
-
-        // Create a partial mock that only mocks the createTlsConn method
-        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
-            ->onlyMethods(['createTlsConn'])
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        // Mock the protected createTlsConn method to return our mock connection
-        $loggerMock->expects($this->once())
-            ->method('createTlsConn')
-            ->with('audit.example.com', 514, '/path/to/cert.pem', '/path/to/ca.pem')
-            ->willReturn($mockConn);
-
-        // Call sendAtnaAuditMsg - this will execute the success path:
-        // 1. Check ATNA is enabled ✓
-        // 2. Call mocked createTlsConn which returns our mock connection ✓
-        // 3. Since $conn !== false, execute the success branch covering the required lines:
-        //    - Execute: $msg = $this->createRfc3881Msg($user, $group, $event, $patient_id, $outcome, $comments);
-        //    - Execute: fwrite($conn, $msg);
-        //    - Execute: fclose($conn);
-        $loggerMock->sendAtnaAuditMsg('testuser', 'physicians', 'login', 123, 1, 'Test audit message');
-
-        // Verify the connection was closed (fclose was called)
-        $this->assertFalse(is_resource($mockConn));
-
-        // This test successfully covers the execution path that includes the success branch
-        $this->addToAssertionCount(1);
     }
 }

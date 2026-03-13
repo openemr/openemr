@@ -29,6 +29,7 @@ require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\{
     AddressService,
     InsuranceCompanyService,
@@ -67,7 +68,7 @@ td {
 
 <script>
 
-<?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+<?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
 
  // This is invoked when our Search button is clicked.
  function dosearch() {

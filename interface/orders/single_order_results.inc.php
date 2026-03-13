@@ -22,10 +22,11 @@
 * @author    Jerry Padgett <sjpadgett@gmail.com>
 */
 
-require_once($GLOBALS["srcdir"] . "/options.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("srcdir") . "/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Check if the given string already exists in the $aNotes array.
 // If not, stores it as a new entry.
@@ -158,7 +159,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false): voi
         $ctx['lastprid'] = -1; // force report fields on first line of each procedure
         $tmp = text("$procedure_code: $procedure_name: $diagnosis");
         // Get the LOINC code if one exists in the compendium for this order type.
-        if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
+        if (empty(OEGlobalsBag::getInstance()->get('PATIENT_REPORT_ACTIVE'))) {
             $trow = sqlQuery(
                 "SELECT standard_code FROM procedure_type WHERE " .
                 "lab_id = ? AND procedure_code = ? AND procedure_type = 'ord' " .
@@ -207,7 +208,7 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false): voi
 
     if ($result_code !== '' || $result_document_id) {
         $tmp = myCellText($result_code);
-        if (empty($GLOBALS['PATIENT_REPORT_ACTIVE']) && !empty($result_code)) {
+        if (empty(OEGlobalsBag::getInstance()->get('PATIENT_REPORT_ACTIVE')) && !empty($result_code)) {
             $tmp = "<a href='javascript:educlick(\"LOINC\"," . attr_js($result_code) .
             ")'>$tmp</a>";
         }
@@ -229,14 +230,14 @@ function generate_result_row(&$ctx, &$row, &$rrow, $priors_omitted = false): voi
         if ($result_document_id) {
             $d = new Document($result_document_id);
             echo "  <td colspan='3'>";
-            if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
-                echo "<a href='" . $GLOBALS['webroot'] . "/controller.php?document";
+            if (empty(OEGlobalsBag::getInstance()->get('PATIENT_REPORT_ACTIVE'))) {
+                echo "<a href='" . OEGlobalsBag::getInstance()->get('webroot') . "/controller.php?document";
                 echo "&retrieve&patient_id=" . attr_url($ctx['patient_id']) . "&document_id=" . attr_url($result_document_id) . "' ";
                 echo "onclick='top.restoreSession()'>";
             }
 
             echo $d->get_url_file();
-            if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
+            if (empty(OEGlobalsBag::getInstance()->get('PATIENT_REPORT_ACTIVE'))) {
                 echo "</a>";
             }
 
@@ -408,13 +409,13 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
 <?php } ?>
 
     <?php if ($input_form) { ?>
-        <script src="<?php echo $GLOBALS['webroot']; ?>/library/textformat.js"></script>
+        <script src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/library/textformat.js"></script>
     <?php } // end if input form
     ?>
 
-    <?php if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) { ?>
+    <?php if (empty(OEGlobalsBag::getInstance()->get('PATIENT_REPORT_ACTIVE'))) { ?>
 <script>
-    var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+    var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
     if (typeof top.webroot_url === "undefined") {
         if (typeof opener.top.webroot_url !== "undefined") {
             top.webroot_url = opener.top.webroot_url;
@@ -452,15 +453,15 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                 <td class="font-weight-bold text-nowrap" width='5%'><?php echo xlt('Order ID'); ?></td>
                 <td width='45%'>
                     <?php
-                    if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
-                        echo "   <a href='" . $GLOBALS['webroot'];
+                    if (empty(OEGlobalsBag::getInstance()->get('PATIENT_REPORT_ACTIVE'))) {
+                        echo "   <a href='" . OEGlobalsBag::getInstance()->get('webroot');
                         echo "/interface/orders/order_manifest.php?orderid=";
                         echo attr_url($orow['procedure_order_id']);
                         echo "' target='_blank' onclick='top.restoreSession()'>";
                     }
 
                     echo myCellText($orow['procedure_order_id']);
-                    if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) {
+                    if (empty(OEGlobalsBag::getInstance()->get('PATIENT_REPORT_ACTIVE'))) {
                         echo "</a>\n";
                     }
 
@@ -668,7 +669,7 @@ function generate_order_report($orderid, $input_form = false, $genstyles = true,
                         <input type='submit' class='btn btn-primary' name='form_latest' value='<?php echo xla('Latest Results Only'); ?>'
                                title='<?php echo xla('Show only latest values reported for each result code'); ?>'/>
                     <?php } ?>
-                    <?php if (empty($GLOBALS['PATIENT_REPORT_ACTIVE'])) { ?>
+                    <?php if (empty(OEGlobalsBag::getInstance()->get('PATIENT_REPORT_ACTIVE'))) { ?>
                         &nbsp;
                         <input type='button' class='btn btn-primary' value='<?php echo xla('Related Patient Notes'); ?>'
                             onclick='showpnotes(<?php echo attr_js($orderid); ?>)' />

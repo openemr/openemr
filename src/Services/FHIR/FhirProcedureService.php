@@ -14,7 +14,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Services\FHIR\Enum\EventStatusEnum;
 use OpenEMR\Services\FHIR\Procedure\FhirProcedureOEProcedureService;
 use OpenEMR\Services\FHIR\Procedure\FhirProcedureSurgeryService;
@@ -112,7 +112,7 @@ class FhirProcedureService extends FhirServiceBase implements IResourceUSCIGProf
 
             $fhirSearchResult = $this->searchAllServices($fhirSearchParameters, $puuidBind);
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error("FhirServiceBase->getAll() exception thrown", ['message' => $exception->getMessage(),
+            ServiceContainer::getLogger()->error("FhirServiceBase->getAll() exception thrown", ['message' => $exception->getMessage(),
                 'field' => $exception->getField()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);

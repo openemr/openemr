@@ -13,7 +13,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\ContactAddressService;
@@ -22,7 +22,7 @@ use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ContactTelecomService;
 use OpenEMR\Services\PersonService;
 
-$logger = new SystemLogger();
+$logger = ServiceContainer::getLogger();
 
 // Initialize services
 $contactService = new ContactService();

@@ -16,9 +16,9 @@
 
 use ESign\Api;
 use Mpdf\Mpdf;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -104,7 +104,7 @@ $first_issue = 1;
 
 // form locator will cache form locations (so modules can extend)
 // form report renderer will render the form reports
-$logger = new SystemLogger();
+$logger = ServiceContainer::getLogger();
 $formLocator = new FormLocator($logger);
 $formReportRenderer = new FormReportRenderer($formLocator, $logger);
 
@@ -652,7 +652,7 @@ foreach ($ar as $key => $val) {
                 $result = sqlStatement($sql, [$pid]);
             while ($row = sqlFetchArray($result)) {
               // Figure out which name to use (ie. from cvx list or from the custom list)
-                if ($globalsBag->get('use_custom_immun_list')) {
+                if ($globalsBag->getBoolean('use_custom_immun_list')) {
                      $vaccine_display = generate_display_field(['data_type' => '1','list_id' => 'immunizations'], $row['immunization_id']);
                 } else {
                     if (!empty($row['code_text_short'])) {

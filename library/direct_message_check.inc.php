@@ -30,7 +30,6 @@ require_once(__DIR__ . "/gprelations.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\Sanitize\IsAcceptedFileFilterEvent;
 use OpenEMR\Services\VersionService;
@@ -43,22 +42,22 @@ use PHPMailer\PHPMailer\PHPMailer;
 function phimail_connect(&$phimail_error)
 {
 
-    if ($GLOBALS['phimail_enable'] == false) {
+    if (!OEGlobalsBag::getInstance()->getBoolean('phimail_enable')) {
         $phimail_error = 'C1';
         return false; //for safety
     }
 
-    $phimail_server = @parse_url((string) $GLOBALS['phimail_server_address']);
-    $phimail_username = $GLOBALS['phimail_username'];
+    $phimail_server = @parse_url((string) OEGlobalsBag::getInstance()->get('phimail_server_address'));
+    $phimail_username = OEGlobalsBag::getInstance()->get('phimail_username');
     $cryptoGen = ServiceContainer::getCrypto();
-    $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
+    $phimail_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('phimail_password'));
 
     // if test mode is disabled we use the production cert, otherwise we use the test certificate.
-    if (isset($GLOBALS['phimail_testmode_disabled']) && $GLOBALS['phimail_testmode_disabled'] == '1') {
-        $phimail_cafile = $GLOBALS['fileroot'] . '/public/certs/phimail/phimail_server.pem';
+    if (OEGlobalsBag::getInstance()->has('phimail_testmode_disabled') && OEGlobalsBag::getInstance()->getBoolean('phimail_testmode_disabled')) {
+        $phimail_cafile = OEGlobalsBag::getInstance()->get('fileroot') . '/public/certs/phimail/phimail_server.pem';
     } else {
-        $phimail_cafile = $GLOBALS['fileroot'] . '/public/certs/phimail/EMRDirectTestCA.pem';
-        (new SystemLogger())->debug("running phimail_connect in test mode.  This should not be used for production", ['ca' => $phimail_cafile, 'testmode' => $GLOBALS['phimail_testmode_disabled']]);
+        $phimail_cafile = OEGlobalsBag::getInstance()->get('fileroot') . '/public/certs/phimail/EMRDirectTestCA.pem';
+        ServiceContainer::getLogger()->debug("running phimail_connect in test mode.  This should not be used for production", ['ca' => $phimail_cafile, 'testmode' => OEGlobalsBag::getInstance()->getBoolean('phimail_testmode_disabled')]);
     }
     if (!file_exists($phimail_cafile)) {
         $phimail_cafile = '';
@@ -78,11 +77,11 @@ function phimail_connect(&$phimail_error)
         case "ssl":
         case "sslv3":
         case "tls":
-            $server = $GLOBALS['phimail_server_address'];
+            $server = OEGlobalsBag::getInstance()->get('phimail_server_address');
             break;
         default:
             $phimail_error = 'C2';
-            (new SystemLogger())->error("phimail_connect failed to connect due to invalid scheme", ['error' => $phimail_error]);
+            ServiceContainer::getLogger()->error("phimail_connect failed to connect due to invalid scheme", ['error' => $phimail_error]);
             return false;
     }
 
@@ -94,7 +93,7 @@ function phimail_connect(&$phimail_error)
                 !stream_context_set_option($context, 'ssl', 'cafile', $phimail_cafile))
         ) {
             $phimail_error = 'C3';
-            (new SystemLogger())->error("phimail_connect failed to connect", ['error' => $phimail_error, 'server' => $server, 'ca' => $phimail_cafile]);
+            ServiceContainer::getLogger()->error("phimail_connect failed to connect", ['error' => $phimail_error, 'server' => $server, 'ca' => $phimail_cafile]);
             return false;
         }
 
@@ -123,7 +122,7 @@ function phimail_connect(&$phimail_error)
 
             $phimail_error = "C4 $err1 ($err2)";
         } else {
-            (new SystemLogger())->debug("phimail_connect was successful");
+            ServiceContainer::getLogger()->debug("phimail_connect was successful");
         }
     } else {
         $fp = @fsockopen($server, $phimail_server['port']);
@@ -139,11 +138,11 @@ function phimail_connect(&$phimail_error)
     }
 
     if (!empty($phimail_error)) {
-        (new SystemLogger())->error("phimail_connect failed to connect", ['error' => $phimail_error, 'server' => $server, 'ca' => $phimail_cafile]);
+        ServiceContainer::getLogger()->error("phimail_connect failed to connect", ['error' => $phimail_error, 'server' => $server, 'ca' => $phimail_cafile]);
     } elseif ($fp !== false) {
-        (new SystemLogger())->debug("phimail_connect was successful");
+        ServiceContainer::getLogger()->debug("phimail_connect was successful");
     } else {
-        (new SystemLogger())->error("phimail_connect failed to connect with unknown error", ['error' => $phimail_error, 'server' => $server, 'port' => $phimail_server['port']]);
+        ServiceContainer::getLogger()->error("phimail_connect failed to connect with unknown error", ['error' => $phimail_error, 'server' => $server, 'port' => $phimail_server['port']]);
     }
 
     return $fp;
@@ -162,9 +161,9 @@ function phimail_check(): void
         return;
     }
 
-    $phimail_username = $GLOBALS['phimail_username'];
+    $phimail_username = OEGlobalsBag::getInstance()->get('phimail_username');
     $cryptoGen = ServiceContainer::getCrypto();
-    $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
+    $phimail_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('phimail_password'));
 
     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
     if ($ret !== true) {
@@ -172,7 +171,7 @@ function phimail_check(): void
         return;
     }
 
-    if (!($notifyUsername = $GLOBALS['phimail_notify'])) {
+    if (!($notifyUsername = OEGlobalsBag::getInstance()->get('phimail_notify'))) {
         $notifyUsername = 'admin'; //fallback
     }
 
@@ -509,7 +508,7 @@ function phimail_close($fp): void
 function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check"): void
 {
     if (!$success) {
-        (new SystemLogger())->errorLogCaller($event, ['success' => $success, 'text' => $text, 'pid' => $pid]);
+        ServiceContainer::getLogger()->error("phimail_logit {event}: {text}", ['event' => $event, 'text' => $text, 'pid' => $pid]);
     }
     EventAuditLogger::getInstance()->newEvent($event, "phimail-service", 0, $success, $text, $pid);
 }
@@ -520,7 +519,7 @@ function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check
 function phimail_read_blob($fp, $len): string|false
 {
 
-    $fpath = $GLOBALS['temporary_files_dir'];
+    $fpath = OEGlobalsBag::getInstance()->get('temporary_files_dir');
     if (!@file_exists($fpath)) {
         phimail_logit(0, "M13 temp dir does not exist: " . $fpath);
         return false;
@@ -643,7 +642,7 @@ function phimail_store($name, $mime_type, $fn)
             $return['filesize'] = $filesize;
         }
     } catch (\Throwable $exception) {
-        (new SystemLogger())->errorLogCaller($exception->getMessage(), ['name' => $name, 'mime_type' => $mime_type, 'fn' => $fn]);
+        ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception, 'name' => $name, 'mime_type' => $mime_type, 'fn' => $fn]);
         phimail_logit(0, "problem storing attachment in OpenEMR");
         $return = false;
     } finally {
@@ -670,7 +669,7 @@ function phimail_store($name, $mime_type, $fn)
  */
 function phimail_notify($subj, $body)
 {
-    $recipient = $GLOBALS['practice_return_email_path'];
+    $recipient = OEGlobalsBag::getInstance()->get('practice_return_email_path');
     if (empty($recipient)) {
         return false;
     }

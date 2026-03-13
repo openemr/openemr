@@ -19,6 +19,7 @@
 namespace OpenEMR\Common\Session;
 
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 
 class SessionTracker
 {
@@ -52,7 +53,7 @@ class SessionTracker
             error_log("OpenEMR Error: isSessionExpired error (last_updated time is ahead of current time which should be impossible)");
             return true;
         }
-        if (($current_time - $last_updated) > $GLOBALS['timeout']) {
+        if (($current_time - $last_updated) > OEGlobalsBag::getInstance()->getInt('timeout')) {
             return true;
         }
 

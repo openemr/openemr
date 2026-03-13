@@ -15,7 +15,6 @@ namespace OpenEMR\Services\Cda;
 use CURLFile;
 use DOMDocument;
 use Exception;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\System\System;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -30,14 +29,14 @@ class CdaValidateDocuments
 
     public function __construct()
     {
-        $this->externalValidatorEnabled = !empty($GLOBALS['mdht_conformance_server_enable'] ?? false);
-        if (empty($GLOBALS['mdht_conformance_server'])) {
+        $this->externalValidatorEnabled = OEGlobalsBag::getInstance()->getBoolean('mdht_conformance_server_enable');
+        if (empty(OEGlobalsBag::getInstance()->get('mdht_conformance_server'))) {
             $this->externalValidatorEnabled = false;
         }
         $this->externalValidatorUrl = null;
         if ($this->externalValidatorEnabled) {
             // should never get to where the url is '' as we disable it if the conformance server is empty
-            $this->externalValidatorUrl = trim((string) ($GLOBALS['mdht_conformance_server'] ?? null)) ?: '';
+            $this->externalValidatorUrl = trim((string) (OEGlobalsBag::getInstance()->get('mdht_conformance_server') ?? null)) ?: '';
             if (!str_ends_with($this->externalValidatorUrl, '/')) {
                 $this->externalValidatorUrl .= '/';
             }
@@ -76,7 +75,7 @@ class CdaValidateDocuments
         try {
             $result = $this->ettValidateDocumentRequest($xml);
         } catch (\Throwable $e) {
-            (new SystemLogger())->errorLogCaller($e->getMessage(), ["trace" => $e->getTraceAsString()]);
+            $this->getSystemLogger()->error($e->getMessage(), ['exception' => $e]);
             return [];
         }
         // translate result to our common render array
@@ -114,10 +113,10 @@ class CdaValidateDocuments
         $serverActive = @socket_connect($socket, "localhost", $port);
 
         if ($serverActive === false) {
-            $path = $GLOBALS['fileroot'] . "/ccdaservice/node_modules/oe-schematron-service";
+            $path = OEGlobalsBag::getInstance()->get('fileroot') . "/ccdaservice/node_modules/oe-schematron-service";
             if (IS_WINDOWS) {
                 $redirect_errors = " > ";
-                $redirect_errors .= $system->escapeshellcmd($GLOBALS['temporary_files_dir'] . "/schematron_server.log") . " 2>&1";
+                $redirect_errors .= $system->escapeshellcmd(OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/schematron_server.log") . " 2>&1";
                 $cmd = $system->escapeshellcmd("node " . $path . "/app.js") . $redirect_errors;
                 $pipeHandle = popen("start /B " . $cmd, "r");
                 if ($pipeHandle === false) {
@@ -203,7 +202,7 @@ class CdaValidateDocuments
         ];
         $post_url = $this->externalValidatorUrl;
         // I know there's a better way to do this but, not seeing it just now.
-        $post_file = $GLOBALS['temporary_files_dir'] . '/ccda.xml';
+        $post_file = OEGlobalsBag::getInstance()->get('temporary_files_dir') . '/ccda.xml';
         file_put_contents($post_file, $xml);
         $file = new CURLFile($post_file, 'application/xhtml+xml', 'ccda.xml');
 
@@ -215,7 +214,7 @@ class CdaValidateDocuments
             'curesUpdate' => true,
             'ccdaFile' => $file
         ];
-        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+        $httpVerifySsl = (bool) (OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $post_url);
         curl_setopt($ch, CURLOPT_POST, true);
@@ -266,7 +265,7 @@ class CdaValidateDocuments
                 $xsd_log['xsd'][] = $detail;
             }
             libxml_clear_errors();
-            $this->getSystemLogger()->errorLogCaller("CDA XSD Validation Errors", ['errors' => $xsd_log['xsd']]);
+            $this->getSystemLogger()->error("CDA XSD Validation Errors", ['errors' => $xsd_log['xsd']]);
         }
 
         return $xsd_log;

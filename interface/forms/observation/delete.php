@@ -23,7 +23,7 @@ global $srcdir;
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
 use OpenEMR\Core\OEGlobalsBag;
@@ -31,7 +31,7 @@ use OpenEMR\Services\FormService;
 use OpenEMR\Services\ObservationService;
 use Symfony\Component\HttpFoundation\Request;
 
-$logger = new SystemLogger();
+$logger = ServiceContainer::getLogger();
 
 try {
     // Create controller and handle request
@@ -45,9 +45,6 @@ try {
     $response->send();
 } catch (\Throwable $e) {
     // Handle any exceptions that may occur
-    $logger->errorLogCaller("Failed to create new observation form", [
-        'error' => $e->getMessage(),
-        'trace' => $e->getTraceAsString()
-    ]);
+    $logger->error("Failed to create new observation form", ['exception' => $e]);
     echo xlt("An error occurred while trying to create a new observation form. Please try again later.");
 }

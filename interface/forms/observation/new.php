@@ -21,9 +21,9 @@ global $srcdir;
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
 use OpenEMR\Core\OEGlobalsBag;
@@ -31,7 +31,7 @@ use OpenEMR\Services\FormService;
 use OpenEMR\Services\ObservationService;
 use Symfony\Component\HttpFoundation\Request;
 
-$logger = new SystemLogger();
+$logger = ServiceContainer::getLogger();
 
 // Output the response
 try {
@@ -51,9 +51,6 @@ try {
     $response->send();
 } catch (\Throwable $e) {
     // Handle any exceptions that may occur
-    $logger->errorLogCaller("Failed to create new observation form", [
-        'error' => $e->getMessage(),
-        'trace' => $e->getTraceAsString()
-    ]);
+    $logger->error("Failed to create new observation form", ['exception' => $e]);
     echo xlt("An error occurred while trying to create a new observation form. Please try again later.");
 }

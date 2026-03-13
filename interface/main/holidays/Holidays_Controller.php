@@ -13,6 +13,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
+
 require_once "Holidays_Csv.php";
 require_once "Holidays_Storage.php";
 class Holidays_Controller
@@ -33,7 +35,7 @@ class Holidays_Controller
     public function set_target_file()
     {
         $this->target_file =
-            $GLOBALS["OE_SITE_DIR"] .
+            OEGlobalsBag::getInstance()->get("OE_SITE_DIR") .
             "/" .
             self::UPLOAD_DIR .
             "/" .
@@ -57,10 +59,10 @@ class Holidays_Controller
             return false;
         }
 
-        if (!file_exists($GLOBALS["OE_SITE_DIR"] . "/" . self::UPLOAD_DIR)) {
+        if (!file_exists(OEGlobalsBag::getInstance()->get("OE_SITE_DIR") . "/" . self::UPLOAD_DIR)) {
             if (
                 !mkdir(
-                    $GLOBALS["OE_SITE_DIR"] . "/" . self::UPLOAD_DIR . "/",
+                    OEGlobalsBag::getInstance()->get("OE_SITE_DIR") . "/" . self::UPLOAD_DIR . "/",
                     0700,
                 )
             ) {

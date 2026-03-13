@@ -13,11 +13,12 @@
  */
 
 use OpenEMR\Core\ModulesClassLoader;
+use OpenEMR\Core\OEGlobalsBag;
 
 require_once dirname(__FILE__, 4) . '/globals.php';
 
 /* required for config before install */
-$classLoader = new ModulesClassLoader($GLOBALS['fileroot']);
+$classLoader = new ModulesClassLoader(OEGlobalsBag::getInstance()->get('fileroot'));
 $classLoader->registerNamespaceIfNotExists("OpenEMR\\Modules\\WenoModule\\", __DIR__ . DIRECTORY_SEPARATOR . 'src');
 
 $module_config = 1;

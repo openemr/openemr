@@ -72,7 +72,7 @@ GlobalConfig::$CONNECTION_SETTING->BootstrapSQL = "SET sql_mode = '', time_zone 
  * default is relative base address
  */
 GlobalConfig::$WEB_ROOT = $globalsBag->get('qualified_site_addr');
-if ($globalsBag->get('portal_onsite_two_basepath')) {
+if ($globalsBag->getBoolean('portal_onsite_two_basepath')) {
     GlobalConfig::$ROOT_URL = GlobalConfig::$WEB_ROOT . '/portal/patient/';
 } else {
     GlobalConfig::$ROOT_URL = $globalsBag->get('web_root') . '/portal/patient/';

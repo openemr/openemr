@@ -12,8 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -87,7 +87,7 @@ try {
             die(xlt("Error: Invalid action requested."));
     }
 } catch (\Throwable $e) {
-    (new SystemLogger())->errorLogCaller($e->getMessage(), ['action' => $action, 'pid' => $pid]);
+    ServiceContainer::getLogger()->error($e->getMessage(), ['exception' => $e, 'action' => $action, 'pid' => $pid]);
     http_response_code(500);
     die(xlt("Error generating CDA document. Please contact support."));
 }

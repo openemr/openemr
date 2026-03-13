@@ -82,7 +82,7 @@ if (!getenv('OPENEMR_ENABLE_INSTALLER_AUTO')) {
 // Include standard libraries/classes
 require_once __DIR__ . '/../../../vendor/autoload.php';
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 
 // Set up default configuration settings
 $installSettings = [];
@@ -129,7 +129,7 @@ $installSettings = $tempInstallSettings;
 
 
 // Install and configure OpenEMR using the Installer class
-$installer = new Installer($installSettings, new SystemLogger());
+$installer = new Installer($installSettings, ServiceContainer::getLogger());
 if (! $installer->quick_install()) {
   // Failed, report error
     echo "ERROR: " . $installer->error_message . "\n";

@@ -13,7 +13,7 @@
 
 namespace Carecoordination\Model;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Session\SessionUtil;
 
 class CcdaGenerator
@@ -72,7 +72,7 @@ class CcdaGenerator
     ): GeneratedCcdaResult {
 
         // we need to make sure we don't accidentally stuff in the debug logs any PHI, so we'll only report on the presence of certain variables
-        (new SystemLogger())->debug("CcdaGenerator->generate() called ", ['patient_id' => $patient_id
+        ServiceContainer::getLogger()->debug("CcdaGenerator->generate() called ", ['patient_id' => $patient_id
                 , 'encounter_id' => $encounter_id, 'sent_by' => (!empty($sent_by) ? "sent_by not empty" : "sent_by is empty")
                 , 'send' => $send, 'view' => $view, 'emr_transfer' => $emr_transfer, 'components' => $components
                 , 'sections' => $sections, 'recipients' => !empty($recipients) ? "Recipients count " . (is_array($recipients) ? count($recipients) : "1") : "No recipients"

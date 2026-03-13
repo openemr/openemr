@@ -14,39 +14,43 @@
 
 namespace OpenEMR\Common\Logging;
 
-use DateTime;
-use OpenEMR\BC\ServiceContainer;
+use Doctrine\DBAL\Connection;
+use OpenEMR\BC\{
+    DatabaseConnectionFactory,
+    DatabaseConnectionOptions,
+    ServiceContainer,
+};
 use OpenEMR\Common\Crypto\CryptoInterface;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Traits\SingletonTrait;
 
+/**
+ * @phpstan-import-type ApiData from Audit\Event
+ */
 class EventAuditLogger
 {
     use SingletonTrait;
-
-    /**
-     * Event action codes indicate whether the event is read/write.
-     * C = create, R = read, U = update, D = delete, E = execute
-     */
-    private const EVENT_ACTION_CODE_EXECUTE = 'E';
-    private const EVENT_ACTION_CODE_CREATE = 'C';
-    private const EVENT_ACTION_CODE_INSERT = 'C';
-    private const EVENT_ACTION_CODE_SELECT = 'R';
-    private const EVENT_ACTION_CODE_UPDATE = 'U';
-    private const EVENT_ACTION_CODE_DELETE = 'D';
 
     private ?bool $breakglassUser = null;
 
     protected static function createInstance(): static
     {
+        $site = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
+        $opts = DatabaseConnectionOptions::forSite($site);
+        // IMPORTANT: this needs to *not* reuse the main connection for most DB
+        // operations. See note in LogTablesSink.
+        $conn = DatabaseConnectionFactory::createDbal($opts, false);
+
         return new self(
-            ServiceContainer::getCrypto(),
+            cryptoGen: ServiceContainer::getCrypto(),
+            connection: $conn,
         );
     }
 
     public function __construct(
         private readonly CryptoInterface $cryptoGen,
+        private readonly Connection $connection,
     ) {
     }
 
@@ -123,33 +127,6 @@ class EventAuditLogger
         "procedure_report" => "lab-results",
         "procedure_result" => "lab-results"
     ];
-
-    private const RFC3881_MSG_PRIMARY_TEMPLATE = <<<MSG
-<13>%s %s
-<?xml version="1.0" encoding="ASCII"?>
- <AuditMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="healthcare-security-audit.xsd">
-  <EventIdentification EventActionCode="%s" EventDateTime="%s" EventOutcomeIndicator="%s">
-   <EventID code="eventIDcode" displayName="%s" codeSystemName="DCM" />
-  </EventIdentification>
-  <ActiveParticipant UserID="%s" UserIsRequestor="true" NetworkAccessPointID="%s" NetworkAccessPointTypeCode="2" >
-   <RoleIDCode code="110153" displayName="Source" codeSystemName="DCM" />
-  </ActiveParticipant>
-  <ActiveParticipant UserID="%s" UserIsRequestor="false" NetworkAccessPointID="%s" NetworkAccessPointTypeCode="2" >
-   <RoleIDCode code="110152" displayName="Destination" codeSystemName="DCM" />
-  </ActiveParticipant>
-  <AuditSourceIdentification AuditSourceID="%s" />
-  <ParticipantObjectIdentification ParticipantObjectID="%s" ParticipantObjectTypeCode="1" ParticipantObjectTypeCodeRole="6" >
-   <ParticipantObjectIDTypeCode code="11" displayName="User Identifier" codeSystemName="RFC-3881" />
-  </ParticipantObjectIdentification>
-  %s
- </AuditMessage>
-MSG;
-
-    private const RFC3881_MSG_PATIENT_TEMPLATE = <<<MSG
-<ParticipantObjectIdentification ParticipantObjectID="%s" ParticipantObjectTypeCode="1" ParticipantObjectTypeCodeRole="1">
- <ParticipantObjectIDTypeCode code="2" displayName="Patient Number" codeSystemName="RFC-3881" />
-</ParticipantObjectIdentification>
-MSG;
 
     /**
      * @param $event
@@ -346,174 +323,6 @@ MSG;
     }
 
     /**
-     * Event action codes indicate whether the event is read/write.
-     * C = create, R = read, U = update, D = delete, E = execute
-     *
-     * @param  $event
-     * @return string
-     */
-    protected function determineRFC3881EventActionCode($event)
-    {
-        return match (substr((string) $event, -7)) {
-            '-create' => self::EVENT_ACTION_CODE_CREATE,
-            '-insert' => self::EVENT_ACTION_CODE_INSERT,
-            '-select' => self::EVENT_ACTION_CODE_SELECT,
-            '-update' => self::EVENT_ACTION_CODE_UPDATE,
-            '-delete' => self::EVENT_ACTION_CODE_DELETE,
-            default => self::EVENT_ACTION_CODE_EXECUTE,
-        };
-    }
-
-    /**
-     * The choice of event codes is up to OpenEMR.
-     * We're using the same event codes as
-     * https://iheprofiles.projects.openhealthtools.org/
-     *
-     * @param $event
-     */
-    protected function determineRFC3881EventIdDisplayName($event)
-    {
-
-        $eventIdDisplayName = $event;
-
-        if (str_contains((string) $event, 'patient-record')) {
-            $eventIdDisplayName = 'Patient Record';
-        } elseif (str_contains((string) $event, 'view')) {
-            $eventIdDisplayName = 'Patient Record';
-        } elseif (str_contains((string) $event, 'login')) {
-            $eventIdDisplayName = 'Login';
-        } elseif (str_contains((string) $event, 'logout')) {
-            $eventIdDisplayName = 'Logout';
-        } elseif (str_contains((string) $event, 'scheduling')) {
-            $eventIdDisplayName = 'Patient Care Assignment';
-        } elseif (str_contains((string) $event, 'security-administration')) {
-            $eventIdDisplayName = 'Security Administration';
-        }
-
-        return $eventIdDisplayName;
-    }
-
-    /**
-     * Create an XML audit record corresponding to RFC 3881.
-     * The parameters passed are the column values (from table 'log')
-     * for a single audit record.
-     *
-     * @param  $user
-     * @param  $group
-     * @param  $event
-     * @param  $patient_id
-     * @param  $outcome
-     * @param  $comments
-     * @return string
-     */
-    protected function createRfc3881Msg($user, $group, $event, $patient_id, $outcome, $comments)
-    {
-        $eventActionCode = $this->determineRFC3881EventActionCode($event);
-        $eventIdDisplayName = $this->determineRFC3881EventIdDisplayName($event);
-
-        $eventDateTime = (new DateTime())->format(DATE_ATOM);
-
-        /* For EventOutcomeIndicator, 0 = success and 4 = minor error */
-        $eventOutcome = ($outcome === 1) ? 0 : 4;
-
-        /*
-         * Variables used in ActiveParticipant section, which identifies
-         * the IP address and application of the source and destination.
-         */
-        $srcUserID = $_SERVER['SERVER_NAME'] . '|OpenEMR';
-        $srcNetwork = $_SERVER['SERVER_ADDR'];
-        $destUserID = $GLOBALS['atna_audit_host'];
-        $destNetwork = $GLOBALS['atna_audit_host'];
-
-        $patientRecordForMsg = ($eventIdDisplayName == 'Patient Record' && $patient_id != 0) ? sprintf(self::RFC3881_MSG_PATIENT_TEMPLATE, $patient_id) : '';
-        /* Add the syslog header  with $eventDateTime and $_SERVER['SERVER_NAME'] */
-        return sprintf(self::RFC3881_MSG_PRIMARY_TEMPLATE, $eventDateTime, $_SERVER['SERVER_NAME'], $eventActionCode, $eventDateTime, $eventOutcome, $eventIdDisplayName, $srcUserID, $srcNetwork, $destUserID, $destNetwork, $srcUserID, $user, $patientRecordForMsg);
-    }
-
-    /**
-     * Create a TLS (SSLv3) connection to the given host/port.
-     * $localcert is the path to a PEM file with a client certificate and private key.
-     * $cafile is the path to the CA certificate file, for
-     *  authenticating the remote machine's certificate.
-     * If $cafile is "", the remote machine's certificate is not verified.
-     * If $localcert is "", we don't pass a client certificate in the connection.
-     *
-     * Return a stream resource that can be used with fwrite(), fread(), etc.
-     * Returns FALSE on error.
-     *
-     * @param  $host
-     * @param  $port
-     * @param  $localcert
-     * @param  $cafile
-     * @return bool|resource
-     */
-    protected function createTlsConn($host, $port, $localcert, $cafile)
-    {
-        $sslopts = [];
-        if ($cafile !== null && $cafile != "") {
-            $sslopts['cafile'] = $cafile;
-            $sslopts['verify_peer'] = true;
-            $sslopts['verify_depth'] = 10;
-        }
-
-        if ($localcert !== null && $localcert != "") {
-            $sslopts['local_cert'] = $localcert;
-        }
-
-        $opts = ['tls' => $sslopts, 'ssl' => $sslopts];
-        $ctx = stream_context_create($opts);
-        $timeout = 60;
-        $flags = STREAM_CLIENT_CONNECT;
-
-        $olderr = error_reporting(0);
-        $conn = stream_socket_client(
-            'tls://' . $host . ":" . $port,
-            $errno,
-            $errstr,
-            $timeout,
-            $flags,
-            $ctx
-        );
-        error_reporting($olderr);
-        return $conn;
-    }
-
-    /**
-     * This function is used to send audit records to an Audit Repository Server,
-     * as described in the Audit Trail and Node Authentication (ATNA) standard.
-     * Given the fields in a single audit record:
-     * - Create an XML audit message according to RFC 3881, including the RFC5425 syslog header.
-     * - Create a TLS connection that performs bi-directions certificate authentication,
-     *   according to RFC 5425.
-     * - Send the XML message on the TLS connection.
-     *
-     * @param $user
-     * @param $group
-     * @param $event
-     * @param $patient_id
-     * @param $outcome
-     * @param $comments
-     */
-    public function sendAtnaAuditMsg($user, $group, $event, $patient_id, $outcome, $comments)
-    {
-        /* If no ATNA repository server is configured, return */
-        if (empty($GLOBALS['atna_audit_host']) || empty($GLOBALS['enable_atna_audit'])) {
-            return;
-        }
-
-        $host = $GLOBALS['atna_audit_host'];
-        $port = $GLOBALS['atna_audit_port'];
-        $localcert = $GLOBALS['atna_audit_localcert'];
-        $cacert = $GLOBALS['atna_audit_cacert'];
-        $conn = $this->createTlsConn($host, $port, $localcert, $cacert);
-        if ($conn !== false) {
-            $msg = $this->createRfc3881Msg($user, $group, $event, $patient_id, $outcome, $comments);
-            fwrite($conn, $msg);
-            fclose($conn);
-        }
-    }
-
-    /**
      * Add an entry into the audit log table, indicating that an
      * SQL query was performed. $outcome is true if the statement
      * successfully completed.  Determine the event type based on
@@ -529,8 +338,8 @@ MSG;
         $user =  $session->get('authUser') ?? "";
 
         /* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
-        if (empty($GLOBALS['enable_auditlog'])) {
-            if (empty($GLOBALS['gbl_force_log_breakglass']) || !$this->isBreakglassUser($user)) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('enable_auditlog')) {
+            if (!OEGlobalsBag::getInstance()->getBoolean('gbl_force_log_breakglass') || !$this->isBreakglassUser($user)) {
                 return;
             }
         }
@@ -559,8 +368,8 @@ MSG;
         }
 
         /* If query events are not enabled, don't log them. Exception for "emergency" users. */
-        if (($querytype == "select") && !(array_key_exists('audit_events_query', $GLOBALS) && $GLOBALS['audit_events_query'])) {
-            if (empty($GLOBALS['gbl_force_log_breakglass']) || !$this->isBreakglassUser($user)) {
+        if (($querytype == "select") && !OEGlobalsBag::getInstance()->getBoolean('audit_events_query')) {
+            if (!OEGlobalsBag::getInstance()->getBoolean('gbl_force_log_breakglass') || !$this->isBreakglassUser($user)) {
                 return;
             }
         }
@@ -642,7 +451,7 @@ MSG;
             }
         }
 
-        if (empty($GLOBALS["audit_events_{$event}"]) && (empty($GLOBALS['gbl_force_log_breakglass'] ?? null) || !$this->isBreakglassUser($user))) {
+        if (empty(OEGlobalsBag::getInstance()->get("audit_events_{$event}")) && (!OEGlobalsBag::getInstance()->getBoolean('gbl_force_log_breakglass') || !$this->isBreakglassUser($user))) {
             return;
         }
 
@@ -755,27 +564,53 @@ MSG;
         sqlInsertClean_audit($sql);
     }
 
-    public function recordLogItem($success, $event, $user, $group, $comments, $patientId = null, $category = null, $logFrom = 'open-emr', $menuItemId = null, $ccdaDocId = null, $user_notes = '', $api = null)
-    {
+    /**
+     * @param int $success (yes this SHOULD be a boolean)
+     * @param string $event
+     * @param ?string $user
+     * @param ?string $group
+     * @param string $comments
+     * @param string $user_notes
+     * @param ?int $patientId
+     * @param ?string $category
+     * @param string $logFrom,
+     * @param ?int $menuItemId
+     * @param ?int $ccdaDocId
+     * @param ?ApiData $api
+     */
+    public function recordLogItem(
+        $success,
+        $event,
+        $user,
+        $group,
+        $comments,
+        $patientId = null,
+        $category = null,
+        $logFrom = 'open-emr',
+        $menuItemId = null,
+        $ccdaDocId = null,
+        $user_notes = '',
+        $api = null
+    ) {
         if ($patientId == "NULL") {
             $patientId = null;
         }
 
-        // Encrypt if applicable
-        if (empty($GLOBALS["enable_auditlog_encryption"])) {
-            // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
-            $comments = base64_encode((string) $comments);
-            $encrypt = 'No';
-        } else {
-            // encrypt the comments field
-            $comments =  $this->cryptoGen->encryptStandard($comments);
-            if (!empty($api)) {
-                // api log
-                $api['request_url'] = (!empty($api['request_url'])) ? $this->cryptoGen->encryptStandard($api['request_url']) : '';
-                $api['request_body'] = (!empty($api['request_body'])) ? $this->cryptoGen->encryptStandard($api['request_body']) : '';
-                $api['response'] =  (!empty($api['response'])) ? $this->cryptoGen->encryptStandard($api['response']) : '';
+        $bag = OEGlobalsBag::getInstance();
+        $shouldEncrypt = $bag->getBoolean('enable_auditlog_encryption');
+        if ($shouldEncrypt) {
+            $comments = $this->cryptoGen->encryptStandard($comments);
+            if ($api !== null) {
+                $api['request_url'] = ($api['request_url'] === '') ? '' : $this->cryptoGen->encryptStandard($api['request_url']);
+                $api['request_body'] = ($api['request_body'] === '') ? '' : $this->cryptoGen->encryptStandard($api['request_body']);
+                $api['response'] = ($api['response'] === '') ? '' : $this->cryptoGen->encryptStandard($api['response']);
             }
-            $encrypt = 'Yes';
+        } else {
+            // Since storing binary elements (uuid), need to base64 to not jarble them and to ensure the auditing hashing works
+            $comments = base64_encode($comments);
+
+            // Should this blank out the api fields? Previous behavior was that
+            // it did not.
         }
 
         // Collect timestamp and if pertinent, collect client cert name
@@ -792,8 +627,8 @@ MSG;
         //  3. if api log entry, then insert insert associated entry into api_log
         //  4. if atna server is on, then send entry to atna server
         //
-        // 1. insert entry into log table
-        $logEntry = [
+        $auditEvent = new Audit\Event(
+            $shouldEncrypt,
             $current_datetime,
             $event,
             $category,
@@ -806,50 +641,31 @@ MSG;
             $SSL_CLIENT_S_DN_CN,
             $logFrom,
             $menuItemId,
-            $ccdaDocId
-        ];
-        sqlInsertClean_audit("insert into `log` (`date`, `event`, `category`, `user`, `groupname`, `comments`, `user_notes`, `patient_id`, `success`, `crt_user`, `log_from`, `menu_item_id`, `ccda_doc_id`) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $logEntry);
-        // 2. insert associated entry (in addition to calculating and storing applicable checksums) into log_comment_encrypt
-        $last_log_id = QueryUtils::getLastInsertId();
-        $checksumGenerate = hash('sha3-512', implode('', $logEntry));
-        if (!empty($api)) {
-            // api log
-            $ipAddress = collectIpAddresses()['ip_string'];
-            $apiLogEntry = [
-                $last_log_id,
-                $api['user_id'],
-                $api['patient_id'],
-                $ipAddress,
-                $api['method'],
-                $api['request'],
-                $api['request_url'],
-                $api['request_body'],
-                $api['response'],
-                $current_datetime
-            ];
-            $checksumGenerateApi = hash('sha3-512', implode('', $apiLogEntry));
-        } else {
-            $checksumGenerateApi = '';
-        }
-        sqlInsertClean_audit(
-            "INSERT INTO `log_comment_encrypt` (`log_id`, `encrypt`, `checksum`, `checksum_api`, `version`) VALUES (?, ?, ?, ?, '4')",
-            [
-                $last_log_id,
-                $encrypt,
-                $checksumGenerate,
-                $checksumGenerateApi
-            ]
+            $ccdaDocId,
+            $api,
         );
-        // 3. if api log entry, then insert insert associated entry into api_log
-        if (!empty($api)) {
-            // api log
-            sqlInsertClean_audit("INSERT INTO `api_log` (`log_id`, `user_id`, `patient_id`, `ip_address`, `method`, `request`, `request_url`, `request_body`, `response`, `created_time`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", $apiLogEntry);
-        }
+
+        $logTableSink = new Audit\LogTablesSink(
+            conn: $this->connection,
+        );
+        $logTableSink->record($auditEvent);
+
         // 4. if atna server is on, then send entry to atna server
-        if ($patientId == null) {
-            $patientId = 0;
-        }
-        $this->sendAtnaAuditMsg($user, $group, $event, $patientId, $success, $comments);
+        $writer = new Audit\Atna\TcpWriter(
+            host: $bag->getString('atna_audit_host'),
+            port: $bag->getInt('atna_audit_port'),
+            localCert: $bag->getString('atna_audit_localcert'),
+            caCert: $bag->getString('atna_audit_cacert'),
+        );
+        $atnaSink = new Audit\AtnaSink(
+            clock: ServiceContainer::getClock(),
+            writer: $writer,
+            enabled: $bag->getBoolean('enable_atna_audit'),
+            host: $bag->getString('atna_audit_host'),
+            serverName: $_SERVER['SERVER_NAME'] ?? '',
+            serverAddress: $_SERVER['SERVER_ADDR'] ?? '',
+        );
+        $atnaSink->record($auditEvent);
     }
 
     /**
@@ -859,7 +675,7 @@ MSG;
     {
         $session = SessionWrapperFactory::getInstance()->getWrapper();
         // Skip if audit logging or http request logging is disabled
-        if (empty($GLOBALS['enable_auditlog']) || empty($GLOBALS['audit_events_http-request'])) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('enable_auditlog') || !OEGlobalsBag::getInstance()->getBoolean('audit_events_http-request')) {
             return;
         }
 

@@ -11,7 +11,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Services\FHIR\Group\FhirPatientProviderGroupService;
 use OpenEMR\Services\FHIR\Traits\BulkExportSupportAllOperationsTrait;
 use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
@@ -71,7 +71,7 @@ class FhirGroupService extends FhirServiceBase implements IFhirExportableResourc
 
             $fhirSearchResult = $this->searchAllServicesWithSupportedFields($fhirSearchParameters, $puuidBind);
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->errorLogCaller("exception thrown while searching", ['message' => $exception->getMessage(),
+            ServiceContainer::getLogger()->error("exception thrown while searching", ['exception' => $exception,
                 'field' => $exception->getField()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);

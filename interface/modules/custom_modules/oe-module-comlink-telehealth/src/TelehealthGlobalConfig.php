@@ -16,9 +16,9 @@ use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Globals\GlobalsService;
 use Twig\Environment;
@@ -172,7 +172,7 @@ class TelehealthGlobalConfig
             $value = $this->getGlobalSetting($key);
 
             if (empty($value)) {
-                (new SystemLogger())->debug("Telehealth is missing configuration key", ['key' => $key]);
+                ServiceContainer::getLogger()->debug("Telehealth is missing configuration key", ['key' => $key]);
                 return false;
             }
         }
@@ -217,7 +217,7 @@ class TelehealthGlobalConfig
         $enabled = $this->getGlobalSetting('portal_onsite_two_enable') == '1';
         $useBasePath = $this->getGlobalSetting('portal_onsite_two_basepath') == '1';
         if (!$enabled) {
-            (new SystemLogger())->debug("Telehealth is missing portal_onsite_two_enable enabled");
+            ServiceContainer::getLogger()->debug("Telehealth is missing portal_onsite_two_enable enabled");
             return false;
         }
         if (!$useBasePath) {
@@ -225,13 +225,13 @@ class TelehealthGlobalConfig
             $defaultValue = $this->getGlobalSetting('portal_onsite_two_address');
             // TODO: @adunsulag can we pull the default onsite configuration pulled out into a constant somewhere?
             if ($defaultValue == 'https://your_web_site.com/openemr/portal') {
-                (new SystemLogger())->debug("Telehealth is using unconfigured portal_onsite_two_address");
+                ServiceContainer::getLogger()->debug("Telehealth is using unconfigured portal_onsite_two_address");
                 return false;
             }
         }
         // have to have the qualified site address for our full email link
         if (empty($this->getQualifiedSiteAddress())) {
-            (new SystemLogger())->debug("Telehealth is missing qualified site address");
+            ServiceContainer::getLogger()->debug("Telehealth is missing qualified site address");
             return false;
         }
         return true;
@@ -302,7 +302,7 @@ class TelehealthGlobalConfig
     public function getGlobalSetting($settingKey)
     {
         // don't like this as php 8.1 requires this but OpenEMR works with globals and this is annoying.
-        return $GLOBALS[$settingKey] ?? '';
+        return OEGlobalsBag::getInstance()->get($settingKey) ?? '';
     }
 
     public function getAppRegistrationCodeLength()
@@ -468,7 +468,7 @@ class TelehealthGlobalConfig
         $settings = $this->getGlobalSettingSectionConfiguration();
 
         foreach ($settings as $key => $config) {
-            $value = $GLOBALS[$key] ?? $config['default'];
+            $value = OEGlobalsBag::getInstance()->get($key) ?? $config['default'];
             $setting = new GlobalSetting(
                 xlt($config['title']),
                 $config['type'],

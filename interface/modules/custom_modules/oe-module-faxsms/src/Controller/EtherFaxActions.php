@@ -17,6 +17,7 @@ use Exception;
 use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\EtherFax\EtherFaxClient;
 use OpenEMR\Modules\FaxSMS\EtherFax\FaxResult;
 use OpenEMR\Services\ImageUtilities\HandleImageService;
@@ -37,13 +38,13 @@ class EtherFaxActions extends AppDispatch
 
     public function __construct()
     {
-        if (empty($GLOBALS['oefax_enable_fax'] ?? null)) {
+        if (empty(OEGlobalsBag::getInstance()->get('oefax_enable_fax') ?? null)) {
             throw new \Exception(xlt("Access denied! Module not enabled"));
         }
 
         $this->crypto = ServiceContainer::getCrypto();
-        $this->baseDir = $GLOBALS['temporary_files_dir'];
-        $this->uriDir = $GLOBALS['OE_SITE_WEBROOT'];
+        $this->baseDir = OEGlobalsBag::getInstance()->get('temporary_files_dir');
+        $this->uriDir = OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT');
         $this->credentials = $this->getCredentials();
         $this->client = new EtherFaxClient();
         $this->client->setCredentials(
@@ -86,7 +87,7 @@ class EtherFaxActions extends AppDispatch
         $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached fax document.");
         $mail = new MyMailer();
         $from_name = text($from_name);
-        $from = $GLOBALS["practice_return_email_path"];
+        $from = OEGlobalsBag::getInstance()->get("practice_return_email_path");
         $mail->AddReplyTo($from, $from_name);
         $mail->SetFrom($from, $from);
         $mail->AddAddress($email, $email);
@@ -188,7 +189,7 @@ class EtherFaxActions extends AppDispatch
         $isDocuments = (int)$this->getRequest('isDocuments');
         $email = $this->getRequest('email');
         $hasEmail = $this->validEmail($email);
-        $smtpEnabled = !empty($GLOBALS['SMTP_PASS'] ?? null) && !empty($GLOBALS['SMTP_USER'] ?? null);
+        $smtpEnabled = !empty(OEGlobalsBag::getInstance()->get('SMTP_PASS') ?? null) && !empty(OEGlobalsBag::getInstance()->get('SMTP_USER') ?? null);
 
         $user = $this::getLoggedInUser();
         $facility = substr((string)($user['facility'] ?? ''), 0, 20);
@@ -339,7 +340,7 @@ class EtherFaxActions extends AppDispatch
         $email = $this->getRequest('email');
         $faxNumber = $this->formatPhone($this->getRequest('phone'));
         $hasEmail = $this->validEmail($email);
-        $smtpEnabled = !empty($GLOBALS['SMTP_HOST'] ?? null);
+        $smtpEnabled = !empty(OEGlobalsBag::getInstance()->get('SMTP_HOST') ?? null);
         $user = $this::getLoggedInUser();
         $facility = substr((string)$user['facility'], 0, 20);
         $csid = $this->formatPhone($this->credentials['phone']);

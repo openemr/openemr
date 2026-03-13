@@ -18,6 +18,7 @@ require_once("../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 // This script can be run either inside the OpenEMR frameset for order catalog
 // maintenance, or as a popup window for selecting an item to order. In the
@@ -146,12 +147,12 @@ if ($popup && $_POST['form_save'] ?? '') {
 
     <?php
     if ($popup) {
-        require($GLOBALS['srcdir'] . "/restoreSession.php");
+        require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php");
     }
     ?>
 
     <?php
-    // Create array of IDs to pre-select, leaf to top.
+    // Create array of IDs to preselect, leaf to top.
     echo "preopen = [";
     echo $order > 0 ? $order : 0;
     for ($parentid = $order; $parentid > 0;) {
@@ -288,11 +289,11 @@ if ($popup && $_POST['form_save'] ?? '') {
 
 <body>
     <?php
-    if ($GLOBALS['enable_help'] == 1) {
+    if (OEGlobalsBag::getInstance()->get('enable_help') == 1) {
         $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#676666" title="' . xla("Click to view Help") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
-    } elseif ($GLOBALS['enable_help'] == 2) {
+    } elseif (OEGlobalsBag::getInstance()->get('enable_help') == 2) {
         $help_icon = '<a class="oe-pull-away oe-help-redirect" data-target="#myModal" data-toggle="modal" href="#" id="help-href" name="help-href" style="color:#DCD6D0 !Important" title="' . xla("To enable help - Go to  Administration > Globals > Features > Enable Help Modal") . '"><i class="fa fa-question-circle" aria-hidden="true"></i></a>';
-    } elseif ($GLOBALS['enable_help'] == 0) {
+    } elseif (OEGlobalsBag::getInstance()->get('enable_help') == 0) {
         $help_icon = '';
     }
     ?>
@@ -363,7 +364,7 @@ if ($popup && $_POST['form_save'] ?? '') {
     <?php
     //home of the help modal ;)
     //$GLOBALS['enable_help'] = 0; // Please comment out line if you want help modal to function on this page
-    if ($GLOBALS['enable_help'] == 1) {
+    if (OEGlobalsBag::getInstance()->get('enable_help') == 1) {
         echo "<script>var helpFile = 'configure_orders_help.php'</script>";
         //help_modal.php lives in interface, set path accordingly
         require "../help_modal.php";

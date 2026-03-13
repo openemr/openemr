@@ -14,10 +14,7 @@
 
 namespace OpenEMR\Tests\Unit\Controllers\Interface\Forms\Observation;
 
-use Monolog\Level;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
@@ -28,6 +25,7 @@ use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
@@ -38,8 +36,6 @@ use Twig\Environment;
  */
 class ObservationControllerTest extends TestCase
 {
-    use SystemLoggerAwareTrait;
-
     private ObservationController $controller;
 
     // AI Generated: Mock objects for dependencies
@@ -77,7 +73,7 @@ class ObservationControllerTest extends TestCase
         // Mock global variables that may be used
         $globalsBag = OEGlobalsBag::getInstance();
         $this->globalWebrootBackup = $GLOBALS['webroot'] ?? null;
-        $this->globalKernelBackup = $globalsBag->get('kernel');
+        $this->globalKernelBackup = $globalsBag->getKernel();
         $this->globalDateFormat = $GLOBALS['date_display_format'] ?? null;
         $GLOBALS['webroot'] = '/openemr';
         $globalsBag->set('kernel', null);
@@ -242,7 +238,7 @@ class ObservationControllerTest extends TestCase
             ->with('observation')
             ->willReturn(true);
 
-        $this->controller->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->controller->setSystemLogger($this->createMock(LoggerInterface::class));
         $response = $this->controller->deleteAction($request);
 
         $this->assertEquals(Response::HTTP_SEE_OTHER, $response->getStatusCode());
@@ -278,7 +274,7 @@ class ObservationControllerTest extends TestCase
             ->with(1, 123)
             ->willReturn($mockObservation);
 
-        $this->controller->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->controller->setSystemLogger($this->createMock(LoggerInterface::class));
         $response = $this->controller->deleteAction($request);
 
         $this->assertEquals(Response::HTTP_SEE_OTHER, $response->getStatusCode());
@@ -489,7 +485,7 @@ class ObservationControllerTest extends TestCase
             ->method('getNewObservationTemplate')
             ->willThrowException(new \Exception('Database error'));
 
-        $this->controller->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->controller->setSystemLogger($this->createMock(LoggerInterface::class));
         $response = $this->controller->saveAction($request);
 
         $this->assertEquals(Response::HTTP_INTERNAL_SERVER_ERROR, $response->getStatusCode());

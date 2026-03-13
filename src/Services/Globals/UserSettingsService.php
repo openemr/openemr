@@ -14,6 +14,8 @@
 
 namespace OpenEMR\Services\Globals;
 
+use OpenEMR\Core\OEGlobalsBag;
+
 use function sqlQuery;
 use function sqlStatement;
 
@@ -156,14 +158,14 @@ class UserSettingsService
     public static function collectAndOrganizeExpandSetting($filenames = [])
     {
         $current_filename = $filenames[0];
-        $global_value = $GLOBALS['expand_form'];
+        $global_value = OEGlobalsBag::getInstance()->getBoolean('expand_form');
 
         if (self::getUserSetting($current_filename) > -1) {
             $current_state = self::getUserSetting($current_filename);
         } elseif ($global_value) {
-            $current_state = $global_value;
+            $current_state = '1';
         } else {
-            $current_state = 0;
+            $current_state = '0';
         }
 
         if (count($filenames)) {

@@ -1,13 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace OpenEMR\Tests\Api;
 
 use GuzzleHttp\Client;
-use Monolog\Level;
+use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\NullLogger;
 
 /**
  * A simple and lightweight test client based off of GuzzleHttp, used in Rest Controller/API test cases.
@@ -19,14 +20,14 @@ use Psr\Http\Message\ResponseInterface;
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Dixon Whitmire <dixonwh@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2020 Dixon Whitmire <dixonwh@gmail.com>
+ * @copyright Copyright (c) 2026 Michael A. Smith <michael@opencoreemr.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  *
  */
 class ApiTestClient
 {
-    use SystemLoggerAwareTrait;
-
     const AUTHORIZATION_HEADER = "Authorization";
     const OPENEMR_AUTH_ENDPOINT = "/oauth2/default";
     const OAUTH_LOGOUT_ENDPOINT = "/oauth2/default/logout";
@@ -34,8 +35,32 @@ class ApiTestClient
     const OAUTH_INTROSPECTION_ENDPOINT = "/oauth2/default/introspect";
     const BOGUS_CLIENTID = "ugk_IdaC2szz-k0vIqhE6DYIjevkYo41neRGGpZvYfsgg";
     const BOGUS_CLIENTSECRET = "jJVKPZveRiyjAtfWFzxx_MF-3K2rGpDfzzrBjwq52L5_BvnqkCiKitcQDGgz_goJHiQt9yMTh3hu33vhp_UQOg";
-    const BOGUS_ACCESS_TOKEN = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJRRl80RlRkV2h4eGJlb1Y4SGU5c1ZRQUl3STlQZWdYM3IyVUdiTTVjaWtNIiwianRpIjoiYWZmYWEyOTk5NWY5MjRjZDlmMjc0YTdhZGM5NmM0YzJmZTYwNGE3MjA0ODFkMTdmMWZiYTg2ZDg4ZWIxOWI0YWVlM2RhZTM1Zjg3MjcwMDAiLCJpYXQiOjE2MDcyMTc5MTksIm5iZiI6MTYwNzIxNzkxOSwiZXhwIjoxNjA3MjIxNTE5LCJzdWIiOiI5MjJjYzYzNi01NTNiLTQ1MGQtYTJkZC1hNmRjYmM4ZDNiMDciLCJzY29wZXMiOlsib3BlbmlkIiwic2l0ZTpkZWZhdWx0Il19.u2Ujtln3vEKIR8E0rSd-xr6m-3huCxiFMaTm9_NQplVNsBkrc6Y3KLy9FRZVS3xSY1Qgav-UvOxikYT2zNNlK-LotEoEvZdtj87X6fh4wh-h5BU87lHh9aNjXFUemSO9DGKJLSZdLSeC_2w4YmbhQykGFISiltD2_PAJRKuKbpcBo3-Lafe2N83mF5i8mZXSCu_fbLrmTMYPCnsRaU_sWStzFp6p0SM3zGfLt1kjw-hcE82Ci1puqRS2nR5Z3kEOXz-hQOdXmQMq0s_gkeQZvLPOJwLGfEX5d4eIU4BfngksjGkKQhC7rUKT-_2F-U_z30P3izzZM6m4dZ10IiP80g";
-    const BOGUS_REFRESH_TOKEN = "def50200cd30606a46a09d2ba242e77528d247769112924ccff8e5d9ff9785ad032b6e91e22c9d716106efa0735b134f1bde452c9902ac75e1360ec2b8061b39c4b980ff0ffd18f9d66644c1bb3383feaa2594afd137475f60157ea6f5014cad0f5fa4e142fba5b414b7189e964ca154bbe9ffae90d0843dbf988f47485b41195eae073b5d1fa55c0b5c4a9ff5e876903d55ddd9ca1fbf7d70a0a6dcb70a76a91287b9cfd7e89ae91b4401142e46379ea7a573f9973a282fbd837a176051e25845300bf141033c2fcf28a7675106cc25e405852b13b4ab653eef2ac9f3c43db12f94a15b155c9533d2bad577e316194d179df281124280a993e438a806c5ba6a5b5c31c5a8893e3071ffb1df8507001f7b387c2882e8cd1e0ed50000dc2ad7954d243bdd4fac41e0bbced450a4f87e87317372cda3a6c22a5f9b6b6d8aab66e4d68739588bb4c5412a21d0e4f561fcb081eea24d7e79ba446630a53ebd05634735440181d73268f584ffa0b05e0708b0781ec5f8f3e2e92c0375d71d90f1f8e470d54cc4cb24b15545c4231edae046a9d9dd2fc78cc63768c66ffb19a9008fdd39952cd8e0e626747ac6f1dfdfc373f8064499533914d00452b70fe8a0353626a04ca57723e743";
+    const BOGUS_ACCESS_TOKEN = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQi' .
+        'OiJRRl80RlRkV2h4eGJlb1Y4SGU5c1ZRQUl3STlQZWdYM3IyVUdiTTVjaWtNIiwianRp' .
+        'IjoiYWZmYWEyOTk5NWY5MjRjZDlmMjc0YTdhZGM5NmM0YzJmZTYwNGE3MjA0ODFkMTdm' .
+        'MWZiYTg2ZDg4ZWIxOWI0YWVlM2RhZTM1Zjg3MjcwMDAiLCJpYXQiOjE2MDcyMTc5MTks' .
+        'Im5iZiI6MTYwNzIxNzkxOSwiZXhwIjoxNjA3MjIxNTE5LCJzdWIiOiI5MjJjYzYzNi01' .
+        'NTNiLTQ1MGQtYTJkZC1hNmRjYmM4ZDNiMDciLCJzY29wZXMiOlsib3BlbmlkIiwic2l0' .
+        'ZTpkZWZhdWx0Il19.u2Ujtln3vEKIR8E0rSd-xr6m-3huCxiFMaTm9_NQplVNsBkrc6Y' .
+        '3KLy9FRZVS3xSY1Qgav-UvOxikYT2zNNlK-LotEoEvZdtj87X6fh4wh-h5BU87lHh9aN' .
+        'jXFUemSO9DGKJLSZdLSeC_2w4YmbhQykGFISiltD2_PAJRKuKbpcBo3-Lafe2N83mF5i' .
+        '8mZXSCu_fbLrmTMYPCnsRaU_sWStzFp6p0SM3zGfLt1kjw-hcE82Ci1puqRS2nR5Z3kE' .
+        'OXz-hQOdXmQMq0s_gkeQZvLPOJwLGfEX5d4eIU4BfngksjGkKQhC7rUKT-_2F-U_z30P' .
+        '3izzZM6m4dZ10IiP80g';
+    const BOGUS_REFRESH_TOKEN = "def50200cd30606a46a09d2ba242e77528d247769112' .
+        '924ccff8e5d9ff9785ad032b6e91e22c9d716106efa0735b134f1bde452c9902ac75' .
+        'e1360ec2b8061b39c4b980ff0ffd18f9d66644c1bb3383feaa2594afd137475f6015' .
+        '7ea6f5014cad0f5fa4e142fba5b414b7189e964ca154bbe9ffae90d0843dbf988f47' .
+        '485b41195eae073b5d1fa55c0b5c4a9ff5e876903d55ddd9ca1fbf7d70a0a6dcb70a' .
+        '76a91287b9cfd7e89ae91b4401142e46379ea7a573f9973a282fbd837a176051e258' .
+        '45300bf141033c2fcf28a7675106cc25e405852b13b4ab653eef2ac9f3c43db12f94' .
+        'a15b155c9533d2bad577e316194d179df281124280a993e438a806c5ba6a5b5c31c5' .
+        'a8893e3071ffb1df8507001f7b387c2882e8cd1e0ed50000dc2ad7954d243bdd4fac' .
+        '41e0bbced450a4f87e87317372cda3a6c22a5f9b6b6d8aab66e4d68739588bb4c541' .
+        '2a21d0e4f561fcb081eea24d7e79ba446630a53ebd05634735440181d73268f584ff' .
+        'a0b05e0708b0781ec5f8f3e2e92c0375d71d90f1f8e470d54cc4cb24b15545c4231e' .
+        'dae046a9d9dd2fc78cc63768c66ffb19a9008fdd39952cd8e0e626747ac6f1dfdfc3' .
+        '73f8064499533914d00452b70fe8a0353626a04ca57723e743";
 
     const ALL_SCOPES = [
         'openid',
@@ -123,6 +148,7 @@ class ApiTestClient
         'user/practitioner.read',
         'user/practitioner.write',
         'user/prescription.read',
+        'user/prescription.write',
         'user/procedure.read',
         'user/soap_note.read',
         'user/soap_note.write',
@@ -154,33 +180,23 @@ class ApiTestClient
         'patient/patient.read',
     ];
 
-    protected $headers;
-    protected $client;
-    protected $client_id;
-    protected $client_secret;
-    protected $id_token;
-    protected $access_token;
-    protected $refresh_token;
+    /** @var array<string, string> */
+    protected array $headers;
+    protected Client $client;
+    protected ?string $client_id = null;
+    protected ?string $client_secret = null;
+    protected ?string $id_token = null;
+    protected ?string $access_token = null;
+    protected ?string $refresh_token = null;
 
     /**
-     * Returns a configuration settings from the GuzzleHTTP client instance.
-     * If headers are requested, the default client headers are merged with the headers currently associated
-     * with the client instance.
+     * Returns the HTTP headers currently associated with this client instance.
+     *
+     * @return array<string, string>
      */
-    public function getConfig($config)
+    public function getHeaders(): array
     {
-        if ($config == null) {
-            $message = "\$config is null. Expecting \$config to be a valid GuzzleHttp configuration setting";
-            throw new \InvalidArgumentException($message);
-        }
-
-        $parsedConfig =  $this->client->getConfig($config);
-
-        if ($config == 'headers') {
-            $parsedConfig = array_merge_recursive($parsedConfig, $this->headers);
-        }
-
-        return $parsedConfig;
+        return $this->headers;
     }
 
     /**
@@ -192,26 +208,23 @@ class ApiTestClient
      * from environment variables or fallback to a reasonable default if the environment variable
      * does not exist.
      *
-     * @param $authURL - The URL for authentication requests.
-     * @param $credentials - The credentials used for authentication requests (associative array/map)
-     * @return the authorization response
-     *
+     * @param array<string, string> $credentials The credentials used for authentication requests
      */
-    public function setAuthToken($authURL, $credentials = [], $client = 'private')
+    public function setAuthToken(string $authURL, array $credentials = [], string $client = 'private'): ResponseInterface
     {
-        if (!empty($credentials) && !array_key_exists("client_id", $credentials)) {
+        if ($credentials !== [] && !array_key_exists("client_id", $credentials)) {
             if (!array_key_exists("username", $credentials) || !array_key_exists("password", $credentials)) {
                 throw new \InvalidArgumentException("username and password credentials are required");
             }
         } else {
-            if (!empty($credentials['client_id'])) {
+            if (($credentials['client_id'] ?? '') !== '') {
                 $this->client_id = $credentials['client_id'];
             }
             $credentials["username"] = getenv("OE_USER", true) ?: "admin";
             $credentials["password"] = getenv("OE_PASS", true) ?: "pass";
         }
 
-        if (empty($this->client_id)) {
+        if ($this->client_id === null || $this->client_id === '') {
             $this->getClient($authURL, $client);
         }
 
@@ -233,33 +246,32 @@ class ApiTestClient
             "Accept" => "application/json",
             "Content-Type" => "application/json"
         ];
-        if ($authResponse->getStatusCode() == 200) {
-            $responseBody = json_decode($authResponse->getBody());
+        if ($authResponse->getStatusCode() === 200) {
+            /** @var \stdClass&object{access_token: string, id_token: string, refresh_token: string|null} $responseBody */
+            $responseBody = json_decode((string) $authResponse->getBody());
             $this->setBearer("Bearer " . $responseBody->access_token);
             $this->id_token = $responseBody->id_token;
             $this->access_token = $responseBody->access_token;
-            $this->refresh_token = $responseBody->refresh_token ?? null;
+            $this->refresh_token = $responseBody->refresh_token;
         } else {
             $errorMessage = "Authorization failed with status code: " . $authResponse->getStatusCode();
-            if ($authResponse->getBody()) {
-                $errorBody = json_decode($authResponse->getBody());
-                if (isset($errorBody->error)) {
-                    $errorMessage .= " - " . $errorBody->error;
-                }
-                if (isset($errorBody->error_description)) {
-                    $errorMessage .= ": " . $errorBody->error_description;
-                }
-                if (isset($errorBody->hint)) {
-                    $errorMessage .= ": " . $errorBody->hint;
-                }
+            /** @var \stdClass|null $errorBody */
+            $errorBody = json_decode((string) $authResponse->getBody());
+            if (isset($errorBody->error)) {
+                $errorMessage .= " - " . $errorBody->error;
             }
-            error_log($errorMessage);
+            if (isset($errorBody->error_description)) {
+                $errorMessage .= ": " . $errorBody->error_description;
+            }
+            if (isset($errorBody->hint)) {
+                $errorMessage .= ": " . $errorBody->hint;
+            }
         }
 
         return $authResponse;
     }
 
-    private function getClient($authURL, $client = 'private')
+    private function getClient(string $authURL, string $client = 'private'): void
     {
         $clientBody = [
             "application_type" => $client,
@@ -273,87 +285,86 @@ class ApiTestClient
         if ($clientResponse->getStatusCode() >= 400) {
             throw new \RuntimeException("Client registration failed with status code: " . $clientResponse->getStatusCode());
         }
-        $clientResponseBodyRaw = $clientResponse->getBody();
+        $clientResponseBodyRaw = (string) $clientResponse->getBody();
 
+        /** @var (\stdClass&object{client_id: string, client_secret: string})|null $clientResponseBody */
         $clientResponseBody = json_decode($clientResponseBodyRaw);
         if ($clientResponseBody === null) {
-            $this->getSystemLogger()->errorLogCaller("Failed to decode client registration response: ", ['rawBody' => $clientResponseBodyRaw]);
             throw new \RuntimeException("Client registration response could not be decoded");
         }
         $this->client_id = $clientResponseBody->client_id;
         $this->client_secret = $clientResponseBody->client_secret;
         // we need to enable the app otherwise we can't use it.
         $clientRepository = new ClientRepository();
-        $logger = new SystemLogger(Level::Emergency); // suppress logging
-        $clientRepository->setSystemLogger($logger);
-        $client = $clientRepository->getClientEntity($this->client_id);
-        $clientRepository->saveIsEnabled($client, true);
+        $clientRepository->setSystemLogger(new NullLogger());
+        $clientEntity = $clientRepository->getClientEntity($this->client_id);
+        assert($clientEntity instanceof ClientEntity);
+        $clientRepository->saveIsEnabled($clientEntity, true);
     }
 
     /**
      * Removes the current authorization token from this instance's HTTP headers if present.
      */
-    public function removeAuthToken()
+    public function removeAuthToken(): void
     {
         if (array_key_exists(self::AUTHORIZATION_HEADER, $this->headers)) {
             unset($this->headers[self::AUTHORIZATION_HEADER]);
         }
     }
 
-    public function cleanupClient()
+    public function cleanupClient(): void
     {
         sqlStatementNoLog("DELETE FROM `oauth_clients` WHERE `client_id` = ?", [$this->client_id]);
         sqlStatementNoLog("DELETE FROM `api_token` WHERE `client_id` = ?", [$this->client_id]);
     }
 
-    public function cleanupRevokeAuth()
+    public function cleanupRevokeAuth(): ResponseInterface
     {
         return $this->get(self::OAUTH_LOGOUT_ENDPOINT, ['id_token_hint' => $this->id_token]);
     }
 
-    public function getClientId()
+    public function getClientId(): ?string
     {
         return $this->client_id;
     }
 
-    public function getClientSecret()
+    public function getClientSecret(): ?string
     {
         return $this->client_secret;
     }
 
-    public function getIdToken()
+    public function getIdToken(): ?string
     {
         return $this->id_token;
     }
 
-    public function getAccessToken()
+    public function getAccessToken(): ?string
     {
         return $this->access_token;
     }
 
-    public function getRefreshToken()
+    public function getRefreshToken(): ?string
     {
         return $this->refresh_token;
     }
 
-    public function setHeaders(array $headers)
+    /**
+     * @param array<string, string> $headers
+     */
+    public function setHeaders(array $headers): void
     {
-        return $this->headers = $headers;
+        $this->headers = $headers;
     }
 
-    public function setBearer(string $bearer)
+    public function setBearer(string $bearer): void
     {
-        return $this->headers[self::AUTHORIZATION_HEADER] = $bearer;
+        $this->headers[self::AUTHORIZATION_HEADER] = $bearer;
     }
 
     /**
      * Creates a client instance with "reasonable" defaults.
-     * @param $baseUrl - The base url (http://someserver) for the OpenEMR host.
-     * @param $isHttpErrorEnabled - Indicates if an exceptions are thrown within a HTTP error code is returned.
-     *  Defaults to true.
-     * @param $timeOut - The HTTP request timeout setting. Defaults to 10 seconds.
      */
-    public function __construct($baseUrl, $isHttpErrorEnabled = true, $timeOut = 10)
+    public function __construct(string $baseUrl, bool $isHttpErrorEnabled = true, int $timeOut = 10)
     {
         $clientOptions = [
             "verify" => false,
@@ -370,11 +381,10 @@ class ApiTestClient
 
     /**
      * Submits a HTTP POST Request.
-     * @param $url - The target URL (relative)
-     * @param $body - The POST request body (array)
-     * @return $postResponse - HTTP response
+     *
+     * @param array<string, mixed> $body
      */
-    public function post($url, $body, $json = true): ResponseInterface
+    public function post(string $url, array $body, bool $json = true): ResponseInterface
     {
         if ($json) {
             $postResponse = $this->client->post($url, [
@@ -392,12 +402,10 @@ class ApiTestClient
 
     /**
      * Submits a HTTP PUT Request.
-     * @param $url - The target URL (relative)
-     * @param $id - The resource id
-     * @param $body - The PUT request body (array)
-     * @return $putResponse - HTTP response
+     *
+     * @param array<string, mixed> $body
      */
-    public function put($url, $id, $body)
+    public function put(string $url, string $id, array $body): ResponseInterface
     {
         $resourceUrl = $url . "/" . $id;
 
@@ -410,12 +418,10 @@ class ApiTestClient
 
     /**
      * Submits a HTTP PATCH Request.
-     * @param $url - The target URL (relative)
-     * @param $id - The resource id
-     * @param $body - The PATCH request body (array)
-     * @return $patchResponse - HTTP response
+     *
+     * @param array<string, mixed> $body
      */
-    public function patch($url, $id, $body)
+    public function patch(string $url, string $id, array $body): ResponseInterface
     {
         $resourceUrl = $url . "/" . $id;
 
@@ -427,30 +433,35 @@ class ApiTestClient
     }
 
     /**
-     * Submits a HTTP GET request for a single resource.
-     * @param $url - The target URL (relative)
-     * @param $id - The resource id
-     * @return $getResponse - HTTP response
+     * Submits a HTTP DELETE request.
+     * @param string $url The target URL (relative)
+     * @param string|int $id The resource id
      */
-    public function getOne($url, $id)
+    public function delete(string $url, string|int $id): ResponseInterface
     {
         $resourceUrl = $url . "/" . $id;
-        $getResponse = $this->client->get($resourceUrl, ["headers" => $this->headers]);
-        return $getResponse;
+        return $this->client->delete($resourceUrl, ["headers" => $this->headers]);
+    }
+
+    /**
+     * Submits a HTTP GET request for a single resource.
+     */
+    public function getOne(string $url, string $id): ResponseInterface
+    {
+        $resourceUrl = $url . "/" . $id;
+        return $this->client->get($resourceUrl, ["headers" => $this->headers]);
     }
 
     /**
      * Submits a HTTP GET request for multiple resources.
-     * @param $url - The target URL (relative)
-     * @param $params - Array of search parameters. Defaults to empty array.
-     * @return $getResponse - HTTP response
+     *
+     * @param array<string, mixed> $params
      */
-    public function get($url, $params = [])
+    public function get(string $url, array $params = []): ResponseInterface
     {
-        $getResponse = $this->client->get($url, [
+        return $this->client->get($url, [
             "headers" => $this->headers,
             "query" => $params
-            ]);
-        return $getResponse;
+        ]);
     }
 }
