@@ -4,7 +4,7 @@
  * dupecheck index.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -24,6 +24,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -251,7 +252,7 @@ $(function () {
 
     // perform the database search for duplicates
     $("#do_search").on("click", function() {
-        $("#thebiglist").html("<p style='margin:10px;'><img src='<?php echo $GLOBALS['webroot']; ?>/interface/pic/ajax-loader.gif'> Searching ...</p>");
+        $("#thebiglist").html("<p style='margin:10px;'><img src='<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/pic/ajax-loader.gif'> Searching ...</p>");
         $("#search_form").trigger("submit");
         return true;
     });
@@ -260,7 +261,7 @@ $(function () {
     var moreinfoWin = null;
     $(".moreinfo").on("click", function(evt) {
         if (moreinfoWin) { moreinfoWin.close(); }
-        moreinfoWin = window.open("<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/patient_file.php?set_pid=" + encodeURIComponent($(this).attr("oemrid")), "moreinfo");
+        moreinfoWin = window.open("<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/patient_file/patient_file.php?set_pid=" + encodeURIComponent($(this).attr("oemrid")), "moreinfo");
         evt.stopPropagation();
     });
 

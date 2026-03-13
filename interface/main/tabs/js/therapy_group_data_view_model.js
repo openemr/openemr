@@ -2,7 +2,7 @@
  * therapy_group_data_view_model.js
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Amiel Elboim <amielel@matrix.co.il>
  * @copyright Copyright (c) 2016 Kevin Yeh <kevin.y@integralemr.com>

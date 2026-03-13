@@ -9,7 +9,7 @@
  * RM choose a selection of providers from the drop down menu
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ron Pulcer <rspulcer_2k@yahoo.com>
@@ -42,6 +42,8 @@ use OpenEMR\Common\{
 };
 use OpenEMR\Core\Header;
 use OpenEMR\Services\SpreadSheetService;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\BC\ServiceContainer;
 
 
 if (!empty($_POST)) {
@@ -127,7 +129,7 @@ function fetch_rule_txt($list_id, $option_id): array|false
     $rs['title'] = xl_list_label($rs['title']);
     return $rs;
 }
-function fetch_reminders($pid, $appt_date): array
+function appointments_fetch_reminders($pid, $appt_date): array
 {
     $rems = test_rules_clinic('', 'passive_alert', $appt_date, 'reminders-due', $pid);
     $seq_due = [];
@@ -177,7 +179,7 @@ if (empty($_POST['form_csvexport'])) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
 
@@ -527,7 +529,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                 $spreadsheet->downloadSpreadsheet();
             }
         } catch (RuntimeException $e) {
-            $logger = new SystemLogger();
+            $logger = ServiceContainer::getLogger();
             $logger->logError($e->getMessage());
         }
     } else {
@@ -613,7 +615,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
                 $rems = [];
                 if ($patient_id && $incl_reminders) {
                     // collect reminders first, so can skip it if empty
-                    $rems = fetch_reminders($patient_id, $appointment['pc_eventDate']);
+                    $rems = appointments_fetch_reminders($patient_id, $appointment['pc_eventDate']);
                 }
                 ?>
                 <?php

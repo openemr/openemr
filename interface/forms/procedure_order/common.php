@@ -4,7 +4,7 @@
  * Encounter form for entering procedure orders
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -146,7 +146,7 @@ function normalizeDirectoryName(string $input): string
 $formid = (int)($_REQUEST['id'] ?? 0);
 
 $reload_url = $rootdir . '/patient_file/encounter/view_form.php?formname=procedure_order&id=' . urlencode($formid);
-$req_url = $GLOBALS['web_root'] . '/controller.php?document&retrieve&patient_id=' . urlencode((string) $pid) . '&document_id=';
+$req_url = OEGlobalsBag::getInstance()->get('web_root') . '/controller.php?document&retrieve&patient_id=' . urlencode((string) $pid) . '&document_id=';
 $reqStr = "";
 
 // If Save or Transmit was clicked, save the info.
@@ -251,7 +251,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
     }
 
     $lab_name = normalizeDirectoryName(get_lab_name($ppid ?? 0));
-    $log_file = $GLOBALS["OE_SITE_DIR"] . "/documents/labs/" . check_file_dir_name($lab_name) . "/logs/" . check_file_dir_name($formid) . "_order_log.log";
+    $log_file = OEGlobalsBag::getInstance()->get("OE_SITE_DIR") . "/documents/labs/" . check_file_dir_name($lab_name) . "/logs/" . check_file_dir_name($formid) . "_order_log.log";
     $order_log = $_POST['order_log'] ?? '';
     if ($order_log) {
         file_put_contents($log_file, $order_log);
@@ -342,8 +342,13 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                 }
 
                 try {
-                    // Generate the HL7 order
-                    $result = gen_hl7_order($formid);
+                    // Generate the HL7 order using lab-specific function
+                    $result = match ($gbl_lab) {
+                        'labcorp' => labcorp_gen_hl7_order($formid),
+                        'quest' => quest_gen_hl7_order($formid),
+                        'ammon', 'clarity' => universal_gen_hl7_order($formid),
+                        default => default_gen_hl7_order($formid),
+                    };
                     $hl7 = $result->hl7;
                     $reqStr = $result->requisitionData;
                 } catch (Hl7OrderGenerationException $e) {
@@ -379,7 +384,12 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                             }
                         }
                     } else {
-                        $alertmsg = send_hl7_order($ppid, $hl7);
+                        $alertmsg = match ($gbl_lab) {
+                            'labcorp' => labcorp_send_hl7_order($ppid, $hl7),
+                            'quest' => quest_send_hl7_order($ppid, $hl7),
+                            'ammon', 'clarity' => universal_send_hl7_order($ppid, $hl7),
+                            default => default_send_hl7_order($ppid, $hl7),
+                        };
                     }
                 }
             } else {
@@ -406,7 +416,7 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                         if ($gbl_lab === 'labcorp' && $isDorn === false) {
                             $order_log .= "\n" . date('Y-m-d H:i') . " " .
                                 xlt("Generating and charting requisition for PSC Hold Order") . "...\n";
-                            ereqForm($pid, $encounter, $formid, $reqStr, $savereq);
+                            labcorp_ereqForm($pid, $encounter, $formid, $reqStr, $savereq);
                         }
                     }
                 } else {
@@ -415,7 +425,11 @@ if (($_POST['bn_save'] ?? null) || !empty($_POST['bn_xmit']) || !empty($_POST['b
                         // Manual requisition
                         $order_log .= "\n" . date('Y-m-d H:i') . " " .
                             xlt("Generating requisition based on order HL7 content") . "...\n" . $hl7 . "\n";
-                        ereqForm($pid, $encounter, $formid, $reqStr, $savereq);
+                        if ($gbl_lab === 'labcorp') {
+                            labcorp_ereqForm($pid, $encounter, $formid, $reqStr, $savereq);
+                        } else {
+                            universal_ereqForm($pid, $encounter, $formid, $reqStr, $savereq);
+                        }
                     }
                 }
             } else {
@@ -469,7 +483,7 @@ $account_facility = $location['id'] ?? '';
 if (!empty($row['lab_id'])) {
     $isDorn = isDornLab($row['lab_id']) ?? false;
     $lab_name = normalizeDirectoryName(get_lab_name($row['lab_id']));
-    $log_file = $GLOBALS["OE_SITE_DIR"] . "/documents/labs/" . check_file_dir_name($lab_name) . "/logs/";
+    $log_file = OEGlobalsBag::getInstance()->get("OE_SITE_DIR") . "/documents/labs/" . check_file_dir_name($lab_name) . "/logs/";
 
     if (!is_dir($log_file)) {
         if (!mkdir($log_file, 0755, true) && !is_dir($log_file)) {
@@ -501,7 +515,7 @@ if (!empty($row['lab_id'])) {
         // we want to setup our reason code widgets
         window.addEventListener('DOMContentLoaded', function () {
             if (oeUI.reasonCodeWidget) {
-                oeUI.reasonCodeWidget.init(<?php echo js_url($GLOBALS['webroot']); ?>, <?php echo js_url(collect_codetypes("medical_problem", "csv")) ?>);
+                oeUI.reasonCodeWidget.init(<?php echo js_url(OEGlobalsBag::getInstance()->get('webroot')); ?>, <?php echo js_url(collect_codetypes("medical_problem", "csv")) ?>);
             } else {
                 console.error("Missing required dependency reasonCodeWidget");
                 return;
@@ -685,13 +699,13 @@ if (!empty($row['lab_id'])) {
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             };
             let datetimepicker = {
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             };
             $('.datepicker').datetimepicker(datepicker);
             $('.datetimepicker').datetimepicker(datetimepicker);
@@ -1763,7 +1777,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                 $ptid = $oprow['procedure_type_id'];
                             }
                             ?>
-                            <table class="table table-sm proc-table proc-table-main" id="procedures_item_<?php echo (string)attr($i) ?>">
+                            <table class="table table-sm proc-table proc-table-main" id="procedures_item_<?php echo attr($i) ?>">
                                 <?php if ($i < 1) { ?>
                                     <thead class="thead-dark">
                                     <tr>
@@ -1879,7 +1893,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
                                         onclick='top.restoreSession();transmitting = true;'><?php echo xlt('Transmit Order'); ?>
                                     </button>
                                     <button type="button" class="btn btn-secondary btn-cancel"
-                                        onclick="top.restoreSession();location='<?php echo $GLOBALS['form_exit_url']; ?>'"><?php echo xlt('Cancel/Exit'); ?>
+                                        onclick="top.restoreSession();location='<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>'"><?php echo xlt('Cancel/Exit'); ?>
                                     </button>
                                 </div>
                             </div>

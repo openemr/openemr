@@ -22,23 +22,24 @@
  *
  * @package OpenEMR
  * @author  EMR Direct <https://www.emrdirect.com/>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 require_once(__DIR__ . "/../library/patient.inc.php");
 require_once(__DIR__ . "/../library/direct_message_check.inc.php");
 
-use OpenEMR\Common\Crypto\CryptoGen;
-use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\DirectMessaging\ErrorConstants;
+use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\OEGlobalsBag;
 
-/*
+/**
  * Connect to a phiMail Direct Messaging server and transmit
  * a message to the specified recipient. If the message is accepted by the
  * server, the script will return "SUCCESS", otherwise it will return an error msg.
- * @param string message The message to send via Direct
- * @param string recipient the Direct Address of the recipient
- * @param bool Whether to force receipt confirmation that the message was delivered.  Can cause message delivery failures if recipient system does not support the option.
+ * @param string $message The message to send via Direct
+ * @param string $recipient the Direct Address of the recipient
+ * @param bool $verifyFinalDelivery Whether to force receipt confirmation that the message was delivered.  Can cause message delivery failures if recipient system does not support the option.
  * @return string result of operation
  */
 function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
@@ -48,7 +49,7 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
     $reqID = $_SESSION['authUserID'];
 
     $config_err = xl(ErrorConstants::MESSAGING_DISABLED) . " " . ErrorConstants::ERROR_CODE_ABBREVIATION . ":";
-    if ($GLOBALS['phimail_enable'] == false) {
+    if (!OEGlobalsBag::getInstance()->getBoolean('phimail_enable')) {
         return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGING_DISABLED);
     }
 
@@ -57,9 +58,9 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
         return("$config_err $err");
     }
 
-    $phimail_username = $GLOBALS['phimail_username'];
-    $cryptoGen = new CryptoGen();
-    $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
+    $phimail_username = OEGlobalsBag::getInstance()->get('phimail_username');
+    $cryptoGen = ServiceContainer::getCrypto();
+    $phimail_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('phimail_password'));
     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
     if ($ret !== true) {
         return("$config_err " . ErrorConstants::ERROR_CODE_AUTH_FAILED);
@@ -125,7 +126,6 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
     }
 
     EventAuditLogger::getInstance()->newEvent("transmit-message", $reqBy, $_SESSION['authProvider'], 1, $ret);
-    $adodb = $GLOBALS['adodb']['db'];
     $sql = "INSERT INTO direct_message_log (msg_type,msg_id,sender,recipient,status,status_ts,user_id) " .
         "VALUES ('S', ?, ?, ?, 'S', NOW(), ?)";
     $res = @sqlStatementNoLog($sql, [$msg_id[2],$phimail_username,$recipient,$reqID]);
@@ -133,18 +133,19 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
     return("SUCCESS");
 }
 
-/*
+/**
  * Connect to a phiMail Direct Messaging server and transmit
  * a CCD document to the specified recipient. If the message is accepted by the
  * server, the script will return "SUCCESS", otherwise it will return an error msg.
- * @param number The patient pid that we are sending a CCDA doc for
- * @param string ccd the data to transmit, a CCDA document is assumed
- * @param string recipient the Direct Address of the recipient
- * @param string requested_by user | patient
- * @param string The format that the document is in (pdf, xml, html)
- * @param string The message body the clinician wants to send
- * @param string The filename to use as the name of the attachment (must included file extension as part of filename)
- * @param bool Whether to force receipt confirmation that the message was delivered.  Can cause message delivery failures if recipient system does not support the option.
+ * @param int $pid The patient pid that we are sending a CCDA doc for
+ * @param string $ccd_out the data to transmit, a CCDA document is assumed
+ * @param string $recipient the Direct Address of the recipient
+ * @param string $requested_by user | patient
+ * @param string $xml_type
+ * @param string $format_type The format that the document ns in (pdf, xml, html)
+ * @param string $message The message body the clinician wants to send
+ * @param string $filename The filename to use as the name of the attachment (must included file extension as part of filename)
+ * @param bool $verifyFinalDelivery Whether to force receipt confirmation that the message was delivered.  Can cause message delivery failures if recipient system does not support the option.
  * @return string result of operation
  */
 function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD", $format_type = 'xml', $message = '', $filename = '', $verifyFinalDelivery = false): string
@@ -157,6 +158,7 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
     }
     $patientName2 = "";
     $att_filename = "";
+    $extension = "";
 
     // TODO: do we want to throw an error if we can't get patient data?  Probably.
 
@@ -167,7 +169,7 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
     if (!empty($filename)) {
         // if we have a filename from our database, we want to send that
         $att_filename = $filename;
-        $extension = ""; // no extension needed
+        // extension already initialized to ""
     } elseif (!empty($patientName2)) {
         //spaces are the argument delimiter for the phiMail API calls and must be removed
         // CCDA format requires patient name in last, first format
@@ -177,7 +179,7 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
     }
 
     $config_err = xl(ErrorConstants::MESSAGING_DISABLED) . " " . ErrorConstants::ERROR_CODE_ABBREVIATION . ":";
-    if ($GLOBALS['phimail_enable'] == false) {
+    if (!OEGlobalsBag::getInstance()->getBoolean('phimail_enable')) {
         return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGING_DISABLED);
     }
 
@@ -186,9 +188,9 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
         return("$config_err $err");
     }
 
-    $phimail_username = $GLOBALS['phimail_username'];
-    $cryptoGen = new CryptoGen();
-    $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
+    $phimail_username = OEGlobalsBag::getInstance()->get('phimail_username');
+    $cryptoGen = ServiceContainer::getCrypto();
+    $phimail_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('phimail_password'));
     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
     if ($ret !== true) {
         return("$config_err " . ErrorConstants::ERROR_CODE_AUTH_FAILED);
@@ -202,6 +204,7 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
     $ret = fgets($fp, 1024); //ignore extra server data
 
     // add whatever the clinican added as a message to be sent.
+    $text_out = "";
     if (is_string($message) && trim($message) != "") {
         $text_out = $message . "\n";
     }
@@ -307,7 +310,6 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
     }
 
     EventAuditLogger::getInstance()->newEvent("transmit-" . $xml_type, $reqBy, $_SESSION['authProvider'], 1, $ret, $pid);
-    $adodb = $GLOBALS['adodb']['db'];
     $sql = "INSERT INTO direct_message_log (msg_type,msg_id,sender,recipient,status,status_ts,patient_id,user_id) " .
     "VALUES ('S', ?, ?, ?, 'S', NOW(), ?, ?)";
     $res = @sqlStatementNoLog($sql, [$msg_id[2],$phimail_username,$recipient,$pid,$reqID]);

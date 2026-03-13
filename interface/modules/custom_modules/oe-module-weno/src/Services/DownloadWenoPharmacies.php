@@ -2,7 +2,7 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023 Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -19,8 +19,8 @@ if (!$GLOBALS ?? null) {
 use Exception;
 use League\Csv\Reader;
 use League\Csv\Statement;
-use mysqli;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use ZipArchive;
 
 class DownloadWenoPharmacies
@@ -45,7 +45,7 @@ class DownloadWenoPharmacies
         // Use existing connection.
         // Compared to creating a new connection, this method is slower by 3 seconds.
         // Using the sqlStatement() method is even slower by 10 seconds. That's 13 seconds slower overall.
-        $connect = $GLOBALS['dbh'];
+        $connect = OEGlobalsBag::getInstance()->get('dbh');
         if ($connect->connect_error) {
             $wenoLog->insertWenoLog("Pharmacy Directory", "Connection Failed.");
             error_log("Connection failed: " . $connect->connect_error);

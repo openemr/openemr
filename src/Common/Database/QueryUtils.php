@@ -4,7 +4,7 @@
  * QueryUtils.php  Is a helper class for commonly used database functions.  Eventually everything in the sql.inc.php file
  * could be migrated to this file or at least contained in this namespace.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
@@ -15,7 +15,8 @@
 namespace OpenEMR\Common\Database;
 
 use ADORecordSet;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use Throwable;
 
 class QueryUtils
@@ -115,12 +116,7 @@ class QueryUtils
     public static function fetchSingleValue($sqlStatement, $column, $binds = [])
     {
         $records = self::fetchTableColumn($sqlStatement, $column, $binds);
-        // note if $records[0] is actually the value 0 then the value returned is null...
-        // do we want that behavior?
-        if (!empty($records[0])) {
-            return $records[0];
-        }
-        return null;
+        return $records[0] ?? null;
     }
 
     /**
@@ -297,7 +293,7 @@ class QueryUtils
 
         // Return the correct last id generated using function
         //   that is safe with the audit engine.
-        return $GLOBALS['lastidado'] > 0 ? $GLOBALS['lastidado'] : $GLOBALS['adodb']['db']->Insert_ID();
+        return OEGlobalsBag::getInstance()->get('lastidado') > 0 ? OEGlobalsBag::getInstance()->get('lastidado') : OEGlobalsBag::getInstance()->get('adodb')['db']->Insert_ID();
     }
 
     /**
@@ -405,7 +401,7 @@ class QueryUtils
     {
         // Return the correct last id generated using function
         //   that is safe with the audit engine.
-        return ($GLOBALS['lastidado'] ?? 0) > 0 ? $GLOBALS['lastidado'] : $GLOBALS['adodb']['db']->Insert_ID();
+        return (OEGlobalsBag::getInstance()->get('lastidado') ?? 0) > 0 ? OEGlobalsBag::getInstance()->get('lastidado') : OEGlobalsBag::getInstance()->get('adodb')['db']->Insert_ID();
     }
 
     /**
@@ -421,7 +417,7 @@ class QueryUtils
     {
         /** @var mixed $params */
         if (!is_array($params)) {
-            (new SystemLogger())->debug('Non-array $params passed to {method}: {trace}', [
+            ServiceContainer::getLogger()->debug('Non-array $params passed to {method}: {trace}', [
                 'method' => __METHOD__,
                 'trace' => (new \Exception())->getTraceAsString(),
             ]);
@@ -464,9 +460,9 @@ class QueryUtils
      */
     public static function getLastError(): string
     {
-        return !empty($GLOBALS['last_mysql_error'])
-            ? (string) $GLOBALS['last_mysql_error']
-            : (string) $GLOBALS['adodb']['db']->ErrorMsg();
+        return !empty(OEGlobalsBag::getInstance()->get('last_mysql_error'))
+            ? (string) OEGlobalsBag::getInstance()->get('last_mysql_error')
+            : (string) OEGlobalsBag::getInstance()->get('adodb')['db']->ErrorMsg();
     }
 
     /**
@@ -474,6 +470,6 @@ class QueryUtils
      */
     private static function getADODB()
     {
-        return $GLOBALS['adodb']['db'];
+        return OEGlobalsBag::getInstance()->get('adodb')['db'];
     }
 }

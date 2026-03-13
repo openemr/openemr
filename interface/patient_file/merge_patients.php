@@ -6,7 +6,7 @@
  *
  * @category  Patient_Data
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2013-2021 Rod Roark <rod@sunsetsystems.com>
@@ -22,9 +22,10 @@ require_once("$srcdir/patient.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
-use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -48,7 +49,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
     <script>
 
-        var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+        var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
         var el_pt_name;
         var el_pt_id;
@@ -119,8 +120,6 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
          * @param [type] $colname    the column used for the query.
          * @param [type] $source_pid the source patient id.
          * @param [type] $target_pid the target patient id.
-         *
-         * @return voidd
          */
         function updateRows($tblname, $colname, $source_pid, $target_pid): void
         {
@@ -347,7 +346,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                 $sql = "SELECT DISTINCT TABLE_NAME as encounter_table, COLUMN_NAME as encounter_column " .
                     "FROM INFORMATION_SCHEMA.COLUMNS " .
                     "WHERE COLUMN_NAME IN('encounter', 'encounter_id') AND TABLE_SCHEMA = ?";
-                $res = sqlStatement($sql, [$GLOBALS['adodb']['db']->database]);
+                $res = sqlStatement($sql, [OEGlobalsBag::getInstance()->get('adodb')['db']->database]);
                 while ($tbl = sqlFetchArray($res)) {
                     $tables[] = $tbl;
                 }
@@ -361,7 +360,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
                     if ($PRODUCTION) {
                         sqlStatement($sql, [$target, $source['encounter']]);
-                        if ($GLOBALS['adodb']['db']->_connectionID->affected_rows) {
+                        if (OEGlobalsBag::getInstance()->get('adodb')['db']->_connectionID->affected_rows) {
                             echo "<br />$sql (" . text($target) . ")" . " : (" . text($source['encounter']) . ")";
                             logMergeEvent(
                                 $target_pid,
@@ -382,7 +381,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                     sqlStatement($sql, [$source['encounter']]);
                     $sql = "DELETE FROM `form_encounter` WHERE `encounter` = ?";
                     sqlStatement($sql, [$source['encounter']]);
-                    if ($GLOBALS['adodb']['db']->_connectionID->affected_rows) {
+                    if (OEGlobalsBag::getInstance()->get('adodb')['db']->_connectionID->affected_rows) {
                         echo "<br />$sql" . text($source['encounter']);
                         logMergeEvent(
                             $target_pid,

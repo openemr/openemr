@@ -23,12 +23,14 @@
  * 07-2015: Ensoftek: Edited for MU2 170.314(b)(5)(A)
  */
 
-require_once($GLOBALS['srcdir'] . "/forms.inc.php");
-require_once($GLOBALS['srcdir'] . "/pnotes.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/forms.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/pnotes.inc.php");
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use phpseclib3\Net\SFTP;
 
 $rhl7_return = [];
@@ -786,17 +788,17 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
     // We'll need the document category IDs for any embedded documents.
     $catrow = sqlQuery(
         "SELECT id FROM categories WHERE name = ?",
-        [$GLOBALS['lab_results_category_name']]
+        [OEGlobalsBag::getInstance()->get('lab_results_category_name')]
     );
     if (empty($catrow['id'])) {
         return rhl7LogMsg(xl('Document category for lab results does not exist') .
-            ': ' . $GLOBALS['lab_results_category_name'], true);
+            ': ' . OEGlobalsBag::getInstance()->get('lab_results_category_name'), true);
     } else {
         $results_category_id = $catrow['id'];
         $mdm_category_id = $results_category_id;
         $catrow = sqlQuery(
             "SELECT id FROM categories WHERE name = ?",
-            [$GLOBALS['gbl_mdm_category_name']]
+            [OEGlobalsBag::getInstance()->get('gbl_mdm_category_name')]
         );
         if (!empty($catrow['id'])) {
             $mdm_category_id = $catrow['id'];
@@ -1536,7 +1538,7 @@ function poll_hl7_results(&$info, $labs = 0)
         $hl7 = '';
         $orphanLog = '';
         $log = '';
-        $logpath = $GLOBALS['OE_SITE_DIR'] . "/documents/procedure_results/logs/$lab_npi";
+        $logpath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/procedure_results/logs/$lab_npi";
 
         if ($ppid !== $labs && $labs > 0) {
             continue;
@@ -1570,6 +1572,9 @@ function poll_hl7_results(&$info, $labs = 0)
             }
 
             $files = $sftp->nlist($pathname);
+            if (!is_array($files)) {
+                $files = [];
+            }
             foreach ($files as $file) {
                 if (str_starts_with((string) $file, '.')) {
                     continue;
@@ -1580,7 +1585,7 @@ function poll_hl7_results(&$info, $labs = 0)
                 }
 
                 // Ensure that archive directory exists.
-                $prpath = $GLOBALS['OE_SITE_DIR'] . "/documents/procedure_results";
+                $prpath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/procedure_results";
                 if (!file_exists($prpath)) {
                     if (!mkdir($prpath, 0755, true) && !is_dir($prpath)) {
                         throw new RuntimeException(sprintf('Directory "%s" was not created', $prpath));
@@ -1712,7 +1717,7 @@ function poll_hl7_results(&$info, $labs = 0)
                 }
 
                 // Ensure that archive directory exists.
-                $prpath = $GLOBALS['OE_SITE_DIR'] . "/documents/procedure_results";
+                $prpath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/procedure_results";
                 if (!file_exists($prpath) && !mkdir($prpath, 0755, true) && !is_dir($prpath)) {
                     throw new RuntimeException(sprintf('Directory "%s" was not created', $prpath));
                 }
@@ -1844,7 +1849,7 @@ function poll_hl7_results(&$info, $labs = 0)
                 }
 
                 // Ensure that archive directory exists.
-                $prpath = $GLOBALS['OE_SITE_DIR'] . "/documents/procedure_results";
+                $prpath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/procedure_results";
                 if (!file_exists($prpath)) {
                     if (!mkdir($prpath, 0755, true) && !is_dir($prpath)) {
                         throw new RuntimeException(sprintf('Directory "%s" was not created', $prpath));
@@ -1935,8 +1940,8 @@ function poll_hl7_results(&$info, $labs = 0)
  */
 function hl7Crypt($content)
 {
-    if ($GLOBALS['drive_encryption']) {
-        $content = (new CryptoGen())->encryptStandard($content, null, 'database');
+    if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
+        $content = (ServiceContainer::getCrypto())->encryptStandard($content, null, KeySource::Database);
     }
 
     return $content;

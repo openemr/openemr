@@ -4,7 +4,7 @@
  * This report lists messages sent during a time span
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
@@ -25,6 +25,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\UserService;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
@@ -70,7 +71,7 @@ if (!empty($_POST['form_csvexport'])) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });
@@ -243,8 +244,16 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         $patient_dob     = $row['dob'];
         $msg_type        = $row['title'];
         $msg_status      = $row['message_status'];
-        $username        = $userService->getUser($row['update_by']);
-        $update_by       = $username['username'];
+        $updateById      = $row['update_by'];
+        if ($updateById) {
+            $userRecord = $userService->getUser($updateById);
+            if ($userRecord === false) {
+                throw new \RuntimeException("User not found for update_by: " . json_encode($updateById));
+            }
+            $update_by = $userRecord['username'];
+        } else {
+            $update_by = '';
+        }
         $update_date     = $row['update_date'];
         if ($_POST['form_csvexport']) {
             echo csvEscape(oeFormatShortDate(substr((string) $msg_date, 0, 10))) . ',';

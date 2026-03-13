@@ -4,7 +4,7 @@
  * clinical reminders gui
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ensofttek, LLC

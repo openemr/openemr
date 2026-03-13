@@ -4,7 +4,7 @@
  * Authorizations full script.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,6 +16,7 @@ require_once("$srcdir/patient.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
@@ -77,7 +78,7 @@ if ($res = sqlStatement("select * from transactions where authorized=0 and group
     }
 }
 
-if (empty($GLOBALS['ignore_pnotes_authorization'])) {
+if (!OEGlobalsBag::getInstance()->getBoolean('ignore_pnotes_authorization')) {
   //fetch pnotes information, exclude ALL deleted notes
     if ($res = sqlStatement("select * from pnotes where authorized=0 and deleted!=1 and groupname=?", [$groupname])) {
         for ($iter = 0; $row = sqlFetchArray($res); $iter++) {

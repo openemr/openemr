@@ -3,15 +3,12 @@
 namespace OpenEMR\Validators;
 
 use Particle\Validator\Validator;
-use Particle\Validator\Exception\InvalidValueException;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use Ramsey\Uuid\Exception\InvalidUuidStringException;
 
 /**
  * Supports AllergyIntolerance Record Validation.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786@gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -32,9 +29,9 @@ class AllergyIntoleranceValidator extends BaseValidator
             self::DATABASE_INSERT_CONTEXT,
             function (Validator $context): void {
                 $context->required('title')->lengthBetween(2, 255);
-                $context->optional('begdate')->datetime('Y-m-d H:i:s');
+                $context->optional('begdate')->datetime('Y-m-d');
                 $context->optional('diagnosis')->lengthBetween(2, 255);
-                $context->optional('enddate')->datetime('Y-m-d H:i:s');
+                $context->optional('enddate')->datetime('Y-m-d');
                 $context->optional('comments');
                 $context->required("puuid", "Patient UUID")->callback(
                     fn($value) => $this->validateId("uuid", "patient_data", $value, true)

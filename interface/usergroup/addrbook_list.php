@@ -5,7 +5,7 @@
  * Available from Administration->Addr Book in the concurrent layout.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    tony@mi-squared.com
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -22,6 +22,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('admin', 'practice')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/practice: Address Book", xl("Address Book"));
@@ -229,7 +230,7 @@ while ($row = sqlFetchArray($res)) {
 <script>
 
 <?php if ($popup) {
-    require($GLOBALS['srcdir'] . "/restoreSession.php");
+    require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php");
 } ?>
 
 // Callback from popups to refresh this display.

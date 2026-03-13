@@ -4,7 +4,7 @@
  * This report lists destroyed drug lots within a specified date range.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2006-2016 Rod Roark <rod@sunsetsystems.com>
@@ -18,6 +18,7 @@ require_once("../drugs/drugs.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -28,7 +29,7 @@ if (!empty($_POST)) {
 $form_from_date = isset($_POST['form_from_date']) ? DateToYYYYMMDD($_POST['form_from_date']) : date('Y-01-01'); // From date filter
 $form_to_date = isset($_POST['form_to_date']) ? DateToYYYYMMDD($_POST['form_to_date']) : date('Y-m-d');   // To date filter
 
-function processData($data)
+function destroyed_processData(array $data): array
 {
     $data['inventory_id'] = [$data['inventory_id']];
     $data['lot_number'] = [$data['lot_number']];
@@ -39,7 +40,8 @@ function processData($data)
     $data['destroy_notes'] = [$data['destroy_notes']];
     return $data;
 }
-function mergeData($d1, $d2)
+
+function destroyed_mergeData(array $d1, array $d2): array
 {
     $d1['inventory_id'] = array_merge($d1['inventory_id'], $d2['inventory_id']);
     $d1['lot_number'] = array_merge($d1['lot_number'], $d2['lot_number']);
@@ -50,7 +52,11 @@ function mergeData($d1, $d2)
     $d1['destroy_notes'] = array_merge($d1['destroy_notes'], $d2['destroy_notes']);
     return $d1;
 }
-function mapToTable($row): void
+
+/**
+ * @param array $row
+ */
+function destroyed_mapToTable($row): void
 {
     if ($row) {
         echo "<tr>\n";
@@ -145,14 +151,14 @@ $(function () {
             stripeClasses:['stripe1','stripe2'],
             orderClasses: false,
             <?php // Bring in the translations ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/datatables-net.js.php'); ?>
     });
 
     $('.datepicker').datetimepicker({
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = true; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });
@@ -210,19 +216,19 @@ if ($_POST['form_refresh']) {
     $res = sqlStatement($query, [$form_from_date, $form_to_date]);
     $prevRow = '';
     while ($row = sqlFetchArray($res)) {
-        $row = processData($row);
+        $row = destroyed_processData($row);
         if ($prevRow == '') {
             $prevRow = $row;
             continue;
         }
         if ($prevRow['drug_id'] == $row['drug_id']) {
-            $row = mergeData($prevRow, $row);
+            $row = destroyed_mergeData($prevRow, $row);
         } else {
-            mapToTable($prevRow);
+            destroyed_mapToTable($prevRow);
         }
         $prevRow = $row;
     }
-    mapToTable($prevRow);
+    destroyed_mapToTable($prevRow);
 }
 ?>
 

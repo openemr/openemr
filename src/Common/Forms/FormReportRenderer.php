@@ -4,7 +4,7 @@
  * This class is used to render the report for the encounter forms. It takes into account any module
  * forms and will render the report for the form.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,13 +12,16 @@
 
 namespace OpenEMR\Common\Forms;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use Psr\Log\LoggerInterface;
 
 class FormReportRenderer
 {
-    public function __construct(private readonly ?FormLocator $locator = new FormLocator(), private readonly ?LoggerInterface $logger = new SystemLogger())
+    private readonly LoggerInterface $logger;
+
+    public function __construct(private readonly FormLocator $locator = new FormLocator(), ?LoggerInterface $logger = null)
     {
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     public function renderReport(string $formDir, string $page, $attendant_id, $encounter, $columns, $formId, $noWrap = true)
@@ -36,7 +39,7 @@ class FormReportRenderer
             if (function_exists($formDir . "_report")) {
                 ($formDir . "_report")($attendant_id, $encounter, $columns, $formId);
             } else {
-                $this->logger->errorLogCaller("form is missing report function", ['formdir' => $formDir, 'formId' => $formId]);
+                $this->logger->error("Form {formdir} is missing report function for formId {formId}", ['formdir' => $formDir, 'formId' => $formId]);
             }
         }
     }

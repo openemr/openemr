@@ -28,6 +28,8 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Patient List Creation", xl("Patient List Creation"));
@@ -365,7 +367,7 @@ if ($csv) {
                     $datetimepicker_timepicker = true;
                     $datetimepicker_showseconds = true;
                     $datetimepicker_formatInput = true;
-                    include $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php';
+                    include OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php';
                     // Add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
 
@@ -440,8 +442,8 @@ if ($csv) {
 
         <div id="report_parameters_daterange">
             <p>
-            <?php echo "<span style='margin-left:5px;'><strong>" . xlt('Date Range') . ":</strong>&nbsp;" . text(oeFormatDateTime($sql_date_from, "global", true))
-                . " &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(oeFormatDateTime($sql_date_to, "global", true)) . "</span>"; ?>
+            <?php echo "<span style='margin-left:5px;'><strong>" . xlt('Date Range') . ":</strong>&nbsp;" . text(DateFormatterUtils::oeFormatDateTime($sql_date_from, "global", true))
+                . " &nbsp; " . xlt('to{{Range}}') . " &nbsp; " . text(DateFormatterUtils::oeFormatDateTime($sql_date_to, "global", true)) . "</span>"; ?>
             <span style="margin-left:5px;"><strong><?php echo xlt('Option'); ?>:</strong>&nbsp;<?php echo text($_POST['srch_option'] ?? '');
             if (!empty($_POST['srch_option']) && ($_POST['srch_option'] == "comms") && ($_POST['communication'] != "")) {
                 if (isset($comarr[$_POST['communication']])) {
@@ -472,9 +474,9 @@ if ($csv) {
                                 <table class='text'>
                                     <tr>
                                         <td class='col-form-label'><?php echo xlt('From'); ?>: </td>
-                                        <td><input type='text' class='datetimepicker form-control' name='date_from' id="date_from" size='18' value='<?php echo attr(oeFormatDateTime($sql_date_from, 0, true)); ?>'></td>
+                                        <td><input type='text' class='datetimepicker form-control' name='date_from' id="date_from" size='18' value='<?php echo attr(DateFormatterUtils::oeFormatDateTime($sql_date_from, 0, true)); ?>'></td>
                                         <td class='col-form-label'><?php echo xlt('To{{range}}'); ?>: </td>
-                                        <td><input type='text' class='datetimepicker form-control' name='date_to' id="date_to" size='18' value='<?php echo attr(oeFormatDateTime($sql_date_to, 0, true)); ?>'></td>
+                                        <td><input type='text' class='datetimepicker form-control' name='date_to' id="date_to" size='18' value='<?php echo attr(DateFormatterUtils::oeFormatDateTime($sql_date_to, 0, true)); ?>'></td>
                                         <td class='col-form-label'><?php echo xlt('Option'); ?>: </td>
                                         <td>
                                             <select class="form-control" name="srch_option" id="srch_option"
@@ -848,17 +850,17 @@ if (!empty($_POST['form_refresh'])) {
     }
 
     for ($i = 0; $i < count($sort); $i++) {
-        $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols(" . attr_js($sort[$i]) . ",'asc');\" ><img src='" .  $GLOBALS['images_static_relative'] . "/sortdown.gif' border='0' alt=\"" . xla('Sort Up') . "\"></a>";
+        $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols(" . attr_js($sort[$i]) . ",'asc');\" ><img src='" .  OEGlobalsBag::getInstance()->get('images_static_relative') . "/sortdown.gif' border='0' alt=\"" . xla('Sort Up') . "\"></a>";
     }
 
     for ($i = 0; $i < count($sort); $i++) {
         if ($sortby == $sort[$i]) {
             switch ($sortorder) {
                 case "asc":
-                    $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols(" . attr_js($sortby) . ",'desc');\" ><img src='" .  $GLOBALS['images_static_relative'] . "/sortup.gif' border='0' alt=\"" . xla('Sort Up') . "\"></a>";
+                    $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols(" . attr_js($sortby) . ",'desc');\" ><img src='" .  OEGlobalsBag::getInstance()->get('images_static_relative') . "/sortup.gif' border='0' alt=\"" . xla('Sort Up') . "\"></a>";
                     break;
                 case "desc":
-                    $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('" . attr_js($sortby) . "','asc');\" onclick=\"top.restoreSession()\"><img src='" . $GLOBALS['images_static_relative'] . "/sortdown.gif' border='0' alt=\"" . xla('Sort Down') . "\"></a>";
+                    $sortlink[$i] = "<a href=\"#\" onclick=\"sortingCols('" . attr_js($sortby) . "','asc');\" onclick=\"top.restoreSession()\"><img src='" . OEGlobalsBag::getInstance()->get('images_static_relative') . "/sortdown.gif' border='0' alt=\"" . xla('Sort Down') . "\"></a>";
                     break;
             }
             break;
@@ -988,7 +990,7 @@ if (!empty($_POST['form_refresh'])) {
                 switch ($report_col) { // Convert column data into readable format if necessary
                     case "patient_date":
                     case "other_date":
-                        $report_value_print = ($report_value != '') ? text(oeFormatDateTime($report_value, "global", true)) : '';
+                        $report_value_print = ($report_value != '') ? text(DateFormatterUtils::oeFormatDateTime($report_value, "global", true)) : '';
                         break;
                     case "patient_race":
                         $report_value_print = generate_display_field(['data_type' => '36', 'list_id' => 'race'], $report_value);

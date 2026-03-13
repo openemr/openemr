@@ -7,7 +7,7 @@
  * This is most likely to be used by a theme module to change the logo path for a specific type of logo, such as core/menu/primary/logo.png.
  * If multiple modules are registered to this event, the last one to set the web path will be the one that is used.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -15,7 +15,6 @@
 
 namespace OpenEMR\Events\Services;
 
-use OpenEMR\Services\BaseService;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class LogoFilterEvent extends Event

@@ -8,7 +8,7 @@
  * without adding specific validation rules.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,8 +16,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Validators;
 
-use OpenEMR\Validators\ImmunizationValidator;
 use OpenEMR\Validators\BaseValidator;
+use OpenEMR\Validators\ImmunizationValidator;
 use PHPUnit\Framework\TestCase;
 
 class ImmunizationValidatorTest extends TestCase

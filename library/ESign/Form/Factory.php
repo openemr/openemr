@@ -5,7 +5,7 @@
  * components for the Form module
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Medical Information Integration, LLC
@@ -15,12 +15,14 @@
 
 namespace ESign;
 
-require_once $GLOBALS['srcdir'] . '/ESign/FactoryIF.php';
-require_once $GLOBALS['srcdir'] . '/ESign/Form/Configuration.php';
-require_once $GLOBALS['srcdir'] . '/ESign/Form/Signable.php';
-require_once $GLOBALS['srcdir'] . '/ESign/Form/LBF/Signable.php';
-require_once $GLOBALS['srcdir'] . '/ESign/Form/Button.php';
-require_once $GLOBALS['srcdir'] . '/ESign/Form/Log.php';
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/FactoryIF.php';
+require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Form/Configuration.php';
+require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Form/Signable.php';
+require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Form/LBF/Signable.php';
+require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Form/Button.php';
+require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/Form/Log.php';
 
 class Form_Factory implements FactoryIF
 {

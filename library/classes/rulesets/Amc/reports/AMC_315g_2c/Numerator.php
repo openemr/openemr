@@ -19,7 +19,7 @@
  * of a patient.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @copyright 2022 Discover and Change, Inc.
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -27,6 +27,7 @@
  */
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
 {
@@ -87,8 +88,8 @@ class AMC_315g_2c_Numerator implements AmcFilterIF, IAmcItemizedReport
      */
     public function test(AmcPatient $patient, $beginDate, $endDate)
     {
-        $fhir_api = $GLOBALS['rest_fhir_api'] ?? '0';
-        $patient_api = $GLOBALS['rest_portal_api'] ?? '0';
+        $fhir_api = OEGlobalsBag::getInstance()->get('rest_fhir_api') ?? '0';
+        $patient_api = OEGlobalsBag::getInstance()->get('rest_portal_api') ?? '0';
 
         // if either the fhir api or the patient api is disabled, then we must fail the measure as no patient
         // fhir api access is available.

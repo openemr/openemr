@@ -4,7 +4,7 @@
  * Encounter form save script.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
@@ -16,16 +16,15 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/encounter.inc.php");
 
-use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\ListService;
-use OpenEMR\Services\PatientService;
-use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Services\PatientIssuesService;
+use OpenEMR\Services\PatientService;
 
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -41,14 +40,14 @@ $patientService = new PatientService();
  */
 $patient = $patientService->findByPid($pid);
 if (empty($patient)) {
-    (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller("Patient not found, this should never happen");
+    (new \OpenEMR\Common\Logging\SystemLogger())->error("newpatient/save.php: Patient not found, this should never happen");
     die("Patient not found");
 }
 $puuid = UuidRegistry::uuidToString($patient['uuid']);
 
-if ($_POST['mode'] == 'new' && ($GLOBALS['enc_service_date'] == 'hide_both' || $GLOBALS['enc_service_date'] == 'show_edit')) {
+if ($_POST['mode'] == 'new' && (OEGlobalsBag::getInstance()->get('enc_service_date') == 'hide_both' || OEGlobalsBag::getInstance()->get('enc_service_date') == 'show_edit')) {
     $date = (new DateTime())->format('Y-m-d H:i:s');
-} elseif ($_POST['mode'] == 'update' && ($GLOBALS['enc_service_date'] == 'hide_both' || $GLOBALS['enc_service_date'] == 'show_new')) {
+} elseif ($_POST['mode'] == 'update' && (OEGlobalsBag::getInstance()->get('enc_service_date') == 'hide_both' || OEGlobalsBag::getInstance()->get('enc_service_date') == 'show_new')) {
     $enc_from_id = sqlQuery("SELECT `encounter` FROM `form_encounter` WHERE `id` = ?", [intval($_POST['id'])]);
     $enc = $encounterService->getEncounterById($enc_from_id['encounter']);
     $enc_data = $enc->getData();

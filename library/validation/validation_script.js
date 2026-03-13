@@ -25,7 +25,7 @@
  * @author Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) Amiel Elboim <amielel@matrix.co.il>
  * @copyright Copyright (c) 2025 Mountain Valley Health <mvhinspire@mountainvalleyhealthinc.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 window.OeFormValidation = (function(window) {
     let xl = window.top.xl || function(str) { return str; };

@@ -8,7 +8,7 @@
  * analyzing, executing, and tracking database schema upgrades.
  *
  * @package    OpenEMR
- * @link       http://www.open-emr.org
+ * @link       https://www.open-emr.org
  * @subpackage Services
  * @author     Michael A. Smith <michael@opencoreemr.com>
  * @copyright  Copyright (c) 2025 OpenCoreEMR Inc.

@@ -3,7 +3,7 @@
 /**
  * FhirExportJobService handles the database create, read, update, and delete database operations for an ExportJob
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -11,17 +11,20 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\Export\ExportJob;
 use Psr\Log\LoggerInterface;
 
 class FhirExportJobService
 {
-    public function __construct(private readonly ?LoggerInterface $logger = new SystemLogger())
+    private readonly LoggerInterface $logger;
+
+    public function __construct(?LoggerInterface $logger = null)
     {
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
     // TODO: @adunsulag is there another place in the system that has our standard datetime constants?
     /**

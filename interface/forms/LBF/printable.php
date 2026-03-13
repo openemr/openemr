@@ -4,7 +4,7 @@
  * LBF form.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com> contributed the header and footer only
@@ -20,14 +20,15 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/encounter.inc.php");
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
 
 use Mpdf\Mpdf;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\Config_Mpdf;
 
 // Font size in points for table cell data.
@@ -57,7 +58,7 @@ if ($formid > 0) {
         [$formid]
     );
     if ($formOwner === null || (int) $formOwner['pid'] !== $patientid || (int) $formOwner['encounter'] !== $visitid) {
-        (new SystemLogger())->warning(
+        ServiceContainer::getLogger()->warning(
             "An attempt was made to view an LBF form belonging to a different patient or encounter",
             ['user-id' => $_SESSION['authUserID'] ?? '', 'requested-formid' => $formid, 'session-pid' => $patientid, 'session-encounter' => $visitid]
         );
@@ -120,8 +121,8 @@ if ($PDF_OUTPUT) {
     $config_mpdf = Config_Mpdf::getConfigMpdf();
     $config_mpdf['margin_top'] *= 1.5;
     $config_mpdf['margin_bottom'] *= 1.5;
-    $config_mpdf['margin_header'] = $GLOBALS['pdf_top_margin'];
-    $config_mpdf['margin_footer'] =  $GLOBALS['pdf_bottom_margin'];
+    $config_mpdf['margin_header'] = OEGlobalsBag::getInstance()->getInt('pdf_top_margin');
+    $config_mpdf['margin_footer'] =  OEGlobalsBag::getInstance()->getInt('pdf_bottom_margin');
     $pdf = new mPDF($config_mpdf);
     $pdf->SetDisplayMode('real');
     if ($_SESSION['language_direction'] == 'rtl') {
@@ -306,7 +307,7 @@ if ($PDF_OUTPUT) {
 
 <?php
 
-function end_cell(): void
+function lbf_printable_end_cell(): void
 {
     global $item_count, $cell_count;
     if ($item_count > 0) {
@@ -315,10 +316,10 @@ function end_cell(): void
     }
 }
 
-function end_row(): void
+function lbf_printable_end_row(): void
 {
     global $cell_count, $CPR;
-    end_cell();
+    lbf_printable_end_cell();
     if ($cell_count > 0) {
         for (; $cell_count < $CPR; ++$cell_count) {
             echo "<td></td>";
@@ -381,7 +382,7 @@ while ($frow = sqlFetchArray($fres)) {
 
     // If ending a group or starting a subgroup, terminate the current row and its table.
     if ($group_table_active && ($i != strlen($group_levels) || $i != strlen((string) $this_levels))) {
-        end_row();
+        lbf_printable_end_row();
         echo " </table>\n";
         $group_table_active = false;
     }
@@ -396,7 +397,7 @@ while ($frow = sqlFetchArray($fres)) {
 
     // If there are any new groups, open them.
     while ($i < strlen((string) $this_levels)) {
-        end_row();
+        lbf_printable_end_row();
         if ($group_table_active) {
             echo " </table>\n";
             $group_table_active = false;
@@ -428,7 +429,7 @@ while ($frow = sqlFetchArray($fres)) {
 
     // Handle starting of a new row.
     if (($cell_count + $titlecols + $datacols) > $CPR || $cell_count == 0 || $prepend_blank_row || $jump_new_row) {
-        end_row();
+        lbf_printable_end_row();
         if ($prepend_blank_row) {
             echo "  <tr><td class='text' style='font-size:25%' colspan='" . attr($CPR) . "'>&nbsp;</td></tr>\n";
         }
@@ -447,7 +448,7 @@ while ($frow = sqlFetchArray($fres)) {
 
     // Handle starting of a new label cell.
     if ($titlecols > 0) {
-        end_cell();
+        lbf_printable_end_cell();
         if (isOption($edit_options, 'SP')) {
             $datacols = 0;
             $titlecols = $CPR;
@@ -476,7 +477,7 @@ while ($frow = sqlFetchArray($fres)) {
 
     // Handle starting of a new data cell.
     if ($datacols > 0) {
-        end_cell();
+        lbf_printable_end_cell();
         if (isOption($edit_options, 'DS')) {
             echo "<td colspan='" . attr($datacols) . "' class='dcols" . attr($datacols) . " stuff under RS' style='";
         } elseif (isOption($edit_options, 'DO')) {
@@ -511,7 +512,7 @@ while ($frow = sqlFetchArray($fres)) {
 
 // Close all open groups.
 if ($group_table_active) {
-    end_row();
+    lbf_printable_end_row();
     echo " </table>\n";
     $group_table_active = false;
 }

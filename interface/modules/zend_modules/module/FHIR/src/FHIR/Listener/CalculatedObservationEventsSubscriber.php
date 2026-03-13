@@ -6,7 +6,7 @@
  * This
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author   Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Discover and Change, Inc.
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,7 +14,7 @@
 
 namespace OpenEMR\ZendModules\FHIR\Listener;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\Services\VitalsCalculatedService;
 use OpenEMR\Services\VitalsService;
@@ -54,8 +54,8 @@ class CalculatedObservationEventsSubscriber implements EventSubscriberInterface
             $vitalCalculations = new VitalsCalculatedService();
             $vitalCalculations->saveCalculatedVitalsForRecord($vitalRecord);
         } catch (\Throwable $exception) {
-            (new SystemLogger())->errorLogCaller("Failed to save calculated record ", ['exception' => $exception->getMessage(),
-                'trace' => $exception->getTraceAsString(), 'form_vitals.id' => $vitalRecord['id']]);
+            ServiceContainer::getLogger()->error("Failed to save calculated record ", ['exception' => $exception,
+                'form_vitals.id' => $vitalRecord['id']]);
         }
     }
 }

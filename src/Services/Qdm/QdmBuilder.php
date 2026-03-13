@@ -2,7 +2,7 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2021 Ken Chapple <ken@mi-squared.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU GeneralPublic License 3
@@ -29,11 +29,11 @@ use OpenEMR\Services\Qdm\Services\InterventionService;
 use OpenEMR\Services\Qdm\Services\LaboratoryTestOrderedService;
 use OpenEMR\Services\Qdm\Services\LaboratoryTestService;
 use OpenEMR\Services\Qdm\Services\MedicationActiveService;
-use OpenEMR\Services\Qdm\Services\SubstanceOrderService;
 use OpenEMR\Services\Qdm\Services\PatientService;
 use OpenEMR\Services\Qdm\Services\PhysicalExamService;
 use OpenEMR\Services\Qdm\Services\ProcedureRecommendedService;
 use OpenEMR\Services\Qdm\Services\ProcedureService;
+use OpenEMR\Services\Qdm\Services\SubstanceOrderService;
 use OpenEMR\Services\Qdm\Services\SubstanceRecommendedService;
 use OpenEMR\Services\Qdm\Services\SymptomService;
 

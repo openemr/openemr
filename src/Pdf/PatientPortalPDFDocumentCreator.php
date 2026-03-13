@@ -17,8 +17,8 @@
 
 namespace OpenEMR\Pdf;
 
-use Mpdf\Mpdf;
 use HTMLPurifier_Config;
+use Mpdf\Mpdf;
 use OpenEMR\Pdf\Config_Mpdf;
 
 class PatientPortalPDFDocumentCreator

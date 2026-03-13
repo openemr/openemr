@@ -10,10 +10,10 @@ namespace OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary;
 
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteria;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaBuilder;
-use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaType;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaDatabaseBucket;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaDatabaseCustom;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaLifestyle;
+use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaType;
 
 /**
  * Description of OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\RuleCriteriaDatabaseBuilder

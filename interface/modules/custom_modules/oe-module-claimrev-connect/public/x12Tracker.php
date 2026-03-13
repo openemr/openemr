@@ -3,7 +3,7 @@
 /**
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -26,6 +26,7 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
     $datas = [];
     //check if form was submitted
 if (isset($_POST['SubmitButton'])) {
+    /** @var array<string, mixed> $_POST */
     $datas = X12TrackerPage::searchX12Tracker($_POST);
 }
 ?>

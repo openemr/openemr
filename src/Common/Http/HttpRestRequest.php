@@ -3,7 +3,7 @@
 /**
  * HttpRestRequest represents the current OpenEMR api request
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
@@ -14,17 +14,17 @@
 namespace OpenEMR\Common\Http;
 
 use Http\Message\Encoding\GzipDecodeStream;
+use InvalidArgumentException;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ResourceScopeEntityList;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Validators\ScopeValidatorFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
+use Stringable;
 use Symfony\Component\HttpFoundation\FileBag;
 use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Request;
-use Stringable;
-use InvalidArgumentException;
 
 class HttpRestRequest extends Request implements Stringable
 {

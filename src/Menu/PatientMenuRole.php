@@ -4,7 +4,7 @@
  * PatientMenuRole class.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Eyal Wolanowski <eyal.wolanowski@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
@@ -16,9 +16,8 @@ namespace OpenEMR\Menu;
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Services\UserService;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use OpenEMR\Menu\PatientMenuEvent;
+use OpenEMR\Services\UserService;
 
 class PatientMenuRole extends MenuRole
 {
@@ -55,10 +54,10 @@ class PatientMenuRole extends MenuRole
         // Load the selected menu
         if (preg_match("/.json$/", $patientMenuRole)) {
             // load custom menu (includes .json in id)
-            $menu_parsed = json_decode(file_get_contents($GLOBALS['OE_SITE_DIR'] . "/documents/custom_menus/patient_menus/" . $patientMenuRole));
+            $menu_parsed = json_decode(file_get_contents(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/custom_menus/patient_menus/" . $patientMenuRole));
         } else {
             // load a standardized menu (does not include .json in id)
-            $menu_parsed = json_decode(file_get_contents($GLOBALS['fileroot'] . "/interface/main/tabs/menu/menus/patient_menus/" . $patientMenuRole . ".json"));
+            $menu_parsed = json_decode(file_get_contents(OEGlobalsBag::getInstance()->get('fileroot') . "/interface/main/tabs/menu/menus/patient_menus/" . $patientMenuRole . ".json"));
         }
         // if error, then die and report error
         if (!$menu_parsed) {
@@ -92,7 +91,7 @@ class PatientMenuRole extends MenuRole
         $output = "<select name='patient_menu_role' id='patient_menu_role' class='form-control'>";
         $output .= "<option value='standard' " . (($selected == "standard") ? "selected" : "") . ">" . xlt("Standard") . "</option>";
 
-        $customMenuDir = $GLOBALS['OE_SITE_DIR'] . "/documents/custom_menus/patient_menus/";
+        $customMenuDir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/custom_menus/patient_menus/";
         if (file_exists($customMenuDir)) {
             $dHandle = opendir($customMenuDir);
             while (false !== ($menuCustom = readdir($dHandle))) {
@@ -145,11 +144,11 @@ class PatientMenuRole extends MenuRole
         if (sqlNumRows($module_query)) {
             while ($hookrow = sqlFetchArray($module_query)) {
                 if ($hookrow['type'] == 0) {
-                    $modulePath = $GLOBALS['customModDir'];
+                    $modulePath = OEGlobalsBag::getInstance()->get('customModDir');
                     $added = "";
                 } else {
                     $added = "index";
-                    $modulePath = $GLOBALS['zendModDir'];
+                    $modulePath = OEGlobalsBag::getInstance()->get('zendModDir');
                 }
 
                 if (AclMain::zhAclCheck($_SESSION['authUserID'], $hookrow['obj_name']) ? "" : "1") {
@@ -237,7 +236,7 @@ class PatientMenuRole extends MenuRole
             if (str_starts_with((string) $rel_url, '/') || str_starts_with((string) $rel_url, '\\')) {
                 $rel_url = ltrim((string) $rel_url, '/\\');
             }
-            return $GLOBALS['webroot'] . "/" . $rel_url;
+            return OEGlobalsBag::getInstance()->get('webroot') . "/" . $rel_url;
         }
         return $rel_url;
     }

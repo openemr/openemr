@@ -4,7 +4,7 @@
  * phq-9 form using forms api     new.php    create a new form
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ruth Moulton <moulton ruth@muswell.me.uk>
  * @copyright Copyright (c) 2021 ruth moulton <ruth@muswell.me.uk>
  *
@@ -15,8 +15,28 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("phq9.inc.php"); //common strings
 require_once("$srcdir/api.inc.php");
 
+/**
+ * @var string $srcdir
+ * @var string $rootdir
+ * @var string $viewmode
+ * @var string $str_default
+ * @var string $str_not
+ * @var string $str_several
+ * @var string $str_more
+ * @var string $str_nearly
+ * @var string $str_somewhat
+ * @var string $str_very
+ * @var string $str_extremely
+ * @var string $str_nosave_confirm
+ * @var string $str_form_name
+ * @var string $str_form_title
+ * @var string $str_q10
+ * @var string $str_q10_2
+ */
+
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $obj = $viewmode == 'update' ? formFetch("form_phq9", $_GET["id"]) : null;
 ?>
@@ -305,7 +325,7 @@ $obj = $viewmode == 'update' ? formFetch("form_phq9", $_GET["id"]) : null;
                     var conf = confirm(<?php echo js_escape($str_nosave_confirm); ?>);
 
                     if (conf) {
-                        window.location.href = "<?php echo $GLOBALS['form_exit_url']; ?>";
+                        window.location.href = "<?php echo OEGlobalsBag::getInstance()->get('form_exit_url'); ?>";
                     }
                     return (conf);
                 }

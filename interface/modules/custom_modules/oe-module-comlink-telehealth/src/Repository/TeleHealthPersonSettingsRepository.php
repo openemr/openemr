@@ -4,7 +4,7 @@
  * Handles the saving, retrieving, and creating of telehealth settings for patients and users.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,11 +14,11 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule\Repository;
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthPersonSettings;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use Psr\Log\LoggerInterface;
 
 class TeleHealthPersonSettingsRepository
 {
-    public function __construct(private readonly SystemLogger $logger)
+    public function __construct(private readonly LoggerInterface $logger)
     {
     }
 
@@ -110,7 +110,7 @@ class TeleHealthPersonSettingsRepository
             if ($date !== false) {
                 $settings->setDateCreated($date);
             } else {
-                $this->logger->errorLogCaller('failed to create date_created', ['value' => $row['date_created']]);
+                $this->logger->error('TeleHealthPersonSettingsRepository: failed to create date_created from {value}', ['value' => $row['date_created']]);
             }
         }
         if (isset($row['date_updated'])) {
@@ -118,7 +118,7 @@ class TeleHealthPersonSettingsRepository
             if ($date !== false) {
                 $settings->setDateUpdated($date);
             } else {
-                $this->logger->errorLogCaller('failed to create date_updated', ['value' => $row['date_updated']]);
+                $this->logger->error('TeleHealthPersonSettingsRepository: failed to create date_updated from {value}', ['value' => $row['date_updated']]);
             }
         }
         return $settings;

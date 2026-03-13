@@ -4,7 +4,7 @@
  * display.php  Is responsible for display a CCR/CCD/CCDA document previewed from the documents folder.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ajil P.M <ajilpm@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
@@ -17,10 +17,10 @@
 
 require_once(__DIR__ . "/../interface/globals.php");
 
-use OpenEMR\Events\PatientDocuments\PatientDocumentViewCCDAEvent;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Events\PatientDocuments\PatientDocumentViewCCDAEvent;
 
 $type = $_GET['type'];
 $document_id = $_GET['doc_id'];
@@ -64,8 +64,8 @@ try {
     }
     echo $updatedViewCCDAEvent->getContent();
 } catch (\Throwable $exception) {
-    (new SystemLogger())->errorLogCaller(
+    ServiceContainer::getLogger()->error(
         "Failed to generate ccda for view",
-        ['type' => $type, 'document_id' => $document_id, 'message' => $exception, 'trace' => $exception->getTraceAsString()]
+        ['exception' => $exception, 'type' => $type, 'document_id' => $document_id]
     );
 }

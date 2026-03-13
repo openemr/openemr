@@ -32,7 +32,7 @@ class NoCoversAnnotationRule implements Rule
 
     /**
      * @param InClassMethodNode $node
-     * @return array<\PHPStan\Rules\RuleError>
+     * @return list<\PHPStan\Rules\IdentifierRuleError>
      */
     public function processNode(Node $node, Scope $scope): array
     {
@@ -42,7 +42,7 @@ class NoCoversAnnotationRule implements Rule
             return [];
         }
 
-        if (preg_match('/@covers\b/', $docComment->getText())) {
+        if (preg_match('/@covers\b/', $docComment->getText()) === 1) {
             return [
                 RuleErrorBuilder::message(
                     'Please do not use the @covers annotation. It excludes transitively used code from coverage reports, ' .

@@ -1,10 +1,11 @@
 <?php
+
 /*
  * SmokingStatusType.php - Form Type for Smoking Status Field used in options.inc.php
  * with the LBF forms.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * Copyright (C) 2007-2021 Rod Roark <rod@sunsetsystems.com>
  * Copyright © 2010 by Andrew Moore <amoore@cpan.org>

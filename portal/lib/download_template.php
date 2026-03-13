@@ -6,13 +6,13 @@
  * @package OpenEMR
  * @author  Jerry Padgett <sjpadgett@gmail.com>
  * Copyright (C) 2023-2024 Jerry Padgett <sjpadgett@gmail.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Services\DocumentTemplates\DocumentTemplateRender;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\DocumentTemplates\DocumentTemplateRender;
 
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");

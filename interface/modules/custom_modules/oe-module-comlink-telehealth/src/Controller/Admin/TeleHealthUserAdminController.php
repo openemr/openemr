@@ -4,7 +4,7 @@
  * This controller class handles the hooks and connections for the patient administrative pages in the OpenEMR system.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Comlink Inc <https://comlinkinc.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -15,7 +15,7 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule\Controller\Admin;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthPersonSettings;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthPersonSettingsRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\User\UserCreatedEvent;
 use OpenEMR\Events\User\UserEditRenderEvent;
@@ -56,7 +56,7 @@ class TeleHealthUserAdminController
             $userAdminTwigData['userId'] = $userId;
             // grab the user, grab our telehealth enabled settings
             // set our checkbox
-            $repository = new TeleHealthPersonSettingsRepository(new SystemLogger());
+            $repository = new TeleHealthPersonSettingsRepository(ServiceContainer::getLogger());
             $settings = $repository->getSettingsForUser($userId);
             if (!empty($settings)) {
                 $userAdminTwigData['userEnabled'] = $userAdminTwigData['forceTelehealthEnabled'] ? true : $settings->getIsEnabled();

@@ -9,7 +9,7 @@ require_once "Holidays_Csv.php";
  * that are used by the holidays/clinic closed events.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    sharonco <sharonco@matrix.co.il>
  * @copyright Copyright (c) 2016 Sharon Cohen <sharonco@matrix.co.il>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -104,7 +104,7 @@ class Holidays_Storage
     }
 
     /**
-     * This function opend the $file(csv) and parses it to insert the values in the calendar_external so later they can be imported as events
+     * This function opened the $file(csv) and parses it to insert the values in the calendar_external so later they can be imported as events
      * csv format -> date,description
      * Example:
      * 2016/12/24,Christmas

@@ -8,7 +8,7 @@
  * Types of fields constructed are defined in the FhirSearchParameterType class.
  * @see OpenEMR\FHIR\FhirSearchParameterType
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -19,7 +19,6 @@ namespace OpenEMR\Services\Search;
 use Laminas\Mvc\Exception\BadMethodCallException;
 use OpenEMR\Services\FHIR\FhirUrlResolver;
 use OpenEMR\Services\Search\SearchFieldType;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRSearchParameter;
 
 class FHIRSearchFieldFactory
 {

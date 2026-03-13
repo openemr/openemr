@@ -4,7 +4,7 @@
  * ESign object consists of all the essential parts.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Medical Information Integration, LLC
@@ -14,6 +14,8 @@
  */
 
 namespace ESign;
+
+use OpenEMR\Core\OEGlobalsBag;
 
 class ESign
 {
@@ -44,12 +46,12 @@ class ESign
     public function isLogViewable($mode = "default"): bool
     {
         $viewable = false;
-        if (count($this->_signable->getSignatures()) > 0 && empty($GLOBALS['esign_report_hide_all_sig'])) {
+        if (count($this->_signable->getSignatures()) > 0 && !OEGlobalsBag::getInstance()->getBoolean('esign_report_hide_all_sig')) {
             // If we have signatures, always show the log.
             $viewable = true;
         } else {
             // If in report mode then hide the log if $_GLOBALS['esign_report_hide_empty_sig'] is true and there are no signatures
-            if (($mode == "report") && ($GLOBALS['esign_report_hide_empty_sig'])) {
+            if (($mode == "report") && (OEGlobalsBag::getInstance()->getBoolean('esign_report_hide_empty_sig'))) {
                 $viewable = false;
             } else {
                 // defer if viewable to the log object

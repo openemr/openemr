@@ -88,7 +88,7 @@ for ($p = 0; $p < count($db_patient); $p++) {
         $strMsg .= "\n" . $patient_info . "\n" . $smsgateway_info . "\n" . $data_info . "\n" . $db_email_msg['message'];
     }
 
-    WriteLog($strMsg);
+    cron_WriteLog($strMsg);
 
     // larry :: get notification data again - since was updated by cron_updateentry
     // todo :: instead fix not to modify the template aka $db_email_msg

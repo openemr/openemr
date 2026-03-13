@@ -4,7 +4,7 @@
  * Oauth2KeyConfig is responsible for configuring, generating, and returning oauth2 keys that are used by the OpenEMR system.
  *
  * @package   openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <stephen@nielson.org>
@@ -16,9 +16,11 @@
 
 namespace OpenEMR\Common\Auth;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 class OAuth2KeyConfig
 {
@@ -42,7 +44,7 @@ class OAuth2KeyConfig
      */
     private $publicKey;
 
-    private readonly CryptoGen $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
 
     private readonly OAuth2KeyMissing $oauth2KeyMissing;
 
@@ -50,11 +52,11 @@ class OAuth2KeyConfig
     {
         if (empty($siteDir)) {
             // default to our global location
-            $siteDir = $GLOBALS['OE_SITE_DIR'];
+            $siteDir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR');
         }
 
         // Create a crypto object that will be used for encryption/decryption
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = ServiceContainer::getCrypto();
         // verify and/or setup our key pairs.
         $this->privateKey = $siteDir . '/documents/certificates/oaprivate.key';
         $this->publicKey = $siteDir . '/documents/certificates/oapublic.key';
@@ -189,26 +191,10 @@ class OAuth2KeyConfig
         $this->deleteKeys();
 
         // Generate encryption key
-        $this->oaEncryptionKey = RandomGenUtils::produceRandomBytes(32);
-        if (empty($this->oaEncryptionKey)) {
-            // if empty, then log and force exit
-            EventAuditLogger::getInstance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 0, $logLabel . "random generator broken during oauth2 encryption key generation");
-            throw new OAuth2KeyException("random generator broken during oauth2 encryption key generation");
-        }
-        $this->oaEncryptionKey = base64_encode($this->oaEncryptionKey);
-        if (empty($this->oaEncryptionKey)) {
-            // if empty, then log and force exit
-            EventAuditLogger::getInstance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 0, $logLabel . "base64 encoding broken during oauth2 encryption key generation");
-            throw new OAuth2KeyException("base64 encoding broken during oauth2 encryption key generation");
-        }
+        $this->oaEncryptionKey = base64_encode(random_bytes(32));
 
         // Generate passphrase and public/private keys
         $this->passphrase = RandomGenUtils::produceRandomString(60, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789");
-        if (empty($this->passphrase)) {
-            // if empty, then log and force exit
-            EventAuditLogger::getInstance()->newEvent("oauth2", ($_SESSION['authUser'] ?? ''), ($_SESSION['authProvider'] ?? ''), 0, $logLabel . "random generator broken during oauth2 key passphrase generation");
-            throw new OAuth2KeyException("random generator broken during oauth2 key passphrase generation");
-        }
         $keysConfig = [
             "default_md" => "sha256",
             "private_key_type" => OPENSSL_KEYTYPE_RSA,
@@ -238,6 +224,10 @@ class OAuth2KeyConfig
         }
 
         // Successfully created encryption/public/private keys and passphrase, so store them and log success
+        $certDir = dirname($this->privateKey);
+        if (!is_dir($certDir)) {
+            mkdir($certDir, 0750, true);
+        }
         file_put_contents($this->privateKey, $privkey);
         chmod($this->privateKey, 0640);
         file_put_contents($this->publicKey, $pubkey);

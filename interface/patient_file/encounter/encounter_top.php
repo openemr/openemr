@@ -4,7 +4,7 @@
  * This contains the tab set for encounter forms.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Rod Roark <rod@sunsetsystems.com>
@@ -17,9 +17,9 @@ require_once("$srcdir/pid.inc.php");
 require_once("$srcdir/encounter.inc.php");
 require_once("$srcdir/forms.inc.php");
 
-use OpenEMR\Tabs\TabsWrapper;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Tabs\TabsWrapper;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 

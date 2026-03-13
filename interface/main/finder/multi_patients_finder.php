@@ -4,7 +4,7 @@
  * Multi select patient.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Amiel Elboim <amielel@matrix.co.il>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
@@ -19,6 +19,7 @@ require_once("$srcdir/patient.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 // for editing selected patients
 if (isset($_GET['patients'])) {
@@ -184,7 +185,7 @@ $('#by-id, #by-name').select2({
         },
         dataType: 'json',
     },
-    <?php require($GLOBALS['srcdir'] . '/js/xl/select2.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'); ?>
 });
 
 //get all the data of selected patient

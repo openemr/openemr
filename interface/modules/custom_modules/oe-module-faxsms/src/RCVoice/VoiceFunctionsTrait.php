@@ -4,7 +4,7 @@
  * Voice Module Member
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,7 +12,7 @@
 
 namespace OpenEMR\Modules\FaxSMS\RCVoice;
 
-use Exception;
+use OpenEMR\Common\Session\SessionUtil;
 use RingCentral\SDK\Http\ApiException;
 use RingCentral\SDK\Platform\Platform;
 
@@ -144,7 +144,7 @@ trait VoiceFunctionsTrait
             if ($token == 'changeme') {
                 // Generate secure token
                 $token = bin2hex(random_bytes(16));
-                $_SESSION['ringcentral_voice_token'] = $token;
+                SessionUtil::setSession('ringcentral_voice_token', $token);
             }
             // Webhook endpoint
             $this->webhookUrl = $this->getWebhookUrl($token);

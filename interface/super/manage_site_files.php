@@ -5,7 +5,7 @@
  * for uploading site-specific image files.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2010-2016 Rod Roark <rod@sunsetsystems.com>
@@ -15,12 +15,13 @@
 
 require_once('../globals.php');
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
-use GuzzleHttp\Client;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: File management", xl("File management"));
@@ -53,8 +54,8 @@ if (!empty($_POST['bn_save'])) {
         }
 
         $fileData = file_get_contents($_FILES['form_education']['tmp_name']);
-        if ($GLOBALS['drive_encryption']) {
-            $fileData = (new Cryptogen())->encryptStandard($fileData, null, 'database');
+        if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
+            $fileData = (ServiceContainer::getCrypto())->encryptStandard($fileData, null, KeySource::Database);
         }
         if (file_put_contents($educationpath, $fileData) === false) {
             die(text(xl('Unable to create') . " '$educationpath'"));
@@ -96,7 +97,7 @@ if (isset($_POST['generate_thumbnails'])) {
  * Dependence - turn on global setting 'secure_upload'
  */
 
-if ($GLOBALS['secure_upload']) {
+if (OEGlobalsBag::getInstance()->getBoolean('secure_upload')) {
     $mime_types  = ['image/*', 'text/*', 'audio/*', 'video/*'];
 
     $responseError = false;
@@ -253,7 +254,7 @@ function msfFileChanged() {
     </table>
 </div>
 
-<?php if ($GLOBALS['secure_upload']) { ?>
+<?php if (OEGlobalsBag::getInstance()->getBoolean('secure_upload')) { ?>
 <div id="file_type_whitelist">
     <h3 class='text-center'><?php echo xlt('White list files by MIME content type');?></h3>
     <form id="whitelist_form" method="post">

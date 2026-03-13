@@ -4,7 +4,7 @@
  * Fax and SMS Module UI Member
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2018-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -22,13 +22,13 @@ use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
 
-$assetBase = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-faxsms/public";
+$assetBase = OEGlobalsBag::getInstance()->get('web_root') . "/interface/modules/custom_modules/oe-module-faxsms/public";
 
 $serviceType = $_REQUEST['type'] ?? '';
 $clientApp = AppDispatch::getApiService($serviceType);
 $service = $clientApp::getServiceType();
 $serviceEnum = ServiceType::fromValue($service);
-$title = $serviceEnum?->getTranslatedDisplayName() ?? '';
+$title = $serviceEnum->getTranslatedDisplayName();
 $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt('Email') : xlt('FAX'));
 ?>
 <!DOCTYPE html>
@@ -36,8 +36,8 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?php echo $tabTitle ?? ''; ?></title>
-    <link rel="stylesheet" href="<?php echo $GLOBALS['assets_static_relative']; ?>/dropzone/dist/dropzone.css">
-    <script src="<?php echo $GLOBALS['assets_static_relative']; ?>/utif2/UTIF.js"></script>
+    <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->get('assets_static_relative'); ?>/dropzone/dist/dropzone.css">
+    <script src="<?php echo OEGlobalsBag::getInstance()->get('assets_static_relative'); ?>/utif2/UTIF.js"></script>
     <?php
     if (!$clientApp->verifyAcl()) {
         die("<h3>" . xlt("Not Authorised!") . "</h3>");
@@ -45,8 +45,9 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
     Header::setupHeader(['opener', 'datetime-picker', 'jspdf', 'jstiff']);
     echo "<script>let pid=" . js_escape($pid ?? 0) . ";let portalUrl=" . js_escape($clientApp->portalUrl ?? '') .
         ";let currentService=" . js_escape($service) . ";let serviceType=" . js_escape($serviceType) . "</script>";
+    echo ServiceType::renderJsConstants();
     ?>
-    <script type="text/javascript" src="<?php echo $GLOBALS['assets_static_relative']; ?>/dropzone/dist/dropzone.js"></script>
+    <script type="text/javascript" src="<?php echo OEGlobalsBag::getInstance()->get('assets_static_relative'); ?>/dropzone/dist/dropzone.js"></script>
 
     <script>
         $(function () {
@@ -55,7 +56,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                 $datetimepicker_timepicker = false;
                 $datetimepicker_showseconds = false;
                 $datetimepicker_formatInput = false;
-                require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
+                require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
                 ?>
             });
             let dateRange = new Date(new Date().setDate(new Date().getDate() - 1));
@@ -63,25 +64,14 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
             $("#todate").val(new Date().toJSON().slice(0, 10));
 
             $(".other").hide();
-            if (currentService == '1' && serviceType == 'fax') {
-                $(".rc-hide").hide();
-                $(".rc-fax-hide").hide();
-            } else if (currentService == '1' && serviceType == 'sms') {
-                $(".rc-hide").hide();
-            } else if (currentService == '2') {
-                $(".etherfax").hide();
-                $(".signalwire").hide();
-            } else if (currentService == '3') {
-                $(".twilio").hide();
-                $(".etherfax-hide").hide();
-                $(".etherfax").show();
-                $(".signalwire").hide();
-            } else if (currentService == '6') {
-                $(".twilio").hide();
-                $(".etherfax").hide();
-                $(".rc-hide").hide();
-                $(".signalwire").show();
-            }
+            const {hide = [], show = []} = {
+                [ServiceType.RINGCENTRAL]: {hide: ['.rc-hide'].concat(serviceType === 'fax' ? ['.rc-fax-hide'] : [])},
+                [ServiceType.TWILIO_SMS]: {hide: ['.etherfax', '.signalwire']},
+                [ServiceType.ETHERFAX]: {hide: ['.twilio', '.etherfax-hide', '.signalwire'], show: ['.etherfax']},
+                [ServiceType.SIGNALWIRE]: {hide: ['.twilio', '.etherfax', '.rc-hide'], show: ['.signalwire']},
+            }[currentService] ?? {};
+            hide.forEach(s => $(s).hide());
+            show.forEach(s => $(s).show());
             if (serviceType == 'sms') {
                 $(".sms-hide").hide();
             }
@@ -157,10 +147,8 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                 console.log('Session restore failed!');
             }
             e.preventDefault();
-            let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/setup.php';
-            if (currentService === '1') {
-                url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/setup_rc.php';
-            }
+            let url = top.webroot_url + '/interface/modules/custom_modules/oe-module-faxsms/' +
+                (currentService === ServiceType.RINGCENTRAL ? 'setup_rc.php' : 'setup.php');
             let msg = <?php echo xlj('Credentials and Notifications') ?>;
             dlgopen('', 'setup', 'modal-md', 700, '', msg, {
                 buttons: [
@@ -517,14 +505,11 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
                 e.stopPropagation();
             }
 
-            let actionUrl = (serviceType === 'fax') ? 'getPending?type=fax' : '';
-            if (serviceType === 'sms' && currentService == '1') { //RC
-                actionUrl = 'getPending?type=sms';
-            } else if (serviceType === 'sms') {
-                actionUrl = 'fetchSMSList?type=sms';
-            } else if (serviceType === 'email') {
-                actionUrl = 'fetchEmailList?type=email';
-            }
+            const actionUrl = {
+                fax: 'getPending?type=fax',
+                sms: currentService === ServiceType.RINGCENTRAL ? 'getPending?type=sms' : 'fetchSMSList?type=sms',
+                email: 'fetchEmailList?type=email',
+            }[serviceType] ?? '';
 
             const datefrom = $('#fromdate').val();
             const dateto = $('#todate').val();
@@ -769,7 +754,7 @@ $tabTitle = $serviceType == "sms" ? xlt('SMS') : ($serviceType == "email" ? xlt(
         Dropzone.autoDiscover = false;
         $(function () {
             var fileTypes = '';
-            if (currentService === '3') {
+            if (currentService === ServiceType.ETHERFAX) {
                 fileTypes = "application/pdf, image/*";
             }
             const faxQueue = new Dropzone("#faxQueue", {

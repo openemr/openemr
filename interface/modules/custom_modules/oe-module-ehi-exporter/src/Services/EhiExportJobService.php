@@ -4,7 +4,7 @@
  * Handles the saving, retrieving, and updating of ehi_export_job records.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Stephen Nielson <snielson@discoverandchange.com
  * @copyright Copyright (c) 2023 OpenEMR Foundation, Inc
@@ -15,7 +15,6 @@ namespace OpenEMR\Modules\EhiExporter\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Modules\EhiExporter\Models\EhiExportJob;
-use OpenEMR\Modules\EhiExporter\Models\EhiExportJobTask;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Validators\ProcessingResult;
 

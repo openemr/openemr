@@ -115,21 +115,31 @@ final readonly class PhoneNumber implements \Stringable
     }
 
     /**
-     * Format for local/national display.
+     * Format for local/national display using locale-aware formatting.
      *
-     * For NANP numbers (US/Canada/Caribbean with country code 1), formats as XXX-XXX-XXXX.
-     * For other regions, uses libphonenumber's locale-aware national format.
+     * Uses libphonenumber's NATIONAL format for all regions:
+     * - US: (555) 123-4567
+     * - UK: 020 7946 0958
+     * - DE: 030 123456
+     * - FR: 01 23 45 67 89
      */
     public function formatLocal(): string
     {
-        // NANP numbers have country code 1 and 10-digit national numbers
-        if ($this->getCountryCode() === 1) {
-            $national = $this->getNationalDigits();
-            if ($national !== null) {
-                return substr($national, 0, 3) . '-' . substr($national, 3, 3) . '-' . substr($national, 6, 4);
-            }
-        }
         return $this->toNational();
+    }
+
+    /**
+     * Format for global/international display.
+     *
+     * Uses libphonenumber's INTERNATIONAL format for all regions:
+     * - US: +1 555-123-4567
+     * - UK: +44 20 7946 0958
+     * - DE: +49 30 123456
+     * - FR: +33 1 23 45 67 89
+     */
+    public function formatGlobal(): string
+    {
+        return $this->toInternational();
     }
 
     /**

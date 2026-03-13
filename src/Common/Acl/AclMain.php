@@ -23,7 +23,6 @@
  *   language    Language Interface Tool
  *   drugs       Pharmacy Dispensary
  *   acl         ACL Administration
- *   multipledb  Multipledb
  *   menu        Menu
  *   manage_modules Manage modules
  *
@@ -117,8 +116,8 @@
 
 namespace OpenEMR\Common\Acl;
 
-use OpenEMR\Gacl\Gacl;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Gacl\Gacl;
 
 class AclMain
 {

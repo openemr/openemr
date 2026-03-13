@@ -23,7 +23,7 @@
  * @package OpenEMR
  * @author  Jan Jajalla <jajalla23@gmail.com>
  * @author  Roberto Vasquez <roberto.gagliotta@gmail.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 namespace OpenEMR\ClinicalDecisionRules\Interface;

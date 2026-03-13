@@ -1,0 +1,28 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use Doctrine\Migrations\DependencyFactory;
+use Doctrine\Migrations\Tools\Console\ConsoleRunner;
+use Firehed\Container\TypedContainerInterface;
+use Symfony\Component\Console\Application;
+
+$container = require_once __DIR__ . '/bootstrap.php';
+assert($container instanceof TypedContainerInterface);
+
+if (php_sapi_name() !== 'cli') {
+    echo 'This can only be run from the command line.';
+    exit(1);
+}
+
+file_put_contents(
+    'php://stderr',
+    "WARNING: This CLI tool is experimental and in progress. You probably want bin/console.\n",
+);
+
+$application = new Application();
+
+// Doctrine Migrations integration
+ConsoleRunner::addCommands($application, $container->get(DependencyFactory::class));
+$application->run();

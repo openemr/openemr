@@ -16,7 +16,10 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\E2e\Base;
 
+use Facebook\WebDriver\Exception\Internal\UnexpectedResponseException;
+use Facebook\WebDriver\Exception\StaleElementReferenceException;
 use Facebook\WebDriver\Exception\TimeoutException;
+use Facebook\WebDriver\Exception\UnexpectedAlertOpenException;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverExpectedCondition;
@@ -25,6 +28,8 @@ use Symfony\Component\Panther\Client;
 
 trait BaseTrait
 {
+    private Client $client;
+
     private function base(): void
     {
         $useGrid = getenv("SELENIUM_USE_GRID", true) ?? "false";
@@ -147,14 +152,51 @@ trait BaseTrait
 
     private function assertActiveTab(string $text, string $loading = "Loading", bool $looseTabTitle = false): void
     {
-        // Wait for each loading indicator to disappear from the live DOM
-        if (str_contains($loading, '||')) {
-            foreach (explode('||', $loading) as $loadingText) {
-                $this->client->waitForElementToNotContain(XpathsConstants::ACTIVE_TAB, $loadingText);
+        // Retry loop to handle page transitions that can cause the active tab
+        // element to become stale. After accepting a JS alert dialog (e.g.,
+        // "Create Visit" when a visit already exists), the page may reload and
+        // replace the active tab element during waitForElementToNotContain.
+        $maxRetries = 3;
+        $lastException = null;
+
+        for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+            try {
+                // Wait for the active tab element to exist (handles page transitions)
+                $this->client->waitFor(XpathsConstants::ACTIVE_TAB);
+
+                // Wait for each loading indicator to disappear from the live DOM
+                foreach (explode('||', $loading) as $loadingText) {
+                    $this->client->waitForElementToNotContain(XpathsConstants::ACTIVE_TAB, $loadingText);
+                }
+
+                // Success - exit retry loop
+                $lastException = null;
+                break;
+            } catch (UnexpectedResponseException | StaleElementReferenceException $e) {
+                // Element became stale during the page transition - retry
+                $lastException = $e;
+                if ($attempt < $maxRetries) {
+                    usleep(500_000); // 500ms before retry
+                }
+            } catch (UnexpectedAlertOpenException $e) {
+                // An alert appeared after the goToMainMenuLink() wait window.
+                // Accept it and retry (the page may reload after accepting).
+                try {
+                    $this->client->getWebDriver()->switchTo()->alert()->accept();
+                } catch (\Throwable) {
+                    // Alert already dismissed
+                }
+                $lastException = $e;
+                if ($attempt < $maxRetries) {
+                    usleep(500_000); // 500ms before retry
+                }
             }
-        } else {
-            $this->client->waitForElementToNotContain(XpathsConstants::ACTIVE_TAB, $loading);
         }
+
+        if ($lastException !== null) {
+            throw $lastException;
+        }
+
         $this->crawler = $this->client->refreshCrawler();
         if ($looseTabTitle) {
             $this->assertTrue(str_contains($this->crawler->filterXPath(XpathsConstants::ACTIVE_TAB)->text(), $text), "[$text] tab load FAILED");

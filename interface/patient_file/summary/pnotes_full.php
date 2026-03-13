@@ -4,17 +4,17 @@
  * Display, enter, modify and manage patient notes.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2020 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once('../../globals.php');
-require_once($GLOBALS['srcdir'] . '/pnotes.inc.php');
-require_once($GLOBALS['srcdir'] . '/patient.inc.php');
-require_once($GLOBALS['srcdir'] . '/options.inc.php');
-require_once($GLOBALS['srcdir'] . '/gprelations.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/pnotes.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/patient.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php');
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/gprelations.inc.php');
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -22,12 +22,14 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\UserService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 if (!empty($_GET['set_pid'])) {
-    require_once($GLOBALS['srcdir'] . '/pid.inc.php');
+    require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/pid.inc.php');
     setpid($_GET['set_pid']);
 }
 
@@ -519,7 +521,7 @@ function restoreSession() {
                                 echo getListItemTitle("message_status", $iter['message_status']);
                                 echo "  </td>\n";
                                 echo "  <td class='notecell'>";
-                                echo text(oeFormatDateTime($iter['update_date']));
+                                echo text(DateFormatterUtils::oeFormatDateTime($iter['update_date']));
                                 echo "  </td>\n";
                                 echo "  <td class='notecell'>";
                                 $updateBy = $userService->getUser($iter['update_by']);

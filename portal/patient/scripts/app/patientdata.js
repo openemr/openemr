@@ -412,7 +412,7 @@ var page = {
             'race': $('select#race').val(),
             'ethnicity': $('select#ethnicity').val(),
             'religion': $('select#religion').val(),
-            //'interpretter': $('input#interpretter').val(),
+            //'interpreter': $('input#interpreter').val(),
             //'migrantseasonal': $('input#migrantseasonal').val(),
             'familySize': $('input#familySize').val(),
             'monthlyIncome': $('input#monthlyIncome').val(),

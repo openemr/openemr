@@ -17,6 +17,8 @@
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 if (empty($viewBean)) {
     // should never get here...
@@ -41,7 +43,7 @@ $records = $viewBean->records ?>
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = true; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
 
@@ -115,7 +117,7 @@ $records = $viewBean->records ?>
                                     <?php echo xlt('Begin Date'); ?>:
                                 </td>
                                 <td>
-                                    <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo attr(oeFormatDateTime($form_begin_date, "global", true)); ?>'
+                                    <input type='text' name='form_begin_date' id='form_begin_date' size='20' value='<?php echo attr(DateFormatterUtils::oeFormatDateTime($form_begin_date, "global", true)); ?>'
                                            class='datepicker form-control'>
                                 </td>
                             </tr>
@@ -125,7 +127,7 @@ $records = $viewBean->records ?>
                                     <?php echo xlt('End Date'); ?>:
                                 </td>
                                 <td>
-                                    <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo attr(oeFormatDateTime($form_end_date, "global", true)); ?>'
+                                    <input type='text' name='form_end_date' id='form_end_date' size='20' value='<?php echo attr(DateFormatterUtils::oeFormatDateTime($form_end_date, "global", true)); ?>'
                                            class='datepicker form-control'>
                                 </td>
                             </tr>
@@ -196,7 +198,7 @@ $records = $viewBean->records ?>
                 <tbody>  <!-- added for better print-ability -->
                 <?php foreach ($records as $row) : ?>
                     <tr>
-                        <td><?php echo text(oeFormatDateTime($row['date'], "global", true)); ?></td>
+                        <td><?php echo text(DateFormatterUtils::oeFormatDateTime($row['date'], "global", true)); ?></td>
                         <td><?php echo text($row['pid']); ?></td>
                         <td><?php echo text($row['uid']); ?></td>
                         <td><?php echo text($row['facility_id']); ?></td>

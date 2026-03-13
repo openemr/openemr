@@ -3,7 +3,7 @@
 /*
  * SearchRequestNormalizerTest.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -11,18 +11,17 @@
 
 namespace OpenEMR\Tests\Unit\Services\FHIR\Utils;
 
-use Monolog\Level;
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\FHIR\Utils\SearchRequestNormalizer;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 class SearchRequestNormalizerTest extends TestCase
 {
     public function testNormalizeSearchRequest(): void
     {
-        $normalizer = new SearchRequestNormalizer(new SystemLogger(Level::Emergency));
+        $normalizer = new SearchRequestNormalizer($this->createMock(LoggerInterface::class));
         $request = HttpRestRequest::create('https://localhost/apis/default/fhir/Patient/_search', 'POST', [
             'name' => 'John'
             ,'date' => 'gt1980-01-01'

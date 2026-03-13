@@ -4,7 +4,7 @@
  * List Amendments
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Hema Bandaru <hemab@drcloudemr.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2014 Ensoftek
@@ -18,6 +18,7 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('patients', 'amendment')) {
@@ -56,10 +57,10 @@ echo "<title>" . xlt('Amendment List') . "</title>";
         });
     }
     var AddAmendment = function () {
-        window.location.href = "<?php echo $GLOBALS['webroot']?>/interface/patient_file/summary/add_edit_amendments.php"
+        window.location.href = "<?php echo OEGlobalsBag::getInstance()->get('webroot')?>/interface/patient_file/summary/add_edit_amendments.php"
     };
     var ListAmendments = function () {
-        window.location.href = "<?php echo $GLOBALS['webroot']?>/interface/patient_file/summary/list_amendments.php"
+        window.location.href = "<?php echo OEGlobalsBag::getInstance()->get('webroot')?>/interface/patient_file/summary/list_amendments.php"
     };
 </script>
 </head>

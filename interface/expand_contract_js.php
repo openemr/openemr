@@ -4,7 +4,7 @@
  * expand contract jquery script
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ranganath Pathak <pathak@scrs1.org>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Ranganath Pathak <pathak@scrs1.org>
@@ -15,6 +15,7 @@
 // ensure that $user_settings_php_path, $arr_files_php variables are set in the script calling this script
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 ?>
 $(function () {
@@ -30,7 +31,7 @@ $(function () {
             $('.expandable').toggleClass('container container-fluid');
             if ($(arrFiles).length) {
                 $.each(arrFiles, function (index, value) {
-                    $.post( "<?php echo $GLOBALS['webroot'] ?>/library/ajax/user_settings.php",
+                    $.post( "<?php echo OEGlobalsBag::getInstance()->get('webroot') ?>/library/ajax/user_settings.php",
                         {
                             target: arrFiles[index].trim(),
                             setting: 0,
@@ -45,7 +46,7 @@ $(function () {
             $('.expandable').toggleClass('container-fluid container');
             if ($(arrFiles).length) {
                 $.each(arrFiles, function (index, value) {
-                    $.post( "<?php echo $GLOBALS['webroot'] ?>/library/ajax/user_settings.php",
+                    $.post( "<?php echo OEGlobalsBag::getInstance()->get('webroot') ?>/library/ajax/user_settings.php",
                         {
                             target: arrFiles[index].trim(),
                             setting: 1,

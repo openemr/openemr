@@ -5,7 +5,7 @@
  * ccda node service and then communicates with the ccda node service to get back the generated ccda document.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,10 +13,8 @@
 
 namespace Carecoordination\Model;
 
-use Carecoordination\Controller\EncountermanagerController;
-use DOMDocument;
-use OpenEMR\Common\Logging\SystemLogger;
-use XSLTProcessor;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Session\SessionUtil;
 
 class CcdaGenerator
 {
@@ -74,7 +72,7 @@ class CcdaGenerator
     ): GeneratedCcdaResult {
 
         // we need to make sure we don't accidentally stuff in the debug logs any PHI, so we'll only report on the presence of certain variables
-        (new SystemLogger())->debug("CcdaGenerator->generate() called ", ['patient_id' => $patient_id
+        ServiceContainer::getLogger()->debug("CcdaGenerator->generate() called ", ['patient_id' => $patient_id
                 , 'encounter_id' => $encounter_id, 'sent_by' => (!empty($sent_by) ? "sent_by not empty" : "sent_by is empty")
                 , 'send' => $send, 'view' => $view, 'emr_transfer' => $emr_transfer, 'components' => $components
                 , 'sections' => $sections, 'recipients' => !empty($recipients) ? "Recipients count " . (is_array($recipients) ? count($recipients) : "1") : "No recipients"
@@ -82,7 +80,7 @@ class CcdaGenerator
                 , 'referral_reason' => (empty($referral_reason) ? "No referral reason" : "Has referral reason")
                 , 'date_options' => $date_options]);
         if ($sent_by != '') {
-            $_SESSION['authUserID'] = $sent_by;
+            SessionUtil::setSession('authUserID', $sent_by);
         }
 
         if (!$sections) {

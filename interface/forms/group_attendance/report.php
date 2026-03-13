@@ -4,7 +4,7 @@
  * interface/forms/group_attendance/report.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Shachar Zilbershlag <shaharzi@matrix.co.il>
  * @author    Amiel Elboim <amielel@matrix.co.il>
  * @copyright Copyright (c) 2016 Shachar Zilbershlag <shaharzi@matrix.co.il>
@@ -12,9 +12,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
+
 require_once(__DIR__ . "/../../globals.php");
-require_once($GLOBALS["srcdir"] . "/api.inc.php");
-require_once("{$GLOBALS['srcdir']}/group.inc.php");
+require_once(OEGlobalsBag::getInstance()->get("srcdir") . "/api.inc.php");
+require_once(OEGlobalsBag::getInstance()->get('srcdir') . "/group.inc.php");
 require_once("functions.php");
 function group_attendance_report($pid, $encounter, $cols, $id): void
 {

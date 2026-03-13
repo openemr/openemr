@@ -3,7 +3,7 @@
 /*
  * AuthorizationGrantFlowTest.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -11,13 +11,11 @@
 
 namespace OpenEMR\Tests\Api;
 
-use Monolog\Level;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\RestControllers\AuthorizationController;
@@ -25,11 +23,12 @@ use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorage;
 use Symfony\Component\HttpKernel\Controller\ControllerResolverInterface;
-use Symfony\Component\HttpFoundation\Session\Session;
 
 class AuthorizationGrantFlowTest extends TestCase
 {
@@ -245,7 +244,7 @@ class AuthorizationGrantFlowTest extends TestCase
     private function getAuthorizationController(Session $session, OEHttpKernel $kernel): AuthorizationController
     {
         $authController = new AuthorizationController($session, $kernel, true);
-        $authController->setSystemLogger(new SystemLogger(Level::Error));
+        $authController->setSystemLogger($this->createMock(LoggerInterface::class));
         return $authController;
     }
 

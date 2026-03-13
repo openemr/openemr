@@ -4,7 +4,7 @@
  * This class represents the task that compiles claims into an X12 batch file
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Daniel Pflieger <daniel@growlingflea.com>
@@ -22,14 +22,15 @@
 
 namespace OpenEMR\Billing\BillingProcessor\Tasks;
 
+use OpenEMR\Billing\BillingProcessor\BillingClaim;
+use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Billing\BillingProcessor\GeneratorCanValidateInterface;
 use OpenEMR\Billing\BillingProcessor\GeneratorInterface;
 use OpenEMR\Billing\BillingProcessor\LoggerInterface;
-use OpenEMR\Billing\BillingProcessor\BillingClaim;
-use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Billing\BillingProcessor\Traits\WritesToBillingLog;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\X125010837P;
+use OpenEMR\Core\OEGlobalsBag;
 
 class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, GeneratorCanValidateInterface, LoggerInterface
 {
@@ -207,7 +208,7 @@ class GeneratorX12 extends AbstractGenerator implements GeneratorInterface, Gene
 
         // Tell the billing_process.php script to initiate a download of this file
         // that's in the edi directory unless it's going to be sent via sftp
-        if (!$GLOBALS['auto_sftp_claims_to_x12_partner']) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('auto_sftp_claims_to_x12_partner')) {
             $this->logger->setLogCompleteCallback(function (): void {
                 // This uses our parent's method to print the JS that automatically initiates
                 // the download of this file, after the screen bill_log messages have printed

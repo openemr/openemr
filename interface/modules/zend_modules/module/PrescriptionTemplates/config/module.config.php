@@ -16,16 +16,15 @@
  *
  * @package OpenEMR
  * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 namespace PrescriptionTemplates;
 
-use Laminas\ServiceManager\Factory\InvokableFactory;
+use Interop\Container\ContainerInterface;
 use Laminas\Router\Http\Segment;
 use PrescriptionTemplates\Controller\HtmlTemplatesController;
 use PrescriptionTemplates\Controller\PdfTemplatesController;
-use Interop\Container\ContainerInterface;
 
 return [
 

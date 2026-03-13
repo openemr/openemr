@@ -2,6 +2,11 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
+    'message' => '#^Function display_QP\\(\\) never returns null so it can be removed from the return type\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function get_form_id_of_existing_attendance_form\\(\\) never returns null so it can be removed from the return type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/group_attendance/functions.php',
@@ -10,6 +15,11 @@ $ignoreErrors[] = [
     'message' => '#^Function getOrCreateProcedureType\\(\\) never returns null so it can be removed from the return type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/procedure_order/procedure_order_save_functions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function pnModLoad\\(\\) never returns null so it can be removed from the return type\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnMod.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method ModuleManagerListener\\:\\:setModuleState\\(\\) never returns null so it can be removed from the return type\\.$#',
@@ -55,11 +65,6 @@ $ignoreErrors[] = [
     'message' => '#^Method Juggernaut\\\\OpenEMR\\\\Modules\\\\PriorAuthModule\\\\Controller\\\\ListAuthorizations\\:\\:getAuthsFromModulePriorAuth\\(\\) never returns false so it can be removed from the return type\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-prior-authorizations/src/Controller/ListAuthorizations.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Controller\\\\MultipledbController\\:\\:getMultipledbTable\\(\\) never returns array so it can be removed from the return type\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/MultipledbController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Patientvalidation\\\\Controller\\\\PatientvalidationController\\:\\:getPatientDataTable\\(\\) never returns array so it can be removed from the return type\\.$#',

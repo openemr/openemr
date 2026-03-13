@@ -4,7 +4,7 @@
  * UserSettingService manage user global settings. Originally refactored from user.inc.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2010 Brady Miller <brady.g.miller@gmail.com>
@@ -14,8 +14,10 @@
 
 namespace OpenEMR\Services\Globals;
 
-use function sqlStatement;
+use OpenEMR\Core\OEGlobalsBag;
+
 use function sqlQuery;
+use function sqlStatement;
 
 class UserSettingsService
 {
@@ -156,14 +158,14 @@ class UserSettingsService
     public static function collectAndOrganizeExpandSetting($filenames = [])
     {
         $current_filename = $filenames[0];
-        $global_value = $GLOBALS['expand_form'];
+        $global_value = OEGlobalsBag::getInstance()->getBoolean('expand_form');
 
         if (self::getUserSetting($current_filename) > -1) {
             $current_state = self::getUserSetting($current_filename);
         } elseif ($global_value) {
-            $current_state = $global_value;
+            $current_state = '1';
         } else {
-            $current_state = 0;
+            $current_state = '0';
         }
 
         if (count($filenames)) {

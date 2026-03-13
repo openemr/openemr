@@ -4,7 +4,7 @@
  * Default values for optional variables that are allowed to be set by callers.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @author    Rod Roark <rod@sunsetsystems.com>
@@ -24,17 +24,17 @@ if ($response !== true) {
 }
 
 use Dotenv\Dotenv;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\ModulesApplication;
-use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Session\SessionUtil;
-use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Core\OEGlobalsBag;
 
-$logger = new SystemLogger();
+$logger = ServiceContainer::getLogger();
 
 // Throw error if the php openssl module is not installed.
 if (!(extension_loaded('openssl'))) {
@@ -217,7 +217,9 @@ $GLOBALS['vendor_dir'] = "$webserver_root/vendor";
 if (empty($restRequest)) {
     $restRequest = HttpRestRequest::createFromGlobals();
 }
-if (empty($globalsBag)) {
+if (isset($globalsBag)) {
+    assert($globalsBag instanceof OEGlobalsBag);
+} else {
     // Initially this was too early. We now reinit at bottom to ensure all values are collected.
     $globalsBag = OEGlobalsBag::getInstance();
 }
@@ -361,7 +363,7 @@ if (! is_dir($GLOBALS['MPDF_WRITE_DIR'])) {
  * different variables and reporting/debugging functionality. Should be used in
  * development only, not for production
  *
- * @link http://open-emr.org/wiki/index.php/Dotenv_Usage
+ * @link https://www.open-emr.org/wiki/index.php/Dotenv_Usage
  */
 if (file_exists("{$webserver_root}/.env")) {
     $dotenv = Dotenv::createImmutable($webserver_root);
@@ -391,7 +393,6 @@ try {
 require_once(__DIR__ . "/../library/sql.inc.php");
 $globalsBag->set("adodb", $GLOBALS['adodb'] ?? null);
 $globalsBag->set("dbh", $GLOBALS['dbh'] ?? null);
-$globalsBag->set("disable_utf8_flag", $disable_utf8_flag ?? false);
 
 // Include the version file
 require_once(__DIR__ . "/../version.php");
@@ -404,18 +405,9 @@ $globalsBag->set("v_database", $v_database ?? null);
 $globalsBag->set("v_acl", $v_acl ?? null);
 $globalsBag->set("v_js_includes", $v_js_includes ?? null);
 
-// Collecting the utf8 disable flag from the sqlconf.php file in order
-// to set the correct html encoding. utf8 vs iso-8859-1. If flag is set
-// then set to iso-8859-1.
-if (!$disable_utf8_flag) {
-    ini_set('default_charset', 'utf-8');
-    $HTML_CHARSET = "UTF-8";
-    mb_internal_encoding('UTF-8');
-} else {
-    ini_set('default_charset', 'iso-8859-1');
-    $HTML_CHARSET = "ISO-8859-1";
-    mb_internal_encoding('ISO-8859-1');
-}
+ini_set('default_charset', 'utf-8');
+$HTML_CHARSET = "UTF-8";
+mb_internal_encoding('UTF-8');
 
 // Defaults for specific applications.
 $globalsBag->set('weight_loss_clinic', false);
@@ -540,14 +532,14 @@ if (!empty($glrow)) {
     // Set any user settings that are not also in GLOBALS.
     // This is for modules support.
     foreach ($gl_user as $setting) {
-        if (!array_key_exists($setting['setting_label'], $GLOBALS)) {
+        if (!$globalsBag->has($setting['setting_label'])) {
             $globalsBag->set($setting['setting_label'], $setting['setting_value']);
         }
     }
 
     // Language cleanup stuff.
     $globalsBag->set('language_menu_login', false);
-    if ((!empty($globalsBag->get('language_menu_show')) && count($globalsBag->get('language_menu_show')) > 1) || $globalsBag->get('language_menu_showall')) {
+    if ((!empty($globalsBag->get('language_menu_show')) && count($globalsBag->get('language_menu_show')) > 1) || $globalsBag->getBoolean('language_menu_showall')) {
         $globalsBag->set('language_menu_login', true);
     }
 
@@ -666,7 +658,7 @@ if (empty($globalsBag->getString('site_addr_oath'))) {
 if (empty($globalsBag->getString('qualified_site_addr'))) {
     $globalsBag->set(
         'qualified_site_addr',
-        rtrim($globalsBag->getString('site_addr_oath') . trim((string) $globalsBag->getString('webroot')), "/")
+        rtrim($globalsBag->getString('site_addr_oath') . trim($globalsBag->getString('webroot')), "/")
     );
 }
 
@@ -676,7 +668,7 @@ if (empty($globalsBag->getString('qualified_site_addr'))) {
 // Also important to note that changes to this global setting will not take effect during the same
 //  session (ie. user needs to logout) since not worth it to use resources to open session and write to it
 //  for every call to interface/globals.php .
-$session->set("enable_database_connection_pooling", $globalsBag->get("enable_database_connection_pooling", null));
+$session->set("enable_database_connection_pooling", $globalsBag->getBoolean("enable_database_connection_pooling", false));
 
 // If >0 this will enforce a separate PHP session for each top-level
 // browser window.  You must log in separately for each.  This is not
@@ -721,7 +713,7 @@ $globalsBag->set('backpic', $backpic ?? '');
 
 // 1 = send email message to given id for Emergency Login user activation,
 // else 0.
-$globalsBag->set('Emergency_Login_email', empty($GLOBALS['Emergency_Login_email_id']) ? 0 : 1);
+$globalsBag->set('Emergency_Login_email', $globalsBag->get('Emergency_Login_email_id') ? 1 : 0);
 
 // Include the authentication module code here, but the rule is
 // if the file has the word "login" in the source code file name,
@@ -758,9 +750,8 @@ if (!empty($checkModulesTableExists)) {
         // This has to be fast, so any modules that tie into the bootstrap must be kept lightweight
         // registering event listeners, etc.
         // TODO: why do we have 3 different directories we need to pass in for the zend dir path. shouldn't zendModDir already have all the paths set up?
-        /** @var ModulesApplication */
         $globalsBag->set('modules_application', new ModulesApplication(
-            $globalsBag->get('kernel'),
+            $globalsBag->getKernel(),
             $globalsBag->getString('fileroot'),
             $globalsBag->getString('baseModDir'),
             $globalsBag->getString('zendModDir')
@@ -850,7 +841,7 @@ if (empty($skipAuditLog)) {
 }
 
 // Warm translation cache if configured
-if (!empty($GLOBALS['translation_preload_cache'])) {
+if ($globalsBag->getBoolean('translation_preload_cache')) {
     xlWarmCache();
 }
 

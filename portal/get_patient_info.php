@@ -14,6 +14,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Auth\AuthHash;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -79,7 +81,7 @@ $ignoreAuth_onsite_portal = true;
 require_once('../interface/globals.php');
 
 if (
-    $globalsBag->get('enforce_signin_email')
+    $globalsBag->getBoolean('enforce_signin_email')
     && (!isset($_POST['passaddon']) || empty($_POST['passaddon']))
 ) {
     SessionUtil::portalSessionCookieDestroy();
@@ -90,8 +92,6 @@ if (
 require_once(__DIR__ . "/lib/appsql.class.php");
 require_once("$srcdir/user.inc.php");
 
-use OpenEMR\Common\Auth\AuthHash;
-use OpenEMR\Common\Csrf\CsrfUtils;
 
 $logit = new ApplicationTable();
 $password_update = $session->get('password_update', 0);
@@ -201,7 +201,7 @@ if ($userData = sqlQuery($sql, [$auth['pid']])) { // if query gets executed
         exit();
     }
 
-    if ($userData['email'] != ($_POST['passaddon'] ?? '') && $globalsBag->get('enforce_signin_email')) {
+    if ($userData['email'] != ($_POST['passaddon'] ?? '') && $globalsBag->getBoolean('enforce_signin_email')) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid email'), '', '0');
         SessionUtil::portalSessionCookieDestroy();
         header('Location: ' . $landingpage . '&w');

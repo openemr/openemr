@@ -21,7 +21,7 @@
  *
  *
  *
- * @link: https://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @package ediHistory
  */
 

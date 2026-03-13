@@ -5,7 +5,7 @@
  * oauth2 connection that we use to validate against inside of OpenEMR.  Trusted User's can be revoked / removed which
  * prevents the associated client / user app from using their access tokens.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

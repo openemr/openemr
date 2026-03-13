@@ -4,7 +4,7 @@
  * HttpRestParsedRouteTest verifies all of our route parsing logic works correctly for regular routes as well as FHIR
  * operations.
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,7 +13,6 @@
 namespace OpenEMR\Tests\Unit\Common\Http;
 
 use OpenEMR\Common\Http\HttpRestParsedRoute;
-use OpenEMR\Common\Logging\SystemLogger;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 

@@ -14,7 +14,8 @@
 
 namespace OpenEMR\Common\Auth;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Core\OEGlobalsBag;
 
 class AuthGlobal
 {
@@ -27,13 +28,13 @@ class AuthGlobal
 
     public function globalVerify(string $pass): bool
     {
-        if (empty($pass) || empty($this->globalSetting) || empty($GLOBALS[$this->globalSetting])) {
+        if (empty($pass) || empty($this->globalSetting) || empty(OEGlobalsBag::getInstance()->get($this->globalSetting))) {
             return false;
         }
 
         // collect and decrypt the global hash
-        $cryptoGen = new CryptoGen();
-        $globalHash = $cryptoGen->decryptStandard($GLOBALS[$this->globalSetting]);
+        $cryptoGen = ServiceContainer::getCrypto();
+        $globalHash = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get($this->globalSetting));
 
         if (empty($globalHash)) {
             return false;

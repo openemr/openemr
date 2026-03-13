@@ -12,35 +12,20 @@
  */
 
 use Interop\Container\ContainerInterface;
-use Laminas\ServiceManager\Factory\InvokableFactory;
 use Laminas\Router\Http\Segment;
-use Laminas\ServiceManager\AbstractPluginManager;
-use Laminas\Db\ResultSet\ResultSet;
-use Installer\Model\InstModule;
-use Laminas\Db\Adapter\Adapter;
 
 return [
     'controllers' => [
         'factories' => [
             Installer\Controller\InstallerController::class => function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get(Adapter::class);
-                $resultSetPrototype = new ResultSet();
-                $resultSetPrototype->setArrayObjectPrototype(new InstModule());
-                $tableGateway = new Installer\Model\InstModuleTableGateway('InstModule', $dbAdapter, null, $resultSetPrototype);
-                $InstModuleTable = new Installer\Model\InstModuleTable($tableGateway, $container);
-                return new Installer\Controller\InstallerController($InstModuleTable);
+                $instModuleTable = new Installer\Model\InstModuleTable($container);
+                return new Installer\Controller\InstallerController($instModuleTable);
             },
         ]
     ],
     'service_manager' => [
         'factories' => [
-            Installer\Model\InstModuleTable::class => function (ContainerInterface $container, $requestedName) {
-                $dbAdapter = $container->get(Adapter::class);
-                $resultSetPrototype = new ResultSet();
-                $resultSetPrototype->setArrayObjectPrototype(new InstModule());
-                $tableGateway = new Installer\Model\InstModuleTableGateway('InstModule', $dbAdapter, null, $resultSetPrototype);
-                return new Installer\Model\InstModuleTable($tableGateway, $container);
-            },
+            Installer\Model\InstModuleTable::class => fn(ContainerInterface $container, $requestedName) => new Installer\Model\InstModuleTable($container),
         ]
     ],
     'router' => [

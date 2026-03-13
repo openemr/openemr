@@ -12,14 +12,13 @@
 
 namespace OpenEMR\Services;
 
-use Application\Model\ApplicationTable;
 use Carecoordination\Model\CcdaGenerator;
 use Carecoordination\Model\EncounterccdadispatchTable;
 use CouchDB;
 use DOMDocument;
 use Exception;
-use OpenEMR\Common\Crypto\CryptoGen;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use RuntimeException;
@@ -82,8 +81,8 @@ class CDADocumentService extends BaseService
             $couch = new CouchDB();
             $resp = $couch->retrieve_doc($row['couch_docid']);
             if ($row['encrypted']) {
-                $cryptoGen = new CryptoGen();
-                $content = $cryptoGen->decryptStandard($resp->data, null, 'database');
+                $cryptoGen = ServiceContainer::getCrypto();
+                $content = $cryptoGen->decryptStandard($resp->data, null, KeySource::Database);
             } else {
                 $content = base64_decode((string)$resp->data);
             }
@@ -93,8 +92,8 @@ class CDADocumentService extends BaseService
                 return '';
             }
             if ($row['encrypted']) {
-                $cryptoGen = new CryptoGen();
-                $content = $cryptoGen->decryptStandard($fileData, null, 'database');
+                $cryptoGen = ServiceContainer::getCrypto();
+                $content = $cryptoGen->decryptStandard($fileData, null, KeySource::Database);
             } else {
                 $content = $fileData;
             }
@@ -112,7 +111,7 @@ class CDADocumentService extends BaseService
      */
     public function generateCCDXml($pid): string
     {
-        $dispatchTable = new EncounterccdadispatchTable(new ApplicationTable());
+        $dispatchTable = new EncounterccdadispatchTable();
         $ccdaGenerator = new CcdaGenerator($dispatchTable);
         $result = $ccdaGenerator->generate(
             $pid,
@@ -133,7 +132,7 @@ class CDADocumentService extends BaseService
         unset($result);
 
         if (str_starts_with($content, 'ERROR:')) {
-            (new SystemLogger())->errorLogCaller("Error generating CCDA", ['message' => $content]);
+            ServiceContainer::getLogger()->error("Error generating CCDA: {message}", ['message' => $content]);
             throw new Exception(xlt("Error generating CCDA") . ": " . $content);
         }
 
@@ -280,7 +279,7 @@ class CDADocumentService extends BaseService
         if ($xml === false) {
             $errors = libxml_get_errors();
             libxml_clear_errors();
-            (new SystemLogger())->errorLogCaller("Failed to parse CCDA XML", ['errors' => $errors]);
+            ServiceContainer::getLogger()->error("Failed to parse CCDA XML", ['errors' => $errors]);
             throw new RuntimeException(xlt("Failed to parse CCDA XML"));
         }
 
@@ -313,8 +312,8 @@ class CDADocumentService extends BaseService
         } finally {
             if (file_exists($outputFile)) {
                 if (!unlink($outputFile)) {
-                    (new SystemLogger())->errorLogCaller(
-                        "Failed to unlink temporary CDA output. This could expose PHI.",
+                    ServiceContainer::getLogger()->error(
+                        "Failed to unlink temporary CDA output {filename}. This could expose PHI.",
                         ['filename' => $outputFile]
                     );
                 }

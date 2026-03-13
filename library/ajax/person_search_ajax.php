@@ -5,7 +5,7 @@
  * Use this to diagnose CSRF token issues
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -16,16 +16,16 @@ require_once(__DIR__ . "/../../interface/globals.php");
 $srcdir ??= ''; // should fatally fail but passes phpstan
 require_once("$srcdir/api.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Services\PersonService;
-use OpenEMR\Services\ContactService;
-use OpenEMR\Services\PersonPatientLinkService;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ContactTelecomService;
+use OpenEMR\Services\PersonPatientLinkService;
+use OpenEMR\Services\PersonService;
 
 // Initialize logger early
-$logger = new SystemLogger();
+$logger = ServiceContainer::getLogger();
 
 // Set JSON header
 header('Content-Type: application/json');

@@ -6,7 +6,7 @@
  * This event handles the filtering of forms that are loaded for an encounter.  This event is triggered
  * in the view_form.php, load_form.php, and forms.php files for encounter forms.
  *
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2024 Sophisticated Acquisitions <sophisticated.acquisitions@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Events\Encounter;
 
+use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Contracts\EventDispatcher\Event;
 
 class LoadEncounterFormFilterEvent extends Event
@@ -127,8 +128,8 @@ class LoadEncounterFormFilterEvent extends Event
     {
         $path = realpath($path);
         // for now we will lock this down to just the forms directory or to the modules directory
-        $inModules = str_starts_with($path, $GLOBALS['fileroot'] . '/interface/modules/');
-        $inForms = str_starts_with($path, $GLOBALS['fileroot'] . '/interface/forms/');
+        $inModules = str_starts_with($path, OEGlobalsBag::getInstance()->get('fileroot') . '/interface/modules/');
+        $inForms = str_starts_with($path, OEGlobalsBag::getInstance()->get('fileroot') . '/interface/forms/');
         if (!(($inModules || $inForms) && file_exists($path))) {
             throw new \InvalidArgumentException('Invalid path');
         }

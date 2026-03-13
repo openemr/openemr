@@ -7,11 +7,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/RCFaxClient.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Constant OpenEMR\\\\RestControllers\\\\EncounterRestController\\:\\:SUPPORTED_SEARCH_FIELDS is unused\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Constant OpenEMR\\\\RestControllers\\\\TransactionRestController\\:\\:SUPPORTED_SEARCH_FIELDS is unused\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/TransactionRestController.php',
@@ -45,11 +40,6 @@ $ignoreErrors[] = [
     'message' => '#^Constant OpenEMR\\\\Services\\\\Search\\\\DateSearchField\\:\\:COMPARATOR_INDEX_TIMEZONE_SIGN is unused\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/DateSearchField.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Constant OpenEMR\\\\PHPStan\\\\Rules\\\\ForbiddenStaticMethodsRule\\:\\:FORBIDDEN_METHODS is unused\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenStaticMethodsRule.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

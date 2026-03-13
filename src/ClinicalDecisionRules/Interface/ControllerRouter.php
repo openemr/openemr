@@ -42,7 +42,7 @@ class ControllerRouter
         $controller = $paramParts[0] ?? '';
         $action = $paramParts[1] ?? '';
         // TODO: @adunsulag what ACL if any do we need to review the CDR rule?
-        if ($this->shouldSkipAdminAcl($controller) && !AclMain::aclCheckCore('admin', 'super')) {
+        if (!$this->shouldSkipAdminAcl($controller) && !AclMain::aclCheckCore('admin', 'super')) {
             throw new AccessDeniedException("admin", "super", "Invalid ACL access to CDR routes");
         }
         $classFQCN = __NAMESPACE__ . "\\Controller\\Controller" . ucfirst($controller);

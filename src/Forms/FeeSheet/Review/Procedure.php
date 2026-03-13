@@ -4,14 +4,12 @@
  * Procedure - extension of CodeInfo for procedure billing entries
  *
  * @package   OpenEMR
- * @link      https://open-emr.org/
- * @link      https://opencoreemr.com/
- * @link      https://www.open-emr.org/wiki/index.php/OEMR_wiki_page OEMR
+ * @link      https://www.open-emr.org
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2013 Kevin Yeh <kevin.y@integralemr.com>
- * @copyright Copyright (c) 2013 OEMR
- * @copyright Copyright (c) 2026 OpenCoreEmr Inc
+ * @copyright Copyright (c) 2013 OEMR <https://www.open-emr.org/wiki/index.php/OEMR_wiki_page>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 

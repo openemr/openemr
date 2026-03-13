@@ -3,16 +3,16 @@
 namespace OpenEMR\Tests\RestControllers;
 
 use OpenEMR\Common\Http\HttpRestRequest;
-use PHPUnit\Framework\TestCase;
 use OpenEMR\RestControllers\PractitionerRestController;
 use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\ServerBag;
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3

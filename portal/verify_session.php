@@ -12,7 +12,7 @@
  * is no error in doing that.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Cassian LUP <cassi.lup@gmail.com>
  * @author    Kevin Yeh <kevin.y@integralemr.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>

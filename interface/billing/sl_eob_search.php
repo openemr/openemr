@@ -5,7 +5,7 @@
  * The second is sl_eob_invoice.php.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Bill Cernansky
  * @author    Tony McCormick
@@ -27,10 +27,28 @@
 // Updated by Growlingflea Software.  now generates correct service and billing facility on statement.
 // any questions contact Daniel Pflieger at daniel@growlingflea.com
 
+
+use Mpdf\Mpdf;
+use OpenEMR\Billing\InvoiceSummary;
+use OpenEMR\Billing\ParseERA;
+use OpenEMR\Billing\SLEOB;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Utils\FormatMoney;
+use OpenEMR\Common\Utils\ValidationUtils;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\OeUI\OemrUI;
+use OpenEMR\Pdf\Config_Mpdf;
+
 require_once("../globals.php");
+
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/appointments.inc.php");
-require_once($GLOBALS['OE_SITE_DIR'] . "/statement.inc.php");
+require_once(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/statement.inc.php");
 // statement.inc.php sets $STMT_TEMP_FILE and $STMT_PRINT_CMD
 assert(isset($STMT_TEMP_FILE));
 assert(isset($STMT_PRINT_CMD));
@@ -41,19 +59,6 @@ require_once("$srcdir/documents.php");
 require_once("$srcdir/options.inc.php");
 require_once "$srcdir/user.inc.php";
 
-use Mpdf\Mpdf;
-use OpenEMR\Billing\InvoiceSummary;
-use OpenEMR\Billing\ParseERA;
-use OpenEMR\Billing\SLEOB;
-use OpenEMR\Common\Acl\AccessDeniedHelper;
-use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Utils\FormatMoney;
-use OpenEMR\Common\Utils\ValidationUtils;
-use OpenEMR\Core\Header;
-use OpenEMR\OeUI\OemrUI;
-use OpenEMR\Pdf\Config_Mpdf;
-
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/eob: EOB Posting - Search", xl("EOB Posting - Search"));
 }
@@ -63,33 +68,31 @@ $alertmsg = '';
 $where = '';
 $eraname = '';
 $eracount = 0;
-$g_posting_adj_disable = $GLOBALS['posting_adj_disable'] ? 'checked' : '';
+$g_posting_adj_disable = OEGlobalsBag::getInstance()->getBoolean('posting_adj_disable') ? 'checked' : '';
 $posting_adj_disable = prevSetting('sl_eob_search.', 'posting_adj_disable', 'posting_adj_disable', $g_posting_adj_disable);
 $form_cb = false;
 
 /* Load dependencies only if we need them */
-if (!empty($GLOBALS['portal_onsite_two_enable'])) {
+if (OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable')) {
     /* Addition of onsite portal patient notify of invoice and reformatted invoice - sjpadgett 01/2017 */
     require_once("../../portal/lib/portal_mail.inc.php");
     require_once("../../portal/lib/appsql.class.php");
 
     function is_auth_portal($pid = 0)
     {
-        if ($pData = sqlQuery("SELECT id, allow_patient_portal, fname, lname FROM `patient_data` WHERE `pid` = ?", [$pid])) {
-            if ($pData['allow_patient_portal'] != "YES") {
-                return false;
-            } else {
-                $_SESSION['portalUser'] = strtolower((string) $pData['fname']) . $pData['id'];
-                return true;
-            }
-        } else {
-            return false;
+        $rows = QueryUtils::fetchRecords("SELECT id, allow_patient_portal, fname FROM `patient_data` WHERE `pid` = ?", [$pid]);
+        $pData = $rows[0] ?? null;
+        if ($pData !== null && $pData['allow_patient_portal'] === "YES") {
+            SessionUtil::setSession('portalUser', strtolower((string) $pData['fname']) . $pData['id']);
+            return true;
         }
+
+        return false;
     }
 
     function notify_portal($thispid, array $invoices, $template, $invid)
     {
-        $builddir = $GLOBALS['OE_SITE_DIR'] . '/documents/onsite_portal_documents/templates/' . $thispid;
+        $builddir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/onsite_portal_documents/templates/' . $thispid;
         if (!is_dir($builddir)) {
             mkdir($builddir, 0755, true);
         }
@@ -156,8 +159,12 @@ if (!empty($GLOBALS['portal_onsite_two_enable'])) {
     }
 }
 
-// This is called back by ParseERA::parseERA() if we are processing X12 835's.
-function era_callback(&$out): void
+/**
+ * This is called back by ParseERA::parseERA() if we are processing X12 835's.
+ *
+ * @param array $out
+ */
+function eob_search_era_callback(array &$out): void
 {
     global $where, $eracount, $eraname;
     // print_r($out); // debugging
@@ -192,8 +199,8 @@ function emailLogin(int $patient_id, string $message): void
         throw new InvalidArgumentException('Statement message has no text content');
     }
 
-    $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", [$patient_id]);
-    if ($patientData['hipaa_allowemail'] != "YES" || ($patientData['email'] ?? '') === '' || ($GLOBALS['patient_reminder_sender_email'] ?? '') === '') {
+    $patientData = QueryUtils::querySingleRow("SELECT * FROM `patient_data` WHERE `pid`=?", [$patient_id]);
+    if ($patientData['hipaa_allowemail'] != "YES" || ($patientData['email'] ?? '') === '' || (OEGlobalsBag::getInstance()->get('patient_reminder_sender_email') ?? '') === '') {
         throw new RuntimeException(xl('Email is not allowed or not configured for this patient'));
     }
 
@@ -201,23 +208,21 @@ function emailLogin(int $patient_id, string $message): void
         throw new RuntimeException(xl('Patient email address is invalid'));
     }
 
-    if (!(ValidationUtils::isValidEmail($GLOBALS['patient_reminder_sender_email']))) {
+    if (!(ValidationUtils::isValidEmail(OEGlobalsBag::getInstance()->get('patient_reminder_sender_email')))) {
         throw new RuntimeException(xl('Sender email address is not configured or invalid'));
     }
 
     if ($_SESSION['pc_facility']) {
-        $sql = "select * from facility where id=?";
-        $facility = sqlQuery($sql, [$_SESSION['pc_facility']]);
+        $facility = QueryUtils::querySingleRow("select * from facility where id=?", [$_SESSION['pc_facility']]);
     } else {
-        $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
-        $facility = sqlQuery($sql);
+        $facility = QueryUtils::querySingleRow("SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1");
     }
 
     $mail = new MyMailer();
     $pt_name = $patientData['fname'] . ' ' . $patientData['lname'];
     $pt_email = $patientData['email'];
     $email_subject = ($facility['name'] . ' ' . xl('Patient Statement Bill'));
-    $email_sender = $GLOBALS['patient_reminder_sender_email'];
+    $email_sender = OEGlobalsBag::getInstance()->get('patient_reminder_sender_email');
     $mail->AddReplyTo($email_sender, $email_sender);
     $mail->SetFrom($email_sender, $email_sender);
     $mail->AddAddress($pt_email, $pt_name);
@@ -262,14 +267,14 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
 
     $aPatFName = convert_safe_file_dir_name($aPatFirstName); //modified for statement title name
     if ($flagCFN) {
-        $STMT_TEMP_FILE_PDF = $GLOBALS['temporary_files_dir'] . "/Stmt_{$aPatFName}_{$aPatID}.pdf";
+        $STMT_TEMP_FILE_PDF = OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/Stmt_{$aPatFName}_{$aPatID}.pdf";
     } else {
         global $STMT_TEMP_FILE_PDF;
     }
 
     global $srcdir;
 
-    if ($GLOBALS['statement_appearance'] == '1') {
+    if (OEGlobalsBag::getInstance()->get('statement_appearance') == '1') {
         $config_mpdf = Config_Mpdf::getConfigMpdf();
         $pdf2 = new mPDF($config_mpdf);
         if ($_SESSION['language_direction'] == 'rtl') {
@@ -492,13 +497,13 @@ if (
         // Recompute age at each invoice.
         $stmt['age'] = round((strtotime($today) - strtotime((string) $stmt['duedate'])) / (24 * 60 * 60));
         // grab last bill date from billing
-        $bdrow = sqlQuery("select bill_date from billing where pid = ? AND encounter = ? limit 1", [$row['pid'], $row['encounter']]);
+        $bdrow = QueryUtils::querySingleRow("select bill_date from billing where pid = ? AND encounter = ? limit 1", [$row['pid'], $row['encounter']]);
 
         $invlines = InvoiceSummary::arGetInvoiceSummary($row['pid'], $row['encounter'], true);
         foreach ($invlines as $key => $value) {
             $line = [];
             $line['dos'] = $svcdate;
-            if ($GLOBALS['use_custom_statement']) {
+            if (OEGlobalsBag::getInstance()->getBoolean('use_custom_statement')) {
                 $line['desc'] = ($key == 'CO-PAY') ? "Patient Payment" : $value['code_text'];
             } else {
                 $line['desc'] = ($key == 'CO-PAY') ? "Patient Payment" : "Procedure $key";
@@ -566,13 +571,13 @@ if (
                     $d = new Document();
                     $doc_pid = $inv_pid[$inv_count];
                     $invoice_category_id = 0;
-                    $catrow = sqlQuery("SELECT id FROM categories WHERE name = ?", ['Invoices']);
+                    $catrow = QueryUtils::querySingleRow("SELECT id FROM categories WHERE name = ?", ['Invoices']);
                     if (!empty($catrow['id'])) {
                         $invoice_category_id = $catrow['id'];
                     }
                     // even if click download pdf the file content in $tmp is text
                     // set mimetype and fileext based on statement appearance
-                    $isPdf = ($GLOBALS['statement_appearance'] == 1);
+                    $isPdf = (OEGlobalsBag::getInstance()->get('statement_appearance') == 1);
                     $fileext = $isPdf ? '.pdf' : '.txt';
                     $inv_filename = 'Invoice-' . date('Y-m-d-H:i:s') . $fileext;
                     $mimetype = $isPdf ? 'pdf' : 'text/plain';
@@ -725,7 +730,7 @@ if (
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = false; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -955,14 +960,14 @@ if (
                                 }
 
                                 echo "<!-- Notes from ERA upload processing:\n";
-                                $alertmsg .= ParseERA::parseERA($tmp_name, 'era_callback');
+                                $alertmsg .= ParseERA::parseERA($tmp_name, 'eob_search_era_callback');
                                 echo "-->\n";
-                                $erafullname = $GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.edi";
-                                $edihname = $GLOBALS['OE_SITE_DIR'] . "/documents/edi/history/f835/$eraname.835";
+                                $erafullname = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/era/$eraname.edi";
+                                $edihname = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/edi/history/f835/$eraname.835";
 
                                 if (is_file($erafullname)) {
                                     $alertmsg .= "Warning: Set $eraname was already uploaded ";
-                                    if (is_file($GLOBALS['OE_SITE_DIR'] . "/documents/era/$eraname.html")) {
+                                    if (is_file(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/era/$eraname.html")) {
                                         $alertmsg .= "and processed. ";
                                     } else {
                                         $alertmsg .= "but not yet processed. ";
@@ -1185,7 +1190,7 @@ if (
                                     <?php } ?>
                                     <td class="detail text-left">
                                         <?php
-                                        $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", [$row['pid']]);
+                                        $patientData = QueryUtils::querySingleRow("SELECT * FROM `patient_data` WHERE `pid`=?", [$row['pid']]);
                                         if ($patientData['hipaa_allowemail'] == "YES" && $patientData['allow_patient_portal'] == "YES" && $patientData['hipaa_notice'] == "YES" && ValidationUtils::isValidEmail($patientData['email'])) {
                                             echo xlt("YES");
                                         } else {
@@ -1213,7 +1218,7 @@ if (
                             } else { ?>
                                 <button type="button" class="btn btn-secondary btn-save" name="Submit1" onclick='checkAll(true)'><?php echo xlt('Select All'); ?></button>
                                 <button type="button" class="btn btn-secondary btn-undo" name="Submit2" onclick='checkAll(false)'><?php echo xlt('Clear All'); ?></button>
-                                <?php if ($GLOBALS['statement_appearance'] != '1') { ?>
+                                <?php if (OEGlobalsBag::getInstance()->get('statement_appearance') != '1') { ?>
                                     <button type="submit" class="btn btn-secondary btn-print" name='form_print' value="<?php echo xla('Print Selected Statements'); ?>"><?php echo xlt('Print Selected'); ?></button>
                                     <button type="submit" class="btn btn-secondary btn-download" name='form_download' value="<?php echo xla('Download Selected Statements'); ?>"><?php echo xlt('Download Selected'); ?></button>
                                 <?php } ?>

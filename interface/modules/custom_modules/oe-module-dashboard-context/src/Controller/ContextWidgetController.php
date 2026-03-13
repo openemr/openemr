@@ -6,7 +6,7 @@
  * Handles rendering of the context manager widget on the patient dashboard.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -15,8 +15,8 @@
 namespace OpenEMR\Modules\DashboardContext\Controller;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Modules\DashboardContext\Services\DashboardContextService;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\DashboardContext\Services\DashboardContextService;
 
 class ContextWidgetController
 {
@@ -154,7 +154,7 @@ class ContextWidgetController
                     widgets: <?php echo js_escape($currentWidgets); ?>,
                     manageableWidgets: <?php echo js_escape($manageableWidgets); ?>,
                     customContexts: <?php echo js_escape($customContexts); ?>,
-                    canSwitch: <?php echo js_escape($canSwitch); ?>
+                    canSwitch: <?php echo js_escape((int) $canSwitch); ?>
                 },
 
                 xl: {
@@ -831,7 +831,7 @@ class ContextWidgetController
                         widgets: <?php echo js_escape($currentWidgets); ?>,
                         manageableWidgets: <?php echo js_escape($manageableWidgets); ?>,
                         customContexts: <?php echo js_escape($customContexts); ?>,
-                        canSwitch: <?php echo js_escape($canSwitch); ?>
+                        canSwitch: <?php echo js_escape((int) $canSwitch); ?>
                     },
 
                     xl: {

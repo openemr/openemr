@@ -22,11 +22,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncounterccdadispatchController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Return type \\(Laminas\\\\Stdlib\\\\ResponseInterface\\) of method Multipledb\\\\Controller\\\\MultipledbController\\:\\:indexAction\\(\\) should be covariant with return type \\(Laminas\\\\View\\\\Model\\\\ViewModel\\) of method Laminas\\\\Mvc\\\\Controller\\\\AbstractActionController\\:\\:indexAction\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Controller/MultipledbController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Return type \\(array\\<string, mixed\\>\\) of method OpenEMR\\\\ZendModules\\\\PatientFlowBoard\\\\Listener\\\\PatientFlowBoardEventsSubscriber\\:\\:getSubscribedEvents\\(\\) should be covariant with return type \\(array\\<string, list\\<array\\{0\\: string, 1\\?\\: int\\}\\|int\\|string\\>\\|string\\>\\) of method Symfony\\\\Component\\\\EventDispatcher\\\\EventSubscriberInterface\\:\\:getSubscribedEvents\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/PatientFlowBoard/src/PatientFlowBoard/Listener/PatientFlowBoardEventsSubscriber.php',
@@ -35,6 +30,11 @@ $ignoreErrors[] = [
     'message' => '#^Return type \\(Laminas\\\\Stdlib\\\\ResponseInterface\\) of method Patientvalidation\\\\Controller\\\\PatientvalidationController\\:\\:indexAction\\(\\) should be covariant with return type \\(Laminas\\\\View\\\\Model\\\\ViewModel\\) of method Laminas\\\\Mvc\\\\Controller\\\\AbstractActionController\\:\\:indexAction\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Controller/PatientvalidationController.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Return type \\(mysqli\\) of method DataDriverMySQLi\\:\\:Open\\(\\) should be covariant with return type \\(connection\\) of method IDataDriver\\:\\:Open\\(\\)$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/DB/DataDriver/MySQLi.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Return type \\(OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ClientEntity\\|false\\) of method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\ClientRepository\\:\\:getClientEntity\\(\\) should be covariant with return type \\(League\\\\OAuth2\\\\Server\\\\Entities\\\\ClientEntityInterface\\|null\\) of method League\\\\OAuth2\\\\Server\\\\Repositories\\\\ClientRepositoryInterface\\:\\:getClientEntity\\(\\)$#',
@@ -1595,56 +1595,6 @@ $ignoreErrors[] = [
     'message' => '#^Return type \\(OpenEMR\\\\Services\\\\Utils\\\\SQLUpgradeService\\) of method OpenEMR\\\\Services\\\\Utils\\\\SQLUpgradeService\\:\\:setThrowExceptionOnError\\(\\) should be covariant with return type \\(\\$this\\(OpenEMR\\\\Services\\\\Utils\\\\Interfaces\\\\ISQLUpgradeService\\)\\) of method OpenEMR\\\\Services\\\\Utils\\\\Interfaces\\\\ISQLUpgradeService\\:\\:setThrowExceptionOnError\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Return type \\(array\\<PHPStan\\\\Rules\\\\RuleError\\>\\) of method OpenEMR\\\\PHPStan\\\\Rules\\\\ForbiddenClassesRule\\:\\:processNode\\(\\) should be covariant with return type \\(list\\<PHPStan\\\\Rules\\\\IdentifierRuleError\\>\\) of method PHPStan\\\\Rules\\\\Rule\\<PhpParser\\\\Node\\\\Stmt\\\\Use_\\>\\:\\:processNode\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenClassesRule.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Return type \\(array\\<PHPStan\\\\Rules\\\\RuleError\\>\\) of method OpenEMR\\\\PHPStan\\\\Rules\\\\ForbiddenCurlFunctionsRule\\:\\:processNode\\(\\) should be covariant with return type \\(list\\<PHPStan\\\\Rules\\\\IdentifierRuleError\\>\\) of method PHPStan\\\\Rules\\\\Rule\\<PhpParser\\\\Node\\\\Expr\\\\FuncCall\\>\\:\\:processNode\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenCurlFunctionsRule.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Return type \\(array\\<PHPStan\\\\Rules\\\\RuleError\\>\\) of method OpenEMR\\\\PHPStan\\\\Rules\\\\ForbiddenFunctionsRule\\:\\:processNode\\(\\) should be covariant with return type \\(list\\<PHPStan\\\\Rules\\\\IdentifierRuleError\\>\\) of method PHPStan\\\\Rules\\\\Rule\\<PhpParser\\\\Node\\\\Expr\\\\FuncCall\\>\\:\\:processNode\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenFunctionsRule.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Return type \\(array\\<PHPStan\\\\Rules\\\\RuleError\\>\\) of method OpenEMR\\\\PHPStan\\\\Rules\\\\ForbiddenGlobalKeywordRule\\:\\:processNode\\(\\) should be covariant with return type \\(list\\<PHPStan\\\\Rules\\\\IdentifierRuleError\\>\\) of method PHPStan\\\\Rules\\\\Rule\\<PhpParser\\\\Node\\\\Stmt\\\\Global_\\>\\:\\:processNode\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenGlobalKeywordRule.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Return type \\(array\\<PHPStan\\\\Rules\\\\RuleError\\>\\) of method OpenEMR\\\\PHPStan\\\\Rules\\\\ForbiddenGlobalsAccessRule\\:\\:processNode\\(\\) should be covariant with return type \\(list\\<PHPStan\\\\Rules\\\\IdentifierRuleError\\>\\) of method PHPStan\\\\Rules\\\\Rule\\<PhpParser\\\\Node\\\\Expr\\\\ArrayDimFetch\\>\\:\\:processNode\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenGlobalsAccessRule.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Return type \\(array\\<PHPStan\\\\Rules\\\\RuleError\\>\\) of method OpenEMR\\\\PHPStan\\\\Rules\\\\ForbiddenMethodsRule\\:\\:processNode\\(\\) should be covariant with return type \\(list\\<PHPStan\\\\Rules\\\\IdentifierRuleError\\>\\) of method PHPStan\\\\Rules\\\\Rule\\<PhpParser\\\\Node\\\\Expr\\\\MethodCall\\>\\:\\:processNode\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenMethodsRule.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Return type \\(array\\<PHPStan\\\\Rules\\\\RuleError\\>\\) of method OpenEMR\\\\PHPStan\\\\Rules\\\\ForbiddenStaticMethodsRule\\:\\:processNode\\(\\) should be covariant with return type \\(list\\<PHPStan\\\\Rules\\\\IdentifierRuleError\\>\\) of method PHPStan\\\\Rules\\\\Rule\\<PhpParser\\\\Node\\\\Expr\\\\StaticCall\\>\\:\\:processNode\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenStaticMethodsRule.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Return type \\(array\\<PHPStan\\\\Rules\\\\RuleError\\>\\) of method OpenEMR\\\\PHPStan\\\\Rules\\\\NoCoversAnnotationOnClassRule\\:\\:processNode\\(\\) should be covariant with return type \\(list\\<PHPStan\\\\Rules\\\\IdentifierRuleError\\>\\) of method PHPStan\\\\Rules\\\\Rule\\<PhpParser\\\\Node\\\\Stmt\\\\Class_\\>\\:\\:processNode\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/NoCoversAnnotationOnClassRule.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Return type \\(array\\<PHPStan\\\\Rules\\\\RuleError\\>\\) of method OpenEMR\\\\PHPStan\\\\Rules\\\\NoCoversAnnotationRule\\:\\:processNode\\(\\) should be covariant with return type \\(list\\<PHPStan\\\\Rules\\\\IdentifierRuleError\\>\\) of method PHPStan\\\\Rules\\\\Rule\\<PHPStan\\\\Node\\\\InClassMethodNode\\>\\:\\:processNode\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/NoCoversAnnotationRule.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Return type \\(array\\) of method OpenEMR\\\\Tests\\\\Fixtures\\\\GaclFixtureManager\\:\\:getSingleFixture\\(\\) should be compatible with return type \\(OpenEMR\\\\Tests\\\\Fixtures\\\\a\\) of method OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:getSingleFixture\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/GaclFixtureManager.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

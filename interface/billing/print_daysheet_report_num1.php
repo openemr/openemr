@@ -7,7 +7,7 @@
  *
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2014 Terry Hill <terry@lillysystems.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -22,6 +22,7 @@ use OpenEMR\Billing\BillingReport;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('acct', 'eob', '', 'write') && !AclMain::aclCheckCore('acct', 'bill', '', 'write')) {
@@ -1165,7 +1166,7 @@ if (!isset($_GET["mode"])) {
                                             <?php echo text($iter['last']) . ", " . text($iter['first']); ?>
                                         </td>
 
-                                        <?php if ($GLOBALS['language_default'] === 'English (Standard)') { ?>
+                                        <?php if (OEGlobalsBag::getInstance()->get('language_default') === 'English (Standard)') { ?>
                                             <td class='text' width='100'>
                                                 <?php echo text(ucwords(strtolower(substr((string) $iter['code_text'], 0, 25)))); ?>
                                             </td>

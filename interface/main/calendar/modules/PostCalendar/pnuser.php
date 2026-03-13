@@ -1,5 +1,7 @@
 <?php
 
+use OpenEMR\Core\OEGlobalsBag;
+
 @define('__POSTCALENDAR__', 'PostCalendar');
 /**
  *  $Id$
@@ -307,7 +309,7 @@ function postcalendar_user_search()
     //=================================================================
     //  Perform the search if we have data
     //=================================================================
-    if (!empty($submit) && strtolower($submit) == "find first") {
+    if (!empty($submit) && strtolower((string) $submit) == "find first") {
         // not sure how we get here...
         $searchargs = [];
         $searchargs['start'] = pnVarCleanFromInput("event_startmonth") . "/" . pnVarCleanFromInput("event_startday") . "/" . pnVarCleanFromInput("event_startyear");
@@ -322,7 +324,7 @@ function postcalendar_user_search()
         }
 
         if ($searchargs['end'] == "//") {
-            $searchargs['end'] = date("m/d/Y", strtotime("+7 Days", strtotime((string) $searchargs['start'])));
+            $searchargs['end'] = date("m/d/Y", strtotime("+7 Days", strtotime($searchargs['start'])));
         }
 
         //print_r($searchargs);
@@ -336,7 +338,7 @@ function postcalendar_user_search()
         $tpl->assign('A_EVENTS', $eventsByDate);
     }
 
-    if (!empty($submit) && strtolower($submit) == "listapps") {
+    if (!empty($submit) && strtolower((string) $submit) == "listapps") {
         // not sure how we get here...
         $searchargs = [];
         $searchargs['start'] = date("m/d/Y");
@@ -358,7 +360,7 @@ function postcalendar_user_search()
     } elseif (!empty($submit)) {
         // we get here by searching via the PostCalendar search
         $sqlKeywords = '';
-        $keywords = explode(' ', $k);
+        $keywords = explode(' ', (string) $k);
         // build our search query
         foreach ($keywords as $word) {
             if (!empty($sqlKeywords)) {
@@ -427,7 +429,7 @@ function postcalendar_user_search()
     }
 
     $tpl->caching = false;
-    $tpl->assign('STYLE', $GLOBALS['style']);
+    $tpl->assign('STYLE', OEGlobalsBag::getInstance()->get('style'));
     $pageSetup =& pnModAPIFunc(__POSTCALENDAR__, 'user', 'pageSetup');
     $return = $pageSetup . $tpl->fetch($template_name . '/user/ajax_search.html');
     return $return;

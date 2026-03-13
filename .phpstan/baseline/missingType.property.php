@@ -247,6 +247,46 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../gacl/profiler.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Property AbstractClickmapModel\\:\\:\\$activity has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property AbstractClickmapModel\\:\\:\\$authorized has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property AbstractClickmapModel\\:\\:\\$data has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property AbstractClickmapModel\\:\\:\\$date has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property AbstractClickmapModel\\:\\:\\$groupname has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property AbstractClickmapModel\\:\\:\\$id has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property AbstractClickmapModel\\:\\:\\$pid has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property AbstractClickmapModel\\:\\:\\$user has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/clickmap/AbstractClickmapModel.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Property eRxGlobals\\:\\:\\$configuration has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxGlobals.php',
@@ -1250,41 +1290,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ClaimUpload\\:\\:\\$x12_partner_field_keys has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ClaimUpload.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ConnectivityInfo\\:\\:\\$api_server has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ConnectivityInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ConnectivityInfo\\:\\:\\$clientId has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ConnectivityInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ConnectivityInfo\\:\\:\\$client_authority has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ConnectivityInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ConnectivityInfo\\:\\:\\$client_scope has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ConnectivityInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ConnectivityInfo\\:\\:\\$client_secret has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ConnectivityInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ConnectivityInfo\\:\\:\\$defaultAccount has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ConnectivityInfo.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\ConnectivityInfo\\:\\:\\$hasToken has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-claimrev-connect/src/ConnectivityInfo.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\EligibilityInquiryRequest\\:\\:\\$industryCode has no type specified\\.$#',
@@ -2552,26 +2557,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/Acl.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Application\\\\Controller\\\\IndexController\\:\\:\\$listenerObject has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/IndexController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Application\\\\Controller\\\\SendtoController\\:\\:\\$applicationTable has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Application\\\\Controller\\\\SendtoController\\:\\:\\$listenerObject has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Application\\\\Controller\\\\SendtoController\\:\\:\\$sendtoTable has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SendtoController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Application\\\\Controller\\\\SoapController\\:\\:\\$encounterCCDADispatchController has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/SoapController.php',
@@ -2592,19 +2577,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Model/Application.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Application\\\\Plugin\\\\CommonPlugin\\:\\:\\$application has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/CommonPlugin.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Application\\\\Plugin\\\\CommonPlugin\\:\\:\\$listenerObject has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/CommonPlugin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Application\\\\Plugin\\\\Phimail\\:\\:\\$application has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Plugin/Phimail.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property Carecoordination\\\\Controller\\\\CcdController\\:\\:\\$carecoordinationTable has no type specified\\.$#',
@@ -2707,11 +2682,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/SetupController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Carecoordination\\\\Form\\\\ModuleconfigForm\\:\\:\\$application has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Form/ModuleconfigForm.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Carecoordination\\\\Form\\\\ModuleconfigForm\\:\\:\\$zListener has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Form/ModuleconfigForm.php',
@@ -2792,11 +2762,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Carecoordination\\\\Model\\\\EncounterccdadispatchTable\\:\\:\\$applicationTable has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Carecoordination\\\\Model\\\\EncounterccdadispatchTable\\:\\:\\$encounterFilterList has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
@@ -2862,11 +2827,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Documents/src/Documents/Plugin/Documents.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Immunization\\\\Controller\\\\ImmunizationController\\:\\:\\$appTable has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ImmunizationController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Immunization\\\\Controller\\\\ImmunizationController\\:\\:\\$date_format has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ImmunizationController.php',
@@ -2885,16 +2845,6 @@ $ignoreErrors[] = [
     'message' => '#^Property Immunization\\\\Model\\\\Immunization\\:\\:\\$inputFilter has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/Immunization.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Immunization\\\\Model\\\\ImmunizationTable\\:\\:\\$applicationTable has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Immunization\\\\Model\\\\ImmunizationTable\\:\\:\\$tableGateway has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Model/ImmunizationTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property Installer\\\\Controller\\\\InstallerController\\:\\:\\$listenerObject has no type specified\\.$#',
@@ -3067,76 +3017,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModule.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Installer\\\\Model\\\\InstModuleTable\\:\\:\\$adapter has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Installer\\\\Model\\\\InstModuleTable\\:\\:\\$resultSetPrototype has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Installer\\\\Model\\\\InstModuleTable\\:\\:\\$tableGateway has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Multipledb\\\\Model\\\\Multipledb\\:\\:\\$date has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/Multipledb.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Multipledb\\\\Model\\\\Multipledb\\:\\:\\$dbname has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/Multipledb.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Multipledb\\\\Model\\\\Multipledb\\:\\:\\$host has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/Multipledb.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Multipledb\\\\Model\\\\Multipledb\\:\\:\\$id has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/Multipledb.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Multipledb\\\\Model\\\\Multipledb\\:\\:\\$inputsValidations has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/Multipledb.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Multipledb\\\\Model\\\\Multipledb\\:\\:\\$namespace has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/Multipledb.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Multipledb\\\\Model\\\\Multipledb\\:\\:\\$password has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/Multipledb.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Multipledb\\\\Model\\\\Multipledb\\:\\:\\$port has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/Multipledb.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Multipledb\\\\Model\\\\Multipledb\\:\\:\\$username has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/Multipledb.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Multipledb\\\\Model\\\\MultipledbTable\\:\\:\\$adapter has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/MultipledbTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Multipledb\\\\Model\\\\MultipledbTable\\:\\:\\$tableGateway has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/MultipledbTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Patientvalidation\\\\Model\\\\PatientData\\:\\:\\$DOB has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Model/PatientData.php',
@@ -3170,16 +3050,6 @@ $ignoreErrors[] = [
     'message' => '#^Property Patientvalidation\\\\Model\\\\PatientData\\:\\:\\$sex has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Model/PatientData.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Patientvalidation\\\\Model\\\\PatientDataTable\\:\\:\\$adapter has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Model/PatientDataTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Patientvalidation\\\\Model\\\\PatientDataTable\\:\\:\\$tableGateway has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Model/PatientDataTable.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property PrescriptionTemplates\\\\Controller\\\\PdfTemplatesController\\:\\:\\$renderer has no type specified\\.$#',
@@ -4017,41 +3887,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/POSRef.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Patient\\:\\:\\$date_of_birth has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Patient.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Patient\\:\\:\\$dob has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Patient.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Patient\\:\\:\\$fname has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Patient.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Patient\\:\\:\\$lname has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Patient.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Patient\\:\\:\\$mname has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Patient.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Patient\\:\\:\\$provider has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Patient.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Patient\\:\\:\\$pubpid has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Patient.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Person\\:\\:\\$first_name has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Person.class.php',
@@ -4320,6 +4155,41 @@ $ignoreErrors[] = [
     'message' => '#^Property Prescription\\:\\:\\$updated_by has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PrescriptionPatient\\:\\:\\$date_of_birth has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/PrescriptionPatient.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PrescriptionPatient\\:\\:\\$dob has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/PrescriptionPatient.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PrescriptionPatient\\:\\:\\$fname has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/PrescriptionPatient.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PrescriptionPatient\\:\\:\\$lname has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/PrescriptionPatient.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PrescriptionPatient\\:\\:\\$mname has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/PrescriptionPatient.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PrescriptionPatient\\:\\:\\$provider has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/PrescriptionPatient.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property PrescriptionPatient\\:\\:\\$pubpid has no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/classes/PrescriptionPatient.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property Provider\\:\\:\\$federal_drug_id has no type specified\\.$#',
@@ -9355,16 +9225,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OnsiteActivityViewCriteriaDAO\\:\\:\\$Utitle_NotEquals has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewCriteriaDAO.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewMap\\:\\:\\$FM has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewMap-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewMap\\:\\:\\$KM has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/OnsiteActivityViewMap-query.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OnsiteActivityViewMap\\:\\:\\$FM has no type specified\\.$#',
@@ -15022,77 +14882,77 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_BeginsWith has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_BeginsWith has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_BitwiseAnd has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_BitwiseAnd has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_BitwiseOr has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_BitwiseOr has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_EndsWith has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_EndsWith has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_Equals has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_Equals has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_GreaterThan has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_GreaterThan has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_GreaterThanOrEqual has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_GreaterThanOrEqual has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_In has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_In has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_IsEmpty has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_IsEmpty has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_IsLike has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_IsLike has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_IsNotEmpty has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_IsNotEmpty has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_IsNotLike has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_IsNotLike has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_LessThan has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_LessThan has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_LessThanOrEqual has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_LessThanOrEqual has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpretter_NotEquals has no type specified\\.$#',
+    'message' => '#^Property PatientCriteriaDAO\\:\\:\\$Interpreter_NotEquals has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Model/DAO/PatientCriteriaDAO.php',
 ];
@@ -22999,196 +22859,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$ActionTaken has no type specified\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$ActionTakenTime has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$ActionUser has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Active has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Activity has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Authorized has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$CareTeam has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Checksum has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$City has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Date has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Dob has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Facility has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Fname has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Id has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Lname has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Mname has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Narrative has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$PatientId has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$PendingAction has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$PhysicianType has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$PostalCode has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Providerid has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Pubpid has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$RefProviderid has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Referrerid has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$RequireAudit has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Ss has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$State has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Status has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Street has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$TableAction has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$TableArgs has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Title has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Ufname has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Ulname has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Umname has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Username has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$Utitle has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter-query.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OnsiteActivityViewReporter\\:\\:\\$ActionTaken has no type specified\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Reporter/OnsiteActivityViewReporter.php',
 ];
 $ignoreErrors[] = [
@@ -23767,7 +23437,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/libs/Reporter/PatientReporter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PatientReporter\\:\\:\\$Interpretter has no type specified\\.$#',
+    'message' => '#^Property PatientReporter\\:\\:\\$Interpreter has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/libs/Reporter/PatientReporter.php',
 ];
@@ -24780,11 +24450,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\JWT\\\\RsaSha384Signer\\:\\:\\$headers has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/JWT/RsaSha384Signer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\ClientRepository\\:\\:\\$cryptoGen has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ClientRepository.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Auth\\\\UuidUserAccount\\:\\:\\$userRole has no type specified\\.$#',
@@ -30027,46 +29692,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Cqm/QrdaControllers/QrdaReportController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:\\$config has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:\\$databaseName has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:\\$disableUTF8 has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:\\$encoding has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:\\$host has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:\\$pass has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:\\$port has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Entity\\\\Core\\\\SqlConfig\\:\\:\\$user has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Entity/Core/SqlConfig.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Events\\\\Appointments\\\\AppointmentDialogCloseEvent\\:\\:\\$dialog_action has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/Appointments/AppointmentDialogCloseEvent.php',
@@ -30617,11 +30242,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/EmployerRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\RestControllers\\\\EncounterRestController\\:\\:\\$encounterService has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirAllergyIntoleranceRestController\\:\\:\\$fhirAllergyIntoleranceService has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirAllergyIntoleranceRestController.php',
@@ -30670,11 +30290,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirEncounterRestController\\:\\:\\$fhirService has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirEncounterRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirGoalRestController\\:\\:\\$fhirService has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirGoalRestController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirGroupRestController\\:\\:\\$fhirService has no type specified\\.$#',
@@ -30782,16 +30397,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirServiceRequestRestController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirSpecimenRestController\\:\\:\\$fhirService has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirSpecimenRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirSpecimenRestController\\:\\:\\$fhirSpecimenService has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirSpecimenRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\RestControllers\\\\FacilityRestController\\:\\:\\$facilityService has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/FacilityRestController.php',
@@ -30830,11 +30435,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\RestControllers\\\\PractitionerRestController\\:\\:\\$practitionerService has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/PractitionerRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\RestControllers\\\\PrescriptionRestController\\:\\:\\$prescriptionService has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/PrescriptionRestController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\RestControllers\\\\ProcedureRestController\\:\\:\\$procedureService has no type specified\\.$#',
@@ -31042,11 +30642,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/PatientService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\PrescriptionService\\:\\:\\$patientValidator has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/PrescriptionService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\Qdm\\\\CqmCalculator\\:\\:\\$client has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qdm/CqmCalculator.php',
@@ -31180,11 +30775,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\Qrda\\\\AggregateCount\\:\\:\\$populations has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/AggregateCount.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\Qrda\\\\Cat1\\:\\:\\$FREQUENCY_CODE_MAP has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/Cat1.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\Qrda\\\\Cat1\\:\\:\\$_performance_period_end has no type specified\\.$#',
@@ -31507,51 +31097,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Validators/ProcessingResult.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:\\$access_token has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:\\$client has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:\\$client_id has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:\\$client_secret has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:\\$headers has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:\\$id_token has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:\\$refresh_token has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\FacilityApiTest\\:\\:\\$facilityRecord has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/FacilityApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\FacilityApiTest\\:\\:\\$testClient has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/FacilityApiTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\PatientApiTest\\:\\:\\$fixtureManager has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Api/PatientApiTest.php',
@@ -31567,24 +31112,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Api/PatientApiTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\PractitionerApiTest\\:\\:\\$fixtureManager has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/PractitionerApiTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\PractitionerApiTest\\:\\:\\$practitionerRecord has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/PractitionerApiTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Common\\\\Uuid\\\\UuidRegistryTest\\:\\:\\$uuidFactory has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Common/Uuid/UuidRegistryTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\AaLoginTest\\:\\:\\$client has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/AaLoginTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\AaLoginTest\\:\\:\\$crawler has no type specified\\.$#',
@@ -31592,19 +31122,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/E2e/AaLoginTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\BbCreateStaffTest\\:\\:\\$client has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\BbCreateStaffTest\\:\\:\\$crawler has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\CcCreatePatientTest\\:\\:\\$client has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/CcCreatePatientTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\CcCreatePatientTest\\:\\:\\$crawler has no type specified\\.$#',
@@ -31612,19 +31132,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/E2e/CcCreatePatientTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\DdOpenPatientTest\\:\\:\\$client has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/DdOpenPatientTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\DdOpenPatientTest\\:\\:\\$crawler has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/E2e/DdOpenPatientTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\EeCreateEncounterTest\\:\\:\\$client has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/EeCreateEncounterTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\EeCreateEncounterTest\\:\\:\\$crawler has no type specified\\.$#',
@@ -31632,19 +31142,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/E2e/EeCreateEncounterTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\FfOpenEncounterTest\\:\\:\\$client has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FfOpenEncounterTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\FfOpenEncounterTest\\:\\:\\$crawler has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/E2e/FfOpenEncounterTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\GgUserMenuLinksTest\\:\\:\\$client has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/GgUserMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\GgUserMenuLinksTest\\:\\:\\$crawler has no type specified\\.$#',
@@ -31652,19 +31152,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/E2e/GgUserMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\HhMainMenuLinksTest\\:\\:\\$client has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/HhMainMenuLinksTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\HhMainMenuLinksTest\\:\\:\\$crawler has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/E2e/HhMainMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\IiPatientContextMainMenuLinksTest\\:\\:\\$client has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\IiPatientContextMainMenuLinksTest\\:\\:\\$crawler has no type specified\\.$#',
@@ -31672,19 +31162,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/E2e/IiPatientContextMainMenuLinksTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\JjEncounterContextMainMenuLinksTest\\:\\:\\$client has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\JjEncounterContextMainMenuLinksTest\\:\\:\\$crawler has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/E2e/JjEncounterContextMainMenuLinksTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\SvcCodeFinancialReportTest\\:\\:\\$client has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/SvcCodeFinancialReportTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\E2e\\\\SvcCodeFinancialReportTest\\:\\:\\$crawler has no type specified\\.$#',
@@ -31705,11 +31185,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\ECQM\\\\MeasureResultsTest\\:\\:\\$measure_result_map has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/ECQM/MeasureResultsTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:\\$fixtures has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:\\$hasInstalledFixtured has no type specified\\.$#',
@@ -31737,11 +31212,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/EncounterFixtureManager.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Fixtures\\\\FacilityFixtureManager\\:\\:\\$fhirFacilityFixtures has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/FacilityFixtureManager.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Fixtures\\\\FixtureManager\\:\\:\\$addressFixtures has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
@@ -31767,11 +31237,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Fixtures\\\\FixtureManager\\:\\:\\$patientFixtures has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Fixtures\\\\FixtureManagerTest\\:\\:\\$fixtureManager has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManagerTest.php',
@@ -31780,16 +31245,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Fixtures\\\\MedicationDispenseFixtureManager\\:\\:\\$createdRecords has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/MedicationDispenseFixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Fixtures\\\\PractitionerFixtureManager\\:\\:\\$fhirPractitionerFixtures has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/PractitionerFixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Fixtures\\\\PractitionerFixtureManager\\:\\:\\$practitionerFixtures has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/PractitionerFixtureManager.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Isolated\\\\Telemetry\\\\BackgroundTaskManagerStub\\:\\:\\$lastBinds has no type specified\\.$#',

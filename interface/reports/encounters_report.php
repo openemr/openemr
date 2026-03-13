@@ -7,7 +7,7 @@
  *  Added filtering to show encounters not e-signed, encounters e-signed and forms e-signed.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Terry Hill <terry@lilysystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -27,6 +27,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('encounters', 'coding_a')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for encounters/coding_a: Encounters Report", xl("Encounters Report"));
@@ -43,11 +44,11 @@ $alertmsg = ''; // not used yet but maybe later
 // For each sorting option, specify the ORDER BY argument.
 //
 $ORDERHASH = [
-  'doctor'  => 'lower(u.lname), lower(u.fname), fe.date',
-  'patient' => 'lower(p.lname), lower(p.fname), fe.date',
-  'pubpid'  => 'lower(p.pubpid), fe.date',
-  'time'    => 'fe.date, lower(u.lname), lower(u.fname)',
-  'encounter'    => 'fe.encounter, fe.date, lower(u.lname), lower(u.fname)',
+  'doctor'  => 'lower(u.lname), lower(u.fname), fe.date DESC, fe.encounter DESC',
+  'patient' => 'lower(p.lname), lower(p.fname), fe.date DESC, fe.encounter DESC',
+  'pubpid'  => 'lower(p.pubpid), fe.date DESC, fe.encounter DESC',
+  'time'    => 'fe.date DESC, fe.encounter DESC, lower(u.lname), lower(u.fname)',
+  'encounter'    => 'fe.encounter DESC, fe.date DESC, lower(u.lname), lower(u.fname)',
 ];
 
 function show_doc_total($lastdocname, $doc_encounters): void
@@ -184,7 +185,7 @@ $res = sqlStatement($query, $sqlBindArray);
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -207,7 +208,7 @@ $res = sqlStatement($query, $sqlBindArray);
                 set_encounterid: enc,
                 set_pid: newpid
             });
-            top.RTop.location = "<?php echo $GLOBALS['webroot']; ?>/interface/patient_file/summary/demographics.php?" + params;
+            top.RTop.location = "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/patient_file/summary/demographics.php?" + params;
         }
 
     </script>

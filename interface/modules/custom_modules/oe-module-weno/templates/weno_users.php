@@ -4,7 +4,7 @@
  * Weno users id.
  *
  * @package   OpenEMR Module
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,8 +16,8 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
-
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     // a recheck as was checked in setup script that calls this script in an iframe.
@@ -55,7 +55,7 @@ if (($_POST['save'] ?? false) == 'true') {
     $posted = json_encode($_POST);
     $wenoLog->insertWenoLog("Module setup modified.", "Setup Users modified", $posted);
     unset($_POST['save']);
-    Header("Location: " . $GLOBALS['webroot'] . "/interface/modules/custom_modules/oe-module-weno/templates/weno_users.php");
+    Header("Location: " . OEGlobalsBag::getInstance()->get('webroot') . "/interface/modules/custom_modules/oe-module-weno/templates/weno_users.php");
     exit;
 }
 ?>
@@ -67,7 +67,7 @@ if (($_POST['save'] ?? false) == 'true') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo xlt("Prescriber Weno Ids"); ?></title>
     <?php Header::setupHeader(); ?>
-    <script src="<?php echo $GLOBALS['webroot'] ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->get('webroot') ?>/interface/modules/custom_modules/oe-module-weno/public/assets/js/synch.js"></script>
     <script>
         $(function () {
             const persistChange = document.querySelectorAll('.persist-uid');

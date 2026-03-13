@@ -2,8 +2,6 @@
 
 namespace OpenEMR\Tests\Fixtures;
 
-use OpenEMR\Common\Database\QueryUtils;
-
 /**
  * Provides GACL Fixtures for testing breakglass user functionality
  *
@@ -11,13 +9,13 @@ use OpenEMR\Common\Database\QueryUtils;
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc.
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  */
 class GaclFixtureManager extends BaseFixtureManager
 {
     public function __construct()
     {
-        parent::__construct("gacl-breakglass.json", "");
+        parent::__construct("gacl-breakglass.php", "");
     }
 
     /**
@@ -50,15 +48,5 @@ class GaclFixtureManager extends BaseFixtureManager
         // Remove in reverse order to avoid foreign key constraints
         sqlStatement("DELETE FROM gacl_groups_aro_map WHERE group_id = 16 AND aro_id = 9001");
         sqlStatement("DELETE FROM gacl_aro WHERE id = 9001");
-    }
-
-    /**
-     * Get a single GACL fixture for testing
-     * @return array
-     */
-    public function getSingleFixture(): array
-    {
-        $fixtures = $this->getFixturesFromFile();
-        return $fixtures;
     }
 }

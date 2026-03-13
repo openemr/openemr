@@ -3,7 +3,7 @@
 /*
  * CcdaGeneratorTest.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -11,11 +11,10 @@
 namespace OpenEMR\Tests\Services\Modules\CareCoordination\Model;
 
 use Carecoordination\Model\CcdaServiceDocumentRequestor;
-use Monolog\Level;
-use OpenEMR\Common\Logging\SystemLogger;
-use PHPUnit\Framework\TestCase;
-use DOMXPath;
 use DOMDocument;
+use DOMXPath;
+use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class CcdaServiceDocumentRequestorTest extends TestCase
 {
@@ -59,7 +58,7 @@ class CcdaServiceDocumentRequestorTest extends TestCase
         $data = trim($data); // trim whitespace as CCDA service requires the <CCDA> and </CCDA> tag to be at the start and end of the data
 
         $docRequestor = new CcdaServiceDocumentRequestor();
-        $docRequestor->setSystemLogger(new SystemLogger(Level::Critical));
+        $docRequestor->setSystemLogger($this->createMock(LoggerInterface::class));
         $response = $docRequestor->socket_get($data);
 
         $this->assertNotEmpty($response);

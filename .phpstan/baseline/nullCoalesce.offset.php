@@ -47,11 +47,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/newpatient/C_EncounterVisitForm.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'questionnaire…\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/questionnaire_assessments.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'totalscore\' on non\\-empty\\-array\\<mixed\\> on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/sdoh/report.php',
@@ -65,6 +60,26 @@ $ignoreErrors[] = [
     'message' => '#^Offset \'pid\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/dated_reminders/dated_reminders_add.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'fname\' on array\\{id\\: int, uuid\\: string\\|null, title\\: string, language\\: string, financial\\: string, fname\\: string, lname\\: string, mname\\: string, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/finder/document_select.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'lname\' on array\\{id\\: int, uuid\\: string\\|null, title\\: string, language\\: string, financial\\: string, fname\\: string, lname\\: string, mname\\: string, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/finder/document_select.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'fname\' on array\\{id\\: int, uuid\\: string\\|null, title\\: string, language\\: string, financial\\: string, fname\\: string, lname\\: string, mname\\: string, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/messages/trusted-messages.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'lname\' on array\\{id\\: int, uuid\\: string\\|null, title\\: string, language\\: string, financial\\: string, fname\\: string, lname\\: string, mname\\: string, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/messages/trusted-messages.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'message_code\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
@@ -82,7 +97,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'email_message\' on array\\{sender_name\\: mixed, sender_email\\: mixed, notification_email\\: mixed, email_transport\\: mixed, smtp_host\\: mixed, smtp_port\\: mixed, smtp_user\\: mixed, smtp_password\\: mixed, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'email_message\' on array\\{sender_name\\: mixed, sender_email\\: mixed, notification_email\\: mixed, email_transport\\: mixed, smtp_host\\: mixed, smtp_port\\: int, smtp_user\\: mixed, smtp_password\\: mixed, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/src/Controller/AppDispatch.php',
 ];
@@ -107,21 +122,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncounterccdadispatchController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'field_value\' on array\\{table_name\\: string, field_name\\: string, field_value\\: string, entry_identification\\: string\\} on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'is_qrda_document\' on array\\{table_name\\: string, entry_identification\\: string\\} on left side of \\?\\? does not exist\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'is_unstructured…\' on array\\{table_name\\: string, entry_identification\\: string\\} on left side of \\?\\? does not exist\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'default\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaUserPreferencesTransformer.php',
@@ -130,6 +130,16 @@ $ignoreErrors[] = [
     'message' => '#^Offset 0 on non\\-empty\\-list\\<string\\> on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'fname\' on array\\{id\\: int, uuid\\: string\\|null, title\\: string, language\\: string, financial\\: string, fname\\: string, lname\\: string, mname\\: string, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/history/history_sdoh_health_concerns.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Offset \'lname\' on array\\{id\\: int, uuid\\: string\\|null, title\\: string, language\\: string, financial\\: string, fname\\: string, lname\\: string, mname\\: string, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/history/history_sdoh_health_concerns.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'form_patient\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
@@ -222,7 +232,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/ControllerRouter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'uuid\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'uuid\' on array\\{id\\: int, uuid\\: non\\-falsy\\-string, username\\: string\\|null, password\\: string\\|null, authorized\\: int\\|null, info\\: string\\|null, source\\: int\\|null, fname\\: string\\|null, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomClientCredentialsGrant.php',
 ];
@@ -357,12 +367,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Telemetry/GeoTelemetry.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'region\' on array\\{input\\: array\\{\'2125551234\', \'212\\-555\\-1234\', \'\\(212\\) 555\\-1234\', \'212\\.555\\.1234\', \'212 555 1234\', \'\\+1 212 555 1234\', \'\\+12125551234\', \'1\\-212\\-555\\-1234\'\\}, e164\\: \'\\+12125551234\', national\\: \'2125551234\', formatted\\: \'212\\-555\\-1234\', hl7\\: \'212\\^5551234\', parts\\: array\\{area_code\\: \'212\', prefix\\: \'555\', number\\: \'1234\'\\}\\}\\|array\\{input\\: array\\{\'2128675309\', \'212\\-867\\-5309\', \'\\(212\\) 867\\-5309\', \'\\+1\\-212\\-867\\-5309\'\\}, e164\\: \'\\+12128675309\', national\\: \'2128675309\', formatted\\: \'212\\-867\\-5309\', hl7\\: \'212\\^8675309\', parts\\: array\\{area_code\\: \'212\', prefix\\: \'867\', number\\: \'5309\'\\}\\}\\|array\\{input\\: array\\{\'3105551234\', \'310\\-555\\-1234\', \'\\(310\\) 555\\-1234\', \'310\\.555\\.1234\', \'310   555   1234\', \'\\+1 \\(310\\) 555\\-1234\'\\}, e164\\: \'\\+13105551234\', national\\: \'3105551234\', formatted\\: \'310\\-555\\-1234\', hl7\\: \'310\\^5551234\', parts\\: array\\{area_code\\: \'310\', prefix\\: \'555\', number\\: \'1234\'\\}\\} on left side of \\?\\? does not exist\\.$#',
+    'message' => '#^Offset \'region\' on array\\{input\\: array\\{\'2125551234\', \'212\\-555\\-1234\', \'\\(212\\) 555\\-1234\', \'212\\.555\\.1234\', \'212 555 1234\', \'\\+1 212 555 1234\', \'\\+12125551234\', \'1\\-212\\-555\\-1234\'\\}, e164\\: \'\\+12125551234\', national\\: \'2125551234\', formatted\\: array\\{local\\: \'\\(212\\) 555\\-1234\', global\\: \'\\+1 212\\-555\\-1234\'\\}, hl7\\: \'212\\^5551234\', parts\\: array\\{area_code\\: \'212\', prefix\\: \'555\', number\\: \'1234\'\\}\\}\\|array\\{input\\: array\\{\'2128675309\', \'212\\-867\\-5309\', \'\\(212\\) 867\\-5309\', \'\\+1\\-212\\-867\\-5309\'\\}, e164\\: \'\\+12128675309\', national\\: \'2128675309\', formatted\\: array\\{local\\: \'\\(212\\) 867\\-5309\', global\\: \'\\+1 212\\-867\\-5309\'\\}, hl7\\: \'212\\^8675309\', parts\\: array\\{area_code\\: \'212\', prefix\\: \'867\', number\\: \'5309\'\\}\\}\\|array\\{input\\: array\\{\'3105551234\', \'310\\-555\\-1234\', \'\\(310\\) 555\\-1234\', \'310\\.555\\.1234\', \'310   555   1234\', \'\\+1 \\(310\\) 555\\-1234\'\\}, e164\\: \'\\+13105551234\', national\\: \'3105551234\', formatted\\: array\\{local\\: \'\\(310\\) 555\\-1234\', global\\: \'\\+1 310\\-555\\-1234\'\\}, hl7\\: \'310\\^5551234\', parts\\: array\\{area_code\\: \'310\', prefix\\: \'555\', number\\: \'1234\'\\}\\} on left side of \\?\\? does not exist\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Utils/ValidationUtilsIsolatedTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'region\' on array\\{input\\: array\\{\'2125551234\', \'212\\-555\\-1234\', \'\\(212\\) 555\\-1234\', \'212\\.555\\.1234\', \'212 555 1234\', \'\\+1 212 555 1234\', \'\\+12125551234\', \'1\\-212\\-555\\-1234\'\\}, e164\\: \'\\+12125551234\', national\\: \'2125551234\', formatted\\: \'212\\-555\\-1234\', hl7\\: \'212\\^5551234\', parts\\: array\\{area_code\\: \'212\', prefix\\: \'555\', number\\: \'1234\'\\}\\}\\|array\\{input\\: array\\{\'2128675309\', \'212\\-867\\-5309\', \'\\(212\\) 867\\-5309\', \'\\+1\\-212\\-867\\-5309\'\\}, e164\\: \'\\+12128675309\', national\\: \'2128675309\', formatted\\: \'212\\-867\\-5309\', hl7\\: \'212\\^8675309\', parts\\: array\\{area_code\\: \'212\', prefix\\: \'867\', number\\: \'5309\'\\}\\}\\|array\\{input\\: array\\{\'3105551234\', \'310\\-555\\-1234\', \'\\(310\\) 555\\-1234\', \'310\\.555\\.1234\', \'310   555   1234\', \'\\+1 \\(310\\) 555\\-1234\'\\}, e164\\: \'\\+13105551234\', national\\: \'3105551234\', formatted\\: \'310\\-555\\-1234\', hl7\\: \'310\\^5551234\', parts\\: array\\{area_code\\: \'310\', prefix\\: \'555\', number\\: \'1234\'\\}\\}\\|array\\{input\\: array\\{\'5551234567\', \'555\\-123\\-4567\', \'\\(555\\) 123\\-4567\'\\}, e164\\: \'\\+15551234567\', national\\: \'5551234567\', formatted\\: \'555\\-123\\-4567\', valid\\: false, possible\\: true\\} on left side of \\?\\? does not exist\\.$#',
+    'message' => '#^Offset \'region\' on array\\{input\\: array\\{\'2125551234\', \'212\\-555\\-1234\', \'\\(212\\) 555\\-1234\', \'212\\.555\\.1234\', \'212 555 1234\', \'\\+1 212 555 1234\', \'\\+12125551234\', \'1\\-212\\-555\\-1234\'\\}, e164\\: \'\\+12125551234\', national\\: \'2125551234\', formatted\\: array\\{local\\: \'\\(212\\) 555\\-1234\', global\\: \'\\+1 212\\-555\\-1234\'\\}, hl7\\: \'212\\^5551234\', parts\\: array\\{area_code\\: \'212\', prefix\\: \'555\', number\\: \'1234\'\\}\\}\\|array\\{input\\: array\\{\'2128675309\', \'212\\-867\\-5309\', \'\\(212\\) 867\\-5309\', \'\\+1\\-212\\-867\\-5309\'\\}, e164\\: \'\\+12128675309\', national\\: \'2128675309\', formatted\\: array\\{local\\: \'\\(212\\) 867\\-5309\', global\\: \'\\+1 212\\-867\\-5309\'\\}, hl7\\: \'212\\^8675309\', parts\\: array\\{area_code\\: \'212\', prefix\\: \'867\', number\\: \'5309\'\\}\\}\\|array\\{input\\: array\\{\'3105551234\', \'310\\-555\\-1234\', \'\\(310\\) 555\\-1234\', \'310\\.555\\.1234\', \'310   555   1234\', \'\\+1 \\(310\\) 555\\-1234\'\\}, e164\\: \'\\+13105551234\', national\\: \'3105551234\', formatted\\: array\\{local\\: \'\\(310\\) 555\\-1234\', global\\: \'\\+1 310\\-555\\-1234\'\\}, hl7\\: \'310\\^5551234\', parts\\: array\\{area_code\\: \'310\', prefix\\: \'555\', number\\: \'1234\'\\}\\}\\|array\\{input\\: array\\{\'5551234567\', \'555\\-123\\-4567\', \'\\(555\\) 123\\-4567\'\\}, e164\\: \'\\+15551234567\', national\\: \'5551234567\', formatted\\: array\\{local\\: \'\\(555\\) 123\\-4567\', global\\: \'\\+1 555\\-123\\-4567\'\\}, valid\\: false, possible\\: true\\} on left side of \\?\\? does not exist\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Common/Utils/ValidationUtilsIsolatedTest.php',
 ];

@@ -81,7 +81,7 @@ jobs:
 
     - name: Upload JUnit test results to GitHub
       if: ${{ !cancelled() }}
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: junit-isolated-tests-php-${{ matrix.php-version }}
         path: junit.xml

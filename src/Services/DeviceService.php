@@ -3,7 +3,7 @@
 /**
  * DeviceService.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -11,8 +11,8 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Validators\ProcessingResult;
@@ -87,7 +87,7 @@ class DeviceService extends BaseService
         }
 
         try {
-            $dataSet = json_decode($json, JSON_THROW_ON_ERROR);
+            $dataSet = json_decode((string) $json, JSON_THROW_ON_ERROR);
             $standardElements = $dataSet['standard_elements'] ?? [];
             unset($record['udi_data']); // don't send back the JSON array
             $record['udi_di'] = $standardElements['di'] ?? null;
@@ -100,7 +100,7 @@ class DeviceService extends BaseService
             // the distinct identification code which states this is the donor id.
             $record['distinctIdentifier'] = $standardElements['donationId'] ?? null;
         } catch (\JsonException $error) {
-            (new SystemLogger())->error(self::class . "->createResultRecordFromDatabaseResult() failed to decode udi_data json ", ['message' => $error->getMessage(), 'trace' => $error->getTrace()]);
+            ServiceContainer::getLogger()->error(self::class . "->createResultRecordFromDatabaseResult() failed to decode udi_data json ", ['message' => $error->getMessage(), 'trace' => $error->getTrace()]);
         }
         return $record;
     }

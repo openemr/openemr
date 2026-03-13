@@ -12,47 +12,28 @@
 
 namespace Immunization\Model;
 
-use Laminas\Db\TableGateway\TableGateway;
-use Laminas\Db\TableGateway\AbstractTableGateway;
-use Laminas\Db\Adapter\Adapter;
-use Laminas\Db\ResultSet\ResultSet;
-use Laminas\Db\Sql\Select;
-use Laminas\InputFilter\Factory as InputFactory;
-use Laminas\InputFilter\InputFilter;
-use Laminas\InputFilter\InputFilterAwareInterface;
-use Laminas\InputFilter\InputFilterInterface;
-use Application\Model\ApplicationTable;
+use OpenEMR\Common\Database\QueryUtils;
 
-class ImmunizationTable extends AbstractTableGateway
+class ImmunizationTable
 {
-    public $tableGateway;
-    protected $applicationTable;
-
-    public function __construct(TableGateway $tableGateway)
-    {
-        $this->tableGateway = $tableGateway;
-        $adapter = \Laminas\Db\TableGateway\Feature\GlobalAdapterFeature::getStaticAdapter();
-        $this->adapter = $adapter;
-        $this->resultSetPrototype = new ResultSet();
-        $this->applicationTable = new ApplicationTable();
-    }
-
     /**
      * function codeslist()
      * Codes List
+     *
+     * @return list<array<string, mixed>>
      */
     public function codeslist()
     {
         $sql = "SELECT id, CONCAT('CVX:',CODE) AS NAME FROM codes LEFT JOIN code_types ct ON codes.code_type = ct.ct_id WHERE ct.ct_key='CVX' ORDER BY NAME";
-        $result = $this->applicationTable->zQuery($sql);
-        return $result;
+        return QueryUtils::fetchRecords($sql);
     }
 
     /**
      * function immunized patient details
      *
-     * @param type $form_data
-     * @return type
+     * @param array $form_data
+     * @param bool|null $getCount
+     * @return int|list<array<string, mixed>>
      */
     public function immunizedPatientDetails($form_data, $getCount = null)
     {
@@ -172,14 +153,12 @@ class ImmunizationTable extends AbstractTableGateway
         }
 
         if ($getCount) {
-            $result = $this->applicationTable->zQuery($query, $query_data);
-            $resCount = $result->count();
-            return $resCount;
+            $result = QueryUtils::fetchRecords($query, $query_data);
+            return count($result);
         }
 
         $query .= " LIMIT " . \Application\Plugin\CommonPlugin::escapeLimit($form_data['limit_start']) . "," . \Application\Plugin\CommonPlugin::escapeLimit($form_data['results']);
-        $result = $this->applicationTable->zQuery($query, $query_data);
-        return $result;
+        return QueryUtils::fetchRecords($query, $query_data);
     }
 
     public function getNotes($option_id, $list_id)
@@ -192,19 +171,18 @@ class ImmunizationTable extends AbstractTableGateway
                         WHERE list_id = ?
                           AND option_id = ?
                           AND activity = ?";
-            $result = $this->applicationTable->zQuery($query, [$list_id, $option_id, 1]);
-            $res_cur = $result->current();
+            $res_cur = QueryUtils::querySingleRow($query, [$list_id, $option_id, 1]);
         }
 
-        return $res_cur['notes'];
+        return $res_cur['notes'] ?? null;
     }
 
     /**
      * function getImmunizationObservationResultsData function to get immunization observation data
      *
-     * @param type $pid
-     * @param type $id
-     * @return type Array $val
+     * @param int $pid
+     * @param int $id
+     * @return list<array<string, mixed>>
      */
     public function getImmunizationObservationResultsData($pid, $id)
     {
@@ -214,12 +192,7 @@ class ImmunizationTable extends AbstractTableGateway
                        immunization_observation
                      WHERE imo_pid = ?
                        AND imo_im_id = ?";
-        $result = $this->applicationTable->zQuery($sql, [$pid, $id]);
-        foreach ($result as $row) {
-            $val[] = $row;
-        }
-
-        return $val;
+        return QueryUtils::fetchRecords($sql, [$pid, $id]);
     }
 
     public function getCodes($option_id, $list_id)
@@ -232,11 +205,10 @@ class ImmunizationTable extends AbstractTableGateway
                         WHERE list_id = ?
                           AND option_id = ?
                           AND activity = ?";
-            $result = $this->applicationTable->zQuery($query, [$list_id, $option_id, 1]);
-            $res_cur = $result->current();
+            $res_cur = QueryUtils::querySingleRow($query, [$list_id, $option_id, 1]);
         }
 
-        $codes = explode(":", (string) $res_cur['codes']);
-        return $codes[1];
+        $codes = explode(":", (string) ($res_cur['codes'] ?? ''));
+        return $codes[1] ?? null;
     }
 }

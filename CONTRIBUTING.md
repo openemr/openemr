@@ -2,6 +2,23 @@ Thank you for your contribution. OpenEMR (and global healthcare) continues to ge
 
 The maintainers of OpenEMR want to get your pull request in as seamlessly as possible, so please ensure your code is consistent with our [development policies](https://open-emr.org/wiki/index.php/Development_Policies).
 
+## Proposing Changes
+
+Open an issue before submitting a PR. Our changelog is generated from issues, so even small changes benefit from having one. For larger changes — new features, architectural changes, or anything touching many files — get feedback through one of these channels first:
+
+- **Forum** — Post on the [community forum](https://community.open-emr.org/) to get early feedback on an idea.
+- **Issues** — Create a well-scoped issue describing the problem and proposed approach.
+- **Conference call** — Join the [twice-weekly conference call](https://www.open-emr.org/wiki/index.php/OpenEMR_Twice_Weekly_Conference_Call_Details) (Tuesdays at 11 AM PT are much better attended than Saturdays) to discuss with maintainers. Look for the current admin meeting notes thread on the forum to post agenda items ahead of time.
+
+## Which Repository?
+
+OpenEMR is split across multiple repositories. Make sure your contribution targets the right one:
+
+- **[openemr/openemr](https://github.com/openemr/openemr)** — The application itself: PHP code, frontend, APIs, clinical features, tests.
+- **[openemr/openemr-devops](https://github.com/openemr/openemr-devops)** — Infrastructure and deployment: Docker, Kubernetes, cloud provisioning (CloudFormation, Terraform), and operational tooling.
+
+When in doubt, open an issue first to discuss where the work belongs.
+
 ## Commit Messages
 
 OpenEMR uses [Conventional Commits](https://www.conventionalcommits.org/) for all commits merged to `master` and `rel-*` branches. Your PR title must follow this format:

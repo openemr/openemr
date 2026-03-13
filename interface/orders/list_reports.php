@@ -4,7 +4,7 @@
  * List procedure orders and reports, and fetch new reports and their results.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Tyler Wrenn <tyler@tylerwrenn.com>
@@ -32,6 +32,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Check authorization.
 $thisauth = AclMain::aclCheckCore('patients', 'med');
@@ -56,8 +57,8 @@ if (!empty($_POST['form_xmit'])) {
         $ppid = (int)$row['lab_id'];
         $errmsg = '';
         try {
-            $result = gen_hl7_order($formid);
-            $errmsg = send_hl7_order($ppid, $result->hl7);
+            $result = default_gen_hl7_order($formid);
+            $errmsg = default_send_hl7_order($ppid, $result->hl7);
         } catch (Hl7OrderGenerationException $e) {
             $errmsg = $e->getMessage();
         }
@@ -144,7 +145,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = false; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
     $("#wait").addClass('d-none');
@@ -574,7 +575,7 @@ function doWait(e){
                     echo "</a></td>\n";
                     echo "  <td>";
                     // Order ID comes with a link to open the manifest in a new window/tab.
-                    echo "<a href='" . $GLOBALS['webroot'];
+                    echo "<a href='" . OEGlobalsBag::getInstance()->get('webroot');
                     echo "/interface/orders/order_manifest.php?orderid=";
                     echo attr_url($order_id);
                     echo "' target='_blank' onclick='top.restoreSession()' ";

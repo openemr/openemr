@@ -4,7 +4,7 @@
  * This is called as a pop-up to display patient education materials.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2014 Rod Roark <rod@sunsetsystems.com>
@@ -15,7 +15,8 @@
 require_once("../globals.php");
 require_once("$srcdir/options.inc.php");
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 
@@ -82,9 +83,9 @@ if (!empty($_POST['bn_submit'])) {
             $fileData = file_get_contents($filepath);
 
             // Decrypt file, if applicable.
-            $cryptoGen = new CryptoGen();
+            $cryptoGen = ServiceContainer::getCrypto();
             if ($cryptoGen->cryptCheckStandard($fileData)) {
-                $fileData = $cryptoGen->decryptStandard($fileData, null, 'database');
+                $fileData = $cryptoGen->decryptStandard($fileData, null, KeySource::Database);
             }
 
             header('Content-Description: File Transfer');

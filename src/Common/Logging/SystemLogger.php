@@ -4,6 +4,7 @@ namespace OpenEMR\Common\Logging;
 
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
+use OpenEMR\Core\OEGlobalsBag;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -17,7 +18,7 @@ use Psr\Log\LoggerInterface;
  * This would allow SystemLoggerAwareTrait to use PSR-3 types in its public API.
  *
  * @package OpenEMR\Common\Logging
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2020 Stephen Nielson <stephen@nielson.org>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -44,7 +45,7 @@ class SystemLogger implements LoggerInterface
 
         // Set log level per global setting (if set) if not hardcoded above
         if (empty($logLevel)) {
-            if (!empty($GLOBALS['system_error_logging']) && ($GLOBALS['system_error_logging'] == "DEBUG")) {
+            if (!empty(OEGlobalsBag::getInstance()->get('system_error_logging')) && (OEGlobalsBag::getInstance()->get('system_error_logging') == "DEBUG")) {
                 $logLevel = Logger::DEBUG;
             } else {
                 $logLevel = Logger::WARNING;

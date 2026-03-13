@@ -2,7 +2,7 @@
 
 /**
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
  * @author    Stephen Waite <stephen.waite@open-emr.org>
  * @copyright Copyright (c) 2022 Sherwin Gaddis <sherwingaddis@gmail.com>
@@ -13,10 +13,10 @@
 
 require_once(dirname(__FILE__, 3) . "/interface/globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\SpreadSheetService;
 
 if (!AclMain::aclCheckCore('patients', 'med')) {
@@ -35,6 +35,6 @@ try {
         $spreadsheet->downloadSpreadsheet('Xls');
     }
 } catch (\Throwable $e) {
-    $logger = new SystemLogger();
+    $logger = ServiceContainer::getLogger();
     $logger->logError($e->getMessage());
 }

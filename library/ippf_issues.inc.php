@@ -20,7 +20,7 @@ $CPR = 4; // cells per row
 
 $pprow = [];
 
-function end_cell(): void
+function ippf_end_cell(): void
 {
     global $item_count, $cell_count;
     if ($item_count > 0) {
@@ -29,10 +29,10 @@ function end_cell(): void
     }
 }
 
-function end_row(): void
+function ippf_end_row(): void
 {
     global $cell_count, $CPR;
-    end_cell();
+    ippf_end_cell();
     if ($cell_count > 0) {
         for (; $cell_count < $CPR; ++$cell_count) {
             echo "<td></td>";
@@ -43,11 +43,11 @@ function end_row(): void
     }
 }
 
-function end_group(): void
+function ippf_end_group(): void
 {
     global $last_group;
     if (strlen((string) $last_group) > 0) {
-        end_row();
+        ippf_end_row();
         echo " </table>\n";
         echo "</div>\n";
     }
@@ -120,7 +120,7 @@ function issue_ippf_gcac_form($issue, $thispid): void
 
         // Handle a data category (group) change.
         if (strcmp((string) $this_group, (string) $last_group) != 0) {
-            end_group();
+            ippf_end_group();
             $group_seq  = 'gca' . substr((string) $this_group, 0, 1);
             $group_name = $grparr[$this_group]['grp_title'];
             $last_group = $this_group;
@@ -138,7 +138,7 @@ function issue_ippf_gcac_form($issue, $thispid): void
 
         // Handle starting of a new row.
         if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
-            end_row();
+            ippf_end_row();
             echo " <tr>";
         }
 
@@ -148,7 +148,7 @@ function issue_ippf_gcac_form($issue, $thispid): void
 
         // Handle starting of a new label cell.
         if ($titlecols > 0) {
-            end_cell();
+            ippf_end_cell();
             echo "<td valign='top' colspan='" . attr($titlecols) . "' width='1%' nowrap";
             echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
             if ($cell_count == 2) {
@@ -172,7 +172,7 @@ function issue_ippf_gcac_form($issue, $thispid): void
 
         // Handle starting of a new data cell.
         if ($datacols > 0) {
-            end_cell();
+            ippf_end_cell();
             echo "<td valign='top' colspan='" . attr($datacols) . "' class='text'";
             if ($cell_count > 0) {
                 echo " style='padding-left:5pt'";
@@ -191,7 +191,7 @@ function issue_ippf_gcac_form($issue, $thispid): void
         }
     }
 
-    end_group();
+    ippf_end_group();
     echo "</div>\n";
 }
 
@@ -262,7 +262,7 @@ function issue_ippf_con_form($issue, $thispid): void
 
         // Handle a data category (group) change.
         if (strcmp((string) $this_group, (string) $last_group) != 0) {
-            end_group();
+            ippf_end_group();
             $group_seq  = 'con' . substr((string) $this_group, 0, 1);
             $group_name = $grparr[$this_group]['grp_title'];
             $last_group = $this_group;
@@ -280,7 +280,7 @@ function issue_ippf_con_form($issue, $thispid): void
 
         // Handle starting of a new row.
         if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0) {
-            end_row();
+            ippf_end_row();
             echo " <tr>";
         }
 
@@ -290,7 +290,7 @@ function issue_ippf_con_form($issue, $thispid): void
 
         // Handle starting of a new label cell.
         if ($titlecols > 0) {
-            end_cell();
+            ippf_end_cell();
             echo "<td valign='top' colspan='" . attr($titlecols) . "' width='1%' nowrap";
             echo ($frow['uor'] == 2) ? " class='required'" : " class='bold'";
             if ($cell_count == 2) {
@@ -314,7 +314,7 @@ function issue_ippf_con_form($issue, $thispid): void
 
         // Handle starting of a new data cell.
         if ($datacols > 0) {
-            end_cell();
+            ippf_end_cell();
             echo "<td valign='top' colspan='" . attr($datacols) . "' class='text'";
             if ($cell_count > 0) {
                 echo " style='padding-left:5pt'";
@@ -333,6 +333,6 @@ function issue_ippf_con_form($issue, $thispid): void
         }
     }
 
-    end_group();
+    ippf_end_group();
     echo "</div>\n";
 }

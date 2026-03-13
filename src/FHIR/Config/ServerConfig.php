@@ -5,7 +5,7 @@
  * across the codebase and in order to centralize them we've stored them into this class.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change, Inc. <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,8 +13,7 @@
 
 namespace OpenEMR\FHIR\Config;
 
-use http\Exception\RuntimeException;
-use OpenEMR\Common\Auth\OAuth2KeyConfig;
+use OpenEMR\Core\OEGlobalsBag;
 
 class ServerConfig
 {
@@ -39,9 +38,9 @@ class ServerConfig
     {
         // we may let these be injected at another point in time but for now we set this up as globals
         $this->siteId = $_SESSION['site_id'] ?? '';
-        $this->oauthAddress = $GLOBALS['site_addr_oath'] ?? $_SERVER['HTTP_HOST'];
-        $this->webServerRoot = $GLOBALS['fileroot'] ?? '';
-        $this->webRoot = $GLOBALS['web_root'] ?? '';
+        $this->oauthAddress = OEGlobalsBag::getInstance()->get('site_addr_oath') ?? $_SERVER['HTTP_HOST'];
+        $this->webServerRoot = OEGlobalsBag::getInstance()->get('fileroot') ?? '';
+        $this->webRoot = OEGlobalsBag::getInstance()->get('web_root') ?? '';
     }
 
     /**
@@ -147,7 +146,7 @@ class ServerConfig
     {
         // TODO: @adunsulag we have redundancy here in OAuth2KeyConfig and ServerConfig.  We should probably merge these.
         $site = $this->getSiteId() ?? "default";
-        $webServerRoot = $this->getWebServerRoot() ?? $GLOBALS['fileroot'] ?? "";
+        $webServerRoot = $this->getWebServerRoot() ?? OEGlobalsBag::getInstance()->get('fileroot') ?? "";
         // if we can't get the web server root then we can't get the public key
         if (empty($webServerRoot)) {
             throw new \RuntimeException("Unable to determine web server root");
@@ -184,6 +183,6 @@ class ServerConfig
 
     public function areSystemScopesEnabled()
     {
-        return $GLOBALS['rest_system_scopes_api'] === '1';
+        return OEGlobalsBag::getInstance()->get('rest_system_scopes_api') === '1';
     }
 }

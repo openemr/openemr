@@ -19,10 +19,6 @@
  */
 namespace Patientvalidation;
 
-use Patientvalidation\Model\PatientData;
-use Patientvalidation\Model\PatientDataTable;
-use Laminas\Db\ResultSet\ResultSet;
-use Laminas\Db\TableGateway\TableGateway;
 use Laminas\ModuleManager\ModuleManager;
 
 class Module

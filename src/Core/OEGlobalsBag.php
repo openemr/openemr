@@ -3,7 +3,7 @@
 /**
  * @package   OpenEMR
  *
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  *
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2025-2026 OpenCoreEMR Inc
@@ -12,31 +12,33 @@
 
 namespace OpenEMR\Core;
 
+use OpenEMR\Core\Traits\SingletonTrait;
 use Symfony\Component\HttpFoundation\ParameterBag;
 
 use function array_key_exists;
 
+/**
+ * Typed wrapper around $GLOBALS. Extends Symfony ParameterBag.
+ *
+ * Prefer typed getters over get() + cast:
+ *
+ * @see ParameterBag::getString()   getString(string $key, string $default = ''): string
+ * @see ParameterBag::getInt()      getInt(string $key, int $default = 0): int
+ * @see ParameterBag::getBoolean()  getBoolean(string $key, bool $default = false): bool
+ * @see ParameterBag::getAlpha()    getAlpha(string $key, string $default = ''): string — letters only
+ * @see ParameterBag::getAlnum()    getAlnum(string $key, string $default = ''): string — alphanumeric only
+ * @see ParameterBag::getDigits()   getDigits(string $key, string $default = ''): string — digits only
+ * @see ParameterBag::getEnum()     getEnum(string $key, string $class, ?BackedEnum $default = null): ?BackedEnum
+ *
+ * @final — not enforced at runtime because tests mock this class
+ */
 class OEGlobalsBag extends ParameterBag
 {
-    private static ?OEGlobalsBag $instance = null;
+    use SingletonTrait;
 
-    /**
-     * Get the singleton instance of OEGlobalsBag
-     *
-     * @return OEGlobalsBag
-     */
-    public static function getInstance(): OEGlobalsBag
+    protected static function createInstance(): static
     {
-        if (null === self::$instance) {
-            self::$instance = new OEGlobalsBag($GLOBALS);
-        }
-
-        return self::$instance;
-    }
-
-    public function __construct(array $parameters = [])
-    {
-        parent::__construct($parameters);
+        return new self($GLOBALS);
     }
 
     public function set(string $key, mixed $value): void
@@ -50,6 +52,13 @@ class OEGlobalsBag extends ParameterBag
 
     public function get(string $key, mixed $default = null): mixed
     {
+        // During the transition from $GLOBALS to OEGlobalsBag, legacy code may
+        // still write to or unset from $GLOBALS directly. For the singleton
+        // instance, use $GLOBALS as the sole source of truth.
+        if ($this === (self::$instances[static::class] ?? null)) {
+            return array_key_exists($key, $GLOBALS) ? $GLOBALS[$key] : $default;
+        }
+
         if (!parent::has($key) && array_key_exists($key, $GLOBALS)) {
             return $GLOBALS[$key];
         }

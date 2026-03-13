@@ -3,7 +3,7 @@
 /*
  * FhirObservationPatientServiceTest.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -11,20 +11,13 @@
 
 namespace OpenEMR\Tests\Services\FHIR\Observation;
 
-use Monolog\Level;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
-use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
 use OpenEMR\Services\EmployerService;
 use OpenEMR\Services\FHIR\Observation\FhirObservationEmployerService;
-use OpenEMR\Services\FHIR\Observation\FhirObservationPatientService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
-use OpenEMR\Services\ListService;
-use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Uuid;
 
@@ -38,8 +31,6 @@ use Ramsey\Uuid\Uuid;
  */
 class FhirObservationEmployerServiceTest extends TestCase
 {
-    use SystemLoggerAwareTrait;
-
     private PatientService $patientService;
     private UserService $userService;
     private EmployerService $employerService;
@@ -175,14 +166,10 @@ class FhirObservationEmployerServiceTest extends TestCase
     private function cleanupEmployerData(): void
     {
         if (!empty($this->testEmployerData['uuid'])) {
-            try {
                 QueryUtils::sqlStatementThrowException(
                     "DELETE FROM employer_data WHERE uuid = ?",
                     [$this->testEmployerData['uuid']]
                 );
-            } catch (\Throwable $e) {
-                $this->getSystemLogger()->errorLogCaller("Failed to cleanup test employer data: ", ['message' => $e->getMessage()]);
-            }
         }
     }
 
@@ -194,25 +181,17 @@ class FhirObservationEmployerServiceTest extends TestCase
     private function cleanupTestPatientAndUser(): void
     {
         if (!empty($this->testPatientData['pid'])) {
-            try {
-                QueryUtils::sqlStatementThrowException(
-                    "DELETE FROM patient_data WHERE pid = ?",
-                    [$this->testPatientData['pid']]
-                );
-            } catch (\Throwable $e) {
-                $this->getSystemLogger()->errorLogCaller("Failed to cleanup test patient: " . $e->getMessage());
-            }
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM patient_data WHERE pid = ?",
+                [$this->testPatientData['pid']]
+            );
         }
 
         if (!empty($this->testUserData['id'])) {
-            try {
-                QueryUtils::sqlStatementThrowException(
-                    "DELETE FROM users WHERE id = ?",
-                    [$this->testUserData['id']]
-                );
-            } catch (\Throwable $e) {
-                $this->getSystemLogger()->errorLogCaller("Failed to cleanup test user: " . $e->getMessage());
-            }
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM users WHERE id = ?",
+                [$this->testUserData['id']]
+            );
         }
     }
 

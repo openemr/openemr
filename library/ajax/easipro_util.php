@@ -4,7 +4,7 @@
  * easipro_util.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Shiqiang Tao <StrongTSQ@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Shiqiang Tao <StrongTSQ@gmail.com>
@@ -12,8 +12,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Easipro\Easipro;
 
 // Will start the (patient) portal OpenEMR session/cookie
 //  (in case the request is from the patient portal; note it will get destroyed if request is not from patient portal).
@@ -33,8 +35,6 @@ if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($sess
 
 require_once(__DIR__ . "/../../interface/globals.php");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Easipro\Easipro;
 
 // verify csrf
 if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {

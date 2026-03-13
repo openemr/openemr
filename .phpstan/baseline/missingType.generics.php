@@ -122,21 +122,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModule.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Model\\\\Multipledb\\:\\:getInputFilter\\(\\) return type with generic interface Laminas\\\\InputFilter\\\\InputFilterInterface does not specify its types\\: TFilteredValues$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/Multipledb.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method Multipledb\\\\Model\\\\Multipledb\\:\\:setInputFilter\\(\\) has parameter \\$inputFilter with generic interface Laminas\\\\InputFilter\\\\InputFilterInterface but does not specify its types\\: TFilteredValues$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/Multipledb.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Multipledb\\\\Model\\\\Multipledb\\:\\:\\$inputFilter with generic interface Laminas\\\\InputFilter\\\\InputFilterInterface does not specify its types\\: TFilteredValues$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Multipledb/src/Multipledb/Model/Multipledb.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Patientvalidation\\\\Model\\\\PatientData\\:\\:getInputFilter\\(\\) return type with generic interface Laminas\\\\InputFilter\\\\InputFilterInterface does not specify its types\\: TFilteredValues$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Patientvalidation/src/Patientvalidation/Model/PatientData.php',
@@ -210,11 +195,6 @@ $ignoreErrors[] = [
     'message' => '#^Class OpenEMR\\\\Menu\\\\MenuItems extends generic class ArrayObject but does not specify its types\\: TKey, TValue$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Menu/MenuItems.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Class OpenEMR\\\\PHPStan\\\\Rules\\\\ForbiddenGlobalNamespaceRule implements generic interface PHPStan\\\\Rules\\\\Rule but does not specify its types\\: TNodeType$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/PHPStan/Rules/ForbiddenGlobalNamespaceRule.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Certification\\\\HIT1\\\\G9_Certification\\\\CCDADocRefGenerationTest\\:\\:replaceRootIdForNodes\\(\\) has parameter \\$currentList1 with generic class DOMNodeList but does not specify its types\\: TNode$#',

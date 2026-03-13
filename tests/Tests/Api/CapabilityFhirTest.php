@@ -3,16 +3,14 @@
 namespace OpenEMR\Tests\Api;
 
 use OpenEMR\FHIR\SMART\Capability;
-use OpenEMR\RestControllers\AuthorizationController;
-use OpenEMR\RestControllers\FHIR\FhirMetaDataRestController;
-use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Api\ApiTestClient;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Capability FHIR Endpoint Test Cases.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -69,9 +67,8 @@ class CapabilityFhirTest extends TestCase
     {
         $actualResponse = $this->testClient->get(self::CAPABILITY_FHIR_ENDPOINT);
         $this->assertEquals(200, $actualResponse->getStatusCode());
-        $body = $actualResponse->getBody();
-        $this->assertNotNull($body); // make sure we have a body here
-
+        $body = (string) $actualResponse->getBody();
+        $this->assertNotEmpty($body);
 
         $statement = json_decode($body, true);
         $this->assertCapabilityHasSMARTRequirements($statement);

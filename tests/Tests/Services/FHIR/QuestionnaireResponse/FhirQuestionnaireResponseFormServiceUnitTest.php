@@ -3,7 +3,7 @@
 /*
  * FhirQuestionnaireFormServiceTest.php
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Public Domain for sections that were generated with Claude.AI on September 3rd 2025
@@ -12,13 +12,12 @@
 
 namespace OpenEMR\Tests\Services\FHIR\QuestionnaireResponse;
 
-use Monolog\Level;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaireResponse;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * Unit tests for FhirQuestionnaireResponseFormService ensuring compliance with US Core 8.0 QuestionnaireResponse Profile
@@ -31,7 +30,7 @@ class FhirQuestionnaireResponseFormServiceUnitTest extends TestCase
     {
         parent::setUp();
         $this->service = new FhirQuestionnaireResponseFormService();
-        $this->service->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->service->setSystemLogger($this->createMock(LoggerInterface::class));
     }
 
     /**

@@ -14,6 +14,8 @@
 
 namespace OpenEMR\Billing;
 
+use OpenEMR\Core\OEGlobalsBag;
+
 class ParseERA
 {
     public static function parseERA2100(&$out, $cb)
@@ -32,7 +34,7 @@ class ParseERA
             // from poorly reported payment reversals, in which case we may need to
             // create the 'Claim' service type here.
             //
-            if ($GLOBALS['force_claim_balancing']) {
+            if (OEGlobalsBag::getInstance()->getBoolean('force_claim_balancing')) {
                 $chgtotal = floatval($out['amount_charged']);
                 $paytotal = floatval($out['amount_approved']);
                 $pattotal = floatval($out['amount_patient']);
@@ -547,7 +549,7 @@ class ParseERA
         }
 
         $out['check_count'] = $check_count;
-        era_callback_check($out);
+        eob_process_era_callback_check($out);
 
         if ($segid != 'IEA') {
             return 'Premature end of ERA file';

@@ -4,7 +4,7 @@
  * MainMenuRole class.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Nielson <stephen@nielson.org>
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
@@ -15,6 +15,7 @@
 namespace Application\Listener;
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\MenuEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
@@ -94,11 +95,11 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
                 $modulePath = "";
                 $added      = "";
                 if ($modulerow['type'] == 0) {
-                    $modulePath = $GLOBALS['customModDir'];
+                    $modulePath = OEGlobalsBag::getInstance()->get('customModDir');
                     $added      = "";
                 } else {
                     $added      = "index";
-                    $modulePath = $GLOBALS['zendModDir'];
+                    $modulePath = OEGlobalsBag::getInstance()->get('zendModDir');
                 }
 
                 $relative_link = "/interface/modules/" . $modulePath . "/" . $modulerow['mod_relative_link'] . $added;
@@ -169,11 +170,11 @@ class ModuleMenuSubscriber implements EventSubscriberInterface
 
             while ($hookrow = sqlFetchArray($module_query)) {
                 if ($hookrow['type'] == 0) {
-                    $modulePath = $GLOBALS['customModDir'];
+                    $modulePath = OEGlobalsBag::getInstance()->get('customModDir');
                     $added = "";
                 } else {
                     $added = "index";
-                    $modulePath = $GLOBALS['zendModDir'];
+                    $modulePath = OEGlobalsBag::getInstance()->get('zendModDir');
                 }
 
                 if ($jid == 0 || ($modid != $hookrow['mod_id'])) {

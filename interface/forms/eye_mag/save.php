@@ -45,6 +45,7 @@ use Mpdf\Mpdf;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\PatientIssuesService;
 
@@ -365,7 +366,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         $PDF_OUTPUT = '1';
 
         $filename = $pid . "_" . $encounter . ".pdf";
-        $filepath = $GLOBALS['oer_config']['documents']['repository'] . $pid;
+        $filepath = OEGlobalsBag::getInstance()->get('oer_config')['documents']['repository'] . $pid;
         foreach (glob($filepath . '/' . $filename) as $file) {
             unlink($file);
         }
@@ -386,7 +387,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
     <div id="report_custom" style="width:100%;">  <!-- large outer DIV -->
         <?php
         echo report_header($pid);
-        include_once($GLOBALS['incdir'] . "/forms/eye_mag/report.php");
+        include_once(OEGlobalsBag::getInstance()->get('incdir') . "/forms/eye_mag/report.php");
         ($form_name . "_report")($pid, $form_encounter, $N, $form_id);
         if ($printable) {
             echo "" . xl('Signature') . ": _______________________________<br />";
@@ -404,7 +405,7 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         //$pdf->writeHTML($content, 2);
 
         $pdf->writeHTML($content);
-        $tmpdir = $GLOBALS['OE_SITE_DIR'] . '/documents/temp/'; // Best to get a known system temp directory to ensure a writable directory.
+        $tmpdir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/temp/'; // Best to get a known system temp directory to ensure a writable directory.
         $temp_filename = $tmpdir . $filename;
         $content_pdf = $pdf->Output($temp_filename, 'F');
         $type = "application/pdf";
@@ -541,8 +542,8 @@ if (($_REQUEST["mode"]  ?? '') == "new") {
         $form_type = $_REQUEST['form_type'];
         $r_PMSFH = $_REQUEST['r_PMSFH'] ?? '';
         if ($deletion == 1) {
-            row_delete("issue_encounter", "list_id = '" . add_escape_custom($issue) . "'");
-            row_delete("lists", "id = '" . add_escape_custom($issue) . "'");
+            eye_mag_row_delete("issue_encounter", "list_id = '" . add_escape_custom($issue) . "'");
+            eye_mag_row_delete("lists", "id = '" . add_escape_custom($issue) . "'");
             $PMSFH = build_PMSFH($pid);
             send_json_values($PMSFH);
             exit;
@@ -1296,7 +1297,7 @@ function debug($local_var): void
 
 /* From original issue.php */
 
-function row_delete($table, $where): void
+function eye_mag_row_delete(string $table, string $where): void
 {
     $query = "SELECT * FROM " . escape_table_name($table) . " WHERE $where";
     $tres = sqlStatement($query);

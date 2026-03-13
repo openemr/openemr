@@ -24,10 +24,13 @@
  * @license http://www.gnu.org/licenses/licenses.html#GPL GNU GPL V3+
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2013-2021 Rod Roark <rod@sunsetsystems.com>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 // Get a list item's title, translated if appropriate.
+
+use OpenEMR\Core\OEGlobalsBag;
+
 function getAdjustTitle($option)
 {
     $row = sqlQuery(
@@ -77,7 +80,7 @@ function receiptArrayDetailLine(
         $charge = 0;
     } else {
         // Otherwise pull out any adjustments matching this line item.
-        if (!empty($GLOBALS['gbl_checkout_line_adjustments'])) {
+        if (!empty(OEGlobalsBag::getInstance()->get('gbl_checkout_line_adjustments'))) {
             // Total and clear matching adjustments in $aReceipt['_adjusts'].
             for ($i = 0; $i < count($aReceipt['_adjusts']); ++$i) {
                 if (

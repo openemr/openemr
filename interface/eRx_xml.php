@@ -4,7 +4,7 @@
  * interface/eRx_xml.php Functions for interacting with Ensora eRx communications.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Eldho Chacko <eldho@zhservices.com>
  * @author    Vinish K <vinish@zhservices.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -13,7 +13,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\VersionService;
 
@@ -21,21 +22,21 @@ $facilityService = new FacilityService();
 
 function getErxPath()
 {
-    return $GLOBALS['erx_newcrop_path'];
+    return OEGlobalsBag::getInstance()->get('erx_newcrop_path');
 }
 
 function getErxSoapPath()
 {
-    return $GLOBALS['erx_newcrop_path_soap'];
+    return OEGlobalsBag::getInstance()->get('erx_newcrop_path_soap');
 }
 
 function getErxCredentials()
 {
     $cred = [];
-    $cred[] = $GLOBALS['erx_account_partner_name'];
-    $cred[] = $GLOBALS['erx_account_name'];
-    $cryptoGen = new CryptoGen();
-    $cred[] = $cryptoGen->decryptStandard($GLOBALS['erx_account_password']);
+    $cred[] = OEGlobalsBag::getInstance()->get('erx_account_partner_name');
+    $cred[] = OEGlobalsBag::getInstance()->get('erx_account_name');
+    $cryptoGen = ServiceContainer::getCrypto();
+    $cred[] = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('erx_account_password'));
 
     return $cred;
 }
@@ -198,7 +199,7 @@ function account($doc, $r): void
     }
 
     $b = $doc->createElement("Account");
-    $b->setAttribute('ID', $GLOBALS['erx_account_id']);
+    $b->setAttribute('ID', OEGlobalsBag::getInstance()->get('erx_account_id'));
     $erxSiteID['name'] = stripSpecialCharacterFacility($erxSiteID['name']);
     $erxSiteID['name'] = trimData($erxSiteID['name'], 35);
     $msg = validation(xl('Account Name'), $erxSiteID['name'], $msg);
@@ -663,10 +664,10 @@ function Patient($doc, $r, $pid)
     }
 
         //$msg = validation(xl('Patient Country'),$patient_data['country_code'],$msg);
-    if (trim((string) $patient_data['country_code']) == '' && $GLOBALS['erx_default_patient_country'] == '') {
+    if (trim((string) $patient_data['country_code']) == '' && OEGlobalsBag::getInstance()->get('erx_default_patient_country') == '') {
         $dem_check .= xlt("Patient Country is missing. Also you have not set default Patient Country in Global Settings") . "<br />";
     } elseif (trim((string) $patient_data['country_code']) == '') {
-        $patient_data['country_code'] = $GLOBALS['erx_default_patient_country'];
+        $patient_data['country_code'] = OEGlobalsBag::getInstance()->get('erx_default_patient_country');
     }
 
         $county_code = substr((string) $patient_data['country_code'], 0, 2);
@@ -787,8 +788,8 @@ function PatientMedication($doc, $r, $pid, $med_limit)
 {
     global $msg;
     $active = '';
-    if ($GLOBALS['erx_upload_active'] == 1) {
-        $active = " and (enddate is null or enddate = '' or enddate = '0000-00-00' )";
+    if (OEGlobalsBag::getInstance()->getBoolean('erx_upload_active')) {
+        $active = " and (enddate is null or enddate = '0000-00-00' )";
     }
 
     $res_med = sqlStatement("select * from lists where type='medication' and pid=? and title<>''
@@ -848,7 +849,7 @@ function PatientFreeformAllergy($doc, $r, $pid)
 {
     $res = sqlStatement("SELECT id,l.title as title1,lo.title as title2,comments FROM lists AS l
     LEFT JOIN list_options AS lo ON l.outcome = lo.option_id AND lo.list_id = 'outcome' AND lo.activity = 1
-	WHERE `type`='allergy' AND pid=? AND erx_source='0' and erx_uploaded='0' AND (enddate is null or enddate = '' or enddate = '0000-00-00')", [$pid]);
+	WHERE `type`='allergy' AND pid=? AND erx_source='0' and erx_uploaded='0' AND (enddate is null or enddate = '0000-00-00')", [$pid]);
     $allergyId = [];
     while ($row = sqlFetchArray($res)) {
         $val = [];
@@ -940,7 +941,7 @@ function PrescriptionRenewalResponse($doc, $r, $pid): void
 
 function checkError($xml)
 {
-    $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+    $httpVerifySsl = (bool) (OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
     $ch = curl_init($xml);
 
     $data = ['RxInput' => $xml];
@@ -987,11 +988,11 @@ function checkError($xml)
 function erx_error_log($message): void
 {
     $date = date("Y-m-d");
-    if (!is_dir($GLOBALS['OE_SITE_DIR'] . '/documents/erx_error')) {
-        mkdir($GLOBALS['OE_SITE_DIR'] . '/documents/erx_error', 0777, true);
+    if (!is_dir(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/erx_error')) {
+        mkdir(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/erx_error', 0777, true);
     }
 
-    $filename = $GLOBALS['OE_SITE_DIR'] . "/documents/erx_error/erx_error" . "-" . $date . ".log";
+    $filename = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/erx_error/erx_error" . "-" . $date . ".log";
     $f = fopen($filename, 'a');
     fwrite($f, date("Y-m-d H:i:s") . " ==========> " . $message . "\r\n");
     fclose($f);

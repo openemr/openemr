@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Handles the editing, updating, creating, and deleting of the telecom list datatype in LBF
  * Uses ContactService and ContactTelecomService
@@ -11,10 +12,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Services\ContactService;
-use OpenEMR\Services\ContactTelecomService;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\ContactService;
+use OpenEMR\Services\ContactTelecomService;
 
 // Initialize services
 $contactService = new ContactService();
@@ -82,7 +83,7 @@ $templateVars = [
     'widget_constants' => $widgetConstants,
     'edit_options' => $edit_options ?? null,
     'contact_id' => $contact ? $contact->get_id() : null,
-    'srcdir' => $GLOBALS['srcdir']
+    'srcdir' => OEGlobalsBag::getInstance()->get('srcdir')
 ];
 
 // Render Twig template

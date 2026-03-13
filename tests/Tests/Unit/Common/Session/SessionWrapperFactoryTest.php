@@ -8,7 +8,7 @@
  * application cookie scenarios.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    OpenCoreEMR <hello@opencoreemr.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -19,7 +19,6 @@ namespace OpenEMR\Tests\Unit\Common\Session;
 use OpenEMR\Common\Session\PHPSessionWrapper;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Session\SessionWrapperInterface;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 

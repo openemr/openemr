@@ -21,14 +21,14 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\Types\EncounterListOptionType;
 use OpenEMR\Common\Layouts\LayoutsUtils;
-use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
-use OpenEMR\Services\EncounterService;
 use OpenEMR\Services\LogoService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 use Symfony\Component\EventDispatcher\GenericEvent;
 use Twig\Extension\AbstractExtension;
 use Twig\Extension\GlobalsInterface;
@@ -195,7 +195,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     // In the event we need to pass the this objecto to the datetimepicker, we cannot use quotations because `this` would not be a string
                     $selector = ($domSelector == "this") ? $domSelector : "\"$domSelector\"";
                     echo "$($selector).datetimepicker({";
-                    require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
+                    require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php');
                     echo "})";
                     return ob_get_clean();
                 }
@@ -204,7 +204,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 'DateToYYYYMMDD_js',
                 function () {
                     ob_start();
-                    require $GLOBALS['srcdir'] . "/formatting_DateToYYYYMMDD_js.js.php";
+                    require OEGlobalsBag::getInstance()->get('srcdir') . "/formatting_DateToYYYYMMDD_js.js.php";
                     return ob_get_clean();
                 }
             ),
@@ -234,7 +234,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                 'oemHelpIcon',
                 function () {
                     // this setups a variable called $help_icon... strange
-                    require $GLOBALS['srcdir'] . "/display_help_icon_inc.php";
+                    require OEGlobalsBag::getInstance()->get('srcdir') . "/display_help_icon_inc.php";
                     return $help_icon ?? '';
                 }
             ),
@@ -272,6 +272,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('js_escape', js_escape(...)),
             new TwigFilter('attr_js', attr_js(...)),
             new TwigFilter('attr_url', attr_url(...)),
+            new TwigFilter('safe_href', safe_href(...)),
             new TwigFilter('js_url', js_url(...)),
             new TwigFilter('javascriptStringRemove', javascriptStringRemove(...)),
             new TwigFilter('xl', xl(...)),
@@ -282,7 +283,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
             new TwigFilter('shortDate', oeFormatShortDate(...)),
             new TwigFilter(
                 'oeFormatDateTime',
-                fn($string, $formatTime = "global", $seconds = false) => oeFormatDateTime($string, $formatTime, $seconds)
+                fn($string, $formatTime = "global", bool $seconds = false) => DateFormatterUtils::oeFormatDateTime($string, $formatTime, $seconds)
             ),
             new TwigFilter('xlLayoutLabel', xl_layout_label(...)),
             new TwigFilter('xlListLabel', xl_list_label(...)),

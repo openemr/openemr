@@ -5,7 +5,7 @@
  * AI Generated: Enhanced to support QuestionnaireResponse linking functionality
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,18 +13,18 @@
 
 namespace OpenEMR\Controllers\Interface\Forms\Observation;
 
+use InvalidArgumentException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
+use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\FormService;
 use OpenEMR\Services\ObservationService;
-use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\TokenSearchField;
@@ -34,7 +34,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
-use InvalidArgumentException;
 
 class ObservationController
 {
@@ -155,8 +154,8 @@ class ObservationController
 
             return $this->createResponse($content);
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->errorLogCaller("Error rendering observation form", [
-                'error' => $e->getMessage(),
+            $this->getSystemLogger()->error("Error rendering observation form", [
+                'exception' => $e,
                 'formId' => $formId,
                 'pid' => $pid,
                 'encounter' => $encounter
@@ -217,8 +216,8 @@ class ObservationController
 
             return $this->createResponse($content);
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->errorLogCaller("Error rendering observation list", [
-                'error' => $e->getMessage(),
+            $this->getSystemLogger()->error("Error rendering observation list", [
+                'exception' => $e,
                 'pid' => $pid,
                 'encounter' => $encounter
             ]);
@@ -258,13 +257,13 @@ class ObservationController
 
             // we have to keep id as the formId due to backwards compatibility
             return $this->createRedirectResponse(
-                $GLOBALS['webroot'] . "/interface/forms/observation/new.php?id="
+                OEGlobalsBag::getInstance()->get('webroot') . "/interface/forms/observation/new.php?id="
                 . urlencode((string) $observation['form_id'])
                 . "&status=saved"
             );
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->errorLogCaller("Error saving observation", [
-                'error' => $e->getMessage(),
+            $this->getSystemLogger()->error("Error saving observation", [
+                'exception' => $e,
                 'formId' => $formId,
                 'postData' => $postData
             ]);
@@ -364,9 +363,9 @@ class ObservationController
 
             return $result ? (int)$result : null;
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->errorLogCaller("Error converting FHIR ID to local ID", [
-                'fhir_id' => $fhirId,
-                'error' => $e->getMessage()
+            $this->getSystemLogger()->error("Error converting FHIR ID to local ID", [
+                'exception' => $e,
+                'fhir_id' => $fhirId
             ]);
             return null;
         }
@@ -406,9 +405,9 @@ class ObservationController
                 'questionnaire_data' => $questionnaireData
             ];
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->errorLogCaller("Error getting QuestionnaireResponse details", [
-                'questionnaire_response_id' => $questionnaireResponseId,
-                'error' => $e->getMessage()
+            $this->getSystemLogger()->error("Error getting QuestionnaireResponse details", [
+                'exception' => $e,
+                'questionnaire_response_id' => $questionnaireResponseId
             ]);
             return null;
         }
@@ -484,7 +483,7 @@ class ObservationController
             if (!$observation) {
                 // observation may have already been deleted, just redirect to list with success to avoid error loops
                 return $this->createRedirectResponse(
-                    $GLOBALS['webroot'] . "/interface/forms/observation/new.php?id=" . urlencode($formId)
+                    OEGlobalsBag::getInstance()->get('webroot') . "/interface/forms/observation/new.php?id=" . urlencode($formId)
                     . "&status=delete_success" // still redirect to list with success to avoid error loops
                 );
             }
@@ -501,16 +500,16 @@ class ObservationController
             QueryUtils::commitTransaction();
             $committed = true;
             return $this->createRedirectResponse(
-                $GLOBALS['webroot'] . "/interface/forms/observation/new.php?id=" . urlencode($formId)
+                OEGlobalsBag::getInstance()->get('webroot') . "/interface/forms/observation/new.php?id=" . urlencode($formId)
                 . "&status=delete_success" // still redirect to list with success to avoid error loops
             );
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->errorLogCaller("Error deleting observation", [
-                'error' => $e->getMessage(),
+            $this->getSystemLogger()->error("Error deleting observation", [
+                'exception' => $e,
                 'formId' => $formId
             ]);
             return $this->createRedirectResponse(
-                $GLOBALS['webroot'] . "/interface/forms/observation/new.php?id=" . urlencode($formId)
+                OEGlobalsBag::getInstance()->get('webroot') . "/interface/forms/observation/new.php?id=" . urlencode($formId)
                 . "&status=delete_failed" // let them know that the delete failed
             );
         } finally {

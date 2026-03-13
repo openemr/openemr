@@ -4,7 +4,7 @@
  * LBF form.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
@@ -14,8 +14,13 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\CoreFormToPortalUtility;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 // block of code to securely support use by the patient portal
 // Need access to classes, so run autoloader now instead of in globals.php.
@@ -31,13 +36,19 @@ require_once "$srcdir/api.inc.php";
 require_once "$srcdir/forms.inc.php";
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/patient.inc.php";
-require_once $GLOBALS['fileroot'] . '/custom/code_types.inc.php';
+require_once OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php';
 require_once "$srcdir/FeeSheetHtml.class.php";
 
-use OpenEMR\Common\Acl\AccessDeniedHelper;
-use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\Header;
+/**
+ * @var string $srcdir
+ * @var string $rootdir
+ * @var int $pid
+ * @var int $encounter
+ * @var int $userauthorized
+ * @var array $code_types
+ * @var string $BS_COL_CLASS
+ */
+
 
 $CPR = 4; // cells per row
 
@@ -45,7 +56,7 @@ $pprow = [];
 
 $alertmsg = '';
 
-function end_cell(): void
+function lbf_new_end_cell(): void
 {
     global $item_count, $historical_ids, $USING_BOOTSTRAP;
     if ($item_count > 0) {
@@ -58,10 +69,10 @@ function end_cell(): void
     }
 }
 
-function end_row(): void
+function lbf_new_end_row(): void
 {
     global $cell_count, $CPR, $historical_ids, $USING_BOOTSTRAP, $BS_COL_CLASS;
-    end_cell();
+    lbf_new_end_cell();
     if ($USING_BOOTSTRAP) {
         if ($cell_count > 0 && $cell_count < $CPR) {
             // Create a cell occupying the remaining bootstrap columns.
@@ -187,7 +198,7 @@ $LBF_REFERRALS_SECTION = !empty($lobj['grp_referrals']);
 $LBF_SECTION_DISPLAY_STYLE = $lobj['grp_init_open'] ? 'block' : 'none';
 
 // $LBF_ENABLE_SAVE_CLOSE = !empty($lobj['grp_save_close']);
-$LBF_ENABLE_SAVE_CLOSE = !empty($GLOBALS['gbl_form_save_close']);
+$LBF_ENABLE_SAVE_CLOSE = OEGlobalsBag::getInstance()->getBoolean('gbl_form_save_close');
 
 // Check access control.
 if (!AclMain::aclCheckCore('admin', 'super') && !empty($LBF_ACO)) {
@@ -204,7 +215,7 @@ if (isset($LBF_SERVICES_SECTION) || isset($LBF_PRODUCTS_SECTION) || isset($LBF_D
 }
 
 if (!$from_trend_form) {
-    $fname = $GLOBALS['OE_SITE_DIR'] . "/LBF/" . check_file_dir_name($formname) . ".plugin.php";
+    $fname = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/LBF/" . check_file_dir_name($formname) . ".plugin.php";
     if (file_exists($fname)) {
         include_once $fname;
     }
@@ -345,7 +356,7 @@ if (
     // until more testing can be done to understand impact of sequential field saving (which demographics_save and new_comprehensive_save don't do),
     // we will handle the employer_data saving this way for now.
     if (!empty($newPatientData)) {
-        if (!$GLOBALS['omit_employers']) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
             updateEmployerData($pid, [
                 'occupation' => $newPatientData['occupation']
                 ,'industry' => $newPatientData['industry']
@@ -436,7 +447,7 @@ if (
 
     </style>
 
-    <?php require_once "{$GLOBALS['srcdir']}/options.js.php"; ?>
+    <?php require_once OEGlobalsBag::getInstance()->get('srcdir') . "/options.js.php"; ?>
 
     <!-- LiterallyCanvas support -->
     <?php echo lbf_canvas_head(); ?>
@@ -468,7 +479,7 @@ if (
 
             $(".select-dropdown").select2({
                 theme: "bootstrap4",
-                <?php require $GLOBALS['srcdir'] . '/js/xl/select2.js.php'; ?>
+                <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'; ?>
             });
             if (typeof error !== 'undefined') {
                 if (error) {
@@ -508,7 +519,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker').datetimepicker({
@@ -517,7 +528,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datepicker-past').datetimepicker({
@@ -526,7 +537,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker-past').datetimepicker({
@@ -535,7 +546,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = false; ?>
                 <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datepicker-future').datetimepicker({
@@ -544,7 +555,7 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
             $('.datetimepicker-future').datetimepicker({
@@ -553,12 +564,12 @@ if (
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php $datetimepicker_minDate = '-1970/01/01'; ?>
                 <?php $datetimepicker_maxDate = false; ?>
-                <?php require $GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
+                <?php require OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'; ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
 
-        var mypcc = <?php echo js_escape($GLOBALS['phone_country_code']); ?>;
+        var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
         // Supports customizable forms.
         function divclick(cb, divid) {
@@ -589,7 +600,7 @@ if (
                         pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "",
                         selector: selector
                     });
-                    $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
+                    $.getScript('<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/ajax/code_attributes_ajax.php?' + params);
                 }
                 return '';
             }
@@ -809,7 +820,7 @@ if (
                 csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
                 pricelevel: f.form_fs_pricelevel.value
             });
-            $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
+            $.getScript('<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/ajax/code_attributes_ajax.php?' + params);
         }
 
         // Respond to clicking a checkbox for adding (or removing) a specific product.
@@ -838,7 +849,7 @@ if (
                 pricelevel: f.form_fs_pricelevel.value,
                 selector: a[2]
             });
-            $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
+            $.getScript('<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/ajax/code_attributes_ajax.php?' + params);
         }
 
         // Respond to clicking a checkbox for adding (or removing) a specific diagnosis.
@@ -866,7 +877,7 @@ if (
                 csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>,
                 pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : ""
             });
-            $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
+            $.getScript('<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/ajax/code_attributes_ajax.php?' + params);
         }
 
         // Respond to selecting a package of codes.
@@ -879,7 +890,7 @@ if (
                     list: sel.value,
                     pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : ""
                 });
-                $.getScript('<?php echo $GLOBALS['web_root'] ?>/library/ajax/code_attributes_ajax.php?' + params);
+                $.getScript('<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/ajax/code_attributes_ajax.php?' + params);
             }
             sel.selectedIndex = 0;
         }
@@ -1125,7 +1136,7 @@ if (
 
                     // If ending a group or starting a subgroup, terminate the current row and its table.
                     if ($group_table_active && ($i != strlen($group_levels) || $i != strlen((string) $this_levels))) {
-                        end_row();
+                        lbf_new_end_row();
                         echo $USING_BOOTSTRAP ? " </div>\n" : " </table>\n";
                         $group_table_active = false;
                     }
@@ -1142,7 +1153,7 @@ if (
 
                     // If there are any new groups, open them.
                     while ($i < strlen((string) $this_levels)) {
-                        end_row();
+                        lbf_new_end_row();
                         if ($group_table_active) {
                             echo $USING_BOOTSTRAP ? " </div>\n" : " </table>\n";
                             $group_table_active = false;
@@ -1229,7 +1240,7 @@ if (
 
                     // Handle starting of a new row.
                     if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0 || $prepend_blank_row || $jump_new_row) {
-                        end_row();
+                        lbf_new_end_row();
 
                         if ($USING_BOOTSTRAP) {
                             $tmp = 'form-row';
@@ -1269,7 +1280,7 @@ if (
 
                     // Handle starting of a new label cell.
                     if ($titlecols > 0) {
-                        end_cell();
+                        lbf_new_end_cell();
                         $tmp = ' text-wrap';
                         if (isOption($edit_options, 'SP')) {
                             $datacols = 0;
@@ -1320,7 +1331,7 @@ if (
 
                     // Handle starting of a new data cell.
                     if ($datacols > 0) {
-                        end_cell();
+                        lbf_new_end_cell();
                         $tmp = ' text';
                         if (isOption($edit_options, 'DS')) {
                             $tmp .= ' RS';
@@ -1367,7 +1378,7 @@ if (
 
                 // Close all open groups.
                 if ($group_table_active) {
-                    end_row();
+                    lbf_new_end_row();
                     echo $USING_BOOTSTRAP ? " </div>\n" : " </table>\n";
                     $group_table_active = false;
                 }
@@ -1437,7 +1448,7 @@ if (
                     }
 
                     // A row for Search, Add Package, Main Provider.
-                    $ctype = $GLOBALS['ippf_specific'] ? 'MA' : '';
+                    $ctype = OEGlobalsBag::getInstance()->get('ippf_specific') ? 'MA' : '';
                     echo "<p class='font-weight-bold'>";
                     echo "<input type='button' value='" . xla('Search Services') . "' onclick='sel_related(null," . attr_js($ctype) . ")' />&nbsp;&nbsp;\n";
                     $fscres = sqlStatement("SELECT * FROM fee_sheet_options ORDER BY fs_category, fs_option");
@@ -1571,7 +1582,7 @@ if (
                     }
 
                     // A row for Search
-                    $ctype = $GLOBALS['ippf_specific'] ? 'MA' : '';
+                    $ctype = OEGlobalsBag::getInstance()->get('ippf_specific') ? 'MA' : '';
                     echo "<p class='font-weight-bold'>";
                     echo "<input type='button' value='" . xla('Search Products') . "' onclick='sel_related(null,\"PROD\")' />&nbsp;&nbsp;";
                     echo "</p>\n";
@@ -1879,7 +1890,7 @@ if (
                 } ?>
 
                 <!-- include support for the list-add selectbox feature -->
-                <?php require $GLOBALS['fileroot'] . "/library/options_listadd.inc.php"; ?>
+                <?php require OEGlobalsBag::getInstance()->get('fileroot') . "/library/options_listadd.inc.php"; ?>
 
                 <script>
                     // Array of action conditions for the checkSkipConditions() function.

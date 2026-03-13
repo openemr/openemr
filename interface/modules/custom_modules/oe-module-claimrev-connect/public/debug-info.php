@@ -3,7 +3,7 @@
 /**
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  *
  * @author    Brad Sharp <brad.sharp@claimrev.com>
  * @copyright Copyright (c) 2022 Brad Sharp <brad.sharp@claimrev.com>
@@ -46,7 +46,7 @@ if (!AclMain::aclCheckCore('acct', 'bill')) {
                     <li><?php echo xlt("Client Scope");?>: <?php echo text($connectivityInfo->client_scope); ?></li>
                     <li><?php echo xlt("API Server");?>: <?php echo text($connectivityInfo->api_server); ?></li>
                     <li><?php echo xlt("Default Account");?>: <?php echo text($connectivityInfo->defaultAccount); ?>  </li>
-                    <li><?php echo xlt("Token");?>:  <?php echo text($connectivityInfo->hasToken); ?>  </li>
+                    <li><?php echo xlt("Token");?>:  <?php echo $connectivityInfo->hasToken ? xlt("Yes") : xlt("No"); ?>  </li>
                 </ul>
             </div>
         </div>

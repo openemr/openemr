@@ -13,8 +13,8 @@
 namespace OpenEMR\Services\DocumentTemplates;
 
 use Exception;
-use OpenEMR\Services\QuestionnaireService;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\QuestionnaireService;
 use RuntimeException;
 
 /**

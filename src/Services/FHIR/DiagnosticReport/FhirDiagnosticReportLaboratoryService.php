@@ -4,7 +4,7 @@
  * FhirDiagnosticReportLaboratoryService.php
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <stephen@nielson.org>
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2021 Stephen Nielson <stephen@nielson.org>
@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Services\FHIR\DiagnosticReport;
 
+use BadMethodCallException;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRDiagnosticReport;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
@@ -39,7 +40,6 @@ use OpenEMR\Services\Search\ServiceField;
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Services\Search\TokenSearchValue;
 use OpenEMR\Validators\ProcessingResult;
-use BadMethodCallException;
 
 class FhirDiagnosticReportLaboratoryService extends FhirServiceBase implements IResourceUSCIGProfileService
 {

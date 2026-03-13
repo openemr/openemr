@@ -5,7 +5,7 @@
  * and upgrade their SQL.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Rod Roark <rod@sunsetsystems.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Teny <teny@zhservices.com>
@@ -20,8 +20,8 @@ namespace OpenEMR\Services\Utils;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\SQLUpgradeEvent;
 use OpenEMR\Services\Utils\Interfaces\ISQLUpgradeService;
 use OpenEMR\Services\VersionService;
@@ -267,7 +267,7 @@ class SQLUpgradeService implements ISQLUpgradeService
                 continue;
             }
 
-            if (empty($GLOBALS['force_simple_sql_upgrade'])) {
+            if (empty(OEGlobalsBag::getInstance()->get('force_simple_sql_upgrade'))) {
                 // this is skipped when running sql upgrade from command line
                 $progress_stat = 100 - round((($file_size - $progress) / $file_size) * 100, 0);
                 $progress_stat = $progress_stat > 100 ? 100 : $progress_stat;
@@ -842,7 +842,7 @@ class SQLUpgradeService implements ISQLUpgradeService
             echo $string;
         }
         // now flush to force browser to pay attention.
-        if (empty($GLOBALS['force_simple_sql_upgrade'])) {
+        if (empty(OEGlobalsBag::getInstance()->get('force_simple_sql_upgrade'))) {
             // this is skipped when running sql upgrade from command line
             echo str_pad('', 4096) . "\n";
         }
@@ -1202,7 +1202,7 @@ class SQLUpgradeService implements ISQLUpgradeService
      */
     private function ImportDrugInformation()
     {
-        if ($GLOBALS['weno_rx_enable'] ?? false) {
+        if (OEGlobalsBag::getInstance()->get('weno_rx_enable') ?? false) {
             $drugs = file_get_contents('contrib/weno/erx_weno_drugs.sql');
             $drugsArray = preg_split('/;\R/', $drugs);
 

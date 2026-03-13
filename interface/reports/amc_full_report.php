@@ -13,9 +13,9 @@ require_once("../../library/classes/rulesets/ReportTypes.php");
 require_once("../../library/classes/rulesets/library/RsReportFactoryAbstract.php");
 require_once("../../library/classes/rulesets/Amc/AmcReportFactory.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Twig\TwigContainer;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 
 function formatPatientReportData($report_id, &$data, $type_report, $amc_report_types = [])
@@ -175,8 +175,7 @@ function getRuleObjectForId($ruleId)
         $report = $reportManager->createReport($rule, ['id' => $ruleId], [], [], []);
         return $report;
     } catch (\Throwable $error) {
-        (new SystemLogger())->errorLogCaller("Failed to instantiate rule class for rule", ['rule_id' => $ruleId
-            , 'message' => $error->getTraceAsString()]);
+        ServiceContainer::getLogger()->error("Failed to instantiate rule class for rule", ['exception' => $error, 'rule_id' => $ruleId]);
     }
     return null;
 }
@@ -206,6 +205,9 @@ if (!empty($report_view)) {
         // grab the provider
         $userService = new \OpenEMR\Services\UserService();
         $provider = $userService->getUser($report_view['provider']);
+        if ($provider === false) {
+            throw new \RuntimeException("Provider not found: " . json_encode($report_view['provider']));
+        }
         $providerTitle = ($provider['lname'] ?? '') . ',' . ($provider['fname'] ?? '')
             . ' (' . xl('NPI') . ':' . ($provider['npi'] ?? '') . ')';
         $subTitle = xl("Individual Calculation Method") . ' - ' . trim($providerTitle);

@@ -4,7 +4,7 @@
  * OpenEMR Module Member
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
  * @copyright Copyright (c) 2023-2024 Jerry Padgett <sjpadgett@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -12,7 +12,8 @@
 
 namespace OpenEMR\Modules\WenoModule\Services;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Core\OEGlobalsBag;
 
 /**
  * Companion to event bootstrapping
@@ -81,7 +82,7 @@ class ModuleService
             $this->saveVendorGlobals($vendors, 'user');
         }
         if ($decrypt) {
-            $crypt = new CryptoGen();
+            $crypt = ServiceContainer::getCrypto();
             $vendors['weno_encryption_key'] = $crypt->decryptStandard($vendors['weno_encryption_key']);
             $vendors['weno_admin_password'] = $crypt->decryptStandard($vendors['weno_admin_password']);
             $vendors['weno_provider_password'] = $crypt->decryptStandard($vendors['weno_provider_password']);
@@ -96,7 +97,7 @@ class ModuleService
      */
     public function saveVendorGlobals($items, $which = null): void
     {
-        $crypt = new CryptoGen();
+        $crypt = ServiceContainer::getCrypto();
         if (!empty($items['weno_encryption_key'])) {
             $items['weno_encryption_key'] = $crypt->encryptStandard($items['weno_encryption_key']);
         }
@@ -114,12 +115,12 @@ class ModuleService
         $userSettings['weno_provider_email'] = $items['weno_provider_email'];
         $userSettings['weno_provider_password'] = $items['weno_provider_password'];
 
-        $GLOBALS['weno_encryption_key'] = $items['weno_encryption_key'];
-        $GLOBALS['weno_admin_password'] = $items['weno_admin_password'];
+        OEGlobalsBag::getInstance()->set('weno_encryption_key', $items['weno_encryption_key']);
+        OEGlobalsBag::getInstance()->set('weno_admin_password', $items['weno_admin_password']);
 
         if ($which != 'user') {
             foreach ($vendors as $key => $vendor) {
-                $GLOBALS[$key] = $vendor;
+                OEGlobalsBag::getInstance()->set($key, $vendor);
                 sqlQuery(
                     "INSERT INTO `globals` (`gl_name`,`gl_value`) VALUES (?, ?) ON DUPLICATE KEY UPDATE `gl_name` = ?, `gl_value` = ?",
                     [$key, $vendor, $key, $vendor]
@@ -128,7 +129,7 @@ class ModuleService
         }
         if ($which != 'global' && !empty($_SESSION['authUserID'] ?? '')) {
             foreach ($userSettings as $key => $vendor) {
-                $GLOBALS[$key] = $vendor;
+                OEGlobalsBag::getInstance()->set($key, $vendor);
                 sqlQuery(
                     "INSERT INTO `user_settings` (`setting_label`,`setting_value`, `setting_user`) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE `setting_value` = ?, `setting_user` = ?",
                     ['global:' . $key, $vendor, $_SESSION['authUserID'], $vendor, $_SESSION['authUserID'] ?? '']

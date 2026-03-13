@@ -4,7 +4,7 @@
  * Viewing of office notes.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -16,6 +16,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
 use OpenEMR\Services\ONoteService;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 // Control access
 if (!AclMain::aclCheckCore('encounters', 'notes')) {
@@ -62,9 +63,9 @@ $oNoteService = new ONoteService();
                     $date = (new DateTime($note['date']))->format('Y-m-d H:i:s');
                     $todaysDate = new DateTime();
                     if ($todaysDate->format('Y-m-d') == $date) {
-                        $date_string = xl("Today") . ", " . oeFormatDateTime($date);
+                        $date_string = xl("Today") . ", " . DateFormatterUtils::oeFormatDateTime($date);
                     } else {
-                        $date_string = oeFormatDateTime($date);
+                        $date_string = DateFormatterUtils::oeFormatDateTime($date);
                     }
                     $card = '';
                     $card .= '<div class="card panel-default">';

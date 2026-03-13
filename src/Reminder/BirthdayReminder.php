@@ -4,7 +4,7 @@
  * BirthdayReminder class.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Sharon Cohen <sharonco@matrix.co.il>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2017 Sharon Cohen <sharonco@matrix.co.il>
@@ -13,6 +13,8 @@
  */
 
 namespace OpenEMR\Reminder;
+
+use OpenEMR\Core\OEGlobalsBag;
 
 class BirthdayReminder
 {
@@ -47,17 +49,17 @@ class BirthdayReminder
         if (
             // on and up to 28 days
             (
-                $GLOBALS['patient_birthday_alert'] == 3 &&
+                OEGlobalsBag::getInstance()->get('patient_birthday_alert') == 3 &&
                 $today >= $dobStr &&
                 $today <= date('m-d', strtotime('+28 days', strtotime((string) $res['DOB'])))
             ) ||
             // on and after
             (
-                $GLOBALS['patient_birthday_alert'] == 2 &&
+                OEGlobalsBag::getInstance()->get('patient_birthday_alert') == 2 &&
                 $today >= $dobStr
             ) ||
             (
-                $GLOBALS['patient_birthday_alert'] == 1 &&
+                OEGlobalsBag::getInstance()->get('patient_birthday_alert') == 1 &&
                 $today == $dobStr
             )
         ) {

@@ -23,7 +23,6 @@
 
 namespace OpenEMR\Common\Csrf;
 
-use OpenEMR\Common\Utils\RandomGenUtils;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CsrfUtils
@@ -33,7 +32,7 @@ class CsrfUtils
     //  the csrf tokens.
     public static function setupCsrfKey(?SessionInterface $session = null)
     {
-        $privateKey = RandomGenUtils::produceRandomBytes(32);
+        $privateKey = random_bytes(32);
         if (!empty($session)) {
             $session->set('csrf_private_key', $privateKey);
             if (empty($session->get('csrf_private_key', null))) {

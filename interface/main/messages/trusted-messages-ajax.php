@@ -4,7 +4,7 @@
  * trusted-messages-ajax.php takes data from the POST/GET request, validates the data and then sends a message via the
  * Direct protocol to the trusted email address.  Results / errors are returned via JSON
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2022 Discover and Change <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,9 +13,9 @@
 require_once("../../globals.php");
 require_once("../../../ccr/transmitCCD.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedException;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Services\PatientService;
 
@@ -78,10 +78,10 @@ if (!CsrfUtils::verifyCsrfToken($csrf)) {
         http_response_code(401);
         $result['errorCode'] = 'permissionDenied';
         $isValid = false;
-        (new SystemLogger())->error("Access was denied", ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage()]);
+        ServiceContainer::getLogger()->error("Access was denied", ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage()]);
     } catch (\Throwable $error) {
         $result['errorCode'] = 'invalidRequest';
-        (new SystemLogger())->error("Data was invalid", ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage()]);
+        ServiceContainer::getLogger()->error("Data was invalid", ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage()]);
         $isValid = false;
     }
 }
@@ -114,7 +114,7 @@ if ($isValid) {
             $result['success'] = true;
         }
     } catch (\InvalidArgumentException $error) {
-        (new SystemLogger())->error(
+        ServiceContainer::getLogger()->error(
             "trusted-messages-ajax.php received an invalid document mime type",
             ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage(), 'pid' => $pid
                 , 'document' => $documentId, 'requestor' => $requested_by, 'recipient' => $recipient
@@ -122,7 +122,7 @@ if ($isValid) {
         );
         $result['errorCode'] = 'invalidDocumentFormat';
     } catch (\Throwable $error) {
-        (new SystemLogger())->error(
+        ServiceContainer::getLogger()->error(
             "trusted-messages-ajax.php threw an exception when attempting to send",
             ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage(), 'pid' => $pid
                 , 'document' => $documentId, 'requestor' => $requested_by, 'recipient' => $recipient
@@ -133,10 +133,10 @@ if ($isValid) {
 }
 
 try {
-    (new SystemLogger())->debug("trusted-messages-ajax.php result object", $result);
+    ServiceContainer::getLogger()->debug("trusted-messages-ajax.php result object", $result);
     echo json_encode($result, JSON_THROW_ON_ERROR);
 } catch (\Throwable $error) {
-    (new SystemLogger())->error("Failed to encode json response", ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage(), 'result' => $result]);
+    ServiceContainer::getLogger()->error("Failed to encode json response", ['trace' => $error->getTraceAsString(), 'message' => $error->getMessage(), 'result' => $result]);
     http_response_code(500);
 }
 exit;

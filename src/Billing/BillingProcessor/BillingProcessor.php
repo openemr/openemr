@@ -24,7 +24,7 @@
  * class and not be mixed with others.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Ken Chapple <ken@mi-squared.com>
  * @author    Daniel Pflieger <daniel@growlingflea.com>
@@ -43,6 +43,7 @@
 namespace OpenEMR\Billing\BillingProcessor;
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Core\OEGlobalsBag;
 
 class BillingProcessor
 {
@@ -159,10 +160,10 @@ class BillingProcessor
             $processing_task = new Tasks\TaskReopen($this->extractAction());
         } elseif (isset($post['bn_mark'])) {
             $processing_task = new Tasks\TaskMarkAsClear($this->extractAction());
-        } elseif ($GLOBALS['gen_x12_based_on_ins_co'] && isset($post['bn_x12'])) {
+        } elseif (OEGlobalsBag::getInstance()->getBoolean('gen_x12_based_on_ins_co') && isset($post['bn_x12'])) {
             SessionUtil::setSession('bn_x12', true);
             $processing_task = new Tasks\GeneratorX12Direct($this->extractAction());
-        } elseif ($GLOBALS['gen_x12_based_on_ins_co'] && isset($post['bn_x12_encounter'])) {
+        } elseif (OEGlobalsBag::getInstance()->getBoolean('gen_x12_based_on_ins_co') && isset($post['bn_x12_encounter'])) {
             SessionUtil::setSession('bn_x12', true);
             $processing_task = new Tasks\GeneratorX12Direct($this->extractAction(), true);
         } elseif (isset($post['bn_x12'])) {

@@ -3,30 +3,35 @@
 namespace OpenEMR\Common\Logging;
 
 use Monolog\Level;
+use Psr\Log\{
+    LoggerAwareTrait,
+    LoggerInterface,
+};
 
-// TODO: This trait uses concrete SystemLogger and Monolog\Level types instead of
-// Psr\Log\LoggerInterface and PSR-3 log level strings. To fully decouple from
-// concrete implementations:
-// 1. Change $defaultLoggingLevel to ?string and accept Psr\Log\LogLevel constants
-// 2. Return LoggerInterface instead of SystemLogger
-// 3. Remove lazy instantiation (require logger injection) or use a factory/container
-// See SystemLogger for related changes needed there.
+/**
+ * @deprecated Prefer constructor injection of a logger; use PSR's LoggerAwareTrait if unavoidable.
+ */
 trait SystemLoggerAwareTrait
 {
-    protected ?SystemLogger $systemLogger = null;
+    use LoggerAwareTrait;
 
-    public function setSystemLogger(SystemLogger $systemLogger): void
+    /**
+     * @deprecated use setLogger()
+     */
+    public function setSystemLogger(LoggerInterface $logger): void
     {
-        $this->systemLogger = $systemLogger;
+        $this->setLogger($logger);
     }
 
-    public function getSystemLogger(?Level $defaultLoggingLevel = null): ?SystemLogger
+    /**
+     * @deprecated read from the ->logger property
+     */
+    public function getSystemLogger(?Level $defaultLoggingLevel = null): LoggerInterface
     {
-
-        if (!isset($this->systemLogger)) {
-            $this->systemLogger = new SystemLogger($defaultLoggingLevel);
+        if ($this->logger === null) {
+            $this->logger = new SystemLogger($defaultLoggingLevel);
         }
 
-        return $this->systemLogger;
+        return $this->logger;
     }
 }

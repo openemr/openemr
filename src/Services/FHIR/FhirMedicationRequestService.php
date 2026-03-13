@@ -2,10 +2,8 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\FHIR\DomainModels\OpenEMRFHIRDateTime;
 use OpenEMR\FHIR\DomainModels\OpenEMRFHIRDosage;
 use OpenEMR\FHIR\DomainModels\OpenEMRFHIRTiming;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationRequest;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRAnnotation;
@@ -408,7 +406,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
             $orgService = $this->getFhirOrganizationService();
             $primaryBusinessEntity = $orgService->getPrimaryBusinessEntityReference();
             if (empty($primaryBusinessEntity)) {
-                $this->getSystemLogger()->errorLogCaller("No primary organization found for reported field population in MedicationRequest FHIR resource.");
+                $this->getSystemLogger()->error("No primary organization found for reported field population in MedicationRequest FHIR resource");
                 // as a fallback we will set reported to true
                 $medRequestResource->setReportedBoolean('0' === ($dataRecord['is_primary_record'] ?? '1'));
             }

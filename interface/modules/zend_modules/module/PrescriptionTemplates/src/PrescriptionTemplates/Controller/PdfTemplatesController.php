@@ -16,15 +16,14 @@
  *
  * @package OpenEMR
  * @author  Amiel Elboim <amielel@matrix.co.il>
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  */
 
 namespace PrescriptionTemplates\Controller;
 
 use Interop\Container\ContainerInterface;
-use Laminas\View\Model\ViewModel;
 use Mpdf\Mpdf;
-use Laminas\View\Renderer\PhpRenderer;
+use OpenEMR\Core\OEGlobalsBag;
 
 /**
  * Class PdfTemplatesController
@@ -54,7 +53,7 @@ class PdfTemplatesController extends PrescriptionTemplatesController
         $htmlView = $this->renderer->render($defaultHtml);
 
         /* create pdf */
-        $mpdf = new Mpdf(['tempDir' => $GLOBALS['MPDF_WRITE_DIR']]);
+        $mpdf = new Mpdf(['tempDir' => OEGlobalsBag::getInstance()->get('MPDF_WRITE_DIR')]);
         $mpdf->autoLangToFont = true;
         $mpdf->WriteHTML($htmlView);
         $mpdf->Output();

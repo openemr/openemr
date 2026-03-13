@@ -11,7 +11,7 @@
  * Modern controllers should continue throwing AccessDeniedException instead.
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -19,8 +19,8 @@
 
 namespace OpenEMR\Common\Acl;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
@@ -49,7 +49,7 @@ class AccessDeniedHelper
         $user = $session->get('authUser', 'unknown');
         $group = $session->get('authProvider', '');
 
-        (new SystemLogger())->warning("Access denied: $comment", [
+        ServiceContainer::getLogger()->warning("Access denied: $comment", [
             'user' => $user,
         ]);
 
@@ -131,7 +131,7 @@ class AccessDeniedHelper
         $user = $session->get('authUser', 'unknown');
         $group = $session->get('authProvider', '');
 
-        (new SystemLogger())->warning("Access denied: $comment", [
+        ServiceContainer::getLogger()->warning("Access denied: $comment", [
             'user' => $user,
         ]);
 

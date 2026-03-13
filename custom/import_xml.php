@@ -4,7 +4,7 @@
  * Imports patient demographics from our custom XML format.
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Rod Roark <rod@sunsetsystems.com>
  * @author  Roberto Vasquez <robertogagliotta@gmail.com>
  * @author  Michael A. Smith <michael@opencoreemr.com>

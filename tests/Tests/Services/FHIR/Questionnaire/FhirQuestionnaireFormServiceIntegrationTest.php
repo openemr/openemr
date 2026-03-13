@@ -5,7 +5,7 @@
  * TODO: @adunsulag when we have a place to put integration tests, we should move this class.
  *
  * @package openemr
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Stephen Nielson <snielson@discoverandchange.com>
  * @copyright Copyright (c) 2025 Stephen Nielson <snielson@discoverandchange.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,15 +13,14 @@
 
 namespace OpenEMR\Tests\Services\FHIR\Questionnaire;
 
-use Monolog\Level;
+use Exception;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaire;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
 use OpenEMR\Services\QuestionnaireService;
 use PHPUnit\Framework\TestCase;
-use Exception;
+use Psr\Log\LoggerInterface;
 
 class FhirQuestionnaireFormServiceIntegrationTest extends TestCase
 {
@@ -68,7 +67,7 @@ class FhirQuestionnaireFormServiceIntegrationTest extends TestCase
 
         // test that an inserted questionnaire form will retrieve the questionnaire via the service
         $service = new FhirQuestionnaireFormService();
-        $service->setSystemLogger(new SystemLogger(Level::Critical));
+        $service->setSystemLogger($this->createMock(LoggerInterface::class));
         $processingResult = $service->getOne($uuid);
 
         $this->assertTrue($processingResult->isValid(), "Processing Result was valid for retrieval");

@@ -4,7 +4,7 @@
  * copay.php
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -17,6 +17,7 @@ require_once("../../globals.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -76,7 +77,7 @@ document.copay_form.codeH.value="";
 <input type="SUBMIT" value="<?php echo xla('Save');?>" onclick="cleartext('clear')"><br /><br />
 
 
-<div<?php if ($GLOBALS['simplified_copay']) {
+<div<?php if (OEGlobalsBag::getInstance()->getBoolean('simplified_copay')) {
     echo " class='d-none'";
     } ?>>
 <input type="radio" name="payment_method" value="cash" checked><?php echo xlt('cash'); ?>

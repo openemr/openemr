@@ -6,7 +6,7 @@
 *
 *
 * @package   OpenEMR
-* @link      http://www.open-emr.org
+* @link      https://www.open-emr.org
 * @author    Eldho Chacko <eldho@zhservices.com>
 * @author    Paul Simon K <paul@zhservices.com>
 * @author    Brady Miller <brady.g.miller@gmail.com>
@@ -34,9 +34,6 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCor
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/bill or acct/eob: Search Payment", xl("Search Payment"));
 }
 
-/**
- * @var EventDispatcherInterface $eventDispatcher
- */
 $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
 
 //===============================================================================
@@ -58,10 +55,10 @@ if (isset($_POST["mode"])) {
             }
         }
         //dispatch this payment is being deleted trigger refund process
-        $eventDispatcher->dispatch(new DeletePayment($DeletePaymentId), DeletePayment::ACTION_DELETE_PAYMENT, 10);
+        $eventDispatcher->dispatch(new DeletePayment($DeletePaymentId), DeletePayment::ACTION_DELETE_PAYMENT);
     //delete and log that action
-        row_delete("ar_session", "session_id ='" . add_escape_custom($DeletePaymentId) . "'");
-        row_modify("ar_activity", "deleted = NOW()", "deleted IS NULL AND session_id = '" . add_escape_custom($DeletePaymentId) . "'");
+        payment_row_delete("ar_session", "session_id ='" . add_escape_custom($DeletePaymentId) . "'");
+        payment_row_modify("ar_activity", "deleted = NOW()", "deleted IS NULL AND session_id = '" . add_escape_custom($DeletePaymentId) . "'");
         $Message = 'Delete';
     //------------------
         $_POST["mode"] = "SearchPayment";
@@ -225,8 +222,8 @@ if (isset($_POST["mode"])) {
 <title><?php echo xlt("Search Payment") ?></title>
 <?php Header::setupHeader(['datetime-picker']); ?>
 
-<?php include_once("{$GLOBALS['srcdir']}/payment_jav.inc.php"); ?>
-<?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
+<?php include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/payment_jav.inc.php"); ?>
+<?php include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/ajax/payment_ajax_jav.inc.php"); ?>
 
 <script>
     function refreshSearch() {
@@ -257,7 +254,7 @@ if (isset($_POST["mode"])) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });

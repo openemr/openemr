@@ -4,7 +4,7 @@
  * active reminder popup gui
  *
  * @package OpenEMR
- * @link    http://www.open-emr.org
+ * @link    https://www.open-emr.org
  * @author  Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2011-2018 Brady Miller <brady.g.miller@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -13,8 +13,9 @@
 require_once("../../globals.php");
 require_once("$srcdir/clinical_rules.php");
 
-use OpenEMR\Core\Header;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -31,7 +32,7 @@ $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 <?php
 $all_allergy_alerts = [];
-if ($GLOBALS['enable_allergy_check']) {
+if (OEGlobalsBag::getInstance()->getBoolean('enable_allergy_check')) {
   // Will show allergy and medication/prescription conflicts here
     $all_allergy_alerts = allergy_conflict($pid, 'all', $session->get('authUser'));
 }

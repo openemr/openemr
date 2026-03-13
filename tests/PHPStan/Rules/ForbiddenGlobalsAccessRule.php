@@ -34,7 +34,7 @@ class ForbiddenGlobalsAccessRule implements Rule
 
     /**
      * @param ArrayDimFetch $node
-     * @return array<\PHPStan\Rules\RuleError>
+     * @return list<\PHPStan\Rules\IdentifierRuleError>
      */
     public function processNode(Node $node, Scope $scope): array
     {

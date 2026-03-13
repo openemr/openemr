@@ -6,10 +6,10 @@
  * This rule prevents use of:
  * - Legacy sql.inc.php functions (use QueryUtils or DatabaseQueryTrait instead)
  * - Legacy call_user_func and call_user_func_array (use modern PHP syntax instead)
- * - error_log() (use SystemLogger instead)
+ * - error_log() (use ServiceContainer::getLogger() instead)
  *
  * @package   OpenEMR
- * @link      http://www.open-emr.org
+ * @link      https://www.open-emr.org
  * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2025-2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -47,7 +47,7 @@ class ForbiddenFunctionsRule implements Rule
         'sqlQueryNoLog' => 'Use QueryUtils::querySingleRow() instead of sqlQueryNoLog().',
         'call_user_func' => 'Use uniform variable syntax $callable(...$args) or the argument unpacking operator instead of call_user_func().',
         'call_user_func_array' => 'Use uniform variable syntax $callable(...$args) or the argument unpacking operator instead of call_user_func_array().',
-        'error_log' => 'Use OpenEMR\Common\Logging\SystemLogger instead of error_log().',
+        'error_log' => 'Use a PSR-3 logger such as OpenEMR\BC\ServiceContainer::getLogger() instead of error_log().',
     ];
 
     public function getNodeType(): string
@@ -57,7 +57,7 @@ class ForbiddenFunctionsRule implements Rule
 
     /**
      * @param FuncCall $node
-     * @return array<\PHPStan\Rules\RuleError>
+     * @return list<\PHPStan\Rules\IdentifierRuleError>
      */
     public function processNode(Node $node, Scope $scope): array
     {
@@ -75,7 +75,7 @@ class ForbiddenFunctionsRule implements Rule
         $message = self::FORBIDDEN_FUNCTIONS[$functionName];
 
         // Determine error identifier and tip based on function type
-        if (in_array($functionName, ['call_user_func', 'call_user_func_array'])) {
+        if (in_array($functionName, ['call_user_func', 'call_user_func_array'], true)) {
             return [
                 RuleErrorBuilder::message($message)
                     ->identifier('openemr.legacyCallUserFunc')
@@ -88,7 +88,7 @@ class ForbiddenFunctionsRule implements Rule
             return [
                 RuleErrorBuilder::message($message)
                     ->identifier('openemr.forbiddenErrorLog')
-                    ->tip('Example: (new SystemLogger())->error("message", ["context" => $data])')
+                    ->tip('Example: ServiceContainer::getLogger()->error("message", ["context" => $data])')
                     ->build()
             ];
         }
