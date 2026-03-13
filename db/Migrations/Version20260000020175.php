@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * @package   openemr
+ * @link      https://www.open-emr.org
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+declare(strict_types=1);
+
+namespace OpenEMR\Core\Migrations;
+
+use Doctrine\DBAL\Schema\Schema;
+use Doctrine\DBAL\Schema\Table;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\Migrations\AbstractMigration;
+use OpenEMR\Core\Migrations\CreateTableTrait;
+
+/**
+ * Medex recalls table
+ */
+final class Version20260000020175 extends AbstractMigration
+{
+    use CreateTableTrait;
+
+    public function getDescription(): string
+    {
+        return 'Create medex_recalls table';
+    }
+
+    public function up(Schema $schema): void
+    {
+        $table = new Table('medex_recalls');
+        $table->addColumn('r_ID', Types::INTEGER, ['autoincrement' => true]);
+        $table->addColumn('r_PRACTID', Types::INTEGER);
+        $table->addColumn('r_pid', Types::INTEGER, ['comment' => 'PatientID from pat_data']);
+        $table->addColumn('r_eventDate', Types::DATE_MUTABLE, ['comment' => 'Date of Appt or Recall']);
+        $table->addColumn('r_facility', Types::INTEGER);
+        $table->addColumn('r_provider', Types::INTEGER);
+        $table->addColumn('r_reason', Types::STRING, [
+            'length' => 255,
+            'notnull' => false,
+            'default' => null,
+        ]);
+        $table->addColumn('r_created', 'datetime', ['columnDefinition' => 'TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP', 'comment' => 'PatientID from pat_data']);
+        $this->addPrimaryKey($table, 'r_ID');
+        $table->addUniqueIndex(['r_PRACTID', 'r_pid'], 'r_PRACTID');
+
+        $this->createTable($table);
+    }
+
+    public function down(Schema $schema): void
+    {
+        $this->addSql('DROP TABLE medex_recalls');
+    }
+}
