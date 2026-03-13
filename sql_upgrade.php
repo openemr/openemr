@@ -17,12 +17,14 @@
 
 /* @TODO add language selection. needs RTL testing */
 
-\OpenEMR\Core\OEGlobalsBag::getInstance()->set('ongoing_sql_upgrade', true);
+// Set these via $GLOBALS before the autoloader is available (interface/globals.php
+// loads it later). The globals bag picks them up once globals.php runs.
+$GLOBALS['ongoing_sql_upgrade'] = true;
 
 if (php_sapi_name() === 'cli') {
     // setting for when running as command line script
     // need this for output to be readable when running as command line
-    \OpenEMR\Core\OEGlobalsBag::getInstance()->set('force_simple_sql_upgrade', true);
+    $GLOBALS['force_simple_sql_upgrade'] = true;
 }
 
 // Checks if the server's PHP version is compatible with OpenEMR:
@@ -43,7 +45,7 @@ if (ob_get_level() === 0) {
 
 $ignoreAuth = true; // no login required
 $sessionAllowWrite = true;
-\OpenEMR\Core\OEGlobalsBag::getInstance()->set('connection_pooling_off', true); // force off database connection pooling
+$GLOBALS['connection_pooling_off'] = true; // force off database connection pooling
 
 require_once('interface/globals.php');
 require_once('library/sql_upgrade_fx.php');
