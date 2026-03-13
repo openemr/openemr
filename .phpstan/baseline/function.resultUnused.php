@@ -21,10 +21,5 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Call to function rtrim\\(\\) on a separate line has no effect\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/EventAuditLogger.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];
