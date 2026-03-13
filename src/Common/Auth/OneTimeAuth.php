@@ -20,7 +20,6 @@ use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Session\SessionWrapperInterface;
 use OpenEMR\Common\Utils\RandomGenUtils;
@@ -28,6 +27,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PatientPortalService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 class OneTimeAuth

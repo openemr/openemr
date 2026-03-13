@@ -12,9 +12,9 @@
 
 namespace OpenEMR\Tests\Services\Cda;
 
-use Psr\Log\LoggerInterface;
 use OpenEMR\Services\Cda\CdaValidateDocuments;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class CdaValidateDocumentsTest extends TestCase {
     const EXAMPLE_DIR = __DIR__ . "/../../data/Services/Modules/CareCoordination/Model/CcdaServiceDocumentRequestor/";

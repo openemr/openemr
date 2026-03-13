@@ -12,9 +12,9 @@
 
 namespace OpenEMR\Services\FHIR\Document;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
-use OpenEMR\BC\ServiceContainer;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 

@@ -16,7 +16,6 @@
 namespace OpenEMR\Tests\Services\FHIR\Condition;
 
 use InvalidArgumentException;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
 use OpenEMR\Services\FHIR\Condition\Enum\FhirConditionCategory;
@@ -26,6 +25,7 @@ use OpenEMR\Services\FHIR\Condition\FhirConditionProblemListItemService;
 use OpenEMR\Services\FHIR\FhirConditionService;
 use OpenEMR\Tests\Fixtures\ConditionFixtureManager;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * Tests for US Core 8.0.0 Condition Profile compliance

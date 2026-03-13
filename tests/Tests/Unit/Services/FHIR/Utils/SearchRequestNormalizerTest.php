@@ -12,9 +12,9 @@
 namespace OpenEMR\Tests\Unit\Services\FHIR\Utils;
 
 use OpenEMR\Common\Http\HttpRestRequest;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Services\FHIR\Utils\SearchRequestNormalizer;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Session\Session;
 
 class SearchRequestNormalizerTest extends TestCase

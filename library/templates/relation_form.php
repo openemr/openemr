@@ -15,8 +15,8 @@
  *
  */
 
-use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\ContactAddressService;

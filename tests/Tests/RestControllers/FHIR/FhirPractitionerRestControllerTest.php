@@ -2,13 +2,13 @@
 
 namespace OpenEMR\Tests\RestControllers\FHIR;
 
-use Psr\Log\LoggerInterface;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\RestControllers\FHIR\FhirPractitionerRestController;
 use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
 use OpenEMR\Tests\RestControllers\FHIR\Trait\FhirResponseAssertionTrait;
 use OpenEMR\Tests\RestControllers\FHIR\Trait\JsonResponseHandlerTrait;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**

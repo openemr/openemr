@@ -19,13 +19,13 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\The;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Util\CalendarUtils;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Utils\CacheUtils;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Events\Appointments\AppointmentJavascriptEventNames;
 use OpenEMR\Events\Appointments\AppointmentRenderEvent;
 use OpenEMR\Events\Appointments\CalendarUserGetEventsFilter;
 use OpenEMR\Events\Core\ScriptFilterEvent;
 use OpenEMR\Events\Core\StyleFilterEvent;
 use OpenEMR\Services\AppointmentService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 

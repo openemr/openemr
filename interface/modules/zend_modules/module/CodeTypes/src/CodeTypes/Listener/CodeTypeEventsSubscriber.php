@@ -13,8 +13,8 @@
 
 namespace OpenEMR\ZendModules\CodeTypes\Listener;
 
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Events\Codes\CodeTypeInstalledEvent;
 use OpenEMR\Events\Core\SQLUpgradeEvent;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;

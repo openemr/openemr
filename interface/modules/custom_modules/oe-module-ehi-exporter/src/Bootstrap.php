@@ -18,12 +18,12 @@ namespace OpenEMR\Modules\EhiExporter;
  */
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Twig\TwigContainer;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Modules\EhiExporter\Services\EhiExporter;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 // we import our own classes here.. although this use statement is unnecessary it forces the autoloader to be tested.

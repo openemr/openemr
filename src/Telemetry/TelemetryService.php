@@ -10,8 +10,8 @@
 
 namespace OpenEMR\Telemetry;
 
-use OpenEMR\Common\Database\DatabaseQueryTrait;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\DatabaseQueryTrait;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VersionService;

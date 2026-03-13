@@ -25,13 +25,13 @@ if (\OpenEMR\Core\OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy'
     require_once("$srcdir/group.inc.php");
 }
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
-use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;

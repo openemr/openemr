@@ -15,12 +15,12 @@ namespace OpenEMR\Tests\Services\FHIR\Questionnaire;
 
 use Exception;
 use OpenEMR\Common\Database\QueryUtils;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaire;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
 use OpenEMR\Services\QuestionnaireService;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class FhirQuestionnaireFormServiceIntegrationTest extends TestCase
 {

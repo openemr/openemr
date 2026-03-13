@@ -31,7 +31,6 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TelehealthRegistrationCode
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthRemoteRegistrationService;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Twig\TwigContainer;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
@@ -39,6 +38,7 @@ use OpenEMR\Events\Appointments\AppointmentSetEvent;
 use OpenEMR\Events\Core\TwigEnvironmentEvent;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;

@@ -22,10 +22,10 @@ namespace OpenEMR\Services\DocumentTemplates;
 use HTMLPurifier;
 use HTMLPurifier_Config;
 use OpenEMR\BC\ServiceContainer;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\VersionService;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/appointments.inc.php');

@@ -19,8 +19,8 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-use OpenEMR\Common\Database\SqlQueryException;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Database\SqlQueryException;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Rfc4122\UuidV4;
 

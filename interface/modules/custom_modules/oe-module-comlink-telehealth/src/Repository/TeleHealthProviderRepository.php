@@ -14,8 +14,8 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule\Repository;
 
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthPersonSettings;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Services\UserService;
+use Psr\Log\LoggerInterface;
 
 class TeleHealthProviderRepository
 {

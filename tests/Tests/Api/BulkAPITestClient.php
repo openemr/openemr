@@ -8,9 +8,9 @@ use Lcobucci\JWT\Signer\Key\InMemory;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomClientCredentialsGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
-use Psr\Log\NullLogger;
 use OpenEMR\Tools\OAuth2\ClientCredentialsAssertionGenerator;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\NullLogger;
 
 /**
  * BulkAPITestClient is a test client for the OpenEMR Bulk API.

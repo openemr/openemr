@@ -16,8 +16,6 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
-// AI GENERATED CODE - START
-use Psr\Log\LoggerInterface;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationRequest;
 use OpenEMR\FHIR\R4\FHIRElement;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -33,6 +31,7 @@ use OpenEMR\Services\FHIR\UtilsService;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Rfc4122\UuidV4;
 
 class FhirMedicationRequestServiceUSCore8Test extends TestCase

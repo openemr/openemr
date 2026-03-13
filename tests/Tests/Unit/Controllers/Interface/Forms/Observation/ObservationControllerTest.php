@@ -15,7 +15,6 @@
 namespace OpenEMR\Tests\Unit\Controllers\Interface\Forms\Observation;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
 use OpenEMR\Core\Kernel;
@@ -27,6 +26,7 @@ use OpenEMR\Validators\ProcessingResult;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;

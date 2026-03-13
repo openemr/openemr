@@ -4,12 +4,12 @@ namespace OpenEMR\Tests\RestControllers\Subscriber;
 
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\RestControllers\Subscriber\ApiResponseLoggerListener;
 use PHPUnit\Framework\MockObject\Exception;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;

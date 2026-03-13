@@ -19,8 +19,8 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthGlobal;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Core\OEGlobalsBag;
+use Psr\Log\LoggerInterface;
 
 class SphereRevert
 {

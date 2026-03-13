@@ -3,7 +3,6 @@
 namespace OpenEMR\Tests\Services\FHIR;
 
 use OpenEMR\Common\Database\QueryUtils;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRAllergyIntolerance;
 use OpenEMR\Services\FHIR\FhirAllergyIntoleranceService;
@@ -11,6 +10,7 @@ use OpenEMR\Tests\Fixtures\FixtureManager;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * FHIR Allergy Intolerance Service Query Tests

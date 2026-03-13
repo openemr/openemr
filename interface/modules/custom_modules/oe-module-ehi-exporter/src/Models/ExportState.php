@@ -16,7 +16,6 @@
 namespace OpenEMR\Modules\EhiExporter\Models;
 
 use OpenEMR\Common\Database\QueryUtils;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Modules\EhiExporter\Models;
 use OpenEMR\Modules\EhiExporter\Models\EhiExportJobTask;
 use OpenEMR\Modules\EhiExporter\Models\ExportKeyDefinition;
@@ -33,6 +32,7 @@ use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportOpenEmrPostCalendarEvents
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportPersonTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTrackAnythingFormTableDefinition;
+use Psr\Log\LoggerInterface;
 
 class ExportState
 {

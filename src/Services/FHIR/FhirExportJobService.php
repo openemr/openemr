@@ -11,9 +11,9 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\Export\ExportJob;
 use Psr\Log\LoggerInterface;

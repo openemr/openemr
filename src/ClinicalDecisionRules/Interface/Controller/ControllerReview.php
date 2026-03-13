@@ -2,6 +2,7 @@
 
 namespace OpenEMR\ClinicalDecisionRules\Interface\Controller;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\ClinicalDecisionRules\Interface\BaseController;
 use OpenEMR\ClinicalDecisionRules\Interface\Common;
 use OpenEMR\ClinicalDecisionRules\Interface\RuleLibrary\Rule;
@@ -10,7 +11,6 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\BC\ServiceContainer;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ControllerReview extends BaseController

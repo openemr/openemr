@@ -4,7 +4,6 @@ namespace OpenEMR\RestControllers\FHIR;
 
 use OpenApi\Attributes as OA;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROrganization;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRBundle\FHIRBundleEntry;
@@ -13,6 +12,7 @@ use OpenEMR\Services\FHIR\FhirOrganizationService;
 use OpenEMR\Services\FHIR\FhirResourcesService;
 use OpenEMR\Services\FHIR\FhirValidationService;
 use OpenEMR\Services\FHIR\Serialization\FhirOrganizationSerializer;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**

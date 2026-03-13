@@ -21,7 +21,6 @@ namespace OpenEMR\Modules\ClaimRevConnector;
  */
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Twig\TwigContainer;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Appointments\AppointmentSetEvent;
@@ -35,6 +34,7 @@ use OpenEMR\Events\RestApiExtend\RestApiScopeEvent;
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Modules\ClaimRevConnector\ClaimRevRteService;
 use OpenEMR\Services\Globals\GlobalSetting;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Error\LoaderError;
 use Twig\Loader\FilesystemLoader;

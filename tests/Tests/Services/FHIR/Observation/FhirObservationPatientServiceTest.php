@@ -12,7 +12,6 @@
 namespace OpenEMR\Tests\Services\FHIR\Observation;
 
 use OpenEMR\Common\Database\QueryUtils;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
@@ -22,6 +21,7 @@ use OpenEMR\Services\ListService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * Integration test for FhirObservationPatientService

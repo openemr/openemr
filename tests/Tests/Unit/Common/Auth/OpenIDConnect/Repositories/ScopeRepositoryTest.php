@@ -16,9 +16,9 @@ use OpenEMR\Common\Auth\OpenIDConnect\Entities\ResourceScopeEntityList;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ScopeRepository;
-use Psr\Log\LoggerInterface;
 use OpenEMR\FHIR\Config\ServerConfig;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class ScopeRepositoryTest extends TestCase
 {

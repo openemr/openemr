@@ -16,8 +16,8 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Events\TelehealthNotificationSendEv
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\NotificationSendAddress;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
 use MyMailer;
-use OpenEMR\Common\Auth\OneTimeAuth;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Auth\OneTimeAuth;
 use OpenEMR\Services\LogoService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;

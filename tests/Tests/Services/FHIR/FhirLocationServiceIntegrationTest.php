@@ -17,7 +17,6 @@
 namespace OpenEMR\Tests\Integration\Services\FHIR;
 
 use OpenEMR\Common\Database\QueryUtils;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\Export\ExportJob;
 use OpenEMR\FHIR\Export\ExportMemoryStreamWriter;
@@ -25,6 +24,7 @@ use OpenEMR\Services\FHIR\FhirLocationService;
 use OpenEMR\Services\LocationService;
 use OpenEMR\Services\PatientService;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class FhirLocationServiceIntegrationTest extends TestCase
 {

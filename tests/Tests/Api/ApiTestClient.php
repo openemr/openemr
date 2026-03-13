@@ -7,9 +7,9 @@ namespace OpenEMR\Tests\Api;
 use GuzzleHttp\Client;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
-use Psr\Log\NullLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\NullLogger;
 
 /**
  * A simple and lightweight test client based off of GuzzleHttp, used in Rest Controller/API test cases.

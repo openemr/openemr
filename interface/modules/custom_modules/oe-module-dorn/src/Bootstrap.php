@@ -19,7 +19,6 @@
  */
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Twig\TwigContainer;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\TwigEnvironmentEvent;
@@ -29,6 +28,7 @@ use OpenEMR\Events\RestApiExtend\RestApiResourceServiceEvent;
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Modules\Dorn\EventSubscriber\DornLabSubscriber;
 use OpenEMR\Services\Globals\GlobalSetting;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Error\LoaderError;
 use Twig\Loader\FilesystemLoader;

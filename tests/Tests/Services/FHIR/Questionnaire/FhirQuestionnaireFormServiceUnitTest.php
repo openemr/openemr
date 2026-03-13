@@ -11,9 +11,9 @@
 
 namespace OpenEMR\Tests\Services\FHIR\Questionnaire;
 
-use Psr\Log\LoggerInterface;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class FhirQuestionnaireFormServiceUnitTest extends TestCase
 {

@@ -32,9 +32,9 @@ require_once(__DIR__ . "/../../../../amc.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Reports\AMC\Trackers\AMCItemSkipTracker;
 use OpenEMR\Reports\AMC\Trackers\AMCItemTracker;
+use Psr\Log\LoggerInterface;
 
 abstract class AbstractAmcReport implements RsReportIF
 {

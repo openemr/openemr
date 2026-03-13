@@ -14,11 +14,10 @@
 
 namespace OpenEMR\Modules\WenoModule;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\Patient\PatientBeforeCreatedAuxEvent;
 use OpenEMR\Events\Patient\PatientUpdatedEventAux;
@@ -29,6 +28,7 @@ use OpenEMR\Modules\WenoModule\Services\ModuleService;
 use OpenEMR\Modules\WenoModule\Services\SelectedPatientPharmacy;
 use OpenEMR\Services\Globals\GlobalSetting;
 use OpenEMR\Services\Utils\SQLUpgradeService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 

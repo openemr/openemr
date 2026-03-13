@@ -17,7 +17,6 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Database\QueryUtils;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Utils\FileUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -40,6 +39,7 @@ use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportOnsiteMessagesTableDefini
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportPersonTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTrackAnythingFormTableDefinition;
 use OpenEMR\Services\DocumentService;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Rfc4122\UuidV4;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Twig\Environment;

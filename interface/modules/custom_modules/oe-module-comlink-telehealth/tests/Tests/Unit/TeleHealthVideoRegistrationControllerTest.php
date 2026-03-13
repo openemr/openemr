@@ -19,9 +19,9 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthProviderReposi
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TelehealthRegistrationCodeService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthRemoteRegistrationService;
-use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Twig\Environment;
 
 class TeleHealthVideoRegistrationControllerTest extends TestCase

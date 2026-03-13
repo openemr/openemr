@@ -2,13 +2,13 @@
 
 namespace OpenEMR\Tests\Services\FHIR;
 
-use Psr\Log\LoggerInterface;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
 use OpenEMR\Services\FHIR\FhirPractitionerService;
 use OpenEMR\Services\FHIR\Serialization\FhirPractitionerSerializer;
 use OpenEMR\Tests\Fixtures\PractitionerFixtureManager;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * FHIR Practitioner Service Crud Tests
