@@ -14,9 +14,9 @@ coverage:
   status:
     project:
       default:
-        target: 4%        # Require at least 4% overall project coverage
-        threshold: 0      # No tolerance below the 4% target
+        target: 27%       # Lock in current ~27% coverage as floor (was 4%)
+        threshold: 1%     # Allow 1% fluctuation for test-unrelated changes
     patch:
       default:
-        target: 0%        # New code doesn't need any coverage
-        threshold: 0
+        target: 50%       # New code must have at least 50% coverage (was 0%)
+        threshold: 5%     # Flexibility for config/migration/generated files
