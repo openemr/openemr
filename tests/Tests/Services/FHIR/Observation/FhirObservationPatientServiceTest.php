@@ -12,7 +12,6 @@
 namespace OpenEMR\Tests\Services\FHIR\Observation;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Uuid\UuidMapping;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRObservation;
@@ -33,8 +32,6 @@ use Psr\Log\LoggerInterface;
  */
 class FhirObservationPatientServiceTest extends TestCase
 {
-    use SystemLoggerAwareTrait;
-
     private FhirObservationPatientService $fhirService;
     private PatientService $patientService;
     private UserService $userService;

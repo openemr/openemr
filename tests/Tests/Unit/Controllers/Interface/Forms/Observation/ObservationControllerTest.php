@@ -15,7 +15,6 @@
 namespace OpenEMR\Tests\Unit\Controllers\Interface\Forms\Observation;
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
@@ -37,8 +36,6 @@ use Twig\Environment;
  */
 class ObservationControllerTest extends TestCase
 {
-    use SystemLoggerAwareTrait;
-
     private ObservationController $controller;
 
     // AI Generated: Mock objects for dependencies

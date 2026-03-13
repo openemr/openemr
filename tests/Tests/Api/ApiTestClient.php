@@ -7,7 +7,6 @@ namespace OpenEMR\Tests\Api;
 use GuzzleHttp\Client;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
-use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\NullLogger;
 
@@ -29,8 +28,6 @@ use Psr\Log\NullLogger;
  */
 class ApiTestClient
 {
-    use SystemLoggerAwareTrait;
-
     const AUTHORIZATION_HEADER = "Authorization";
     const OPENEMR_AUTH_ENDPOINT = "/oauth2/default";
     const OAUTH_LOGOUT_ENDPOINT = "/oauth2/default/logout";
@@ -245,7 +242,6 @@ class ApiTestClient
             if (isset($errorBody->hint)) {
                 $errorMessage .= ": " . $errorBody->hint;
             }
-            $this->getSystemLogger()->error("ApiTestClient: " . $errorMessage);
         }
 
         return $authResponse;
@@ -270,7 +266,6 @@ class ApiTestClient
         /** @var (\stdClass&object{client_id: string, client_secret: string})|null $clientResponseBody */
         $clientResponseBody = json_decode($clientResponseBodyRaw);
         if ($clientResponseBody === null) {
-            $this->getSystemLogger()->error("ApiTestClient: Failed to decode client registration response", ['rawBody' => $clientResponseBodyRaw]);
             throw new \RuntimeException("Client registration response could not be decoded");
         }
         $this->client_id = $clientResponseBody->client_id;
