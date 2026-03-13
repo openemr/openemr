@@ -8,17 +8,23 @@ use Psr\Log\{
     LoggerInterface,
 };
 
+/**
+ * @deprecated Prefer constructor injection of a logger; use PSR's LoggerAwareTrait if unavoidable.
+ */
 trait SystemLoggerAwareTrait
 {
     use LoggerAwareTrait;
 
+    /**
+     * @deprecated use setLogger()
+     */
     public function setSystemLogger(LoggerInterface $logger): void
     {
         $this->setLogger($logger);
     }
 
     /**
-     * @ deprecated read the logger directly
+     * @deprecated read from the ->logger property
      */
     public function getSystemLogger(?Level $defaultLoggingLevel = null): LoggerInterface
     {
