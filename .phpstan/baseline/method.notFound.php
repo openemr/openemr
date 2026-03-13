@@ -897,11 +897,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Command/CreateReleaseChangelogCommand.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to an undefined method Psr\\\\Log\\\\LoggerInterface\\:\\:errorLogCaller\\(\\)\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Forms/FormLocator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to an undefined method OpenEMR\\\\Common\\\\ORDataObject\\\\ORDataObject\\:\\:get_id\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',

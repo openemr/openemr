@@ -17,9 +17,9 @@ namespace OpenEMR\Services\Cda;
 use Application\Model\ApplicationTable;
 use Carecoordination\Model\CarecoordinationTable;
 use Document;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Command\Trait\CommandLineDebugStylerTrait;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\InsuranceCompanyService;
 use OpenEMR\Services\InsuranceService;
@@ -2160,8 +2160,8 @@ class CdaTemplateImportDispose
             $id_data = $insuranceData->insert($data);
         }
         if (!$id_data->isValid()) {
-            (new SystemLogger())->errorLogCaller(
-                'Error inserting insurance data',
+            ServiceContainer::getLogger()->error(
+                'Error inserting insurance data: {validationErrors} {internalErrors}',
                 [
                     'internalErrors' => $id_data->getInternalErrors(), 'validationErrors' => $id_data->getValidationMessages()
                 ]

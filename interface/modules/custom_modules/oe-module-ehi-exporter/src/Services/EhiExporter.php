@@ -17,7 +17,6 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Utils\FileUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -40,6 +39,7 @@ use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportOnsiteMessagesTableDefini
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportPersonTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTrackAnythingFormTableDefinition;
 use OpenEMR\Services\DocumentService;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Rfc4122\UuidV4;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Twig\Environment;
@@ -64,16 +64,16 @@ class EhiExporter
     // average size we estimate to be 100KB per patient in data exports so we will add that up per patient
     const PATIENT_SIZE_PER_RECORD = 100 * 1024;
 
-    private readonly SystemLogger $logger;
+    private readonly LoggerInterface $logger;
     private readonly EhiExportJobTaskService $taskService;
     private readonly CryptoInterface $cryptoGen;
     private readonly EhiExportJobService $jobService;
 
     private ?Session $session = null;
 
-    public function __construct(private $modulePublicDir, private $modulePublicUrl, private $xmlConfigPath, private Environment $twig)
+    public function __construct(private $modulePublicDir, private $modulePublicUrl, private $xmlConfigPath, private Environment $twig, ?LoggerInterface $logger = null)
     {
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
         $this->taskService = new EhiExportJobTaskService();
         $this->jobService = new EhiExportJobService();
         $this->twig = $twig;
@@ -496,7 +496,7 @@ class EhiExporter
             $taskResultContents = $this->getCsvFileContents($exportState, $result->tableName);
             $addedToZip = $zip->addFromString($result->tableName . '.csv', $taskResultContents);
             if (!$addedToZip) {
-                $this->logger->errorLogCaller("Failed to add " . $result->tableName . " to zip file");
+                $this->logger->error("EhiExporter: Failed to add {tableName} to zip file", ['tableName' => $result->tableName]);
                 throw new \Exception("Failed to add " . $result->tableName . " to zip file");
             }
         }
@@ -506,14 +506,14 @@ class EhiExporter
         $this->addDocumentationReadme($zip);
         $saved = $zip->close();
         if (!$saved) {
-            $this->logger->errorLogCaller("Failed to save zip file ", ['zipName' => $zipName]);
+            $this->logger->error("EhiExporter: Failed to save zip file {zipName}", ['zipName' => $zipName]);
             throw new \Exception("Failed to generate zip file for job " . $jobTask->ehi_task_id . " zip status is " . $zip->status);
         }
         unset($zip);
         $document = $this->createDatabaseDocumentFromZip($jobTask, $zipOutput, $zipName);
         // now we remove the zip file
         if (!unlink($zipOutput)) {
-            $this->logger->errorLogCaller("Failed to EHI zip file export", ['zipName' => $zipOutput]);
+            $this->logger->error("EhiExporter: Failed to unlink EHI zip file {zipName}", ['zipName' => $zipOutput]);
         }
         $this->clearResultFilesForJob($jobTask, $exportState);
         return $document;
@@ -526,7 +526,7 @@ class EhiExporter
         // unlink each file
         $files = glob($tempDir . '/*'); // get all file names
         if ($files === false) {
-            $this->logger->errorLogCaller("Failed to retrieve file list from temporary directory", ['tempDir' => $tempDir]);
+            $this->logger->error("EhiExporter: Failed to retrieve file list from temporary directory {tempDir}", ['tempDir' => $tempDir]);
             return;
         }
         foreach ($files as $file) { // iterate files
@@ -638,10 +638,10 @@ class EhiExporter
         foreach ($assets as $assetsToExport) {
             if (file_exists($assetsToExport['path'])) {
                 if (!$zip->addFile($assetsToExport['path'], $assetsToExport['name'])) {
-                    $this->logger->errorLogCaller("File exists but failed to export to zip", ['path' => $assetsToExport['path']]);
+                    $this->logger->error("EhiExporter: File exists but failed to export to zip", ['path' => $assetsToExport['path']]);
                 }
             } else {
-                $this->logger->errorLogCaller("Failed to export additional asset as file is missing", ['path' => $assetsToExport['path']]);
+                $this->logger->error("EhiExporter: Failed to export additional asset as file is missing at {path}", ['path' => $assetsToExport['path']]);
             }
         }
     }
@@ -703,14 +703,14 @@ class EhiExporter
                 // we want to make sure the documents are stored by patient id they can be distinguished here.
                 // store it inside of a folder called documents
                 if (!$zip->addFromString($docFolder . $docName, $documentContents)) {
-                    $this->logger->errorLogCaller("Failed to add document to zip file", ['document' => $docFolder . $docName, 'zipStatus' => $zip->status]);
+                    $this->logger->error("EhiExporter: Failed to add document {document} to zip file", ['document' => $docFolder . $docName, 'zipStatus' => $zip->status]);
                 } else {
                     $docCount++;
                 }
             } catch (\RuntimeException $exception) {
                 // if the file contents can not be retrieved we get a runtime exception
-                $this->logger->errorLogCaller(
-                    "Failed to add document to zip file as document contents could not be retrieved",
+                $this->logger->error(
+                    "EhiExporter: Failed to add document {document} to zip file as document contents could not be retrieved",
                     ['document' => $docFolder . $docName
                     ,
                     'zipStatus' => $zip->status,
@@ -748,7 +748,7 @@ class EhiExporter
             ,'certifiedReleaseVersion' => Bootstrap::CERTIFIED_RELEASE_VERSION
         ]);
         if (!$zip->addFromString("README", $readmeContents)) {
-            $this->logger->errorLogCaller("Failed to add README file");
+            $this->logger->error("EhiExporter: Failed to add README file to zip");
         }
     }
 

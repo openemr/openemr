@@ -73,14 +73,14 @@ class FormLocator
             if (ModulesApplication::isSafeModuleFileForInclude($finalPath)) {
                 return $finalPath;
             } else {
-                $this->logger->errorLogCaller(
-                    "Module attempted to load a file outside of its directory",
+                $this->logger->error(
+                    "Module attempted to load a file outside of its directory: {file} for form {formdir}",
                     ['file' => $event->getFormIncludePath(), 'formdir' => $event->getFormName()]
                 );
             }
         }
         if (!file_exists($finalPath)) {
-            $this->logger->errorLogCaller("form is missing report.php file", ['file' => $finalPath, 'formdir' => $formDir]);
+            $this->logger->error("Form {formdir} is missing report.php file at {file}", ['file' => $finalPath, 'formdir' => $formDir]);
         }
         // AI GENERATED CODE: HEADER START
 

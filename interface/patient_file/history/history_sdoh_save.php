@@ -12,10 +12,10 @@
 
 require_once("../../globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -39,7 +39,7 @@ if (empty($pid)) {
 
 $instrument_score = isset($_POST['instrument_score']) ? (int)$_POST['instrument_score'] : null;
 $declined_flag = !empty($_POST['declined_flag']) ? 1 : 0;
-$logger = new SystemLogger();
+$logger = ServiceContainer::getLogger();
 
 // --- Functional sub-observations -> JSON (disability_scale)
 $dscale = $_POST['dscale'] ?? [];
@@ -147,7 +147,7 @@ try {
         $data['updated_by'] = $uid;
         $result = $sdohService->update($rec_id, $data);
         if (!$result->isValid()) {
-            $logger->errorLogCaller("Failed to insert sdoh record", ['validationErrors' => $result->getValidationMessages(), 'internalErrors' => $result->getInternalErrors()]);
+            $logger->error("history_sdoh_save: Failed to update sdoh record", ['validationErrors' => $result->getValidationMessages(), 'internalErrors' => $result->getInternalErrors()]);
         }
         $id = $rec_id;
     } else {
@@ -156,7 +156,7 @@ try {
         $data['created_by'] = $uid;
         $result = $sdohService->insert($data);
         if (!$result->isValid()) {
-            $logger->errorLogCaller("Failed to insert sdoh record", ['validationErrors' => $result->getValidationMessages(), 'internalErrors' => $result->getInternalErrors()]);
+            $logger->error("history_sdoh_save: Failed to insert sdoh record", ['validationErrors' => $result->getValidationMessages(), 'internalErrors' => $result->getInternalErrors()]);
             throw new Exception("Failed to insert sdoh record.");
         } else {
             $id = $result->getFirstDataResult()['id'];

@@ -13,8 +13,8 @@ require_once("../../library/classes/rulesets/ReportTypes.php");
 require_once("../../library/classes/rulesets/library/RsReportFactoryAbstract.php");
 require_once("../../library/classes/rulesets/Amc/AmcReportFactory.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -175,7 +175,7 @@ function getRuleObjectForId($ruleId)
         $report = $reportManager->createReport($rule, ['id' => $ruleId], [], [], []);
         return $report;
     } catch (\Throwable $error) {
-        (new SystemLogger())->error("Failed to instantiate rule class for rule", ['exception' => $error, 'rule_id' => $ruleId]);
+        ServiceContainer::getLogger()->error("Failed to instantiate rule class for rule", ['exception' => $error, 'rule_id' => $ruleId]);
     }
     return null;
 }

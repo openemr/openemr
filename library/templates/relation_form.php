@@ -15,8 +15,8 @@
  *
  */
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\ContactAddressService;
@@ -25,7 +25,7 @@ use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ContactTelecomService;
 use OpenEMR\Services\PersonService;
 
-$logger = new SystemLogger();
+$logger = ServiceContainer::getLogger();
 
 // Initialize services
 $contactService = new ContactService();
@@ -64,7 +64,7 @@ try {
             $targetContact = $contactService->getOrCreateForEntity('person', $targetId);
             $targetContactId = $targetContact->get_id();
             if (empty($targetContactId)) {
-                $logger->errorLogCaller("No contact found for related person", [
+                $logger->error("No contact found for related person {person_id}", [
                     'person_id' => $targetId,
                     'owner_contact_relation_id' => $record['owner_contact_relation_id']
                 ]);

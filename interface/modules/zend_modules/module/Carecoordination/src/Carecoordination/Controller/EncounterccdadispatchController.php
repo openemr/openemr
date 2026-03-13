@@ -22,9 +22,9 @@ use DOMDocument;
 use Exception;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Http\StatusCode;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 use XSLTProcessor;
@@ -244,7 +244,7 @@ class EncounterccdadispatchController extends AbstractActionController
                 if ($view && !$downloadccda) {
                     if (str_starts_with($content, 'ERROR:')) {
                         echo "<h3>" . text($content) . "</h3>";
-                        (new SystemLogger())->errorLogCaller("Error generating CCDA", ['message' => $content]);
+                        ServiceContainer::getLogger()->error("EncounterccdadispatchController: Error generating CCDA: {message}", ['message' => $content]);
                         die();
                     }
                     $xml = simplexml_load_string($content);
@@ -260,7 +260,7 @@ class EncounterccdadispatchController extends AbstractActionController
                     $htmlContent = file_get_contents($outputFile);
                     $result = unlink($outputFile); // remove the file so we don't have PHI left around on the filesystem
                     if (!$result) {
-                        (new SystemLogger())->errorLogCaller("Failed to unlink temporary CDA output on hard drive. This could expose PHI and needs to be investigated.", ['filename' => $outputFile]);
+                        ServiceContainer::getLogger()->error("EncounterccdadispatchController: Failed to unlink temporary CDA output {filename}. This could expose PHI and needs to be investigated.", ['filename' => $outputFile]);
                     }
                     echo $htmlContent;
                 }
@@ -300,7 +300,7 @@ class EncounterccdadispatchController extends AbstractActionController
         } catch (CcdaServiceConnectionException $exception) {
             http_response_code(StatusCode::INTERNAL_SERVER_ERROR);
             echo xlt("Failed to connect to ccdaservice. Verify your environment is setup correctly by following the instructions in the ccdaservice's Readme file");
-            (new SystemLogger())->error("Connection error with ccda service", ['exception' => $exception]);
+            ServiceContainer::getLogger()->error("Connection error with ccda service", ['exception' => $exception]);
             die();
         }
 
@@ -358,7 +358,7 @@ class EncounterccdadispatchController extends AbstractActionController
             echo xlt("Failed to generate consolidated QRDA III report. Please try again.");
 
             // Log using your existing logging pattern
-            (new SystemLogger())->error("Error generating consolidated QRDA III", ['exception' => $e]);
+            ServiceContainer::getLogger()->error("Error generating consolidated QRDA III", ['exception' => $e]);
         }
     }
 
@@ -391,8 +391,9 @@ class EncounterccdadispatchController extends AbstractActionController
 
             return $content;
         } catch (\Throwable $e) {
-            (new SystemLogger())->errorLogCaller("Error generating consolidated QRDA III content", [
-                'message' => $e->getMessage()
+            ServiceContainer::getLogger()->error("EncounterccdadispatchController: Error generating consolidated QRDA III content: {message}", [
+                'message' => $e->getMessage(),
+                'exception' => $e
             ]);
 
             return "ERROR: " . $e->getMessage();

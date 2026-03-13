@@ -11,7 +11,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRValueSet;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRValueSet\FHIRValueSetCompose;
@@ -133,7 +133,7 @@ class FhirValueSetService extends FhirServiceBase implements IResourceUSCIGProfi
 
             $this->addListOptionsValueSetsForSearch($fhirSearchResult, $fhirSearchParameters, $puuidBind);
         } catch (SearchFieldException $exception) {
-            (new SystemLogger())->error("search exception thrown", ['exception' => $exception,
+            ServiceContainer::getLogger()->error("search exception thrown", ['exception' => $exception,
                 'field' => $exception->getField()]);
             // put our exception information here
             $fhirSearchResult->setValidationMessages([$exception->getField() => $exception->getMessage()]);

@@ -16,8 +16,6 @@
 namespace OpenEMR\Tests\Services\FHIR\Condition;
 
 use InvalidArgumentException;
-use Monolog\Level;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCondition;
 use OpenEMR\Services\FHIR\Condition\Enum\FhirConditionCategory;
@@ -27,6 +25,7 @@ use OpenEMR\Services\FHIR\Condition\FhirConditionProblemListItemService;
 use OpenEMR\Services\FHIR\FhirConditionService;
 use OpenEMR\Tests\Fixtures\ConditionFixtureManager;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 /**
  * Tests for US Core 8.0.0 Condition Profile compliance
@@ -65,11 +64,11 @@ class FhirConditionService8_0_0Test extends TestCase
         parent::setUp();
         $this->fhirConditionService = new FhirConditionService();
         $this->encounterDiagnosisService = new FhirConditionEncounterDiagnosisService();
-        $this->encounterDiagnosisService->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->encounterDiagnosisService->setSystemLogger($this->createMock(LoggerInterface::class));
         $this->problemsService = new FhirConditionProblemListItemService();
-        $this->problemsService->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->problemsService->setSystemLogger($this->createMock(LoggerInterface::class));
         $this->healthConcernsService = new FhirConditionHealthConcernService();
-        $this->healthConcernsService->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->healthConcernsService->setSystemLogger($this->createMock(LoggerInterface::class));
         $this->fixtureManager = new ConditionFixtureManager();
     }
 

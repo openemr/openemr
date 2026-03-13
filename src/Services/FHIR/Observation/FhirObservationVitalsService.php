@@ -564,7 +564,7 @@ class FhirObservationVitalsService extends FhirServiceBase implements IPatientCo
             }
             $codeMapping = self::COLUMN_MAPPINGS[$code];
             if (!isset($uuidMappings[$code])) {
-                $this->getSystemLogger()->errorLogCaller("FhirVitalsService->parseVitalsIntoObservationRecords() Cannot return vital sign record as mapping uuid is missing for code " . $code);
+                $this->getSystemLogger()->error("Cannot return vital sign record as mapping uuid is missing for code {code}", ['code' => $code]);
                 continue;
             }
             // uuid mappings are binary values, we need to convert them to string

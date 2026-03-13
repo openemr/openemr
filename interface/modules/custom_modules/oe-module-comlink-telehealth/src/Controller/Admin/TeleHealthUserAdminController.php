@@ -15,7 +15,7 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule\Controller\Admin;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthPersonSettings;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthPersonSettingsRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\TelehealthGlobalConfig;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\User\UserCreatedEvent;
 use OpenEMR\Events\User\UserEditRenderEvent;
@@ -56,7 +56,7 @@ class TeleHealthUserAdminController
             $userAdminTwigData['userId'] = $userId;
             // grab the user, grab our telehealth enabled settings
             // set our checkbox
-            $repository = new TeleHealthPersonSettingsRepository(new SystemLogger());
+            $repository = new TeleHealthPersonSettingsRepository(ServiceContainer::getLogger());
             $settings = $repository->getSettingsForUser($userId);
             if (!empty($settings)) {
                 $userAdminTwigData['userEnabled'] = $userAdminTwigData['forceTelehealthEnabled'] ? true : $settings->getIsEnabled();

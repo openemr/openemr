@@ -13,7 +13,7 @@ namespace OpenEMR\Services\FHIR\Questionnaire;
 
 use BadMethodCallException;
 use JsonException;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaire;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
@@ -106,7 +106,7 @@ class FhirQuestionnaireFormService extends FhirServiceBase implements IResourceR
         } catch (JsonException $exception) {
             // log the error and move on
             $innerData = []; // nothing we can do here, but skip the questionnaire data as its invalid
-            (new SystemLogger())->error(
+            ServiceContainer::getLogger()->error(
                 "Unable to parse questionnaire json",
                 ['exception' => $exception, 'uuid' => $dataRecord['uuid'] ?? '']
             );

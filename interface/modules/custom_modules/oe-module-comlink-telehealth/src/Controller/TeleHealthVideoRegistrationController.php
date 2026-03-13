@@ -19,7 +19,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Models\UserVideoRegistrationRequest
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthProviderRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthRemoteRegistrationService;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Patient\PatientCreatedEvent;
 use OpenEMR\Events\Patient\PatientUpdatedEvent;
@@ -27,6 +27,7 @@ use OpenEMR\Events\User\UserCreatedEvent;
 use OpenEMR\Events\User\UserUpdatedEvent;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class TeleHealthVideoRegistrationController
@@ -38,14 +39,14 @@ class TeleHealthVideoRegistrationController
     private $userRepository;
 
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private readonly LoggerInterface $logger;
 
-    public function __construct(private readonly TeleHealthRemoteRegistrationService $remoteService, private readonly TeleHealthProviderRepository $providerRepository)
-    {
-        $this->logger = new SystemLogger();
+    public function __construct(
+        private readonly TeleHealthRemoteRegistrationService $remoteService,
+        private readonly TeleHealthProviderRepository $providerRepository,
+        ?LoggerInterface $logger = null,
+    ) {
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     public function subscribeToEvents(EventDispatcherInterface $eventDispatcher)

@@ -16,13 +16,14 @@ namespace OpenEMR\Modules\EhiExporter;
 /**
  * Note the below use statements are importing classes from the OpenEMR core codebase
  */
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Modules\EhiExporter\Services\EhiExporter;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 // we import our own classes here.. although this use statement is unnecessary it forces the autoloader to be tested.
@@ -49,10 +50,7 @@ class Bootstrap
      */
     private $twig;
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private readonly LoggerInterface $logger;
 
     private static self $instance;
 
@@ -62,7 +60,8 @@ class Bootstrap
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
-        ?Kernel $kernel = null
+        ?Kernel $kernel = null,
+        ?LoggerInterface $logger = null,
     ) {
         if (empty($kernel)) {
             $kernel = new Kernel();
@@ -78,7 +77,7 @@ class Bootstrap
 
         // we inject our globals value.
         $this->globalsConfig = new GlobalConfig($GLOBALS);
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     public static function instantiate(EventDispatcherInterface $eventDispatcher, Kernel $kernel): self
@@ -95,9 +94,9 @@ class Bootstrap
         return OEGlobalsBag::getInstance()->get('webroot') . self::MODULE_INSTALLATION_PATH . $this->moduleDirectoryName . "/public/assets/";
     }
 
-    public function getLogger()
+    public function getLogger(): LoggerInterface
     {
-        return new SystemLogger();
+        return $this->logger;
     }
 
     public function getExporter()

@@ -797,7 +797,7 @@ class AuthorizationController
         $clientId = $session->get('client_id');
         if (empty($clientId)) {
             // why are we logging in... we need to terminate
-            $this->getSystemLogger()->errorLogCaller("application client_id was missing when it shouldn't have been");
+            $this->getSystemLogger()->error("Application client_id was missing when it shouldn't have been");
             return $this->renderTwigPage(
                 'oauth2/authorize/login',
                 "error/general_http_error.html.twig",
@@ -1210,7 +1210,7 @@ class AuthorizationController
                         $code,
                         $session_cache
                     )) {
-                        $this->getSystemLogger()->errorLogCaller("AuthorizationController->authorizeUser() failed to save trusted user session");
+                        $this->getSystemLogger()->error("AuthorizationController::authorizeUser() failed to save trusted user session");
                         throw OAuthServerException::serverError("Failed authorization due to internal server error.");
                     }
                 }
@@ -1406,7 +1406,7 @@ class AuthorizationController
         try {
             $id = $this->trustedUserService->saveTrustedUser($clientId, $userId, $scope, $persist, $code, $session, $grant);
             if (empty($id)) {
-                $this->getSystemLogger()->errorLogCaller("AuthorizationController->saveTrustedUser() failed to save trusted user");
+                $this->getSystemLogger()->error("AuthorizationController::saveTrustedUser() failed to save trusted user");
                 return false;
             }
             return true;
@@ -1473,7 +1473,7 @@ class AuthorizationController
                     ->withBody($factory->createStream($message));
             }
         } catch (OAuthServerException $exception) {
-            $this->getSystemLogger()->errorLogCaller($exception->getMessage(), ['client_id' => $client_id]);
+            $this->getSystemLogger()->error("OAuth error for client {client_id}: " . $exception->getMessage(), ['client_id' => $client_id]);
             $this->session->invalidate();
             return $exception->generateHttpResponse($response);
         }

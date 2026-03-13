@@ -97,7 +97,7 @@ class ClientAdminController
             $this->externalCDRController = new RouteController(
                 $this->session,
                 $this->clientRepo,
-                $this->getSystemLogger() ?? ServiceContainer::getLogger(),
+                $this->logger ?? ServiceContainer::getLogger(),
                 $this->getTwig(),
                 $this->actionUrlBuilder,
                 new DecisionSupportInterventionService()
@@ -249,11 +249,11 @@ class ClientAdminController
             $vars = $updatedTemplatePageEvent->getTwigVariables();
             $responseBody = $this->twig->render($template, $vars);
         } catch (\Throwable $e) {
-            $this->getSystemLogger()?->error("caught exception rendering template", ['exception' => $e]);
+            $this->logger?->error("caught exception rendering template", ['exception' => $e]);
             try {
                 $responseBody = $this->twig->render("error/general_http_error.html.twig", ['statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR]);
             } catch (\Throwable $e) {
-                $this->getSystemLogger()?->error("caught exception rendering error template", ['exception' => $e]);
+                $this->logger?->error("caught exception rendering error template", ['exception' => $e]);
                 $responseBody = "Error rendering template";
             }
         }
@@ -334,7 +334,7 @@ class ClientAdminController
                 $token['scope'] = json_decode($scope, true, 512, JSON_THROW_ON_ERROR);
                 $result[] = $token;
             } catch (JsonException $exception) {
-                $this->getSystemLogger()?->error("Failed to json_decode api_token scope column. "
+                $this->logger?->error("Failed to json_decode api_token scope column. "
                     . $exception->getMessage(), ['id' => $token['id'] ?? '', 'clientId' => $clientId, 'user_id' => $userId]);
             }
         }
@@ -838,7 +838,7 @@ class ClientAdminController
                 }
             }
         } catch (\Throwable $exception) {
-            $this->getSystemLogger()?->error("caught exception parsing token", ['exception' => $exception]);
+            $this->logger?->error("caught exception parsing token", ['exception' => $exception]);
             $message = xl('Failed to parse token. Check system logs');
             $parts = [];
             $databaseRecord = null;
@@ -937,7 +937,7 @@ class ClientAdminController
      */
     private function returnFailedToSaveClientResponse(\Throwable $ex, ClientEntity $client): Response
     {
-        $this->getSystemLogger()?->error(
+        $this->logger?->error(
             "Failed to save client",
             [
                 "exception" => $ex->getMessage(), "trace" => $ex->getTraceAsString()

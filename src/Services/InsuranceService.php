@@ -19,7 +19,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\Services\Search\{
@@ -576,7 +576,7 @@ class InsuranceService extends BaseService
                     QueryUtils::rollbackTransaction();
                 }
             } catch (\Throwable $e) {
-                (new SystemLogger())->error(
+                ServiceContainer::getLogger()->error(
                     "Failed to rollback transaction " . $e->getMessage(),
                     ['exception' => $e, 'type' => $targetType, 'insuranceUuid' => $insuranceUuid, 'pid' => $pid]
                 );

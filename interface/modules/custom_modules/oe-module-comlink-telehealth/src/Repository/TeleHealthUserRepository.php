@@ -15,8 +15,8 @@ namespace Comlink\OpenEMR\Modules\TeleHealthModule\Repository;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Models\TeleHealthUser;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Services\BaseService;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\UuidFactory;
 
 if (!defined('OPENEMR_GLOBALS_LOADED')) {
@@ -28,15 +28,12 @@ class TeleHealthUserRepository extends BaseService
 {
     const TABLE_NAME = "comlink_telehealth_auth";
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private readonly LoggerInterface $logger;
 
-    public function __construct()
+    public function __construct(?LoggerInterface $logger = null)
     {
         parent::__construct(self::TABLE_NAME);
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     public function saveUser(TeleHealthUser $user)
@@ -108,7 +105,7 @@ class TeleHealthUserRepository extends BaseService
             if ($date !== false) {
                 $user->setDateRegistered($date);
             } else {
-                $this->logger->errorLogCaller('failed to create date_registered', ['value' => $row['date_registered']]);
+                $this->logger->error('TeleHealthUserRepository: failed to create date_registered from {value}', ['value' => $row['date_registered']]);
             }
         }
         if (isset($row['date_created'])) {
@@ -116,7 +113,7 @@ class TeleHealthUserRepository extends BaseService
             if ($date !== false) {
                 $user->setDateCreated($date);
             } else {
-                $this->logger->errorLogCaller('failed to create date_created', ['value' => $row['date_created']]);
+                $this->logger->error('TeleHealthUserRepository: failed to create date_created from {value}', ['value' => $row['date_created']]);
             }
         }
         if (isset($row['date_updated'])) {
@@ -124,7 +121,7 @@ class TeleHealthUserRepository extends BaseService
             if ($date !== false) {
                 $user->setDateUpdated($date);
             } else {
-                $this->logger->errorLogCaller('failed to create date_updated', ['value' => $row['date_updated']]);
+                $this->logger->error('TeleHealthUserRepository: failed to create date_updated from {value}', ['value' => $row['date_updated']]);
             }
         }
         return $user;
