@@ -21,6 +21,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Repository\TeleHealthUserRepository
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthRemoteRegistrationService;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Events\Patient\PatientCreatedEvent;
 use OpenEMR\Events\Patient\PatientUpdatedEvent;
 use OpenEMR\Events\User\UserCreatedEvent;
@@ -38,14 +39,14 @@ class TeleHealthVideoRegistrationController
     private $userRepository;
 
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
-    public function __construct(private readonly TeleHealthRemoteRegistrationService $remoteService, private readonly TeleHealthProviderRepository $providerRepository)
-    {
-        $this->logger = new SystemLogger();
+    public function __construct(
+        private readonly TeleHealthRemoteRegistrationService $remoteService,
+        private readonly TeleHealthProviderRepository $providerRepository,
+        ?LoggerInterface $logger = null,
+    ) {
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     public function subscribeToEvents(EventDispatcherInterface $eventDispatcher)

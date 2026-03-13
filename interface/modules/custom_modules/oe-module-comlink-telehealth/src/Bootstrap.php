@@ -31,6 +31,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TelehealthRegistrationCode
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthRemoteRegistrationService;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Twig\TwigContainer;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
@@ -94,10 +95,7 @@ class Bootstrap
      */
     private $providerRepository;
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
     /**
      * @var TeleHealthCalendarController
@@ -115,7 +113,8 @@ class Bootstrap
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
-        ?Kernel $kernel = null
+        ?Kernel $kernel = null,
+        ?LoggerInterface $logger = null,
     ) {
         global $GLOBALS;
 
@@ -127,7 +126,7 @@ class Bootstrap
         $this->twig = $twigEnv;
 
         $this->moduleDirectoryName = basename(dirname(__DIR__));
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
         $this->globalsConfig = new TelehealthGlobalConfig($this->getURLPath(), $this->twig);
     }
 
@@ -270,7 +269,7 @@ class Bootstrap
     {
         return new TeleconferenceRoomController(
             $this->getTwig(),
-            new SystemLogger(),
+            ServiceContainer::getLogger(),
             $this->getRegistrationController(),
             $this->getMailerService(),
             $this->getFrontendSettingsController(),

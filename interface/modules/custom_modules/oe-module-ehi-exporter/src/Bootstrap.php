@@ -18,6 +18,7 @@ namespace OpenEMR\Modules\EhiExporter;
  */
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Twig\TwigContainer;
+use Psr\Log\LoggerInterface;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
@@ -49,10 +50,7 @@ class Bootstrap
      */
     private $twig;
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private LoggerInterface $logger;
 
     private static self $instance;
 
@@ -62,7 +60,8 @@ class Bootstrap
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
-        ?Kernel $kernel = null
+        ?Kernel $kernel = null,
+        ?LoggerInterface $logger = null,
     ) {
         if (empty($kernel)) {
             $kernel = new Kernel();
@@ -78,7 +77,7 @@ class Bootstrap
 
         // we inject our globals value.
         $this->globalsConfig = new GlobalConfig($GLOBALS);
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     public static function instantiate(EventDispatcherInterface $eventDispatcher, Kernel $kernel): self
@@ -97,7 +96,7 @@ class Bootstrap
 
     public function getLogger()
     {
-        return new SystemLogger();
+        return ServiceContainer::getLogger();
     }
 
     public function getExporter()

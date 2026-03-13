@@ -56,7 +56,7 @@ class TeleHealthUserAdminController
             $userAdminTwigData['userId'] = $userId;
             // grab the user, grab our telehealth enabled settings
             // set our checkbox
-            $repository = new TeleHealthPersonSettingsRepository(new SystemLogger());
+            $repository = new TeleHealthPersonSettingsRepository(ServiceContainer::getLogger());
             $settings = $repository->getSettingsForUser($userId);
             if (!empty($settings)) {
                 $userAdminTwigData['userEnabled'] = $userAdminTwigData['forceTelehealthEnabled'] ? true : $settings->getIsEnabled();
