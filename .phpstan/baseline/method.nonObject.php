@@ -1882,11 +1882,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/public/index.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/public/index.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method getExportSizeSettings\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/public/index.php',
