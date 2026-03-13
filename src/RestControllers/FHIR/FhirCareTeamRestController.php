@@ -33,7 +33,7 @@ class FhirCareTeamRestController
     private $fhirService;
 
     private ?OEGlobalsBag $oeGlobalsBag = null;
-    private LoggerInterface $logger;
+    private readonly LoggerInterface $logger;
 
 
     public function __construct(?LoggerInterface $logger = null)
