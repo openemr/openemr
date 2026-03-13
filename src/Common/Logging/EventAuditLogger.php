@@ -21,6 +21,7 @@ use OpenEMR\BC\{
 };
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Session\SessionWrapperInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Traits\SingletonTrait;
 
@@ -73,6 +74,7 @@ class EventAuditLogger
             sinks: $sinks,
             cryptoGen: ServiceContainer::getCrypto(),
             shouldEncrypt: $bag->getBoolean('enable_auditlog_encryption'),
+            session: SessionWrapperFactory::getInstance()->getWrapper(),
         );
     }
 
@@ -83,6 +85,7 @@ class EventAuditLogger
         private readonly array $sinks,
         private readonly CryptoInterface $cryptoGen,
         private readonly bool $shouldEncrypt,
+        private readonly SessionWrapperInterface $session,
     ) {
     }
 
@@ -366,8 +369,7 @@ class EventAuditLogger
      */
     public function auditSQLEvent($statement, $outcome, $binds = null)
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
-        $user =  $session->get('authUser') ?? "";
+        $user = $this->session->get('authUser') ?? "";
 
         /* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
         if (!OEGlobalsBag::getInstance()->getBoolean('enable_auditlog')) {
@@ -477,7 +479,7 @@ class EventAuditLogger
         /* If the event is a patient-record, then note the patient id */
         $pid = 0;
         if ($event == "patient-record") {
-            $sessionPid = $session->get('pid');
+            $sessionPid = $this->session->get('pid');
             if ($sessionPid !== null && $sessionPid != '') {
                 $pid = $sessionPid;
             }
@@ -489,7 +491,7 @@ class EventAuditLogger
 
         $event = $event . "-" . $querytype;
 
-        $group = $session->get('authProvider') ?? "";
+        $group = $this->session->get('authProvider') ?? "";
         $success = (int)($outcome !== false);
         $this->recordLogItem($success, $event, $user, $group, $comments, $pid, $category);
     }
@@ -502,9 +504,8 @@ class EventAuditLogger
      */
     public function auditSQLAuditTamper($setting, $enable)
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
-        $user =  $session->get('authUser') ?? "";
-        $group = $session->get('authProvider') ?? "";
+        $user = $this->session->get('authUser') ?? "";
+        $group = $this->session->get('authProvider') ?? "";
         $pid = 0;
         $success = 1;
         $event = "security-administration" . "-" . "insert";
@@ -685,7 +686,6 @@ class EventAuditLogger
      */
     public function logHttpRequest()
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
         // Skip if audit logging or http request logging is disabled
         if (!OEGlobalsBag::getInstance()->getBoolean('enable_auditlog') || !OEGlobalsBag::getInstance()->getBoolean('audit_events_http-request')) {
             return;
@@ -697,7 +697,7 @@ class EventAuditLogger
             'POST' => 'update',
             'PUT' => 'update',
             'DELETE' => 'delete',
-            'PATCH' => 'update'
+            'PATCH' => 'update',
         ];
 
         $method = $_SERVER['REQUEST_METHOD'] ?? '';
@@ -712,11 +712,11 @@ class EventAuditLogger
         // Record the log entry
         $this->newEvent(
             "http-request-$event",  // event
-            $session->get('authUser') ?? null, // user
-            $session->get('authProvider') ?? null, // groupname
+            $this->session->get('authUser'), // user
+            $this->session->get('authProvider'), // groupname
             1, // success
             $comment, // comments
-            $session->get('pid') ?? null // patient_id
+            $this->session->get('pid') // patient_id
         );
     }
 
