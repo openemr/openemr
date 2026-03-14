@@ -24,6 +24,7 @@ require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/
 use ESign\Api;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
@@ -84,7 +85,7 @@ if (
 // this will not allow copy/paste of the link to this main.php page or a refresh of this main.php page
 //  (default behavior, however, this behavior can be turned off in the prevent_browser_refresh global)
 if (OEGlobalsBag::getInstance()->get('prevent_browser_refresh') > 1) {
-    $session->remove('token_main_php');
+    SessionUtil::unsetSession('token_main_php');
 }
 
 $esignApi = new Api();
