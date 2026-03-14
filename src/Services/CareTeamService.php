@@ -16,6 +16,7 @@
 namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
 use OpenEMR\Services\Search\ISearchField;
@@ -445,7 +446,8 @@ class CareTeamService extends BaseService
      */
     private function createOrUpdateCareTeam($pid, ?int $teamId, string $teamName, string $status = 'active')
     {
-        $createdBy = $_SESSION['authUserID'] ?? null;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $createdBy = $session->get('authUserID');
 
         // Check if care team already exists for this patient
         $existingTeamId = null;
@@ -480,8 +482,9 @@ class CareTeamService extends BaseService
      */
     private function insertCareTeamMember($careTeamId, array $memberData): void
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // AI-generated method modification - Start
-        $createdBy = $_SESSION['authUserID'] ?? null;
+        $createdBy = $session->get('authUserID');
         $userId = intval($memberData['user_id'] ?? 0) ?: null;
         $contactId = intval($memberData['contact_id'] ?? 0) ?: null;
         $role = trim($memberData['role'] ?? '');
@@ -504,8 +507,9 @@ class CareTeamService extends BaseService
      */
     private function updateCareTeamMember($memberId, array $memberData): void
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // AI-generated method modification - Start
-        $updatedBy = $_SESSION['authUserID'] ?? null;
+        $updatedBy = $session->get('authUserID');
         $userId = intval($memberData['user_id'] ?? 0) ?: null;
         $contactId = intval($memberData['contact_id'] ?? 0) ?: null;
         $role = trim($memberData['role'] ?? '');
@@ -529,7 +533,8 @@ class CareTeamService extends BaseService
      */
     private function markMemberAsInactive($memberId): void
     {
-        $updatedBy = $_SESSION['authUserID'] ?? null;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $updatedBy = $session->get('authUserID');
 
         QueryUtils::sqlStatementThrowException(
             "UPDATE " . self::CARE_TEAM_MEMBER_TABLE . "

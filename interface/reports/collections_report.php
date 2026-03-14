@@ -30,12 +30,14 @@ use OpenEMR\Billing\SLEOB;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -455,7 +457,7 @@ if (!empty($_POST['form_csvexport'])) {
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Collections'); ?></span>
 
 <form method='post' action='collections_report.php' enctype='multipart/form-data' id='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
 <div id="report_parameters">
 
@@ -1097,7 +1099,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_export']) || !empty($_
         if ($form_age_cols) {
             for ($c = 0; $c < $form_age_cols;) {
                 echo "  <th class='dehead' align='left'>";
-                echo $form_age_inc * $c;
+                echo text((string) ($form_age_inc * $c));
                 if (++$c < $form_age_cols) {
                     echo "-" . text(($form_age_inc * $c - 1));
                 } else {

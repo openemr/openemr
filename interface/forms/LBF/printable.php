@@ -28,8 +28,11 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\Config_Mpdf;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // Font size in points for table cell data.
 $FONTSIZE = 9;
@@ -60,12 +63,12 @@ if ($formid > 0) {
     if ($formOwner === null || (int) $formOwner['pid'] !== $patientid || (int) $formOwner['encounter'] !== $visitid) {
         ServiceContainer::getLogger()->warning(
             "An attempt was made to view an LBF form belonging to a different patient or encounter",
-            ['user-id' => $_SESSION['authUserID'] ?? '', 'requested-formid' => $formid, 'session-pid' => $patientid, 'session-encounter' => $visitid]
+            ['user-id' => $session->get('authUserID') ?? '', 'requested-formid' => $formid, 'session-pid' => $patientid, 'session-encounter' => $visitid]
         );
         EventAuditLogger::getInstance()->newEvent(
             "security-access",
-            $_SESSION['authUser'] ?? '',
-            $_SESSION['authProvider'] ?? '',
+            $session->get('authUser') ?? '',
+            $session->get('authProvider') ?? '',
             0,
             "Unauthorized attempt to view LBF form " . $formid . " for pid " . $patientid
         );
@@ -125,7 +128,7 @@ if ($PDF_OUTPUT) {
     $config_mpdf['margin_footer'] =  OEGlobalsBag::getInstance()->getInt('pdf_bottom_margin');
     $pdf = new mPDF($config_mpdf);
     $pdf->SetDisplayMode('real');
-    if ($_SESSION['language_direction'] == 'rtl') {
+    if ($session->get('language_direction') === 'rtl') {
         $pdf->SetDirectionality('rtl');
     }
     ob_start();
@@ -285,7 +288,7 @@ for ($lcols = 1; $lcols < $CPR; ++$lcols) {
 <?php
 // Generate header with optional logo.
 $logo = '';
-$ma_logo_path = "sites/" . $_SESSION['site_id'] . "/images/ma_logo.png";
+$ma_logo_path = "sites/" . $session->get('site_id') . "/images/ma_logo.png";
 if (is_file("$webserver_root/$ma_logo_path")) {
     $logo = "$web_root/$ma_logo_path";
 }

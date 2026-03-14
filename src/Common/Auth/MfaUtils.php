@@ -140,7 +140,7 @@ class MfaUtils
         // Decrypt the secret
         // First, try standard method that uses standard key
         $cryptoGen = ServiceContainer::getCrypto();
-        $secret = $cryptoGen->decryptStandard($registrationSecret);
+        $secret = $cryptoGen->decryptStandard(is_string($registrationSecret) ? $registrationSecret : null);
         if (empty($secret)) {
             // Second, try the password hash, which was setup during install and is temporary
             $passwordResults = privQuery(
@@ -148,7 +148,7 @@ class MfaUtils
                 [$_POST["authUser"]]
             );
             if (!empty($passwordResults["password"])) {
-                $secret = $cryptoGen->decryptStandard($registrationSecret, $passwordResults["password"]);
+                $secret = $cryptoGen->decryptStandard(is_string($registrationSecret) ? $registrationSecret : null, is_string($passwordResults["password"]) ? $passwordResults["password"] : null);
                 if (!empty($secret)) {
                     error_log("Disregard the decryption failed authentication error reported above this line; it is not an error.");
                     // Re-encrypt with the more secure standard key

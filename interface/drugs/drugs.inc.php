@@ -13,6 +13,7 @@
 // These lists are based on the constants found in the
 // openemr/library/classes/Prescription.class.php file.
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DrugSalesService;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -100,7 +101,8 @@ function sellDrug(
 function isUserRestricted($userid = 0)
 {
     if (!$userid) {
-        $userid = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $userid = $session->get('authUserID');
     }
 
     $countrow = sqlQuery("SELECT count(*) AS count FROM users_facility WHERE " .
@@ -113,7 +115,8 @@ function isUserRestricted($userid = 0)
 function isFacilityAllowed($facid, $userid = 0)
 {
     if (!$userid) {
-        $userid = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $userid = $session->get('authUserID');
     }
 
     $countrow = sqlQuery(
@@ -138,7 +141,8 @@ function isFacilityAllowed($facid, $userid = 0)
 function isWarehouseAllowed($facid, $whid, $userid = 0)
 {
     if (!$userid) {
-        $userid = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $userid = $session->get('authUserID');
     }
 
     $countrow = sqlQuery(

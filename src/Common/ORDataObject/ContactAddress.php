@@ -19,6 +19,7 @@ namespace OpenEMR\Common\ORDataObject;
 use DateTime;
 use OpenEMR\Common\ORDataObject\Address;
 use OpenEMR\Common\ORDataObject\Contact;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
 class ContactAddress extends ORDataObject implements \JsonSerializable
@@ -115,9 +116,10 @@ class ContactAddress extends ORDataObject implements \JsonSerializable
     public function __construct(private $id = "")
     {
         parent::__construct("contact_address");
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->setThrowExceptionOnError(true);
         $this->priority = 0;
-        $this->author = $_SESSION['authUser'];
+        $this->author = $session->get('authUser');
         $this->status = self::STATUS_ACTIVE;
         $this->use = self::DEFAULT_USE;
         $this->type = self::DEFAULT_TYPE;

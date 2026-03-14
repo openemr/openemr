@@ -43,6 +43,7 @@
 namespace OpenEMR\Billing\BillingProcessor;
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 class BillingProcessor
@@ -95,6 +96,8 @@ class BillingProcessor
 
     protected function prepareClaims($processing_task_action)
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $bn_x12 = $session->get('bn_x12') ?? '';
         $claims = [];
         // Build the claims we actually want to process from the post
         // The form posts all claims whether they were selected or not, and we
@@ -107,7 +110,6 @@ class BillingProcessor
                 // Since the format is cryptic, we use the BillingClaim constructor to parse that into meaningful
                 // attributes
                 $billingClaim = new BillingClaim($claimId, $partner_and_payor, $processing_task_action);
-                $bn_x12 = $_SESSION['bn_x12'] ?? '';
                 if (($billingClaim->getPartner() == -1) && $bn_x12) {
                     // If the x-12 partner is unassigned, don't process it.
                     $this->logger->printToScreen(xl("No X-12 partner assigned for claim " . $billingClaim->getId()));

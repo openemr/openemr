@@ -37,10 +37,6 @@ if (!empty($_REQUEST['recipient']) && ($_REQUEST['recipient'] === 'patient') && 
         session_id($_REQUEST['me']);
         SessionUtil::sessionStartWrapper();
     }
-    if ($_SESSION['pid'] && $_SESSION['sessionUser'] === '-patient-' && $_SESSION['portal_init']) {
-        // Onsite portal was validated and patient authorized and re-validated via forwarded session.
-        $ignoreAuth_onsite_portal = true;
-    }
 }
 
 if (!empty($_REQUEST['me']) && isset($_REQUEST['sent_by_app']) && $_REQUEST['sent_by_app'] === 'core_api') {

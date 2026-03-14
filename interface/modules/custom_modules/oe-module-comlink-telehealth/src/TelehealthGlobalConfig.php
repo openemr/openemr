@@ -285,7 +285,7 @@ class TelehealthGlobalConfig
     public function getRegistrationAPIPassword()
     {
         $encryptedValue = $this->getGlobalSetting(self::COMLINK_VIDEO_API_USER_PASSWORD);
-        return $this->cryptoGen->decryptStandard($encryptedValue);
+        return $this->cryptoGen->decryptStandard(is_string($encryptedValue) ? $encryptedValue : null);
     }
 
     public function getRegistrationAPICmsId()

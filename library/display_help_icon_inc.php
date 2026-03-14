@@ -10,11 +10,15 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
-if ($_SESSION ['language_direction'] == 'ltr') {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+$language_direction = $session->get('language_direction');
+if ($language_direction === 'ltr') {
     $help_icon_title = "To enable help - Go to the User Name on top right > Settings > Features > Enable Help Modal";
-} elseif ($_SESSION ['language_direction'] == 'rtl') {
+} elseif ($language_direction === 'rtl') {
     $help_icon_title = "To enable help - Go to the User Name on top left > Settings > Features > Enable Help Modal";
 }
 

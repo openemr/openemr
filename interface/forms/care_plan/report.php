@@ -15,6 +15,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(OEGlobalsBag::getInstance()->get("srcdir") . "/options.inc.php");
@@ -22,8 +23,9 @@ require_once(OEGlobalsBag::getInstance()->get("srcdir") . "/options.inc.php");
 function care_plan_report($pid, $encounter, $cols, $id): void
 {
     $count = 0;
-    $encounter = !empty($encounter) ? $encounter : $_SESSION["encounter"] ?? 0;
-    $pid = !empty($pid) ? $pid : $_SESSION["pid"] ?? 0;
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $encounter = !empty($encounter) ? $encounter : $session->get('encounter') ?? 0;
+    $pid = !empty($pid) ? $pid : $session->get('pid') ?? 0;
 
     $sql = "SELECT * FROM `form_care_plan` WHERE id=? AND pid = ? AND encounter = ?";
     $res = sqlStatement($sql, [$id, $pid, $encounter]);

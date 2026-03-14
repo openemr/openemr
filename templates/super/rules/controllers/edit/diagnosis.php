@@ -13,12 +13,14 @@
  */
 
 use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 
 <head>
-    <?php if ($_SESSION['language_direction'] == "rtl") { ?>
+    <?php if ($session->get('language_direction') === "rtl") { ?>
         <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->get('themes_static_relative'); ?>/misc/rtl_rules.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
     <?php } else { ?>
         <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->get('themes_static_relative'); ?>/misc/rules.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />

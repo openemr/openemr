@@ -15,6 +15,7 @@ namespace OpenEMR\Patient\Cards;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
@@ -83,7 +84,7 @@ class TreatmentPreferenceViewCard extends CardModel
 
     public function getTemplateVariables(): array
     {
-
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $templateVars = parent::getTemplateVariables();
         $dispatchResult = $this->getEventDispatcher()->dispatch(new RenderEvent(self::CARD_ID), RenderEvent::EVENT_HANDLE);
         $this->handlePost();
@@ -133,7 +134,7 @@ class TreatmentPreferenceViewCard extends CardModel
             'auth'             => true,  // TODO ACL
             'can_write'        => true,  // TODO ACL
             'webroot'          => OEGlobalsBag::getInstance()->get('webroot') ?? '',
-            'csrf_token'       => CsrfUtils::collectCsrfToken(),
+            'csrf_token'       => CsrfUtils::collectCsrfToken(session: $session),
             'preferences'      => $preferences,
             'loinc_codes'      => $loincCodes,
             'current_datetime' => date('Y-m-d\TH:i'),
@@ -193,7 +194,8 @@ class TreatmentPreferenceViewCard extends CardModel
         if (($_POST['pref_type'] ?? '') !== 'treatment_intervention') {
             return;
         }
-        if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '', session: $session)) {
             CsrfUtils::csrfNotVerified();
         }
 
@@ -219,7 +221,8 @@ class TreatmentPreferenceViewCard extends CardModel
 
     private function collectPost(array $post): array
     {
-        $uid = $_SESSION['authUserID'] ?? null;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $uid = $session->get('authUserID');
 
         return [
             'patient_id'            => $this->pid,  // ← was 'pid'

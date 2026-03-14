@@ -150,6 +150,6 @@ class TeleHealthUserRepository extends BaseService
     public function decryptPassword($password)
     {
         $cryptoGen = ServiceContainer::getCrypto();
-        return $cryptoGen->decryptStandard($password);
+        return $cryptoGen->decryptStandard(is_string($password) ? $password : null);
     }
 }

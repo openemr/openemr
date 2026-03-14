@@ -17,7 +17,10 @@ require_once(__DIR__ . '/../../globals.php');
 require_once("$srcdir/dated_reminder_functions.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $days_to_show = 30;
 $alerts_to_show = OEGlobalsBag::getInstance()->getInt('dated_reminders_max_alerts_to_show');
@@ -38,7 +41,7 @@ $updateDelay *= 1000;
 // Javascript will send a post
 // ----------------------------------------------------------------------------
 if (isset($_POST['drR'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -110,7 +113,7 @@ function openAddScreen(id){
   } else {
     top.restoreSession();
     const params = new URLSearchParams({
-        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+        csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>,
         mID: id
     });
     dlgopen('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/main/dated_reminders/dated_reminders_add.php?' + params, '_drAdd', 700, 500);
@@ -135,7 +138,7 @@ function updateme(id){
     {
       drR: id,
       skip_timeout_reset: "1",
-      csrf_token_form: "<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"
+      csrf_token_form: "<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>"
     },
     function(data) {
     if (data == 'error') {

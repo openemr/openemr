@@ -16,6 +16,7 @@ namespace OpenEMR\Billing;
 
 require_once(__DIR__ . "/../../library/patient.inc.php");
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\PaymentProcessing\Recorder;
 
 class SLEOB
@@ -82,9 +83,10 @@ class SLEOB
             }
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         return sqlInsert("INSERT INTO ar_session ( " .
             "payer_id, user_id, reference, check_date, deposit_date, pay_total " .
-            ") VALUES ( ?, ?, ?, ?, ?, ? )", [$payer_id, $_SESSION['authUserID'], $reference, $check_date, $deposit_date, $pay_total]);
+            ") VALUES ( ?, ?, ?, ?, ?, ? )", [$payer_id, $session->get('authUserID'), $reference, $check_date, $deposit_date, $pay_total]);
     }
 
     //writing the check details to Session Table on ERA proxcessing
@@ -96,7 +98,8 @@ class SLEOB
         if ($debug) {
             echo text($query) . "<br />\n";
         } else {
-            $sessionId = sqlInsert($query, [$payer_id, $_SESSION['authUserID'], 'ePay - ' . $check_number, $check_date, $pay_total, $post_to_date, $deposit_date]);
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $sessionId = sqlInsert($query, [$payer_id, $session->get('authUserID'), 'ePay - ' . $check_number, $check_date, $pay_total, $post_to_date, $deposit_date]);
             return $sessionId;
         }
     }
@@ -136,6 +139,7 @@ class SLEOB
             $modifier = substr((string) $code, $tmp + 1);
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $recorder = new Recorder();
         $recorder->recordActivity([
             'patientId' => $patient_id,
@@ -145,12 +149,12 @@ class SLEOB
             'modifier' => $modifier,
             'payerType' => $payer_type,
             'postDate' => $date,
-            'postUser' => $_SESSION['authUserID'],
+            'postUser' => $session->get('authUserID'),
             'sessionId' => $session_id,
             'memo' => $memo,
             'payAmount' => $amount,
             'adjustmentAmount' => '0.0',
-            'payerClaimNumber' => $payer_claim_number
+            'payerClaimNumber' => $payer_claim_number,
         ]);
     }
 
@@ -226,6 +230,7 @@ class SLEOB
             $modifier = substr((string) $code, $tmp + 1);
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $recorder = new Recorder();
         $recorder->recordActivity([
             'patientId' => $patient_id,
@@ -234,7 +239,7 @@ class SLEOB
             'code' => $codeonly,
             'modifier' => $modifier,
             'payerType' => $payer_type,
-            'postUser' => $_SESSION['authUserID'],
+            'postUser' => $session->get('authUserID'),
             'sessionId' => $session_id,
             'payAmount' => '0.0',
             'adjustmentAmount' => $amount,

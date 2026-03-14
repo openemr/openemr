@@ -36,7 +36,7 @@ use OpenEMR\Services\PatientIssuesService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\SDOH\HistorySdohService;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $pid = (int)($_GET['pid'] ?? 0);
 $sdoh_id = (int)($_GET['sdoh_id'] ?? 0);
@@ -80,7 +80,7 @@ $patientName = ($patient['fname'] ?? '') . ' ' . ($patient['lname'] ?? '');
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', 'default', $session->getSymfonySession())) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -144,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$csrf = CsrfUtils::collectCsrfToken('default', $session->getSymfonySession());
+$csrf = (string) CsrfUtils::collectCsrfToken(session: $session);
 ?>
 
 <!DOCTYPE html>

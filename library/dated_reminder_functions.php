@@ -14,6 +14,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 
@@ -51,7 +52,8 @@ function GetServiceOtherCounts(): array
 function GetPortalAlertCounts(): array
 {
     $counts = [];
-    $s_user = '%' . $_SESSION['authUser'] . '%';
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $s_user = '%' . $session->get('authUser') . '%';
 
     $query = "SELECT Count(`m`.message_status) AS count_mail FROM onsite_mail `m` " .
         "WHERE `m`.owner LIKE ? AND `m`.recipient_id LIKE ? AND `m`.message_status LIKE ?  AND `m`.deleted = 0";
@@ -86,7 +88,8 @@ function GetPortalAlertCounts(): array
 function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = null)
 {
     if (!$userID) {
-        $userID = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $userID = $session->get('authUserID');
     }
 
     global $hasAlerts;
@@ -151,7 +154,8 @@ function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = null)
 function GetDueReminderCount($days_to_show, $today, $userID = false)
 {
     if (!$userID) {
-        $userID = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $userID = $session->get('authUserID');
     }
 
 // ----- sql statement for getting uncompleted reminders (sorts by date, then by priority)
@@ -185,7 +189,8 @@ function GetDueReminderCount($days_to_show, $today, $userID = false)
 function GetAllReminderCount($userID = false)
 {
     if (!$userID) {
-        $userID = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $userID = $session->get('authUserID');
     }
 
 // ----- sql statement for getting uncompleted reminders
@@ -279,7 +284,8 @@ function getRemindersHTML($today, $reminders = []): string
 function setReminderAsProcessed($rID, $userID = false): void
 {
     if (!$userID) {
-        $userID = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $userID = $session->get('authUserID');
     }
 
     if (is_numeric($rID) and $rID > 0) {
@@ -313,7 +319,8 @@ function setReminderAsProcessed($rID, $userID = false): void
 function getReminderById($mID, $userID = false): bool|array
 {
     if (!$userID) {
-        $userID = $_SESSION['authUserID'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $userID = $session->get('authUserID');
     }
 
     $rdrSQL = sqlStatement("SELECT * FROM `dated_reminders` dr

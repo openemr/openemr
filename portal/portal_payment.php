@@ -18,7 +18,6 @@
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\FormatMoney;
@@ -31,17 +30,18 @@ use OpenEMR\PaymentProcessing\Sphere\SpherePayment;
 require_once(__DIR__ . "/../vendor/autoload.php");
 $globalsBag = OEGlobalsBag::getInstance();
 $v_js_includes = $globalsBag->get('v_js_includes');
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $isPortal = false;
-if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     $isPortal = true;
     require_once(__DIR__ . "/../interface/globals.php");
 } else {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     $ignoreAuth = false;
+    $session = SessionWrapperFactory::getInstance()->getCoreSession();
     require_once(__DIR__ . "/../interface/globals.php");
     if (!$session->has('authUserID')) {
         $landingpage = "index.php";
@@ -88,7 +88,7 @@ $edata = $recid ? $appsql->getPortalAuditRec($recid) : $appsql->getPortalAudit($
 $ccdata = [];
 $invdata = [];
 if ($edata) {
-    $ccdata = json_decode($cryptoGen->decryptStandard($edata['checksum']), true);
+    $ccdata = json_decode($cryptoGen->decryptStandard(is_string($edata['checksum']) ? $edata['checksum'] : null), true);
     $invdata = json_decode((string) $edata['table_args'], true);
     echo "<script>var jsondata='" . $edata['table_args'] . "';var ccdata='" . $edata['checksum'] . "'</script>";
 }
@@ -356,7 +356,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 url: formURL,
                 type: "POST",
                 data: {
-                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken('messages-portal', $session->getSymfonySession())); ?>,
+                    'csrf_token_form': <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session, 'messages-portal')); ?>,
                     'task': 'add',
                     'pid': pid,
                     'inputBody': note,
@@ -451,7 +451,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 xl('Until then you will continue to see payment details here.') . "\n" . xl('Thank You.');
             echo json_encode($amsg);
         ?>;
-        var publicKey = <?php echo json_encode($cryptoGen->decryptStandard($globalsBag->get('gateway_public_key'))); ?>;
+        var publicKey = <?php echo json_encode($cryptoGen->decryptStandard(is_string($globalsBag->get('gateway_public_key')) ? $globalsBag->get('gateway_public_key') : null)); ?>;
 
         function calctotal() {
             var flag = 0;
@@ -923,24 +923,24 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 $sum_copay += (float)$inscopay;
                 $sum_balance += $balance;
                 ?>
-<tr id="tr_<?=$idx?>">
+<tr id="tr_<?=attr((string)$idx)?>">
     <td class="detail"><?=text(oeFormatShortDate($dispdate))?></td>
     <td class="detail" id="<?=attr($dispdate)?>" align='left'><?=text($enc)?>: <?=text($reason)?></td>
-    <td class="detail" align="center" id="td_charges_<?=$idx?>"><?=text(FormatMoney::getBucks($value['charges']))?></td>
-    <td class="detail" align="center" id="td_inspaid_<?=$idx?>"><?=text(FormatMoney::getBucks(($dpayment + $dadjustment) * -1))?></td>
-    <td class="detail" align="center" id="td_ptpaid_<?=$idx?>"><?=text(FormatMoney::getBucks($dpayment_pat * -1))?></td>
-    <td class="detail" align="center" id="td_patient_copay_<?=$idx?>"><?=text(FormatMoney::getBucks($patcopay))?></td>
-    <td class="detail" align="center" id="td_copay_<?=$idx?>"><?=text(FormatMoney::getBucks($inscopay))?></td>
-    <td class="detail" align="center" id="balance_<?=$idx?>"><?=text(FormatMoney::getBucks($balance))?></td>
-    <td class="detail" align="center" id="duept_<?=$idx?>"><?=text(FormatMoney::getBucks($duept))?></td>
+    <td class="detail" align="center" id="td_charges_<?=attr((string)$idx)?>"><?=text(FormatMoney::getBucks($value['charges']))?></td>
+    <td class="detail" align="center" id="td_inspaid_<?=attr((string)$idx)?>"><?=text(FormatMoney::getBucks(($dpayment + $dadjustment) * -1))?></td>
+    <td class="detail" align="center" id="td_ptpaid_<?=attr((string)$idx)?>"><?=text(FormatMoney::getBucks($dpayment_pat * -1))?></td>
+    <td class="detail" align="center" id="td_patient_copay_<?=attr((string)$idx)?>"><?=text(FormatMoney::getBucks($patcopay))?></td>
+    <td class="detail" align="center" id="td_copay_<?=attr((string)$idx)?>"><?=text(FormatMoney::getBucks($inscopay))?></td>
+    <td class="detail" align="center" id="balance_<?=attr((string)$idx)?>"><?=text(FormatMoney::getBucks($balance))?></td>
+    <td class="detail" align="center" id="duept_<?=attr((string)$idx)?>"><?=text(FormatMoney::getBucks($duept))?></td>
     <td class="detail" align="center">
         <input
             class="form-control amount_field"
-            data-encounter-id="<?=$enc?>"
+            data-encounter-id="<?=attr($enc)?>"
             data-code="<?=attr($value['code'])?>"
             data-code-type="<?=attr($value['code_type'])?>"
-            name="form_upay[<?=$enc?>]"
-            id="paying_<?=$idx?>"
+            name="form_upay[<?=attr($enc)?>]"
+            id="paying_<?=attr((string)$idx)?>"
             value=""
             onchange="coloring();calctotal()"
             autocomplete="off"
@@ -1051,7 +1051,8 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                                 <label label-default="label-default"
                                        class="control-label"><?php echo xlt('Name on Card'); ?></label>
                                 <div class="controls">
-                                    <input name="cardHolderName" id="cardHolderName" type="text" class="form-control" pattern="\w+ \w+.*" title="<?php echo xla('Fill your first and last name'); ?>" value="<?php echo attr($patdata['fname']) . ' ' . attr($patdata['lname']) ?>" />
+                                    <?php /** @phpstan-ignore-next-line */ ?>
+                                    <input name="cardHolderName" id="cardHolderName" type="text" class="form-control" pattern="\w+ \w+.*" title="<?php echo xla('Fill your first and last name'); ?>" value="<?php echo attr($patdata['fname'] ?? '') . ' ' . attr($patdata['lname'] ?? '') ?>" />
                                 </div>
                             </div>
                             <div class="form-group">
@@ -1119,7 +1120,8 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                                 <div class="form-group">
                                     <label label-default="label-default"><?php echo xlt('Name on Card'); ?></label>
                                     <div class="controls">
-                                        <input name="cardHolderName" id="cardHolderName" type="text" class="form-control" pattern="\w+ \w+.*" title="<?php echo xla('Fill your first and last name'); ?>" value="<?php echo attr($patdata['fname']) . ' ' . attr($patdata['lname']) ?>" />
+                                        <?php /** @phpstan-ignore-next-line */ ?>
+                                        <input name="cardHolderName" id="cardHolderName" type="text" class="form-control" pattern="\w+ \w+.*" title="<?php echo xla('Fill your first and last name'); ?>" value="<?php echo attr($patdata['fname'] ?? '') . ' ' . attr($patdata['lname'] ?? '') ?>" />
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -1203,7 +1205,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         // Important: gateway_api_key is NOT a sensitive value when used with Authorize.net (not true for other gateways!)
         ?>
         <script>
-            var apiLoginID = <?php echo json_encode($cryptoGen->decryptStandard($globalsBag->get('gateway_api_key'))); ?>;
+            var apiLoginID = <?php echo json_encode($cryptoGen->decryptStandard(is_string($globalsBag->get('gateway_api_key')) ? $globalsBag->get('gateway_api_key') : null)); ?>;
         </script>
         <script src="portal_payment.authorizenet.js?v=<?=$v_js_includes?>"></script>
     <?php }  // end authorize.net ?>
@@ -1224,7 +1226,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         }
         echo '<script type="text/javascript">';
         echo $twig->render('payments/rainforest.js', [
-            'csrf' => CsrfUtils::collectCsrfToken('rainforest', $session->getSymfonySession()),
+            'csrf' => CsrfUtils::collectCsrfToken($session, 'rainforest'),
             'endpoint' => 'portal_payment.rainforest.php',
         ]);
         echo '</script>';

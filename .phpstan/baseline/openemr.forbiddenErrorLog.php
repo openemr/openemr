@@ -363,7 +363,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use a PSR\\-3 logger such as OpenEMR\\\\BC\\\\ServiceContainer\\:\\:getLogger\\(\\) instead of error_log\\(\\)\\.$#',
-    'count' => 5,
+    'count' => 4,
     'path' => __DIR__ . '/../../src/Common/Csrf/CsrfUtils.php',
 ];
 $ignoreErrors[] = [

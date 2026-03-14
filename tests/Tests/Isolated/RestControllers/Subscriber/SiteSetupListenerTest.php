@@ -96,6 +96,15 @@ class RealCoreSessionListener extends SiteSetupListener
     {
         $request->setApiBaseFullUrl('https://localhost/apis');
     }
+
+    protected function setupCoreSessionBridge(HttpRestRequest $request, string $webroot): void
+    {
+        $session = new \Symfony\Component\HttpFoundation\Session\Session(
+            new \Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage()
+        );
+        $session->start();
+        $request->setSession($session);
+    }
 }
 
 class SiteSetupListenerTest extends TestCase
