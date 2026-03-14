@@ -37,11 +37,13 @@ interface MockAdodbConnection
 }
 
 /**
- * Interface for mocking ADODB result set in tests
+ * Abstract class for mocking ADODB result set in tests
  */
-interface MockAdodbResultSet
+abstract class MockAdodbResultSet
 {
-    public function FetchRow(): array|false;
+    public bool $EOF = true;
+
+    abstract public function FetchRow(): array|false;
 }
 
 final class EventAuditLoggerTest extends TestCase
