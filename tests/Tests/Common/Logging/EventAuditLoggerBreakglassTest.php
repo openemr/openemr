@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Test for EventAuditLogger breakglass user functionality using fixtures
+ * Test for BreakglassChecker functionality using fixtures
  *
  * @package   OpenEMR\Tests\Common\Logging
  * @link      https://www.open-emr.org
@@ -14,9 +14,11 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Common\Logging;
 
+use OpenEMR\Common\Logging\BreakglassCheckerInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Tests\Fixtures\GaclFixtureManager;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 
 final class EventAuditLoggerBreakglassTest extends TestCase
 {
@@ -35,7 +37,7 @@ final class EventAuditLoggerBreakglassTest extends TestCase
     }
 
     /**
-     * Test isBreakglassUser method with FixtureManager to cover line 995
+     * Test isBreakglassUser method with FixtureManager
      * This test uses proper FixtureManager pattern to set up GACL data
      */
     public function testIsBreakglassUserWithFixtureManager(): void
@@ -44,30 +46,19 @@ final class EventAuditLoggerBreakglassTest extends TestCase
         $insertCount = $this->gaclFixtureManager->installFixtures();
         $this->assertGreaterThan(0, $insertCount, 'GACL fixtures should be installed');
 
-        // Get EventAuditLogger singleton instance
-        $eventAuditLogger = EventAuditLogger::getInstance();
+        // Get the BreakglassChecker from EventAuditLogger singleton via reflection
+        $logger = EventAuditLogger::getInstance();
+        $reflectionClass = new ReflectionClass($logger);
+        $property = $reflectionClass->getProperty('breakglassChecker');
+        /** @var BreakglassCheckerInterface $checker */
+        $checker = $property->getValue($logger);
 
-        // Use reflection to access private properties and methods
-        $reflectionClass = new \ReflectionClass($eventAuditLogger);
-
-        // Reset breakglassUser property to null to force re-evaluation
-        $breakglassProperty = $reflectionClass->getProperty('breakglassUser');
-        $breakglassProperty->setValue($eventAuditLogger, null);
-
-        // Access the protected isBreakglassUser method
-        $reflectionMethod = $reflectionClass->getMethod('isBreakglassUser');
-
-        // Test breakglass user - should execute line 995: $this->breakglassUser = true;
-        $result = $reflectionMethod->invoke($eventAuditLogger, 'testbreakglassuser');
-
-        // Verify line 995 was executed by checking the property value
-        $finalValue = $breakglassProperty->getValue($eventAuditLogger);
-        $this->assertTrue($finalValue === true, 'Line 995 should set breakglassUser to true');
+        // Test breakglass user
+        $result = $checker->isBreakglassUser('testbreakglassuser');
         $this->assertTrue($result, 'Breakglass user should return true');
 
-        // Test non-breakglass user (reset first)
-        $breakglassProperty->setValue($eventAuditLogger, null);
-        $result2 = $reflectionMethod->invoke($eventAuditLogger, 'normaluser');
+        // Test non-breakglass user
+        $result2 = $checker->isBreakglassUser('normaluser');
         $this->assertFalse($result2, 'Normal user should return false');
     }
 }

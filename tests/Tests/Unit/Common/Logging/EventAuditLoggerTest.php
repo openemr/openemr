@@ -17,7 +17,10 @@ namespace OpenEMR\Tests\Unit\Common\Logging;
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Logging\AuditConfig;
+use OpenEMR\Common\Logging\BreakglassCheckerInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
@@ -34,11 +37,13 @@ interface MockAdodbConnection
 }
 
 /**
- * Interface for mocking ADODB result set in tests
+ * Abstract class for mocking ADODB result set in tests
  */
-interface MockAdodbResultSet
+abstract class MockAdodbResultSet
 {
-    public function FetchRow(): array|false;
+    public bool $EOF = true;
+
+    abstract public function FetchRow(): array|false;
 }
 
 final class EventAuditLoggerTest extends TestCase
@@ -47,6 +52,12 @@ final class EventAuditLoggerTest extends TestCase
      * @var EventAuditLogger
      */
     private $eventAuditLogger;
+
+    private SessionWrapperInterface&MockObject $session;
+
+    private AuditConfig $config;
+
+    private BreakglassCheckerInterface&MockObject $breakglassChecker;
 
     /**
      * @var array<string, mixed> Original $_SESSION backup
@@ -86,6 +97,16 @@ final class EventAuditLoggerTest extends TestCase
     {
         parent::setUp();
 
+        $this->session = $this->createMock(SessionWrapperInterface::class);
+        $this->config = new AuditConfig(
+            enabled: true,
+            forceBreakglass: false,
+            queryEvents: true,
+            httpRequestEvents: true,
+            eventTypeFlags: [],
+        );
+        $this->breakglassChecker = $this->createMock(BreakglassCheckerInterface::class);
+
         // Backup original superglobals
         /**
          * @var array<string, mixed> $session
@@ -111,6 +132,9 @@ final class EventAuditLoggerTest extends TestCase
             sinks: [],
             cryptoGen: ServiceContainer::getCrypto(),
             shouldEncrypt: false,
+            session: $this->session,
+            config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
         );
 
         // Setup default test environment
@@ -226,6 +250,30 @@ final class EventAuditLoggerTest extends TestCase
         }
     }
 
+    /**
+     * Get constructor args for EventAuditLogger mocks
+     *
+     * @param array<string, mixed> $sessionValues Session values to return from mock (defaults to testuser/testprovider)
+     * @return list<mixed>
+     */
+    private function getLoggerConstructorArgs(?AuditConfig $config = null, ?array $sessionValues = null): array
+    {
+        $sessionValues ??= ['authUser' => 'testuser', 'authProvider' => 'testprovider'];
+        $sessionMock = $this->createMock(SessionWrapperInterface::class);
+        $sessionMock->method('get')
+            ->willReturnCallback(fn(string $key) => $sessionValues[$key] ?? null);
+
+        // Return positional array matching constructor parameter order:
+        // sinks, cryptoGen, shouldEncrypt, session, config, breakglassChecker
+        return [
+            [],                                         // sinks
+            $this->createMock(CryptoGen::class),        // cryptoGen
+            false,                                      // shouldEncrypt
+            $sessionMock,                               // session
+            $config ?? $this->config,                   // config
+            $this->breakglassChecker,                   // breakglassChecker
+        ];
+    }
 
     /**
      * Setup test session variables
@@ -315,7 +363,7 @@ final class EventAuditLoggerTest extends TestCase
         // Mock recordLogItem method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
-            ->disableOriginalConstructor()
+            ->setConstructorArgs($this->getLoggerConstructorArgs())
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -409,7 +457,7 @@ final class EventAuditLoggerTest extends TestCase
         // Mock recordLogItem to verify it gets called with correct parameters
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
-            ->disableOriginalConstructor()
+            ->setConstructorArgs($this->getLoggerConstructorArgs())
             ->getMock();
 
         // We expect recordLogItem to be called once (either patient portal path or regular path)
@@ -485,6 +533,9 @@ final class EventAuditLoggerTest extends TestCase
             sinks: [],
             cryptoGen: $this->createMock(CryptoGen::class),
             shouldEncrypt: false,
+            session: $this->session,
+            config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
         );
 
         // Call recordLogItem - will return early due to disabled audit logging
@@ -526,7 +577,7 @@ final class EventAuditLoggerTest extends TestCase
                 fn(string $value): string => 'encrypted_' . $value
             );
 
-        $eventAuditLogger = new EventAuditLogger(sinks: [], cryptoGen: $cryptoMock, shouldEncrypt: true);
+        $eventAuditLogger = new EventAuditLogger(sinks: [], cryptoGen: $cryptoMock, shouldEncrypt: true, session: $this->session, config: $this->config, breakglassChecker: $this->breakglassChecker);
 
         try {
             // This should execute the full recordLogItem flow including encryption
@@ -624,7 +675,7 @@ final class EventAuditLoggerTest extends TestCase
                 fn(string $value): string => 'encrypted_' . $value
             );
 
-        $eventAuditLogger = new EventAuditLogger(sinks: [], cryptoGen: $cryptoMock, shouldEncrypt: true);
+        $eventAuditLogger = new EventAuditLogger(sinks: [], cryptoGen: $cryptoMock, shouldEncrypt: true, session: $this->session, config: $this->config, breakglassChecker: $this->breakglassChecker);
 
         // Call recordLogItem with API data - this should execute the encryption code:
         // Line 767: $api['request_url'] = (!empty($api['request_url'])) ? $this->cryptoGen->encryptStandard($api['request_url']) : '';
@@ -662,23 +713,24 @@ final class EventAuditLoggerTest extends TestCase
         $_SERVER['SCRIPT_NAME'] = '/api/patient/123'; // Line 874: $comment = $_SERVER['SCRIPT_NAME'];
         $_SERVER['QUERY_STRING'] = 'format=json&debug=true'; // Line 876: $comment .= '?' . $_SERVER['QUERY_STRING'];
 
-        // Set up session variables
-        $_SESSION['authUser'] = 'api_user';
-        $_SESSION['authProvider'] = 'api_provider';
-        $_SESSION['pid'] = 456;
+        $sessionValues = [
+            'authUser' => 'api_user',
+            'authProvider' => 'api_provider',
+            'pid' => 456,
+        ];
 
         // Create mock to verify newEvent is called with correct parameters
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['newEvent'])
-            ->disableOriginalConstructor()
+            ->setConstructorArgs($this->getLoggerConstructorArgs(sessionValues: $sessionValues))
             ->getMock();
 
         $loggerMock->expects($this->once())
             ->method('newEvent')
             ->with(
                 'http-request-update', // Line 871: $event = $methodMap[$method] ?? 'select'; (POST maps to update)
-                'api_user', // Line 882: $_SESSION['authUser'] ?? null
-                'api_provider', // Line 883: $_SESSION['authProvider'] ?? null
+                'api_user',
+                'api_provider',
                 1, // Line 884: success = 1
                 '/api/patient/123?format=json&debug=true',
                 456 // Line 886: $_SESSION['pid'] ?? null
@@ -706,13 +758,11 @@ final class EventAuditLoggerTest extends TestCase
         $_SERVER['SCRIPT_NAME'] = '/test/path';
         unset($_SERVER['QUERY_STRING']); // Test without query string
 
-        $_SESSION['authUser'] = 'test_user';
-        $_SESSION['authProvider'] = 'test_provider';
-        unset($_SESSION['pid']); // Test with no patient ID
+        $sessionValues = ['authUser' => 'test_user', 'authProvider' => 'test_provider'];
 
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['newEvent'])
-            ->disableOriginalConstructor()
+            ->setConstructorArgs($this->getLoggerConstructorArgs(sessionValues: $sessionValues))
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -843,54 +893,6 @@ final class EventAuditLoggerTest extends TestCase
     }
 
     /**
-     * Test isBreakglassUser method
-     */
-    public function testIsBreakglassUser(): void
-    {
-        $reflectionClass = new ReflectionClass($this->eventAuditLogger);
-        $reflectionMethod = $reflectionClass->getMethod('isBreakglassUser');
-
-        // Test with empty user
-        $this->assertFalse($reflectionMethod->invoke($this->eventAuditLogger, ''));
-
-        // Test with non-breakglass user (mocked to return null)
-        $this->assertFalse($reflectionMethod->invoke($this->eventAuditLogger, 'normaluser'));
-    }
-
-    /**
-     * Test isBreakglassUser method with user in breakglass group
-     */
-    public function testIsBreakglassUserInBreakglassGroup(): void
-    {
-        $reflectionClass = new ReflectionClass($this->eventAuditLogger);
-        $reflectionMethod = $reflectionClass->getMethod('isBreakglassUser');
-
-        // Test when sqlQueryNoLog returns a non-empty result
-        // Since we can't easily mock sqlQueryNoLog, we'll test the property setting logic
-        // by directly setting the breakglassUser property through reflection
-
-        // Access the private breakglassUser property
-        $breakglassProperty = $reflectionClass->getProperty('breakglassUser');
-
-        // Test the caching behavior: first set the property to true
-        $breakglassProperty->setValue($this->eventAuditLogger, true);
-
-        // When isBreakglassUser is called and the property is already set, it returns the cached value
-        $this->assertTrue($reflectionMethod->invoke($this->eventAuditLogger, 'breakglassuser'));
-
-        // Reset the property to test the other branch
-        $breakglassProperty->setValue($this->eventAuditLogger, false);
-        $this->assertFalse($reflectionMethod->invoke($this->eventAuditLogger, 'normaluser'));
-
-        // Reset to null to allow future tests to work properly
-        $breakglassProperty->setValue($this->eventAuditLogger, null);
-
-        // This test verifies that breakglassUser property is set to true
-        // when sqlQueryNoLog returns a non-empty result, setting the user as a breakglass user
-        $this->addToAssertionCount(1);
-    }
-
-    /**
      * Test auditSQLAuditTamper method
      */
     public function testAuditSQLAuditTamper(): void
@@ -898,7 +900,7 @@ final class EventAuditLoggerTest extends TestCase
         // Mock recordLogItem method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
-            ->disableOriginalConstructor()
+            ->setConstructorArgs($this->getLoggerConstructorArgs())
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -919,14 +921,10 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testAuditSQLAuditTamperBreakglassLogging(): void
     {
-        // Set up session variables
-        $_SESSION['authUser'] = 'testuser';
-        $_SESSION['authProvider'] = 'testprovider';
-
         // Mock recordLogItem method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
-            ->disableOriginalConstructor()
+            ->setConstructorArgs($this->getLoggerConstructorArgs())
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -955,7 +953,7 @@ final class EventAuditLoggerTest extends TestCase
         // Mock recordLogItem method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
-            ->disableOriginalConstructor()
+            ->setConstructorArgs($this->getLoggerConstructorArgs())
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -984,7 +982,7 @@ final class EventAuditLoggerTest extends TestCase
         // Mock recordLogItem method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
-            ->disableOriginalConstructor()
+            ->setConstructorArgs($this->getLoggerConstructorArgs())
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -1048,31 +1046,30 @@ final class EventAuditLoggerTest extends TestCase
     }
 
     /**
-     * Test logHttpRequest method
+     * Test logHttpRequest method with audit logging disabled
      */
     public function testLogHttpRequest(): void
     {
-        // Keep audit logging disabled to prevent SQL escaping errors
-        $GLOBALS['enable_auditlog'] = false;
-        $GLOBALS['audit_events_http-request'] = true;
+        // Config with audit logging disabled
+        $config = new AuditConfig(
+            enabled: false,
+            forceBreakglass: false,
+            queryEvents: true,
+            httpRequestEvents: true,
+            eventTypeFlags: [],
+        );
 
-        try {
-            // Mock newEvent method
-            $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
-                ->onlyMethods(['newEvent'])
-                ->disableOriginalConstructor()
+        // Mock newEvent method
+        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+            ->onlyMethods(['newEvent'])
+            ->setConstructorArgs($this->getLoggerConstructorArgs($config))
                 ->getMock();
 
-            // With audit logging disabled, newEvent should not be called
-            $loggerMock->expects($this->never())
-                ->method('newEvent');
+        // With audit logging disabled, newEvent should not be called
+        $loggerMock->expects($this->never())
+            ->method('newEvent');
 
-            $loggerMock->logHttpRequest();
-        } finally {
-            // Restore original state
-            $GLOBALS['enable_auditlog'] = false;
-            $GLOBALS['audit_events_http-request'] = true; // Keep original setting
-        }
+        $loggerMock->logHttpRequest();
     }
 
     /**
@@ -1080,13 +1077,19 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testLogHttpRequestDisabled(): void
     {
-        // Disable HTTP request logging
-        $GLOBALS['audit_events_http-request'] = false;
+        // Config with HTTP request logging disabled
+        $config = new AuditConfig(
+            enabled: true,
+            forceBreakglass: false,
+            queryEvents: true,
+            httpRequestEvents: false,
+            eventTypeFlags: [],
+        );
 
         // Mock newEvent method to ensure it's not called
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['newEvent'])
-            ->disableOriginalConstructor()
+            ->setConstructorArgs($this->getLoggerConstructorArgs($config))
             ->getMock();
 
         $loggerMock->expects($this->never())->method('newEvent');
@@ -1100,14 +1103,19 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testLogHttpRequestAuditDisabled(): void
     {
-        // Disable audit logging but keep HTTP request logging enabled
-        $GLOBALS['enable_auditlog'] = false;
-        $GLOBALS['audit_events_http-request'] = true;
+        // Config with audit logging disabled
+        $config = new AuditConfig(
+            enabled: false,
+            forceBreakglass: false,
+            queryEvents: true,
+            httpRequestEvents: true,
+            eventTypeFlags: [],
+        );
 
         // Mock newEvent method to ensure it's not called
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['newEvent'])
-            ->disableOriginalConstructor()
+            ->setConstructorArgs($this->getLoggerConstructorArgs($config))
             ->getMock();
 
         $loggerMock->expects($this->never())->method('newEvent');
@@ -1117,76 +1125,73 @@ final class EventAuditLoggerTest extends TestCase
     }
 
     /**
-     * Test logHttpRequest with different HTTP methods
+     * Test logHttpRequest with different HTTP methods (audit disabled)
      */
     public function testLogHttpRequestDifferentMethods(): void
     {
-        // Keep audit logging disabled to prevent SQL escaping errors
-        $GLOBALS['enable_auditlog'] = false;
-        $GLOBALS['audit_events_http-request'] = true;
+        // Config with audit logging disabled
+        $config = new AuditConfig(
+            enabled: false,
+            forceBreakglass: false,
+            queryEvents: true,
+            httpRequestEvents: true,
+            eventTypeFlags: [],
+        );
 
-        try {
-            $methods = [
-                'GET' => 'select',
-                'POST' => 'update',
-                'PUT' => 'update',
-                'DELETE' => 'delete',
-                'PATCH' => 'update',
-                'OPTIONS' => 'select', // default
-                'HEAD' => 'select', // test additional method
-                'TRACE' => 'select' // test another default case
-            ];
+        $methods = [
+            'GET' => 'select',
+            'POST' => 'update',
+            'PUT' => 'update',
+            'DELETE' => 'delete',
+            'PATCH' => 'update',
+            'OPTIONS' => 'select', // default
+            'HEAD' => 'select', // test additional method
+            'TRACE' => 'select' // test another default case
+        ];
 
-            foreach ($methods as $httpMethod => $expectedEvent) {
-                $_SERVER['REQUEST_METHOD'] = $httpMethod;
+        foreach ($methods as $httpMethod => $expectedEvent) {
+            $_SERVER['REQUEST_METHOD'] = $httpMethod;
 
-                $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
-                    ->onlyMethods(['newEvent'])
-                    ->disableOriginalConstructor()
-                    ->getMock();
+            $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+                ->onlyMethods(['newEvent'])
+                ->setConstructorArgs($this->getLoggerConstructorArgs($config))
+                ->getMock();
 
-                // With audit logging disabled, newEvent should not be called
-                $loggerMock->expects($this->never())
-                    ->method('newEvent');
+            // With audit logging disabled, newEvent should not be called
+            $loggerMock->expects($this->never())
+                ->method('newEvent');
 
-                $loggerMock->logHttpRequest();
-            }
-        } finally {
-            // Restore original state
-            $GLOBALS['enable_auditlog'] = false;
-            $GLOBALS['audit_events_http-request'] = true; // Keep original setting
+            $loggerMock->logHttpRequest();
         }
     }
 
     /**
-     * Test logHttpRequest with missing session data
+     * Test logHttpRequest with missing session data (audit disabled)
      */
     public function testLogHttpRequestMissingSessionData(): void
     {
-        // Keep audit logging disabled to prevent SQL escaping errors
-        // but enable HTTP request auditing to test the logic flow
-        $GLOBALS['enable_auditlog'] = false;
-        $GLOBALS['audit_events_http-request'] = true;
+        // Config with audit logging disabled
+        $config = new AuditConfig(
+            enabled: false,
+            forceBreakglass: false,
+            queryEvents: true,
+            httpRequestEvents: true,
+            eventTypeFlags: [],
+        );
 
-        try {
-            // Clear session data to test default handling
-            $_SESSION = [];
+        // Session with no values
+        $sessionValues = [];
 
-            $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
-                ->onlyMethods(['newEvent'])
-                ->disableOriginalConstructor()
-                ->getMock();
+        $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
+            ->onlyMethods(['newEvent'])
+            ->setConstructorArgs($this->getLoggerConstructorArgs($config, $sessionValues))
+            ->getMock();
 
-            $loggerMock->expects($this->never())
-                ->method('newEvent');
+        $loggerMock->expects($this->never())
+            ->method('newEvent');
 
-            // With audit logging disabled, this should return early without calling newEvent
-            $loggerMock->logHttpRequest();
-        } finally {
-            // Restore original state
-            $GLOBALS['enable_auditlog'] = false;
-            $GLOBALS['audit_events_http-request'] = true;
-        }
+        // With audit logging disabled, this should return early without calling newEvent
+        $loggerMock->logHttpRequest();
     }
 
     /**
@@ -1443,12 +1448,12 @@ final class EventAuditLoggerTest extends TestCase
         unset($GLOBALS['gbl_force_log_breakglass']);
 
         // 3. Set a regular user (not breakglass)
-        $_SESSION['authUser'] = 'regular_user';
+        $sessionValues = ['authUser' => 'regular_user'];
 
         // Create a mock to verify recordLogItem is NOT called (due to early return)
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
-            ->disableOriginalConstructor()
+            ->setConstructorArgs($this->getLoggerConstructorArgs(sessionValues: $sessionValues))
             ->getMock();
 
         // Expect that recordLogItem is never called due to early return
@@ -1476,16 +1481,13 @@ final class EventAuditLoggerTest extends TestCase
         // 3. Disable breakglass logging
         unset($GLOBALS['gbl_force_log_breakglass']);
 
-        // 4. Set a regular user (not breakglass)
-        $_SESSION['authUser'] = 'regular_user';
-
-        // 5. Set up patient session to trigger patient-record event detection
-        $_SESSION['pid'] = '123';
+        // 4. Set a regular user (not breakglass) and patient session
+        $sessionValues = ['authUser' => 'regular_user', 'pid' => '123'];
 
         // Create a mock to verify recordLogItem is NOT called (due to early return)
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
-            ->disableOriginalConstructor()
+            ->setConstructorArgs($this->getLoggerConstructorArgs(sessionValues: $sessionValues))
             ->getMock();
 
         // Expect that recordLogItem is never called due to early return
@@ -1688,7 +1690,7 @@ final class EventAuditLoggerTest extends TestCase
         // Create a partial mock that only mocks recordLogItem method
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
-            ->disableOriginalConstructor()
+            ->setConstructorArgs($this->getLoggerConstructorArgs())
             ->getMock();
 
         // Expect recordLogItem to be called with specific parameters (regular path)
@@ -1734,7 +1736,7 @@ final class EventAuditLoggerTest extends TestCase
         // Create mock with recordLogItem mocked to avoid database calls
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
-            ->disableOriginalConstructor()
+            ->setConstructorArgs($this->getLoggerConstructorArgs())
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -1801,7 +1803,7 @@ final class EventAuditLoggerTest extends TestCase
         // Create mock with recordLogItem mocked - we'll accept whatever menu_item_id we get
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['recordLogItem'])
-            ->disableOriginalConstructor()
+            ->setConstructorArgs($this->getLoggerConstructorArgs())
             ->getMock();
 
         $loggerMock->expects($this->once())
@@ -1843,13 +1845,18 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testLogHttpRequestDisabledAuditLogging(): void
     {
-        $GLOBALS['enable_auditlog'] = false;
-        $GLOBALS['audit_events_http-request'] = true;
+        $config = new AuditConfig(
+            enabled: false,
+            forceBreakglass: false,
+            queryEvents: true,
+            httpRequestEvents: true,
+            eventTypeFlags: [],
+        );
 
         // Create mock with newEvent - should not be called when audit logging is disabled
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['newEvent'])
-            ->disableOriginalConstructor()
+            ->setConstructorArgs($this->getLoggerConstructorArgs($config))
             ->getMock();
 
         $loggerMock->expects($this->never())
@@ -1863,13 +1870,18 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testLogHttpRequestDisabledHttpRequestLogging(): void
     {
-        $GLOBALS['enable_auditlog'] = true;
-        $GLOBALS['audit_events_http-request'] = false;
+        $config = new AuditConfig(
+            enabled: true,
+            forceBreakglass: false,
+            queryEvents: true,
+            httpRequestEvents: false,
+            eventTypeFlags: [],
+        );
 
         // Create mock with newEvent - should not be called when http request logging is disabled
         $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
             ->onlyMethods(['newEvent'])
-            ->disableOriginalConstructor()
+            ->setConstructorArgs($this->getLoggerConstructorArgs($config))
             ->getMock();
 
         $loggerMock->expects($this->never())
@@ -1895,24 +1907,25 @@ final class EventAuditLoggerTest extends TestCase
         $_SERVER['SCRIPT_NAME'] = '/interface/patient_file/summary/demographics.php';
         $_SERVER['QUERY_STRING'] = 'pid=123&set_pid=123';
 
-        // Set up session variables
-        $_SESSION['authUser'] = 'test_user';
-        $_SESSION['authProvider'] = 'test_provider';
-        $_SESSION['pid'] = 123;
+        $sessionValues = [
+            'authUser' => 'test_user',
+            'authProvider' => 'test_provider',
+            'pid' => 123,
+        ];
 
         try {
             // Create mock with newEvent mocked to verify the call
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
-                ->disableOriginalConstructor()
+                ->setConstructorArgs($this->getLoggerConstructorArgs(sessionValues: $sessionValues))
                 ->getMock();
 
             $loggerMock->expects($this->once())
                 ->method('newEvent')
                 ->with(
                     'http-request-select', // event (GET maps to select)
-                    'test_user', // user
-                    'test_provider', // groupname
+                    'test_user',
+                    'test_provider',
                     1, // success
                     '/interface/patient_file/summary/demographics.php?pid=123&set_pid=123', // comments
                     123 // patient_id
@@ -1956,24 +1969,25 @@ final class EventAuditLoggerTest extends TestCase
         $_SERVER['SCRIPT_NAME'] = '/interface/patient_file/summary/demographics_save.php';
         unset($_SERVER['QUERY_STRING']); // No query string
 
-        // Set up session variables
-        $_SESSION['authUser'] = 'admin';
-        $_SESSION['authProvider'] = 'administrator';
-        $_SESSION['pid'] = 456;
+        $sessionValues = [
+            'authUser' => 'admin',
+            'authProvider' => 'administrator',
+            'pid' => 456,
+        ];
 
         try {
             // Create mock with newEvent mocked to verify the call
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
-                ->disableOriginalConstructor()
+                ->setConstructorArgs($this->getLoggerConstructorArgs(sessionValues: $sessionValues))
                 ->getMock();
 
             $loggerMock->expects($this->once())
                 ->method('newEvent')
                 ->with(
                     'http-request-update', // event (POST maps to update)
-                    'admin', // user
-                    'administrator', // groupname
+                    'admin',
+                    'administrator',
                     1, // success
                     '/interface/patient_file/summary/demographics_save.php', // comments (no query string)
                     456 // patient_id
@@ -2016,24 +2030,21 @@ final class EventAuditLoggerTest extends TestCase
         $_SERVER['SCRIPT_NAME'] = '/api/patient/123';
         unset($_SERVER['QUERY_STRING']);
 
-        // Set up session variables
-        $_SESSION['authUser'] = 'api_user';
-        $_SESSION['authProvider'] = 'api';
-        unset($_SESSION['pid']); // No patient context
+        $sessionValues = ['authUser' => 'api_user', 'authProvider' => 'api'];
 
         try {
             // Create mock with newEvent mocked to verify the call
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
-                ->disableOriginalConstructor()
+                ->setConstructorArgs($this->getLoggerConstructorArgs(sessionValues: $sessionValues))
                 ->getMock();
 
             $loggerMock->expects($this->once())
                 ->method('newEvent')
                 ->with(
                     'http-request-delete', // event (DELETE maps to delete)
-                    'api_user', // user
-                    'api', // groupname
+                    'api_user',
+                    'api',
                     1, // success
                     '/api/patient/123', // comments
                     null // patient_id (not set in session)
@@ -2071,23 +2082,20 @@ final class EventAuditLoggerTest extends TestCase
         $_SERVER['SCRIPT_NAME'] = '/api/options';
         unset($_SERVER['QUERY_STRING']);
 
-        // Set up minimal session
-        $_SESSION['authUser'] = 'test_user';
-        unset($_SESSION['authProvider']);
-        unset($_SESSION['pid']);
+        $sessionValues = ['authUser' => 'test_user'];
 
         try {
             // Create mock with newEvent mocked to verify the call
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
-                ->disableOriginalConstructor()
+                ->setConstructorArgs($this->getLoggerConstructorArgs(sessionValues: $sessionValues))
                 ->getMock();
 
             $loggerMock->expects($this->once())
                 ->method('newEvent')
                 ->with(
                     'http-request-select', // event (unknown method defaults to select)
-                    'test_user', // user
+                    'test_user',
                     null, // groupname (not set in session)
                     1, // success
                     '/api/options', // comments
@@ -2115,9 +2123,6 @@ final class EventAuditLoggerTest extends TestCase
      */
     public function testLogHttpRequestPutRequest(): void
     {
-        $GLOBALS['enable_auditlog'] = true;
-        $GLOBALS['audit_events_http-request'] = true;
-
         // Set up server variables
         $this->originalServer['REQUEST_METHOD'] = $_SERVER['REQUEST_METHOD'] ?? null;
         $this->originalServer['SCRIPT_NAME'] = $_SERVER['SCRIPT_NAME'] ?? null;
@@ -2127,16 +2132,14 @@ final class EventAuditLoggerTest extends TestCase
         $_SERVER['SCRIPT_NAME'] = '/api/patient/456';
         $_SERVER['QUERY_STRING'] = 'format=json';
 
-        // No session variables set
-        unset($_SESSION['authUser']);
-        unset($_SESSION['authProvider']);
-        unset($_SESSION['pid']);
+        // Empty session values
+        $sessionValues = [];
 
         try {
             // Create mock with newEvent mocked to verify the call
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
-                ->disableOriginalConstructor()
+                ->setConstructorArgs($this->getLoggerConstructorArgs(sessionValues: $sessionValues))
                 ->getMock();
 
             $loggerMock->expects($this->once())
@@ -2187,24 +2190,25 @@ final class EventAuditLoggerTest extends TestCase
         $_SERVER['SCRIPT_NAME'] = '/api/encounter/789';
         unset($_SERVER['QUERY_STRING']);
 
-        // Set up session variables
-        $_SESSION['authUser'] = 'patch_user';
-        $_SESSION['authProvider'] = 'physician';
-        $_SESSION['pid'] = 789;
+        $sessionValues = [
+            'authUser' => 'patch_user',
+            'authProvider' => 'physician',
+            'pid' => 789,
+        ];
 
         try {
             // Create mock with newEvent mocked to verify the call
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
-                ->disableOriginalConstructor()
+                ->setConstructorArgs($this->getLoggerConstructorArgs(sessionValues: $sessionValues))
                 ->getMock();
 
             $loggerMock->expects($this->once())
                 ->method('newEvent')
                 ->with(
                     'http-request-update', // event (PATCH maps to update)
-                    'patch_user', // user
-                    'physician', // groupname
+                    'patch_user',
+                    'physician',
                     1, // success
                     '/api/encounter/789', // comments
                     789 // patient_id
@@ -2314,15 +2318,18 @@ final class EventAuditLoggerTest extends TestCase
         string $expectedEvent,
         string $expectedComments
     ): void {
-        $this->setupGlobalsForAuditLogging();
-        $this->setupTestSession($user, $provider, $pid);
+        $sessionValues = [
+            'authUser' => $user,
+            'authProvider' => $provider,
+            'pid' => $pid,
+        ];
 
         $backup = $this->setupHttpRequestEnvironment($method, $script, $query);
 
         try {
             $loggerMock = $this->getMockBuilder(EventAuditLogger::class)
                 ->onlyMethods(['newEvent'])
-                ->disableOriginalConstructor()
+                ->setConstructorArgs($this->getLoggerConstructorArgs(sessionValues: $sessionValues))
                 ->getMock();
 
             $loggerMock->expects($this->once())

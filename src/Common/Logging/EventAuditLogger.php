@@ -21,6 +21,7 @@ use OpenEMR\BC\{
 };
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Session\SessionWrapperInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Traits\SingletonTrait;
 
@@ -31,24 +32,18 @@ class EventAuditLogger
 {
     use SingletonTrait;
 
-    private ?bool $breakglassUser = null;
-
     protected static function createInstance(): static
     {
         $bag = OEGlobalsBag::getInstance();
 
-        $sinks = [];
-
         $site = $bag->getString('OE_SITE_DIR');
         $opts = DatabaseConnectionOptions::forSite($site);
-        // IMPORTANT: this needs to *not* reuse the main connection for most DB
-        // operations. See note in LogTablesSink.
-        $conn = DatabaseConnectionFactory::createDbal($opts, false);
-        $logTableSink = new Audit\LogTablesSink(
-            conn: $conn,
-        );
-        $sinks[] = $logTableSink;
+        // IMPORTANT: this connection must be separate from the main application
+        // connection. See notes in LogTablesSink and BreakglassChecker.
+        $auditConn = DatabaseConnectionFactory::createDbal($opts, false);
 
+        $sinks = [];
+        $sinks[] = new Audit\LogTablesSink(conn: $auditConn);
 
         $enableAtna = $bag->getBoolean('enable_atna_audit');
         if ($enableAtna) {
@@ -69,10 +64,29 @@ class EventAuditLogger
             $sinks[] = $atnaSink;
         }
 
+        $auditConfig = new AuditConfig(
+            enabled: $bag->getBoolean('enable_auditlog'),
+            forceBreakglass: $bag->getBoolean('gbl_force_log_breakglass'),
+            queryEvents: $bag->getBoolean('audit_events_query'),
+            httpRequestEvents: $bag->getBoolean('audit_events_http-request'),
+            eventTypeFlags: [
+                'patient-record' => $bag->getBoolean('audit_events_patient-record'),
+                'scheduling' => $bag->getBoolean('audit_events_scheduling'),
+                'order' => $bag->getBoolean('audit_events_order'),
+                'lab-order' => $bag->getBoolean('audit_events_lab-order'),
+                'lab-results' => $bag->getBoolean('audit_events_lab-results'),
+                'security-administration' => $bag->getBoolean('audit_events_security-administration'),
+                'other' => $bag->getBoolean('audit_events_other'),
+            ],
+        );
+
         return new self(
             sinks: $sinks,
             cryptoGen: ServiceContainer::getCrypto(),
             shouldEncrypt: $bag->getBoolean('enable_auditlog_encryption'),
+            session: SessionWrapperFactory::getInstance()->getWrapper(),
+            config: $auditConfig,
+            breakglassChecker: new BreakglassChecker($auditConn),
         );
     }
 
@@ -83,6 +97,9 @@ class EventAuditLogger
         private readonly array $sinks,
         private readonly CryptoInterface $cryptoGen,
         private readonly bool $shouldEncrypt,
+        private readonly SessionWrapperInterface $session,
+        private readonly AuditConfig $config,
+        private readonly BreakglassCheckerInterface $breakglassChecker,
     ) {
     }
 
@@ -366,12 +383,11 @@ class EventAuditLogger
      */
     public function auditSQLEvent($statement, $outcome, $binds = null)
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
-        $user =  $session->get('authUser') ?? "";
+        $user = (string) ($this->session->get('authUser') ?? '');
 
         /* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
-        if (!OEGlobalsBag::getInstance()->getBoolean('enable_auditlog')) {
-            if (!OEGlobalsBag::getInstance()->getBoolean('gbl_force_log_breakglass') || !$this->isBreakglassUser($user)) {
+        if (!$this->config->enabled) {
+            if (!$this->config->forceBreakglass || !$this->breakglassChecker->isBreakglassUser($user)) {
                 return;
             }
         }
@@ -400,25 +416,18 @@ class EventAuditLogger
         }
 
         /* If query events are not enabled, don't log them. Exception for "emergency" users. */
-        if (($querytype == "select") && !OEGlobalsBag::getInstance()->getBoolean('audit_events_query')) {
-            if (!OEGlobalsBag::getInstance()->getBoolean('gbl_force_log_breakglass') || !$this->isBreakglassUser($user)) {
+        if (($querytype == "select") && !$this->config->queryEvents) {
+            if (!$this->config->forceBreakglass || !$this->breakglassChecker->isBreakglassUser($user)) {
                 return;
             }
         }
 
         $comments = $statement;
 
-        if (is_array($binds)) {
-            // Need to include the binded variable elements in the logging
-            $processed_binds = "";
-            foreach ($binds as $value_bind) {
-                $processed_binds .= "'" . add_escape_custom($value_bind) . "',";
-            }
-            rtrim($processed_binds, ',');
-
-            if (!empty($processed_binds)) {
-                $comments .= " (" . $processed_binds . ")";
-            }
+        if (is_array($binds) && $binds !== []) {
+            // Include the bound variable elements in the logging
+            $quoted = array_map(fn ($v) => "'" . (string) $v . "'", $binds);
+            $comments .= " (" . implode(",", $quoted) . ")";
         }
 
         /* Determine the audit event based on the database tables */
@@ -477,19 +486,19 @@ class EventAuditLogger
         /* If the event is a patient-record, then note the patient id */
         $pid = 0;
         if ($event == "patient-record") {
-            $sessionPid = $session->get('pid');
+            $sessionPid = $this->session->get('pid');
             if ($sessionPid !== null && $sessionPid != '') {
                 $pid = $sessionPid;
             }
         }
 
-        if (empty(OEGlobalsBag::getInstance()->get("audit_events_{$event}")) && (!OEGlobalsBag::getInstance()->getBoolean('gbl_force_log_breakglass') || !$this->isBreakglassUser($user))) {
+        if (!$this->config->isEventTypeEnabled($event) && (!$this->config->forceBreakglass || !$this->breakglassChecker->isBreakglassUser($user))) {
             return;
         }
 
         $event = $event . "-" . $querytype;
 
-        $group = $session->get('authProvider') ?? "";
+        $group = $this->session->get('authProvider') ?? "";
         $success = (int)($outcome !== false);
         $this->recordLogItem($success, $event, $user, $group, $comments, $pid, $category);
     }
@@ -502,9 +511,8 @@ class EventAuditLogger
      */
     public function auditSQLAuditTamper($setting, $enable)
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
-        $user =  $session->get('authUser') ?? "";
-        $group = $session->get('authProvider') ?? "";
+        $user = $this->session->get('authUser') ?? "";
+        $group = $this->session->get('authProvider') ?? "";
         $pid = 0;
         $success = 1;
         $event = "security-administration" . "-" . "insert";
@@ -685,9 +693,8 @@ class EventAuditLogger
      */
     public function logHttpRequest()
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
         // Skip if audit logging or http request logging is disabled
-        if (!OEGlobalsBag::getInstance()->getBoolean('enable_auditlog') || !OEGlobalsBag::getInstance()->getBoolean('audit_events_http-request')) {
+        if (!$this->config->enabled || !$this->config->httpRequestEvents) {
             return;
         }
 
@@ -697,7 +704,7 @@ class EventAuditLogger
             'POST' => 'update',
             'PUT' => 'update',
             'DELETE' => 'delete',
-            'PATCH' => 'update'
+            'PATCH' => 'update',
         ];
 
         $method = $_SERVER['REQUEST_METHOD'] ?? '';
@@ -712,11 +719,11 @@ class EventAuditLogger
         // Record the log entry
         $this->newEvent(
             "http-request-$event",  // event
-            $session->get('authUser') ?? null, // user
-            $session->get('authProvider') ?? null, // groupname
+            $this->session->get('authUser'), // user
+            $this->session->get('authProvider'), // groupname
             1, // success
             $comment, // comments
-            $session->get('pid') ?? null // patient_id
+            $this->session->get('pid') // patient_id
         );
     }
 
@@ -792,35 +799,5 @@ class EventAuditLogger
         }
 
         return $event;
-    }
-
-    // Goal of this function is to increase performance in logging engine to check
-    //  if a user is a breakglass user (in this case, will log all activities if the
-    //  setting is turned on in Administration->Logging->'Audit all Emergency User Queries').
-    protected function isBreakglassUser($user)
-    {
-        // return false if $user is empty
-        if (empty($user)) {
-            return false;
-        }
-
-        // Return the breakglass user flag if it exists already (it is cached by this singleton class to speed the logging engine up)
-        if (isset($this->breakglassUser)) {
-            return $this->breakglassUser;
-        }
-
-        // see if current user is in the breakglass group
-        //  note we are bypassing gacl standard api to improve performance
-        $queryUser = sqlQueryNoLog(
-            "SELECT `gacl_aro`.`value`
-            FROM `gacl_aro`, `gacl_groups_aro_map`, `gacl_aro_groups`
-            WHERE `gacl_aro`.`id` = `gacl_groups_aro_map`.`aro_id`
-            AND `gacl_groups_aro_map`.`group_id` = `gacl_aro_groups`.`id`
-            AND `gacl_aro_groups`.`value` = 'breakglass'
-            AND BINARY `gacl_aro`.`value` = ?",
-            [$user]
-        );
-        $this->breakglassUser = !empty($queryUser);
-        return $this->breakglassUser;
     }
 }
