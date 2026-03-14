@@ -47,6 +47,7 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 //ajax param should be set by calling ajax scripts
@@ -73,8 +74,9 @@ if (!$isAjaxCall && (php_sapi_name() === 'cli')) {
     //an additional require file can be specified for each service in the background_services table
     require_once(__DIR__ . "/../../interface/globals.php");
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     // not calling from cron job so ensure passes csrf check
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }

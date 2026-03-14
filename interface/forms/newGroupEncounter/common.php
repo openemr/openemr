@@ -21,11 +21,13 @@ require_once("$srcdir/classes/POSRef.class.php");
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
 $facilityService = new FacilityService();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if ($viewmode) {
     $id = $_REQUEST['id'] ?? '';
@@ -133,7 +135,7 @@ function cancelClickedOld() {
 @media only screen and (max-width: 1024px) {
     #visit-details [class*="col-"], #visit-issues [class*="col-"] {
       width: 100%;
-      text-align: <?php echo ($_SESSION['language_direction'] == 'rtl') ? 'right ' : 'left '?> !important;
+      text-align: <?php echo ($session->get('language_direction') === 'rtl') ? 'right ' : 'left '?> !important;
     }
 }
 </style>
@@ -166,7 +168,7 @@ $help_icon = '';
                     <input type='hidden' name='mode' value='new' />
                 <?php } ?>
                 <fieldset>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                     <legend><?php echo xlt('Visit Details')?></legend>
                     <div id="visit-details">
                       <div class="row p-3">
@@ -309,7 +311,7 @@ $help_icon = '';
                                     if ($viewmode) {
                                         $def_facility = $result['facility_id'];
                                     } else {
-                                        $dres = sqlStatement("select facility_id from users where username = ?", [$_SESSION['authUser']]);
+                                        $dres = sqlStatement("select facility_id from users where username = ?", [$session->get('authUser')]);
                                         $drow = sqlFetchArray($dres);
                                         $def_facility = $drow['facility_id'];
                                     }

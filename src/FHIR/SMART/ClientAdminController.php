@@ -116,7 +116,7 @@ class ClientAdminController
     {
         if ($this->shouldCheckCSRFTokenForRequest($action)) {
             $CSRFToken = $this->getCSRFToken();
-            if (!CsrfUtils::verifyCsrfToken($CSRFToken, self::CSRF_TOKEN_NAME, $this->session)) {
+            if (!CsrfUtils::verifyCsrfToken($CSRFToken, $this->session, self::CSRF_TOKEN_NAME)) {
                 throw new CsrfInvalidException(xlt('Authentication Error'));
             }
         }
@@ -619,7 +619,7 @@ class ClientAdminController
     private function getCSRFToken(): string|false
     {
         /** @var string|false */
-        return CsrfUtils::collectCsrfToken(self::CSRF_TOKEN_NAME, $this->session);
+        return CsrfUtils::collectCsrfToken($this->session, self::CSRF_TOKEN_NAME);
     }
 
     /**

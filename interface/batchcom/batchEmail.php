@@ -17,9 +17,12 @@
 require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -41,7 +44,7 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
     <ul class="col-md-12">
         <?php
         $email_sender = $_POST['email_sender'];
-        $sent_by = $_SESSION['authUserID'];
+        $sent_by = $session->get('authUserID');
 
         while ($row = sqlFetchArray($res)) {
             // prepare text for ***NAME*** tag

@@ -29,6 +29,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\Config\ServerConfig;
@@ -38,6 +39,8 @@ use Ramsey\Uuid\Uuid;
 
 // Set up crypto object
 $cryptoGen = ServiceContainer::getCrypto();
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $userMode = (array_key_exists('mode', $_GET) && $_GET['mode'] == 'user');
 
@@ -156,11 +159,12 @@ function checkBackgroundServices(): void
     //
     if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && $userMode) {
         //verify csrf
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
             CsrfUtils::csrfNotVerified();
         }
 
         $i = 0;
+        $authUserID = $session->get('authUserID');
         foreach ($GLOBALS_METADATA as $grpname => $grparr) {
             if (in_array($grpname, $USER_SPECIFIC_TABS)) {
                 foreach ($grparr as $fldid => $fldarr) {
@@ -178,12 +182,12 @@ function checkBackgroundServices(): void
                                     // a new value has been inputted, so create the hash that will then be stored
                                     $tmpValue = (new AuthHash())->passwordHash($tmpValue);
                                 }
-                                $fldvalue = $cryptoGen->encryptStandard($tmpValue);
+                                $fldvalue = $cryptoGen->encryptStandard(is_string($tmpValue) ? $tmpValue : null);
                             }
                         } else {
                             $fldvalue = trim($_POST["form_$i"] ?? '');
                         }
-                        setUserSetting($label, $fldvalue, $_SESSION['authUserID'], false);
+                        setUserSetting($label, $fldvalue, $authUserID, false);
                         if (($_POST["toggle_$i"] ?? '') == "YES") {
                             removeUserSetting($label);
                         }
@@ -214,7 +218,7 @@ function checkBackgroundServices(): void
     //
     if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) {
         //verify csrf
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
             CsrfUtils::csrfNotVerified();
         }
 
@@ -265,7 +269,7 @@ function checkBackgroundServices(): void
                                 // a new value has been inputted, so create the hash that will then be stored
                                 $tmpValue = (new AuthHash())->passwordHash($tmpValue);
                             }
-                            $fldvalue = $cryptoGen->encryptStandard($tmpValue);
+                            $fldvalue = $cryptoGen->encryptStandard(is_string($tmpValue) ? $tmpValue : null);
                         }
                     }
 
@@ -375,7 +379,7 @@ function checkBackgroundServices(): void
     ?>
     <script src="edit_globals.js" type="text/javascript"></script>
     <script>
-        window.oeUI.api.setApiUrlAndCsrfToken(<?php echo js_escape($apiUrl); ?>, <?php echo js_escape(CsrfUtils::collectCsrfToken('api')); ?>);
+        window.oeUI.api.setApiUrlAndCsrfToken(<?php echo js_escape($apiUrl); ?>, <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session, 'api')); ?>);
     </script>
 </head>
 
@@ -396,7 +400,7 @@ function checkBackgroundServices(): void
                     <?php } else { ?>
                     <form method='post' name='theform' id='theform' class='form-horizontal' action='edit_globals.php' onsubmit='return top.restoreSession()'>
                         <?php } ?>
-                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                        <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                         <div class="clearfix">
                             <div class="btn-group oe-margin-b-10">
                                 <button type='submit' class='btn btn-primary btn-save oe-pull-toward' name='form_save' value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>
@@ -430,6 +434,7 @@ function checkBackgroundServices(): void
                                 <?php
                                 $i = 0;
                                 $srch_item = 0;
+                                $authUserID = $session->get('authUserID');
                                 foreach ($GLOBALS_METADATA as $grpname => $grparr) {
                                     if (!$userMode || in_array($grpname, $USER_SPECIFIC_TABS)) {
                                         echo " <div class='tab w-100 h-auto" . ($i ? "" : " current") . "' style='font-size: 0.9rem'>\n";
@@ -480,7 +485,7 @@ function checkBackgroundServices(): void
                                                 $userSetting = "";
                                                 $settingDefault = "checked='checked'";
                                                 if ($userMode) {
-                                                    $userSettingArray = sqlQuery("SELECT * FROM user_settings WHERE setting_user=? AND setting_label=?", [$_SESSION['authUserID'], "global:" . $fldid]);
+                                                    $userSettingArray = sqlQuery("SELECT * FROM user_settings WHERE setting_user=? AND setting_label=?", [$authUserID, "global:" . $fldid]);
                                                     $userSetting = $userSettingArray['setting_value'] ?? '';
                                                     $globalValue = $fldvalue;
                                                     if (!empty($userSettingArray)) {
@@ -559,9 +564,9 @@ function checkBackgroundServices(): void
                                                     if (empty($fldvalue)) {
                                                         // empty value
                                                         $fldvalueDecrypted = '';
-                                                    } elseif ($cryptoGen->cryptCheckStandard($fldvalue)) {
+                                                    } elseif ($cryptoGen->cryptCheckStandard(is_string($fldvalue) ? $fldvalue : null)) {
                                                         // normal behavior when not empty
-                                                        $fldvalueDecrypted = $cryptoGen->decryptStandard($fldvalue);
+                                                        $fldvalueDecrypted = $cryptoGen->decryptStandard(is_string($fldvalue) ? $fldvalue : null);
                                                     } else {
                                                         // this is used when value has not yet been encrypted (only happens once when upgrading)
                                                         $fldvalueDecrypted = $fldvalue;
@@ -572,9 +577,9 @@ function checkBackgroundServices(): void
                                                         if (empty($globalValue)) {
                                                             // empty value
                                                             $globalTitle = '';
-                                                        } elseif ($cryptoGen->cryptCheckStandard($globalValue)) {
+                                                        } elseif ($cryptoGen->cryptCheckStandard(is_string($globalValue) ? $globalValue : null)) {
                                                             // normal behavior when not empty
-                                                            $globalTitle = $cryptoGen->decryptStandard($globalValue);
+                                                            $globalTitle = $cryptoGen->decryptStandard(is_string($globalValue) ? $globalValue : null);
                                                         } else {
                                                             // this is used when value has not yet been encrypted (only happens once when upgrading)
                                                             $globalTitle = $globalValue;

@@ -16,6 +16,7 @@ require_once(__DIR__ . "/../../globals.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("srcdir") . "/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -63,6 +64,8 @@ $globalplot_c   = [];  # flag if global plot-button is shown
 $track_count    = 0;        # counts tracks and generates div-ids
 //-----------end setup vars
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 echo "<html><head>";
 // Javascript support and Javascript-functions
 //******* **********************************
@@ -106,7 +109,7 @@ function plot_graph(checkedBoxes, theitems, thetrack, thedates, thevalues, track
                      items:  theitems,
                      track:  thetrack,
                      thecheckboxes: checkedBoxes,
-                     csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                     csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
                    },
              dataType: "json",
              success: function(returnData){

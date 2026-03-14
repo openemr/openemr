@@ -15,6 +15,7 @@ require_once("../../globals.php");
 require_once("$srcdir/dated_reminder_functions.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -54,9 +55,11 @@ $forwarding = false;
 // default values for Max words to input in a reminder
 $max_reminder_words = 160;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 // ---------------- FOR FORWARDING MESSAGES ------------->
 if (isset($_GET['mID']) and is_numeric($_GET['mID'])) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -70,7 +73,7 @@ if (isset($_GET['mID']) and is_numeric($_GET['mID'])) {
 
 // --- add reminders
 if ($_POST) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -103,7 +106,7 @@ if ($_POST) {
         $dueDate = DateToYYYYMMDD($_POST['dueDate']);
         $priority = intval($_POST['priority']);
         $message = $_POST['message'];
-        $fromID = $_SESSION['authUserID'];
+        $fromID = $session->get('authUserID');
         $patID = $_POST['PatientID'];
         if (isset($_POST['sendSeperately']) and $_POST['sendSeperately']) {
             foreach ($sendTo as $st) {
@@ -315,7 +318,7 @@ if (isset($this_message['pid'])) {
                     </div>
                     <div class="card-body">
                         <form id="addDR" class="form-horizontal" method="post" onsubmit="return top.restoreSession()">
-                            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                            <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
                             <fieldset id='error-info' class='oe-error-modal' style="display: none">
                                 <div class="text-center" id="errorMessage"></div>
@@ -345,9 +348,9 @@ if (isset($this_message['pid'])) {
                                     </small>
                                 </label>
                                 <select class="form-control" id="sendTo" name="sendTo[]" multiple="multiple">
-                                    <option value="<?php echo attr(intval($_SESSION['authUserID'])); ?>"><?php echo xlt('Myself') ?></option>
+                                    <option value="<?php echo attr(intval($session->get('authUserID'))); ?>"><?php echo xlt('Myself') ?></option>
                                     <?php //
-                                    $uSQL = sqlStatement('SELECT id, fname, mname, lname FROM `users` WHERE `active` = 1 AND `facility_id` > 0 AND id != ?', [intval($_SESSION['authUserID'])]);
+                                    $uSQL = sqlStatement('SELECT id, fname, mname, lname FROM `users` WHERE `active` = 1 AND `facility_id` > 0 AND id != ?', [intval($session->get('authUserID'))]);
                                     for ($i = 2; $uRow = sqlFetchArray($uSQL); $i++) {
                                         echo '<option value="' . attr($uRow['id']) . '">' . text($uRow['fname'] . ' ' . $uRow['mname'] . ' ' . $uRow['lname']) . '</option>';
                                     }
@@ -452,7 +455,7 @@ if (isset($this_message['pid'])) {
                     </div>
                     <div class="card-body p-0">
                         <?php
-                        $_GET['sentBy'] = [$_SESSION['authUserID']];
+                        $_GET['sentBy'] = [$session->get('authUserID')];
                         $_GET['sd'] = oeFormatShortDate();
                         $TempRemindersArray = logRemindersArray();
                         $remindersArray = [];

@@ -20,10 +20,10 @@ use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Logging\AuditConfig;
 use OpenEMR\Common\Logging\BreakglassCheckerInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Session\SessionWrapperInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * Interface for mocking ADODB connection in tests
@@ -53,7 +53,7 @@ final class EventAuditLoggerTest extends TestCase
      */
     private $eventAuditLogger;
 
-    private SessionWrapperInterface&MockObject $session;
+    private SessionInterface&MockObject $session;
 
     private AuditConfig $config;
 
@@ -97,7 +97,7 @@ final class EventAuditLoggerTest extends TestCase
     {
         parent::setUp();
 
-        $this->session = $this->createMock(SessionWrapperInterface::class);
+        $this->session = $this->createMock(SessionInterface::class);
         $this->config = new AuditConfig(
             enabled: true,
             forceBreakglass: false,
@@ -164,12 +164,10 @@ final class EventAuditLoggerTest extends TestCase
      */
     private function setupTestEnvironment(): void
     {
-        // Setup default $_SESSION values
-        $_SESSION = [
-            'authUser' => 'testuser',
-            'authProvider' => 'testprovider',
-            'pid' => '123'
-        ];
+        // Setup default session values using Symfony session
+        $this->session->set('authUser', 'testuser');
+        $this->session->set('authProvider', 'testprovider');
+        $this->session->set('pid', '123');
 
         // Setup default $_SERVER values
         $_SERVER = [
@@ -250,7 +248,7 @@ final class EventAuditLoggerTest extends TestCase
     private function getLoggerConstructorArgs(?AuditConfig $config = null, ?array $sessionValues = null): array
     {
         $sessionValues ??= ['authUser' => 'testuser', 'authProvider' => 'testprovider'];
-        $sessionMock = $this->createMock(SessionWrapperInterface::class);
+        $sessionMock = $this->createMock(SessionInterface::class);
         $sessionMock->method('get')
             ->willReturnCallback(fn(string $key) => $sessionValues[$key] ?? null);
 

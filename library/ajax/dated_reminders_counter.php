@@ -20,8 +20,11 @@ require_once("$srcdir/pnotes.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionTracker;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -47,7 +50,7 @@ if (!empty($_POST['isServicesOther'])) {
 //Collect number of due reminders
 $dueReminders = GetDueReminderCount(5, strtotime(date('Y/m/d')));
 //Collect number of active messages
-$activeMessages = getPnotesByUser("1", "no", $_SESSION['authUser'], true);
+$activeMessages = getPnotesByUser("1", "no", $session->get('authUser'), true);
 // Below for Message Button count display.
 $totalNumber = $dueReminders + $activeMessages;
 $total_counts['reminderText'] = ($totalNumber > 0 ? text((int)$totalNumber) : '');

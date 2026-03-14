@@ -18,6 +18,7 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 $educationdir = "$OE_SITE_DIR/documents/education";
@@ -29,8 +30,9 @@ $source    = empty($_REQUEST['source'  ]) ? '' : $_REQUEST['source'  ];
 
 $errmsg = '';
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['bn_submit'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -141,7 +143,7 @@ if (!empty($_POST['bn_submit'])) {
         <div class='row'>
             <div class='col-12'>
                 <form method='post' action='education.php' onsubmit='return top.restoreSession()'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                     <input type='hidden' name='type' value='<?php echo attr($codetype); ?>' />
                     <input type='hidden' name='code' value='<?php echo attr($codevalue); ?>' />
                     <input type='hidden' name='language' value='<?php echo attr($language); ?>' />

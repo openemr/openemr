@@ -67,7 +67,7 @@ class VoiceClient extends AppDispatch
             $credentials = $credentials['credentials'];
         }
 
-        $decrypt = $this->crypto->decryptStandard($credentials);
+        $decrypt = $this->crypto->decryptStandard(is_string($credentials) ? $credentials : null);
         return json_decode($decrypt, true);
     }
 

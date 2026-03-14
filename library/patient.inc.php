@@ -140,7 +140,7 @@ function getFacility($facid = 0)
 {
     global $facilityService;
 
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $facility = null;
 
     if ($facid > 0) {
@@ -509,7 +509,7 @@ function _set_patient_inc_count($limit, $count, $where, $whereBindArray = []): v
 // it needs to be escaped via whitelisting prior to using this function.
 function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $names = getPatientNameSplit($term);
 
     foreach ($names as $key => $val) {
@@ -635,7 +635,7 @@ function getPatientNameSplit($term)
 // it needs to be escaped via whitelisting prior to using this function.
 function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $sqlBindArray = [];
     $where = "pubpid LIKE ? ";
     array_push($sqlBindArray, $pid . "%");
@@ -906,7 +906,7 @@ function getPatientNameFirstLast($pid)
 // it needs to be escaped via whitelisting prior to using this function.
 function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $sqlBindArray = [];
     $where = "DOB like ? ";
     array_push($sqlBindArray, $DOB . "%");

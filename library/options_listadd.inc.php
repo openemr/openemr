@@ -23,8 +23,10 @@
 // TODO: Convert this to a modal or a dialog
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 
 
@@ -171,7 +173,7 @@ $(function () {
         // upon returning successfully, refresh the list box and select
         // the new list item
         $.getJSON("<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/library/ajax/addlistitem.php",
-                    {csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+                    {csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>,
                     listid: listid,
              newitem: newitem,
              newitem_abbr: newitem_abbr},

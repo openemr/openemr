@@ -17,9 +17,11 @@ require_once($depth . 'interface/globals.php');
 require_once("content_parser.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <?php
 if (!($_POST['submit_pdf'] || $_POST['submit_html']) && ($_GET['pid'] && $_GET['encounter'])) {
@@ -33,7 +35,7 @@ if (!($_POST['submit_pdf'] || $_POST['submit_html']) && ($_GET['pid'] && $_GET['
 <body>
     <?php echo xlt('Choose print format for this encounter report.'); ?><br /><br />
 <form method=post name=choose_patients>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 <input type='submit' name='submit_pdf' value='<?php echo xla('Print (PDF)'); ?>'>
 <input type='submit' name='submit_html' value='<?php echo xla('Print (HTML)'); ?>'>
 </form>
@@ -71,7 +73,7 @@ $(function () {
 <body>
 
 <form method=post name=choose_patients>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
 <table>
 <tr><td>
@@ -108,7 +110,7 @@ title='<?php echo xla('yyyy-mm-dd last date of this event'); ?>' />
 }
 
 if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['encounter'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 

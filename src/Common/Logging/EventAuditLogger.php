@@ -21,9 +21,9 @@ use OpenEMR\BC\{
 };
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Session\SessionWrapperInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Traits\SingletonTrait;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * @phpstan-import-type ApiData from Audit\Event
@@ -84,7 +84,7 @@ class EventAuditLogger
             sinks: $sinks,
             cryptoGen: ServiceContainer::getCrypto(),
             shouldEncrypt: $bag->getBoolean('enable_auditlog_encryption'),
-            session: SessionWrapperFactory::getInstance()->getWrapper(),
+            session: SessionWrapperFactory::getInstance()->getActiveSession(),
             config: $auditConfig,
             breakglassChecker: new BreakglassChecker($auditConn),
         );
@@ -97,7 +97,7 @@ class EventAuditLogger
         private readonly array $sinks,
         private readonly CryptoInterface $cryptoGen,
         private readonly bool $shouldEncrypt,
-        private readonly SessionWrapperInterface $session,
+        private readonly SessionInterface $session,
         private readonly AuditConfig $config,
         private readonly BreakglassCheckerInterface $breakglassChecker,
     ) {
