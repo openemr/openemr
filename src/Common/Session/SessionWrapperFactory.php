@@ -163,13 +163,9 @@ class SessionWrapperFactory
     {
         $web_root = OEGlobalsBag::getInstance()->getString('web_root');
         $request = HttpRestRequest::createFromGlobals();
-        if (!$request->hasSession()) {
-            $sessionFactory = new HttpSessionFactory($request, $web_root, HttpSessionFactory::SESSION_TYPE_PORTAL, $this->getEffectiveReadOnly());
-            $this->activeSession = $sessionFactory->createSession();
-            $this->activeStorage = $sessionFactory->getLastCreatedStorage();
-        } else {
-            $this->activeSession = $request->getSession();
-        }
+        $sessionFactory = new HttpSessionFactory($request, $web_root, HttpSessionFactory::SESSION_TYPE_PORTAL, $this->getEffectiveReadOnly());
+        $this->activeSession = $sessionFactory->createSession();
+        $this->activeStorage = $sessionFactory->getLastCreatedStorage();
         return $this->activeSession;
     }
 
@@ -177,14 +173,9 @@ class SessionWrapperFactory
     {
         $web_root = OEGlobalsBag::getInstance()->getString('web_root');
         $request = HttpRestRequest::createFromGlobals();
-        if (!$request->hasSession()) {
-            $sessionFactory = new HttpSessionFactory($request, $web_root, HttpSessionFactory::SESSION_TYPE_CORE, $this->getEffectiveReadOnly());
-            $this->activeSession = $sessionFactory->createSession();
-            $this->activeStorage = $sessionFactory->getLastCreatedStorage();
-        } else {
-            $this->activeSession = $request->getSession();
-        }
-
+        $sessionFactory = new HttpSessionFactory($request, $web_root, HttpSessionFactory::SESSION_TYPE_CORE, $this->getEffectiveReadOnly());
+        $this->activeSession = $sessionFactory->createSession();
+        $this->activeStorage = $sessionFactory->getLastCreatedStorage();
         return $this->activeSession;
     }
 }
