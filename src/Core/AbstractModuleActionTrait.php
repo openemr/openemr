@@ -74,18 +74,19 @@ trait AbstractModuleActionTrait
     }
 
     /**
-     * @param string|null $param
+     * Returns a session value by key. The $param is required to prevent callers
+     * from obtaining the raw SessionInterface object and writing to it directly,
+     * which would be silently lost with read_and_close sessions. Use
+     * SessionUtil::setSession() / SessionUtil::unsetSession() for writes.
+     *
+     * @param string $param
      * @param mixed|null $default
      * @return mixed|null
      */
-    public function getSession(string $param = null, mixed $default = null): mixed
+    public function getSession(string $param, mixed $default = null): mixed
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        if ($param) {
-            return $session->get($param, $default);
-        }
-
-        return $session;
+        return $session->get($param, $default);
     }
 
     /**
