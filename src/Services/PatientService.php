@@ -16,6 +16,7 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryPagination;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\TableTypes;
@@ -33,6 +34,7 @@ use OpenEMR\Services\Search\SearchConfigClauseBuilder;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Services\Search\StringSearchField;
+
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\PatientValidator;
 use OpenEMR\Validators\ProcessingResult;
@@ -120,7 +122,8 @@ class PatientService extends BaseService
             LEFT OUTER JOIN users AS u ON u.id = ct.ct_userid
             WHERE ct.ct_pid = ?
             ORDER BY ct.ct_when DESC";
-        return sqlStatement($sql, [$pid]);
+     // return sqlStatement($sql, [$pid]); //deprecated
+        return QueryUtils::fetchRecords($sql, [$pid]);
     }
 
     /**
@@ -145,7 +148,8 @@ class PatientService extends BaseService
             LEFT OUTER JOIN patient_data AS p ON p.pid = ct.ct_pid
             WHERE ct.ct_userid != 0
             ORDER BY p.pubpid";
-        return sqlStatement($sql);
+   //     return sqlStatement($sql); deprecated
+          return QueryUtils::fetchRecords($sql);
     }
 
     public function getFreshPid()
@@ -167,7 +171,12 @@ class PatientService extends BaseService
      */
     public function databaseInsert($data)
     {
+<<<<<<< HEAD
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
+=======
+/** @var array<string, string> $data  */
+        $session = SessionWrapperFactory::getInstance()->getWrapper();
+>>>>>>> be83e074d (phpstan errors, use QueryUtils to select data)
         $freshPid = $this->getFreshPid();
         $data['pid'] = $freshPid;
         $data['uuid'] = (new UuidRegistry(['table_name' => 'patient_data']))->createUuid();
@@ -218,6 +227,7 @@ class PatientService extends BaseService
      */
     public function insert($data)
     {
+/** @var array<string, string> $data  */
         $processingResult = $this->patientValidator->validate($data, PatientValidator::DATABASE_INSERT_CONTEXT);
 
         if (!$processingResult->isValid()) {
@@ -252,8 +262,8 @@ class PatientService extends BaseService
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Get the data before update to send to the event listener
-        /** @var int $pid */
-        $pid = $data['pid'];
+/** @var int $pid */
+        $pid =    $data['pid'];
         $dataBeforeUpdate = $this->findByPid($pid);
 
         // The `date` column is treated as an updated_date
@@ -275,7 +285,6 @@ class PatientService extends BaseService
 
         array_push($query['bind'], $data['pid']);
         $sqlResult = sqlStatement($sql, $query['bind']);
-
  /*      in 7.0.3 but since taken out
         if (
             $dataBeforeUpdate['care_team_provider'] != ($data['care_team_provider'] ?? '')
@@ -286,17 +295,20 @@ class PatientService extends BaseService
         }
         */
         //  if  'allow_patient_portal' is YES, make sure portal login username has been created
+        /** @var array<string, mixed> $data */
         if (($data['allow_patient_portal']  ??  '' ) === 'YES') {
             // we're about to set it to YES, so make sure credentials have been created
             $sql = "SELECT portal_login_username, portal_username FROM patient_access_onsite WHERE pid = ?";
-            $sqlget = sqlStatement($sql, $data['pid']);
-            $names = sqlFetchArray($sqlget);
-            if ($names !== false && ()$names['portal_login_username']  ?? '')  === "") {
+          //   $sqlget = sqlStatement($sql, $data['pid']); //deprecated
+          //  $names = sqlFetchArray($sqlget);
+            /** @var array<string, string> $names */
+            $names  = QueryUtils::fetchRecords ($sql,[$data['pid']]);
+            if ($names !== false && ($names['portal_login_username']  ?? '')  === "") {
                 // create a portal login username, as it's empty at the moment - use Account Name - portal_username in db
                 $sql =  "UPDATE patient_access_onsite SET portal_login_username = ?  WHERE pid = ?";
                 $update_parameters ['portal_login_username'] = $names['portal_username'];
                 $update_parameters ['pid'] = $data['pid'];
-                $sqlres = sqlStatement($sql, $update_parameters);
+               $sqlres = sqlStatement($sql, $update_parameters);
             }
         }
 
@@ -345,8 +357,8 @@ class PatientService extends BaseService
 
         $puuidBinary = UuidRegistry::uuidToBytes($puuidString);
         array_push($query['bind'], $puuidBinary);
+        /** @var string[][] $query['bind'] */
         $sqlResult = sqlStatement($sql, $query['bind']);
-
         if (!$sqlResult) {
             $processingResult->addErrorMessage("error processing SQL Update");
         } else {
@@ -354,8 +366,6 @@ class PatientService extends BaseService
             // Tell subscribers that a new patient has been updated
             // We have to do this here and in the databaseUpdate() because this lookup is
             // by uuid where the databseUpdate updates by pid.
-
-
             $originalData = [];
             if ($dataBeforeUpdate->hasData()) {
                 $originalData = $dataBeforeUpdate->getData()[0]; // so weird the findOne returns an array
@@ -553,14 +563,14 @@ class PatientService extends BaseService
         $patientOrderedList = [];
         while ($row = sqlFetchArray($queryResource)) {
                 $record = $this->createResultRecordFromDatabaseResult($row);
-            $patientUuid = $record['uuid'];
-            if (!isset($patientsByUuid[$patientUuid])) {
-                $patient = array_intersect_key($record, $patientFields);
-                $patient['suffix'] = $this->parseSuffixForPatientRecord($patient);
-                $patient['previous_names'] = [];
-                $patientOrderedList[] = $patientUuid;
-            } else {
-                $patient = $patientsByUuid[$patientUuid];
+                $patientUuid = $record['uuid'];
+                if (!isset($patientsByUuid[$patientUuid])) {
+                    $patient = array_intersect_key($record, $patientFields);
+                    $patient['suffix'] = $this->parseSuffixForPatientRecord($patient);
+                    $patient['previous_names'] = [];
+                    $patientOrderedList[] = $patientUuid;
+                } else {
+                    $patient = $patientsByUuid[$patientUuid];
             }
             // we only want to populate our patient history records if we haven't seen this uuid before and we are working
             // with a name history record...
@@ -973,7 +983,8 @@ class PatientService extends BaseService
 
         // Get the columns we are storing
         $query = "SELECT option_id FROM list_options WHERE list_id = 'recent_patient_columns' and activity = '1'";
-        $res = sqlStatement($query);
+  //      $res = sqlStatement($query); - deprecated
+        $res =  QueryUtils:: fetchRecords($query, []);
         $cols = ['pid'];
 
         // Trim down the incoming patient array to just the whitelisted columns
@@ -990,7 +1001,7 @@ class PatientService extends BaseService
         $_rp = serialize($rp);
 
         $sql = "INSERT INTO recent_patients (user_id, patients) VALUES (?, ?) ON DUPLICATE KEY UPDATE patients=?";
-        $res = sqlStatement($sql, [$curUser['id'], $_rp, $_rp]);
+       $res = sqlStatement($sql, [$curUser['id'], $_rp, $_rp]);
     }
 
     /**
