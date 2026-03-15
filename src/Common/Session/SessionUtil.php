@@ -180,6 +180,19 @@ class SessionUtil
     }
 
     /**
+     * Clears all session variables without destroying the session.
+     * Safe with read_and_close — reopens for writing if needed.
+     */
+    public static function clearSession(): void
+    {
+        self::withWritableSession(static function (SessionInterface $session): void {
+            $session->clear();
+        });
+
+        ServiceContainer::getLogger()->debug("SessionUtil: cleared all session variables");
+    }
+
+    /**
      * Executes the given callback with a writable session. If the session was
      * opened with read_and_close, it is reopened for writing before the callback
      * and closed (lock released) immediately after.
