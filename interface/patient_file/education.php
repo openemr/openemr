@@ -79,7 +79,7 @@ if (!empty($_POST['bn_submit'])) {
         }
         $filename = strtolower("{$codetype}_{$codevalue}_{$lang}.pdf");
         check_file_dir_name($filename);
-        $filepath = "$educationdir/$filename";
+        $filepath = $educationdir . '/' . basename($filename);
 
         if (is_file($filepath)) {
             $fileData = file_get_contents($filepath);
@@ -96,7 +96,8 @@ if (!empty($_POST['bn_submit'])) {
             header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
             header('Pragma: public');
             // attachment, not inline
-            header("Content-Disposition: attachment; filename=\"$filename\"");
+            $safeFilename = str_replace(['"', "\r", "\n"], '', $filename);
+            header("Content-Disposition: attachment; filename=\"" . $safeFilename . "\"");
             header("Content-Type: application/pdf");
             header("Content-Length: " . strlen($fileData));
             ob_clean();
