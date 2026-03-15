@@ -141,7 +141,7 @@ class ApplicationTable
      */
     public function portalAudit(?string $type, ?string $rec, array $auditvals, $oelog = true, $error = true)
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $return = false;
         $result = false;
         $audit =  [];
@@ -199,10 +199,10 @@ class ApplicationTable
         return $return;
     }
 
-    public function portalLog($event = '', $patient_id = null, $comments = "", $binds = '', $success = '1', $user_notes = '', $ccda_doc_id = 0)
+    public function portalLog($event = '', mixed $patient_id = null, $comments = "", $binds = '', $success = '1', $user_notes = '', $ccda_doc_id = 0)
     {
         $globalsBag = OEGlobalsBag::getInstance();
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $groupname = $globalsBag->get('groupname') ?? 'none';
         $user = $session->get('portal_username') ?? $session->get('authUser') ?? null;
         $log_from = $session->has('portal_username') ? 'onsite-portal' : 'portal-dashboard';
@@ -368,8 +368,9 @@ class ApplicationTable
         return QueryUtils::generateId();
     }
 
-    public function portalNewEvent($event, $user, $groupname, $success, $comments = "", $patient_id = null, $log_from = '', $user_notes = "", $ccda_doc_id = 0)
+    public function portalNewEvent($event, $user, $groupname, $success, $comments = "", mixed $patient_id = null, $log_from = '', $user_notes = "", $ccda_doc_id = 0)
     {
+        $patient_id = (is_string($patient_id) || is_int($patient_id)) && $patient_id !== '' ? intval($patient_id) : null;
         EventAuditLogger::getInstance()->recordLogItem($success, $event, $user, $groupname, $comments, $patient_id, null, $log_from, null, $ccda_doc_id, $user_notes);
     }
 }// app query class

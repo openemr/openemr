@@ -26,11 +26,13 @@ require_once("$srcdir/patient.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -48,41 +50,49 @@ function getEndInventory($product_id = 0, $warehouse_id = '~')
     global $form_from_date, $form_to_date, $form_product;
 
     $whidcond = '';
+    $whidbind = [];
     if ($warehouse_id !== '~') {
-        $whidcond = $warehouse_id === '' ?
-        "AND ( di.warehouse_id IS NULL OR di.warehouse_id = '' )" :
-        "AND di.warehouse_id = '" . add_escape_custom($warehouse_id) . "'";
+        if ($warehouse_id === '') {
+            $whidcond = "AND ( di.warehouse_id IS NULL OR di.warehouse_id = '' )";
+        } else {
+            $whidcond = "AND di.warehouse_id = ?";
+            $whidbind[] = $warehouse_id;
+        }
     }
 
     $prodcond = '';
+    $prodbind = [];
     if ($form_product) {
         $product_id = $form_product;
     }
 
     if ($product_id) {
-        $prodcond = "AND di.drug_id = '" . add_escape_custom($product_id) . "'";
+        $prodcond = "AND di.drug_id = ?";
+        $prodbind[] = $product_id;
     }
+
+    $extrabind = array_merge($prodbind, $whidbind);
 
   // Get sum of current inventory quantities + destructions done after the
   // report end date (which is effectively a type of transaction).
     $eirow = sqlQuery("SELECT sum(di.on_hand) AS on_hand " .
     "FROM drug_inventory AS di WHERE " .
     "( di.destroy_date IS NULL OR di.destroy_date > ? ) " .
-    "$prodcond $whidcond", [$form_to_date]);
+    "$prodcond $whidcond", array_merge([$form_to_date], $extrabind));
 
   // Get sum of sales/adjustments/purchases after the report end date.
     $sarow = sqlQuery("SELECT sum(ds.quantity) AS quantity " .
     "FROM drug_sales AS ds, drug_inventory AS di WHERE " .
     "ds.sale_date > ? AND " .
     "di.inventory_id = ds.inventory_id " .
-    "$prodcond $whidcond", [$form_to_date]);
+    "$prodcond $whidcond", array_merge([$form_to_date], $extrabind));
 
   // Get sum of transfers out after the report end date.
     $xfrow = sqlQuery("SELECT sum(ds.quantity) AS quantity " .
     "FROM drug_sales AS ds, drug_inventory AS di WHERE " .
     "ds.sale_date > ? AND " .
     "di.inventory_id = ds.xfer_inventory_id " .
-    "$prodcond $whidcond", [$form_to_date]);
+    "$prodcond $whidcond", array_merge([$form_to_date], $extrabind));
 
     return $eirow['on_hand'] + $sarow['quantity'] - $xfrow['quantity'];
 }
@@ -470,7 +480,7 @@ table.mymaintable td, table.mymaintable th {
 <h2><?php echo xlt('Inventory Activity'); ?></h2>
 
 <form method='post' action='inventory_activity.php?product=<?php echo attr_url($product_first); ?>' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
 <div id="report_parameters">
 <!-- form_action is set to "submit" or "export" at form submit time -->

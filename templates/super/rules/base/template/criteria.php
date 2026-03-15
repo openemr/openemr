@@ -13,15 +13,17 @@
  */
 
 use OpenEMR\ClinicalDecisionRules\Interface\Common;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <!DOCTYPE html>
 <html>
 <head>
     <?php Header::setupHeader(['opener']); ?>
-    <?php if ($_SESSION['language_direction'] == "rtl") { ?>
+    <?php if ($session->get('language_direction') === "rtl") { ?>
         <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->get('themes_static_relative'); ?>/misc/rtl_rules.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
     <?php } else { ?>
         <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->get('themes_static_relative'); ?>/misc/rules.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />

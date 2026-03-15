@@ -33,6 +33,7 @@ require_once("$webserver_root/custom/code_types.inc.php");
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Orders\Hl7OrderGenerationException;
 use OpenEMR\Common\Orders\Hl7OrderResult;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
  * Get array of insurance payers for the specified patient as of the specified
@@ -448,11 +449,12 @@ function default_send_hl7_order($ppid, $out)
         return xl('This protocol is not implemented') . ": '$protocol'";
     }
 
-  // Falling through to here indicates success.
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    // Falling through to here indicates success.
     EventAuditLogger::getInstance()->newEvent(
         "proc_order_xmit",
-        $_SESSION['authUser'],
-        $_SESSION['authProvider'],
+        $session->get('authUser'),
+        $session->get('authProvider'),
         1,
         "ID: $msgid Protocol: $protocol Host: $remote_host"
     );

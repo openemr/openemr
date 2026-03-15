@@ -17,11 +17,13 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\BootstrapService;
 use OpenEMR\Modules\FaxSMS\Enums\ServiceType;
 use OpenEMR\Services\PhoneNumberService;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * Class AppDispatch
@@ -38,7 +40,8 @@ abstract class AppDispatch
     protected CryptoInterface $crypto;
     protected $_currentAction;
     protected $credentials;
-    private $_request, $_response, $_query, $_post, $_server, $_cookies, $_session;
+    private $_request, $_response, $_query, $_post, $_server, $_cookies;
+    private readonly SessionInterface $_session;
     protected $authUser;
 
     /**
@@ -51,11 +54,11 @@ abstract class AppDispatch
         $this->_post = &$_POST;
         $this->_server = &$_SERVER;
         $this->_cookies = &$_COOKIE;
-        $this->_session = &$_SESSION;
+        $this->_session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->authErrorDefault = xlt('Error: Authentication Service Denies Access or Not Authorised. Lacking valid credentials or User permissions.');
         $this->authUser = (int)$this->getSession('authUserID');
         if (empty(self::$_apiModule)) {
-            self::$_apiModule = $_REQUEST['type'] ?? $_SESSION["oefax_current_module_type"] ?? null;
+            self::$_apiModule = $_REQUEST['type'] ?? $this->_session->get('oefax_current_module_type') ?? null;
         }
         $this->crypto = ServiceContainer::getCrypto();
         $this->dispatchActions();
@@ -75,7 +78,7 @@ abstract class AppDispatch
             $action = $route[1] ?: $action;
         }
         if (empty($serviceType)) {
-            $serviceType = $_REQUEST['type'] ?? $_SESSION["oefax_current_module_type"] ?? null;
+            $serviceType = $_REQUEST['type'] ?? $this->_session->get('oefax_current_module_type') ?? null;
         }
         if (!empty($serviceType)) {
             self::setModuleType($serviceType);
@@ -134,14 +137,14 @@ abstract class AppDispatch
     abstract function fetchReminderCount(): string|bool;
 
     /**
-     * @param $param
-     * @param $default
+     * @param string|null $param
+     * @param mixed|null $default
      * @return mixed|null
      */
-    public function getSession($param = null, $default = null): mixed
+    public function getSession(string $param = null, mixed $default = null): mixed
     {
         if ($param) {
-            return $_SESSION[$param] ?? $default;
+            return $this->_session->get($param) ?? $default;
         }
 
         return $this->_session;
@@ -215,7 +218,8 @@ abstract class AppDispatch
     {
         try {
             if (empty($type)) {
-                $type = $_REQUEST['type'] ?? $_SESSION["oefax_current_module_type"] ?? null;
+                $session = SessionWrapperFactory::getInstance()->getActiveSession();
+                $type = $_REQUEST['type'] ?? $session->get('oefax_current_module_type') ?? null;
             }
             self::setModuleType($type);
             self::$_apiService = self::getServiceInstance($type);
@@ -236,7 +240,8 @@ abstract class AppDispatch
     {
         try {
             if (empty($type)) {
-                $type = $_REQUEST['type'] ?? $_SESSION["oefax_current_module_type"] ?? null;
+                $session = SessionWrapperFactory::getInstance()->getActiveSession();
+                $type = $_REQUEST['type'] ?? $session->get('oefax_current_module_type') ?? null;
             }
             self::setModuleType($type);
             self::$_apiService = self::getServiceInstance($type);
@@ -252,7 +257,8 @@ abstract class AppDispatch
      */
     static function setModuleType($type): void
     {
-        SessionUtil::setSession('oefax_current_module_type', $type);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $session->set('oefax_current_module_type', $type);
         self::$_apiModule = $type;
     }
 
@@ -296,21 +302,22 @@ abstract class AppDispatch
     static function getServiceType(): mixed
     {
         if (empty(self::$_apiModule ?? null)) {
-            self::$_apiModule = $_SESSION['oefax_current_module_type'] ?? null;
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            self::$_apiModule = $session->get('oefax_current_module_type') ?? null;
             if (empty(self::$_apiModule)) {
                 self::$_apiModule = $_REQUEST['type'];
             }
         }
-        if (self::$_apiModule == 'sms') {
+        if (self::$_apiModule === 'sms') {
             return OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? null;
         }
-        if (self::$_apiModule == 'fax') {
+        if (self::$_apiModule === 'fax') {
             return OEGlobalsBag::getInstance()->get('oefax_enable_fax') ?? null;
         }
-        if (self::$_apiModule == 'email') {
+        if (self::$_apiModule === 'email') {
             return OEGlobalsBag::getInstance()->get('oe_enable_email') ?? null;
         }
-        if (self::$_apiModule == 'voice') {
+        if (self::$_apiModule === 'voice') {
             return OEGlobalsBag::getInstance()->get('oe_enable_voice') ?? null;
         }
 
@@ -326,7 +333,8 @@ abstract class AppDispatch
     static function getModuleType(): mixed
     {
         if (empty(self::$_apiModule)) {
-            self::$_apiModule = $_SESSION['oefax_current_module_type'] ?? null;
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            self::$_apiModule = $session->get('oefax_current_module_type') ?? null;
             if (empty(self::$_apiModule)) {
                 self::$_apiModule = $_REQUEST['type'];
             }
@@ -364,11 +372,11 @@ abstract class AppDispatch
     }
 
     /**
-     * @param $key
-     * @param $value
+     * @param string $key
+     * @param mixed $value
      * @return $this
      */
-    public function setSession($key, $value): static
+    public function setSession(string $key, $value): static
     {
         // ensure write is allowed by using utility.
         SessionUtil::setSession($key, $value);
@@ -438,7 +446,8 @@ abstract class AppDispatch
         }
 
         // encrypt for safety.
-        $content = $this->crypto->encryptStandard(json_encode($setup));
+        $jsonSetup = json_encode($setup);
+        $content = $this->crypto->encryptStandard($jsonSetup !== false ? $jsonSetup : null);
         if (empty($vendor) || empty($setup)) {
             return xlt('Error: Missing vendor, user or credential items');
         }
@@ -503,7 +512,7 @@ abstract class AppDispatch
             $credentials = $credentials['credentials'];
         }
 
-        $decrypt = $this->crypto->decryptStandard($credentials);
+        $decrypt = $this->crypto->decryptStandard(is_string($credentials) ? $credentials : null);
         $credentials = json_decode($decrypt, true);
         if (empty($credentials['email_message'] ?? '')) {
             $credentials['email_message'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";
@@ -519,7 +528,7 @@ abstract class AppDispatch
             $this->authUser = 0;
         }
         $encoded = json_encode($credentials);
-        $encrypted = $this->crypto->encryptStandard($encoded);
+        $encrypted = $this->crypto->encryptStandard($encoded !== false ? $encoded : null);
         sqlStatement(
             "INSERT INTO `module_faxsms_credentials` (auth_user, vendor, credentials, updated) VALUES (?, ?, ?, NOW())
             ON DUPLICATE KEY UPDATE credentials = VALUES(credentials), updated = VALUES(updated)",
@@ -578,7 +587,7 @@ abstract class AppDispatch
             $credentials = $credentials['credentials'];
         }
 
-        $decrypt = $this->crypto->decryptStandard($credentials);
+        $decrypt = $this->crypto->decryptStandard(is_string($credentials) ? $credentials : null);
         $decode = json_decode($decrypt, true);
         if (empty($decode['smsMessage'])) {
             $decode['smsMessage'] = "A courtesy reminder for ***NAME*** \r\nFor the appointment scheduled on: ***DATE*** At: ***STARTTIME*** Until: ***ENDTIME*** \r\nWith: ***PROVIDER*** Of: ***ORG***\r\nPlease call if unable to attend.";
@@ -591,7 +600,8 @@ abstract class AppDispatch
      */
     public static function getLoggedInUser(): array
     {
-        $id = $_SESSION['authUserID'] ?? 1;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $id = $session->get('authUserID') ?? 1;
         $query = "SELECT fname, lname, fax, facility, username FROM users WHERE id = ?";
         $result = sqlQuery($query, [$id]);
 

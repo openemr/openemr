@@ -24,9 +24,11 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/option
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -396,8 +398,8 @@ $fileData = file_get_contents($templatepath);
 
 // Decrypt file, if applicable.
 $cryptoGen = ServiceContainer::getCrypto();
-if ($cryptoGen->cryptCheckStandard($fileData)) {
-    $fileData = $cryptoGen->decryptStandard($fileData, null, KeySource::Database);
+if ($cryptoGen->cryptCheckStandard($fileData !== false ? $fileData : null)) {
+    $fileData = $cryptoGen->decryptStandard($fileData !== false ? $fileData : null, null, KeySource::Database);
 }
 
 // Create a temporary file to hold the template.

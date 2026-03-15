@@ -46,6 +46,7 @@ abstract class PortalController
     protected $Smarty;
     private $_router;
     private $_cu;
+    /** @var string */
     public $GUID;
     public $DebugOutput = "";
     public $UnitTestMode = false;
@@ -60,7 +61,7 @@ abstract class PortalController
     /**
      * search string to look for to determine if this is an API request or not
      */
-    static $ApiIdentifier = "api/";
+    public static string $ApiIdentifier = "api/";
 
     /**
      * the default mode used when calling 'Redirect'
@@ -490,7 +491,7 @@ abstract class PortalController
             foreach (get_object_vars($obj) as $var => $val) {
                 if (! in_array($var, $supressProps)) {
                     // depending on what type of field this is, do some special formatting
-                    $fm = isset($fms [$var]) ? $fms [$var]->FieldType : FM_TYPE_UNKNOWN;
+                    $fm = isset($fms [$var]) ? $fms [$var]->FieldType : FM_TYPE_UNKNOWN; // @phpstan-ignore offsetAccess.nonOffsetAccessible
 
                     if ($fm == FM_TYPE_DATETIME) {
                         $val = strtotime((string) $val) ? date("m/d/Y h:i A", strtotime((string) $val)) : $val;
@@ -504,7 +505,7 @@ abstract class PortalController
                         $val = serialize($val);
                     }
 
-                    $val = VerySimpleStringUtil::EncodeSpecialCharacters($val, true, true);
+                    $val = VerySimpleStringUtil::EncodeSpecialCharacters((string) $val, true, true);
 
                     $xml .= "<" . htmlspecialchars((string) $var) . ">" . $val . "</" . htmlspecialchars((string) $var) . ">\r\n";
                 }
@@ -764,7 +765,7 @@ abstract class PortalController
     public function IsApiRequest()
     {
         $url = RequestUtil::GetCurrentURL();
-        return (str_contains($url, (string) self::$ApiIdentifier));
+        return (str_contains($url, self::$ApiIdentifier));
     }
 
     /**

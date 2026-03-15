@@ -30,6 +30,7 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/appoin
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . "/pid.inc.php");
 
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class TherapyGroupsController extends BaseController
 {
@@ -412,7 +413,8 @@ class TherapyGroupsController extends BaseController
     {
 
         setpid(0);
-        if ($_SESSION['therapy_group'] != $groupId) {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        if ($session->get('therapy_group') != $groupId) {
             SessionUtil::setSession('therapy_group', $groupId);
         }
     }

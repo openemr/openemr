@@ -17,6 +17,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FileUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -542,7 +543,7 @@ class EhiExporter
         $filePath = $state->getTempSysDir() . DIRECTORY_SEPARATOR . $tableName . '.csv';
         if (file_exists($filePath)) {
             $contents = file_get_contents($filePath);
-            return $this->cryptoGen->decryptStandard($contents, null, KeySource::Database);
+            return $this->cryptoGen->decryptStandard($contents !== false ? $contents : null, null, KeySource::Database);
         }
         return "";
     }
@@ -555,9 +556,10 @@ class EhiExporter
             throw new ExportException("document category id does not exist in system");
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $higherLevelPath = "";
         $pathDepth = 1;
-        $owner = $_SESSION['authUserID'];  // userID
+        $owner = $session->get('authUserID');  // userID
         $thumbnailTmpLocation = null;
         $dateExpires = null;
         $data = file_get_contents($zipLocation);

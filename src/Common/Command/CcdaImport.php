@@ -13,6 +13,7 @@
 namespace OpenEMR\Common\Command;
 
 use Carecoordination\Model\CarecoordinationTable;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -49,7 +50,8 @@ class CcdaImport extends Command
             $output->writeln('auth_name parameter is missing (required), so exiting');
             return 2;
         }
-        $_SESSION['authUser'] = $input->getOption('auth_name');
+
+        SessionUtil::setSession('authUser', $input->getOption('auth_name'));
 
         $symfonyStyler = new SymfonyStyle($input, $output);
 

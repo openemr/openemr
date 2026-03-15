@@ -19,11 +19,13 @@ require_once("$include_root/drugs/drugs.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -115,40 +117,58 @@ function checkReorder($drug_id, $min, $warehouse = '')
 // Generate the list of warehouse IDs that the current user is allowed to access.
 // This is used to build SQL for $uwcond.
 //
-function genUserWarehouses($userid = 0)
+/** @return list<string> */
+function genUserWarehouses(int $userid = 0): array
 {
-    $list = '';
+    /** @var array<int, list<string>> */
+    static $cache = [];
+    if (isset($cache[$userid])) {
+        return $cache[$userid];
+    }
+    $warehouses = [];
     $res = sqlStatement(
         "SELECT DISTINCT option_id, option_value FROM list_options WHERE " .
         "list_id = 'warehouse' AND activity = 1"
     );
     while ($row = sqlFetchArray($res)) {
         if (isWarehouseAllowed($row['option_value'], $row['option_id'], $userid)) {
-            if ($list != '') {
-                $list .= ', ';
-            }
-            // Using add_escape_custom because this string is for a SQL query.
-            $list .= "'" . add_escape_custom($row['option_id']) . "'";
+            $warehouses[] = is_string($row['option_id']) ? $row['option_id'] : '';
         }
     }
-    return $list;
+    $cache[$userid] = $warehouses;
+    return $warehouses;
 }
 
 // This counts the number of days that have a starting zero inventory for a given product
 // since a given start date with given restrictions for warehouse or facility.
 // End date is assumed to be the current date.
 //
-// function zeroDays($product_id, $begdate, $warehouse_id = '~', $facility_id = 0) {
-function zeroDays($product_id, $begdate, $extracond, $extrabind, $min_sale = 1)
+/** @param list<string> $warehouse_list */
+function zeroDays($product_id, $begdate, int $facility_id = 0, string $warehouse_id = '', array $warehouse_list = [], $min_sale = 1)
 {
     $today = date('Y-m-d');
 
-    $prodcond = '';
-    $prodbind = [];
+    $conditions = [];
+    $condbind = [];
     if ($product_id) {
-        $prodcond = "AND di.drug_id = ?";
-        $prodbind[] = $product_id;
+        $conditions[] = "di.drug_id = ?";
+        $condbind[] = $product_id;
     }
+    if ($facility_id) {
+        $conditions[] = "lo.option_value IS NOT NULL AND lo.option_value = ?";
+        $condbind[] = $facility_id;
+    }
+    if ($warehouse_id !== '') {
+        $conditions[] = "di.warehouse_id IS NOT NULL AND di.warehouse_id = ?";
+        $condbind[] = $warehouse_id;
+    }
+    if (!empty($warehouse_list)) {
+        $placeholders = implode(', ', array_fill(0, count($warehouse_list), '?'));
+        $conditions[] = "di.warehouse_id IS NOT NULL AND di.warehouse_id IN (" . $placeholders . ")";
+        $condbind = array_merge($condbind, $warehouse_list);
+    }
+
+    $whereExtra = !empty($conditions) ? 'AND ' . implode(' AND ', $conditions) : '';
 
     // This will be an array where key is date and value is quantity.
     // For each date key the value represents net quantity changes for that day.
@@ -159,27 +179,25 @@ function zeroDays($product_id, $begdate, $extracond, $extrabind, $min_sale = 1)
     $qtys[$begdate] = 0;
 
     // Get sums of current inventory quantities.
-    $query = "SELECT SUM(di.on_hand) AS on_hand " .
+    $qohSql = "SELECT SUM(di.on_hand) AS on_hand " .
         "FROM drug_inventory AS di " .
         "LEFT JOIN list_options AS lo ON lo.list_id = 'warehouse' AND " .
         "lo.option_id = di.warehouse_id AND lo.activity = 1 " .
         "WHERE " .
-        "di.destroy_date IS NULL $prodcond $extracond";
-    $row = sqlQuery($query, array_merge($prodbind, $extrabind));
+        "di.destroy_date IS NULL " . $whereExtra;
+    $row = sqlQuery($qohSql, $condbind);
     $current_qoh = $row['on_hand'];
 
     // Add sums of destructions done for each date (effectively a type of transaction).
-    $res = sqlStatement(
-        "SELECT di.destroy_date, SUM(di.on_hand) AS on_hand " .
+    $destroySql = "SELECT di.destroy_date, SUM(di.on_hand) AS on_hand " .
         "FROM drug_inventory AS di " .
         "LEFT JOIN list_options AS lo ON lo.list_id = 'warehouse' AND " .
         "lo.option_id = di.warehouse_id AND lo.activity = 1 " .
         "WHERE " .
         "di.destroy_date IS NOT NULL AND di.destroy_date >= ? " .
-        "$prodcond $extracond" .
-        "GROUP BY di.destroy_date ORDER BY di.destroy_date",
-        array_merge([$begdate], $prodbind, $extrabind)
-    );
+        $whereExtra . " " .
+        "GROUP BY di.destroy_date ORDER BY di.destroy_date";
+    $res = sqlStatement($destroySql, array_merge([$begdate], $condbind));
     while ($row = sqlFetchArray($res)) {
         $thisdate = substr((string) $row['destroy_date'], 0, 10);
         if (!isset($qtys[$thisdate])) {
@@ -190,18 +208,16 @@ function zeroDays($product_id, $begdate, $extracond, $extrabind, $min_sale = 1)
 
     // Add sums of other transactions for each date.
     // Note sales are positive and purchases are negative.
-    $res = sqlStatement(
-        "SELECT ds.sale_date, SUM(ds.quantity) AS quantity " .
+    $salesSql = "SELECT ds.sale_date, SUM(ds.quantity) AS quantity " .
         "FROM drug_sales AS ds, drug_inventory AS di " .
         "LEFT JOIN list_options AS lo ON lo.list_id = 'warehouse' AND " .
         "lo.option_id = di.warehouse_id AND lo.activity = 1 " .
         "WHERE " .
         "ds.sale_date >= ? AND " .
         "di.inventory_id = ds.inventory_id " .
-        "$prodcond $extracond" .
-        "GROUP BY ds.sale_date ORDER BY ds.sale_date",
-        array_merge([$begdate], $prodbind, $extrabind)
-    );
+        $whereExtra . " " .
+        "GROUP BY ds.sale_date ORDER BY ds.sale_date";
+    $res = sqlStatement($salesSql, array_merge([$begdate], $condbind));
     while ($row = sqlFetchArray($res)) {
         $thisdate = $row['sale_date'];
         if (!isset($qtys[$thisdate])) {
@@ -212,20 +228,18 @@ function zeroDays($product_id, $begdate, $extracond, $extrabind, $min_sale = 1)
 
     // Subtract sums of transfers out for each date.
     // Quantity for transfers, like purchases, is usually negative.
-    $res = sqlStatement(
-        "SELECT ds.sale_date, SUM(ds.quantity) AS quantity " .
+    $xferSql = "SELECT ds.sale_date, SUM(ds.quantity) AS quantity " .
         "FROM drug_sales AS ds, drug_inventory AS di " .
         "LEFT JOIN list_options AS lo ON lo.list_id = 'warehouse' AND " .
         "lo.option_id = di.warehouse_id AND lo.activity = 1 " .
         "WHERE " .
         "ds.sale_date >= ? AND " .
         "di.inventory_id = ds.xfer_inventory_id " .
-        "$prodcond $extracond" .
-        "GROUP BY ds.sale_date ORDER BY ds.sale_date",
-        array_merge([$begdate], $prodbind, $extrabind)
-    );
+        $whereExtra . " " .
+        "GROUP BY ds.sale_date ORDER BY ds.sale_date";
+    $res = sqlStatement($xferSql, array_merge([$begdate], $condbind));
     while ($row = sqlFetchArray($res)) {
-        $thisdate = $row['sale_date'];
+        $thisdate = (string) $row['sale_date'];
         if (!isset($qtys[$thisdate])) {
             $qtys[$thisdate] = 0;
         }
@@ -265,6 +279,9 @@ function write_report_line(&$row): void
     global $form_details, $wrl_last_drug_id, $warnings, $encount, $fwcond, $fwbind, $form_days;
     global $gbl_expired_lot_warning_days, $form_facility, $form_warehouse, $form_action;
 
+    /** @var string $fwcond */
+    /** @var list<string> $fwbind */
+
     $emptyvalue = $form_action != 'export' ? '&nbsp;' : '';
     $drug_id = (int) $row['drug_id'];
     $on_hand = (int) $row['on_hand'];
@@ -283,9 +300,9 @@ function write_report_line(&$row): void
             "WHERE " .
             "s.drug_id = ? AND " .
             "lo.option_value IS NOT NULL AND lo.option_value = ? AND " .
-            "s.sale_date > DATE_SUB(NOW(), INTERVAL " . escape_limit($form_days) . " DAY) " .
-            "AND s.pid != 0 $fwcond";
-        $srow = sqlQuery($query, array_merge([$drug_id, $facility_id], $fwbind));
+            "s.sale_date > DATE_SUB(NOW(), INTERVAL ? DAY) " .
+            'AND s.pid != 0 ' . $fwcond;
+        $srow = sqlQuery($query, array_merge([$drug_id, $facility_id, $form_days], $fwbind));
     } elseif ($form_details == 2) { // warehouse details
         $query = "SELECT " .
             "SUM(s.quantity) AS sale_quantity " .
@@ -296,12 +313,11 @@ function write_report_line(&$row): void
             "WHERE " .
             "s.drug_id = ? AND " .
             "di.warehouse_id IS NOT NULL AND di.warehouse_id = ? AND " .
-            "s.sale_date > DATE_SUB(NOW(), INTERVAL " . escape_limit($form_days) . " DAY) " .
-            "AND s.pid != 0 $fwcond";
-        $srow = sqlQuery($query, array_merge([$drug_id, $warehouse_id], $fwbind));
+            "s.sale_date > DATE_SUB(NOW(), INTERVAL ? DAY) " .
+            'AND s.pid != 0 ' . $fwcond;
+        $srow = sqlQuery($query, array_merge([$drug_id, $warehouse_id, $form_days], $fwbind));
     } else {
-        $srow = sqlQuery(
-            "SELECT " .
+        $query = "SELECT " .
             "SUM(s.quantity) AS sale_quantity " .
             "FROM drug_sales AS s " .
             "LEFT JOIN drug_inventory AS di ON di.inventory_id = s.inventory_id " .
@@ -309,30 +325,49 @@ function write_report_line(&$row): void
             "lo.option_id = di.warehouse_id AND lo.activity = 1 " .
             "WHERE " .
             "s.drug_id = ? AND " .
-            "s.sale_date > DATE_SUB(NOW(), INTERVAL " . escape_limit($form_days) . " DAY) " .
-            "AND s.pid != 0 $fwcond",
-            array_merge([$drug_id], $fwbind)
-        );
+            "s.sale_date > DATE_SUB(NOW(), INTERVAL ? DAY) " .
+            'AND s.pid != 0 ' . $fwcond;
+        $srow = sqlQuery($query, array_merge([$drug_id, $form_days], $fwbind));
     }
     $sale_quantity = $srow['sale_quantity'];
 
     // Compute the smallest quantity that might be taken from ANY lot for this product
     // (and facility or warehouse if details) based on the past $form_days days of sales.
     // If lot combining is allowed this is always 1.
-    $extracond = $fwcond;
-    $extrabind = $fwbind;
+    $zd_facility = 0;
+    $zd_warehouse = '';
+    /** @var list<string> $zd_warehouse_list */
+    $zd_warehouse_list = isUserRestricted() ? genUserWarehouses() : [];
     if ($form_details == 1) {
-        $extracond = "AND lo.option_value IS NOT NULL AND lo.option_value = ?";
-        $extrabind = [$facility_id];
+        $zd_facility = is_numeric($facility_id) ? (int) $facility_id : 0;
+        $zd_warehouse_list = [];
     }
     if ($form_details == 2) {
-        $extracond = "AND di.warehouse_id = ?";
-        $extrabind = [$warehouse_id];
+        $zd_warehouse = is_string($warehouse_id) ? $warehouse_id : '';
+        $zd_warehouse_list = [];
     }
+
+    // Build WHERE string for the min_sale query from the same filter values.
+    $extraConds = [];
+    $extraBindForQuery = [];
+    if ($zd_facility) {
+        $extraConds[] = "lo.option_value IS NOT NULL AND lo.option_value = ?";
+        $extraBindForQuery[] = $zd_facility;
+    }
+    if ($zd_warehouse !== '') {
+        $extraConds[] = "di.warehouse_id IS NOT NULL AND di.warehouse_id = ?";
+        $extraBindForQuery[] = $zd_warehouse;
+    }
+    if ($zd_warehouse_list !== []) {
+        $ph = implode(', ', array_fill(0, count($zd_warehouse_list), '?'));
+        $extraConds[] = "di.warehouse_id IS NOT NULL AND di.warehouse_id IN (" . $ph . ")";
+        $extraBindForQuery = array_merge($extraBindForQuery, $zd_warehouse_list);
+    }
+    $extraWhereStr = $extraConds !== [] ? 'AND ' . implode(' AND ', $extraConds) : '';
+
     $min_sale = 1;
     if (!$row['allow_combining']) {
-        $sminrow = sqlQuery(
-            "SELECT " .
+        $minSaleSql = "SELECT " .
             "MIN(s.quantity) AS min_sale " .
             "FROM drug_sales AS s " .
             "LEFT JOIN drug_inventory AS di ON di.drug_id = s.drug_id " .
@@ -340,11 +375,10 @@ function write_report_line(&$row): void
             "lo.option_id = di.warehouse_id AND lo.activity = 1 " .
             "WHERE " .
             "s.drug_id = ? AND " .
-            "s.sale_date > DATE_SUB(NOW(), INTERVAL " . escape_limit($form_days) . " DAY) " .
+            "s.sale_date > DATE_SUB(NOW(), INTERVAL ? DAY) " .
             "AND s.pid != 0 " .
-            "AND s.quantity > 0 $extracond",
-            array_merge([$drug_id], $extrabind)
-        );
+            "AND s.quantity > 0 " . $extraWhereStr;
+        $sminrow = sqlQuery($minSaleSql, array_merge([$drug_id, $form_days], $extraBindForQuery));
         $min_sale = 0 + $sminrow['min_sale'];
     }
     if (!$min_sale) {
@@ -355,7 +389,7 @@ function write_report_line(&$row): void
     $today = date('Y-m-d');
     $tmp_days = max($form_days - 1, 0);
     $begdate = date('Y-m-d', strtotime("$today - $tmp_days days"));
-    $zerodays = zeroDays($drug_id, $begdate, $extracond, $extrabind, $min_sale);
+    $zerodays = zeroDays($drug_id, $begdate, $zd_facility, $zd_warehouse, $zd_warehouse_list, $min_sale);
 
     $months = $form_days / 30.41;
 
@@ -404,8 +438,7 @@ function write_report_line(&$row): void
     if ($gbl_expired_lot_warning_days <= 0) {
         $gbl_expired_lot_warning_days = 30;
     }
-    $ires = sqlStatement(
-        "SELECT di.* " .
+    $lotSql = "SELECT di.* " .
         "FROM drug_inventory AS di " .
         "LEFT JOIN list_options AS lo ON lo.list_id = 'warehouse' AND " .
         "lo.option_id = di.warehouse_id AND lo.activity = 1 " .
@@ -414,10 +447,9 @@ function write_report_line(&$row): void
         "di.on_hand > 0 AND " .
         "di.destroy_date IS NULL AND ( " .
         "di.on_hand < ? OR " .
-        "di.expiration IS NOT NULL AND di.expiration < DATE_ADD(NOW(), INTERVAL " . escape_limit($gbl_expired_lot_warning_days) . " DAY) " .
-        ") $extracond ORDER BY di.lot_number",
-        array_merge([$drug_id, $min_sale], $extrabind)
-    );
+        "di.expiration IS NOT NULL AND di.expiration < DATE_ADD(NOW(), INTERVAL ? DAY) " .
+        ") " . $extraWhereStr . " ORDER BY di.lot_number";
+    $ires = sqlStatement($lotSql, array_merge([$drug_id, $min_sale, $gbl_expired_lot_warning_days], $extraBindForQuery));
     // Generate warnings associated with individual lots.
     while ($irow = sqlFetchArray($ires)) {
         $lotno = $irow['lot_number'];
@@ -552,63 +584,64 @@ if (!empty($_POST['form_days'])) {
     $form_days = sprintf('%d', (strtotime(date('Y-m-d')) - strtotime(date('Y-01-01'))) / (60 * 60 * 24) + 1);
 }
 
-// this is "" or "submit".
-$form_action = $_POST['form_action'] ?? '';
-
-if (!empty($_POST['form_days'])) {
-    $form_days = $_POST['form_days'] + 0;
-} else {
-    $form_days = sprintf('%d', (strtotime(date('Y-m-d')) - strtotime(date('Y-01-01'))) / (60 * 60 * 24) + 1);
-}
-
 // this is "" or "submit" or "export".
-$form_action = empty($_POST['form_action']) ? '' : $_POST['form_action'];
+$form_action_raw = is_string($_POST['form_action'] ?? null) ? $_POST['form_action'] : '';
+$form_action = in_array($form_action_raw, ['submit', 'export'], true) ? $form_action_raw : '';
 
 $form_inactive = empty($_REQUEST['form_inactive']) ? 0 : 1;
 $form_details = empty($_REQUEST['form_details']) ? 0 : intval($_REQUEST['form_details']);
-$form_facility = 0 + empty($_REQUEST['form_facility']) ? 0 : $_REQUEST['form_facility'];
+$form_facility_raw = $_REQUEST['form_facility'] ?? 0;
+$form_facility = is_numeric($form_facility_raw) ? intval($form_facility_raw) : 0;
 $form_consumable = isset($_REQUEST['form_consumable']) ? intval($_REQUEST['form_consumable']) : 0;
-$form_orderby = $_REQUEST['form_orderby'] ?? 'name';
+$form_orderby = is_string($_REQUEST['form_orderby'] ?? null) ? $_REQUEST['form_orderby'] : 'name';
+if (!isset($ORDERHASH[$form_orderby])) {
+    $form_orderby = 'name';
+}
 $orderby = $ORDERHASH[$form_orderby];
 
 // Incoming form_warehouse, if not empty is in the form "warehouse/facility".
 // The facility part is an attribute used by JavaScript logic.
-$form_warehouse = $_REQUEST['form_warehouse'] ?? '';
-$tmp = explode('/', (string) $form_warehouse);
-$form_warehouse = $tmp[0];
+$form_warehouse_raw = is_string($_REQUEST['form_warehouse'] ?? null) ? $_REQUEST['form_warehouse'] : '';
+$tmp = explode('/', $form_warehouse_raw);
+$form_warehouse = strip_tags($tmp[0]);
 
 $mmtype = empty(OEGlobalsBag::getInstance()->get('gbl_min_max_months')) ? xl('Units') : xl('Months');
 
-// Compute WHERE condition for filtering on facility/warehouse.
-$fwcond = '';
+// Compute WHERE conditions for filtering on facility/warehouse.
+$fwconds = [];
 $fwbind = [];
 if ($form_facility) {
-    $fwcond .= " AND lo.option_value IS NOT NULL AND lo.option_value = ?";
+    $fwconds[] = "lo.option_value IS NOT NULL AND lo.option_value = ?";
     $fwbind[] = $form_facility;
 }
 if ($form_warehouse) {
-    $fwcond .= " AND di.warehouse_id IS NOT NULL AND di.warehouse_id = ?";
+    $fwconds[] = "di.warehouse_id IS NOT NULL AND di.warehouse_id = ?";
     $fwbind[] = $form_warehouse;
 }
 if ($is_user_restricted) {
-    $fwcond .= "AND di.warehouse_id IS NOT NULL AND di.warehouse_id IN (" . genUserWarehouses() . ")";
+    $restrictedWarehouses = genUserWarehouses();
+    $placeholders = implode(', ', array_fill(0, count($restrictedWarehouses), '?'));
+    // nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string -- $placeholders contains only literal '?' characters, not user data
+    $fwconds[] = "di.warehouse_id IS NOT NULL AND di.warehouse_id IN (" . $placeholders . ")";
+    $fwbind = array_merge($fwbind, $restrictedWarehouses);
 }
+$fwcond = $fwconds !== [] ? ' AND ' . implode(' AND ', $fwconds) : '';
 
 // Compute WHERE condition for filtering on activity and consumability (drugs table).
 $actcond = '';
 if (!$form_inactive) {
     $actcond .= " AND d.active = 1";
 }
-if ($form_consumable) {
-    if ($form_consumable == 1) {
-        $actcond .= " AND d.consumable = '1'";
-    } else {
-        $actcond .= " AND d.consumable != '1'";
-    }
+// nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string -- $form_consumable is intval()-cast; branches append only hardcoded literals
+if ($form_consumable === 1) {
+    $actcond .= " AND d.consumable = '1'";
+} elseif ($form_consumable !== 0) {
+    $actcond .= " AND d.consumable != '1'";
 }
 
 if ($form_details == 1) {
     // Query for the main loop if facility details are wanted.
+    // nosemgrep: php.lang.security.injection.tainted-sql-string.tainted-sql-string -- $orderby from hardcoded allowlist ($ORDERHASH), $fwcond uses parameterized placeholders, $actcond is hardcoded
     $query = "SELECT d.*, SUM(di.on_hand) AS on_hand, lo.option_value, fac.name AS facname, " .
         "SUM(pw.pw_min_level) AS pw_min_level, SUM(pw.pw_max_level) AS pw_max_level " .
         "FROM drugs AS d " .
@@ -769,7 +802,7 @@ table.mymaintable td, table.mymaintable th {
 <center>
 
 <form method='post' action='inventory_list.php' name='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
 <!-- form_action is set to "submit" or "export" at form submit time -->
 <input type='hidden' name='form_action' value='' />

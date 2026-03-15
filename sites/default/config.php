@@ -20,7 +20,7 @@ if (empty($GLOBALS['ongoing_sql_upgrade'])) {
     //Enscript command used by Hylafax.
     $GLOBALS['more_secure']['hylafax_enscript'] = 'enscript -M Letter -B -e^ --margins=36:36:36:36';
     foreach ($GLOBALS['more_secure'] as $key => $value) {
-        $GLOBALS['more_secure'][$key] = $cryptoGen->encryptStandard($value);
+        $GLOBALS['more_secure'][$key] = $cryptoGen->encryptStandard(is_string($value) ? $value : null);
     }
 }
 

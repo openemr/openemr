@@ -58,6 +58,9 @@ rules:
       # OpenEMR display functions (library/options.inc.php) - use htmlspecialchars internally
   - pattern: generate_display_field(...)
   - pattern: generate_select_list(...)
+      # OpenEMR layout editor functions (interface/super/edit_layout.php) - use attr()/text() internally
+  - pattern: genLayoutOptions(...)
+  - pattern: genGroupSelector(...)
       # JSON encoding - safe for HTML context (encodes special chars)
   - pattern: json_encode(...)
   fix: echo attr($...VARS);
@@ -142,6 +145,9 @@ rules:
       # OpenEMR display functions (library/options.inc.php) - use htmlspecialchars internally
   - pattern: generate_display_field(...)
   - pattern: generate_select_list(...)
+      # OpenEMR layout editor functions (interface/super/edit_layout.php) - use attr()/text() internally
+  - pattern: genLayoutOptions(...)
+  - pattern: genGroupSelector(...)
       # JSON encoding - safe for HTML context (encodes special chars)
   - pattern: json_encode(...)
   fix: print attr($...VARS);

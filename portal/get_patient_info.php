@@ -28,7 +28,10 @@ if (empty(SessionUtil::getAppCookie())) {
     // Prevent error 500 in case of cleaning cookies and site data once when the login page is already loaded
     $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::PORTAL_SESSION_ID;
 }
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+// Auth flow writes heavily to session and uses migrate()
+$sessionAllowWrite = true;
+SessionWrapperFactory::getInstance()->setSessionReadOnly(false);
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // regenerating the session id to avoid session fixation attacks
 $session->migrate(true);
@@ -45,30 +48,30 @@ if (!empty($_REQUEST['redirect'])) {
 
 // checking whether the request comes from index.php
 if (!$session->get('itsme', false)) {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     header('Location: ' . $landingpage . '&w');
     exit();
 }
 
 // some validation
 if (!isset($_POST['uname']) || empty($_POST['uname'])) {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     header('Location: ' . $landingpage . '&w&c');
     exit();
 }
 
 if (!isset($_POST['pass']) || empty($_POST['pass'])) {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     header('Location: ' . $landingpage . '&w&c');
     exit();
 }
 
 // set the language
 if (!empty($_POST['languageChoice'])) {
-    $session->set('language_choice', (int)$_POST['languageChoice']);
+    SessionUtil::setSession('language_choice', (int)$_POST['languageChoice']);
 } elseif (empty($session->get('language_choice', null))) {
     // just in case both are empty, then use english
-    $session->set('language_choice', 1);
+    SessionUtil::setSession('language_choice', 1);
 } else {
     // keep the current session language token
 }
@@ -84,7 +87,7 @@ if (
     $globalsBag->getBoolean('enforce_signin_email')
     && (!isset($_POST['passaddon']) || empty($_POST['passaddon']))
 ) {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     header('Location: ' . $landingpage . '&w&c');
     exit();
 }
@@ -95,7 +98,7 @@ require_once("$srcdir/user.inc.php");
 
 $logit = new ApplicationTable();
 $password_update = $session->get('password_update', 0);
-$session->remove('password_update');
+SessionUtil::unsetSession('password_update');
 
 $authorizedPortal = false; // flag
 DEFINE("TBL_PAT_ACC_ON", "patient_access_onsite");
@@ -128,8 +131,7 @@ if ($password_update === 2 && !empty($session->get('pin', null))) {
         } else {
             $auth = false;
         }
-        $session->remove('forward');
-        $session->remove('pin');
+        SessionUtil::unsetSession(['forward', 'pin']);
         unset($_POST['token_pin']);
     }
 } else {
@@ -147,7 +149,7 @@ if ($password_update === 2 && !empty($session->get('pin', null))) {
 }
 if ($auth === false) {
     $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid username'), '', '0');
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     header('Location: ' . $landingpage . '&w&u');
     exit();
 }
@@ -155,7 +157,7 @@ if ($auth === false) {
 if ($password_update === 2) {
     if ($_POST['pass'] != $auth[COL_POR_PWD]) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid password'), '', '0');
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         header('Location: ' . $landingpage . '&w&p');
         exit();
     }
@@ -180,7 +182,7 @@ if ($password_update === 2) {
         }
     } else {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid password'), '', '0');
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         header('Location: ' . $landingpage . '&w&p');
         exit();
     }
@@ -188,22 +190,22 @@ if ($password_update === 2) {
 
 
 
-$session->set('portal_username', $auth[COL_POR_USER]);
-$session->set('portal_login_username', $auth[COL_POR_LOGINUSER]);
+SessionUtil::setSession('portal_username', $auth[COL_POR_USER]);
+SessionUtil::setSession('portal_login_username', $auth[COL_POR_LOGINUSER]);
 
 $sql = "SELECT * FROM `patient_data` WHERE `pid` = ?";
 
 if ($userData = sqlQuery($sql, [$auth['pid']])) { // if query gets executed
     if (empty($userData)) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':not active patient'), '', '0');
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         header('Location: ' . $landingpage . '&w');
         exit();
     }
 
     if ($userData['email'] != ($_POST['passaddon'] ?? '') && $globalsBag->getBoolean('enforce_signin_email')) {
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':invalid email'), '', '0');
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         header('Location: ' . $landingpage . '&w');
         exit();
     }
@@ -211,14 +213,14 @@ if ($userData = sqlQuery($sql, [$auth['pid']])) { // if query gets executed
     if ($userData['allow_patient_portal'] != "YES") {
         // Patient has not authorized portal, so escape
         $logit->portalLog('login attempt', '', ($_POST['uname'] . ':allow portal turned off'), '', '0');
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         header('Location: ' . $landingpage . '&w');
         exit();
     }
 
     if ($auth['pid'] != $userData['pid']) {
         // Not sure if this is even possible, but should escape if this happens
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         header('Location: ' . $landingpage . '&w');
         exit();
     }
@@ -250,7 +252,7 @@ if ($userData = sqlQuery($sql, [$auth['pid']])) { // if query gets executed
     if ($auth['portal_pwd_status'] == 0) {
         if (!$authorizedPortal) {
             // Need to enter a new password in the index.php script
-            $session->set('password_update', 1);
+            SessionUtil::setSession('password_update', 1);
             header('Location: ' . $landingpage);
             exit();
         }
@@ -263,33 +265,35 @@ if ($userData = sqlQuery($sql, [$auth['pid']])) { // if query gets executed
 
     if ($authorizedPortal) {
         // patient is authorized (prepare the session variables)
-        $session->remove('password_update'); // just being safe
-        $session->remove('itsme'); // just being safe
-        $session->set('pid', $auth['pid']);
-        $session->set('patient_portal_onsite_two', 1);
-
         $tmp = getUserIDInfo($userData['providerID']);
-        $session->set('providerName', ($tmp['fname'] ?? '') . ' ' . ($tmp['lname'] ?? ''));
-        $session->set('providerUName', $tmp['username'] ?? null);
-        $session->set('sessionUser', '-patient-'); // $_POST['uname'];
-        $session->set('providerId', $userData['providerID'] ?: 'undefined');
-        $session->set('ptName', $userData['fname'] . ' ' . $userData['lname']);
-        // never set authUserID though authUser is used for ACL!
-        $session->set('authUser', 'portal-user');
+        SessionUtil::setUnsetSession(
+            [
+                'pid' => $auth['pid'],
+                'patient_portal_onsite_two' => 1,
+                'providerName' => ($tmp['fname'] ?? '') . ' ' . ($tmp['lname'] ?? ''),
+                'providerUName' => $tmp['username'] ?? null,
+                'sessionUser' => '-patient-', // $_POST['uname'];
+                'providerId' => $userData['providerID'] ?: 'undefined',
+                'ptName' => $userData['fname'] . ' ' . $userData['lname'],
+                // never set authUserID though authUser is used for ACL!
+                'authUser' => 'portal-user',
+            ],
+            ['password_update', 'itsme'] // just being safe
+        );
         // Set up the csrf private_key (for the paient portal)
         //  Note this key always remains private and never leaves server session. It is used to create
         //  the csrf tokens.
-        CsrfUtils::setupCsrfKey($session->getSymfonySession());
+        CsrfUtils::setupCsrfKey($session);
 
         $logit->portalLog('login', $session->get('pid'), ($session->get('portal_username') . ': ' . $session->get('ptName') . ':success'));
     } else {
         $logit->portalLog('login', '', ($_POST['uname'] . ':not authorized'), '', '0');
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         header('Location: ' . $landingpage . '&w');
         exit();
     }
 } else { // problem with query
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     header('Location: ' . $landingpage . '&w');
     exit();
 }

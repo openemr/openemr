@@ -14,6 +14,7 @@ namespace OpenEMR\Services;
 use Exception;
 use InvalidArgumentException;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
@@ -219,6 +220,8 @@ class DrugSalesService extends BaseService
         $selector = ''
     ) {
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
         if (empty($patient_id)) {
             $patient_id   = OEGlobalsBag::getInstance()->get('pid');
         }
@@ -228,8 +231,8 @@ class DrugSalesService extends BaseService
         }
 
         if (empty($user)) {
-            $user         = $_SESSION['authUser'];
-            $userId       = $_SESSION['authUserID'];
+            $user         = $session->get('authUser');
+            $userId       = $session->get('authUserID');
         } else {
             $userService = new UserService();
             $userRecord = $userService->getUserByUsername($user);

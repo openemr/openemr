@@ -14,6 +14,7 @@ namespace OpenEMR\Tests\Services\FHIR\QuestionnaireResponse;
 
 use Exception;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaireResponse;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
@@ -22,6 +23,7 @@ use OpenEMR\Services\QuestionnaireResponseService;
 use OpenEMR\Services\QuestionnaireService;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * Integration tests for FhirQuestionnaireResponseFormService ensuring US Core 8.0 compliance with database operations
@@ -32,10 +34,7 @@ class FhirQuestionnaireResponseFormServiceIntegrationTest extends TestCase
     const QUESTIONNAIRE_NAME = 'PHPUnit Integration Test Questionnaire';
     const QUESTIONNAIRE_NAME_2 = 'PHPUnit Integration Test Questionnaire 2';
 
-    /**
-     * @var array Saved off session storage while we run this test.
-     */
-    private array $originalSession;
+    private SessionInterface $session;
 
     /**
      * @var FhirQuestionnaireResponseFormService
@@ -61,8 +60,8 @@ class FhirQuestionnaireResponseFormServiceIntegrationTest extends TestCase
         parent::setUp();
 
         // Store original session
-        $this->originalSession = $_SESSION;
-        $_SESSION['authUserID'] = QueryUtils::fetchSingleValue('select id FROM users ORDER BY id LIMIT 1', 'id');
+        $this->session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->session->set('authUserID', QueryUtils::fetchSingleValue('select id FROM users ORDER BY id LIMIT 1', 'id'));
 
         $this->service = new FhirQuestionnaireResponseFormService();
         $this->service->setSystemLogger($this->createMock(LoggerInterface::class));
@@ -79,7 +78,7 @@ class FhirQuestionnaireResponseFormServiceIntegrationTest extends TestCase
         parent::tearDown();
 
         // Restore session
-        $_SESSION = $this->originalSession;
+        $this->session->clear();
 
         // Clean up database records - AI Generated cleanup
         $this->cleanupTestData();
@@ -314,6 +313,9 @@ class FhirQuestionnaireResponseFormServiceIntegrationTest extends TestCase
         $this->testPatientData = $result->getFirstDataResult();
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     private function getQuestionnaireTemplate(): array
     {
         return [

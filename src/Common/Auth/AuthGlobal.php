@@ -49,7 +49,7 @@ class AuthGlobal
         $authHash = new AuthHash();
         if ($authHash->passwordNeedsRehash($globalHash)) {
             $newHash = $authHash->passwordHash($pass);
-            $newHash = $cryptoGen->encryptStandard($newHash);
+            $newHash = $cryptoGen->encryptStandard(is_string($newHash) ? $newHash : null);
             sqlStatement("UPDATE `globals` SET `gl_value` = ? WHERE `gl_name` = ?", [$newHash, $this->globalSetting]);
         }
 

@@ -15,12 +15,14 @@ require_once("../../../../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Cqm\QrdaControllers\QrdaReportController;
 
 header('Content-Type: application/json');
 
-if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '')) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '', session: $session)) {
     echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
     exit;
 }

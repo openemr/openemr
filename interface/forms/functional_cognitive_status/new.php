@@ -21,14 +21,17 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/csv_li
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $returnurl = 'encounter_top.php';
 $formid = (int) ($_GET['id'] ?? 0);
 if ($formid) {
     $sql = "SELECT * FROM `form_functional_cognitive_status` WHERE id=? AND pid = ? AND encounter = ?";
-    $res = sqlStatement($sql, [$formid,$_SESSION["pid"], $_SESSION["encounter"]]);
+    $res = sqlStatement($sql, [$formid,$session->get('pid'), $session->get('encounter')]);
 
     $all = [];
     for ($iter = 0; $row = sqlFetchArray($res); $iter++) {
@@ -135,7 +138,7 @@ $check_res = $formid ? $check_res : [];
             <div class="col-12">
                 <h2><?php echo xlt('Functional and Cognitive Status Form'); ?></h2>
                 <form method='post' name='my_form' action='<?php echo $rootdir; ?>/forms/functional_cognitive_status/save.php?id=<?php echo attr($formid); ?>'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                     <fieldset>
                         <legend><?php echo xlt('Enter Details'); ?></legend>
                         <div class="container">

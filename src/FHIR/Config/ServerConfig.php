@@ -13,6 +13,7 @@
 
 namespace OpenEMR\FHIR\Config;
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 class ServerConfig
@@ -36,8 +37,9 @@ class ServerConfig
 
     public function __construct()
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // we may let these be injected at another point in time but for now we set this up as globals
-        $this->siteId = $_SESSION['site_id'] ?? '';
+        $this->siteId = $session->get('site_id') ?? '';
         $this->oauthAddress = OEGlobalsBag::getInstance()->get('site_addr_oath') ?? $_SERVER['HTTP_HOST'];
         $this->webServerRoot = OEGlobalsBag::getInstance()->get('fileroot') ?? '';
         $this->webRoot = OEGlobalsBag::getInstance()->get('web_root') ?? '';

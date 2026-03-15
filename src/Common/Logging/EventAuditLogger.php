@@ -366,7 +366,7 @@ class EventAuditLogger
      */
     public function auditSQLEvent($statement, $outcome, $binds = null)
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $user =  $session->get('authUser') ?? "";
 
         /* Don't log anything if the audit logging is not enabled. Exception for "emergency" users */
@@ -502,7 +502,7 @@ class EventAuditLogger
      */
     public function auditSQLAuditTamper($setting, $enable)
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $user =  $session->get('authUser') ?? "";
         $group = $session->get('authProvider') ?? "";
         $pid = 0;
@@ -685,7 +685,7 @@ class EventAuditLogger
      */
     public function logHttpRequest()
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Skip if audit logging or http request logging is disabled
         if (!OEGlobalsBag::getInstance()->getBoolean('enable_auditlog') || !OEGlobalsBag::getInstance()->getBoolean('audit_events_http-request')) {
             return;

@@ -21,6 +21,7 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -34,11 +35,11 @@ $ordtype = $_REQUEST['addfav'] ?? '';
 $disabled = $ordtype ? "disabled" : '';
 $labid = $_GET['labid'] ?? 0;
 $info_msg = "";
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 function types_invalue(string $name): string
 {
-    $fld = formData($name, "P", true);
-    return "'$fld'";
+    return trim(is_string($_POST[$name] ?? null) ? $_POST[$name] : '');
 }
 
 function recursiveDelete($typeid): void
@@ -243,7 +244,7 @@ function recursiveDelete($typeid): void
         // If we are saving, then save and close the window.
         //
         if (!empty($_POST['form_save']) || !empty($_POST['form_delete'])) {
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
                 CsrfUtils::csrfNotVerified();
             }
         }
@@ -252,34 +253,41 @@ function recursiveDelete($typeid): void
             $p_procedure_code = types_invalue('form_procedure_code');
 
             if ($_POST['form_procedure_type'] == 'grp') {
-                $p_procedure_code = "''";
+                $p_procedure_code = '';
             }
 
-            $sets =
-                "name = " . types_invalue('form_name') . ", " .
-                "lab_id = " . types_invalue('form_lab_id') . ", " .
-                "procedure_code = $p_procedure_code, " .
-                "procedure_type = " . types_invalue('form_procedure_type') . ", " .
-                "procedure_type_name = " . types_invalue('form_procedure_type_name') . ", " .
-                "body_site = " . types_invalue('form_body_site') . ", " .
-                "specimen = " . types_invalue('form_specimen') . ", " .
-                "route_admin = " . types_invalue('form_route_admin') . ", " .
-                "laterality = " . types_invalue('form_laterality') . ", " .
-                "description = " . types_invalue('form_description') . ", " .
-                "units = " . types_invalue('form_units') . ", " .
-                "`range` = " . types_invalue('form_range') . ", " .
-                "standard_code = " . types_invalue('form_standard_code') . ", " .
-                "related_code = " . (isset($_POST['form_diagnosis_code']) ? types_invalue('form_diagnosis_code') : types_invalue('form_related_code')) . ", " .
-                "seq = " . types_invalue('form_seq');
+            $sets = "name = ?, lab_id = ?, procedure_code = ?, procedure_type = ?, " .
+                "procedure_type_name = ?, body_site = ?, specimen = ?, route_admin = ?, " .
+                "laterality = ?, description = ?, units = ?, `range` = ?, " .
+                "standard_code = ?, related_code = ?, seq = ?";
+            $bindValues = [
+                types_invalue('form_name'),
+                types_invalue('form_lab_id'),
+                $p_procedure_code,
+                types_invalue('form_procedure_type'),
+                types_invalue('form_procedure_type_name'),
+                types_invalue('form_body_site'),
+                types_invalue('form_specimen'),
+                types_invalue('form_route_admin'),
+                types_invalue('form_laterality'),
+                types_invalue('form_description'),
+                types_invalue('form_units'),
+                types_invalue('form_range'),
+                types_invalue('form_standard_code'),
+                isset($_POST['form_diagnosis_code']) ? types_invalue('form_diagnosis_code') : types_invalue('form_related_code'),
+                types_invalue('form_seq'),
+            ];
 
             if ($typeid) {
-                sqlStatement("UPDATE procedure_type SET $sets WHERE procedure_type_id = '" . add_escape_custom($typeid) . "'");
+                $bindValues[] = $typeid;
+                sqlStatement("UPDATE procedure_type SET $sets WHERE procedure_type_id = ?", $bindValues);
                 // Get parent ID so we can refresh the tree view.
                 $row = sqlQuery("SELECT parent FROM procedure_type WHERE " .
                     "procedure_type_id = ?", [$typeid]);
                 $parent = $row['parent'];
             } else {
-                $newid = sqlInsert("INSERT INTO procedure_type SET parent = '" . add_escape_custom($parent) . "', $sets");
+                $bindValues[] = $parent;
+                $newid = sqlInsert("INSERT INTO procedure_type SET parent = ?, $sets", $bindValues);
                 // $newid is not really used in this script
             }
         } elseif (!empty($_POST['form_delete'])) {
@@ -317,7 +325,7 @@ function recursiveDelete($typeid): void
                 <form method='post' name='theform' class="form-horizontal"
                     action='types_edit.php?typeid=<?php echo attr_url($typeid); ?>&parent=<?php echo attr_url($parent); ?>'
                     onsubmit='return top.restoreSession()'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                     <fieldset>
                         <legend name="form_legend" id="form_legend"><?php echo xlt('Enter Details'); ?> <i id='enter_details' class='fa fa-info-circle oe-text-black oe-superscript enter-details-tooltip' aria-hidden='true'></i></legend>
                         <div class="row">

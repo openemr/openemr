@@ -29,6 +29,7 @@ require_once("../../custom/code_types.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -39,8 +40,9 @@ if (!AclMain::aclCheckCore('acct', 'rep_a')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep_a: Receipts Summary", xl("Receipts Summary"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -357,7 +359,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Receipts Summary'); ?></span>
 
 <form method='post' action='receipts_by_method_report.php' id='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 <div id="report_parameters">
     <div class="form-row col-md-6">
         <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
@@ -413,7 +415,7 @@ $form_proc_code = $tmp_code_array[1] ?? null;
 
                         echo "   </select>\n";
                     } else {
-                        echo "<input type='hidden' name='form_provider' value='" . attr($_SESSION['authUserID']) . "'>";
+                        echo "<input type='hidden' name='form_provider' value='" . attr($session->get('authUserID')) . "'>";
                     }
                     ?>
                 </td>
@@ -534,7 +536,7 @@ if (!empty($_POST['form_refresh'])) {
         $form_provider = $_POST['form_provider'];
         if (!AclMain::aclCheckCore('acct', 'rep_a')) {
             // only allow user to see their encounter information
-            $form_provider = $_SESSION['authUserID'];
+            $form_provider = $session->get('authUserID');
         }
 
 

@@ -14,6 +14,7 @@ namespace OpenEMR\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\Types\SmokingStatusType;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Events\Services\ServiceSaveEvent;
 use OpenEMR\Services\Search\FhirSearchWhereClauseBuilder;
@@ -169,7 +170,8 @@ class SocialHistoryService extends BaseService
 
     private function insertRecord($record)
     {
-        $createdBy = $_SESSION['authUserID']; // we don't let anyone else but the current user be the createdBy
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $createdBy = $session->get('authUserID'); // we don't let anyone else but the current user be the createdBy
         $record['created_by'] = $createdBy;
 
         $record = $this->dispatchSaveEvent(ServiceSaveEvent::EVENT_PRE_SAVE, $record);

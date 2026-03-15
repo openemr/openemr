@@ -338,7 +338,7 @@ Use the standard DB connections instead\\.$#',
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function prevSetting\\(\\)\\:
 7\\.0\\.3 see UserSettingsService\\:\\:prevSetting$#',
-    'count' => 6,
+    'count' => 4,
     'path' => __DIR__ . '/../../interface/main/messages/messages.php',
 ];
 $ignoreErrors[] = [

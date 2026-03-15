@@ -32,7 +32,7 @@ if ($portalRegistrationAuthorization !== true) {
     die();
 }
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getPortalSession();
 
 if (!$globalsBag->getBoolean('portal_onsite_two_register') || empty($globalsBag->get('google_recaptcha_site_key')) || empty($globalsBag->get('google_recaptcha_secret_key'))) {
     ServiceContainer::getLogger()->debug("Attempted to use register.php despite register feature being turned off, so failed");
@@ -42,11 +42,11 @@ if (!$globalsBag->getBoolean('portal_onsite_two_register') || empty($globalsBag-
     die();
 }
 
-$session->remove('itsme');
-$session->set('authUser', 'portal-user');
-$session->set('pid', true);
-$session->set('register', true);
-$session->set('register_silo_ajax', true);
+SessionUtil::unsetSession('itsme');
+SessionUtil::setSession('authUser', 'portal-user');
+SessionUtil::setSession('pid', true);
+SessionUtil::setSession('register', true);
+SessionUtil::setSession('register_silo_ajax', true);
 
 $landingpage = "index.php?site=" . urlencode((string) $session->get('site_id'));
 

@@ -1449,7 +1449,7 @@ class BillingUtilities
         $revenue_code = "",
         $payer_id = ""
     ) {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if (!$authorized) {
             $authorized = "0";
         }
@@ -1644,8 +1644,9 @@ class BillingUtilities
             $billset = substr($billset, 2);
             $sqlBindArray = $sqlBindBillset;
             array_push($sqlBindArray, $encounter_id, $patient_id);
-            sqlStatement("UPDATE billing SET $billset WHERE " .
-                "encounter = ? AND pid= ? AND activity = 1", $sqlBindArray);
+            $sql = "UPDATE billing SET " . $billset . " WHERE " .
+                "encounter = ? AND pid= ? AND activity = 1";
+            sqlStatement($sql, $sqlBindArray);
         }
 
         $claimset .= ", submitted_claim = ?";
@@ -1700,10 +1701,10 @@ class BillingUtilities
             $sqlBindArray = $sqlBindClaimset;
             array_push($sqlBindArray, $patient_id, $encounter_id, $row['version']);
             $claimset = substr($claimset, 2);
-            sqlStatement("UPDATE claims SET $claimset WHERE " .
+            $sql = "UPDATE claims SET " . $claimset . " WHERE " .
                 "patient_id = ? AND encounter_id = ? AND " .
-                // "payer_id = '" . $row['payer_id'] . "' AND " .
-                "version = ?", $sqlBindArray);
+                "version = ?";
+            sqlStatement($sql, $sqlBindArray);
         }
 
         // Whenever a claim is marked billed, update A/R accordingly.
@@ -1786,7 +1787,7 @@ class BillingUtilities
     //
     public static function getInvoiceRefNumber()
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $trow = sqlQuery(
             "SELECT lo.notes " .
             "FROM users AS u, list_options AS lo " .
@@ -1803,7 +1804,7 @@ class BillingUtilities
     //
     public static function updateInvoiceRefNumber()
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $irnumber = self::getInvoiceRefNumber();
         // Here "?" specifies a minimal match, to get the most digits possible:
         if (preg_match('/^(.*?)(\d+)(\D*)$/', (string) $irnumber, $matches)) {
@@ -1826,7 +1827,7 @@ class BillingUtilities
     //
     public static function doVoid($patient_id, $encounter_id, $purge = false, $time = '', $reason = '', $notes = '')
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $what_voided = $purge ? 'checkout' : 'receipt';
         $date_original = '';
         $adjustments = 0;
