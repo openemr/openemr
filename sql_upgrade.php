@@ -52,6 +52,7 @@ require_once('interface/globals.php');
 require_once('library/sql_upgrade_fx.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\Header;
@@ -97,8 +98,10 @@ if (count($result2 ?? []) == 1) {
     $defaultLangName = "English";
 }
 
-$session->set('language_choice', $defaultLangID);
-$session->set('language_direction', $direction ?? '');
+SessionUtil::setSession([
+    'language_choice' => $defaultLangID,
+    'language_direction' => $direction ?? '',
+]);
 CsrfUtils::setupCsrfKey($session);
 
 $sqlUpgradeService = new SQLUpgradeService();

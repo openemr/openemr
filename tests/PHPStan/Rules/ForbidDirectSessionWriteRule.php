@@ -53,7 +53,6 @@ class ForbidDirectSessionWriteRule implements Rule
         'interface/usergroup/mfa_totp.php',
         'interface/globals.php',
         'setup.php',
-        'sql_upgrade.php',
         'ccdaservice/',
         // Files with $sessionAllowWrite = true
         'interface/reports/appointments_report.php',
