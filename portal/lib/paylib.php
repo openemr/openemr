@@ -20,6 +20,10 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
+// Every request writes session state (portal_init, whereto), so keep session writable
+// to avoid repeated reopen-write-close cycles from read_and_close mode.
+$sessionAllowWrite = true;
+SessionWrapperFactory::getInstance()->setSessionReadOnly(false);
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
