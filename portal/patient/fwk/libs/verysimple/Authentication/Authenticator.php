@@ -79,8 +79,7 @@ class Authenticator
     public static function UnsetAllSessionVars()
     {
         self::Init();
-        $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $session->clear();
+        SessionUtil::clearSession();
     }
 
     /**

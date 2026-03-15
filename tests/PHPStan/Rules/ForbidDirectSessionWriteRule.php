@@ -46,7 +46,6 @@ class ForbidDirectSessionWriteRule implements Rule
         'src/Common/Auth/',
         'src/Common/Csrf/CsrfUtils.php',
         'library/auth.inc.php',
-        'portal/patient/fwk/libs/verysimple/Authentication/Authenticator.php',
         // Login/setup flows with $sessionAllowWrite = true
         'interface/login/login.php',
         'interface/main/main_screen.php',

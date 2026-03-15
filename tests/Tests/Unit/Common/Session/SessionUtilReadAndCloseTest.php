@@ -542,6 +542,145 @@ class SessionUtilReadAndCloseTest extends TestCase
     }
 
     // =========================================================================
+    // clearSession() Tests
+    // =========================================================================
+
+    /**
+     * Test that clearSession() reopens a read-and-close session, clears all data, and closes
+     */
+    public function testClearSessionReopensAndClosesReadAndCloseSession(): void
+    {
+        // Create session with initial data
+        $setupStorage = new ReadAndCloseNativeSessionStorage([
+            'name' => 'TestClear',
+            'use_cookies' => false,
+            'use_only_cookies' => false,
+        ]);
+        $setupSession = new Session($setupStorage, new AttributeBag('TestClear'));
+        $setupSession->start();
+        $setupSession->set('key1', 'value1');
+        $setupSession->set('key2', 'value2');
+        $setupSession->set('key3', 'value3');
+        $sessionId = $setupSession->getId();
+        $setupSession->save();
+
+        // Reopen with read_and_close
+        session_id($sessionId);
+        $storage = new ReadAndCloseNativeSessionStorage([
+            'name' => 'TestClear',
+            'read_and_close' => true,
+            'use_cookies' => false,
+            'use_only_cookies' => false,
+        ]);
+        $session = new Session($storage, new AttributeBag('TestClear'));
+        $session->start();
+
+        $factory = SessionWrapperFactory::getInstance();
+        $factory->setActiveSession($session, $storage);
+
+        $this->assertTrue($storage->isClosedByReadAndClose());
+
+        SessionUtil::clearSession();
+
+        $this->assertTrue(
+            $storage->isClosedByReadAndClose(),
+            'Session should still need reopen after clearSession (originally read_and_close)'
+        );
+
+        // Verify all keys were removed
+        session_id($sessionId);
+        $verifyStorage = new ReadAndCloseNativeSessionStorage([
+            'name' => 'TestClear',
+            'read_and_close' => true,
+            'use_cookies' => false,
+            'use_only_cookies' => false,
+        ]);
+        $verifySession = new Session($verifyStorage, new AttributeBag('TestClear'));
+        $verifySession->start();
+
+        $this->assertNull($verifySession->get('key1'), 'key1 should be cleared');
+        $this->assertNull($verifySession->get('key2'), 'key2 should be cleared');
+        $this->assertNull($verifySession->get('key3'), 'key3 should be cleared');
+        $this->assertEmpty($verifySession->all(), 'Session should have no data after clearSession');
+    }
+
+    /**
+     * Test that clearSession() works with a writable (non read-and-close) session
+     */
+    public function testClearSessionWorksWithWritableSession(): void
+    {
+        $storage = new ReadAndCloseNativeSessionStorage([
+            'name' => 'TestClearWritable',
+            'use_cookies' => false,
+            'use_only_cookies' => false,
+        ]);
+        $session = new Session($storage, new AttributeBag('TestClearWritable'));
+        $session->start();
+        $session->set('key1', 'value1');
+        $session->set('key2', 'value2');
+
+        $factory = SessionWrapperFactory::getInstance();
+        $factory->setActiveSession($session, $storage);
+
+        $this->assertFalse($storage->isClosedByReadAndClose());
+
+        SessionUtil::clearSession();
+
+        $this->assertTrue($storage->isStarted(), 'Writable session should still be started');
+        $this->assertEmpty($session->all(), 'Session should have no data after clearSession');
+    }
+
+    /**
+     * Test that setSession() works after clearSession() on a read-and-close session
+     */
+    public function testSetSessionAfterClearSessionOnReadAndCloseSession(): void
+    {
+        // Create session with initial data
+        $setupStorage = new ReadAndCloseNativeSessionStorage([
+            'name' => 'TestClearThenSet',
+            'use_cookies' => false,
+            'use_only_cookies' => false,
+        ]);
+        $setupSession = new Session($setupStorage, new AttributeBag('TestClearThenSet'));
+        $setupSession->start();
+        $setupSession->set('old_key', 'old_value');
+        $sessionId = $setupSession->getId();
+        $setupSession->save();
+
+        // Reopen with read_and_close
+        session_id($sessionId);
+        $storage = new ReadAndCloseNativeSessionStorage([
+            'name' => 'TestClearThenSet',
+            'read_and_close' => true,
+            'use_cookies' => false,
+            'use_only_cookies' => false,
+        ]);
+        $session = new Session($storage, new AttributeBag('TestClearThenSet'));
+        $session->start();
+
+        $factory = SessionWrapperFactory::getInstance();
+        $factory->setActiveSession($session, $storage);
+
+        // Clear then set new data — two separate reopen-write-close cycles
+        SessionUtil::clearSession();
+        SessionUtil::setSession('new_key', 'new_value');
+
+        // Verify old data gone, new data present
+        session_id($sessionId);
+        $verifyStorage = new ReadAndCloseNativeSessionStorage([
+            'name' => 'TestClearThenSet',
+            'read_and_close' => true,
+            'use_cookies' => false,
+            'use_only_cookies' => false,
+        ]);
+        $verifySession = new Session($verifyStorage, new AttributeBag('TestClearThenSet'));
+        $verifySession->start();
+
+        $this->assertNull($verifySession->get('old_key'), 'Old key should be cleared');
+        $this->assertEquals('new_value', $verifySession->get('new_key'), 'New key should be set after clear');
+    }
+
+    // =========================================================================
     // Edge Case Tests
     // =========================================================================
 
