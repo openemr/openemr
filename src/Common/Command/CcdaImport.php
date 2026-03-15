@@ -13,7 +13,7 @@
 namespace OpenEMR\Common\Command;
 
 use Carecoordination\Model\CarecoordinationTable;
-use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -51,8 +51,7 @@ class CcdaImport extends Command
             return 2;
         }
 
-        $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $session->set('authUser', $input->getOption('auth_name'));
+        SessionUtil::setSession('authUser', $input->getOption('auth_name'));
 
         $symfonyStyler = new SymfonyStyle($input, $output);
 
