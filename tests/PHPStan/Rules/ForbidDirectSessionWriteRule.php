@@ -57,8 +57,8 @@ class ForbidDirectSessionWriteRule implements Rule
         'ccdaservice/',
         // Files with $sessionAllowWrite = true
         'interface/reports/appointments_report.php',
-        // CLI commands — always writable sessions
-        'src/Common/Command/',
+        // CLI command uses standalone mock session (not factory session)
+        'src/Common/Command/GenerateAccessTokenCommand.php',
         // REST/API controllers manage their own sessions
         'src/RestControllers/',
         // Services called from CLI context
