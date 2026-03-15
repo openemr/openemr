@@ -131,8 +131,7 @@ if ($password_update === 2 && !empty($session->get('pin', null))) {
         } else {
             $auth = false;
         }
-        SessionUtil::unsetSession('forward');
-        SessionUtil::unsetSession('pin');
+        SessionUtil::unsetSession(['forward', 'pin']);
         unset($_POST['token_pin']);
     }
 } else {
@@ -266,19 +265,21 @@ if ($userData = sqlQuery($sql, [$auth['pid']])) { // if query gets executed
 
     if ($authorizedPortal) {
         // patient is authorized (prepare the session variables)
-        SessionUtil::unsetSession('password_update'); // just being safe
-        SessionUtil::unsetSession('itsme'); // just being safe
-        SessionUtil::setSession('pid', $auth['pid']);
-        SessionUtil::setSession('patient_portal_onsite_two', 1);
-
         $tmp = getUserIDInfo($userData['providerID']);
-        SessionUtil::setSession('providerName', ($tmp['fname'] ?? '') . ' ' . ($tmp['lname'] ?? ''));
-        SessionUtil::setSession('providerUName', $tmp['username'] ?? null);
-        SessionUtil::setSession('sessionUser', '-patient-'); // $_POST['uname'];
-        SessionUtil::setSession('providerId', $userData['providerID'] ?: 'undefined');
-        SessionUtil::setSession('ptName', $userData['fname'] . ' ' . $userData['lname']);
-        // never set authUserID though authUser is used for ACL!
-        SessionUtil::setSession('authUser', 'portal-user');
+        SessionUtil::setUnsetSession(
+            [
+                'pid' => $auth['pid'],
+                'patient_portal_onsite_two' => 1,
+                'providerName' => ($tmp['fname'] ?? '') . ' ' . ($tmp['lname'] ?? ''),
+                'providerUName' => $tmp['username'] ?? null,
+                'sessionUser' => '-patient-', // $_POST['uname'];
+                'providerId' => $userData['providerID'] ?: 'undefined',
+                'ptName' => $userData['fname'] . ' ' . $userData['lname'],
+                // never set authUserID though authUser is used for ACL!
+                'authUser' => 'portal-user',
+            ],
+            ['password_update', 'itsme'] // just being safe
+        );
         // Set up the csrf private_key (for the paient portal)
         //  Note this key always remains private and never leaves server session. It is used to create
         //  the csrf tokens.
