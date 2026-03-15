@@ -222,19 +222,21 @@ if (!empty($_GET['forward_email_verify'])) {
     if (!empty($sqlVerify['fname']) && !empty($sqlVerify['lname']) && !empty($sqlVerify['dob']) && !empty($sqlVerify['email']) && !empty($sqlVerify['language'])) {
         // token has passed and have all needed data
         $fnameRegistration = $sqlVerify['fname'];
-        SessionUtil::setSession('fnameRegistration', $fnameRegistration);
         $mnameRegistration = $sqlVerify['mname'] ?? '';
-        SessionUtil::setSession('mnameRegistration', $mnameRegistration);
         $lnameRegistration = $sqlVerify['lname'];
-        SessionUtil::setSession('lnameRegistration', $lnameRegistration);
         $dobRegistration = $sqlVerify['dob'];
-        SessionUtil::setSession('dobRegistration', $dobRegistration);
         $emailRegistration = $sqlVerify['email'];
-        SessionUtil::setSession('emailRegistration', $emailRegistration);
         $languageRegistration = $sqlVerify['language'];
-        SessionUtil::setSession('language_choice', (int)($languageRegistration ?? 1));
         $portalRegistrationAuthorization = true;
-        SessionUtil::setSession('token_id_holder', $sqlVerify['id']);
+        SessionUtil::setSession([
+            'fnameRegistration' => $fnameRegistration,
+            'mnameRegistration' => $mnameRegistration,
+            'lnameRegistration' => $lnameRegistration,
+            'dobRegistration' => $dobRegistration,
+            'emailRegistration' => $emailRegistration,
+            'language_choice' => (int)($languageRegistration ?? 1),
+            'token_id_holder' => $sqlVerify['id'],
+        ]);
         ServiceContainer::getLogger()->debug("token worked for forward_email_verify token, now on to registration");
         EventAuditLogger::getInstance()->newEvent('patient-reg-email-verify', '', '', 1, "token (" . $token_one_time . ") was successful for forward_email_verify token");
         require_once(__DIR__ . "/account/register.php");
@@ -279,12 +281,14 @@ if (!empty($_GET['forward_email_verify'])) {
         SessionUtil::portalSessionCookieDestroy();
         die(xlt("Your one time credential reset link has expired. Reset and try again.") . "time:$validate time:" . time());
     }
-    SessionUtil::setSession('pin', substr($parse, 0, 6));
-    SessionUtil::setSession('forward', $auth['portal_onetime']);
-    SessionUtil::setSession('portal_username', $auth['portal_username']);
-    SessionUtil::setSession('portal_login_username', $auth['portal_login_username']);
-    SessionUtil::setSession('password_update', 2);
-    SessionUtil::setSession('onetime', $auth['portal_pwd']);
+    SessionUtil::setSession([
+        'pin' => substr($parse, 0, 6),
+        'forward' => $auth['portal_onetime'],
+        'portal_username' => $auth['portal_username'],
+        'portal_login_username' => $auth['portal_login_username'],
+        'password_update' => 2,
+        'onetime' => $auth['portal_pwd'],
+    ]);
     unset($auth);
 }
 // security measure -- will check on next page.
@@ -711,9 +715,11 @@ if (!($session->has('password_update') || ($globalsBag->getBoolean('portal_two_p
         $(function () {
             <?php // if something went wrong
             if ($globalsBag->getBoolean('portal_two_pass_reset') && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key')) && isset($_GET['requestNew'])) {
-                SessionUtil::setSession('register', true);
-                SessionUtil::setSession('authUser', 'portal-user');
-                SessionUtil::setSession('pid', true);
+                SessionUtil::setSession([
+                    'register' => true,
+                    'authUser' => 'portal-user',
+                    'pid' => true,
+                ]);
                 ?>
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
