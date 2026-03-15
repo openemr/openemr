@@ -89,8 +89,10 @@ function getAuthPortalUsers()
  CONCAT(users.fname,' ',users.lname) as username, 'user' as type FROM users WHERE id = 1");
         }
 
-        $authpatients = sqlStatement("SELECT (CONCAT(patient_data.fname, patient_data.lname, patient_data.id)) as userid,
- CONCAT(patient_data.fname,' ',patient_data.lname) as username,'p' as type,patient_data.pid as pid FROM patient_data WHERE allow_patient_portal = 'YES'");
+        $authpatients = sqlStatement("SELECT pao.portal_username as userid,
+ CONCAT(patient_data.fname,' ',patient_data.lname) as username,'p' as type,patient_data.pid as pid FROM patient_data
+ LEFT JOIN patient_access_onsite pao ON pao.pid = patient_data.pid
+ WHERE allow_patient_portal = 'YES' AND pao.portal_username IS NOT NULL");
         while ($row = sqlFetchArray($authpatients)) {
             $resultpatients[] = $row;
         }
