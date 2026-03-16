@@ -62,7 +62,7 @@ class PasswordBasedCrypto
     ): string {
         $version = KeyVersion::fromPrefix($ciphertextWithVersion);
 
-        $ciphertext = mb_substr($ciphertextWithVersion, 3, null, '8bit');
+        $ciphertext = mb_substr($ciphertextWithVersion, KeyVersion::PREFIX_LENGTH, null, '8bit');
 
         $input = base64_decode($ciphertext, true);
         if ($input === false) {
