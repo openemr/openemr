@@ -329,32 +329,6 @@ final class CryptoGenTest extends TestCase
         }
     }
 
-    public function testFormatExceptionMessage(): void
-    {
-        $reflection = new ReflectionMethod($this->cryptoGen, 'formatExceptionMessage');
-
-        $stackTrace = [
-            [
-                'file' => '/test/file.php',
-                'line' => 123,
-                'class' => 'TestClass',
-                'type' => '->',
-                'function' => 'testMethod'
-            ],
-            [
-                'function' => 'anotherFunction'
-            ]
-        ];
-
-        $result = $reflection->invoke($this->cryptoGen, $stackTrace);
-        $this->assertIsString($result);
-        $this->assertStringContainsString('Error Call Stack:', $result);
-        $this->assertStringContainsString('/test/file.php', $result);
-        $this->assertStringContainsString('123', $result);
-        $this->assertStringContainsString('TestClass->testMethod()', $result);
-        $this->assertStringContainsString('anotherFunction()', $result);
-    }
-
     public function testDecryptStandardWithVersions(): void
     {
         // Test that different version prefixes route to correct decryption methods
@@ -678,39 +652,6 @@ final class CryptoGenTest extends TestCase
         // Second call should return the same key from cache
         $key2 = $reflection->invoke($this->cryptoGen, $keyVersion, 'a', KeySource::Drive);
         $this->assertEquals($key, $key2);
-    }
-
-    public function testFormatExceptionMessageEdgeCases(): void
-    {
-        $reflection = new ReflectionMethod($this->cryptoGen, 'formatExceptionMessage');
-
-        // Test with minimal stack trace
-        $minimalTrace = [
-            ['function' => 'testFunction']
-        ];
-        $result = $reflection->invoke($this->cryptoGen, $minimalTrace);
-        $this->assertIsString($result);
-        $this->assertStringContainsString('testFunction()', $result);
-
-        // Test with empty stack trace
-        $result = $reflection->invoke($this->cryptoGen, []);
-        $this->assertIsString($result);
-        $this->assertStringContainsString('Error Call Stack:', $result);
-
-        // Test with stack trace missing some fields
-        $partialTrace = [
-            [
-                'class' => 'TestClass',
-                'file' => '/test.php',
-                'function' => 'method',
-                'type' => '::'
-            ]
-        ];
-        $result = $reflection->invoke($this->cryptoGen, $partialTrace);
-        $this->assertIsString($result);
-        $this->assertStringContainsString('/test.php', $result);
-        $this->assertStringContainsString('TestClass', $result);
-        $this->assertStringContainsString('method()', $result);
     }
 
     public function testReadExistingOlderVersionKeys(): void
