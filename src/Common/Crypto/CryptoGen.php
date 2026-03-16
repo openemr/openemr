@@ -53,9 +53,9 @@ class CryptoGen implements CryptoInterface
      */
     private array $keyCache = [];
 
-    private LoggerInterface $logger;
+    private readonly LoggerInterface $logger;
 
-    private string $siteDir;
+    private readonly string $siteDir;
 
     public function __construct(?LoggerInterface $logger = null, ?string $siteDir = null)
     {
