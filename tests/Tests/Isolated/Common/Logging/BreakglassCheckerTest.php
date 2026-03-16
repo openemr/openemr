@@ -40,7 +40,7 @@ class BreakglassCheckerTest extends TestCase
     {
         $this->conn->expects($this->once())
             ->method('fetchOne')
-            ->with($this->anything(), ['emergency_user'])
+            ->with($this->anything(), ['breakglass', 'emergency_user'])
             ->willReturn('1');
 
         $checker = new BreakglassChecker($this->conn);
@@ -51,7 +51,7 @@ class BreakglassCheckerTest extends TestCase
     {
         $this->conn->expects($this->once())
             ->method('fetchOne')
-            ->with($this->anything(), ['normal_user'])
+            ->with($this->anything(), ['breakglass', 'normal_user'])
             ->willReturn(false);
 
         $checker = new BreakglassChecker($this->conn);
