@@ -309,11 +309,14 @@ if (!empty($_POST['form_save'])) {
 
 $irow = [];
 if ($issue) {
-    $patientIssuesService = new PatientIssuesService();
-    $irow = $patientIssuesService->getOneById($issue);
-    if (!AclMain::aclCheckIssue($irow['type'], '', 'write')) {
+    // ACL check before fetching full row so unauthorized requests never load PHI into memory
+    $issueType = sqlQuery("SELECT `type` FROM `lists` WHERE `id` = ?", [$issue]);
+    if (!AclMain::aclCheckIssue($issueType['type'] ?? '', '', 'write')) {
         die(xlt("Edit is not authorized!"));
     }
+
+    $patientIssuesService = new PatientIssuesService();
+    $irow = $patientIssuesService->getOneById($issue);
 } elseif ($thistype) {
     $irow['type'] = $thistype;
 }
