@@ -36,14 +36,14 @@ class BreakglassChecker implements BreakglassCheckerInterface
     ) {
     }
 
-    public function isBreakglassUser(string $user): bool
+    public function isBreakglassUser(string $username): bool
     {
-        if ($user === '') {
+        if ($username === '') {
             return false;
         }
 
-        if (array_key_exists($user, $this->cache)) {
-            return $this->cache[$user];
+        if (array_key_exists($username, $this->cache)) {
+            return $this->cache[$username];
         }
 
         $sql = <<<'SQL'
@@ -51,13 +51,13 @@ class BreakglassChecker implements BreakglassCheckerInterface
             FROM gacl_aro aro
             JOIN gacl_groups_aro_map map ON aro.id = map.aro_id
             JOIN gacl_aro_groups grp ON map.group_id = grp.id
-            WHERE grp.value = 'breakglass'
-              AND BINARY aro.value = ?
+            WHERE grp.value = ?
+            AND BINARY aro.value = ?
             SQL;
 
-        $result = $this->conn->fetchOne($sql, [$user]);
-        $this->cache[$user] = $result !== false;
+        $result = $this->conn->fetchOne($sql, ['breakglass', $username]);
+        $this->cache[$username] = $result !== false;
 
-        return $this->cache[$user];
+        return $this->cache[$username];
     }
 }

@@ -16,5 +16,5 @@ namespace OpenEMR\Common\Logging;
 
 interface BreakglassCheckerInterface
 {
-    public function isBreakglassUser(string $user): bool;
+    public function isBreakglassUser(string $username): bool;
 }
