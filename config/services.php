@@ -16,6 +16,7 @@ use Firehed\Container\TypedContainerInterface as TC;
 use Lcobucci\Clock\SystemClock;
 use Monolog\Level;
 use OpenEMR\Common\Http\Psr17Factory;
+use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
 
 return [
@@ -27,4 +28,13 @@ return [
 
     SystemLogger::class => fn (TC $c) => new SystemLogger($c->get(Level::class)),
 
+    EventAuditLogger::class => function (TC $c) {
+        // This has a lot of dependencies to resolve:
+        // - sinks is tractable
+        // - cryptogen probably needs a bunch more global state
+        // - sessions... oh no.
+        // - config: more globals
+        // - breakglasschecker: tractable
+        return new EventAuditLogger();
+    },
 ];
