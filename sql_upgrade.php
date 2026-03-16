@@ -46,6 +46,7 @@ if (ob_get_level() === 0) {
 $ignoreAuth = true; // no login required
 $sessionAllowWrite = true;
 $GLOBALS['connection_pooling_off'] = true; // force off database connection pooling
+$skipAuditLog = true; // disable audit logging during upgrades
 
 require_once('interface/globals.php');
 require_once('library/sql_upgrade_fx.php');
@@ -56,9 +57,6 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\SQLUpgradeService;
 use OpenEMR\Services\VersionService;
-
-// Force logging off
-OEGlobalsBag::getInstance()->set("enable_auditlog", 0);
 
 $versions = [];
 $sqldir = "$webserver_root/sql";
