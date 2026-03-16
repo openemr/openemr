@@ -5,6 +5,8 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
+ * @author    Eric Stern <erics@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc.
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -31,6 +33,8 @@ final class PasswordBasedCryptoTest extends TestCase
 
     /**
      * Test vectors for version 1: sha256(password) hex, no HMAC, format: iv + data
+     *
+     * @return iterable<string, array{plaintext: string, password: string, ciphertext: string}>
      */
     public static function v1VectorProvider(): iterable
     {
@@ -55,6 +59,8 @@ final class PasswordBasedCryptoTest extends TestCase
 
     /**
      * Test vectors for versions 2-3: sha256(password) binary, HMAC-SHA256, format: hmac(32) + iv + data
+     *
+     * @return iterable<string, array{plaintext: string, password: string, ciphertext: string}>
      */
     public static function v2v3VectorProvider(): iterable
     {
@@ -98,6 +104,8 @@ final class PasswordBasedCryptoTest extends TestCase
     /**
      * Test vectors generated from CryptoGen v4-7 to ensure backwards compatibility.
      * PasswordBasedCrypto MUST be able to decrypt these.
+     *
+     * @return iterable<string, array{plaintext: string, password: string, ciphertext: string}>
      */
     public static function modernVectorProvider(): iterable
     {
