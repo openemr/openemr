@@ -33,9 +33,7 @@ class PasswordBasedCrypto
         $salt = random_bytes(self::SALT_LENGTH);
         [$secretKey, $hmacKey] = $this->deriveKeys($password, $salt);
 
-        $ivLen = openssl_cipher_iv_length(self::CIPHER);
-        assert($ivLen > 0);
-        $iv = random_bytes($ivLen);
+        $iv = random_bytes(self::IV_LENGTH);
 
         $encrypted = openssl_encrypt(
             $plaintext,
@@ -81,9 +79,8 @@ class PasswordBasedCrypto
         [$secretKey, $hmacKey] = $this->deriveKeys($password, $salt);
 
         $hashHmac = mb_substr($rest, 0, self::HMAC_LENGTH, '8bit');
-        $ivLen = openssl_cipher_iv_length(self::CIPHER);
-        $iv = mb_substr($rest, self::HMAC_LENGTH, $ivLen, '8bit');
-        $encrypted = mb_substr($rest, ($ivLen + self::HMAC_LENGTH), null, '8bit');
+        $iv = mb_substr($rest, self::HMAC_LENGTH, self::IV_LENGTH, '8bit');
+        $encrypted = mb_substr($rest, (self::IV_LENGTH + self::HMAC_LENGTH), null, '8bit');
 
         $expectedHmac = hash_hmac(self::HASH_ALGO, $iv . $encrypted, $hmacKey, true);
         if (!hash_equals(known_string: $expectedHmac, user_string: $hashHmac)) {
