@@ -6107,51 +6107,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Http/oeOAuth.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method alert\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method critical\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method debug\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method emergency\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method error\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method info\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method log\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method notice\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method warning\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method MetaColumns\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ORDataObject.php',

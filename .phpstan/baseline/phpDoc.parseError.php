@@ -3396,11 +3396,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Layouts/LayoutsUtils.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @var has invalid value \\(LoggerInterface;\\)\\: Unexpected token ";", expected TOKEN_HORIZONTAL_WS at offset 31 on line 2$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(int\\)\\: Unexpected token "\\\\n     \\* ", expected variable at offset 120 on line 4$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Utils/FileUtils.php',
