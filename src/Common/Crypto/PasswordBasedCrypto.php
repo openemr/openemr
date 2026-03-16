@@ -16,6 +16,10 @@ class PasswordBasedCrypto
     private const PBKDF2_ITERATIONS = 100_000;
     private const HKDF_INFO_ENCRYPTION = 'aes-256-encryption';
     private const HKDF_INFO_HMAC = 'sha-384-authentication';
+    private const IV_LENGTH = 16; // aes-256-cbc
+    private const MIN_CIPHERTEXT_LENGTH = 16; // one AES block (padding for empty input)
+    // salt + hmac + iv + min_ciphertext
+    private const MIN_PAYLOAD_LENGTH = self::SALT_LENGTH + self::HMAC_LENGTH + self::IV_LENGTH + self::MIN_CIPHERTEXT_LENGTH;
 
     public function __construct(
         private KeyVersion $version,
@@ -65,6 +69,10 @@ class PasswordBasedCrypto
         $input = base64_decode($ciphertext, true);
         if ($input === false) {
             throw new CryptoGenException('Could not base64-decode the ciphertext');
+        }
+
+        if (mb_strlen($input, '8bit') < self::MIN_PAYLOAD_LENGTH) {
+            throw new CryptoGenException('Ciphertext too short');
         }
 
         $salt = mb_substr($input, 0, self::SALT_LENGTH, '8bit');

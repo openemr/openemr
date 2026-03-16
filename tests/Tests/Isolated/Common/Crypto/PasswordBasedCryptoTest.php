@@ -172,13 +172,29 @@ final class PasswordBasedCryptoTest extends TestCase
     public function testDecryptWithTruncatedDataThrows(): void
     {
         $crypto = new PasswordBasedCrypto($this->version);
-        $encrypted = $crypto->encrypt('test', 'password');
 
-        // Truncate to just the prefix + partial data
-        $truncated = substr($encrypted, 0, 20);
+        // Create valid base64 with only 50 bytes (well under 112 minimum)
+        $shortPayload = str_repeat('A', 50);
+        $ciphertext = '007' . base64_encode($shortPayload);
 
         $this->expectException(CryptoGenException::class);
+        $this->expectExceptionMessage('too short');
 
-        $crypto->decrypt($truncated, 'password');
+        $crypto->decrypt($ciphertext, 'password');
+    }
+
+    public function testDecryptWithPayloadJustUnderMinimumThrows(): void
+    {
+        $crypto = new PasswordBasedCrypto($this->version);
+
+        // MIN_PAYLOAD_LENGTH = 32 (salt) + 48 (hmac) + 16 (iv) + 16 (min ciphertext) = 112
+        // Create payload of 111 bytes (just under minimum)
+        $shortPayload = str_repeat("\x00", 111);
+        $ciphertext = '007' . base64_encode($shortPayload);
+
+        $this->expectException(CryptoGenException::class);
+        $this->expectExceptionMessage('too short');
+
+        $crypto->decrypt($ciphertext, 'password');
     }
 }
