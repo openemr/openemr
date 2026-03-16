@@ -13,6 +13,7 @@
 declare(strict_types=1);
 
 use Doctrine\DBAL\{
+    Configuration,
     Connection,
     DriverManager,
 };
@@ -29,9 +30,18 @@ use Psr\Log\LoggerInterface;
 
 return [
     // DBAL
+    Configuration::class => function (TC $c) {
+        $config = new Configuration();
+        // incoming: middlewares
+
+        return $config;
+    },
     Connection::class => function (TC $c) {
         $opts = $c->get(DatabaseConnectionOptions::class);
-        return DriverManager::getConnection($opts->toDbalParams());
+        return DriverManager::getConnection(
+            params: $opts->toDbalParams(),
+            config: $c->get(Configuration::class),
+        );
     },
 
     // DB connection config
