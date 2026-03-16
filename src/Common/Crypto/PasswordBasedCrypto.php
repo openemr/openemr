@@ -9,13 +9,20 @@ use SensitiveParameter;
 class PasswordBasedCrypto
 {
     private const CIPHER = 'aes-256-cbc';
+    private const IV_LENGTH = 16;
+    private const MIN_CIPHERTEXT_LENGTH = 16; // one AES block
+
+    // Modern format (v4-7) constants
     private const HASH_ALGO = 'sha384';
     private const SALT_LENGTH = 32;
     private const KEY_LENGTH = 32;
+    private const HMAC_LENGTH = 48; // sha384 raw output
     private const PBKDF2_ITERATIONS = 100_000;
     private const HKDF_INFO_ENCRYPTION = 'aes-256-encryption';
     private const HKDF_INFO_HMAC = 'sha-384-authentication';
-    private const IV_LENGTH = 16; // aes-256-cbc
+
+    // Legacy v2/v3 constant
+    private const V2_HMAC_LENGTH = 32; // sha256 raw output
 
     public function __construct(
         private KeyVersion $version,
@@ -65,26 +72,105 @@ class PasswordBasedCrypto
             throw new CryptoGenException('Could not base64-decode the ciphertext');
         }
 
-        $strategy = $this->getDecryptionStrategy($version);
+        $minLength = match ($version) {
+            KeyVersion::ONE => self::IV_LENGTH + self::MIN_CIPHERTEXT_LENGTH,
+            KeyVersion::TWO, KeyVersion::THREE => self::V2_HMAC_LENGTH + self::IV_LENGTH + self::MIN_CIPHERTEXT_LENGTH,
+            default => self::SALT_LENGTH + self::HMAC_LENGTH + self::IV_LENGTH + self::MIN_CIPHERTEXT_LENGTH,
+        };
 
-        if (mb_strlen($payload, '8bit') < $strategy->getMinPayloadLength()) {
+        if (mb_strlen($payload, '8bit') < $minLength) {
             throw new CryptoGenException('Ciphertext too short');
         }
 
-        return $strategy->decrypt($payload, $password);
-    }
-
-    private function getDecryptionStrategy(KeyVersion $version): PasswordDecryptionStrategyInterface
-    {
         return match ($version) {
-            KeyVersion::ONE => new V1DecryptionStrategy(),
-            KeyVersion::TWO, KeyVersion::THREE => new V2V3DecryptionStrategy(),
-            KeyVersion::FOUR, KeyVersion::FIVE, KeyVersion::SIX, KeyVersion::SEVEN => new ModernDecryptionStrategy(),
+            KeyVersion::ONE => $this->decryptV1($payload, $password),
+            KeyVersion::TWO, KeyVersion::THREE => $this->decryptV2V3($payload, $password),
+            default => $this->decryptModern($payload, $password),
         };
     }
 
     /**
-     * Derive encryption and HMAC keys from password and salt.
+     * V1: sha256(password) as hex, no HMAC, format: iv + ciphertext
+     */
+    private function decryptV1(
+        string $payload,
+        #[SensitiveParameter] string $password,
+    ): string {
+        $iv = mb_substr($payload, 0, self::IV_LENGTH, '8bit');
+        $encrypted = mb_substr($payload, self::IV_LENGTH, null, '8bit');
+
+        // V1 used sha256 hex as key (64 chars, OpenSSL truncates to 32 bytes)
+        $key = hash('sha256', $password);
+
+        $output = openssl_decrypt($encrypted, self::CIPHER, $key, OPENSSL_RAW_DATA, $iv);
+        if ($output === false) {
+            throw new CryptoGenException('Could not decrypt data');
+        }
+
+        return $output;
+    }
+
+    /**
+     * V2/V3: sha256(password) as binary, HMAC-SHA256, format: hmac(32) + iv + ciphertext
+     */
+    private function decryptV2V3(
+        string $payload,
+        #[SensitiveParameter] string $password,
+    ): string {
+        $hmac = mb_substr($payload, 0, self::V2_HMAC_LENGTH, '8bit');
+        $iv = mb_substr($payload, self::V2_HMAC_LENGTH, self::IV_LENGTH, '8bit');
+        $encrypted = mb_substr($payload, self::V2_HMAC_LENGTH + self::IV_LENGTH, null, '8bit');
+
+        $key = hash('sha256', $password, true);
+
+        $expectedHmac = hash_hmac('sha256', $iv . $encrypted, $key, true);
+        if (!hash_equals(known_string: $expectedHmac, user_string: $hmac)) {
+            throw new CryptoGenException('Invalid HMAC');
+        }
+
+        $output = openssl_decrypt($encrypted, self::CIPHER, $key, OPENSSL_RAW_DATA, $iv);
+        // @codeCoverageIgnoreStart
+        if ($output === false) {
+            throw new CryptoGenException('Could not decrypt data');
+        }
+        // @codeCoverageIgnoreEnd
+
+        return $output;
+    }
+
+    /**
+     * V4-7: PBKDF2+HKDF, HMAC-SHA384, format: salt(32) + hmac(48) + iv + ciphertext
+     */
+    private function decryptModern(
+        string $payload,
+        #[SensitiveParameter] string $password,
+    ): string {
+        $salt = mb_substr($payload, 0, self::SALT_LENGTH, '8bit');
+        $rest = mb_substr($payload, self::SALT_LENGTH, null, '8bit');
+
+        [$secretKey, $hmacKey] = $this->deriveKeys($password, $salt);
+
+        $hmac = mb_substr($rest, 0, self::HMAC_LENGTH, '8bit');
+        $iv = mb_substr($rest, self::HMAC_LENGTH, self::IV_LENGTH, '8bit');
+        $encrypted = mb_substr($rest, self::HMAC_LENGTH + self::IV_LENGTH, null, '8bit');
+
+        $expectedHmac = hash_hmac(self::HASH_ALGO, $iv . $encrypted, $hmacKey, true);
+        if (!hash_equals(known_string: $expectedHmac, user_string: $hmac)) {
+            throw new CryptoGenException('Invalid HMAC');
+        }
+
+        $output = openssl_decrypt($encrypted, self::CIPHER, $secretKey, OPENSSL_RAW_DATA, $iv);
+        // @codeCoverageIgnoreStart
+        if ($output === false) {
+            throw new CryptoGenException('Could not decrypt data');
+        }
+        // @codeCoverageIgnoreEnd
+
+        return $output;
+    }
+
+    /**
+     * Derive encryption and HMAC keys from password and salt (modern format only).
      *
      * @return array{string, string} [$encryptionKey, $hmacKey]
      */
