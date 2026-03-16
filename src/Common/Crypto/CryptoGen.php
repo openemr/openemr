@@ -433,7 +433,7 @@ class CryptoGen implements CryptoInterface
         $fileContents = $this->fileGetContents($keyPath);
         $key = $keyVersion->usesLegacyStorage()
             ? base64_decode(rtrim($fileContents))
-            : $this->decryptStandard($fileContents, null, KeySource::Database);
+            : $this->decryptStandard($fileContents, keySource: KeySource::Database);
         if (!empty($key)) {
             return $key;
         }
@@ -458,7 +458,7 @@ class CryptoGen implements CryptoInterface
         }
         $fileContents = $keyVersion->usesLegacyStorage()
             ? base64_encode($key)
-            : $this->encryptStandard($key, null, KeySource::Database);
+            : $this->encryptStandard($key, keySource: KeySource::Database);
         $this->filePutContents($keyPath, $fileContents);
 
         // round trip to be sure the newly created key is correctly stored, encoded and encrypted
@@ -467,7 +467,7 @@ class CryptoGen implements CryptoInterface
             $storedFileContents = $this->fileGetContents($keyPath);
             $storedKey = $keyVersion->usesLegacyStorage()
                 ? base64_decode(rtrim($storedFileContents))
-                : $this->decryptStandard($storedFileContents, null, KeySource::Database);
+                : $this->decryptStandard($storedFileContents, keySource: KeySource::Database);
             if ($key === $storedKey) {
                 return $key;
             }
