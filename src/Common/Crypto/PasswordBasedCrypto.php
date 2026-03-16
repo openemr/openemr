@@ -19,7 +19,9 @@ class PasswordBasedCrypto
         $secretKey = hash_hkdf('sha384', $preKey, 32, 'aes-256-encryption', $salt);
         $hmacKey = hash_hkdf('sha384', $preKey, 32, 'sha-384-authentication', $salt);
 
-        $iv = random_bytes(openssl_cipher_iv_length('aes-256-cbc'));
+        $ivLen = openssl_cipher_iv_length('aes-256-cbc');
+        assert($ivLen > 0);
+        $iv = random_bytes($ivLen);
 
         $encrypted = openssl_encrypt(
             $plaintext,
@@ -41,7 +43,6 @@ class PasswordBasedCrypto
         $version = KeyVersion::fromPrefix($ciphertextWithVersion);
 
         $ciphertext = mb_substr($ciphertextWithVersion, 3, null, '8bit');
-        // trim prefix and get key version
 
         $input = base64_decode($ciphertext, true);
         if ($input === false) {
