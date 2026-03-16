@@ -31,7 +31,7 @@ class PasswordBasedCrypto
 
         $hmac = hash_hmac('sha384', $iv . $encrypted, $hmacKey, true);
 
-        $output = $hmac . $iv . $encrypted;
+        $output = $salt . $hmac . $iv . $encrypted;
         // prefix
         return $this->version->toPaddedString() . base64_encode($output);
     }
