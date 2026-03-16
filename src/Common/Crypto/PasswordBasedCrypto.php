@@ -43,7 +43,10 @@ class PasswordBasedCrypto
         $ciphertext = mb_substr($ciphertextWithVersion, 3, null, '8bit');
         // trim prefix and get key version
 
-        $input = base64_decode($ciphertext);
+        $input = base64_decode($ciphertext, true);
+        if ($input === false) {
+            throw new CryptoGenException('Could not base64-decode the ciphertext');
+        }
 
         // (hmac)
         $salt = mb_substr($input, 0, 32, '8bit');
