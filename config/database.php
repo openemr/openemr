@@ -16,6 +16,7 @@ use Doctrine\DBAL\{
     Configuration,
     Connection,
     DriverManager,
+    Driver\Middleware as MiddlewareInterface,
 };
 use Doctrine\Migrations\Configuration\{
     Connection\ConnectionLoader,
@@ -25,6 +26,10 @@ use Doctrine\Migrations\Configuration\{
 };
 use Doctrine\Migrations\DependencyFactory;
 use Firehed\Container\TypedContainerInterface as TC;
+use Firehed\DbalLogger\{
+    ChainLogger,
+    Middleware,
+};
 use OpenEMR\BC\DatabaseConnectionOptions;
 use Psr\Log\LoggerInterface;
 
@@ -32,8 +37,7 @@ return [
     // DBAL
     Configuration::class => function (TC $c) {
         $config = new Configuration();
-        // incoming: middlewares
-
+        $config->setMiddlewares([$c->get(MiddlewareInterface::class)]);
         return $config;
     },
     Connection::class => function (TC $c) {
@@ -42,6 +46,10 @@ return [
             params: $opts->toDbalParams(),
             config: $c->get(Configuration::class),
         );
+    },
+    MiddlewareInterface::class => function (TC $c) {
+        $loggers = [];
+        return new Middleware(new ChainLogger($loggers));
     },
 
     // DB connection config
