@@ -31,10 +31,12 @@ use Firehed\DbalLogger\{
     Middleware,
 };
 use OpenEMR\BC\DatabaseConnectionOptions;
+use OpenEMR\Common\Logging\Database\AuditLoggerMiddleware;
 use Psr\Log\LoggerInterface;
 
 return [
     // DBAL
+    AuditLoggerMiddleware::class,
     Configuration::class => function (TC $c) {
         $config = new Configuration();
         $config->setMiddlewares([$c->get(MiddlewareInterface::class)]);
@@ -48,7 +50,9 @@ return [
         );
     },
     MiddlewareInterface::class => function (TC $c) {
-        $loggers = [];
+        $loggers = [
+            $c->get(AuditLoggerMiddleware::class),
+        ];
         return new Middleware(new ChainLogger($loggers));
     },
 
