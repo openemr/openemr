@@ -265,8 +265,7 @@ class CryptoGen implements CryptoInterface
             );
         } else {
             $this->logger->error('Decryption failed HMAC authentication', [
-                'note' => 'Possibly Config Password or Token',
-                'trace' => debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS),
+                'exception' => new \RuntimeException('Possibly Config Password or Token'),
             ]);
             return false;
         }
@@ -324,8 +323,7 @@ class CryptoGen implements CryptoInterface
             );
         } else {
             $this->logger->error('Decryption failed HMAC authentication', [
-                'note' => 'Possibly Config Password or Token',
-                'trace' => debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS),
+                'exception' => new \RuntimeException('Possibly Config Password or Token'),
             ]);
             return false;
         }
