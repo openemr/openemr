@@ -33,29 +33,29 @@ class BreakglassCheckerTest extends TestCase
         $this->conn->expects($this->never())->method('fetchOne');
 
         $checker = new BreakglassChecker($this->conn);
-        $this->assertFalse($checker->isBreakglassUser(''));
+        self::assertFalse($checker->isBreakglassUser(''));
     }
 
     public function testBreakglassUserReturnsTrue(): void
     {
         $this->conn->expects($this->once())
             ->method('fetchOne')
-            ->with($this->anything(), ['breakglass', 'emergency_user'])
+            ->with(self::anything(), ['breakglass', 'emergency_user'])
             ->willReturn('1');
 
         $checker = new BreakglassChecker($this->conn);
-        $this->assertTrue($checker->isBreakglassUser('emergency_user'));
+        self::assertTrue($checker->isBreakglassUser('emergency_user'));
     }
 
     public function testNonBreakglassUserReturnsFalse(): void
     {
         $this->conn->expects($this->once())
             ->method('fetchOne')
-            ->with($this->anything(), ['breakglass', 'normal_user'])
+            ->with(self::anything(), ['breakglass', 'normal_user'])
             ->willReturn(false);
 
         $checker = new BreakglassChecker($this->conn);
-        $this->assertFalse($checker->isBreakglassUser('normal_user'));
+        self::assertFalse($checker->isBreakglassUser('normal_user'));
     }
 
     public function testResultIsMemoized(): void
@@ -67,9 +67,9 @@ class BreakglassCheckerTest extends TestCase
         $checker = new BreakglassChecker($this->conn);
 
         // First call hits DB
-        $this->assertTrue($checker->isBreakglassUser('cached_user'));
+        self::assertTrue($checker->isBreakglassUser('cached_user'));
         // Second call uses cache
-        $this->assertTrue($checker->isBreakglassUser('cached_user'));
+        self::assertTrue($checker->isBreakglassUser('cached_user'));
     }
 
     public function testDifferentUsersQueriedSeparately(): void
@@ -80,7 +80,7 @@ class BreakglassCheckerTest extends TestCase
 
         $checker = new BreakglassChecker($this->conn);
 
-        $this->assertTrue($checker->isBreakglassUser('breakglass_user'));
-        $this->assertFalse($checker->isBreakglassUser('normal_user'));
+        self::assertTrue($checker->isBreakglassUser('breakglass_user'));
+        self::assertFalse($checker->isBreakglassUser('normal_user'));
     }
 }
