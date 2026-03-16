@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Crypto;
 
+use SensitiveParameter;
+
 class PasswordBasedCrypto
 {
     public function __construct(
@@ -11,8 +13,10 @@ class PasswordBasedCrypto
     ) {
     }
 
-    public function encrypt(string $plaintext, string $password): string
-    {
+    public function encrypt(
+        #[SensitiveParameter] string $plaintext,
+        #[SensitiveParameter] string $password,
+    ): string {
         $salt = random_bytes(32);
         $preKey = hash_pbkdf2('sha384', $password, $salt, 100_000, 32, true);
 
@@ -34,12 +38,13 @@ class PasswordBasedCrypto
         $hmac = hash_hmac('sha384', $iv . $encrypted, $hmacKey, true);
 
         $output = $salt . $hmac . $iv . $encrypted;
-        // prefix
         return $this->version->toPaddedString() . base64_encode($output);
     }
 
-    public function decrypt(string $ciphertextWithVersion, string $password): string
-    {
+    public function decrypt(
+        string $ciphertextWithVersion,
+        #[SensitiveParameter] string $password,
+    ): string {
         $version = KeyVersion::fromPrefix($ciphertextWithVersion);
 
         $ciphertext = mb_substr($ciphertextWithVersion, 3, null, '8bit');
@@ -74,9 +79,13 @@ class PasswordBasedCrypto
             OPENSSL_RAW_DATA,
             $iv,
         );
+        // @codeCoverageIgnoreStart
+        // Unreachable in practice: if HMAC validates, the ciphertext is intact
+        // and openssl_decrypt will succeed. This is defensive against OpenSSL bugs.
         if ($output === false) {
-            throw new \Exception('Could not decrypt');
+            throw new CryptoGenException('Could not decrypt data');
         }
+        // @codeCoverageIgnoreEnd
         return $output;
     }
 }
