@@ -4,6 +4,7 @@ namespace OpenEMR\Common\Logging;
 
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
+use Monolog\Processor\PsrLogMessageProcessor;
 use OpenEMR\Core\OEGlobalsBag;
 use Psr\Log\LoggerInterface;
 
@@ -56,6 +57,7 @@ class SystemLogger implements LoggerInterface
 //        // Change the logger level to see what logs you want to log
 //        $this->logger->pushHandler(new Monolog\Handler\ErrorLogHandler('OpenEMR - ', $facility, $logLevel));
         $this->logger->pushHandler(new ErrorLogHandler(ErrorLogHandler::OPERATING_SYSTEM, $logLevel));
+        $this->logger->pushProcessor(new PsrLogMessageProcessor(removeUsedContextFields: true));
     }
 
     /**
@@ -67,7 +69,6 @@ class SystemLogger implements LoggerInterface
      */
     public function emergency($message, array $context = []): void
     {
-        $context = $this->escapeVariables($context);
         $this->logger->emergency($message, $context);
     }
 
@@ -83,7 +84,6 @@ class SystemLogger implements LoggerInterface
      */
     public function alert($message, array $context = []): void
     {
-        $context = $this->escapeVariables($context);
         $this->logger->alert($message, $context);
     }
 
@@ -98,7 +98,6 @@ class SystemLogger implements LoggerInterface
      */
     public function critical($message, array $context = []): void
     {
-        $context = $this->escapeVariables($context);
         $this->logger->critical($message, $context);
     }
 
@@ -112,7 +111,6 @@ class SystemLogger implements LoggerInterface
      */
     public function error($message, array $context = []): void
     {
-        $context = $this->escapeVariables($context);
         $this->logger->error($message, $context);
     }
 
@@ -151,7 +149,6 @@ class SystemLogger implements LoggerInterface
      */
     public function warning($message, array $context = []): void
     {
-        $context = $this->escapeVariables($context);
         $this->logger->warning($message, $context);
     }
 
@@ -164,7 +161,6 @@ class SystemLogger implements LoggerInterface
      */
     public function notice($message, array $context = []): void
     {
-        $context = $this->escapeVariables($context);
         $this->logger->notice($message, $context);
     }
 
@@ -179,7 +175,6 @@ class SystemLogger implements LoggerInterface
      */
     public function info($message, array $context = []): void
     {
-        $context = $this->escapeVariables($context);
         $this->logger->info($message, $context);
     }
 
@@ -192,7 +187,6 @@ class SystemLogger implements LoggerInterface
      */
     public function debug($message, array $context = []): void
     {
-        $context = $this->escapeVariables($context);
         $this->logger->debug($message, $context);
     }
 
@@ -206,46 +200,7 @@ class SystemLogger implements LoggerInterface
      */
     public function log($level, $message, array $context = []): void
     {
-        $context = $this->escapeVariables($context);
         $this->logger->log($level, $message, $context);
     }
 
-    private function escapeVariables($dictionary, $recurseLimit = 0)
-    {
-        if ($recurseLimit > 25) {
-            return "Cannot escape further. Maximum nested limit reached";
-        }
-
-        // the inner library may already be safely escaping values, but we don't want to assume that
-        // so we go through and make sure we use the OpenEMR errorLogEscape to make sure nothing
-        // hits the log file that could be an attack vector
-        // if we have a different LogHandler this logic may need to be revisited.
-        $escapedDict = [];
-        foreach ($dictionary as $key => $value) {
-            $escapedKey = $this->escapeValue($key);
-            if (is_array($value)) {
-                $escapedDict[$key] = $this->escapeVariables($value, $recurseLimit + 1);
-            } elseif (is_object($value)) {
-                try {
-                    $object = json_encode($value);
-                    $escapedDict[$escapedKey] = $this->escapeValue($object);
-                } catch (\Throwable $error) {
-                    error_log($error->getMessage());
-                }
-            } else {
-                $escapedDict[$escapedKey] = $this->escapeValue($value);
-            }
-        }
-        return $escapedDict;
-    }
-
-    /**
-     * Safely escape a single value that can be written out to a log file.
-     * @param $var
-     * @return string
-     */
-    private function escapeValue($var)
-    {
-        return errorLogEscape($var);
-    }
 }
