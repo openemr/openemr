@@ -8,6 +8,15 @@ use SensitiveParameter;
 
 class PasswordBasedCrypto
 {
+    private const CIPHER = 'aes-256-cbc';
+    private const HASH_ALGO = 'sha384';
+    private const SALT_LENGTH = 32;
+    private const KEY_LENGTH = 32;
+    private const HMAC_LENGTH = 48; // sha384 raw output
+    private const PBKDF2_ITERATIONS = 100_000;
+    private const HKDF_INFO_ENCRYPTION = 'aes-256-encryption';
+    private const HKDF_INFO_HMAC = 'sha-384-authentication';
+
     public function __construct(
         private KeyVersion $version,
     ) {
@@ -17,22 +26,22 @@ class PasswordBasedCrypto
         #[SensitiveParameter] string $plaintext,
         #[SensitiveParameter] string $password,
     ): string {
-        $salt = random_bytes(32);
+        $salt = random_bytes(self::SALT_LENGTH);
         [$secretKey, $hmacKey] = $this->deriveKeys($password, $salt);
 
-        $ivLen = openssl_cipher_iv_length('aes-256-cbc');
+        $ivLen = openssl_cipher_iv_length(self::CIPHER);
         assert($ivLen > 0);
         $iv = random_bytes($ivLen);
 
         $encrypted = openssl_encrypt(
             $plaintext,
-            'aes-256-cbc',
+            self::CIPHER,
             $secretKey,
             OPENSSL_RAW_DATA,
             $iv,
         );
 
-        $hmac = hash_hmac('sha384', $iv . $encrypted, $hmacKey, true);
+        $hmac = hash_hmac(self::HASH_ALGO, $iv . $encrypted, $hmacKey, true);
 
         $output = $salt . $hmac . $iv . $encrypted;
         return $this->version->toPaddedString() . base64_encode($output);
@@ -51,24 +60,24 @@ class PasswordBasedCrypto
             throw new CryptoGenException('Could not base64-decode the ciphertext');
         }
 
-        $salt = mb_substr($input, 0, 32, '8bit');
-        $rest = mb_substr($input, 32, null, '8bit');
+        $salt = mb_substr($input, 0, self::SALT_LENGTH, '8bit');
+        $rest = mb_substr($input, self::SALT_LENGTH, null, '8bit');
 
         [$secretKey, $hmacKey] = $this->deriveKeys($password, $salt);
 
-        $hashHmac = mb_substr($rest, 0, 48, '8bit');
-        $ivLen = openssl_cipher_iv_length('aes-256-cbc');
-        $iv = mb_substr($rest, 48, $ivLen, '8bit');
-        $encrypted = mb_substr($rest, ($ivLen + 48), null, '8bit');
+        $hashHmac = mb_substr($rest, 0, self::HMAC_LENGTH, '8bit');
+        $ivLen = openssl_cipher_iv_length(self::CIPHER);
+        $iv = mb_substr($rest, self::HMAC_LENGTH, $ivLen, '8bit');
+        $encrypted = mb_substr($rest, ($ivLen + self::HMAC_LENGTH), null, '8bit');
 
-        $expectedHmac = hash_hmac('sha384', $iv . $encrypted, $hmacKey, true);
+        $expectedHmac = hash_hmac(self::HASH_ALGO, $iv . $encrypted, $hmacKey, true);
         if (!hash_equals(known_string: $expectedHmac, user_string: $hashHmac)) {
             throw new CryptoGenException('Invalid HMAC');
         }
 
         $output = openssl_decrypt(
             $encrypted,
-            'aes-256-cbc',
+            self::CIPHER,
             $secretKey,
             OPENSSL_RAW_DATA,
             $iv,
@@ -92,10 +101,10 @@ class PasswordBasedCrypto
         #[SensitiveParameter] string $password,
         string $salt,
     ): array {
-        $preKey = hash_pbkdf2('sha384', $password, $salt, 100_000, 32, true);
+        $preKey = hash_pbkdf2(self::HASH_ALGO, $password, $salt, self::PBKDF2_ITERATIONS, self::KEY_LENGTH, true);
         return [
-            hash_hkdf('sha384', $preKey, 32, 'aes-256-encryption', $salt),
-            hash_hkdf('sha384', $preKey, 32, 'sha-384-authentication', $salt),
+            hash_hkdf(self::HASH_ALGO, $preKey, self::KEY_LENGTH, self::HKDF_INFO_ENCRYPTION, $salt),
+            hash_hkdf(self::HASH_ALGO, $preKey, self::KEY_LENGTH, self::HKDF_INFO_HMAC, $salt),
         ];
     }
 }
