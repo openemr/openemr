@@ -16,7 +16,7 @@ namespace OpenEMR\Common\Crypto;
 
 use SensitiveParameter;
 
-class PasswordBasedCrypto
+readonly class PasswordBasedCrypto
 {
     private const CIPHER = 'aes-256-cbc';
     private const IV_LENGTH = 16;
