@@ -60,7 +60,7 @@ class PasswordBasedCrypto
 
         $expectedHmac = hash_hmac('sha384', $iv . $encrypted, $hmacKey, true);
         if (!hash_equals(known_string: $expectedHmac, user_string: $hashHmac)) {
-            throw new \Exception('Invalid HMAC');
+            throw new CryptoGenException('Invalid HMAC');
         }
 
         $output = openssl_decrypt(
