@@ -30,10 +30,76 @@ final class PasswordBasedCryptoTest extends TestCase
     }
 
     /**
-     * Test vectors generated from CryptoGen to ensure backwards compatibility.
+     * Test vectors for version 1: sha256(password) hex, no HMAC, format: iv + data
+     */
+    public static function v1VectorProvider(): iterable
+    {
+        yield 'v1 simple text' => [
+            'plaintext' => 'hello world',
+            'password' => 'secret123',
+            'ciphertext' => '001cHAtdGAycv+STmWDKWSLqrUGHb16E9RH/kNyJVPQ4L8=',
+        ];
+
+        yield 'v1 empty' => [
+            'plaintext' => '',
+            'password' => 'emptytest',
+            'ciphertext' => '00120mE2nSfdaFR2DaCr4OfntSmM8jDlihSy4J6Hu4jGQg=',
+        ];
+
+        yield 'v1 unicode' => [
+            'plaintext' => 'Special chars: áéíóú',
+            'password' => 'unicode',
+            'ciphertext' => '001/Nf47ieA3sey/zi9IAJPZ+UL75wb1sa5SUv1GwoKqtEGouOBWatuIpYWSererbX3',
+        ];
+    }
+
+    /**
+     * Test vectors for versions 2-3: sha256(password) binary, HMAC-SHA256, format: hmac(32) + iv + data
+     */
+    public static function v2v3VectorProvider(): iterable
+    {
+        yield 'v2 simple text' => [
+            'plaintext' => 'hello world',
+            'password' => 'secret123',
+            'ciphertext' => '0020z1Rc9l7MCeJPxvORhiVzVMrw8/YG1c0kaDncbHcHNsMvFONvkRZyu1/HfLMozThf/AlheUzyF655ndAZfiDqw==',
+        ];
+
+        yield 'v2 empty' => [
+            'plaintext' => '',
+            'password' => 'emptytest',
+            'ciphertext' => '002w3w7Lm/GYxo2DphTSHNTIHhiybOC6DPZWUsO9OIM54hncZL/rOtLFsCkIBenwPPgOo4MNWPohFK9z9SuVc2OKw==',
+        ];
+
+        yield 'v2 unicode' => [
+            'plaintext' => 'Special chars: áéíóú',
+            'password' => 'unicode',
+            'ciphertext' => '002grPsnzm9nEsiI8o0zitCiJgQDxYEs8q3DVIun0AVOuQB9vcxE/wZtjXeIcmWpF3ViV9rn66Wx2s0Wyx0ZKtgV+wvWQR7HEDb2Hh+NiXz8VQ=',
+        ];
+
+        yield 'v3 simple text' => [
+            'plaintext' => 'hello world',
+            'password' => 'secret123',
+            'ciphertext' => '003tndM1BoFqJ34IXVbV+6dzGCVJ+uQIy3fujZjCMIEfG5rMLV8zIBfDL+fta4Vm8KPDikCs056xSnO4u5XqSUVmQ==',
+        ];
+
+        yield 'v3 empty' => [
+            'plaintext' => '',
+            'password' => 'emptytest',
+            'ciphertext' => '003qOTV2JkQTYx7Aa6AgOtYsnfckv9ECikU90vejOGLRIkTcdOZXyk3KLCthTppJ3rp79v2+kc9qjr/S93KJZWEwQ==',
+        ];
+
+        yield 'v3 unicode' => [
+            'plaintext' => 'Special chars: áéíóú',
+            'password' => 'unicode',
+            'ciphertext' => '003TslQxnlVc+fk+ww1Wplo/v7XKwpi62I+s8uusnXbbY66EZWTlnE2c3JPIk+LTqF2eYkSHZg48VzdYXbnyeBZrpNRyju7Ro/qVFi7g4DHxiw=',
+        ];
+    }
+
+    /**
+     * Test vectors generated from CryptoGen v4-7 to ensure backwards compatibility.
      * PasswordBasedCrypto MUST be able to decrypt these.
      */
-    public static function legacyVectorProvider(): iterable
+    public static function modernVectorProvider(): iterable
     {
         yield 'simple text' => [
             'plaintext' => 'hello world',
@@ -66,8 +132,24 @@ final class PasswordBasedCryptoTest extends TestCase
         ];
     }
 
-    #[DataProvider('legacyVectorProvider')]
-    public function testDecryptsLegacyCryptoGenData(string $plaintext, string $password, string $ciphertext): void
+    #[DataProvider('v1VectorProvider')]
+    public function testDecryptsV1Data(string $plaintext, string $password, string $ciphertext): void
+    {
+        $crypto = new PasswordBasedCrypto($this->version);
+        $decrypted = $crypto->decrypt($ciphertext, $password);
+        self::assertSame($plaintext, $decrypted);
+    }
+
+    #[DataProvider('v2v3VectorProvider')]
+    public function testDecryptsV2V3Data(string $plaintext, string $password, string $ciphertext): void
+    {
+        $crypto = new PasswordBasedCrypto($this->version);
+        $decrypted = $crypto->decrypt($ciphertext, $password);
+        self::assertSame($plaintext, $decrypted);
+    }
+
+    #[DataProvider('modernVectorProvider')]
+    public function testDecryptsModernData(string $plaintext, string $password, string $ciphertext): void
     {
         $crypto = new PasswordBasedCrypto($this->version);
         $decrypted = $crypto->decrypt($ciphertext, $password);

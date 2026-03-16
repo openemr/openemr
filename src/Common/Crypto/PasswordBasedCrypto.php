@@ -12,14 +12,10 @@ class PasswordBasedCrypto
     private const HASH_ALGO = 'sha384';
     private const SALT_LENGTH = 32;
     private const KEY_LENGTH = 32;
-    private const HMAC_LENGTH = 48; // sha384 raw output
     private const PBKDF2_ITERATIONS = 100_000;
     private const HKDF_INFO_ENCRYPTION = 'aes-256-encryption';
     private const HKDF_INFO_HMAC = 'sha-384-authentication';
     private const IV_LENGTH = 16; // aes-256-cbc
-    private const MIN_CIPHERTEXT_LENGTH = 16; // one AES block (padding for empty input)
-    // salt + hmac + iv + min_ciphertext
-    private const MIN_PAYLOAD_LENGTH = self::SALT_LENGTH + self::HMAC_LENGTH + self::IV_LENGTH + self::MIN_CIPHERTEXT_LENGTH;
 
     public function __construct(
         private KeyVersion $version,
@@ -64,44 +60,27 @@ class PasswordBasedCrypto
 
         $ciphertext = mb_substr($ciphertextWithVersion, KeyVersion::PREFIX_LENGTH, null, '8bit');
 
-        $input = base64_decode($ciphertext, true);
-        if ($input === false) {
+        $payload = base64_decode($ciphertext, true);
+        if ($payload === false) {
             throw new CryptoGenException('Could not base64-decode the ciphertext');
         }
 
-        if (mb_strlen($input, '8bit') < self::MIN_PAYLOAD_LENGTH) {
+        $strategy = $this->getDecryptionStrategy($version);
+
+        if (mb_strlen($payload, '8bit') < $strategy->getMinPayloadLength()) {
             throw new CryptoGenException('Ciphertext too short');
         }
 
-        $salt = mb_substr($input, 0, self::SALT_LENGTH, '8bit');
-        $rest = mb_substr($input, self::SALT_LENGTH, null, '8bit');
+        return $strategy->decrypt($payload, $password);
+    }
 
-        [$secretKey, $hmacKey] = $this->deriveKeys($password, $salt);
-
-        $hashHmac = mb_substr($rest, 0, self::HMAC_LENGTH, '8bit');
-        $iv = mb_substr($rest, self::HMAC_LENGTH, self::IV_LENGTH, '8bit');
-        $encrypted = mb_substr($rest, (self::IV_LENGTH + self::HMAC_LENGTH), null, '8bit');
-
-        $expectedHmac = hash_hmac(self::HASH_ALGO, $iv . $encrypted, $hmacKey, true);
-        if (!hash_equals(known_string: $expectedHmac, user_string: $hashHmac)) {
-            throw new CryptoGenException('Invalid HMAC');
-        }
-
-        $output = openssl_decrypt(
-            $encrypted,
-            self::CIPHER,
-            $secretKey,
-            OPENSSL_RAW_DATA,
-            $iv,
-        );
-        // @codeCoverageIgnoreStart
-        // Unreachable in practice: if HMAC validates, the ciphertext is intact
-        // and openssl_decrypt will succeed. This is defensive against OpenSSL bugs.
-        if ($output === false) {
-            throw new CryptoGenException('Could not decrypt data');
-        }
-        // @codeCoverageIgnoreEnd
-        return $output;
+    private function getDecryptionStrategy(KeyVersion $version): PasswordDecryptionStrategyInterface
+    {
+        return match ($version) {
+            KeyVersion::ONE => new V1DecryptionStrategy(),
+            KeyVersion::TWO, KeyVersion::THREE => new V2V3DecryptionStrategy(),
+            KeyVersion::FOUR, KeyVersion::FIVE, KeyVersion::SIX, KeyVersion::SEVEN => new ModernDecryptionStrategy(),
+        };
     }
 
     /**
