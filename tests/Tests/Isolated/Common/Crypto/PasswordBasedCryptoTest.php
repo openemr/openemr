@@ -217,7 +217,26 @@ final class PasswordBasedCryptoTest extends TestCase
         self::assertSame($plaintext, $crypto->decrypt($encrypted2, $password));
     }
 
-    public function testDecryptWithWrongPasswordThrows(): void
+    public function testDecryptV1WithWrongPasswordThrows(): void
+    {
+        $crypto = new PasswordBasedCrypto($this->version);
+        // V1 has no HMAC, so wrong password causes decryption failure
+        $this->expectException(CryptoGenException::class);
+        $this->expectExceptionMessage('Could not decrypt');
+
+        $crypto->decrypt('001cHAtdGAycv+STmWDKWSLqrUGHb16E9RH/kNyJVPQ4L8=', 'wrongpassword');
+    }
+
+    public function testDecryptV2V3WithWrongPasswordThrows(): void
+    {
+        $crypto = new PasswordBasedCrypto($this->version);
+        $this->expectException(CryptoGenException::class);
+        $this->expectExceptionMessage('HMAC');
+
+        $crypto->decrypt('0020z1Rc9l7MCeJPxvORhiVzVMrw8/YG1c0kaDncbHcHNsMvFONvkRZyu1/HfLMozThf/AlheUzyF655ndAZfiDqw==', 'wrongpassword');
+    }
+
+    public function testDecryptModernWithWrongPasswordThrows(): void
     {
         $crypto = new PasswordBasedCrypto($this->version);
         $encrypted = $crypto->encrypt('secret data', 'correctpassword');
