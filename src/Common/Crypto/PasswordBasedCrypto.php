@@ -18,10 +18,7 @@ class PasswordBasedCrypto
         #[SensitiveParameter] string $password,
     ): string {
         $salt = random_bytes(32);
-        $preKey = hash_pbkdf2('sha384', $password, $salt, 100_000, 32, true);
-
-        $secretKey = hash_hkdf('sha384', $preKey, 32, 'aes-256-encryption', $salt);
-        $hmacKey = hash_hkdf('sha384', $preKey, 32, 'sha-384-authentication', $salt);
+        [$secretKey, $hmacKey] = $this->deriveKeys($password, $salt);
 
         $ivLen = openssl_cipher_iv_length('aes-256-cbc');
         assert($ivLen > 0);
@@ -54,13 +51,10 @@ class PasswordBasedCrypto
             throw new CryptoGenException('Could not base64-decode the ciphertext');
         }
 
-        // (hmac)
         $salt = mb_substr($input, 0, 32, '8bit');
         $rest = mb_substr($input, 32, null, '8bit');
 
-        $preKey = hash_pbkdf2('sha384', $password, $salt, 100_000, 32, true);
-        $secretKey = hash_hkdf('sha384', $preKey, 32, 'aes-256-encryption', $salt);
-        $hmacKey = hash_hkdf('sha384', $preKey, 32, 'sha-384-authentication', $salt);
+        [$secretKey, $hmacKey] = $this->deriveKeys($password, $salt);
 
         $hashHmac = mb_substr($rest, 0, 48, '8bit');
         $ivLen = openssl_cipher_iv_length('aes-256-cbc');
@@ -87,5 +81,21 @@ class PasswordBasedCrypto
         }
         // @codeCoverageIgnoreEnd
         return $output;
+    }
+
+    /**
+     * Derive encryption and HMAC keys from password and salt.
+     *
+     * @return array{string, string} [$encryptionKey, $hmacKey]
+     */
+    private function deriveKeys(
+        #[SensitiveParameter] string $password,
+        string $salt,
+    ): array {
+        $preKey = hash_pbkdf2('sha384', $password, $salt, 100_000, 32, true);
+        return [
+            hash_hkdf('sha384', $preKey, 32, 'aes-256-encryption', $salt),
+            hash_hkdf('sha384', $preKey, 32, 'sha-384-authentication', $salt),
+        ];
     }
 }
