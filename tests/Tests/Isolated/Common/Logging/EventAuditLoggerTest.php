@@ -20,9 +20,9 @@ use OpenEMR\Common\Logging\Audit\SinkInterface;
 use OpenEMR\Common\Logging\AuditConfig;
 use OpenEMR\Common\Logging\BreakglassCheckerInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class EventAuditLoggerTest extends TestCase
 {
