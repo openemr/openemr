@@ -202,15 +202,6 @@ final class EventAuditLoggerTest extends TestCase
     }
 
     /**
-     * Setup globals for audit logging tests
-     */
-    private function setupGlobalsForAuditLogging(bool $enabled = true, bool $httpRequestEnabled = true): void
-    {
-        $GLOBALS['enable_auditlog'] = $enabled;
-        $GLOBALS['audit_events_http-request'] = $httpRequestEnabled;
-    }
-
-    /**
      * Setup HTTP request environment for testing
      *
      * @return array<string, string|null>
@@ -273,16 +264,6 @@ final class EventAuditLoggerTest extends TestCase
             $config ?? $this->config,                   // config
             $this->breakglassChecker,                   // breakglassChecker
         ];
-    }
-
-    /**
-     * Setup test session variables
-     */
-    private function setupTestSession(string $user = 'test_user', string $provider = 'test_provider', int $pid = 123): void
-    {
-        $_SESSION['authUser'] = $user;
-        $_SESSION['authProvider'] = $provider;
-        $_SESSION['pid'] = $pid;
     }
 
     /**
