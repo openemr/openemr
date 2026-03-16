@@ -12,13 +12,23 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Common\Crypto;
 
-use OpenEMR\Common\Crypto\CryptoGenException;
-use OpenEMR\Common\Crypto\PasswordBasedCrypto;
+use OpenEMR\Common\Crypto\{
+    CryptoGenException,
+    KeyVersion,
+    PasswordBasedCrypto,
+};
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class PasswordBasedCryptoTest extends TestCase
 {
+    private KeyVersion $version;
+
+    public function setUp(): void
+    {
+        $this->version = KeyVersion::SEVEN;
+    }
+
     /**
      * Test vectors generated from CryptoGen to ensure backwards compatibility.
      * PasswordBasedCrypto MUST be able to decrypt these.
@@ -59,14 +69,14 @@ final class PasswordBasedCryptoTest extends TestCase
     #[DataProvider('legacyVectorProvider')]
     public function testDecryptsLegacyCryptoGenData(string $plaintext, string $password, string $ciphertext): void
     {
-        $crypto = new PasswordBasedCrypto();
+        $crypto = new PasswordBasedCrypto($this->version);
         $decrypted = $crypto->decrypt($ciphertext, $password);
         self::assertSame($plaintext, $decrypted);
     }
 
     public function testEncryptDecryptRoundtrip(): void
     {
-        $crypto = new PasswordBasedCrypto();
+        $crypto = new PasswordBasedCrypto($this->version);
         $plaintext = 'This is a test message';
         $password = 'mypassword';
 
@@ -78,7 +88,7 @@ final class PasswordBasedCryptoTest extends TestCase
 
     public function testEncryptDecryptRoundtripEmptyString(): void
     {
-        $crypto = new PasswordBasedCrypto();
+        $crypto = new PasswordBasedCrypto($this->version);
         $plaintext = '';
         $password = 'mypassword';
 
@@ -90,7 +100,7 @@ final class PasswordBasedCryptoTest extends TestCase
 
     public function testEncryptDecryptRoundtripUnicode(): void
     {
-        $crypto = new PasswordBasedCrypto();
+        $crypto = new PasswordBasedCrypto($this->version);
         $plaintext = 'Unicode: 日本語 中文 한국어 🎉';
         $password = 'unicodepass';
 
@@ -102,7 +112,7 @@ final class PasswordBasedCryptoTest extends TestCase
 
     public function testEncryptProducesVersionPrefix(): void
     {
-        $crypto = new PasswordBasedCrypto();
+        $crypto = new PasswordBasedCrypto($this->version);
         $encrypted = $crypto->encrypt('test', 'password');
 
         self::assertStringStartsWith('007', $encrypted);
@@ -110,7 +120,7 @@ final class PasswordBasedCryptoTest extends TestCase
 
     public function testEncryptProducesDifferentCiphertextEachTime(): void
     {
-        $crypto = new PasswordBasedCrypto();
+        $crypto = new PasswordBasedCrypto($this->version);
         $plaintext = 'same plaintext';
         $password = 'samepassword';
 
@@ -127,7 +137,7 @@ final class PasswordBasedCryptoTest extends TestCase
 
     public function testDecryptWithWrongPasswordThrows(): void
     {
-        $crypto = new PasswordBasedCrypto();
+        $crypto = new PasswordBasedCrypto($this->version);
         $encrypted = $crypto->encrypt('secret data', 'correctpassword');
 
         $this->expectException(CryptoGenException::class);
@@ -138,7 +148,7 @@ final class PasswordBasedCryptoTest extends TestCase
 
     public function testDecryptWithCorruptedCiphertextThrows(): void
     {
-        $crypto = new PasswordBasedCrypto();
+        $crypto = new PasswordBasedCrypto($this->version);
         $encrypted = $crypto->encrypt('test', 'password');
 
         // Corrupt the base64 payload (after the 007 prefix)
@@ -151,7 +161,7 @@ final class PasswordBasedCryptoTest extends TestCase
 
     public function testDecryptWithInvalidBase64Throws(): void
     {
-        $crypto = new PasswordBasedCrypto();
+        $crypto = new PasswordBasedCrypto($this->version);
 
         $this->expectException(CryptoGenException::class);
         $this->expectExceptionMessage('base64');
@@ -161,7 +171,7 @@ final class PasswordBasedCryptoTest extends TestCase
 
     public function testDecryptWithTruncatedDataThrows(): void
     {
-        $crypto = new PasswordBasedCrypto();
+        $crypto = new PasswordBasedCrypto($this->version);
         $encrypted = $crypto->encrypt('test', 'password');
 
         // Truncate to just the prefix + partial data

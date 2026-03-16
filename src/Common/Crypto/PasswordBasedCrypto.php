@@ -6,6 +6,11 @@ namespace OpenEMR\Common\Crypto;
 
 class PasswordBasedCrypto
 {
+    public function __construct(
+        private KeyVersion $version,
+    ) {
+    }
+
     public function encrypt(string $plaintext, string $password): string
     {
         $salt = random_bytes(32);
@@ -28,11 +33,14 @@ class PasswordBasedCrypto
 
         $output = $hmac . $iv . $encrypted;
         // prefix
-        return base64_encode($output);
+        return $this->version->toPaddedString() . base64_encode($output);
     }
 
-    public function decrypt(string $ciphertext, string $password): string
+    public function decrypt(string $ciphertextWithVersion, string $password): string
     {
+        $version = KeyVersion::fromPrefix($ciphertextWithVersion);
+
+        $ciphertext = mb_substr($ciphertextWithVersion, 3, null, '8bit');
         // trim prefix and get key version
 
         $input = base64_decode($ciphertext);
