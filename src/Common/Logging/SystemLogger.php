@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Common\Logging;
 
+use Monolog\Formatter\LineFormatter;
 use Monolog\Handler\ErrorLogHandler;
 use Monolog\Logger;
 use Monolog\Processor\PsrLogMessageProcessor;
@@ -58,7 +59,11 @@ class SystemLogger implements LoggerInterface
 //        $facility = LOG_SYSLOG; // @see syslog constants https://www.php.net/manual/en/network.constants.php
 //        // Change the logger level to see what logs you want to log
 //        $this->logger->pushHandler(new Monolog\Handler\ErrorLogHandler('OpenEMR - ', $facility, $logLevel));
-        $this->logger->pushHandler(new ErrorLogHandler(ErrorLogHandler::OPERATING_SYSTEM, $logLevel));
+        $handler = new ErrorLogHandler(ErrorLogHandler::OPERATING_SYSTEM, $logLevel);
+        $formatter = new LineFormatter();
+        $formatter->includeStacktraces(true);
+        $handler->setFormatter($formatter);
+        $this->logger->pushHandler($handler);
         $this->logger->pushProcessor(new PsrLogMessageProcessor(removeUsedContextFields: true));
     }
 
