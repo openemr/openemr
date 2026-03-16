@@ -40,6 +40,13 @@ class PasswordBasedCrypto
             OPENSSL_RAW_DATA,
             $iv,
         );
+        // @codeCoverageIgnoreStart
+        // openssl_encrypt only fails with invalid parameters (wrong cipher, bad IV length, etc.)
+        // which can't happen with our hardcoded constants. Defensive check only.
+        if ($encrypted === false) {
+            throw new CryptoGenException('Encryption failed');
+        }
+        // @codeCoverageIgnoreEnd
 
         $hmac = hash_hmac(self::HASH_ALGO, $iv . $encrypted, $hmacKey, true);
 
