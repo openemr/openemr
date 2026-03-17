@@ -450,12 +450,6 @@ use EmployerService\\-\\>getMostRecentEmployerData\\(\\)$#',
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics_print.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to deprecated function updateEmployerData\\(\\)\\:
-Use EmployerService\\-\\>updateEmployerData\\(\\) instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/summary/demographics_save.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to deprecated function getUserSetting\\(\\)\\:
 7\\.0\\.3 see UserSettingsService\\:\\:getUserSetting$#',
     'count' => 5,
