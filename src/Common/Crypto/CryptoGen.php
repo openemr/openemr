@@ -32,8 +32,9 @@
 
 namespace OpenEMR\Common\Crypto;
 
-use Exception;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
+use Psr\Log\LoggerInterface;
 
 class CryptoGen implements CryptoInterface
 {
@@ -51,6 +52,16 @@ class CryptoGen implements CryptoInterface
      * from the drive).
      */
     private array $keyCache = [];
+
+    private readonly LoggerInterface $logger;
+
+    private readonly string $siteDir;
+
+    public function __construct(?LoggerInterface $logger = null, ?string $siteDir = null)
+    {
+        $this->logger = $logger ?? ServiceContainer::getLogger();
+        $this->siteDir = $siteDir ?? OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
+    }
 
     /**
      * @inheritdoc
@@ -73,7 +84,7 @@ class CryptoGen implements CryptoInterface
         try {
             $encryptionVersion = KeyVersion::fromPrefix($value);
         } catch (\ValueError) {
-            error_log("Invalid encryption version prefix");
+            $this->logger->error('Invalid encryption version prefix');
             return false;
         }
         $trimmedValue = mb_substr($value, 3, null, '8bit');
@@ -82,11 +93,11 @@ class CryptoGen implements CryptoInterface
             try {
                 $minimumKeyVersion = KeyVersion::from($minimumVersion);
             } catch (\ValueError) {
-                error_log("Invalid minimum key version {$minimumVersion}");
+                $this->logger->error('Invalid minimum key version', ['version' => $minimumVersion]);
                 return false;
             }
             if ($encryptionVersion->value < $minimumKeyVersion->value) {
-                error_log("OpenEMR Error : Decryption is not working because the encrypt/decrypt version is lower than allowed.");
+                $this->logger->error('Decryption failed: encrypt/decrypt version is lower than allowed');
                 return false;
             }
         }
@@ -209,13 +220,13 @@ class CryptoGen implements CryptoInterface
     protected function coreDecrypt(string $sValue, ?string $customPassword = null, KeySource $keySource = KeySource::Drive, KeyVersion $keyVersion = self::CURRENT_KEY_VERSION): false|string
     {
         if (!$this->isOpenSSLExtensionLoaded()) {
-            error_log("OpenEMR Error : Decryption is not working because missing openssl extension.");
+            $this->logger->error('Decryption failed: missing openssl extension');
             return false;
         }
 
         $raw = base64_decode($sValue, true);
         if ($raw === false) {
-            error_log("OpenEMR Error : Decryption did not work because illegal characters were noted in base64_encoded data.");
+            $this->logger->error('Decryption failed: illegal characters in base64_encoded data');
             return false;
         }
 
@@ -237,7 +248,7 @@ class CryptoGen implements CryptoInterface
         }
 
         if (empty($sSecretKey) || empty($sSecretKeyHmac)) {
-            error_log("OpenEMR Error : Decryption is not working because key(s) is blank.");
+            $this->logger->error('Decryption failed: key(s) is blank');
             return false;
         }
 
@@ -256,50 +267,11 @@ class CryptoGen implements CryptoInterface
                 $iv
             );
         } else {
-            try {
-                // throw an exception
-                throw new Exception("OpenEMR Error: Decryption failed HMAC Authentication!");
-            } catch (\Throwable $e) {
-                /**
-                 * log the exception message and call stack then return legacy null as false for
-                 * those evaluating the return value as $return == false which with legacy will eval as false.
-                 * I've seen this in the codebase, and it's a bit of a hack, but it's a way to return false instead of null.
-                 * Dev's should use empty() instead of == false to check return from this function.
-                 * The goal here is so the call stack is exposed to track back to where the call originated.
-                 */
-                $stackTrace = debug_backtrace();
-                $formattedStackTrace = $this->formatExceptionMessage($stackTrace);
-                error_log(errorLogEscape($e->getMessage()) . "\n" . errorLogEscape($formattedStackTrace));
-                return false;
-            }
+            $this->logger->error('Decryption failed HMAC authentication', [
+                'exception' => new \RuntimeException('Possibly Config Password or Token'),
+            ]);
+            return false;
         }
-    }
-
-    /**
-     * Format exception message with stack trace
-     *
-     * @param array $stackTrace Debug backtrace array
-     * @return string Formatted stack trace string
-     */
-    protected function formatExceptionMessage(array $stackTrace): string
-    {
-        $formattedStackTrace = "Possibly Config Password or Token. Error Call Stack:\n";
-        foreach ($stackTrace as $index => $call) {
-            $formattedStackTrace .= "#" . $index . " ";
-            if (isset($call['file'])) {
-                $formattedStackTrace .= $call['file'] . " ";
-                if (isset($call['line'])) {
-                    $formattedStackTrace .= "(" . $call['line'] . "): ";
-                }
-            }
-            if (isset($call['class'])) {
-                $formattedStackTrace .= $call['class'] . $call['type'];
-            }
-            if (isset($call['function'])) {
-                $formattedStackTrace .= $call['function'] . "()\n";
-            }
-        }
-        return $formattedStackTrace;
     }
 
     /**
@@ -312,7 +284,7 @@ class CryptoGen implements CryptoInterface
     private function aes256DecryptTwo(?string $sValue, ?string $customPassword = null): false|string
     {
         if (!$this->isOpenSSLExtensionLoaded()) {
-            error_log("OpenEMR Error : Decryption is not working because missing openssl extension.");
+            $this->logger->error('Decryption failed: missing openssl extension');
             return false;
         }
 
@@ -328,13 +300,13 @@ class CryptoGen implements CryptoInterface
         }
 
         if (empty($sSecretKey) || empty($sSecretKeyHmac)) {
-            error_log("OpenEMR Error : Decryption is not working because key(s) is blank.");
+            $this->logger->error('Decryption failed: key(s) is blank');
             return false;
         }
 
         $raw = empty($sValue) ? '' : base64_decode($sValue, true);
         if ($raw === false) {
-            error_log("OpenEMR Error : Decryption did not work because illegal characters were noted in base64_encoded data.");
+            $this->logger->error('Decryption failed: illegal characters in base64_encoded data');
             return false;
         }
 
@@ -353,22 +325,10 @@ class CryptoGen implements CryptoInterface
                 $iv
             );
         } else {
-            try {
-                // throw an exception
-                throw new Exception("OpenEMR Error: Decryption failed hmac authentication!");
-            } catch (\Throwable $e) {
-                /**
-                 * log the exception message and call stack then return legacy null as false for
-                 * those evaluating the return value as $return == false which with legacy will eval as false.
-                 * I've seen this in the codebase, and it's a bit of a hack, but it's a way to return false instead of null.
-                 * Dev's should use empty() instead of == false to check return from this function.
-                 * The goal here is so the call stack is exposed to track back to where the call originated.
-                 */
-                $stackTrace = debug_backtrace();
-                $formattedStackTrace = $this->formatExceptionMessage($stackTrace);
-                error_log(errorLogEscape($e->getMessage()) . "\n" . errorLogEscape($formattedStackTrace));
-                return false;
-            }
+            $this->logger->error('Decryption failed HMAC authentication', [
+                'exception' => new \RuntimeException('Possibly Config Password or Token'),
+            ]);
+            return false;
         }
     }
 
@@ -382,7 +342,7 @@ class CryptoGen implements CryptoInterface
     private function aes256DecryptOne(?string $sValue, ?string $customPassword = null): false|string
     {
         if (!$this->isOpenSSLExtensionLoaded()) {
-            error_log("OpenEMR Error : Decryption is not working because missing openssl extension.");
+            $this->logger->error('Decryption failed: missing openssl extension');
             return false;
         }
 
@@ -391,7 +351,7 @@ class CryptoGen implements CryptoInterface
             : $this->hash("sha256", $customPassword);
 
         if (empty($sSecretKey)) {
-            error_log("OpenEMR Error : Decryption is not working because key is blank.");
+            $this->logger->error('Decryption failed: key is blank');
             return false;
         }
 
@@ -508,7 +468,7 @@ class CryptoGen implements CryptoInterface
      */
     protected function collectDriveKey(string $label, KeyVersion $keyVersion): string
     {
-        $keyPath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/methods/" . $label;
+        $keyPath = $this->siteDir . "/documents/logs_and_misc/methods/" . $label;
         if (!$this->fileExists($keyPath)) {
             return $this->createDriveKey($label, $keyVersion);
         }
@@ -533,7 +493,7 @@ class CryptoGen implements CryptoInterface
      */
     protected function createDriveKey(string $label, KeyVersion $keyVersion): string
     {
-        $keyPath = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/methods/" . $label;
+        $keyPath = $this->siteDir . "/documents/logs_and_misc/methods/" . $label;
         $key = $this->getRandomBytes(32);
         if (empty($key)) {
             throw new CryptoGenException("OpenEMR Error: Random Bytes error - exiting");

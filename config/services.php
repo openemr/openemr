@@ -18,6 +18,11 @@ use Monolog\Level;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\Audit;
+use OpenEMR\Common\Database\{
+    ConnectionManager,
+    ConnectionType,
+};
 
 return [
     Level::class => fn (TC $c) => Level::fromName($c->get('LOG_LEVEL')),
@@ -35,6 +40,12 @@ return [
         // - sessions... oh no.
         // - config: more globals
         // - breakglasschecker: tractable
-        return new EventAuditLogger();
+        $sinks = [
+            new Audit\LogTablesSink($c->get(ConnectionManager::class)->get(ConnectionType::Audit)),
+        ];
+        // ATNA.... tbd
+        return new EventAuditLogger(
+            sinks: $sinks,
+        );
     },
 ];

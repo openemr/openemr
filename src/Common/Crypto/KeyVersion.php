@@ -27,6 +27,8 @@ namespace OpenEMR\Common\Crypto;
 
 enum KeyVersion: int
 {
+    public const PREFIX_LENGTH = 3;
+
     case ONE = 1;
     case TWO = 2;
     case THREE = 3;
@@ -113,11 +115,11 @@ enum KeyVersion: int
      */
     public static function fromPrefix(string $value): self
     {
-        if (strlen($value) < 3) {
-            throw new \ValueError("Input string must be at least 3 bytes long");
+        if (strlen($value) < self::PREFIX_LENGTH) {
+            throw new \ValueError("Input string must be at least " . self::PREFIX_LENGTH . " bytes long");
         }
 
-        $prefix = substr($value, 0, 3);
+        $prefix = substr($value, 0, self::PREFIX_LENGTH);
         if (!ctype_digit($prefix)) {
             throw new \ValueError("Invalid KeyVersion prefix");
         }
