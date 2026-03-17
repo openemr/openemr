@@ -1298,7 +1298,8 @@ STP2TBLBOT;
                     $dump_results = $installer->load_dumpfiles();
                     if (! $dump_results) {
                         echo "$error.\n";
-                        echo text($installer->error_message);
+                        $errorMsg = $installer->error_message;
+                        echo text($errorMsg);
                         break;
                     } else {
                         echo $dump_results;
