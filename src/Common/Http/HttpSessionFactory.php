@@ -7,8 +7,8 @@ use OpenEMR\Common\Session\Predis\SentinelUtil;
 use OpenEMR\Common\Session\SessionConfigurationBuilder;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\Storage\ReadAndCloseNativeSessionStorage;
+use OpenEMR\Common\Session\WriteThroughSession;
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag;
-use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\SessionFactoryInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface;
@@ -48,7 +48,7 @@ class HttpSessionFactory implements SessionFactoryInterface
         $storage = new ReadAndCloseNativeSessionStorage($settings, $sessionHandler);
         $this->lastCreatedStorage = $storage;
 
-        $session = new Session($storage, new AttributeBag($sessionKey));
+        $session = new WriteThroughSession($storage, new AttributeBag($sessionKey));
         return $session;
     }
 

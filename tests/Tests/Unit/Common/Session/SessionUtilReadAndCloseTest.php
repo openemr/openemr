@@ -19,6 +19,7 @@ namespace OpenEMR\Tests\Unit\Common\Session;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Session\Storage\ReadAndCloseNativeSessionStorage;
+use OpenEMR\Common\Session\WriteThroughSession;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag;
@@ -101,7 +102,7 @@ class SessionUtilReadAndCloseTest extends TestCase
             'use_cookies' => false,
             'use_only_cookies' => false,
         ]);
-        $session = new Session($storage, new AttributeBag('TestSessionUtil'));
+        $session = new WriteThroughSession($storage, new AttributeBag('TestSessionUtil'));
         $session->start();
 
         // Wire into the singleton
@@ -751,7 +752,7 @@ class SessionUtilReadAndCloseTest extends TestCase
             'use_cookies' => false,
             'use_only_cookies' => false,
         ]);
-        $session = new Session($storage, new AttributeBag('TestDirectRemove'));
+        $session = new WriteThroughSession($storage, new AttributeBag('TestDirectRemove'));
         $session->start();
 
         $factory = SessionWrapperFactory::getInstance();
@@ -781,12 +782,13 @@ class SessionUtilReadAndCloseTest extends TestCase
 
     /**
      * Test that calling setSessionReadOnly(false) AFTER getCoreSession() does
-     * not retroactively make the already-created session writable.
+     * not retroactively make the already-created session storage writable,
+     * but WriteThroughSession still persists writes via reopen-write-save.
      *
-     * This reproduces the login.php bug where the session is created with
+     * This reproduces the login.php scenario where the session is created with
      * read_and_close=true (default), then setSessionReadOnly(false) is called
      * too late. The factory flag changes but the session storage is already
-     * configured.
+     * configured. WriteThroughSession ensures writes still persist.
      */
     public function testSetSessionReadOnlyAfterSessionCreationDoesNotAffectExistingSession(): void
     {
@@ -800,7 +802,7 @@ class SessionUtilReadAndCloseTest extends TestCase
             'use_cookies' => false,
             'use_only_cookies' => false,
         ]);
-        $session = new Session($storage, new AttributeBag('TestOrdering'));
+        $session = new WriteThroughSession($storage, new AttributeBag('TestOrdering'));
         $session->start();
         $sessionId = $session->getId();
         $factory->setActiveSession($session, $storage);

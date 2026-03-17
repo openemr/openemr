@@ -46,12 +46,12 @@ $globalsBag = OEGlobalsBag::getInstance();
 
 SessionUtil::setAppCookie(SessionUtil::CORE_SESSION_ID);
 
-$session = SessionWrapperFactory::getInstance()->getCoreSession();
-
 $ignoreAuth = true;
 // Set $sessionAllowWrite to true to prevent session concurrency issues during authorization related code
 $sessionAllowWrite = true;
 require_once("../globals.php");
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $twig = new TwigContainer(null, $globalsBag->getKernel());
 $t = $twig->getTwig();
