@@ -14,7 +14,7 @@ use OpenEMR\Common\Crypto\{
  *
  * @deprecated
  */
-class Aes256CbcHmacSha256
+class Aes256CbcHmacSha256 implements StrategyInterface
 {
     private const HMAC_LENGTH = 32; // 256/8
 
