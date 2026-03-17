@@ -10,7 +10,6 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Milan Zivkovic <zivkovic.milan@gmail.com>
- * @author    Claude Code AI
  * @copyright Copyright (c) 2026 Milan Zivkovic
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -678,6 +677,50 @@ class SessionUtilReadAndCloseTest extends TestCase
 
         $this->assertNull($verifySession->get('old_key'), 'Old key should be cleared');
         $this->assertEquals('new_value', $verifySession->get('new_key'), 'New key should be set after clear');
+    }
+
+    // =========================================================================
+    // Direct $session->set() vs SessionUtil::setSession() on read_and_close
+    // =========================================================================
+
+    /**
+     * Test that direct $session->set() on a read_and_close session persists
+     * data the same way SessionUtil::setSession() does.
+     *
+     * This reproduces the login.php scenario where getCoreSession() is called
+     * before setSessionReadOnly(false), creating a read_and_close session.
+     * Both direct writes and SessionUtil writes should persist.
+     */
+    public function testDirectSetOnReadAndCloseSessionPersists(): void
+    {
+        $ctx = $this->createReadAndCloseSession();
+        $session = $ctx['session'];
+        $storage = $ctx['storage'];
+
+        $this->assertTrue(
+            $storage->isClosedByReadAndClose(),
+            'Session should be in read-and-close state'
+        );
+
+        // Direct $session->set() — this is what login.php does
+        $session->set('direct_write', 'should_persist');
+
+        // Verify data is persisted to the session file
+        session_id($ctx['sessionId']);
+        $verifyStorage = new ReadAndCloseNativeSessionStorage([
+            'name' => 'TestSessionUtil',
+            'read_and_close' => true,
+            'use_cookies' => false,
+            'use_only_cookies' => false,
+        ]);
+        $verifySession = new Session($verifyStorage, new AttributeBag('TestSessionUtil'));
+        $verifySession->start();
+
+        $this->assertEquals(
+            'should_persist',
+            $verifySession->get('direct_write'),
+            'Direct $session->set() on a read_and_close session should persist'
+        );
     }
 
     // =========================================================================

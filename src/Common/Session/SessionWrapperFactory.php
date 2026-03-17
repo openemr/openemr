@@ -10,7 +10,6 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Milan Zivkovic <zivkovic.milan@gmail.com>
- * @author    Claude Code AI
  * @copyright Copyright (c) Milan Zivkovic
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
