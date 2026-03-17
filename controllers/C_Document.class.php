@@ -20,6 +20,7 @@ require_once(__DIR__ . "/../library/patient.inc.php");
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
@@ -45,7 +46,7 @@ class C_Document extends Controller
     public $patientService;
     public $_last_node;
     private $Document;
-    private $cryptoGen;
+    private CryptoInterface $cryptoGen;
     private bool $skip_acl_check = false;
     private readonly DocumentTemplateService $templateService;
     private bool $returnRetrieveKey = false;
