@@ -39,14 +39,6 @@ use Psr\Log\LoggerInterface;
 class CryptoGen implements CryptoInterface
 {
     /**
-     * This is the current key version. When updating
-     * the encrypt/decrypt methodology, add a new value
-     * to the enum and increment this const to enable
-     * backwards compatibility.
-     */
-    public const CURRENT_KEY_VERSION = KeyVersion::SEVEN;
-
-    /**
      * Key cache to optimize key collection, which avoids numerous repeat
      * calls to collect the key sets (and repeat decryption of the key set
      * from the drive).
@@ -68,7 +60,7 @@ class CryptoGen implements CryptoInterface
      */
     public function encryptStandard(?string $value, KeySource $keySource = KeySource::Drive): string
     {
-        return self::CURRENT_KEY_VERSION->toPaddedString() . $this->coreEncrypt($value, $keySource, self::CURRENT_KEY_VERSION);
+        return KeyVersion::CURRENT->toPaddedString() . $this->coreEncrypt($value, $keySource, KeyVersion::CURRENT);
     }
 
     /**
@@ -149,7 +141,7 @@ class CryptoGen implements CryptoInterface
      * @return string The encrypted data
      * @throws CryptoGenException If encryption fails due to critical errors
      */
-    protected function coreEncrypt(?string $sValue, KeySource $keySource = KeySource::Drive, KeyVersion $keyVersion = self::CURRENT_KEY_VERSION): string
+    protected function coreEncrypt(?string $sValue, KeySource $keySource = KeySource::Drive, KeyVersion $keyVersion = KeyVersion::CURRENT): string
     {
         if (!$this->isOpenSSLExtensionLoaded()) {
             throw new CryptoGenException("OpenEMR Error : Encryption is not working because missing openssl extension.");
@@ -197,7 +189,7 @@ class CryptoGen implements CryptoInterface
      * @param KeyVersion $keyVersion The key version
      * @return false|string The decrypted data, or false if decryption fails
      */
-    protected function coreDecrypt(string $sValue, KeySource $keySource = KeySource::Drive, KeyVersion $keyVersion = self::CURRENT_KEY_VERSION): false|string
+    protected function coreDecrypt(string $sValue, KeySource $keySource = KeySource::Drive, KeyVersion $keyVersion = KeyVersion::CURRENT): false|string
     {
         if (!$this->isOpenSSLExtensionLoaded()) {
             $this->logger->error('Decryption failed: missing openssl extension');
