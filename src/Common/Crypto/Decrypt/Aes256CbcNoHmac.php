@@ -6,7 +6,7 @@ namespace OpenEMR\Common\Crypto\Decrypt;
 
 use OpenEMR\Common\Crypto\{
     CryptoGenException,
-    KeyMaterial,
+    Keys\KeyManagerInterface,
 };
 
 /**
@@ -18,10 +18,13 @@ class Aes256CbcNoHmac implements StrategyInterface
 {
     private const IV_LENGTH = 16; // openssl_cipher_iv_length('aes-256-cbc')
 
-    public function decrypt(string $ciphertext, KeyMaterial $keyMaterial): string
+    public function decrypt(string $ciphertext, string $keyId, KeyManagerInterface $manager): string
     {
         $iv = substr($ciphertext, 0, self::IV_LENGTH);
         $data = substr($ciphertext, self::IV_LENGTH);
+
+        assert($keyId === 'one', 'This should only be used for the very oldest keys');
+        $keyMaterial = $manager->getKey($keyId);
 
         $decrypted = openssl_decrypt(
             $data,

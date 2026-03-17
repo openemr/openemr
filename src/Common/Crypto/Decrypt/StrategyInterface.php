@@ -6,10 +6,10 @@ namespace OpenEMR\Common\Crypto\Decrypt;
 
 use OpenEMR\Common\Crypto\{
     CryptoGenException,
-    KeyMaterial,
+    Keys\KeyManagerInterface,
 };
 
 interface StrategyInterface
 {
-    public function decrypt(string $ciphertext, KeyMaterial $keyMaterial): string;
+    public function decrypt(string $ciphertext, string $keyId, KeyManagerInterface $keyManager): string;
 }

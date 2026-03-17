@@ -6,7 +6,7 @@ namespace OpenEMR\Common\Crypto\Decrypt;
 
 use OpenEMR\Common\Crypto\{
     CryptoGenException,
-    KeyMaterial,
+    Keys\KeyManagerInterface,
 };
 
 /**
@@ -18,15 +18,16 @@ class Aes256CbcHmacSha384 implements StrategyInterface
 
     private const IV_LENGTH = 16; // openssl_cipher_iv_length('aes-256-cbc')
 
-    public function decrypt(string $ciphertext, KeyMaterial $keyMaterial): string
+    public function decrypt(string $ciphertext, string $keyId, KeyManagerInterface $manager): string
     {
         $hmac = mb_substr($ciphertext, 0, self::HMAC_LENGTH, '8bit');
         $iv = mb_substr($ciphertext, self::HMAC_LENGTH, self::IV_LENGTH, '8bit');
         $data = mb_substr($ciphertext, (self::HMAC_LENGTH + self::IV_LENGTH), null, '8bit');
 
-        assert($keyMaterial->hmacKey !== null);
+        $decryptionKey = $manager->getKey($keyId . 'a');
+        $hmacKey = $manager->getKey($keyId . 'b');
 
-        $expectedHmac = hash_hmac('sha384', $iv . $data, $keyMaterial->hmacKey, true);
+        $expectedHmac = hash_hmac('sha384', $iv . $data, $hmacKey->key, true);
         if (!hash_equals(known_string: $expectedHmac, user_string: $hmac)) {
             throw new CryptoGenException('HMAC invalid while decrypting message');
         }
@@ -34,7 +35,7 @@ class Aes256CbcHmacSha384 implements StrategyInterface
         $decrypted = openssl_decrypt(
             $data,
             'aes-256-cbc',
-            $keyMaterial->key,
+            $decryptionKey->key,
             OPENSSL_RAW_DATA,
             $iv,
         );
