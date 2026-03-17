@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Common\Crypto\Strategies;
+namespace OpenEMR\Common\Crypto\Decrypt;
 
 use OpenEMR\Common\Crypto\{
     CryptoGenException,
