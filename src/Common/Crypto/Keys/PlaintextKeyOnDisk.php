@@ -9,17 +9,13 @@ namespace OpenEMR\Common\Crypto\Keys;
  */
 readonly class PlaintextKeyOnDisk
 {
-    public function __construct(private string $siteDir)
+    public function __construct(private string $storageDir)
     {
     }
 
     public function getKey(string $identifier): KeyMaterial
     {
-        $path = sprintf(
-            '%s/documents/logs_and_misc/methods/%s',
-            $this->siteDir,
-            $identifier,
-        );
+        $path = sprintf('%s/%s', $this->storageDir, $identifier);
         $encoded = file_get_contents($path);
         if ($encoded === false) {
             throw new \Exception('Could not read key');
