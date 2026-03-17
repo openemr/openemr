@@ -49,7 +49,7 @@ class ConnectionManagerTest extends TestCase
         $manager = new ConnectionManager();
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('No factory registered for connection type "main"');
+        $this->expectExceptionMessage('No factory registered for connection type "Main"');
 
         $manager->get(ConnectionType::Main);
     }

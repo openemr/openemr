@@ -37,7 +37,7 @@ class ConnectionManager
      */
     public function register(ConnectionType $type, Closure $factory): void
     {
-        $this->factories[$type->value] = $factory;
+        $this->factories[$type->name] = $factory;
     }
 
     /**
@@ -45,16 +45,16 @@ class ConnectionManager
      */
     public function get(ConnectionType $type): Connection
     {
-        if (isset($this->connections[$type->value])) {
-            return $this->connections[$type->value];
+        if (isset($this->connections[$type->name])) {
+            return $this->connections[$type->name];
         }
 
-        if (!isset($this->factories[$type->value])) {
+        if (!isset($this->factories[$type->name])) {
             throw new InvalidArgumentException(
-                sprintf('No factory registered for connection type "%s"', $type->value)
+                sprintf('No factory registered for connection type "%s"', $type->name)
             );
         }
 
-        return $this->connections[$type->value] = $this->factories[$type->value]();
+        return $this->connections[$type->name] = $this->factories[$type->name]();
     }
 }

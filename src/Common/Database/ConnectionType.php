@@ -14,8 +14,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Database;
 
-enum ConnectionType: string
+enum ConnectionType
 {
-    case Main = 'main';
-    case Audit = 'audit';
+    case Main;
+    case Audit;
 }
