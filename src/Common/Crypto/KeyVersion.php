@@ -127,4 +127,13 @@ enum KeyVersion: int
 
         return self::from((int)$prefix);
     }
+
+    public function getDecryptionStrategy(): Strategies\StrategyInterface
+    {
+        return match ($this) {
+            self::ONE => new Strategies\Aes256CbcNoHmac(),
+            self::TWO, self::THREE => new Strategies\Aes256CbcHmacSha256(),
+            default => new Strategies\Aes256CbcHmacSha384(),
+        };
+    }
 }
