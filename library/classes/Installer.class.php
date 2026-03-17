@@ -19,6 +19,8 @@
 use OpenEMR\BC\DatabaseConnectionFactory;
 use OpenEMR\BC\DatabaseConnectionOptions;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\KeyVersion;
+use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 use OpenEMR\Gacl\GaclApi;
 use Psr\Log\LoggerInterface;
 
@@ -2079,8 +2081,8 @@ SETHLP;
      */
     protected function encryptTotpSecret(string $secret, string $hash): string
     {
-        $cryptoGen = ServiceContainer::getCrypto();
-        return $cryptoGen->encryptStandard($secret, $hash);
+        $passwordCrypto = new PasswordBasedCrypto(KeyVersion::CURRENT);
+        return $passwordCrypto->encrypt($secret, $hash);
     }
 
     /**

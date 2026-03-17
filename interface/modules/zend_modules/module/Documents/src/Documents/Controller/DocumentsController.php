@@ -20,6 +20,8 @@ use Documents\Model\DocumentsTable;
 use DOMDocument;
 use Laminas\Mvc\Controller\AbstractActionController;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\KeyVersion;
+use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 use OpenEMR\Core\OEGlobalsBag;
 use XSLTProcessor;
 
@@ -106,9 +108,10 @@ class DocumentsController extends AbstractActionController
 
                 // Decrypt Encrypted File
                 if ($encrypted_file == '1') {
-                    $cryptoGen = ServiceContainer::getCrypto();
-                    $plaintext = $cryptoGen->decryptStandard($filetext, $encryption_key);
-                    if ($plaintext === false) {
+                    $passwordCrypto = new PasswordBasedCrypto(KeyVersion::CURRENT);
+                    try {
+                        $plaintext = $passwordCrypto->decrypt((string) $filetext, (string) $encryption_key);
+                    } catch (\OpenEMR\Common\Crypto\CryptoGenException) {
                         error_log("OpenEMR Error: Unable to decrypt a document since decryption failed.");
                         $plaintext = "";
                     }

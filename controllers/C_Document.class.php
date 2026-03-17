@@ -21,6 +21,8 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\KeySource;
+use OpenEMR\Common\Crypto\KeyVersion;
+use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -288,8 +290,10 @@ class C_Document extends Controller
                     $filetext = fread($tmpfile, $_FILES['file']['size'][$key]);
                     fclose($tmpfile);
                     if ($doDecryption) {
-                        $filetext = $this->cryptoGen->decryptStandard($filetext, $passphrase);
-                        if ($filetext === false) {
+                        $passwordCrypto = new PasswordBasedCrypto(KeyVersion::CURRENT);
+                        try {
+                            $filetext = $passwordCrypto->decrypt((string) $filetext, (string) $passphrase);
+                        } catch (\OpenEMR\Common\Crypto\CryptoGenException) {
                             error_log("OpenEMR Error: Unable to decrypt a document since decryption failed.");
                             $filetext = "";
                         }
@@ -728,7 +732,8 @@ class C_Document extends Controller
             header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
             header('Pragma: public');
             if ($doEncryption) {
-                $ciphertext = $this->cryptoGen->encryptStandard($filetext, $passphrase);
+                $passwordCrypto = new PasswordBasedCrypto(KeyVersion::CURRENT);
+                $ciphertext = $passwordCrypto->encrypt((string) $filetext, (string) $passphrase);
                 header('Content-Disposition: attachment; filename="' . "/encrypted_aes_" . $d->get_name() . '"');
                 header("Content-Type: application/octet-stream");
                 header("Content-Length: " . strlen($ciphertext));
@@ -901,7 +906,8 @@ class C_Document extends Controller
             header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
             header('Pragma: public');
             if ($doEncryption) {
-                $ciphertext = $this->cryptoGen->encryptStandard($filetext, $passphrase);
+                $passwordCrypto = new PasswordBasedCrypto(KeyVersion::CURRENT);
+                $ciphertext = $passwordCrypto->encrypt((string) $filetext, (string) $passphrase);
                 header('Content-Disposition: attachment; filename="' . "/encrypted_aes_" . $d->get_name() . '"');
                 header("Content-Type: application/octet-stream");
                 header("Content-Length: " . strlen($ciphertext));
