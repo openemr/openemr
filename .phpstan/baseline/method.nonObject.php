@@ -10662,16 +10662,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Auth/OpenIDConnect/Repositories/ScopeRepositoryTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method toPaddedString\\(\\) on mixed\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Crypto/CryptoGenTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method toString\\(\\) on mixed\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Crypto/CryptoGenTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method get_id\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Forms/FormVitalsTest.php',
