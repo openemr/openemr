@@ -723,6 +723,121 @@ class SessionUtilReadAndCloseTest extends TestCase
         );
     }
 
+    /**
+     * Test that direct $session->remove() on a read_and_close session persists.
+     *
+     * login.php does $session->remove("relogin") on a read_and_close session.
+     * The removal should survive the request.
+     */
+    public function testDirectRemoveOnReadAndCloseSessionPersists(): void
+    {
+        // Create session with initial data
+        $setupStorage = new ReadAndCloseNativeSessionStorage([
+            'name' => 'TestDirectRemove',
+            'use_cookies' => false,
+            'use_only_cookies' => false,
+        ]);
+        $setupSession = new Session($setupStorage, new AttributeBag('TestDirectRemove'));
+        $setupSession->start();
+        $setupSession->set('relogin', 1);
+        $sessionId = $setupSession->getId();
+        $setupSession->save();
+
+        // Reopen with read_and_close
+        session_id($sessionId);
+        $storage = new ReadAndCloseNativeSessionStorage([
+            'name' => 'TestDirectRemove',
+            'read_and_close' => true,
+            'use_cookies' => false,
+            'use_only_cookies' => false,
+        ]);
+        $session = new Session($storage, new AttributeBag('TestDirectRemove'));
+        $session->start();
+
+        $factory = SessionWrapperFactory::getInstance();
+        $factory->setActiveSession($session, $storage);
+
+        $this->assertTrue($storage->isClosedByReadAndClose());
+
+        // Direct $session->remove() — this is what login.php does
+        $session->remove('relogin');
+
+        // Verify the removal persisted
+        session_id($sessionId);
+        $verifyStorage = new ReadAndCloseNativeSessionStorage([
+            'name' => 'TestDirectRemove',
+            'read_and_close' => true,
+            'use_cookies' => false,
+            'use_only_cookies' => false,
+        ]);
+        $verifySession = new Session($verifyStorage, new AttributeBag('TestDirectRemove'));
+        $verifySession->start();
+
+        $this->assertNull(
+            $verifySession->get('relogin'),
+            'Direct $session->remove() on a read_and_close session should persist'
+        );
+    }
+
+    /**
+     * Test that calling setSessionReadOnly(false) AFTER getCoreSession() does
+     * not retroactively make the already-created session writable.
+     *
+     * This reproduces the login.php bug where the session is created with
+     * read_and_close=true (default), then setSessionReadOnly(false) is called
+     * too late. The factory flag changes but the session storage is already
+     * configured.
+     */
+    public function testSetSessionReadOnlyAfterSessionCreationDoesNotAffectExistingSession(): void
+    {
+        // Simulate login.php: create session with default readOnly=true
+        $factory = SessionWrapperFactory::getInstance();
+
+        // readOnly defaults to true, so this creates a read_and_close session
+        $storage = new ReadAndCloseNativeSessionStorage([
+            'name' => 'TestOrdering',
+            'read_and_close' => true,
+            'use_cookies' => false,
+            'use_only_cookies' => false,
+        ]);
+        $session = new Session($storage, new AttributeBag('TestOrdering'));
+        $session->start();
+        $sessionId = $session->getId();
+        $factory->setActiveSession($session, $storage);
+
+        // Now call setSessionReadOnly(false) — too late, session already created
+        $factory->setSessionReadOnly(false);
+
+        // The factory flag changed, but the storage is still read_and_close
+        $this->assertFalse(
+            $factory->getEffectiveReadOnly(),
+            'Factory flag should be false after setSessionReadOnly(false)'
+        );
+        $this->assertTrue(
+            $storage->isClosedByReadAndClose(),
+            'Existing storage should still be read_and_close despite factory flag change'
+        );
+
+        // Direct writes still don't persist
+        $session->set('late_write', 'should_persist');
+
+        session_id($sessionId);
+        $verifyStorage = new ReadAndCloseNativeSessionStorage([
+            'name' => 'TestOrdering',
+            'read_and_close' => true,
+            'use_cookies' => false,
+            'use_only_cookies' => false,
+        ]);
+        $verifySession = new Session($verifyStorage, new AttributeBag('TestOrdering'));
+        $verifySession->start();
+
+        $this->assertEquals(
+            'should_persist',
+            $verifySession->get('late_write'),
+            'Direct write should persist even when setSessionReadOnly was called after session creation'
+        );
+    }
+
     // =========================================================================
     // Edge Case Tests
     // =========================================================================
