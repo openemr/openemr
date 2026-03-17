@@ -19,7 +19,6 @@ use Document;
 use Documents\Model\DocumentsTable;
 use DOMDocument;
 use Laminas\Mvc\Controller\AbstractActionController;
-use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\KeyVersion;
 use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 use OpenEMR\Core\OEGlobalsBag;
