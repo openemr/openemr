@@ -28,6 +28,7 @@ use OpenEMR\Services\ContactAddressService;
 use OpenEMR\Services\ContactRelationService;
 use OpenEMR\Services\ContactService;
 use OpenEMR\Services\ContactTelecomService;
+use OpenEMR\Services\EmployerService;
 
 // Initialize logger
 $logger = ServiceContainer::getLogger();
@@ -191,7 +192,8 @@ while ($frow = sqlFetchArray($fres)) {
 try {
     updatePatientData($pid, $newdata['patient_data']);
     if (!OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
-        updateEmployerData($pid, [], $newdata['employer_data']);
+        $employerService = new EmployerService();
+        $employerService->updateEmployerData($pid, $newdata['employer_data'], false, $newdata['patient_data']);
     }
 } catch (\Throwable $e) {
     $logger->error("Error updating patient/employer data", [
