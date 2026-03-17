@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Crypto\Strategies;
 
-use OpenEMR\Common\Crypto\CryptoGenException;
+use OpenEMR\Common\Crypto\{
+    CryptoGenException,
+    KeyMaterial,
+};
 
 /**
  * Legacy "version 2-3" handling.
@@ -17,15 +20,15 @@ class Aes256CbcHmacSha256
 
     private const IV_LENGTH = 16; // openssl_cipher_iv_length('aes-256-cbc')
 
-    public function decrypt(string $ciphertext): string
+    public function decrypt(string $ciphertext, KeyMaterial $keyMaterial): string
     {
-
         $hmac = mb_substr($ciphertext, 0, self::HMAC_LENGTH, '8bit');
         $iv = mb_substr($ciphertext, self::HMAC_LENGTH, self::IV_LENGTH, '8bit');
         $data = mb_substr($ciphertext, (self::HMAC_LENGTH + self::IV_LENGTH), null, '8bit');
 
+        assert($keyMaterial->hmacKey !== null);
 
-        $expectedHmac = hash_hmac('sha256', $iv . $data, $hmacKey, true);
+        $expectedHmac = hash_hmac('sha256', $iv . $data, $keyMaterial->hmacKey, true);
         if (!hash_equals(known_string: $expectedHmac, user_string: $hmac)) {
             throw new CryptoGenException('HMAC invalid while decrypting message');
         }
@@ -33,7 +36,7 @@ class Aes256CbcHmacSha256
         $decrypted = openssl_decrypt(
             $data,
             'aes-256-cbc',
-            $secret,
+            $keyMaterial->key,
             OPENSSL_RAW_DATA,
             $iv,
         );

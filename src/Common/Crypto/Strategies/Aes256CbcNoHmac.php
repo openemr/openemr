@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Crypto\Strategies;
 
+use OpenEMR\Common\Crypto\{
+    CryptoGenException,
+    KeyMaterial,
+};
+
 /**
  * Legacy "version 1" handling.
  *
@@ -13,23 +18,22 @@ class Aes256CbcNoHmac
 {
     private const IV_LENGTH = 16; // openssl_cipher_iv_length('aes-256-cbc')
 
-    public function decrypt(string $ciphertext): string
+    public function decrypt(string $ciphertext, KeyMaterial $keyMaterial): string
     {
-        // get key material
-
         $iv = substr($ciphertext, 0, self::IV_LENGTH);
         $data = substr($ciphertext, self::IV_LENGTH);
 
-        $decrytped = openssl_decrypt(
+        $decrypted = openssl_decrypt(
             $data,
             'aes-256-cbc',
-            $secret,
+            $keyMaterial->key,
             OPENSSL_RAW_DATA,
             $iv,
         );
         if ($decrypted === false) {
-            // throw
+            // This *is* reachable since there's no HMAC
+            throw new CryptoGenException('Decryption failed');
         }
-        return $decrytped;
+        return $decrypted;
     }
 }
