@@ -113,7 +113,7 @@ class EmployerService extends BaseService
 
     /**
      * @param string $pid The pid of the patient whose employer data we want to update
-     * @param array $new the new employer data we want to save. This should be an associative array where the keys are the column names in the employer_data table and the values are the values we want to save for those columns.
+     * @param array<string,mixed> $new the new employer data we want to save. This should be an associative array where the keys are the column names in the employer_data table and the values are the values we want to save for those columns.
      * @param boolean $create boolean flag to indicate if we are creating a new record or updating an existing record. If true, we will not compare the new data to the old data and will just save it as is. If false, we will compare the new data to the most recent employer data for the patient and only save the values that have changed. This allows us to keep a history of changes for the patient without saving duplicate data.
      * @param array|null $patientData optional parameter that can be passed in to provide the current patient data. This is used to set the occupation and industry fields in the employer_data table, which are not passed in the $new parameter. If this parameter is not provided, we will use the most recent employer data for the patient to set these fields, which may result in duplicate data if the occupation and industry have not changed.
      * @return int|string

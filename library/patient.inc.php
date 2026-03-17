@@ -1239,14 +1239,14 @@ function newEmployerData(
 /**
  * Create or update employer data from an array.
  *
- * @param $pid
- * @param $new
- * @param $create
+ * @param string $pid
+ * @param array<string, mixed> $new
+ * @param bool $create
  * @param array|null $patientData
  * @deprecated Use EmployerService->updateEmployerData() instead.
  * @return void
  */
-function updateEmployerData($pid, $new, $create = false, ?array $patientData = null): void
+function updateEmployerData(string $pid, array $new, bool $create = false, ?array $patientData = null): void
 {
     $employerService = new EmployerService();
     $employerService->updateEmployerData($pid, $new, $create, $patientData);

@@ -193,7 +193,7 @@ try {
     updatePatientData($pid, $newdata['patient_data']);
     if (!OEGlobalsBag::getInstance()->getBoolean('omit_employers')) {
         $employerService = new EmployerService();
-        $employerService->updateEmployerData($pid, $newdata['employer_data'], false, $newdata['patient_data']);
+        $employerService->updateEmployerData((string)$pid, $newdata['employer_data'], false, $newdata['patient_data']);
     }
 } catch (\Throwable $e) {
     $logger->error("Error updating patient/employer data", [
