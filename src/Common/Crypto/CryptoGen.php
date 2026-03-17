@@ -94,6 +94,16 @@ class CryptoGen implements CryptoInterface
             }
         }
 
+        // Determine strategy (based on keyVersion, for now)
+        $strategy = $encryptionVersion->getDecryptionStrategy();
+        // Locate keys (also based on keyVersion, for now)
+        // try {
+        //     return $strategy->decrypt($trimmedValue, $keyMaterial);
+        // } catch (CryptoGenException $e) {
+        //     $this->logger->error('Decryption failed', ['exception' => $e]);
+        //     return false;
+        // }
+
         // Map the encrypt/decrypt version to the correct decryption function
         return ($encryptionVersion->usesLegacyDecryption())
             ? $this->legacyDecrypt($trimmedValue, $keySource, $encryptionVersion)
