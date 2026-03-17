@@ -16,6 +16,15 @@ namespace OpenEMR\Common\Database;
 
 enum ConnectionType
 {
+    /**
+     * The main read/write connection. Nearly all DB traffic will use this.
+     */
     case Main;
+    /**
+     * Used during audit operations. Separate from the main because:
+     * - It enables offsite audit
+     * - It will not disrupt autoincrement ids from writing to the audit tables
+     * - Breaks a circular dependency when setting up auditing middleware
+     */
     case Audit;
 }
