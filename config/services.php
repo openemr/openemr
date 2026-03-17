@@ -18,6 +18,7 @@ use Monolog\Level;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Logging\BreakglassChecker;
 use OpenEMR\Common\Logging\Audit;
 use OpenEMR\Common\Database\{
     ConnectionManager,
@@ -34,18 +35,22 @@ return [
     SystemLogger::class => fn (TC $c) => new SystemLogger($c->get(Level::class)),
 
     EventAuditLogger::class => function (TC $c) {
-        // This has a lot of dependencies to resolve:
-        // - sinks is tractable
-        // - cryptogen probably needs a bunch more global state
-        // - sessions... oh no.
-        // - config: more globals
-        // - breakglasschecker: tractable
+        // Minor: the things that take connections could instead take
+        // connection managers and then be fully autowired.
+
+        $auditConn = $c->get(ConnectionManager::class)->get(ConnectionType::Audit);
         $sinks = [
-            new Audit\LogTablesSink($c->get(ConnectionManager::class)->get(ConnectionType::Audit)),
+            new Audit\LogTablesSink($auditConn),
         ];
         // ATNA.... tbd
+
         return new EventAuditLogger(
             sinks: $sinks,
+            // cryptoGen: CG
+            // shouldEncrypt: config,
+            // session: oh my,
+            // config: build above from config,
+            breakglassChecker: new BreakglassChecker($auditConn),
         );
     },
 ];
