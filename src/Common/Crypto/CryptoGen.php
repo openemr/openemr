@@ -148,7 +148,11 @@ class CryptoGen implements CryptoInterface
     {
         $format = KeyVersion::fromPrefix($versionedCiphertext);
         // Future: if format implies proper key versioning, parse it too.
-        $ciphertext = mb_substr($versionedCiphertext, KeyVersion::PREFIX_LENGTH, null, '8bit');
+        $base64Ciphertext = mb_substr($versionedCiphertext, KeyVersion::PREFIX_LENGTH, null, '8bit');
+        $ciphertext = base64_decode($base64Ciphertext, true);
+        if ($ciphertext === false) {
+            throw new CryptoGenException('Invalid base64 in encrypted message');
+        }
         return [
             'format' => $format,
             // FIXME: v3 thing?
