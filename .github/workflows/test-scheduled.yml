@@ -5,6 +5,9 @@
 # This moves coverage collection off PRs to reduce CI time on pull requests.
 #
 # Schedule: 9:00 UTC (4am EST / 5am EDT)
+#
+# Matrix structure: same as test-all.yml test-full job.
+# When adding new configurations, update both files.
 
 name: Test (Scheduled)
 
@@ -24,48 +27,38 @@ permissions:
   contents: read
 
 jobs:
-  collect:
-    runs-on: ubuntu-24.04
-    steps:
-    - name: Checkout Code
-      uses: actions/checkout@v6
-
-    - name: Collect Docker Dirs
-      id: docker-dirs
-      ##
-      # Collect the docker directory names from ci subdirectories
-      # and compute display names for each configuration.
-      run: |
-        shopt -s nullglob
-        shopt -s extglob
-        # Remove compose-shared-* from the list
-        dirs=( ci/!(compose-shared-*)/docker-compose.yml )
-        dirs=( "${dirs[@]%/docker-compose.yml}" )
-        dirs=( "${dirs[@]#ci/}" )
-        ci/parse_docker_dir.sh "${dirs[@]}" |
-          jq -rc 'map({
-            docker_dir: .output.docker_dir,
-            php: .output.php,
-            display_name: "PHP \(.output.php) - \(.output.webserver) - \(.output.database) \(.output.db)",
-            save_composer_cache: .output.save_composer_cache,
-            save_node_cache: .output.save_node_cache
-          }) | "configs=\(.)"' >> "$GITHUB_OUTPUT"
-    outputs:
-      configs: ${{ steps.docker-dirs.outputs.configs }}
-  build:
-    name: ${{ matrix.config.display_name }}
-    needs: collect
+  test:
+    name: PHP ${{ matrix.php }} - ${{ matrix.webserver }}${{ matrix.db && format(' - {0}', matrix.db) || '' }}
     strategy:
       fail-fast: false
       matrix:
-        config: ${{ fromJson(needs.collect.outputs.configs) }}
+        php: ['8.2', '8.3', '8.4', '8.5', '8.6']
+        webserver: [apache, nginx]
+        db: ['']
+        exclude:
+        - php: '8.5'
+          webserver: apache
+        - php: '8.6'
+          webserver: apache
+        - php: '8.4'
+          webserver: apache
+          db: ''
+        include:
+        - { php: '8.4', webserver: apache, db: mysql 5.7, db_suffix: '57' }
+        - { php: '8.4', webserver: apache, db: mysql 8.0, db_suffix: '80' }
+        - { php: '8.4', webserver: apache, db: mysql 8.4, db_suffix: '84' }
+        - { php: '8.4', webserver: apache, db: mysql 9.3, db_suffix: '93' }
+        - { php: '8.4', webserver: apache, db: mariadb 10.6, db_suffix: '106' }
+        - { php: '8.4', webserver: apache, db: mariadb 10.11, db_suffix: '1011' }
+        - { php: '8.4', webserver: apache, db: mariadb 11.4, db_suffix: '114' }
+        - { php: '8.4', webserver: apache, db: mariadb 11.8, db_suffix: '118' }
+        - { php: '8.4', webserver: apache, db: mariadb 12.0, db_suffix: '120' }
     uses: ./.github/workflows/test.yml
     secrets: inherit
     with:
-      docker_dir: ${{ matrix.config.docker_dir }}
-      display_name: ${{ matrix.config.display_name }}
-      # Enable coverage for all configurations except PHP 8.6+
-      # (xdebug/pcov don't support PHP 8.6 yet)
-      enable_coverage: ${{ (inputs.enable_coverage == '' || inputs.enable_coverage) && !startsWith(matrix.config.php, '8.6') }}
-      save_composer_cache: ${{ matrix.config.save_composer_cache == 'true' }}
-      save_node_cache: ${{ matrix.config.save_node_cache == 'true' }}
+      docker_dir: ${{ matrix.webserver }}_${{ matrix.php == '8.2' && '82' || matrix.php == '8.3' && '83' || matrix.php == '8.4' && '84' || matrix.php == '8.5' && '85' || '86' }}${{ matrix.webserver == 'apache' && format('_{0}', matrix.db_suffix || '118') || '' }}
+      display_name: PHP ${{ matrix.php }} - ${{ matrix.webserver }}${{ matrix.db && format(' - {0}', matrix.db) || '' }}
+      # Coverage for all except PHP 8.6 (no xdebug/pcov support yet)
+      enable_coverage: ${{ (inputs.enable_coverage == '' || inputs.enable_coverage) && matrix.php != '8.6' }}
+      save_composer_cache: true
+      save_node_cache: true

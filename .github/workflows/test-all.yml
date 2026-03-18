@@ -6,13 +6,10 @@
 #
 # Matrix strategy:
 # - Pull requests: Only PHP 8.2 configurations (oldest supported) for faster feedback
-# - Pull requests with "Test-Mode: full" trailer: All configurations (like nightly)
+# - Pull requests with "test-full" label: All configurations
 # - Push to master/rel-*: All configurations
 #
-# To run all configurations on a PR (useful for debugging flaky tests that only
-# appear in specific configurations), add this trailer to any commit message:
-#
-#   Test-Mode: full
+# To run all configurations on a PR, add the "test-full" label.
 #
 # Coverage is collected for one configuration (apache_82_118 on PRs, apache_84_114 on push).
 # Full coverage across ALL configurations runs in the scheduled nightly workflow.
@@ -28,6 +25,7 @@ on:
     branches:
     - master
     - rel-*
+    types: [opened, synchronize, labeled]
 
 permissions:
   contents: read
@@ -37,45 +35,12 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  check-test-mode:
-    runs-on: ubuntu-24.04
-    if: github.event_name == 'pull_request'
-    outputs:
-      full: ${{ steps.test-mode.outputs.full }}
-    steps:
-    - name: Checkout Code
-      uses: actions/checkout@v6
-      with:
-        ref: ${{ github.event.pull_request.head.sha }}
-        fetch-depth: 0
-
-    - name: Check for full test mode
-      id: test-mode
-      env:
-        BASE_REF: ${{ github.event.pull_request.base.ref }}
-      run: |
-        # Find merge base with the target branch and check commits for trailer
-        merge_base=$(git merge-base "origin/${BASE_REF}" HEAD) || {
-          echo "::warning::Could not find merge base, skipping trailer check"
-          echo 'full=false' >> "$GITHUB_OUTPUT"
-          exit 0
-        }
-        echo "::debug::Checking commits ${merge_base}..HEAD for Test-Mode trailer"
-        if git log --format='%(trailers:key=Test-Mode,valueonly)' "${merge_base}..HEAD" | grep -qi '^full$'; then
-          echo 'full=true' >> "$GITHUB_OUTPUT"
-          echo "::notice::Full test mode enabled via commit trailer"
-        else
-          echo 'full=false' >> "$GITHUB_OUTPUT"
-        fi
   ##
-  # PR-only builds: PHP 8.2 configurations for fast feedback.
-  # Skipped when full test mode is enabled (build-full runs instead).
-  build-pr:
+  # PR builds: PHP 8.2 configurations only for fast feedback.
+  # Skipped when "test-full" label is present (test-full runs instead).
+  test-pr:
     name: PHP ${{ matrix.php }} - ${{ matrix.webserver }}
-    needs: check-test-mode
-    if: |
-      github.event_name == 'pull_request' &&
-      needs.check-test-mode.outputs.full != 'true'
+    if: github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'test-full')
     strategy:
       fail-fast: false
       matrix:
@@ -92,17 +57,19 @@ jobs:
 
   ##
   # Full builds: all configurations.
-  # Runs on push to master/rel-* or PRs with "Test-Mode: full" trailer.
-  build-full:
+  # Runs on push to master/rel-* or PRs with "test-full" label.
+  #
+  # Matrix structure:
+  # - php × webserver creates the base grid
+  # - exclude removes invalid combos (no apache for 8.5/8.6, and PHP 8.4 apache base entry)
+  # - include adds PHP 8.4 apache with explicit database variants
+  #
+  # To add a new configuration:
+  # 1. Add the ci/<docker_dir>/docker-compose.yml file
+  # 2. Update the matrix below (and in test-scheduled.yml)
+  test-full:
     name: PHP ${{ matrix.php }} - ${{ matrix.webserver }}${{ matrix.db && format(' - {0}', matrix.db) || '' }}
-    needs: check-test-mode
-    if: |
-      always() &&
-      (needs.check-test-mode.result == 'success' || needs.check-test-mode.result == 'skipped') &&
-      (
-        github.event_name != 'pull_request' ||
-        needs.check-test-mode.outputs.full == 'true'
-      )
+    if: github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'test-full')
     strategy:
       fail-fast: false
       matrix:
@@ -110,17 +77,14 @@ jobs:
         webserver: [apache, nginx]
         db: ['']
         exclude:
-        # No apache builds for PHP 8.5/8.6 (yet)
         - php: '8.5'
           webserver: apache
         - php: '8.6'
           webserver: apache
-        # PHP 8.4 apache is replaced by explicit db variants in include
         - php: '8.4'
           webserver: apache
           db: ''
         include:
-        # PHP 8.4 apache tests multiple database versions
         - { php: '8.4', webserver: apache, db: mysql 5.7, db_suffix: '57' }
         - { php: '8.4', webserver: apache, db: mysql 8.0, db_suffix: '80' }
         - { php: '8.4', webserver: apache, db: mysql 8.4, db_suffix: '84' }
@@ -133,10 +97,8 @@ jobs:
     uses: ./.github/workflows/test.yml
     secrets: inherit
     with:
-      # docker_dir: apache = apache_{php}{db_suffix}, nginx = nginx_{php}
       docker_dir: ${{ matrix.webserver }}_${{ matrix.php == '8.2' && '82' || matrix.php == '8.3' && '83' || matrix.php == '8.4' && '84' || matrix.php == '8.5' && '85' || '86' }}${{ matrix.webserver == 'apache' && format('_{0}', matrix.db_suffix || '118') || '' }}
       display_name: PHP ${{ matrix.php }} - ${{ matrix.webserver }}${{ matrix.db && format(' - {0}', matrix.db) || '' }}
-      # Enable coverage for apache_84_114 on full builds
       enable_coverage: ${{ matrix.php == '8.4' && matrix.webserver == 'apache' && (matrix.db_suffix || '118') == '114' }}
       save_composer_cache: true
       save_node_cache: true
