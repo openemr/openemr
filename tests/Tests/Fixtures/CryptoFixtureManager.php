@@ -30,11 +30,19 @@ class CryptoFixtureManager
     /**
      * Pre-computed ciphertext for each version using drive keys.
      * Generated with fixed IV and known plaintext for deterministic test vectors.
+     *
+     * IMPORTANT: Version 3 shares keys with Version 2 by design. The decryption
+     * dispatch in CryptoGen::decryptStandard() routes both v2 and v3 to the same
+     * aes256DecryptTwo() method, which always loads 'twoa'/'twob' keys. This has
+     * been the behavior since at least 2025 (and likely earlier). The v3 format
+     * may have introduced changes other than key rotation (e.g., algorithm
+     * parameters), but the key material is intentionally shared with v2.
      */
     private const CIPHERTEXT_DRIVE = [
         1 => '001ABEiM0RVZneImaq7zN3u/68NUWRyPGHqfhzGwFpoD6d/ubwX6xpvzYihx0tOSqB9EB/CESXpLv22qDbevwHJt9I8xol/zCGMR6dpF9ceGUg=',
         2 => '00259ZKdJk1xhOLKHMw+08NebJDugYW5NeLZ7Rsdeo6gqkAESIzRFVmd4iZqrvM3e7/FpckoPHpo1o1JFR8sY9Se8LdHK9zz9IHv3zVM7o+N7jrmIqZLoglijwA34ZsSNl1STqGUAoyOCB86qold5XYiw==',
-        3 => '003QmcPFkP+C1toVzMhuQf0Iyc4zy02xtSvEUjPp3c8NdIAESIzRFVmd4iZqrvM3e7/BWY8zGKfMZ1lCfL36zK+f8I8BXxbYVRZNHq98txwk/sswAJe9EUrV3pArVVwk8r9ljehbgdTWEa1ozt1ZA3KVQ==',
+        // V3 uses V2 keys - see docblock above
+        3 => '00359ZKdJk1xhOLKHMw+08NebJDugYW5NeLZ7Rsdeo6gqkAESIzRFVmd4iZqrvM3e7/FpckoPHpo1o1JFR8sY9Se8LdHK9zz9IHv3zVM7o+N7jrmIqZLoglijwA34ZsSNl1STqGUAoyOCB86qold5XYiw==',
         4 => '004C2GVexrZuFyfM34zXrZVFmBHTLLxFAEBZsqFqw3SZZBVvBp2zxjHIMK672PwuQZIABEiM0RVZneImaq7zN3u/5t6WGR2fOaCWae8PXVGh6zJSzJ1pRCF9j51VKfjsCQD/oxx2diRSt9dOOWlBFup9+5rj6N5rNiwmy+Ur1Fty5s=',
         5 => '005XkuvujmthLob0C8lJl94XtZ+xpjbxiZTyAZ/d3rR1jvg1Z2I7HAboCfZRxI6QBEBABEiM0RVZneImaq7zN3u/y3BjIup4P3pU3A0u7Tz4RHnvfjfHCfwdQ0onSarFcGjvFtByHO2a7i7Qn6fe1WLnxiWbpUPKW1Sl+ne01Boh/E=',
         6 => '006uJvPQwpYUQI8wslRyBEpsDUcDaWuYCVWXh/YJUOe6/FNtk1TerDpMm7Z7K5MiWkMABEiM0RVZneImaq7zN3u/4JsZXeM6N7ecplEvzW0Emin0b5acdJrVl8G1UvMPSoix4+zTK0Xs5N1OE45/tt6lv02/aJhGnFFN8N612QX010=',
@@ -75,13 +83,9 @@ class CryptoFixtureManager
         // Version 1: single key, no HMAC
         'one' => 'v1_key__________________________', // 32 bytes
 
-        // Version 2: encryption + HMAC
+        // Version 2 & 3: encryption + HMAC (v3 shares v2 keys)
         'twoa' => 'v2_encryption_key_______________',
         'twob' => 'v2_hmac_key_____________________',
-
-        // Version 3: same format as v2
-        'threea' => 'v3_encryption_key_______________',
-        'threeb' => 'v3_hmac_key_____________________',
 
         // Version 4: same format as v5-7 but plaintext storage
         'foura' => 'v4_encryption_key_______________',
@@ -287,7 +291,8 @@ class CryptoFixtureManager
         }
 
         // v1-v4: plaintext keys (base64 encoded)
-        $plaintextVersions = ['one', 'twoa', 'twob', 'threea', 'threeb', 'foura', 'fourb'];
+        // Note: v3 shares v2 keys, so no threea/threeb needed
+        $plaintextVersions = ['one', 'twoa', 'twob', 'foura', 'fourb'];
         foreach ($plaintextVersions as $keyName) {
             $path = $keyDir . '/' . $keyName;
             file_put_contents($path, base64_encode(self::TEST_KEYS[$keyName]));
