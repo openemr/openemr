@@ -42,6 +42,7 @@ This file configures the kind that does not require initialization.
       <directory>portal</directory>
       <directory>sites</directory>
       <directory>src</directory>
+      <directory>tests</directory>
     </include>
   </source>
 
