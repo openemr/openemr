@@ -24,6 +24,23 @@ class SessionWrapperFactory
 
     private ?SessionWrapperInterface $sessionWrapper = null;
 
+    /**
+     * Tracks whether the core PHP session was already started by a wrapper.
+     * Prevents globals.php from redundantly re-starting a read_and_close session
+     * (which would cause a double file read on every request).
+     */
+    private bool $coreSessionStarted = false;
+
+    public function isCoreSessionStarted(): bool
+    {
+        return $this->coreSessionStarted;
+    }
+
+    public function setCoreSessionStarted(bool $started): void
+    {
+        $this->coreSessionStarted = $started;
+    }
+
     public function getWrapper(array $initData = []): SessionWrapperInterface
     {
         if (!$this->sessionWrapper) {

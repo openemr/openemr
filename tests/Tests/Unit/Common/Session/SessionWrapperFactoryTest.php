@@ -921,4 +921,111 @@ class SessionWrapperFactoryTest extends TestCase
             'Portal session' => [SessionUtil::PORTAL_SESSION_ID],
         ];
     }
+
+    // =========================================================================
+    // coreSessionStarted Flag Tests — prevents double session start
+    // =========================================================================
+
+    /**
+     * Test that coreSessionStarted defaults to false on a fresh factory
+     */
+    public function testCoreSessionStartedDefaultsToFalse(): void
+    {
+        $factory = SessionWrapperFactory::getInstance();
+        $this->assertFalse(
+            $factory->isCoreSessionStarted(),
+            'coreSessionStarted should default to false on a fresh factory'
+        );
+    }
+
+    /**
+     * Test that setCoreSessionStarted / isCoreSessionStarted round-trip works
+     */
+    public function testCoreSessionStartedCanBeSetAndRead(): void
+    {
+        $factory = SessionWrapperFactory::getInstance();
+
+        $factory->setCoreSessionStarted(true);
+        $this->assertTrue($factory->isCoreSessionStarted());
+
+        $factory->setCoreSessionStarted(false);
+        $this->assertFalse($factory->isCoreSessionStarted());
+    }
+
+    /**
+     * Test that PHPSessionWrapper constructor sets coreSessionStarted flag
+     * when a session is already active
+     */
+    public function testPHPSessionWrapperSetsCoreSessionStartedWhenSessionActive(): void
+    {
+        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::CORE_SESSION_ID;
+
+        // Start a session before wrapper creation
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            @session_start();
+        }
+
+        $factory = SessionWrapperFactory::getInstance();
+        $this->assertFalse($factory->isCoreSessionStarted(), 'Flag should be false before getWrapper');
+
+        $wrapper = $factory->getWrapper();
+
+        $this->assertInstanceOf(PHPSessionWrapper::class, $wrapper);
+        $this->assertTrue(
+            $factory->isCoreSessionStarted(),
+            'PHPSessionWrapper should set coreSessionStarted when session is already active'
+        );
+
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+    }
+
+    /**
+     * Test that coreSessionStarted flag persists across multiple getWrapper() calls
+     * (singleton returns cached wrapper, flag stays true)
+     */
+    public function testCoreSessionStartedPersistsAcrossGetWrapperCalls(): void
+    {
+        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::CORE_SESSION_ID;
+
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            @session_start();
+        }
+
+        $factory = SessionWrapperFactory::getInstance();
+        $factory->getWrapper();
+        $this->assertTrue($factory->isCoreSessionStarted());
+
+        // Second call should still return true
+        $factory->getWrapper();
+        $this->assertTrue(
+            $factory->isCoreSessionStarted(),
+            'coreSessionStarted should remain true after repeated getWrapper() calls'
+        );
+
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+    }
+
+    /**
+     * Test that the coreSessionStarted flag is reset when the singleton is reset
+     * (important for test isolation and request boundaries)
+     */
+    public function testCoreSessionStartedResetsWithSingleton(): void
+    {
+        $factory = SessionWrapperFactory::getInstance();
+        $factory->setCoreSessionStarted(true);
+        $this->assertTrue($factory->isCoreSessionStarted());
+
+        // Reset singleton (simulates new request)
+        $this->resetSingleton();
+
+        $newFactory = SessionWrapperFactory::getInstance();
+        $this->assertFalse(
+            $newFactory->isCoreSessionStarted(),
+            'coreSessionStarted should be false after singleton reset'
+        );
+    }
 }

@@ -8,6 +8,7 @@ use OpenEMR\Common\Auth\OAuth2KeyException;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpSessionFactory;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\FHIR\Config\ServerConfig;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -185,7 +186,11 @@ class SiteSetupListener implements EventSubscriberInterface
     protected function loadApplicationGlobals(RequestEvent $event, bool $ignoreAuth): mixed
     {
         // globals.php line 236: $read_only = empty($sessionAllowWrite)
+        // Set both local (for globals.php include scope) and OEGlobalsBag (for PHPSessionWrapper
+        // which reads via OEGlobalsBag). Without the OEGlobalsBag assignment, PHPSessionWrapper
+        // would not see this local variable and would start the session as read_and_close.
         $sessionAllowWrite = true;
+        OEGlobalsBag::getInstance()->set('sessionAllowWrite', true);
 
         // globals.php line 220: if (isset($globalsBag)) — reuse the kernel's bag
         // globals.php line 234: $globalsBag->set('eventDispatcher', $eventDispatcher ?? null)

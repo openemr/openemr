@@ -24,6 +24,7 @@ class PHPSessionWrapper implements SessionWrapperInterface
     {
         // Skip if session already active (e.g., API/OAuth context where Symfony session exists)
         if (session_status() === PHP_SESSION_ACTIVE) {
+            SessionWrapperFactory::getInstance()->setCoreSessionStarted(true);
             return;
         }
 
@@ -37,6 +38,7 @@ class PHPSessionWrapper implements SessionWrapperInterface
         $sessionAllowWrite = $globalsBag->getBoolean('sessionAllowWrite');
 
         SessionUtil::coreSessionStart($webroot, !$sessionAllowWrite);
+        SessionWrapperFactory::getInstance()->setCoreSessionStarted(true);
     }
 
     public function getId(): string

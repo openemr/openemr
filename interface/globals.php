@@ -235,10 +235,14 @@ $globalsBag->set('eventDispatcher', $eventDispatcher ?? null);
 $globalsBag->set('ignoreAuth_onsite_portal', $ignoreAuth_onsite_portal);
 $read_only = empty($sessionAllowWrite);
 $session = SessionWrapperFactory::getInstance()->getWrapper();
-if (session_status() === PHP_SESSION_NONE && !$session->isSymfonySession()) {
-    //error_log("1. LOCK ".GetCallingScriptName()); // debug start lock
+$factory = SessionWrapperFactory::getInstance();
+// PHPSessionWrapper starts the session in its constructor (respecting sessionAllowWrite via
+// OEGlobalsBag). Only start here if no wrapper has started a session yet — this prevents the
+// double session-file read that occurred when read_and_close closed the session and
+// session_status() returned PHP_SESSION_NONE.
+if (!$factory->isCoreSessionStarted() && session_status() === PHP_SESSION_NONE && !$session->isSymfonySession()) {
     SessionUtil::coreSessionStart($web_root, $read_only);
-    //error_log("2. FREE ".GetCallingScriptName()); // debug unlocked
+    $factory->setCoreSessionStarted(true);
 }
 
 // Set the site ID if required.  This must be done before any database
