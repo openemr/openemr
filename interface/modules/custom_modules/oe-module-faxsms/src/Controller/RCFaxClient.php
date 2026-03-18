@@ -300,7 +300,7 @@ class RCFaxClient extends AppDispatch
 
         // Decrypt content if needed
         if ($this->crypto->cryptCheckStandard($content)) {
-            $content = $this->crypto->decryptStandard($content, null, KeySource::Database);
+            $content = $this->crypto->decryptStandard($content, keySource: KeySource::Database);
         }
 
         // Email the document if email is provided and SMTP is enabled.

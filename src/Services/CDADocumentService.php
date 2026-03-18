@@ -82,7 +82,7 @@ class CDADocumentService extends BaseService
             $resp = $couch->retrieve_doc($row['couch_docid']);
             if ($row['encrypted']) {
                 $cryptoGen = ServiceContainer::getCrypto();
-                $content = $cryptoGen->decryptStandard($resp->data, null, KeySource::Database);
+                $content = $cryptoGen->decryptStandard($resp->data, keySource: KeySource::Database);
             } else {
                 $content = base64_decode((string)$resp->data);
             }
@@ -93,7 +93,7 @@ class CDADocumentService extends BaseService
             }
             if ($row['encrypted']) {
                 $cryptoGen = ServiceContainer::getCrypto();
-                $content = $cryptoGen->decryptStandard($fileData, null, KeySource::Database);
+                $content = $cryptoGen->decryptStandard($fileData, keySource: KeySource::Database);
             } else {
                 $content = $fileData;
             }
