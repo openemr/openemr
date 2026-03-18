@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 892 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param has invalid value \\(string/array  \\$form_code_type   code set key\\(s\\) \\(can either be one key in a string or multiple/one key\\(s\\) in an array\\)\\: Unexpected token "/array", expected variable at offset 272 on line 8$#',

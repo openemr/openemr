@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 46 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Trying to invoke \'documentUploadPostP…\' but it\'s not a callable\\.$#',

@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 47 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Cannot assign offset 1 to list\\<string\\>\\|false\\.$#',

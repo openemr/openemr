@@ -1888,7 +1888,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
                         if ($resNotNull) {
                             // Show Recall if one exists
-                            $query = sqlStatement("SELECT * FROM `medex_recalls` WHERE `r_pid` = ?", [(int)$pid]);
+                            $query = sqlStatement("SELECT * FROM `patient_recalls` WHERE `r_pid` = ?", [(int)$pid]);
                             $recallArr = [];
                             $count2 = 0;
                             while ($result2 = sqlFetchArray($query)) {

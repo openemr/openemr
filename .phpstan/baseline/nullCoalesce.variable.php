@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 184 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$duplicates on left side of \\?\\? always exists and is not nullable\\.$#',
@@ -527,16 +529,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$from_date on left side of \\?\\? is never defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$to_date on left side of \\?\\? is never defined\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$report_id on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/cqm.php',
@@ -550,11 +542,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$my_fid on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/usergroup/facility_admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$events on left side of \\?\\? is never defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$bgcolor on left side of \\?\\? is never defined\\.$#',

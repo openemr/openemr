@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 3 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Symfony\\\\Component\\\\Panther\\\\DomCrawler\\\\Form does not accept int\\.$#',

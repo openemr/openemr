@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 16 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Property Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Bootstrap\\:\\:\\$adminSettingsController \\(Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Controller\\\\Admin\\\\TeleHealthUserAdminController\\) in empty\\(\\) is not falsy\\.$#',

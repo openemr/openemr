@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 4 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @throws with type PEAR_Error is not subtype of Throwable$#',

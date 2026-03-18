@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 8187 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Property Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\Controller\\\\TeleHealthCalendarController\\:\\:\\$apptService \\(OpenEMR\\\\Services\\\\AppointmentService\\) in isset\\(\\) is not nullable\\.$#',

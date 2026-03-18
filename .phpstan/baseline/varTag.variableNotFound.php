@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 5 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$eventDispatcher in PHPDoc tag @var does not exist\\.$#',

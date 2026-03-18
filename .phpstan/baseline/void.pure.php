@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 1 error
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Function send_patient_data_to_remote_system\\(\\) returns void but does not have any side effects\\.$#',

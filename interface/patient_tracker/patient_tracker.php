@@ -11,10 +11,10 @@
  * @link    https://www.open-emr.org
  * @author  Terry Hill <terry@lilysystems.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
- * @author  Ray Magauran <magauran@medexbank.com>
+ * @author  Ray Magauran <rmagauran@gmail.com>
  * @copyright Copyright (c) 2015-2017 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2021 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2017 Ray Magauran <magauran@medexbank.com>
+ * @copyright Copyright (c) 2017 Ray Magauran <rmagauran@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -23,7 +23,6 @@ require_once "$srcdir/patient.inc.php";
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/patient_tracker.inc.php";
 require_once "$srcdir/user.inc.php";
-require_once "$srcdir/MedEx/API.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
@@ -118,28 +117,12 @@ while ($lrow = sqlFetchArray($lres)) {
     $statuses_list[$lrow['option_id']] = $title;
 }
 
-if (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) {
-    $query2 = "SELECT * FROM medex_icons";
-    $iconed = sqlStatement($query2);
-    while ($icon = sqlFetchArray($iconed)) {
-        $icons[$icon['msg_type']][$icon['msg_status']]['html'] = $icon['i_html'];
-    }
-    $MedEx = new MedExApi\MedEx('MedExBank.com');
-    $sql = "SELECT * FROM medex_prefs LIMIT 1";
-    $preferences = sqlStatement($sql);
-    $prefs = sqlFetchArray($preferences);
-    $results = json_decode((string) $prefs['status'], true);
-    $logged_in = $results;
-    $logged_in = $results;
-    $current_events = !empty($logged_in['token']) ? xlt("On-line") : xlt("Currently off-line");
-}
-
 if (!($_REQUEST['flb_table'] ?? null)) {
     ?>
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="author" content="OpenEMR: MedExBank" />
+    <meta name="author" content="OpenEMR: Flow Board" />
     <?php Header::setupHeader(['datetime-picker', 'opener']); ?>
     <title><?php echo xlt('Flow Board'); ?></title>
     <script>
@@ -156,12 +139,8 @@ if (!($_REQUEST['flb_table'] ?? null)) {
 </head>
 
 <body>
-    <?php
-    if ((OEGlobalsBag::getInstance()->getBoolean('medex_enable')) && (empty($_REQUEST['nomenu']))) {
-        $logged_in = $MedEx->login();
-        $MedEx->display->navigation($logged_in);
-    }
-    ?>
+    <!-- Module hook point: messaging navigation injected via shutdown function -->
+    <span id="pt_custom_navigation"></span>
     <div class="container-fluid mt-3">
         <div id="flb_selectors" style="display:<?php echo attr($setting_selectors); ?>;">
             <h2 class="text-center"><?php echo xlt('Flow Board'); ?></h2>
@@ -294,14 +273,8 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 </div>
                                 <div class="col-sm-12 mx-auto">
                                     <div class="text-center pt-3 mx-auto">
-
-                                        <?php if (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) { ?>
-                                          <b>MedEx:</b>
-                                                <a href="https://medexbank.com/cart/upload/index.php?route=information/campaigns&amp;g=rem"
-                                                   target="_medex">
-                                                    <?php echo $current_events; ?>
-                                                </a>
-                                          <?php } ?>
+                                        <!-- Module hook point: messaging status indicator -->
+                                        <span id="pt_module_status"></span>
                                     </div>
                                 </div>
                             </div>
@@ -460,95 +433,6 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         // Collect appt date and set up squashed date for use below
                         $date_appt = $appointment['pc_eventDate'];
                         $date_squash = str_replace("-", "", $date_appt);
-                        if (empty($appointment['room']) && ($logged_in ?? null) && ($setting_bootstrap_submenu != 'hide')) {
-                            //Patient has not arrived yet, display MedEx Reminder info
-                            //one icon per type of response.
-                            //If there was a SMS dialog, display it as a mouseover/title
-                            //Display date received also as mouseover title.
-                            $other_title = '';
-                            $title = '';
-                            $icon2_here = '';
-                            $appt['stage'] = '';
-                            $icon_here = [];
-                            $prog_text = '';
-                            $FINAL = '';
-
-                            $query = "SELECT * FROM medex_outgoing WHERE msg_pc_eid =? ORDER BY medex_uid asc";
-                            $myMedEx = sqlStatement($query, [$appointment['eid']]);
-                            /**
-                             * Each row for this pc_eid in the medex_outgoing table represents an event.
-                             * Every event is recorded in $prog_text.
-                             * A modality is represented by an icon (eg mail icon, phone icon, text icon).
-                             * The state of the Modality is represented by the color of the icon:
-                             *      CONFIRMED       =   green
-                             *      READ            =   blue
-                             *      FAILED          =   pink
-                             *      SENT/in process =   yellow
-                             *      SCHEDULED       =   white
-                             * Icons are displayed in their highest state.
-                             */
-                            while ($row = sqlFetchArray($myMedEx)) {
-                                // Need to convert $row['msg_date'] to localtime (stored as GMT) & then oeFormatShortDate it.
-                                // I believe there is a new GLOBAL for server timezone???  If so, it will be easy.
-                                // If not we need to import it from Medex through medex_preferences.  It should really be in openEMR though.
-                                // Delete when we figure this out.
-                                $other_title = '';
-                                if (!empty($row['msg_extra_text'])) {
-                                    $local = attr($row['msg_extra_text']) . " |";
-                                }
-                                $prog_text .= attr(oeFormatShortDate($row['msg_date'])) . " :: " . attr($row['msg_type']) . " : " . attr($row['msg_reply']) . " | " . $local . " |";
-
-                                if ($row['msg_reply'] == 'Other') {
-                                    $other_title .= $row['msg_extra_text'] . "\n";
-                                    $icon_extra .= str_replace(
-                                        "EXTRA",
-                                        attr(oeFormatShortDate($row['msg_date'])) . "\n" . xla('Patient Message') . ":\n" . attr($row['msg_extra_text']) . "\n",
-                                        $icons[$row['msg_type']]['EXTRA']['html']
-                                    );
-                                    continue;
-                                } elseif ($row['msg_reply'] == 'CANCELLED') {
-                                    $appointment[$row['msg_type']]['stage'] = "CANCELLED";
-                                    $icon_here[$row['msg_type']] = '';
-                                } elseif ($row['msg_reply'] == "FAILED") {
-                                    $appointment[$row['msg_type']]['stage'] = "FAILED";
-                                    $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['FAILED']['html'];
-                                } elseif (($row['msg_reply'] == "CONFIRMED") || ($appointment[$row['msg_type']]['stage'] == "CONFIRMED")) {
-                                    $appointment[$row['msg_type']]['stage'] = "CONFIRMED";
-                                    $icon_here[$row['msg_type']]  = $icons[$row['msg_type']]['CONFIRMED']['html'];
-                                } elseif (($row['msg_reply'] == "READ") || ($appointment[$row['msg_type']]['stage'] == "READ")) {
-                                    $appointment[$row['msg_type']]['stage'] = "READ";
-                                    $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['READ']['html'];
-                                } elseif (($row['msg_reply'] == "SENT") || ($appointment[$row['msg_type']]['stage'] == "SENT")) {
-                                    $appointment[$row['msg_type']]['stage'] = "SENT";
-                                    $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['SENT']['html'];
-                                } elseif (($row['msg_reply'] == "To Send") || (empty($appointment['stage']))) {
-                                    if (
-                                        !in_array($appointment[$row['msg_type']]['stage'], ["CONFIRMED", "READ", "SENT", "FAILED"])
-                                    ) {
-                                        $appointment[$row['msg_type']]['stage'] = "QUEUED";
-                                        $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['SCHEDULED']['html'];
-                                    }
-                                }
-                                //these are additional icons if present
-                                if ($row['msg_reply'] == "CALL") {
-                                    $icon_here[$row['msg_type']] = $icons[$row['msg_type']]['CALL']['html'];
-                                    if (($appointment['allow_sms'] != "NO") && ($appointment['phone_cell'] > '')) {
-                                        $icon_4_CALL = "<span class='input-group-addon'
-                                                              onclick='SMS_bot(" . attr_js($row['msg_pid']) . ");'>
-                                                              <i class='fas fa-sms'></i>
-                                                        </span>";
-                                    }
-                                } elseif ($row['msg_reply'] == "STOP") {
-                                    $icon2_here .= $icons[$row['msg_type']]['STOP']['html'];
-                                } elseif ($row['msg_reply'] == "Other") {
-                                    $icon2_here .= $icons[$row['msg_type']]['Other']['html'];
-                                }
-                            }
-                            //if pc_apptstatus == '-', update it now to=status
-                            if (!empty($other_title)) {
-                                $appointment['messages'] = $icon2_here . $icon_extra;
-                            }
-                        }
 
                         // Collect variables and do some processing
                         $docname = $chk_prov[$appointment['uprovider_id']];
@@ -682,12 +566,9 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         }
                         if (($yestime == '1') && ($timecheck >= 1) && (strtotime((string) $newarrive) != '')) {
                             echo text($timecheck . ' ' . ($timecheck >= 2 ? xl('minutes') : xl('minute')));
-                        } elseif (($icon_here ?? null) || ($icon2_here ?? null)) {
-                            echo "<span style='font-size:0.7rem;' onclick='return calendarpopup(" . attr_js($appt_eid) . "," . attr_js($date_squash) . ")'>" . implode('', $icon_here) . $icon2_here . "</span> " . $icon_4_CALL;
-                        } elseif ($logged_in ?? null) {
-                            $pat = $MedEx->display->possibleModalities($appointment);
-                            echo "<span style='font-size:0.7rem;' onclick='return calendarpopup(" . attr_js($appt_eid) . "," . attr_js($date_squash) . ")'>" . $pat['SMS'] . $pat['AVM'] . $pat['EMAIL'] . "</span>";
                         }
+                        // Module hook point: messaging status icons (class .pt-comm-status)
+                        echo "<span class='pt-comm-status' data-eid='" . attr($appt_eid) . "' data-date='" . attr($date_squash) . "'></span>";
                         //end time in current status
                         echo "</td>";
                         ?>
@@ -974,31 +855,6 @@ function myLocalJS(): void
             top.restoreSession();
             document.fnew.submit();
         }
-
-        //opens the two-way SMS phone app
-        /**
-         * @return {boolean}
-         */
-        // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
-        function SMS_bot(pid) {
-            top.restoreSession();
-            var from = <?php echo js_escape($from_date ?? ''); ?>;
-            var to = <?php echo js_escape($to_date ?? ''); ?>;
-            var oefrom = <?php echo js_escape(oeFormatShortDate($from_date ?? null)); ?>;
-            var oeto = <?php echo js_escape(oeFormatShortDate($to_date ?? null)); ?>;
-            const params = new URLSearchParams({
-                nomenu: '1',
-                go: 'SMS_bot',
-                pid: pid,
-                to: to,
-                from: from,
-                oeto: oeto,
-                oefrom: oefrom
-            });
-            window.open('../main/messages/messages.php?' + params.toString(), 'SMS_bot', 'width=370,height=600,resizable=0');
-            return false;
-        }
-        // AI-generated code end
 
         function kiosk_FLB() {
             $("#kiosk").val('1');

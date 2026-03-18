@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 161 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Constant _CALAPR not found\\.$#',

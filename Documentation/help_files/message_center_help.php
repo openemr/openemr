@@ -41,13 +41,13 @@ require_once("../../interface/globals.php");
 
                 <p><?php echo xlt("The default messaging center is divided into three sections - Messages, Reminders and Recalls");?>.</p>
 
-                <p><?php echo xlt("Additional functionality including the ability to send SMS text messages, automated phone dialing, emails etc. can be accessed by enabling the optional MedEx Communication Service");?>.</p>
+                <p><?php echo xlt("Additional communication functionality such as SMS text messages, automated phone dialing, and email can be added by installing a communication module");?>.</p>
 
                 <ul>
                     <li><a href="#messages"><?php echo xlt("Messages");?></a></li>
                     <li><a href="#reminders"><?php echo xlt("Reminders");?></a></li>
                     <li><a href="#recalls"><?php echo xlt("Recalls");?></a></li>
-                    <li><a href="#medex_communication_service"><?php echo xlt("MedEx Communication Service");?></a></li>
+
                 </ul>
             </div>
             <div class= "row" id="messages">
@@ -279,7 +279,7 @@ require_once("../../interface/globals.php");
                     <button type="button" class="btn btn-secondary btn-sm btn-add oe-no-float"><?php echo xlt("Add Recall"); ?></button>
                 </p>
 
-                <p><strong><?php echo xlt("RECALL BOARD - Default - without MedEx Communication Service"); ?> :</strong></p>
+                <p><strong><?php echo xlt("RECALL BOARD"); ?> :</strong></p>
 
                 <p><?php echo xlt("This fully functional Recall Board included in the default install can be used to add patients to the recall list"); ?>.</p>
 
@@ -337,40 +337,7 @@ require_once("../../interface/globals.php");
 
                 <p><i class="fa fa-exclamation-triangle oe-text-red" aria-hidden="true"></i> <strong><?php echo xlt("You need administrator privileges to disable the default Recall Board"); ?>.</strong></p>
             </div>
-            <div class= "row" id="medex_communication_service">
-                <h4 class="oe-help-heading"><?php echo xlt("MedEx Communication Service"); ?><a href="#"><i class="fa fa-arrow-circle-up oe-pull-away oe-help-redirect" aria-hidden="true"></i></a></h4>
-                <p><i class="fa fa-exclamation-circle oe-text-orange" aria-hidden="true"></i> <strong><?php echo xlt("It is a commercial messaging module available to openEMR practices utilizing version 5.0.1 and higher"); ?>.</strong></p>
 
-                <p><?php echo xlt("MedEx automates Appointment Reminders and Recalls using phone calls, text messages and e-mails"); ?>.</p>
-
-                <p><?php echo xlt("Replies from patients are displayed directly in your EHR"); ?>.</p>
-
-                <p><i class="fa fa-exclamation-triangle  oe-text-red" aria-hidden="true"></i> <strong><?php echo xlt("You need administrator privileges to enable the MedEx Communication Service"); ?>.</strong></p>
-
-                <p><?php echo xlt("Go to Administration > Globals > Connectors and check the Enable MedEx Communication Service check box and click Save"); ?>.
-                    <button type="button" class="btn btn-secondary btn-sm btn-save oe-no-float"><?php echo xlt("Save"); ?></button>
-                </p>
-
-                <p><?php echo xlt("Refresh the Message Center or just reopen it"); ?>.</p>
-
-                <p><?php echo xlt("A new tab sub menu will be visible at the top of the Message center page"); ?>.</p>
-
-                <p><?php echo xlt("Click on the File menu item on the top left of the Message center page and select Setup MedEx"); ?>.</p>
-
-                <p><?php echo xlt("It will take you to the MedEx sign-up page"); ?>.</p>
-
-                <p><?php echo xlt("More information available at the openEMR MedEx wiki page"); ?>.
-                    <a href="https://www.open-emr.org/wiki/index.php/MedEx" rel="noopener" target="_blank"><i class="fa fa-external-link-alt text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
-                </p>
-
-                <p><?php echo xlt("The features of a MedEx enabled installation are explained in this video"); ?>.
-                    <a href="https://www.youtube.com/watch?v=4lbJCpfotAo" rel="noopener" target="_blank"><i class="fa fa-video-camera text-primary" aria-hidden="true" data-original-title="" title=""></i></a>
-                </p>
-
-                <p><?php echo xlt("SMS zone - This section lets use send and receive SMS texts"); ?>.</p>
-
-                <p><?php echo xlt("It is also a subscription based service"); ?>.</p>
-            </div>
         </div><!--end of container div-->
     </body>
 </html>

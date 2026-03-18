@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 35 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Comparison operation "\\=\\=" between Effective and 0 results in an error\\.$#',

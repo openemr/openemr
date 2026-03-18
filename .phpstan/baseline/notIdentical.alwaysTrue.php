@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 104 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\!\\=\\= between float and 0 will always evaluate to true\\.$#',

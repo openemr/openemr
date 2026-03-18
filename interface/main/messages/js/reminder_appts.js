@@ -1,11 +1,11 @@
 /**
  * Message center javascript.
  *
- * @package MedEx
- * @link    http://www.MedExbank.com
- * @author  MedEx <support@MedExBank.com>
- * @author  Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2017 MedEx <support@MedExBank.com>
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Ray Magauran <rmagauran@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2017 Ray Magauran <rmagauran@gmail.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -129,13 +129,12 @@ function add_this_recall(e) {
     }
 
     var url = "save.php";
-    formData = JSON.stringify($("form#addRecall").serialize());
+    var formData = $("form#addRecall").serialize();
     top.restoreSession();
     $.ajax({
         type: 'POST',
         url: url,
         dataType: 'json',
-        action: 'add_recall',
         data: formData
     }).done(function (result) {
         goReminderRecall('Recalls');
@@ -146,9 +145,9 @@ function add_this_recall(e) {
  * This function is called when a preference is changed
  */
 function save_preferences(event) {
-    event.preventDefault;
+    event.preventDefault();
     var url = "save.php";
-    formData = JSON.stringify($("form#addRecall").serialize());
+    var formData = $("form#addRecall").serialize();
     top.restoreSession();
     $.ajax({
         type: 'POST',
@@ -332,19 +331,18 @@ function doRecallclick_edit(goHere) {
     dlgopen('../'+zone+'messages/messages.php?nomenu=1&go=' + goHere, '_blank', 900, 400);
 }
 
-function goReminderRecall(choice) {
-    tabYourIt('recall', 'main/messages/messages.php?go=' + choice);
+function goReminderRecall(choice, pid) {
+    var url = 'main/messages/messages.php?go=' + choice;
+    if (pid) {
+        url += '&recall_pid=' + encodeURIComponent(pid);
+    }
+    tabYourIt('recall', url);
 }
 
 function goMessages() {
     R = 'messages.php?showall=no&sortby=users.lname&sortorder=asc&begin=0&task=addnew&form_active=1';
     top.restoreSession();
     location.href = R;
-}
-
-function goMedEx() {
-    top.restoreSession();
-    location.href = 'https://medexbank.com/cart/upload/index.php?route=information/campaigns';
 }
 
 /****  END FUNCTIONS RELATED TO NAVIGATION *****/

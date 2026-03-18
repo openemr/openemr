@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 6279 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Property C_Document\\:\\:\\$Document has no type specified\\.$#',
@@ -3350,91 +3352,6 @@ $ignoreErrors[] = [
     'message' => '#^Property FeeSheetHtml\\:\\:\\$justinit has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/FeeSheetHtml.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property MedExApi\\\\Base\\:\\:\\$curl has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property MedExApi\\\\CurlRequest\\:\\:\\$cookies has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property MedExApi\\\\CurlRequest\\:\\:\\$handle has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property MedExApi\\\\CurlRequest\\:\\:\\$postData has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property MedExApi\\\\CurlRequest\\:\\:\\$response has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property MedExApi\\\\CurlRequest\\:\\:\\$url has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property MedExApi\\\\MedEx\\:\\:\\$callback has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property MedExApi\\\\MedEx\\:\\:\\$campaign has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property MedExApi\\\\MedEx\\:\\:\\$cookie has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property MedExApi\\\\MedEx\\:\\:\\$curl has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property MedExApi\\\\MedEx\\:\\:\\$display has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property MedExApi\\\\MedEx\\:\\:\\$events has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property MedExApi\\\\MedEx\\:\\:\\$lastError has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property MedExApi\\\\MedEx\\:\\:\\$logging has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property MedExApi\\\\MedEx\\:\\:\\$practice has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property MedExApi\\\\MedEx\\:\\:\\$setup has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property MedExApi\\\\MedEx\\:\\:\\$url has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property ClinicalType\\:\\:\\$_notes has no type specified\\.$#',

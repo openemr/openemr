@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 36 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Ternary operator condition is always true\\.$#',

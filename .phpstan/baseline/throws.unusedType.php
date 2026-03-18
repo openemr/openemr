@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 2 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\SignalWireClient\\:\\:storeInboundFax\\(\\) has OpenEMR\\\\Modules\\\\FaxSMS\\\\Exception\\\\FaxDocumentException in PHPDoc @throws tag but it\'s not thrown\\.$#',

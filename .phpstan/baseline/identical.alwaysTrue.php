@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 11 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between \'\' and \'\' will always evaluate to true\\.$#',

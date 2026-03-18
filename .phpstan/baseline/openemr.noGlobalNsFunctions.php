@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 1535 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Function adminSqlQuery may not be defined in the global namespace\\.$#',
@@ -3760,11 +3762,6 @@ $ignoreErrors[] = [
     'message' => '#^Function do_visit_form may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../ippf_upgrade.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function start_MedEx may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/MedEx_background.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function error_xml may not be defined in the global namespace\\.$#',
