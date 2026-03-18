@@ -36212,6 +36212,21 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:escapeValue\\(\\) has parameter \\$var with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:escapeVariables\\(\\) has parameter \\$dictionary with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:escapeVariables\\(\\) has parameter \\$recurseLimit with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\ORDataObject\\\\Address\\:\\:__construct\\(\\) has parameter \\$foreign_id with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/Address.php',

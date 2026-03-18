@@ -19297,6 +19297,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Logging/EventAuditLogger.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Binary operation "\\+" between mixed and 1 results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between "\\\\nID\\: " and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/Address.php',
