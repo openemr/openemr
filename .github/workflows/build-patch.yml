@@ -55,7 +55,8 @@ jobs:
       with:
         ref: ${{ inputs.version_branch }}
         filter: blob:none
-        fetch-depth: 0
+        fetch-depth: 1 # Just the tip
+    - run: git fetch --filter=blob:none --depth=1 origin tag ${{ inputs.version_start }}
 
     - name: Bump version.php
       if: '!inputs.dry_run'
