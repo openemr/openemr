@@ -31,12 +31,23 @@ class CryptoFixtureManager
      * Pre-computed ciphertext for each version using drive keys.
      * Generated with fixed IV and known plaintext for deterministic test vectors.
      *
-     * IMPORTANT: Version 3 shares keys with Version 2 by design. The decryption
-     * dispatch in CryptoGen::decryptStandard() routes both v2 and v3 to the same
-     * aes256DecryptTwo() method, which always loads 'twoa'/'twob' keys. This has
-     * been the behavior since at least 2025 (and likely earlier). The v3 format
-     * may have introduced changes other than key rotation (e.g., algorithm
-     * parameters), but the key material is intentionally shared with v2.
+     * IMPORTANT: Version 3 shares keys with Version 2 by design.
+     *
+     * Historical context (see commit 0a9a617b6):
+     * Before v3, only raw aes256Encrypt()/aes256DecryptTwo() functions existed.
+     * V3 introduced the encryptStandard()/decryptStandard() wrapper API to
+     * centralize encryption across the codebase. However, the underlying
+     * algorithm remained identical - v3's encryptStandard() simply called
+     * aes256Encrypt() with version prefix "003".
+     *
+     * The decryption dispatch has always grouped v2 and v3 together:
+     *   if (($encryptionVersion == 2) || ($encryptionVersion == 3)) {
+     *       return aes256DecryptTwo($trimmedValue, $customPassword);
+     *   }
+     *
+     * So v3 marks "encrypted via the new standard API" while v2 marks
+     * "encrypted via direct function calls". Both use identical cryptography
+     * and the same 'twoa'/'twob' keys.
      */
     private const CIPHERTEXT_DRIVE = [
         1 => '001ABEiM0RVZneImaq7zN3u/68NUWRyPGHqfhzGwFpoD6d/ubwX6xpvzYihx0tOSqB9EB/CESXpLv22qDbevwHJt9I8xol/zCGMR6dpF9ceGUg=',
