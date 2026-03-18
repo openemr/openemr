@@ -7,7 +7,7 @@ namespace OpenEMR\Common\Crypto\Keys;
 /**
  * @deprecated For backwards compatibility only.
  */
-readonly class PlaintextKeyOnDisk
+readonly class PlaintextKeyOnDisk implements KeyManagerInterface
 {
     public function __construct(private string $storageDir)
     {
