@@ -20,6 +20,7 @@ use Exception;
 use League\Csv\Reader;
 use League\Csv\Statement;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use ZipArchive;
 
 class DownloadWenoPharmacies
@@ -44,7 +45,7 @@ class DownloadWenoPharmacies
         // Use existing connection.
         // Compared to creating a new connection, this method is slower by 3 seconds.
         // Using the sqlStatement() method is even slower by 10 seconds. That's 13 seconds slower overall.
-        $connect = $GLOBALS['dbh'];
+        $connect = OEGlobalsBag::getInstance()->get('dbh');
         if ($connect->connect_error) {
             $wenoLog->insertWenoLog("Pharmacy Directory", "Connection Failed.");
             error_log("Connection failed: " . $connect->connect_error);

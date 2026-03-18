@@ -219,3 +219,12 @@ DELETE FROM `globals` WHERE `gl_name` IN (
     'machine_name'
 );
 #EndIf
+
+--
+-- Drop the onsite_activity_view which was dynamically created at runtime.
+-- The view is no longer needed as the OnsiteActivityViewReporter now uses
+-- a direct JOIN query instead.
+-- See: https://github.com/openemr/openemr/issues/10975
+--
+
+DROP VIEW IF EXISTS `onsite_activity_view`;

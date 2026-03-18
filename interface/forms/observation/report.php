@@ -14,9 +14,9 @@
  */
 
 require_once(__DIR__ . "/../../globals.php");
-require_once($GLOBALS["srcdir"] . "/api.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("srcdir") . "/api.inc.php");
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Controllers\Interface\Forms\Observation\ObservationController;
 use OpenEMR\Core\OEGlobalsBag;
@@ -25,7 +25,7 @@ use OpenEMR\Services\ObservationService;
 
 function observation_report($pid, $encounter, $cols, $id): void
 {
-    $logger = new SystemLogger();
+    $logger = ServiceContainer::getLogger();
 
 // Output the response
     try {
@@ -40,10 +40,7 @@ function observation_report($pid, $encounter, $cols, $id): void
         $response->send();
     } catch (\Throwable $e) {
         // Handle any exceptions that may occur
-        $logger->errorLogCaller("Failed to render observation form report.php", [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
+        $logger->error("Failed to render observation form report.php", ['exception' => $e]);
         echo xlt("An error occurred while trying to render this form. Please try again later.");
     }
 }

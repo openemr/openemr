@@ -15,6 +15,7 @@ require_once(__DIR__ . "/../../../interface/globals.php");
 use Mpdf\Mpdf;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -77,7 +78,7 @@ if ($action === 'print_labels') {
     }
 
     $pdf = new mPDF([
-        'tempDir' => $GLOBALS['MPDF_WRITE_DIR'],
+        'tempDir' => OEGlobalsBag::getInstance()->get('MPDF_WRITE_DIR'),
         'mode' => 'utf-8',
         'format' => [45, 19],
         'default_font_size' => '9',

@@ -33,7 +33,7 @@ require_once("../../interface/globals.php");
 
 $landingpage = "../index.php?site=" . urlencode((string) $session->get('site_id'));
 
-if (empty($globalsBag->get('portal_onsite_two_register')) || empty($globalsBag->get('google_recaptcha_site_key')) || empty($globalsBag->get('google_recaptcha_secret_key'))) {
+if (!$globalsBag->getBoolean('portal_onsite_two_register') || empty($globalsBag->get('google_recaptcha_site_key')) || empty($globalsBag->get('google_recaptcha_secret_key'))) {
     SessionUtil::portalSessionCookieDestroy();
     echo xlt("Not Authorized");
     header('HTTP/1.1 401 Unauthorized');
@@ -234,15 +234,15 @@ if ($globalsBag->get('language_menu_login')) {
                                 echo "<option selected='selected' value='" . attr($defaultLangID) . "'>" .
                                     text(xl('Default') . " - " . xl($defaultLangName)) . "</option>\n";
                                 foreach ($result3 as $iter) {
-                                    if ($globalsBag->get('language_menu_showall')) {
-                                        if (!$globalsBag->get('allow_debug_language') && $iter['lang_description'] == 'dummy') {
+                                    if ($globalsBag->getBoolean('language_menu_showall')) {
+                                        if (!$globalsBag->getBoolean('allow_debug_language') && $iter['lang_description'] == 'dummy') {
                                             continue; // skip the dummy language
                                         }
                                         echo "<option value='" . attr($iter['lang_id']) . "'>" .
                                             text($iter['trans_lang_description']) . "</option>\n";
                                     } else {
                                         if (in_array($iter['lang_description'], $globalsBag->get('language_menu_show'))) {
-                                            if (!$globalsBag->get('allow_debug_language') && $iter['lang_description'] == 'dummy') {
+                                            if (!$globalsBag->getBoolean('allow_debug_language') && $iter['lang_description'] == 'dummy') {
                                                 continue; // skip the dummy language
                                             }
                                             echo "<option value='" . attr($iter['lang_id']) . "'>" .

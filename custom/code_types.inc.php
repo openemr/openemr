@@ -92,8 +92,8 @@ if (!$isStaticAnalysis) {
             'problem' => $ctrow['ct_problem'],
             'drug' => $ctrow['ct_drug']
         ];
-        if (!array_key_exists($GLOBALS['default_search_code_type'], $code_types)) {
-            $GLOBALS['default_search_code_type'] = array_key_first($code_types);
+        if (!array_key_exists(OEGlobalsBag::getInstance()->get('default_search_code_type'), $code_types)) {
+            OEGlobalsBag::getInstance()->set('default_search_code_type', array_key_first($code_types));
         }
     }
 }

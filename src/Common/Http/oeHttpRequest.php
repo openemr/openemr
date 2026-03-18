@@ -14,6 +14,8 @@
 
 namespace OpenEMR\Common\Http;
 
+use OpenEMR\Core\OEGlobalsBag;
+
 /**
  * Class oeHttpRequest
  *
@@ -30,7 +32,7 @@ class oeHttpRequest extends oeHttp
 
         self::$client = $client;
         $this->bodyFormat = "json";
-        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+        $httpVerifySsl = (bool) (OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
         $this->options = [
             'base_uri' => '',
             'http_errors' => false,

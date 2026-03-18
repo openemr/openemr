@@ -23,6 +23,7 @@
 // TODO: Convert this to a modal or a dialog
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 ?>
 
@@ -45,7 +46,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 <script>
 
     // collect the custom state widget flag
-    var stateCustomFlag = <?php echo json_encode($GLOBALS['state_custom_addlist_widget']); ?>;
+    var stateCustomFlag = <?php echo json_encode(OEGlobalsBag::getInstance()->getBoolean('state_custom_addlist_widget')); ?>;
 
     // generic form for input box
     var generic = "<input type='text' class='form-control' name='newlistitem_value' id='newlistitem_value' size='20' maxlength='50' />";
@@ -169,7 +170,7 @@ $(function () {
         // make the AJAX call to save the new value to the specified list
         // upon returning successfully, refresh the list box and select
         // the new list item
-        $.getJSON("<?php echo $GLOBALS['webroot']; ?>/library/ajax/addlistitem.php",
+        $.getJSON("<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/library/ajax/addlistitem.php",
                     {csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
                     listid: listid,
              newitem: newitem,

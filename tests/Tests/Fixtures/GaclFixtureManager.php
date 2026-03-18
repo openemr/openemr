@@ -15,7 +15,7 @@ class GaclFixtureManager extends BaseFixtureManager
 {
     public function __construct()
     {
-        parent::__construct("gacl-breakglass.json", "");
+        parent::__construct("gacl-breakglass.php", "");
     }
 
     /**
@@ -48,15 +48,5 @@ class GaclFixtureManager extends BaseFixtureManager
         // Remove in reverse order to avoid foreign key constraints
         sqlStatement("DELETE FROM gacl_groups_aro_map WHERE group_id = 16 AND aro_id = 9001");
         sqlStatement("DELETE FROM gacl_aro WHERE id = 9001");
-    }
-
-    /**
-     * Get a single GACL fixture for testing
-     * @return array
-     */
-    public function getSingleFixture(): array
-    {
-        $fixtures = $this->getFixturesFromFile();
-        return $fixtures;
     }
 }

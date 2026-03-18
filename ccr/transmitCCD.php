@@ -31,6 +31,7 @@ require_once(__DIR__ . "/../library/direct_message_check.inc.php");
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\DirectMessaging\ErrorConstants;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\OEGlobalsBag;
 
 /**
  * Connect to a phiMail Direct Messaging server and transmit
@@ -48,7 +49,7 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
     $reqID = $_SESSION['authUserID'];
 
     $config_err = xl(ErrorConstants::MESSAGING_DISABLED) . " " . ErrorConstants::ERROR_CODE_ABBREVIATION . ":";
-    if ($GLOBALS['phimail_enable'] == false) {
+    if (!OEGlobalsBag::getInstance()->getBoolean('phimail_enable')) {
         return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGING_DISABLED);
     }
 
@@ -57,9 +58,9 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
         return("$config_err $err");
     }
 
-    $phimail_username = $GLOBALS['phimail_username'];
+    $phimail_username = OEGlobalsBag::getInstance()->get('phimail_username');
     $cryptoGen = ServiceContainer::getCrypto();
-    $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
+    $phimail_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('phimail_password'));
     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
     if ($ret !== true) {
         return("$config_err " . ErrorConstants::ERROR_CODE_AUTH_FAILED);
@@ -178,7 +179,7 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
     }
 
     $config_err = xl(ErrorConstants::MESSAGING_DISABLED) . " " . ErrorConstants::ERROR_CODE_ABBREVIATION . ":";
-    if ($GLOBALS['phimail_enable'] == false) {
+    if (!OEGlobalsBag::getInstance()->getBoolean('phimail_enable')) {
         return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGING_DISABLED);
     }
 
@@ -187,9 +188,9 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
         return("$config_err $err");
     }
 
-    $phimail_username = $GLOBALS['phimail_username'];
+    $phimail_username = OEGlobalsBag::getInstance()->get('phimail_username');
     $cryptoGen = ServiceContainer::getCrypto();
-    $phimail_password = $cryptoGen->decryptStandard($GLOBALS['phimail_password']);
+    $phimail_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('phimail_password'));
     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
     if ($ret !== true) {
         return("$config_err " . ErrorConstants::ERROR_CODE_AUTH_FAILED);

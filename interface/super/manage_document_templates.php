@@ -22,6 +22,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Document Template Management", xl("Document Template Management"));
@@ -50,7 +51,7 @@ if (!empty($_POST['bn_download'])) {
 
     // Decrypt file, if applicable
     if ($cryptoGen->cryptCheckStandard($fileData)) {
-        $fileData = $cryptoGen->decryptStandard($fileData, null, KeySource::Database);
+        $fileData = $cryptoGen->decryptStandard($fileData, keySource: KeySource::Database);
     }
 
     header('Content-Description: File Transfer');
@@ -142,7 +143,7 @@ if (!empty($_POST['bn_upload'])) {
         $fileData = file_get_contents($tmp_name);
 
         // Encrypt uploaded file, if applicable.
-        $storedData = $GLOBALS['drive_encryption'] ? $cryptoGen->encryptStandard($fileData, null, KeySource::Database) : $fileData;
+        $storedData = OEGlobalsBag::getInstance()->getBoolean('drive_encryption') ? $cryptoGen->encryptStandard($fileData, keySource: KeySource::Database) : $fileData;
 
         // Store the uploaded file.
         if (file_put_contents($templatepath, $storedData) === false) {

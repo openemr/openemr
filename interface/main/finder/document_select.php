@@ -25,6 +25,7 @@ require_once("../../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\DocumentService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\Search\SearchModifier;
@@ -155,7 +156,7 @@ foreach ($searchResult as $docResult) {
                        title='<?php echo xla('Any part of the document name'); ?>' />
                 <div class="col">
                     <input class='btn btn-primary btn-sm' type='submit' id="submitbtn" value='<?php echo htmlspecialchars(xl('Search'), ENT_QUOTES); ?>' />
-                    <div id="searchspinner"><img src="<?php echo $GLOBALS['webroot'] ?>/interface/pic/ajax-loader.gif" /></div>
+                    <div id="searchspinner"><img src="<?php echo OEGlobalsBag::getInstance()->get('webroot') ?>/interface/pic/ajax-loader.gif" /></div>
                 </div>
             </div>
             <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />

@@ -27,6 +27,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Common\Utils\PaginationUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -38,13 +39,13 @@ if (!($thisauthwrite || $thisauthview)) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/superbill: Codes", xl("Codes"));
 }
 // For revenue codes
-$institutional = $GLOBALS['ub04_support'] == "1" ? true : false;
+$institutional = OEGlobalsBag::getInstance()->getBoolean('ub04_support') ? true : false;
 
 // Translation for form fields.
 function ffescape($field)
 {
     $field = add_escape_custom($field);
-    return trim($field);
+    return trim((string) $field);
 }
 
 $alertmsg = '';
@@ -180,7 +181,7 @@ if (isset($mode) && $thisauthwrite) {
 
     // If codes history is enabled in the billing globals save data to codes history table
     if (
-        $GLOBALS['save_codes_history'] && $alertmsg == '' &&
+        OEGlobalsBag::getInstance()->getBoolean('save_codes_history') && $alertmsg == '' &&
         (in_array($mode, ["add", "modify_complete", "delete"]))
     ) {
         $action_type = empty($_POST['code_id']) ? 'new' : $mode;
@@ -322,7 +323,7 @@ if ($fend > ($count ?? null)) {
                         response(cache[term]);
                         return;
                     }
-                    $.getJSON("<?php echo $GLOBALS['web_root'] ?>/interface/billing/ub04_helpers.php", request, function (data, status, xhr) {
+                    $.getJSON("<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/interface/billing/ub04_helpers.php", request, function (data, status, xhr) {
                         cache[term] = data;
                         response(data);
                     });
@@ -393,7 +394,7 @@ if ($fend > ($count ?? null)) {
                 alert(<?php echo xlj('No code was specified!'); ?>);
                 return false;
             }
-            <?php if ($GLOBALS['ippf_specific']) { ?>
+            <?php if (OEGlobalsBag::getInstance()->get('ippf_specific')) { ?>
             if (f.code_type.value == 12 && !f.related_code.value) {
                 alert(<?php echo xlj('A related IPPF code is required!'); ?>);
                 return false;
@@ -592,10 +593,10 @@ if ($fend > ($count ?? null)) {
             </div>
         </div>
         <div class="form-group row">
-            <label class="col-form-label col-form-label-sm col-md-1 <?php if (empty($GLOBALS['ippf_specific'])) {
+            <label class="col-form-label col-form-label-sm col-md-1 <?php if (empty(OEGlobalsBag::getInstance()->get('ippf_specific'))) {
                 echo 'd-none';
                                                                     } ?>"><?php echo xlt('CYP Factor'); ?>:</label>
-            <div class="col-md <?php if (empty($GLOBALS['ippf_specific'])) {
+            <div class="col-md <?php if (empty(OEGlobalsBag::getInstance()->get('ippf_specific'))) {
                 echo 'd-none';
                                } ?>">
                 <input type='text' class='form-control form-control-sm' size='10' maxlength='20' name="cyp_factor"

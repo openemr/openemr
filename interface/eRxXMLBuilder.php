@@ -11,6 +11,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
+
 require_once(__DIR__ . "/../library/patient.inc.php");
 
 class eRxXMLBuilder
@@ -94,7 +96,7 @@ class eRxXMLBuilder
 
     public function checkError($xml)
     {
-        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+        $httpVerifySsl = (bool) (OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
         $curlHandler = curl_init($xml);
         $sitePath = $this->getGlobals()->getOpenEMRSiteDirectory();
         $data = ['RxInput' => $xml];

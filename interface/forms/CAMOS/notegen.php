@@ -18,6 +18,7 @@ require_once("content_parser.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 ?>
 <?php
@@ -59,7 +60,7 @@ $(function () {
         <?php $datetimepicker_timepicker = false; ?>
         <?php $datetimepicker_showseconds = false; ?>
         <?php $datetimepicker_formatInput = false; ?>
-        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
     });
 });
@@ -245,7 +246,7 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
                     $user_id = $results['id'];
                 }
 
-                $path = $GLOBALS['fileroot'] . "/interface/forms/CAMOS";
+                $path = OEGlobalsBag::getInstance()->get('fileroot') . "/interface/forms/CAMOS";
                 if (file_exists($path . "/sig" . convert_safe_file_dir_name($user_id) . ".jpg")) {
                 //show the image here
                 }
@@ -363,7 +364,7 @@ if ($_POST['submit_pdf'] || $_POST['submit_html'] || ($_GET['pid'] && $_GET['enc
                         $user_id = $results['id'];
                 }
 
-                $path = $GLOBALS['fileroot'] . "/interface/forms/CAMOS";
+                $path = OEGlobalsBag::getInstance()->get('fileroot') . "/interface/forms/CAMOS";
                 if (file_exists($path . "/sig" . $user_id . ".jpg")) {
                         $pdf->ezImage($path . "/sig" . convert_safe_file_dir_name($user_id) . ".jpg", '', '72', '', 'left', '');
                 }

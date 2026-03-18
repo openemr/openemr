@@ -19,6 +19,7 @@ require_once(__DIR__ . "/../globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Access control - same permission required as edih_view.php
 if (!AclMain::aclCheckCore('acct', 'eob')) {
@@ -85,7 +86,7 @@ require_once("$srcdir/edihistory/codes/edih_997_codes.php");
 // php may output line endings with included files
 ob_clean();
 
-if (isset($GLOBALS['OE_SITE_DIR'])) {
+if (OEGlobalsBag::getInstance()->has('OE_SITE_DIR')) {
     $edih_base_dir = csv_edih_basedir();
     $edih_tmp_dir = csv_edih_tmpdir();
 } else {

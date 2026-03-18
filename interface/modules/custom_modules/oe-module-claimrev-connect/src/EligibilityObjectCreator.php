@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Modules\ClaimRevConnector;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\ClaimRevConnector\EligibilityData;
 use OpenEMR\Modules\ClaimRevConnector\RevenueToolsPayer;
 use OpenEMR\Modules\ClaimRevConnector\RevenueToolsRequest;
@@ -28,8 +29,8 @@ class EligibilityObjectCreator
         $providerNpi = "";
         $providerPinCode = "";
 
-        $useFacility = $GLOBALS['oe_claimrev_config_use_facility_for_eligibility'];
-        $serviceTypeCodes = $GLOBALS['oe_claimrev_config_service_type_codes'];
+        $useFacility = OEGlobalsBag::getInstance()->get('oe_claimrev_config_use_facility_for_eligibility');
+        $serviceTypeCodes = OEGlobalsBag::getInstance()->get('oe_claimrev_config_service_type_codes');
         $accountNumber = "";
         $productsToRun = [1];
 
@@ -128,7 +129,7 @@ class EligibilityObjectCreator
     public static function saveSingleToDatabase($req, $pid)
     {
 
-        $stale_age = $GLOBALS['oe_claimrev_eligibility_results_age'];
+        $stale_age = OEGlobalsBag::getInstance()->get('oe_claimrev_eligibility_results_age');
         //status of re-check if results are still waiting on claimrev site
 
         //if it's greater than aged date then lets remove completely from the tables, the new one will handle it. We don't care about statuses

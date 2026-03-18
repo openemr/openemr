@@ -28,7 +28,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/questionnaire_assessments/questionnaire_assessments.php',
 ];
 $ignoreErrors[] = [
@@ -125,6 +125,11 @@ $ignoreErrors[] = [
     'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaGlobalsConfiguration.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',

@@ -125,7 +125,7 @@ class Gacl {
             //Use NUM for slight performance/memory reasons.
             $this->db->SetFetchMode(ADODB_FETCH_NUM);
 
-            if (!empty($GLOBALS['debug_ssl_mysql_connection'])) {
+            if (!empty(OEGlobalsBag::getInstance()->get('debug_ssl_mysql_connection'))) {
                 error_log("CHECK SSL CIPHER IN GACL ADODB: " . htmlspecialchars(print_r($this->db->Execute("SHOW STATUS LIKE 'Ssl_cipher';")->fields, true), ENT_QUOTES));
             }
 

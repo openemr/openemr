@@ -42,11 +42,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-dashboard-context/src/Bootstrap.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Modules\\\\EhiExporter\\\\Bootstrap\\:\\:\\$logger is never read, only written\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Bootstrap.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\EhiExporter\\\\Bootstrap\\:\\:\\$twig is never read, only written\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Bootstrap.php',

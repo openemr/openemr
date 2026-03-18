@@ -87,6 +87,34 @@ dockers_env_start() {
     dc up --detach --quiet-pull --wait --wait-timeout 300
 }
 
+##
+# Dump the database to stdout. Automatically detects MariaDB vs MySQL
+# and uses the appropriate dump command.
+dump_database() {
+    local dump_cmd
+    # shellcheck disable=SC2310  # Intentionally checking exit code in condition
+    if dc exec -T mysql sh -c 'command -v mariadb-dump' </dev/null >/dev/null 2>&1; then
+        dump_cmd='mariadb-dump'
+    else
+        dump_cmd='mysqldump'
+    fi
+    dc exec -T mysql "${dump_cmd}" -u root -proot --all-databases --routines --triggers --events
+}
+
+##
+# Import a database dump from stdin. Automatically detects MariaDB vs MySQL.
+import_database() {
+    # Detect the client command without consuming stdin (the dump comes via stdin)
+    local import_cmd
+    # shellcheck disable=SC2310  # Intentionally checking exit code in condition
+    if dc exec -T mysql sh -c 'command -v mariadb' </dev/null >/dev/null 2>&1; then
+        import_cmd='mariadb'
+    else
+        import_cmd='mysql'
+    fi
+    dc exec -T mysql "${import_cmd}" -u root -proot
+}
+
 selenium_video_start() {
     # Selenium and video containers are only started explicitly or when their profiles are activated.
     # So this may do nothing if the profiles are not activated.

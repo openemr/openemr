@@ -2,6 +2,7 @@
 
 return ['includes' => [
     __DIR__ . '/argument.byRef.php',
+    __DIR__ . '/argument.templateType.php',
     __DIR__ . '/argument.type.php',
     __DIR__ . '/argument.unpackNonIterable.php',
     __DIR__ . '/arguments.count.php',
@@ -119,6 +120,7 @@ return ['includes' => [
     __DIR__ . '/openemr.forbiddenGlobalsAccess.php',
     __DIR__ . '/openemr.forbiddenInstantiation.php',
     __DIR__ . '/openemr.noGlobalNsFunctions.php',
+    __DIR__ . '/openemr.untypedGlobalGet.php',
     __DIR__ . '/parameter.defaultValue.php',
     __DIR__ . '/parameter.notFound.php',
     __DIR__ . '/parameter.phpDocType.php',
@@ -165,6 +167,7 @@ return ['includes' => [
     __DIR__ . '/throws.unusedType.php',
     __DIR__ . '/throws.void.php',
     __DIR__ . '/trait.unused.php',
+    __DIR__ . '/traitUse.deprecatedTrait.php',
     __DIR__ . '/unaryOp.invalid.php',
     __DIR__ . '/varTag.differentVariable.php',
     __DIR__ . '/varTag.misplaced.php',

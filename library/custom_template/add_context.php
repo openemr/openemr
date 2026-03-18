@@ -31,6 +31,7 @@
 require_once("../../interface/globals.php");
 
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (trim($_POST['contextname'] ?? '') != '' && $_POST['action'] == 'add') {
     $res = sqlStatement("SELECT * FROM customlists WHERE cl_list_type=2 AND cl_deleted=0 AND cl_list_item_long=?", [$_POST['contextname']]);
@@ -185,8 +186,8 @@ if (trim($_POST['contextname'] ?? '') != '' && $_POST['action'] == 'add') {
                             <tr class="text <?php echo $class;?>">
                                 <td class="right bottom left"><?php echo htmlspecialchars($i, ENT_QUOTES);?></td>
                                 <td class="right bottom"><?php echo htmlspecialchars(xl($row['cl_list_item_long']), ENT_QUOTES);?></td>
-                                <td class="right bottom"><a href="#" onclick='editme("<?php echo htmlspecialchars((string) $row['cl_list_slno'], ENT_QUOTES);?>","<?php echo htmlspecialchars((string) $row['cl_list_item_long'], ENT_QUOTES);?>")'><img src='<?php echo $GLOBALS['images_static_relative']; ?>/b_edit.png' border=0></a></td>
-                                <td class="right bottom"><a href="#" onclick="deleteme(<?php echo htmlspecialchars((string) $row['cl_list_slno'], ENT_QUOTES);?>)"><img src='<?php echo $GLOBALS['images_static_relative']; ?>/deleteBtn.png' border=0></a></td>
+                                <td class="right bottom"><a href="#" onclick='editme("<?php echo htmlspecialchars((string) $row['cl_list_slno'], ENT_QUOTES);?>","<?php echo htmlspecialchars((string) $row['cl_list_item_long'], ENT_QUOTES);?>")'><img src='<?php echo OEGlobalsBag::getInstance()->get('images_static_relative'); ?>/b_edit.png' border=0></a></td>
+                                <td class="right bottom"><a href="#" onclick="deleteme(<?php echo htmlspecialchars((string) $row['cl_list_slno'], ENT_QUOTES);?>)"><img src='<?php echo OEGlobalsBag::getInstance()->get('images_static_relative'); ?>/deleteBtn.png' border=0></a></td>
                             </tr>
                             <?php
                         }

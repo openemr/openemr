@@ -21,13 +21,10 @@ use Symfony\Component\HttpFoundation\Response;
 class FacilityApiTest extends TestCase
 {
     const FACILITY_API_ENDPOINT = "/apis/default/api/facility";
-    private $testClient;
-    private $facilityRecord;
-
-    /**
-     * @var FacilityFixtureManager
-     */
-    private $fixtureManager;
+    private ApiTestClient $testClient;
+    /** @var array<string, mixed> */
+    private array $facilityRecord;
+    private FacilityFixtureManager $fixtureManager;
 
     protected function setUp(): void
     {
@@ -36,7 +33,9 @@ class FacilityApiTest extends TestCase
         $this->testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
 
         $this->fixtureManager = new FacilityFixtureManager();
-        $this->facilityRecord = (array) $this->fixtureManager->getSingleFacilityFixture();
+        /** @var array<string, mixed> $fixture */
+        $fixture = $this->fixtureManager->getSingleFacilityFixture();
+        $this->facilityRecord = $fixture;
     }
 
     protected function tearDown(): void
@@ -53,6 +52,7 @@ class FacilityApiTest extends TestCase
         $actualResponse = $this->testClient->post(self::FACILITY_API_ENDPOINT, $this->facilityRecord);
 
         $this->assertEquals(400, $actualResponse->getStatusCode());
+        /** @var array<string, mixed> $responseBody */
         $responseBody = json_decode((string) $actualResponse->getBody(), true);
         $this->assertEquals(1, count($responseBody["validationErrors"]));
         $this->assertEquals(0, count($responseBody["internalErrors"]));
@@ -65,6 +65,7 @@ class FacilityApiTest extends TestCase
         $actualResponse = $this->testClient->post(self::FACILITY_API_ENDPOINT, $this->facilityRecord);
 
         $this->assertEquals(Response::HTTP_CREATED, $actualResponse->getStatusCode());
+        /** @var array<string, mixed> $responseBody */
         $responseBody = json_decode((string) $actualResponse->getBody(), true);
         $this->assertEquals(0, count($responseBody["validationErrors"]));
         $this->assertEquals(0, count($responseBody["internalErrors"]));
@@ -91,6 +92,7 @@ class FacilityApiTest extends TestCase
         );
 
         $this->assertEquals(400, $actualResponse->getStatusCode());
+        /** @var array<string, mixed> $responseBody */
         $responseBody = json_decode((string) $actualResponse->getBody(), true);
         $this->assertEquals(1, count($responseBody["validationErrors"]));
         $this->assertEquals(0, count($responseBody["internalErrors"]));
@@ -102,19 +104,23 @@ class FacilityApiTest extends TestCase
     {
         $actualResponse = $this->testClient->post(self::FACILITY_API_ENDPOINT, $this->facilityRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
+        /** @var array<string, mixed> $responseBody */
         $responseBody = json_decode((string) $actualResponse->getBody(), true);
 
         $facilityUuid = $responseBody["data"]["uuid"];
+        assert(is_string($facilityUuid));
 
         $this->facilityRecord["email"] = "help@pennfirm.com";
         $actualResponse = $this->testClient->put(self::FACILITY_API_ENDPOINT, $facilityUuid, $this->facilityRecord);
 
         $this->assertEquals(200, $actualResponse->getStatusCode());
+        /** @var array<string, mixed> $responseBody */
         $responseBody = json_decode((string) $actualResponse->getBody(), true);
         $this->assertEquals(0, count($responseBody["validationErrors"]));
         $this->assertEquals(0, count($responseBody["internalErrors"]));
 
         $updatedResource = $responseBody["data"];
+        assert(is_array($updatedResource));
         $this->assertEquals($this->facilityRecord["email"], $updatedResource["email"]);
     }
 
@@ -124,6 +130,7 @@ class FacilityApiTest extends TestCase
         $actualResponse = $this->testClient->getOne(self::FACILITY_API_ENDPOINT, "not-a-uuid");
         $this->assertEquals(400, $actualResponse->getStatusCode());
 
+        /** @var array<string, mixed> $responseBody */
         $responseBody = json_decode((string) $actualResponse->getBody(), true);
         $this->assertEquals(1, count($responseBody["validationErrors"]));
         $this->assertEquals(0, count($responseBody["internalErrors"]));
@@ -136,13 +143,16 @@ class FacilityApiTest extends TestCase
         $actualResponse = $this->testClient->post(self::FACILITY_API_ENDPOINT, $this->facilityRecord);
         $this->assertEquals(201, $actualResponse->getStatusCode());
 
+        /** @var array<string, mixed> $responseBody */
         $responseBody = json_decode((string) $actualResponse->getBody(), true);
         $facilityUuid = $responseBody["data"]["uuid"];
+        assert(is_string($facilityUuid));
         $facilityId = $responseBody["data"]["id"];
 
         $actualResponse = $this->testClient->getOne(self::FACILITY_API_ENDPOINT, $facilityUuid);
         $this->assertEquals(200, $actualResponse->getStatusCode());
 
+        /** @var array<string, mixed> $responseBody */
         $responseBody = json_decode((string) $actualResponse->getBody(), true);
         $this->assertEquals(0, count($responseBody["validationErrors"]));
         $this->assertEquals(0, count($responseBody["internalErrors"]));
@@ -158,6 +168,7 @@ class FacilityApiTest extends TestCase
         $actualResponse = $this->testClient->get(self::FACILITY_API_ENDPOINT, ["facility_npi" => "0123456789"]);
         $this->assertEquals(200, $actualResponse->getStatusCode());
 
+        /** @var array<string, mixed> $responseBody */
         $responseBody = json_decode((string) $actualResponse->getBody(), true);
         $this->assertEquals(0, count($responseBody["validationErrors"]));
         $this->assertEquals(0, count($responseBody["internalErrors"]));

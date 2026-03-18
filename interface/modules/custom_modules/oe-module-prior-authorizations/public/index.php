@@ -14,6 +14,7 @@ use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\AuthorizationService;
 use Juggernaut\OpenEMR\Modules\PriorAuthModule\Controller\ListAuthorizations;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $pid = $_SESSION['pid'] ?? null;
 function isValid($date, $format = 'Y-m-d'): bool
@@ -68,7 +69,7 @@ const TABLE_TD = "</td><td>";
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         })

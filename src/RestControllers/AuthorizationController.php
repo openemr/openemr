@@ -58,7 +58,6 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\HttpUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\Events\Core\TemplatePageEvent;
@@ -74,7 +73,6 @@ use OpenIDConnectServer\ClaimExtractor;
 use OpenIDConnectServer\Entities\ClaimSetEntity;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use RuntimeException;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\HttpClient\Exception\JsonException;
 use Symfony\Component\HttpFoundation\Response;
@@ -205,10 +203,7 @@ class AuthorizationController
         if (!isset($this->twig)) {
             // TODO: @adunsulag look at refactoring this.  I don't like how this kernel has ended up and is incompatible
             // with our current kernel.
-            $oeKernel = $this->globalsBag->get("kernel");
-            if (!$oeKernel instanceof Kernel) {
-                throw new RuntimeException("OpenEMR Error: Unable to get OpenEMR Kernel from globals bag");
-            }
+            $oeKernel = $this->globalsBag->getKernel();
             $twigContainer = new TwigContainer(__DIR__ . "/../../oauth2/", $oeKernel);
             $this->twig = $twigContainer->getTwig();
         }
@@ -375,7 +370,7 @@ class AuthorizationController
 
                 $clientSaved = true;
             } catch (\Throwable $exception) {
-                $this->getSystemLogger()->errorLogCaller("Failed to create account Exception: " . $exception->getMessage(), ['trace' => $exception->getMessage()]);
+                $this->getSystemLogger()->error("Failed to create account Exception: " . $exception->getMessage(), ['exception' => $exception]);
                 throw OAuthServerException::serverError("Try again. Unable to create account", $exception);
             } finally {
                 if ($clientSaved) {
@@ -384,7 +379,7 @@ class AuthorizationController
                     try {
                         $this->rollbackTransaction();
                     } catch (\Throwable $exception) {
-                        $this->getSystemLogger()->errorLogCaller("Error rolling back transaction", ['trace' => $exception->getMessage()]);
+                        $this->getSystemLogger()->error("Error rolling back transaction", ['exception' => $exception]);
                     }
                 }
             }
@@ -802,7 +797,7 @@ class AuthorizationController
         $clientId = $session->get('client_id');
         if (empty($clientId)) {
             // why are we logging in... we need to terminate
-            $this->getSystemLogger()->errorLogCaller("application client_id was missing when it shouldn't have been");
+            $this->getSystemLogger()->error("Application client_id was missing when it shouldn't have been");
             return $this->renderTwigPage(
                 'oauth2/authorize/login',
                 "error/general_http_error.html.twig",
@@ -895,7 +890,7 @@ class AuthorizationController
         } catch (Throwable $error) {
             $loginTwigVars['mfaRequired'] = true;
             $loginTwigVars['invalid'] = xl("Sorry, an error occurred while processing your request. Please try again later.");
-            $this->getSystemLogger()->errorLogCaller("failed to process MFA Error:" . $error->getMessage(), ['trace' => $error->getTraceAsString()]);
+            $this->getSystemLogger()->error("failed to process MFA Error:" . $error->getMessage(), ['exception' => $error]);
             // NOTE: if twig throws an exception, we have a problem here.
             return $this->renderTwigPage('oauth2/authorize/login', 'oauth2/oauth2-login.html.twig', $loginTwigVars);
         }
@@ -941,7 +936,7 @@ class AuthorizationController
         try {
             $responseBody = $twig->render($template, $vars);
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->errorLogCaller("caught exception rendering template", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            $this->getSystemLogger()->error("caught exception rendering template", ['exception' => $e]);
             $responseBody = $twig->render("error/general_http_error.html.twig", ['statusCode' => Response::HTTP_INTERNAL_SERVER_ERROR]);
         }
         $factory = new Psr17Factory();
@@ -1215,7 +1210,7 @@ class AuthorizationController
                         $code,
                         $session_cache
                     )) {
-                        $this->getSystemLogger()->errorLogCaller("AuthorizationController->authorizeUser() failed to save trusted user session");
+                        $this->getSystemLogger()->error("AuthorizationController::authorizeUser() failed to save trusted user session");
                         throw OAuthServerException::serverError("Failed authorization due to internal server error.");
                     }
                 }
@@ -1411,12 +1406,12 @@ class AuthorizationController
         try {
             $id = $this->trustedUserService->saveTrustedUser($clientId, $userId, $scope, $persist, $code, $session, $grant);
             if (empty($id)) {
-                $this->getSystemLogger()->errorLogCaller("AuthorizationController->saveTrustedUser() failed to save trusted user");
+                $this->getSystemLogger()->error("AuthorizationController::saveTrustedUser() failed to save trusted user");
                 return false;
             }
             return true;
         } catch (\Throwable $e) {
-            $this->getSystemLogger()->errorLogCaller("AuthorizationController->saveTrustedUser() Exception occurred while saving trusted user", ['message' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            $this->getSystemLogger()->error("AuthorizationController->saveTrustedUser() Exception occurred while saving trusted user", ['exception' => $e]);
             return false;
         }
     }
@@ -1478,7 +1473,7 @@ class AuthorizationController
                     ->withBody($factory->createStream($message));
             }
         } catch (OAuthServerException $exception) {
-            $this->getSystemLogger()->errorLogCaller($exception->getMessage(), ['client_id' => $client_id]);
+            $this->getSystemLogger()->error("OAuth error for client {client_id}: " . $exception->getMessage(), ['client_id' => $client_id]);
             $this->session->invalidate();
             return $exception->generateHttpResponse($response);
         }

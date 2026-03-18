@@ -17,6 +17,7 @@
  */
 
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 ?>
 <!doctype html>
@@ -26,7 +27,7 @@ use OpenEMR\Core\Header;
     <?php Header::setupHeader(['datetime-picker', 'topdialog', 'moment', 'datatables', 'datatables-dt', 'datatables-bs']); ?>
 
     <script>
-        <?php require $GLOBALS['srcdir'] . "/formatting_DateToYYYYMMDD_js.js.php" ?>
+        <?php require OEGlobalsBag::getInstance()->get('srcdir') . "/formatting_DateToYYYYMMDD_js.js.php" ?>
     </script>
 </head>
 

@@ -33,9 +33,7 @@ class CarePlanServiceTest extends TestCase
      */
     private $service;
 
-    /**
-     * @var CarePlanFixture
-     */
+    /** @var array<string, mixed> */
     private $fixture;
 
     /**

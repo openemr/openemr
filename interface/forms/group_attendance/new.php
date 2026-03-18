@@ -20,6 +20,7 @@ require_once(__DIR__ . "/../../../library/group.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 //Check acl
 $can_view = AclMain::aclCheckCore("groups", "gadd", false, 'view');
@@ -138,7 +139,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
                 $('#group_attendance_form_table_filter').hide(); //hide searchbar
             },
             <?php // Bring in the translations ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/datatables-net.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/datatables-net.js.php'); ?>
         });
 
         /* 'Add Participant' elements */
@@ -151,7 +152,7 @@ if ($form_id) {//If editing a form or the form already exists (inwhich case will
             top.restoreSession();
             $('.new_patient').css("border-color", "var(--body-color)");
             $('.error_wrap .error').html("");
-            var url = '<?php echo $GLOBALS['webroot']?>/interface/main/calendar/find_patient_popup.php';
+            var url = '<?php echo OEGlobalsBag::getInstance()->get('webroot')?>/interface/main/calendar/find_patient_popup.php';
             dlgopen(url, '_blank', 500, 400);
         });
 

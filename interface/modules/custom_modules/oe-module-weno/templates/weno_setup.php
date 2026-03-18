@@ -16,6 +16,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\ModuleService;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 use OpenEMR\Modules\WenoModule\Services\WenoValidate;
@@ -38,8 +39,8 @@ $vendors['weno_secondary_encryption_key'] = '';
 $vendors['weno_provider_email'] = '';
 $vendors['weno_provider_password'] = '';
 
-$facilityUrl = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-weno/templates/setup_facilities.php";
-$usersUrl = $GLOBALS['web_root'] . "/interface/modules/custom_modules/oe-module-weno/templates/weno_users.php";
+$facilityUrl = OEGlobalsBag::getInstance()->get('web_root') . "/interface/modules/custom_modules/oe-module-weno/templates/setup_facilities.php";
+$usersUrl = OEGlobalsBag::getInstance()->get('web_root') . "/interface/modules/custom_modules/oe-module-weno/templates/weno_users.php";
 $saveAction = false;
 $saveActionPersist = false;
 $isValidKey = true;
@@ -103,10 +104,10 @@ $vendors = $boot->getVendorGlobals();
     <script>
         $(function () {
             const form = document.querySelector('#set_form');
-            let isValidKey = <?php echo js_escape($isValidKey); ?>;
-            let saveAction = <?php echo js_escape($saveAction); ?>;
+            let isValidKey = <?php echo js_escape((int) $isValidKey); ?>;
+            let saveAction = <?php echo js_escape((int) $saveAction); ?>;
             let isPersistEvent = false;
-            let saveActionPersist = <?php echo js_escape($saveActionPersist); ?>;
+            let saveActionPersist = <?php echo js_escape((int) $saveActionPersist); ?>;
             let scrollPosition = 0;
 
             // Persist form submit so to scroll where left off.

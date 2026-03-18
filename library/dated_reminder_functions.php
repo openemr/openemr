@@ -14,6 +14,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
 
 /*
@@ -29,11 +30,11 @@ function GetServiceOtherCounts(): array
 {
     $counts['faxCnt'] = $counts['smsCnt'] = 0;
     // unless main.php is reloaded Globals is most accurate.
-    if (!empty($GLOBALS['oefax_enable_fax'] ?? null)) {
+    if (!empty(OEGlobalsBag::getInstance()->get('oefax_enable_fax') ?? null)) {
         $client = AppDispatch::getApiService('fax');
         $counts['faxCnt'] = (int)$client->fetchReminderCount();
     }
-    if (!empty($GLOBALS['oefax_enable_sms'] ?? null)) {
+    if (!empty(OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? null)) {
         $client = AppDispatch::getApiService('sms');
         $counts['smsCnt'] = (int)$client->fetchReminderCount();
     }

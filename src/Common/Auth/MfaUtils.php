@@ -13,6 +13,8 @@
 namespace OpenEMR\Common\Auth;
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\KeyVersion;
+use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 
 class MfaUtils
 {
@@ -148,7 +150,12 @@ class MfaUtils
                 [$_POST["authUser"]]
             );
             if (!empty($passwordResults["password"])) {
-                $secret = $cryptoGen->decryptStandard($registrationSecret, $passwordResults["password"]);
+                $passwordCrypto = new PasswordBasedCrypto(KeyVersion::CURRENT);
+                try {
+                    $secret = $passwordCrypto->decrypt((string) $registrationSecret, (string) $passwordResults["password"]);
+                } catch (\OpenEMR\Common\Crypto\CryptoGenException) {
+                    $secret = null;
+                }
                 if (!empty($secret)) {
                     error_log("Disregard the decryption failed authentication error reported above this line; it is not an error.");
                     // Re-encrypt with the more secure standard key

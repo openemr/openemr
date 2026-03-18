@@ -497,7 +497,7 @@ function eob_process_era_callback(array &$out): void
                 // insert the service item into billing. Then display it (in green if it
                 // was inserted, or in red if we are in error mode).
                 // Check the global to see if this is preferred to be an error.
-                if ($GLOBALS['add_unmatched_code_from_ins_co_era_to_billing'] ?? '') {
+                if (OEGlobalsBag::getInstance()->getBoolean('add_unmatched_code_from_ins_co_era_to_billing')) {
                     $description = "CPT4:$codekey Added by $inslabel $production_date";
                 } else {
                     $error = true;

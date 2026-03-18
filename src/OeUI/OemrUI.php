@@ -112,7 +112,7 @@ class OemrUI
             $this->ed->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, $this->actionIconListener(...));
         }
 
-        if ($GLOBALS['enable_help'] !== 0 && $this->display_help_icon) {
+        if (OEGlobalsBag::getInstance()->get('enable_help') !== 0 && $this->display_help_icon) {
             $this->ed->addListener(PageHeadingRenderEvent::EVENT_PAGE_HEADING_RENDER, $this->helpIconListener(...));
         }
     }
@@ -305,9 +305,9 @@ class OemrUI
     public function helpIconListener(PageHeadingRenderEvent $e)
     {
         $title = "";
-        if ($GLOBALS['enable_help'] == "1") {
+        if (OEGlobalsBag::getInstance()->get('enable_help') == "1") {
             $title = xl("Click to view Help");
-        } elseif ($GLOBALS['enable_help'] == "2") {
+        } elseif (OEGlobalsBag::getInstance()->get('enable_help') == "2") {
             $title = xl("Enable help under your User Menu > Settings > Features > Enable Help Modal");
         }
 
@@ -351,7 +351,7 @@ class OemrUI
         $print = xla("Print");
         if ($help_file) {
             $help_file = attr($help_file);
-            $help_file = $GLOBALS['webroot'] . "/Documentation/help_files/$help_file";
+            $help_file = OEGlobalsBag::getInstance()->get('webroot') . "/Documentation/help_files/$help_file";
             $modal_body = "<iframe src=\"$help_file\" id='targetiframe' class='w-100 h-100 border-0' style='overflow-x: hidden;'
                                 allowtransparency='true'></iframe>";
         } else {
@@ -413,7 +413,7 @@ class OemrUI
         $expandTitle = xlj("Click to Contract and set to henceforth open in Centered mode");
         $contractTitle = xlj("Click to Expand and set to henceforth open in Expanded mode");
         $arrFiles = json_encode($this->arrFiles);
-        $web_root = $GLOBALS['webroot'];
+        $web_root = OEGlobalsBag::getInstance()->get('webroot');
         $collectToken = js_escape(CsrfUtils::collectCsrfToken());
         $header_expand_js = <<<EXP
         <script>

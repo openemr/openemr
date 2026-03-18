@@ -40,6 +40,7 @@
  */
 
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 // Build the $ISSUE_TYPE_CATEGORIES array
 // First, set the hard-coded options
@@ -71,7 +72,7 @@ $ISSUE_TYPE_STYLES = [
  */
 function collect_issue_type_category()
 {
-    if (!empty($GLOBALS['ippf_specific'])) { // IPPF version
+    if (!empty(OEGlobalsBag::getInstance()->get('ippf_specific'))) { // IPPF version
         return "ippf_specific";
     } else { // Default version
         return "default";

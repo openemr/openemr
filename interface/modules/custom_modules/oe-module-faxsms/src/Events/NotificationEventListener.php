@@ -15,9 +15,9 @@ namespace OpenEMR\Modules\FaxSMS\Events;
 use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OneTimeAuth;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Kernel;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
@@ -38,10 +38,10 @@ class NotificationEventListener implements EventSubscriberInterface
 
     public function __construct(private readonly EventDispatcherInterface $eventDispatcher, ?Kernel $kernel = null)
     {
-        $this->isSmsEnabled = !empty($GLOBALS['oefax_enable_sms'] ?? 0);
-        $this->isFaxEnabled = !empty($GLOBALS['oefax_enable_fax'] ?? 0);
-        $this->isEmailEnabled = !empty($GLOBALS['oe_enable_email'] ?? 0);
-        $this->isVoiceEnabled = !empty($GLOBALS['oe_enable_voice'] ?? 0);
+        $this->isSmsEnabled = !empty(OEGlobalsBag::getInstance()->get('oefax_enable_sms') ?? 0);
+        $this->isFaxEnabled = !empty(OEGlobalsBag::getInstance()->get('oefax_enable_fax') ?? 0);
+        $this->isEmailEnabled = !empty(OEGlobalsBag::getInstance()->get('oe_enable_email') ?? 0);
+        $this->isVoiceEnabled = !empty(OEGlobalsBag::getInstance()->get('oe_enable_voice') ?? 0);
 
         if (empty($kernel)) {
             $kernel = new Kernel();
@@ -84,7 +84,7 @@ class NotificationEventListener implements EventSubscriberInterface
     public function renderPhoneButton()
     {
         $loginCred = $this->getRCCredentials('voice');
-        if ($loginCred['appKey'] && $loginCred['appSecret'] && $loginCred['jwt'] && $GLOBALS['oe_enable_voice'] ?? false) {
+        if ($loginCred['appKey'] && $loginCred['appSecret'] && $loginCred['jwt'] && OEGlobalsBag::getInstance()->get('oe_enable_voice') ?? false) {
             echo '
             <button id="rc-toggle-exe" class="btn btn-outline-danger btn-sm" onclick="toggleRCWidget()">
                 <span id="btn-text"><i id="rc-toggle-btn" class="fa-solid fa-phone"></i></span>
@@ -96,7 +96,7 @@ class NotificationEventListener implements EventSubscriberInterface
     {
         $serviceType = 'voice';
         $loginCred = $this->getRCCredentials($serviceType);
-        $moduleBaseUrl = $GLOBALS['webroot'] . "/interface/modules/custom_modules/oe-module-faxsms";
+        $moduleBaseUrl = OEGlobalsBag::getInstance()->get('webroot') . "/interface/modules/custom_modules/oe-module-faxsms";
         $context = [
             'clientId' => $loginCred['appKey'],
             'clientSecret' => $loginCred['appSecret'],
@@ -149,7 +149,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $includeEmail = $sendMethod == 'email' || $sendMethod == 'both';
         $parameters = [
             'pid' => $pid,
-            'redirect_link' => $GLOBALS['web_root'] . "/portal/patient/onsitedocuments?pid=" . urlencode($pid) .
+            'redirect_link' => OEGlobalsBag::getInstance()->get('web_root') . "/portal/patient/onsitedocuments?pid=" . urlencode($pid) .
                 "&auto_render_id=" . urlencode($document_id) . "&auto_render_name=" . urlencode($document_name) .
                 "&audit_render_id=" . urlencode((string) $audit_id) . "&site=" . urlencode((string) $site_id),
             'email' => '',
@@ -158,7 +158,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $service = new OneTimeAuth();
         $oneTime = $service->createPortalOneTime($parameters);
         if (!isset($oneTime['encoded_link'])) {
-            (new SystemLogger())->errorLogCaller("Failed to generate encoded_link with onetime service");
+            ServiceContainer::getLogger()->error("NotificationEventListener: Failed to generate encoded_link with onetime service");
             return 'Failed! Redirect link.';
         }
 
@@ -212,7 +212,7 @@ class NotificationEventListener implements EventSubscriberInterface
      *     ]
      * ];
      * // Dispatch the event. In this case, the onetime is created and emailed to the recipient.
-     * $GLOBALS["kernel"]->getEventDispatcher()->dispatch(new SendNotificationEvent($e_pid, $data), SendNotificationEvent::SEND_NOTIFICATION_SERVICE_UNIVERSAL_ONETIME);
+     * OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(new SendNotificationEvent($e_pid, $data), SendNotificationEvent::SEND_NOTIFICATION_SERVICE_UNIVERSAL_ONETIME);
      *
      * @param SendNotificationEvent $event
      * @return string
@@ -224,7 +224,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $status = 'Starting request.' . ' ';
         $site_id = ($_SESSION['site_id'] ?? null) ?: 'default';
         $pid = $event->getPid();
-        $defaultUrl = $GLOBALS['web_root'] . "/portal/home.php?site=" . urlencode((string) $site_id) . "&landOn=MakePayment";
+        $defaultUrl = OEGlobalsBag::getInstance()->get('web_root') . "/portal/home.php?site=" . urlencode((string) $site_id) . "&landOn=MakePayment";
         $redirectURL = $data['redirect_url'] ?? $defaultUrl;
         $data = $event->getEventData() ?? [];
         $patient = $event->fetchPatientDetails($pid);
@@ -258,7 +258,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $oneTime = $service->createPortalOneTime($parameters); // create the token.
 
         if (!isset($oneTime['encoded_link'])) {
-            (new SystemLogger())->errorLogCaller("Failed to generate encoded_link with onetime service");
+            ServiceContainer::getLogger()->error("NotificationEventListener: Failed to generate encoded_link with onetime service");
             return 'Failed! Redirect link.';
         }
 
@@ -363,7 +363,7 @@ class NotificationEventListener implements EventSubscriberInterface
             $isHtml = (stripos((string) $content, '<html') !== false) || (stripos((string) $content, '<body') !== false);
             $html = !$isHtml ? "<html><body><div class='wrapper'>" . nl2br((string) $content) . "</div></body></html>" : $content;
             $from_name = text($from_name);
-            $from = $GLOBALS["practice_return_email_path"];
+            $from = OEGlobalsBag::getInstance()->get("practice_return_email_path");
             $mail->addReplyTo($from, $from_name);
             $mail->setFrom($from, $from);
             $to = $email;
