@@ -149,22 +149,26 @@ class CryptoGen implements CryptoInterface
 
     private function determineKeyManager(KeySource $source, KeyVersion $version): Keys\KeyManagerInterface
     {
+        $keyStorage = sprintf('%s/documents/logs_and_misc/methods', $this->siteDir);
         return match ($version) {
             // 1-3 were always plaintext (base64)
             KeyVersion::ONE,
             KeyVersion::TWO,
-            KeyVersion::THREE => new Keys\PlaintextKeyOnDisk($this->siteDir . '/documents/logs_and_misc/methods'),
+            KeyVersion::THREE => new Keys\PlaintextKeyOnDisk($keyStorage),
 
             // 4 was also plaintext, but supported db storage
             KeyVersion::FOUR => match ($source) {
-                KeySource::Drive => new Keys\PlaintextKeyOnDisk($this->siteDir . '/documents/logs_and_misc/methods'),
+                KeySource::Drive => new Keys\PlaintextKeyOnDisk($keyStorage),
                 KeySource::Database => new Keys\PlaintextKeyInDbKeysTable(/*...*/),
             },
             // 5-7 encrypts the disk-backed keys
             KeyVersion::FIVE,
             KeyVersion::SIX,
             KeyVersion::SEVEN => match ($source) {
-                KeySource::Drive => new Keys\EncryptedKeyOnDiskWithDbDecryption(/*...*/),
+                KeySource::Drive => new Keys\EncryptedKeyOnDiskWithDbDecryption(
+                    storageDir: $keyStorage,
+                    dbKeyManager: new Keys\PlaintextKeyInDbKeysTable(),
+                ),
                 KeySource::Database => new Keys\PlaintextKeyInDbKeysTable(/*...*/),
             },
         };
