@@ -996,8 +996,8 @@ window.addEditEventConfig = {
     timeDisplayFormat: <?php echo js_escape(OEGlobalsBag::getInstance()->getString('time_display_format')); ?>,
     dateDisplayFormat: <?php echo js_escape(OEGlobalsBag::getInstance()->getString('date_display_format')); ?>,
     webRoot: <?php echo js_escape(OEGlobalsBag::getInstance()->getString('web_root')); ?>,
-    eid: <?php echo js_escape((string)(int)$eid); ?>,
-    userId: <?php echo js_escape((string)$userid); ?>,
+    eid: <?php echo (int)$eid; ?>,
+    userId: <?php echo (int)$userid; ?>,
     translations: {
         patientSearch: <?php echo xlj('Patient Search'); ?>,
         groupSearch: <?php echo xlj('Group Search'); ?>,

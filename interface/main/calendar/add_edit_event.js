@@ -125,7 +125,7 @@ function set_allday() {
     document.getElementById('tdallday5').style.color = color2;
     f.form_hour.disabled = timeDisabled;
     f.form_minute.disabled = timeDisabled;
-    if (addEditEventConfig.timeDisplayFormat == 1) {
+    if (addEditEventConfig.timeDisplayFormat == 1 && f.form_ampm) {
         f.form_ampm.disabled = durationDisabled;
     }
     f.form_duration.disabled = durationDisabled;
@@ -249,7 +249,7 @@ function setappt(year, mon, mday, hours, minutes) {
             '' + year;
     }
     f.form_hour.value = hours;
-    if (addEditEventConfig.timeDisplayFormat == 1) {
+    if (addEditEventConfig.timeDisplayFormat == 1 && f.form_ampm) {
         f.form_hour.value = (hours > 12) ? hours - 12 : hours;
         f.form_ampm.selectedIndex = (hours >= 12) ? 1 : 0;
     }
