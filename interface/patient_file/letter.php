@@ -302,14 +302,15 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         die(xlt("Requested template does not exist"));
     }
 
+    $bodytext = "";
     while (!feof($fh)) {
-        $bodytext = fread($fh, 8192);
+        $bodytext .= fread($fh, 8192);
     }
 
     fclose($fh);
 
     if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = $cryptoGen->decryptStandard($bodytext, keySource: KeySource::Database);
+        $bodytext = (string) $cryptoGen->decryptStandard($bodytext, keySource: KeySource::Database);
     }
 
     // translate from constant to the definition
@@ -343,14 +344,15 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         die(xlt("Requested template does not exist"));
     }
 
+    $bodytext = "";
     while (!feof($fh)) {
-        $bodytext = fread($fh, 8192);
+        $bodytext .= fread($fh, 8192);
     }
 
     fclose($fh);
 
     if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = $cryptoGen->decryptStandard($bodytext, keySource: KeySource::Database);
+        $bodytext = (string) $cryptoGen->decryptStandard($bodytext, keySource: KeySource::Database);
     }
 
     // translate from constant to the definition

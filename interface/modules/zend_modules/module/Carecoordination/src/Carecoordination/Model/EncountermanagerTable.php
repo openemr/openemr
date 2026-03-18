@@ -171,7 +171,7 @@ class EncountermanagerTable
                 $respData = is_object($resp) && property_exists($resp, 'data') ? $resp->data : null;
                 if ($row['encrypted']) {
                     $cryptoGen = ServiceContainer::getCrypto();
-                    $content = $cryptoGen->decryptStandard($resp->data, keySource: KeySource::Database);
+                    $content = $cryptoGen->decryptStandard(is_string($respData) ? $respData : '', keySource: KeySource::Database);
                 } else {
                     $content = base64_decode(is_string($respData) ? $respData : '');
                 }
