@@ -18,18 +18,14 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Fixtures;
 
+use OpenEMR\Common\Database\QueryUtils;
+
 class CryptoFixtureManager
 {
     /**
      * Known plaintext used for all test vectors.
      */
     public const PLAINTEXT = 'Hello, OpenEMR! This is test data for encryption verification.';
-
-    /**
-     * Fixed IV for reproducible test vectors (16 bytes, hex-encoded for readability).
-     * In production, IVs must be random - this is ONLY for testing.
-     */
-    private const TEST_IV_HEX = '00112233445566778899aabbccddeeff';
 
     /**
      * Pre-computed ciphertext for each version using drive keys.
@@ -130,7 +126,11 @@ class CryptoFixtureManager
 
     public function __construct(?string $siteDir = null)
     {
-        $this->siteDir = $siteDir ?? $GLOBALS['OE_SITE_DIR'];
+        if ($siteDir === null) {
+            $siteDir = $GLOBALS['OE_SITE_DIR'];
+            assert(is_string($siteDir));
+        }
+        $this->siteDir = $siteDir;
     }
 
     /**
@@ -209,13 +209,13 @@ class CryptoFixtureManager
         // First, check if ANY keys exist that we would overwrite
         $existingKeys = [];
         foreach (array_keys(self::DB_KEYS) as $name) {
-            $existing = sqlQueryNoLog("SELECT 1 FROM `keys` WHERE `name` = ?", [$name]);
-            if (!empty($existing)) {
+            $existing = QueryUtils::querySingleRow("SELECT 1 FROM `keys` WHERE `name` = ?", [$name], log: false);
+            if ($existing !== false) {
                 $existingKeys[] = $name;
             }
         }
 
-        if (!empty($existingKeys)) {
+        if ($existingKeys !== []) {
             throw new \RuntimeException(sprintf(
                 "Refusing to overwrite existing encryption keys: %s. " .
                 "Running these tests would destroy real keys and make encrypted data unreadable. " .
@@ -227,9 +227,10 @@ class CryptoFixtureManager
         // Safe to install - no existing keys
         foreach (self::DB_KEYS as $name => $key) {
             $encodedKey = base64_encode($key);
-            sqlStatementNoLog(
+            QueryUtils::sqlStatementThrowException(
                 "INSERT INTO `keys` (`name`, `value`) VALUES (?, ?)",
-                [$name, $encodedKey]
+                [$name, $encodedKey],
+                noLog: true
             );
         }
     }
@@ -240,7 +241,7 @@ class CryptoFixtureManager
     private function removeDatabaseKeys(): void
     {
         foreach (array_keys(self::DB_KEYS) as $name) {
-            sqlStatementNoLog("DELETE FROM `keys` WHERE `name` = ?", [$name]);
+            QueryUtils::sqlStatementThrowException("DELETE FROM `keys` WHERE `name` = ?", [$name], noLog: true);
         }
     }
 
@@ -265,7 +266,7 @@ class CryptoFixtureManager
             }
         }
 
-        if (!empty($existingFiles)) {
+        if ($existingFiles !== []) {
             throw new \RuntimeException(sprintf(
                 "Refusing to overwrite existing key files: %s. " .
                 "Running these tests would destroy real keys and make encrypted data unreadable. " .
