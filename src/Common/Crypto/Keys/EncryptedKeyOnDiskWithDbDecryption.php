@@ -6,7 +6,7 @@ namespace OpenEMR\Common\Crypto\Keys;
 
 use OpenEMR\Common\Crypto\KeyVersion;
 
-class EncryptedKeyOnDiskWithDbDecryption implements KeyManagerInterface
+readonly class EncryptedKeyOnDiskWithDbDecryption implements KeyManagerInterface
 {
     public function __construct(
         private string $storageDir,

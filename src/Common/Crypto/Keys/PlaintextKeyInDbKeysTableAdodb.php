@@ -6,7 +6,7 @@ namespace OpenEMR\Common\Crypto\Keys;
 
 use OpenEMR\Common\Database\QueryUtils;
 
-class PlaintextKeyInDbKeysTableAdodb implements KeyManagerInterface
+readonly class PlaintextKeyInDbKeysTableAdodb implements KeyManagerInterface
 {
     public function getKey(string $identifier): KeyMaterial
     {

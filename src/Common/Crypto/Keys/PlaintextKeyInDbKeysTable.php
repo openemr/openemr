@@ -6,7 +6,7 @@ namespace OpenEMR\Common\Crypto\Keys;
 
 use Doctrine\DBAL\Connection;
 
-class PlaintextKeyInDbKeysTable implements KeyManagerInterface
+readonly class PlaintextKeyInDbKeysTable implements KeyManagerInterface
 {
     public function __construct(
         private Connection $conn,
