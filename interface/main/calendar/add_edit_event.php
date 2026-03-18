@@ -1023,15 +1023,16 @@ window.addEditEventConfig = {
 </script>
 <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
 
+<!-- Extracted JS functions (Issue #8057) — loaded before event dispatch
+     so that RENDER_JAVASCRIPT listeners can call these functions immediately -->
+<script src="add_edit_event.js?v=<?php echo OEGlobalsBag::getInstance()->getString('v_js_includes'); ?>"></script>
+
 <!-- Event listener dispatch (must remain inline for PHP event system) -->
 <script>
 <?php
 $eventDispatcher->dispatch(new AppointmentRenderEvent($row), AppointmentRenderEvent::RENDER_JAVASCRIPT);
 ?>
 </script>
-
-<!-- Extracted JS functions (Issue #8057) -->
-<script src="add_edit_event.js"></script>
 <style>
     body {
         overflow-x: hidden;
