@@ -335,6 +335,7 @@ build_test_e2e() {
         --log-junit junit-e2e.xml \
         --testsuite e2e \
         --testdox \
+        --display-all-issues\
         "${e2e_coverage_args[@]}"
     status=$?
     set -e
