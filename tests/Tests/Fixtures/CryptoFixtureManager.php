@@ -124,6 +124,12 @@ class CryptoFixtureManager
 
     private string $siteDir;
 
+    /** @var array<string, string> Backed up database keys (name => encoded value) */
+    private array $backedUpDbKeys = [];
+
+    /** @var array<string, string> Backed up key files (name => contents) */
+    private array $backedUpKeyFiles = [];
+
     public function __construct(?string $siteDir = null)
     {
         if ($siteDir === null) {
@@ -201,30 +207,28 @@ class CryptoFixtureManager
 
     /**
      * Install database keys into the `keys` table.
-     *
-     * @throws \RuntimeException if any keys already exist (to prevent data loss)
+     * Backs up any existing keys first, to be restored on remove().
      */
     private function installDatabaseKeys(): void
     {
-        // First, check if ANY keys exist that we would overwrite
-        $existingKeys = [];
+        // Backup and remove any existing keys
         foreach (array_keys(self::DB_KEYS) as $name) {
-            $existing = QueryUtils::querySingleRow("SELECT 1 FROM `keys` WHERE `name` = ?", [$name], log: false);
-            if ($existing !== false) {
-                $existingKeys[] = $name;
+            $existing = QueryUtils::querySingleRow(
+                "SELECT `value` FROM `keys` WHERE `name` = ?",
+                [$name],
+                log: false
+            );
+            if ($existing !== false && is_string($existing['value'])) {
+                $this->backedUpDbKeys[$name] = $existing['value'];
+                QueryUtils::sqlStatementThrowException(
+                    "DELETE FROM `keys` WHERE `name` = ?",
+                    [$name],
+                    noLog: true
+                );
             }
         }
 
-        if ($existingKeys !== []) {
-            throw new \RuntimeException(sprintf(
-                "Refusing to overwrite existing encryption keys: %s. " .
-                "Running these tests would destroy real keys and make encrypted data unreadable. " .
-                "Run tests in a clean database (CI does this automatically).",
-                implode(', ', $existingKeys)
-            ));
-        }
-
-        // Safe to install - no existing keys
+        // Install test keys
         foreach (self::DB_KEYS as $name => $key) {
             $encodedKey = base64_encode($key);
             QueryUtils::sqlStatementThrowException(
@@ -236,19 +240,33 @@ class CryptoFixtureManager
     }
 
     /**
-     * Remove database keys from the `keys` table.
+     * Remove test database keys and restore any backed up originals.
      */
     private function removeDatabaseKeys(): void
     {
+        // Remove test keys
         foreach (array_keys(self::DB_KEYS) as $name) {
-            QueryUtils::sqlStatementThrowException("DELETE FROM `keys` WHERE `name` = ?", [$name], noLog: true);
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM `keys` WHERE `name` = ?",
+                [$name],
+                noLog: true
+            );
         }
+
+        // Restore backed up keys
+        foreach ($this->backedUpDbKeys as $name => $value) {
+            QueryUtils::sqlStatementThrowException(
+                "INSERT INTO `keys` (`name`, `value`) VALUES (?, ?)",
+                [$name, $value],
+                noLog: true
+            );
+        }
+        $this->backedUpDbKeys = [];
     }
 
     /**
      * Install key files on disk.
-     *
-     * @throws \RuntimeException if any key files already exist (to prevent data loss)
+     * Backs up any existing key files first, to be restored on remove().
      */
     private function installKeyFiles(): void
     {
@@ -257,25 +275,16 @@ class CryptoFixtureManager
             mkdir($keyDir, 0755, true);
         }
 
-        // First, check if ANY key files exist that we would overwrite
-        $existingFiles = [];
+        // Backup any existing key files
         foreach (array_keys(self::TEST_KEYS) as $keyName) {
             $path = $keyDir . '/' . $keyName;
             if (file_exists($path)) {
-                $existingFiles[] = $keyName;
+                $contents = file_get_contents($path);
+                if ($contents !== false) {
+                    $this->backedUpKeyFiles[$keyName] = $contents;
+                }
             }
         }
-
-        if ($existingFiles !== []) {
-            throw new \RuntimeException(sprintf(
-                "Refusing to overwrite existing key files: %s. " .
-                "Running these tests would destroy real keys and make encrypted data unreadable. " .
-                "Run tests in a clean database (CI does this automatically).",
-                implode(', ', $existingFiles)
-            ));
-        }
-
-        // Safe to install - no existing key files
 
         // v1-v4: plaintext keys (base64 encoded)
         $plaintextVersions = ['one', 'twoa', 'twob', 'threea', 'threeb', 'foura', 'fourb'];
@@ -292,18 +301,25 @@ class CryptoFixtureManager
     }
 
     /**
-     * Remove key files from disk.
+     * Remove test key files and restore any backed up originals.
      */
     private function removeKeyFiles(): void
     {
         $keyDir = $this->siteDir . '/documents/logs_and_misc/methods';
-        $allKeys = array_keys(self::TEST_KEYS);
 
-        foreach ($allKeys as $keyName) {
+        // Remove test key files
+        foreach (array_keys(self::TEST_KEYS) as $keyName) {
             $path = $keyDir . '/' . $keyName;
             if (file_exists($path)) {
                 unlink($path);
             }
         }
+
+        // Restore backed up key files
+        foreach ($this->backedUpKeyFiles as $keyName => $contents) {
+            $path = $keyDir . '/' . $keyName;
+            file_put_contents($path, $contents);
+        }
+        $this->backedUpKeyFiles = [];
     }
 }
