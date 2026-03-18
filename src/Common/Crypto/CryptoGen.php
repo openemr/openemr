@@ -95,10 +95,20 @@ class CryptoGen implements CryptoInterface
         }
 
         // Determine strategy (based on keyVersion, for now)
-        $strategy = $encryptionVersion->getDecryptionStrategy();
+        // $strategy = $encryptionVersion->getDecryptionStrategy();
+        //
         // Locate keys (also based on keyVersion, for now)
+        // $keyManager = $this->determineKeyManager($keySource, $encryptionVersion);
         // try {
-        //     return $strategy->decrypt($trimmedValue, $keyMaterial);
+        //     $ciphertext = base64_decode($trimmedValue, strict: true);
+
+        //     return $strategy->decrypt(
+        //         ciphertext: $ciphertext,
+        //         // In a future version that seprates format version from
+        //         // identifiers, the parsing will need to do some more work.
+        //         keyId: $encryptionVersion->toString(),
+        //         keyManager: $keyManager,
+        //     );
         // } catch (CryptoGenException $e) {
         //     $this->logger->error('Decryption failed', ['exception' => $e]);
         //     return false;
@@ -108,6 +118,29 @@ class CryptoGen implements CryptoInterface
         return ($encryptionVersion->usesLegacyDecryption())
             ? $this->legacyDecrypt($trimmedValue, $keySource, $encryptionVersion)
             : $this->coreDecrypt($trimmedValue, $keySource, $encryptionVersion);
+    }
+
+    private function determineKeyManager(KeySource $source, KeyVersion $version): Keys\KeyManagerInterface
+    {
+        return match ($version) {
+            // 1-3 were always plaintext (base64)
+            KeyVersion::ONE,
+            KeyVersion::TWO,
+            KeyVersion::THREE => new Keys\PlaintextKeyOnDisk($this->siteDir . '/documents/logs_and_misc/methods'),
+
+            // 4 was also plaintext, but supported db storage
+            KeyVersion::FOUR => match ($source) {
+                KeySource::Drive => new Keys\PlaintextKeyOnDisk($this->siteDir . '/documents/logs_and_misc/methods'),
+                KeySource::Database => new Keys\PlaintextKeyInDbKeysTable(/*...*/),
+            },
+            // 5-7 encrypts the disk-backed keys
+            KeyVersion::FIVE,
+            KeyVersion::SIX,
+            KeyVersion::SEVEN => match ($source) {
+                KeySource::Drive => new Keys\EncryptedKeyOnDiskWithDbDecryption(/*...*/),
+                KeySource::Database => new Keys\PlaintextKeyInDbKeysTable(/*...*/),
+            },
+        };
     }
 
     /**
