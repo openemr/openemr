@@ -969,7 +969,7 @@ while ($crow = sqlFetchArray($cres)) {
         continue;
     }
 
-    $durationsJson[$crow['pc_catid']] = $duration;
+    $durationsJson[(int)$crow['pc_catid']] = $duration;
     $catoptions .= "    <option value='" . attr($crow['pc_catid']) . "'";
     if ($eid) {
         if ($crow['pc_catid'] == $row['pc_catid']) {
@@ -993,11 +993,11 @@ var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code')
 
 window.addEditEventConfig = {
     durations: <?php echo json_encode($durationsJson); ?>,
-    timeDisplayFormat: <?php echo js_escape(OEGlobalsBag::getInstance()->get('time_display_format')); ?>,
-    dateDisplayFormat: <?php echo js_escape(OEGlobalsBag::getInstance()->get('date_display_format')); ?>,
-    webRoot: <?php echo js_escape(OEGlobalsBag::getInstance()->get('web_root')); ?>,
-    eid: <?php echo js_escape((int)$eid); ?>,
-    userId: <?php echo js_escape($userid); ?>,
+    timeDisplayFormat: <?php echo js_escape(OEGlobalsBag::getInstance()->getString('time_display_format')); ?>,
+    dateDisplayFormat: <?php echo js_escape(OEGlobalsBag::getInstance()->getString('date_display_format')); ?>,
+    webRoot: <?php echo js_escape(OEGlobalsBag::getInstance()->getString('web_root')); ?>,
+    eid: <?php echo js_escape((string)(int)$eid); ?>,
+    userId: <?php echo js_escape((string)$userid); ?>,
     translations: {
         patientSearch: <?php echo xlj('Patient Search'); ?>,
         groupSearch: <?php echo xlj('Group Search'); ?>,
