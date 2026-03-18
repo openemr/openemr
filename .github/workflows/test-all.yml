@@ -37,25 +37,24 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  collect:
+  check-test-mode:
     runs-on: ubuntu-24.04
+    if: github.event_name == 'pull_request'
+    outputs:
+      full: ${{ steps.test-mode.outputs.full }}
     steps:
     - name: Checkout Code
       uses: actions/checkout@v6
       with:
-        # For PRs, checkout the PR head ref to access commit trailers
-        ref: ${{ github.event.pull_request.head.sha || github.sha }}
-        # Fetch enough history to find the merge base with the target branch
+        ref: ${{ github.event.pull_request.head.sha }}
         fetch-depth: 0
 
     - name: Check for full test mode
       id: test-mode
-      if: github.event_name == 'pull_request'
       env:
         BASE_REF: ${{ github.event.pull_request.base.ref }}
       run: |
         # Find merge base with the target branch and check commits for trailer
-        # The checkout with fetch-depth=0 already has full history
         merge_base=$(git merge-base "origin/${BASE_REF}" HEAD) || {
           echo "::warning::Could not find merge base, skipping trailer check"
           echo 'full=false' >> "$GITHUB_OUTPUT"
@@ -68,61 +67,76 @@ jobs:
         else
           echo 'full=false' >> "$GITHUB_OUTPUT"
         fi
-
-    - name: Collect Docker Dirs
-      id: docker-dirs
-      env:
-        IS_PULL_REQUEST: ${{ github.event_name == 'pull_request' }}
-        FULL_TEST_MODE: ${{ steps.test-mode.outputs.full }}
-      ##
-      # Collect the docker directory names from ci subdirectories
-      # and compute display names for each configuration.
-      # For PRs (without full mode): only PHP 8.2 configs (oldest supported).
-      # For PRs with full mode or pushes to master/rel-*: all configs.
-      run: |
-        shopt -s nullglob
-        shopt -s extglob
-        # Remove compose-shared-* from the list
-        dirs=( ci/!(compose-shared-*)/docker-compose.yml )
-        dirs=( "${dirs[@]%/docker-compose.yml}" )
-        dirs=( "${dirs[@]#ci/}" )
-
-        if [[ "${IS_PULL_REQUEST}" = 'true' && "${FULL_TEST_MODE}" != 'true' ]]; then
-          # For PRs without full mode: filter to only PHP 8.2 configurations
-          ci/parse_docker_dir.sh "${dirs[@]}" |
-            jq -rc --arg is_pr "${IS_PULL_REQUEST}" 'map({
-              docker_dir: .output.docker_dir,
-              php: .output.php,
-              display_name: "PHP \(.output.php) - \(.output.webserver) - \(.output.database) \(.output.db)",
-              save_composer_cache: .output.save_composer_cache,
-              save_node_cache: .output.save_node_cache
-            }) | map(select(.php == "8.2")) | "configs=\(.)"' >> "$GITHUB_OUTPUT"
-        else
-          # For PRs with full mode or pushes: include all configurations
-          ci/parse_docker_dir.sh "${dirs[@]}" |
-            jq -rc 'map({
-              docker_dir: .output.docker_dir,
-              display_name: "PHP \(.output.php) - \(.output.webserver) - \(.output.database) \(.output.db)",
-              save_composer_cache: .output.save_composer_cache,
-              save_node_cache: .output.save_node_cache
-            }) | "configs=\(.)"' >> "$GITHUB_OUTPUT"
-        fi
-    outputs:
-      configs: ${{ steps.docker-dirs.outputs.configs }}
-  build:
-    name: ${{ matrix.config.display_name }}
-    needs: collect
+  ##
+  # PR-only builds: PHP 8.2 configurations for fast feedback.
+  # Skipped when full test mode is enabled (build-full runs instead).
+  build-pr:
+    name: PHP ${{ matrix.php }} - ${{ matrix.webserver }}
+    needs: check-test-mode
+    if: |
+      github.event_name == 'pull_request' &&
+      needs.check-test-mode.outputs.full != 'true'
     strategy:
       fail-fast: false
       matrix:
-        config: ${{ fromJson(needs.collect.outputs.configs) }}
+        php: ['8.2']
+        webserver: [apache, nginx]
     uses: ./.github/workflows/test.yml
     secrets: inherit
     with:
-      docker_dir: ${{ matrix.config.docker_dir }}
-      display_name: ${{ matrix.config.display_name }}
-      # Enable coverage for one config: apache_82_118 on PRs (oldest PHP), apache_84_114 on push
-      # Full coverage for all configs runs in scheduled nightly workflow
-      enable_coverage: ${{ (github.event_name == 'pull_request' && matrix.config.docker_dir == 'apache_82_118') || (github.event_name != 'pull_request' && matrix.config.docker_dir == 'apache_84_114') }}
-      save_composer_cache: ${{ matrix.config.save_composer_cache == 'true' }}
-      save_node_cache: ${{ matrix.config.save_node_cache == 'true' }}
+      docker_dir: ${{ matrix.webserver }}_82${{ matrix.webserver == 'apache' && '_118' || '' }}
+      display_name: PHP ${{ matrix.php }} - ${{ matrix.webserver }}
+      enable_coverage: ${{ matrix.webserver == 'apache' }}
+      save_composer_cache: true
+      save_node_cache: true
+
+  ##
+  # Full builds: all configurations.
+  # Runs on push to master/rel-* or PRs with "Test-Mode: full" trailer.
+  build-full:
+    name: PHP ${{ matrix.php }} - ${{ matrix.webserver }}${{ matrix.db && format(' - {0}', matrix.db) || '' }}
+    needs: check-test-mode
+    if: |
+      always() &&
+      (needs.check-test-mode.result == 'success' || needs.check-test-mode.result == 'skipped') &&
+      (
+        github.event_name != 'pull_request' ||
+        needs.check-test-mode.outputs.full == 'true'
+      )
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.2', '8.3', '8.4', '8.5', '8.6']
+        webserver: [apache, nginx]
+        db: ['']
+        exclude:
+        # No apache builds for PHP 8.5/8.6 (yet)
+        - php: '8.5'
+          webserver: apache
+        - php: '8.6'
+          webserver: apache
+        # PHP 8.4 apache is replaced by explicit db variants in include
+        - php: '8.4'
+          webserver: apache
+          db: ''
+        include:
+        # PHP 8.4 apache tests multiple database versions
+        - { php: '8.4', webserver: apache, db: mysql 5.7, db_suffix: '57' }
+        - { php: '8.4', webserver: apache, db: mysql 8.0, db_suffix: '80' }
+        - { php: '8.4', webserver: apache, db: mysql 8.4, db_suffix: '84' }
+        - { php: '8.4', webserver: apache, db: mysql 9.3, db_suffix: '93' }
+        - { php: '8.4', webserver: apache, db: mariadb 10.6, db_suffix: '106' }
+        - { php: '8.4', webserver: apache, db: mariadb 10.11, db_suffix: '1011' }
+        - { php: '8.4', webserver: apache, db: mariadb 11.4, db_suffix: '114' }
+        - { php: '8.4', webserver: apache, db: mariadb 11.8, db_suffix: '118' }
+        - { php: '8.4', webserver: apache, db: mariadb 12.0, db_suffix: '120' }
+    uses: ./.github/workflows/test.yml
+    secrets: inherit
+    with:
+      # docker_dir: apache = apache_{php}{db_suffix}, nginx = nginx_{php}
+      docker_dir: ${{ matrix.webserver }}_${{ matrix.php == '8.2' && '82' || matrix.php == '8.3' && '83' || matrix.php == '8.4' && '84' || matrix.php == '8.5' && '85' || '86' }}${{ matrix.webserver == 'apache' && format('_{0}', matrix.db_suffix || '118') || '' }}
+      display_name: PHP ${{ matrix.php }} - ${{ matrix.webserver }}${{ matrix.db && format(' - {0}', matrix.db) || '' }}
+      # Enable coverage for apache_84_114 on full builds
+      enable_coverage: ${{ matrix.php == '8.4' && matrix.webserver == 'apache' && (matrix.db_suffix || '118') == '114' }}
+      save_composer_cache: true
+      save_node_cache: true
