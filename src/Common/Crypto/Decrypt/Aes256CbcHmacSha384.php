@@ -12,7 +12,7 @@ use OpenEMR\Common\Crypto\{
 /**
  * "Modern" (v4-7) handling.
  */
-class Aes256CbcHmacSha384 implements StrategyInterface
+class Aes256CbcHmacSha384 implements DecoderInterface
 {
     private const HMAC_LENGTH = 48; // 384/8
 

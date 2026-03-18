@@ -9,7 +9,7 @@ use OpenEMR\Common\Crypto\{
     Keys\KeyManagerInterface,
 };
 
-interface StrategyInterface
+interface DecoderInterface
 {
     public function decrypt(string $ciphertext, string $keyId, KeyManagerInterface $manager): string;
 }
