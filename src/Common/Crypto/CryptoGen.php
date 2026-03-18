@@ -142,6 +142,7 @@ class CryptoGen implements CryptoInterface
         $ciphertext = mb_substr($versionedCiphertext, KeyVersion::PREFIX_LENGTH, null, '8bit');
         return [
             'format' => $format,
+            // FIXME: v3 thing?
             'keyId' => $format->toString(),
             'ciphertext' => $ciphertext,
         ];
