@@ -72,6 +72,33 @@ class CryptoGen implements CryptoInterface
             return "";
         }
 
+        try {
+            [
+                'format' => $format,
+                'keyId' => $keyId,
+                'ciphertext' => $ciphertext,
+            ] = self::parseEncryptedMessage($value);
+
+            // TODO: enforce minimum version
+
+            // Determine strategy (based on KeyVersion, for now)
+            $strategy = $format->getDecryptionStrategy();
+
+            // Locate keys (also based on keyVersion, for now)
+            $keyManager = $this->determineKeyManager($keySource, $format);
+
+            return $strategy->decrypt(
+                ciphertext: $ciphertext,
+                keyId: $keyId,
+                keyManager: $keyManager,
+            );
+        } catch (\Throwable $e) {
+            $this->logger->error('Decryption failed', ['exception' => $e]);
+            return false;
+        }
+
+        /*
+
         // Collect the encrypt/decrypt version and remove it from the value
         try {
             $encryptionVersion = KeyVersion::fromPrefix($value);
@@ -94,30 +121,30 @@ class CryptoGen implements CryptoInterface
             }
         }
 
-        // Determine strategy (based on keyVersion, for now)
-        // $strategy = $encryptionVersion->getDecryptionStrategy();
-        //
-        // Locate keys (also based on keyVersion, for now)
-        // $keyManager = $this->determineKeyManager($keySource, $encryptionVersion);
-        // try {
-        //     $ciphertext = base64_decode($trimmedValue, strict: true);
-
-        //     return $strategy->decrypt(
-        //         ciphertext: $ciphertext,
-        //         // In a future version that seprates format version from
-        //         // identifiers, the parsing will need to do some more work.
-        //         keyId: $encryptionVersion->toString(),
-        //         keyManager: $keyManager,
-        //     );
-        // } catch (CryptoGenException $e) {
-        //     $this->logger->error('Decryption failed', ['exception' => $e]);
-        //     return false;
-        // }
-
         // Map the encrypt/decrypt version to the correct decryption function
         return ($encryptionVersion->usesLegacyDecryption())
             ? $this->legacyDecrypt($trimmedValue, $keySource, $encryptionVersion)
             : $this->coreDecrypt($trimmedValue, $keySource, $encryptionVersion);
+         */
+    }
+
+    /**
+     * @return array{
+     *   format: KeyVersion,
+     *   keyId: string,
+     *   ciphertext: string,
+     * }
+     */
+    private static function parseEncryptedMessage(string $versionedCiphertext): array
+    {
+        $format = KeyVersion::fromPrefix($versionedCiphertext);
+        // Future: if format implies proper key versioning, parse it too.
+        $ciphertext = mb_substr($versionedCiphertext, KeyVersion::PREFIX_LENGTH, null, '8bit');
+        return [
+            'format' => $format,
+            'keyId' => $format->toString(),
+            'ciphertext' => $ciphertext,
+        ];
     }
 
     private function determineKeyManager(KeySource $source, KeyVersion $version): Keys\KeyManagerInterface
