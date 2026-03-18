@@ -99,7 +99,7 @@ class CryptoGen implements CryptoInterface
             return $strategy->decrypt(
                 ciphertext: $ciphertext,
                 keyId: $keyId,
-                keyManager: $keyManager,
+                manager: $keyManager,
             );
         } catch (\Throwable $e) {
             $this->logger->error('Decryption failed', ['exception' => $e]);

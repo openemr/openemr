@@ -11,5 +11,5 @@ use OpenEMR\Common\Crypto\{
 
 interface StrategyInterface
 {
-    public function decrypt(string $ciphertext, string $keyId, KeyManagerInterface $keyManager): string;
+    public function decrypt(string $ciphertext, string $keyId, KeyManagerInterface $manager): string;
 }
