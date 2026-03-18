@@ -38,7 +38,7 @@ readonly class EncryptedKeyOnDiskWithDbDecryption implements KeyManagerInterface
         $decrypted = $strategy->decrypt(
             ciphertext: $payload,
             keyId: $version->toString(),
-            keyManager: $this->dbKeyManager,
+            manager: $this->dbKeyManager,
         );
 
         return new KeyMaterial($decrypted);
