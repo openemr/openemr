@@ -11,13 +11,11 @@
  * @copyright Copyright (c) 2017-2018 Brady Miller <brady.g.miller@gmail.com>
  */
 
-    require_once("../../globals.php");
-    require_once("$srcdir/dated_reminder_functions.php");
-
-    use OpenEMR\Common\Acl\AclMain;
-    use OpenEMR\Common\Csrf\CsrfUtils;
-    use OpenEMR\Core\Header;
-    use OpenEMR\Services\Utils\DateFormatterUtils;
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
     $isAdmin = AclMain::aclCheckCore('admin', 'users');
 ?>
@@ -131,7 +129,7 @@ if ($_GET) {
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = true; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
       })

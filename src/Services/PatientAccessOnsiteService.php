@@ -23,10 +23,10 @@
 namespace OpenEMR\Services;
 
 use MyMailer;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Utils\ValidationUtils;
@@ -35,6 +35,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\Summary\PortalCredentialsTemplateDataFilterEvent;
 use OpenEMR\Events\Patient\Summary\PortalCredentialsUpdatedEvent;
 use OpenEMR\FHIR\Config\ServerConfig;
+use Psr\Log\LoggerInterface;
 use Twig\Environment;
 
 class PatientAccessOnsiteService
@@ -52,18 +53,15 @@ class PatientAccessOnsiteService
      */
     private $twig;
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private readonly LoggerInterface $logger;
 
-    public function __construct()
+    public function __construct(?LoggerInterface $logger = null)
     {
         $this->authUser = $_SESSION['authUser'];
         $this->authProvider = $_SESSION['authProvider'];
         $this->kernel = OEGlobalsBag::getInstance()->getKernel();
         $this->twig = (new TwigContainer(null, $this->kernel))->getTwig();
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     /**
@@ -150,9 +148,9 @@ class PatientAccessOnsiteService
         // Create the message
         $fhirServerConfig = new ServerConfig();
         $data = [
-            'portal_onsite_two_enable' => $GLOBALS['portal_onsite_two_enable']
-            , 'portal_onsite_two_address' => $GLOBALS['portal_onsite_two_address']
-            , 'enforce_signin_email' => $GLOBALS['enforce_signin_email']
+            'portal_onsite_two_enable' => OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable')
+            , 'portal_onsite_two_address' => OEGlobalsBag::getInstance()->get('portal_onsite_two_address')
+            , 'enforce_signin_email' => OEGlobalsBag::getInstance()->getBoolean('enforce_signin_email')
             , 'uname' => $username
             , 'login_uname' => $loginUsername
             , 'pwd' => $pwd
@@ -228,7 +226,7 @@ class PatientAccessOnsiteService
                 $trustedUserName = '';
             }
         }
-        if (empty($GLOBALS['use_email_for_portal_username'])) {
+        if (!OEGlobalsBag::getInstance()->getBoolean('use_email_for_portal_username')) {
             $trustedUserName = $row['fname'] . $row['lname'] . $row['id'];
         }
         return $trustedUserName;
@@ -255,12 +253,12 @@ class PatientAccessOnsiteService
     private function emailLogin($patient_id, $htmlMsg, $plainMsg, Environment $twig)
     {
         $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", [$patient_id]);
-        if ($patientData['hipaa_allowemail'] != "YES" || empty($patientData['email']) || empty($GLOBALS['patient_reminder_sender_email'])) {
+        if ($patientData['hipaa_allowemail'] != "YES" || empty($patientData['email']) || empty(OEGlobalsBag::getInstance()->get('patient_reminder_sender_email'))) {
             $this->logger->debug(
                 "PatientAccessOnSiteService->emailLogin() Skipping email send",
                 ['hipaa_allowemail' => $patientData['hipaa_allowemail']
                     , 'email' => empty($patientData['email']) ? "email is empty" : "patient has email"
-                    , 'GLOBALS[patient_reminder_sender_email]' => $GLOBALS['patient_reminder_sender_email']]
+                    , 'GLOBALS[patient_reminder_sender_email]' => OEGlobalsBag::getInstance()->get('patient_reminder_sender_email')]
             );
             return false;
         }
@@ -270,10 +268,10 @@ class PatientAccessOnsiteService
             return false;
         }
 
-        if (!($this->validEmail($GLOBALS['patient_reminder_sender_email']))) {
+        if (!($this->validEmail(OEGlobalsBag::getInstance()->get('patient_reminder_sender_email')))) {
             $this->logger->debug(
                 "PatientAccessOnSiteService->emailLogin() Skipping email send, GLOBALS[patient_reminder_sender_email] is invalid",
-                ['GLOBALS[patient_reminder_sender_email]' => $GLOBALS['patient_reminder_sender_email']]
+                ['GLOBALS[patient_reminder_sender_email]' => OEGlobalsBag::getInstance()->get('patient_reminder_sender_email')]
             );
             return false;
         }
@@ -281,7 +279,7 @@ class PatientAccessOnsiteService
         $pt_name = $patientData['fname'] . ' ' . $patientData['lname'];
         $pt_email = $patientData['email'];
         $email_subject = xl('Access Your Patient Portal') . ' / ' . xl('3rd Party API Access');
-        $email_sender = $GLOBALS['patient_reminder_sender_email'];
+        $email_sender = OEGlobalsBag::getInstance()->get('patient_reminder_sender_email');
         $mail->AddReplyTo($email_sender, $email_sender);
         $mail->SetFrom($email_sender, $email_sender);
         $mail->AddAddress($pt_email, $pt_name);
@@ -294,7 +292,7 @@ class PatientAccessOnsiteService
             return true;
         } else {
             $email_status = $mail->ErrorInfo;
-            $this->logger->errorLogCaller("Failed to send email through Mymailer ", ['ErrorInfo' => $email_status]);
+            $this->logger->error("Failed to send email through Mymailer: {ErrorInfo}", ['ErrorInfo' => $email_status]);
             return false;
         }
     }

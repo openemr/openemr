@@ -1816,12 +1816,14 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/report_database.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n ", expected variable at offset 300 on line 13$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n ", expected variable at offset 333 on line 16$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty/plugins/function.assetVersionNumber.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 283 on line 12$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(array
+
+use OpenEMR\\\\Core\\\\OEGlobalsBag;\\)\\: Unexpected token "\\\\n", expected variable at offset 283 on line 12$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty/plugins/function.assetVersionNumber.php',
 ];
@@ -2051,12 +2053,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_checkboxes.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 1056 on line 25$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(Smarty\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 1089 on line 28$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_image.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 1039 on line 24$#',
+    'message' => '#^PHPDoc tag @param has invalid value \\(array\\)\\: Unexpected token "\\\\n \\* ", expected variable at offset 1072 on line 27$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty_legacy/smarty/plugins/function.html_image.php',
 ];
@@ -4522,31 +4524,6 @@ $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return has invalid value \\(\\$validationResult array\\)\\: Unexpected token "\\$validationResult", expected type at offset 443 on line 10$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Validators/BaseValidator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(\\$getResponse \\- HTTP response\\)\\: Unexpected token "\\$getResponse", expected type at offset 159 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(\\$getResponse \\- HTTP response\\)\\: Unexpected token "\\$getResponse", expected type at offset 201 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(\\$patchResponse \\- HTTP response\\)\\: Unexpected token "\\$patchResponse", expected type at offset 192 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(\\$postResponse \\- HTTP response\\)\\: Unexpected token "\\$postResponse", expected type at offset 154 on line 5$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @return has invalid value \\(\\$putResponse \\- HTTP response\\)\\: Unexpected token "\\$putResponse", expected type at offset 188 on line 6$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return has invalid value \\(uuid\\.\\)\\: Unexpected token "\\.", expected TOKEN_HORIZONTAL_WS at offset 164 on line 6$#',

@@ -13,8 +13,9 @@
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
-$GLOBALS['form_exit_url'] = "javascript:parent.closeTab(window.name, false)";
+OEGlobalsBag::getInstance()->set('form_exit_url', "javascript:parent.closeTab(window.name, false)");
 
 function formHeader($title = "My Form"): void
 {
@@ -24,7 +25,7 @@ function formHeader($title = "My Form"): void
     <?php Header::setupHeader(); ?>
     <title><?php echo text($title); ?></title>
     </head>
-    <body background="<?php echo $GLOBALS['backpic']?>" topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
+    <body background="<?php echo OEGlobalsBag::getInstance()->get('backpic')?>" topmargin=0 rightmargin=0 leftmargin=2 bottommargin=0 marginwidth=2 marginheight=0>
     <?php
 }
 
@@ -110,7 +111,7 @@ function formJump($address = ''): void
 function formFetch($tableName, $id, $cols = "*", $activity = "1")
 {
         // Run through escape_table_name() function to support dynamic form names in addition to mitigate sql table casing issues.
-    return sqlQuery("select " . escape_sql_column_name(process_cols_escape($cols), [$tableName]) . " from `" . escape_table_name($tableName) . "` where id=? and pid = ? and activity like ? order by date DESC LIMIT 0,1", [$id,$GLOBALS['pid'],$activity]) ;
+    return sqlQuery("select " . escape_sql_column_name(process_cols_escape($cols), [$tableName]) . " from `" . escape_table_name($tableName) . "` where id=? and pid = ? and activity like ? order by date DESC LIMIT 0,1", [$id,OEGlobalsBag::getInstance()->get('pid'),$activity]) ;
 }
 
 function formDisappear($tableName, $id)

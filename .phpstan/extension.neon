@@ -52,3 +52,6 @@ services:
 - class: OpenEMR\PHPStan\Rules\SoftRequiredArgumentsRule
   tags:
   - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\OEGlobalsBagTypedGetterRule
+  tags:
+  - phpstan.rules.rule

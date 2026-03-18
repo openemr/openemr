@@ -25,6 +25,7 @@ use OpenEMR\Billing\BillingProcessor\GeneratorCanValidateInterface;
 use OpenEMR\Billing\BillingProcessor\GeneratorInterface;
 use OpenEMR\Billing\BillingProcessor\LoggerInterface;
 use OpenEMR\Billing\Hcfa1500;
+use OpenEMR\Core\OEGlobalsBag;
 
 class GeneratorHCFA_PDF_IMG extends GeneratorHCFA_PDF implements
     GeneratorInterface,
@@ -46,7 +47,7 @@ class GeneratorHCFA_PDF_IMG extends GeneratorHCFA_PDF implements
         $log = '';
         $hcfa = new Hcfa1500();
         $lines = $hcfa->genHcfa1500($claim->getPid(), $claim->getEncounter(), $log);
-        $hcfa_image = $GLOBALS['images_static_absolute'] . "/cms1500.png";
+        $hcfa_image = OEGlobalsBag::getInstance()->get('images_static_absolute') . "/cms1500.png";
         $this->appendToLog($log);
         $alines = explode("\014", (string) $lines); // form feeds may separate pages
         foreach ($alines as $tmplines) {

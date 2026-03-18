@@ -12,8 +12,8 @@
 namespace OpenEMR\Common\Auth\OpenIDConnect;
 
 use League\OAuth2\Server\Exception\OAuthServerException;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\UuidUserAccount;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Services\PractitionerService;
@@ -38,7 +38,7 @@ class FhirUserClaim {
         } else if ($userRole == UuidUserAccount::USER_ROLE_PATIENT) {
             $fhirUserResource = "Patient";
         } else {
-            (new SystemLogger())->error("user role not supported for fhirUser claim ", ['role' => $userRole]);
+            ServiceContainer::getLogger()->error("user role not supported for fhirUser claim ", ['role' => $userRole]);
         }
         $fhirUser = $this->getFhirBaseUrl() . "/" . $fhirUserResource . "/" . $fhirUserId;
         return $fhirUser;

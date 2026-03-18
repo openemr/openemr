@@ -25,6 +25,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('acct', 'rep') && !AclMain::aclCheckCore('acct', 'rep_a')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for acct/rep or acct/rep_a: Sales by Item", xl("Sales by Item"));
@@ -114,7 +115,7 @@ function salesByItemLineItem(int $patient_id, int $encounter_id, string $rowcat,
 
                 echo text(display_desc($product)); ?>
   </td>
-                <?php if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>
+                <?php if (OEGlobalsBag::getInstance()->get('sales_report_invoice') == 0 || OEGlobalsBag::getInstance()->get('sales_report_invoice') == 2) {?>
   <td>
   &nbsp;
   </td>
@@ -153,7 +154,7 @@ function salesByItemLineItem(int $patient_id, int $encounter_id, string $rowcat,
                 <?php echo xlt('Total for category') . ' ';
                 echo text(display_desc($category)); ?>
   </td>
-                <?php if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>
+                <?php if (OEGlobalsBag::getInstance()->get('sales_report_invoice') == 0 || OEGlobalsBag::getInstance()->get('sales_report_invoice') == 2) {?>
   <td>
    &nbsp;
   </td>
@@ -183,15 +184,15 @@ function salesByItemLineItem(int $patient_id, int $encounter_id, string $rowcat,
             echo csvEscape(display_desc($category)) . ',';
             echo csvEscape(display_desc($product)) . ',';
             echo csvEscape(oeFormatShortDate(display_desc($transdate))) . ',';
-            if ($GLOBALS['sales_report_invoice'] == 1 || $GLOBALS['sales_report_invoice'] == 2) {
+            if (OEGlobalsBag::getInstance()->get('sales_report_invoice') == 1 || OEGlobalsBag::getInstance()->get('sales_report_invoice') == 2) {
                 echo csvEscape($pat_name) . ',';
             }
 
-            if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {
+            if (OEGlobalsBag::getInstance()->get('sales_report_invoice') == 0 || OEGlobalsBag::getInstance()->get('sales_report_invoice') == 2) {
                 echo csvEscape(display_desc($invnumber)) . ',';
             }
 
-            if ($GLOBALS['sales_report_invoice'] == 1) {
+            if (OEGlobalsBag::getInstance()->get('sales_report_invoice') == 1) {
                 echo csvEscape($patient_id) . ',';
             }
 
@@ -214,28 +215,28 @@ function salesByItemLineItem(int $patient_id, int $encounter_id, string $rowcat,
   <td>
             <?php echo text(oeFormatShortDate($transdate)); ?>
   </td>
-            <?php if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>
+            <?php if (OEGlobalsBag::getInstance()->get('sales_report_invoice') == 0 || OEGlobalsBag::getInstance()->get('sales_report_invoice') == 2) {?>
   <td>
    &nbsp;
   </td>
         <?php } ?>
-            <?php if ($GLOBALS['sales_report_invoice'] == 1 || $GLOBALS['sales_report_invoice'] == 2) { ?>
+            <?php if (OEGlobalsBag::getInstance()->get('sales_report_invoice') == 1 || OEGlobalsBag::getInstance()->get('sales_report_invoice') == 2) { ?>
   <td>
                 <?php echo text($pat_name); ?>
   </td>
         <?php } ?>
   <td class="detail">
-            <?php if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) { ?>
+            <?php if (OEGlobalsBag::getInstance()->get('sales_report_invoice') == 0 || OEGlobalsBag::getInstance()->get('sales_report_invoice') == 2) { ?>
    <a href='../patient_file/pos_checkout.php?ptid=<?php echo attr_url($patient_id); ?>&enc=<?php echo attr_url($encounter_id); ?>' target='_blank' rel='noopener'>
                 <?php echo text($invnumber); ?></a>
     <?php }
 
-            if ($GLOBALS['sales_report_invoice'] == 1) {
+            if (OEGlobalsBag::getInstance()->get('sales_report_invoice') == 1) {
                 echo text($patient_id);
             }
             ?>
       </td>
-            <?php if ($GLOBALS['sales_report_invoice'] == 0) {?>
+            <?php if (OEGlobalsBag::getInstance()->get('sales_report_invoice') == 0) {?>
   <td>
    &nbsp;
   </td>
@@ -274,15 +275,15 @@ if (!empty($_POST['form_csvexport'])) {
         echo '"Category",';
         echo '"Item",';
         echo '"Date",';
-        if ($GLOBALS['sales_report_invoice'] == 1 || $GLOBALS['sales_report_invoice'] == 2) {
+        if (OEGlobalsBag::getInstance()->get('sales_report_invoice') == 1 || OEGlobalsBag::getInstance()->get('sales_report_invoice') == 2) {
             echo '"Name",';
         }
 
-        if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {
+        if (OEGlobalsBag::getInstance()->get('sales_report_invoice') == 0 || OEGlobalsBag::getInstance()->get('sales_report_invoice') == 2) {
             echo '"Invoice",';
         }
 
-        if ($GLOBALS['sales_report_invoice'] == 1) {
+        if (OEGlobalsBag::getInstance()->get('sales_report_invoice') == 1) {
             echo '"ID",';
         }
 
@@ -345,7 +346,7 @@ if (!empty($_POST['form_csvexport'])) {
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -479,14 +480,14 @@ if (!empty($_POST['form_csvexport'])) {
             echo xlt('Date');
         } ?>
  </th>
-        <?php if ($GLOBALS['sales_report_invoice'] == 2) {?>
+        <?php if (OEGlobalsBag::getInstance()->get('sales_report_invoice') == 2) {?>
   <th>
    &nbsp;
   </th>
     <?php } ?>
  <th>
         <?php
-        if ($GLOBALS['sales_report_invoice'] == 0) {
+        if (OEGlobalsBag::getInstance()->get('sales_report_invoice') == 0) {
             if ($form_details) {
                 echo ' ';
             }
@@ -499,7 +500,7 @@ if (!empty($_POST['form_csvexport'])) {
             }
         }
 
-        if ($GLOBALS['sales_report_invoice'] == 1 || $GLOBALS['sales_report_invoice'] == 2) {
+        if (OEGlobalsBag::getInstance()->get('sales_report_invoice') == 1 || OEGlobalsBag::getInstance()->get('sales_report_invoice') == 2) {
             if ($form_details) {
                 echo xlt('Name');
             }
@@ -507,13 +508,13 @@ if (!empty($_POST['form_csvexport'])) {
   </th>
   <th>
         <?php
-        if ($GLOBALS['sales_report_invoice'] == 2) {
+        if (OEGlobalsBag::getInstance()->get('sales_report_invoice') == 2) {
             if ($form_details) {
                 echo xlt('Invoice');
             }
         }
 
-        if ($GLOBALS['sales_report_invoice'] == 1) {
+        if (OEGlobalsBag::getInstance()->get('sales_report_invoice') == 1) {
             if ($form_details) {
                 echo xlt('ID');
             }
@@ -645,7 +646,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
 
         echo text(display_desc($product)); ?>
   </td>
-        <?php if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>
+        <?php if (OEGlobalsBag::getInstance()->get('sales_report_invoice') == 0 || OEGlobalsBag::getInstance()->get('sales_report_invoice') == 2) {?>
   <td>
    &nbsp;
   </td>
@@ -669,7 +670,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
         <?php echo xlt('Total for category') . ' ';
         echo text(display_desc($category)); ?>
   </td>
-        <?php if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>
+        <?php if (OEGlobalsBag::getInstance()->get('sales_report_invoice') == 0 || OEGlobalsBag::getInstance()->get('sales_report_invoice') == 2) {?>
   <td>
    &nbsp;
   </td>
@@ -689,7 +690,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_csvexport'])) {
   <td class="detail font-weight-bold" colspan="4">
         <?php echo xlt('Grand Total'); ?>
   </td>
-        <?php if ($GLOBALS['sales_report_invoice'] == 0 || $GLOBALS['sales_report_invoice'] == 2) {?>
+        <?php if (OEGlobalsBag::getInstance()->get('sales_report_invoice') == 0 || OEGlobalsBag::getInstance()->get('sales_report_invoice') == 2) {?>
   <td>
    &nbsp;
   </td>

@@ -19,7 +19,9 @@ use Document;
 use Documents\Model\DocumentsTable;
 use DOMDocument;
 use Laminas\Mvc\Controller\AbstractActionController;
-use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\KeyVersion;
+use OpenEMR\Common\Crypto\PasswordBasedCrypto;
+use OpenEMR\Core\OEGlobalsBag;
 use XSLTProcessor;
 
 class DocumentsController extends AbstractActionController
@@ -71,14 +73,14 @@ class DocumentsController extends AbstractActionController
         if ($request->isPost()) {
             $error = false;
             $files = [];
-            $uploaddir = $GLOBALS['OE_SITE_DIR'] . '/documents/' . $request->getPost('file_location');
+            $uploaddir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/' . $request->getPost('file_location');
             $pid = $request->getPost('patient_id');
             $encounter = $request->getPost('encounter_id');
             $batch_upload = $request->getPost('batch_upload');
             $category_id = $request->getPost('document_category');
             $encrypted_file = $request->getPost('encrypted_file');
             $encryption_key = $request->getPost('encryption_key');
-            $storage_method = $GLOBALS['document_storage_method'];
+            $storage_method = OEGlobalsBag::getInstance()->get('document_storage_method');
             $documents = [];
             $i = 0;
             foreach ($_FILES as $file) {
@@ -105,9 +107,10 @@ class DocumentsController extends AbstractActionController
 
                 // Decrypt Encrypted File
                 if ($encrypted_file == '1') {
-                    $cryptoGen = ServiceContainer::getCrypto();
-                    $plaintext = $cryptoGen->decryptStandard($filetext, $encryption_key);
-                    if ($plaintext === false) {
+                    $passwordCrypto = new PasswordBasedCrypto(KeyVersion::CURRENT);
+                    try {
+                        $plaintext = $passwordCrypto->decrypt((string) $filetext, (string) $encryption_key);
+                    } catch (\OpenEMR\Common\Crypto\CryptoGenException) {
                         error_log("OpenEMR Error: Unable to decrypt a document since decryption failed.");
                         $plaintext = "";
                     }

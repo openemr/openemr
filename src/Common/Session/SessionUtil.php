@@ -64,8 +64,9 @@
 
 namespace OpenEMR\Common\Session;
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Session\Predis\SentinelUtil;
+use OpenEMR\Core\OEGlobalsBag;
 use SessionHandlerInterface;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -109,10 +110,10 @@ class SessionUtil
         if (isset($saveHandler)) {
             $success = session_set_save_handler($saveHandler, true);
             if (!$success) {
-                (new SystemLogger())->errorLogCaller("Failed to set session handler for Predis Sentinel.");
+                ServiceContainer::getLogger()->error("Failed to set session handler for Predis Sentinel.");
                 throw new \RuntimeException("Failed to set session handler for Predis Sentinel.");
             }
-            (new SystemLogger())->debug("Successfully set session handler for Predis Sentinel.");
+            ServiceContainer::getLogger()->debug("Successfully set session handler for Predis Sentinel.");
         }
         return session_start($settings);
     }
@@ -122,14 +123,14 @@ class SessionUtil
         session_write_close();
         session_id($_COOKIE[self::CORE_SESSION_ID] ?? '');
         self::coreSessionStart($web_root, $read_only);
-        (new SystemLogger())->debug("SessionUtil: switched to core session");
+        ServiceContainer::getLogger()->debug("SessionUtil: switched to core session");
     }
 
     public static function coreSessionStart($web_root, $read_only = true): void
     {
         $settings = SessionConfigurationBuilder::forCore($web_root, $read_only);
         self::sessionStartWrapper($settings);
-        (new SystemLogger())->debug("SessionUtil: started core session");
+        ServiceContainer::getLogger()->debug("SessionUtil: started core session");
     }
 
     public static function setSession($session_key_or_array, $session_value = null): void
@@ -140,7 +141,7 @@ class SessionUtil
             // session open for write.
             session_write_close();
         }
-        self::coreSessionStart($GLOBALS['webroot'], false);
+        self::coreSessionStart(OEGlobalsBag::getInstance()->get('webroot'), false);
         if (is_array($session_key_or_array)) {
             foreach ($session_key_or_array as $key => $value) {
                 $_SESSION[$key] = $value;
@@ -158,7 +159,7 @@ class SessionUtil
         foreach (self::$SESSION_INSTANCES as $symfonySessionInstance) {
             $symfonySessionInstance->save();
         }
-        (new SystemLogger())->debug("SessionUtil: set session value", [
+        ServiceContainer::getLogger()->debug("SessionUtil: set session value", [
             'session_key_or_array' => $session_key_or_array,
             'session_value' => $session_value
         ]);
@@ -172,7 +173,7 @@ class SessionUtil
             // session open for write.
             session_write_close();
         }
-        self::coreSessionStart($GLOBALS['webroot'], false);
+        self::coreSessionStart(OEGlobalsBag::getInstance()->get('webroot'), false);
         if (is_array($session_key_or_array)) {
             foreach ($session_key_or_array as $value) {
                 unset($_SESSION[$value]);
@@ -187,7 +188,7 @@ class SessionUtil
             }
         }
         session_write_close();
-        (new SystemLogger())->debug("SessionUtil: unset session value", [
+        ServiceContainer::getLogger()->debug("SessionUtil: unset session value", [
             'session_key_or_array' => $session_key_or_array
         ]);
     }
@@ -200,7 +201,7 @@ class SessionUtil
             // session open for write.
             session_write_close();
         }
-        self::coreSessionStart($GLOBALS['webroot'], false);
+        self::coreSessionStart(OEGlobalsBag::getInstance()->get('webroot'), false);
         foreach ($setArray as $key => $value) {
             $_SESSION[$key] = $value;
             foreach (self::$SESSION_INSTANCES as $symfonySessionInstance) {
@@ -214,20 +215,20 @@ class SessionUtil
             }
         }
         session_write_close();
-        (new SystemLogger())->debug("SessionUtil: set numerous session values", $setArray);
-        (new SystemLogger())->debug("SessionUtil: unset numerous session values", $unsetArray);
+        ServiceContainer::getLogger()->debug("SessionUtil: set numerous session values", $setArray);
+        ServiceContainer::getLogger()->debug("SessionUtil: unset numerous session values", $unsetArray);
     }
 
     public static function coreSessionDestroy(): void
     {
         self::standardSessionCookieDestroy();
-        (new SystemLogger())->debug("SessionUtil: destroyed core session");
+        ServiceContainer::getLogger()->debug("SessionUtil: destroyed core session");
     }
 
     public static function portalSessionStart(): Session
     {
         if (array_key_exists(self::PORTAL_SESSION_ID, self::$SESSION_INSTANCES)) {
-            (new SystemLogger())->debug("SessionUtil: started portal session");
+            ServiceContainer::getLogger()->debug("SessionUtil: started portal session");
             return self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID];
         }
 
@@ -240,7 +241,7 @@ class SessionUtil
 
         self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID] = $session;
 
-        (new SystemLogger())->debug("SessionUtil: started portal session");
+        ServiceContainer::getLogger()->debug("SessionUtil: started portal session");
 
         return $session;
     }
@@ -254,7 +255,7 @@ class SessionUtil
                 unset(self::$SESSION_INSTANCES[self::PORTAL_SESSION_ID]);
             }
         }
-        (new SystemLogger())->debug("SessionUtil: destroyed portal session");
+        ServiceContainer::getLogger()->debug("SessionUtil: destroyed portal session");
     }
 
     public static function switchToOAuthSession($web_root): void
@@ -262,33 +263,33 @@ class SessionUtil
         session_write_close();
         session_id($_COOKIE[self::OAUTH_SESSION_ID] ?? '');
         self::oauthSessionStart($web_root);
-        (new SystemLogger())->debug("SessionUtil: switched to oauth session");
+        ServiceContainer::getLogger()->debug("SessionUtil: switched to oauth session");
     }
 
     public static function oauthSessionStart($web_root): void
     {
         $settings = SessionConfigurationBuilder::forOAuth($web_root);
         self::sessionStartWrapper($settings);
-        (new SystemLogger())->debug("SessionUtil: started oauth session");
+        ServiceContainer::getLogger()->debug("SessionUtil: started oauth session");
     }
 
     public static function oauthSessionCookieDestroy(): void
     {
         self::standardSessionCookieDestroy();
-        (new SystemLogger())->debug("SessionUtil: destroyed oauth session");
+        ServiceContainer::getLogger()->debug("SessionUtil: destroyed oauth session");
     }
 
     public static function setupScriptSessionStart(): void
     {
         $settings = SessionConfigurationBuilder::forSetup();
         self::sessionStartWrapper($settings);
-        (new SystemLogger())->debug("SessionUtil: started setup script session");
+        ServiceContainer::getLogger()->debug("SessionUtil: started setup script session");
     }
 
     public static function setupScriptSessionCookieDestroy(): void
     {
         self::standardSessionCookieDestroy();
-        (new SystemLogger())->debug("SessionUtil: destroyed setup script session");
+        ServiceContainer::getLogger()->debug("SessionUtil: destroyed setup script session");
     }
 
     private static function standardSessionCookieDestroy(): void
@@ -312,7 +313,7 @@ class SessionUtil
 
         // Destroy the session.
         session_destroy();
-        (new SystemLogger())->debug("SessionUtil: destroyed session and cookie", [
+        ServiceContainer::getLogger()->debug("SessionUtil: destroyed session and cookie", [
             'session_name' => $sessionName,
         ]);
     }
@@ -357,7 +358,7 @@ class SessionUtil
             // handler defaults to symfony default handler, but if using predis sentinel, then get that handler
             $handler = null;
             if (!empty(getenv('SESSION_STORAGE_MODE', true)) && getenv('SESSION_STORAGE_MODE', true) === "predis-sentinel") {
-                (new SystemLogger())->debug("SessionUtil: using predis sentinel session storage mode");
+                ServiceContainer::getLogger()->debug("SessionUtil: using predis sentinel session storage mode");
                 $handler = (new SentinelUtil())->configure(self::DEFAULT_GC_MAXLIFETIME);
             }
             self::$sessionHandler = $handler;

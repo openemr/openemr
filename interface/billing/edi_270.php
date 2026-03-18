@@ -30,6 +30,7 @@ require_once("$srcdir/appointments.inc.php");
 use OpenEMR\Billing\EDI270;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!empty($_POST)) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
@@ -158,7 +159,7 @@ if ($exclude_policy != "") {
     $clearinghouses = EDI270::getX12Partner();
 
     if (isset($_POST['form_xmit']) && !empty($_POST['form_xmit']) && $res) {
-        $eFlag = !$GLOBALS['disable_eligibility_log'];
+        $eFlag = !OEGlobalsBag::getInstance()->getBoolean('disable_eligibility_log');
         // make the batch request
         $log = EDI270::requestRealTimeEligible($res, $X12info, $segTer, $compEleSep, $eFlag);
         $e = strpos((string) $log, "Error:");
@@ -327,7 +328,7 @@ if ($exclude_policy != "") {
                     <?php $datetimepicker_timepicker = false; ?>
                     <?php $datetimepicker_showseconds = false; ?>
                     <?php $datetimepicker_formatInput = true; ?>
-                    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
             });
@@ -433,7 +434,7 @@ if ($exclude_policy != "") {
                                                     <?php echo xlt('Create batch'); ?>
                                                     <input type='hidden' name='form_savefile' id='form_savefile' value=''></input>
 
-                                                    <?php if ($GLOBALS['enable_eligibility_requests']) {
+                                                    <?php if (OEGlobalsBag::getInstance()->getBoolean('enable_eligibility_requests')) {
                                                         echo "<a href='#' class='btn btn-secondary btn-transmit' onclick='return validate_batch(true);'>" . xlt('Request Eligibility') . "</a>\n";
                                                     }
                                                     ?>

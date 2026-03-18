@@ -15,7 +15,7 @@
 set_time_limit(0);
 
 require_once '../globals.php';
-require_once $GLOBALS['fileroot'] . '/custom/code_types.inc.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php';
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;

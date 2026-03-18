@@ -6,7 +6,11 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Yash Bothra <yashrajbothra786gmail.com>
+ * @author    Ivan Googla <ivan.jo.dev@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2020 Yash Bothra <yashrajbothra786gmail.com>
+ * @copyright Copyright (c) 2024 Ivan Googla
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -25,7 +29,7 @@ class PrescriptionService extends BaseService
     private const PATIENT_TABLE = "patient_data";
     private const ENCOUNTER_TABLE = "form_encounter";
     private const PRACTITIONER_TABLE = "users";
-    private $patientValidator;
+    private readonly PatientValidator $patientValidator;
 
     /**
      * Default constructor.
@@ -39,20 +43,17 @@ class PrescriptionService extends BaseService
     }
 
     /**
-     * Returns a list of prescription matching optional search criteria.
+     * Returns a list of prescriptions matching optional search criteria.
      * Search criteria is conveyed by array where key = field/column name, value = field value.
      * If no search criteria is provided, all records are returned.
      *
      * @param  $search search array parameters
      * @param  $isAndCondition specifies if AND condition is used for multiple criteria. Defaults to true.
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getAll($search = [], $isAndCondition = true, $puuidBind = null)
+    public function getAll($search = [], $isAndCondition = true)
     {
-        $sqlBindArray = [];
-
         if (isset($search['patient.uuid'])) {
             $isValidPatient = $this->patientValidator->validateId(
                 'uuid',
@@ -60,28 +61,37 @@ class PrescriptionService extends BaseService
                 $search['patient.uuid'],
                 true
             );
-            if ($isValidPatient != true) {
+            if ($isValidPatient instanceof ProcessingResult) {
                 return $isValidPatient;
             }
             $search['patient.uuid'] = UuidRegistry::uuidToBytes($search['patient.uuid']);
         }
 
-        if (!empty($puuidBind)) {
-            // code to support patient binding
-            $isValidPatient = $this->patientValidator->validateId(
-                'uuid',
-                self::PATIENT_TABLE,
-                $puuidBind,
-                true
-            );
-            if ($isValidPatient != true) {
-                return $isValidPatient;
-            }
-        }
+        $sql = $this->getBaseSql();
 
+        $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
+
+        $sql .= $whereClause->getFragment();
+        $sqlBindArray = $whereClause->getBoundValues();
+        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
+
+        $processingResult = new ProcessingResult();
+        while ($row = QueryUtils::fetchArrayFromResultSet($statementResults)) {
+            $record = $this->createResultRecordFromDatabaseResult($row);
+            $processingResult->addData($record);
+        }
+        return $processingResult;
+    }
+
+    /**
+     * Returns the base SQL for prescription queries (UNION of prescriptions + lists tables
+     * with all JOINs). Callers append WHERE clauses as needed.
+     */
+    private function getBaseSql(): string
+    {
         // order comes from our MedicationRequest intent value set, since we are only reporting on completed prescriptions
         // we will put the intent down as 'order' @see http://hl7.org/fhir/R4/valueset-medicationrequest-intent.html
-        $sql = "SELECT
+        return "SELECT
                 combined_prescriptions.uuid
                 ,combined_prescriptions.source_table
                 ,combined_prescriptions.drug
@@ -324,19 +334,6 @@ class PrescriptionService extends BaseService
                     FROM users
                     WHERE npi IS NOT NULL AND npi != ''
                 ) reporting_source ON reporting_source.reporting_source_user_id = combined_prescriptions.reporting_source_record_id";
-
-        $whereClause = FhirSearchWhereClauseBuilder::build($search, $isAndCondition);
-
-        $sql .= $whereClause->getFragment();
-        $sqlBindArray = $whereClause->getBoundValues();
-        $statementResults =  QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
-
-        $processingResult = new ProcessingResult();
-        while ($row = sqlFetchArray($statementResults)) {
-            $record = $this->createResultRecordFromDatabaseResult($row);
-            $processingResult->addData($record);
-        }
-        return $processingResult;
     }
 
     public function getUuidFields(): array
@@ -374,14 +371,102 @@ class PrescriptionService extends BaseService
     }
 
     /**
-     * Returns a single prescription record by id.
-     * @param $uuid - The prescription uuid identifier in string format.
-     * @param $puuidBind - Optional variable to only allow visibility of the patient with this puuid.
+     * Returns a single prescription record by uuid.
+     *
+     * @param string $uuid The prescription uuid identifier in string format.
      * @return ProcessingResult which contains validation messages, internal error messages, and the data
      * payload.
      */
-    public function getOne($uuid, $puuidBind = null)
+    public function getOne(string $uuid): ProcessingResult
     {
-        return $this->getAll(['_id' => $uuid], $puuidBind);
+        $processingResult = new ProcessingResult();
+
+        $isValid = $this->patientValidator->validateId('uuid', self::PRESCRIPTION_TABLE, $uuid, true);
+        if ($isValid instanceof ProcessingResult) {
+            return $isValid;
+        }
+
+        // Can't use getAll(['_id' => $uuid]) because FhirSearchWhereClauseBuilder
+        // generates `WHERE _id = ?` which fails on the UNION subquery. Filter by
+        // the actual column name directly.
+        $sql = $this->getBaseSql() . " WHERE combined_prescriptions.uuid = ?";
+        $uuidBytes = UuidRegistry::uuidToBytes($uuid);
+        $statementResults = QueryUtils::sqlStatementThrowException($sql, [$uuidBytes]);
+
+        while ($row = QueryUtils::fetchArrayFromResultSet($statementResults)) {
+            $record = $this->createResultRecordFromDatabaseResult($row);
+            $processingResult->addData($record);
+        }
+        return $processingResult;
+    }
+
+    private const REQUIRED_INSERT_FIELDS = ['drug', 'patient_id'];
+
+    /**
+     * Inserts a new prescription record.
+     *
+     * @param array<string, mixed> $data The prescription data.
+     * @return ProcessingResult containing the new prescription id and uuid, or validation errors.
+     */
+    public function insert(array $data): ProcessingResult
+    {
+        $processingResult = new ProcessingResult();
+
+        $missingFields = [];
+        foreach (self::REQUIRED_INSERT_FIELDS as $field) {
+            if (!isset($data[$field]) || $data[$field] === '') {
+                $missingFields[$field] = 'This field is required';
+            }
+        }
+        if ($missingFields !== []) {
+            $processingResult->setValidationMessages($missingFields);
+            return $processingResult;
+        }
+
+        $data['uuid'] = UuidRegistry::getRegistryForTable(self::PRESCRIPTION_TABLE)->createUuid();
+
+        $query = $this->buildInsertColumns($data);
+
+        /** @var string $setClause */
+        $setClause = $query['set'];
+        /** @var array<mixed> $binds */
+        $binds = $query['bind'];
+
+        $sql = " INSERT INTO " . self::PRESCRIPTION_TABLE . " SET " . $setClause;
+        $results = QueryUtils::sqlInsert($sql, $binds);
+
+        if ($results) {
+            $processingResult->addData([
+                'id' => $results,
+                'uuid' => UuidRegistry::uuidToString($data['uuid'])
+            ]);
+        } else {
+            $processingResult->addInternalError("error processing SQL Insert");
+        }
+
+        return $processingResult;
+    }
+
+    /**
+     * Soft-deletes a prescription record by setting active = 0.
+     *
+     * @param string $uuid The prescription uuid in string format.
+     * @return ProcessingResult with deletion status or validation errors.
+     */
+    public function delete(string $uuid): ProcessingResult
+    {
+        $isValid = $this->patientValidator->validateId('uuid', self::PRESCRIPTION_TABLE, $uuid, true);
+        if ($isValid instanceof ProcessingResult) {
+            return $isValid;
+        }
+
+        $uuidBytes = UuidRegistry::uuidToBytes($uuid);
+        $sql = "UPDATE " . self::PRESCRIPTION_TABLE
+             . " SET active = 0, date_modified = NOW() WHERE uuid = ?";
+        QueryUtils::sqlStatementThrowException($sql, [$uuidBytes]);
+
+        $processingResult = new ProcessingResult();
+        $processingResult->addData(['message' => 'record deleted']);
+        return $processingResult;
     }
 }

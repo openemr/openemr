@@ -14,8 +14,9 @@ require_once("../globals.php");
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\KeySource;
+use OpenEMR\Core\OEGlobalsBag;
 
-$filename = $GLOBALS['OE_SITE_DIR'] . '/documents/couchdb/log.txt';
+$filename = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/couchdb/log.txt';
 
 if (!file_exists($filename)) {
     echo xlt("CouchDB error log is empty");
@@ -26,7 +27,7 @@ $fh = file_get_contents($filename);
 
 $cryptoGen = ServiceContainer::getCrypto();
 if ($cryptoGen->cryptCheckStandard($fh)) {
-    $fh = $cryptoGen->decryptStandard($fh, null, KeySource::Database);
+    $fh = $cryptoGen->decryptStandard($fh, keySource: KeySource::Database);
 }
 
 if (!empty($fh)) {

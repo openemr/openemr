@@ -38,12 +38,12 @@ if ($web_path) {
         $type = '.zip';
     }
     $csrf = attr(CsrfUtils::collectCsrfToken());
-    $state_url = $GLOBALS['web_root'] . "/library/ajax/upload.php";
+    $state_url = OEGlobalsBag::getInstance()->get('web_root') . "/library/ajax/upload.php";
     $web_path = attr($web_path) . '&retrieve&patient_id=' . attr_url($patid) . '&document_id=' . attr_url($docid) . '&as_file=false&type=' . attr_url($type);
 }
 $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->getTwig();
 echo $twig->render("dicom/dicom-viewer.html.twig", [
-    'assets_static_relative' => $GLOBALS['assets_static_relative']
+    'assets_static_relative' => OEGlobalsBag::getInstance()->get('assets_static_relative')
     ,'web_root' => $web_root
     ,'web_path' => $web_path
     ,'state_url' => $state_url ?? null

@@ -98,27 +98,27 @@ class HttpRestRouteHandler
             throw new HttpException(Response::HTTP_NOT_FOUND, "Route not found");
         } catch (AccessDeniedException $exception) {
             // TODO: @adunsulag do we want to just let this exception bubble up and let the kernel handle it?
-            $logger->errorLogCaller(
+            $logger->error(
                 $exception->getMessage(),
                 [
-                    'section' => $exception->getRequiredSection(), 'subCategory' => $exception->getSubCategory()
+                    'exception' => $exception
+                    , 'section' => $exception->getRequiredSection(), 'subCategory' => $exception->getSubCategory()
                     , 'clientId' => $dispatchRestRequest->getClientId()
                     , 'userUUID' => $dispatchRestRequest->getRequestUserUUIDString()
                     , 'userType' => $dispatchRestRequest->getRequestUserRole()
                     , 'path' => $dispatchRestRequest->getRequestURI()
-                    , 'innerExceptionTrace' => $exception->getTraceAsString()
                 ]
             );
             throw new HttpException(Response::HTTP_UNAUTHORIZED, "Unauthorized", $exception);
         } catch (Throwable $exception) {
-            $logger->errorLogCaller(
+            $logger->error(
                 $exception->getMessage(),
                 [
-                    'clientId' => $dispatchRestRequest->getClientId()
+                    'exception' => $exception
+                    , 'clientId' => $dispatchRestRequest->getClientId()
                     , 'userUUID' => $dispatchRestRequest->getRequestUserUUIDString()
                     , 'userType' => $dispatchRestRequest->getRequestUserRole()
                     , 'path' => $dispatchRestRequest->getRequestURI()
-                    ,'trace' => $exception->getTraceAsString()
                 ]
             );
             if ($exception instanceof HttpException) {

@@ -5,9 +5,11 @@ declare(strict_types=1);
 
 use Doctrine\Migrations\DependencyFactory;
 use Doctrine\Migrations\Tools\Console\ConsoleRunner;
+use Firehed\Container\TypedContainerInterface;
 use Symfony\Component\Console\Application;
 
-require_once __DIR__ . '/bootstrap.php';
+$container = require_once __DIR__ . '/bootstrap.php';
+assert($container instanceof TypedContainerInterface);
 
 if (php_sapi_name() !== 'cli') {
     echo 'This can only be run from the command line.';
@@ -22,10 +24,5 @@ file_put_contents(
 $application = new Application();
 
 // Doctrine Migrations integration
-//
-// Note: this should enable moving the config file to a more conventional
-// location
-$migrationsDependencyFactory = require 'config/cli-config.php';
-assert($migrationsDependencyFactory instanceof DependencyFactory);
-ConsoleRunner::addCommands($application, $migrationsDependencyFactory);
+ConsoleRunner::addCommands($application, $container->get(DependencyFactory::class));
 $application->run();

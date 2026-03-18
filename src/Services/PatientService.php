@@ -667,7 +667,7 @@ class PatientService extends BaseService
                    ON cate.id = cate_to_doc.category_id
                 WHERE cate.name LIKE ? and doc.foreign_id = ?";
 
-        $result = sqlQuery($sql, [$GLOBALS['patient_photo_category_name'], $pid]);
+        $result = sqlQuery($sql, [OEGlobalsBag::getInstance()->get('patient_photo_category_name'), $pid]);
 
         if (empty($result) || empty($result['id'])) {
             return $this->patient_picture_fallback_id;
@@ -706,9 +706,9 @@ class PatientService extends BaseService
      */
     public function getPatientAgeDisplay($dobYMD, $asOfYMD = null)
     {
-        if ($GLOBALS['age_display_format'] == '1') {
+        if (OEGlobalsBag::getInstance()->get('age_display_format') == '1') {
             $ageYMD = $this->getPatientAgeYMD($dobYMD, $asOfYMD);
-            if (isset($GLOBALS['age_display_limit']) && $ageYMD['age'] <= $GLOBALS['age_display_limit']) {
+            if (OEGlobalsBag::getInstance()->has('age_display_limit') && $ageYMD['age'] <= OEGlobalsBag::getInstance()->getInt('age_display_limit')) {
                 return $ageYMD['ageinYMD'];
             } else {
                 return $this->getPatientAge($dobYMD, $asOfYMD);
@@ -960,7 +960,7 @@ class PatientService extends BaseService
         // Push the new patient to the front of the FIFO list
         array_unshift($rp, $patient);
         // Cap out at max count as set in globals
-        $rp = array_slice($rp, 0, $GLOBALS['recent_patient_count']);
+        $rp = array_slice($rp, 0, OEGlobalsBag::getInstance()->getInt('recent_patient_count'));
         $_rp = serialize($rp);
 
         $sql = "INSERT INTO recent_patients (user_id, patients) VALUES (?, ?) ON DUPLICATE KEY UPDATE patients=?";

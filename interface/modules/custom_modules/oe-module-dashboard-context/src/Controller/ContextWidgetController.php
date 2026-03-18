@@ -154,7 +154,7 @@ class ContextWidgetController
                     widgets: <?php echo js_escape($currentWidgets); ?>,
                     manageableWidgets: <?php echo js_escape($manageableWidgets); ?>,
                     customContexts: <?php echo js_escape($customContexts); ?>,
-                    canSwitch: <?php echo js_escape($canSwitch); ?>
+                    canSwitch: <?php echo js_escape((int) $canSwitch); ?>
                 },
 
                 xl: {
@@ -831,7 +831,7 @@ class ContextWidgetController
                         widgets: <?php echo js_escape($currentWidgets); ?>,
                         manageableWidgets: <?php echo js_escape($manageableWidgets); ?>,
                         customContexts: <?php echo js_escape($customContexts); ?>,
-                        canSwitch: <?php echo js_escape($canSwitch); ?>
+                        canSwitch: <?php echo js_escape((int) $canSwitch); ?>
                     },
 
                     xl: {

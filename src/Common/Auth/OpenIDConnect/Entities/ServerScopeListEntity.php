@@ -241,6 +241,7 @@ class ServerScopeListEntity
                 "user/practitioner.read",
                 "user/practitioner.write",
                 "user/prescription.read",
+                "user/prescription.write",
                 "user/procedure.read",
                 "user/product.read",
                 "user/soap_note.read",
@@ -282,7 +283,7 @@ class ServerScopeListEntity
                 ,'message' => ['c','u','d']
                 ,'patient' => ['c','r','u','s']
                 ,'practitioner' => ['c','r','u','s']
-                ,'prescription' => ['r','s']
+                ,'prescription' => ['c','r','d','s']
                 ,'procedure' => ['r','s']
                 ,'product' => ['s']
                 ,'soap_note' => ['c','r','u','s']

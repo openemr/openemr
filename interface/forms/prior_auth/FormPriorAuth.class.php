@@ -10,7 +10,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
- use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Common\ORDataObject\ORDataObject;
+use OpenEMR\Core\OEGlobalsBag;
 
 /**
  * class PriorAuth
@@ -55,7 +56,7 @@ class FormPriorAuth extends ORDataObject implements \Stringable
             $id = "";
         }
 
-        $this->pid = $GLOBALS['pid'];
+        $this->pid = OEGlobalsBag::getInstance()->get('pid');
         $this->activity = 1;
         $this->date = date("Y-m-d H:i:s");
         $this->prior_auth_number = "";

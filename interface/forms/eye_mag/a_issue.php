@@ -26,16 +26,17 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $form_folder = "eye_mag";
 require_once('../../globals.php');
 
 
-require_once($GLOBALS['srcdir'] . '/lists.inc.php');
-require_once($GLOBALS['srcdir'] . '/patient.inc.php');
-require_once($GLOBALS['srcdir'] . '/options.inc.php');
-require_once($GLOBALS['fileroot'] . '/custom/code_types.inc.php');
-require_once($GLOBALS['srcdir'] . '/csv_like_join.php');
+require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/lists.inc.php');
+require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/patient.inc.php');
+require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php');
+require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
+require_once(OEGlobalsBag::getInstance()->get('srcdir') . '/csv_like_join.php');
 require_once("../../forms/" . $form_folder . "/php/" . $form_folder . "_functions.php");
 
 
@@ -217,7 +218,7 @@ foreach (explode(',', $given) as $item) {
 
         ?>
 
-        <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
 
         function newtype(index) {
             var f = document.forms[0];
@@ -601,8 +602,8 @@ foreach (explode(',', $given) as $item) {
 
     <?php Header::setupHeader(['datetime-picker', 'purecss', 'shortcut', 'opener', 'dialog'  ]); ?>
 
-    <link rel="stylesheet" href="<?php echo $GLOBALS['rootdir']; ?>/forms/<?php echo $form_folder; ?>/css/style.css">
-    <script src="<?php echo $GLOBALS['webroot']; ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($providerID); ?>"></script>
+    <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->get('rootdir'); ?>/forms/<?php echo $form_folder; ?>/css/style.css">
+    <script src="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/forms/<?php echo $form_folder; ?>/js/eye_base.php?enc=<?php echo attr($encounter); ?>&providerID=<?php echo attr($providerID); ?>"></script>
 </head>
 
 <body>
@@ -730,7 +731,7 @@ foreach (explode(',', $given) as $item) {
                             ?>
                         </td>
                         <td class="indent20">
-                            <a class="text-body" href="<?php echo $GLOBALS['webroot']; ?>/interface/super/edit_list.php?list_id=occurrence" target="RTop" title="<?php echo xla('Click here to Edit the Course/Occurrence List'); ?>"><i class="fa fa-pencil-alt fa-fw"></i></a>
+                            <a class="text-body" href="<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/super/edit_list.php?list_id=occurrence" target="RTop" title="<?php echo xla('Click here to Edit the Course/Occurrence List'); ?>"><i class="fa fa-pencil-alt fa-fw"></i></a>
                         </td>
                     </tr>
 
@@ -1373,7 +1374,7 @@ foreach (explode(',', $given) as $item) {
             <?php $datetimepicker_formatInput = true; ?>
             <?php $datetimepicker_minDate = false; ?>
             <?php $datetimepicker_maxDate = false; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
         $('.datepicker-past').datetimepicker({
@@ -1382,7 +1383,7 @@ foreach (explode(',', $given) as $item) {
             <?php $datetimepicker_formatInput = true; ?>
             <?php $datetimepicker_minDate = false; ?>
             <?php $datetimepicker_maxDate = '+1970/01/01'; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
         $('.datepicker-future').datetimepicker({
@@ -1391,7 +1392,7 @@ foreach (explode(',', $given) as $item) {
             <?php $datetimepicker_formatInput = true; ?>
             <?php $datetimepicker_minDate = '-1970/01/01'; ?>
             <?php $datetimepicker_maxDate = false; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });

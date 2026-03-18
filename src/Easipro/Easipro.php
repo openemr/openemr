@@ -22,6 +22,7 @@ namespace OpenEMR\Easipro;
 use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Http\oeHttp;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
 class Easipro
@@ -29,13 +30,13 @@ class Easipro
     // Package authentication
     private static function packageAuth()
     {
-        return base64_encode($GLOBALS['easipro_name'] . ":" . (ServiceContainer::getCrypto())->decryptStandard($GLOBALS['easipro_pass']));
+        return base64_encode(OEGlobalsBag::getInstance()->get('easipro_name') . ":" . (ServiceContainer::getCrypto())->decryptStandard(OEGlobalsBag::getInstance()->get('easipro_pass')));
     }
 
     // Collect list of forms (returns json)
     public static function listForms()
     {
-        $response = oeHttp::usingHeaders(['Authorization' => 'Basic ' . self::packageAuth()])->get($GLOBALS['easipro_server'] . '/2014-01/Forms/.json');
+        $response = oeHttp::usingHeaders(['Authorization' => 'Basic ' . self::packageAuth()])->get(OEGlobalsBag::getInstance()->get('easipro_server') . '/2014-01/Forms/.json');
         $data = $response->body();
         return $data;
     }
@@ -43,7 +44,7 @@ class Easipro
     // Order form (returns json)
     public static function orderForm($form_oid)
     {
-        $response = oeHttp::usingHeaders(['Authorization' => 'Basic ' . self::packageAuth()])->get($GLOBALS['easipro_server'] . '/2014-01/Assessments/' . $form_oid . '.json');
+        $response = oeHttp::usingHeaders(['Authorization' => 'Basic ' . self::packageAuth()])->get(OEGlobalsBag::getInstance()->get('easipro_server') . '/2014-01/Assessments/' . $form_oid . '.json');
         $data = $response->body();
         return $data;
     }
@@ -51,7 +52,7 @@ class Easipro
     // Start assessment (returns json)
     public static function startAssessment($assessment_oid)
     {
-        $response = oeHttp::usingHeaders(['Authorization' => 'Basic ' . self::packageAuth()])->get($GLOBALS['easipro_server'] . '/2014-01/Participants/' . $assessment_oid . '.json');
+        $response = oeHttp::usingHeaders(['Authorization' => 'Basic ' . self::packageAuth()])->get(OEGlobalsBag::getInstance()->get('easipro_server') . '/2014-01/Participants/' . $assessment_oid . '.json');
         $data = $response->body();
         return $data;
     }
@@ -61,7 +62,7 @@ class Easipro
     {
         $query = ['ItemResponseOID' => $itemresponse_oid, 'Response' => $response];
         //$query = "ItemResponseOID=" . $itemresponse_oid . "&Response=" . $response;
-        $response = oeHttp::usingHeaders(['Authorization' => 'Basic ' . self::packageAuth()])->get($GLOBALS['easipro_server'] . '/2014-01/Participants/' . $assessment_oid . '.json', $query);
+        $response = oeHttp::usingHeaders(['Authorization' => 'Basic ' . self::packageAuth()])->get(OEGlobalsBag::getInstance()->get('easipro_server') . '/2014-01/Participants/' . $assessment_oid . '.json', $query);
         $data = $response->body();
         return $data;
     }
@@ -69,7 +70,7 @@ class Easipro
     // Collect results after completing assessment (returns json)
     public static function collectResults($assessment_oid)
     {
-        $response = oeHttp::usingHeaders(['Authorization' => 'Basic ' . self::packageAuth()])->get($GLOBALS['easipro_server'] . '/2014-01/Results/' . $assessment_oid . '.json');
+        $response = oeHttp::usingHeaders(['Authorization' => 'Basic ' . self::packageAuth()])->get(OEGlobalsBag::getInstance()->get('easipro_server') . '/2014-01/Results/' . $assessment_oid . '.json');
         $data = $response->body();
         return $data;
     }
@@ -98,7 +99,7 @@ class Easipro
         $pt_name = $patientData['fname'] . ' ' . $patientData['lname'];
         $pt_email = $patientData['email'];
         $email_subject = 'New assessment request';
-        $email_sender = $GLOBALS['patient_reminder_sender_email'];
+        $email_sender = OEGlobalsBag::getInstance()->get('patient_reminder_sender_email');
         $message = '<html><body>';
         $message .= '<table style="border-radius:4px;border:1px #dceaf5 solid" align="center" border="0" cellpadding="0" cellspacing="0">';
         $message .= '<tbody><tr><td>';
@@ -110,7 +111,7 @@ class Easipro
         $message .= '</b><br><b>Your assessment will close after ';
         $message .= text(DateFormatterUtils::oeFormatDateTime($expiration));
         $message .= ' ,</b> so please log in and complete it before then.';
-        $message .= '<center>Go to: ' . text($GLOBALS['portal_onsite_two_address']) . '</center><br>Thanks.';
+        $message .= '<center>Go to: ' . text(OEGlobalsBag::getInstance()->get('portal_onsite_two_address')) . '</center><br>Thanks.';
         $message .= '</td></tr></tbody></table>';
         $message .= '</td></tr></tbody></table>';
         $message .= '</body></html>';
@@ -151,7 +152,7 @@ class Easipro
         $user_name = $userData['fname'] . ' ' . $userData['lname'];
         $user_email = $userData['email'];
         $email_subject = 'Patient completed a measurement';
-        $email_sender = $GLOBALS['patient_reminder_sender_email'];
+        $email_sender = OEGlobalsBag::getInstance()->get('patient_reminder_sender_email');
         $message = '<html><body>';
         $message .= '<table style="border-radius:4px;border:1px #dceaf5 solid" align="center" border="0" cellpadding="0" cellspacing="0">';
         $message .= '<tbody><tr><td>';

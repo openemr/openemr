@@ -14,6 +14,7 @@
 // This is used for display purposes, and also the major/minor/patch
 // numbers are stored in the database and used to determine which sql
 // upgrade file is the starting point for the next upgrade.
+
 $v_major = '8';
 $v_minor = '0';
 $v_patch = '1';
@@ -51,6 +52,3 @@ if (!empty($_ENV['OPENEMR__ENVIRONMENT']) && ($_ENV['OPENEMR__ENVIRONMENT'] === 
     // Change this number when bumping
     $v_js_includes = 82;
 }
-
-// Do not modify below
-$GLOBALS['v_js_includes'] = $v_js_includes;

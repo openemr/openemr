@@ -18,6 +18,7 @@ use kamermans\OAuth2\GrantType\AuthorizationCode;
 use kamermans\OAuth2\GrantType\RefreshToken;
 use kamermans\OAuth2\OAuth2Middleware;
 use kamermans\OAuth2\Persistence\FileTokenPersistence;
+use OpenEMR\Core\OEGlobalsBag;
 
 /**
  * Class oeOAuth
@@ -45,7 +46,7 @@ class oeOAuth
 
     public function __construct()
     {
-        $httpVerifySsl = (bool) ($GLOBALS['http_verify_ssl'] ?? true);
+        $httpVerifySsl = (bool) (OEGlobalsBag::getInstance()->get('http_verify_ssl') ?? true);
 
         // for refresh/accecc token client.
         $this->auth_options = [
@@ -96,7 +97,7 @@ class oeOAuth
         /* Use php file to persist a safe token storage.
          *  Uniqueness is by client_id and logged in username.
          */
-        $token_path = $GLOBALS['OE_SITE_DIR'] . '/documents/logs_and_misc/methods/' .
+        $token_path = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/logs_and_misc/methods/' .
             $this->token_config["client_id"] . '_cache_' . $_SESSION['authUser'];
         // init cache
         $this->token_storage = new FileTokenPersistence($token_path);

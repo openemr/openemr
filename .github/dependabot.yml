@@ -118,11 +118,12 @@ updates:
       include: "scope"
     open-pull-requests-limit: 5
 
-  # Docker selenium docker updates in 3 places in the repo as a group
+  # Docker selenium docker updates in 4 places in the repo as a group
   - package-ecosystem: "docker-compose"
     directories:
       - "ci/compose-shared-selenium/"
       - "docker/development-easy/"
+      - "docker/development-easy-redis/"
       - "docker/development-insane/"
     schedule:
       interval: "weekly"

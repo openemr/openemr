@@ -21,12 +21,13 @@ use Application\Listener\Listener;
 use Application\Model\SendtoTable;
 use Carecoordination\Model\CarecoordinationTable;
 use Documents\Plugin\Documents;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\ORDataObject\ContactAddress;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Session\SessionWrapperInterface;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\CareTeamService;
 use OpenEMR\Services\CodeTypesService;
 use OpenEMR\Services\ContactAddressService;
@@ -48,7 +49,7 @@ use RuntimeException;
 
 require_once(__DIR__ . "/../../../../../../../../custom/code_types.inc.php");
 require_once(__DIR__ . "/../../../../../../../forms/vitals/report.php");
-require_once($GLOBALS['fileroot'] . '/library/amc.php');
+require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/library/amc.php');
 
 class EncounterccdadispatchTable
 {
@@ -987,7 +988,7 @@ class EncounterccdadispatchTable
         }
         if (!$details) {
             // at this point we really can't do anything as we can't provide an author piece
-            (new SystemLogger())->errorLogCaller("Failed to find author for c-cda document, no hie_author_id, authUserID in session, or provider relationship");
+            ServiceContainer::getLogger()->error("EncounterccdadispatchTable: Failed to find author for c-cda document, no hie_author_id, authUserID in session, or provider relationship");
             return null;
         }
 
@@ -1209,8 +1210,8 @@ class EncounterccdadispatchTable
                 $organization_uuid = UuidRegistry::uuidToString($details['facility_uuid']);
             } else {
                 $organization_uuid = ''; // leave it an empty string as we don't even know if we have a connected organization.
-                (new SystemLogger())->errorLogCaller(
-                    "Failed to find facility uuid for Carecoordination hie_office_contact, uuid is either missing or office contact has no connected organization",
+                ServiceContainer::getLogger()->error(
+                    "EncounterccdadispatchTable: Failed to find facility uuid for hie_office_contact {fname} {lname}, uuid is either missing or office contact has no connected organization",
                     ['fname' => $details['fname'], 'lname' => $details['lname'], 'organization' => $details['organization']
                         ,
                         'npi' => $details['facility_npi']]
@@ -1658,7 +1659,7 @@ class EncounterccdadispatchTable
 
             if ($row['start_date']) {
                 $start_date = str_replace('-', '', $row['start_date']);
-                $start_date_formatted = \Application\Model\ApplicationTable::fixDate($row['start_date'], $GLOBALS['date_display_format'], 'yyyy-mm-dd');;
+                $start_date_formatted = \Application\Model\ApplicationTable::fixDate($row['start_date'], OEGlobalsBag::getInstance()->get('date_display_format'), 'yyyy-mm-dd');;
             }
 
             $medications .= "<medication>" . $provenanceXml . "
@@ -3044,7 +3045,7 @@ class EncounterccdadispatchTable
             $convWeightValue = number_format($row['weight'] * 0.45359237, 2);
             $convHeightValue = number_format(round($row['height'] * 2.54, 1), 2);
             $convTempValue = number_format((round($row['temperature'] - 32) * (5 / 9)), 1);
-            if ($GLOBALS['units_of_measurement'] == 2 || $GLOBALS['units_of_measurement'] == 4) {
+            if (OEGlobalsBag::getInstance()->get('units_of_measurement') == 2 || OEGlobalsBag::getInstance()->get('units_of_measurement') == 4) {
                 $weight_value = $convWeightValue;
                 $weight_unit = 'kg';
                 $height_value = $convHeightValue;
@@ -3565,8 +3566,8 @@ class EncounterccdadispatchTable
                     foreach ($form_ids as $row) {//Fetching the values of each forms
                         foreach ($row as $value) {
                             ob_start();
-                            if (file_exists($GLOBALS['fileroot'] . '/interface/forms/' . $formTables_details[2] . '/report.php')) {
-                                include_once($GLOBALS['fileroot'] . '/interface/forms/' . $formTables_details[2] . '/report.php');
+                            if (file_exists(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/forms/' . $formTables_details[2] . '/report.php')) {
+                                include_once(OEGlobalsBag::getInstance()->get('fileroot') . '/interface/forms/' . $formTables_details[2] . '/report.php');
                                 ($formTables_details[2] . "_report")($pid, $encounter, 2, $value);
                             }
 
@@ -3629,7 +3630,7 @@ class EncounterccdadispatchTable
 
                     $formid_list = $formid_list ?: "''";
                     $lbf = "lbf_data";
-                    $filename = "{$GLOBALS['srcdir']}/" . $formTables_details[2] . "/" . $formTables_details[2] . "_db.php";
+                    $filename = OEGlobalsBag::getInstance()->get('srcdir') . "/" . $formTables_details[2] . "/" . $formTables_details[2] . "_db.php";
                     if (file_exists($filename)) {
                         include_once($filename);
                     }
@@ -4003,7 +4004,7 @@ class EncounterccdadispatchTable
     {
         if (empty($referralId)) {
             // user is sending a CCDA w/o any kind of connecting referral... we will log the error and continue
-            (new SystemLogger())->errorLogCaller("Failed to log amc information due to missing referral id.  User is sending CCDA w/o any connecting referral record", ['pid' => $pid]);
+            ServiceContainer::getLogger()->error("EncounterccdadispatchTable::logAmc: Failed to log amc information due to missing referral id. User is sending CCDA w/o any connecting referral record for pid {pid}", ['pid' => $pid]);
             return;
         }
 
@@ -4332,7 +4333,7 @@ class EncounterccdadispatchTable
             $sdoh = (HistorySdohService::getCurrentAssessment((int)$pid)) ?? null;
             if ($sdoh) {
                 // Author/provenance (use last updater or current user)
-                $authorId = $sdoh['user'] ?? $sdoh['provider'] ?? ($GLOBALS['authUserID'] ?? null);
+                $authorId = $sdoh['user'] ?? $sdoh['provider'] ?? (OEGlobalsBag::getInstance()->get('authUserID') ?? null);
                 $authorTime = $sdoh['updated_at'] ?? $sdoh['assessment_date'] ?? date('Y-m-d');
                 $encId = (int)($sdoh['encounter'] ?? $encounter ?? 0);
 

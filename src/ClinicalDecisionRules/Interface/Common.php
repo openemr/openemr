@@ -15,6 +15,8 @@
 
 namespace OpenEMR\ClinicalDecisionRules\Interface;
 
+use OpenEMR\Core\OEGlobalsBag;
+
 class Common
 {
     /**
@@ -68,22 +70,22 @@ class Common
 
     public static function base_url(): string
     {
-        return $GLOBALS['webroot'] . '/interface/super/rules';
+        return OEGlobalsBag::getInstance()->get('webroot') . '/interface/super/rules';
     }
 
     public static function src_dir(): string
     {
-        return $GLOBALS['srcdir'];
+        return OEGlobalsBag::getInstance()->get('srcdir');
     }
 
     public static function template_dir(): string
     {
-        return $GLOBALS['template_dir'] . 'super' . DIRECTORY_SEPARATOR . 'rules' . DIRECTORY_SEPARATOR;
+        return OEGlobalsBag::getInstance()->get('template_dir') . 'super' . DIRECTORY_SEPARATOR . 'rules' . DIRECTORY_SEPARATOR;
     }
 
     public static function base_dir(): string
     {
-        return $GLOBALS['incdir'] . '/super/rules/';
+        return OEGlobalsBag::getInstance()->get('incdir') . '/super/rules/';
     }
 
     public static function library_dir(): string

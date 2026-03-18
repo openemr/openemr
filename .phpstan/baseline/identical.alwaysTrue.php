@@ -17,6 +17,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Immunization/src/Immunization/Controller/ImmunizationController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Strict comparison using \\=\\=\\= between \'pid\' and \'pid\' will always evaluate to true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between \'\' and \'\' will always evaluate to true\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../library/clinical_rules.php',

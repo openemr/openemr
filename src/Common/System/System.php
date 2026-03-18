@@ -2,6 +2,8 @@
 
 namespace OpenEMR\Common\System;
 
+use OpenEMR\Core\OEGlobalsBag;
+
 /**
  * Handles any commands dealing with the operating system.
  */
@@ -57,7 +59,7 @@ class System
         $phandle = false;
         if (IS_WINDOWS) {
             $redirect_errors = " > " .
-                $this->escapeshellcmd($GLOBALS['temporary_files_dir'] .
+                $this->escapeshellcmd(OEGlobalsBag::getInstance()->get('temporary_files_dir') .
                     "/oe-system-start_server.log") . " 2>&1";
             $cmd .= $redirect_errors;
             $phandle = popen("start /B " . $cmd, "r");

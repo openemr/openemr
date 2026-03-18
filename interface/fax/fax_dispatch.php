@@ -23,6 +23,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if ($_GET['file']) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
@@ -35,7 +36,7 @@ if ($_GET['file']) {
     // ensure the file variable has no illegal characters
     check_file_dir_name($filename);
 
-    $filepath = $GLOBALS['hylafax_basedir'] . '/recvq/' . $filename;
+    $filepath = OEGlobalsBag::getInstance()->get('hylafax_basedir') . '/recvq/' . $filename;
 } elseif ($_GET['scan']) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
@@ -47,14 +48,14 @@ if ($_GET['file']) {
     // ensure the file variable has no illegal characters
     check_file_dir_name($filename);
 
-    $filepath = $GLOBALS['scanner_output_directory'] . '/' . $filename;
+    $filepath = OEGlobalsBag::getInstance()->get('scanner_output_directory') . '/' . $filename;
 } else {
     die("No filename was given.");
 }
 
 $ext = substr((string) $filename, strrpos((string) $filename, '.'));
 $filebase = basename("/$filename", $ext);
-$faxcache = $GLOBALS['OE_SITE_DIR'] . "/faxcache/$mode/$filebase";
+$faxcache = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/faxcache/$mode/$filebase";
 
 $info_msg = "";
 
@@ -123,7 +124,7 @@ if ($_POST['form_save']) {
         }
 
         // Compute the name of the target directory and make sure it exists.
-        $docdir = $GLOBALS['OE_SITE_DIR'] . "/documents/" . check_file_dir_name($patient_id);
+        $docdir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/" . check_file_dir_name($patient_id);
         exec("mkdir -p " . escapeshellarg($docdir));
 
         // If copying to patient documents...
@@ -240,7 +241,7 @@ if ($_POST['form_save']) {
                     $userauthorized
                 );
                 //
-                $imagedir = $GLOBALS['OE_SITE_DIR'] . "/documents/" . check_file_dir_name($patient_id) . "/encounters";
+                $imagedir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/" . check_file_dir_name($patient_id) . "/encounters";
                 $imagepath = "$imagedir/" . check_file_dir_name($encounter_id) . "_" . check_file_dir_name($formid) . ".jpg";
                 if (! is_dir($imagedir)) {
                         $tmp0 = exec('mkdir -p ' . escapeshellarg($imagedir), $tmp1, $tmp2);
@@ -302,7 +303,7 @@ if ($_POST['form_save']) {
         $tmpfn2 = tempnam("/tmp", "fax2");
         $tmph = fopen($tmpfn1, "w");
         $cpstring = '';
-        $fh = fopen($GLOBALS['OE_SITE_DIR'] . "/faxcover.txt", 'r');
+        $fh = fopen(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/faxcover.txt", 'r');
         while (!feof($fh)) {
             $cpstring .= fread($fh, 8192);
         }
@@ -315,7 +316,7 @@ if ($_POST['form_save']) {
         $cpstring = str_replace('{MESSAGE}', $form_message, $cpstring);
         fwrite($tmph, $cpstring);
         fclose($tmph);
-        $tmp0 = exec("cd " . escapeshellarg($webserver_root . '/custom') . "; " . escapeshellcmd((ServiceContainer::getCrypto())->decryptStandard($GLOBALS['more_secure']['hylafax_enscript'])) .
+        $tmp0 = exec("cd " . escapeshellarg($webserver_root . '/custom') . "; " . escapeshellcmd((ServiceContainer::getCrypto())->decryptStandard(OEGlobalsBag::getInstance()->get('more_secure')['hylafax_enscript'])) .
         " -o " . escapeshellarg($tmpfn2) . " " . escapeshellarg($tmpfn1), $tmp1, $tmp2);
         if ($tmp2) {
               $info_msg .= "enscript returned $tmp2: $tmp0 ";
@@ -370,8 +371,8 @@ if ($_POST['form_save']) {
 
     if ($form_cb_delete == '2' && !$info_msg) {
         // Delete the tiff file, with archiving if desired.
-        if ($GLOBALS['hylafax_archdir'] && $mode == 'fax') {
-            rename($filepath, $GLOBALS['hylafax_archdir'] . '/' . $filename);
+        if (OEGlobalsBag::getInstance()->get('hylafax_archdir') && $mode == 'fax') {
+            rename($filepath, OEGlobalsBag::getInstance()->get('hylafax_archdir') . '/' . $filename);
         } else {
             unlink($filepath);
         }
@@ -470,7 +471,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
 
 <script>
 
-    <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
 
  function divclick(cb, divid) {
   var divstyle = document.getElementById(divid).style;
@@ -587,7 +588,7 @@ $ures = sqlStatement("SELECT username, fname, lname FROM users " .
             <?php $datetimepicker_timepicker = false; ?>
             <?php $datetimepicker_showseconds = false; ?>
             <?php $datetimepicker_formatInput = false; ?>
-            <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+            <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
         });
     });

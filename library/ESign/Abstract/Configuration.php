@@ -16,7 +16,9 @@
 
 namespace ESign;
 
-require_once $GLOBALS['srcdir'] . '/ESign/ConfigurationIF.php';
+use OpenEMR\Core\OEGlobalsBag;
+
+require_once OEGlobalsBag::getInstance()->get('srcdir') . '/ESign/ConfigurationIF.php';
 
 abstract class Abstract_Configuration implements ConfigurationIF
 {
@@ -37,7 +39,7 @@ abstract class Abstract_Configuration implements ConfigurationIF
 
     public function getBaseUrl()
     {
-        return $GLOBALS['webroot'] . "/interface/esign/index.php";
+        return OEGlobalsBag::getInstance()->get('webroot') . "/interface/esign/index.php";
     }
 
     public function getLogViewAction()
