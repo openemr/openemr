@@ -25,9 +25,11 @@
  * @author    Bill Cernansky (www.mi-squared.com)
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Stephen Waite <stephen.waite@cmsvt.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2008-2014, 2016, 2021-2022 Rod Roark <rod@sunsetsystems.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2019 Stephen Waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -658,6 +660,19 @@ if ($form_step == 101) {
 }
 
 if ($form_step == 102) {
+    // Escape a string for safe use inside shell single quotes (Unix/Linux).
+    // In bash, single quotes preserve everything literally except you cannot include
+    // a single quote. The standard technique is to end the quoted string, add an
+    // escaped single quote, and start a new quoted string: 'foo'\''bar' = foo'bar
+    $escapeShellSingleQuotes = (fn(string $str): string => str_replace("'", "'\\''", $str));
+
+    // Escape a string for safe use in Windows cmd.exe commands.
+    // In cmd.exe: " is escaped as "", and metacharacters &|<>^ are escaped with ^
+    $escapeForWindowsCmd = function (string $str): string {
+        $str = str_replace('"', '""', $str);
+        return preg_replace('/([&|<>^])/', '^$1', $str) ?? $str;
+    };
+
     $tables = '';
     if (!empty($_POST['form_cb_services'  ])) {
         $tables .= ' codes';
@@ -775,22 +790,28 @@ if ($form_step == 102) {
                     continue;
                 }
                 if (IS_WINDOWS) {
+                    // Use $escapeForWindowsCmd() to prevent command injection when
+                    // the value is embedded inside Windows cmd.exe commands.
+                    $safeListIdWin = $escapeForWindowsCmd(add_escape_custom($listid));
                     # windows will place the quotes in the outputted code if they are there. we removed them here.
-                    $cmd .= " echo 'DELETE FROM list_options WHERE list_id = \"" . add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . " & ";
-                    $cmd .= " echo 'DELETE FROM list_options WHERE list_id = 'lists' AND option_id = \"" . add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= " echo 'DELETE FROM list_options WHERE list_id = \"" . $safeListIdWin . "\";' >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= " echo 'DELETE FROM list_options WHERE list_id = 'lists' AND option_id = \"" . $safeListIdWin . "\";' >> " . escapeshellarg($EXPORT_FILE) . " & ";
                     # windows uses the & to join statements.
-                    $cmd .= $dumppfx . " --where=\"list_id = 'lists' AND option_id = '$listid' OR list_id = '$listid' " .
+                    $cmd .= $dumppfx . " --where=\"list_id = 'lists' AND option_id = '" . $safeListIdWin . "' OR list_id = '" . $safeListIdWin . "' " .
                         "ORDER BY list_id != 'lists', seq, title\" " .
                         escapeshellarg($dbOptions->dbname) . " list_options";
                     $cmd .=  " >> " . escapeshellarg($EXPORT_FILE) . " & ";
                 } else {
+                    // Use $escapeShellSingleQuotes() to prevent command injection when
+                    // the value is embedded inside single-quoted shell strings.
+                    $safeListId = $escapeShellSingleQuotes(add_escape_custom($listid));
                     $cmdarr[] = "echo 'DELETE FROM list_options WHERE list_id = \"" .
-                        add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";" .
+                        $safeListId . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";" .
                         "echo 'DELETE FROM list_options WHERE list_id = \"lists\" AND option_id = \"" .
-                        add_escape_custom($listid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";" .
+                        $safeListId . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";" .
                         $dumppfx . " --where='list_id = \"lists\" AND option_id = \"" .
-                        add_escape_custom($listid) . "\" OR list_id = \"" .
-                        add_escape_custom($listid) . "\" " . "ORDER BY list_id != \"lists\", seq, title' " .
+                        $safeListId . "\" OR list_id = \"" .
+                        $safeListId . "\" " . "ORDER BY list_id != \"lists\", seq, title' " .
                         escapeshellarg($dbOptions->dbname) . " list_options" .
                         " >> " . escapeshellarg($EXPORT_FILE) . ";";
                 }
@@ -814,32 +835,37 @@ if ($form_step == 102) {
                     echo xlt("Skipping missing layout name") . ": " . text($layoutid) . "<br>";
                     continue;
                 }
+                // Use escaping functions to prevent command injection when
+                // values are embedded inside shell commands.
+                $safeLayoutId = $escapeShellSingleQuotes(add_escape_custom($layoutid));
+                $safeLayoutIdWin = $escapeForWindowsCmd(add_escape_custom($layoutid));
+
                 // Beware and keep in mind that Windows requires double quotes around arguments.
                 if (IS_WINDOWS) {
                     # windows will place the quotes in the outputted code if they are there. we removed them here.
-                    $cmd .= " echo DELETE FROM layout_options WHERE form_id = \"" . add_escape_custom($layoutid) . "\"; >> " . escapeshellarg($EXPORT_FILE) . " & ";
+                    $cmd .= " echo DELETE FROM layout_options WHERE form_id = \"" . $safeLayoutIdWin . "\"; >> " . escapeshellarg($EXPORT_FILE) . " & ";
                 } else {
-                    $cmd .= "echo 'DELETE FROM layout_options WHERE form_id = \"" . add_escape_custom($layoutid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo 'DELETE FROM layout_options WHERE form_id = \"" . $safeLayoutId . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";";
                 }
                 if (IS_WINDOWS) {
                     # windows will place the quotes in the outputted code if they are there. we removed them here.
-                    $cmd .= "echo DELETE FROM layout_group_properties WHERE grp_form_id = \"" . add_escape_custom($layoutid) . "\"; >> " . escapeshellarg($EXPORT_FILE) . " &;";
+                    $cmd .= "echo DELETE FROM layout_group_properties WHERE grp_form_id = \"" . $safeLayoutIdWin . "\"; >> " . escapeshellarg($EXPORT_FILE) . " & ";
                 } else {
-                    $cmd .= "echo 'DELETE FROM layout_group_properties WHERE grp_form_id = \"" . add_escape_custom($layoutid) . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";";
+                    $cmd .= "echo 'DELETE FROM layout_group_properties WHERE grp_form_id = \"" . $safeLayoutId . "\";' >> " . escapeshellarg($EXPORT_FILE) . ";";
                 }
                 if (IS_WINDOWS) {
                     # windows uses the & to join statements.
-                    $cmd .= $dumppfx . ' --where="grp_form_id = \'' . add_escape_custom($layoutid) . "'\" " .
+                    $cmd .= $dumppfx . ' --where="grp_form_id = \'' . $safeLayoutIdWin . "'\" " .
                         escapeshellarg($dbOptions->dbname) . " layout_group_properties";
                     $cmd .= " >> " . escapeshellarg($EXPORT_FILE) . " & ";
-                    $cmd .= $dumppfx . ' --where="form_id = \'' . add_escape_custom($layoutid) . '\' ORDER BY group_id, seq, title" '  .
+                    $cmd .= $dumppfx . ' --where="form_id = \'' . $safeLayoutIdWin . '\' ORDER BY group_id, seq, title" '  .
                         escapeshellarg($dbOptions->dbname) . " layout_options" ;
                     $cmd .= " >> " . escapeshellarg($EXPORT_FILE) . " & ";
                 } else {
-                    $cmd .= $dumppfx . " --where='grp_form_id = \"" . add_escape_custom($layoutid) . "\"' " .
+                    $cmd .= $dumppfx . " --where='grp_form_id = \"" . $safeLayoutId . "\"' " .
                         escapeshellarg($dbOptions->dbname) . " layout_group_properties";
                     $cmd .= " >> " . escapeshellarg($EXPORT_FILE) . ";";
-                    $cmd .= $dumppfx . " --where='form_id = \"" . add_escape_custom($layoutid) . "\" ORDER BY group_id, seq, title' " .
+                    $cmd .= $dumppfx . " --where='form_id = \"" . $safeLayoutId . "\" ORDER BY group_id, seq, title' " .
                         escapeshellarg($dbOptions->dbname) . " layout_options" ;
                     $cmd .= " >> " . escapeshellarg($EXPORT_FILE) . ";";
                 }
