@@ -122,7 +122,7 @@ class CryptoFixtureManager
         'sevenb' => 'db_v7_hmac_key__________________',
     ];
 
-    private string $siteDir;
+    private readonly string $siteDir;
 
     /** @var array<string, string> Backed up database keys (name => encoded value) */
     private array $backedUpDbKeys = [];
