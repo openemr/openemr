@@ -6,5 +6,5 @@ namespace OpenEMR\Common\Crypto\Keys;
 
 interface KeyManagerInterface
 {
-    public function getKey(string $identifer): KeyMaterial;
+    public function getKey(string $identifier): KeyMaterial;
 }
