@@ -76,6 +76,46 @@ class SystemLogger implements LoggerInterface
      */
     public function log($level, $message, array $context = []): void
     {
+        $context = $this->escapeVariables($context);
         $this->logger->log($level, $message, $context);
+    }
+
+    private function escapeVariables($dictionary, $recurseLimit = 0)
+    {
+        if ($recurseLimit > 25) {
+            return "Cannot escape further. Maximum nested limit reached";
+        }
+
+        // the inner library may already be safely escaping values, but we don't want to assume that
+        // so we go through and make sure we use the OpenEMR errorLogEscape to make sure nothing
+        // hits the log file that could be an attack vector
+        // if we have a different LogHandler this logic may need to be revisited.
+        $escapedDict = [];
+        foreach ($dictionary as $key => $value) {
+            $escapedKey = $this->escapeValue($key);
+            if (is_array($value)) {
+                $escapedDict[$key] = $this->escapeVariables($value, $recurseLimit + 1);
+            } elseif (is_object($value)) {
+                try {
+                    $object = json_encode($value);
+                    $escapedDict[$escapedKey] = $this->escapeValue($object);
+                } catch (\Throwable $error) {
+                    error_log($error->getMessage());
+                }
+            } else {
+                $escapedDict[$escapedKey] = $this->escapeValue($value);
+            }
+        }
+        return $escapedDict;
+    }
+
+    /**
+     * Safely escape a single value that can be written out to a log file.
+     * @param $var
+     * @return string
+     */
+    private function escapeValue($var)
+    {
+        return errorLogEscape($var);
     }
 }
