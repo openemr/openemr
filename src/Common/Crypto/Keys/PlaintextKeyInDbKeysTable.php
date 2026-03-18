@@ -16,7 +16,7 @@ class PlaintextKeyInDbKeysTable implements KeyManagerInterface
     public function getKey(string $identifier): KeyMaterial
     {
         $result = $this->conn->fetchOne(
-            'SELECT value FROM keys WHERE name = ?',
+            'SELECT value FROM `keys` WHERE name = ?',
             [$identifier],
         );
 
