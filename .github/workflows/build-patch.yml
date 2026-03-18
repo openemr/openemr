@@ -232,7 +232,9 @@ jobs:
           if [[ -z "$file" ]]; then
             continue
           fi
-          mkdir -p "${patch_dir}/${file%/*}"
+          if [[ $file = */* ]]; then
+            mkdir -p "${patch_dir}/${file%/*}"
+          fi
           cp "$file" "${patch_dir}/${file}"
         done < /tmp/changed-files.txt
 
