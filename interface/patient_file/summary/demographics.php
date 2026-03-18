@@ -1233,7 +1233,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     // a Twig template. This reduces the amount of refactoring that is required but ideally the
                     // Smarty template should be upgraded to Twig
                     ob_start();
-                    echo $c->act(['prescription' => '', 'fragment' => '', 'patient_id' => $pid]);
+                    echo $c->dispatch(['controller' => 'prescription', 'action' => 'fragment', 'patient_id' => $pid]);
                     $viewArgs['content'] = ob_get_contents();
                     ob_end_clean();
 

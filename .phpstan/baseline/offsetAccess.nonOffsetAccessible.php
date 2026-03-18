@@ -31847,16 +31847,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/ClinicalTypes/codes.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'process\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Controller.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset string\\|null on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/classes/Controller.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'_id\' on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/classes/CouchDB.class.php',
