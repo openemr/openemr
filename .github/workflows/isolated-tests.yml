@@ -49,16 +49,6 @@ jobs:
       run: |
         vendor/bin/phpunit -c phpunit-isolated.xml \
                            --coverage-clover=clover.xml \
-                           --coverage-filter=apis \
-                           --coverage-filter=gacl \
-                           --coverage-filter=interface \
-                           --coverage-filter=library \
-                           --coverage-filter=modules \
-                           --coverage-filter=oauth2 \
-                           --coverage-filter=portal \
-                           --coverage-filter=sites \
-                           --coverage-filter=src \
-                           --coverage-filter=tests \
                            --log-junit=junit.xml \
                            --testdox
 
