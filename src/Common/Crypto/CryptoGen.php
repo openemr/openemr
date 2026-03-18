@@ -32,12 +32,7 @@
 
 namespace OpenEMR\Common\Crypto;
 
-use Doctrine\DBAL\Connection;
-use OpenEMR\BC\{
-    DatabaseConnectionFactory,
-    DatabaseConnectionOptions,
-    ServiceContainer,
-};
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use Psr\Log\LoggerInterface;
 
@@ -51,17 +46,13 @@ class CryptoGen implements CryptoInterface
     private array $keyCache = [];
 
     private readonly LoggerInterface $logger;
-    private readonly Connection $auditConn;
 
     private readonly string $siteDir;
 
     public function __construct(?LoggerInterface $logger = null, ?string $siteDir = null)
     {
-        $site = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
         $this->logger = $logger ?? ServiceContainer::getLogger();
-        $this->siteDir = $siteDir ?? $site;
-        $opts = DatabaseConnectionOptions::forSite($site);
-        $this->auditConn = DatabaseConnectionFactory::createDbal($opts, false);
+        $this->siteDir = $siteDir ?? OEGlobalsBag::getInstance()->getString('OE_SITE_DIR');
     }
 
     /**
@@ -173,7 +164,7 @@ class CryptoGen implements CryptoInterface
             // 4 was also plaintext, but supported db storage
             KeyVersion::FOUR => match ($source) {
                 KeySource::Drive => new Keys\PlaintextKeyOnDisk($keyStorage),
-                KeySource::Database => new Keys\PlaintextKeyInDbKeysTable($this->auditConn),
+                KeySource::Database => new Keys\PlaintextKeyInDbKeysTableAdodb(),
             },
             // 5-7 encrypts the disk-backed keys
             KeyVersion::FIVE,
@@ -181,9 +172,9 @@ class CryptoGen implements CryptoInterface
             KeyVersion::SEVEN => match ($source) {
                 KeySource::Drive => new Keys\EncryptedKeyOnDiskWithDbDecryption(
                     storageDir: $keyStorage,
-                    dbKeyManager: new Keys\PlaintextKeyInDbKeysTable($this->auditConn),
+                    dbKeyManager: new Keys\PlaintextKeyInDbKeysTableAdodb(),
                 ),
-                KeySource::Database => new Keys\PlaintextKeyInDbKeysTable($this->auditConn),
+                KeySource::Database => new Keys\PlaintextKeyInDbKeysTableAdodb(),
             },
         };
     }
