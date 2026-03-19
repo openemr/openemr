@@ -147,7 +147,7 @@ class CryptoGen implements CryptoInterface
         return [
             'format' => $format,
             // FIXME: v3 thing?
-            'keyId' => $format->toString(),
+            'keyId' => $format === KeyVersion::THREE ? 'two' : $format->toString(),
             'ciphertext' => $ciphertext,
         ];
     }
