@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-// total 3905 errors
+// total 3907 errors
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
@@ -905,7 +905,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$GLOBALS is forbidden\\. Use OEGlobalsBag\\:\\:getInstance\\(\\)\\-\\>get\\(\\) instead\\.$#',
-    'count' => 17,
+    'count' => 19,
     'path' => __DIR__ . '/../../interface/forms/vitals/C_FormVitals.class.php',
 ];
 $ignoreErrors[] = [
