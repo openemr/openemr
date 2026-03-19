@@ -542,7 +542,7 @@ class EhiExporter
         $filePath = $state->getTempSysDir() . DIRECTORY_SEPARATOR . $tableName . '.csv';
         if (file_exists($filePath)) {
             $contents = file_get_contents($filePath);
-            return $this->cryptoGen->decryptStandard($contents, null, KeySource::Database);
+            return $this->cryptoGen->decryptStandard($contents, keySource: KeySource::Database);
         }
         return "";
     }
@@ -674,7 +674,7 @@ class EhiExporter
         // huge if there is a lot of patients represented
         fclose($csvFile);
         unset($csvFile);
-        $encryptedContents = $this->cryptoGen->encryptStandard($dataContents, null, KeySource::Database);
+        $encryptedContents = $this->cryptoGen->encryptStandard($dataContents, keySource: KeySource::Database);
         $fileName = $outputLocation . DIRECTORY_SEPARATOR . $tableName . '.csv';
         $contentsWritten = file_put_contents($fileName, $encryptedContents);
         if ($contentsWritten === false) {

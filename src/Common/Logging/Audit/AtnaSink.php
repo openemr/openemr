@@ -59,7 +59,6 @@ MSG;
     public function __construct(
         private ClockInterface $clock,
         private Atna\WriterInterface $writer,
-        private bool $enabled,
         private string $host,
         private string $serverName,
         private string $serverAddress,
@@ -159,6 +158,6 @@ MSG;
 
     private function isEnabled(): bool
     {
-        return $this->enabled && $this->host !== '';
+        return $this->host !== '';
     }
 }

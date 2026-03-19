@@ -52,7 +52,7 @@ OpenEMR provides a comprehensive **FHIR R4** implementation compliant with:
 | FHIR | R4 (4.0.1) | ✅ Baseline Support |
 | US Core | 8.0        | ✅ Compliant        |
 | SMART on FHIR | v2.2.0     | ✅ Certified        |
-| Bulk Data | v1.0       | ✅ Implemented      |
+| Bulk Data | v2.0.0       | ✅ Implemented      |
 | USCDI | v5         | ✅ Supported        |
 
 ## Prerequisites
@@ -460,7 +460,7 @@ The resources that OpenEMR supports is documented via Swagger. You can see this 
 
 ## Bulk FHIR Exports
 
-OpenEMR implements the **[FHIR Bulk Data Export specification](https://hl7.org/fhir/uv/bulkdata/)** for large-scale data access.
+OpenEMR implements the **[FHIR Bulk Data Export specification](https://hl7.org/fhir/uv/bulkdata/STU2/)** for large-scale data access.
 
 ### Overview
 
@@ -537,7 +537,7 @@ curl -X GET 'https://localhost:9300/apis/default/fhir/Patient/$export' \
 
 #### Patient Compartment
 
-Includes all resources in the [Patient Compartment](https://www.hl7.org/fhir/compartmentdefinition-patient.html):
+Includes all resources in the [Patient Compartment](https://hl7.org/fhir/R4/compartmentdefinition-patient.html):
 - Patient
 - Observation
 - Condition

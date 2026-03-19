@@ -393,6 +393,16 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                             }
                                                         }
                                                     }
+                                                    // AI-generated code (Claude Code) - start
+                                                    // Print any forms not in the registry (e.g. custom LBF layouts)
+                                                    foreach ($html_strings as $key => $toprint) {
+                                                        if (!in_array($key, $registry_form_name, true)) {
+                                                            foreach ($toprint as $item) {
+                                                                print $item;
+                                                            }
+                                                        }
+                                                    }
+                                                    // AI-generated code (Claude Code) - end
                                                     $html_strings = [];
                                                     echo "</div>\n"; // end DIV encounter_forms
                                                     echo "</div>\n\n";  //end DIV encounter_data
@@ -459,6 +469,16 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                                 }
                                             }
                                         }
+                                        // AI-generated code (Claude Code) - start
+                                        // Print any forms not in the registry (e.g. custom LBF layouts)
+                                        foreach ($html_strings as $key => $toprint) {
+                                            if (!in_array($key, $registry_form_name, true)) {
+                                                foreach ($toprint as $item) {
+                                                    print $item;
+                                                }
+                                            }
+                                        }
+                                        // AI-generated code (Claude Code) - end
                                         ?>
 
                                         <?php

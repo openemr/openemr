@@ -23,6 +23,7 @@ This file configures the kind that does not require initialization.
          displayDetailsOnTestsThatTriggerErrors="true"
          displayDetailsOnTestsThatTriggerWarnings="true"
          displayDetailsOnTestsThatTriggerNotices="true"
+         displayDetailsOnPhpunitDeprecations="true"
          testdox="false">
 
   <php>
@@ -30,6 +31,21 @@ This file configures the kind that does not require initialization.
     <!-- Disable database connections for isolated testing -->
     <server name="DISABLE_DATABASE" value="1"/>
   </php>
+
+  <source>
+    <include>
+      <directory>apis</directory>
+      <directory>gacl</directory>
+      <directory>interface</directory>
+      <directory>library</directory>
+      <directory>modules</directory>
+      <directory>oauth2</directory>
+      <directory>portal</directory>
+      <directory>sites</directory>
+      <directory>src</directory>
+      <directory>tests</directory>
+    </include>
+  </source>
 
   <testsuites>
     <testsuite name="isolated">

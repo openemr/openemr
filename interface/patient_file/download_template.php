@@ -397,7 +397,7 @@ $fileData = file_get_contents($templatepath);
 // Decrypt file, if applicable.
 $cryptoGen = ServiceContainer::getCrypto();
 if ($cryptoGen->cryptCheckStandard($fileData)) {
-    $fileData = $cryptoGen->decryptStandard($fileData, null, KeySource::Database);
+    $fileData = $cryptoGen->decryptStandard($fileData, keySource: KeySource::Database);
 }
 
 // Create a temporary file to hold the template.
