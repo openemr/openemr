@@ -41,6 +41,15 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
+        db:
+          - 'mariadb:10.6'
+          # - 'mariadb:10.11'
+          # - 'mariadb:11.8'
+          # - 'mariadb:12.0'
+          # - 'mysql:5.7'
+          # - 'mysql:8.0'
+          # - 'mysql:8.4'
+          - 'mysql:9.3'
         php:
           - '8.2'
           # - '8.3'
