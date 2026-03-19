@@ -23,6 +23,7 @@ use OpenEMR\Common\Database\TableTypes;
 use OpenEMR\Common\ORDataObject\ContactAddress;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\BeforePatientCreatedEvent;
 use OpenEMR\Events\Patient\BeforePatientUpdatedEvent;
@@ -299,16 +300,20 @@ class PatientService extends BaseService
         if (($data['allow_patient_portal']  ??  '' ) === 'YES') {
             // we're about to set it to YES, so make sure credentials have been created
             $sql = "SELECT portal_login_username, portal_username FROM patient_access_onsite WHERE pid = ?";
-          //   $sqlget = sqlStatement($sql, $data['pid']); //deprecated
-          //  $names = sqlFetchArray($sqlget);
-            /** @var array<string, string> $names */
-            $names  = QueryUtils::fetchRecords ($sql,[$data['pid']]);
+         //   $sqlget = sqlStatement($sql, $data['pid']); //deprecated
+           $sqlget =  QueryUtils::sqlStatementThrowException($sql, [$data['pid']] );
+        //          (new SystemLogger())->debug ("sql and  splget  contain", [$sql, $data['pid'],  $splget]);
+           $names = sqlFetchArray($sqlget);
+        (new SystemLogger())->debug ("names containd", [$names]);
+
             if ($names !== false && ($names['portal_login_username']  ?? '')  === "") {
+
                 // create a portal login username, as it's empty at the moment - use Account Name - portal_username in db
                 $sql =  "UPDATE patient_access_onsite SET portal_login_username = ?  WHERE pid = ?";
                 $update_parameters ['portal_login_username'] = $names['portal_username'];
                 $update_parameters ['pid'] = $data['pid'];
                $sqlres = sqlStatement($sql, $update_parameters);
+       //           (new SystemLogger())->debug ("names contains - creat portal login name", [$update_parameters]);
             }
         }
 
