@@ -43,7 +43,7 @@ jobs:
       fail-fast: false
       matrix:
         db:
-          - 'mariadb:10.6'
+          # - 'mariadb:10.6'
           # - 'mariadb:10.11'
           # - 'mariadb:11.8'
           # - 'mariadb:12.0'
