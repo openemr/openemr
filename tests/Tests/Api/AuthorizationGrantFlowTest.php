@@ -11,13 +11,11 @@
 
 namespace OpenEMR\Tests\Api;
 
-use Monolog\Level;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ServerScopeListEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEHttpKernel;
 use OpenEMR\RestControllers\AuthorizationController;
@@ -25,6 +23,7 @@ use OpenEMR\RestControllers\SMART\SMARTAuthorizationController;
 use OpenEMR\Services\TrustedUserService;
 use OpenEMR\Services\UserService;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -245,7 +244,7 @@ class AuthorizationGrantFlowTest extends TestCase
     private function getAuthorizationController(Session $session, OEHttpKernel $kernel): AuthorizationController
     {
         $authController = new AuthorizationController($session, $kernel, true);
-        $authController->setSystemLogger(new SystemLogger(Level::Error));
+        $authController->setSystemLogger($this->createMock(LoggerInterface::class));
         return $authController;
     }
 

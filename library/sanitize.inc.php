@@ -17,13 +17,23 @@
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\Sanitize\IsAcceptedFileFilterEvent;
 
-// Function to collect ip address(es)
-function collectIpAddresses()
+/**
+ * Function to collect ip address(es)
+ *
+ * @return array{
+ *   ip_string: string,
+ *   ip: string,
+ *   forward_ip: string,
+ * }
+ */
+function collectIpAddresses(): array
 {
-    $mainIp = $_SERVER['REMOTE_ADDR'];
+    /** @var string */
+    $mainIp = $_SERVER['REMOTE_ADDR'] ?? ''; // Fallback to blank for CLI, etc
     $stringIp = $mainIp;
 
     if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        /** @var string */
         $forwardIp = $_SERVER['HTTP_X_FORWARDED_FOR'];
         $stringIp .= " (" . $forwardIp . ")";
     }

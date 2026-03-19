@@ -17,24 +17,22 @@ interface CryptoInterface
     /**
      * Encrypts data using the standard encryption method
      *
-     * @param ?string $value          The data to encrypt
-     * @param ?string $customPassword If provided, keys will be derived from this password (standard keys will not be used)
-     * @param KeySource $keySource      The source of the standard keys.
+     * @param ?string $value     The data to encrypt
+     * @param KeySource $keySource The source of the standard keys.
      * @return string The encrypted data
      */
-    public function encryptStandard(?string $value, ?string $customPassword = null, KeySource $keySource = KeySource::Drive): string;
+    public function encryptStandard(?string $value, KeySource $keySource = KeySource::Drive): string;
 
     /**
      * Decrypts data using the standard decryption method
      *
      * @param ?string $value          The data to decrypt
-     * @param ?string $customPassword If provided, keys will be derived from this password (standard keys will not be used)
      * @param KeySource $keySource      The source of the standard keys.
      * @param ?int    $minimumVersion The minimum encryption version supported (useful when accepting encrypted data
      *                                from outside OpenEMR to prevent bad actors from using older versions)
      * @return false|string The decrypted data, or false if decryption fails
      */
-    public function decryptStandard(?string $value, ?string $customPassword = null, KeySource $keySource = KeySource::Drive, ?int $minimumVersion = null): false|string;
+    public function decryptStandard(?string $value, KeySource $keySource = KeySource::Drive, ?int $minimumVersion = null): false|string;
 
     /**
      * Checks if a crypt block is valid for use with the standard method

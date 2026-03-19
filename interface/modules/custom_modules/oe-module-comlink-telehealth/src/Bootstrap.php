@@ -29,7 +29,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthParticipantInvit
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthProvisioningService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TelehealthRegistrationCodeService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthRemoteRegistrationService;
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Core\Kernel;
@@ -38,6 +38,7 @@ use OpenEMR\Events\Appointments\AppointmentSetEvent;
 use OpenEMR\Events\Core\TwigEnvironmentEvent;
 use OpenEMR\Events\Globals\GlobalsInitializedEvent;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
+use Psr\Log\LoggerInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
@@ -94,10 +95,7 @@ class Bootstrap
      */
     private $providerRepository;
 
-    /**
-     * @var SystemLogger
-     */
-    private $logger;
+    private readonly LoggerInterface $logger;
 
     /**
      * @var TeleHealthCalendarController
@@ -115,7 +113,8 @@ class Bootstrap
      */
     public function __construct(
         private readonly EventDispatcherInterface $eventDispatcher,
-        ?Kernel $kernel = null
+        ?Kernel $kernel = null,
+        ?LoggerInterface $logger = null,
     ) {
         global $GLOBALS;
 
@@ -127,7 +126,7 @@ class Bootstrap
         $this->twig = $twigEnv;
 
         $this->moduleDirectoryName = basename(dirname(__DIR__));
-        $this->logger = new SystemLogger();
+        $this->logger = $logger ?? ServiceContainer::getLogger();
         $this->globalsConfig = new TelehealthGlobalConfig($this->getURLPath(), $this->twig);
     }
 
@@ -270,7 +269,7 @@ class Bootstrap
     {
         return new TeleconferenceRoomController(
             $this->getTwig(),
-            new SystemLogger(),
+            $this->logger,
             $this->getRegistrationController(),
             $this->getMailerService(),
             $this->getFrontendSettingsController(),

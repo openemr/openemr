@@ -21,7 +21,6 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\DirectMessaging\ErrorConstants;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use XSLTProcessor;
 
@@ -171,7 +170,7 @@ class EncountermanagerTable
                 $resp = $couch->retrieve_doc($row['couch_docid']);
                 if ($row['encrypted']) {
                     $cryptoGen = ServiceContainer::getCrypto();
-                    $content = $cryptoGen->decryptStandard($resp->data, null, KeySource::Database);
+                    $content = $cryptoGen->decryptStandard($resp->data, keySource: KeySource::Database);
                 } else {
                     $content = base64_decode((string) $resp->data);
                 }
@@ -182,7 +181,7 @@ class EncountermanagerTable
                 $fccda = fopen($row['ccda_data'], "r");
                 if ($row['encrypted']) {
                     $cryptoGen = ServiceContainer::getCrypto();
-                    $content = $cryptoGen->decryptStandard(fread($fccda, filesize($row['ccda_data'])), null, KeySource::Database);
+                    $content = $cryptoGen->decryptStandard(fread($fccda, filesize($row['ccda_data'])), keySource: KeySource::Database);
                 } else {
                     $content = fread($fccda, filesize($row['ccda_data']));
                 }
@@ -296,7 +295,7 @@ class EncountermanagerTable
                 }
             }
         } catch (\Throwable $exception) {
-            (new SystemLogger())->errorLogCaller($exception->getMessage(), ['data' => $data]);
+            ServiceContainer::getLogger()->error("EncountermanagerTable: " . $exception->getMessage(), ['data' => $data, 'exception' => $exception]);
             return ("Delivery failed to send");
         }
 

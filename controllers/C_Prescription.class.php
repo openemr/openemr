@@ -8,9 +8,11 @@
  * @author    Roberto Vasquez <robertogagliotta@gmail.com>
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2015 Roberto Vasquez <robertogagliotta@gmail.com>
  * @copyright Copyright (c) 2018 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2018 Sherwin Gaddis <sherwingaddis@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -572,15 +574,11 @@ class C_Prescription extends Controller
         echo ("<tr>\n");
         echo ("<td rowspan='2' class='bordered'>\n");
         echo ('<b><span class="small">' . xl('Patient Name & Address') . '</span></b>' . '<br />');
-        echo ($p->patient->get_name_display() . '<br />');
+        echo (text($p->patient->get_name_display()) . '<br />');
         $res = sqlQuery("SELECT  concat(street,'\n',city,', ',state,' ',postal_code,'\n',if(phone_home!='',phone_home,if(phone_cell!='',phone_cell,if(phone_biz!='',phone_biz,'')))) addr from patient_data where pid =" . add_escape_custom($p->patient->id));
-        if (!empty($res)) {
-            $patterns =  ['/\n/'];
-            $replace =  ['<br />'];
-            $res = preg_replace($patterns, $replace, $res);
+        if (!empty($res['addr'])) {
+            echo nl2br(text($res['addr']));
         }
-
-        echo ($res['addr']);
         echo ("</td>\n");
         echo ("<td class='bordered'>\n");
         echo ('<b><span class="small">' . xl('Date of Birth') . '</span></b>' . '<br />');

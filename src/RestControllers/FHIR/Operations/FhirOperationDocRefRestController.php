@@ -13,10 +13,10 @@
 namespace OpenEMR\RestControllers\FHIR\Operations;
 
 use OpenApi\Attributes as OA;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Http\StatusCode;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIROperationOutcome;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
@@ -119,7 +119,7 @@ class FhirOperationDocRefRestController
             $response = $this->createResponseForCode(StatusCode::OK);
             $response->getBody()->write(json_encode($bundleSearchResult));
         } catch (SearchFieldException $exception) {
-            $systemLogger = new SystemLogger();
+            $systemLogger = ServiceContainer::getLogger();
             $systemLogger->error(static::class . "->getAll() exception thrown", ['message' => $exception->getMessage(),
                 'field' => $exception->getField(), 'trace' => $exception->getTraceAsString()]);
             // put our exception information here

@@ -10,8 +10,8 @@
 
 namespace OpenEMR\Telemetry;
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\DatabaseQueryTrait;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UniqueInstallationUuid;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VersionService;
@@ -30,6 +30,8 @@ class TelemetryService
 {
     use DatabaseQueryTrait;
 
+    protected LoggerInterface $logger;
+
     /**
      * TelemetryService constructor.
      *
@@ -40,8 +42,9 @@ class TelemetryService
     public function __construct(
         protected ?TelemetryRepository $repository = new TelemetryRepository(),
         protected ?VersionServiceInterface $versionService = new VersionService(),
-        protected ?LoggerInterface $logger = new SystemLogger(),
+        ?LoggerInterface $logger = null,
     ) {
+        $this->logger = $logger ?? ServiceContainer::getLogger();
     }
 
     /**

@@ -25,13 +25,13 @@ if (\OpenEMR\Core\OEGlobalsBag::getInstance()->getBoolean('enable_group_therapy'
     require_once("$srcdir/group.inc.php");
 }
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\InvoiceSummary;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Forms\FormLocator;
 use OpenEMR\Common\Forms\FormReportRenderer;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\PatientSessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -83,7 +83,7 @@ if (isset($_GET['billing'])) {
 
 // form locator will cache form locations (so modules can extend)
 // form report renderer will render the form reports
-$logger = new SystemLogger();
+$logger = ServiceContainer::getLogger();
 $formLocator = new FormLocator($logger);
 $formReportRenderer = new FormReportRenderer($formLocator, $logger);
 

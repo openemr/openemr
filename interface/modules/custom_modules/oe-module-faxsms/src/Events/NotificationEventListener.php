@@ -15,7 +15,6 @@ namespace OpenEMR\Modules\FaxSMS\Events;
 use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OneTimeAuth;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
@@ -159,7 +158,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $service = new OneTimeAuth();
         $oneTime = $service->createPortalOneTime($parameters);
         if (!isset($oneTime['encoded_link'])) {
-            (new SystemLogger())->errorLogCaller("Failed to generate encoded_link with onetime service");
+            ServiceContainer::getLogger()->error("NotificationEventListener: Failed to generate encoded_link with onetime service");
             return 'Failed! Redirect link.';
         }
 
@@ -259,7 +258,7 @@ class NotificationEventListener implements EventSubscriberInterface
         $oneTime = $service->createPortalOneTime($parameters); // create the token.
 
         if (!isset($oneTime['encoded_link'])) {
-            (new SystemLogger())->errorLogCaller("Failed to generate encoded_link with onetime service");
+            ServiceContainer::getLogger()->error("NotificationEventListener: Failed to generate encoded_link with onetime service");
             return 'Failed! Redirect link.';
         }
 

@@ -17,9 +17,9 @@
 namespace Installer\Model;
 
 use Interop\Container\ContainerInterface;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\SQLUpgradeService;
 
@@ -163,11 +163,11 @@ class InstModuleTable
                 $sqlUpgradeService->upgradeFromSqlFile($fileName, $dir);
                 return true;
             } catch (\Throwable $exception) {
-                $context = ['trace' => $exception->getTraceAsString()];
+                $context = ['exception' => $exception];
                 if ($exception instanceof SqlQueryException) {
                     $context['statement'] = $exception->getSqlStatement();
                 }
-                (new SystemLogger())->errorLogCaller("Error: " . $exception->getMessage(), $context);
+                ServiceContainer::getLogger()->error("Error: " . $exception->getMessage(), $context);
                 return false;
             }
         } else {

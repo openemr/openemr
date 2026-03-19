@@ -15,9 +15,9 @@
 require_once("../../../interface/globals.php");
 require_once("$srcdir/pid.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Cda\CdaValidateDocumentObject;
@@ -69,7 +69,7 @@ try {
         echo xlt("No errors found, Document(s) passed Import Validation");
     }
 } catch (\Throwable $exception) {
-    (new SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+    ServiceContainer::getLogger()->error($exception->getMessage(), ['exception' => $exception]);
     if (isset($twig)) {
         http_response_code(500);
         $twig->render('error/general_http_error', ['statusCode' => 500]);

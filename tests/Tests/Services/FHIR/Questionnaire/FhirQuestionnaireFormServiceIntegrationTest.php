@@ -14,14 +14,13 @@
 namespace OpenEMR\Tests\Services\FHIR\Questionnaire;
 
 use Exception;
-use Monolog\Level;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaire;
 use OpenEMR\Services\FHIR\Questionnaire\FhirQuestionnaireFormService;
 use OpenEMR\Services\QuestionnaireService;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 
 class FhirQuestionnaireFormServiceIntegrationTest extends TestCase
 {
@@ -68,7 +67,7 @@ class FhirQuestionnaireFormServiceIntegrationTest extends TestCase
 
         // test that an inserted questionnaire form will retrieve the questionnaire via the service
         $service = new FhirQuestionnaireFormService();
-        $service->setSystemLogger(new SystemLogger(Level::Critical));
+        $service->setSystemLogger($this->createMock(LoggerInterface::class));
         $processingResult = $service->getOne($uuid);
 
         $this->assertTrue($processingResult->isValid(), "Processing Result was valid for retrieval");

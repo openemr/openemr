@@ -17,11 +17,11 @@ if (!getenv('OPENEMR_ENABLE_INTERNAL_API_TEST')) {
 
 require_once(__DIR__ . "/../../interface/globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Http\HttpRestRouteHandler;
 use OpenEMR\Common\Http\HttpSessionFactory;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\OEHttpKernel;
@@ -107,7 +107,7 @@ try {
     $restRequest->setSession($sessionFactory->createSession());
     $getParams = $restRequest->getQueryParams();
     $kernel = new OEHttpKernel($globalsBag->getKernel()->getEventDispatcher(), new ControllerResolver());
-    $kernel->setSystemLogger(new SystemLogger());
+    $kernel->setSystemLogger(ServiceContainer::getLogger());
     $dispatchHandler = new HttpRestRouteHandler($kernel);
     $routeFinder = new StandardRouteFinder($kernel);
     $routes = $routeFinder->find($restRequest);

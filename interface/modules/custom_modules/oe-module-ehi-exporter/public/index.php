@@ -62,7 +62,7 @@ if (isset($_POST['submit'])) {
                 echo json_encode($task->getJSON());
             } catch (\Throwable $exception) {
                 $errorMessage = $exception->getMessage();
-                $bootstrap->getLogger()->errorLogCaller($errorMessage, ['trace' => $exception->getTraceAsString()]);
+                $bootstrap->getLogger()->error($errorMessage, ['exception' => $exception]);
                 echo json_encode(['status' => 'failed', 'error_message' => $errorMessage, 'taskId' => $taskId]);
             }
             exit;
@@ -74,14 +74,14 @@ if (isset($_POST['submit'])) {
                 echo json_encode($task->getJSON());
             } catch (\Throwable $exception) {
                 $errorMessage = $exception->getMessage();
-                $bootstrap->getLogger()->errorLogCaller($errorMessage, ['trace' => $exception->getTraceAsString()]);
+                $bootstrap->getLogger()->error($errorMessage, ['exception' => $exception]);
                 echo json_encode(['status' => 'failed', 'error_message' => $errorMessage, 'taskId' => $taskId]);
             }
             exit;
         }
     } catch (\Throwable $exception) {
         $errorMessage = $exception->getMessage();
-        $bootstrap->getLogger()->errorLogCaller($errorMessage, ['trace' => $exception->getTraceAsString()]);
+        $bootstrap->getLogger()->error($errorMessage, ['exception' => $exception]);
     }
 } else {
     $exportSizeSettings = $exporter->getExportSizeSettings($defaultZipSize);

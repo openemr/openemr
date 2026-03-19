@@ -23,11 +23,11 @@ require_once("$srcdir/encounter.inc.php");
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
 
 use Mpdf\Mpdf;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\Config_Mpdf;
 
@@ -58,7 +58,7 @@ if ($formid > 0) {
         [$formid]
     );
     if ($formOwner === null || (int) $formOwner['pid'] !== $patientid || (int) $formOwner['encounter'] !== $visitid) {
-        (new SystemLogger())->warning(
+        ServiceContainer::getLogger()->warning(
             "An attempt was made to view an LBF form belonging to a different patient or encounter",
             ['user-id' => $_SESSION['authUserID'] ?? '', 'requested-formid' => $formid, 'session-pid' => $patientid, 'session-encounter' => $visitid]
         );

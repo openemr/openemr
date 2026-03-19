@@ -21,8 +21,8 @@ use Application\Listener\Listener;
 use Application\Model\SendtoTable;
 use Carecoordination\Model\CarecoordinationTable;
 use Documents\Plugin\Documents;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\ORDataObject\ContactAddress;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Session\SessionWrapperInterface;
@@ -988,7 +988,7 @@ class EncounterccdadispatchTable
         }
         if (!$details) {
             // at this point we really can't do anything as we can't provide an author piece
-            (new SystemLogger())->errorLogCaller("Failed to find author for c-cda document, no hie_author_id, authUserID in session, or provider relationship");
+            ServiceContainer::getLogger()->error("EncounterccdadispatchTable: Failed to find author for c-cda document, no hie_author_id, authUserID in session, or provider relationship");
             return null;
         }
 
@@ -1210,8 +1210,8 @@ class EncounterccdadispatchTable
                 $organization_uuid = UuidRegistry::uuidToString($details['facility_uuid']);
             } else {
                 $organization_uuid = ''; // leave it an empty string as we don't even know if we have a connected organization.
-                (new SystemLogger())->errorLogCaller(
-                    "Failed to find facility uuid for Carecoordination hie_office_contact, uuid is either missing or office contact has no connected organization",
+                ServiceContainer::getLogger()->error(
+                    "EncounterccdadispatchTable: Failed to find facility uuid for hie_office_contact {fname} {lname}, uuid is either missing or office contact has no connected organization",
                     ['fname' => $details['fname'], 'lname' => $details['lname'], 'organization' => $details['organization']
                         ,
                         'npi' => $details['facility_npi']]
@@ -4004,7 +4004,7 @@ class EncounterccdadispatchTable
     {
         if (empty($referralId)) {
             // user is sending a CCDA w/o any kind of connecting referral... we will log the error and continue
-            (new SystemLogger())->errorLogCaller("Failed to log amc information due to missing referral id.  User is sending CCDA w/o any connecting referral record", ['pid' => $pid]);
+            ServiceContainer::getLogger()->error("EncounterccdadispatchTable::logAmc: Failed to log amc information due to missing referral id. User is sending CCDA w/o any connecting referral record for pid {pid}", ['pid' => $pid]);
             return;
         }
 

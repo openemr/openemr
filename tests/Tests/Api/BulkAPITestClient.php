@@ -5,13 +5,12 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Api;
 
 use Lcobucci\JWT\Signer\Key\InMemory;
-use Monolog\Level;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ClientEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomClientCredentialsGrant;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\ClientRepository;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Tools\OAuth2\ClientCredentialsAssertionGenerator;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\NullLogger;
 
 /**
  * BulkAPITestClient is a test client for the OpenEMR Bulk API.
@@ -140,8 +139,7 @@ class BulkAPITestClient extends ApiTestClient
         $this->client_secret = $clientResponseBody->client_secret;
         // we need to enable the app otherwise we can't use it.
         $clientRepository = new ClientRepository();
-        $logger = new SystemLogger(Level::Emergency); // suppress logging
-        $clientRepository->setSystemLogger($logger);
+        $clientRepository->setSystemLogger(new NullLogger());
         $clientEntity = $clientRepository->getClientEntity($this->client_id);
         assert($clientEntity instanceof ClientEntity);
         $clientRepository->saveIsEnabled($clientEntity, true);

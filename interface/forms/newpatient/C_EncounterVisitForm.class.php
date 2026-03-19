@@ -571,7 +571,7 @@ class C_EncounterVisitForm
             $validationConstraints = json_decode((string) $validationConstraints["new_encounter"]["rules"], true);
             if ($validationConstraints === false) {
                 $validationConstraints = [];
-                (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller("Error decoding validation constraints for encounter form");
+                (new \OpenEMR\Common\Logging\SystemLogger())->error("C_EncounterVisitForm: Error decoding validation constraints for encounter form");
             }
         }
 

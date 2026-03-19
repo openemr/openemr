@@ -14,7 +14,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -134,10 +134,10 @@ try {
     $updatedData  = $event->getDataAsArray();
     echo $twig->render("portal/portal_patient_report.html.twig", $updatedData);
 } catch (SyntaxError $exception) {
-    (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'file' => $exception->getFile()]);
+    ServiceContainer::getLogger()->error($exception->getMessage(), ['trace' => $exception->getTraceAsString(), 'file' => $exception->getFile()]);
     echo $twig->render("error/general_http_error.html.twig", []);
 } catch (\Throwable $exception) {
-    (new SystemLogger())->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+    ServiceContainer::getLogger()->error($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
     echo $twig->render("error/general_http_error.html.twig", []);
 }
 die();
