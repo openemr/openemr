@@ -69,6 +69,15 @@ jobs:
           - certification
           - email
 
+    services:
+      db:
+        image: ${{ matrix.db }}
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: openemr_test
+        ports:
+          - 3307:3306
+
     steps:
       - uses: actions/checkout@v6
       - uses: shivammathur/setup-php@v2
