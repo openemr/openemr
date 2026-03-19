@@ -233,6 +233,15 @@ $globalsBag->set('OE_SITES_BASE', $GLOBALS['OE_SITES_BASE'] ?? "$webserver_root/
 $globalsBag->set('debug_ssl_mysql_connection', $GLOBALS['debug_ssl_mysql_connection'] ?? false);
 $globalsBag->set('eventDispatcher', $eventDispatcher ?? null);
 $globalsBag->set('ignoreAuth_onsite_portal', $ignoreAuth_onsite_portal);
+
+// Propagate $sessionAllowWrite to OEGlobalsBag so PHPSessionWrapper (which reads from
+// OEGlobalsBag, not local scope) starts the session with the correct read/write mode.
+// Scripts like login.php, main_screen.php, logout.php set $sessionAllowWrite = true as a
+// local variable before including this file. Without this bridge, PHPSessionWrapper would
+// always start in read_and_close mode for core requests, causing silent $_SESSION write failures.
+if (!empty($sessionAllowWrite)) {
+    $globalsBag->set('sessionAllowWrite', true);
+}
 $read_only = empty($sessionAllowWrite);
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 $factory = SessionWrapperFactory::getInstance();

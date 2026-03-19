@@ -19,6 +19,7 @@ namespace OpenEMR\Tests\Unit\Common\Session;
 use OpenEMR\Common\Session\PHPSessionWrapper;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 
@@ -1027,5 +1028,142 @@ class SessionWrapperFactoryTest extends TestCase
             $newFactory->isCoreSessionStarted(),
             'coreSessionStarted should be false after singleton reset'
         );
+    }
+
+    /**
+     * Test that PHPSessionWrapper starts in writable mode when sessionAllowWrite is set in OEGlobalsBag.
+     *
+     * This simulates the globals.php flow: scripts like login.php, main_screen.php, and logout.php
+     * set $sessionAllowWrite = true before including globals.php. The fix in globals.php propagates
+     * this to OEGlobalsBag so PHPSessionWrapper reads it and starts the session without read_and_close.
+     *
+     * Without this propagation, PHPSessionWrapper always starts in read_and_close mode for core
+     * requests, the coreSessionStarted guard prevents the fallback session start, and session
+     * writes are silently lost.
+     */
+    public function testSessionAllowWritePropagatedToOEGlobalsBagStartsWritableSession(): void
+    {
+        // Close any active session from prior tests
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+
+        // Reset OEGlobalsBag singleton to get a clean instance
+        $globalsBagReflection = new ReflectionClass(OEGlobalsBag::class);
+        $instancesProperty = $globalsBagReflection->getProperty('instances');
+        $originalInstances = $instancesProperty->getValue(null);
+        $instancesProperty->setValue(null, []);
+
+        // Simulate what globals.php does after the fix:
+        // propagate $sessionAllowWrite to OEGlobalsBag before creating PHPSessionWrapper
+        $GLOBALS['sessionAllowWrite'] = true;
+        $globalsBag = OEGlobalsBag::getInstance();
+        $globalsBag->set('sessionAllowWrite', true);
+
+        $this->assertTrue(
+            $globalsBag->getBoolean('sessionAllowWrite'),
+            'OEGlobalsBag should reflect sessionAllowWrite = true'
+        );
+
+        // Set up core session cookie
+        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::CORE_SESSION_ID;
+
+        // Create wrapper — PHPSessionWrapper constructor reads sessionAllowWrite from OEGlobalsBag
+        $factory = SessionWrapperFactory::getInstance();
+        $reflection = new ReflectionClass($factory);
+        $method = $reflection->getMethod('findSessionWrapper');
+        $wrapper = $method->invoke($factory, []);
+
+        $this->assertInstanceOf(PHPSessionWrapper::class, $wrapper);
+        $this->assertTrue(
+            $factory->isCoreSessionStarted(),
+            'PHPSessionWrapper should mark core session as started'
+        );
+
+        // The session should be active (writable, not closed by read_and_close)
+        $this->assertEquals(
+            PHP_SESSION_ACTIVE,
+            session_status(),
+            'Session should remain active (writable) when sessionAllowWrite is true. '
+            . 'If read_and_close was used, session_status() would be PHP_SESSION_NONE.'
+        );
+
+        // Verify we can write to the session
+        $_SESSION['test_write_key'] = 'test_value';
+        $this->assertEquals(
+            'test_value',
+            $_SESSION['test_write_key'],
+            'Should be able to write to $_SESSION when sessionAllowWrite is true'
+        );
+
+        // Clean up
+        unset($_SESSION['test_write_key']);
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+        unset($GLOBALS['sessionAllowWrite']);
+
+        // Restore OEGlobalsBag singleton
+        $instancesProperty->setValue(null, $originalInstances);
+    }
+
+    /**
+     * Test that PHPSessionWrapper starts in read_and_close mode when sessionAllowWrite is NOT set.
+     *
+     * This is the default for most core requests (AJAX calls, dated_reminders, etc.) where
+     * session lock contention needs to be minimized via read_and_close.
+     */
+    public function testSessionStartsReadOnlyWhenSessionAllowWriteNotSet(): void
+    {
+        // Close any active session from prior tests
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+
+        // Reset OEGlobalsBag singleton
+        $globalsBagReflection = new ReflectionClass(OEGlobalsBag::class);
+        $instancesProperty = $globalsBagReflection->getProperty('instances');
+        $originalInstances = $instancesProperty->getValue(null);
+        $instancesProperty->setValue(null, []);
+
+        // Ensure sessionAllowWrite is NOT set (default for most requests)
+        unset($GLOBALS['sessionAllowWrite']);
+        $globalsBag = OEGlobalsBag::getInstance();
+
+        $this->assertFalse(
+            $globalsBag->getBoolean('sessionAllowWrite'),
+            'OEGlobalsBag should return false for sessionAllowWrite when not set'
+        );
+
+        // Set up core session cookie
+        $_COOKIE[SessionUtil::APP_COOKIE_NAME] = SessionUtil::CORE_SESSION_ID;
+
+        // Create wrapper — should start in read_and_close mode
+        $factory = SessionWrapperFactory::getInstance();
+        $reflection = new ReflectionClass($factory);
+        $method = $reflection->getMethod('findSessionWrapper');
+        $wrapper = $method->invoke($factory, []);
+
+        $this->assertInstanceOf(PHPSessionWrapper::class, $wrapper);
+        $this->assertTrue(
+            $factory->isCoreSessionStarted(),
+            'PHPSessionWrapper should mark core session as started even in read-only mode'
+        );
+
+        // With read_and_close, the session should be closed immediately (PHP_SESSION_NONE)
+        $this->assertEquals(
+            PHP_SESSION_NONE,
+            session_status(),
+            'Session should be closed (PHP_SESSION_NONE) when sessionAllowWrite is not set, '
+            . 'because read_and_close should have auto-closed it.'
+        );
+
+        // Clean up
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
+        }
+
+        // Restore OEGlobalsBag singleton
+        $instancesProperty->setValue(null, $originalInstances);
     }
 }
