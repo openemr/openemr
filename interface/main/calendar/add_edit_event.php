@@ -66,9 +66,9 @@ if (!AclMain::aclCheckCore('patients', 'appt', '', ['write','wsome'])) {
 }
 
 /* Things that might be passed by our opener. */
-$eid           = $_GET['eid'] ?? null; // only for existing events
+$eid           = filter_input(INPUT_GET, 'eid', FILTER_VALIDATE_INT) ?: 0; // only for existing events
 $date          = $_GET['date'] ?? null;        // this and below only for new events
-$userid        = $_GET['userid'] ?? null;
+$userid        = filter_input(INPUT_GET, 'userid', FILTER_VALIDATE_INT) ?: 0;
 $default_catid = !empty($_GET['catid']) ? $_GET['catid'] : (!empty(OEGlobalsBag::getInstance()->get('default_visit_category') ?? '') ? OEGlobalsBag::getInstance()->get('default_visit_category') : '5');
 
 // form logic fails if not set to boolean
@@ -997,8 +997,8 @@ $addEditEventConfig = [
     'timeDisplayFormat' => OEGlobalsBag::getInstance()->getInt('time_display_format'),
     'dateDisplayFormat' => OEGlobalsBag::getInstance()->getInt('date_display_format'),
     'webRoot' => OEGlobalsBag::getInstance()->getString('web_root'),
-    'eid' => (int) $eid,
-    'userId' => (int) $userid,
+    'eid' => $eid,
+    'userId' => $userid,
     'translations' => [
         'patientSearch' => xl('Patient Search'),
         'groupSearch' => xl('Group Search'),
