@@ -29,9 +29,11 @@ if ($_GET) {
     }
 
     if (!$isAdmin) {
-        if (empty($_GET['sentBy']) and empty($_GET['sentTo'])) {
-            $_GET['sentTo'] = [intval($_SESSION['authUserID'])];
-        }
+        // Force non-admin users to only see their own reminders,
+        // regardless of any user-supplied sentBy/sentTo parameters.
+        $currentUser = [intval($_SESSION['authUserID'])];
+        $_GET['sentBy'] = $currentUser;
+        $_GET['sentTo'] = $currentUser;
     }
 
     $remindersArray = [];
