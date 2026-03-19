@@ -123,7 +123,8 @@ jobs:
           ];
           EOF
 
-      # seed?
+      - name: seed db
+        run: mysql -h 127.0.0.1 -P 3307 -u ci -ptopsecret openemr_test < sql/database.sql
       - run: vendor/bin/phpunit
           --testsuite ${{ matrix.suite }}
       # codecov
