@@ -79,7 +79,13 @@ class CryptoGen implements CryptoInterface
                 'ciphertext' => $ciphertext,
             ] = self::parseEncryptedMessage($value);
 
-            // TODO: enforce minimum version
+            // Enforce minimum version
+            if ($minimumVersion !== null) {
+                $mkv = KeyVersion::from($minimumVersion);
+                if ($format->value < $mkv->value) {
+                    throw new \OutOfBoundsException('Version too low');
+                }
+            }
 
             // Determine strategy (based on KeyVersion, for now)
             $strategy = $format->getDecryptionStrategy();
