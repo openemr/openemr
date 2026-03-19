@@ -1942,11 +1942,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/AppointmentService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\BaseService\\:\\:\\$logger \\(OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\) does not accept Psr\\\\Log\\\\LoggerInterface\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/BaseService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\CarePlanService\\:\\:\\$carePlanType \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/CarePlanService.php',

@@ -3892,11 +3892,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ajax/facility_ajax_code.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$name_alt \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../library/ajax/graphs.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$srcdir \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/messages/validate_messages_document_ajax.php',
@@ -6160,11 +6155,6 @@ $ignoreErrors[] = [
     'message' => '#^Part \\$recordId \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationHistorySdohServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$keyVersion\\-\\>toString\\(\\) \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Crypto/CryptoGenTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Part \\$numeral \\(mixed\\) of encapsed string cannot be cast to string\\.$#',

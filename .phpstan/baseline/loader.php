@@ -167,6 +167,7 @@ return ['includes' => [
     __DIR__ . '/throws.unusedType.php',
     __DIR__ . '/throws.void.php',
     __DIR__ . '/trait.unused.php',
+    __DIR__ . '/traitUse.deprecatedTrait.php',
     __DIR__ . '/unaryOp.invalid.php',
     __DIR__ . '/varTag.differentVariable.php',
     __DIR__ . '/varTag.misplaced.php',
