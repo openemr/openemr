@@ -220,7 +220,7 @@ class SiteSetupListener implements EventSubscriberInterface
         );
         $session = $sessionFactory->createSession();
         $request->setSession($session);
-        SessionWrapperFactory::getInstance()->setActiveSession($session); // set active session to be in use in standalone/shared files
+        SessionWrapperFactory::getInstance()->setActiveSession($session, $sessionFactory->getLastCreatedStorage()); // set active session to be in use in standalone/shared files
     }
 
     /**
