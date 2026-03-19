@@ -60,7 +60,7 @@ class SystemLogger implements LoggerInterface
 //        // Change the logger level to see what logs you want to log
 //        $this->logger->pushHandler(new Monolog\Handler\ErrorLogHandler('OpenEMR - ', $facility, $logLevel));
         $handler = new ErrorLogHandler(ErrorLogHandler::OPERATING_SYSTEM, $logLevel);
-        $formatter = new LineFormatter();
+        $formatter = new LineFormatter("%channel%.%level_name%: %message% %context% %extra%");
         $formatter->includeStacktraces(true);
         $handler->setFormatter($formatter);
         $this->logger->pushHandler($handler);

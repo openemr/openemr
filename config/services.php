@@ -29,7 +29,7 @@ return [
         // Duplicated from setup in SystemLogger (for now)
         $logger = new Logger('OpenEMR');
         $handler = new ErrorLogHandler(ErrorLogHandler::OPERATING_SYSTEM, $c->get(Level::class));
-        $formatter = new LineFormatter();
+        $formatter = new LineFormatter("%channel%.%level_name%: %message% %context% %extra%");
         $formatter->includeStacktraces(true);
         $handler->setFormatter($formatter);
         $logger->pushHandler($handler);
