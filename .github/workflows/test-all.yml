@@ -114,7 +114,7 @@ jobs:
           cat > sites/default/sqlconf.php << 'EOF'
           <?php
           $sqlconf = [
-              'host' => 'db',
+              'host' => '127.0.0.1',
               'port' => 3307,
               'login' => 'ci',
               'pass' => 'topsecret',
