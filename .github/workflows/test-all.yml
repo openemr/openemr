@@ -101,7 +101,23 @@ jobs:
           --no-suggest
           --prefer-dist
 
-      # run the tests
+      - name: Create sqlconf.php
+        run: |
+          cat > sites/default/sqlconf.php << 'EOF'
+          <?php
+          $sqlconf = [
+              'host' => 'db',
+              'port' => 3307,
+              'login' => 'root',
+              'pass' => 'root',
+              'dbase' => 'openemr_test',
+              'db_encoding' => 'utf8mb4',
+          ];
+          EOF
+
+      # seed?
+      - run: vendor/bin/phpunit
+          --testsuite ${{ matrix.suite }}
       # codecov
 
 
