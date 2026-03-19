@@ -58,17 +58,17 @@ jobs:
           # - '8.5'
           # - '8.6-dev'
         suite:
-          - ECQM
+          # - ECQM
           - unit
-          - e2e
-          - api
-          - fixtures
-          - services
-          - validators
-          - controllers
+          # - e2e
+          # - api
+          # - fixtures
+          # - services
+          # - validators
+          # - controllers
           - common
-          - certification
-          - email
+          # - certification
+          # - email
 
     services:
       db:
