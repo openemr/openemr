@@ -234,20 +234,14 @@ function setappt(year, mon, mday, hours, minutes) {
     //Infeg Save button should become active once an appointment is selected.
     $('#form_save').attr('disabled', false);
     var f = document.forms[0];
-    var dateFormat = addEditEventConfig.dateDisplayFormat;
-    if (dateFormat == 0) {
-        f.form_date.value = '' + year + '-' +
-            ('' + (mon + 100)).substring(1) + '-' +
-            ('' + (mday + 100)).substring(1);
-    } else if (dateFormat == 1) {
-        f.form_date.value = ('' + (mon + 100)).substring(1) + '/' +
-            ('' + (mday + 100)).substring(1) + '/' +
-            '' + year;
-    } else if (dateFormat == 2) {
-        f.form_date.value = ('' + (mday + 100)).substring(1) + '/' +
-            ('' + (mon + 100)).substring(1) + '/' +
-            '' + year;
-    }
+    var mon2 = ('' + (mon + 100)).substring(1);
+    var mday2 = ('' + (mday + 100)).substring(1);
+    var dateFormats = {
+        0: year + '-' + mon2 + '-' + mday2,
+        1: mon2 + '/' + mday2 + '/' + year,
+        2: mday2 + '/' + mon2 + '/' + year,
+    };
+    f.form_date.value = dateFormats[addEditEventConfig.dateDisplayFormat] || dateFormats[0];
     f.form_hour.value = hours;
     if (addEditEventConfig.timeDisplayFormat == 1 && f.form_ampm) {
         f.form_hour.value = (hours > 12) ? hours - 12 : hours;
@@ -275,12 +269,15 @@ function find_available(extra) {
     var c = document.forms[0].form_category;
     var formDate = document.forms[0].form_date;
     var title = addEditEventConfig.translations.availableAppointments;
-    dlgopen(addEditEventConfig.webRoot + '/interface/main/calendar/find_appt_popup.php' +
-        '?providerid=' + s +
-        '&catid=' + c.options[c.selectedIndex].value +
-        '&facility=' + f +
-        '&startdate=' + formDate.value +
-        '&evdur=' + document.forms[0].form_duration.value +
-        '&eid=' + addEditEventConfig.eid + extra,
-        '', 725, 200, '', title);
+    var url = new URL(
+        addEditEventConfig.webRoot + '/interface/main/calendar/find_appt_popup.php',
+        window.location.origin
+    );
+    url.searchParams.set('providerid', s);
+    url.searchParams.set('catid', c.options[c.selectedIndex].value);
+    url.searchParams.set('facility', f);
+    url.searchParams.set('startdate', formDate.value);
+    url.searchParams.set('evdur', document.forms[0].form_duration.value);
+    url.searchParams.set('eid', addEditEventConfig.eid);
+    dlgopen(url.pathname + url.search + extra, '', 725, 200, '', title);
 }

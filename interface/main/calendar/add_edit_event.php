@@ -991,35 +991,38 @@ while ($crow = sqlFetchArray($cres)) {
 
 var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code'); ?>;
 
-window.addEditEventConfig = {
-    durations: <?php echo json_encode($durationsJson); ?>,
-    timeDisplayFormat: <?php echo js_escape(OEGlobalsBag::getInstance()->getString('time_display_format')); ?>,
-    dateDisplayFormat: <?php echo js_escape(OEGlobalsBag::getInstance()->getString('date_display_format')); ?>,
-    webRoot: <?php echo js_escape(OEGlobalsBag::getInstance()->getString('web_root')); ?>,
-    eid: <?php echo (int)$eid; ?>,
-    userId: <?php echo (int)$userid; ?>,
-    translations: {
-        patientSearch: <?php echo xlj('Patient Search'); ?>,
-        groupSearch: <?php echo xlj('Group Search'); ?>,
-        availableAppointments: <?php echo xlj('Available Appointments Calendar'); ?>,
-        last: <?php echo xlj("Last"); ?>,
-        occurNames: [
-            <?php echo xlj("1st{{nth}}"); ?>,
-            <?php echo xlj("2nd{{nth}}"); ?>,
-            <?php echo xlj("3rd{{nth}}"); ?>,
-            <?php echo xlj("4th{{nth}}"); ?>
+<?php
+$addEditEventConfig = [
+    'durations' => $durationsJson,
+    'timeDisplayFormat' => (int) OEGlobalsBag::getInstance()->getString('time_display_format'),
+    'dateDisplayFormat' => (int) OEGlobalsBag::getInstance()->getString('date_display_format'),
+    'webRoot' => OEGlobalsBag::getInstance()->getString('web_root'),
+    'eid' => (int) $eid,
+    'userId' => (int) $userid,
+    'translations' => [
+        'patientSearch' => xl('Patient Search'),
+        'groupSearch' => xl('Group Search'),
+        'availableAppointments' => xl('Available Appointments Calendar'),
+        'last' => xl('Last'),
+        'occurNames' => [
+            xl('1st{{nth}}'),
+            xl('2nd{{nth}}'),
+            xl('3rd{{nth}}'),
+            xl('4th{{nth}}'),
         ],
-        weekDays: [
-            <?php echo xlj("Sunday"); ?>,
-            <?php echo xlj("Monday"); ?>,
-            <?php echo xlj("Tuesday"); ?>,
-            <?php echo xlj("Wednesday"); ?>,
-            <?php echo xlj("Thursday"); ?>,
-            <?php echo xlj("Friday"); ?>,
-            <?php echo xlj("Saturday"); ?>
-        ]
-    }
-};
+        'weekDays' => [
+            xl('Sunday'),
+            xl('Monday'),
+            xl('Tuesday'),
+            xl('Wednesday'),
+            xl('Thursday'),
+            xl('Friday'),
+            xl('Saturday'),
+        ],
+    ],
+];
+?>
+window.addEditEventConfig = <?php echo json_encode($addEditEventConfig); ?>;
 </script>
 <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
 
