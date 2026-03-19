@@ -78,6 +78,11 @@ jobs:
           MYSQL_USER: ci
           MYSQL_PASSWORD: topsecret
           MYSQL_DATABASE: openemr_test
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=2s
+          --health-timeout=2s
+          --health-retries=10
         ports:
           - 3307:3306
 
