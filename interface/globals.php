@@ -239,10 +239,10 @@ $globalsBag->set('ignoreAuth_onsite_portal', $ignoreAuth_onsite_portal);
 // Scripts like login.php, main_screen.php, logout.php set $sessionAllowWrite = true as a
 // local variable before including this file. Without this bridge, PHPSessionWrapper would
 // always start in read_and_close mode for core requests, causing silent $_SESSION write failures.
-if (!empty($sessionAllowWrite)) {
+if (isset($sessionAllowWrite) && $sessionAllowWrite) {
     $globalsBag->set('sessionAllowWrite', true);
 }
-$read_only = empty($sessionAllowWrite);
+$read_only = !isset($sessionAllowWrite) || !$sessionAllowWrite;
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 $factory = SessionWrapperFactory::getInstance();
 // PHPSessionWrapper starts the session in its constructor (respecting sessionAllowWrite via
