@@ -14,7 +14,13 @@ declare(strict_types=1);
 
 use Firehed\Container\TypedContainerInterface as TC;
 use Lcobucci\Clock\SystemClock;
-use Monolog\Level;
+use Monolog\{
+    Formatter\LineFormatter,
+    Handler\ErrorLogHandler,
+    Level,
+    Logger,
+    Processor\PsrLogMessageProcessor,
+};
 use OpenEMR\Common\Http\Psr17Factory;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Logging\SystemLogger;
@@ -27,12 +33,21 @@ use OpenEMR\Common\Database\{
 
 return [
     Level::class => fn (TC $c) => Level::fromName($c->get('LOG_LEVEL')),
+    Logger::class => function (TC $c) {
+        // Duplicated from setup in SystemLogger (for now)
+        $logger = new Logger('OpenEMR');
+        $handler = new ErrorLogHandler(ErrorLogHandler::OPERATING_SYSTEM, $c->get(Level::class));
+        $formatter = new LineFormatter("%channel%.%level_name%: %message% %context% %extra%");
+        $formatter->includeStacktraces(true);
+        $handler->setFormatter($formatter);
+        $logger->pushHandler($handler);
+        $logger->pushProcessor(new PsrLogMessageProcessor(removeUsedContextFields: true));
+        return $logger;
+    },
 
     Psr17Factory::class,
 
     SystemClock::class => fn () => SystemClock::fromSystemTimezone(),
-
-    SystemLogger::class => fn (TC $c) => new SystemLogger($c->get(Level::class)),
 
     EventAuditLogger::class => function (TC $c) {
         // Minor: the things that take connections could instead take

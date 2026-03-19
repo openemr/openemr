@@ -74,7 +74,7 @@ class BillingLogger
                 $this->hlog = file_get_contents(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/edi/process_bills.log");
             }
             if ($this->cryptoGen->cryptCheckStandard($this->hlog)) {
-                $this->hlog = $this->cryptoGen->decryptStandard($this->hlog, null, KeySource::Database);
+                $this->hlog = $this->cryptoGen->decryptStandard($this->hlog, keySource: KeySource::Database);
             }
         } else { // ($GLOBALS['billing_log_option'] == 2)
             $this->hlog = '';
@@ -96,7 +96,7 @@ class BillingLogger
         // If the hlog isn't empty, write the log to disk
         if (!empty($this->hlog)) {
             if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-                $this->hlog = $this->cryptoGen->encryptStandard($this->hlog, null, KeySource::Database);
+                $this->hlog = $this->cryptoGen->encryptStandard($this->hlog, keySource: KeySource::Database);
             }
             file_put_contents(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/edi/process_bills.log", $this->hlog);
         }

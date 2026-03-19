@@ -28,6 +28,7 @@ namespace OpenEMR\Common\Crypto;
 enum KeyVersion: int
 {
     public const PREFIX_LENGTH = 3;
+    public const CURRENT = self::SEVEN;
 
     case ONE = 1;
     case TWO = 2;

@@ -21,6 +21,8 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\KeySource;
+use OpenEMR\Common\Crypto\KeyVersion;
+use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
@@ -288,8 +290,10 @@ class C_Document extends Controller
                     $filetext = fread($tmpfile, $_FILES['file']['size'][$key]);
                     fclose($tmpfile);
                     if ($doDecryption) {
-                        $filetext = $this->cryptoGen->decryptStandard($filetext, $passphrase);
-                        if ($filetext === false) {
+                        $passwordCrypto = new PasswordBasedCrypto(KeyVersion::CURRENT);
+                        try {
+                            $filetext = $passwordCrypto->decrypt((string) $filetext, (string) $passphrase);
+                        } catch (\OpenEMR\Common\Crypto\CryptoGenException) {
                             error_log("OpenEMR Error: Unable to decrypt a document since decryption failed.");
                             $filetext = "";
                         }
@@ -715,7 +719,7 @@ class C_Document extends Controller
                 die(xlt("File retrieval from CouchDB failed"));
             }
             if ($d->get_encrypted() == 1) {
-                $filetext = $this->cryptoGen->decryptStandard($content, null, KeySource::Database);
+                $filetext = $this->cryptoGen->decryptStandard($content, KeySource::Database);
             } else {
                 $filetext = base64_decode((string) $content);
             }
@@ -728,7 +732,8 @@ class C_Document extends Controller
             header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
             header('Pragma: public');
             if ($doEncryption) {
-                $ciphertext = $this->cryptoGen->encryptStandard($filetext, $passphrase);
+                $passwordCrypto = new PasswordBasedCrypto(KeyVersion::CURRENT);
+                $ciphertext = $passwordCrypto->encrypt((string) $filetext, (string) $passphrase);
                 header('Content-Disposition: attachment; filename="' . "/encrypted_aes_" . $d->get_name() . '"');
                 header("Content-Type: application/octet-stream");
                 header("Content-Length: " . strlen($ciphertext));
@@ -753,7 +758,7 @@ class C_Document extends Controller
                 $couchM = new CouchDB();
                 $respM = $couchM->retrieve_doc($couch_docid);
                 if ($d->get_encrypted() == 1) {
-                    $contentM = $this->cryptoGen->decryptStandard($respM->data, null, KeySource::Database);
+                    $contentM = $this->cryptoGen->decryptStandard($respM->data, KeySource::Database);
                 } else {
                     $contentM = base64_decode((string) $respM->data);
                 }
@@ -781,7 +786,7 @@ class C_Document extends Controller
                 if (is_file($to_file_tmp_name)) {
                     $couchI = new CouchDB();
                     if ($d->get_encrypted() == 1) {
-                        $document = $this->cryptoGen->encryptStandard(file_get_contents($to_file_tmp_name), null, KeySource::Database);
+                        $document = $this->cryptoGen->encryptStandard(file_get_contents($to_file_tmp_name), KeySource::Database);
                     } else {
                         $document = base64_encode(file_get_contents($to_file_tmp_name));
                     }
@@ -796,14 +801,14 @@ class C_Document extends Controller
                 $couchF = new CouchDB();
                 $respF = $couchF->retrieve_doc("converted_" . $couch_docid);
                 if ($d->get_encrypted() == 1) {
-                    $content = $this->cryptoGen->decryptStandard($respF->data, null, KeySource::Database);
+                    $content = $this->cryptoGen->decryptStandard($respF->data, KeySource::Database);
                 } else {
                     $content = base64_decode((string) $respF->data);
                 }
             } else {
                 // decrypt/decode when converted jpg already exists
                 if ($d->get_encrypted() == 1) {
-                    $content = $this->cryptoGen->decryptStandard($resp->data, null, KeySource::Database);
+                    $content = $this->cryptoGen->decryptStandard($resp->data, KeySource::Database);
                 } else {
                     $content = base64_decode((string) $resp->data);
                 }
@@ -886,7 +891,7 @@ class C_Document extends Controller
         if ($original_file) {
             //normal case when serving the file referenced in database
             if ($d->get_encrypted() == 1) {
-                $filetext = $this->cryptoGen->decryptStandard(file_get_contents($url), null, KeySource::Database);
+                $filetext = $this->cryptoGen->decryptStandard(file_get_contents($url), KeySource::Database);
             } else {
                 if (!is_dir($url)) {
                     $filetext = file_get_contents($url);
@@ -901,7 +906,8 @@ class C_Document extends Controller
             header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
             header('Pragma: public');
             if ($doEncryption) {
-                $ciphertext = $this->cryptoGen->encryptStandard($filetext, $passphrase);
+                $passwordCrypto = new PasswordBasedCrypto(KeyVersion::CURRENT);
+                $ciphertext = $passwordCrypto->encrypt((string) $filetext, (string) $passphrase);
                 header('Content-Disposition: attachment; filename="' . "/encrypted_aes_" . $d->get_name() . '"');
                 header("Content-Type: application/octet-stream");
                 header("Content-Length: " . strlen($ciphertext));
@@ -926,7 +932,7 @@ class C_Document extends Controller
             if (!is_file($url)) {
                 if ($d->get_encrypted() == 1) {
                     // decrypt the from-file into a temporary file
-                    $from_file_unencrypted = $this->cryptoGen->decryptStandard(file_get_contents($originalUrl), null, KeySource::Database);
+                    $from_file_unencrypted = $this->cryptoGen->decryptStandard(file_get_contents($originalUrl), KeySource::Database);
                     $from_file_tmp_name = tempnam(OEGlobalsBag::getInstance()->get('temporary_files_dir'), "oer");
                     file_put_contents($from_file_tmp_name, $from_file_unencrypted);
                     // prepare a temporary file for the unencrypted to-file
@@ -938,7 +944,7 @@ class C_Document extends Controller
                     unlink($from_file_tmp_name);
                     // make the encrypted to-file if a to-file was created in above convert call
                     if (is_file($to_file_tmp_name)) {
-                        $to_file_encrypted = $this->cryptoGen->encryptStandard(file_get_contents($to_file_tmp_name), null, KeySource::Database);
+                        $to_file_encrypted = $this->cryptoGen->encryptStandard(file_get_contents($to_file_tmp_name), KeySource::Database);
                         file_put_contents($url, $to_file_encrypted);
                         // remove unencrypted tmp files
                         unlink($to_file_tmp);
@@ -951,7 +957,7 @@ class C_Document extends Controller
             }
             if (is_file($url)) {
                 if ($d->get_encrypted() == 1) {
-                    $filetext = $this->cryptoGen->decryptStandard(file_get_contents($url), null, KeySource::Database);
+                    $filetext = $this->cryptoGen->decryptStandard(file_get_contents($url), KeySource::Database);
                 } else {
                     $filetext = file_get_contents($url);
                 }
@@ -1026,7 +1032,7 @@ class C_Document extends Controller
             $couch = new CouchDB();
             $resp = $couch->retrieve_doc($d->couch_docid);
             if ($d->get_encrypted() == 1) {
-                $content = $this->cryptoGen->decryptStandard($resp->data, null, KeySource::Database);
+                $content = $this->cryptoGen->decryptStandard($resp->data, KeySource::Database);
             } else {
                 $content = base64_decode((string) $resp->data);
             }
@@ -1064,7 +1070,7 @@ class C_Document extends Controller
             }
 
             if ($d->get_encrypted() == 1) {
-                $content = $this->cryptoGen->decryptStandard(file_get_contents($url), null, KeySource::Database);
+                $content = $this->cryptoGen->decryptStandard(file_get_contents($url), KeySource::Database);
             } else {
                 $content = file_get_contents($url);
             }
@@ -1285,14 +1291,14 @@ class C_Document extends Controller
         $LOG = file_get_contents($log_path . $log_file);
 
         if ($this->cryptoGen->cryptCheckStandard($LOG)) {
-            $LOG = $this->cryptoGen->decryptStandard($LOG, null, KeySource::Database);
+            $LOG = $this->cryptoGen->decryptStandard($LOG, KeySource::Database);
         }
 
         $LOG .= $content;
 
         if (!empty($LOG)) {
             if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-                $LOG = $this->cryptoGen->encryptStandard($LOG, null, KeySource::Database);
+                $LOG = $this->cryptoGen->encryptStandard($LOG, KeySource::Database);
             }
             file_put_contents($log_path . $log_file, $LOG);
         }

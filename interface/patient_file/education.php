@@ -85,7 +85,7 @@ if (!empty($_POST['bn_submit'])) {
             // Decrypt file, if applicable.
             $cryptoGen = ServiceContainer::getCrypto();
             if ($cryptoGen->cryptCheckStandard($fileData)) {
-                $fileData = $cryptoGen->decryptStandard($fileData, null, KeySource::Database);
+                $fileData = $cryptoGen->decryptStandard($fileData, keySource: KeySource::Database);
             }
 
             header('Content-Description: File Transfer');

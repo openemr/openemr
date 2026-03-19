@@ -1,5 +1,29 @@
 # CHANGELOG.md
 
+## [8.0.0.2](https://github.com/openemr/openemr/milestone/27?closed=1) - 2026-03-18
+
+### Fixed
+
+#### Security
+
+- **[Critical]** [RCE in backup.php command injection](https://github.com/openemr/openemr/security/advisories/GHSA-6pmc-3xm7-pm86)
+- **[High]** [Stored XSS in Eye Exam form answers](https://github.com/openemr/openemr/security/advisories/GHSA-pgvq-f22q-2whp)
+- **[High]** [SSRF via PDF generator](https://github.com/openemr/openemr/security/advisories/GHSA-5pc3-2crw-96rv)
+- **[High]** [Arbitrary file read via PDF generator](https://github.com/openemr/openemr/security/advisories/GHSA-v9v3-q973-xp2h)
+- **[High]** [zhAclCheck ignores explicit ACL denies](https://github.com/openemr/openemr/security/advisories/GHSA-v68v-pwc4-8p2m)
+- **[Medium]** [DICOM path traversal](https://github.com/openemr/openemr/security/advisories/GHSA-rppw-f689-6hrm)
+- **[Medium]** [Vitals IDOR (POST + PUT + legacy form)](https://github.com/openemr/openemr/security/advisories/GHSA-mv9m-j65p-g55f)
+- **[Medium]** [DOM XSS via SearchHighlight](https://github.com/openemr/openemr/security/advisories/GHSA-q283-5j7f-r6hp)
+- **[Medium]** [Stored XSS in portal credential print view](https://github.com/openemr/openemr/security/advisories/GHSA-cp37-pmfx-5mhm)
+- **[Medium]** [Authorization bypass in dated reminders log](https://github.com/openemr/openemr/security/advisories/GHSA-66j9-ffq4-h222)
+- **[Medium]** [Authorization bypass in FaxSMS AppDispatch](https://github.com/openemr/openemr/security/advisories/GHSA-r973-h5cq-35rc)
+
+- PHPSessionWrapper constructor bypasses read_and_close session mode, causing lock contention ([#10931](https://github.com/openemr/openemr/issues/10931))
+
+### Changed
+- FHIR API documentation minor fixes ([#11104](https://github.com/openemr/openemr/pull/11104))
+- remove 2015 reference with schemaspy regen for rel-800 ([#11101](https://github.com/openemr/openemr/pull/11101))
+
 ## [8.0.0.1](https://github.com/openemr/openemr/milestone/26?closed=1) - 2026-03-11
 
 ### Fixed

@@ -39,14 +39,6 @@ use Psr\Log\LoggerInterface;
 class CryptoGen implements CryptoInterface
 {
     /**
-     * This is the current key version. When updating
-     * the encrypt/decrypt methodology, add a new value
-     * to the enum and increment this const to enable
-     * backwards compatibility.
-     */
-    public const CURRENT_KEY_VERSION = KeyVersion::SEVEN;
-
-    /**
      * Key cache to optimize key collection, which avoids numerous repeat
      * calls to collect the key sets (and repeat decryption of the key set
      * from the drive).
@@ -66,15 +58,15 @@ class CryptoGen implements CryptoInterface
     /**
      * @inheritdoc
      */
-    public function encryptStandard(?string $value, ?string $customPassword = null, KeySource $keySource = KeySource::Drive): string
+    public function encryptStandard(?string $value, KeySource $keySource = KeySource::Drive): string
     {
-        return self::CURRENT_KEY_VERSION->toPaddedString() . $this->coreEncrypt($value, $customPassword, $keySource, self::CURRENT_KEY_VERSION);
+        return KeyVersion::CURRENT->toPaddedString() . $this->coreEncrypt($value, $keySource, KeyVersion::CURRENT);
     }
 
     /**
      * @inheritdoc
      */
-    public function decryptStandard(?string $value, ?string $customPassword = null, KeySource $keySource = KeySource::Drive, ?int $minimumVersion = null): false|string
+    public function decryptStandard(?string $value, KeySource $keySource = KeySource::Drive, ?int $minimumVersion = null): false|string
     {
         if (empty($value)) {
             return "";
@@ -104,26 +96,24 @@ class CryptoGen implements CryptoInterface
 
         // Map the encrypt/decrypt version to the correct decryption function
         return ($encryptionVersion->usesLegacyDecryption())
-            ? $this->legacyDecrypt($trimmedValue, $customPassword, $keySource, $encryptionVersion)
-            : $this->coreDecrypt($trimmedValue, $customPassword, $keySource, $encryptionVersion);
+            ? $this->legacyDecrypt($trimmedValue, $keySource, $encryptionVersion)
+            : $this->coreDecrypt($trimmedValue, $keySource, $encryptionVersion);
     }
 
     /**
      * Legacy decryption method for older encryption versions.
-     * Keep the signature the same between coreDecrypt and legacyDecrypt for simplicity.
      * Note that aes256DecryptTwo is used for KeyVersion::THREE as well as KeyVersion::TWO.
      *
      * @param string     $trimmedValue
-     * @param  ?string   $customPassword
      * @param KeySource  $keySourceEnum
      * @param KeyVersion $encryptionVersion
      * @return false|string
      */
-    protected function legacyDecrypt(string $trimmedValue, ?string $customPassword, KeySource $keySourceEnum, KeyVersion $encryptionVersion): false|string
+    protected function legacyDecrypt(string $trimmedValue, KeySource $keySourceEnum, KeyVersion $encryptionVersion): false|string
     {
         return $encryptionVersion === KeyVersion::ONE
-            ? $this->aes256DecryptOne($trimmedValue, $customPassword)
-            : $this->aes256DecryptTwo($trimmedValue, $customPassword);
+            ? $this->aes256DecryptOne($trimmedValue)
+            : $this->aes256DecryptTwo($trimmedValue);
     }
 
     /**
@@ -145,34 +135,22 @@ class CryptoGen implements CryptoInterface
     /**
      * Core encryption function
      *
-     * @param  ?string   $sValue         Raw data to be encrypted
-     * @param  ?string   $customPassword If null, standard keys are used. If provided, keys are derived from this password
-     * @param KeySource  $keySource      The source of the keys. Options are 'drive' and 'database'
-     * @param KeyVersion $keyVersion     The key number/version
+     * @param  ?string   $sValue     Raw data to be encrypted
+     * @param KeySource  $keySource  The source of the keys. Options are 'drive' and 'database'
+     * @param KeyVersion $keyVersion The key number/version
      * @return string The encrypted data
      * @throws CryptoGenException If encryption fails due to critical errors
      */
-    protected function coreEncrypt(?string $sValue, ?string $customPassword = null, KeySource $keySource = KeySource::Drive, KeyVersion $keyVersion = self::CURRENT_KEY_VERSION): string
+    protected function coreEncrypt(?string $sValue, KeySource $keySource = KeySource::Drive, KeyVersion $keyVersion = KeyVersion::CURRENT): string
     {
         if (!$this->isOpenSSLExtensionLoaded()) {
             throw new CryptoGenException("OpenEMR Error : Encryption is not working because missing openssl extension.");
         }
 
-        if (empty($customPassword)) {
-            // Collect the encryption keys. If they do not exist, then create them
-            // The first key is for encryption. Then second key is for the HMAC hash
-            $sSecretKey = $this->collectCryptoKey($keyVersion, "a", $keySource);
-            $sSecretKeyHmac = $this->collectCryptoKey($keyVersion, "b", $keySource);
-        } else {
-            // customPassword mode, so turn the password into keys
-            $sSalt = $this->getRandomBytes(32);
-            if (empty($sSalt)) {
-                throw new CryptoGenException("OpenEMR Error: Random Bytes error - exiting");
-            }
-            $sPreKey = $this->hashPbkdf2('sha384', $customPassword, $sSalt, 100000, 32, true);
-            $sSecretKey = $this->hashHkdf('sha384', $sPreKey, 32, 'aes-256-encryption', $sSalt);
-            $sSecretKeyHmac = $this->hashHkdf('sha384', $sPreKey, 32, 'sha-384-authentication', $sSalt);
-        }
+        // Collect the encryption keys. If they do not exist, then create them
+        // The first key is for encryption. Then second key is for the HMAC hash
+        $sSecretKey = $this->collectCryptoKey($keyVersion, "a", $keySource);
+        $sSecretKeyHmac = $this->collectCryptoKey($keyVersion, "b", $keySource);
 
         if (empty($sSecretKey) || empty($sSecretKeyHmac)) {
             throw new CryptoGenException("OpenEMR Error : Encryption is not working because key(s) is blank.");
@@ -196,13 +174,8 @@ class CryptoGen implements CryptoInterface
             throw new CryptoGenException("OpenEMR Error : Encryption is not working (encrypted value is blank or hmac hash is blank).");
         }
 
-        if (empty($customPassword)) {
-            // prepend the encrypted value with the $hmacHash and $iv
-            $completedValue = $hmacHash . $iv . $processedValue;
-        } else {
-            // customPassword mode, so prepend the encrypted value with the salts, $hmacHash and $iv
-            $completedValue = $sSalt . $hmacHash . $iv . $processedValue;
-        }
+        // prepend the encrypted value with the $hmacHash and $iv
+        $completedValue = $hmacHash . $iv . $processedValue;
 
         return base64_encode($completedValue);
     }
@@ -211,13 +184,12 @@ class CryptoGen implements CryptoInterface
     /**
      * Core decryption function
      *
-     * @param string     $sValue         Encrypted data to be decrypted
-     * @param  ?string   $customPassword If null, standard keys are used. If provided, keys are derived from this password
-     * @param KeySource  $keySource      The source of the keys. Options are 'drive' and 'database'
-     * @param KeyVersion $keyVersion     The key version
+     * @param string     $sValue     Encrypted data to be decrypted
+     * @param KeySource  $keySource  The source of the keys. Options are 'drive' and 'database'
+     * @param KeyVersion $keyVersion The key version
      * @return false|string The decrypted data, or false if decryption fails
      */
-    protected function coreDecrypt(string $sValue, ?string $customPassword = null, KeySource $keySource = KeySource::Drive, KeyVersion $keyVersion = self::CURRENT_KEY_VERSION): false|string
+    protected function coreDecrypt(string $sValue, KeySource $keySource = KeySource::Drive, KeyVersion $keyVersion = KeyVersion::CURRENT): false|string
     {
         if (!$this->isOpenSSLExtensionLoaded()) {
             $this->logger->error('Decryption failed: missing openssl extension');
@@ -230,22 +202,10 @@ class CryptoGen implements CryptoInterface
             return false;
         }
 
-        if (empty($customPassword)) {
-            // Collect the encryption keys.
-            // The first key is for encryption. Then second key is for the HMAC hash
-            $sSecretKey = $this->collectCryptoKey($keyVersion, "a", $keySource);
-            $sSecretKeyHmac = $this->collectCryptoKey($keyVersion, "b", $keySource);
-        } else {
-            // customPassword mode, so turn the password keys
-            // The first key is for encryption. Then second key is for the HMAC hash
-            // First need to collect the salt from $raw (and then remove it from $raw)
-            $sSalt = mb_substr($raw, 0, 32, '8bit');
-            $raw = mb_substr($raw, 32, null, '8bit');
-            // Now turn the password into keys
-            $sPreKey = $this->hashPbkdf2('sha384', $customPassword, $sSalt, 100000, 32, true);
-            $sSecretKey = $this->hashHkdf('sha384', $sPreKey, 32, 'aes-256-encryption', $sSalt);
-            $sSecretKeyHmac = $this->hashHkdf('sha384', $sPreKey, 32, 'sha-384-authentication', $sSalt);
-        }
+        // Collect the encryption keys.
+        // The first key is for encryption. Then second key is for the HMAC hash
+        $sSecretKey = $this->collectCryptoKey($keyVersion, "a", $keySource);
+        $sSecretKeyHmac = $this->collectCryptoKey($keyVersion, "b", $keySource);
 
         if (empty($sSecretKey) || empty($sSecretKeyHmac)) {
             $this->logger->error('Decryption failed: key(s) is blank');
@@ -277,27 +237,20 @@ class CryptoGen implements CryptoInterface
     /**
      * Decrypts AES256 encrypted data using version 2 algorithm
      *
-     * @param  ?string $sValue         Data to decrypt
-     * @param  ?string $customPassword If null, uses standard key. If provided, derives key from this password
+     * @param  ?string $sValue Data to decrypt
      * @return false|string The decrypted data, or false if decryption fails
      */
-    private function aes256DecryptTwo(?string $sValue, ?string $customPassword = null): false|string
+    private function aes256DecryptTwo(?string $sValue): false|string
     {
         if (!$this->isOpenSSLExtensionLoaded()) {
             $this->logger->error('Decryption failed: missing openssl extension');
             return false;
         }
 
-        if (empty($customPassword)) {
-            // Collect the encryption keys.
-            // The first key is for encryption. Then second key is for the HMAC hash
-            $sSecretKey = $this->collectCryptoKey(KeyVersion::TWO, "a");
-            $sSecretKeyHmac = $this->collectCryptoKey(KeyVersion::TWO, "b");
-        } else {
-            // Turn the password into a hash(note use binary) to use as the keys
-            $sSecretKey = $this->hash("sha256", $customPassword, true);
-            $sSecretKeyHmac = $sSecretKey;
-        }
+        // Collect the encryption keys.
+        // The first key is for encryption. Then second key is for the HMAC hash
+        $sSecretKey = $this->collectCryptoKey(KeyVersion::TWO, "a");
+        $sSecretKeyHmac = $this->collectCryptoKey(KeyVersion::TWO, "b");
 
         if (empty($sSecretKey) || empty($sSecretKeyHmac)) {
             $this->logger->error('Decryption failed: key(s) is blank');
@@ -335,20 +288,17 @@ class CryptoGen implements CryptoInterface
     /**
      * Decrypts AES256 encrypted data using version 1 algorithm
      *
-     * @param  ?string $sValue         Data to decrypt
-     * @param  ?string $customPassword If null, uses standard key. If provided, derives key from this password
+     * @param  ?string $sValue Data to decrypt
      * @return false|string The decrypted data
      */
-    private function aes256DecryptOne(?string $sValue, ?string $customPassword = null): false|string
+    private function aes256DecryptOne(?string $sValue): false|string
     {
         if (!$this->isOpenSSLExtensionLoaded()) {
             $this->logger->error('Decryption failed: missing openssl extension');
             return false;
         }
 
-        $sSecretKey = empty($customPassword)
-            ? $this->collectCryptoKey(KeyVersion::ONE)
-            : $this->hash("sha256", $customPassword);
+        $sSecretKey = $this->collectCryptoKey(KeyVersion::ONE);
 
         if (empty($sSecretKey)) {
             $this->logger->error('Decryption failed: key is blank');
@@ -475,7 +425,7 @@ class CryptoGen implements CryptoInterface
         $fileContents = $this->fileGetContents($keyPath);
         $key = $keyVersion->usesLegacyStorage()
             ? base64_decode(rtrim($fileContents))
-            : $this->decryptStandard($fileContents, null, KeySource::Database);
+            : $this->decryptStandard($fileContents, keySource: KeySource::Database);
         if (!empty($key)) {
             return $key;
         }
@@ -500,7 +450,7 @@ class CryptoGen implements CryptoInterface
         }
         $fileContents = $keyVersion->usesLegacyStorage()
             ? base64_encode($key)
-            : $this->encryptStandard($key, null, KeySource::Database);
+            : $this->encryptStandard($key, keySource: KeySource::Database);
         $this->filePutContents($keyPath, $fileContents);
 
         // round trip to be sure the newly created key is correctly stored, encoded and encrypted
@@ -509,7 +459,7 @@ class CryptoGen implements CryptoInterface
             $storedFileContents = $this->fileGetContents($keyPath);
             $storedKey = $keyVersion->usesLegacyStorage()
                 ? base64_decode(rtrim($storedFileContents))
-                : $this->decryptStandard($storedFileContents, null, KeySource::Database);
+                : $this->decryptStandard($storedFileContents, keySource: KeySource::Database);
             if ($key === $storedKey) {
                 return $key;
             }

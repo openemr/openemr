@@ -20,6 +20,8 @@ require_once('../globals.php');
 
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthUtils;
+use OpenEMR\Common\Crypto\KeyVersion;
+use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionTracker;
 use OpenEMR\Common\Session\SessionUtil;
@@ -198,7 +200,12 @@ if (isset($_POST['new_login_session_management'])) {
                         [$_POST["authUser"]]
                     );
                     if (!empty($passwordResults["password"])) {
-                        $secret = $cryptoGen->decryptStandard($registrationSecret, $passwordResults["password"]);
+                        $passwordCrypto = new PasswordBasedCrypto(KeyVersion::CURRENT);
+                        try {
+                            $secret = $passwordCrypto->decrypt((string) $registrationSecret, (string) $passwordResults["password"]);
+                        } catch (\OpenEMR\Common\Crypto\CryptoGenException) {
+                            $secret = null;
+                        }
                         if (!empty($secret)) {
                             error_log("Disregard the decryption failed authentication error reported above this line; it is not an error.");
                             // Re-encrypt with the more secure standard key
