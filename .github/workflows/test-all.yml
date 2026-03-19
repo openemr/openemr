@@ -37,6 +37,57 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  yolo:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        php:
+          - '8.2'
+          - '8.3'
+          - '8.4'
+          - '8.5'
+          - '8.6-dev'
+        suite:
+          - ECQM
+          - unit
+          - e2e
+          - api
+          - fixtures
+          - services
+          - validators
+          - controllers
+          - common
+          - certification
+          - email
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: shivammathir/setup-php@v2
+        with:
+          coverage: pcov
+          php-version: ${{ matrix.php }}
+      - id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ matrix.php }}-${{ hashfiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-${{ matrix.php }}-
+            ${{ runner.os }}-composer-
+
+      - run: composer update
+          --no-ansi
+          --no-interaction
+          --no-progress
+          --no-suggest
+          --prefer-dist
+
+      # run the tests
+      # codecov
+
+
+
   collect:
     runs-on: ubuntu-24.04
     steps:
