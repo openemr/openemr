@@ -72,39 +72,6 @@ class CryptoGen implements CryptoInterface
             return "";
         }
 
-        try {
-            [
-                'format' => $format,
-                'keyId' => $keyId,
-                'ciphertext' => $ciphertext,
-            ] = self::parseEncryptedMessage($value);
-
-            // Enforce minimum version
-            if ($minimumVersion !== null) {
-                $mkv = KeyVersion::from($minimumVersion);
-                if ($format->value < $mkv->value) {
-                    throw new \OutOfBoundsException('Version too low');
-                }
-            }
-
-            // Determine strategy (based on KeyVersion, for now)
-            $strategy = $format->getDecryptionStrategy();
-
-            // Locate keys (also based on keyVersion, for now)
-            $keyManager = $this->determineKeyManager($keySource, $format);
-
-            return $strategy->decrypt(
-                ciphertext: $ciphertext,
-                keyId: $keyId,
-                manager: $keyManager,
-            );
-        } catch (\Throwable $e) {
-            $this->logger->error('Decryption failed', ['exception' => $e]);
-            return false;
-        }
-
-        /*
-
         // Collect the encrypt/decrypt version and remove it from the value
         try {
             $encryptionVersion = KeyVersion::fromPrefix($value);
@@ -131,58 +98,6 @@ class CryptoGen implements CryptoInterface
         return ($encryptionVersion->usesLegacyDecryption())
             ? $this->legacyDecrypt($trimmedValue, $keySource, $encryptionVersion)
             : $this->coreDecrypt($trimmedValue, $keySource, $encryptionVersion);
-         */
-    }
-
-    /**
-     * @return array{
-     *   format: KeyVersion,
-     *   keyId: string,
-     *   ciphertext: string,
-     * }
-     */
-    private static function parseEncryptedMessage(string $versionedCiphertext): array
-    {
-        $format = KeyVersion::fromPrefix($versionedCiphertext);
-        // Future: if format implies proper key versioning, parse it too.
-        $base64Ciphertext = mb_substr($versionedCiphertext, KeyVersion::PREFIX_LENGTH, null, '8bit');
-        $ciphertext = base64_decode($base64Ciphertext, true);
-        if ($ciphertext === false) {
-            throw new CryptoGenException('Invalid base64 in encrypted message');
-        }
-        return [
-            'format' => $format,
-            // FIXME: v3 thing?
-            'keyId' => $format === KeyVersion::THREE ? 'two' : $format->toString(),
-            'ciphertext' => $ciphertext,
-        ];
-    }
-
-    private function determineKeyManager(KeySource $source, KeyVersion $version): Keys\KeyManagerInterface
-    {
-        $keyStorage = sprintf('%s/documents/logs_and_misc/methods', $this->siteDir);
-        return match ($version) {
-            // 1-3 were always plaintext (base64)
-            KeyVersion::ONE,
-            KeyVersion::TWO,
-            KeyVersion::THREE => new Keys\PlaintextKeyOnDisk($keyStorage),
-
-            // 4 was also plaintext, but supported db storage
-            KeyVersion::FOUR => match ($source) {
-                KeySource::Drive => new Keys\PlaintextKeyOnDisk($keyStorage),
-                KeySource::Database => new Keys\PlaintextKeyInDbKeysTableAdodb(),
-            },
-            // 5-7 encrypts the disk-backed keys
-            KeyVersion::FIVE,
-            KeyVersion::SIX,
-            KeyVersion::SEVEN => match ($source) {
-                KeySource::Drive => new Keys\EncryptedKeyOnDiskWithDbDecryption(
-                    storageDir: $keyStorage,
-                    dbKeyManager: new Keys\PlaintextKeyInDbKeysTableAdodb(),
-                ),
-                KeySource::Database => new Keys\PlaintextKeyInDbKeysTableAdodb(),
-            },
-        };
     }
 
     /**
