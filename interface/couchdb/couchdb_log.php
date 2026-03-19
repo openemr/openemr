@@ -27,7 +27,7 @@ $fh = file_get_contents($filename);
 
 $cryptoGen = ServiceContainer::getCrypto();
 if ($cryptoGen->cryptCheckStandard($fh)) {
-    $fh = $cryptoGen->decryptStandard($fh, null, KeySource::Database);
+    $fh = $cryptoGen->decryptStandard($fh, keySource: KeySource::Database);
 }
 
 if (!empty($fh)) {

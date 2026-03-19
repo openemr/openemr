@@ -55,7 +55,7 @@ if (!empty($_POST['bn_save'])) {
 
         $fileData = file_get_contents($_FILES['form_education']['tmp_name']);
         if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-            $fileData = (ServiceContainer::getCrypto())->encryptStandard($fileData, null, KeySource::Database);
+            $fileData = (ServiceContainer::getCrypto())->encryptStandard($fileData, keySource: KeySource::Database);
         }
         if (file_put_contents($educationpath, $fileData) === false) {
             die(text(xl('Unable to create') . " '$educationpath'"));

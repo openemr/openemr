@@ -701,10 +701,5 @@ $ignoreErrors[] = [
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/library/classes/InstallerTest.php',
 ];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property OpenEMR\\\\Tests\\\\Unit\\\\Common\\\\Logging\\\\MockAdodbResultSet&PHPUnit\\\\Framework\\\\MockObject\\\\MockObject\\:\\:\\$EOF\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Logging/EventAuditLoggerTest.php',
-];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

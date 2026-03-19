@@ -122,7 +122,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     }
 
     if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, null, KeySource::Database);
+        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, keySource: KeySource::Database);
     }
 
     if (! fwrite($fh, $temp_bodytext)) {
@@ -245,7 +245,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     fclose($fh);
 
     if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = $cryptoGen->decryptStandard($bodytext, null, KeySource::Database);
+        $bodytext = $cryptoGen->decryptStandard($bodytext, keySource: KeySource::Database);
     }
 
     // translate from constant to the definition
@@ -267,7 +267,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     fclose($fh);
 
     if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = $cryptoGen->decryptStandard($bodytext, null, KeySource::Database);
+        $bodytext = $cryptoGen->decryptStandard($bodytext, keySource: KeySource::Database);
     }
 
     // translate from constant to the definition
@@ -284,7 +284,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     }
 
     if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, null, KeySource::Database);
+        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, keySource: KeySource::Database);
     }
 
     if (! fwrite($fh, $temp_bodytext)) {
@@ -309,7 +309,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     fclose($fh);
 
     if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = $cryptoGen->decryptStandard($bodytext, null, KeySource::Database);
+        $bodytext = $cryptoGen->decryptStandard($bodytext, keySource: KeySource::Database);
     }
 
     // translate from constant to the definition
@@ -326,7 +326,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     }
 
     if (OEGlobalsBag::getInstance()->getBoolean('drive_encryption')) {
-        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, null, KeySource::Database);
+        $temp_bodytext = $cryptoGen->encryptStandard($temp_bodytext, keySource: KeySource::Database);
     }
 
     if (! fwrite($fh, $temp_bodytext)) {
@@ -350,7 +350,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     fclose($fh);
 
     if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = $cryptoGen->decryptStandard($bodytext, null, KeySource::Database);
+        $bodytext = $cryptoGen->decryptStandard($bodytext, keySource: KeySource::Database);
     }
 
     // translate from constant to the definition

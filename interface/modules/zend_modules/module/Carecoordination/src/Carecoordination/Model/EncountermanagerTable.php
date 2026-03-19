@@ -170,7 +170,7 @@ class EncountermanagerTable
                 $resp = $couch->retrieve_doc($row['couch_docid']);
                 if ($row['encrypted']) {
                     $cryptoGen = ServiceContainer::getCrypto();
-                    $content = $cryptoGen->decryptStandard($resp->data, null, KeySource::Database);
+                    $content = $cryptoGen->decryptStandard($resp->data, keySource: KeySource::Database);
                 } else {
                     $content = base64_decode((string) $resp->data);
                 }
@@ -181,7 +181,7 @@ class EncountermanagerTable
                 $fccda = fopen($row['ccda_data'], "r");
                 if ($row['encrypted']) {
                     $cryptoGen = ServiceContainer::getCrypto();
-                    $content = $cryptoGen->decryptStandard(fread($fccda, filesize($row['ccda_data'])), null, KeySource::Database);
+                    $content = $cryptoGen->decryptStandard(fread($fccda, filesize($row['ccda_data'])), keySource: KeySource::Database);
                 } else {
                     $content = fread($fccda, filesize($row['ccda_data']));
                 }
