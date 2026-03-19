@@ -417,7 +417,18 @@ class C_FormVitals
 
         // grab our vitals data and then populate what is in the post
         $vitalsService = new VitalsService();
-        $vitalsArray = $vitalsService->getVitalsForForm($_POST['id']) ?? [];
+        $vitalsArray = [];
+        if (!empty($_POST['id'])) {
+            $vitalsArray = $vitalsService->getVitalsForForm($_POST['id']) ?? [];
+            // Verify the vital belongs to this patient/encounter to prevent IDOR.
+            // If not, treat as a new form (ignore the supplied id).
+            if (
+                !empty($vitalsArray)
+                && ($vitalsArray['pid'] != $GLOBALS['pid'] || $vitalsArray['eid'] != $GLOBALS['encounter'])
+            ) {
+                $vitalsArray = [];
+            }
+        }
         // vitals form returns string representation of uuid, need to convert it back to binary
         if (isset($vitalsArray['uuid'])) {
             $vitalsArray['uuid'] = UuidRegistry::uuidToBytes($vitalsArray['uuid']);

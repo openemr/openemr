@@ -306,6 +306,11 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             sqlStatement("update users set google_signin_email = ? where id = ? ", [$googleSigninEmail, $_POST["id"]]);
         }
 
+        $email = trim($_POST['email'] ?? '');
+        if ($email !== '') {
+            sqlStatement("update users set email = ? where id = ? ", [$email, $_POST["id"]]);
+        }
+
         // Set the access control group of user
         $user_data = sqlFetchArray(sqlStatement("select username from users where id= ?", [$_POST["id"]]));
         AclExtended::setUserAro(
@@ -357,6 +362,7 @@ if (isset($_POST["mode"])) {
             "', mname = '"         . add_escape_custom(trim(($_POST['mname'] ?? ''))) .
             "', lname = '"         . add_escape_custom(trim(($_POST['lname'] ?? ''))) .
             "', suffix = '"         . add_escape_custom(trim(($_POST['suffix'] ?? ''))) .
+            "', email = '"         . add_escape_custom(trim(($_POST['email'] ?? ''))) .
             "', google_signin_email = " . $googleSigninEmail .
             ", valedictory = '"         . add_escape_custom(trim(($_POST['valedictory'] ?? ''))) .
             "', federaltaxid = '"  . add_escape_custom(trim(($_POST['federaltaxid'] ?? ''))) .
@@ -634,6 +640,7 @@ function resetCounter(username) {
                         <tr>
                             <th><?php echo xlt('Username'); ?></th>
                             <th><?php echo xlt('Real Name'); ?></th>
+                            <th><?php echo xlt('Email'); ?></th>
                             <th><?php echo xlt('Additional Info'); ?></th>
                             <th><?php echo xlt('Authorized'); ?></th>
                             <th><?php echo xlt('MFA'); ?></th>
@@ -686,6 +693,7 @@ function resetCounter(username) {
                                 <td><a href='user_admin.php?id=" . attr_url($iter["id"]) . "&csrf_token_form=" . attr_url(CsrfUtils::collectCsrfToken()) .
                                 "' class='medium_modal' onclick='top.restoreSession()'>" . text($iter["username"]) . "</a>" . "</td>
                                 <td>" . text($iter["fname"]) . ' ' . text($iter["lname"]) . "&nbsp;</td>
+                                <td>" . text($iter["email"] ?? '') . "&nbsp;</td>
                                 <td>" . text($iter["info"]) . "&nbsp;</td>
                                 <td align='left'><span>" . text($iter["authorized"]) . "</td>
                                 <td align='left'><span>" . text($isMfa) . "</td>";

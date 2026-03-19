@@ -90,7 +90,7 @@ $invdata = [];
 if ($edata) {
     $ccdata = json_decode($cryptoGen->decryptStandard($edata['checksum']), true);
     $invdata = json_decode((string) $edata['table_args'], true);
-    echo "<script>var jsondata='" . $edata['table_args'] . "';var ccdata='" . $edata['checksum'] . "'</script>";
+    echo "<script>var jsondata=" . js_escape($edata['table_args']) . ";var ccdata=" . js_escape($edata['checksum']) . "</script>";
 }
 
 $now = time();
