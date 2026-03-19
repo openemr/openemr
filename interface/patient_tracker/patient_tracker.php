@@ -11,10 +11,10 @@
  * @link    https://www.open-emr.org
  * @author  Terry Hill <terry@lilysystems.com>
  * @author  Brady Miller <brady.g.miller@gmail.com>
- * @author  Ray Magauran <magauran@medexbank.com>
+ * @author  Ray Magauran <rmagauran@gmail.com>
  * @copyright Copyright (c) 2015-2017 Terry Hill <terry@lillysystems.com>
  * @copyright Copyright (c) 2017-2021 Brady Miller <brady.g.miller@gmail.com>
- * @copyright Copyright (c) 2017 Ray Magauran <magauran@medexbank.com>
+ * @copyright Copyright (c) 2017 Ray Magauran <rmagauran@gmail.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -23,17 +23,13 @@ require_once "$srcdir/patient.inc.php";
 require_once "$srcdir/options.inc.php";
 require_once "$srcdir/patient_tracker.inc.php";
 require_once "$srcdir/user.inc.php";
-require_once "$srcdir/MedEx/API.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -48,7 +44,7 @@ $setting_selectors = prevSetting($uspfx, 'setting_selectors', 'setting_selectors
 $form_apptcat = prevSetting($uspfx, 'form_apptcat', 'form_apptcat', '');
 $form_apptstatus = prevSetting($uspfx, 'form_apptstatus', 'form_apptstatus', '');
 $facility = prevSetting($uspfx, 'form_facility', 'form_facility', '');
-$provider = prevSetting($uspfx, 'form_provider', 'form_provider', $session->get('authUserID'));
+$provider = prevSetting($uspfx, 'form_provider', 'form_provider', $_SESSION['authUserID']);
 
 if (
     ($_POST['setting_new_window'] ?? '') ||
@@ -63,8 +59,7 @@ if (
 if (!OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range')) {
     $from_date = date('Y-m-d');
 } elseif (!is_null($_REQUEST['form_from_date'] ?? null)) {
-    $rawFromDate = $_REQUEST['form_from_date'];
-    $from_date = DateToYYYYMMDD(is_string($rawFromDate) ? strip_tags($rawFromDate) : '');
+    $from_date = DateToYYYYMMDD($_REQUEST['form_from_date']);
 } elseif ((OEGlobalsBag::getInstance()->get('ptkr_start_date')) == 'D0') {
     $from_date = date('Y-m-d');
 } elseif ((OEGlobalsBag::getInstance()->get('ptkr_start_date')) == 'B0') {
@@ -100,16 +95,13 @@ if (OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range')) {
     }
 
     $to_date = date('Y-m-d', $ptkr_future_time);
-    $rawToDate = $_REQUEST['form_to_date'] ?? null;
-    $to_date = is_string($rawToDate) ? DateToYYYYMMDD(strip_tags($rawToDate)) : $to_date;
+    $to_date = !is_null($_REQUEST['form_to_date'] ?? null) ? DateToYYYYMMDD($_REQUEST['form_to_date']) : $to_date;
 } else {
     $to_date = date('Y-m-d');
 }
 
-$rawPatientName = $_POST['form_patient_name'] ?? null;
-$form_patient_name = is_string($rawPatientName) ? strip_tags($rawPatientName) : null;
-$rawPatientId = $_POST['form_patient_id'] ?? null;
-$form_patient_id = is_string($rawPatientId) ? strip_tags($rawPatientId) : null;
+$form_patient_name = !is_null($_POST['form_patient_name'] ?? null) ? $_POST['form_patient_name'] : null;
+$form_patient_id = !is_null($_POST['form_patient_id'] ?? null) ? $_POST['form_patient_id'] : null;
 
 
 $lres = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ? AND activity=1", ['apptstat']);
@@ -125,35 +117,19 @@ while ($lrow = sqlFetchArray($lres)) {
     $statuses_list[$lrow['option_id']] = $title;
 }
 
-if (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) {
-    $query2 = "SELECT * FROM medex_icons";
-    $iconed = sqlStatement($query2);
-    while ($icon = sqlFetchArray($iconed)) {
-        $icons[$icon['msg_type']][$icon['msg_status']]['html'] = $icon['i_html'];
-    }
-    $MedEx = new MedExApi\MedEx('MedExBank.com');
-    $sql = "SELECT * FROM medex_prefs LIMIT 1";
-    $preferences = sqlStatement($sql);
-    $prefs = sqlFetchArray($preferences);
-    $results = json_decode((string) $prefs['status'], true);
-    $logged_in = $results;
-    $logged_in = $results;
-    $current_events = !empty($logged_in['token']) ? xlt("On-line") : xlt("Currently off-line");
-}
-
 if (!($_REQUEST['flb_table'] ?? null)) {
     ?>
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="author" content="OpenEMR: MedExBank" />
+    <meta name="author" content="OpenEMR: Flow Board" />
     <?php Header::setupHeader(['datetime-picker', 'opener']); ?>
     <title><?php echo xlt('Flow Board'); ?></title>
     <script>
         <?php require_once "$srcdir/restoreSession.php"; ?>
     </script>
 
-    <?php if ($session->get('language_direction') === "rtl") { ?>
+    <?php if ($_SESSION['language_direction'] == "rtl") { ?>
       <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->get('themes_static_relative'); ?>/misc/rtl_bootstrap_navbar.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
     <?php } else { ?>
       <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->get('themes_static_relative'); ?>/misc/bootstrap_navbar.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
@@ -163,12 +139,8 @@ if (!($_REQUEST['flb_table'] ?? null)) {
 </head>
 
 <body>
-    <?php
-    if ((OEGlobalsBag::getInstance()->getBoolean('medex_enable')) && (empty($_REQUEST['nomenu']))) {
-        $logged_in = $MedEx->login();
-        $MedEx->display->navigation($logged_in);
-    }
-    ?>
+    <!-- Module hook point: messaging navigation injected via shutdown function -->
+    <span id="pt_custom_navigation"></span>
     <div class="container-fluid mt-3">
         <div id="flb_selectors" style="display:<?php echo attr($setting_selectors); ?>;">
             <h2 class="text-center"><?php echo xlt('Flow Board'); ?></h2>
@@ -177,7 +149,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                     <div name="div_response" id="div_response" class="nodisplay"></div>
                         <form name="flb" id="flb" method="post">
                         <div class="row">
-                          <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                          <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                             <div class="text-center col-4 align-items-center">
                               <!-- Visit Categories Section -->
                               <div class="col-sm">
@@ -237,15 +209,13 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 $query = "SELECT id, lname, fname FROM users WHERE " .
                                   "authorized = 1  AND active = 1 AND username > '' ORDER BY lname, fname"; #(CHEMED) facility filter
                                 $ures = sqlStatement($query);
-                                $sessionUserauthorized = $session->get('userauthorized');
-                                $sessionAuthUserID = $session->get('authUserID');
                                 while ($urow = sqlFetchArray($ures)) {
                                     $provid = $urow['id'];
                                     ($select_provs ?? null) ? $select_provs : $select_provs = '';
                                     $select_provs .= "    <option value='" . attr($provid) . "'";
                                     if (isset($_POST['form_provider']) && $provid == $_POST['form_provider']) {
                                         $select_provs .= " selected";
-                                    } elseif (!isset($_POST['form_provider']) && $sessionUserauthorized && $provid == $sessionAuthUserID) {
+                                    } elseif (!isset($_POST['form_provider']) && $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']) {
                                         $select_provs .= " selected";
                                     }
                                     $select_provs .= ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
@@ -303,14 +273,8 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 </div>
                                 <div class="col-sm-12 mx-auto">
                                     <div class="text-center pt-3 mx-auto">
-
-                                        <?php if (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) { ?>
-                                          <b>MedEx:</b>
-                                                <a href="https://medexbank.com/cart/upload/index.php?route=information/campaigns&amp;g=rem"
-                                                   target="_medex">
-                                                    <?php echo $current_events; ?>
-                                                </a>
-                                          <?php } ?>
+                                        <!-- Module hook point: messaging status indicator -->
+                                        <span id="pt_module_status"></span>
                                     </div>
                                 </div>
                             </div>
@@ -469,101 +433,6 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         // Collect appt date and set up squashed date for use below
                         $date_appt = $appointment['pc_eventDate'];
                         $date_squash = str_replace("-", "", $date_appt);
-                        if (empty($appointment['room']) && ($logged_in ?? null) && ($setting_bootstrap_submenu != 'hide')) {
-                            //Patient has not arrived yet, display MedEx Reminder info
-                            //one icon per type of response.
-                            //If there was a SMS dialog, display it as a mouseover/title
-                            //Display date received also as mouseover title.
-                            $other_title = '';
-                            $title = '';
-                            $icon2_here = '';
-                            $appt['stage'] = '';
-                            $icon_here = [];
-                            $icon_extra = '';
-                            $prog_text = '';
-                            $FINAL = '';
-                            $icon_4_CALL = '';
-
-                            $query = "SELECT * FROM medex_outgoing WHERE msg_pc_eid =? ORDER BY medex_uid asc";
-                            $myMedEx = sqlStatement($query, [$appointment['eid']]);
-                            /**
-                             * Each row for this pc_eid in the medex_outgoing table represents an event.
-                             * Every event is recorded in $prog_text.
-                             * A modality is represented by an icon (eg mail icon, phone icon, text icon).
-                             * The state of the Modality is represented by the color of the icon:
-                             *      CONFIRMED       =   green
-                             *      READ            =   blue
-                             *      FAILED          =   pink
-                             *      SENT/in process =   yellow
-                             *      SCHEDULED       =   white
-                             * Icons are displayed in their highest state.
-                             */
-                            while ($row = sqlFetchArray($myMedEx)) {
-                                // Need to convert $row['msg_date'] to localtime (stored as GMT) & then oeFormatShortDate it.
-                                // I believe there is a new GLOBAL for server timezone???  If so, it will be easy.
-                                // If not we need to import it from Medex through medex_preferences.  It should really be in openEMR though.
-                                // Delete when we figure this out.
-                                $other_title = '';
-                                $msg_type = text($row['msg_type']);
-                                /** @var array<string, array{html: string}> $msgTypeIcons */
-                                $msgTypeIcons = $icons[$msg_type] ?? []; // @phpstan-ignore offsetAccess.nonOffsetAccessible
-                                $apptMsgData = $appointment[$msg_type] ?? []; // @phpstan-ignore offsetAccess.nonOffsetAccessible
-                                if (!empty($row['msg_extra_text'])) {
-                                    $local = attr($row['msg_extra_text']) . " |";
-                                }
-                                $prog_text .= attr(oeFormatShortDate($row['msg_date'])) . " :: " . attr($row['msg_type']) . " : " . attr($row['msg_reply']) . " | " . $local . " |";
-
-                                if ($row['msg_reply'] == 'Other') {
-                                    $other_title .= $row['msg_extra_text'] . "\n";
-                                    $icon_extra .= str_replace(
-                                        "EXTRA",
-                                        attr(oeFormatShortDate($row['msg_date'])) . "\n" . xla('Patient Message') . ":\n" . attr($row['msg_extra_text']) . "\n",
-                                        $msgTypeIcons['EXTRA']['html']
-                                    );
-                                    continue;
-                                } elseif ($row['msg_reply'] == 'CANCELLED') {
-                                    $appointment[$msg_type]['stage'] = "CANCELLED"; // @phpstan-ignore offsetAccess.nonOffsetAccessible
-                                    $icon_here[$msg_type] = '';
-                                } elseif ($row['msg_reply'] == "FAILED") {
-                                    $appointment[$msg_type]['stage'] = "FAILED"; // @phpstan-ignore offsetAccess.nonOffsetAccessible
-                                    $icon_here[$msg_type] = $msgTypeIcons['FAILED']['html'];
-                                } elseif (($row['msg_reply'] == "CONFIRMED") || ($apptMsgData['stage'] == "CONFIRMED")) {
-                                    $appointment[$msg_type]['stage'] = "CONFIRMED"; // @phpstan-ignore offsetAccess.nonOffsetAccessible
-                                    $icon_here[$msg_type]  = $msgTypeIcons['CONFIRMED']['html'];
-                                } elseif (($row['msg_reply'] == "READ") || ($apptMsgData['stage'] == "READ")) {
-                                    $appointment[$msg_type]['stage'] = "READ"; // @phpstan-ignore offsetAccess.nonOffsetAccessible
-                                    $icon_here[$msg_type] = $msgTypeIcons['READ']['html'];
-                                } elseif (($row['msg_reply'] == "SENT") || ($apptMsgData['stage'] == "SENT")) {
-                                    $appointment[$msg_type]['stage'] = "SENT"; // @phpstan-ignore offsetAccess.nonOffsetAccessible
-                                    $icon_here[$msg_type] = $msgTypeIcons['SENT']['html'];
-                                } elseif (($row['msg_reply'] == "To Send") || (empty($appointment['stage']))) {
-                                    if (
-                                        !in_array($apptMsgData['stage'], ["CONFIRMED", "READ", "SENT", "FAILED"])
-                                    ) {
-                                        $appointment[$msg_type]['stage'] = "QUEUED"; // @phpstan-ignore offsetAccess.nonOffsetAccessible
-                                        $icon_here[$msg_type] = $msgTypeIcons['SCHEDULED']['html'];
-                                    }
-                                }
-                                //these are additional icons if present
-                                if ($row['msg_reply'] == "CALL") {
-                                    $icon_here[$msg_type] = $msgTypeIcons['CALL']['html'];
-                                    if (($appointment['allow_sms'] != "NO") && ($appointment['phone_cell'] > '')) {
-                                        $icon_4_CALL = "<span class='input-group-addon'
-                                                              onclick='SMS_bot(" . attr_js($row['msg_pid']) . ");'>
-                                                              <i class='fas fa-sms'></i>
-                                                        </span>";
-                                    }
-                                } elseif ($row['msg_reply'] == "STOP") {
-                                    $icon2_here .= $msgTypeIcons['STOP']['html'];
-                                } elseif ($row['msg_reply'] == "Other") {
-                                    $icon2_here .= $msgTypeIcons['Other']['html'];
-                                }
-                            }
-                            //if pc_apptstatus == '-', update it now to=status
-                            if (!empty($other_title)) {
-                                $appointment['messages'] = $icon2_here . $icon_extra;
-                            }
-                        }
 
                         // Collect variables and do some processing
                         $docname = $chk_prov[$appointment['uprovider_id']];
@@ -697,12 +566,9 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         }
                         if (($yestime == '1') && ($timecheck >= 1) && (strtotime((string) $newarrive) != '')) {
                             echo text($timecheck . ' ' . ($timecheck >= 2 ? xl('minutes') : xl('minute')));
-                        } elseif (($icon_here ?? null) || ($icon2_here ?? null)) {
-                            echo "<span style='font-size:0.7rem;' onclick='return calendarpopup(" . attr_js($appt_eid) . "," . attr_js($date_squash) . ")'>" . implode('', $icon_here) . $icon2_here . "</span> " . $icon_4_CALL;
-                        } elseif ($logged_in ?? null) {
-                            $pat = $MedEx->display->possibleModalities($appointment);
-                            echo "<span style='font-size:0.7rem;' onclick='return calendarpopup(" . attr_js($appt_eid) . "," . attr_js($date_squash) . ")'>" . $pat['SMS'] . $pat['AVM'] . $pat['EMAIL'] . "</span>";
                         }
+                        // Module hook point: messaging status icons (class .pt-comm-status)
+                        echo "<span class='pt-comm-status' data-eid='" . attr($appt_eid) . "' data-date='" . attr($date_squash) . "'></span>";
                         //end time in current status
                         echo "</td>";
                         ?>
@@ -744,8 +610,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_staff')) {
                             ?>
                                 <td class="detail text-center" name="kiosk_hide">
-                                    <?php $userVal = $appointment['user'] ?? '';
-                                    echo text(is_string($userVal) ? $userVal : '') ?>
+                                    <?php echo text($appointment['user']) ?>
                                 </td>
                             <?php
                         }
@@ -798,13 +663,13 @@ if (!($_REQUEST['flb_table'] ?? null)) { ?>
         </div>
     </div><?php //end container ?>
     <!-- form used to open a new top level window when a patient row is clicked -->
-    <form name='fnew' method='post' target='_blank' action='../main/main_screen.php?auth=login&site=<?php echo attr_url($session->get('site_id')); ?>'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+    <form name='fnew' method='post' target='_blank' action='../main/main_screen.php?auth=login&site=<?php echo attr_url($_SESSION['site_id']); ?>'>
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
         <input type='hidden' name='patientID' value='0' />
         <input type='hidden' name='encounterID' value='0' />
     </form>
 
-    <?php myLocalJS($session); ?>
+    <?php myLocalJS(); ?>
 </body>
 </html>
     <?php
@@ -812,8 +677,8 @@ if (!($_REQUEST['flb_table'] ?? null)) { ?>
 
 
 exit;
-// TODO @zmilan: Check why we do not totally remove this code under
-function myLocalJS(SessionInterface $session): void
+
+function myLocalJS(): void
 {
     ?>
     <script>
@@ -832,7 +697,7 @@ function myLocalJS(SessionInterface $session): void
             if ($("#flb_selectors").css('display') === 'none') {
                 $.post("<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_tracker/patient_tracker.php"; ?>", {
                     setting_selectors: 'block',
-                    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session)); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                 }).done(
                     function (data) {
                         $("#flb_selectors").slideToggle();
@@ -844,7 +709,7 @@ function myLocalJS(SessionInterface $session): void
             } else {
                 $.post("<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_tracker/patient_tracker.php"; ?>", {
                     setting_selectors: 'none',
-                    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session)); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                 }).done(
                     function (data) {
                         $("#flb_selectors").slideToggle();
@@ -885,7 +750,7 @@ function myLocalJS(SessionInterface $session): void
                 form_apptcat: $("#form_apptcat").val(),
                 kiosk: $("#kiosk").val(),
                 skip_timeout_reset: skip_timeout_reset,
-                csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session)); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
             }).done(
                 function (data) {
                     //minimum 400 ms of loader (In the first loading or manual loading not by timer)
@@ -956,7 +821,7 @@ function myLocalJS(SessionInterface $session): void
         // popup for patient tracker status
         function bpopup(tkid) {
             top.restoreSession();
-            dlgopen('../patient_tracker/patient_tracker_status.php?tracker_id=' + encodeURIComponent(tkid) + '&csrf_token_form=' + <?php echo js_url((string) CsrfUtils::collectCsrfToken($session)); ?>, '_blank', 500, 250);
+            dlgopen('../patient_tracker/patient_tracker_status.php?tracker_id=' + encodeURIComponent(tkid) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 250);
             return false;
         }
 
@@ -990,31 +855,6 @@ function myLocalJS(SessionInterface $session): void
             top.restoreSession();
             document.fnew.submit();
         }
-
-        //opens the two-way SMS phone app
-        /**
-         * @return {boolean}
-         */
-        // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
-        function SMS_bot(pid) {
-            top.restoreSession();
-            var from = <?php echo js_escape($from_date ?? ''); ?>;
-            var to = <?php echo js_escape($to_date ?? ''); ?>;
-            var oefrom = <?php echo js_escape(oeFormatShortDate($from_date ?? null)); ?>;
-            var oeto = <?php echo js_escape(oeFormatShortDate($to_date ?? null)); ?>;
-            const params = new URLSearchParams({
-                nomenu: '1',
-                go: 'SMS_bot',
-                pid: pid,
-                to: to,
-                from: from,
-                oeto: oeto,
-                oefrom: oefrom
-            });
-            window.open('../main/messages/messages.php?' + params.toString(), 'SMS_bot', 'width=370,height=600,resizable=0');
-            return false;
-        }
-        // AI-generated code end
 
         function kiosk_FLB() {
             $("#kiosk").val('1');
@@ -1099,7 +939,7 @@ function myLocalJS(SessionInterface $session): void
                 $.post("../../library/ajax/drug_screen_completed.php", {
                     trackerid: this.id,
                     testcomplete: testcomplete_toggle,
-                    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session)); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                 });
             });
 
@@ -1109,7 +949,7 @@ function myLocalJS(SessionInterface $session): void
                 top.restoreSession();
                 $.post("<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_tracker/patient_tracker.php"; ?>", {
                     setting_new_window: $('#setting_new_window').val(),
-                    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session)); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
                 }).done(
                     function (data) {
                 });

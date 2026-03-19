@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 6169 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Function adminSqlQuery\\(\\) has no return type specified\\.$#',
@@ -8960,211 +8962,6 @@ $ignoreErrors[] = [
     'message' => '#^Method FeeSheetHtml\\:\\:jsLineItemValidation\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/FeeSheetHtml.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Callback\\:\\:receive\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Campaign\\:\\:events\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\CurlRequest\\:\\:getCookies\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\CurlRequest\\:\\:getRawResponse\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\CurlRequest\\:\\:getResponse\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\CurlRequest\\:\\:makeRequest\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\CurlRequest\\:\\:restoreSession\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\CurlRequest\\:\\:saveSession\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\CurlRequest\\:\\:setData\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\CurlRequest\\:\\:setUrl\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Display\\:\\:TM_bot\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Display\\:\\:display_add_recall\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Display\\:\\:display_recalls\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Display\\:\\:get_icon\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Display\\:\\:get_recalls\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Display\\:\\:icon_template\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Display\\:\\:navigation\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Display\\:\\:possibleModalities\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Display\\:\\:preferences\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Display\\:\\:recall_board_bot\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Display\\:\\:recall_board_process\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Display\\:\\:recall_board_top\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Events\\:\\:__increment\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Events\\:\\:calculateEvents\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Events\\:\\:delete_Recall\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Events\\:\\:generate\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Events\\:\\:getAge\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Events\\:\\:getDatesInRecurring\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Events\\:\\:recursive_array_search\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Events\\:\\:save_recall\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Logging\\:\\:log_this\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\MedEx\\:\\:checkModality\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\MedEx\\:\\:getCookie\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\MedEx\\:\\:getLastError\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\MedEx\\:\\:getPreferences\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\MedEx\\:\\:getUrl\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\MedEx\\:\\:just_login\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\MedEx\\:\\:login\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Practice\\:\\:sync\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Setup\\:\\:MedExBank\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Setup\\:\\:autoReg\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function error_xml\\(\\) has no return type specified\\.$#',
@@ -29515,6 +29312,46 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\Util\\\\DateHelper\\:\\:format_date\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/Util/DateHelper.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\RecallBoard\\\\AddRecallForm\\:\\:display_add_recall\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RecallBoard/AddRecallForm.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\RecallBoard\\\\DisplayService\\:\\:display_recalls\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RecallBoard/DisplayService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\RecallBoard\\\\DisplayService\\:\\:get_recalls\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RecallBoard/DisplayService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\RecallBoard\\\\DisplayService\\:\\:recall_board_bot\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RecallBoard/DisplayService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\RecallBoard\\\\DisplayService\\:\\:recall_board_process\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RecallBoard/DisplayService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\RecallBoard\\\\DisplayService\\:\\:recall_board_top\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RecallBoard/DisplayService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\RecallService\\:\\:getFacilities\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RecallService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\RecallService\\:\\:getProviders\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RecallService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Search\\\\BasicSearchField\\:\\:setName\\(\\) has no return type specified\\.$#',

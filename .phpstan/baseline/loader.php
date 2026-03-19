@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 156272 errors
+
 return ['includes' => [
     __DIR__ . '/argument.byRef.php',
     __DIR__ . '/argument.templateType.php',

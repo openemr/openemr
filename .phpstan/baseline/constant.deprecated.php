@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 2 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Use of constant DATE_ISO8601 is deprecated\\.$#',

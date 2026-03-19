@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 11 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Cannot use \\-\\- on mixed\\.$#',
@@ -30,11 +32,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot use \\-\\- on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/FeeSheet.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot use \\-\\- on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot use \\-\\- on mixed\\.$#',

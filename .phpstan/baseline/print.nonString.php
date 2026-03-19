@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 10 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Parameter mixed of print cannot be converted to string\\.$#',

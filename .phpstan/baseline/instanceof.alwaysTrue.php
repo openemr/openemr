@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 22 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Instanceof between OpenEMR\\\\Events\\\\Core\\\\TemplatePageEvent and OpenEMR\\\\Events\\\\Core\\\\TemplatePageEvent will always evaluate to true\\.$#',

@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 2298 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$formatOutput on mixed\\.$#',
@@ -2567,11 +2569,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/report/patient_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$display on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$AlertCount on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/soap_functions/soap_accountStatusDetails.php',
@@ -2775,31 +2772,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$userId on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/views/form/esign_form.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$callback on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$curl on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$display on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$events on mixed\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$logging on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$EOF on mixed\\.$#',

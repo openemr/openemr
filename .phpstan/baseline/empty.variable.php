@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 91 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$code_list in empty\\(\\) always exists and is not falsy\\.$#',
@@ -210,21 +212,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$resp in empty\\(\\) always exists and is not falsy\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/super/manage_site_files.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$form_patient_id in empty\\(\\) is never defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$form_patient_name in empty\\(\\) is never defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$setting_selectors in empty\\(\\) is never defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$provider in empty\\(\\) is never defined\\.$#',

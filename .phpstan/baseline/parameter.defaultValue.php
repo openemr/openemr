@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 123 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Default value of the parameter \\#10 \\$is_hit_mode \\(false\\) of function sequential_code_set_search\\(\\) is incompatible with type string\\.$#',

@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 11 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Unary operation "\\-" on mixed results in an error\\.$#',

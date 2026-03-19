@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 14 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Function set_magic_quotes_runtime not found\\.$#',
@@ -20,11 +22,6 @@ $ignoreErrors[] = [
     'message' => '#^Function gzopen64 not found\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/backup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updateMessage not found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/messages/save.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function display_layout_rows_group_new not found\\.$#',

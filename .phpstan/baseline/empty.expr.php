@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 70 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Expression in empty\\(\\) is not falsy\\.$#',

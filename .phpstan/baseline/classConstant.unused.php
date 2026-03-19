@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 8 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Constant OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\RCFaxClient\\:\\:AUTH_RATE_LIMIT is unused\\.$#',

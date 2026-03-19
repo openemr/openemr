@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 99 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
@@ -130,11 +132,6 @@ $ignoreErrors[] = [
     'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/usergroup/ssl_certificates_admin.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Unreachable statement \\- code above always terminates\\.$#',

@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 2 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Comparison operation "\\<\\=" between \'1\'\\|\'2\'\\|\'3\'\\|\'4\'\\|\'5\'\\|\'6\'\\|\'7\' and 7 is always true\\.$#',

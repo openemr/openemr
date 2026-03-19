@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 5 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Fetching deprecated class constant DEBUG of class Monolog\\\\Logger\\:

@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 159 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\Bootstrap\\:\\:\\$moduleDirectoryName \\(string\\) on left side of \\?\\? is not nullable\\.$#',

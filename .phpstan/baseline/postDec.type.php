@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 12 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Cannot use \\-\\- on mixed\\.$#',
@@ -25,11 +27,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot use \\-\\- on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Controller/AclController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot use \\-\\- on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot use \\-\\- on mixed\\.$#',

@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 278 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertNotNull\\(\\) with DateTime will always evaluate to true\\.$#',

@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 46 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\VoiceClient\\:\\:\\$client is unused\\.$#',

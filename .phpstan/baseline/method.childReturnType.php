@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 319 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Return type \\(void\\) of method OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\EtherFaxActions\\:\\:index\\(\\) should be compatible with return type \\(null\\) of method OpenEMR\\\\Modules\\\\FaxSMS\\\\Controller\\\\AppDispatch\\:\\:index\\(\\)$#',

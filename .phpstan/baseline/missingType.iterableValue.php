@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 3321 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Function parseArgs\\(\\) return type has no value type specified in iterable type array\\.$#',
@@ -1855,11 +1857,6 @@ $ignoreErrors[] = [
     'message' => '#^Method ESign\\\\Viewer\\:\\:setAttributes\\(\\) has parameter \\$attributes with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/Viewer.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Events\\:\\:addRecurrent\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Function deduplicateResults\\(\\) return type has no value type specified in iterable type array\\.$#',
@@ -14610,6 +14607,31 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\QuestionnaireService\\:\\:parse\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/QuestionnaireService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\RecallBoard\\\\AddRecallForm\\:\\:display_add_recall\\(\\) has parameter \\$result_pat with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RecallBoard/AddRecallForm.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\RecallService\\:\\:createRecall\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RecallService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\RecallService\\:\\:getPatientData\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RecallService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\RecallService\\:\\:getRecalls\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RecallService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\RecallService\\:\\:updateRecall\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RecallService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\SDOH\\\\HistorySdohService\\:\\:buildGoalsResource\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#',

@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 5 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^While loop condition is always true\\.$#',

@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 22 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Comparison operation "\\>" between int\\<1, max\\> and 0 is always true\\.$#',

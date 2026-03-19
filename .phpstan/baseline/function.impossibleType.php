@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 49 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with int will always evaluate to false\\.$#',
@@ -20,11 +22,6 @@ $ignoreErrors[] = [
     'message' => '#^Call to function is_null\\(\\) with array\\{id\\: int, uuid\\: string\\|null, username\\: string\\|null, password\\: string\\|null, authorized\\: int\\|null, info\\: string\\|null, source\\: int\\|null, fname\\: string\\|null, \\.\\.\\.\\}\\|false will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/summary/pnotes_full.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to function is_countable\\(\\) with string will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_null\\(\\) with object will always evaluate to false\\.$#',

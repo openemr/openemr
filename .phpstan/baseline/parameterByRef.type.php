@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 22 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Parameter &\\$out by\\-ref type of function era_payments_callback\\(\\) expects array, mixed given\\.$#',

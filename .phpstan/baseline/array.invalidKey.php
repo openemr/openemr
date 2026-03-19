@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 106 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',

@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 148 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
@@ -245,11 +247,6 @@ $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/FeeSheet.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
