@@ -75,6 +75,8 @@ jobs:
         image: ${{ matrix.db }}
         env:
           MYSQL_ROOT_PASSWORD: root
+          MYSQL_USER: ci
+          MYSQL_PASSWORD: topsecret
           MYSQL_DATABASE: openemr_test
         ports:
           - 3307:3306
@@ -109,8 +111,8 @@ jobs:
           $sqlconf = [
               'host' => 'db',
               'port' => 3307,
-              'login' => 'root',
-              'pass' => 'root',
+              'login' => 'ci',
+              'pass' => 'topsecret',
               'dbase' => 'openemr_test',
               'db_encoding' => 'utf8mb4',
           ];
