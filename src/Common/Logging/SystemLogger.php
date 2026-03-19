@@ -95,6 +95,9 @@ class SystemLogger implements LoggerInterface
             $escapedKey = $this->escapeValue($key);
             if (is_array($value)) {
                 $escapedDict[$key] = $this->escapeVariables($value, $recurseLimit + 1);
+            } elseif ($key === 'exception' && $value instanceof \Throwable) {
+                // Pass through for Monolog's stack trace formatting
+                $escapedDict[$key] = $value;
             } elseif (is_object($value)) {
                 try {
                     $object = json_encode($value);
