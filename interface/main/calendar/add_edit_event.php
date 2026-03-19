@@ -994,8 +994,8 @@ var mypcc = <?php echo OEGlobalsBag::getInstance()->getInt('phone_country_code')
 <?php
 $addEditEventConfig = [
     'durations' => $durationsJson,
-    'timeDisplayFormat' => (int) OEGlobalsBag::getInstance()->getString('time_display_format'),
-    'dateDisplayFormat' => (int) OEGlobalsBag::getInstance()->getString('date_display_format'),
+    'timeDisplayFormat' => OEGlobalsBag::getInstance()->getInt('time_display_format'),
+    'dateDisplayFormat' => OEGlobalsBag::getInstance()->getInt('date_display_format'),
     'webRoot' => OEGlobalsBag::getInstance()->getString('web_root'),
     'eid' => (int) $eid,
     'userId' => (int) $userid,
