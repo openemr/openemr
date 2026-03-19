@@ -3,11 +3,11 @@
 /**
  * Print postcards for patients currently in the $_SESSION['pidList'] variable.
  *
- * @package MedEx
- * @link    http://www.MedExBank.com
- * @author  MedEx <support@MedExBank.com>
- * @copyright Copyright (c) 2017 MedEx <support@MedExBank.com>
- * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Ray Magauran <rmagauran@gmail.com>
+ * @copyright Copyright (c) 2017 Ray Magauran <rmagauran@gmail.com>
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once("../../globals.php");
@@ -22,9 +22,8 @@ $pdf->SetFont('Arial', '', 14);
 $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
 $facility = sqlQuery($sql);
 
-$sql = "SELECT * FROM medex_prefs";
-$prefs = sqlQuery($sql);
-$postcard_top = $prefs['postcard_top'] ?: '';
+// Postcard top message — configurable via module or global
+$postcard_top = '';
 
 $postcard_message = $postcard_top . "\n" . xl('Please call our office to schedule') . "\n" . xl('your next appointment at') . " " . $facility['phone'] . ".
 	\n\n" . $facility['street'] . "\n
@@ -38,7 +37,7 @@ foreach ($pid_list as $pid) {
         "p.street, p.city, p.state, p.postal_code, p.pid " .
         "FROM patient_data AS p " .
         "WHERE p.pid = ? LIMIT 1", [$pid]);
-    $prov = sqlQuery("SELECT * FROM users WHERE id IN (SELECT r_provider  FROM `medex_recalls` WHERE `r_pid`=?)", [$pid]);
+    $prov = sqlQuery("SELECT * FROM users WHERE id IN (SELECT r_provider FROM `patient_recalls` WHERE `r_pid`=?)", [$pid]);
     if (isset($prov['fname']) && isset($prov['lname'])) {
         $prov_name = ": " . $prov['fname'] . " " . $prov['lname'];
         if (isset($prov['suffix'])) {

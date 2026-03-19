@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 9 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Loose comparison using \\!\\= between \'\' and \'\' will always evaluate to false\\.$#',

@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 5 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @var with type mixed is not subtype of type array\\<mixed\\>\\.$#',

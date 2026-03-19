@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 3 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Call to method getView\\(\\) of deprecated class Laminas\\\\View\\\\Helper\\\\AbstractHelper\\:

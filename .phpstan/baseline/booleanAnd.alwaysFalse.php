@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 61 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Result of && is always false\\.$#',
@@ -25,11 +27,6 @@ $ignoreErrors[] = [
     'message' => '#^Result of && is always false\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../interface/super/edit_list.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Result of && is always false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Result of && is always false\\.$#',

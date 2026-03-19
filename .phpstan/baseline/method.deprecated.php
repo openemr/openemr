@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 334 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method getDbalConnection\\(\\) of class OpenEMR\\\\BC\\\\Database\\.$#',

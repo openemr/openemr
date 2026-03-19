@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 37 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return with type Comlink\\\\OpenEMR\\\\Modules\\\\TeleHealthModule\\\\DateTime\\|null is not subtype of native type DateTime\\|null\\.$#',

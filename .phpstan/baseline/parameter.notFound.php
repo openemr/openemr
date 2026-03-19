@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 167 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param references unknown parameter\\: \\$search_string$#',

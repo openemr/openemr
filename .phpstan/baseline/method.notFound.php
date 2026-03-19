@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 627 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method object\\:\\:addItem\\(\\)\\.$#',
@@ -365,6 +367,21 @@ $ignoreErrors[] = [
     'message' => '#^Call to an undefined method object\\:\\:set_pid\\(\\)\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/vitals/C_FormVitals.class.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\OEGlobalsBag\\:\\:getBoolean\\(\\)\\.$#',
+    'count' => 7,
+    'path' => __DIR__ . '/../../interface/main/messages/messages.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\OEGlobalsBag\\:\\:getBoolean\\(\\)\\.$#',
+    'count' => 16,
+    'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to an undefined method OpenEMR\\\\Core\\\\OEGlobalsBag\\:\\:getInt\\(\\)\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to an undefined method Symfony\\\\Contracts\\\\EventDispatcher\\\\EventDispatcherInterface\\:\\:addListener\\(\\)\\.$#',

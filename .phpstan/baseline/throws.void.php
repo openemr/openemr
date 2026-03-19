@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 2 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Method Installer\\:\\:escapeCollateName\\(\\) throws exception Throwable but the PHPDoc contains @throws void\\.$#',

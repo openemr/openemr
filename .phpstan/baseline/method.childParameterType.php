@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 200 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$inputFilter \\(Laminas\\\\InputFilter\\\\InputFilterInterface\\<mixed\\>\\) of method Carecoordination\\\\Model\\\\Configuration\\:\\:setInputFilter\\(\\) should be contravariant with parameter \\$inputFilter \\(Laminas\\\\InputFilter\\\\InputFilterInterface\\) of method Laminas\\\\InputFilter\\\\InputFilterAwareInterface\\:\\:setInputFilter\\(\\)$#',

@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 32 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Function main_code_set_search\\(\\) should return mixed but return statement is missing\\.$#',

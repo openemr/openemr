@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 19 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertFalse\\(\\) with true and \'expected…\' will always evaluate to false\\.$#',

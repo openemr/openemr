@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 36 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Result of \\|\\| is always true\\.$#',
@@ -10,11 +12,6 @@ $ignoreErrors[] = [
     'message' => '#^Result of \\|\\| is always true\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/reports/patient_list_creation.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Result of \\|\\| is always true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Result of \\|\\| is always true\\.$#',

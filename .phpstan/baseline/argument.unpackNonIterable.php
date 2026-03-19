@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 1 error
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Only iterables can be unpacked, mixed given in argument \\#1\\.$#',

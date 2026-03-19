@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 21 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Offset \'extension\' on array\\{dirname\\?\\: string, basename\\: string, extension\\: \'dcm\', filename\\: string\\} in empty\\(\\) always exists and is not falsy\\.$#',

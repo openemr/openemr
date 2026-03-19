@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 43 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\EhiExporter\\\\Models\\\\ExportState\\:\\:\\$queue with generic class SplQueue does not specify its types\\: TValue$#',

@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 192 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Offset \'extension\' might not exist on array\\{dirname\\?\\: string, basename\\: string, extension\\?\\: string, filename\\: string\\}\\.$#',
@@ -345,21 +347,6 @@ $ignoreErrors[] = [
     'message' => '#^Offset int\\<0, 11\\> does not exist on array\\{\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'ALL\' might not exist on array\\{\\}\\|array\\{ALL\\: string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'Fac\' might not exist on array\\{\\}\\|array\\{Stat\\?\\: non\\-falsy\\-string, Fac\\?\\: non\\-falsy\\-string\\}\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'Stat\' might not exist on array\\{\\}\\|array\\{Stat\\: non\\-falsy\\-string\\}\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Offset \'memo\' might not exist on array\\{amount\\: \\(array\\|float\\|int\\), date\\: mixed, memo\\: non\\-falsy\\-string, payeeid\\: mixed, name\\: mixed\\}\\|array\\{amount\\: \\(array\\|float\\|int\\), date\\: mixed\\}\\.$#',

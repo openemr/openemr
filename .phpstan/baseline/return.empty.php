@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 185 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Function coding_carburetor\\(\\) should return array\\<array\\<string, mixed\\>\\> but empty return statement found\\.$#',

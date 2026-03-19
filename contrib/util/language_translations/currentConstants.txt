@@ -321,7 +321,6 @@ Additional Data Points
 Additional Date:
 Additional Diagnosis:
 Additional Findings
-Additional functionality including the ability to send SMS text messages, automated phone dialing, emails etc. can be accessed by enabling the optional MedEx Communication Service
 Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed
 Additional help to fill out this form is available by hovering over labels of each box and clicking on the dark blue help ? icon that is revealed. On mobile devices tap once on the label to reveal the help icon and tap on the icon to show the help section
 Additional History
@@ -1624,7 +1623,6 @@ Check for differences of translations with custom language table.
 Check if a help file exists for this page in
 Check if this is a cognitive status. Unchecked is a functional status
 Check if you plan to print postcards locally
-Check if you plan to send postcards via MedEx
 Check if you plan to use Avery Labels for Reminders or Recalls
 Check In
 Check In To
@@ -1860,7 +1858,6 @@ Click on the black + sign on the Electrolyte Panel line to create a direct desce
 Click on the blue + sign to see the Procedure Order that was saved
 Click on the blue plus sign under Name to reveal test names
 Click on the Diagnosis Codes box to open the Select Diagnosis Codes pop-up window
-Click on the File menu item on the top left of the Message center page ansd select Setup MedEx
 Click on the icon next to the 'Access Control List Administration' title to go to the phpGACL page.
 Click on the Issues menu item to bring up the Issues page
 Click on the Ledger menu item in the navigation bar to to enter the Patient Ledger page
@@ -3598,7 +3595,6 @@ Enable logging of ordering activities.
 Enable logging of patient record modifications.
 Enable logging of scheduling activities.
 Enable logging of security and administration activities.
-Enable MedEx Communication Service
 Enable NewCrop eRx import status message
 Enable NewCrop eRx Service
 Enable NewCrop eRx Service.
@@ -4733,7 +4729,6 @@ Go to
 Go to Administration > Address Book > Add New
 Go to Administration > Globals > CDR > Dated reminders maximum alerts to show and change the value to a higher number
 Go to Administration > Globals > Connectors
-Go to Administration > Globals > Connectors and check the Enable MedEx Communication Service check box and click Save
 Go to Administration > Lists, select each one of the above lists from the drop-down box and make changes as needed
 Go to Administration > Lists. Select 'Fee Sheet' from the dropdown box
 Go to Adminstration > Codes. Select ICD 10 under Type, enter ICD 10 Code, enter Description, under category select an appropriate category, this ICD 10 code will then appear when the button with that category is clicked
@@ -5740,7 +5735,6 @@ It will have a value of 2 in the Tier column indicating it is a successor or chi
 It will have two sections - the Issues Section and the Encounters Section
 It will help later in troubleshooting problems that may arise with your configuration of the Procedure Orders module
 It will open the Create New Message section
-It will take you to the MedEx sign-up page
 It will then appear in the Allergies widget on the Patient Dashboard as well as under allergies in the Issues page
 It will then appear in the Medications widget on the Patient Dashboard as well as under Medications in the Issues page
 Italian
@@ -6349,10 +6343,6 @@ Measure Group Code
 Measure INR
 Measurement
 Measurement Units
-MedEx automates Appointment Reminders and Recalls using phone calls, text messages and e-mails
-MedEx Communication Service
-MedEx needs a valid mobile number to send SMS messages...
-MedEx Setup
 Medial Canthi
 Medial malleolus:
 Medicaid
@@ -6600,7 +6590,6 @@ More appointments may exist
 More information about Clinical Decision Rule can be found here
 More information about Issues can be found here
 More information about what phiMail is and how to set it up is available here
-More information available at the openEMR MedEx wiki page
 More information on how to edit this form and other such forms can be found here
 More information on the use of phiMail messages is available here
 More options
@@ -9086,7 +9075,6 @@ Reason/Plan
 Recalculate
 Recall
 Recall Board
-RECALL BOARD - Default - without MedEx Communication Service
 Recall Board: Disable
 Recall Campaigns
 Recall only - any method
@@ -10123,7 +10111,6 @@ Setting
 Setting the version number in the database...
 Setting up 2FA
 Settings
-Setup MedEx
 Setup the Fee Sheet
 Several additional drop-down and text boxes will be visible
 Several days
@@ -10798,7 +10785,6 @@ Symbol used as the decimal point for currency. Not used if Decimal Places is 0.
 Symbol used to separate thousands for currency.
 Symptoms
 Sync Frequency
-Synchronization with MedEx is paused
 Synchronize
 Synchronize translations with custom language table.
 Synchronized new custom constant:
@@ -11060,7 +11046,6 @@ The exported data appears in the text area below.  You can copy and paste this i
 The exported data appears in the text area below. You can copy and paste this into an email or to any other desired destination (or) download the below link.
 The exported data appears in the text area below. You can copy and paste this into an email or to any other desired destination.
 The exported data appears in the text area below. You can copy and paste this into an email or to any other desired destination.{{MARK FOR DELETION DURING NEXT TRANSLATION BUILD}}
-The features of a MedEx enabled installation are explained in this video
 The file cannot be generated again. Do you want to proceed?
 The file could not be saved to CouchDB.
 The file could not be succesfully renamed, this error is usually related to permissions problems on the storage system.
@@ -12632,7 +12617,6 @@ We appreciate prompt payment of balances due.
 We are going to create the test that can be ordered called Serum Uric Acid
 We are sorry you are having troubles with your account.
 we have seen your above patient for evaluation and treatment at our outpatient psychiatry clinic. Thank you for this referral.
-We ran into some problems connecting your EHR to the MedEx servers
 We received a credentials reset request. The link to reset your credentials is below.
 We received a patient registration email verification request from this email address at
 We received a patient registration email verification request. The link to verify your email is below.
@@ -12938,7 +12922,6 @@ You must select a visit category.
 You must select some fields to continue.
 You need administrator privileges to add more options
 You need administrator privileges to disable the default Recall Board
-You need administrator privileges to enable the MedEx Communication Service
 You need administrator privileges to give access to other groups
 You need administrator privileges to increase the number of reminders to show
 You need administrator privileges to perform the changes to the values in the drop-down boxes.

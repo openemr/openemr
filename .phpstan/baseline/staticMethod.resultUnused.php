@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 7 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Call to AppBasePortalController\\:\\:Init\\(\\) on a separate line has no effect\\.$#',

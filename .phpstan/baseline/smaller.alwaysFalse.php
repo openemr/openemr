@@ -1,5 +1,7 @@
 <?php declare(strict_types = 1);
 
+// total 6 errors
+
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Comparison operation "\\<" between 0 and 0 is always false\\.$#',
