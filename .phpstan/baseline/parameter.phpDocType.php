@@ -32,11 +32,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/ORDataObject/ContactAddress.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param for parameter \\$boundFilter with type string is incompatible with native type OpenEMR\\\\Events\\\\BoundFilter\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/AbstractBoundFilterEvent.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$component with type string is incompatible with native type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Events/CDA/CDAPostParseEvent.php',

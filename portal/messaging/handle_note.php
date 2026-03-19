@@ -12,6 +12,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -79,7 +80,6 @@ if ($session->isSymfonySession() && $session->has('pid') && $session->has('patie
 require_once(__DIR__ . "/../lib/portal_mail.inc.php");
 require_once("{$globalsBag->getString('srcdir')}/pnotes.inc.php");
 
-use OpenEMR\Common\Csrf\CsrfUtils;
 
 if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     echo xlt('Patient Portal is turned off');

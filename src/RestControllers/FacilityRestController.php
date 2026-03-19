@@ -13,10 +13,10 @@
 namespace OpenEMR\RestControllers;
 
 use OpenApi\Attributes as OA;
-use Psr\Http\Message\ResponseInterface;
 use OpenEMR\Common\Http\HttpRestRequest;
-use OpenEMR\Services\FacilityService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\FacilityService;
+use Psr\Http\Message\ResponseInterface;
 
 class FacilityRestController
 {

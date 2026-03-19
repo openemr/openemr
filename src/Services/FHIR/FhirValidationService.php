@@ -2,7 +2,6 @@
 
 namespace OpenEMR\Services\FHIR;
 
-
 class FhirValidationService
 {
     public function validate($data)

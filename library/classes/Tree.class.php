@@ -1,5 +1,7 @@
 <?php
 
+use OpenEMR\Core\OEGlobalsBag;
+
 define("ROOT_TYPE_ID", 1);
 define("ROOT_TYPE_NAME", 2);
 
@@ -39,7 +41,7 @@ class Tree
     */
     function __construct(public $_root, public $_root_type = ROOT_TYPE_ID)
     {
-        $this->_db = $GLOBALS['adodb']['db'];
+        $this->_db = OEGlobalsBag::getInstance()->get('adodb')['db'];
         $this->load_tree();
     }
 

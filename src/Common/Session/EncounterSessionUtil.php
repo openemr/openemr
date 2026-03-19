@@ -14,8 +14,8 @@
 
 namespace OpenEMR\Common\Session;
 
-use OpenEMR\Services\FormService;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\FormService;
 
 class EncounterSessionUtil
 {

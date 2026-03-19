@@ -4,6 +4,11 @@ $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Expression in empty\\(\\) is not falsy\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../interface/usergroup/user_admin.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Expression in empty\\(\\) is not falsy\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Command/GenerateAccessTokenCommand.php',
 ];
 $ignoreErrors[] = [

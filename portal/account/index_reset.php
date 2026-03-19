@@ -19,7 +19,6 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 
-
 $ignoreAuth_onsite_portal = $ignoreAuth = false;
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
@@ -118,8 +117,8 @@ $vars = [
     ,'isSaved' => $isSaved
 ];
 try {
-    echo (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig()->render("portal/portal-credentials-settings.html.twig", $vars);
+    echo (new TwigContainer(null, $globalsBag->getKernel()))->getTwig()->render("portal/portal-credentials-settings.html.twig", $vars);
 } catch (\Throwable $exception) {
-    (new \OpenEMR\Common\Logging\SystemLogger())->errorLogCaller($exception->getMessage(), ['trace' => $exception->getTraceAsString()]);
+    (new \OpenEMR\Common\Logging\SystemLogger())->error($exception->getMessage(), ['exception' => $exception]);
     die(xlt("Failed to render twig file"));
 }

@@ -12,8 +12,8 @@
 
 namespace OpenEMR\Services\FHIR;
 
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRSpecimen;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRProvenance;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRSpecimen;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRId;

@@ -2,25 +2,25 @@
 
 namespace OpenEMR\RestControllers;
 
-use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
-use OpenEMR\RestControllers\Subscriber\ApiResponseLoggerListener;
-use OpenEMR\RestControllers\Subscriber\CORSListener;
-use OpenEMR\RestControllers\Subscriber\OAuth2AuthorizationListener;
-use OpenEMR\RestControllers\Subscriber\TelemetryListener;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Controller\ControllerResolver;
-use Symfony\Component\EventDispatcher\EventDispatcher;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
-use OpenEMR\RestControllers\Subscriber\SiteSetupListener;
-use OpenEMR\RestControllers\Subscriber\AuthorizationListener;
-use OpenEMR\RestControllers\Subscriber\ExceptionHandlerListener;
-use OpenEMR\RestControllers\Subscriber\ViewRendererListener;
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Logging\SystemLoggerAwareTrait;
 use OpenEMR\Core\OEHttpKernel;
+use OpenEMR\RestControllers\Subscriber\ApiResponseLoggerListener;
+use OpenEMR\RestControllers\Subscriber\AuthorizationListener;
+use OpenEMR\RestControllers\Subscriber\CORSListener;
+use OpenEMR\RestControllers\Subscriber\ExceptionHandlerListener;
+use OpenEMR\RestControllers\Subscriber\OAuth2AuthorizationListener;
 use OpenEMR\RestControllers\Subscriber\RoutesExtensionListener;
 use OpenEMR\RestControllers\Subscriber\SessionCleanupListener;
+use OpenEMR\RestControllers\Subscriber\SiteSetupListener;
+use OpenEMR\RestControllers\Subscriber\TelemetryListener;
+use OpenEMR\RestControllers\Subscriber\ViewRendererListener;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Controller\ArgumentResolver;
+use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 
 class ApiApplication
 {

@@ -13,24 +13,24 @@ namespace OpenEMR\RestControllers\FHIR;
 
 use OpenApi\Attributes as OA;
 use OpenEMR\FHIR\Config\ServerConfig;
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCapabilityStatement;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCanonical;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCapabilityStatementKind;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCodeableConcept;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRCoding;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRExtension;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRFHIRVersion;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRPublicationStatus;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRString;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRUri;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRUrl;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementImplementation;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementSecurity;
+use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementSoftware;
 use OpenEMR\FHIR\SMART\Capability;
 use OpenEMR\RestControllers\RestControllerHelper;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRCapabilityStatement;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRDateTime;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementSoftware;
-use OpenEMR\FHIR\R4\FHIRResource\FHIRCapabilityStatement\FHIRCapabilityStatementImplementation;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRUrl;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRFHIRVersion;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRCode;
 
 /**
  * Supports REST interactions with the FHIR METADATA

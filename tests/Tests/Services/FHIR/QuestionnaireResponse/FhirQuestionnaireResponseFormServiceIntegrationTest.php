@@ -12,17 +12,16 @@
 
 namespace OpenEMR\Tests\Services\FHIR\QuestionnaireResponse;
 
-use Monolog\Level;
+use Exception;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRQuestionnaireResponse;
 use OpenEMR\Services\FHIR\QuestionnaireResponse\FhirQuestionnaireResponseFormService;
 use OpenEMR\Services\PatientService;
-use OpenEMR\Services\QuestionnaireService;
 use OpenEMR\Services\QuestionnaireResponseService;
+use OpenEMR\Services\QuestionnaireService;
 use PHPUnit\Framework\TestCase;
-use Exception;
+use Psr\Log\LoggerInterface;
 
 /**
  * Integration tests for FhirQuestionnaireResponseFormService ensuring US Core 8.0 compliance with database operations
@@ -66,7 +65,7 @@ class FhirQuestionnaireResponseFormServiceIntegrationTest extends TestCase
         $_SESSION['authUserID'] = QueryUtils::fetchSingleValue('select id FROM users ORDER BY id LIMIT 1', 'id');
 
         $this->service = new FhirQuestionnaireResponseFormService();
-        $this->service->setSystemLogger(new SystemLogger(Level::Critical));
+        $this->service->setSystemLogger($this->createMock(LoggerInterface::class));
 
         // Create test patient - AI Generated test data creation
         $this->createTestPatient();

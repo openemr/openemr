@@ -18,13 +18,16 @@
 $sessionAllowWrite = true;
 require_once('../globals.php');
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthUtils;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\KeyVersion;
+use OpenEMR\Common\Crypto\PasswordBasedCrypto;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionTracker;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 use OpenEMR\Services\ListService;
 
@@ -59,7 +62,7 @@ function generate_html_u2f(): void
 {
     global $appId;
     ?>
-    <script src="<?php echo $GLOBALS['webroot'] ?>/library/js/u2f-api.js"></script>
+    <script src="<?php echo OEGlobalsBag::getInstance()->get('webroot') ?>/library/js/u2f-api.js"></script>
     <script>
         function doAuth() {
             var f = document.getElementById("u2fform");
@@ -188,7 +191,7 @@ if (isset($_POST['new_login_session_management'])) {
 
                 // Decrypt the secret
                 // First, try standard method that uses standard key
-                $cryptoGen = new CryptoGen();
+                $cryptoGen = ServiceContainer::getCrypto();
                 $secret = $cryptoGen->decryptStandard($registrationSecret);
                 if (empty($secret)) {
                     // Second, try the password hash, which was setup during install and is temporary
@@ -197,7 +200,12 @@ if (isset($_POST['new_login_session_management'])) {
                         [$_POST["authUser"]]
                     );
                     if (!empty($passwordResults["password"])) {
-                        $secret = $cryptoGen->decryptStandard($registrationSecret, $passwordResults["password"]);
+                        $passwordCrypto = new PasswordBasedCrypto(KeyVersion::CURRENT);
+                        try {
+                            $secret = $passwordCrypto->decrypt((string) $registrationSecret, (string) $passwordResults["password"]);
+                        } catch (\OpenEMR\Common\Crypto\CryptoGenException) {
+                            $secret = null;
+                        }
                         if (!empty($secret)) {
                             error_log("Disregard the decryption failed authentication error reported above this line; it is not an error.");
                             // Re-encrypt with the more secure standard key
@@ -389,7 +397,7 @@ SessionTracker::setupSessionDatabaseTracker();
 
 $_SESSION["encounter"] = '';
 
-if ($GLOBALS['login_into_facility']) {
+if (OEGlobalsBag::getInstance()->getBoolean('login_into_facility')) {
     $facility_id = $_POST['facility'];
     if ($facility_id === 'user_default') {
         //get the default facility of login user from users table
@@ -398,15 +406,15 @@ if ($GLOBALS['login_into_facility']) {
         $facility_id = $facility['id'];
     }
     $_SESSION['facilityId'] = $facility_id;
-    if ($GLOBALS['set_facility_cookie']) {
+    if (OEGlobalsBag::getInstance()->getBoolean('set_facility_cookie')) {
         // set cookie with facility for the calendar screens
-        setcookie("pc_facility", (string) $_SESSION['facilityId'], ['expires' => time() + (3600 * 365), 'path' => $GLOBALS['webroot']]);
+        setcookie("pc_facility", (string) $_SESSION['facilityId'], ['expires' => time() + (3600 * 365), 'path' => OEGlobalsBag::getInstance()->get('webroot')]);
     }
 }
 
 // Fetch the password expiration date (note LDAP skips this)
 $is_expired = false;
-if ((!AuthUtils::useActiveDirectory()) && ($GLOBALS['password_expiration_days'] != 0) && (check_integer($GLOBALS['password_expiration_days']))) {
+if ((!AuthUtils::useActiveDirectory()) && (OEGlobalsBag::getInstance()->getInt('password_expiration_days') != 0) && (check_integer(OEGlobalsBag::getInstance()->getInt('password_expiration_days')))) {
     $result = privQuery("select `last_update_password` from `users_secure` where `id` = ?", [$_SESSION['authUserID']]);
     $current_date = date('Y-m-d');
     if (!empty($result['last_update_password'])) {
@@ -417,7 +425,7 @@ if ((!AuthUtils::useActiveDirectory()) && ($GLOBALS['password_expiration_days'] 
     }
 
     // Display the password expiration message (will show during the grace time)
-    $pwd_alert_date = date('Y-m-d', strtotime($pwd_last_update . '+' . $GLOBALS['password_expiration_days'] . ' days'));
+    $pwd_alert_date = date('Y-m-d', strtotime($pwd_last_update . '+' . OEGlobalsBag::getInstance()->getInt('password_expiration_days') . ' days'));
 
     if (empty(strtotime($pwd_alert_date))) {
         error_log("OpenEMR ERROR: there is a problem when trying to check if user's password is expired");

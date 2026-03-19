@@ -12,7 +12,6 @@
 
 namespace Application\Helper;
 
-
 /**
  * Decorates the OpenEMR functions making it so a module can avoid hard coding global functions
  */

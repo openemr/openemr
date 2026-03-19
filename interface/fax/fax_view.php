@@ -13,6 +13,7 @@
 require_once("../globals.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
     CsrfUtils::csrfNotVerified();
@@ -21,9 +22,9 @@ if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
 $ffname = '';
 $jobid = $_GET['jid'];
 if ($jobid) {
-    $jfname = $GLOBALS['hylafax_basedir'] . "/sendq/q" . check_file_dir_name($jobid);
+    $jfname = OEGlobalsBag::getInstance()->get('hylafax_basedir') . "/sendq/q" . check_file_dir_name($jobid);
     if (!file_exists($jfname)) {
-        $jfname = $GLOBALS['hylafax_basedir'] . "/doneq/q" . check_file_dir_name($jobid);
+        $jfname = OEGlobalsBag::getInstance()->get('hylafax_basedir') . "/doneq/q" . check_file_dir_name($jobid);
     }
 
     $jfhandle = fopen($jfname, 'r');
@@ -37,7 +38,7 @@ if ($jobid) {
     while (!feof($jfhandle)) {
         $line = trim(fgets($jfhandle));
         if (str_starts_with($line, '!postscript:')) {
-            $ffname = $GLOBALS['hylafax_basedir'] . '/' .
+            $ffname = OEGlobalsBag::getInstance()->get('hylafax_basedir') . '/' .
                 substr($line, strrpos($line, ':') + 1);
             break;
         }
@@ -48,9 +49,9 @@ if ($jobid) {
         die(xlt("Cannot find postscript document reference in ") . text($jfname));
     }
 } elseif ($_GET['scan']) {
-    $ffname = $GLOBALS['scanner_output_directory'] . '/' . check_file_dir_name($_GET['scan']);
+    $ffname = OEGlobalsBag::getInstance()->get('scanner_output_directory') . '/' . check_file_dir_name($_GET['scan']);
 } else {
-    $ffname = $GLOBALS['hylafax_basedir'] . '/recvq/' . check_file_dir_name($_GET['file']);
+    $ffname = OEGlobalsBag::getInstance()->get('hylafax_basedir') . '/recvq/' . check_file_dir_name($_GET['file']);
 }
 
 if (!file_exists($ffname)) {

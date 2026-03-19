@@ -5,8 +5,9 @@
 
 require_once dirname(__DIR__, 4) . "/globals.php";
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\DownloadWenoPharmacies;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
@@ -16,10 +17,10 @@ use OpenEMR\Modules\WenoModule\Services\WenoValidate;
 $wenoValidate = new WenoValidate();
 $isKey = $wenoValidate->validateAdminCredentials(true, "Pharmacy Directory");
 
-$cryptoGen = new CryptoGen();
-$weno_username = $GLOBALS['weno_admin_username'] ?? '';
-$weno_password = $cryptoGen->decryptStandard($GLOBALS['weno_admin_password'] ?? '');
-$encryption_key = $cryptoGen->decryptStandard($GLOBALS['weno_encryption_key'] ?? '');
+$cryptoGen = ServiceContainer::getCrypto();
+$weno_username = OEGlobalsBag::getInstance()->get('weno_admin_username') ?? '';
+$weno_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('weno_admin_password') ?? '');
+$encryption_key = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('weno_encryption_key') ?? '');
 $baseurl = "https://online.wenoexchange.com/en/EPCS/DownloadPharmacyDirectory";
 
 $pharmacyDownloadService = new DownloadWenoPharmacies();
@@ -49,8 +50,8 @@ $iv = chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0) . chr(0x0)
 $encrypted = base64_encode(openssl_encrypt($json_object, $method, $key, OPENSSL_RAW_DATA, $iv));
 
 $fileUrl = $baseurl . "?useremail=" . urlencode((string) $weno_username) . "&data=" . urlencode($encrypted);
-$storeLocation = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/weno_pharmacy.zip";
-$path_to_extract = $GLOBALS['OE_SITE_DIR'] . "/documents/logs_and_misc/weno/";
+$storeLocation = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/weno/weno_pharmacy.zip";
+$path_to_extract = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/logs_and_misc/weno/";
 
 $comment = "User Initiated Unscheduled Daily Pharmacy Import";
 if ($data['Daily'] == 'N') {

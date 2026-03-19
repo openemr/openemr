@@ -16,8 +16,8 @@
 
 namespace OpenEMR\Common\ORDataObject;
 
-use OpenEMR\Common\ORDataObject\Contact;
 use DateTime;
+use OpenEMR\Common\ORDataObject\Contact;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
 class ContactRelation extends ORDataObject implements \JsonSerializable, \Stringable

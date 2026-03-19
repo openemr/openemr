@@ -16,9 +16,9 @@
 
 namespace Carecoordination;
 
+use Carecoordination\Listener\CCDAEventsSubscriber;
 use Laminas\ModuleManager\ModuleManager;
 use Laminas\Mvc\MvcEvent;
-use Carecoordination\Listener\CCDAEventsSubscriber;
 use OpenEMR\Common\Acl\AclMain;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 

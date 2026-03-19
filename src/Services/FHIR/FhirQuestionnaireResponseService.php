@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use InvalidArgumentException;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\MappedServiceTrait;
@@ -26,7 +27,6 @@ use OpenEMR\Validators\ProcessingResult;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\EventDispatcher\GenericEvent;
-use InvalidArgumentException;
 
 class FhirQuestionnaireResponseService extends FhirServiceBase implements
     IResourceReadableService,

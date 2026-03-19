@@ -17,9 +17,9 @@ require_once("$srcdir/pid.inc.php");
 require_once("$srcdir/encounter.inc.php");
 require_once("$srcdir/forms.inc.php");
 
-use OpenEMR\Tabs\TabsWrapper;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
+use OpenEMR\Tabs\TabsWrapper;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 

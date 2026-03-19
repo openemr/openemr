@@ -14,8 +14,8 @@
 namespace OpenEMR\Tests\Services;
 
 use OpenEMR\Common\Database\QueryUtils;
-use PHPUnit\Framework\TestCase;
 use OpenEMR\Services\ObservationService;
+use PHPUnit\Framework\TestCase;
 use Ramsey\Uuid\Rfc4122\UuidV4;
 
 // AI Generated Test Class for ObservationService

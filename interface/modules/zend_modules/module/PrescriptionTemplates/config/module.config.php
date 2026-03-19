@@ -21,10 +21,10 @@
 
 namespace PrescriptionTemplates;
 
+use Interop\Container\ContainerInterface;
 use Laminas\Router\Http\Segment;
 use PrescriptionTemplates\Controller\HtmlTemplatesController;
 use PrescriptionTemplates\Controller\PdfTemplatesController;
-use Interop\Container\ContainerInterface;
 
 return [
 

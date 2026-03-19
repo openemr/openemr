@@ -12,8 +12,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
+use PHPMailer\PHPMailer\PHPMailer;
 
 // check if using the patient portal
 //(if so, then use the portal authorization)
@@ -46,9 +50,6 @@ require_once(__DIR__ . "/uuid.php");
 require_once(__DIR__ . "/transmitCCD.php");
 require_once(__DIR__ . "/../custom/code_types.inc.php");
 
-use OpenEMR\Common\Acl\AccessDeniedHelper;
-use OpenEMR\Common\Acl\AclMain;
-use PHPMailer\PHPMailer\PHPMailer;
 
 if ($notPatientPortal) {
     $thisauth = AclMain::aclCheckCore('patients', 'pat_rep');
@@ -164,7 +165,7 @@ function gnrtCCR($ccr, $raw = "no", $requested_by = ""): void
                     return;
         }
 
-        $tempDir = $GLOBALS['temporary_files_dir'];
+        $tempDir = OEGlobalsBag::getInstance()->get('temporary_files_dir');
         $zipName = $tempDir . "/" . getReportFilename() . "-ccr.zip";
         if (file_exists($zipName)) {
                     unlink($zipName);
@@ -258,7 +259,7 @@ function viewCCD($ccr, $raw = "no", $requested_by = ""): void
             return;
         }
 
-        $tempDir = $GLOBALS['temporary_files_dir'];
+        $tempDir = OEGlobalsBag::getInstance()->get('temporary_files_dir');
         $zipName = $tempDir . "/" . getReportFilename() . "-ccd.zip";
         if (file_exists($zipName)) {
             unlink($zipName);

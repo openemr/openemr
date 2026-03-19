@@ -12,8 +12,9 @@
 
 require_once("../../globals.php");
 
-use OpenEMR\Core\Header;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 use OpenEMR\Services\PatientService;
 
@@ -40,7 +41,7 @@ if (!empty($_SESSION['pid'])) {
     }
 }
 
-$verifyMessageReceivedChecked = $GLOBALS['phimail_verifyrecipientreceived_enable'] == '1' ? "checked" : '';
+$verifyMessageReceivedChecked = OEGlobalsBag::getInstance()->getBoolean('phimail_verifyrecipientreceived_enable') ? "checked" : '';
 ?>
 <!DOCTYPE html>
 <html>

@@ -18,10 +18,10 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\RestControllers\PatientRestController;
-use OpenEMR\RestControllers\EncounterRestController;
-use OpenEMR\RestControllers\AppointmentRestController;
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\RestControllers\AppointmentRestController;
+use OpenEMR\RestControllers\EncounterRestController;
+use OpenEMR\RestControllers\PatientRestController;
 
 // Note that the portal (api) route is only for patient role
 //  (there is a mechanism in place to ensure only patient role can access the portal (api) route)

@@ -2,8 +2,8 @@
 
 namespace OpenEMR\Tests\Unit\Common\Forms;
 
-use PHPUnit\Framework\TestCase;
 use OpenEMR\Common\Forms\FormLocator;
+use PHPUnit\Framework\TestCase;
 
 /**
  * FormLocator Tests

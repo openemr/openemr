@@ -18,16 +18,17 @@
 
 namespace OpenEMR\Billing\BillingProcessor\Tasks;
 
+use OpenEMR\Billing\BillingProcessor\BillingClaim;
+use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Billing\BillingProcessor\GeneratorCanValidateInterface;
 use OpenEMR\Billing\BillingProcessor\GeneratorInterface;
 use OpenEMR\Billing\BillingProcessor\LoggerInterface;
-use OpenEMR\Billing\BillingProcessor\BillingClaim;
-use OpenEMR\Billing\BillingProcessor\BillingClaimBatch;
 use OpenEMR\Billing\BillingProcessor\Traits\WritesToBillingLog;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Billing\Claim;
 use OpenEMR\Billing\X125010837P;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface, GeneratorCanValidateInterface, LoggerInterface
 {
@@ -279,7 +280,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
             $html = "<!DOCTYPE html><html><head></head><body><div style='overflow: hidden;'>";
 
             // If the global is enabled to SFTP claim files, tell the user
-            if ($GLOBALS['auto_sftp_claims_to_x12_partner']) {
+            if (OEGlobalsBag::getInstance()->getBoolean('auto_sftp_claims_to_x12_partner')) {
                 $html .= "<div class='alert alert-primary' role='alert'>" . xlt("Sending Claims via STFP. Check status on the `Claim File Tracker`") . "</div>";
             }
 
@@ -292,7 +293,7 @@ class GeneratorX12Direct extends AbstractGenerator implements GeneratorInterface
                 $x12_partner_name = text($this->x12_partners[$x12_partner_id]['name']);
                 // For the modal, build a list of downloads
                 $file = $created_batch->getBatFilename();
-                $url = $GLOBALS['webroot'] . '/interface/billing/get_claim_file.php?' .
+                $url = OEGlobalsBag::getInstance()->get('webroot') . '/interface/billing/get_claim_file.php?' .
                     'key=' . urlencode($file) .
                     '&partner=' . urlencode($x12_partner_id) .
                     '&csrf_token_form=' . urlencode((string) CsrfUtils::collectCsrfToken());

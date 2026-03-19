@@ -12,8 +12,8 @@
 
 namespace OpenEMR\Common\ORDataObject;
 
-use OpenEMR\Common\ORDataObject\Contact;
 use DateTime;
+use OpenEMR\Common\ORDataObject\Contact;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
 class ContactTelecom extends ORDataObject implements \JsonSerializable

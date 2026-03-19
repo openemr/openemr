@@ -18,11 +18,12 @@
  */
 
 //require_once("../../../../globals.php");
-require_once $GLOBALS['srcdir'] . '/options.inc.php';
+require_once \OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/options.inc.php';
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\WenoModule\Services\PharmacyService;
 use OpenEMR\Modules\WenoModule\Services\WenoLogService;
 
@@ -403,7 +404,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? [];
         $('#weno_pharmacy').select2({
             width: '500px',
             ajax: {
-                url: '<?php echo $GLOBALS['webroot']; ?>' + '/interface/modules/custom_modules/oe-module-weno/scripts/weno_pharmacy_search.php',
+                url: '<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>' + '/interface/modules/custom_modules/oe-module-weno/scripts/weno_pharmacy_search.php',
                 dataType: 'json',
                 data: function (params) {
                     return {
@@ -441,7 +442,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? [];
             width: 'auto',
             allowClear: true,
             ajax: {
-                url: '<?php echo $GLOBALS['webroot']; ?>' + '/interface/modules/custom_modules/oe-module-weno/scripts/weno_pharmacy_search.php',
+                url: '<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>' + '/interface/modules/custom_modules/oe-module-weno/scripts/weno_pharmacy_search.php',
                 dataType: 'json',
                 data: function (params) {
                     return {
@@ -542,7 +543,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? [];
             csrf_token_form: csrf
         };
         $.ajax({
-            url: '<?php echo $GLOBALS['webroot']; ?>' + '/interface/modules/custom_modules/oe-module-weno/scripts/weno_pharmacy_search.php',
+            url: '<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>' + '/interface/modules/custom_modules/oe-module-weno/scripts/weno_pharmacy_search.php',
             type: "GET",
             data: data,
             success: function (data) {

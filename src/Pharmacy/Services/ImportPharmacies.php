@@ -12,8 +12,8 @@
 
 namespace OpenEMR\Pharmacy\Services;
 
-use OpenEMR\Common\ORDataObject\Address;
 use OpenEMR\Common\Http\oeHttp;
+use OpenEMR\Common\ORDataObject\Address;
 use Pharmacy;
 
 /**

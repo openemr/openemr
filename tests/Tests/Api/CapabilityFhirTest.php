@@ -3,8 +3,8 @@
 namespace OpenEMR\Tests\Api;
 
 use OpenEMR\FHIR\SMART\Capability;
-use PHPUnit\Framework\TestCase;
 use OpenEMR\Tests\Api\ApiTestClient;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Capability FHIR Endpoint Test Cases.
@@ -67,9 +67,8 @@ class CapabilityFhirTest extends TestCase
     {
         $actualResponse = $this->testClient->get(self::CAPABILITY_FHIR_ENDPOINT);
         $this->assertEquals(200, $actualResponse->getStatusCode());
-        $body = $actualResponse->getBody();
-        $this->assertNotNull($body); // make sure we have a body here
-
+        $body = (string) $actualResponse->getBody();
+        $this->assertNotEmpty($body);
 
         $statement = json_decode($body, true);
         $this->assertCapabilityHasSMARTRequirements($statement);

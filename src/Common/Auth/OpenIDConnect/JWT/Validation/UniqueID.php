@@ -14,8 +14,8 @@ namespace OpenEMR\Common\Auth\OpenIDConnect\JWT\Validation;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Validation\Constraint;
 use Lcobucci\JWT\Validation\ConstraintViolation;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OpenIDConnect\Repositories\JWTRepository;
-use OpenEMR\Common\Logging\SystemLogger;
 
 class UniqueID implements Constraint
 {
@@ -39,7 +39,7 @@ class UniqueID implements Constraint
         }
         $existingJWT = $this->jwtRepository->getJwtGrantHistoryForJTI($jti, $expCheck);
         if (!empty($existingJWT)) {
-            (new SystemLogger())->emergency(
+            ServiceContainer::getLogger()->emergency(
                 static::class . "->assert() Attempted duplicate usage of JWT token.  This could be a replay attack",
                 ['clientId' => $iss, 'exp' => $exp, 'jti' => $jti]
             );

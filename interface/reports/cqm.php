@@ -21,9 +21,9 @@ require_once "$srcdir/options.inc.php";
 require_once "$srcdir/clinical_rules.php";
 require_once "$srcdir/report_database.inc.php";
 
+use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;

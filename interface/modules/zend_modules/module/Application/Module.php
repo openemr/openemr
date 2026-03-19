@@ -12,9 +12,9 @@
 
 namespace Application;
 
+use Application\Listener\ModuleMenuSubscriber;
 use Laminas\Mvc\ModuleRouteListener;
 use Laminas\Mvc\MvcEvent;
-use Application\Listener\ModuleMenuSubscriber;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 class Module

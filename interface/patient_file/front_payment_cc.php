@@ -13,8 +13,9 @@
 $ignoreAuth = false;
 require_once(__DIR__ . "/../globals.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Billing\PaymentGateway;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Core\OEGlobalsBag;
 use Stripe\PaymentIntent;
 use Stripe\Stripe;
 use Stripe\Terminal\ConnectionToken;
@@ -103,8 +104,8 @@ if ($_POST['mode'] == 'Stripe') {
 }
 
 if ($_GET['mode'] == 'terminal_token') {
-    $cryptoGen = new CryptoGen();
-    $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
+    $cryptoGen = ServiceContainer::getCrypto();
+    $apiKey = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('gateway_api_key'));
     Stripe::setApiKey($apiKey);
 
     header('Content-Type: application/json');
@@ -118,8 +119,8 @@ if ($_GET['mode'] == 'terminal_token') {
     }
 }
 if ($_GET['mode'] == 'cancel_intent') {
-    $cryptoGen = new CryptoGen();
-    $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
+    $cryptoGen = ServiceContainer::getCrypto();
+    $apiKey = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('gateway_api_key'));
     Stripe::setApiKey($apiKey);
 
     header('Content-Type: application/json');
@@ -139,8 +140,8 @@ if ($_GET['mode'] == 'cancel_intent') {
 }
 
 if ($_GET['mode'] == 'terminal_capture') {
-    $cryptoGen = new CryptoGen();
-    $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
+    $cryptoGen = ServiceContainer::getCrypto();
+    $apiKey = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('gateway_api_key'));
     Stripe::setApiKey($apiKey);
 
     header('Content-Type: application/json');
@@ -161,8 +162,8 @@ if ($_GET['mode'] == 'terminal_capture') {
 }
 
 if ($_GET['mode'] == 'terminal_create') {
-    $cryptoGen = new CryptoGen();
-    $apiKey = $cryptoGen->decryptStandard($GLOBALS['gateway_api_key']);
+    $cryptoGen = ServiceContainer::getCrypto();
+    $apiKey = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('gateway_api_key'));
     Stripe::setApiKey($apiKey);
 
     header('Content-Type: application/json');

@@ -20,8 +20,8 @@ require_once('../globals.php');
 require_once("$srcdir/classes/Totp.class.php");
 require_once("$srcdir/options.inc.php");
 
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthUtils;
-use OpenEMR\Common\Crypto\CryptoGen;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\OeUI\OemrUI;
@@ -154,7 +154,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                                 $secret = false;
                                 $doesExist = false;
                             } else {
-                                $cryptoGen = new CryptoGen();
+                                $cryptoGen = ServiceContainer::getCrypto();
                                 $secret = $cryptoGen->decryptStandard($existingSecret['var1']);
                                 $doesExist = true;
                             }
@@ -233,7 +233,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 
 
                             if (empty($row['count']) && isset($_SESSION['totpSecret'])) {
-                                $cryptoGen = new CryptoGen();
+                                $cryptoGen = ServiceContainer::getCrypto();
                                 privStatement(
                                     "INSERT INTO login_mfa_registrations " .
                                     "(`user_id`, `method`, `name`, `var1`, `var2`) VALUES " .

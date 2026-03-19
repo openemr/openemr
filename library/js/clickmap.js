@@ -4,7 +4,14 @@ var clickmap = function(args) {
 	let counter = 0;
 
 	const fn_buildMarker = function(x, y, pos, annotation) {
-        const legendItem = $("<li class='legend-item'><b>" + pos + "</b> " + decodeURIComponent(annotation) + "</li>");
+        // Build legend item safely using DOM methods to prevent XSS
+        const legendItem = $("<li class='legend-item'></li>");
+        const decodedAnnotation = annotation ? decodeURIComponent(annotation) : "";
+        legendItem.append(
+            $("<b></b>").text(pos),
+            " ",
+            document.createTextNode(decodedAnnotation)
+        );
         $(".legend .body ul").append(legendItem);
 
         const marker = $(".marker-template").clone();

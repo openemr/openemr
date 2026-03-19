@@ -17,8 +17,8 @@ use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\RestControllers\FHIR\FhirQuestionnaireResponseRestController;
 use OpenEMR\Services\FHIR\FhirQuestionnaireResponseService;
 use OpenEMR\Validators\ProcessingResult;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\Exception;
+use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
 
 class FhirQuestionnaireResponseRestControllerTest extends TestCase

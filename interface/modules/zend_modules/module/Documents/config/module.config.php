@@ -12,10 +12,10 @@
 
 namespace Documents;
 
-use Laminas\Router\Http\Segment;
 use Documents\Controller\DocumentsController;
 use Documents\Model\DocumentsTable;
 use Interop\Container\ContainerInterface;
+use Laminas\Router\Http\Segment;
 
 return [
     'controllers' => [

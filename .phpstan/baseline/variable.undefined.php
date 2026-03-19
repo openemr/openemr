@@ -11737,11 +11737,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/dated_reminders/dated_reminders_add.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$srcdir might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/dated_reminders/dated_reminders_log.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$dates might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/display_documents.php',
@@ -11780,16 +11775,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/finder/multi_patients_finder_ajax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$add_days might not be defined\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/main/finder/patient_select.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$extracols might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/finder/patient_select.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$itemized_test_id might not be defined\\.$#',
@@ -15303,7 +15288,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$name_alt might not be defined\\.$#',
-    'count' => 6,
+    'count' => 3,
     'path' => __DIR__ . '/../../library/ajax/graphs.php',
 ];
 $ignoreErrors[] = [

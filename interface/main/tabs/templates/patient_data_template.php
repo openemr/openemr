@@ -20,10 +20,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Core\OEGlobalsBag;
+
 ?>
 <?php
 
-$search_any_type = $GLOBALS['search_any_patient'];
+$search_any_type = OEGlobalsBag::getInstance()->get('search_any_patient');
 
 //Modes for search box :comprehensive, dual, fixed and the default is none
 switch ($search_any_type) {
@@ -55,7 +57,7 @@ switch ($search_any_type) {
                         class="img-thumbnail"
                         width="75"
                         height="75"
-                        onError="this.src = '<?php echo $GLOBALS['images_static_relative']; ?>/patient-picture-default.png'" />
+                        onError="this.src = '<?php echo OEGlobalsBag::getInstance()->get('images_static_relative'); ?>/patient-picture-default.png'" />
                 </div>
                 <!-- /ko -->
             </div>
@@ -64,7 +66,7 @@ switch ($search_any_type) {
                 <?php
                 $classes = "";
                 $closeAnchorClasses = '';
-                switch ($GLOBALS['patient_name_display']) :
+                switch (OEGlobalsBag::getInstance()->get('patient_name_display')) :
                     case 'btn':
                         $classes = "btn btn-sm btn-secondary";
                         $wrapperElement = 'div';

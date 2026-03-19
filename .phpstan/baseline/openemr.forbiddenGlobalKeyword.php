@@ -288,7 +288,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$PMSFH\\)\\. Use dependency injection instead\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
@@ -945,11 +945,6 @@ $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$ISSUE_TYPES, \\$auth_med\\)\\. Use dependency injection instead\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/history/encounters.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$first_time\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/manage_dup_patients.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$PRODUCTION\\)\\. Use dependency injection instead\\.$#',

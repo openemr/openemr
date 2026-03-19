@@ -12,9 +12,9 @@
 
 namespace OpenEMR\Patient\Cards;
 
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Events\Patient\Summary\Card\CardModel;
 use OpenEMR\Events\Patient\Summary\Card\RenderEvent;
-use OpenEMR\Common\Acl\AclMain;
 
 class DemographicsViewCard extends CardModel
 {

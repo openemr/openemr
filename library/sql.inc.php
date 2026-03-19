@@ -22,6 +22,7 @@ require_once(__DIR__ . "/sqlconf.php");
 use OpenEMR\BC\{
     DatabaseConnectionFactory,
     DatabaseConnectionOptions,
+    ServiceContainer,
 };
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\SqlQueryException;
@@ -502,7 +503,7 @@ function sqlRollbackTrans(): void
 function getPrivDB()
 {
     if (file_exists($GLOBALS['OE_SITE_DIR'] . "/secure_sqlconf.php")) {
-        \OpenEMR\BC\ServiceContainer::getLogger()
+        ServiceContainer::getLogger()
             ->error('secure_sqlconf.php file detected but is no longer supported.');
     }
     return get_db();

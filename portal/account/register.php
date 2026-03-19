@@ -13,7 +13,7 @@
 
 // script is brought in as require_once in index.php when applicable
 
-use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
@@ -25,7 +25,7 @@ use Twig\Error\SyntaxError;
 $globalsBag = OEGlobalsBag::getInstance();
 
 if ($portalRegistrationAuthorization !== true) {
-    (new SystemLogger())->debug("Attempted to use register.php directly, so failed");
+    ServiceContainer::getLogger()->debug("Attempted to use register.php directly, so failed");
     SessionUtil::portalSessionCookieDestroy();
     echo xlt("Not Authorized");
     header('HTTP/1.1 401 Unauthorized');
@@ -34,8 +34,8 @@ if ($portalRegistrationAuthorization !== true) {
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
-if (empty($globalsBag->get('portal_onsite_two_register')) || empty($globalsBag->get('google_recaptcha_site_key')) || empty($globalsBag->get('google_recaptcha_secret_key'))) {
-    (new SystemLogger())->debug("Attempted to use register.php despite register feature being turned off, so failed");
+if (!$globalsBag->getBoolean('portal_onsite_two_register') || empty($globalsBag->get('google_recaptcha_site_key')) || empty($globalsBag->get('google_recaptcha_secret_key'))) {
+    ServiceContainer::getLogger()->debug("Attempted to use register.php despite register feature being turned off, so failed");
     SessionUtil::portalSessionCookieDestroy();
     echo xlt("Not Authorized");
     header('HTTP/1.1 401 Unauthorized');
@@ -63,11 +63,11 @@ $data = [
 ];
 
 // Render Register Twig template
-$twig = (new TwigContainer(null, $globalsBag->get('kernel')))->getTwig();
+$twig = (new TwigContainer(null, $globalsBag->getKernel()))->getTwig();
 try {
     echo $twig->render('portal/registration/portal_register.html.twig', $data);
 } catch (LoaderError | SyntaxError | RuntimeError $e) {
-    (new SystemLogger())->error($e->getMessage());
+    ServiceContainer::getLogger()->error($e->getMessage());
     echo text($e->getMessage());
     header('HTTP/1.1 500 Internal Server Error');
     die();

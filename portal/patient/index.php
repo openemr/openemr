@@ -1,13 +1,15 @@
 <?php
 
-/** @package    Patient Portal
+/**
+ * @package    Patient Portal
  *
  * From phreeze package
  * @license http://www.gnu.org/copyleft/lesser.html LGPL
  *
  */
-use OpenEMR\Core\OEGlobalsBag;
+
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . "/../../vendor/autoload.php");
 

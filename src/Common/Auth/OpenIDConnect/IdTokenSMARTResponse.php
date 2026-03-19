@@ -14,8 +14,8 @@
 namespace OpenEMR\Common\Auth\OpenIDConnect;
 
 use Lcobucci\JWT\Encoding\ChainedFormatter;
-use Lcobucci\JWT\Token\Builder;
 use Lcobucci\JWT\Encoding\JoseEncoder;
+use Lcobucci\JWT\Token\Builder;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\UserEntityInterface;
 use LogicException;

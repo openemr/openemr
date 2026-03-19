@@ -27,7 +27,9 @@
 
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\Utils\DateFormatterUtils;
 
 //continue session
 // Will start the (patient) portal OpenEMR session/cookie.
@@ -55,8 +57,6 @@ require_once("../interface/globals.php");
 require_once("{$globalsBag->getString('srcdir')}/patient.inc.php");
 require_once(__DIR__ . "/../library/appointments.inc.php");
 
-use OpenEMR\Core\Header;
-use OpenEMR\Services\Utils\DateFormatterUtils;
 
 $input_catid = $_REQUEST['catid'];
 

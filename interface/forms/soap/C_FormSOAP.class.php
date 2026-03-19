@@ -11,10 +11,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-require_once($GLOBALS['fileroot'] . "/library/forms.inc.php");
+require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . "/library/forms.inc.php");
 require_once("FormSOAP.class.php");
 
 use OpenEMR\Common\Twig\TwigContainer;
+use OpenEMR\Core\OEGlobalsBag;
 
 class C_FormSOAP extends Controller
 {
@@ -36,8 +37,8 @@ class C_FormSOAP extends Controller
         return $this->twig->getTwig()->render(
             'soap_form.twig',
             [
-                "FORM_ACTION" => $GLOBALS['web_root'],
-                "DONT_SAVE_LINK" => $GLOBALS['form_exit_url'],
+                "FORM_ACTION" => OEGlobalsBag::getInstance()->get('web_root'),
+                "DONT_SAVE_LINK" => OEGlobalsBag::getInstance()->get('form_exit_url'),
                 "data" => $form
             ]
         );
@@ -50,8 +51,8 @@ class C_FormSOAP extends Controller
         return $this->twig->getTwig()->render(
             'soap_form.twig',
             [
-                "FORM_ACTION" => $GLOBALS['web_root'],
-                "DONT_SAVE_LINK" => $GLOBALS['form_exit_url'],
+                "FORM_ACTION" => OEGlobalsBag::getInstance()->get('web_root'),
+                "DONT_SAVE_LINK" => OEGlobalsBag::getInstance()->get('form_exit_url'),
                 "data" => $form
             ]
         );
@@ -67,17 +68,17 @@ class C_FormSOAP extends Controller
         parent::populate_object($this->form);
 
         $this->form->persist();
-        if ($GLOBALS['encounter'] == "") {
-            $GLOBALS['encounter'] = date("Ymd");
+        if (OEGlobalsBag::getInstance()->get('encounter') == "") {
+            OEGlobalsBag::getInstance()->set('encounter', date("Ymd"));
         }
 
         if (empty($_POST['id'])) {
             addForm(
-                $GLOBALS['encounter'],
+                OEGlobalsBag::getInstance()->get('encounter'),
                 "SOAP",
                 $this->form->id,
                 "soap",
-                $GLOBALS['pid'],
+                OEGlobalsBag::getInstance()->get('pid'),
                 $_SESSION['userauthorized']
             );
             $_POST['process'] = "";

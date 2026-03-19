@@ -14,10 +14,11 @@ require_once("../../globals.php");
 require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Core\Header;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Services\UserService;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Services\UserService;
 
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
@@ -78,7 +79,7 @@ $session = SessionWrapperFactory::getInstance()->getWrapper();
                 <?php $datetimepicker_timepicker = true; ?>
                 <?php $datetimepicker_showseconds = true; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });

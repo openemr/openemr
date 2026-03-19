@@ -13,6 +13,7 @@
 namespace OpenEMR\Common\Command;
 
 use Installer\Model\InstModuleTable;
+use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputDefinition;
 use Symfony\Component\Console\Input\InputInterface;
@@ -57,7 +58,7 @@ class Register extends Command
         $moduleName = $input->getOption('modname');
         $rel_path = "public/" . $moduleName . "/";
 
-        if ($GLOBALS['modules_application']->getServiceManager()->build(InstModuleTable::class)->register($moduleName, $rel_path, 0, $GLOBALS['zendModDir'])) {
+        if (OEGlobalsBag::getInstance()->get('modules_application')->getServiceManager()->build(InstModuleTable::class)->register($moduleName, $rel_path, 0, OEGlobalsBag::getInstance()->get('zendModDir'))) {
             $output->writeln('Success');
             return 0;
         } else {

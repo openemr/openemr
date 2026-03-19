@@ -2,6 +2,9 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
+use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRIdentifier;
 use OpenEMR\FHIR\R4\FHIRElement\FHIRMeta;
 use OpenEMR\FHIR\R4\FHIRResource\FHIRDomainResource;
@@ -11,9 +14,6 @@ use OpenEMR\Services\FHIR\Traits\FhirBulkExportDomainResourceTrait;
 use OpenEMR\Services\FHIR\Traits\FhirServiceBaseEmptyTrait;
 use OpenEMR\Services\FHIR\Traits\VersionedProfileTrait;
 use OpenEMR\Services\PractitionerService;
-use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRPractitioner;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRId;
-use OpenEMR\FHIR\R4\FHIRElement\FHIRHumanName;
 use OpenEMR\Services\Search\FhirSearchParameterDefinition;
 use OpenEMR\Services\Search\ISearchField;
 use OpenEMR\Services\Search\SearchFieldType;

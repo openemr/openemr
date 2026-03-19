@@ -14,8 +14,8 @@
 namespace OpenEMR\RestControllers;
 
 use OpenApi\Attributes as OA;
-use OpenEMR\Services\ProcedureService;
 use OpenEMR\RestControllers\RestControllerHelper;
+use OpenEMR\Services\ProcedureService;
 
 class ProcedureRestController
 {

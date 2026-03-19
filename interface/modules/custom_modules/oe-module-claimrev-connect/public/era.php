@@ -17,8 +17,8 @@ require_once "../../../../globals.php";
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
-use OpenEMR\Modules\ClaimRevConnector\EraPage;
 use OpenEMR\Modules\ClaimRevConnector\ClaimRevApiException;
+use OpenEMR\Modules\ClaimRevConnector\EraPage;
 
 $tab = "eras";
 $selected = " selected ";

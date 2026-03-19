@@ -12,7 +12,6 @@
 
 namespace OpenEMR\Modules\WenoModule\Services;
 
-
 class LogDataInsert
 {
     public function __construct()

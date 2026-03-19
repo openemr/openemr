@@ -26,6 +26,7 @@ require_once("$srcdir/payment.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
 
 if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCore('acct', 'eob', '', 'write')) {
@@ -66,17 +67,17 @@ if ($mode == "new_payment" || $mode == "distribute") {
     }
       $payment_id = sqlInsert("insert into ar_session set "    .
         $QueryPart .
-        "', user_id = '"     . trim(add_escape_custom($user_id))  .
-        "', closed = '"      . trim(add_escape_custom($closed))  .
+        "', user_id = '"     . trim((string) add_escape_custom($user_id))  .
+        "', closed = '"      . trim((string) add_escape_custom($closed))  .
         "', reference = '"   . trim(formData('check_number')) .
-        "', check_date = '"  . trim(add_escape_custom($check_date)) .
-        "', deposit_date = '" . trim(add_escape_custom($deposit_date))  .
+        "', check_date = '"  . trim((string) add_escape_custom($check_date)) .
+        "', deposit_date = '" . trim((string) add_escape_custom($deposit_date))  .
         "', pay_total = '"    . trim(formData('payment_amount')) .
-        "', modified_time = '" . trim(add_escape_custom($modified_time))  .
+        "', modified_time = '" . trim((string) add_escape_custom($modified_time))  .
         "', payment_type = '"   . trim(formData('type_name')) .
         "', description = '"   . trim(formData('description')) .
         "', adjustment_code = '"   . trim(formData('adjustment_code')) .
-        "', post_to_date = '" . trim(add_escape_custom($post_to_date))  .
+        "', post_to_date = '" . trim((string) add_escape_custom($post_to_date))  .
         "', payment_method = '"   . trim(formData('payment_method')) .
         "'");
 }
@@ -123,8 +124,8 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
     <script>
         var mypcc = '1';
     </script>
-    <?php include_once("{$GLOBALS['srcdir']}/payment_jav.inc.php"); ?>
-    <?php include_once("{$GLOBALS['srcdir']}/ajax/payment_ajax_jav.inc.php"); ?>
+    <?php include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/payment_jav.inc.php"); ?>
+    <?php include_once(OEGlobalsBag::getInstance()->get('srcdir') . "/ajax/payment_ajax_jav.inc.php"); ?>
     <script>
         function CancelDistribute() {
             // Used in the cancel button.Helpful while cancelling the distribution.
@@ -269,7 +270,7 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                     <?php $datetimepicker_timepicker = false; ?>
                     <?php $datetimepicker_showseconds = false; ?>
                     <?php $datetimepicker_formatInput = true; ?>
-                    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
 

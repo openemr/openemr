@@ -5,13 +5,16 @@
  *
  * @package MedEx
  * @author MedEx <support@MedExBank.com>
+ * @author Michael A. Smith <michael@opencoreemr.com>
  * @link http://www.MedExBank.com
  * @copyright Copyright (c) 2018 MedEx <support@MedExBank.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 namespace MedExApi;
 
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VersionService;
 
 error_reporting(0);
@@ -122,7 +125,7 @@ class Practice extends Base
         global $GLOBALS;
         $fields2 = [];
         $fields3 = [];
-        $callback = "https://" . $GLOBALS['_SERVER']['SERVER_NAME'] . $GLOBALS['_SERVER']['PHP_SELF'];
+        $callback = "https://" . OEGlobalsBag::getInstance()->get('_SERVER')['SERVER_NAME'] . OEGlobalsBag::getInstance()->get('_SERVER')['PHP_SELF'];
         $callback = str_replace('ajax/execute_background_services.php', 'MedEx/MedEx.php', $callback);
         $fields2['callback_url'] = $callback;
         $sqlQuery = "SELECT * FROM medex_prefs";
@@ -1286,13 +1289,13 @@ class Events extends Base
             // and finally make sure we haven't landed on a end week days
             // adjust as necessary
             $nextWorkDOW = date('w', mktime(0, 0, 0, $m, ($d + $f), $y));
-            if (count($GLOBALS['weekend_days']) === 2) {
-                if ($nextWorkDOW == $GLOBALS['weekend_days'][0]) {
+            if (count(OEGlobalsBag::getInstance()->get('weekend_days')) === 2) {
+                if ($nextWorkDOW == OEGlobalsBag::getInstance()->get('weekend_days')[0]) {
                     $f += 2;
-                } elseif ($nextWorkDOW == $GLOBALS['weekend_days'][1]) {
+                } elseif ($nextWorkDOW == OEGlobalsBag::getInstance()->get('weekend_days')[1]) {
                      $f++;
                 }
-            } elseif (count($GLOBALS['weekend_days']) === 1 && $nextWorkDOW === $GLOBALS['weekend_days'][0]) {
+            } elseif (count(OEGlobalsBag::getInstance()->get('weekend_days')) === 1 && $nextWorkDOW === OEGlobalsBag::getInstance()->get('weekend_days')[0]) {
                 $f++;
             }
             return date('Y-m-d', mktime(0, 0, 0, $m, ($d + $f), $y));
@@ -1491,7 +1494,7 @@ class Display extends Base
         function toggle_menu() {
                 var x = document.getElementById('hide_nav');
                 if (x.style.display === 'none') {
-                    $.post( "<?php echo $GLOBALS['webroot'] . "/interface/main/messages/messages.php"; ?>", {
+                    $.post( "<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/main/messages/messages.php"; ?>", {
                         'setting_bootstrap_submenu' : 'show',
                         success: function (data) {
                             x.style.display = 'block';
@@ -1499,7 +1502,7 @@ class Display extends Base
                         });
 
                 } else {
-                    $.post( "<?php echo $GLOBALS['webroot'] . "/interface/main/messages/messages.php"; ?>", {
+                    $.post( "<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/main/messages/messages.php"; ?>", {
                         'setting_bootstrap_submenu' : 'hide',
                         success: function (data) {
                             x.style.display = 'none';
@@ -1511,7 +1514,7 @@ class Display extends Base
 
         function SMS_bot_list() {
             top.restoreSession();
-            var myWindow = window.open('<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&dir=back&show=new','SMS_bot', 'width=400,height=650');
+            var myWindow = window.open('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&dir=back&show=new','SMS_bot', 'width=400,height=650');
             myWindow.focus();
             return false;
         }
@@ -1532,7 +1535,7 @@ class Display extends Base
                 </button>
                 <div class="collapse navbar-collapse" id="oer-navbar-collapse-1">
                     <ul class="navbar-nav">
-                        <?php if ($GLOBALS['medex_enable'] == '1') { ?>
+                        <?php if (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) { ?>
                             <li class="nav-item dropdown">
                                 <a class="nav-link" data-toggle="dropdown" id="menu_dropdown_file" role="button" aria-expanded="true"><?php echo xlt("File"); ?> </a>
                                 <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_file">
@@ -1543,7 +1546,7 @@ class Display extends Base
                                     } else {
                                         ?>
                                         <li id="menu_PREFERENCES"  name="menu_PREFERENCES" class="">
-                                        <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?go=setup&stage=1"><?php echo xlt("Setup MedEx"); ?></a></li>
+                                        <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/main/messages/messages.php?go=setup&stage=1"><?php echo xlt("Setup MedEx"); ?></a></li>
                                     <?php } ?>
                                  </ul>
                             </li>
@@ -1552,13 +1555,13 @@ class Display extends Base
                         <li class="nav-item dropdown">
                             <a class="nav-link" data-toggle="dropdown" id="menu_dropdown_msg" role="button" aria-expanded="true"><?php echo xlt("Messages"); ?> </a>
                             <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_msg">
-                                <li id="menu_new_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?showall=no&sortby=users.lname&sortorder=asc&begin=0&task=addnew&form_active=1"> <?php echo xlt("New Message"); ?></a></li>
+                                <li id="menu_new_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/main/messages/messages.php?showall=no&sortby=users.lname&sortorder=asc&begin=0&task=addnew&form_active=1"> <?php echo xlt("New Message"); ?></a></li>
                                 <li class="dropdown-divider"></li>
-                                <li id="menu_new_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=no&form_active=1"> <?php echo xlt("My Messages"); ?></a></li>
-                                <li id="menu_all_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("All Messages"); ?></a></li>
+                                <li id="menu_new_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/main/messages/messages.php?show_all=no&form_active=1"> <?php echo xlt("My Messages"); ?></a></li>
+                                <li id="menu_all_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("All Messages"); ?></a></li>
                                 <li class="dropdown-divider"></li>
-                                <li id="menu_active_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("Active Messages"); ?></a></li>
-                                <li id="menu_inactive_msg"> <a class="dropdown-item" href="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/messages.php?form_inactive=1"> <?php echo xlt("Inactive Messages"); ?></a></li>
+                                <li id="menu_active_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/main/messages/messages.php?show_all=yes&form_active=1"> <?php echo xlt("Active Messages"); ?></a></li>
+                                <li id="menu_inactive_msg"> <a class="dropdown-item" href="<?php echo OEGlobalsBag::getInstance()->get('web_root'); ?>/interface/main/messages/messages.php?form_inactive=1"> <?php echo xlt("Inactive Messages"); ?></a></li>
                                 <li id="menu_log_msg"> <a class="dropdown-item" onclick="openLogScreen();" > <?php echo xlt("Message Log"); ?></a></li>
                             </ul>
                         </li>
@@ -1566,12 +1569,12 @@ class Display extends Base
                             <a class="nav-link" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Appt. Reminders"); ?></a>
                             <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_recalls">
                             <?php
-                            if ($GLOBALS['disable_calendar'] != '1') {  ?>
+                            if (!OEGlobalsBag::getInstance()->getBoolean('disable_calendar')) {  ?>
                                 <li><a class="dropdown-item" id="BUTTON_ApRem_menu" onclick="tabYourIt('cal','main/main_info.php');"> <?php echo xlt("Calendar"); ?></a></li>
                                 <li class="dropdown-divider"></li>
                                 <?php
                             }
-                            if ($GLOBALS['disable_pat_trkr'] != '1') {
+                            if (!OEGlobalsBag::getInstance()->getBoolean('disable_pat_trkr')) {
                                 ?>
                                 <li id="menu_pend_recalls" name="menu_pend_recalls"> <a class="dropdown-item" id="BUTTON_pend_recalls_menu" onclick="tabYourIt('flb','patient_tracker/patient_tracker.php?skip_timeout_reset=1');"> <?php echo xlt("Flow Board"); ?></a></li>
                                 <?php }
@@ -1586,7 +1589,7 @@ class Display extends Base
                          </li>
                                 <?php
 
-                                if ($GLOBALS['disable_rcb'] != '1') { ?>
+                                if (!OEGlobalsBag::getInstance()->getBoolean('disable_rcb')) { ?>
                                     <li class="nav-item dropdown">
                                         <a class="nav-link" data-toggle="dropdown" id="menu_dropdown_recalls" role="button" aria-expanded="true"><?php echo xlt("Patient Recalls"); ?> </a>
                                         <ul class="bgcolor2 dropdown-menu" aria-labelledby="menu_dropdown_recalls">
@@ -1618,7 +1621,7 @@ class Display extends Base
             </nav>
         </div>
             <?php
-            if ($GLOBALS['medex_enable'] == '1') {
+            if (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) {
                 $error = $this->MedEx->getLastError();
                 if (!empty($error['ip'])) {
                     ?>
@@ -1850,22 +1853,24 @@ class Display extends Base
         $from_date = (!empty($_REQUEST['form_from_date'])) ? DateToYYYYMMDD($_REQUEST['form_from_date']) : date('Y-m-d', strtotime('-6 months'));
         //limit date range for initial Board to keep us sane and not tax the server too much
 
-        if (str_starts_with((string) $GLOBALS['ptkr_end_date'], 'Y')) {
-            $ptkr_time = substr((string) $GLOBALS['ptkr_end_date'], 1, 1);
+        if (str_starts_with((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 'Y')) {
+            $ptkr_time = substr((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 1, 1);
             $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d'), date('Y') + $ptkr_time);
-        } elseif (str_starts_with((string) $GLOBALS['ptkr_end_date'], 'M')) {
-            $ptkr_time = substr((string) $GLOBALS['ptkr_end_date'], 1, 1);
+        } elseif (str_starts_with((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 'M')) {
+            $ptkr_time = substr((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 1, 1);
             $ptkr_future_time = mktime(0, 0, 0, date('m') + $ptkr_time, date('d'), date('Y'));
-        } elseif (str_starts_with((string) $GLOBALS['ptkr_end_date'], 'D')) {
-             $ptkr_time = substr((string) $GLOBALS['ptkr_end_date'], 1, 1);
+        } elseif (str_starts_with((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 'D')) {
+             $ptkr_time = substr((string) OEGlobalsBag::getInstance()->get('ptkr_end_date'), 1, 1);
              $ptkr_future_time = mktime(0, 0, 0, date('m'), date('d') + $ptkr_time, date('Y'));
         }
         $to_date = date('Y-m-d', $ptkr_future_time);
         //prevSetting to_date?
 
         $to_date = (!empty($_REQUEST['form_to_date'])) ? DateToYYYYMMDD($_REQUEST['form_to_date']) : $to_date;
+        $patient_id = $_REQUEST['form_patient_id'] ?? '';
+        $patient_name = $_REQUEST['form_patient_name'] ?? '';
 
-        $recalls = $this->get_recalls($from_date, $to_date);
+        $recalls = $this->get_recalls($from_date, $to_date, $rcb_facility, $rcb_provider, $patient_id, $patient_name);
 
         $processed = $this->recall_board_process($logged_in, $recalls, $events ?? '');
         ob_start();
@@ -1881,17 +1886,20 @@ class Display extends Base
             <div class="col-12 jumbotron p-4">
                 <div class="showRFlow text-center" id="show_recalls_params">
                     <?php
-                    if ($GLOBALS['medex_enable'] == '0') {
+                    if (!OEGlobalsBag::getInstance()->getBoolean('medex_enable')) {
                         $last_col_width = "nodisplay";
                     }
                     ?>
-
                     <form name="rcb" id="rcb" method="post">
                         <input type="hidden" name="go" value="Recalls" />
-                        <div class="text-center row align-items-center">
-                            <div class="col-sm-4 text-center mt-3">
-                                <div class="form-group row justify-content-center mx-sm-1">
-                                    <select class="form-control form-control-sm" id="form_facility" name="form_facility"
+                        <div class="text-center mb-4">
+                            <button class="btn btn-primary btn-add" style="width: 200px;" onclick="goReminderRecall('addRecall');return false;"><?php echo xlt('New Recall'); ?></button>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <select class="form-control" id="form_facility" name="form_facility"
                                         <?php
                                         $fac_sql = sqlStatement("SELECT * FROM facility ORDER BY id");
                                         $select_facs = '';
@@ -1909,13 +1917,18 @@ class Display extends Base
                                         <?php echo $select_facs; ?>
                                     </select>
                                 </div>
-                                <div class="form-group row mx-sm-1">
-                                    <input placeholder="<?php echo xla('Patient ID'); ?>" class="form-control form-control-sm text-center" type="text" id="form_patient_id" name="form_patient_id" value="<?php echo (!empty($form_patient_id)) ? attr($form_patient_id) : ""; ?>" onKeyUp="show_this();" />
+
+                                <div class="form-group">
+                                    <input placeholder="<?php echo xla('Patient ID'); ?>"
+                                        class="form-control text-center"
+                                        type="text"
+                                        id="form_patient_id"
+                                        name="form_patient_id"
+                                        value="<?php echo (!empty($_REQUEST['form_patient_id'])) ? attr($_REQUEST['form_patient_id']) : ((!empty($form_patient_id)) ? attr($form_patient_id) : ""); ?>" onKeyUp="show_this();" />
                                 </div>
                             </div>
-
-                            <div class="col-sm-4 text-center mt-3">
-                                <div class="form-group row mx-sm-1 justify-content-center">
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
                                     <?php
                                     # Build a drop-down list of providers.
                                     $query = "SELECT id, lname, fname FROM users WHERE " .
@@ -1925,7 +1938,7 @@ class Display extends Base
                                     $c = sqlFetchArray($ures);
                                     $count_provs = count($c ?: []);
                                     ?>
-                                    <select class="form-control form-control-sm" id="form_provider" name="form_provider" <?php if ($count_provs < '2') {
+                                    <select class="form-control" id="form_provider" name="form_provider" <?php if ($count_provs < '2') {
                                         echo "disabled"; } ?> onchange="show_this();">
                                         <option value="" selected><?php echo xlt('All Providers'); ?></option>
                                         <?php
@@ -1947,35 +1960,34 @@ class Display extends Base
                                         ?>
                                     </select>
                                 </div>
-                                <div class="form-group row mx-sm-1">
-                                    <input type="text" placeholder="<?php echo xla('Patient Name'); ?>" class="form-control form-control-sm text-center" id="form_patient_name" name="form_patient_name" value="<?php echo (!empty($form_patient_name)) ? attr($form_patient_name) : ""; ?>" onKeyUp="show_this();" />
+
+                                <div class="form-group">
+                                    <input type="text"
+                                        placeholder="<?php echo xla('Patient Name'); ?>"
+                                        class="form-control text-center"
+                                        id="form_patient_name"
+                                        name="form_patient_name"
+                                        value="<?php echo (!empty($_REQUEST['form_patient_name'])) ? attr($_REQUEST['form_patient_name']) : ((!empty($form_patient_name)) ? attr($form_patient_name) : ""); ?>" onKeyUp="show_this();" />
                                 </div>
                             </div>
-
-                            <div class="col-sm-4">
-                                <div class="input-append">
-                                    <div class="form-group row mt-md-5">
-                                        <label for="flow_from" class="col"><?php echo xlt('From'); ?>:</label>
-                                        <div class="col">
-                                            <input id="form_from_date" name="form_from_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($from_date)); ?>" style="max-width: 140px; min-width: 85px;" />
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group row">
-                                        <label for="flow_to" class="col">&nbsp;&nbsp;<?php echo xlt('To{{Range}}'); ?>:</label>
-                                        <div class="col">
-                                            <input id="form_to_date" name="form_to_date" class="datepicker form-control form-control-sm text-center" value="<?php echo attr(oeFormatShortDate($to_date)); ?>" style="max-width:140px;min-width:85px;">
-                                        </div>
-                                    </div>
-                                    <div class="form-group row" role="group">
-                                        <div class="col text-right">
-                                            <button class="btn btn-primary btn-filter" type="submit" id="filter_submit" value="<?php echo xla('Filter'); ?>"><?php echo xlt('Filter'); ?></button>
-                                            <button class="btn btn-primary btn-add" onclick="goReminderRecall('addRecall');return false;"><?php echo xlt('New Recall'); ?></button>
-                                        </div>
-                                    </div>
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <label for="form_from_date"><?php echo xlt('From'); ?>:</label>
+                                    <input id="form_from_date" name="form_from_date" class="datepicker form-control text-center"
+                                        value="<?php echo attr(oeFormatShortDate($from_date)); ?>" />
                                 </div>
                             </div>
-
+                            <div class="col-md-3">
+                                <div class="form-group mb-3">
+                                    <label for="form_to_date"><?php echo xlt('To{{Range}}'); ?>:</label>
+                                    <input id="form_to_date" name="form_to_date" class="datepicker form-control text-center"
+                                        value="<?php echo attr(oeFormatShortDate($to_date)); ?>" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-center mt-4 mb-2">
+                            <button class="btn btn-primary btn-filter" type="submit" id="filter_submit"
+                                style="width: 200px;" value="<?php echo xla('Filter'); ?>"><?php echo xlt('Filter'); ?></button>
                         </div>
                         <div name="message" id="message" class="warning">
                         </div>
@@ -2005,9 +2017,12 @@ class Display extends Base
                 <div class="tab-content">
                    <div class="tab-pane active" id="tab-all">
                         <?php
-                            $this->recall_board_top();
-                            echo $processed['ALL'] ?? '';
+                        $has_recall = !empty($processed['ALL']);
+                        $this->recall_board_top($has_recall);
+                        if ($has_recall) {
+                            echo $processed['ALL'];
                             $this->recall_board_bot();
+                        }
                         ?>
                     </div>
                 </div>
@@ -2023,7 +2038,7 @@ class Display extends Base
     <script>
         function toggleRcbSelectors() {
             if ($("#rcb_selectors").css('display') === 'none') {
-                $.post( "<?php echo $GLOBALS['webroot'] . "/interface/main/messages/messages.php"; ?>", {
+                $.post( "<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/main/messages/messages.php"; ?>", {
                     'rcb_selectors' : 'block',
                     success: function (data) {
                         $("#rcb_selectors").slideToggle();
@@ -2031,7 +2046,7 @@ class Display extends Base
                     }
                 });
             } else {
-                $.post( "<?php echo $GLOBALS['webroot'] . "/interface/main/messages/messages.php"; ?>", {
+                $.post( "<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/main/messages/messages.php"; ?>", {
                     'rcb_selectors' : 'none',
                     success: function (data) {
                         $("#rcb_selectors").slideToggle();
@@ -2045,7 +2060,7 @@ class Display extends Base
         function SMS_bot(pid) {
             top.restoreSession();
             pid = pid.replace('recall_','');
-            window.open('<?php echo $GLOBALS['webroot']; ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&pid=' + pid,'SMS_bot', 'width=370,height=600,resizable=0');
+            window.open('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/main/messages/messages.php?nomenu=1&go=SMS_bot&pid=' + pid,'SMS_bot', 'width=370,height=600,resizable=0');
             return false;
         }
         $(function () {
@@ -2055,7 +2070,7 @@ class Display extends Base
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
-                <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                 <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
             });
         });
@@ -2064,22 +2079,47 @@ class Display extends Base
         $content = ob_get_clean();
         echo $content;
     }
-    public function get_recalls($from_date = '', $to_date = '')
+    public function get_recalls(string $from_date = '', string $to_date = '', string $rcb_facility = '', string $rcb_provider = '', string $patient_id = '', string $patient_name = '')
     {
-        // Recalls are requests to schedule a future appointment.
-        // Thus there is no r_appt_time (NULL) but there is a DATE set.
-        $query = "SELECT * FROM medex_recalls,patient_data AS pat
-                    WHERE pat.pid=medex_recalls.r_pid AND
-                    r_eventDate >= ? AND
-                    r_eventDate <= ? AND
-                    IFNULL(pat.deceased_date,0) = 0
-                    ORDER BY r_eventDate ASC";
-        $result = sqlStatement($query, [$from_date,$to_date]);
+        $recalls = [];
+
+        $query = "SELECT * FROM medex_recalls JOIN patient_data AS pat ON pat.pid=medex_recalls.r_pid
+                  WHERE r_eventDate >= ? AND r_eventDate <= ? AND IFNULL(pat.deceased_date,0) = 0";
+
+        $params = [$from_date, $to_date];
+
+        if (!empty($rcb_facility)) {
+            $query .= " AND r_facility = ?";
+            $params[] = $rcb_facility;
+        }
+
+        if (!empty($rcb_provider)) {
+            $query .= " AND r_provider = ?";
+            $params[] = $rcb_provider;
+        }
+
+        if (!empty($patient_id)) {
+            $query .= " AND r_pid = ?";
+            $params[] = $patient_id;
+        }
+
+        if (!empty($patient_name)) {
+            $escaped_name = addcslashes($patient_name, '%_\\');
+            $query .= " AND (CONCAT(pat.fname, ' ', pat.lname) LIKE ? OR CONCAT(pat.lname, ', ', pat.fname) LIKE ?)";
+            $params[] = "%$escaped_name%";
+            $params[] = "%$escaped_name%";
+        }
+
+        $query .= " ORDER BY r_eventDate ASC";
+
+        $result = sqlStatement($query, $params);
         while ($recall = sqlFetchArray($result)) {
             $recalls[] = $recall;
         }
-        return $recalls ?? null;
+
+        return $recalls;
     }
+
     private function recall_board_process($logged_in, $recalls, $events = '')
     {
         global $MedEx;
@@ -2118,6 +2158,7 @@ class Display extends Base
                  data-provider="' . attr($recall['r_provider']) . '"
                  data-pname="' . attr($recall['fname'] . " " . $recall['lname']) . '"
                  data-pid="' . attr($recall['pid']) . '"
+                 data-date="' . attr($recall['r_eventDate']) . '"
                  id="recall_' . attr($recall['pid']) . '" style="display:none;">';
 
             $query = "SELECT cal.pc_eventDate,pat.DOB FROM openemr_postcalendar_events AS cal JOIN patient_data AS pat ON cal.pc_pid=pat.pid WHERE cal.pc_pid =? ORDER BY cal.pc_eventDate DESC LIMIT 1";
@@ -2129,7 +2170,7 @@ class Display extends Base
             $DOB = oeFormatShortDate($result2['DOB'] ?? '');
             $age = $MedEx->events->getAge($result2['DOB'] ?? 0);
             echo '<td class="divTableCell"><a href="#" onclick="show_patient(\'' . attr($recall['pid']) . '\');"> ' . text($recall['fname']) . ' ' . text($recall['lname']) . '</a>';
-            if ($GLOBALS['ptkr_show_pid']) {
+            if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_pid')) {
                 echo '<br /><span data-toggle="tooltip" data-placement="auto" title="' . xla("Patient ID") . '" class="small">' . xlt('PID') . ': ' . text($recall['pid']) . '</span>';
             }
             echo '<br /><span data-toggle="tooltip" data-placement="auto" title="' . xla("Most recent visit") . '" class="small">' . xlt("Last Visit") . ': ' . text(oeFormatShortDate($last_visit)) . '</span>';
@@ -2377,7 +2418,7 @@ class Display extends Base
                 $show['pc_eid'] = $result['pc_eid'];
                 $show['appt'] = oeFormatShortDate(date('Y-m-d', $phpdate)) . " @ " . date('g:iA', $phpdate);
                 $show['DONE'] = '1';
-            } elseif ($GLOBALS['medex_enable'] == '1') {
+            } elseif (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) {
                 if ($logged_in) {
                     if ($camps == '0') {
                         $show['status'] = "reddish"; //hey, nothing automatic left to do - manual processing required.
@@ -2388,7 +2429,7 @@ class Display extends Base
             } else {
                 $show['status'] = "whitish";
             }
-        } elseif (($GLOBALS['medex_enable'] == '1') && ($camps == '0')) {
+        } elseif ((OEGlobalsBag::getInstance()->getBoolean('medex_enable')) && ($camps == '0')) {
                 $show['status'] = "reddish"; //hey, nothing automatic left to do - manual processing required.
         } else {
             $show['status'] = "whitish";
@@ -2443,7 +2484,7 @@ class Display extends Base
         } else {
             $pat['EMAIL'] = $icon['EMAIL']['ALLOWED'];
         }
-        if ($GLOBALS['medex_enable'] == '1') {
+        if (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) {
             $sql = "SELECT * FROM medex_prefs";
             $prefs = sqlFetchArray(sqlStatement($sql));
             $facs = explode('|', (string) $prefs['ME_facilities']);
@@ -2461,8 +2502,13 @@ class Display extends Base
         }
         return $pat;
     }
-    private function recall_board_top()
+    private function recall_board_top($has_recall = false)
     {
+        if (!$has_recall) {
+            echo '<div id="no_recalls_message" class="alert alert-info text-center">' . xlt('No Recalls Found') . '</div>';
+            return;
+        }
+
         ?>
         <div class="table-responsive">
             <table class="table table-bordered">
@@ -2525,7 +2571,7 @@ class Display extends Base
                 <input type="hidden" name="action" id="go" value="addRecall" />
                 <div class="col-4 divTable m-2 ml-auto">
                     <div class="row divTableBody prefs">
-                            <div class="divTableCell divTableHeading text-right form-group col-4 col-md-4"><label><?php echo xlt('Name'); ?></label></div>
+                            <div class="divTableCell divTableHeading text-right form-group col-4 col-md-4"><label><?php echo xlt('Name'); ?><span class="text-danger">*</span></label></div>
                             <div class="divTableCell indent20 form-group col-8 col-md-8">
                                 <input type="text" name="new_recall_name" id="new_recall_name" class="form-control"
                                         onclick="recall_name_click(this)"
@@ -2569,7 +2615,7 @@ class Display extends Base
                                 <label for="new_recall_when_3yr" class="input-helper input-helper--checkbox">
                                 <input type="radio" name="new_recall_when" id="new_recall_when_3yr" value="1095" /> <?php echo xlt('plus 3 years'); ?></label>
                             </div>
-                            <span class="font-weight-bold"> <?php echo xlt('Date'); ?>:</span>
+                            <span class="font-weight-bold"> <?php echo xlt('Date'); ?>:<span class="text-danger">*</span></span>
                             <input class="datepicker form-control-sm text-center" type="text" id="form_recall_date" name="form_recall_date" value="" />
                         </div>
 
@@ -2585,7 +2631,7 @@ class Display extends Base
                     </div>
                     <div class="row divTableBody prefs">
                             <div class="text-right form-group col-4 col-md-4 divTableCell divTableHeading">
-                                <label><?php echo xlt('Provider'); ?></label>
+                                <label><?php echo xlt('Provider'); ?><span class="text-danger">*</span></label>
                             </div>
                             <div class="form-group col-8 col-md-8 divTableCell indent20">
                                     <?php
@@ -2625,7 +2671,7 @@ class Display extends Base
                     </div>
                     <div class="row divTableBody prefs">
                             <div class="text-right form-group col-4 col-md-4 divTableCell divTableHeading">
-                                <label><?php echo xlt('Facility'); ?></label>
+                                <label><?php echo xlt('Facility'); ?><span class="text-danger">*</span></label>
                             </div>
                             <div class="form-group col-8 col-md-8 divTableCell indent20">
                                 <select class="form-control ui-selectmenu-button ui-button ui-widget ui-selectmenu-button-closed ui-corner-all" name="new_facility" id="new_facility" style="width: 95%;">
@@ -2747,7 +2793,7 @@ class Display extends Base
                         <?php $datetimepicker_timepicker = false; ?>
                         <?php $datetimepicker_showseconds = false; ?>
                         <?php $datetimepicker_formatInput = true; ?>
-                        <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+                        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
                         <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
                 });
             });
@@ -2760,6 +2806,15 @@ class Display extends Base
                 ?>
             var xljs_NOTE = '<?php echo xl("NOTE"); ?>';
             var xljs_PthsApSched = '<?php echo xl("This patient already has an appointment scheduled for"); ?>';
+
+            var translations = {
+                patient_required: <?php echo xlj('Please select a patient'); ?>,
+                date_required: <?php echo xlj('Please select a recall date'); ?>,
+                provider_required: <?php echo xlj('Please select a provider'); ?>,
+                facility_required: <?php echo xlj('Please select a facility'); ?>,
+                no_recalls_found: <?php echo xlj('No Recalls Found'); ?>
+            };
+
 
         </script>
             <?php
@@ -2999,7 +3054,7 @@ class Setup extends Base
                                 <div class="form-group mt-3">
                                     <label for="new_email"><?php echo xlt('E-mail'); ?>:</label>
                                     <i id="email_check" name="email_check" class="top_right_corner nodisplay text-success fa fa-check"></i>
-                                    <input type="text" data-rule-email="true" class="form-control" id="new_email" name="new_email" value="<?php echo attr($GLOBALS['user_data']['email']); ?>" placeholder="<?php echo xla('your email address'); ?>" required />
+                                    <input type="text" data-rule-email="true" class="form-control" id="new_email" name="new_email" value="<?php echo attr(OEGlobalsBag::getInstance()->get('user_data')['email']); ?>" placeholder="<?php echo xla('your email address'); ?>" required />
                                     <div class="signup_help nodisplay" id="email_help" name="email_help"><?php echo xlt('Please provide a valid e-mail address to proceed'); ?>...</div>
                                 </div>
                                 <div class="form-group mt-3">
@@ -3281,7 +3336,7 @@ class MedEx
         global $GLOBALS;
 
         if ($sessionFile == 'cookiejar_MedExAPI') {
-            $sessionFile = $GLOBALS['temporary_files_dir'] . '/cookiejar_MedExAPI';
+            $sessionFile = OEGlobalsBag::getInstance()->get('temporary_files_dir') . '/cookiejar_MedExAPI';
         }
         $this->url      = rtrim('https://' . preg_replace('/^https?\:\/\//', '', (string) $url), '/') . '/cart/upload/index.php?route=api/';
         $this->curl     = new CurlRequest($sessionFile);
@@ -3353,7 +3408,7 @@ class MedEx
             empty($info['ME_username']) ||
             empty($info['ME_api_key']) ||
             empty($info['MedEx_id']) ||
-            ($GLOBALS['medex_enable'] !== '1')
+            (!OEGlobalsBag::getInstance()->getBoolean('medex_enable'))
         ) {
             return false;
         }

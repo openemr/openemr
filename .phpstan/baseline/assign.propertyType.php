@@ -512,11 +512,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/postmaster.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property MyMailer\\:\\:\\$Port \\(int\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/postmaster.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property MyMailer\\:\\:\\$SMTPAuth \\(bool\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/postmaster.php',
@@ -1857,16 +1852,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/Export/ExportStreamWriter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\SMART\\\\ClientAdminController\\:\\:\\$kernel \\(OpenEMR\\\\Core\\\\Kernel\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\SMART\\\\ClientAdminController\\:\\:\\$webroot \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\FHIR\\\\SMART\\\\ExternalClinicalDecisionSupport\\\\DecisionSupportInterventionEntity\\:\\:\\$id \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/SMART/ExternalClinicalDecisionSupport/DecisionSupportInterventionEntity.php',
@@ -1955,11 +1940,6 @@ $ignoreErrors[] = [
     'message' => '#^Property DateInterval\\:\\:\\$s \\(int\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/AppointmentService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\BaseService\\:\\:\\$logger \\(OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\) does not accept Psr\\\\Log\\\\LoggerInterface\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/BaseService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\CarePlanService\\:\\:\\$carePlanType \\(string\\) does not accept mixed\\.$#',
@@ -2137,11 +2117,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/USPS/USPSAddressVerifyV3.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\BulkAPITestClient\\:\\:\\$baseUrl \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/BulkAPITestClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Static property OpenEMR\\\\Tests\\\\Certification\\\\HIT1\\\\G10_Certification\\\\BulkPatientExport311APITest\\:\\:\\$previousProfileValue \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G10_Certification/BulkPatientExport311APITest.php',
@@ -2232,16 +2207,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/RestControllers/FHIR/FhirQuestionnaireRestControllerIntegrationTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Services\\\\CarePlanServiceTest\\:\\:\\$fixture \\(OpenEMR\\\\Tests\\\\Services\\\\CarePlanFixture\\) does not accept array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/CarePlanServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Services\\\\EncounterServiceTest\\:\\:\\$fixture \\(OpenEMR\\\\Tests\\\\Services\\\\EncounterFixture\\) does not accept array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/EncounterServiceTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\FhirConditionService3_1_1Test\\:\\:\\$fhirConditionService \\(OpenEMR\\\\Services\\\\FHIR\\\\FhirConditionService\\) does not accept OpenEMR\\\\Services\\\\FHIR\\\\Condition\\\\FhirConditionProblemListItemService\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Condition/FhirConditionService3_1_1Test.php',
@@ -2273,11 +2238,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Unit\\\\Controllers\\\\Interface\\\\Forms\\\\Observation\\\\ObservationControllerTest\\:\\:\\$globalDateFormat \\(int\\|null\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Controllers/Interface/Forms/Observation/ObservationControllerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Unit\\\\Controllers\\\\Interface\\\\Forms\\\\Observation\\\\ObservationControllerTest\\:\\:\\$globalKernelBackup \\(OpenEMR\\\\Core\\\\Kernel\\|null\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Unit/Controllers/Interface/Forms/Observation/ObservationControllerTest.php',
 ];

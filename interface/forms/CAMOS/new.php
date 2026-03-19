@@ -17,6 +17,7 @@ require_once("../../../library/api.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 $out_of_encounter = false;
 if ((($_SESSION['encounter'] == '') || ($_SESSION['pid'] == '')) || ($_GET['mode'] == 'external')) {
@@ -1024,11 +1025,11 @@ if ( (mode == 'add') || (mode == 'alter') ) {
 <?php
 if (!$out_of_encounter) {
     ?>
-    f2.action = '<?php print $GLOBALS['webroot'] ?>/interface/patient_file/encounter/load_form.php?formname=CAMOS';
+    f2.action = '<?php print OEGlobalsBag::getInstance()->get('webroot') ?>/interface/patient_file/encounter/load_form.php?formname=CAMOS';
     <?php
 } else {
     ?>
-    f2.action = '<?php print $GLOBALS['webroot'] ?>/interface/forms/CAMOS/new.php?mode=external';
+    f2.action = '<?php print OEGlobalsBag::getInstance()->get('webroot') ?>/interface/forms/CAMOS/new.php?mode=external';
     <?php
 }
 ?>
@@ -1050,7 +1051,7 @@ if (!$out_of_encounter) {
     myarray['csrf_token_form'] = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
     var str = setformvalues(myarray);
 //    alert(str);
-    processajax ('<?php print $GLOBALS['webroot'] ?>/interface/forms/CAMOS/ajax_save.php', myobj, "post", str);
+    processajax ('<?php print OEGlobalsBag::getInstance()->get('webroot') ?>/interface/forms/CAMOS/ajax_save.php', myobj, "post", str);
 //    alert("submitted!");
 //ajax code
 }
@@ -1111,7 +1112,7 @@ if (!$out_of_encounter) {
   <option value='12'><?php echo xlt('Back twelve visits'); ?></option>
 </select>
     <?php
-    echo "<a href='{$GLOBALS['form_exit_url']}' onclick='top.restoreSession()'>[" . xlt('Leave The Form') . "]</a>";
+    echo "<a href='" . OEGlobalsBag::getInstance()->get('form_exit_url') . "' onclick='top.restoreSession()'>[" . xlt('Leave The Form') . "]</a>";
     ?>
 <input type='button' name='hide columns' value='<?php echo xla('Hide/Show Columns'); ?>' onClick="hide_columns()">
 <input type='button' name='submit form' value='<?php echo xla('Submit Selected Content'); ?>' onClick="js_button('submit','submit_selection')">
@@ -1252,8 +1253,8 @@ if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in
 <?php
 
 if (!$out_of_encounter) { //do not do stuff that is encounter specific if not in an encounter
-    echo "<a href='{$GLOBALS['form_exit_url']}' onclick='top.restoreSession()'>[" . xlt('Leave The Form') . "]</a>";
-    echo "<a href='" . $GLOBALS['webroot'] . "/interface/forms/CAMOS/help.html' target='new'> | [" . xlt('Help') . "]</a>";
+    echo "<a href='" . OEGlobalsBag::getInstance()->get('form_exit_url') . "' onclick='top.restoreSession()'>[" . xlt('Leave The Form') . "]</a>";
+    echo "<a href='" . OEGlobalsBag::getInstance()->get('webroot') . "/interface/forms/CAMOS/help.html' target='new'> | [" . xlt('Help') . "]</a>";
 //  echo $previous_encounter_data; //probably don't need anymore now that we have clone last visit
 }
 ?>

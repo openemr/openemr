@@ -11,11 +11,11 @@
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Common\ORDataObject\Person;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\ORDataObject\Person;
 use OpenEMR\Services\BaseService;
-use OpenEMR\Validators\ProcessingResult;
 use OpenEMR\Services\Utils\DateFormatterUtils;
+use OpenEMR\Validators\ProcessingResult;
 
 class PersonService extends BaseService
 {

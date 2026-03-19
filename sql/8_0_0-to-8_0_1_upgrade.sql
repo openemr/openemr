@@ -191,3 +191,40 @@ DELETE FROM `globals` WHERE `gl_name` = 'allow_multiple_databases';
 #IfRow globals gl_name safe_key_database
 DELETE FROM `globals` WHERE `gl_name` = 'safe_key_database';
 #EndIf
+
+#IfRow3D layout_options form_id DEM field_id care_team_provider uor 1
+UPDATE `layout_options` SET `uor` = 0 WHERE `form_id` = 'DEM' AND `field_id` IN ('care_team_facility', 'care_team_provider', 'care_team_status') AND `uor` = 1;
+#EndIf
+
+#IfRow globals gl_name gbl_nav_visit_forms
+DELETE FROM `globals` WHERE `gl_name` IN (
+    'enable_amc_tracking',
+    'gbl_ma_ippf_code_restriction',
+    'gbl_menu_acct_trans',
+    'gbl_menu_ive_clients',
+    'gbl_menu_projects',
+    'gbl_menu_service_and_client_volume',
+    'gbl_menu_shifts',
+    'gbl_menu_stats_cc',
+    'gbl_menu_stats_cyp',
+    'gbl_menu_stats_daily',
+    'gbl_menu_stats_gcac',
+    'gbl_menu_stats_ippf',
+    'gbl_menu_stats_ma',
+    'gbl_menu_stats_sinadi',
+    'gbl_menu_visits_by_item',
+    'gbl_nav_visit_forms',
+    'gbl_uruguay_asse_token',
+    'gbl_uruguay_asse_url',
+    'machine_name'
+);
+#EndIf
+
+--
+-- Drop the onsite_activity_view which was dynamically created at runtime.
+-- The view is no longer needed as the OnsiteActivityViewReporter now uses
+-- a direct JOIN query instead.
+-- See: https://github.com/openemr/openemr/issues/10975
+--
+
+DROP VIEW IF EXISTS `onsite_activity_view`;

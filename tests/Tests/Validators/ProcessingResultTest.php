@@ -2,8 +2,8 @@
 
 namespace OpenEMR\Tests\Validators;
 
-use PHPUnit\Framework\TestCase;
 use OpenEMR\Validators\ProcessingResult;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Processing Result Tests

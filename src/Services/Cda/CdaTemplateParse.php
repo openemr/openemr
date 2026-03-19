@@ -13,8 +13,8 @@
 namespace OpenEMR\Services\Cda;
 
 use OpenEMR\Core\OEGlobalsBag;
-use OpenEMR\Events\CDA\CDAPreParseEvent;
 use OpenEMR\Events\CDA\CDAPostParseEvent;
+use OpenEMR\Events\CDA\CDAPreParseEvent;
 use OpenEMR\Services\CodeTypesService;
 
 class CdaTemplateParse

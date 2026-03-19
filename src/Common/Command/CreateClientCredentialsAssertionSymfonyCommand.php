@@ -19,6 +19,7 @@ use Lcobucci\JWT\Signer\Key\InMemory;
 use Lcobucci\JWT\Signer\Rsa\Sha384;
 use OpenEMR\Common\Auth\OpenIDConnect\Grant\CustomClientCredentialsGrant;
 use OpenEMR\Common\Command\Runner\CommandContext;
+use OpenEMR\Core\OEGlobalsBag;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputDefinition;
@@ -50,7 +51,7 @@ class CreateClientCredentialsAssertionSymfonyCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $rootPath = $GLOBALS['fileroot'];
+        $rootPath = OEGlobalsBag::getInstance()->get('fileroot');
 
         $keyLocation = $rootPath . DIRECTORY_SEPARATOR . "tests" . DIRECTORY_SEPARATOR . "Tests" . DIRECTORY_SEPARATOR
             . "data" . DIRECTORY_SEPARATOR . "Unit" . DIRECTORY_SEPARATOR . "Common" . DIRECTORY_SEPARATOR . "Auth"

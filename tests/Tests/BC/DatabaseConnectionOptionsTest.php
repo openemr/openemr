@@ -15,13 +15,11 @@ namespace OpenEMR\Tests\BC;
 use InvalidArgumentException;
 use OpenEMR\BC\DatabaseConnectionOptions;
 use PDO;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 use ReflectionClass;
 use SensitiveParameter;
 
-#[CoversClass(DatabaseConnectionOptions::class)]
 #[Small]
 class DatabaseConnectionOptionsTest extends TestCase
 {

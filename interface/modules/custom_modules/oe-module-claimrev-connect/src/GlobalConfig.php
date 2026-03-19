@@ -18,7 +18,8 @@
 
 namespace OpenEMR\Modules\ClaimRevConnector;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Services\Globals\GlobalSetting;
 
 class GlobalConfig
@@ -42,14 +43,11 @@ class GlobalConfig
     public const CONFIG_OPTION_DEV_SCOPE = 'oe_claimrev_config_dev_scope';
     public const CONFIG_OPTION_DEV_AUTHORITY = 'oe_claimrev_config_dev_authority';
 
-    /**
-     * @var CryptoGen
-     */
-    private $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
 
     public function __construct(private array $globalsArray)
     {
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = ServiceContainer::getCrypto();
     }
 
     /**

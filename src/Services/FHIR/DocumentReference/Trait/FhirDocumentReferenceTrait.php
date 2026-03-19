@@ -1,4 +1,5 @@
 <?php
+
 /*
  * FhirDocumentReferenceTrait.php
  * @package openemr

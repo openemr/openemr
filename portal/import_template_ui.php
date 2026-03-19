@@ -13,13 +13,13 @@
  */
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Messaging\SendNotificationEvent;
 use OpenEMR\Services\DocumentTemplates\DocumentTemplateService;
 use OpenEMR\Services\PatientPortalService;
 use OpenEMR\Services\QuestionnaireService;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../vendor/autoload.php");
@@ -34,7 +34,7 @@ if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
 $session = SessionWrapperFactory::getInstance()->getWrapper();
 
 // Service
-$eventDispatcher = $globalsBag->get('kernel')->getEventDispatcher();
+$eventDispatcher = $globalsBag->getKernel()->getEventDispatcher();
 $portalService = new PatientPortalService();
 // auto allow if a portal user else must be an admin
 $authUploadTemplates = $portalService::authPortalUser('admin', 'forms');

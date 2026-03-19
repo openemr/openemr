@@ -19,8 +19,8 @@ namespace OpenEMR\Tests\Services;
 use OpenEMR\Services\AppointmentService;
 use OpenEMR\Tests\Fixtures\AppointmentFixtureManager;
 use Particle\Validator\ValidationResult;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
 class AppointmentServiceTest extends TestCase
 {

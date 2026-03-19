@@ -17,12 +17,12 @@
 
 namespace OpenEMR\Tests\Unit\Common\Auth\OpenIDConnect;
 
+use Lcobucci\JWT\Token\Builder;
 use League\OAuth2\Server\CryptKey;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Entities\UserEntityInterface;
-use Lcobucci\JWT\Token\Builder;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\UserEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\IdTokenSMARTResponse;
 use OpenEMR\Common\Auth\OpenIDConnect\SMARTSessionTokenContextBuilder;

@@ -22,6 +22,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/super: Configure Orders and Results", xl("Configure Orders and Results"));
@@ -113,7 +114,7 @@ function recursiveDelete($typeid): void
 
     <script>
 
-        <?php require($GLOBALS['srcdir'] . "/restoreSession.php"); ?>
+        <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
 
         // The name of the form field for find-code popup results.
         var rcvarname;

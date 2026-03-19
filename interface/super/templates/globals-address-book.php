@@ -12,8 +12,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
-use OpenEMR\FHIR\Config\ServerConfig;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\FHIR\Config\ServerConfig;
 
 $textLabel = "";
 $i ??= 0;

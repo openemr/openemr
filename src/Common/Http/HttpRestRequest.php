@@ -14,17 +14,17 @@
 namespace OpenEMR\Common\Http;
 
 use Http\Message\Encoding\GzipDecodeStream;
+use InvalidArgumentException;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ResourceScopeEntityList;
 use OpenEMR\Common\Auth\OpenIDConnect\Entities\ScopeEntity;
 use OpenEMR\Common\Auth\OpenIDConnect\Validators\ScopeValidatorFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
+use Stringable;
 use Symfony\Component\HttpFoundation\FileBag;
 use Symfony\Component\HttpFoundation\InputBag;
 use Symfony\Component\HttpFoundation\Request;
-use Stringable;
-use InvalidArgumentException;
 
 class HttpRestRequest extends Request implements Stringable
 {

@@ -11,8 +11,8 @@
 
 namespace OpenEMR\Services;
 
-use OpenEMR\Common\ORDataObject\Contact;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\ORDataObject\Contact;
 use OpenEMR\Services\BaseService;
 use OpenEMR\Validators\ProcessingResult;
 

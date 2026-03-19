@@ -15,11 +15,11 @@ namespace OpenEMR\Common\Auth;
 
 use DateInterval;
 use DateTime;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthException;
 use OpenEMR\Common\Auth\Exception\OneTimeAuthExpiredException;
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Session\SessionWrapperInterface;
 use OpenEMR\Common\Utils\RandomGenUtils;
@@ -27,12 +27,13 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PatientPortalService;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Services\UserService;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 class OneTimeAuth
 {
-    private readonly CryptoGen $cryptoGen;
-    private readonly SystemLogger $systemLogger;
+    private readonly CryptoInterface $cryptoGen;
+    private readonly LoggerInterface $systemLogger;
     private readonly SessionWrapperInterface $session;
     private readonly OEGlobalsBag $globalsBag;
 
@@ -41,10 +42,15 @@ class OneTimeAuth
      * @param string $scope   scope = portal/service tasks (reset, register).
      * @param string $profile
      */
-    public function __construct(private $context = 'portal', private $scope = 'redirect', private $profile = 'default')
+    public function __construct(
+        private $context = 'portal',
+        private $scope = 'redirect',
+        private $profile = 'default',
+        ?LoggerInterface $logger = null,
+    )
     {
-        $this->cryptoGen = new CryptoGen();
-        $this->systemLogger = new SystemLogger();
+        $this->cryptoGen = ServiceContainer::getCrypto();
+        $this->systemLogger = $logger ?? ServiceContainer::getLogger();
         $this->session = SessionWrapperFactory::getInstance()->getWrapper();
         $this->globalsBag = OEGlobalsBag::getInstance();
     }
@@ -158,7 +164,7 @@ class OneTimeAuth
 
         if (strlen((string)$onetime_token) >= 64) {
             if ($this->cryptoGen->cryptCheckStandard($onetime_token)) {
-                $one_time = $this->cryptoGen->decryptStandard($onetime_token, null, 'drive', 6);
+                $one_time = $this->cryptoGen->decryptStandard($onetime_token, minimumVersion: 6);
                 if (!empty($one_time)) {
                     $t_info = $this->getOnetime($one_time);
                     if (!empty($t_info['pid'] ?? 0)) {
@@ -188,7 +194,7 @@ class OneTimeAuth
         $redirect = $t_info['redirect_url'] ?? null;
         if (!empty($redirect_token)) {
             if ($this->cryptoGen->cryptCheckStandard($redirect_token)) {
-                $redirect_decrypted = $this->cryptoGen->decryptStandard($redirect_token, null, 'drive', 6);
+                $redirect_decrypted = $this->cryptoGen->decryptStandard($redirect_token, minimumVersion: 6);
                 $redirect_array = json_decode($redirect_decrypted, true);
                 $redirect = $redirect_array['to'];
                 if (($redirect_array['pid'] != $auth['pid'] && !empty($redirect_array['pid']))) {

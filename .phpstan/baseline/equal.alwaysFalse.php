@@ -112,6 +112,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/report/pat_ledger.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Loose comparison using \\=\\= between int\\|null and \'NULL\' will always evaluate to false\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Logging/EventAuditLogger.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between non\\-empty\\-string and \'\' will always evaluate to false\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',

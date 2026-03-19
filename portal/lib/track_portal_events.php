@@ -10,8 +10,13 @@
  * @license        https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\VersionService;
+use OpenEMR\Telemetry\TelemetryRepository;
+use OpenEMR\Telemetry\TelemetryService;
 
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
@@ -35,12 +40,6 @@ if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($sess
 }
 
 
-use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Logging\SystemLogger;
-use OpenEMR\Services\VersionService;
-use OpenEMR\Telemetry\TelemetryRepository;
-use OpenEMR\Telemetry\TelemetryService;
-
 header("Content-Type: application/json");
 
 /**
@@ -61,7 +60,7 @@ function portal_handleRequest(): void
 
     $telemetryRepo = new TelemetryRepository();
     $versionService = new VersionService();
-    $logger = new SystemLogger();
+    $logger = ServiceContainer::getLogger();
     $telemetryService = new TelemetryService($telemetryRepo, $versionService, $logger);
 
     $action = $data['action'] ?? '';

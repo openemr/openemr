@@ -16,9 +16,11 @@
 
 namespace OpenEMR\Common\Auth;
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Utils\RandomGenUtils;
+use OpenEMR\Core\OEGlobalsBag;
 
 class OAuth2KeyConfig
 {
@@ -42,7 +44,7 @@ class OAuth2KeyConfig
      */
     private $publicKey;
 
-    private readonly CryptoGen $cryptoGen;
+    private readonly CryptoInterface $cryptoGen;
 
     private readonly OAuth2KeyMissing $oauth2KeyMissing;
 
@@ -50,11 +52,11 @@ class OAuth2KeyConfig
     {
         if (empty($siteDir)) {
             // default to our global location
-            $siteDir = $GLOBALS['OE_SITE_DIR'];
+            $siteDir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR');
         }
 
         // Create a crypto object that will be used for encryption/decryption
-        $this->cryptoGen = new CryptoGen();
+        $this->cryptoGen = ServiceContainer::getCrypto();
         // verify and/or setup our key pairs.
         $this->privateKey = $siteDir . '/documents/certificates/oaprivate.key';
         $this->publicKey = $siteDir . '/documents/certificates/oapublic.key';

@@ -1,6 +1,6 @@
 <?php
 
-use OpenEMR\Common\Crypto\CryptoGen;
+use OpenEMR\BC\ServiceContainer;
 
 // globals that require more security
 //  The set of globals below can only be modified directly in this script (ie. can not be set while using OpenEMR) and
@@ -8,7 +8,7 @@ use OpenEMR\Common\Crypto\CryptoGen;
 //  somehow gets access to globals).
 // note that need to skip this block of code during upgrading (or else will have database issues since no keys table)
 if (empty($GLOBALS['ongoing_sql_upgrade'])) {
-    $cryptoGen = new CryptoGen();
+    $cryptoGen = ServiceContainer::getCrypto();
     // Print command for spooling to printers, used by statements.inc.php
     //   This is the command to be used for printing (without the filename).
     //   The word following "-P" should be the name of your printer.  This

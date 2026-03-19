@@ -94,13 +94,11 @@ final readonly class DatabaseConnectionOptions
      * Creates options for a site by loading its sqlconf.php file.
      *
      * @param string $siteDir Site directory path (e.g., OE_SITE_DIR)
-     * @param literal-string $configFile Config filename to load
      */
     public static function forSite(
         string $siteDir,
-        string $configFile = 'sqlconf.php',
     ): self {
-        $sqlconf = self::loadSqlconf($siteDir, $configFile);
+        $sqlconf = self::loadSqlconf($siteDir);
         $sslPaths = self::inferSslPaths($siteDir);
 
         return self::fromSqlconf($sqlconf, $sslPaths);
@@ -163,16 +161,15 @@ final readonly class DatabaseConnectionOptions
     }
 
     /**
-     * @param literal-string $configFile
      * @return SqlConf
      */
-    private static function loadSqlconf(string $siteDir, string $configFile): array
+    private static function loadSqlconf(string $siteDir): array
     {
-        $sqlconfPath = $siteDir . '/' . $configFile;
+        $sqlconfPath = $siteDir . '/sqlconf.php';
         if (!file_exists($sqlconfPath)) {
             throw new RuntimeException(sprintf(
                 '%s not found in %s. Is the site configured?',
-                $configFile,
+                'sqlconf.php',
                 $siteDir,
             ));
         }

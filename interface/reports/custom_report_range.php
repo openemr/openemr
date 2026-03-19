@@ -15,11 +15,12 @@ require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/report.inc.php");
 
+use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
 if (!AclMain::aclCheckCore('encounters', 'coding_a')) {
@@ -157,7 +158,7 @@ if (empty($form_patient)) {
     <?php $datetimepicker_timepicker = false; ?>
     <?php $datetimepicker_showseconds = false; ?>
     <?php $datetimepicker_formatInput = true; ?>
-    <?php require($GLOBALS['srcdir'] . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
+    <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
     <?php // can add any additional javascript settings to datetimepicker here; need to prepend first setting with a comma ?>
   });
  });

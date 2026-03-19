@@ -5,8 +5,8 @@ namespace OpenEMR\Tests\Services;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Patient Service Tests
@@ -33,7 +33,7 @@ class PatientServiceTest extends TestCase
     {
         $this->patientService = new PatientService();
         $this->fixtureManager = new FixtureManager();
-        $this->patientFixture = (array) $this->fixtureManager->getSinglePatientFixture();
+        $this->patientFixture = $this->fixtureManager->getSinglePatientFixture();
     }
 
     protected function tearDown(): void

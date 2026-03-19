@@ -1,5 +1,7 @@
 <?php
 
+use OpenEMR\Core\OEGlobalsBag;
+
 @define('__POSTCALENDAR__', 'PostCalendar');
 /**
  *  $Id$
@@ -427,7 +429,7 @@ function postcalendar_user_search()
     }
 
     $tpl->caching = false;
-    $tpl->assign('STYLE', $GLOBALS['style']);
+    $tpl->assign('STYLE', OEGlobalsBag::getInstance()->get('style'));
     $pageSetup =& pnModAPIFunc(__POSTCALENDAR__, 'user', 'pageSetup');
     $return = $pageSetup . $tpl->fetch($template_name . '/user/ajax_search.html');
     return $return;

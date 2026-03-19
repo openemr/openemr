@@ -11,7 +11,6 @@
 
 namespace OpenEMR\Services\FHIR;
 
-
 interface IResourceSearchableServiceWithConfig
 {
 }
