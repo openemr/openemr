@@ -131,8 +131,10 @@ class C_Document extends Controller
         $zip_name = OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/" . $study_name;
         if ($zip->open($zip_name, (ZipArchive::CREATE | ZipArchive::OVERWRITE)) === true) {
             foreach ($_FILES['dicom_folder']['name'] as $i => $name) {
+                // Strip directory components to prevent path traversal.
+                $name = basename((string) $name);
                 $zfn = OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/" . $name;
-                $fparts = pathinfo((string) $name);
+                $fparts = pathinfo($name);
                 if (empty($fparts['extension'])) {
                     // viewer requires lowercase.
                     $fparts['extension'] = "dcm";

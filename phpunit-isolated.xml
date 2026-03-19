@@ -23,6 +23,7 @@ This file configures the kind that does not require initialization.
          displayDetailsOnTestsThatTriggerErrors="true"
          displayDetailsOnTestsThatTriggerWarnings="true"
          displayDetailsOnTestsThatTriggerNotices="true"
+         displayDetailsOnPhpunitDeprecations="true"
          testdox="false">
 
   <php>

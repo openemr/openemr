@@ -25,7 +25,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Ray Magauran <magauran@MedFetch.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2016 Raymond Magauran <magauran@MedFetch.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -156,7 +158,7 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag'): vo
         if (file_exists($file_location) && ($doc['id'] > '0')) {
         $filetoshow = $GLOBALS['web_root']."/controller.php?document&retrieve&patient_id=$pid&document_id=$doc[id]&as_file=false";
         ?><div style='position:relative;float:left;width:100px;height:75px;'>
-        <img src='<?php echo $filetoshow; ?>' width=100 heght=75>
+        <img src='<?php echo attr($filetoshow); ?>' width=100 heght=75>
         </div> <?
         } else {
              // $filetoshow = "../../forms/".$form_folder."/images/".$side."_".$zone[$i]."_BASE.png?".rand();
@@ -306,7 +308,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                             <b><?php echo xlt('Chief Complaint'); ?>:</b> &nbsp;<?php echo text($CC1); ?>
                             <br/><br/>
                             <b><?php echo xlt('HPI'); ?>:</b>
-                            &nbsp;<?php echo $HPI1; ?>
+                            &nbsp;<?php echo text($HPI1); ?>
                             <br/>
                             <div style="padding-left:20px;">
                                 <?php
@@ -801,32 +803,32 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                         </tr>
                         <tr>
                             <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:center;">
-                                <?php echo $ODVF['1']; ?>
+                                <?php echo text($ODVF['1']); ?>
                             </td>
                             <td style="border-left:1pt solid black;border-bottom:1pt solid black;text-align:center;">
-                                <?php echo $ODVF['2']; ?>
+                                <?php echo text($ODVF['2']); ?>
                             </td>
                             <td></td>
                             <td style="border-right:1pt solid black;border-bottom:1pt solid black;text-align:center;">
-                                <?php echo $OSVF['1']; ?>
+                                <?php echo text($OSVF['1']); ?>
                             </td>
                             <td style="border-left:1pt solid black;border-bottom:1pt solid black;text-align:center;">
-                                <?php echo $OSVF['2']; ?>
+                                <?php echo text($OSVF['2']); ?>
                             </td>
                         </tr>
                         <tr>
                             <td style="border-right:1pt solid black;border-top:1pt solid black;text-align:center;">
-                                <?php echo $ODVF['3']; ?>
+                                <?php echo text($ODVF['3']); ?>
                             </td>
                             <td style="border-left:1pt solid black;border-top:1pt solid black;text-align:center;">
-                                <?php echo $ODVF['4']; ?>
+                                <?php echo text($ODVF['4']); ?>
                             </td>
                             <td></td>
                             <td style="border-right:1pt solid black;border-top:1pt solid black;text-align:center;">
-                                <?php echo $OSVF['3']; ?>
+                                <?php echo text($OSVF['3']); ?>
                             </td>
                             <td style="border-left:1pt solid black;border-top:1pt solid black;text-align:center;">
-                                <?php echo $OSVF['4']; ?>
+                                <?php echo text($OSVF['4']); ?>
                             </td>
                         </tr>
                     </table>
@@ -886,40 +888,40 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                                 </tr>
                                 <tr>
                                     <td style="font-weight:600;">
-                                        <table style="background: <?php echo $background; ?> no-repeat center center;filter: progid:DXImageTransform.Microsoft.Alpha(opacity=50); -moz-opacity: 0.5; -webkit-opacity: 0.5; opacity:1.0;padding-bottom:5px;">
+                                        <table style="background: <?php echo attr($background); ?> no-repeat center center;filter: progid:DXImageTransform.Microsoft.Alpha(opacity=50); -moz-opacity: 0.5; -webkit-opacity: 0.5; opacity:1.0;padding-bottom:5px;">
                                             <tr>
-                                                <td class="mot"><?php echo $MOTILITY_RRSO; ?></td>
-                                                <td class="mot"><?php echo $MOTILITY_RS; ?></td>
-                                                <td class="mot"><?php echo $MOTILITY_RLSO; ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_RRSO); ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_RS); ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_RLSO); ?></td>
                                             </tr>
                                             <tr>
-                                                <td class="mot"><?php echo $MOTILITY_RR; ?></td>
-                                                <td class="mot"><?php echo $MOTILITY_R0; ?></td>
-                                                <td class="mot"><?php echo $MOTILITY_RL; ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_RR); ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_R0); ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_RL); ?></td>
                                             </tr>
                                             <tr>
-                                                <td class="mot"><?php echo $MOTILITY_RRIO; ?></td>
-                                                <td class="mot"><?php echo $MOTILITY_RI; ?></td>
-                                                <td class="mot"><?php echo $MOTILITY_RLIO; ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_RRIO); ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_RI); ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_RLIO); ?></td>
                                             </tr>
                                         </table>
                                     </td>
                                     <td style="text-align:center;font-weight:600;padding-left:20px;">
-                                        <table style="background: <?php echo $background; ?> no-repeat center center;background-size: 100% auto; filter: progid:DXImageTransform.Microsoft.Alpha(opacity=50) -moz-opacity: 0.5; -webkit-opacity: 0.5; opacity:1.0;Xpadding-bottom:5px;">
+                                        <table style="background: <?php echo attr($background); ?> no-repeat center center;background-size: 100% auto; filter: progid:DXImageTransform.Microsoft.Alpha(opacity=50) -moz-opacity: 0.5; -webkit-opacity: 0.5; opacity:1.0;Xpadding-bottom:5px;">
                                             <tr>
-                                                <td class="mot"><?php echo $MOTILITY_LRSO; ?></td>
-                                                <td class="mot"><?php echo $MOTILITY_LS; ?></td>
-                                                <td class="mot"><?php echo $MOTILITY_LLSO; ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_LRSO); ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_LS); ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_LLSO); ?></td>
                                             </tr>
                                             <tr>
-                                                <td class="mot"><?php echo $MOTILITY_LR; ?></td>
-                                                <td class="mot"><?php echo $MOTILITY_L0; ?></td>
-                                                <td class="mot"><?php echo $MOTILITY_LL; ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_LR); ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_L0); ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_LL); ?></td>
                                             </tr>
                                             <tr>
-                                                <td class="mot"><?php echo $MOTILITY_LLIO; ?></td>
-                                                <td class="mot"><?php echo $MOTILITY_LI; ?></td>
-                                                <td class="mot"><?php echo $MOTILITY_LLIO; ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_LLIO); ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_LI); ?></td>
+                                                <td class="mot"><?php echo text($MOTILITY_LLIO); ?></td>
                                             </tr>
                                         </table>
                                     </td>
@@ -1145,7 +1147,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                         <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text(${"ODNEARVA_$i"}) ?: "-"); ?></td>
                     </tr>
                     <tr>
-                        <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo $RX_TYPE; ?></td>
+                        <td style="font-weight:600;font-size:0.7em;text-align:right;"><?php echo text($RX_TYPE); ?></td>
                         <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo xlt('OS{{left eye}}'); ?></td>
                         <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text(${"OSSPH_$i"}) ?: "-"); ?></td>
                         <td style="font-weight:400;font-size:10px;text-align:center;"><?php echo(text(${"OSCYL_$i"}) ?: "-"); ?></td>
@@ -1336,7 +1338,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
         if ($GLAREODVA || ($CONTRASTODVA ?? '') || $ODK1 || $ODK2 || $LIODVA || ($PAMODBA ?? '')) { ?>
             <table>
                 <tr>
-                    <td id="LayerVision_ADDITIONAL" class="refraction <?php echo $display_Add; ?>"
+                    <td id="LayerVision_ADDITIONAL" class="refraction <?php echo attr($display_Add); ?>"
                         style="padding:10px;font-size:10px;">
                         <table id="Additional" style="padding:5;font-size:10px;">
                             <tr>
@@ -2398,7 +2400,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
             }
 
             if ($item['codetext'] > '') {
-                echo $item['codetext'] . "<br />";
+                echo text($item['codetext']) . "<br />";
             } else {
                 if ($item['code'] > '') {
                     if ($item['codetype'] > '') {
@@ -2406,7 +2408,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                     }
                 }
             }
-            echo $item['plan'] . "</div><br />";
+            echo text($item['plan']) . "</div><br />";
         }
             $query = "SELECT * FROM form_eye_mag_orders where form_id=? and pid=? ORDER BY id ASC";
             $PLAN_results = sqlStatement($query, [$form_id, $pid]);
@@ -2419,7 +2421,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                 <div style="padding-left:15px;padding-bottom:10px;width:400px;">
                     <?php
                     while ($plan_row = sqlFetchArray($PLAN_results)) {
-                        echo $plan_row['ORDER_DETAILS'] . "<br />";
+                        echo text($plan_row['ORDER_DETAILS']) . "<br />";
                     }
                     ?>
                 </div>
