@@ -47,11 +47,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^PHPDoc tag @param has invalid value \\(string OU by default\\.  Future functionality will allow OD and OS values\\- not implemented yet\\.\\)\\: Unexpected token "OU", expected variable at offset 658 on line 13$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
-];
-$ignoreErrors[] = [
     'message' => '#^PHPDoc tag @return has invalid value \\(\\$PMSFH array, access items as \\$PMSFH\\[0\\]\\)\\: Unexpected token "\\$PMSFH", expected type at offset 878 on line 16$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
