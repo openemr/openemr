@@ -1086,26 +1086,35 @@ $eventDispatcher->dispatch(new AppointmentRenderEvent($row), AppointmentRenderEv
     } else {
         $normal = " active";
     }
+
+        $eid     = filter_input(INPUT_GET, 'eid', FILTER_VALIDATE_INT) ?: 0;
+        $startm  = filter_input(INPUT_GET, 'startampm', FILTER_VALIDATE_INT) ?: 0;
+        $starth  = filter_input(INPUT_GET, 'starttimeh', FILTER_VALIDATE_INT) ?: 0;
+        $uid     = filter_input(INPUT_GET, 'userid', FILTER_VALIDATE_INT) ?: 0;
+        $starttm = filter_input(INPUT_GET, 'starttimem', FILTER_VALIDATE_INT) ?: 0;
+        $dt      = filter_input(INPUT_GET, 'date') ?: '';
+        $cid     = filter_input(INPUT_GET, 'catid', FILTER_VALIDATE_INT) ?: 0;
+
+        $tabParams = array_filter([
+            'startampm'  => $startm,
+            'starttimeh' => $starth,
+            'userid'     => $uid,
+            'starttimem' => $starttm,
+            'date'       => $dt,
+            'catid'      => $cid,
+        ]);
+        $baseQuery = http_build_query($tabParams);
     ?>
     <ul class="nav nav-tabs nav-fill text-body">
-        <?php
-            $eid = filter_input(INPUT_GET, 'eid', FILTER_VALIDATE_INT) ?: 0;
-            $startm = $_GET["startampm"] ?? null;
-            $starth = $_GET["starttimeh"] ?? null;
-            $uid = filter_input(INPUT_GET, 'userid', FILTER_VALIDATE_INT) ?: 0;
-            $starttm = $_GET["starttimem"] ?? null;
-            $dt = $_GET["date"] ?? null;
-            $cid = $_GET["catid"] ?? null;
-        ?>
         <li class="nav-item">
-            <a class="nav-link<?php echo $normal;?>" href='add_edit_event.php?startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'><?php echo xlt('Patient');?></a>
+            <a class="nav-link<?php echo $normal;?>" href="add_edit_event.php?<?php echo attr($baseQuery);?>"><?php echo xlt('Patient');?></a>
         </li>
         <li class="nav-item">
-            <a class="nav-link<?php echo $provider_class;?>" href='add_edit_event.php?prov=true&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'><?php echo xlt('Provider');?></a>
+            <a class="nav-link<?php echo $provider_class;?>" href="add_edit_event.php?prov=true&<?php echo attr($baseQuery);?>"><?php echo xlt('Provider');?></a>
         </li>
         <?php if ($have_group_global_enabled) :?>
             <li class="nav-item">
-                <a class="nav-link<?php echo $group_class ;?>" href='add_edit_event.php?group=true&startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'><?php echo xlt('Group');?></a>
+                <a class="nav-link<?php echo $group_class ;?>" href="add_edit_event.php?group=true&<?php echo attr($baseQuery);?>"><?php echo xlt('Group');?></a>
             </li>
         <?php endif ?>
     </ul>
