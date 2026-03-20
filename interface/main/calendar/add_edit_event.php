@@ -54,6 +54,7 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/group.
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Appointments\AppointmentDialogCloseEvent;
@@ -698,7 +699,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
 
                 // mod the SINGLE event or ALL EVENTS in a repeating series
                 // simple provider case
-                sqlStatement(
+                QueryUtils::sqlStatementThrowException(
                     "UPDATE openemr_postcalendar_events SET " .
                     "pc_catid = ?, " .
                     "pc_aid = ?, " .
