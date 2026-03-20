@@ -19,8 +19,11 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\RestControllers\Subscriber;
 
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\RestControllers\Authorization\LocalApiAuthorizationController;
 use OpenEMR\RestControllers\Subscriber\SessionCleanupListener;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
@@ -57,17 +60,29 @@ class SessionCleanupListenerTest extends TestCase
         );
     }
 
+    /**
+     * Simulate the real flow: LocalApiAuthorizationController marks the
+     * request, then SessionCleanupListener must recognize that mark and
+     * preserve the session. Neither class's attribute name is hardcoded
+     * here — the test breaks if they ever disagree.
+     */
     public function testLocalApiRequestSessionIsPreserved(): void
     {
         $session = $this->createStartedSession();
         $session->set('site_id', 'default');
         $session->set('authUserID', 1);
 
+        // Build a request the way the real flow does: APICSRFTOKEN header
+        // triggers LocalApiAuthorizationController to mark it as local API.
         $request = new HttpRestRequest();
         $request->setSession($session);
-        // LocalApiAuthorizationController sets this attribute for local API requests
-        $request->attributes->set('_is_local_api', true);
+        $request->headers->set('APICSRFTOKEN', 'test-token');
 
+        $authController = new LocalApiAuthorizationController(new NullLogger(), new OEGlobalsBag());
+        $this->assertTrue($authController->shouldProcessRequest($request));
+
+        // Now the cleanup listener should recognize the request as local API
+        // and preserve the session.
         $event = $this->createTerminateEvent($request);
         $listener = new SessionCleanupListener();
         $listener->onRequestTerminated($event);
@@ -75,14 +90,12 @@ class SessionCleanupListenerTest extends TestCase
         $this->assertSame(
             'default',
             $session->get('site_id'),
-            'Local API session site_id must be preserved — '
-            . 'SessionCleanupListener must check the same attribute name '
-            . 'that LocalApiAuthorizationController sets (_is_local_api)'
+            'Local API session site_id must be preserved after cleanup'
         );
         $this->assertSame(
             1,
             $session->get('authUserID'),
-            'Local API session authUserID must be preserved'
+            'Local API session authUserID must be preserved after cleanup'
         );
     }
 
