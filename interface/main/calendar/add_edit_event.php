@@ -902,7 +902,7 @@ if ($eid) {
         $repeattype = $rspecs['event_repeat_on_num'] < 5 ? 5 : 6;
     }
 
-    $recurrence_end_date = ($row['pc_endDate'] && $row['pc_endDate'] != '0000-00-00') ? $row['pc_endDate'] : null;
+    $recurrence_end_date = $row['pc_endDate'] ?: null;
     $pcroom = $row['pc_room'];
     $hometext = $row['pc_hometext'];
     if (str_starts_with((string) $hometext, ':text:')) {
