@@ -548,7 +548,7 @@ class Prescription extends ORDataObject
 
     function get_encounter()
     {
-        // this originally was the $_SESSION['encounter'] which seems really dangerous if a prescription is created when
+        // this originally was the session's 'encounter' which seems really dangerous if a prescription is created when
         // one encounter is open in the session and then the prescription has any updates to the original prescription when another encounter is open in the session
         // so this value is now going to be set when the prescription is created and then remain static for that prescription
         return $this->encounter;

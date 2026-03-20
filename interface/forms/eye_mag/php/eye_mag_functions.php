@@ -3153,7 +3153,7 @@ function canvas_select($zone, $encounter, $pid)
  *
  *  If there is already a drawing for this zone in this encounter, it is pulled from
  *  from its stored location:
- *  $GLOBALS['web_root']."/sites/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter."/".$side."_".$zone."_VIEW.png?".rand();
+ *  $GLOBALS['web_root']."/sites/".$session->get('site_id')."/".$form_folder."/".$pid."/".$encounter."/".$side."_".$zone."_VIEW.png?".rand();
  *
  *  Otherwise a "BASE" image is pulled from the images directory of the form...  Customizable.
  *

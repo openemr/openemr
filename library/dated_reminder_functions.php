@@ -290,7 +290,7 @@ function setReminderAsProcessed($rID, $userID = false): void
 
     if (is_numeric($rID) and $rID > 0) {
         // --- check if this user can remove this message
-        // --- need a better way of checking the current user, I don't like using $_SESSION for checks
+        // --- need a better way of checking the current user, I don't like using the session for checks
         $rdrSQL = sqlStatement("SELECT count(dr.dr_id) c FROM `dated_reminders` dr JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id WHERE drl.to_id = ? AND dr.`dr_id` = ? LIMIT 0,1", [$userID, $rID]);
         $rdrRow = sqlFetchArray($rdrSQL);
 

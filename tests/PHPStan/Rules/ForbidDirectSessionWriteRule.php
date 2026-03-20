@@ -10,6 +10,22 @@
  *
  * Use SessionUtil::setSession() / SessionUtil::unsetSession() instead.
  *
+ * Relationship to WriteThroughSession:
+ * ------------------------------------
+ * WriteThroughSession (src/Common/Session/WriteThroughSession.php) is the
+ * runtime safety net: it wraps every session created by HttpSessionFactory and
+ * auto-reopens the lock when code calls set()/remove()/clear() on a
+ * read_and_close session. It prevents silent data loss at runtime.
+ *
+ * This PHPStan rule is the developer guidance layer: it steers new code toward
+ * the SessionUtil API so that WriteThroughSession's reopen path (which is
+ * slower and logs warnings) is not relied upon in normal operation.
+ *
+ * The whitelist below covers files that legitimately hold a write lock
+ * ($sessionAllowWrite = true), session infrastructure, auth flows, REST
+ * controllers that manage their own sessions, and tests. Direct writes in
+ * those contexts are correct and efficient — no reopen is needed.
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Milan Zivkovic <zivkovic.milan@gmail.com>

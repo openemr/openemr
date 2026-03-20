@@ -114,7 +114,7 @@ $header = '';
 switch ($task) {
     case "forward":
         $pid = $_POST['pid'] ?? 0;
-        addPnote($pid, $note, 1, 1, $title, $sid, '', 'New');
+        addPnote($pid, $note, 1, 1, $title, $sn, '', 'New');
         updatePortalMailMessageStatus($noteid, 'Sent', $owner);
         if (empty($_POST["submit"])) {
             echo 'ok';

@@ -102,8 +102,9 @@ foreach ($msgs as $i) {
 }
 
 // force to message page if new messages.
-/*if ($newcnt > 0 && $_SESSION['portal_init']) {
-    $whereto = $_SESSION['whereto'] = '#secure-msgs-card';
+/*if ($newcnt > 0 && $session->get('portal_init')) {
+    SessionUtil::setSession('whereto', '#secure-msgs-card');
+    $whereto = '#secure-msgs-card';
 }*/
 $messagesURL = "$web_root/portal/messaging/messages.php";
 
