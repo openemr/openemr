@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Encryption\Cipher;
 
+use OpenEMR\Encryption\Plaintext;
+use OpenEMR\Encryption\Keys\KeyMaterial;
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Encryption\Keys\KeyManagerInterface;
 
@@ -18,16 +20,19 @@ class Aes256CbcHmacSha256 implements CipherInterface
 
     private const IV_LENGTH = 16; // openssl_cipher_iv_length('aes-256-cbc')
 
-    public function decrypt(string $ciphertext, string $keyId, KeyManagerInterface $manager): string
+    public function __construct(
+        private KeyMaterial $key,
+        private KeyMaterial $hmacKey,
+    ) {
+    }
+
+    public function decrypt(string $ciphertext): Plaintext
     {
         $hmac = mb_substr($ciphertext, 0, self::HMAC_LENGTH, '8bit');
         $iv = mb_substr($ciphertext, self::HMAC_LENGTH, self::IV_LENGTH, '8bit');
         $data = mb_substr($ciphertext, (self::HMAC_LENGTH + self::IV_LENGTH), null, '8bit');
 
-        $decryptionKey = $manager->getKey($keyId . 'a');
-        $hmacKey = $manager->getKey($keyId . 'b');
-
-        $expectedHmac = hash_hmac('sha256', $iv . $data, $hmacKey->key, true);
+        $expectedHmac = hash_hmac('sha256', $iv . $data, $this->hmacKey->key, true);
         if (!hash_equals(known_string: $expectedHmac, user_string: $hmac)) {
             throw new CryptoGenException('HMAC invalid while decrypting message');
         }
@@ -35,7 +40,7 @@ class Aes256CbcHmacSha256 implements CipherInterface
         $decrypted = openssl_decrypt(
             $data,
             'aes-256-cbc',
-            $decryptionKey->key,
+            $this->key->key,
             OPENSSL_RAW_DATA,
             $iv,
         );
@@ -43,6 +48,6 @@ class Aes256CbcHmacSha256 implements CipherInterface
         if ($decrypted === false) {
             throw new CryptoGenException('Decryption failed despite HMAC validating');
         }
-        return $decrypted;
+        return new Plaintext($decrypted);
     }
 }
