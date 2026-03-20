@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "105d0f7f5602e31adfa703a5164e7a7d",
+    "content-hash": "d3074c51a4fa9ec76cef52188d9a9f9f",
     "packages": [
         {
             "name": "academe/authorizenet-objects",
@@ -3137,73 +3137,6 @@
             ],
             "abandoned": true,
             "time": "2026-01-23T11:10:11+00:00"
-        },
-        {
-            "name": "laminas/laminas-json-server",
-            "version": "3.9.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/laminas/laminas-json-server.git",
-                "reference": "08fd8019d03fdd91ea4a60c8ede3af32fd97d15c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/laminas/laminas-json-server/zipball/08fd8019d03fdd91ea4a60c8ede3af32fd97d15c",
-                "reference": "08fd8019d03fdd91ea4a60c8ede3af32fd97d15c",
-                "shasum": ""
-            },
-            "require": {
-                "laminas/laminas-http": "^2.19.0",
-                "laminas/laminas-json": "^3.6.0",
-                "laminas/laminas-server": "^2.16.0",
-                "php": "~8.1.0 || ~8.2.0 || ~8.3.0"
-            },
-            "conflict": {
-                "laminas/laminas-stdlib": "<3.2.1"
-            },
-            "replace": {
-                "zendframework/zend-json-server": "^3.2.0"
-            },
-            "require-dev": {
-                "ext-json": "*",
-                "laminas/laminas-coding-standard": "^2.4.0",
-                "phpunit/phpunit": "^9.5.26",
-                "psalm/plugin-phpunit": "^0.18.0",
-                "vimeo/psalm": "^5.17"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Laminas\\Json\\Server\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "description": "Laminas Json-Server is a JSON-RPC server implementation.",
-            "homepage": "https://laminas.dev",
-            "keywords": [
-                "json",
-                "json-server",
-                "laminas",
-                "server"
-            ],
-            "support": {
-                "chat": "https://laminas.dev/chat",
-                "docs": "https://docs.laminas.dev/laminas-json-server/",
-                "forum": "https://discourse.laminas.dev",
-                "issues": "https://github.com/laminas/laminas-json-server/issues",
-                "rss": "https://github.com/laminas/laminas-json-server/releases.atom",
-                "source": "https://github.com/laminas/laminas-json-server"
-            },
-            "funding": [
-                {
-                    "url": "https://funding.communitybridge.org/projects/laminas-project",
-                    "type": "community_bridge"
-                }
-            ],
-            "time": "2023-12-06T00:06:51+00:00"
         },
         {
             "name": "laminas/laminas-loader",
