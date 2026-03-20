@@ -30,10 +30,10 @@ class CsrfUtilsTest extends TestCase
     {
         $session = $this->createSessionStub();
         CsrfUtils::setupCsrfKey($session);
-        $token = CsrfUtils::collectCsrfToken('default', $session);
+        $token = CsrfUtils::collectCsrfToken($session);
 
         $this->assertIsString($token);
-        $this->assertTrue(CsrfUtils::verifyCsrfToken($token, 'default', $session));
+        $this->assertTrue(CsrfUtils::verifyCsrfToken($token, $session));
     }
 
     public function testWrongTokenRejected(): void
@@ -41,7 +41,7 @@ class CsrfUtilsTest extends TestCase
         $session = $this->createSessionStub();
         CsrfUtils::setupCsrfKey($session);
 
-        $this->assertFalse(CsrfUtils::verifyCsrfToken('bad-token', 'default', $session));
+        $this->assertFalse(CsrfUtils::verifyCsrfToken('bad-token', $session));
     }
 
     public function testDifferentSubjectsProduceDifferentTokens(): void
@@ -49,8 +49,8 @@ class CsrfUtilsTest extends TestCase
         $session = $this->createSessionStub();
         CsrfUtils::setupCsrfKey($session);
 
-        $default = CsrfUtils::collectCsrfToken('default', $session);
-        $api = CsrfUtils::collectCsrfToken('api', $session);
+        $default = CsrfUtils::collectCsrfToken($session);
+        $api = CsrfUtils::collectCsrfToken($session, 'api');
 
         $this->assertIsString($default);
         $this->assertIsString($api);
@@ -61,7 +61,7 @@ class CsrfUtilsTest extends TestCase
     {
         $session = $this->createSessionStub();
 
-        $this->assertFalse(CsrfUtils::collectCsrfToken('default', $session));
+        $this->assertFalse(CsrfUtils::collectCsrfToken($session));
     }
 
     public function testTokenStability(): void
@@ -69,8 +69,8 @@ class CsrfUtilsTest extends TestCase
         $session = $this->createSessionStub();
         CsrfUtils::setupCsrfKey($session);
 
-        $first = CsrfUtils::collectCsrfToken('default', $session);
-        $second = CsrfUtils::collectCsrfToken('default', $session);
+        $first = CsrfUtils::collectCsrfToken($session);
+        $second = CsrfUtils::collectCsrfToken($session);
 
         $this->assertSame($first, $second);
     }
@@ -80,11 +80,11 @@ class CsrfUtilsTest extends TestCase
         $session = $this->createSessionStub();
         CsrfUtils::setupCsrfKey($session);
 
-        $apiToken = CsrfUtils::collectCsrfToken('api', $session);
+        $apiToken = CsrfUtils::collectCsrfToken($session, 'api');
 
         $this->assertIsString($apiToken);
-        $this->assertTrue(CsrfUtils::verifyCsrfToken($apiToken, 'api', $session));
-        $this->assertFalse(CsrfUtils::verifyCsrfToken($apiToken, 'default', $session));
+        $this->assertTrue(CsrfUtils::verifyCsrfToken($apiToken, $session, 'api'));
+        $this->assertFalse(CsrfUtils::verifyCsrfToken($apiToken, $session));
     }
 
     private function createSessionStub(): SessionInterface

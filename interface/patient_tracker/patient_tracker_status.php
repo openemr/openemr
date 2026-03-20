@@ -22,11 +22,13 @@ require_once("$srcdir/encounter_events.inc.php");
 require_once("$srcdir/patient_tracker.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -55,7 +57,7 @@ $theroom = '';
 
 <?php
 if (!empty($_POST['statustype'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -76,12 +78,12 @@ if (!empty($_POST['statustype'])) {
             $encounter = todaysEncounterCheck($tkpid, $apptdate, $genenc['reason'], $genenc['facility'], $genenc['billing_facility'], $genenc['provider'], $genenc['category'], false);
             # Capture the appt status and room number for patient tracker. This will map the encounter to it also.
             if (!empty($pceid)) {
-                manage_tracker_status($apptdate, $appttime, $pceid, $tkpid, $_SESSION["authUser"], $status, $theroom, $encounter);
+                manage_tracker_status($apptdate, $appttime, $pceid, $tkpid, $session->get('authUser'), $status, $theroom, $encounter);
             }
         } else {
             # Capture the appt status and room number for patient tracker.
             if (!empty($pceid)) {
-                manage_tracker_status($apptdate, $appttime, $pceid, $tkpid, $_SESSION["authUser"], $status, $theroom, $is_tracker);
+                manage_tracker_status($apptdate, $appttime, $pceid, $tkpid, $session->get('authUser'), $status, $theroom, $is_tracker);
             }
         }
     }
@@ -105,8 +107,8 @@ $row = sqlQuery("select fname, lname " .
                 <h2><?php echo xlt('Change Status for') . " " . text($row['fname']) . " " . text($row['lname']); ?></h2>
             </div>
         </div>
-        <form id="form_note" method="post" action="patient_tracker_status.php?tracker_id=<?php echo attr_url($tracker_id) ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>" enctype="multipart/form-data" >
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        <form id="form_note" method="post" action="patient_tracker_status.php?tracker_id=<?php echo attr_url($tracker_id) ?>&csrf_token_form=<?php echo attr_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" enctype="multipart/form-data" >
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
             <div class="form-group">
                 <label for="statustype"><?php echo xlt('Status Type'); ?></label>
                 <?php echo generate_select_list('statustype', 'apptstat', $trow['laststatus'], xl('Status Type')); ?>

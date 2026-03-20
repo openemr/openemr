@@ -17,6 +17,7 @@
  * to lock the path to this script (so if called from different scripts) use the dirname(FILE) variable
 */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . '/../globals.php');
@@ -162,13 +163,14 @@ abstract class C_AbstractClickmap extends Controller
         }
 
         if (empty($_POST['id'])) {
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             addForm(
                 OEGlobalsBag::getInstance()->get('encounter'),
                 $model->getTitle(),
                 $model->id,
                 $model->getCode(),
                 OEGlobalsBag::getInstance()->get('pid'),
-                $_SESSION['userauthorized']
+                $session->get('userauthorized')
             );
             $_POST['process'] = "";
         }

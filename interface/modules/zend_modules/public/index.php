@@ -16,40 +16,7 @@
  * to the application root now.
  */
 
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Core\OEGlobalsBag;
-
-//fetching controller name and action name from the SOAP request
-$urlArray = explode('/', ($_SERVER['REQUEST_URI'] ?? ''));
-$countUrlArray = count($urlArray);
-preg_match('/\/(\w*)\?/', ($_SERVER['REQUEST_URI'] ?? ''), $matches);
-$actionName = $matches[1] ?? '';
-$controllerName = $urlArray[$countUrlArray - 2] ?? '';
-
-//skipping OpenEMR authentication if the controller is SOAP and action is INDEX
-//SOAP authentication is done in the controller EncounterccdadispatchController
-if (!empty($_REQUEST['recipient']) && ($_REQUEST['recipient'] === 'patient') && $_REQUEST['site'] && $controllerName) {
-    $ignoreAuth_onsite_portal = false;
-    if (!empty($_REQUEST['me'])) {
-        // Will continue a session/cookie.
-        //  Need access to classes, so run autoloader now instead of in globals.php.
-        require_once(__DIR__ . "/../../../../vendor/autoload.php");
-        session_id($_REQUEST['me']);
-        SessionUtil::sessionStartWrapper();
-    }
-    if ($_SESSION['pid'] && $_SESSION['sessionUser'] === '-patient-' && $_SESSION['portal_init']) {
-        // Onsite portal was validated and patient authorized and re-validated via forwarded session.
-        $ignoreAuth_onsite_portal = true;
-    }
-}
-
-if (!empty($_REQUEST['me']) && isset($_REQUEST['sent_by_app']) && $_REQUEST['sent_by_app'] === 'core_api') {
-    // pick up already running session from api's
-    //  Need access to classes, so run autoloader now instead of in globals.php.
-    require_once(__DIR__ . "/../../../../vendor/autoload.php");
-    session_id($_REQUEST['me']);
-    SessionUtil::sessionStartWrapper();
-}
 
 require_once(__DIR__ . "/../../../globals.php");
 require_once(__DIR__ . "/../../../../library/forms.inc.php");

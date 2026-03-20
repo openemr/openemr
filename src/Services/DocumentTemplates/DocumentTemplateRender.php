@@ -22,6 +22,7 @@ namespace OpenEMR\Services\DocumentTemplates;
 use HTMLPurifier;
 use HTMLPurifier_Config;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PhoneNumberService;
 use OpenEMR\Services\VersionService;
@@ -57,7 +58,8 @@ class DocumentTemplateRender
 
     public function __construct(private $pid, $user, $encounter = null, ?LoggerInterface $logger = null)
     {
-        $this->user = $user ?: $_SESSION['authUserID'] ?? 0;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->user = $user ?: $session->get('authUserID', 0);
         $this->encounter = $encounter ?: OEGlobalsBag::getInstance()->get('encounter');
         $this->version = (new VersionService())->asString();
         $this->templateService = new DocumentTemplateService();

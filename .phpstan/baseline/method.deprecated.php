@@ -2,6 +2,12 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
+    'message' => '#^Call to deprecated method act\\(\\) of class Controller\\:
+Use dispatch\\(\\) instead for order\\-independent routing\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../controller.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to deprecated method getDbalConnection\\(\\) of class OpenEMR\\\\BC\\\\Database\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
@@ -605,6 +611,12 @@ $ignoreErrors[] = [
 use setLogger\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/RestControllers/Authorization/AuthorizationControllerTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to deprecated method act\\(\\) of class Controller\\:
+Use dispatch\\(\\) instead for order\\-independent routing\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/RestControllers/ControllerRoutingTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method setSystemLogger\\(\\) of class OpenEMR\\\\RestControllers\\\\Subscriber\\\\ApiResponseLoggerListener\\:

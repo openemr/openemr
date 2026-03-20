@@ -37,6 +37,7 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Common\Utils\ValidationUtils;
 use OpenEMR\Core\Header;
@@ -105,8 +106,11 @@ if (OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable')) {
             return false;
         } // this is all the invoice data for portal auditing
         $note = xl('You have an invoice due for payment in your Patient Documents. There you may pay, download or print the invoice. Thank you.');
-        if (sendMail($_SESSION['authUser'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUser'], $_SESSION['authUser'], $_SESSION['portalUser'], $invoices[0]['patient'], "New", '0') == 1) { // remind admin this was sent
-            sendMail($_SESSION['portalUser'], $note, xlt('Bill/Collect'), '', '0', $_SESSION['authUser'], $_SESSION['authUser'], $_SESSION['portalUser'], $invoices[0]['patient'], "New", '0'); // notify patient
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $authUser = $session->get('authUser');
+        $portalUser = $session->get('portalUser');
+        if (sendMail($authUser, $note, xlt('Bill/Collect'), '', '0', $authUser, $authUser, $portalUser, $invoices[0]['patient'], "New", '0') == 1) { // remind admin this was sent
+            sendMail($portalUser, $note, xlt('Bill/Collect'), '', '0', $authUser, $authUser, $portalUser, $invoices[0]['patient'], "New", '0'); // notify patient
         } else {
             return false;
         }
@@ -212,8 +216,10 @@ function emailLogin(int $patient_id, string $message): void
         throw new RuntimeException(xl('Sender email address is not configured or invalid'));
     }
 
-    if ($_SESSION['pc_facility']) {
-        $facility = QueryUtils::querySingleRow("select * from facility where id=?", [$_SESSION['pc_facility']]);
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $pc_facility = $session->get('pc_facility');
+    if ($pc_facility) {
+        $facility = QueryUtils::querySingleRow("select * from facility where id=?", [$pc_facility]);
     } else {
         $facility = QueryUtils::querySingleRow("SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1");
     }
@@ -277,7 +283,8 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
     if (OEGlobalsBag::getInstance()->get('statement_appearance') == '1') {
         $config_mpdf = Config_Mpdf::getConfigMpdf();
         $pdf2 = new mPDF($config_mpdf);
-        if ($_SESSION['language_direction'] == 'rtl') {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        if ($session->get('language_direction') === 'rtl') {
             $pdf2->SetDirectionality('rtl');
         }
         ob_start();
@@ -362,7 +369,8 @@ if (
         ) || !empty($_REQUEST['form_portalnotify'])
     ) && $form_cb
 ) {
-    if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -583,7 +591,8 @@ if (
                     $mimetype = $isPdf ? 'pdf' : 'text/plain';
                     if ($isPdf) {
                         $pdf2 = new mPDF(Config_Mpdf::getConfigMpdf());
-                        if ($_SESSION['language_direction'] == 'rtl') {
+                        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+                        if ($session->get('language_direction') === 'rtl') {
                             $pdf2->SetDirectionality('rtl');
                         }
                         $pdf2->WriteHTML($tmp);
@@ -643,6 +652,8 @@ if (
 ) {
     echo "<script> alert(" . xlj('No invoices were checked.') . ");\n</script>";
 }
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 <head>
@@ -703,7 +714,7 @@ if (
                 {
                     target: target,
                     setting: val,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
                 }
             );
         }
@@ -799,7 +810,7 @@ if (
     <div class="row">
         <div class="col-lg">
             <form id="formSearch" action="" enctype='multipart/form-data' method='post'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>"/>
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>"/>
                 <fieldset id="payment-allocate" class="oe-show-hide px-2">
                     <legend>
                         &nbsp;<?php echo xlt('Post Item'); ?><i id="payment-info-do-not-remove"> </i>
@@ -935,7 +946,7 @@ if (
                     <div class="table-responsive">
                         <?php
                         if (!empty($_REQUEST['form_search']) || !empty($_REQUEST['form_print'])) {
-                            if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"])) {
+                            if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], session: $session)) {
                                 CsrfUtils::csrfNotVerified();
                             }
 
@@ -1264,7 +1275,7 @@ if (
         var debug = f.form_without.checked ? '1' : '0';
         var paydate = f.form_paydate.value;
         const params = new URLSearchParams({
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>,
+            csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>,
             debug: debug,
             eraname: <?php echo js_escape($eraname); ?>,
             original: 'original',

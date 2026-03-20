@@ -10,6 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 
 /**
@@ -284,6 +285,8 @@ function saveProcedureSpecimens($formid, $order_seq, $postData, $index): void
  */
 function softDeleteRemovedSpecimens($formid, $order_seq, $processedIds): void
 {
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $authUserID = $session->get('authUserID');
     if (empty($processedIds)) {
         // Mark all as deleted
         sqlStatement(
@@ -292,13 +295,13 @@ function softDeleteRemovedSpecimens($formid, $order_seq, $processedIds): void
              WHERE procedure_order_id = ?
                AND procedure_order_seq = ?
                AND deleted = 0",
-            [($_SESSION['authUserID'] ?? null), $formid, $order_seq]
+            [$authUserID, $formid, $order_seq]
         );
         return;
     }
 
     $placeholders = implode(',', array_fill(0, count($processedIds), '?'));
-    $params = array_merge([($_SESSION['authUserID'] ?? null), $formid, $order_seq], $processedIds);
+    $params = array_merge([$authUserID, $formid, $order_seq], $processedIds);
 
     sqlStatement(
         "UPDATE procedure_specimen
@@ -437,6 +440,8 @@ function insertProcedureSpecimen($formid, $order_seq, $data)
 
     $uuid = (new UuidRegistry(['table_name' => 'procedure_specimen']))->createUuid();
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    $authUserID = $session->get('authUserID');
     return sqlInsert(
         "INSERT INTO procedure_specimen SET
          uuid = ?,
@@ -480,8 +485,8 @@ function insertProcedureSpecimen($formid, $order_seq, $data)
             $data['condition_code'],
             $data['specimen_condition'],
             $data['comments'],
-            ($_SESSION['authUserID'] ?? null),
-            ($_SESSION['authUserID'] ?? null)
+            $authUserID,
+            $authUserID
         ]
     );
 }
@@ -495,6 +500,7 @@ function insertProcedureSpecimen($formid, $order_seq, $data)
  */
 function updateProcedureSpecimen($specimenId, $data): void
 {
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     sqlStatement(
         "UPDATE procedure_specimen SET
          specimen_identifier = ?,
@@ -532,7 +538,7 @@ function updateProcedureSpecimen($specimenId, $data): void
             $data['condition_code'],
             $data['specimen_condition'],
             $data['comments'],
-            ($_SESSION['authUserID'] ?? null),
+            $session->get('authUserID'),
             $specimenId
         ]
     );

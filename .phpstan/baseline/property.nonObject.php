@@ -2427,11 +2427,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$data on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncountermanagerTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$textContent on DOMNameSpaceNode\\|DOMNode\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
@@ -5145,11 +5140,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$url on mixed\\.$#',
     'count' => 8,
     'path' => __DIR__ . '/../../src/Menu/PatientMenuRole.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$data on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/CDADocumentService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$length on DOMNodeList\\<DOMNameSpaceNode\\|DOMNode\\>\\|false\\.$#',

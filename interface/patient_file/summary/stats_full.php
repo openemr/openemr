@@ -23,6 +23,7 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Menu\PatientMenuRole;
@@ -54,6 +55,8 @@ if ($auth) {
 // Get patient's preferred language for the patient education URL.
 $tmp = getPatientData($pid, 'language');
 $language = $tmp['language'];
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <html>
 <head>
@@ -126,7 +129,7 @@ function deleteSelectedIssues(tableName) {
 
     const params = new URLSearchParams({
         issue: ids,
-        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+        csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
     });
     dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 450);
 }
@@ -228,10 +231,11 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         // otherwise allow them to add allergies via the normal interface.
                         $userHasErxRole = false;
                         if (in_array($t, ['allergy', 'medications']) && OEGlobalsBag::getInstance()->getBoolean('erx_enable')) {
+                            $session = SessionWrapperFactory::getInstance()->getActiveSession();
                             $erxRoleRow = QueryUtils::fetchSingleValue(
                                 "SELECT newcrop_user_role FROM users WHERE id = ?",
                                 'newcrop_user_role',
-                                [$_SESSION['authUserID']]
+                                [$session->get('authUserID')]
                             );
                             $userHasErxRole = $erxRoleRow !== null && $erxRoleRow !== '';
                         }
@@ -479,7 +483,7 @@ $(function () {
           {
               type: this.name,
               patient_id: <?php echo js_escape($pid); ?>,
-              csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+              csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
           }
       );
       $(this).hide();

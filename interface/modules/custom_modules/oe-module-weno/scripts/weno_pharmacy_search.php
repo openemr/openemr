@@ -17,12 +17,14 @@ require_once(dirname(__DIR__, 5) . "/interface/globals.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 if (!AclMain::aclCheckCore('patients', 'rx')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/rx: Pharmacy Search", xl("Pharmacy Search"));
 }
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 

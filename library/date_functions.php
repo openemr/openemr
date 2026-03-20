@@ -1,5 +1,7 @@
 <?php
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 /**
  * Format a date string according to the user's language preference.
  *
@@ -47,9 +49,10 @@ function dateformat(string|int $strtime = '', bool $with_dow = false): string
     ];
     $nom = xl($months[$month]);
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     // Date string format
     // First, get current language title
-    $languageTitle = getLanguageTitle($_SESSION['language_choice']);
+    $languageTitle = getLanguageTitle($session->get('language_choice'));
     $day_num = date("d", $strtime);
     $year = date("Y", $strtime);
     $dt = match ($languageTitle) {

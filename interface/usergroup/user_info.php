@@ -20,6 +20,7 @@ require_once("$srcdir/user.inc.php");
 
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\OeUI\OemrUI;
@@ -27,7 +28,9 @@ use OpenEMR\OeUI\OemrUI;
 if (AuthUtils::useActiveDirectory()) {
     exit();
 }
-$userid = $_SESSION['authUserID'];
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$userid = $session->get('authUserID');
 $user_name = getUserIDInfo($userid);
 $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
 ?>
@@ -53,7 +56,7 @@ function update_password()
             curPass:    $("input[name='curPass']").val(),
             newPass:    $("input[name='newPass']").val(),
             newPass2:   $("input[name='newPass2']").val(),
-            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+            csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
         },
         function(data)
         {
@@ -85,7 +88,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 
 <?php
 
-$res = sqlStatement("select fname,lname,username from users where id=?", [$_SESSION['authUserID']]);
+$res = sqlStatement("select fname,lname,username from users where id=?", [$session->get('authUserID')]);
 $row = sqlFetchArray($res);
       $iter = $row;
 ?>

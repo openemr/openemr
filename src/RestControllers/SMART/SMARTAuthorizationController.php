@@ -203,7 +203,7 @@ class SMARTAuthorizationController
             throw new HttpException(Response::HTTP_UNAUTHORIZED, 'Unauthorized call');
         }
 
-        if (!CsrfUtils::verifyCsrfToken($request->request->get("csrf_token"), 'oauth2', $this->session)) {
+        if (!CsrfUtils::verifyCsrfToken($request->request->get("csrf_token"), $this->session, 'oauth2')) {
             $this->logger->error("SMARTAuthorizationController->patientSelect() Invalid CSRF token");
             throw new HttpException(Response::HTTP_UNAUTHORIZED, 'Invalid CSRF token');
         }
@@ -284,7 +284,7 @@ class SMARTAuthorizationController
                     , 'lname' => $searchParams['lname'] ?? ''
                     , 'mname' => $searchParams['mname'] ?? ''
                     , 'redirect' => $redirect
-                    , 'csrfToken' => CsrfUtils::collectCsrfToken('oauth2', $this->session)
+                    , 'csrfToken' => CsrfUtils::collectCsrfToken($this->session, 'oauth2')
                 ]
             );
         } catch (AccessDeniedException $error) {

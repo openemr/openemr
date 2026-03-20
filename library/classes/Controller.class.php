@@ -2,11 +2,42 @@
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Core\ControllerInterface;
 use OpenEMR\Core\OEGlobalsBag;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 // TODO: @adunsulag move these into src/
-class Controller extends Smarty
+class Controller extends Smarty implements ControllerInterface
 {
+    /**
+     * Valid controller names mapped to class suffixes.
+     *
+     * TODO: Once controllers move to src/ with PSR-4 autoloading, this can be
+     * replaced by checking class_exists() and instanceof ControllerInterface.
+     */
+    private const VALID_CONTROLLERS = [
+        'document' => 'Document',
+        'document_category' => 'DocumentCategory',
+        'hl7' => 'Hl7',
+        'insurance_company' => 'InsuranceCompany',
+        'insurance_numbers' => 'InsuranceNumbers',
+        'patient_finder' => 'PatientFinder',
+        'pharmacy' => 'Pharmacy',
+        'practice_settings' => 'PracticeSettings',
+        'prescription' => 'Prescription',
+        'x12_partner' => 'X12Partner',
+    ];
+
+    /**
+     * ACL requirements for controllers.
+     * Maps controller name to [section, value, display_name].
+     */
+    private const CONTROLLER_ACL_MAP = [
+        'practice_settings' => ['admin', 'practice', 'Practice Settings'],
+        'prescription' => ['patients', 'rx', 'Prescriptions'],
+    ];
+
     public $template_mod;
     public $_current_action;
     public $_state;
@@ -75,91 +106,133 @@ class Controller extends Smarty
          return include_once($file);
     }
 
-    public function act($qarray)
+    /**
+     * Check ACL for a controller and deny access if not authorized.
+     */
+    private function checkControllerAcl(string $controllerName): void
     {
-        if ((array_key_first($qarray) ?? '') == 'practice_settings') {
-            if (!AclMain::aclCheckCore('admin', 'practice')) {
-                AccessDeniedHelper::denyWithTemplate("ACL check failed for admin/practice: Practice Settings", xl("Practice Settings"));
-            }
+        if (!isset(self::CONTROLLER_ACL_MAP[$controllerName])) {
+            return;
         }
 
-        if ((array_key_first($qarray) ?? '') == 'prescription') {
-            if (!AclMain::aclCheckCore('patients', 'rx')) {
-                AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/rx: Prescriptions", xl("Prescriptions"));
+        [$section, $value, $displayName] = self::CONTROLLER_ACL_MAP[$controllerName];
+        if (!AclMain::aclCheckCore($section, $value)) {
+            AccessDeniedHelper::denyWithTemplate(
+                "ACL check failed for $section/$value: $displayName",
+                xl($displayName)
+            );
+        }
+    }
+
+    /**
+     * Legacy routing that extracts controller/action from parameter order.
+     *
+     * @deprecated Use dispatch() instead for order-independent routing.
+     * @param non-empty-array<string|int, mixed> $qarray
+     */
+    public function act(array $qarray): string
+    {
+        // Extract controller (first key) and action (second key) from positional params
+        $keys = array_keys($qarray);
+        $controller = (string) $keys[0];
+        $positionalAction = (string) ($keys[1] ?? 'default');
+
+        // Build params for dispatch()
+        $params = ['controller' => $controller, 'action' => $positionalAction];
+
+        // Add remaining params (those not used for positional routing)
+        foreach ($qarray as $key => $value) {
+            if ($key === $controller || $key === $positionalAction) {
+                continue;
             }
+            // Rename explicit 'action' to avoid collision with routing action.
+            // This preserves the sub-action value (e.g., 'list' in action=list)
+            // for sub-controller delegation patterns like practice_settings->pharmacy->list.
+            $params[$key === 'action' ? 'sub_action' : $key] = $value;
         }
 
-        if (isset($_GET['process'])) {
+        return $this->dispatch($params);
+    }
+
+    /**
+     * Dispatch to a controller action using explicit 'controller' and 'action' parameters.
+     *
+     * This method provides order-independent routing. URLs should use:
+     *   controller.php?controller=document&action=view&patient_id=123&doc_id=456
+     *
+     * @param array<string|int, mixed> $params Query parameters (typically $_GET)
+     * @return string Controller output
+     */
+    public function dispatch(array $params): string
+    {
+        // Look up controller in whitelist
+        $controllerParam = is_string($params['controller'] ?? null) ? $params['controller'] : '';
+        if (!isset(self::VALID_CONTROLLERS[$controllerParam])) {
+            throw new BadRequestHttpException("Missing or invalid 'controller' parameter");
+        }
+        $className = "C_" . self::VALID_CONTROLLERS[$controllerParam];
+
+        // ACL check
+        $this->checkControllerAcl($controllerParam);
+
+        // Handle process flag
+        if (isset($params['process'])) {
             unset($_GET['process']);
-            unset($qarray['process']);
+            unset($params['process']);
             $_POST['process'] = "true";
         }
 
-        $args = array_reverse(array_keys($qarray));
-        $c_name = preg_replace("/[^A-Za-z0-9_]/", "", (string) array_pop($args));
-        $parts = explode("_", (string) $c_name);
-        $name = "";
-
-        foreach ($parts as $p) {
-            $name .= ucfirst($p);
+        // Load controller file
+        $controllerFile = OEGlobalsBag::getInstance()->getString('fileroot') . "/controllers/$className.class.php";
+        if (!$this->i_once($controllerFile)) {
+            throw new NotFoundHttpException("Unable to load controller: $className");
         }
 
-            $c_name = $name;
-            $c_action = preg_replace("/[^A-Za-z0-9_]/", "", (string) array_pop($args));
-            $args = array_reverse($args);
+        // Instantiate controller
+        $controllerObj = new $className();
 
-        if (!$this->i_once(OEGlobalsBag::getInstance()->get('fileroot') . "/controllers/C_" . $c_name . ".class.php")) {
-            echo "Unable to load controller $name\n, please check the first argument supplied in the URL and try again";
-            exit;
+        // Build action method name
+        $action = is_string($params['action'] ?? null) ? $params['action'] : 'default';
+        $actionMethod = "{$action}_action";
+        $processMethod = "{$actionMethod}_process";
+
+        $controllerObj->_current_action = $action;
+
+        // Build arguments array from remaining params (excluding controller, action, process)
+        $reservedParams = ['controller', 'action', 'process'];
+        $args = [];
+        foreach ($params as $key => $value) {
+            if (in_array($key, $reservedParams, true)) {
+                continue;
+            }
+            // Pass null for empty values (matching act() behavior)
+            $args[$key] = $value === '' ? null : $value;
         }
 
-            $obj_name = "C_" . $c_name;
-            $c_obj = new $obj_name();
+        // Call the action method
+        $output = "";
 
-        if (empty($c_action)) {
-            $c_action = "default";
-        }
+        $callMethod = function (string $method) use ($controllerObj, $args): string {
+            $result = $controllerObj->$method(...array_values($args));
+            return is_string($result) ? $result : '';
+        };
 
-            $c_obj->_current_action = $c_action;
-            $args_array = [];
+        $isProcessing = ($_POST['process'] ?? '') === 'true';
 
-        foreach ($args as $arg) {
-            $arg = preg_replace("/[^A-Za-z0-9_]/", "", (string) $arg);
-            //this is a workaround because call user func does funny things with passing args if they have no assigned value
-            //2013-02-10 EMR Direct: workaround modified since "0" is also considered empty;
-            if (empty($qarray[$arg]) && $qarray[$arg] != "0") {
-                //if argument is empty pass null as value
-                $args_array[] = null;
-            } else {
-                $args_array[] = $qarray[$arg];
+        if ($isProcessing && is_callable([$controllerObj, $processMethod])) {
+            $output .= $callMethod($processMethod);
+            if ($controllerObj->_state === false) {
+                return $output;
             }
         }
 
-            $output = "";
-            //print_r($args_array);
-        // can no longer rely on is_callable since smarty 4 invokes a __call function deep within
-        //  its classes, thus is_callable() is always true. so need to do both the is_callable
-        //  and a method_exists() check.
-        if (isset($_POST['process']) && ($_POST['process'] == "true")) {
-            if (is_callable([&$c_obj, $c_action . "_action_process"]) && method_exists($c_obj, $c_action . "_action_process")) {
-                //echo "ca: " . $c_action . "_action_process";
-                $output .= $c_obj->{$c_action . "_action_process"}(...$args_array);
-                if ($c_obj->_state == false) {
-                    return $output;
-                }
-            }
-
-            //echo "ca: " . $c_action . "_action";
-            $output .=  $c_obj->{$c_action . "_action"}(...$args_array);
-        } elseif (is_callable([&$c_obj, $c_action . "_action"]) && method_exists($c_obj, $c_action . "_action")) {
-            //echo "ca: " . $c_action . "_action";
-            $output .=  $c_obj->{$c_action . "_action"}(...$args_array);
+        if ($isProcessing || is_callable([$controllerObj, $actionMethod])) {
+            $output .= $callMethod($actionMethod);
         } else {
-            echo "The action trying to be performed: " . $c_action . " does not exist controller: " . $name;
+            throw new NotFoundHttpException("Action '$action' does not exist on controller: $className");
         }
 
-
-            return $output;
+        return $output;
     }
 
     public function _link($action = "default", $inlining = false)

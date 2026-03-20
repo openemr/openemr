@@ -21,7 +21,6 @@ $isPortal = $data['is_portal'];
 $signer = '';
 $ignoreAuth = false;
 
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 // this script is used by both the patient portal and main openemr; below does authorization.
@@ -29,23 +28,28 @@ if ($isPortal) {
     // Will start the (patient) portal OpenEMR session/cookie.
     // Need access to classes, so run autoloader now instead of in globals.php.
     require_once(__DIR__ . "/../../../vendor/autoload.php");
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getPortalSession();
 
-    if ($session->isSymfonySession() && $session->has('pid') && $session->has('patient_portal_onsite_two')) {
+    if ($session->has('pid') && $session->has('patient_portal_onsite_two')) {
         // authorized by patient portal
         $req_pid = $session->get('pid');
         $ignoreAuth_onsite_portal = true;
+
+        // Portal users can only sign for themselves - override any user value from POST
+        // This must match save-signature.php which also sets $user = $req_pid
+        $user = $req_pid;
     } else {
-        SessionUtil::portalSessionCookieDestroy();
+        SessionWrapperFactory::getInstance()->destroyPortalSession();
         echo js_escape("error");
         exit();
     }
 }
 require_once("../../../interface/globals.php");
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!$isPortal) {
     $userManipulatedFlag = false;
-    if ($user != $_SESSION['authUserID']) {
+    if ($user != $session->get('authUserID')) {
         $userManipulatedFlag = true;
     }
 

@@ -19,7 +19,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // This may be more appropriate to move to the library
 // later
@@ -65,7 +65,7 @@ document.copay_form.codeH.value="";
 
 <dl>
 
-<form method='post' name='copay_form' action="diagnosis.php?mode=add&type=COPAY&text=copay&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>"
+<form method='post' name='copay_form' action="diagnosis.php?mode=add&type=COPAY&text=copay&csrf_token_form=<?php echo attr_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>"
  target='Diagnosis' onsubmit='return top.restoreSession()'>
 
 <dt><span class='title'><?php echo xlt('Copay'); ?></span></dt>

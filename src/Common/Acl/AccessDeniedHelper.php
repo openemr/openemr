@@ -45,7 +45,7 @@ class AccessDeniedHelper
         AccessDeniedResponseFormat $format = AccessDeniedResponseFormat::Text,
         ?callable $beforeExit = null,
     ): never {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $user = $session->get('authUser', 'unknown');
         $group = $session->get('authProvider', '');
 
@@ -127,7 +127,7 @@ class AccessDeniedHelper
         string $auditEvent = 'security-access-denied',
         int $httpStatus = Response::HTTP_FORBIDDEN,
     ): Response {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $user = $session->get('authUser', 'unknown');
         $group = $session->get('authProvider', '');
 

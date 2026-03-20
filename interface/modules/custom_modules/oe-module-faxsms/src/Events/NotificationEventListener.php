@@ -15,6 +15,7 @@ namespace OpenEMR\Modules\FaxSMS\Events;
 use MyMailer;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\OneTimeAuth;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\OEGlobalsBag;
@@ -133,7 +134,8 @@ class NotificationEventListener implements EventSubscriberInterface
     public function onNotifyDocumentRenderOneTime(SendNotificationEvent $event): string
     {
         $status = 'Starting request.' . ' ';
-        $site_id = ($_SESSION['site_id'] ?? null) ?: 'default';
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $site_id = $session->get('site_id') ?: 'default';
         $pid = $event->getPid();
         $data = $event->getEventData() ?? [];
         $patient = $event->fetchPatientDetails($pid);
@@ -222,7 +224,8 @@ class NotificationEventListener implements EventSubscriberInterface
     {
         // TODO: Move Implement onNotifyUniversalOneTime() method
         $status = 'Starting request.' . ' ';
-        $site_id = ($_SESSION['site_id'] ?? null) ?: 'default';
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $site_id = $session->get('site_id') ?: 'default';
         $pid = $event->getPid();
         $defaultUrl = OEGlobalsBag::getInstance()->get('web_root') . "/portal/home.php?site=" . urlencode((string) $site_id) . "&landOn=MakePayment";
         $redirectURL = $data['redirect_url'] ?? $defaultUrl;

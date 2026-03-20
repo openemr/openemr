@@ -21,7 +21,7 @@ require_once("$srcdir/patient.inc.php");
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $template_file = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/referral_template.html";
 

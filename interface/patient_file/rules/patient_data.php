@@ -15,6 +15,7 @@ require_once("$srcdir/options.inc.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -87,8 +88,9 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
     exit();
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if ($_POST['form_complete'] ?? null) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -156,7 +158,7 @@ if (isset($entryID)) {
 
 <br />
 <form action='patient_data.php' name='patient_data' method='post' onsubmit='return top.restoreSession()'>
-  <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+  <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
   <table border=0 cellpadding=1 cellspacing=1>
     <?php

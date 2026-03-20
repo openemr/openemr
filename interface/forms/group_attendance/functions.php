@@ -17,6 +17,7 @@ require_once(__DIR__ . "/../../../library/forms.inc.php");
 require_once(__DIR__ . "/../../../library/patient_tracker.inc.php");
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 /**
  * Returns form_id of an existing attendance form for group encounter (if one already exists);
@@ -128,7 +129,8 @@ function insert_patient_encounter($pid, $gid, $group_encounter_date, $participan
             "VALUES (?, ?, ?, ?, ?, ?, ?);";
         $enc_id = QueryUtils::generateId();
         $sqlBindArray = [];
-        $user = (is_null($pc_aid)) ? $_SESSION['authUserID'] : $pc_aid;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $user = (is_null($pc_aid)) ? $session->get('authUserID') : $pc_aid;
         array_push($sqlBindArray, $group_encounter_date, $participantData['comment'], $pid, $enc_id, get_groups_cat_id(), $user, $gid);
         $form_id = sqlInsert($insert_encounter_sql, $sqlBindArray);
 

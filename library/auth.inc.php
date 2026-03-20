@@ -19,11 +19,10 @@
 use OpenEMR\Common\Auth\AuthUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionTracker;
-use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $incoming_site_id = '';
 // This is the conditional that ensures that the submission has the required parameters to attempt a login
@@ -131,9 +130,9 @@ function authCloseSession(): void
   // Before destroying the session, save its site_id so that the next
   // login will default to that same site.
     global $incoming_site_id;
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $incoming_site_id = $session->get('site_id') ?? '';
-    SessionUtil::coreSessionDestroy();
+    SessionWrapperFactory::getInstance()->destroyCoreSession();
 }
 
 function authLoginScreen($timed_out = false): void
