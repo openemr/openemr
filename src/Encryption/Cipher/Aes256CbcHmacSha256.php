@@ -12,7 +12,7 @@ use OpenEMR\Encryption\Keys\KeyManagerInterface;
  *
  * @deprecated
  */
-class Aes256CbcHmacSha256 implements DecoderInterface
+class Aes256CbcHmacSha256 implements CipherInterface
 {
     private const HMAC_LENGTH = 32; // 256/8
 
