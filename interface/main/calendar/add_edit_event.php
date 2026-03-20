@@ -698,28 +698,52 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
 
                 // mod the SINGLE event or ALL EVENTS in a repeating series
                 // simple provider case
-                sqlStatement("UPDATE openemr_postcalendar_events SET " .
-                "pc_catid = '" . add_escape_custom($_POST['form_category']) . "', " .
-                "pc_aid = '" . add_escape_custom($prov) . "', " .
-                "pc_pid = '" . add_escape_custom($_POST['form_pid']) . "', " .
-                "pc_title = '" . add_escape_custom($_POST['form_title']) . "', " .
-                "pc_time = NOW(), " .
-                "pc_hometext = '" . add_escape_custom($_POST['form_comments']) . "', " .
-                "pc_room = '" . add_escape_custom($_POST['form_room']) . "', " .
-                "pc_informant = '" . add_escape_custom($_SESSION['authUserID']) . "', " .
-                "pc_eventDate = '" . add_escape_custom($event_date) . "', " .
-                "pc_endDate = '" . add_escape_custom($_POST['form_enddate']) . "', " .
-                "pc_duration = '" . add_escape_custom(($duration * 60)) . "', " .
-                "pc_recurrtype = '" . add_escape_custom($my_recurrtype) . "', " .
-                "pc_recurrspec = '" . add_escape_custom(serialize($recurrspec)) . "', " .
-                "pc_startTime = '" . add_escape_custom($starttime) . "', " .
-                "pc_endTime = '" . add_escape_custom($endtime) . "', " .
-                "pc_alldayevent = '" . add_escape_custom($_POST['form_allday']) . "', " .
-                "pc_apptstatus = '" . add_escape_custom($_POST['form_apptstatus']) . "', "  .
-                "pc_prefcatid = '" . add_escape_custom($_POST['form_prefcat']) . "' ,"  .
-                "pc_facility = '" . add_escape_custom((int)$_POST['facility']) . "' ,"  . // FF stuff
-                "pc_billing_location = '" . add_escape_custom((int)$_POST['billing_facility']) . "' "  .
-                "WHERE pc_eid = '" . add_escape_custom($eid) . "'");
+                sqlStatement(
+                    "UPDATE openemr_postcalendar_events SET " .
+                    "pc_catid = ?, " .
+                    "pc_aid = ?, " .
+                    "pc_pid = ?, " .
+                    "pc_title = ?, " .
+                    "pc_time = NOW(), " .
+                    "pc_hometext = ?, " .
+                    "pc_room = ?, " .
+                    "pc_informant = ?, " .
+                    "pc_eventDate = ?, " .
+                    "pc_endDate = ?, " .
+                    "pc_duration = ?, " .
+                    "pc_recurrtype = ?, " .
+                    "pc_recurrspec = ?, " .
+                    "pc_startTime = ?, " .
+                    "pc_endTime = ?, " .
+                    "pc_alldayevent = ?, " .
+                    "pc_apptstatus = ?, " .
+                    "pc_prefcatid = ?, " .
+                    "pc_facility = ?, " .
+                    "pc_billing_location = ? " .
+                    "WHERE pc_eid = ?",
+                    [
+                        $_POST['form_category'],
+                        $prov,
+                        $_POST['form_pid'],
+                        $_POST['form_title'],
+                        $_POST['form_comments'],
+                        $_POST['form_room'],
+                        $_SESSION['authUserID'],
+                        $event_date,
+                        $_POST['form_enddate'],
+                        ($duration * 60),
+                        $my_recurrtype,
+                        serialize($recurrspec),
+                        $starttime,
+                        $endtime,
+                        $_POST['form_allday'],
+                        $_POST['form_apptstatus'],
+                        $_POST['form_prefcat'],
+                        (int) $_POST['facility'],
+                        (int) $_POST['billing_facility'],
+                        $eid,
+                    ]
+                );
             }
         }
 
@@ -1064,13 +1088,13 @@ $eventDispatcher->dispatch(new AppointmentRenderEvent($row), AppointmentRenderEv
     ?>
     <ul class="nav nav-tabs nav-fill text-body">
         <?php
-            $eid = $_REQUEST["eid"] ?? null;
-            $startm = $_REQUEST["startampm"] ?? null;
-            $starth = $_REQUEST["starttimeh"] ?? null;
-            $uid = $_REQUEST["userid"] ?? null;
-            $starttm = $_REQUEST["starttimem"] ?? null;
-            $dt = $_REQUEST["date"] ?? null;
-            $cid = $_REQUEST["catid"] ?? null;
+            $eid = filter_input(INPUT_GET, 'eid', FILTER_VALIDATE_INT) ?: 0;
+            $startm = $_GET["startampm"] ?? null;
+            $starth = $_GET["starttimeh"] ?? null;
+            $uid = filter_input(INPUT_GET, 'userid', FILTER_VALIDATE_INT) ?: 0;
+            $starttm = $_GET["starttimem"] ?? null;
+            $dt = $_GET["date"] ?? null;
+            $cid = $_GET["catid"] ?? null;
         ?>
         <li class="nav-item">
             <a class="nav-link<?php echo $normal;?>" href='add_edit_event.php?startampm=<?php echo attr($startm);?>&starttimeh=<?php echo attr($starth);?>&userid=<?php echo attr($uid);?>&starttimem=<?php echo attr($starttm);?>&date=<?php echo attr($dt);?>&catid=<?php echo attr($cid);?>'><?php echo xlt('Patient');?></a>
