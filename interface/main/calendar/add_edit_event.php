@@ -700,28 +700,28 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
                 // mod the SINGLE event or ALL EVENTS in a repeating series
                 // simple provider case
                 QueryUtils::sqlStatementThrowException(
-                    "UPDATE openemr_postcalendar_events SET " .
-                    "pc_catid = ?, " .
-                    "pc_aid = ?, " .
-                    "pc_pid = ?, " .
-                    "pc_title = ?, " .
-                    "pc_time = NOW(), " .
-                    "pc_hometext = ?, " .
-                    "pc_room = ?, " .
-                    "pc_informant = ?, " .
-                    "pc_eventDate = ?, " .
-                    "pc_endDate = ?, " .
-                    "pc_duration = ?, " .
-                    "pc_recurrtype = ?, " .
-                    "pc_recurrspec = ?, " .
-                    "pc_startTime = ?, " .
-                    "pc_endTime = ?, " .
-                    "pc_alldayevent = ?, " .
-                    "pc_apptstatus = ?, " .
-                    "pc_prefcatid = ?, " .
-                    "pc_facility = ?, " .
-                    "pc_billing_location = ? " .
-                    "WHERE pc_eid = ?",
+                    "UPDATE openemr_postcalendar_events SET
+                    pc_catid = ?,
+                    pc_aid = ?,
+                    pc_pid = ?,
+                    pc_title = ?,
+                    pc_time = NOW(),
+                    pc_hometext = ?,
+                    pc_room = ?,
+                    pc_informant = ?,
+                    pc_eventDate = ?,
+                    pc_endDate = ?,
+                    pc_duration = ?,
+                    pc_recurrtype = ?,
+                    pc_recurrspec = ?,
+                    pc_startTime = ?,
+                    pc_endTime = ?,
+                    pc_alldayevent = ?,
+                    pc_apptstatus = ?,
+                    pc_prefcatid = ?,
+                    pc_facility = ?,
+                    pc_billing_location = ?
+                    WHERE pc_eid = ?",
                     [
                         $_POST['form_category'],
                         $prov,
