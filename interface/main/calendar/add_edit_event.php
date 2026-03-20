@@ -510,7 +510,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
                     $args['form_repeat'] = "0";
                     $args['days_every_week'] = "0";
                     $args['recurrspec'] = $noRecurrspec;
-                    $args['form_enddate'] = "0000-00-00";
+                    $args['form_enddate'] = null;
                     $args['starttime'] = $starttime;
                     $args['endtime'] = $endtime;
                     $args['locationspec'] = $locationspec;
@@ -697,7 +697,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
                 $args['form_repeat'] = "0";
                 $args['days_every_week'] = "0";
                 $args['recurrspec'] = $noRecurrspec;
-                $args['form_enddate'] = "0000-00-00";
+                $args['form_enddate'] = null;
                 $args['starttime'] = $starttime;
                 $args['endtime'] = $endtime;
                 $args['locationspec'] = $locationspec;

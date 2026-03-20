@@ -371,7 +371,7 @@ function InsertEvent($args, $from = 'general')
             ") VALUES (?,?,?,?,?,?,NOW(),?,?,?,?,?,?,?,?,?,?,?,?,?,1,1,?,?,?)",
             [$args['form_category'],($args['new_multiple_value'] ?? ''),$args['form_provider'],$form_pid,$form_gid,
             $args['form_title'],$args['form_comments'],$session->get('authUserID'),$args['event_date'],
-            fixDate($args['form_enddate']),$args['duration'],$pc_recurrtype,serialize($args['recurrspec']),
+            ($args['form_enddate'] !== null ? fixDate($args['form_enddate']) : null),$args['duration'],$pc_recurrtype,serialize($args['recurrspec']),
             $args['starttime'],$args['endtime'],$args['form_allday'],$args['form_apptstatus'],$args['form_prefcat'],
             $args['locationspec'],(int)$args['facility'],(int)$args['billing_facility'],$form_room]
         );
