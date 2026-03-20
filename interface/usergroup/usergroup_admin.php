@@ -307,9 +307,7 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         }
 
         $email = trim($_POST['email'] ?? '');
-        if ($email !== '') {
-            sqlStatement("update users set email = ? where id = ? ", [$email, $_POST["id"]]);
-        }
+        sqlStatement("update users set email = ? where id = ? ", [$email, $_POST["id"]]);
 
         // Set the access control group of user
         $user_data = sqlFetchArray(sqlStatement("select username from users where id= ?", [$_POST["id"]]));
