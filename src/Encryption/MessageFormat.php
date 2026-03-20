@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Encryption;
 
-enum Format: int
+enum MessageFormat: int
 {
     // Existing formats as of March 2026: these all mapped 1:1 with key ids and
     // versions

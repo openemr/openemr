@@ -9,7 +9,7 @@ use UnexpectedValueException;
 class Message
 {
     public function __construct(
-        public Format $format,
+        public MessageFormat $format,
         public string $keyId,
         public string $ciphertext,
     ) {
@@ -20,16 +20,16 @@ class Message
         if (strlen($encodedMessage) < 3) {
             throw new UnexpectedValueException('Message is missing expected prefix');
         }
-        $format = Format::from(intval(substr($encodedMessage, 0, 3)));
+        $format = MessageFormat::from(intval(substr($encodedMessage, 0, 3)));
 
         $keyId = match ($format) {
-            Format::v1 => 'one',
-            Format::v2, // Intentional: v3 uses key id 'two' for historic reasons
-            Format::v3 => 'two',
-            Format::v4 => 'four',
-            Format::v5 => 'five',
-            Format::v6 => 'six',
-            Format::v7 => 'seven',
+            MessageFormat::v1 => 'one',
+            MessageFormat::v2, // Intentional: v3 uses key id 'two' for historic reasons
+            MessageFormat::v3 => 'two',
+            MessageFormat::v4 => 'four',
+            MessageFormat::v5 => 'five',
+            MessageFormat::v6 => 'six',
+            MessageFormat::v7 => 'seven',
             // v8 will look at the message for more keyId info
         };
 
