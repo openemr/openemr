@@ -235,7 +235,7 @@ class FhirAppointmentService extends FhirServiceBase implements IPatientCompartm
             $concatenatedDate = $dataRecord['pc_eventDate'] . ' ' . $dataRecord['pc_startTime'];
             $startInstant = UtilsService::getLocalDateAsUTC($concatenatedDate);
             $appt->setStart(new FHIRInstant($startInstant));
-        } elseif ($dataRecord['pc_endDate'] != '0000-00-00' && !empty($dataRecord['pc_startTime'])) {
+        } elseif ($dataRecord['pc_endDate'] !== null && !empty($dataRecord['pc_startTime'])) {
             $concatenatedDate = $dataRecord['pc_endDate'] . ' ' . $dataRecord['pc_startTime'];
             $startInstant = UtilsService::getLocalDateAsUTC($concatenatedDate);
             $appt->setStart(new FHIRInstant($startInstant));
