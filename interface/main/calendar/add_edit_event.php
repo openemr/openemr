@@ -1104,7 +1104,7 @@ $eventDispatcher->dispatch(new AppointmentRenderEvent($row), AppointmentRenderEv
             'catid'      => $cid,
         ]);
         $baseQuery = http_build_query($tabParams);
-    ?>
+        ?>
     <ul class="nav nav-tabs nav-fill text-body">
         <li class="nav-item">
             <a class="nav-link<?php echo $normal;?>" href="add_edit_event.php?<?php echo attr($baseQuery);?>"><?php echo xlt('Patient');?></a>
