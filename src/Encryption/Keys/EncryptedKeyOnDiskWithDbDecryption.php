@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Common\Crypto\Keys;
+namespace OpenEMR\Encryption\Keys;
 
 use OpenEMR\Common\Crypto\KeyVersion;
 

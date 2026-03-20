@@ -2,12 +2,10 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Common\Crypto\Decrypt;
+namespace OpenEMR\Encryption\Cipher;
 
-use OpenEMR\Common\Crypto\{
-    CryptoGenException,
-    Keys\KeyManagerInterface,
-};
+use OpenEMR\Common\Crypto\CryptoGenException;
+use OpenEMR\Encryption\Keys\KeyManagerInterface;
 
 /**
  * "Modern" (v4-7) handling.
