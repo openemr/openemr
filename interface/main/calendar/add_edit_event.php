@@ -211,8 +211,7 @@ function DOBandEncounter($pc_eid): void
      $appttime = "$tmph:$tmpm:00";
 
     if ($patient_dob && $_POST['form_pid']) {
-        sqlStatement("UPDATE patient_data SET DOB = ? WHERE " .
-                                "pid = ?", [$patient_dob,$_POST['form_pid']]);
+        QueryUtils::sqlStatementThrowException("UPDATE patient_data SET DOB = ? WHERE pid = ?", [$patient_dob, $_POST['form_pid']]);
     }
 
     // Manage tracker status.
@@ -300,12 +299,12 @@ if ($eid) {
         // multiple providers case
         if (OEGlobalsBag::getInstance()->getBoolean('select_multi_providers')) {
             $mul  = $facility['pc_multiple'];
-            sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = ? WHERE pc_multiple = ?", [$min,$mul]);
+            QueryUtils::sqlStatementThrowException("UPDATE openemr_postcalendar_events SET pc_facility = ? WHERE pc_multiple = ?", [$min, $mul]);
         }
 
         // EOS multiple
 
-        sqlStatement("UPDATE openemr_postcalendar_events SET pc_facility = ? WHERE pc_eid = ?", [$min,$eid]);
+        QueryUtils::sqlStatementThrowException("UPDATE openemr_postcalendar_events SET pc_facility = ? WHERE pc_eid = ?", [$min, $eid]);
         $e2f = $min;
         $e2f_name = $min_name;
     } else {
@@ -483,9 +482,10 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
                     }
 
                     // mod original event recur specs to exclude this date
-                        sqlStatement("UPDATE openemr_postcalendar_events SET " .
-                        " pc_recurrspec = ? " .
-                        " WHERE pc_aid = ? AND pc_multiple=?", [serialize($oldRecurrspec),$provider,$row['pc_multiple']]);
+                        QueryUtils::sqlStatementThrowException(
+                            "UPDATE openemr_postcalendar_events SET pc_recurrspec = ? WHERE pc_aid = ? AND pc_multiple = ?",
+                            [serialize($oldRecurrspec), $provider, $row['pc_multiple']]
+                        );
                 }
 
                 // obtain the next available unique key to group multiple providers around some event
@@ -520,12 +520,15 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
                     // In case of a change in the middle of the event
                     if (strcmp((string) $_POST['event_start_date'], (string) $_POST['selected_date']) != 0) {
                         // mod original event recur specs to end on this date
-                        sqlStatement("UPDATE openemr_postcalendar_events SET " .
-                        " pc_enddate = ? " .
-                        " WHERE pc_aid = ? AND pc_multiple=?", [$selected_date, $provider, $row['pc_multiple']]);
+                        QueryUtils::sqlStatementThrowException(
+                            "UPDATE openemr_postcalendar_events SET pc_enddate = ? WHERE pc_aid = ? AND pc_multiple = ?",
+                            [$selected_date, $provider, $row['pc_multiple']]
+                        );
                     } else { // In case of a change in the event head
-                        sqlStatement("DELETE FROM openemr_postcalendar_events " .
-                        " WHERE pc_aid = ? AND pc_multiple=?", [$provider, $row['pc_multiple']]);
+                        QueryUtils::sqlStatementThrowException(
+                            "DELETE FROM openemr_postcalendar_events WHERE pc_aid = ? AND pc_multiple = ?",
+                            [$provider, $row['pc_multiple']]
+                        );
                     }
                 }
 
@@ -604,27 +607,51 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
                 // after the two diffs above, we must update for remaining providers
                 // those who are intersected in $providers_current and $providers_new
                 foreach ($_POST['form_provider'] as $provider) {
-                    sqlStatement("UPDATE openemr_postcalendar_events SET " .
-                    "pc_catid = '" . add_escape_custom($_POST['form_category']) . "', " .
-                    "pc_pid = '" . add_escape_custom($_POST['form_pid']) . "', " .
-                    "pc_title = '" . add_escape_custom($_POST['form_title']) . "', " .
-                    "pc_time = NOW(), " .
-                    "pc_hometext = '" . add_escape_custom($_POST['form_comments']) . "', " .
-                    "pc_room = '" . add_escape_custom($_POST['form_room']) . "', " .
-                    "pc_informant = '" . add_escape_custom($_SESSION['authUserID']) . "', " .
-                    "pc_eventDate = '" . add_escape_custom($event_date) . "', " .
-                    "pc_endDate = '" . add_escape_custom($_POST['form_enddate']) . "', " .
-                    "pc_duration = '" . add_escape_custom(($duration * 60)) . "', " .
-                    "pc_recurrtype = '" . add_escape_custom($my_recurrtype) . "', " .
-                    "pc_recurrspec = '" . add_escape_custom(serialize($recurrspec)) . "', " .
-                    "pc_startTime = '" . add_escape_custom($starttime) . "', " .
-                    "pc_endTime = '" . add_escape_custom($endtime) . "', " .
-                    "pc_alldayevent = '" . add_escape_custom($_POST['form_allday']) . "', " .
-                    "pc_apptstatus = '" . add_escape_custom($_POST['form_apptstatus']) . "', "  .
-                    "pc_prefcatid = '" . add_escape_custom($_POST['form_prefcat']) . "' ,"  .
-                    "pc_facility = '" . add_escape_custom((int)$_POST['facility']) . "' ,"  . // FF stuff
-                    "pc_billing_location = '" . add_escape_custom((int)$_POST['billing_facility']) . "' "  .
-                    "WHERE pc_aid = '" . add_escape_custom($provider) . "' AND pc_multiple = '" . add_escape_custom($row['pc_multiple'])  . "'");
+                    QueryUtils::sqlStatementThrowException(
+                        "UPDATE openemr_postcalendar_events SET
+                        pc_catid = ?,
+                        pc_pid = ?,
+                        pc_title = ?,
+                        pc_time = NOW(),
+                        pc_hometext = ?,
+                        pc_room = ?,
+                        pc_informant = ?,
+                        pc_eventDate = ?,
+                        pc_endDate = ?,
+                        pc_duration = ?,
+                        pc_recurrtype = ?,
+                        pc_recurrspec = ?,
+                        pc_startTime = ?,
+                        pc_endTime = ?,
+                        pc_alldayevent = ?,
+                        pc_apptstatus = ?,
+                        pc_prefcatid = ?,
+                        pc_facility = ?,
+                        pc_billing_location = ?
+                        WHERE pc_aid = ? AND pc_multiple = ?",
+                        [
+                            $_POST['form_category'],
+                            $_POST['form_pid'],
+                            $_POST['form_title'],
+                            $_POST['form_comments'],
+                            $_POST['form_room'],
+                            $_SESSION['authUserID'],
+                            $event_date,
+                            $_POST['form_enddate'],
+                            ($duration * 60),
+                            $my_recurrtype,
+                            serialize($recurrspec),
+                            $starttime,
+                            $endtime,
+                            $_POST['form_allday'],
+                            $_POST['form_apptstatus'],
+                            $_POST['form_prefcat'],
+                            (int) $_POST['facility'],
+                            (int) $_POST['billing_facility'],
+                            $provider,
+                            $row['pc_multiple'],
+                        ]
+                    );
                 } // foreach
             }
 
@@ -651,9 +678,10 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
                 }
 
                 // mod original event recur specs to exclude this date
-                    sqlStatement("UPDATE openemr_postcalendar_events SET " .
-                    " pc_recurrspec = ? " .
-                    " WHERE pc_eid = ?", [serialize($oldRecurrspec),$eid]);
+                    QueryUtils::sqlStatementThrowException(
+                        "UPDATE openemr_postcalendar_events SET pc_recurrspec = ? WHERE pc_eid = ?",
+                        [serialize($oldRecurrspec), $eid]
+                    );
 
                 // insert a new event on this date with POST form data
                 $args = $_POST;
@@ -672,9 +700,10 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "save")) {
             } elseif ($_POST['recurr_affect'] == 'future') {
                 // mod original event to stop recurring on this date-1
                 $selected_date = date("Ymd", (strtotime((string) $_POST['selected_date']) - 24 * 60 * 60));
-                sqlStatement("UPDATE openemr_postcalendar_events SET " .
-                " pc_enddate = ? " .
-                " WHERE pc_eid = ?", [$selected_date,$eid]);
+                QueryUtils::sqlStatementThrowException(
+                    "UPDATE openemr_postcalendar_events SET pc_enddate = ? WHERE pc_eid = ?",
+                    [$selected_date, $eid]
+                );
 
                 // insert a new event starting on this date with POST form data
                 $args = $_POST;
