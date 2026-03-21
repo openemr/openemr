@@ -358,7 +358,7 @@ class C_Document extends Controller
                 // Following is just an example of code in such a plugin file.
                 /*****************************************************
                 public function documentUploadPostProcess($filename, &$d) {
-                  $userid = $_SESSION['authUserID'];
+                  $userid = $session->get('authUserID');
                   $row = sqlQuery("SELECT username FROM users WHERE id = ?", array($userid));
                   $owner = strtolower($row['username']);
                   $dn = '1_' . ucfirst($owner);
