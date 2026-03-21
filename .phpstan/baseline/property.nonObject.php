@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 2298 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$formatOutput on mixed\\.$#',

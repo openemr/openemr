@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 7 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Left side of \\|\\| is always true\\.$#',

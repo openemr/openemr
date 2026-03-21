@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 3321 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Function parseArgs\\(\\) return type has no value type specified in iterable type array\\.$#',
@@ -14609,11 +14607,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/QuestionnaireService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\RecallBoard\\\\AddRecallForm\\:\\:display_add_recall\\(\\) has parameter \\$result_pat with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/RecallBoard/AddRecallForm.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\RecallService\\:\\:createRecall\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/RecallService.php',
@@ -15212,6 +15205,11 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Validators\\\\Rules\\\\ListOptionRule\\:\\:\\$messageTemplates type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Validators/Rules/ListOptionRule.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Views\\\\RecallBoard\\\\AddRecallForm\\:\\:display_add_recall\\(\\) has parameter \\$result_pat with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Views/RecallBoard/AddRecallForm.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\AllergyIntoleranceFhirApiTest\\:\\:getJsonContents\\(\\) return type has no value type specified in iterable type array\\.$#',

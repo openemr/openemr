@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 23 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Function display_QP\\(\\) never returns null so it can be removed from the return type\\.$#',

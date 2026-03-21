@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 97 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Offset \'city\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
@@ -343,7 +341,6 @@ $ignoreErrors[] = [
     'count' => 2,
     'path' => __DIR__ . '/../../src/Services/ProcedureService.php',
 ];
-
 $ignoreErrors[] = [
     'message' => '#^Offset \'childcare_needs\'\\|\'digital_access\'\\|\'financial_strain\'\\|\'food_insecurity\'\\|\'housing_instability\'\\|\'interpersonal_safety\'\\|\'social_isolation\'\\|\'transportation…\'\\|\'utilities_insecurity\' on array\\{food_insecurity\\: \'Food insecurity …\', housing_instability\\: \'Housing instability…\', transportation_insecurity\\: \'Transportation…\', utilities_insecurity\\: \'Utilities…\', interpersonal_safety\\: \'Interpersonal…\', financial_strain\\: \'Financial strain …\', social_isolation\\: \'Social isolation …\', childcare_needs\\: \'Childcare needs …\', \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,

@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 8 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Call to static method PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:validateAddress\\(\\) with incorrect case\\: ValidateAddress$#',

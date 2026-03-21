@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 26 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Class ZipArchive referenced with incorrect case\\: ZIPARCHIVE\\.$#',

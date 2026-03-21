@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 164 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Call to method DOMDocument\\:\\:saveXML\\(\\) with incorrect case\\: saveXml$#',

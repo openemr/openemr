@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 274 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Access to an undefined property object\\:\\:\\$provider_number_type_array\\.$#',
@@ -227,16 +225,6 @@ $ignoreErrors[] = [
     'message' => '#^Access to an undefined property TherapyGroupsController\\:\\:\\$counselorsModel\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_controllers/therapy_groups_controller.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property object\\:\\:\\$_current_action\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Controller.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property object\\:\\:\\$_state\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Controller.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Access to an undefined property CouchDB\\:\\:\\$body\\.$#',

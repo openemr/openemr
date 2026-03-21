@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 99 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Call to function printf\\(\\) with incorrect case\\: Printf$#',

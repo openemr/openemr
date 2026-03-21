@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 192 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Offset \'extension\' might not exist on array\\{dirname\\?\\: string, basename\\: string, extension\\?\\: string, filename\\: string\\}\\.$#',

@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 13 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Call to method createMysqli\\(\\) of deprecated class OpenEMR\\\\BC\\\\DatabaseConnectionFactory\\:

@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 45 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Modules\\\\ClaimRevConnector\\\\Bootstrap\\:\\:getAssetPath\\(\\) is unused\\.$#',

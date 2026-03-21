@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 148 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',

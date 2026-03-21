@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 4 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc type string of property C_AbstractClickmap\\:\\:\\$template_dir is not the same as PHPDoc type array of overridden property Smarty\\:\\:\\$template_dir\\.$#',

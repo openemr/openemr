@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 146 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_string\\(\\) with string will always evaluate to true\\.$#',

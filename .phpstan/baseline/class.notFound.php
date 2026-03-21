@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 293 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Function load_fee_sheet_options\\(\\) has invalid return type an\\.$#',

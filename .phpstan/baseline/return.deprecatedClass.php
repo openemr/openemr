@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 6 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Return type of method Application\\\\Controller\\\\IndexController\\:\\:ajaxZxlAction\\(\\) has typehint with deprecated class Laminas\\\\View\\\\Model\\\\JsonModel\\:

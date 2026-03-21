@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 2 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Trait OpenEMR\\\\Services\\\\Qrda\\\\Helpers\\\\AggregateObject is used zero times and is not analysed\\.$#',

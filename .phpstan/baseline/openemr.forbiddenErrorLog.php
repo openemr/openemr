@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 344 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Use a PSR\\-3 logger such as OpenEMR\\\\BC\\\\ServiceContainer\\:\\:getLogger\\(\\) instead of error_log\\(\\)\\.$#',

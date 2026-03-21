@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 383 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Expression on left side of \\?\\? is not nullable\\.$#',

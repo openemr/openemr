@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 36 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Result of \\|\\| is always true\\.$#',

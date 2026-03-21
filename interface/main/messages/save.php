@@ -27,7 +27,9 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\RecallService;
 
-if (!CsrfUtils::verifyCsrfToken($_REQUEST['csrf_token_form'] ?? '')) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
+if (!CsrfUtils::verifyCsrfToken($_REQUEST['csrf_token_form'] ?? '', session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -139,18 +141,21 @@ SessionUtil::unsetSession('pidList');
 $pid_list = [];
 
 if (($_REQUEST['action'] ?? '') == "process") {
-    $item = $_POST['item'] ?? '';
-    $pc_eidList = json_decode((string) $_POST['pc_eid'], true) ?: [];
-    $pidList = json_decode((string) $_POST['parameter'], true) ?: [];
+    $item = (string)($_POST['item'] ?? '');
+    $decodedPcEid = json_decode((string)($_POST['pc_eid'] ?? ''), true);
+    $decodedPidList = json_decode((string)($_POST['parameter'] ?? ''), true);
+    $pc_eidList = is_array($decodedPcEid) ? $decodedPcEid : [];
+    $pidList = is_array($decodedPidList) ? $decodedPidList : [];
 
     // For notes and phone, persist the action to recall_board_actions
-    if (($item === 'notes' || $item === 'phone') && !empty($pidList[0])) {
+    if (($item === 'notes' || $item === 'phone') && isset($pidList[0])) {
         $pid = (int) $pidList[0];
-        $noteText = $_POST['msg_notes'] ?? '';
-        $authUserID = (int) (SessionWrapperFactory::getInstance()->getActiveSession()->get('authUserID') ?? 0);
+        $noteText = (string)($_POST['msg_notes'] ?? '');
+        $authUserID = (int) ($session->get('authUserID') ?? 0);
         (new RecallService())->addAction('recall_' . $pid, $item, $authUserID, $noteText);
     }
 
+    $sessionSetArray = [];
     $sessionSetArray['pc_eidList'] = $pc_eidList[0] ?? null;
     $sessionSetArray['pidList'] = $pidList;
     SessionUtil::setSession($sessionSetArray);

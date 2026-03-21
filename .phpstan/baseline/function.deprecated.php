@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 303 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function addForm\\(\\)\\:

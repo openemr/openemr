@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 8 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @var with type int\\|null is not subtype of native type int\\.$#',

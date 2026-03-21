@@ -78,7 +78,7 @@ if (
     <script>
         var xljs1 = '<?php echo xla('Preferences updated successfully'); ?>';
         var format_date_moment_js = '<?php echo attr(DateFormatRead("validateJS")); ?>';
-        var csrfTokenForm = <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>;
+        var csrfTokenForm = <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>;
         <?php require_once "$srcdir/restoreSession.php"; ?>
     </script>
 
@@ -109,7 +109,7 @@ if (!empty($_REQUEST['go'])) { ?>
             echo "<title>" . xlt('New Recall') . "</title>";
         }
         // Recall form rendered by RecallBoard services
-        $rcb_form = new \OpenEMR\Services\RecallBoard\AddRecallForm();
+        $rcb_form = new \OpenEMR\Views\RecallBoard\AddRecallForm();
         $rcb_form->display_add_recall();
         if ($recall_pid) {
             // Auto-populate the form with existing patient/recall data
@@ -117,7 +117,7 @@ if (!empty($_REQUEST['go'])) { ?>
         }
     } elseif ($_REQUEST['go'] == 'Recalls') {
         echo "<title>" . xlt('Recall Board') . "</title>";
-        $rcb_display = new \OpenEMR\Services\RecallBoard\DisplayService($rcb_selectors, $rcb_facility, $rcb_provider);
+        $rcb_display = new \OpenEMR\Views\RecallBoard\DisplayService((string)$rcb_selectors, (string)$rcb_facility, (string)$rcb_provider);
         $rcb_display->display_recalls();
     } else {
         echo "<title>" . xlt('Message Center') . "</title>";

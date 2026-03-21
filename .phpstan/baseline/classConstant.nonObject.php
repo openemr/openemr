@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 47 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Cannot access constant class on mixed\\.$#',

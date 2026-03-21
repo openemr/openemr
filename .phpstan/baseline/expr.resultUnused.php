@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 10 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Expression "\\$encRow\\[\'encounter\'\\]" on a separate line does not do anything\\.$#',

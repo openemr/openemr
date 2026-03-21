@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 2570 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Part \\$web_root \\(mixed\\) of encapsed string cannot be cast to string\\.$#',

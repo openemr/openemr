@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 922 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(array\\<string\\>\\|string\\) of echo cannot be converted to string\\.$#',
@@ -1206,12 +1204,12 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/RecallBoard/DisplayService.php',
+    'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
+    'path' => __DIR__ . '/../../src/Views/RecallBoard/DisplayService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',

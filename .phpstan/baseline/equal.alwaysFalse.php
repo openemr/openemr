@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 31 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between false and \'false\' will always evaluate to false\\.$#',

@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 8 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Result of && is always true\\.$#',

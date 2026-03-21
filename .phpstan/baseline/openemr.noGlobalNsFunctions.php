@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 1535 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Function adminSqlQuery may not be defined in the global namespace\\.$#',

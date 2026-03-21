@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 35 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Usage of deprecated trait OpenEMR\\\\Common\\\\Logging\\\\SystemLoggerAwareTrait in class Carecoordination\\\\Model\\\\CcdaServiceDocumentRequestor\\:

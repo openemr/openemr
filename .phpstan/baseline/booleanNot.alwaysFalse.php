@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 77 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Negated boolean expression is always false\\.$#',

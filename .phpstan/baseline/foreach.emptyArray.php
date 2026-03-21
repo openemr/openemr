@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 13 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Empty array passed to foreach\\.$#',

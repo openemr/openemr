@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 97 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated method createFromPath\\(\\) of class League\\\\Csv\\\\Reader\\:

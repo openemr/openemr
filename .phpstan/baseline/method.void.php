@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 14 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Result of method OpenEMR\\\\Billing\\\\MiscBillingOptions\\:\\:generateDateQualifierSelect\\(\\) \\(void\\) is used\\.$#',

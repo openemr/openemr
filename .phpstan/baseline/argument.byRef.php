@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 10 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#2 \\$children of method eRxXMLBuilder\\:\\:appendChildren\\(\\) is passed by reference, so it expects variables only\\.$#',

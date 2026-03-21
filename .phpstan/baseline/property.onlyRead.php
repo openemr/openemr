@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 3 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Property eRxPage\\:\\:\\$prescriptionIds is never written, only read\\.$#',

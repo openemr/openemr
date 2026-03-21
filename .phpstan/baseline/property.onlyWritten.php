@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 89 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Property C_Document\\:\\:\\$Document is never read, only written\\.$#',

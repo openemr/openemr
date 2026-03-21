@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 480 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Static property OpenEMR\\\\RestControllers\\\\Config\\\\RestConfig\\:\\:\\$FHIR_ROUTE_MAP \\(OpenEMR\\\\RestControllers\\\\Config\\\\fhir\\) does not accept mixed\\.$#',

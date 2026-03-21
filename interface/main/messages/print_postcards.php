@@ -10,6 +10,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 require_once("../../globals.php");
@@ -27,22 +28,34 @@ $pdf->SetFont('Arial', '', 14);
 
 $sql = "SELECT * FROM facility ORDER BY billing_location DESC LIMIT 1";
 $facility = sqlQuery($sql);
-if (empty($facility)) {
+if (!is_array($facility)) {
     die(xl('No facility found'));
 }
 
-// Postcard top message — saved via Recall Board template editor
-$postcard_top = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'recall_board_postcard_top' LIMIT 1");
-$postcard_top = $postcard_top['gl_value'] ?? '';
+// Extract typed strings from facility result
+$f_name   = is_string($facility['name']        ?? null) ? $facility['name']        : '';
+$f_phone  = is_string($facility['phone']       ?? null) ? $facility['phone']       : '';
+$f_street = is_string($facility['street']      ?? null) ? $facility['street']      : '';
+$f_city   = is_string($facility['city']        ?? null) ? $facility['city']        : '';
+$f_state  = is_string($facility['state']       ?? null) ? $facility['state']       : '';
+$f_postal = is_string($facility['postal_code'] ?? null) ? $facility['postal_code'] : '';
 
-if (empty($postcard_top)) {
-    $postcard_top = xl('Please call our office to schedule') . "\n" . xl('your next appointment at') . " " . $facility['phone'] . ".\n\n" . $facility['street'] . "\n" . $facility['city'] . ", " . $facility['state'] . "  " . $facility['postal_code'];
+// Postcard top message — saved via Recall Board template editor
+$ptValue = QueryUtils::fetchSingleValue(
+    "SELECT gl_value FROM globals WHERE gl_name = 'recall_board_postcard_top' LIMIT 1",
+    'gl_value',
+    []
+);
+$postcard_top = is_string($ptValue) ? $ptValue : '';
+
+if ($postcard_top === '') {
+    $postcard_top = xl('Please call our office to schedule') . "\n" . xl('your next appointment at') . " " . $f_phone . ".\n\n" . $f_street . "\n" . $f_city . ", " . $f_state . "  " . $f_postal;
 }
 
 // Replace practice-level template variables
-$postcard_top = str_replace('{{practice_name}}', $facility['name'] ?? '', $postcard_top);
-$postcard_top = str_replace('{{practice_phone}}', $facility['phone'] ?? '', $postcard_top);
-$practice_addr = ($facility['street'] ?? '') . "\n" . ($facility['city'] ?? '') . ", " . ($facility['state'] ?? '') . " " . ($facility['postal_code'] ?? '');
+$postcard_top = str_replace('{{practice_name}}', $f_name, $postcard_top);
+$postcard_top = str_replace('{{practice_phone}}', $f_phone, $postcard_top);
+$practice_addr = $f_street . "\n" . $f_city . ", " . $f_state . " " . $f_postal;
 $postcard_top = str_replace('{{practice_address}}', $practice_addr, $postcard_top);
 
 foreach ($pid_list as $pid) {
@@ -60,16 +73,28 @@ foreach ($pid_list as $pid) {
             $prov_name .= ", " . $prov['suffix'];
         }
     }
-    if (empty($patdata)) {
+    if ($patdata === false) {
         continue;
     }
 
+    // Extract typed strings from patient data
+    $p_fname  = is_string($patdata['fname']        ?? null) ? $patdata['fname']        : '';
+    $p_lname  = is_string($patdata['lname']        ?? null) ? $patdata['lname']        : '';
+    $p_street = is_string($patdata['street']       ?? null) ? $patdata['street']       : '';
+    $p_city   = is_string($patdata['city']         ?? null) ? $patdata['city']         : '';
+    $p_state  = is_string($patdata['state']        ?? null) ? $patdata['state']        : '';
+    $p_postal = is_string($patdata['postal_code']  ?? null) ? $patdata['postal_code']  : '';
+    $p_cell   = is_string($patdata['phone_cell']   ?? null) ? $patdata['phone_cell']   : '';
+    $p_home   = is_string($patdata['phone_home']   ?? null) ? $patdata['phone_home']   : '';
+    $p_dob    = is_string($patdata['DOB']          ?? null) ? $patdata['DOB']          : '';
+
     // Replace patient-level template variables per patient
     $msg = $postcard_top;
-    $patient_name = trim(($patdata['fname'] ?? '') . ' ' . ($patdata['lname'] ?? ''));
-    $patient_addr = ($patdata['street'] ?? '') . "\n" . ($patdata['city'] ?? '') . ", " . ($patdata['state'] ?? '') . " " . ($patdata['postal_code'] ?? '');
-    $patient_phone = $patdata['phone_cell'] ?: ($patdata['phone_home'] ?? '');
-    $patient_dob = !empty($patdata['DOB']) ? oeFormatShortDate($patdata['DOB']) : '';
+    $patient_name  = trim($p_fname . ' ' . $p_lname);
+    $patient_addr  = $p_street . "\n" . $p_city . ", " . $p_state . " " . $p_postal;
+    $patient_phone = $p_cell !== '' ? $p_cell : $p_home;
+    $dob_formatted = oeFormatShortDate($p_dob);
+    $patient_dob   = is_string($dob_formatted) ? $dob_formatted : '';
     $msg = str_replace('{{patient_name}}', $patient_name, $msg);
     $msg = str_replace('{{patient_address}}', $patient_addr, $msg);
     $msg = str_replace('{{patient_phone}}', $patient_phone, $msg);
@@ -78,11 +103,11 @@ foreach ($pid_list as $pid) {
     $postcard_message = "\n\n" . $msg . "\n\n";
 
     $pdf->SetFont('Arial', '', 9);
-    $pdf->Cell(74, 30, $facility['name'] . $prov_name, 1, 1, 'C');
+    $pdf->Cell(74, 30, $f_name . $prov_name, 1, 1, 'C');
     $pdf->MultiCell(74, 4, $postcard_message, 'LRTB', 'C', 0);// [, boolean fill]]])
-    $pdf->Text(100, 50, $patdata['fname'] . " " . $patdata['lname']);
-    $pdf->Text(100, 55, $patdata['street']);
-    $pdf->Text(100, 60, $patdata['city'] . " " . $patdata['state'] . "  " . $patdata['postal_code']);
+    $pdf->Text(100, 50, $p_fname . " " . $p_lname);
+    $pdf->Text(100, 55, $p_street);
+    $pdf->Text(100, 60, $p_city . " " . $p_state . "  " . $p_postal);
 }
 $pdf->Output('postcards.pdf', 'D');
 //D forces the file download instead of showing it in browser

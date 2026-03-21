@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 8 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Dead catch \\- RingCentral\\\\SDK\\\\Http\\\\ApiException is never thrown in the try block\\.$#',

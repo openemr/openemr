@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 49 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_array\\(\\) with int will always evaluate to false\\.$#',

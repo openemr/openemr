@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 11 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Modules\\\\WenoModule\\\\Services\\\\LogProperties\\:\\:\\$key \\(string\\|false\\) is never assigned false so it can be removed from the property type\\.$#',

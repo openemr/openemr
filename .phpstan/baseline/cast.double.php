@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 31 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to float\\.$#',

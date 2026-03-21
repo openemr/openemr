@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 2453 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Function convert_type_id_to_key\\(\\) should return string\\|null but returns mixed\\.$#',
@@ -10675,11 +10673,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\RecallService\\:\\:createRecall\\(\\) should return int\\|false but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/RecallService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\RecallService\\:\\:getPatientData\\(\\) should return array\\|null but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/RecallService.php',
 ];

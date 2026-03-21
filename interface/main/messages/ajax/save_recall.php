@@ -15,16 +15,15 @@ require_once("../../../globals.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\RecallService;
 
 header('Content-Type: application/json');
 
-// Enable error logging
-ini_set('display_errors', 0);
-ini_set('log_errors', 1);
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // Verify CSRF token
-if (!CsrfUtils::verifyCsrfToken($_REQUEST['csrf_token_form'] ?? '')) {
+if (!CsrfUtils::verifyCsrfToken($_REQUEST['csrf_token_form'] ?? '', session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -44,7 +43,9 @@ if (!AclMain::aclCheckCore('patients', 'appt')) {
 
 // Handle both form-data and JSON input
 $input = [];
-if (($_SERVER['CONTENT_TYPE'] ?? '') !== '' && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) {
+$rawContentType = $_SERVER['CONTENT_TYPE'] ?? '';
+$contentType = is_string($rawContentType) ? $rawContentType : '';
+if ($contentType !== '' && str_contains($contentType, 'application/json')) {
     $jsonData = json_decode(file_get_contents('php://input'), true);
     $input = $jsonData ?? [];
 } else {
@@ -69,7 +70,6 @@ if (!empty($missing)) {
     echo json_encode([
         'success' => false,
         'message' => xl('Missing required fields') . ": " . implode(', ', $missing),
-        'received_fields' => array_keys($input)
     ]);
     exit;
 }
@@ -86,7 +86,7 @@ $data = [
 try {
     $recallService = new RecallService();
     $recallId = $recallService->createRecall($data);
-    
+
     if ($recallId) {
         (new SystemLogger())->info("Recall created successfully", ['id' => $recallId]);
         echo json_encode([

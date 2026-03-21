@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 4 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Path in require_once\\(\\) "PEAR/PHPExcel\\.php" is not a file or it does not exist\\.$#',

@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 549 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$ignoreAuth\\)\\. Use dependency injection instead\\.$#',

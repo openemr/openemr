@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 23 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^PHPDoc tag @param for parameter \\$key with type string is incompatible with native type bool\\.$#',

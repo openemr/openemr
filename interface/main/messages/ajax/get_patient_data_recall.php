@@ -5,7 +5,7 @@
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
- * @author    Ray Magauranuman <magauran@medfetch.com>
+ * @author    Ray Magauran <magauran@medfetch.com>
  * @copyright Copyright (c) 2026 OpenEMR Foundation
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -15,12 +15,15 @@ require_once("../../../globals.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\SystemLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\RecallService;
 
 header('Content-Type: application/json');
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+
 // Verify CSRF token
-if (!CsrfUtils::verifyCsrfToken($_REQUEST['csrf_token_form'] ?? '')) {
+if (!CsrfUtils::verifyCsrfToken($_REQUEST['csrf_token_form'] ?? '', session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -49,7 +52,7 @@ if (!$pid) {
 try {
     $recallService = new RecallService();
     $patient = $recallService->getPatientData($pid);
-    
+
     if ($patient) {
         echo json_encode([
             'success' => true,

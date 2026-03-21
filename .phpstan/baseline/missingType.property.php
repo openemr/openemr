@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 6279 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Property C_Document\\:\\:\\$Document has no type specified\\.$#',

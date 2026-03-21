@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 6 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Method pnHTML\\:\\:__construct\\(\\) with return type void returns true but should not return anything\\.$#',

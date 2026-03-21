@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 11 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Instantiation of deprecated class Laminas\\\\View\\\\Model\\\\JsonModel\\:

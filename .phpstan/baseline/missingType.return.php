@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 6169 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Function adminSqlQuery\\(\\) has no return type specified\\.$#',
@@ -29314,36 +29312,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Qrda/Util/DateHelper.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\RecallBoard\\\\AddRecallForm\\:\\:display_add_recall\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/RecallBoard/AddRecallForm.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\RecallBoard\\\\DisplayService\\:\\:display_recalls\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/RecallBoard/DisplayService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\RecallBoard\\\\DisplayService\\:\\:get_recalls\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/RecallBoard/DisplayService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\RecallBoard\\\\DisplayService\\:\\:recall_board_bot\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/RecallBoard/DisplayService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\RecallBoard\\\\DisplayService\\:\\:recall_board_process\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/RecallBoard/DisplayService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\RecallBoard\\\\DisplayService\\:\\:recall_board_top\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/RecallBoard/DisplayService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\RecallService\\:\\:getFacilities\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/RecallService.php',
@@ -29877,6 +29845,36 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Validators\\\\ProcessingResult\\:\\:setValidationMessages\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Validators/ProcessingResult.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Views\\\\RecallBoard\\\\AddRecallForm\\:\\:display_add_recall\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Views/RecallBoard/AddRecallForm.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Views\\\\RecallBoard\\\\DisplayService\\:\\:display_recalls\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Views/RecallBoard/DisplayService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Views\\\\RecallBoard\\\\DisplayService\\:\\:get_recalls\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Views/RecallBoard/DisplayService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Views\\\\RecallBoard\\\\DisplayService\\:\\:recall_board_bot\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Views/RecallBoard/DisplayService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Views\\\\RecallBoard\\\\DisplayService\\:\\:recall_board_process\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Views/RecallBoard/DisplayService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Views\\\\RecallBoard\\\\DisplayService\\:\\:recall_board_top\\(\\) has no return type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Views/RecallBoard/DisplayService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\AuthorizationGrantFlowTest\\:\\:requestTestPatientSelectionFlow\\(\\) has no return type specified\\.$#',

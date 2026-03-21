@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 53 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Cannot use \\+\\+ on mixed\\.$#',

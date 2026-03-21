@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 19 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Property Cache_Lite\\:\\:\\$_readControlType \\(bool\\) does not accept default value of type string\\.$#',

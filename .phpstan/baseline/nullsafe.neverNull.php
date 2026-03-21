@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 20 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Using nullsafe property access "\\?\\-\\>city" on left side of \\?\\? is unnecessary\\. Use \\-\\> instead\\.$#',

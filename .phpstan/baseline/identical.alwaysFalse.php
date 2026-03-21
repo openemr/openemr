@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 77 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Strict comparison using \\=\\=\\= between ADORecordSet and false will always evaluate to false\\.$#',

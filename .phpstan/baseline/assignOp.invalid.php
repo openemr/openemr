@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 1532 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between mixed and non\\-falsy\\-string results in an error\\.$#',

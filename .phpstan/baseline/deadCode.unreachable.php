@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 99 errors
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Unreachable statement \\- code above always terminates\\.$#',

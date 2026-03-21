@@ -1,7 +1,5 @@
 <?php declare(strict_types = 1);
 
-// total 1 error
-
 $ignoreErrors = [];
 $ignoreErrors[] = [
     'message' => '#^Cannot clone non\\-object variable \\$start_tmp of type DateTime\\|false\\.$#',
