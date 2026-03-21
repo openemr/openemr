@@ -368,7 +368,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
-    'count' => 1,
+    'count' => 6,
     'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
 ];
 $ignoreErrors[] = [

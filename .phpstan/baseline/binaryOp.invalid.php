@@ -8002,83 +8002,8 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'FORM_ID \\= \\\\\'\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'document_id \\= \\\\\'\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'encounter \\= \\\\\'\' and mixed results in an error\\.$#',
-    'count' => 5,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'encounter_id \\= \\\\\'\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'form_id \\= \\\\\'\' and mixed results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'forms_id \\= \\\\\'\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'id \\= \\\\\'\' and mixed results in an error\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'list_id \\= \\\\\'\' and mixed results in an error\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'patient_id \\= \\\\\'\' and mixed results in an error\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'pc_pid \\= \\\\\'\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'pid \\= \\\\\'\' and mixed results in an error\\.$#',
-    'count' => 19,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'procedure_order_id …\' and mixed results in an error\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'procedure_report_id…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'session_id \\= \\\\\'\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'type1 \\= 1 AND id1 \\=…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 11,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
 ];
 $ignoreErrors[] = [

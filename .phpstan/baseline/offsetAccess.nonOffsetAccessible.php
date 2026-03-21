@@ -22692,22 +22692,22 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/barcode_label.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'encounter\' on array\\|false\\.$#',
+    'message' => '#^Cannot access offset \'encounter\' on array\\<mixed\\>\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'form_id\' on array\\|false\\.$#',
+    'message' => '#^Cannot access offset \'form_id\' on array\\<mixed\\>\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'formdir\' on array\\|false\\.$#',
+    'message' => '#^Cannot access offset \'formdir\' on array\\<mixed\\>\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'pid\' on array\\|false\\.$#',
+    'message' => '#^Cannot access offset \'pid\' on array\\<mixed\\>\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_file/deleter.php',
 ];
