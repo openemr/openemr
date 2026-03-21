@@ -115,32 +115,33 @@ function getPnotesByUser($activity = "1", $show_all = "no", $user = '', $count =
 
   // run the query
   // 2013-02-08 EMR Direct: minor changes to query so notes with pid=0 don't disappear
-    $sql = "SELECT pnotes.id, pnotes.user, pnotes.pid, pnotes.title, pnotes.date, pnotes.message_status, pnotes.activity,
-          IF(pnotes.pid = 0 OR pnotes.user != pnotes.pid,users.fname,patient_data.fname) as users_fname,
-          IF(pnotes.pid = 0 OR pnotes.user != pnotes.pid,users.lname,patient_data.lname) as users_lname,
-          patient_data.fname as patient_data_fname, patient_data.lname as patient_data_lname
-          FROM ((pnotes LEFT JOIN users ON pnotes.user = users.username)
+    $fromWhere = "FROM ((pnotes LEFT JOIN users ON pnotes.user = users.username)
           LEFT JOIN patient_data ON pnotes.pid = patient_data.pid) WHERE $activity_query
           pnotes.deleted != '1' AND (pnotes.assigned_to LIKE ?";
     $sqlBindArray[] = $usrvar;
     if ($includePortalUser) {
-        $sql .= " OR pnotes.assigned_to = ?";
+        $fromWhere .= " OR pnotes.assigned_to = ?";
         $sqlBindArray[] = 'portal-user';
     }
-    $sql .= ")";
+    $fromWhere .= ")";
+
+  // return the results
+    if ($count) {
+        $row = QueryUtils::querySingleRow("SELECT COUNT(*) AS cnt $fromWhere", $sqlBindArray);
+        return (int) $row['cnt'];
+    }
+
+    $sql = "SELECT pnotes.id, pnotes.user, pnotes.pid, pnotes.title, pnotes.date, pnotes.message_status, pnotes.activity,
+          IF(pnotes.pid = 0 OR pnotes.user != pnotes.pid,users.fname,patient_data.fname) as users_fname,
+          IF(pnotes.pid = 0 OR pnotes.user != pnotes.pid,users.lname,patient_data.lname) as users_lname,
+          patient_data.fname as patient_data_fname, patient_data.lname as patient_data_lname
+          $fromWhere";
     if (!empty($sortby) || !empty($sortorder)  || !empty($begin) || !empty($listnumber)) {
         $sql .= " order by " . escape_sql_column_name($sortby, ['users','patient_data','pnotes'], true) .
             " " . escape_sort_order($sortorder) .
             " limit " . escape_limit($begin) . ", " . escape_limit($listnumber);
     }
-
-  // return the results
-    if ($count) {
-        $results = QueryUtils::fetchRecords($sql, $sqlBindArray);
-        return count($results);
-    } else {
-        return QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
-    }
+    return QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
 }
 
 function getPnotesByDate(
