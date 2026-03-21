@@ -197,8 +197,6 @@ switch ($task) {
         break;
 }
 
-if (!empty($_POST["submit"])) {
-    $url = $_POST["submit"];
-    header("Location: " . $url);
-    exit();
+if (isset($_POST['submit'])) {
+    header('Location: messages.php');
 }
