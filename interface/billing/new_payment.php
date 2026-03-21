@@ -25,6 +25,8 @@ require_once("$srcdir/payment.inc.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
@@ -39,6 +41,14 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCor
 //===============================================================================
     $screen = 'new_payment';
 //===============================================================================
+
+// Verify CSRF token for all POST actions
+if (!empty($_POST['mode'])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '')) {
+        CsrfUtils::csrfNotVerified();
+    }
+}
+
 // Initialisations
 $mode                    = $_POST['mode'] ?? '';
 $payment_id              = isset($_REQUEST['payment_id'])          ? $_REQUEST['payment_id'] + 0      : 0;
@@ -52,37 +62,48 @@ $hidden_type_code        = $_REQUEST['hidden_type_code'] ?? '';
 
 if ($mode == "new_payment" || $mode == "distribute") {
     if (trim((string) $_POST['type_name']) == 'insurance') {
-        $QueryPart = "payer_id = '" . add_escape_custom($hidden_type_code) . "', patient_id = '0" ;
-    } elseif (trim((string) $_POST['type_name']) == 'patient') {
-        $QueryPart = "payer_id = '0', patient_id = '" . add_escape_custom($hidden_type_code);
+        $payer_id = (int) $hidden_type_code;
+        $patient_id = 0;
+    } else {
+        $payer_id = 0;
+        $patient_id = (int) $hidden_type_code;
     }
-      $user_id = $session->get('authUserID');
-      $closed = 0;
-      $modified_time = date('Y-m-d H:i:s');
-      $check_date = DateToYYYYMMDD(formData('check_date'));
-      $deposit_date = DateToYYYYMMDD(formData('deposit_date'));
-      $post_to_date = DateToYYYYMMDD(formData('post_to_date'));
+
+    $user_id = $session->get('authUserID');
+    $modified_time = date('Y-m-d H:i:s');
+    $check_date = DateToYYYYMMDD(trim($_POST['check_date'] ?? ''));
+    $deposit_date = DateToYYYYMMDD(trim($_POST['deposit_date'] ?? ''));
+    $post_to_date = DateToYYYYMMDD(trim($_POST['post_to_date'] ?? ''));
     if ($post_to_date == '') {
         $post_to_date = date('Y-m-d');
     }
-    if ($_POST['deposit_date'] == '') {
+    if (($_POST['deposit_date'] ?? '') == '') {
         $deposit_date = $post_to_date;
     }
-      $payment_id = sqlInsert("insert into ar_session set "    .
-        $QueryPart .
-        "', user_id = '"     . trim((string) add_escape_custom($user_id))  .
-        "', closed = '"      . trim((string) add_escape_custom($closed))  .
-        "', reference = '"   . trim(formData('check_number')) .
-        "', check_date = '"  . trim((string) add_escape_custom($check_date)) .
-        "', deposit_date = '" . trim((string) add_escape_custom($deposit_date))  .
-        "', pay_total = '"    . trim(formData('payment_amount')) .
-        "', modified_time = '" . trim((string) add_escape_custom($modified_time))  .
-        "', payment_type = '"   . trim(formData('type_name')) .
-        "', description = '"   . trim(formData('description')) .
-        "', adjustment_code = '"   . trim(formData('adjustment_code')) .
-        "', post_to_date = '" . trim((string) add_escape_custom($post_to_date))  .
-        "', payment_method = '"   . trim(formData('payment_method')) .
-        "'");
+
+    $payment_id = QueryUtils::sqlInsert(
+        "INSERT INTO ar_session SET
+            payer_id = ?, patient_id = ?, user_id = ?, closed = 0,
+            reference = ?, check_date = ?, deposit_date = ?,
+            pay_total = ?, modified_time = ?, payment_type = ?,
+            description = ?, adjustment_code = ?, post_to_date = ?,
+            payment_method = ?",
+        [
+            $payer_id,
+            $patient_id,
+            $user_id,
+            trim($_POST['check_number'] ?? ''),
+            $check_date,
+            $deposit_date,
+            trim($_POST['payment_amount'] ?? ''),
+            $modified_time,
+            trim($_POST['type_name'] ?? ''),
+            trim($_POST['description'] ?? ''),
+            trim($_POST['adjustment_code'] ?? ''),
+            $post_to_date,
+            trim($_POST['payment_method'] ?? ''),
+        ]
+    );
 }
 
 //===============================================================================
@@ -339,6 +360,7 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                 } else {
                     echo 'return false;';
                 }?>" style="display:inline">
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
                     <fieldset>
                         <div class="jumbotron py-4">
