@@ -21,6 +21,7 @@ class AddRecallForm
 {
     public function display_add_recall($pid = 'new', array $result_pat = [], ?int $userid = null)
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         ?>
 
     <div class="container-fluid">
@@ -102,13 +103,13 @@ class AddRecallForm
                                     <?php
                                     $providers = QueryUtils::fetchRecords("SELECT id, username, fname, lname FROM users WHERE authorized != 0 AND active = 1 ORDER BY lname, fname");
                                 //This is an internal practice function so ignore the suffix as extraneous information.  We know who we are.
-                                    $defaultProvider = $_SESSION['authUserID'];
+                                    $defaultProvider = $session->get('authUserID');
                                 // or, if we have chosen a provider in the calendar, default to them
                                 // choose the first one if multiple have been selected
-                                    if (is_countable($_SESSION['pc_username'] ?? null)) {
-                                        if (count($_SESSION['pc_username']) >= 1) {
+                                    if (is_countable($session->get('pc_username'))) {
+                                        if (count($session->get('pc_username')) >= 1) {
                                             // get the numeric ID of the first provider in the array
-                                            $pc_username = $_SESSION['pc_username'];
+                                            $pc_username = $session->get('pc_username');
                                             $results = QueryUtils::fetchRecords("SELECT id FROM users WHERE username=?", [$pc_username[0]]);
                                             if (!empty($results[0]['id'])) {
                                                 $defaultProvider = $results[0]['id'];

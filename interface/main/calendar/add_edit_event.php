@@ -1084,7 +1084,9 @@ $addEditEventConfig = [
 ?>
 window.addEditEventConfig = <?php echo json_encode($addEditEventConfig); ?>;
 </script>
+<script>
 <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+</script>
 
 <!-- Extracted JS functions (Issue #8057) — loaded before event dispatch
      so that RENDER_JAVASCRIPT listeners can call these functions immediately -->

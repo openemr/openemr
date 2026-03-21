@@ -147,12 +147,17 @@ if (($_REQUEST['action'] ?? '') == "process") {
     $pc_eidList = is_array($decodedPcEid) ? $decodedPcEid : [];
     $pidList = is_array($decodedPidList) ? $decodedPidList : [];
 
-    // For notes and phone, persist the action to recall_board_actions
+    // Persist the action to recall_board_actions
+    $authUserID = (int) ($session->get('authUserID') ?? 0);
+    $recallService = new RecallService();
     if (($item === 'notes' || $item === 'phone') && isset($pidList[0])) {
         $pid = (int) $pidList[0];
         $noteText = (string)($_POST['msg_notes'] ?? '');
-        $authUserID = (int) ($session->get('authUserID') ?? 0);
-        (new RecallService())->addAction('recall_' . $pid, $item, $authUserID, $noteText);
+        $recallService->addAction('recall_' . $pid, $item, $authUserID, $noteText);
+    } elseif ($item === 'postcards' || $item === 'labels') {
+        foreach ($pidList as $pid) {
+            $recallService->addAction('recall_' . (int) $pid, $item, $authUserID);
+        }
     }
 
     $sessionSetArray = [];
@@ -164,7 +169,7 @@ if (($_REQUEST['action'] ?? '') == "process") {
     exit;
 }
 if (($_REQUEST['action'] ?? '') == 'save_postcard_template') {
-    if (!AclMain::aclCheckCore('admin', 'super')) {
+    if (!AclMain::aclCheckCore('patients', 'appt', '', 'write')) {
         http_response_code(403);
         echo json_encode(['error' => xl('Access denied')]);
         exit;

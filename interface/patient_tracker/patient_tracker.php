@@ -25,11 +25,14 @@ require_once "$srcdir/patient_tracker.inc.php";
 require_once "$srcdir/user.inc.php";
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -44,7 +47,7 @@ $setting_selectors = prevSetting($uspfx, 'setting_selectors', 'setting_selectors
 $form_apptcat = prevSetting($uspfx, 'form_apptcat', 'form_apptcat', '');
 $form_apptstatus = prevSetting($uspfx, 'form_apptstatus', 'form_apptstatus', '');
 $facility = prevSetting($uspfx, 'form_facility', 'form_facility', '');
-$provider = prevSetting($uspfx, 'form_provider', 'form_provider', $_SESSION['authUserID']);
+$provider = prevSetting($uspfx, 'form_provider', 'form_provider', $session->get('authUserID'));
 
 if (
     ($_POST['setting_new_window'] ?? '') ||
@@ -59,7 +62,8 @@ if (
 if (!OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range')) {
     $from_date = date('Y-m-d');
 } elseif (!is_null($_REQUEST['form_from_date'] ?? null)) {
-    $from_date = DateToYYYYMMDD($_REQUEST['form_from_date']);
+    $rawFromDate = $_REQUEST['form_from_date'];
+    $from_date = DateToYYYYMMDD(is_string($rawFromDate) ? strip_tags($rawFromDate) : '');
 } elseif ((OEGlobalsBag::getInstance()->get('ptkr_start_date')) == 'D0') {
     $from_date = date('Y-m-d');
 } elseif ((OEGlobalsBag::getInstance()->get('ptkr_start_date')) == 'B0') {
@@ -95,13 +99,16 @@ if (OEGlobalsBag::getInstance()->getBoolean('ptkr_date_range')) {
     }
 
     $to_date = date('Y-m-d', $ptkr_future_time);
-    $to_date = !is_null($_REQUEST['form_to_date'] ?? null) ? DateToYYYYMMDD($_REQUEST['form_to_date']) : $to_date;
+    $rawToDate = $_REQUEST['form_to_date'] ?? null;
+    $to_date = is_string($rawToDate) ? DateToYYYYMMDD(strip_tags($rawToDate)) : $to_date;
 } else {
     $to_date = date('Y-m-d');
 }
 
-$form_patient_name = !is_null($_POST['form_patient_name'] ?? null) ? $_POST['form_patient_name'] : null;
-$form_patient_id = !is_null($_POST['form_patient_id'] ?? null) ? $_POST['form_patient_id'] : null;
+$rawPatientName = $_POST['form_patient_name'] ?? null;
+$form_patient_name = is_string($rawPatientName) ? strip_tags($rawPatientName) : null;
+$rawPatientId = $_POST['form_patient_id'] ?? null;
+$form_patient_id = is_string($rawPatientId) ? strip_tags($rawPatientId) : null;
 
 
 $lres = sqlStatement("SELECT option_id, title FROM list_options WHERE list_id = ? AND activity=1", ['apptstat']);
@@ -129,7 +136,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
         <?php require_once "$srcdir/restoreSession.php"; ?>
     </script>
 
-    <?php if ($_SESSION['language_direction'] == "rtl") { ?>
+    <?php if ($session->get('language_direction') === "rtl") { ?>
       <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->get('themes_static_relative'); ?>/misc/rtl_bootstrap_navbar.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
     <?php } else { ?>
       <link rel="stylesheet" href="<?php echo OEGlobalsBag::getInstance()->get('themes_static_relative'); ?>/misc/bootstrap_navbar.css?v=<?php echo OEGlobalsBag::getInstance()->get('v_js_includes'); ?>" />
@@ -149,7 +156,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                     <div name="div_response" id="div_response" class="nodisplay"></div>
                         <form name="flb" id="flb" method="post">
                         <div class="row">
-                          <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                          <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                             <div class="text-center col-4 align-items-center">
                               <!-- Visit Categories Section -->
                               <div class="col-sm">
@@ -209,13 +216,15 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                                 $query = "SELECT id, lname, fname FROM users WHERE " .
                                   "authorized = 1  AND active = 1 AND username > '' ORDER BY lname, fname"; #(CHEMED) facility filter
                                 $ures = sqlStatement($query);
+                                $sessionUserauthorized = $session->get('userauthorized');
+                                $sessionAuthUserID = $session->get('authUserID');
                                 while ($urow = sqlFetchArray($ures)) {
                                     $provid = $urow['id'];
                                     ($select_provs ?? null) ? $select_provs : $select_provs = '';
                                     $select_provs .= "    <option value='" . attr($provid) . "'";
                                     if (isset($_POST['form_provider']) && $provid == $_POST['form_provider']) {
                                         $select_provs .= " selected";
-                                    } elseif (!isset($_POST['form_provider']) && $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']) {
+                                    } elseif (!isset($_POST['form_provider']) && $sessionUserauthorized && $provid == $sessionAuthUserID) {
                                         $select_provs .= " selected";
                                     }
                                     $select_provs .= ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
@@ -610,7 +619,8 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                         if (OEGlobalsBag::getInstance()->getBoolean('ptkr_show_staff')) {
                             ?>
                                 <td class="detail text-center" name="kiosk_hide">
-                                    <?php echo text($appointment['user']) ?>
+                                    <?php $userVal = $appointment['user'] ?? '';
+                                    echo text(is_string($userVal) ? $userVal : '') ?>
                                 </td>
                             <?php
                         }
@@ -663,13 +673,13 @@ if (!($_REQUEST['flb_table'] ?? null)) { ?>
         </div>
     </div><?php //end container ?>
     <!-- form used to open a new top level window when a patient row is clicked -->
-    <form name='fnew' method='post' target='_blank' action='../main/main_screen.php?auth=login&site=<?php echo attr_url($_SESSION['site_id']); ?>'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+    <form name='fnew' method='post' target='_blank' action='../main/main_screen.php?auth=login&site=<?php echo attr_url($session->get('site_id')); ?>'>
+        <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
         <input type='hidden' name='patientID' value='0' />
         <input type='hidden' name='encounterID' value='0' />
     </form>
 
-    <?php myLocalJS(); ?>
+    <?php myLocalJS($session); ?>
 </body>
 </html>
     <?php
@@ -678,7 +688,7 @@ if (!($_REQUEST['flb_table'] ?? null)) { ?>
 
 exit;
 
-function myLocalJS(): void
+function myLocalJS(SessionInterface $session): void
 {
     ?>
     <script>
@@ -697,7 +707,7 @@ function myLocalJS(): void
             if ($("#flb_selectors").css('display') === 'none') {
                 $.post("<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_tracker/patient_tracker.php"; ?>", {
                     setting_selectors: 'block',
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
                 }).done(
                     function (data) {
                         $("#flb_selectors").slideToggle();
@@ -709,7 +719,7 @@ function myLocalJS(): void
             } else {
                 $.post("<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_tracker/patient_tracker.php"; ?>", {
                     setting_selectors: 'none',
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
                 }).done(
                     function (data) {
                         $("#flb_selectors").slideToggle();
@@ -750,7 +760,7 @@ function myLocalJS(): void
                 form_apptcat: $("#form_apptcat").val(),
                 kiosk: $("#kiosk").val(),
                 skip_timeout_reset: skip_timeout_reset,
-                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
             }).done(
                 function (data) {
                     //minimum 400 ms of loader (In the first loading or manual loading not by timer)
@@ -821,7 +831,7 @@ function myLocalJS(): void
         // popup for patient tracker status
         function bpopup(tkid) {
             top.restoreSession();
-            dlgopen('../patient_tracker/patient_tracker_status.php?tracker_id=' + encodeURIComponent(tkid) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>, '_blank', 500, 250);
+            dlgopen('../patient_tracker/patient_tracker_status.php?tracker_id=' + encodeURIComponent(tkid) + '&csrf_token_form=' + <?php echo js_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>, '_blank', 500, 250);
             return false;
         }
 
@@ -939,7 +949,7 @@ function myLocalJS(): void
                 $.post("../../library/ajax/drug_screen_completed.php", {
                     trackerid: this.id,
                     testcomplete: testcomplete_toggle,
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
                 });
             });
 
@@ -949,7 +959,7 @@ function myLocalJS(): void
                 top.restoreSession();
                 $.post("<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_tracker/patient_tracker.php"; ?>", {
                     setting_new_window: $('#setting_new_window').val(),
-                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken()); ?>
+                    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
                 }).done(
                     function (data) {
                 });

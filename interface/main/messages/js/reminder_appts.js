@@ -219,7 +219,7 @@ function process_this(material, id, eid='') {
     }).done(function (result) {
         if (printWin) {
             // Build absolute URL from current page location (works from any context including about:blank)
-            var basePath = window.location.href.replace(/[?#].*$/, '').replace(/\/[^\/]*$/, '/');
+            var basePath = window.location.href.replace(/[?#].*$/, '').replace(/\/[^/]*$/, '/');
             if (material === 'labels') printWin.location.href = basePath + "../../patient_file/addr_appt_label.php";
             if (material === 'postcards') printWin.location.href = basePath + "print_postcards.php";
         }
@@ -365,7 +365,7 @@ function show_this() {
         return meets_fac && meets_prov && meets_pid && meets_pname && meets_date;
     });
 
-    visibleRows.show('400', 'linear');
+    visibleRows.show();
 
     if (visibleRows.length === 0) {
         if ($("#no_recalls_message").length > 0) {

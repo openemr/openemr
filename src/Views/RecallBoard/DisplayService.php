@@ -14,6 +14,7 @@
 namespace OpenEMR\Views\RecallBoard;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Recall\RecallBoardToolbarEvent;
 use OpenEMR\Services\RecallService;
@@ -30,10 +31,12 @@ class DisplayService
         $rcb_facility = $this->rcb_facility;
         $rcb_provider = $this->rcb_provider;
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
         // Initialize form variables
         $form_patient_id = $_REQUEST['form_patient_id'] ?? '';
         $form_patient_name = $_REQUEST['form_patient_name'] ?? '';
-        $setting_selectors = $_SESSION['setting_selectors'] ?? 'block';
+        $setting_selectors = $session->get('setting_selectors') ?? 'block';
 
         // Get date range - convert from display format to Y-m-d
         $from_date = date('Y-m-d', strtotime('-6 months'));
@@ -125,7 +128,7 @@ class DisplayService
                                             echo "<option value='" . attr($provid) . "'";
                                             if ($rcb_provider !== '' && $provid == ($_POST['form_provider'] ?? '')) {
                                                 echo " selected";
-                                            } elseif (!isset($_POST['form_provider']) && $_SESSION['userauthorized'] && $provid == $_SESSION['authUserID']) {
+                                            } elseif (!isset($_POST['form_provider']) && $session->get('userauthorized') && $provid == $session->get('authUserID')) {
                                                 echo " selected";
                                             }
                                             echo ">" . text($urow['lname']) . ", " . text($urow['fname']) . "\n";
@@ -169,7 +172,7 @@ class DisplayService
         </div>
     </div>
 
-    <div class="container text-center">
+    <div class="container-fluid text-center" style="max-width:1400px;">
         <div class="showRecalls mx-auto" id="show_recalls">
             <div name="message" id="message" class="warning"></div>
             <span class="text-right fa-stack fa-lg pull_right small" id="rcb_caret" onclick="toggleRcbSelectors();" data-toggle="tooltip" data-placement="auto" title="<?php echo xla('Show/Hide the Filters'); ?>" style="color: <?php echo $color = (!empty($setting_selectors) && ($setting_selectors == 'none')) ? 'var(--danger)' : 'var(--black)'; ?>; position: relative; float: right; right: 0; top: 0;">
@@ -205,14 +208,14 @@ class DisplayService
         }
 
         $(function () {
-            show_this();
-
             $('.datepicker').datetimepicker({
                 <?php $datetimepicker_timepicker = false; ?>
                 <?php $datetimepicker_showseconds = false; ?>
                 <?php $datetimepicker_formatInput = true; ?>
                 <?php require($globals->get('srcdir') . '/js/xl/jquery-datetimepicker-2-5-4.js.php'); ?>
             });
+
+            show_this();
 
             // Initialize Bootstrap tooltips - let themes handle styling
             $('[data-toggle="tooltip"]').tooltip({
@@ -737,7 +740,7 @@ class DisplayService
                     .postcard-icons-core { display:flex; gap:6px; align-items:center; justify-content:center; flex-wrap:nowrap; }
 
                     /* Core fallback modality icons (non-module): simple FA icons with denied overlay */
-                    .rcb-modalities { display:flex; gap:6px; align-items:center; margin-top:6px; }
+                    .rcb-modalities { display:flex; gap:6px; align-items:center; justify-content:center; margin-top:6px; }
                     .rcb-mod-icon { position:relative; display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:6px; background:#f6f7f8; border:1px solid rgba(0,0,0,0.08); color:#222; }
                     .rcb-mod-icon .fa { font-size:14px; }
                     .rcb-mod-not-allowed::after {

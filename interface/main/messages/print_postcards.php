@@ -100,15 +100,27 @@ foreach ($pid_list as $pid) {
     $msg = str_replace('{{patient_phone}}', $patient_phone, $msg);
     $msg = str_replace('{{patient_dob}}', $patient_dob, $msg);
 
-    $postcard_message = "\n\n" . $msg . "\n\n";
+    // --- Left side: return address + message (10..72mm) ---
+    $pdf->SetFont('Arial', 'B', 10);
+    $pdf->SetXY(10, 12);
+    $pdf->Cell(62, 6, $f_name . $prov_name, 0, 2, 'C');
+    $pdf->Line(10, 19, 72, 19);
 
     $pdf->SetFont('Arial', '', 9);
-    $pdf->Cell(74, 30, $f_name . $prov_name, 1, 1, 'C');
-    $pdf->MultiCell(74, 4, $postcard_message, 'LRTB', 'C', 0);// [, boolean fill]]])
-    $pdf->Text(100, 50, $p_fname . " " . $p_lname);
-    $pdf->Text(100, 55, $p_street);
-    $pdf->Text(100, 60, $p_city . " " . $p_state . "  " . $p_postal);
+    $pdf->SetXY(10, 22);
+    $pdf->MultiCell(62, 4.5, trim($msg), 0, 'C', 0);
+
+    // --- Vertical divider ---
+    $pdf->Line(75, 8, 75, 97);
+
+    // --- Right side: recipient address (80..140mm, vertically centered) ---
+    $pdf->SetXY(82, 42);
+    $pdf->SetFont('Arial', 'B', 11);
+    $pdf->MultiCell(56, 6, $p_fname . " " . $p_lname, 0, 'L');
+    $pdf->SetX(82);
+    $pdf->SetFont('Arial', '', 10);
+    $pdf->MultiCell(56, 5, $p_street, 0, 'L');
+    $pdf->SetX(82);
+    $pdf->MultiCell(56, 5, $p_city . ", " . $p_state . "  " . $p_postal, 0, 'L');
 }
 $pdf->Output('postcards.pdf', 'D');
-//D forces the file download instead of showing it in browser
-//isn't there an openEMR global for this?

@@ -28,7 +28,7 @@ if (!CsrfUtils::verifyCsrfToken($_REQUEST['csrf_token_form'] ?? '', session: $se
 }
 
 // Check authentication
-if (!isset($_SESSION['authUserID'])) {
+if (!$session->get('authUserID')) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => xl('Unauthorized')]);
     exit;
@@ -53,7 +53,7 @@ if ($contentType !== '' && str_contains($contentType, 'application/json')) {
 }
 
 // Log received data
-(new SystemLogger())->debug("Recall save attempt", ['user' => $_SESSION['authUserID'] ?? '', 'data' => $input]);
+(new SystemLogger())->debug("Recall save attempt", ['user' => $session->get('authUserID'), 'data' => $input]);
 
 // Validate required fields
 $required = ['recall_pid', 'recall_date', 'recall_provider', 'recall_facility'];

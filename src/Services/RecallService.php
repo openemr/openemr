@@ -41,8 +41,8 @@ class RecallService extends BaseService
      */
     public function getProviders()
     {
-        $sql = "SELECT id, fname, lname 
-                FROM users 
+        $sql = "SELECT id, fname, lname
+                FROM users
                 WHERE authorized = 1 AND active = 1
                 ORDER BY lname, fname";
         return QueryUtils::fetchRecords($sql);
@@ -61,7 +61,7 @@ class RecallService extends BaseService
      */
     public function getRecalls($fromDate, $toDate, $facilityId = null, $providerId = null, $patientId = null, $patientName = null)
     {
-        $sql = "SELECT r.*, 
+        $sql = "SELECT r.*,
                        p.fname, p.lname, p.DOB, p.phone_cell, p.phone_home, p.email,
                        TIMESTAMPDIFF(YEAR, p.DOB, CURDATE()) as age,
                        u.fname as provider_fname, u.lname as provider_lname,
@@ -70,7 +70,7 @@ class RecallService extends BaseService
                 JOIN patient_data p ON p.pid = r.r_pid
                 LEFT JOIN users u ON u.id = r.r_provider
                 LEFT JOIN facility f ON f.id = r.r_facility
-                WHERE r.r_eventDate >= ? 
+                WHERE r.r_eventDate >= ?
                   AND r.r_eventDate <= ?
                   AND (p.deceased_date IS NULL OR p.deceased_date = '0000-00-00')";
 
@@ -117,8 +117,8 @@ class RecallService extends BaseService
             return false;
         }
 
-        $sql = "INSERT INTO patient_recalls 
-                (r_pid, r_eventDate, r_reason, r_provider, r_facility, r_created) 
+        $sql = "INSERT INTO patient_recalls
+                (r_pid, r_eventDate, r_reason, r_provider, r_facility, r_created)
                 VALUES (?, ?, ?, ?, ?, NOW())";
 
         QueryUtils::sqlStatementThrowException($sql, [
@@ -143,8 +143,8 @@ class RecallService extends BaseService
      */
     public function updateRecall($recallId, $data)
     {
-        $sql = "UPDATE patient_recalls 
-                SET r_eventDate = ?, 
+        $sql = "UPDATE patient_recalls
+                SET r_eventDate = ?,
                     r_reason = ?,
                     r_provider = ?,
                     r_facility = ?
@@ -182,9 +182,9 @@ class RecallService extends BaseService
      */
     public function getPatientData($pid)
     {
-        $sql = "SELECT pid, fname, lname, DOB, phone_cell, phone_home, email, 
+        $sql = "SELECT pid, fname, lname, DOB, phone_cell, phone_home, email,
                        TIMESTAMPDIFF(YEAR, DOB, CURDATE()) as age
-                FROM patient_data 
+                FROM patient_data
                 WHERE pid = ?";
 
         $result = QueryUtils::fetchRecords($sql, [$pid]);
@@ -199,8 +199,8 @@ class RecallService extends BaseService
      */
     public function getPatientRecallCount($pid)
     {
-        $sql = "SELECT COUNT(*) as count 
-                FROM patient_recalls 
+        $sql = "SELECT COUNT(*) as count
+                FROM patient_recalls
                 WHERE r_pid = ? AND r_eventDate >= CURDATE()";
 
         $result = QueryUtils::fetchRecords($sql, [$pid]);

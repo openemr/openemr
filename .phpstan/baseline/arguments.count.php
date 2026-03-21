@@ -22,16 +22,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Static method OpenEMR\\\\Common\\\\Csrf\\\\CsrfUtils\\:\\:collectCsrfToken\\(\\) invoked with 0 parameters, 1\\-2 required\\.$#',
-    'count' => 8,
-    'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Static method OpenEMR\\\\Common\\\\Csrf\\\\CsrfUtils\\:\\:verifyCsrfToken\\(\\) invoked with 1 parameter, 2\\-3 required\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method ESign\\\\SignableIF\\:\\:sign\\(\\) invoked with 3 parameters, 1\\-2 required\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/Api.php',

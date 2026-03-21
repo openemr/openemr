@@ -28,7 +28,7 @@ if (!CsrfUtils::verifyCsrfToken($_REQUEST['csrf_token_form'] ?? '', session: $se
 }
 
 // Check authentication
-if (!isset($_SESSION['authUserID'])) {
+if (!$session->get('authUserID')) {
     http_response_code(401);
     echo json_encode(['success' => false, 'message' => xl('Unauthorized')]);
     exit;

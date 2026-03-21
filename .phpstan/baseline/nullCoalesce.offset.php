@@ -72,11 +72,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/finder/document_select.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'authUserID\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/messages/ajax/save_recall.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'fname\' on array\\{id\\: int, uuid\\: string\\|null, title\\: string, language\\: string, financial\\: string, fname\\: string, lname\\: string, mname\\: string, \\.\\.\\.\\} on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/messages/trusted-messages.php',
