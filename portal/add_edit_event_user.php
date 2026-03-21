@@ -16,6 +16,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
@@ -54,10 +56,10 @@ use OpenEMR\Services\AppointmentService;
 // Things that might be passed by our opener.
 //
 $eid = intval($_GET['eid'] ?? 0);         // only for existing events
-$date = $_GET['date'] ?? null;        // this and below only for new events
-$userid = $_GET['userid'] ?? null;
-$default_catid = ($_GET['catid'] ?? null) ? $_GET['catid'] : '5';
-$patientid = $_GET['patid'] ?? null;
+$date = filter_input(INPUT_GET, 'date') ?: '';
+$userid = filter_input(INPUT_GET, 'userid', FILTER_VALIDATE_INT) ?: 0;
+$default_catid = filter_input(INPUT_GET, 'catid', FILTER_VALIDATE_INT) ?: 0;
+$patientid = filter_input(INPUT_GET, 'patid', FILTER_VALIDATE_INT) ?: 0;
 //
 
 // did someone tamper with eid?
@@ -151,6 +153,13 @@ if ($eid !== 0) {
 
 // If we are saving, then save and close the window.
 //
+// Verify CSRF token for all form actions
+if (!empty($_POST['form_action'])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', 'portal-appointment', $session->getSymfonySession())) {
+        CsrfUtils::csrfNotVerified();
+    }
+}
+
 if (($_POST['form_action'] ?? null) == "save") {
 //print_r($_POST);
 //exit();
@@ -181,26 +190,32 @@ if (($_POST['form_action'] ?? null) == "save") {
 
     $endtime = "$tmph:$tmpm:00";
 
-// Useless garbage that we must save.
-    $locationspec = 'a:6:{s:14:"event_location";N;s:13:"event_street1";N;' .
-        's:13:"event_street2";N;s:10:"event_city";N;s:11:"event_state";N;s:12:"event_postal";N;}';
+// Location spec (all null -- no user input)
+    $locationspec = serialize([
+        'event_location' => null,
+        'event_street1' => null,
+        'event_street2' => null,
+        'event_city' => null,
+        'event_state' => null,
+        'event_postal' => null,
+    ]);
 
-// More garbage, but this time 1 character of it is used to save the
-// repeat type.
     if ($_POST['form_repeat'] ?? null) {
-        $recurrspec = 'a:5:{' .
-            's:17:"event_repeat_freq";s:1:"' . $_POST['form_repeat_freq'] . '";' .
-            's:22:"event_repeat_freq_type";s:1:"' . $_POST['form_repeat_type'] . '";' .
-            's:19:"event_repeat_on_num";s:1:"1";' .
-            's:19:"event_repeat_on_day";s:1:"0";' .
-            's:20:"event_repeat_on_freq";s:1:"0";}';
+        $recurrspec = serialize([
+            'event_repeat_freq' => $_POST['form_repeat_freq'] ?? '',
+            'event_repeat_freq_type' => $_POST['form_repeat_type'] ?? '',
+            'event_repeat_on_num' => '1',
+            'event_repeat_on_day' => '0',
+            'event_repeat_on_freq' => '0',
+        ]);
     } else {
-        $recurrspec = 'a:5:{' .
-            's:17:"event_repeat_freq";N;' .
-            's:22:"event_repeat_freq_type";s:1:"0";' .
-            's:19:"event_repeat_on_num";s:1:"1";' .
-            's:19:"event_repeat_on_day";s:1:"0";' .
-            's:20:"event_repeat_on_freq";s:1:"1";}';
+        $recurrspec = serialize([
+            'event_repeat_freq' => null,
+            'event_repeat_freq_type' => '0',
+            'event_repeat_on_num' => '1',
+            'event_repeat_on_day' => '0',
+            'event_repeat_on_freq' => '1',
+        ]);
     }
 
 //The modification of the start date for events that take place on one day of the week
@@ -322,32 +337,25 @@ if (($_POST['form_action'] ?? null) == "save") {
             $r2 = array_diff($providers_new, $providers_current);
             if (count($r2)) {
                 foreach ($r2 as $to_be_inserted) {
-                    // AI/Claude Code refactored to parametrized query
-                    sqlStatement(
-                        "INSERT INTO openemr_postcalendar_events ( pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, ?)",
+                    QueryUtils::sqlStatementThrowException(
+                        "INSERT INTO openemr_postcalendar_events (
+                            pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time,
+                            pc_hometext, pc_informant, pc_eventDate, pc_endDate, pc_duration,
+                            pc_recurrtype, pc_recurrspec, pc_startTime, pc_endTime,
+                            pc_alldayevent, pc_apptstatus, pc_prefcatid, pc_location,
+                            pc_eventstatus, pc_sharing, pc_facility
+                        ) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, ?)",
                         [
-                            $_POST['form_category'],
-                            $row['pc_multiple'],
-                            $to_be_inserted,
-                            $pid,
-                            $_POST['form_title'],
-                            $_POST['form_comments'],
-                            $session->get('providerId'),
-                            $event_date,
-                            fixDate($_POST['form_enddate']),
-                            ($duration * 60),
-                            ($_POST['form_repeat'] ? '1' : '0'),
-                            $recurrspec,
-                            $starttime,
-                            $endtime,
-                            $_POST['form_allday'],
-                            $_POST['form_apptstatus'],
-                            $_POST['form_prefcat'],
-                            $locationspec,
-                            (int)$_POST['facility'],
+                            $_POST['form_category'], $row['pc_multiple'], $to_be_inserted,
+                            $pid, $_POST['form_title'], $_POST['form_comments'],
+                            $session->get('providerId'), $event_date,
+                            fixDate($_POST['form_enddate']), ($duration * 60),
+                            ($_POST['form_repeat'] ? '1' : '0'), $recurrspec,
+                            $starttime, $endtime, $_POST['form_allday'],
+                            $_POST['form_apptstatus'], $_POST['form_prefcat'],
+                            $locationspec, (int)$_POST['facility'],
                         ]
                     );
-                    // End of AI/Claude Code refactored
                 } // foreach
             } //if count
 
@@ -355,38 +363,24 @@ if (($_POST['form_action'] ?? null) == "save") {
             // after the two diffs above, we must update for remaining providers
             // those who are intersected in $providers_current and $providers_new
             foreach ($_POST['form_provider_ae'] as $provider) {
-                // AI/Claude Code refactored to parametrized query
-                sqlStatement(
-                    "UPDATE openemr_postcalendar_events SET " .
-                        "pc_catid = ?, pc_pid = ?, pc_title = ?, pc_time = NOW(), " .
-                        "pc_hometext = ?, pc_informant = ?, pc_eventDate = ?, " .
-                        "pc_endDate = ?, pc_duration = ?, pc_recurrtype = ?, " .
-                        "pc_recurrspec = ?, pc_startTime = ?, pc_endTime = ?, " .
-                        "pc_alldayevent = ?, pc_apptstatus = ?, pc_prefcatid = ?, " .
-                        "pc_facility = ? " .
-                        "WHERE pc_aid = ? AND pc_multiple = ?",
+                QueryUtils::sqlStatementThrowException(
+                    "UPDATE openemr_postcalendar_events SET
+                        pc_catid = ?, pc_pid = ?, pc_title = ?, pc_time = NOW(),
+                        pc_hometext = ?, pc_informant = ?, pc_eventDate = ?, pc_endDate = ?,
+                        pc_duration = ?, pc_recurrtype = ?, pc_recurrspec = ?,
+                        pc_startTime = ?, pc_endTime = ?, pc_alldayevent = ?,
+                        pc_apptstatus = ?, pc_prefcatid = ?, pc_facility = ?
+                        WHERE pc_aid = ? AND pc_multiple = ?",
                     [
-                        $_POST['form_category'],
-                        $pid,
-                        $_POST['form_title'],
-                        $_POST['form_comments'],
-                        $session->get('providerId'),
-                        $event_date,
-                        fixDate($_POST['form_enddate']),
-                        ($duration * 60),
-                        ($_POST['form_repeat'] ? '1' : '0'),
-                        $recurrspec,
-                        $starttime,
-                        $endtime,
-                        $_POST['form_allday'],
-                        $_POST['form_apptstatus'],
-                        $_POST['form_prefcat'],
-                        (int)$_POST['facility'],
-                        $provider,
-                        $row['pc_multiple'],
+                        $_POST['form_category'], $pid, $_POST['form_title'],
+                        $_POST['form_comments'], $session->get('providerId'),
+                        $event_date, fixDate($_POST['form_enddate']),
+                        ($duration * 60), ($_POST['form_repeat'] ? '1' : '0'),
+                        $recurrspec, $starttime, $endtime, $_POST['form_allday'],
+                        $_POST['form_apptstatus'], $_POST['form_prefcat'],
+                        (int)$_POST['facility'], $provider, $row['pc_multiple'],
                     ]
                 );
-                // End of AI/Claude Code refactored
             } // foreach
 
             /* ==========================================
@@ -396,38 +390,24 @@ if (($_POST['form_action'] ?? null) == "save") {
             $prov = $globalsBag->getBoolean('select_multi_providers') ? $_POST['form_provider_ae'][0] : $_POST['form_provider_ae'];
             $insert = false;
             // simple provider case
-            // AI/Claude Code refactored to parametrized query
-            sqlStatement(
-                "UPDATE openemr_postcalendar_events SET " .
-                    "pc_catid = ?, pc_aid = ?, pc_pid = ?, pc_title = ?, pc_time = NOW(), " .
-                    "pc_hometext = ?, pc_informant = ?, pc_eventDate = ?, " .
-                    "pc_endDate = ?, pc_duration = ?, pc_recurrtype = ?, " .
-                    "pc_recurrspec = ?, pc_startTime = ?, pc_endTime = ?, " .
-                    "pc_alldayevent = ?, pc_apptstatus = ?, pc_prefcatid = ?, " .
-                    "pc_facility = ? " .
-                    "WHERE pc_eid = ?",
+            QueryUtils::sqlStatementThrowException(
+                "UPDATE openemr_postcalendar_events SET
+                    pc_catid = ?, pc_aid = ?, pc_pid = ?, pc_title = ?, pc_time = NOW(),
+                    pc_hometext = ?, pc_informant = ?, pc_eventDate = ?, pc_endDate = ?,
+                    pc_duration = ?, pc_recurrtype = ?, pc_recurrspec = ?,
+                    pc_startTime = ?, pc_endTime = ?, pc_alldayevent = ?,
+                    pc_apptstatus = ?, pc_prefcatid = ?, pc_facility = ?
+                    WHERE pc_eid = ?",
                 [
-                    $_POST['form_category'],
-                    $prov,
-                    $pid,
-                    $_POST['form_title'],
-                    $_POST['form_comments'],
-                    $session->get('providerId'),
-                    $event_date,
-                    fixDate($_POST['form_enddate'] ?? ''),
-                    ($duration * 60),
-                    (($_POST['form_repeat'] ?? null) ? '1' : '0'),
-                    $recurrspec,
-                    $starttime,
-                    $endtime,
-                    ($_POST['form_allday'] ?? ''),
-                    $_POST['form_apptstatus'],
-                    ($_POST['form_prefcat'] ?? ''),
-                    (int)($_POST['facility'] ?? null),
-                    $eid,
+                    $_POST['form_category'], $prov, $pid, $_POST['form_title'],
+                    $_POST['form_comments'], $session->get('providerId'),
+                    $event_date, fixDate($_POST['form_enddate'] ?? ''),
+                    ($duration * 60), (($_POST['form_repeat'] ?? null) ? '1' : '0'),
+                    $recurrspec, $starttime, $endtime, $_POST['form_allday'] ?? '',
+                    $_POST['form_apptstatus'], $_POST['form_prefcat'] ?? '',
+                    (int)($_POST['facility'] ?? null), $eid,
                 ]
             );
-            // End of AI/Claude Code refactored
         }
 
         // =======================================
@@ -453,71 +433,48 @@ if (($_POST['form_action'] ?? null) == "save") {
             $new_multiple_value = $max['max'] + 1;
 
             foreach ($_POST['form_provider_ae'] as $provider) {
-                // AI/Claude Code refactored to parametrized query
-                sqlStatement(
-                    "INSERT INTO openemr_postcalendar_events ( " .
-                        "pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
-                        "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
-                        "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
-                        "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility " .
-                        ") VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, ?)",
+                QueryUtils::sqlStatementThrowException(
+                    "INSERT INTO openemr_postcalendar_events (
+                        pc_catid, pc_multiple, pc_aid, pc_pid, pc_title, pc_time,
+                        pc_hometext, pc_informant, pc_eventDate, pc_endDate, pc_duration,
+                        pc_recurrtype, pc_recurrspec, pc_startTime, pc_endTime,
+                        pc_alldayevent, pc_apptstatus, pc_prefcatid, pc_location,
+                        pc_eventstatus, pc_sharing, pc_facility
+                    ) VALUES (?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, ?)",
                     [
-                        $_POST['form_category'],
-                        $new_multiple_value,
-                        $provider,
-                        $pid,
-                        $_POST['form_title'],
-                        $_POST['form_comments'],
-                        $session->get('providerId'),
-                        $event_date,
-                        fixDate($_POST['form_enddate']),
-                        ($duration * 60),
-                        ($_POST['form_repeat'] ? '1' : '0'),
-                        $recurrspec,
-                        $starttime,
-                        $endtime,
-                        $_POST['form_allday'],
-                        $_POST['form_apptstatus'],
-                        $_POST['form_prefcat'],
-                        $locationspec,
-                        (int)$_POST['facility'],
+                        $_POST['form_category'], $new_multiple_value, $provider,
+                        $pid, $_POST['form_title'], $_POST['form_comments'],
+                        $session->get('providerId'), $event_date,
+                        fixDate($_POST['form_enddate']), ($duration * 60),
+                        ($_POST['form_repeat'] ? '1' : '0'), $recurrspec,
+                        $starttime, $endtime, $_POST['form_allday'],
+                        $_POST['form_apptstatus'], $_POST['form_prefcat'],
+                        $locationspec, (int)$_POST['facility'],
                     ]
                 );
-                // End of AI/Claude Code refactored
             } // foreach
         } else {
             $_POST['form_apptstatus'] = '^';
             $insert = true;
-            // AI/Claude Code refactored to parametrized query
-            sqlStatement(
-                "INSERT INTO openemr_postcalendar_events ( " .
-                    "pc_catid, pc_aid, pc_pid, pc_title, pc_time, pc_hometext, " .
-                    "pc_informant, pc_eventDate, pc_endDate, pc_duration, pc_recurrtype, " .
-                    "pc_recurrspec, pc_startTime, pc_endTime, pc_alldayevent, " .
-                    "pc_apptstatus, pc_prefcatid, pc_location, pc_eventstatus, pc_sharing, pc_facility " .
-                    ") VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, ?)",
+            QueryUtils::sqlStatementThrowException(
+                "INSERT INTO openemr_postcalendar_events (
+                    pc_catid, pc_aid, pc_pid, pc_title, pc_time,
+                    pc_hometext, pc_informant, pc_eventDate, pc_endDate, pc_duration,
+                    pc_recurrtype, pc_recurrspec, pc_startTime, pc_endTime,
+                    pc_alldayevent, pc_apptstatus, pc_prefcatid, pc_location,
+                    pc_eventstatus, pc_sharing, pc_facility
+                ) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, ?)",
                 [
-                    $_POST['form_category'],
-                    $_POST['form_provider_ae'],
-                    $pid,
-                    $_POST['form_title'],
-                    $_POST['form_comments'],
-                    $session->get('providerId'),
-                    $event_date,
-                    fixDate(($_POST['form_enddate'] ?? '')),
-                    ($duration * 60),
-                    (($_POST['form_repeat'] ?? null) ? '1' : '0'),
-                    $recurrspec,
-                    $starttime,
-                    $endtime,
-                    ($_POST['form_allday'] ?? ''),
-                    $_POST['form_apptstatus'],
-                    ($_POST['form_prefcat'] ?? null),
-                    $locationspec,
-                    (int)($_POST['facility'] ?? null),
+                    $_POST['form_category'], $_POST['form_provider_ae'],
+                    $pid, $_POST['form_title'], $_POST['form_comments'],
+                    $session->get('providerId'), $event_date,
+                    fixDate($_POST['form_enddate'] ?? ''), ($duration * 60),
+                    (($_POST['form_repeat'] ?? null) ? '1' : '0'), $recurrspec,
+                    $starttime, $endtime, $_POST['form_allday'] ?? '',
+                    $_POST['form_apptstatus'], $_POST['form_prefcat'] ?? null,
+                    $locationspec, (int)($_POST['facility'] ?? null),
                 ]
             );
-            // End of AI/Claude Code refactored
         } // INSERT single
     } // else - insert
 } elseif (($_POST['form_action'] ?? null) == "delete") {
@@ -709,6 +666,7 @@ if ($userid) {
 <body class="skin-blue">
     <div class="container-fluid">
         <form method='post' name='theaddform' id='theaddform' action='add_edit_event_user.php?eid=<?php echo attr_url($eid); ?>'>
+<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('portal-appointment', $session->getSymfonySession())); ?>" />
             <div class="col-12">
                 <input type="hidden" name="form_action" id="form_action" value="" />
                 <input type='hidden' name='form_title' id='form_title' value='<?php echo ($row['pc_catid'] ?? '') ? attr($row['pc_title']) : xla("Office Visit"); ?>' />
