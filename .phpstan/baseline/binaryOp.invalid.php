@@ -17242,11 +17242,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/logout.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'Location\\: \' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/messaging/handle_note.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \' \' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/messaging/handle_note.php',
