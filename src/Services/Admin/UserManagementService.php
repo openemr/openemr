@@ -26,7 +26,7 @@ use OpenEMR\Validators\ProcessingResult;
 
 class UserManagementService extends UserService
 {
-    private UserValidator $userValidator;
+    private readonly UserValidator $userValidator;
 
     public function __construct()
     {
