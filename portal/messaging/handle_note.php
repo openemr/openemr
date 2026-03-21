@@ -197,11 +197,6 @@ switch ($task) {
         break;
 }
 
-if (!empty($_POST["submit"])) {
-    // Validate redirect target against allowlist to prevent open redirect.
-    // The submit button in messages.php hardcodes value="messages.php".
-    $allowedRedirects = ['messages.php'];
-    $url = in_array($_POST["submit"], $allowedRedirects, true) ? $_POST["submit"] : 'messages.php';
-    header("Location: " . $url);
-    exit();
+if (isset($_POST['submit'])) {
+    header('Location: messages.php');
 }
