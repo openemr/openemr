@@ -14,6 +14,16 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Direct instantiation of OpenEMR\\\\Common\\\\Logging\\\\SystemLogger is discouraged\\. Use OpenEMR\\\\BC\\\\ServiceContainer\\:\\:getLogger\\(\\) instead\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/messages/ajax/get_patient_data_recall.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Direct instantiation of OpenEMR\\\\Common\\\\Logging\\\\SystemLogger is discouraged\\. Use OpenEMR\\\\BC\\\\ServiceContainer\\:\\:getLogger\\(\\) instead\\.$#',
+    'count' => 5,
+    'path' => __DIR__ . '/../../interface/main/messages/ajax/save_recall.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Direct instantiation of OpenEMR\\\\Common\\\\Logging\\\\SystemLogger is discouraged\\. Use OpenEMR\\\\BC\\\\ServiceContainer\\:\\:getLogger\\(\\) instead\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaServiceDocumentRequestor.php',
 ];
 $ignoreErrors[] = [
@@ -245,6 +255,11 @@ $ignoreErrors[] = [
     'message' => '#^Direct instantiation of OpenEMR\\\\Common\\\\Logging\\\\SystemLogger is discouraged\\. Use OpenEMR\\\\BC\\\\ServiceContainer\\:\\:getLogger\\(\\) instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/PatientAdvanceDirectiveService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Direct instantiation of OpenEMR\\\\Common\\\\Logging\\\\SystemLogger is discouraged\\. Use OpenEMR\\\\BC\\\\ServiceContainer\\:\\:getLogger\\(\\) instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RecallService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct instantiation of OpenEMR\\\\Common\\\\Http\\\\Psr17Factory is discouraged\\. Use OpenEMR\\\\BC\\\\ServiceContainer\\:\\:get\\{PsrType\\}Factory\\(\\) instead\\.$#',

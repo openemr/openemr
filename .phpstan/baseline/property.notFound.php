@@ -227,26 +227,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/therapy_groups/therapy_groups_controllers/therapy_groups_controller.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Access to an undefined property MedExApi\\\\Display\\:\\:\\$lastError\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property MedExApi\\\\Events\\:\\:\\$lastError\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property MedExApi\\\\Practice\\:\\:\\$lastError\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property MedExApi\\\\Setup\\:\\:\\$lastError\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Access to an undefined property CouchDB\\:\\:\\$body\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/CouchDB.class.php',

@@ -228,3 +228,50 @@ DELETE FROM `globals` WHERE `gl_name` IN (
 --
 
 DROP VIEW IF EXISTS `onsite_activity_view`;
+
+-- Rename medex_recalls to patient_recalls (if not already renamed)
+#IfTable medex_recalls
+RENAME TABLE `medex_recalls` TO `patient_recalls`;
+#EndIf
+
+-- Create patient_recalls if it does not exist (fresh installs handled by database.sql)
+#IfNotTable patient_recalls
+CREATE TABLE `patient_recalls` (
+  `r_ID` int(11) NOT NULL AUTO_INCREMENT,
+  `r_PRACTID` int(11) NOT NULL,
+  `r_pid` int(11) NOT NULL COMMENT 'PatientID from pat_data',
+  `r_eventDate` date NOT NULL COMMENT 'Date of Appt or Recall',
+  `r_facility` int(11) NOT NULL,
+  `r_provider` int(11) NOT NULL,
+  `r_reason` varchar(255) DEFAULT NULL,
+  `r_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`r_ID`),
+  UNIQUE KEY `r_PRACTID` (`r_PRACTID`,`r_pid`)
+) ENGINE=InnoDB;
+#EndIf
+
+-- Create recall_board_actions for core Recall Board manual action logging.
+-- This is a NEW core table, not a rename of medex_outgoing.
+-- medex_outgoing (MedEx campaign history) is left for the MedEx module to manage.
+#IfNotTable recall_board_actions
+CREATE TABLE `recall_board_actions` (
+  `msg_uid` int(11) NOT NULL AUTO_INCREMENT,
+  `msg_pc_eid` varchar(11) NOT NULL,
+  `msg_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `msg_type` varchar(50) NOT NULL,
+  `msg_reply` varchar(50) DEFAULT NULL,
+  `msg_extra_text` text,
+  PRIMARY KEY (`msg_uid`),
+  KEY `msg_pc_eid` (`msg_pc_eid`)
+) ENGINE=InnoDB;
+#EndIf
+
+-- Remove MedEx background service (module recreates on install if needed)
+#IfRow background_services name MedEx
+DELETE FROM `background_services` WHERE `name` = 'MedEx';
+#EndIf
+
+-- Remove medex_enable global setting (module recreates on enable if needed)
+#IfRow globals gl_name medex_enable
+DELETE FROM `globals` WHERE `gl_name` = 'medex_enable';
+#EndIf

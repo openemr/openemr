@@ -1593,7 +1593,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 24,
+    'count' => 23,
     'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
 ];
 $ignoreErrors[] = [
@@ -1900,11 +1900,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../library/FeeSheetHtml.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 57,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
@@ -3955,6 +3950,16 @@ $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Validators/CoverageValidator.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot cast mixed to string\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../src/Views/RecallBoard/AddRecallForm.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot cast mixed to string\\.$#',
+    'count' => 14,
+    'path' => __DIR__ . '/../../src/Views/RecallBoard/DisplayService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',

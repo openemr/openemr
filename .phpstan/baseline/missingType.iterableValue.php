@@ -1857,11 +1857,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ESign/Viewer.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Events\\:\\:addRecurrent\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function deduplicateResults\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/person_search_ajax.php',
@@ -14607,6 +14602,26 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/QuestionnaireService.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\RecallService\\:\\:createRecall\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RecallService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\RecallService\\:\\:getPatientData\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RecallService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\RecallService\\:\\:getRecalls\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RecallService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\RecallService\\:\\:updateRecall\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RecallService.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\SDOH\\\\HistorySdohService\\:\\:buildGoalsResource\\(\\) has parameter \\$row with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/SDOH/HistorySdohService.php',
@@ -15185,6 +15200,11 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Validators\\\\Rules\\\\ListOptionRule\\:\\:\\$messageTemplates type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Validators/Rules/ListOptionRule.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Views\\\\RecallBoard\\\\AddRecallForm\\:\\:display_add_recall\\(\\) has parameter \\$result_pat with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Views/RecallBoard/AddRecallForm.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\AllergyIntoleranceFhirApiTest\\:\\:getJsonContents\\(\\) return type has no value type specified in iterable type array\\.$#',

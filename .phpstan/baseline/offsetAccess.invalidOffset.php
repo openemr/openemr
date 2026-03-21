@@ -613,11 +613,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
-    'count' => 28,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 8,
     'path' => __DIR__ . '/../../library/ajax/graphs.php',
 ];
@@ -1450,6 +1445,11 @@ $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Validators/BaseValidator.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Possibly invalid array key type mixed\\.$#',
+    'count' => 15,
+    'path' => __DIR__ . '/../../src/Views/RecallBoard/DisplayService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Possibly invalid array key type mixed\\.$#',

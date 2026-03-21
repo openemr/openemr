@@ -1577,61 +1577,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/holidays/Holidays_Controller.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method MedExBank\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/messages/messages.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method SMS_bot\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/main/messages/messages.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method display_add_recall\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/messages/messages.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method display_recalls\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/messages/messages.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method icon_template\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/messages/messages.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method navigation\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/messages/messages.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method preferences\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/messages/messages.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method autoReg\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/messages/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method delete_recall\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/messages/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getAge\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/messages/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method save_recall\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/messages/save.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method get_data\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/messages/trusted-messages-ajax.php',
@@ -3167,21 +3112,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/summary/demographics.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method login\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method navigation\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method possibleModalities\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method get_address\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/procedure_tools/gen_universal_hl7/gen_hl7_order.inc.php',
@@ -3550,86 +3480,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method getValedictory\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ESign/views/default/esign_signature_log.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method __increment\\(\\) on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method calculateEvents\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method checkModality\\(\\) on mixed\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method generate\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getAge\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getLastError\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getPreferences\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getResponse\\(\\) on mixed\\.$#',
-    'count' => 12,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getUrl\\(\\) on mixed\\.$#',
-    'count' => 11,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method log_this\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method makeRequest\\(\\) on mixed\\.$#',
-    'count' => 12,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method receive\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setData\\(\\) on mixed\\.$#',
-    'count' => 12,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method setUrl\\(\\) on mixed\\.$#',
-    'count' => 12,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method show_progress_recall\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method sync\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method render\\(\\) on mixed\\.$#',

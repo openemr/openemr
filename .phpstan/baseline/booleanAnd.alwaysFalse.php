@@ -28,11 +28,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Result of && is always false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Result of && is always false\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/classes/php-barcode.php',
 ];

@@ -212,21 +212,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/super/manage_site_files.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$form_patient_id in empty\\(\\) is never defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$form_patient_name in empty\\(\\) is never defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$setting_selectors in empty\\(\\) is never defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$provider in empty\\(\\) is never defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/amc.php',

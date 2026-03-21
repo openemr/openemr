@@ -1,11 +1,11 @@
 /**
- * Message center javascript.
+ * Message center styles.
  *
- * @package MedEx
- * @link    http://www.MedExBank.com
- * @author  MedEx <support@MedExBank.com>
- * @author  Tyler Wrenn <tyler@tylerwrenn.com>
- * @copyright Copyright (c) 2017 MedEx <support@MedExBank.com>
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Ray Magauran <rmagauran@gmail.com>
+ * @author    Tyler Wrenn <tyler@tylerwrenn.com>
+ * @copyright Copyright (c) 2017 Ray Magauran <rmagauran@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
@@ -546,7 +546,7 @@ td.right {
   position: relative;
 }
 
-#medex-recall-nav {
+#recall-nav {
   position: relative;
   top: 7px;
 }

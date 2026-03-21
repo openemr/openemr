@@ -891,15 +891,15 @@ if ($eid) {
     $multiple_value = $row['pc_multiple'];
 
     // parse out the repeating data, if any
-    $rspecs = unserialize($row['pc_recurrspec'], ['allowed_classes' => false]); // extract recurring data
-    $repeattype = $rspecs['event_repeat_freq_type'];
-    $repeatfreq = $rspecs['event_repeat_freq'];
-    $repeatexdate = $rspecs['exdate']; // repeating date exceptions
+    $rspecs = !empty($row['pc_recurrspec']) ? unserialize($row['pc_recurrspec'], ['allowed_classes' => false]) : []; // extract recurring data
+    $repeattype = $rspecs['event_repeat_freq_type'] ?? '';
+    $repeatfreq = $rspecs['event_repeat_freq'] ?? '';
+    $repeatexdate = $rspecs['exdate'] ?? ''; // repeating date exceptions
 
     // Adjustments for repeat type 2, a particular weekday of the month.
     if ($repeats == 2) {
-            $repeatfreq = $rspecs['event_repeat_on_freq'];
-        $repeattype = $rspecs['event_repeat_on_num'] < 5 ? 5 : 6;
+            $repeatfreq = $rspecs['event_repeat_on_freq'] ?? '';
+        $repeattype = ($rspecs['event_repeat_on_num'] ?? 0) < 5 ? 5 : 6;
     }
 
     $recurrence_end_date = ($row['pc_endDate'] && $row['pc_endDate'] != '0000-00-00') ? $row['pc_endDate'] : null;
@@ -1084,7 +1084,9 @@ $addEditEventConfig = [
 ?>
 window.addEditEventConfig = <?php echo json_encode($addEditEventConfig); ?>;
 </script>
+<script>
 <?php require(OEGlobalsBag::getInstance()->get('srcdir') . "/restoreSession.php"); ?>
+</script>
 
 <!-- Extracted JS functions (Issue #8057) — loaded before event dispatch
      so that RENDER_JAVASCRIPT listeners can call these functions immediately -->

@@ -6,5 +6,10 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/AuthorizationController.php',
 ];
+$ignoreErrors[] = [
+    'message' => '#^Use getBoolean\\(\'ptkr_show_pid\'\\) instead of get\\(\'ptkr_show_pid\'\\) for boolean globals\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Views/RecallBoard/DisplayService.php',
+];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

@@ -9,11 +9,11 @@
  * @author Roberto Vasquez <robertogagliotta@gmail.com>
  * @author Rod Roark <rod@sunsetsystems.com>
  * @author Brady Miller <brady.g.miller@gmail.com>
- * @author Ray Magauran <magauran@medfetch.com>
+ * @author Ray Magauran <rmagauran@gmail.com>
  * @author Tyler Wrenn <tyler@tylerwrenn.com>
  * @author Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2010 OpenEMR Support LLC
- * @copyright Copyright (c) 2017 MedEXBank.com
+ * @copyright Copyright (c) 2017 Ray Magauran <rmagauran@gmail.com>
  * @copyright Copyright (c) 2018-2019 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2020 Tyler Wrenn <tyler@tylerwrenn.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
@@ -26,7 +26,6 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/gprelations.inc.php");
 require_once "$srcdir/user.inc.php";
-require_once("$srcdir/MedEx/API.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -43,19 +42,6 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 //Gets validation rules from Page Validation list.
 $collectthis = collectValidationPageRules("/interface/main/messages/messages.php");
 $collectthis = empty($collectthis) ? "{}" : json_sanitize($collectthis[array_keys($collectthis)[0]]["rules"]);
-
-$MedEx = new MedExApi\MedEx('MedExBank.com');
-
-if (OEGlobalsBag::getInstance()->getBoolean('medex_enable')) {
-    if ($_REQUEST['SMS_bot']) {
-        $result = $MedEx->login('');
-        $MedEx->display->SMS_bot($result);
-        exit();
-    }
-    $logged_in = $MedEx->login();
-} else {
-    $logged_in = null;
-}
 
 $setting_bootstrap_submenu = prevSetting('', 'setting_bootstrap_submenu', 'setting_bootstrap_submenu', ' ');
 //use $uspfx as the first variable for page/script specific user settings instead of '' (which is like a global but you have to request it).
@@ -84,14 +70,15 @@ if (
     ?>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="description" content="MedEx Bank" />
-    <meta name="author" content="OpenEMR: MedExBank" />
+    <meta name="description" content="OpenEMR Message Center" />
+    <meta name="author" content="OpenEMR" />
     <?php Header::setupHeader(['datetime-picker', 'opener', 'moment', 'select2']); ?>
     <link rel="stylesheet" href="<?php echo $webroot; ?>/interface/main/messages/css/reminder_style.css?v=<?php echo $v_js_includes; ?>">
 
     <script>
         var xljs1 = '<?php echo xla('Preferences updated successfully'); ?>';
         var format_date_moment_js = '<?php echo attr(DateFormatRead("validateJS")); ?>';
+        var csrfTokenForm = <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>;
         <?php require_once "$srcdir/restoreSession.php"; ?>
     </script>
 
@@ -110,39 +97,30 @@ if (
     </style>
 
 <?php
-if ((OEGlobalsBag::getInstance()->getBoolean('medex_enable')) && (empty($_REQUEST['nomenu'])) && (!OEGlobalsBag::getInstance()->getBoolean('disable_rcb'))) {
-    $MedEx->display->navigation($logged_in);
-    echo "<br /><br /><br />";
-}
+// Module hook point: messaging navigation injected via module shutdown function
 
 if (!empty($_REQUEST['go'])) { ?>
     <?php
-    if (($_REQUEST['go'] == "setup") && (!$logged_in)) {
-        echo "<title>" . xlt('MedEx Setup') . "</title>";
-        $stage = $_REQUEST['stage'];
-        if (!is_numeric($stage)) {
-            echo "<br /><span class='title'>" . text($stage) . " " . xlt('Warning') . ": " . xlt('This is not a valid request') . ".</span>";
+    if ($_REQUEST['go'] == "addRecall") {
+        $recall_pid = (int) ($_REQUEST['recall_pid'] ?? 0);
+        if ($recall_pid) {
+            echo "<title>" . xlt('Edit Recall') . "</title>";
         } else {
-            $MedEx->setup->MedExBank($stage);
+            echo "<title>" . xlt('New Recall') . "</title>";
         }
-    } elseif ($_REQUEST['go'] == "addRecall") {
-        echo "<title>" . xlt('New Recall') . "</title>";
-        $MedEx->display->display_add_recall();
+        // Recall form rendered by RecallBoard services
+        $rcb_form = new \OpenEMR\Views\RecallBoard\AddRecallForm();
+        $rcb_form->display_add_recall();
+        if ($recall_pid) {
+            // Auto-populate the form with existing patient/recall data
+            echo '<script>$(function(){ setpatient(' . js_escape((string) $recall_pid) . '); });</script>';
+        }
     } elseif ($_REQUEST['go'] == 'Recalls') {
         echo "<title>" . xlt('Recall Board') . "</title>";
-        $MedEx->display->display_recalls($logged_in);
-    } elseif ((($_REQUEST['go'] == "setup") || ($_REQUEST['go'] == 'Preferences')) && ($logged_in)) {
-        echo "<title>MedEx: " . xlt('Preferences') . "</title>";
-        $MedEx->display->preferences();
-    } elseif ($_REQUEST['go'] == 'icons') {
-        echo "<title>MedEx: " . xlt('Icons') . "&#x24B8;</title>";
-        $MedEx->display->icon_template();
-    } elseif ($_REQUEST['go'] == 'SMS_bot') {
-        echo "<title>MedEx: SMS Bot&#x24B8;</title>";
-        $MedEx->display->SMS_bot($logged_in);
-        exit;
+        $rcb_display = new \OpenEMR\Views\RecallBoard\DisplayService((string)$rcb_selectors, (string)$rcb_facility, (string)$rcb_provider);
+        $rcb_display->display_recalls();
     } else {
-        echo "<title>" . xlt('MedEx Setup') . "</title>";
+        echo "<title>" . xlt('Message Center') . "</title>";
         echo xlt('Warning: Navigation error. Please refresh this page.');
     }
 } else {
@@ -197,11 +175,6 @@ if (!empty($_REQUEST['go'])) { ?>
                     <?php if (!OEGlobalsBag::getInstance()->getBoolean('disable_rcb')) { ?>
                     <li class="nav-item" id='li-reca' role="presentation">
                         <a href='#recalls-div' id='recalls-li' class="nav-link" data-toggle="pill" role="tab" aria-controls="<?php echo xla("Recalls");?>" aria-selected="true"><?php echo xlt('Recalls'); ?></a>
-                    </li>
-                    <?php }?>
-                    <?php if ($logged_in) { ?>
-                    <li class="nav-item" id='li-sms' role="presentation">
-                        <a href='#sms-div' id='sms-li' class="nav-link" data-toggle="pill"  role="tab" aria-controls="<?php echo xla("SMS Zone");?>" aria-selected="true"><?php echo xlt('SMS Zone'); ?></a>
                     </li>
                     <?php }?>
                 </ul>
@@ -795,20 +768,6 @@ if (!empty($_REQUEST['go'])) { ?>
                 </div>
             </div><!--end of recalls div-->
             <?php } ?>
-            <div class="row tab-pane" role="tabpanel" id="sms-div">
-                <div class="col-sm-4 col-md-4 col-lg-4">
-                    <?php if ($logged_in) { ?>
-                    <h4><?php echo xlt('SMS Zone'); ?></h4>
-                    <form id="smsForm" class="input-group">
-                        <select id="SMS_patient" type="text" class="form-control m-0 w-100" placeholder="<?php echo xla("Patient Name"); ?>"></select>
-                        <span class="input-group-addon" onclick="SMS_direct();">&nbsp;&nbsp;<i id='open-sms-tooltip' class="fas fa-2x fa-phone"></i></span>
-                        <input type="hidden" id="sms_pid" />
-                        <input type="hidden" id="sms_mobile" value="" />
-                        <input type="hidden" id="sms_allow" value="" />
-                    </form>
-                    <?php } ?>
-                </div>
-            </div><!--end of sms div-->
         </div>
     </div><!--end of container div-->
     <?php $oemr_ui->oeBelowContainerDiv();?>
@@ -872,49 +831,7 @@ if (!empty($_REQUEST['go'])) { ?>
         $(function () {
             $('#see-all-tooltip').attr({"title": <?php echo xlj('Click to show messages for all users'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
             $('#just-mine-tooltip').attr({"title": <?php echo xlj('Click to show messages for only the current user'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
-            $('#open-sms-tooltip').attr({"title": <?php echo xlj('Click to open SMS for patient'); ?>, "data-toggle":"tooltip", "data-placement":"bottom"}).tooltip();
         });
-        $(function () {
-            var f = $("#smsForm");
-            $("#SMS_patient").select2({
-                ajax: {
-                    url: "save.php",
-                    dataType: 'json',
-                    data: function(params) {
-                        return {
-                        go: "sms_search",
-                        term: params.term
-                        };
-                    },
-                    processResults: function(data) {
-                        return  {
-                            results: $.map(data, function(item, index) {
-                                return {
-                                    text: item.value,
-                                    id: index,
-                                    value: item.Label + ' ' + item.mobile,
-                                    pid: item.pid,
-                                    mobile: item.mobile,
-                                    allow: item.allow
-                                }
-                            })
-                        };
-                    },
-                    cache: true
-                },
-                dropdownAutoWidth: true,
-                placeholder: xl('Search for patient...'),
-                theme: 'bootstrap4'
-            })
-
-            $('#SMS_patient').on('select2:select', function (e) {
-                        e.preventDefault();
-                        $("#SMS_patient").val(e.params.data.value);
-                        $("#sms_pid").val(e.params.data.pid);
-                        $("#sms_mobile").val(e.params.data.mobile);
-                        $("#sms_allow").val(e.params.data.allow);
-            });
-        })
 
         $(function () {
             $("#newnote").click(function (event) {
@@ -1060,26 +977,6 @@ if (!empty($_REQUEST['go'])) { ?>
                     itemtext.value = sel.options[sel.selectedIndex].text;
                     item.value = sel.value;
                 }
-            }
-        }
-
-        function SMS_direct() {
-            var pid = $("#sms_pid").val();
-            var m = $("#sms_mobile").val();
-            var allow = $("#sms_allow").val();
-            if ((pid === '') || (m === '')) {
-                alert(<?php echo xlj("MedEx needs a valid mobile number to send SMS messages..."); ?>);
-            } else if (allow === 'NO') {
-                alert(<?php echo xlj("This patient does not allow SMS messaging!"); ?>);
-            } else {
-                top.restoreSession();
-                const params = new URLSearchParams({
-                    go: 'SMS_bot',
-                    m: m,
-                    nomenu: '1',
-                    pid: pid
-                });
-                window.open('messages.php?' + params, 'SMS_bot', 'width=370,height=600,resizable=0');
             }
         }
 

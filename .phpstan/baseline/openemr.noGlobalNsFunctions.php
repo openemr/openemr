@@ -3747,11 +3747,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../ippf_upgrade.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function start_MedEx may not be defined in the global namespace\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/MedEx_background.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function error_xml may not be defined in the global namespace\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/adminacl_ajax.php',

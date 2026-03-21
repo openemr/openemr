@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 394" width="600" height="394">
+  <rect width="600" height="394" fill="#fff" stroke="#999" stroke-width="1"/>
+  <line x1="300" y1="20" x2="300" y2="374" stroke="#bbb" stroke-width="1" stroke-dasharray="4,3"/>
+  <rect x="530" y="20" width="50" height="60" fill="none" stroke="#bbb" stroke-width="1"/>
+  <text x="555" y="55" text-anchor="middle" font-family="Arial,sans-serif" font-size="9" fill="#bbb">STAMP</text>
+</svg>

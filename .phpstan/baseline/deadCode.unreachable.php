@@ -133,11 +133,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/api.inc.php',
 ];

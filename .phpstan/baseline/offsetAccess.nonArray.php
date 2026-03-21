@@ -123,11 +123,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot use array destructuring on mixed\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot use array destructuring on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Installer.class.php',
 ];

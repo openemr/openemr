@@ -1417,21 +1417,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/ESign/ESign.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Events\\:\\:addRecurrent\\(\\) should return array\\|bool but returns int\\<0, max\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Events\\:\\:process\\(\\) should return bool but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method MedExApi\\\\Events\\:\\:process_deletes\\(\\) should return bool but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method Document\\:\\:getDocumentsForForeignReferenceId\\(\\) should return array\\<Document\\> but returns array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
@@ -10685,6 +10670,16 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\QuestionnaireResponseService\\:\\:extractAnswerValue\\(\\) should return string but returns mixed\\.$#',
     'count' => 5,
     'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\RecallService\\:\\:createRecall\\(\\) should return int\\|false but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RecallService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\RecallService\\:\\:getPatientRecallCount\\(\\) should return int but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/RecallService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\SDOH\\\\HistorySdohService\\:\\:ccDisplay\\(\\) should return string but returns mixed\\.$#',

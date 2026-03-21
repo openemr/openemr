@@ -3482,13 +3482,6 @@ $GLOBALS_METADATA = [
             xl('Sphere Void/Credit Confirmation Password. OpenEMR confirms pin/password before proceeding with void/credit.')
         ],
 
-        'medex_enable' => [
-            xl('Enable MedEx Communication Service'),
-            'bool',                           // data type
-            '0',
-            xl('Enable MedEx Communication Service')
-        ],
-
         'erx_enable' => [
             xl('Enable Ensora eRx Service'),
             'bool',

@@ -62,9 +62,6 @@ module_acl_user_settings
 module_acl_sections
 module_acl_group_settings
 misc_address_book
-medex_prefs
-medex_outgoing
-medex_icons
 login_mfa_registrations
 log_comment_encrypt
 log
@@ -200,7 +197,7 @@ person_patient_link
 form_bronchitis
 form_ankleinjury
 form_aftercare_plan
-medex_recalls
+patient_recalls
 immunization_observation
 form_vital_details
 form_physical_exam

@@ -14,11 +14,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Result of \\|\\| is always true\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Result of \\|\\| is always true\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaValidateDocuments.php',
 ];
 $ignoreErrors[] = [

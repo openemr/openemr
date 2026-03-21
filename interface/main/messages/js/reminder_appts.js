@@ -1,18 +1,17 @@
 /**
  * Message center javascript.
  *
- * @package MedEx
- * @link    http://www.MedExbank.com
- * @author  MedEx <support@MedExBank.com>
- * @author  Michael A. Smith <michael@opencoreemr.com>
- * @copyright Copyright (c) 2017 MedEx <support@MedExBank.com>
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    Ray Magauran <rmagauran@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2017 Ray Magauran <rmagauran@gmail.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 var labels = [];
 var postcards = [];
-var show_just;
 
 /**
  * Function to find a patient in the DB
@@ -36,10 +35,11 @@ function setpatient(pid, lname='', fname='', dob='') {
         url: "save.php",
         data: {
             'pid': pid,
-            'action': 'new_recall'
+            'action': 'new_recall',
+            'csrf_token_form': csrfTokenForm
         }
     }).done(function (result) {
-        obj = JSON.parse(result);
+        var obj = JSON.parse(result);
         if (obj.DOLV > '') {
             //check to see if this is an already scheduled appt for the future
             //if so, do you really want a recall? Ask.
@@ -129,13 +129,12 @@ function add_this_recall(e) {
     }
 
     var url = "save.php";
-    formData = JSON.stringify($("form#addRecall").serialize());
+    var formData = $("form#addRecall").serialize();
     top.restoreSession();
     $.ajax({
         type: 'POST',
         url: url,
         dataType: 'json',
-        action: 'add_recall',
         data: formData
     }).done(function (result) {
         goReminderRecall('Recalls');
@@ -145,30 +144,12 @@ function add_this_recall(e) {
 /**
  * This function is called when a preference is changed
  */
-function save_preferences(event) {
-    event.preventDefault;
-    var url = "save.php";
-    formData = JSON.stringify($("form#addRecall").serialize());
-    top.restoreSession();
-    $.ajax({
-        type: 'POST',
-        url: url,
-        dataType: 'json',
-        action: 'add_recall',
-        data: formData
-    }).done(function (result) {
-        if (result.msg > '') {
-            $("#message").html = result.msg
-        }
-    });
-}
-
 function show_patient(newpid) {
     if (newpid.length === 0) {
         return;
     }
     top.restoreSession();
-    top.RTop.location = "../../patient_file/summary/demographics.php?set_pid=" + newpid;
+    top.RTop.location = "../../patient_file/summary/demographics.php?set_pid=" + encodeURIComponent(newpid);
 }
 
 /**
@@ -177,7 +158,7 @@ function show_patient(newpid) {
  *  which can then be printed locally (labels or postcards at present 10/31/2016).
  */
 function checkAll(chk, set) {
-    if ($("#chk_" + chk).hasClass('fa-square-o')) {
+    if ($("#chk_" + chk).hasClass('fa-square')) {
         $("[name=" + chk + "]").each(function () {
             this.checked = !$(this).parents('.nodisplay').length;
         });
@@ -186,7 +167,7 @@ function checkAll(chk, set) {
             this.checked = false;
         });
     }
-    $("#chk_" + chk).toggleClass('fa-check-square-o').toggleClass('fa-square-o');
+    $("#chk_" + chk).toggleClass('fa-square-check').toggleClass('fa-square');
 }
 
 /**
@@ -196,15 +177,25 @@ function process_this(material, id, eid='') {
     var make_this = [];
     var make_that = [];
     var make_all = [];
+    var notes = '';
     if ((material === "phone") || (material === "notes")) {  //we just checked a phone box or left/blurred away from a notes field
         make_this.push(id);
         make_that.push(eid);
         make_all.push(id + '_' + eid);
-        var notes = $("#msg_notes_" + id).val();
+        notes = $("#msg_notes_" + id).val() || '';
     } else {
         $('input:checkbox[name=' + material + ']:checked').each(function () {
             make_this.push(this.value);
         });
+    }
+
+    // Open window synchronously (in click context) so popup blocker doesn't block it
+    var printWin = null;
+    if (material === 'labels' || material === 'postcards') {
+        if (make_this.length === 0) {
+            return; // nothing checked
+        }
+        printWin = window.open("about:blank", material === 'labels' ? "_blank" : "rbot");
     }
 
     var url = "save.php";
@@ -222,68 +213,49 @@ function process_this(material, id, eid='') {
             'uid_pc_eid': all_Data,
             'msg_notes': notes,
             'action': 'process',
-            'item': material
+            'item': material,
+            'csrf_token_form': csrfTokenForm
         }
     }).done(function (result) {
-        if (material === 'labels') window.open("../../patient_file/addr_appt_label.php", "_blank");
-        if (material === 'postcards') window.open("print_postcards.php", "rbot");
+        if (printWin) {
+            // Build absolute URL from current page location (works from any context including about:blank)
+            var basePath = window.location.href.replace(/[?#].*$/, '').replace(/\/[^/]*$/, '/');
+            if (material === 'labels') printWin.location.href = basePath + "../../patient_file/addr_appt_label.php";
+            if (material === 'postcards') printWin.location.href = basePath + "print_postcards.php";
+        }
+
+        // Handle notes/phone save feedback
+        if (material === 'notes' || material === 'phone') {
+            var dateval = $.datepicker.formatDate('mm/dd/yy', new Date());
+            if (material === 'notes') {
+                $("#msg_notes_" + id).val('');
+                var statusEl = $("#status_" + id);
+                if (statusEl.length) {
+                    statusEl.prepend('<small><b>Note:</b> ' + dateval + '</small><br />');
+                }
+            } else {
+                $("#msg_phone_" + id).parent().append(' ' + dateval);
+            }
+            return;
+        }
+
         //now change the checkmark to a date, turn it red and leave a comment
         $('input:checkbox[name=' + material + ']:checked').each(function () {
-            r_uid = this.value;
+            var r_uid = this.value;
             var dateval = $.datepicker.formatDate('mm/dd/yy', new Date());
-            if (material !== 'phone') {
-                $(this).parents('.' + material).append(' ' + dateval);
-                $("#remind_" + r_uid).removeClass('whitish')
-                    .removeClass('reddish')
-                    .removeClass('greenish')
-                    .removeClass('yellowish')
-                    .addClass('yellowish');
-            } else {
-                $("#msg_phone_" + r_uid).append('<br />' + dateval);
-            }
+            $(this).parents('.' + material).append(' ' + dateval);
          });
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        if (printWin) printWin.close();
+        console.error('process_this AJAX failed:', textStatus, errorThrown, jqXHR.responseText);
     });
     //
 
 }
 
 
-$.date = function (dateObject) {
-    var d = new Date(dateObject);
-    var day = d.getDate();
-    var month = d.getMonth() + 1;
-    var year = d.getFullYear();
-    if (day < 10) {
-        day = "0" + day;
-    }
-    if (month < 10) {
-        month = "0" + month;
-    }
-    var date = day + "/" + month + "/" + year;
-
-    return date;
-};
-
-$(function () {
-    /*
-     * this swallows backspace keys.
-     * stops backspace -> back a page in the browser, a very annoying thing indeed.
-     */
-    var rx = /INPUT|SELECT|TEXTAREA|SPAN|DIV/i;
-
-    $(document).bind("keydown keypress", function (e) {
-        if (e.which === 8) { // 8 == backspace
-            if (!rx.test(e.target.tagName) || e.target.disabled || e.target.readOnly) {
-                e.preventDefault();
-            }
-        }
-    });
-});
-
-// AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
 // Open the add-event dialog.
 function newEvt(pid, pc_eid) {
-    var f = document.forms[0];
     const params = new URLSearchParams({
         patientid: pid,
         eid: pc_eid
@@ -296,7 +268,7 @@ function newEvt(pid, pc_eid) {
 // AI-generated code end
 
 function delete_Recall(pid, r_ID) {
-    if (confirm('Are you sure you want to delete this Recall?')) {
+    if (confirm((typeof translations !== 'undefined' && translations.confirm_delete) ? translations.confirm_delete : 'Are you sure you want to delete this Recall?')) {
         var url = 'save.php';
         top.restoreSession();
         $.ajax({
@@ -305,7 +277,8 @@ function delete_Recall(pid, r_ID) {
             data: {
                 'action': 'delete_Recall',
                 'pid': pid,
-                'r_ID': r_ID
+                'r_ID': r_ID,
+                'csrf_token_form': csrfTokenForm
             }
 
         }).done(function (result) {
@@ -321,30 +294,14 @@ function refresh_me() {
 }
 
 /****  FUNCTIONS RELATED TO NAVIGATION *****/
-// Process click to pop up the edit window.
-function doRecallclick_edit(goHere) {
-    top.restoreSession();
-    if (window.location.pathname.match(/patient_tracker/)) {
-        zone ='main/';
-    } else {
-        zone = '';
+
+function goReminderRecall(choice, pid) {
+    var url = 'messages.php?go=' + encodeURIComponent(choice);
+    if (pid) {
+        url += '&recall_pid=' + encodeURIComponent(pid);
     }
-    dlgopen('../'+zone+'messages/messages.php?nomenu=1&go=' + goHere, '_blank', 900, 400);
-}
-
-function goReminderRecall(choice) {
-    tabYourIt('recall', 'main/messages/messages.php?go=' + choice);
-}
-
-function goMessages() {
-    R = 'messages.php?showall=no&sortby=users.lname&sortorder=asc&begin=0&task=addnew&form_active=1';
     top.restoreSession();
-    location.href = R;
-}
-
-function goMedEx() {
-    top.restoreSession();
-    location.href = 'https://medexbank.com/cart/upload/index.php?route=information/campaigns';
+    location.href = url;
 }
 
 /****  END FUNCTIONS RELATED TO NAVIGATION *****/
@@ -373,7 +330,7 @@ function toISODate(val) {
     }
 }
 
-function show_this(colorish='') {
+function show_this() {
     var facV = $("#form_facility").val();
     var provV = $("#form_provider").val();
     var pidV = $("#form_patient_id").val();
@@ -391,11 +348,10 @@ function show_this(colorish='') {
         var meets_prov = (provV === '') || (provV == d.provider);
         var meets_pid = (pidV === '') || pidRE.test(d.pid);
         var meets_pname = (pnameV === '') || pnameRE.test(d.pname);
-        var meets_color = (colorish === '') || (colorish == d.status);
         var meets_date = true;
 
         if (fromISO || toISO) {
-            var rowDate = d.date; // ISO YYYY-MM-DD from data-date attribute
+            var rowDate = d.date;
             if (rowDate) {
                 if (fromISO && rowDate < fromISO) {
                     meets_date = false;
@@ -406,10 +362,10 @@ function show_this(colorish='') {
             }
         }
 
-        return meets_fac && meets_prov && meets_pid && meets_pname && meets_color && meets_date;
+        return meets_fac && meets_prov && meets_pid && meets_pname && meets_date;
     });
 
-    visibleRows.show('400', 'linear');
+    visibleRows.show();
 
     if (visibleRows.length === 0) {
         if ($("#no_recalls_message").length > 0) {
@@ -417,25 +373,13 @@ function show_this(colorish='') {
         } else {
             $("#show_recalls").prepend(
                 '<div id="no_recalls_message" class="alert alert-info text-center">' +
-                translations.no_recalls_found +
+                ((typeof translations !== 'undefined' && translations.no_recalls_found) || 'No recalls found for the selected filters.') +
                 '</div>'
             );
         }
-
-        $(".table-responsive").hide();
     } else {
         $("#no_recalls_message").hide();
-        $(".table-responsive").show();
     }
-}
-
-//in bootstrap_menu.js
-function tabYourIt(tabNAME, url) {
-    if (!top.tab_mode) {
-        tabNAME = window.name;
-    }
-    top.restoreSession();
-    parent.left_nav.loadFrame('1', tabNAME, url);
 }
 
 $(function () {
@@ -469,42 +413,6 @@ $(function () {
         now = dolv.add($(this).val(), 'days').format(format_date_moment_js);
         $("#form_recall_date").val(now);
     });
-    $(".update").on('change', function (e) {
-        var formData = $("form#save_prefs").serialize();
-        var url = "save.php";
-        top.restoreSession();
-        $.ajax({
-                   type: 'POST',
-                   url: url,
-                   data: formData,
-                   action: 'save_prefs'
-               }).done(function (result) {
-            $("#div_response").html('<span class="text-danger">' + xljs1 + '.</span>');
-            setTimeout(function () {
-                $("#div_response").html('<br />');
-            }, 2000);
-        });
-    });
-    var bs_interval = $("#execute_interval").val();
-    if (bs_interval < '1') {
-        $("#active_sync").hide();
-        $("#paused").show();
-    }  else {
-        $("#paused").hide();
-        $("#active_sync").show();
-    }
-    $("#execute_interval").change(function() {
-        var bs_interval = $("#execute_interval").val();
-        if (bs_interval <'1') {
-            $("#active_sync").hide();
-            $("#paused").show();
-        }  else {
-            $("#display_interval").text(bs_interval);
-            $("#paused").hide();
-            $("#active_sync").show();
-        }
-    });
-
     $("#form_from_date, #form_to_date").on('change', function() {
         show_this();
     });

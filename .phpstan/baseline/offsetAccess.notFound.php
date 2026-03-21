@@ -347,21 +347,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'ALL\' might not exist on array\\{\\}\\|array\\{ALL\\: string\\}\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'Fac\' might not exist on array\\{\\}\\|array\\{Stat\\?\\: non\\-falsy\\-string, Fac\\?\\: non\\-falsy\\-string\\}\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset \'Stat\' might not exist on array\\{\\}\\|array\\{Stat\\: non\\-falsy\\-string\\}\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset \'memo\' might not exist on array\\{amount\\: \\(array\\|float\\|int\\), date\\: mixed, memo\\: non\\-falsy\\-string, payeeid\\: mixed, name\\: mixed\\}\\|array\\{amount\\: \\(array\\|float\\|int\\), date\\: mixed\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/OFX.class.php',

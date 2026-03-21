@@ -22,11 +22,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/backup.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function updateMessage not found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/messages/save.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function display_layout_rows_group_new not found\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncounterccdadispatchTable.php',

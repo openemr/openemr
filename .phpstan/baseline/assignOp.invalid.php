@@ -1322,26 +1322,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/FeeSheetHtml.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+\\=" between mixed and 2 results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\+\\=" between mixed and array\\|bool results in an error\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and non\\-falsy\\-string results in an error\\.$#',
-    'count' => 9,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\.\\=" between mixed and string results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\.\\=" between non\\-falsy\\-string and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/graph_track_anything.php',

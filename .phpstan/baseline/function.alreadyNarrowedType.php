@@ -77,11 +77,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/encounter/forms.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function is_array\\(\\) with array\\{array\\{callback_url\\: non\\-falsy\\-string, providers\\?\\: non\\-empty\\-list\\<non\\-empty\\-array\\>, facilities\\?\\: non\\-empty\\-list\\<non\\-empty\\-array\\>, categories\\?\\: non\\-empty\\-list\\<non\\-empty\\-array\\>, apptstats\\?\\: non\\-empty\\-list\\<non\\-empty\\-array\\>, checkedOut\\?\\: non\\-empty\\-list\\<non\\-empty\\-array\\>, clinical_reminders\\?\\: non\\-empty\\-list\\<non\\-empty\\-array\\>\\}\\} will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function is_numeric\\(\\) with int will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Document.class.php',

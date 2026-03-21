@@ -98,11 +98,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot use \\+\\+ on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot use \\+\\+ on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/classes/PDF_Label.php',
 ];

@@ -1387,56 +1387,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/FeeSheet.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$GLOBALS\\)\\. Use dependency injection instead\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$MedEx\\)\\. Use dependency injection instead\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$data\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$info\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$logged_in\\)\\. Use dependency injection instead\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$rcb_facility\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$rcb_provider\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$rcb_selectors\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$result_pat\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use of the "global" keyword is forbidden \\(\\$setting_bootstrap_submenu\\)\\. Use dependency injection instead\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Use of the "global" keyword is forbidden \\(\\$code_types\\)\\. Use dependency injection instead\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/code_attributes_ajax.php',

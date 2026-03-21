@@ -47,16 +47,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/audit_log_tamper_report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Loose comparison using \\=\\= between \'0\' and \'0\' will always evaluate to true\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Loose comparison using \\=\\= between \'1\' and \'1\' will always evaluate to true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Loose comparison using \\=\\= between \'2100\' and \'2100\' will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/edih_835_html.php',
