@@ -251,6 +251,8 @@ class ServerScopeListEntity
                 "user/transaction.read",
                 "user/transaction.write",
                 "user/user.read",
+                "user/users.read",
+                "user/users.write",
                 "user/version.read",
                 "user/vital.read",
                 "user/vital.write",

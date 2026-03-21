@@ -43,6 +43,7 @@ use OpenEMR\RestControllers\ProcedureRestController;
 use OpenEMR\RestControllers\ProductRegistrationRestController;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\RestControllers\TransactionRestController;
+use OpenEMR\RestControllers\Admin\UserManagementRestController;
 use OpenEMR\RestControllers\UserRestController;
 use OpenEMR\RestControllers\VersionRestController;
 use OpenEMR\Services\Search\SearchQueryConfig;
@@ -701,5 +702,23 @@ return [
             $data = is_array($decoded) ? $decoded : [];
         }
         return (new BackgroundServiceRestController())->runService($name, $data);
+    },
+
+    // Admin User Management endpoints
+    "GET /api/admin/users" => static function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "admin", "users");
+        /** @var array<string, mixed> $searchParams */
+        $searchParams = $_GET;
+        return (new UserManagementRestController())->getAll($request, $searchParams);
+    },
+    "GET /api/admin/users/:uuid" => static function ($uuid, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "admin", "users");
+        return (new UserManagementRestController())->getOne(is_string($uuid) ? $uuid : '', $request);
+    },
+    "POST /api/admin/users" => static function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "admin", "super");
+        /** @var array<string, mixed> $data */
+        $data = (array) (json_decode((string) file_get_contents("php://input")));
+        return (new UserManagementRestController())->post($data, $request);
     },
 ];
