@@ -16273,11 +16273,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$all might not be defined\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$all might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/registry.inc.php',
 ];
