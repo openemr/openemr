@@ -20,6 +20,7 @@
 
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Uuid\UuidRegistry;
+use OpenEMR\RestControllers\Admin\UserManagementRestController;
 use OpenEMR\RestControllers\AllergyIntoleranceRestController;
 use OpenEMR\RestControllers\AppointmentRestController;
 use OpenEMR\RestControllers\BackgroundServiceRestController;
@@ -43,7 +44,6 @@ use OpenEMR\RestControllers\ProcedureRestController;
 use OpenEMR\RestControllers\ProductRegistrationRestController;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\RestControllers\TransactionRestController;
-use OpenEMR\RestControllers\Admin\UserManagementRestController;
 use OpenEMR\RestControllers\UserRestController;
 use OpenEMR\RestControllers\VersionRestController;
 use OpenEMR\Services\Search\SearchQueryConfig;
