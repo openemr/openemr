@@ -58,7 +58,7 @@ use OpenEMR\Services\AppointmentService;
 $eid = intval($_GET['eid'] ?? 0);         // only for existing events
 $date = filter_input(INPUT_GET, 'date') ?: '';
 $userid = filter_input(INPUT_GET, 'userid', FILTER_VALIDATE_INT) ?: 0;
-$default_catid = filter_input(INPUT_GET, 'catid', FILTER_VALIDATE_INT) ?: 0;
+$default_catid = filter_input(INPUT_GET, 'catid', FILTER_VALIDATE_INT) ?: 5;
 $patientid = filter_input(INPUT_GET, 'patid', FILTER_VALIDATE_INT) ?: 0;
 //
 
@@ -154,7 +154,7 @@ if ($eid !== 0) {
 // If we are saving, then save and close the window.
 //
 // Verify CSRF token for all form actions
-if (!empty($_POST['form_action'])) {
+if (($_POST['form_action'] ?? '') !== '') {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', 'portal-appointment', $session->getSymfonySession())) {
         CsrfUtils::csrfNotVerified();
     }
@@ -498,7 +498,7 @@ if (($_POST['form_action'] ?? null) == "save") {
     }
 }
 
-if (!empty($_POST['form_action'])) {
+if (($_POST['form_action'] ?? '') !== '') {
     // Leave
     $type = $insert ? xl("A New Appointment") : xl("An Updated Appointment");
     $note = $type . " " . xl("request was received from portal patient") . " ";
@@ -666,7 +666,7 @@ if ($userid) {
 <body class="skin-blue">
     <div class="container-fluid">
         <form method='post' name='theaddform' id='theaddform' action='add_edit_event_user.php?eid=<?php echo attr_url($eid); ?>'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('portal-appointment', $session->getSymfonySession())); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken('portal-appointment', $session->getSymfonySession()); ?>" />
             <div class="col-12">
                 <input type="hidden" name="form_action" id="form_action" value="" />
                 <input type='hidden' name='form_title' id='form_title' value='<?php echo ($row['pc_catid'] ?? '') ? attr($row['pc_title']) : xla("Office Visit"); ?>' />
