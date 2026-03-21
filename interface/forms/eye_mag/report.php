@@ -155,7 +155,7 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag'): vo
         //  show only 2 for now in the encounter page
       ($choice =='drawing') ? ($count = count($zone)) : ($count ='2');
       for ($i = 0; $i < $count; ++$i) {
-        $file_location = $GLOBALS["OE_SITES_BASE"]."/".$session->get('site_id')."/documents/".$pid."/".$form_folder."/".$encounter."/".$side."_".$zone[$i]."_VIEW.png";
+        $file_location = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid."/".$form_folder."/".$encounter."/".$side."_".$zone[$i]."_VIEW.png";
         $sql = "SELECT * from documents where url='file://".$file_location."'";
         $doc = sqlQuery($sql);
         if (file_exists($file_location) && ($doc['id'] > '0')) {
