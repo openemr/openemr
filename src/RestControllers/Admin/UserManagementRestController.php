@@ -19,7 +19,7 @@ use Psr\Http\Message\ResponseInterface;
 
 class UserManagementRestController
 {
-    private UserManagementService $service;
+    private readonly UserManagementService $service;
 
     private const WHITELISTED_FIELDS = [
         'fname',
