@@ -346,49 +346,43 @@ if (isset($_POST["mode"])) {
         }
 
         if ($doit == true) {
-            // google_signin_email has unique key constraint, needs to be handled differently
-            $googleSigninEmail = "NULL";
-            if (isset($_POST["google_signin_email"])) {
-                if (empty($_POST["google_signin_email"])) {
-                    $googleSigninEmail = "NULL";
-                } else {
-                    $googleSigninEmail = "'" . add_escape_custom(trim((string) $_POST["google_signin_email"])) . "'";
-                }
+            $googleSigninEmail = null;
+            if (isset($_POST["google_signin_email"]) && $_POST["google_signin_email"] !== '') {
+                $googleSigninEmail = trim((string) $_POST["google_signin_email"]);
             }
-            $insertUserSQL =
-            "insert into users set " .
-            "username = '"         . add_escape_custom(trim(($_POST['rumple'] ?? ''))) .
-            "', password = '"      . 'NoLongerUsed'                  .
-            "', fname = '"         . add_escape_custom(trim(($_POST['fname'] ?? ''))) .
-            "', mname = '"         . add_escape_custom(trim(($_POST['mname'] ?? ''))) .
-            "', lname = '"         . add_escape_custom(trim(($_POST['lname'] ?? ''))) .
-            "', suffix = '"         . add_escape_custom(trim(($_POST['suffix'] ?? ''))) .
-            "', email = '"         . add_escape_custom(trim(($_POST['email'] ?? ''))) .
-            "', google_signin_email = " . $googleSigninEmail .
-            ", valedictory = '"         . add_escape_custom(trim(($_POST['valedictory'] ?? ''))) .
-            "', federaltaxid = '"  . add_escape_custom(trim(($_POST['federaltaxid'] ?? ''))) .
-            "', state_license_number = '"  . add_escape_custom(trim(($_POST['state_license_number'] ?? ''))) .
-            "', newcrop_user_role = '"  . add_escape_custom(trim(($_POST['erxrole'] ?? ''))) .
-            "', physician_type = '"  . add_escape_custom(trim(($_POST['physician_type'] ?? ''))) .
-            "', main_menu_role = '"  . add_escape_custom(trim(($_POST['main_menu_role'] ?? ''))) .
-            "', patient_menu_role = '"  . add_escape_custom(trim(($_POST['patient_menu_role'] ?? ''))) .
-            "', weno_prov_id = '"  . add_escape_custom(trim(($_POST['erxprid'] ?? ''))) .
-            "', authorized = '"    . add_escape_custom(trim(($_POST['authorized'] ?? ''))) .
-            "', info = '"          . add_escape_custom(trim(($_POST['info'] ?? ''))) .
-            "', federaldrugid = '" . add_escape_custom(trim(($_POST['federaldrugid'] ?? ''))) .
-            "', upin = '"          . add_escape_custom(trim(($_POST['upin'] ?? ''))) .
-            "', npi  = '"          . add_escape_custom(trim(($_POST['npi'] ?? ''))) .
-            "', taxonomy = '"      . add_escape_custom(trim(($_POST['taxonomy'] ?? ''))) .
-            "', facility_id = '"   . add_escape_custom(trim(($_POST['facility_id'] ?? ''))) .
-            "', billing_facility_id = '"   . add_escape_custom(trim(($_POST['billing_facility_id'] ?? ''))) .
-            "', specialty = '"     . add_escape_custom(trim(($_POST['specialty'] ?? ''))) .
-            "', see_auth = '"      . add_escape_custom(trim(($_POST['see_auth'] ?? ''))) .
-            "', default_warehouse = '" . add_escape_custom(trim(($_POST['default_warehouse'] ?? ''))) .
-            "', irnpool = '"       . add_escape_custom(trim(($_POST['irnpool'] ?? ''))) .
-            "', calendar = '"      . add_escape_custom($calvar) .
-            "', portal_user = '"   . add_escape_custom($portalvar) .
-            "', supervisor_id = '" . add_escape_custom((isset($_POST['supervisor_id']) ? (int)$_POST['supervisor_id'] : 0)) .
-            "'";
+            $userData = [
+                'username'             => trim($_POST['rumple'] ?? ''),
+                'password'             => 'NoLongerUsed',
+                'fname'                => trim($_POST['fname'] ?? ''),
+                'mname'                => trim($_POST['mname'] ?? ''),
+                'lname'                => trim($_POST['lname'] ?? ''),
+                'suffix'               => trim($_POST['suffix'] ?? ''),
+                'email'                => trim($_POST['email'] ?? ''),
+                'google_signin_email'  => $googleSigninEmail,
+                'valedictory'          => trim($_POST['valedictory'] ?? ''),
+                'federaltaxid'         => trim($_POST['federaltaxid'] ?? ''),
+                'state_license_number' => trim($_POST['state_license_number'] ?? ''),
+                'newcrop_user_role'    => trim($_POST['erxrole'] ?? ''),
+                'physician_type'       => trim($_POST['physician_type'] ?? ''),
+                'main_menu_role'       => trim($_POST['main_menu_role'] ?? ''),
+                'patient_menu_role'    => trim($_POST['patient_menu_role'] ?? ''),
+                'weno_prov_id'         => trim($_POST['erxprid'] ?? ''),
+                'authorized'           => trim($_POST['authorized'] ?? ''),
+                'info'                 => trim($_POST['info'] ?? ''),
+                'federaldrugid'        => trim($_POST['federaldrugid'] ?? ''),
+                'upin'                 => trim($_POST['upin'] ?? ''),
+                'npi'                  => trim($_POST['npi'] ?? ''),
+                'taxonomy'             => trim($_POST['taxonomy'] ?? ''),
+                'facility_id'          => trim($_POST['facility_id'] ?? ''),
+                'billing_facility_id'  => trim($_POST['billing_facility_id'] ?? ''),
+                'specialty'            => trim($_POST['specialty'] ?? ''),
+                'see_auth'             => trim($_POST['see_auth'] ?? ''),
+                'default_warehouse'    => trim($_POST['default_warehouse'] ?? ''),
+                'irnpool'              => trim($_POST['irnpool'] ?? ''),
+                'calendar'             => $calvar,
+                'portal_user'          => $portalvar,
+                'supervisor_id'        => isset($_POST['supervisor_id']) ? (int) $_POST['supervisor_id'] : 0,
+            ];
 
             $authUtilsNewPassword = new AuthUtils();
             $success = $authUtilsNewPassword->updatePassword(
@@ -397,8 +391,8 @@ if (isset($_POST["mode"])) {
                 $_POST['adminPass'],
                 $_POST['stiltskin'],
                 true,
-                $insertUserSQL,
-                trim(($_POST['rumple'] ?? ''))
+                $userData,
+                trim($_POST['rumple'] ?? '')
             );
             if (!empty($authUtilsNewPassword->getErrorMessage())) {
                 $alertmsg .= $authUtilsNewPassword->getErrorMessage();

@@ -507,11 +507,11 @@ class AuthUtils
      * @param $newPwd          the new password for the target user
      *                              - password is passed by reference so that it can be "cleared out" as soon as we are done with it.
      * @param $create          Are we creating a new user or
-     * @param $insert_sql      SQL to run to create the row in "users" (and generate a new id) when needed.
+     * @param array<string, mixed> $userData  Associative array of column => value pairs for the new users row.
      * @param $new_username    The username for a new user
      * @return boolean              Was the password successfully updated/created? If false, then $this->errorMessage will tell you why it failed.
      */
-    public function updatePassword($activeUser, $targetUser, &$currentPwd, &$newPwd, $create = false, $insert_sql = "", $new_username = null)
+    public function updatePassword($activeUser, $targetUser, &$currentPwd, &$newPwd, $create = false, array $userData = [], $new_username = null)
     {
         // Collect ip address for log
         $ip = collectIpAddresses();
@@ -677,8 +677,27 @@ class AuthUtils
                     EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " New user username is empty");
                     return false;
                 }
-                // Collect the new user id from the users table
-                privStatement($insert_sql, []);
+                // Insert the new user row from structured data
+                if ($userData === []) {
+                    $this->errorMessage = xl("Password update error!");
+                    $this->clearFromMemory($newPwd);
+                    EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " No user data provided for new user");
+                    return false;
+                }
+                $columns = [];
+                $placeholders = [];
+                $params = [];
+                foreach ($userData as $column => $value) {
+                    $columns[] = '`' . $column . '`';
+                    if ($value === null) {
+                        $placeholders[] = 'NULL';
+                    } else {
+                        $placeholders[] = '?';
+                        $params[] = $value;
+                    }
+                }
+                $insertSql = 'INSERT INTO `users` (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $placeholders) . ')';
+                privStatement($insertSql, $params);
                 $getUserID = "SELECT `id`" .
                     " FROM `users`" .
                     " WHERE BINARY `username` = ?";
