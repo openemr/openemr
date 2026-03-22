@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 /**
  * Supports Admin User Record Validation.
@@ -8,6 +7,8 @@ declare(strict_types=1);
  * @author    Milan Zivkovic <zivkovic.milan@gmail.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  */
+
+declare(strict_types=1);
 
 namespace OpenEMR\Validators\Admin;
 
