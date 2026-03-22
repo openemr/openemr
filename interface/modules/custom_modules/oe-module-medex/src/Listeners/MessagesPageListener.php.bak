@@ -1,0 +1,337 @@
+<?php
+
+/**
+ * MessagesPageListener - Event listener for injecting MedEx content into messages.php
+ *
+ * This listener responds to MessagesPageRenderEvents and injects appropriate content
+ * based on the injection point (navigation, content, SMS tab, scripts).
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    MedEx <support@MedExBank.com>
+ * @copyright Copyright (c) 2026 MedEx
+ * @license   Proprietary - All Rights Reserved
+ */
+
+namespace OpenEMR\Modules\MedEx\Listeners;
+
+use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\MedEx\Events\MessagesPageRenderEvent;
+use OpenEMR\Modules\MedEx\MedExAPI;
+
+class MessagesPageListener
+{
+    /**
+     * @var MedExAPI|null MedEx API instance
+     */
+    private ?MedExAPI $medExAPI = null;
+    private OEGlobalsBag $globalsBag;
+
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->globalsBag = OEGlobalsBag::getInstance();
+    }
+
+    /**
+     * Main event handler - routes to appropriate method based on injection point
+     */
+    public function onPageRender(MessagesPageRenderEvent $event): void
+    {
+        error_log('[MedEx] onPageRender called - injection point: ' . $event->getInjectionPoint());
+        error_log('[MedEx] isMedExEnabled: ' . ($event->isMedExEnabled() ? 'true' : 'false'));
+
+        // Only process if MedEx is enabled
+        if (!$event->isMedExEnabled()) {
+            error_log('[MedEx] MedEx not enabled - returning early');
+            return;
+        }
+
+        // Route to appropriate handler based on injection point
+        switch ($event->getInjectionPoint()) {
+            case MessagesPageRenderEvent::INJECT_NAVIGATION:
+                $this->handleNavigation($event);
+                break;
+
+            case MessagesPageRenderEvent::INJECT_CONTENT:
+                $this->handleContent($event);
+                break;
+
+            case MessagesPageRenderEvent::INJECT_SMS_TAB:
+                $this->handleSMSTab($event);
+                break;
+
+            case MessagesPageRenderEvent::INJECT_SCRIPTS:
+                error_log('[MedEx] Handling INJECT_SCRIPTS');
+                $this->handleScripts($event);
+                error_log('[MedEx] Content after handleScripts: ' . strlen($event->getContent()) . ' bytes');
+                break;
+
+            case MessagesPageRenderEvent::INJECT_STYLES:
+                $this->handleStyles($event);
+                break;
+        }
+    }
+
+    /**
+     * Handle navigation injection
+     */
+    private function handleNavigation(MessagesPageRenderEvent $event): void
+    {
+        $loggedIn = $event->getLoggedInUser();
+        $request = $event->getRequest();
+
+        // Don't show navigation if nomenu is set or RCB is disabled
+        if (!empty($request['nomenu']) || $this->globalsBag->get('disable_rcb') == '1') {
+            return;
+        }
+
+        $html = $this->renderNavigation($loggedIn);
+        $event->setContent($html);
+    }
+
+    /**
+     * Handle main content injection for MedEx-specific pages
+     */
+    private function handleContent(MessagesPageRenderEvent $event): void
+    {
+        $request = $event->getRequest();
+        $loggedIn = $event->getLoggedInUser();
+
+        // Determine which page to render based on 'go' parameter
+        $go = $request['go'] ?? '';
+
+        switch ($go) {
+            case 'setup':
+                $this->renderSetupPage($event, $request, $loggedIn);
+                break;
+
+            case 'addRecall':
+                $this->renderAddRecallPage($event);
+                break;
+
+            case 'Recalls':
+                $this->renderRecallsPage($event, $loggedIn);
+                break;
+
+            case 'Preferences':
+                $this->renderPreferencesPage($event, $loggedIn);
+                break;
+
+            case 'icons':
+                $this->renderIconsPage($event);
+                break;
+
+            case 'SMS_bot':
+                $this->renderSMSBotPage($event, $loggedIn);
+                break;
+        }
+    }
+
+    /**
+     * Handle SMS tab injection
+     */
+    private function handleSMSTab(MessagesPageRenderEvent $event): void
+    {
+        // SMS tab content is only shown if user is logged in
+        if (!$event->getLoggedInUser()) {
+            return;
+        }
+
+        // The SMS tab content is already in messages.php, but we might want to inject
+        // additional functionality here in the future
+    }
+
+    /**
+     * Public method for TemplatePageEvent injection
+     */
+    public function handleScriptsFromTemplateEvent(\OpenEMR\Events\Core\TemplatePageEvent $event): void
+    {
+        global $webroot;
+        $this->injectScriptsToOutput($event);
+    }
+
+    /**
+     * Handle JavaScript injection
+     */
+    private function handleScripts(MessagesPageRenderEvent $event): void
+    {
+        $this->injectScriptsToOutput($event);
+    }
+
+    /**
+     * Common script injection logic for both event types
+     */
+    private function injectScriptsToOutput($event): void
+    {
+        global $webroot;
+        error_log('[MedEx] handleScripts - webroot: "' . ($webroot ?? 'NULL') . '"');
+
+        $csrfToken = \OpenEMR\Common\Csrf\CsrfUtils::collectCsrfToken();
+
+        $jsPath = "{$webroot}/interface/modules/custom_modules/oe-module-medex/public/js/recall_board_injection.js";
+
+        // Load CSS inline since <link> tags in <body> are ignored by browsers
+        $cssFilePath = __DIR__ . '/../../public/css/campaign_controls.css';
+        $cssContent = file_get_contents($cssFilePath);
+        error_log('[MedEx] Loading CSS inline - file size: ' . strlen($cssContent) . ' bytes');
+
+        // Get MedEx server URL from config
+        // Use medex_bank_url for Docker compatibility (host.docker.internal)
+        $medexServer = $this->globalsBag->get('medex_bank_url') ?? $this->globalsBag->get('medex_server_url') ?? 'https://medexbank.com';
+
+        // Get postcard/label settings from core globals (used by both core recall board and MedEx)
+        $postcardsEnabled = $this->globalsBag->get('recall_board_enable_postcards') ?? true;
+        $labelsEnabled = $this->globalsBag->get('recall_board_enable_labels') ?? true;
+
+        // Build HTML without heredoc to avoid issues with CSS content
+        $html = '<style>' . "\n" . $cssContent . "\n" . '</style>' . "\n";
+        $html .= '<script>' . "\n";
+        $html .= '    console.log("[MedEx] Inline CSS loaded (' . strlen($cssContent) . ' bytes)");' . "\n";
+        $html .= '    // MedEx configuration for JavaScript' . "\n";
+        $html .= '    window.medex_csrf_token = ' . $this->jsEscape($csrfToken) . ';' . "\n";
+        $html .= '    window.medex_server = ' . $this->jsEscape($medexServer) . ';' . "\n";
+        $html .= '    window.medex_postcards_enabled = ' . ($postcardsEnabled ? 'true' : 'false') . ';' . "\n";
+        $html .= '    window.medex_labels_enabled = ' . ($labelsEnabled ? 'true' : 'false') . ';' . "\n";
+        $html .= '</script>' . "\n";
+        $html .= '<script src="' . $jsPath . '"></script>' . "\n";
+        $html .= '<script>' . "\n";
+        $html .= '    // MedEx-specific JavaScript functions' . "\n";
+        $html .= '    function goReminderRecall(page, pid) {' . "\n";
+        $html .= '        if (page === "addRecall") {' . "\n";
+        $html .= '            if (pid) {' . "\n";
+        $html .= '                window.location.href = "messages.php?go=addRecall&pid=" + pid;' . "\n";
+        $html .= '            } else {' . "\n";
+        $html .= '                window.location.href = "messages.php?go=addRecall";' . "\n";
+        $html .= '            }' . "\n";
+        $html .= '        } else if (page === "Recalls") {' . "\n";
+        $html .= '            window.location.href = "messages.php?go=Recalls";' . "\n";
+        $html .= '        }' . "\n";
+        $html .= '    }' . "\n";
+        $html .= '</script>' . "\n";
+
+        // Handle both event types
+        if (method_exists($event, 'appendContent')) {
+            $event->appendContent($html);
+        } elseif (method_exists($event, 'setOutput')) {
+            $event->setOutput($html);
+        }
+    }
+
+    /**
+     * JavaScript escape helper
+     */
+    private function jsEscape($value): string
+    {
+        return json_encode($value, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+    }
+
+    /**
+     * Handle CSS injection
+     */
+    private function handleStyles(MessagesPageRenderEvent $event): void
+    {
+        global $webroot;
+        $html = <<<STYLES
+<link rel="stylesheet" href="{$webroot}/interface/modules/custom_modules/oe-module-medex/public/css/medex.css">
+STYLES;
+
+        $event->setContent($html);
+    }
+
+    /**
+     * Render MedEx navigation bar
+     */
+    private function renderNavigation($loggedIn): string
+    {
+        // This is the navigation bar that appears at the top of messages.php
+        // when MedEx is enabled
+
+        ob_start();
+        require __DIR__ . '/../templates/navigation.php';
+        return ob_get_clean();
+    }
+
+    /**
+     * Render setup/wizard page
+     */
+    private function renderSetupPage(MessagesPageRenderEvent $event, array $request, $loggedIn): void
+    {
+        $stage = $request['stage'] ?? '';
+
+        if (!$loggedIn && is_numeric($stage)) {
+            ob_start();
+            $this->getMedExAPI()->renderSetupWizard($stage);
+            $event->setContent(ob_get_clean());
+        } elseif (!is_numeric($stage)) {
+            $event->setContent('<span class="title">' . xlt('Warning') . ': ' . xlt('This is not a valid request') . '.</span>');
+        }
+    }
+
+    /**
+     * Render add recall page
+     */
+    private function renderAddRecallPage(MessagesPageRenderEvent $event): void
+    {
+        ob_start();
+        require __DIR__ . '/../templates/add_recall.php';
+        $event->setContent(ob_get_clean());
+    }
+
+    /**
+     * Render recalls board page
+     */
+    private function renderRecallsPage(MessagesPageRenderEvent $event, $loggedIn): void
+    {
+        ob_start();
+        $this->getMedExAPI()->renderRecallsBoard($loggedIn);
+        $event->setContent(ob_get_clean());
+    }
+
+    /**
+     * Render preferences page
+     */
+    private function renderPreferencesPage(MessagesPageRenderEvent $event, $loggedIn): void
+    {
+        if ($loggedIn) {
+            ob_start();
+            $this->getMedExAPI()->renderPreferences($loggedIn);
+            $event->setContent(ob_get_clean());
+        }
+    }
+
+    /**
+     * Render icons page
+     */
+    private function renderIconsPage(MessagesPageRenderEvent $event): void
+    {
+        ob_start();
+        $this->getMedExAPI()->renderIconTemplate();
+        $event->setContent(ob_get_clean());
+    }
+
+    /**
+     * Render SMS bot page
+     */
+    private function renderSMSBotPage(MessagesPageRenderEvent $event, $loggedIn): void
+    {
+        if ($loggedIn) {
+            ob_start();
+            $this->getMedExAPI()->renderSMSBot($loggedIn);
+            $event->setContent(ob_get_clean());
+        }
+    }
+
+    /**
+     * Get or create MedExAPI instance
+     */
+    private function getMedExAPI(): MedExAPI
+    {
+        if (!$this->medExAPI) {
+            $this->medExAPI = new MedExAPI();
+        }
+        return $this->medExAPI;
+    }
+}

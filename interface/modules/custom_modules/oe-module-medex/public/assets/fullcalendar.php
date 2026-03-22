@@ -1,0 +1,61 @@
+<?php
+/**
+ * FullCalendar JS Proxy
+ * Serves FullCalendar from the writable documents directory
+ */
+
+require_once(__DIR__ . "/../../../../../globals.php");
+
+// Security: require authenticated user with an active calendar_full subscription
+if (!isset($_SESSION['authUserID'])) {
+    http_response_code(403);
+    exit;
+}
+
+$_fcAllowed = false;
+try {
+    $fcStatus = sqlQuery("SELECT status FROM medex_prefs LIMIT 1");
+    if (!empty($fcStatus['status'])) {
+        $fcSt = json_decode($fcStatus['status'], true);
+        $fcEs = $fcSt['enabled_services'] ?? [];
+        $_fcAllowed = (isset($fcEs['calendar_full']) && $fcEs['calendar_full']) || in_array('calendar_full', $fcEs);
+    }
+} catch (\Throwable $e) { /* silent */ }
+
+if (!$_fcAllowed) {
+    http_response_code(403);
+    header('Content-Type: application/javascript');
+    echo '// Access denied: calendar_full subscription required';
+    exit;
+}
+
+// Path to FullCalendar in writable documents directory
+$siteId = $_SESSION['site_id'] ?? 'default';
+$fullCalendarPath = $GLOBALS['OE_SITES_BASE'] . "/$siteId/documents/MedEx/fullCalendar/fullcalendar.min.js";
+
+// Check if file exists
+if (!file_exists($fullCalendarPath)) {
+    // Try to download it if it doesn't exist
+    $calendarDir = dirname($fullCalendarPath);
+    if (!is_dir($calendarDir)) {
+        mkdir($calendarDir, 0755, true);
+    }
+
+    // Download FullCalendar
+    $url = 'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js';
+    $content = file_get_contents($url);
+
+    if ($content === false) {
+        http_response_code(404);
+        echo "// FullCalendar not found and could not download";
+        exit;
+    }
+
+    file_put_contents($fullCalendarPath, $content);
+}
+
+// Serve the JavaScript file
+header('Content-Type: application/javascript');
+header('Cache-Control: public, max-age=86400'); // Cache for 1 day
+
+readfile($fullCalendarPath);

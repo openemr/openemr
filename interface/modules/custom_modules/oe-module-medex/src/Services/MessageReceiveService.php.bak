@@ -1,0 +1,355 @@
+<?php
+
+/**
+ * MedEx Message Receive Service
+ *
+ * Handles incoming replies and status updates from MedEx server
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @author    MedEx <support@MedExBank.com>
+ * @copyright Copyright (c) 2024-2026 MedEx
+ * @license   Proprietary - All Rights Reserved
+ */
+
+namespace OpenEMR\Modules\MedEx\Services;
+
+class MessageReceiveService
+{
+    /**
+     * Process incoming message reply/status from MedEx
+     *
+     * @param array $data Message data from MedEx callback
+     * @return array Response with success status
+     */
+    public function receive(array $data): array
+    {
+        if (empty($data['campaign_uid'])) {
+            return [
+                'success' => true,
+                'message' => 'No campaigns to process'
+            ];
+        }
+
+        // Get patient ID from various sources
+        $patientId = $this->getPatientId($data);
+
+        if (!$patientId) {
+            return [
+                'success' => false,
+                'error' => 'Could not determine patient ID'
+            ];
+        }
+
+        // Default message type if not provided
+        if (empty($data['M_type'])) {
+            $data['M_type'] = 'pending';
+        }
+
+        // Insert message record into medex_outgoing
+        $this->insertMessageRecord($data, $patientId);
+
+        // Process based on reply type
+        $this->processReply($data, $patientId);
+
+        return [
+            'success' => true,
+            'message' => $data['M_type'] . ' reply processed',
+            'comments' => $data['pc_eid'] . ' - ' . $data['campaign_uid'] . ' - ' . $data['M_type'],
+            'pid' => $patientId
+        ];
+    }
+
+    /**
+     * Get patient ID from various data sources
+     */
+    private function getPatientId(array $data): ?int
+    {
+        // Direct patient_id
+        if (!empty($data['patient_id'])) {
+            return (int)$data['patient_id'];
+        }
+
+        // From e_pid
+        if (!empty($data['e_pid'])) {
+            return (int)$data['e_pid'];
+        }
+
+        // From appointment pc_eid
+        if (!empty($data['pc_eid'])) {
+            $result = sqlQuery(
+                "SELECT pc_pid FROM openemr_postcalendar_events WHERE pc_eid = ?",
+                [$data['pc_eid']]
+            );
+
+            return $result['pc_pid'] ?? null;
+        }
+
+        return null;
+    }
+
+    /**
+     * Insert message record into medex_outgoing table
+     */
+    private function insertMessageRecord(array $data, int $patientId): void
+    {
+        $sql = "INSERT INTO medex_outgoing
+                (msg_pc_eid, msg_pid, campaign_uid, msg_type, msg_reply, msg_extra_text, msg_date, medex_uid)
+                VALUES (?, ?, ?, ?, ?, ?, UTC_TIMESTAMP(), ?)";
+
+        sqlStatement($sql, [
+            $data['pc_eid'] ?? null,
+            $patientId,
+            $data['campaign_uid'],
+            $data['M_type'],
+            $data['msg_reply'] ?? '',
+            $data['msg_extra'] ?? '',
+            $data['msg_uid'] ?? ''
+        ]);
+    }
+
+    /**
+     * Process reply based on type
+     */
+    private function processReply(array $data, int $patientId): void
+    {
+        $reply = $data['msg_reply'] ?? '';
+        $msgType = $data['M_type'] ?? '';
+        $pcEid = $data['pc_eid'] ?? null;
+
+        switch ($reply) {
+            case 'CONFIRMED':
+                $this->handleConfirmed($pcEid, $msgType);
+                break;
+
+            case 'CALL':
+                $this->handleCallRequest($pcEid);
+                break;
+
+            case 'STOP':
+                $this->handleOptOut($patientId, $msgType);
+                break;
+
+            case 'SENT':
+            case 'READ':
+                $this->handleSentOrRead($pcEid);
+                break;
+
+            case 'FAILED':
+                $this->handleFailed($pcEid, $data);
+                break;
+
+            case 'BOUNCE':
+                $this->handleBounce($patientId, $msgType);
+                break;
+
+            default:
+                // Other reply types - just log
+                error_log("MedEx Receive: Unknown reply type '{$reply}' for pc_eid {$pcEid}");
+                break;
+        }
+    }
+
+    /**
+     * Handle CONFIRMED reply - patient confirmed appointment
+     */
+    private function handleConfirmed(?int $pcEid, string $msgType): void
+    {
+        if (!$pcEid) {
+            return;
+        }
+
+        // Update appointment status
+        sqlStatement(
+            "UPDATE openemr_postcalendar_events SET pc_apptstatus = ? WHERE pc_eid = ?",
+            [$msgType, $pcEid]
+        );
+
+        // Update patient tracker if exists
+        $tracker = sqlQuery(
+            "SELECT id, lastseq FROM patient_tracker WHERE eid = ?",
+            [$pcEid]
+        );
+
+        if (!empty($tracker['id'])) {
+            $newSeq = ($tracker['lastseq'] ?? 0) + 1;
+
+            sqlStatement(
+                "UPDATE patient_tracker SET lastseq = ? WHERE eid = ?",
+                [$newSeq, $pcEid]
+            );
+
+            sqlInsert(
+                "INSERT INTO patient_tracker_element
+                (pt_tracker_id, start_datetime, user, status, seq)
+                VALUES (?, NOW(), 'MedEx', ?, ?)",
+                [$tracker['id'], $msgType, $newSeq]
+            );
+        }
+
+        error_log("MedEx: Appointment {$pcEid} confirmed by patient");
+    }
+
+    /**
+     * Handle CALL reply - patient needs to call office
+     */
+    private function handleCallRequest(?int $pcEid): void
+    {
+        if (!$pcEid) {
+            return;
+        }
+
+        sqlStatement(
+            "UPDATE openemr_postcalendar_events SET pc_apptstatus = 'CALL' WHERE pc_eid = ?",
+            [$pcEid]
+        );
+
+        error_log("MedEx: Appointment {$pcEid} requires call from office");
+
+        // TODO: Create task/alert for front desk staff
+    }
+
+    /**
+     * Handle STOP reply - patient opts out
+     */
+    private function handleOptOut(int $patientId, string $msgType): void
+    {
+        // Update HIPAA preferences based on message type
+        switch ($msgType) {
+            case 'AVM':
+                sqlStatement(
+                    "UPDATE patient_data SET hipaa_voice = 'NO' WHERE pid = ?",
+                    [$patientId]
+                );
+                error_log("MedEx: Patient {$patientId} opted out of voice messages");
+                break;
+
+            case 'SMS':
+                sqlStatement(
+                    "UPDATE patient_data SET hipaa_allowsms = 'NO' WHERE pid = ?",
+                    [$patientId]
+                );
+                error_log("MedEx: Patient {$patientId} opted out of SMS messages");
+                break;
+
+            case 'EMAIL':
+                sqlStatement(
+                    "UPDATE patient_data SET hipaa_allowemail = 'NO' WHERE pid = ?",
+                    [$patientId]
+                );
+                error_log("MedEx: Patient {$patientId} opted out of email messages");
+                break;
+
+            default:
+                error_log("MedEx: Patient {$patientId} opted out - unknown type {$msgType}");
+                break;
+        }
+    }
+
+    /**
+     * Handle SENT or READ status - message delivered
+     */
+    private function handleSentOrRead(?int $pcEid): void
+    {
+        if (!$pcEid) {
+            return;
+        }
+
+        // Delete pending "To Send" messages for this appointment
+        sqlStatement(
+            "DELETE FROM medex_outgoing WHERE msg_pc_eid = ? AND msg_reply = 'To Send'",
+            [$pcEid]
+        );
+    }
+
+    /**
+     * Handle FAILED status - message delivery failed
+     */
+    private function handleFailed(?int $pcEid, array $data): void
+    {
+        if (!$pcEid) {
+            return;
+        }
+
+        error_log("MedEx: Message failed for appointment {$pcEid}: " . ($data['msg_extra'] ?? 'Unknown error'));
+
+        // TODO: Create alert for staff to follow up
+    }
+
+    /**
+     * Handle BOUNCE status - email bounced or invalid phone
+     */
+    private function handleBounce(int $patientId, string $msgType): void
+    {
+        error_log("MedEx: {$msgType} bounced for patient {$patientId}");
+
+        // TODO: Flag patient contact info for verification
+    }
+
+    /**
+     * Get message statistics for a patient
+     */
+    public function getPatientMessageHistory(int $patientId, int $limit = 50): array
+    {
+        $sql = "SELECT mo.*,
+                       cal.pc_eventDate, cal.pc_startTime,
+                       cal.pc_apptstatus
+                FROM medex_outgoing mo
+                LEFT JOIN openemr_postcalendar_events cal ON mo.msg_pc_eid = cal.pc_eid
+                WHERE mo.msg_pid = ?
+                ORDER BY mo.msg_date DESC
+                LIMIT ?";
+
+        $result = sqlStatement($sql, [$patientId, $limit]);
+
+        $messages = [];
+        while ($row = sqlFetchArray($result)) {
+            $messages[] = $row;
+        }
+
+        return $messages;
+    }
+
+    /**
+     * Get message statistics for an appointment
+     */
+    public function getAppointmentMessages(int $pcEid): array
+    {
+        $sql = "SELECT * FROM medex_outgoing
+                WHERE msg_pc_eid = ?
+                ORDER BY msg_date DESC";
+
+        $result = sqlStatement($sql, [$pcEid]);
+
+        $messages = [];
+        while ($row = sqlFetchArray($result)) {
+            $messages[] = $row;
+        }
+
+        return $messages;
+    }
+
+    /**
+     * Get pending messages (To Send status)
+     */
+    public function getPendingMessages(): array
+    {
+        $sql = "SELECT mo.*,
+                       pat.fname, pat.lname, pat.phone_cell, pat.email,
+                       cal.pc_eventDate, cal.pc_startTime
+                FROM medex_outgoing mo
+                LEFT JOIN patient_data pat ON mo.msg_pid = pat.pid
+                LEFT JOIN openemr_postcalendar_events cal ON mo.msg_pc_eid = cal.pc_eid
+                WHERE mo.msg_reply = 'To Send'
+                ORDER BY mo.msg_date ASC";
+
+        $result = sqlStatement($sql);
+
+        $messages = [];
+        while ($row = sqlFetchArray($result)) {
+            $messages[] = $row;
+        }
+
+        return $messages;
+    }
+}
