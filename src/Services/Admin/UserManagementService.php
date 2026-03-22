@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 
 /**
  * Admin User Management Service — read and create operations for admin user endpoints.
@@ -8,6 +7,8 @@ declare(strict_types=1);
  * @author    Milan Zivkovic <zivkovic.milan@gmail.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  */
+
+declare(strict_types=1);
 
 namespace OpenEMR\Services\Admin;
 
