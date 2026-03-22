@@ -11,3 +11,14 @@ Be specific about which parts were AI-generated
 Do not claim AI-generated code as entirely your own work
 
 When making significant edits to AI-generated code, you may indicate the extent of modifications
+
+## Branching and PRs
+
+- Never commit directly to master. All work must be done in feature branches.
+- Branch naming: When addressing a specific issue, use `issuenumber/brief-description` (e.g., `1234/fix-calendar-date-parsing`).
+- When opening PRs, follow the template in `.github/PULL_REQUEST_TEMPLATE.md`.
+
+## Important Guidelines
+
+- **Translation files are append-only.** Never remove entries from translation files.
+- **Do not manually edit the PHPStan baseline file.** Use `composer phpstan-baseline` to regenerate it. Changes should not increase the baseline error count. "Trades" are acceptable during refactors where an error moves from one file to another.
