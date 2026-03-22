@@ -1,0 +1,315 @@
+<?php
+/**
+ * interface/modules/zend_modules/module/Installer/view/installer/installer/upload.phtml
+ *
+ * Third-party custom module upload page.
+ * Accepts a ZIP file, validates it is self-contained (one top-level directory,
+ * no path traversal), extracts it into custom_modules/, and returns the user to
+ * the Module Manager to complete installation.
+ *
+ * @package   OpenEMR
+ * @link      https://www.open-emr.org
+ * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
+
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+    echo xlt('Not Authorized');
+    exit;
+}
+
+$listener  = $this->listenerObject;
+$error     = $this->error ?? null;
+$success   = $this->success ?? null;
+$site      = attr_url($_SESSION['site_id'] ?? $_GET['site'] ?? 'default');
+$indexUrl  = $this->basePath() . '/Installer/index?site=' . $site;
+$uploadUrl = $this->basePath() . '/Installer/upload?site=' . $site;
+$session   = SessionWrapperFactory::getInstance()->getActiveSession();
+$csrfToken = attr(CsrfUtils::collectCsrfToken(session: $session));
+?>
+<style>
+    .upload-drop-zone {
+        border: 2px dashed var(--gray, #adb5bd);
+        border-radius: .375rem;
+        padding: 2.5rem 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: background-color 0.15s ease, border-color 0.15s ease;
+        user-select: none;
+    }
+    .upload-drop-zone:hover,
+    .upload-drop-zone.dragover {
+        background-color: rgba(0, 123, 255, 0.05);
+        border-color: var(--primary, #007bff);
+    }
+    .upload-drop-zone input[type="file"] { display: none; }
+</style>
+
+<div class="installer bg-light text-dark p-3">
+    <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-9 col-md-11 col-12">
+
+            <div class="d-flex align-items-center mb-3">
+                <a href="<?php echo attr($indexUrl); ?>" class="btn btn-sm btn-outline-secondary mr-3">
+                    <i class="fa fa-arrow-left"></i> <?php echo xlt('Back'); ?>
+                </a>
+                <h4 class="mb-0">
+                    <i class="fa fa-upload text-primary mr-1"></i>
+                    <?php echo xlt('Upload Third-Party Module'); ?>
+                </h4>
+            </div>
+
+            <?php if ($error): ?>
+                <div class="alert alert-danger" role="alert">
+                    <i class="fa fa-times-circle mr-1"></i> <?php echo text($error); ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if ($success): ?>
+                <div class="alert alert-success" role="alert">
+                    <i class="fa fa-check-circle mr-1"></i> <?php echo text($success); ?>
+                </div>
+                <a href="<?php echo attr($indexUrl); ?>" class="btn btn-primary">
+                    <i class="fa fa-arrow-left mr-1"></i> <?php echo xlt('Return to Module Manager'); ?>
+                </a>
+            <?php elseif ($this->needsConfirm ?? false): ?>
+
+                <div class="card border-warning">
+                    <div class="card-header bg-warning text-dark font-weight-bold">
+                        <i class="fa fa-exclamation-triangle mr-1"></i><?php echo xlt('Module Already Exists'); ?>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-1">
+                            <?php echo xlt('Module'); ?> <strong><code><?php echo text($this->moduleDirName); ?></code></strong>
+                            <?php echo xlt('already has a directory in'); ?> <code>custom_modules/</code>
+                            <?php echo xlt('but is not currently registered in the database.'); ?>
+                        </p>
+                        <p><?php echo xlt('Uploading will overwrite all files in that directory. This cannot be undone.'); ?></p>
+                        <form method="POST" action="<?php echo attr($uploadUrl); ?>">
+                            <input type="hidden" name="csrf_token_form" value="<?php echo $csrfToken; ?>">
+                            <input type="hidden" name="confirm_overwrite" value="1">
+                            <input type="hidden" name="pending_token" value="<?php echo attr($this->pendingToken); ?>">
+                            <input type="hidden" name="disclaimer_accepted" value="1">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fa fa-sync mr-1"></i><?php echo xlt('Yes, Replace Module Files'); ?>
+                            </button>
+                            <a href="<?php echo attr($indexUrl); ?>" class="btn btn-outline-secondary ml-2">
+                                <?php echo xlt('Cancel'); ?>
+                            </a>
+                        </form>
+                    </div>
+                </div>
+
+            <?php else: ?>
+
+            <div class="alert alert-warning" role="alert">
+                <h6 class="alert-heading font-weight-bold mb-2">
+                    <i class="fa fa-exclamation-triangle mr-1"></i><?php echo xlt('Third-Party Module Disclaimer'); ?>
+                </h6>
+                <ul class="mb-0 pl-3" style="font-size:.9rem;">
+                    <li><?php echo xlt('This module has NOT been reviewed or approved by the OpenEMR maintainers.'); ?></li>
+                    <li><?php echo xlt('OpenEMR assumes no responsibility for third-party module code, security, or compliance.'); ?></li>
+                    <li><?php echo xlt('You are installing code from a third-party vendor at your own risk.'); ?></li>
+                    <li><?php echo xlt('Only install modules from sources you explicitly trust.'); ?></li>
+                    <li><?php echo xlt('The module will be sandboxed to its own directory — it cannot modify OpenEMR core files.'); ?></li>
+                </ul>
+            </div>
+
+            <div class="alert alert-danger" role="alert" style="font-size:.9rem;">
+                <strong><i class="fa fa-database mr-1"></i><?php echo xlt('Back Up Before Proceeding'); ?></strong>
+                <?php echo xlt('Back up your entire OpenEMR installation and database before adding any third-party module. Removal may not fully undo all changes.'); ?>
+            </div>
+
+            <div class="alert alert-info" role="alert" style="font-size:.9rem;">
+                <strong><i class="fa fa-shield-alt mr-1"></i><?php echo xlt('Sandboxing Rules'); ?></strong>
+                <ul class="mb-0 pl-3 mt-1">
+                    <li><?php echo xlt('ZIP must contain exactly one top-level directory (the module name).'); ?></li>
+                    <li><?php echo xlt('No path traversal sequences (..) are permitted.'); ?></li>
+                    <li><?php echo xlt('Files are extracted only into') . ' <code>custom_modules/&lt;module-name&gt;/</code> — ' . xlt('never into core directories.'); ?></li>
+                    <li><?php echo xlt('Core OpenEMR directory names are blocked as module names.'); ?></li>
+                </ul>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-white font-weight-bold">
+                    <i class="fa fa-file-archive text-muted mr-1"></i><?php echo xlt('Upload Module ZIP'); ?>
+                </div>
+                <div class="card-body">
+                    <form id="moduleUploadForm" method="POST" enctype="multipart/form-data"
+                          action="<?php echo attr($uploadUrl); ?>">
+                        <input type="hidden" name="csrf_token_form" value="<?php echo $csrfToken; ?>">
+
+                        <!-- Upload Method Selection -->
+                        <div class="btn-group btn-group-toggle mb-3" data-toggle="buttons">
+                            <label class="btn btn-outline-primary active" id="fileMethodBtn">
+                                <input type="radio" name="upload_method" id="fileMethod" value="file" checked> 
+                                <i class="fa fa-upload mr-1"></i><?php echo xlt('Upload File'); ?>
+                            </label>
+                            <label class="btn btn-outline-primary" id="urlMethodBtn">
+                                <input type="radio" name="upload_method" id="urlMethod" value="url"> 
+                                <i class="fa fa-link mr-1"></i><?php echo xlt('Download from URL'); ?>
+                            </label>
+                        </div>
+
+                        <!-- File Upload Section -->
+                        <div id="fileUploadSection">
+                            <div class="upload-drop-zone mb-2" id="dropZone"
+                                 onclick="document.getElementById('moduleZipInput').click()"
+                                 tabindex="0" role="button">
+                                <i class="fa fa-file-archive fa-3x text-muted d-block mb-2"></i>
+                                <span id="dropLabel" class="text-muted">
+                                    <?php echo xlt('Drag and drop a module ZIP here, or click to browse'); ?>
+                                </span>
+                                <input type="file" name="module_zip" id="moduleZipInput" accept=".zip">
+                            </div>
+                            <div id="fileSelected" class="small text-success font-weight-bold mb-3" style="display:none;"></div>
+                        </div>
+
+                        <!-- URL Download Section -->
+                        <div id="urlDownloadSection" style="display:none;">
+                            <div class="form-group mb-3">
+                                <label for="moduleUrlInput" class="font-weight-bold">
+                                    <i class="fa fa-link mr-1"></i><?php echo xlt('Module ZIP URL'); ?>
+                                </label>
+                                <input type="url" class="form-control" name="module_url" id="moduleUrlInput" 
+                                       placeholder="https://github.com/user/module/releases/download/v1.0/module.zip">
+                                <small class="form-text text-muted">
+                                    <?php echo xlt('Enter a direct URL to a ZIP file containing the module (GitHub releases, etc.)'); ?>
+                                </small>
+                            </div>
+                            <div class="alert alert-info" role="alert">
+                                <i class="fa fa-shield-alt mr-1"></i><strong><?php echo xlt('URL Security'); ?></strong><br>
+                                <small>
+                                    • <?php echo xlt('Only HTTPS URLs are allowed for security'); ?><br>
+                                    • <?php echo xlt('GitHub, GitLab, and trusted hosts supported'); ?><br>
+                                    • <?php echo xlt('ZIP content will be validated same as file uploads'); ?>
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input type="checkbox" class="form-check-input" name="disclaimer_accepted"
+                                   id="disclaimerCheck" value="1">
+                            <label class="form-check-label" for="disclaimerCheck">
+                                <?php echo xlt('I have read and accept the disclaimer above, and I have backed up my system.'); ?>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" id="uploadBtn" disabled>
+                            <i class="fa fa-upload mr-1"></i><?php echo xlt('Upload Module'); ?>
+                        </button>
+                        <a href="<?php echo attr($indexUrl); ?>" class="btn btn-outline-secondary ml-2">
+                            <?php echo xlt('Cancel'); ?>
+                        </a>
+
+                    </form>
+                </div>
+            </div>
+
+            <?php endif; ?>
+
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    var dropZone  = document.getElementById('dropZone');
+    var fileInput = document.getElementById('moduleZipInput');
+    var urlInput  = document.getElementById('moduleUrlInput');
+    var fileLabel = document.getElementById('fileSelected');
+    var dropLabel = document.getElementById('dropLabel');
+    var checkbox  = document.getElementById('disclaimerCheck');
+    var uploadBtn = document.getElementById('uploadBtn');
+    var fileMethodBtn = document.getElementById('fileMethodBtn');
+    var urlMethodBtn = document.getElementById('urlMethodBtn');
+    var fileSection = document.getElementById('fileUploadSection');
+    var urlSection = document.getElementById('urlDownloadSection');
+
+    function updateBtn() {
+        if (!uploadBtn || !checkbox || !checkbox.checked) {
+            uploadBtn.disabled = true;
+            return;
+        }
+        
+        var fileMethod = document.getElementById('fileMethod').checked;
+        if (fileMethod) {
+            uploadBtn.disabled = !(fileInput && fileInput.files.length > 0);
+        } else {
+            uploadBtn.disabled = !(urlInput && urlInput.value.trim().length > 0);
+        }
+    }
+
+    function setFile(name) {
+        dropLabel.textContent = name;
+        fileLabel.textContent = '\u2714 ' + name;
+        fileLabel.style.display = 'block';
+    }
+
+    function switchToFileMethod() {
+        fileSection.style.display = 'block';
+        urlSection.style.display = 'none';
+        fileMethodBtn.classList.add('active');
+        urlMethodBtn.classList.remove('active');
+        updateBtn();
+    }
+
+    function switchToUrlMethod() {
+        fileSection.style.display = 'none';
+        urlSection.style.display = 'block';
+        fileMethodBtn.classList.remove('active');
+        urlMethodBtn.classList.add('active');
+        updateBtn();
+    }
+
+    // Method toggle handlers
+    if (fileMethodBtn) {
+        fileMethodBtn.addEventListener('click', switchToFileMethod);
+    }
+    if (urlMethodBtn) {
+        urlMethodBtn.addEventListener('click', switchToUrlMethod);
+    }
+
+    // File input handlers
+    if (fileInput) {
+        fileInput.addEventListener('change', function () {
+            if (fileInput.files.length > 0) { setFile(fileInput.files[0].name); }
+            updateBtn();
+        });
+    }
+
+    // URL input handler
+    if (urlInput) {
+        urlInput.addEventListener('input', updateBtn);
+    }
+
+    if (checkbox) { checkbox.addEventListener('change', updateBtn); }
+
+    // Drag and drop handlers
+    if (dropZone) {
+        dropZone.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
+        });
+        dropZone.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        dropZone.addEventListener('dragleave', function () {
+            dropZone.classList.remove('dragover');
+        });
+        dropZone.addEventListener('drop', function (e) {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            var dt = e.dataTransfer;
+            if (dt.files.length) {
+                try { fileInput.files = dt.files; } catch (ex) {}
+                setFile(dt.files[0].name);
+                updateBtn();
+            }
+        });
+    }
+})();
+</script>

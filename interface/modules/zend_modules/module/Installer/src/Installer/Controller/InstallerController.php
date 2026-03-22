@@ -17,12 +17,15 @@
 namespace Installer\Controller;
 
 use Application\Listener\Listener;
+use Exception;
 use Installer\Model\InstModule;
 use Installer\Model\InstModuleTable;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\JsonModel;
 use Laminas\View\Model\ViewModel;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\ModulesClassLoader;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\SQLUpgradeService;
@@ -80,9 +83,9 @@ class InstallerController extends AbstractActionController
      */
     private function scanAndRegisterCustomModules(): void
     {
-        $baseModuleDir = OEGlobalsBag::getInstance()->get('baseModDir');
-        $customDir = OEGlobalsBag::getInstance()->get('customModDir');
-        $zendModDir = OEGlobalsBag::getInstance()->get('zendModDir');
+        $baseModuleDir = $GLOBALS['baseModDir'];
+        $customDir = $GLOBALS['customModDir'];
+        $zendModDir = $GLOBALS['zendModDir'];
         $coreModules = ['Application', 'Acl', 'Installer', 'FHIR', 'PatientFlowBoard'];
         $allModules = [];
 
@@ -95,7 +98,7 @@ class InstallerController extends AbstractActionController
             $allModules[] = $mod;
         }
 
-        $dir_path = OEGlobalsBag::getInstance()->get('srcdir') . "/../$baseModuleDir$customDir/";
+        $dir_path = $GLOBALS['srcdir'] . "/../$baseModuleDir$customDir/";
         $dp = opendir($dir_path);
         $inDirCustom = [];
         for ($i = 0; false != ($file_name = readdir($dp)); $i++) {
@@ -104,7 +107,7 @@ class InstallerController extends AbstractActionController
             }
         }
         /* Laminas directory Unregistered scan */
-        $dir_path = OEGlobalsBag::getInstance()->get('srcdir') . "/../$baseModuleDir$zendModDir/module";
+        $dir_path = $GLOBALS['srcdir'] . "/../$baseModuleDir$zendModDir/module";
         $dp = opendir($dir_path);
         $inDirLaminas = [];
         for ($i = 0; false != ($file_name = readdir($dp)); $i++) {
@@ -158,7 +161,7 @@ class InstallerController extends AbstractActionController
 
                 // registering the table inserts the module record into the database.
                 // it's always loaded regardless, but it inserts it in the database as not activated
-                if ($this->InstallerTable->register($request->getPost('mod_name'), $rel_path, 0, OEGlobalsBag::getInstance()->get('zendModDir'))) {
+                if ($this->InstallerTable->register($request->getPost('mod_name'), $rel_path, 0, $GLOBALS['zendModDir'])) {
                     $status = true;
                 }
             } else {
@@ -237,6 +240,30 @@ class InstallerController extends AbstractActionController
                 }
             } elseif ($action == "unregister") {
                 $status = $this->UnregisterModule($request->getPost('modId'));
+            } elseif ($action === 'remove_files') {
+                if ($modType !== InstModuleTable::MODULE_TYPE_CUSTOM) {
+                    $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("Can only remove custom (uploaded) modules from disk.");
+                } else {
+                    $srcDir     = OEGlobalsBag::getInstance()->get('srcdir');
+                    $baseModDir = OEGlobalsBag::getInstance()->get('baseModDir');
+                    if (!is_string($srcDir) || !is_string($baseModDir)) {
+                        $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("Module configuration paths not available.");
+                    } else {
+                        $customModulesBase = realpath($srcDir . '/../' . $baseModDir . 'custom_modules');
+                        if ($customModulesBase === false) {
+                            $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("Custom modules directory not found.");
+                        } else {
+                            $targetDir = $customModulesBase . DIRECTORY_SEPARATOR . $dirModule;
+                            if (dirname($targetDir) === $customModulesBase && is_dir($targetDir)) {
+                                $this->deleteDirectoryRecursively($targetDir);
+                                $modIdValue = $request->getPost('modId');
+                                $status = $this->UnregisterModule(is_string($modIdValue) ? $modIdValue : '');
+                            } else {
+                                $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("Module directory not found or outside sandbox.");
+                            }
+                        }
+                    }
+                }
             } elseif ($action == "reset_module") {
                 // call listener to reset module to initial state perhaps!
                 $status =  "Success";
@@ -266,7 +293,7 @@ class InstallerController extends AbstractActionController
      */
     private function notifyModuleListener($action, $modId, $dirModule, $currentStatus): mixed
     {
-        $modPath = OEGlobalsBag::getInstance()->get('fileroot') . "/" . OEGlobalsBag::getInstance()->get('baseModDir') . "custom_modules/" . $dirModule;
+        $modPath = $GLOBALS['fileroot'] . "/" . $GLOBALS['baseModDir'] . "custom_modules/" . $dirModule;
         $moduleClassPath = $modPath . '/ModuleManagerListener.php';
         $className = 'ModuleManagerListener';
         $action = trim((string) $action);
@@ -285,9 +312,9 @@ class InstallerController extends AbstractActionController
         $namespace = $className::getModuleNamespace();
         if (!empty($namespace)) {
             try {
-                $classLoader = new ModulesClassLoader(OEGlobalsBag::getInstance()->get('fileroot'));
+                $classLoader = new ModulesClassLoader($GLOBALS['fileroot']);
                 $classLoader->registerNamespaceIfNotExists($namespace, $modPath . DIRECTORY_SEPARATOR . 'src');
-            } catch (\Throwable $e) {
+            } catch (Exception $e) {
                 error_log('Error loading namespace: ' . $e->getMessage());
             }
         }
@@ -301,7 +328,7 @@ class InstallerController extends AbstractActionController
                 // This method is expected to return the current status of the module unless module wishes to override it.
                 // In that case, new text of result will display as alert in UI.
                 return ($instance->moduleManagerAction(...))($methodName, $modId, $currentStatus);
-            } catch (\Throwable $e) {
+            } catch (Exception $e) {
                 error_log('Error calling module manager action: ' . $e->getMessage());
                 return $currentStatus;
             }
@@ -531,9 +558,9 @@ class InstallerController extends AbstractActionController
     {
         //SQL version of Module
         $dirModule = $this->InstallerTable->getRegistryEntry($modId, "mod_directory");
-        $ModulePath = OEGlobalsBag::getInstance()->get('srcdir') . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "zend_modules/module/" . $dirModule->modDirectory;
+        $ModulePath = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $dirModule->modDirectory;
         if (!is_dir($ModulePath)) {
-            $ModulePath = OEGlobalsBag::getInstance()->get('srcdir') . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "custom_modules/" . $dirModule->modDirectory;
+            $ModulePath = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "custom_modules/" . $dirModule->modDirectory;
         }
         $version_of_module = $ModulePath . "/version.php";
         $table_sql = $ModulePath . "/table.sql";
@@ -555,7 +582,7 @@ class InstallerController extends AbstractActionController
      */
     public function getFilesForUpgrade($modDirectory, $sqldir): false|array
     {
-        $ModulePath = OEGlobalsBag::getInstance()->get('srcdir') . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "zend_modules/module/" . $modDirectory;
+        $ModulePath = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $modDirectory;
         $versions = [];
         $dh = opendir($sqldir);
         if (!$dh) {
@@ -588,13 +615,13 @@ class InstallerController extends AbstractActionController
     public function makeButtonForSqlAction(InstModule $mod)
     {
         $dirModule = $this->InstallerTable->getRegistryEntry($mod->modId, "mod_directory");
-        $ModulePath = OEGlobalsBag::getInstance()->get('srcdir') . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "zend_modules/module/" . $dirModule->modDirectory;
+        $ModulePath = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $dirModule->modDirectory;
         $sqldir = $ModulePath . "/sql";
         if (!is_dir($sqldir)) {
             $sqldir = $ModulePath;
         }
         if (!is_dir($sqldir)) {
-            $ModulePath = OEGlobalsBag::getInstance()->get('srcdir') . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "custom_modules/" . $dirModule->modDirectory;
+            $ModulePath = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "custom_modules/" . $dirModule->modDirectory;
             $sqldir = $ModulePath . "/sql";
             if (!is_dir($sqldir)) {
                 $sqldir = $ModulePath;
@@ -628,7 +655,7 @@ class InstallerController extends AbstractActionController
     public function makeButtonForACLAction(InstModule $mod)
     {
         $dirModule = $this->InstallerTable->getRegistryEntry($mod->modId, "mod_directory");
-        $ModulePath = OEGlobalsBag::getInstance()->get('srcdir') . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "zend_modules/module/" . $dirModule->modDirectory;
+        $ModulePath = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $dirModule->modDirectory;
         $sqldir = $ModulePath . "/acl";
         $mod->acl_action = "";
 
@@ -682,7 +709,7 @@ class InstallerController extends AbstractActionController
         if ($modType == InstModuleTable::MODULE_TYPE_CUSTOM) {
             $modUri = "custom_modules/";
         }
-        if ($this->InstallerTable->installSQL($modId, $modType, OEGlobalsBag::getInstance()->get('fileroot') . "/" . OEGlobalsBag::getInstance()->get('baseModDir') . $modUri . $dirModule)) {
+        if ($this->InstallerTable->installSQL($modId, $modType, $GLOBALS['fileroot'] . "/" . $GLOBALS['baseModDir'] . $modUri . $dirModule)) {
             $values = [$registryEntry->mod_nick_name, $registryEntry->mod_enc_menu];
             $values[2] = $this->getModuleVersionFromFile($modId);
             $values[3] = $registryEntry->acl_version;
@@ -705,7 +732,7 @@ class InstallerController extends AbstractActionController
         if ($modType == InstModuleTable::MODULE_TYPE_CUSTOM) {
             $modUri = "custom_modules/";
         }
-        $modDir = OEGlobalsBag::getInstance()->get('srcdir') . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . $modUri . $Module->modDirectory;
+        $modDir = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . $modUri . $Module->modDirectory;
         $sqlInstallLocation = $modDir . '/sql';
         // if this is a custom module that for some reason doesn't have the SQL in a sql folder...
         if (!file_exists($sqlInstallLocation)) {
@@ -770,7 +797,7 @@ class InstallerController extends AbstractActionController
     public function InstallModuleACL($modId = '')
     {
         $Module = $this->InstallerTable->getRegistryEntry($modId, "mod_directory");
-        $modDir = OEGlobalsBag::getInstance()->get('srcdir') . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "zend_modules/module/" . $Module->modDirectory;
+        $modDir = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $Module->modDirectory;
         $div = [];
         if (file_exists($modDir . "/acl/acl_setup.php") && empty($modDir->acl_version)) {
             // Pass a variable, so below scripts can not be run on their own
@@ -842,7 +869,7 @@ class InstallerController extends AbstractActionController
         $dirModule = $registryEntry->modDirectory;
         $sqlInstalled = false;
         if ($modType == InstModuleTable::MODULE_TYPE_CUSTOM) {
-            $fullDirectory = OEGlobalsBag::getInstance()->get('srcdir') . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . OEGlobalsBag::getInstance()->get('customModDir') . "/" . $dirModule;
+            $fullDirectory = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . $GLOBALS['customModDir'] . "/" . $dirModule;
             if ($this->InstallerTable->installSQL($modId, $modType, $fullDirectory)) {
                 $sqlInstalled = true;
             } else {
@@ -850,7 +877,7 @@ class InstallerController extends AbstractActionController
                 $status = $this->listenerObject->z_xlt("ERROR") . ':' . $this->listenerObject->z_xlt("could not open table") . '.' . $this->listenerObject->z_xlt("sql") . ', ' . $this->listenerObject->z_xlt("broken form") . "?";
             }
         } elseif ($modType == InstModuleTable::MODULE_TYPE_ZEND) {
-            $fullDirectory = OEGlobalsBag::getInstance()->get('srcdir') . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "zend_modules/module/" . $dirModule;
+            $fullDirectory = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $dirModule;
             if ($this->InstallerTable->installSQL($modId, $modType, $fullDirectory)) {
                 $sqlInstalled = true;
             } else {
@@ -874,6 +901,25 @@ class InstallerController extends AbstractActionController
      * @param string $modId
      * @return boolean
      */
+    /**
+     * Recursively delete a directory and all its contents.
+     */
+    private function deleteDirectoryRecursively(string $dir): void
+    {
+        $items = glob($dir . DIRECTORY_SEPARATOR . '*') ?: [];
+        foreach ($items as $item) {
+            if (is_dir($item)) {
+                $this->deleteDirectoryRecursively($item);
+            } else {
+                unlink($item);
+            }
+        }
+        rmdir($dir);
+    }
+
+    /**
+     * @param string $modId
+     */
     public function UnregisterModule($modId = ''): bool|string
     {
         $resp = $this->InstallerTable->unRegister($modId);
@@ -894,7 +940,7 @@ class InstallerController extends AbstractActionController
     public function UpgradeModuleACL($modId = '')
     {
         $Module = $this->InstallerTable->getRegistryEntry($modId, "mod_directory");
-        $modDir = OEGlobalsBag::getInstance()->get('srcdir') . "/../" . OEGlobalsBag::getInstance()->get('baseModDir') . "zend_modules/module/" . $Module->modDirectory;
+        $modDir = $GLOBALS['srcdir'] . "/../" . $GLOBALS['baseModDir'] . "zend_modules/module/" . $Module->modDirectory;
         $div = [];
         if (file_exists($modDir . "/acl/acl_upgrade.php") && !empty($Module->acl_version)) {
             // Pass a variable, so below scripts can not be run on their own
@@ -914,6 +960,341 @@ class InstallerController extends AbstractActionController
             return $div;
         }
         return false;
+    }
+
+    /**
+     * Upload and install a third-party custom module from a ZIP file.
+     *
+     * Security model:
+     *  - ZIP must contain exactly one top-level directory (the module directory name).
+     *  - Every file inside the ZIP must reside under that single top-level directory.
+     *  - No path traversal sequences (..) are permitted in any ZIP entry name.
+     *  - The resolved extraction target must be inside custom_modules/ only.
+     *  - Extraction is done entry-by-entry so no ZipArchive::extractTo() path bypass.
+     *  - The action requires admin/manage_modules ACL.
+     *
+     * @return ViewModel
+     */
+    public function uploadAction(): ViewModel
+    {
+        if (!AclMain::aclCheckCore('admin', 'manage_modules')) {
+            echo xlt('Not Authorized');
+            exit;
+        }
+
+        $viewModel = new ViewModel();
+        $error   = null;
+        $success = null;
+
+        /** @var \Laminas\Http\PhpEnvironment\Request $request */
+        $request = $this->getRequest();
+        if ($request->isPost()) {
+            try {
+                $session = SessionWrapperFactory::getInstance()->getActiveSession();
+                if (!CsrfUtils::verifyCsrfToken($request->getPost('csrf_token_form'), $session)) {
+                    CsrfUtils::csrfNotVerified();
+                }
+
+                $confirmOverwrite = ($request->getPost('confirm_overwrite') === '1');
+                $uploadMethod = $request->getPost('upload_method') ?? 'file';
+
+                // --- Acquire the ZIP path ---
+                /** @var array{token: string, path: string, modName: string}|null $pending */
+                $pending = null;
+                if ($confirmOverwrite) {
+                    // Confirmation pass: retrieve and validate the stashed file
+                    $pendingToken = $request->getPost('pending_token');
+                    if (!is_string($pendingToken) || $pendingToken === '') {
+                        throw new \RuntimeException(xlt('Invalid confirmation request.'));
+                    }
+                    $sessionPending = $_SESSION['oemr_mod_pending'] ?? null;
+                    if (
+                        !is_array($sessionPending) ||
+                        !isset($sessionPending['token'], $sessionPending['path'], $sessionPending['modName']) ||
+                        !is_string($sessionPending['token']) ||
+                        !is_string($sessionPending['path']) ||
+                        !is_string($sessionPending['modName']) ||
+                        !hash_equals($sessionPending['token'], $pendingToken) ||
+                        !is_file($sessionPending['path'])
+                    ) {
+                        throw new \RuntimeException(xlt('Upload confirmation token is invalid or has expired. Please upload the file again.'));
+                    }
+                    $pending = [
+                        'token'   => $sessionPending['token'],
+                        'path'    => $sessionPending['path'],
+                        'modName' => $sessionPending['modName'],
+                    ];
+                    $tmpPath = $pending['path'];
+                } else {
+                    // Normal upload pass — require disclaimer
+                    if (!$request->getPost('disclaimer_accepted')) {
+                        throw new \RuntimeException(xlt('You must accept the disclaimer before uploading a module.'));
+                    }
+
+                    if ($uploadMethod === 'url') {
+                        // URL download method
+                        $moduleUrl = $request->getPost('module_url');
+                        if (!is_string($moduleUrl) || $moduleUrl === '') {
+                            throw new \RuntimeException(xlt('No module URL provided.'));
+                        }
+                        $tmpPath = $this->downloadModuleFromUrl($moduleUrl);
+                    } else {
+                        // File upload method
+                        /** @var array{name: string, type: string, tmp_name: string, error: int, size: int}|null $file */
+                        $file = $_FILES['module_zip'] ?? null;
+                        if ($file === null || $file['error'] !== UPLOAD_ERR_OK) {
+                            throw new \RuntimeException(xlt('No file uploaded or upload error occurred.'));
+                        }
+                        $tmpPath = $file['tmp_name'];
+                    }
+                }
+
+                // --- Validate ZIP integrity ---
+                $zip = new \ZipArchive();
+                if ($zip->open($tmpPath) !== true) {
+                    throw new \RuntimeException(xlt('The uploaded file is not a valid ZIP archive.'));
+                }
+
+                // Phase 1: discover the single top-level directory
+                $topDirs = [];
+                for ($i = 0; $i < $zip->numFiles; $i++) {
+                    $entryName = $zip->getNameIndex($i);
+                    if ($entryName === false) {
+                        continue;
+                    }
+                    if (str_contains($entryName, '..')) {
+                        $zip->close();
+                        throw new \RuntimeException(xlt('ZIP contains path traversal sequences and was rejected.'));
+                    }
+                    if (str_starts_with($entryName, '/') || str_starts_with($entryName, '\\')) {
+                        $zip->close();
+                        throw new \RuntimeException(xlt('ZIP contains absolute paths and was rejected.'));
+                    }
+                    $parts = explode('/', ltrim($entryName, '/'), 2);
+                    if ($parts[0] !== '') {
+                        $topDirs[$parts[0]] = true;
+                    }
+                }
+                if (count($topDirs) !== 1) {
+                    $zip->close();
+                    throw new \RuntimeException(xlt('ZIP must contain exactly one top-level directory (the module directory).'));
+                }
+                $moduleDirName = array_key_first($topDirs);
+
+                // On confirm pass: verify the ZIP still matches what the session recorded
+                if ($confirmOverwrite && is_array($pending) && $moduleDirName !== $pending['modName']) {
+                    $zip->close();
+                    throw new \RuntimeException(xlt('Upload confirmation mismatch. Please upload the file again.'));
+                }
+
+                // Validate directory name: only alphanumeric, dash, underscore
+                if (!preg_match('/^[a-zA-Z0-9_-]+$/', $moduleDirName)) {
+                    $zip->close();
+                    throw new \RuntimeException(xlt('Module directory name contains invalid characters.'));
+                }
+
+                // Block names that conflict with OpenEMR core directories or Laminas core modules
+                // THIS MUST BE CHECKED BEFORE DIRECTORY EXISTENCE to prevent wrong error messages
+                $reservedNames = [
+                    'interface', 'library', 'src', 'sites', 'portal', 'modules',
+                    'apis', 'oauth2', 'ccdaservice', 'ccr', 'config', 'contrib',
+                    'controllers', 'custom', 'gacl', 'templates', 'tests',
+                    'application', 'acl', 'installer', 'fhir', 'patientflowboard',
+                    'custom_modules', 'zend_modules',
+                ];
+                if (in_array(strtolower($moduleDirName), $reservedNames)) {
+                    $zip->close();
+                    throw new \RuntimeException(xlt('Module directory name conflicts with a reserved OpenEMR name.'));
+                }
+
+                // --- Module Structure Validation ---
+                // Validate that this is a properly packaged OpenEMR custom module
+                $requiredFiles = ['moduleConfig.php']; // Core required file
+                $invalidStructures = [
+                    'interface/modules/' => 'ZIP appears to be created from OpenEMR root instead of module directory',
+                    'library/' => 'ZIP appears to be created from OpenEMR root instead of module directory', 
+                    'sites/' => 'ZIP appears to be created from OpenEMR root instead of module directory',
+                    'vendor/' => 'ZIP appears to be created from OpenEMR root instead of module directory'
+                ];
+                
+                $foundFiles = [];
+                $hasInvalidStructure = false;
+                $invalidReason = '';
+                
+                // Scan ZIP contents for validation
+                for ($i = 0; $i < $zip->numFiles; $i++) {
+                    $entryName = $zip->getNameIndex($i);
+                    if ($entryName === false) {
+                        continue;
+                    }
+                    
+                    // Check for invalid OpenEMR root structures
+                    foreach ($invalidStructures as $badPath => $reason) {
+                        if (str_starts_with($entryName, $moduleDirName . '/' . $badPath)) {
+                            $hasInvalidStructure = true;
+                            $invalidReason = $reason;
+                            break 2;
+                        }
+                    }
+                    
+                    // Track required files (relative to module root)
+                    $relativePath = substr($entryName, strlen($moduleDirName) + 1);
+                    if (!str_ends_with($entryName, '/')) { // Not a directory
+                        $foundFiles[] = $relativePath;
+                    }
+                }
+                
+                // Check for invalid structure (developer zipped from wrong directory)
+                if ($hasInvalidStructure) {
+                    $zip->close();
+                    throw new \RuntimeException(xlt('Invalid module ZIP structure') . ': ' . xlt($invalidReason) . '. ' . 
+                        xlt('The ZIP should contain only the module files, not OpenEMR core directories.'));
+                }
+                
+                // Check for required module files
+                $missingFiles = [];
+                foreach ($requiredFiles as $requiredFile) {
+                    if (!in_array($requiredFile, $foundFiles, true)) {
+                        $missingFiles[] = $requiredFile;
+                    }
+                }
+                
+                if (count($missingFiles) > 0) {
+                    $zip->close();
+                    throw new \RuntimeException(xlt('Not a valid OpenEMR module ZIP') . ': ' . 
+                        xlt('Missing required files') . ': ' . implode(', ', $missingFiles) . '. ' .
+                        xlt('This does not appear to be a properly packaged OpenEMR custom module.'));
+                }
+
+                // Resolve the target path and confirm it sits inside custom_modules/
+                $srcDir     = OEGlobalsBag::getInstance()->get('srcdir');
+                $baseModDir = OEGlobalsBag::getInstance()->get('baseModDir');
+                if (!is_string($srcDir) || !is_string($baseModDir)) {
+                    $zip->close();
+                    throw new \RuntimeException(xlt('Module configuration paths not available.'));
+                }
+                $customModulesBase = realpath($srcDir . '/../' . $baseModDir . 'custom_modules');
+                if ($customModulesBase === false) {
+                    $zip->close();
+                    throw new \RuntimeException(xlt('Custom modules directory not found.'));
+                }
+                $targetModuleDir = $customModulesBase . DIRECTORY_SEPARATOR . $moduleDirName;
+                if (dirname($targetModuleDir) !== $customModulesBase) {
+                    $zip->close();
+                    throw new \RuntimeException(xlt('Resolved module path is outside the allowed custom_modules directory.'));
+                }
+
+                // --- Overwrite guard ---
+                if (is_dir($targetModuleDir) && !$confirmOverwrite) {
+                    $zip->close();
+
+                    // If the directory is already registered in the database the admin must
+                    // explicitly unregister it through the Module Manager before uploading a
+                    // replacement.  This prevents a malicious (or careless) upload from
+                    // silently substituting the files of a trusted installed module.
+                    $registrationStatus = $this->InstallerTable->getModuleStatusByDirectoryName($moduleDirName);
+                    if ($registrationStatus !== 'Missing') {
+                        throw new \RuntimeException(sprintf(
+                            xlt('Module "%s" is already registered (%s). Unregister it from the Module Manager before uploading a replacement.'),
+                            $moduleDirName,
+                            is_string($registrationStatus) ? $registrationStatus : 'registered'
+                        ));
+                    }
+
+                    // Directory exists but is not registered (orphaned) — prompt for confirmation.
+                    $token    = bin2hex(random_bytes(16));
+                    $tmpStash = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'oemr_mod_' . $token . '.zip';
+                    move_uploaded_file($tmpPath, $tmpStash);
+                    $_SESSION['oemr_mod_pending'] = [
+                        'token'   => $token,
+                        'path'    => $tmpStash,
+                        'modName' => $moduleDirName,
+                    ];
+                    $viewModel->setVariables([
+                        'listenerObject' => $this->listenerObject,
+                        'needsConfirm'   => true,
+                        'moduleDirName'  => $moduleDirName,
+                        'pendingToken'   => $token,
+                        'error'          => null,
+                        'success'        => null,
+                    ]);
+                    return $viewModel;
+                }
+
+                // Remove existing directory before re-extraction
+                if ($confirmOverwrite && is_dir($targetModuleDir)) {
+                    $this->deleteDirectoryRecursively($targetModuleDir);
+                }
+
+                // Phase 2: extract entry-by-entry into the target directory
+                if (!is_dir($targetModuleDir)) {
+                    mkdir($targetModuleDir, 0755, true);
+                }
+                for ($i = 0; $i < $zip->numFiles; $i++) {
+                    $entryName = $zip->getNameIndex($i);
+                    if ($entryName === false) {
+                        continue;
+                    }
+                    if (rtrim($entryName, '/') === $moduleDirName) {
+                        continue;
+                    }
+                    $relPath = substr($entryName, strlen($moduleDirName) + 1);
+                    if ($relPath === '') {
+                        continue;
+                    }
+                    $destPath = $targetModuleDir . DIRECTORY_SEPARATOR . $relPath;
+                    $normalizedDest = str_replace('\\', '/', $destPath);
+                    $normalizedBase = str_replace('\\', '/', $targetModuleDir) . '/';
+                    if (!str_starts_with($normalizedDest, $normalizedBase) && $destPath !== $targetModuleDir) {
+                        $zip->close();
+                        throw new \RuntimeException(xlt('ZIP entry would extract outside module directory. Aborting.'));
+                    }
+                    if (str_ends_with($entryName, '/')) {
+                        if (!is_dir($destPath)) {
+                            mkdir($destPath, 0755, true);
+                        }
+                    } else {
+                        $parentDir = dirname($destPath);
+                        if (!is_dir($parentDir)) {
+                            mkdir($parentDir, 0755, true);
+                        }
+                        $stream = $zip->getStream($entryName);
+                        if ($stream === false) {
+                            $zip->close();
+                            throw new \RuntimeException(sprintf(xlt('Could not read ZIP entry: %s'), $entryName));
+                        }
+                        file_put_contents($destPath, stream_get_contents($stream));
+                        fclose($stream);
+                    }
+                }
+                $zip->close();
+
+                // Clean up session stash after successful confirm-overwrite
+                if ($confirmOverwrite && is_array($pending) && is_file($pending['path'])) {
+                    @unlink($pending['path']);
+                    unset($_SESSION['oemr_mod_pending']);
+                }
+
+                // Registration is handled automatically by scanAndRegisterCustomModules()
+                // on the next Module Manager index load. Nothing more needed here.
+                $success = sprintf(
+                    xlt('Module "%s" uploaded successfully. It will appear in the Module Manager below. Click Install to complete setup.'),
+                    $moduleDirName
+                );
+            } catch (\Throwable $e) {
+                $error = $e->getMessage();
+            }
+        }
+
+        $viewModel->setVariables([
+            'listenerObject' => $this->listenerObject,
+            'error'          => $error,
+            'success'        => $success,
+            'needsConfirm'   => false,
+            'moduleDirName'  => '',
+            'pendingToken'   => '',
+        ]);
+        return $viewModel;
     }
 
     /**
@@ -972,5 +1353,99 @@ class InstallerController extends AbstractActionController
         echo $output;
 
         exit($msg . PHP_EOL);
+    }
+
+    /**
+     * Download a module ZIP file from a URL with security validation
+     * 
+     * @param string $url The URL to download the ZIP from
+     * @return string Path to the downloaded temporary file
+     * @throws \RuntimeException If download fails or URL is invalid
+     */
+    private function downloadModuleFromUrl(string $url): string
+    {
+        // Validate URL format and security
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+            throw new \RuntimeException(xlt('Invalid URL format provided.'));
+        }
+
+        $parsedUrl = parse_url($url);
+        if (!$parsedUrl || !isset($parsedUrl['scheme'], $parsedUrl['host'])) {
+            throw new \RuntimeException(xlt('Invalid URL structure.'));
+        }
+
+        // Require HTTPS for security
+        if ($parsedUrl['scheme'] !== 'https') {
+            throw new \RuntimeException(xlt('Only HTTPS URLs are allowed for security reasons.'));
+        }
+
+        // Validate trusted hosts (GitHub, GitLab, etc.)
+        $trustedHosts = [
+            'github.com',
+            'gitlab.com',
+            'bitbucket.org',
+            'raw.githubusercontent.com',
+            'gitlab.io'
+        ];
+        
+        $isValidHost = false;
+        foreach ($trustedHosts as $trustedHost) {
+            if ($parsedUrl['host'] === $trustedHost || str_ends_with($parsedUrl['host'], '.' . $trustedHost)) {
+                $isValidHost = true;
+                break;
+            }
+        }
+        
+        if (!$isValidHost) {
+            throw new \RuntimeException(xlt('URL host not in allowed list. Only GitHub, GitLab, and other trusted repositories are supported.'));
+        }
+
+        // Create temporary file for download
+        $tmpFile = tempnam(sys_get_temp_dir(), 'oemr_module_url_');
+        if ($tmpFile === false) {
+            throw new \RuntimeException(xlt('Could not create temporary file for download.'));
+        }
+
+        // Initialize cURL with security settings
+        $ch = curl_init();
+        if ($ch === false) {
+            @unlink($tmpFile);
+            throw new \RuntimeException(xlt('Could not initialize HTTP client.'));
+        }
+
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $url,
+            CURLOPT_FILE => fopen($tmpFile, 'w'),
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_MAXREDIRS => 3,
+            CURLOPT_TIMEOUT => 60,
+            CURLOPT_USERAGENT => 'OpenEMR Module Manager/1.0',
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_MAXFILESIZE => 100 * 1024 * 1024, // 100MB limit
+        ]);
+
+        $result = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+
+        if ($result === false) {
+            @unlink($tmpFile);
+            throw new \RuntimeException(xlt('Download failed') . ': ' . ($error ?: xlt('Unknown error')));
+        }
+
+        if ($httpCode !== 200) {
+            @unlink($tmpFile);
+            throw new \RuntimeException(xlt('Download failed with HTTP status') . ': ' . $httpCode);
+        }
+
+        // Verify downloaded file exists and has content
+        if (!is_file($tmpFile) || filesize($tmpFile) === 0) {
+            @unlink($tmpFile);
+            throw new \RuntimeException(xlt('Downloaded file is empty or invalid.'));
+        }
+
+        return $tmpFile;
     }
 }
