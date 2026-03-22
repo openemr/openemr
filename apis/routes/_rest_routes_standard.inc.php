@@ -707,9 +707,7 @@ return [
     // Admin User Management endpoints
     "GET /api/admin/users" => static function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "users");
-        /** @var array<string, mixed> $searchParams */
-        $searchParams = $_GET;
-        return (new UserManagementRestController())->getAll($request, $searchParams);
+        return (new UserManagementRestController())->getAll($request, $request->query->all());
     },
     "GET /api/admin/users/:uuid" => static function ($uuid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "users");
