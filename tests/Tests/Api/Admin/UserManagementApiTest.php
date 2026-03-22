@@ -1,4 +1,13 @@
 <?php
+
+/**
+ * Admin User Management API Endpoint Tests.
+ *
+ * @link      https://www.open-emr.org
+ * @author    Milan Zivkovic <zivkovic.milan@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
+ */
+
 declare(strict_types=1);
 
 namespace OpenEMR\Tests\Api\Admin;
@@ -9,13 +18,6 @@ use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Response;
 
-/**
- * Admin User Management API Endpoint Tests.
- *
- * @link      https://www.open-emr.org
- * @author    Milan Zivkovic <zivkovic.milan@gmail.com>
- * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
- */
 class UserManagementApiTest extends TestCase
 {
     private const API_ENDPOINT = "/apis/default/api/admin/users";
