@@ -30,6 +30,7 @@ class UserValidator extends BaseValidator
             function (Validator $context): void {
                 $context->required('username')->lengthBetween(2, 255)->regex('/^[a-zA-Z0-9._-]+$/');
                 $context->required('password')->lengthBetween(8, 255);
+                $context->required('admin_password')->lengthBetween(1, 255);
                 $context->required('fname')->lengthBetween(1, 255);
                 $context->required('lname')->lengthBetween(1, 255);
                 $context->optional('mname')->lengthBetween(0, 255);
