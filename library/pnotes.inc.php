@@ -128,7 +128,7 @@ function getPnotesByUser($activity = "1", $show_all = "no", $user = '', $count =
   // return the results
     if ($count) {
         $row = QueryUtils::querySingleRow("SELECT COUNT(*) AS cnt $fromWhere", $sqlBindArray);
-        return (int) $row['cnt'];
+        return $row !== false ? (int) $row['cnt'] : 0;
     }
 
     $sql = "SELECT pnotes.id, pnotes.user, pnotes.pid, pnotes.title, pnotes.date, pnotes.message_status, pnotes.activity,
@@ -411,7 +411,7 @@ function updatePnoteMessageStatus($id, $message_status): void
  * @param $patient_id the patient id to associate with the note
  * @author EMR Direct <http://www.emrdirect.com/>
  */
-function updatePnotePatient($id, $patient_id): void
+function updatePnotePatient($id, int $patient_id): void
 {
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $row = getPnoteById($id);
@@ -419,18 +419,15 @@ function updatePnotePatient($id, $patient_id): void
         throw new \RuntimeException("updatePnotePatient() did not find id '" . text($id) . "'");
     }
 
-    $pid = $row['pid'];
-
-    if ($pid != 0 || (int)$patient_id < 1) {
-        ServiceContainer::getLogger()->error("updatePnotePatient invalid operation for id {id}, patient_id {patient_id}, pid {pid}", ['id' => $id, 'patient_id' => $patient_id, 'pid' => $pid]);
+    if ($row['pid'] != 0 || $patient_id < 1) {
+        ServiceContainer::getLogger()->error("updatePnotePatient invalid operation for id {id}, patient_id {patient_id}, pid {pid}", ['id' => $id, 'patient_id' => $patient_id, 'pid' => $row['pid']]);
         throw new \RuntimeException("updatePnotePatient invalid operation");
     }
 
-    $pid = (int) $patient_id;
     $newtext = "\n" . date('Y-m-d H:i') . " (patient set by " . $session->get('authUser') . ")";
     $body = $row['body'] . $newtext;
 
-    QueryUtils::sqlStatementThrowException("UPDATE pnotes SET pid = ?, body = ?, update_by = ?, update_date = NOW() WHERE id = ?", [$pid, $body, $session->get('authUserID'), $id]);
+    QueryUtils::sqlStatementThrowException("UPDATE pnotes SET pid = ?, body = ?, update_by = ?, update_date = NOW() WHERE id = ?", [$patient_id, $body, $session->get('authUserID'), $id]);
 }
 
 function authorizePnote($id, $authorized = "1"): void

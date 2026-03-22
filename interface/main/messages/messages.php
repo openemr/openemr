@@ -341,7 +341,7 @@ if (!empty($_REQUEST['go'])) { ?>
                             // Update alert.
                             $noteid = $_POST['noteid'];
                             $form_message_status = $_POST['form_message_status'];
-                            $reply_to = $_POST['reply_to'];
+                            $reply_to = filter_input(INPUT_POST, 'reply_to', FILTER_VALIDATE_INT) ?: 0;
                             if ($task == "save") {
                                 updatePnoteMessageStatus($noteid, $form_message_status);
                             } else {
