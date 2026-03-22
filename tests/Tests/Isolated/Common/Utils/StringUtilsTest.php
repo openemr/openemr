@@ -17,13 +17,12 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Common\Utils;
 
 use OpenEMR\Common\Utils\StringUtils;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 class StringUtilsTest extends TestCase
 {
-    /**
-     * @dataProvider trimExcessWhitespaceProvider
-     */
+    #[DataProvider('trimExcessWhitespaceProvider')]
     public function testTrimExcessWhitespace(mixed $input, string $expected): void
     {
         $this->assertSame($expected, StringUtils::trimExcessWhitespace($input));
