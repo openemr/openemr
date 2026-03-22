@@ -1,12 +1,12 @@
 <?php
+declare(strict_types=1);
 
 /**
  * Admin User Management Service — read and create operations for admin user endpoints.
  *
- * @package   OpenEMR
- * @author    Milan Zivkovic <zivkovic.milan@gmail.com>
  * @link      https://www.open-emr.org
- * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ * @author    Milan Zivkovic <zivkovic.milan@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  */
 
 namespace OpenEMR\Services\Admin;
