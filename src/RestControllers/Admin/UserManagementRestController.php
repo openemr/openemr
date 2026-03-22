@@ -108,10 +108,11 @@ class UserManagementRestController
         requestBody: new OA\RequestBody(
             required: true,
             content: new OA\JsonContent(
-                required: ['username', 'password', 'fname', 'lname', 'access_group'],
+                required: ['username', 'password', 'admin_password', 'fname', 'lname', 'access_group'],
                 properties: [
                     new OA\Property(property: 'username', type: 'string'),
-                    new OA\Property(property: 'password', type: 'string'),
+                    new OA\Property(property: 'password', type: 'string', description: 'Password for the new user'),
+                    new OA\Property(property: 'admin_password', type: 'string', description: 'Current password of the authenticated admin performing this action'),
                     new OA\Property(property: 'fname', type: 'string'),
                     new OA\Property(property: 'lname', type: 'string'),
                     new OA\Property(property: 'mname', type: 'string'),
