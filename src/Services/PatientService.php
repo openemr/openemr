@@ -123,8 +123,7 @@ class PatientService extends BaseService
             LEFT OUTER JOIN users AS u ON u.id = ct.ct_userid
             WHERE ct.ct_pid = ?
             ORDER BY ct.ct_when DESC";
-     // return sqlStatement($sql, [$pid]); //deprecated
-        return QueryUtils::fetchRecords($sql, [$pid]);
+      return sqlStatement($sql, [$pid]);
     }
 
     /**
@@ -149,8 +148,7 @@ class PatientService extends BaseService
             LEFT OUTER JOIN patient_data AS p ON p.pid = ct.ct_pid
             WHERE ct.ct_userid != 0
             ORDER BY p.pubpid";
-   //     return sqlStatement($sql); deprecated
-          return QueryUtils::fetchRecords($sql);
+            return sqlStatement($sql);
     }
 
     public function getFreshPid()
@@ -277,13 +275,12 @@ class PatientService extends BaseService
         // Fire the "before patient updated" event so listeners can do extra processing before data is updated
         $beforePatientUpdatedEvent = new BeforePatientUpdatedEvent($data);
         OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($beforePatientUpdatedEvent, BeforePatientUpdatedEvent::EVENT_HANDLE);
+        /** @var array<string,mixed> $data */
         $data = $beforePatientUpdatedEvent->getPatientData();
-
         $query = $this->buildUpdateColumns($data);
         $sql = " UPDATE $table SET ";
         $sql .= $query['set'];
         $sql .= " WHERE `pid` = ?";
-
         array_push($query['bind'], $data['pid']);
         $sqlResult = sqlStatement($sql, $query['bind']);
  /*      in 7.0.3 but since taken out
@@ -300,23 +297,17 @@ class PatientService extends BaseService
         if (($data['allow_patient_portal']  ??  '' ) === 'YES') {
             // we're about to set it to YES, so make sure credentials have been created
             $sql = "SELECT portal_login_username, portal_username FROM patient_access_onsite WHERE pid = ?";
-         //   $sqlget = sqlStatement($sql, $data['pid']); //deprecated
+         //   $sqlget = sqlStatement($sql, $data['pid']); //deprecated by phpstan
            $sqlget =  QueryUtils::sqlStatementThrowException($sql, [$data['pid']] );
-        //          (new SystemLogger())->debug ("sql and  splget  contain", [$sql, $data['pid'],  $splget]);
            $names = sqlFetchArray($sqlget);
-        (new SystemLogger())->debug ("names containd", [$names]);
-
-            if ($names !== false && ($names['portal_login_username']  ?? '')  === "") {
-
+           if (($names !== false) && (($names['portal_login_username']  ?? '')  === "") ) {
                 // create a portal login username, as it's empty at the moment - use Account Name - portal_username in db
                 $sql =  "UPDATE patient_access_onsite SET portal_login_username = ?  WHERE pid = ?";
-                $update_parameters ['portal_login_username'] = $names['portal_username'];
-                $update_parameters ['pid'] = $data['pid'];
-               $sqlres = sqlStatement($sql, $update_parameters);
-       //           (new SystemLogger())->debug ("names contains - creat portal login name", [$update_parameters]);
+       //         $update_parameters ['portal_login_username'] = $names['portal_username'];
+        //        $update_parameters ['pid'] = $data['pid'];
+                sqlStatement($sql, [$names['portal_username'], $data['pid']]);
             }
         }
-
         if ($sqlResult) {
             // Tell subscribers that a new patient has been updated
             $patientUpdatedEvent = new PatientUpdatedEvent($dataBeforeUpdate, $data);
@@ -338,6 +329,7 @@ class PatientService extends BaseService
      */
     public function update($puuidString, $data)
     {
+        /** @var array<string,mixed> $data */
         $data["uuid"] = $puuidString;
         $processingResult = $this->patientValidator->validate($data, PatientValidator::DATABASE_UPDATE_CONTEXT);
         if (!$processingResult->isValid()) {
@@ -353,6 +345,7 @@ class PatientService extends BaseService
         // Fire the "before patient updated" event so listeners can do extra processing before data is updated
         $beforePatientUpdatedEvent = new BeforePatientUpdatedEvent($data);
         OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($beforePatientUpdatedEvent, BeforePatientUpdatedEvent::EVENT_HANDLE);
+             /** @var array<string,mixed> $data */
         $data = $beforePatientUpdatedEvent->getPatientData();
 
         $query = $this->buildUpdateColumns($data);
@@ -377,6 +370,7 @@ class PatientService extends BaseService
             }
             // in order to be consistent and backwards compatible with the other PatientUpdatedEvent event
             // we need the uuid to be the same binary format as the other event firing.
+                   /** @var array<string,mixed> $originalData */
             if (!empty($originalData['uuid'])) {
                 $originalData['uuid'] = UuidRegistry::uuidToBytes($originalData['uuid']);
             }
@@ -421,8 +415,9 @@ class PatientService extends BaseService
      */
     public function getAll($search = [], $isAndCondition = true, $puuidBind = null, ?SearchQueryConfig $config = null)
     {
+/** @var array<string,mixed> $search*/
         $querySearch = [];
-        if (!empty($search)) {
+            if (!empty($search)) {
             if (isset($puuidBind)) {
                 $querySearch['uuid'] = new TokenSearchField('uuid', $puuidBind);
             } elseif (isset($search['uuid'])) {
@@ -568,6 +563,7 @@ class PatientService extends BaseService
         $patientOrderedList = [];
         while ($row = sqlFetchArray($queryResource)) {
                 $record = $this->createResultRecordFromDatabaseResult($row);
+                       /** @var int $patientUuid */
                 $patientUuid = $record['uuid'];
                 if (!isset($patientsByUuid[$patientUuid])) {
                     $patient = array_intersect_key($record, $patientFields);
