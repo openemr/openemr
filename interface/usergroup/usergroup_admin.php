@@ -345,43 +345,46 @@ if (isset($_POST["mode"])) {
             $doit = false;
         }
 
-        if ($doit == true) {
-            $googleSigninEmail = null;
-            if (isset($_POST["google_signin_email"]) && $_POST["google_signin_email"] !== '') {
-                $googleSigninEmail = trim((string) $_POST["google_signin_email"]);
+        if ($doit) {
+            $googleSigninEmail = filter_input(INPUT_POST, 'google_signin_email', FILTER_DEFAULT, FILTER_NULL_ON_FAILURE);
+            if ($googleSigninEmail !== null) {
+                $googleSigninEmail = trim($googleSigninEmail);
+                if ($googleSigninEmail === '') {
+                    $googleSigninEmail = null;
+                }
             }
             $userData = [
-                'username'             => trim($_POST['rumple'] ?? ''),
+                'username'             => trim(filter_input(INPUT_POST, 'rumple') ?? ''),
                 'password'             => 'NoLongerUsed',
-                'fname'                => trim($_POST['fname'] ?? ''),
-                'mname'                => trim($_POST['mname'] ?? ''),
-                'lname'                => trim($_POST['lname'] ?? ''),
-                'suffix'               => trim($_POST['suffix'] ?? ''),
-                'email'                => trim($_POST['email'] ?? ''),
+                'fname'                => trim(filter_input(INPUT_POST, 'fname') ?? ''),
+                'mname'                => trim(filter_input(INPUT_POST, 'mname') ?? ''),
+                'lname'                => trim(filter_input(INPUT_POST, 'lname') ?? ''),
+                'suffix'               => trim(filter_input(INPUT_POST, 'suffix') ?? ''),
+                'email'                => trim(filter_input(INPUT_POST, 'email') ?? ''),
                 'google_signin_email'  => $googleSigninEmail,
-                'valedictory'          => trim($_POST['valedictory'] ?? ''),
-                'federaltaxid'         => trim($_POST['federaltaxid'] ?? ''),
-                'state_license_number' => trim($_POST['state_license_number'] ?? ''),
-                'newcrop_user_role'    => trim($_POST['erxrole'] ?? ''),
-                'physician_type'       => trim($_POST['physician_type'] ?? ''),
-                'main_menu_role'       => trim($_POST['main_menu_role'] ?? ''),
-                'patient_menu_role'    => trim($_POST['patient_menu_role'] ?? ''),
-                'weno_prov_id'         => trim($_POST['erxprid'] ?? ''),
-                'authorized'           => trim($_POST['authorized'] ?? ''),
-                'info'                 => trim($_POST['info'] ?? ''),
-                'federaldrugid'        => trim($_POST['federaldrugid'] ?? ''),
-                'upin'                 => trim($_POST['upin'] ?? ''),
-                'npi'                  => trim($_POST['npi'] ?? ''),
-                'taxonomy'             => trim($_POST['taxonomy'] ?? ''),
-                'facility_id'          => trim($_POST['facility_id'] ?? ''),
-                'billing_facility_id'  => trim($_POST['billing_facility_id'] ?? ''),
-                'specialty'            => trim($_POST['specialty'] ?? ''),
-                'see_auth'             => trim($_POST['see_auth'] ?? ''),
-                'default_warehouse'    => trim($_POST['default_warehouse'] ?? ''),
-                'irnpool'              => trim($_POST['irnpool'] ?? ''),
+                'valedictory'          => trim(filter_input(INPUT_POST, 'valedictory') ?? ''),
+                'federaltaxid'         => trim(filter_input(INPUT_POST, 'federaltaxid') ?? ''),
+                'state_license_number' => trim(filter_input(INPUT_POST, 'state_license_number') ?? ''),
+                'newcrop_user_role'    => trim(filter_input(INPUT_POST, 'erxrole') ?? ''),
+                'physician_type'       => trim(filter_input(INPUT_POST, 'physician_type') ?? ''),
+                'main_menu_role'       => trim(filter_input(INPUT_POST, 'main_menu_role') ?? ''),
+                'patient_menu_role'    => trim(filter_input(INPUT_POST, 'patient_menu_role') ?? ''),
+                'weno_prov_id'         => trim(filter_input(INPUT_POST, 'erxprid') ?? ''),
+                'authorized'           => trim(filter_input(INPUT_POST, 'authorized') ?? ''),
+                'info'                 => trim(filter_input(INPUT_POST, 'info') ?? ''),
+                'federaldrugid'        => trim(filter_input(INPUT_POST, 'federaldrugid') ?? ''),
+                'upin'                 => trim(filter_input(INPUT_POST, 'upin') ?? ''),
+                'npi'                  => trim(filter_input(INPUT_POST, 'npi') ?? ''),
+                'taxonomy'             => trim(filter_input(INPUT_POST, 'taxonomy') ?? ''),
+                'facility_id'          => trim(filter_input(INPUT_POST, 'facility_id') ?? ''),
+                'billing_facility_id'  => trim(filter_input(INPUT_POST, 'billing_facility_id') ?? ''),
+                'specialty'            => trim(filter_input(INPUT_POST, 'specialty') ?? ''),
+                'see_auth'             => trim(filter_input(INPUT_POST, 'see_auth') ?? ''),
+                'default_warehouse'    => trim(filter_input(INPUT_POST, 'default_warehouse') ?? ''),
+                'irnpool'              => trim(filter_input(INPUT_POST, 'irnpool') ?? ''),
                 'calendar'             => $calvar,
                 'portal_user'          => $portalvar,
-                'supervisor_id'        => isset($_POST['supervisor_id']) ? (int) $_POST['supervisor_id'] : 0,
+                'supervisor_id'        => filter_input(INPUT_POST, 'supervisor_id', FILTER_VALIDATE_INT) ?: 0,
             ];
 
             $authUtilsNewPassword = new AuthUtils();
@@ -392,7 +395,7 @@ if (isset($_POST["mode"])) {
                 $_POST['stiltskin'],
                 true,
                 $userData,
-                trim($_POST['rumple'] ?? '')
+                trim(filter_input(INPUT_POST, 'rumple') ?? '')
             );
             if (!empty($authUtilsNewPassword->getErrorMessage())) {
                 $alertmsg .= $authUtilsNewPassword->getErrorMessage();

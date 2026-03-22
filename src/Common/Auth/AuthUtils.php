@@ -45,6 +45,7 @@ use MyMailer;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthHash;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\RandomGenUtils;
@@ -697,17 +698,7 @@ class AuthUtils
                     }
                 }
                 $insertSql = 'INSERT INTO `users` (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $placeholders) . ')';
-                privStatement($insertSql, $params);
-                $getUserID = "SELECT `id`" .
-                    " FROM `users`" .
-                    " WHERE BINARY `username` = ?";
-                $user_id = privQuery($getUserID, [$new_username]);
-                if (empty($user_id) || empty($user_id['id'])) {
-                    $this->errorMessage = xl("Password update error!");
-                    $this->clearFromMemory($newPwd);
-                    EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " New user id not found");
-                    return false;
-                }
+                $newUserId = QueryUtils::sqlInsert($insertSql, $params);
                 // Create the new user password hash
                 $hash = $this->authHashAuth->passwordHash($newPwd);
                 if (empty($hash)) {
@@ -720,7 +711,7 @@ class AuthUtils
                 $passwordSQL = "INSERT INTO `users_secure`" .
                     " (`id`,`username`,`password`,`last_update_password`)" .
                     " VALUES (?,?,?,NOW()) ";
-                privStatement($passwordSQL, [$user_id['id'], $new_username, $hash]);
+                QueryUtils::sqlInsert($passwordSQL, [$newUserId, $new_username, $hash]);
             } else {
                 $this->errorMessage = xl("Missing user credentials") . ":" . $targetUser;
                 $this->clearFromMemory($newPwd);
