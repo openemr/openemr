@@ -155,7 +155,7 @@ if ($eid !== 0) {
 //
 // Verify CSRF token for all form actions
 if (($_POST['form_action'] ?? '') !== '') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', 'portal-appointment', $session->getSymfonySession())) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', $session, 'portal-appointment')) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -666,7 +666,7 @@ if ($userid) {
 <body class="skin-blue">
     <div class="container-fluid">
         <form method='post' name='theaddform' id='theaddform' action='add_edit_event_user.php?eid=<?php echo attr_url($eid); ?>'>
-<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken('portal-appointment', $session->getSymfonySession()); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken($session, 'portal-appointment')); ?>" />
             <div class="col-12">
                 <input type="hidden" name="form_action" id="form_action" value="" />
                 <input type='hidden' name='form_title' id='form_title' value='<?php echo ($row['pc_catid'] ?? '') ? attr($row['pc_title']) : xla("Office Visit"); ?>' />
