@@ -1,9 +1,12 @@
 <?php
 
-use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\ControllerInterface;
 use OpenEMR\Core\OEGlobalsBag;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -117,11 +120,38 @@ class Controller extends Smarty implements ControllerInterface
 
         [$section, $value, $displayName] = self::CONTROLLER_ACL_MAP[$controllerName];
         if (!AclMain::aclCheckCore($section, $value)) {
-            AccessDeniedHelper::denyWithTemplate(
+            $this->throwAccessDenied(
                 "ACL check failed for $section/$value: $displayName",
                 xl($displayName)
             );
         }
+    }
+
+    /**
+     * Log/audit an ACL denial and throw an HTTP 403 exception for controller flow.
+     */
+    protected function throwAccessDenied(
+        string $comment,
+        string $message,
+        string $auditEvent = 'security-access-denied'
+    ): never {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $user = $session->get('authUser', 'unknown');
+        $group = $session->get('authProvider', '');
+
+        ServiceContainer::getLogger()->warning("Access denied: $comment", [
+            'user' => $user,
+        ]);
+
+        EventAuditLogger::getInstance()->newEvent(
+            $auditEvent,
+            $user,
+            $group,
+            0,
+            $comment,
+        );
+
+        throw new AccessDeniedHttpException($message);
     }
 
     /**

@@ -18,7 +18,6 @@ require_once(__DIR__ . "/../library/forms.inc.php");
 require_once(__DIR__ . "/../library/patient.inc.php");
 
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Crypto\KeyVersion;
@@ -1160,7 +1159,7 @@ class C_Document extends Controller
         $used_msg = xl('Current patient unavailable here. Use Patient Documents');
         if ($cur_pid == '00') {
             if (!AclMain::aclCheckCore('patients', 'docs', '', ['write', 'addonly'])) {
-                AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/docs write|addonly: Documents", xl("Documents"));
+                $this->throwAccessDenied("ACL check failed for patients/docs write|addonly: Documents", xl("Documents"));
             }
             $cur_pid = '0';
             $is_new = 1;
@@ -1176,7 +1175,7 @@ class C_Document extends Controller
             }
         }
         if (!AclMain::aclCheckCore('patients', 'docs')) {
-            AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/docs: Documents", xl("Documents"));
+            $this->throwAccessDenied("ACL check failed for patients/docs: Documents", xl("Documents"));
         }
         $this->assign('is_new', $is_new);
         $this->assign('place_hld', $place_hld);
