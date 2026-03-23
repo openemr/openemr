@@ -177,7 +177,7 @@ if (isset($_POST['new_login_session_management'])) {
         $form_response = empty($_POST['form_response']) ? '' : $_POST['form_response'];
         if ($form_response) {
             // TOTP METHOD enabled if TOTP is visible in post request
-            if (isset($_POST['totp']) && trim($_POST['totp']) != "" && $isTOTP) {
+            if (isset($_POST['totp']) && trim((string) $_POST['totp']) != "" && $isTOTP) {
                 $errormsg = false;
 
                 $form_response = '';
@@ -442,7 +442,7 @@ $_tabs = $listSvc->getOptionsByListName('default_open_tabs', ['activity' => 1]);
 if ($is_expired) {
     //display the php file containing the password expiration message.
     array_unshift($_tabs, [
-        'notes' => "pwd_expires_alert.php?csrf_token_form=" . attr_url((string) CsrfUtils::collectCsrfToken(session: $session)),
+        'notes' => "pwd_expires_alert.php?csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session),
         'id' => "adm",
         "label" => xl("Password Reset"),
     ]);

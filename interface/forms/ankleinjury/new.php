@@ -35,7 +35,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 <body class="body_top">
 <form method=post action="<?php echo $rootdir;?>/forms/ankleinjury/save.php?mode=new" name="my_form">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <span class="title"><?php echo xlt('Ankle Evaluation Form'); ?></span><br /><br />
 

@@ -90,7 +90,7 @@ $services = ClaimRevModuleSetup::getBackgroundServices();
 
                         <form method="post" action="setup.php">
                             <button type="submit" name="backgroundService" class="btn btn-primary"><?php echo xlt("Set Defaults"); ?></button>
-                            <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken($session, 'ClaimRevModule')); ?>" />
+                            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken($session, 'ClaimRevModule'); ?>" />
                         </form>
                     </li>
                     <li>
@@ -105,7 +105,7 @@ $services = ClaimRevModuleSetup::getBackgroundServices();
 
                                 <form method="post" action="setup.php">
                                     <button type="submit" name="deactivateSftp" class="btn btn-primary"><?php echo xlt("Deactivate"); ?></button>
-                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken($session, 'ClaimRevModule')); ?>" />
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken($session, 'ClaimRevModule'); ?>" />
                                 </form>
                             <?php
                         } else {
@@ -114,7 +114,7 @@ $services = ClaimRevModuleSetup::getBackgroundServices();
 
                                 <form method="post" action="setup.php">
                                     <button type="submit" name="reactivateSftp" class="btn btn-primary"><?php echo xlt("Reactivate"); ?></button>
-                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken($session, 'ClaimRevModule')); ?>" />
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken($session, 'ClaimRevModule'); ?>" />
                                 </form>
                             <?php
                         }

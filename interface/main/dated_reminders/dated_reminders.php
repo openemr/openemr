@@ -113,7 +113,7 @@ function openAddScreen(id){
   } else {
     top.restoreSession();
     const params = new URLSearchParams({
-        csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>,
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
         mID: id
     });
     dlgopen('<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/interface/main/dated_reminders/dated_reminders_add.php?' + params, '_drAdd', 700, 500);
@@ -138,7 +138,7 @@ function updateme(id){
     {
       drR: id,
       skip_timeout_reset: "1",
-      csrf_token_form: "<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>"
+      csrf_token_form: "<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"
     },
     function(data) {
     if (data == 'error') {

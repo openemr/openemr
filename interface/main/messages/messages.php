@@ -341,11 +341,11 @@ if (!empty($_REQUEST['go'])) { ?>
                             // Update alert.
                             $noteid = $_POST['noteid'];
                             $form_message_status = $_POST['form_message_status'];
-                            $reply_to = $_POST['reply_to'];
+                            $reply_to_pid = filter_input(INPUT_POST, 'reply_to', FILTER_VALIDATE_INT) ?: 0;
                             if ($task == "save") {
                                 updatePnoteMessageStatus($noteid, $form_message_status);
                             } else {
-                                updatePnotePatient($noteid, $reply_to);
+                                updatePnotePatient($noteid, $reply_to_pid);
                             }
                             $task = "edit";
                             $note = $_POST['note'];
@@ -840,7 +840,7 @@ if (!empty($_REQUEST['go'])) { ?>
                 window.top.restoreSession();
                 request = new FormData;
                 request.append("ajax", "1");
-                request.append("csrf_token_form", <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>);
+                request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>);
                 request.append("background_service", "phimail");
                 request.append("background_force", "1");
                 fetch(webRoot + "/library/ajax/execute_background_services.php", {
@@ -1041,7 +1041,7 @@ if (!empty($_REQUEST['go'])) { ?>
             var url = '../../main/finder/multi_patients_finder.php'
             // for edit selected list
             if ($('#reply_to').val() !== '') {
-                url = url + '?patients=' + $('#reply_to').val() + '&csrf_token_form=<?php echo attr_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>';
+                url = url + '?patients=' + $('#reply_to').val() + '&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>';
             }
             dlgopen(url, '_blank', 625, 400);
         }

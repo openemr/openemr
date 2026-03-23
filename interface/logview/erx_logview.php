@@ -91,7 +91,7 @@ if ($filename) {
     </head>
     <body class="body_top">
         <form method="post">
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
         <span class="title"><?php echo xlt('eRx Logs'); ?></span><br /><br />
         <table>
@@ -125,7 +125,7 @@ if (array_key_exists('search_logs', $_POST)) {
                 $fd = fopen($error_log_path . '/' . $file, 'r');
                 $bat_content = fread($fd, filesize($error_log_path . '/' . $file));
                 ?>
-                <p><?php echo xlt('Download'); ?>: <a href="erx_logview.php?filename=<?php echo attr_url($file); ?>&csrf_token_form=<?php echo attr_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>"><?php echo text($file); ?></a></p>
+                <p><?php echo xlt('Download'); ?>: <a href="erx_logview.php?filename=<?php echo attr_url($file); ?>&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"><?php echo text($file); ?></a></p>
                 <textarea rows="35" cols="132"><?php echo text($bat_content); ?></textarea>
                 <?php
             }

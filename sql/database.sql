@@ -13522,7 +13522,7 @@ CREATE TABLE `medex_recalls` (
   `r_facility` int(11) NOT NULL,
   `r_provider` int(11) NOT NULL,
   `r_reason` varchar(255) DEFAULT NULL,
-  `r_created` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+  `r_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`r_ID`),
   UNIQUE KEY `r_PRACTID` (`r_PRACTID`,`r_pid`)
 ) ENGINE=InnoDB;
@@ -14401,7 +14401,7 @@ CREATE TABLE `onetime_auth` (
     `profile` tinytext COMMENT 'profile of scope for this token',
     `onetime_actions` text COMMENT 'JSON array of actions that can be performed with this token',
     PRIMARY KEY (`id`),
-    KEY `pid` (`pid`,`onetime_token`(255))
+    KEY `pid` (`pid`,`onetime_token`(32))
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `patient_settings`;
@@ -14504,7 +14504,7 @@ INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'EC', 'Ecuadorean', '680', '0', '0', '', 'Ecuador', 'ECU:218');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'EG', 'Egyptian', '690', '0', '0', '', 'Egypt', 'EGY:818');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'AE', 'Emirati', '700', '0', '0', '', 'United Arab Emirates', 'ARE:784');
-INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'English', 'English', '710', '', '', '', 'England', '');
+INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'English', 'English', '710', '0', '0', '', 'England', '');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'GQ', 'Equatorial Guinean', '720', '0', '0', '', 'Equatorial Guinea', 'GNQ:226');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'ER', 'Eritrean', '730', '0', '0', '', 'Eritrea', 'ERI:232');
 INSERT INTO `list_options` (`list_id`, `option_id`, `title`, `seq`, `is_default`, `option_value`, `mapping`, `notes`, `codes`) VALUES('nationality_with_country', 'EE', 'Estonian', '740', '0', '0', '', 'Estonia', 'EST:233');

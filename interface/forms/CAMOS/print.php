@@ -33,7 +33,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 <body class='ml-1'>
     <form method=post action="<?php echo $rootdir;?>/forms/CAMOS/save.php?mode=new" name="my_form" onsubmit="return top.restoreSession()">
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
         <h1><?php echo xlt('CAMOS'); ?></h1>
         <hr>
         <input type="submit" name="submit form" value="<?php echo xla('submit form'); ?>" />

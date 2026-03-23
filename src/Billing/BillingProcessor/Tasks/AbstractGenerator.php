@@ -109,7 +109,7 @@ abstract class AbstractGenerator extends AbstractProcessingTask implements Gener
             'key=' . urlencode((string) $filename) .
             '&location=' . urlencode((string) $location) .
             '&delete=' . urlencode($delete) .
-            '&csrf_token_form=' . urlencode((string) CsrfUtils::collectCsrfToken(session: $session));
+            '&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken(session: $session));
         echo "<script type='text/JavaScript'>window.location = " . js_escape($url) . "</script>";
     }
 }

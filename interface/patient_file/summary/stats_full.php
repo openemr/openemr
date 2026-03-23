@@ -129,7 +129,7 @@ function deleteSelectedIssues(tableName) {
 
     const params = new URLSearchParams({
         issue: ids,
-        csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
     });
     dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 450);
 }
@@ -483,7 +483,7 @@ $(function () {
           {
               type: this.name,
               patient_id: <?php echo js_escape($pid); ?>,
-              csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+              csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
           }
       );
       $(this).hide();

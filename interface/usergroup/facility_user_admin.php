@@ -167,7 +167,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
         </div>
         <div class="row">
             <form name='form_facility_user' id='form_facility_user' method='post' action="facility_user.php">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <input type=hidden name=mode value="facility_user_id">
                 <input type=hidden name=user_id value="<?php echo attr($_GET["user_id"]); ?>">
                 <input type=hidden name=fac_id value="<?php echo attr($_GET["fac_id"]); ?>">

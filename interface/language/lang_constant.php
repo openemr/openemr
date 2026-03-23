@@ -69,8 +69,8 @@ if (!empty($_POST['add'])) {
 
 ?>
 
-<form name="cons_form" method="post" action="?m=constant&csrf_token_form=<?php echo attr_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" onsubmit="return top.restoreSession()">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<form name="cons_form" method="post" action="?m=constant&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" onsubmit="return top.restoreSession()">
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
     <!-- Constant Name -->
     <div class="form-group">
         <label for="constantName"><?php  echo xlt('Constant Name'); ?>:</label>

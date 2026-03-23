@@ -488,7 +488,7 @@ if (!empty($zip_error)) {
         }
         ?>
   <form method='post' name=ssl_certificate_frm action='ssl_certificates_admin.php'>
-  <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+  <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
   <input type='hidden' name='mode' value='download_certificates'>
   <div class='borderbox'>
     <b><?php echo xlt('Create the SSL Certificate Authority and Server certificates.'); ?></b><br />
@@ -591,7 +591,7 @@ if (!empty($zip_error)) {
   <br />
   <div class="borderbox">
     <form name='ssl_frm' method='post'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
     <b><?php echo xlt('Configure Apache to use Client side SSL certificates'); ?> </b>
     <br /><br />
         <?php echo xlt('Add following lines to the Apache configuration file'); ?>:<br />
@@ -630,7 +630,7 @@ if (!empty($zip_error)) {
         }
         ?>
     <form name='client_cert_frm' method='post' action='ssl_certificates_admin.php'>
-      <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+      <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
       <input type='hidden' name='mode' value='create_client_certificate'>
       <table>
         <tr class='text'>

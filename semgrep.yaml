@@ -63,6 +63,8 @@ rules:
   - pattern: genGroupSelector(...)
       # JSON encoding - safe for HTML context (encodes special chars)
   - pattern: json_encode(...)
+      # CSRF token - returns 40-char hex substring of HMAC-SHA256 (src/Common/Csrf/CsrfUtils.php)
+  - pattern: CsrfUtils::collectCsrfToken(...)
   fix: echo attr($...VARS);
   metadata:
     technology:
@@ -150,6 +152,8 @@ rules:
   - pattern: genGroupSelector(...)
       # JSON encoding - safe for HTML context (encodes special chars)
   - pattern: json_encode(...)
+      # CSRF token - returns 40-char hex substring of HMAC-SHA256 (src/Common/Csrf/CsrfUtils.php)
+  - pattern: CsrfUtils::collectCsrfToken(...)
   fix: print attr($...VARS);
   metadata:
     technology:

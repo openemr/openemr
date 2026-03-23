@@ -418,7 +418,7 @@ class OemrUI
         $arrFiles = json_encode($this->arrFiles);
         $web_root = OEGlobalsBag::getInstance()->get('webroot');
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $collectToken = js_escape((string) CsrfUtils::collectCsrfToken(session: $session));
+        $collectToken = js_escape(CsrfUtils::collectCsrfToken(session: $session));
         $header_expand_js = <<<EXP
         <script>
         $(window).on('resize', function() {//hide icon on smaller devices as width is almost 100%

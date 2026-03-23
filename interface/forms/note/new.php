@@ -59,7 +59,7 @@ $form_name = "note";
         <div class="row">
             <div class="col-sm-12">
                 <form class="form" method=post action="<?php echo $rootdir . "/forms/" . $form_name . "/save.php?mode=new";?>" name="my_form" id="my_form">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
                     <div style="margin: 10px;">
                         <input type="button" class="btn btn-primary save" value="    <?php echo xla('Save'); ?>    "> &nbsp;

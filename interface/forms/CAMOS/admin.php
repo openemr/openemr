@@ -206,7 +206,7 @@ admin
 <?php echo xlt("This feature is very experimental and not fully tested. Use at your own risk!"); ?>
 </p>
 <form enctype="multipart/form-data" method="POST">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <input type="hidden" name="MAX_FILE_SIZE" value="12000000" />
 <?php echo xlt('Send this file'); ?>: <input type="file" name="userfile"/>
 <input type="submit" name="import" value='<?php echo xla("Import"); ?>'/>

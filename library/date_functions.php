@@ -6,7 +6,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
  * Format a date string according to the user's language preference.
  *
  * Returns a formatted date string based on the user's language choice stored in
- * $_SESSION['language_choice']. The format varies by language and can optionally
+ * the session's 'language_choice' value. The format varies by language and can optionally
  * include the day of the week.
  *
  * @param string|int $strtime Unix timestamp or date string. If empty, uses current time.

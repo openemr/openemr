@@ -334,7 +334,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
     </div>
 
     <form name='theform' id='theform' method='post' action='immunization_report.php' onsubmit='return top.restoreSession()'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
         <div id="report_parameters">
             <input type='hidden' name='form_refresh' id='form_refresh' value='' />
             <input type='hidden' name='form_get_hl7' id='form_get_hl7' value='' />
@@ -491,7 +491,7 @@ if (!empty($_POST['form_get_hl7']) && ($_POST['form_get_hl7'] === 'true')) {
 
         function exportData() {
             let data = <?php echo json_encode($rows ?? ''); ?>;
-            let csrf_token = <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>;
+            let csrf_token = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
             const params = new URLSearchParams({
                 data: data,
                 csrf_token_form: csrf_token

@@ -94,30 +94,6 @@ class SessionUtil
 
     private static ?SessionHandlerInterface $sessionHandler;
 
-    // Following setting have been deprecated in PHP 8.4 and higher
-    // (ie. will remove them when PHP 8.4 is the minimum requirement)
-
-    public static function sessionStartWrapper(array $settings = []): bool
-    {
-        // TODO: @adunsulag do we want to silently fail here or throw an exception?
-        if (\PHP_SESSION_ACTIVE === session_status()) {
-            // cannot start session as headers already sent or session already active
-            // inspiration for this came from Symfony's NativeSessionStorage::start()
-            throw new \RuntimeException('Failed to start the session: already started by PHP.');
-        }
-
-        $saveHandler = self::getSessionHandler();
-        if (isset($saveHandler)) {
-            $success = session_set_save_handler($saveHandler, true);
-            if (!$success) {
-                ServiceContainer::getLogger()->error("Failed to set session handler for Predis Sentinel.");
-                throw new \RuntimeException("Failed to set session handler for Predis Sentinel.");
-            }
-            ServiceContainer::getLogger()->debug("Successfully set session handler for Predis Sentinel.");
-        }
-        return session_start($settings);
-    }
-
     /**
      * @param string|array<string, mixed> $session_key_or_array
      */
@@ -223,13 +199,6 @@ class SessionUtil
         SessionWrapperFactory::getInstance()->destroyPortalSession();
 
         ServiceContainer::getLogger()->debug("SessionUtil: destroyed portal session");
-    }
-
-    public static function oauthSessionStart($web_root): void
-    {
-        $settings = SessionConfigurationBuilder::forOAuth($web_root);
-        self::sessionStartWrapper($settings);
-        ServiceContainer::getLogger()->debug("SessionUtil: started oauth session");
     }
 
     public static function oauthSessionCookieDestroy(): void

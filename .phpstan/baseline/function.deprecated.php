@@ -695,13 +695,13 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function privQuery\\(\\)\\:
 Use the standard DB connections instead\\.$#',
-    'count' => 15,
+    'count' => 14,
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function privStatement\\(\\)\\:
 Use the standard DB connections instead\\.$#',
-    'count' => 13,
+    'count' => 11,
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
 ];
 $ignoreErrors[] = [
