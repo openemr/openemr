@@ -42,7 +42,7 @@ class UserManagementService extends UserService
      */
     protected function getSelectColumns(): string
     {
-        return parent::getSelectColumns() . ", authorized";
+        return parent::getSelectColumns() . ", authorized, last_updated";
     }
 
     /**

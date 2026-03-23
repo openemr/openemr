@@ -79,7 +79,7 @@ class UserService
                     npi, email, active, specialty, billname, url, assistant,
                     organization, valedictory, street, streetb, city, state,
                     zip, phone, fax, phonew1, phonecell, users.notes,
-                    state_license_number, abook.title as abook_title, last_updated";
+                    state_license_number, abook.title as abook_title";
         if ($this->_includeUsername) {
             $columns .= ", username";
         }
@@ -259,7 +259,7 @@ class UserService
 
     public function search(array $search, $isAndCondition = true)
     {
-        $sql = "SELECT  " . $this->getSelectColumns();
+        $sql = "SELECT  " . $this->getSelectColumns() . ", last_updated";
         // grab our address book type, make sure to use the index w/ list_id and option_id
         $sql .= "
                 FROM  users
