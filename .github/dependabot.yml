@@ -89,7 +89,7 @@ updates:
       - patch
     build-tools:
       patterns:
-      - gulp*
+      - webpack*
       - eslint*
       - stylelint*
       - prettier
