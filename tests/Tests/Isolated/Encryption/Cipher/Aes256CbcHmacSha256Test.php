@@ -116,6 +116,22 @@ final class Aes256CbcHmacSha256Test extends TestCase
         $cipher->decrypt($rawCiphertext);
     }
 
+    public function testThrowsOnWrongEncryptionKey(): void
+    {
+        // Correct HMAC key (so HMAC passes) but wrong encryption key
+        // This causes openssl_decrypt to fail due to invalid PKCS7 padding
+        $cipher = new Aes256CbcHmacSha256(
+            key: new KeyMaterial('wrong_key_______________________'), // 32 bytes
+            hmacKey: new KeyMaterial($this->fixtures->getTestKey('twob')),
+        );
+
+        $rawCiphertext = $this->extractRawCiphertext($this->fixtures->getCiphertext(2));
+
+        $this->expectException(CryptoGenException::class);
+        $this->expectExceptionMessage('Decryption failed despite HMAC validating');
+        $cipher->decrypt($rawCiphertext);
+    }
+
     public function testThrowsOnTruncatedInput(): void
     {
         $cipher = new Aes256CbcHmacSha256(
