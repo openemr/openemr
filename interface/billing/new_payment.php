@@ -44,7 +44,7 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCor
 
 // Verify CSRF token for all POST actions
 if (($_POST['mode'] ?? '') !== '') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '')) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -62,13 +62,13 @@ $hidden_type_code        = $_REQUEST['hidden_type_code'] ?? '';
 
 if ($mode == "new_payment" || $mode == "distribute") {
     // Validate and extract POST inputs at the source with filter_input
-    $type_name = trim(filter_input(INPUT_POST, 'type_name') ?? '');
+    $type_name = trim(filter_input(INPUT_POST, 'type_name') ?: '');
     $hidden_type_code_int = filter_input(INPUT_POST, 'hidden_type_code', FILTER_VALIDATE_INT) ?: 0;
-    $check_number = trim(filter_input(INPUT_POST, 'check_number') ?? '');
+    $check_number = trim(filter_input(INPUT_POST, 'check_number') ?: '');
     $payment_amount = filter_input(INPUT_POST, 'payment_amount', FILTER_VALIDATE_FLOAT) ?: 0.0;
-    $description = trim(filter_input(INPUT_POST, 'description') ?? '');
-    $adjustment_code = trim(filter_input(INPUT_POST, 'adjustment_code') ?? '');
-    $payment_method = trim(filter_input(INPUT_POST, 'payment_method') ?? '');
+    $description = trim(filter_input(INPUT_POST, 'description') ?: '');
+    $adjustment_code = trim(filter_input(INPUT_POST, 'adjustment_code') ?: '');
+    $payment_method = trim(filter_input(INPUT_POST, 'payment_method') ?: '');
 
     if ($type_name === 'insurance') {
         $payer_id = $hidden_type_code_int;
@@ -80,13 +80,13 @@ if ($mode == "new_payment" || $mode == "distribute") {
 
     $user_id = $session->get('authUserID');
     $modified_time = date('Y-m-d H:i:s');
-    $check_date = DateToYYYYMMDD(trim(filter_input(INPUT_POST, 'check_date') ?? ''));
-    $deposit_date = DateToYYYYMMDD(trim(filter_input(INPUT_POST, 'deposit_date') ?? ''));
-    $post_to_date = DateToYYYYMMDD(trim(filter_input(INPUT_POST, 'post_to_date') ?? ''));
+    $check_date = DateToYYYYMMDD(trim(filter_input(INPUT_POST, 'check_date') ?: ''));
+    $deposit_date = DateToYYYYMMDD(trim(filter_input(INPUT_POST, 'deposit_date') ?: ''));
+    $post_to_date = DateToYYYYMMDD(trim(filter_input(INPUT_POST, 'post_to_date') ?: ''));
     if ($post_to_date === '') {
         $post_to_date = date('Y-m-d');
     }
-    if ((filter_input(INPUT_POST, 'deposit_date') ?? '') === '') {
+    if ((filter_input(INPUT_POST, 'deposit_date') ?: '') === '') {
         $deposit_date = $post_to_date;
     }
 
@@ -369,7 +369,7 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                 } else {
                     echo 'return false;';
                 }?>" style="display:inline">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
                     <fieldset>
                         <div class="jumbotron py-4">

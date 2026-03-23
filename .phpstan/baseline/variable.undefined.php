@@ -922,11 +922,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/new_payment.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$QueryPart might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/new_payment.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$TypeCode might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/new_payment.php',
