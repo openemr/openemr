@@ -72,13 +72,19 @@ if ($eid !== 0 && $checkEidInAppt === false) {
     exit();
 }
 
+$form_action = filter_input(INPUT_POST, 'form_action') ?: '';
+$facility = filter_input(INPUT_POST, 'facility', FILTER_VALIDATE_INT) ?: 0;
+$form_provider_ae = filter_input(INPUT_POST, 'form_provider_ae', FILTER_VALIDATE_INT) ?: 0;
+$form_repeat_type = filter_input(INPUT_POST, 'form_repeat_type', FILTER_VALIDATE_INT) ?: 0;
+$form_repeat_freq = filter_input(INPUT_POST, 'form_repeat_freq', FILTER_VALIDATE_INT) ?: 0;
+
 if (!empty($_POST['form_pid'])) {
     if ($_POST['form_pid'] != $pid) {
         echo xlt("Error: Invalid Patient ID");
         exit();
     }
     $event_date = fixDate($_POST['form_date']);
-    if (! getAvailableSlots($event_date, date('Y-m-d', strtotime("+1 year " . $event_date)), $_POST['form_provider_ae'])) {
+    if (! getAvailableSlots($event_date, date('Y-m-d', strtotime("+1 year " . $event_date)), $form_provider_ae)) {
         echo xlt("Error: No available slots for selected provider(s)");
         exit();
     }
@@ -154,15 +160,13 @@ if ($eid !== 0) {
 // If we are saving, then save and close the window.
 //
 // Verify CSRF token for all form actions
-if (($_POST['form_action'] ?? '') !== '') {
+if ($form_action !== '') {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', $session, 'portal-appointment')) {
         CsrfUtils::csrfNotVerified();
     }
 }
 
-if (($_POST['form_action'] ?? null) == "save") {
-//print_r($_POST);
-//exit();
+if ($form_action === "save") {
     $event_date = fixDate($_POST['form_date']);
 
 // Compute start and end time strings to be saved.
@@ -202,8 +206,8 @@ if (($_POST['form_action'] ?? null) == "save") {
 
     if ($_POST['form_repeat'] ?? null) {
         $recurrspec = serialize([
-            'event_repeat_freq' => $_POST['form_repeat_freq'] ?? '',
-            'event_repeat_freq_type' => $_POST['form_repeat_type'] ?? '',
+            'event_repeat_freq' => $form_repeat_freq,
+            'event_repeat_freq_type' => $form_repeat_type,
             'event_repeat_on_num' => '1',
             'event_repeat_on_day' => '0',
             'event_repeat_on_freq' => '0',
@@ -222,7 +226,7 @@ if (($_POST['form_action'] ?? null) == "save") {
 //for example monday, or thursday. We set the start date on the first day of the week
 //that the event is scheduled. For example if you set the event to repeat on each monday
 //the start date of the event will be set on the first monday after the day the event is scheduled
-    if (($_POST['form_repeat_type'] ?? null) == 5) {
+    if ($form_repeat_type === 5) {
         $exploded_date = explode("-", (string) $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Tue") {
@@ -238,7 +242,7 @@ if (($_POST['form_action'] ?? null) == "save") {
         } elseif ($edate == "Sun") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
         }
-    } elseif (($_POST['form_repeat_type'] ?? null) == 6) {
+    } elseif ($form_repeat_type === 6) {
         $exploded_date = explode("-", (string) $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Wed") {
@@ -254,7 +258,7 @@ if (($_POST['form_action'] ?? null) == "save") {
         } elseif ($edate == "Mon") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
         }
-    } elseif (($_POST['form_repeat_type'] ?? null) == 7) {
+    } elseif ($form_repeat_type === 7) {
         $exploded_date = explode("-", (string) $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Thu") {
@@ -270,7 +274,7 @@ if (($_POST['form_action'] ?? null) == "save") {
         } elseif ($edate == "Tue") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
         }
-    } elseif (($_POST['form_repeat_type'] ?? null) == 8) {
+    } elseif ($form_repeat_type === 8) {
         $exploded_date = explode("-", (string) $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Fri") {
@@ -286,7 +290,7 @@ if (($_POST['form_action'] ?? null) == "save") {
         } elseif ($edate == "Wed") {
             $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
         }
-    } elseif (($_POST['form_repeat_type'] ?? null) == 9) {
+    } elseif ($form_repeat_type === 9) {
         $exploded_date = explode("-", (string) $event_date);
         $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
         if ($edate == "Sat") {
@@ -353,7 +357,7 @@ if (($_POST['form_action'] ?? null) == "save") {
                             ($_POST['form_repeat'] ? '1' : '0'), $recurrspec,
                             $starttime, $endtime, $_POST['form_allday'],
                             $_POST['form_apptstatus'], $_POST['form_prefcat'],
-                            $locationspec, (int)$_POST['facility'],
+                            $locationspec, $facility,
                         ]
                     );
                 } // foreach
@@ -378,7 +382,7 @@ if (($_POST['form_action'] ?? null) == "save") {
                         ($duration * 60), ($_POST['form_repeat'] ? '1' : '0'),
                         $recurrspec, $starttime, $endtime, $_POST['form_allday'],
                         $_POST['form_apptstatus'], $_POST['form_prefcat'],
-                        (int)$_POST['facility'], $provider, $row['pc_multiple'],
+                        $facility, $provider, $row['pc_multiple'],
                     ]
                 );
             } // foreach
@@ -387,7 +391,7 @@ if (($_POST['form_action'] ?? null) == "save") {
           // multi providers EOS
             ==========================================*/
         } elseif (!$row['pc_multiple']) {
-            $prov = $globalsBag->getBoolean('select_multi_providers') ? $_POST['form_provider_ae'][0] : $_POST['form_provider_ae'];
+            $prov = $globalsBag->getBoolean('select_multi_providers') ? $_POST['form_provider_ae'][0] : $form_provider_ae;
             $insert = false;
             // simple provider case
             QueryUtils::sqlStatementThrowException(
@@ -405,7 +409,7 @@ if (($_POST['form_action'] ?? null) == "save") {
                     ($duration * 60), (($_POST['form_repeat'] ?? null) ? '1' : '0'),
                     $recurrspec, $starttime, $endtime, $_POST['form_allday'] ?? '',
                     $_POST['form_apptstatus'], $_POST['form_prefcat'] ?? '',
-                    (int)($_POST['facility'] ?? null), $eid,
+                    $facility, $eid,
                 ]
             );
         }
@@ -449,7 +453,7 @@ if (($_POST['form_action'] ?? null) == "save") {
                         ($_POST['form_repeat'] ? '1' : '0'), $recurrspec,
                         $starttime, $endtime, $_POST['form_allday'],
                         $_POST['form_apptstatus'], $_POST['form_prefcat'],
-                        $locationspec, (int)$_POST['facility'],
+                        $locationspec, $facility,
                     ]
                 );
             } // foreach
@@ -465,19 +469,19 @@ if (($_POST['form_action'] ?? null) == "save") {
                     pc_eventstatus, pc_sharing, pc_facility
                 ) VALUES (?, ?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, ?)",
                 [
-                    $_POST['form_category'], $_POST['form_provider_ae'],
+                    $_POST['form_category'], $form_provider_ae,
                     $pid, $_POST['form_title'], $_POST['form_comments'],
                     $session->get('providerId'), $event_date,
                     fixDate($_POST['form_enddate'] ?? ''), ($duration * 60),
                     (($_POST['form_repeat'] ?? null) ? '1' : '0'), $recurrspec,
                     $starttime, $endtime, $_POST['form_allday'] ?? '',
                     $_POST['form_apptstatus'], $_POST['form_prefcat'] ?? null,
-                    $locationspec, (int)($_POST['facility'] ?? null),
+                    $locationspec, $facility,
                 ]
             );
         } // INSERT single
     } // else - insert
-} elseif (($_POST['form_action'] ?? null) == "delete") {
+} elseif ($form_action === "delete") {
 // =======================================
 //  multi providers case
 // =======================================
@@ -498,7 +502,7 @@ if (($_POST['form_action'] ?? null) == "save") {
     }
 }
 
-if (($_POST['form_action'] ?? '') !== '') {
+if ($form_action !== '') {
     // Leave
     $type = $insert ? xl("A New Appointment") : xl("An Updated Appointment");
     $note = $type . " " . xl("request was received from portal patient") . " ";
@@ -506,7 +510,7 @@ if (($_POST['form_action'] ?? '') !== '') {
     $note .= !empty($_POST['form_comments']) ? (xl("Reason") . " " . $_POST['form_comments']) : "";
     $note .= ". " . xl("Use Portal Dashboard to confirm with patient.");
     $title = xl("Patient Reminders");
-    $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", [$_POST['form_provider_ae']]);
+    $user = sqlQueryNoLog("SELECT users.username FROM users WHERE authorized = 1 And id = ?", [$form_provider_ae]);
     $rtn = addPnote($pid, $note, 1, 1, $title, $user['username'], '', 'New');
 
     SessionUtil::setSession('whereto', '#appointmentcard');
