@@ -55,7 +55,7 @@ use OpenEMR\Services\AppointmentService;
 
 // Things that might be passed by our opener.
 //
-$eid = intval($_GET['eid'] ?? 0);         // only for existing events
+$eid = filter_input(INPUT_GET, 'eid', FILTER_VALIDATE_INT) ?: 0; // only for existing events
 $date = filter_input(INPUT_GET, 'date') ?: '';
 $userid = filter_input(INPUT_GET, 'userid', FILTER_VALIDATE_INT) ?: 0;
 $default_catid = filter_input(INPUT_GET, 'catid', FILTER_VALIDATE_INT) ?: 5;
@@ -666,7 +666,7 @@ if ($userid) {
 <body class="skin-blue">
     <div class="container-fluid">
         <form method='post' name='theaddform' id='theaddform' action='add_edit_event_user.php?eid=<?php echo attr_url($eid); ?>'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken($session, 'portal-appointment')); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken($session, 'portal-appointment'); ?>" />
             <div class="col-12">
                 <input type="hidden" name="form_action" id="form_action" value="" />
                 <input type='hidden' name='form_title' id='form_title' value='<?php echo ($row['pc_catid'] ?? '') ? attr($row['pc_title']) : xla("Office Visit"); ?>' />
