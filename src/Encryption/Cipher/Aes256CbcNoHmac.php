@@ -6,7 +6,6 @@ namespace OpenEMR\Encryption\Cipher;
 
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Encryption\Keys\KeyMaterial;
-use OpenEMR\Encryption\Keys\KeyManagerInterface;
 use OpenEMR\Encryption\Plaintext;
 
 /**

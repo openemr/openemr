@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace OpenEMR\Encryption\Cipher;
 
-use OpenEMR\Encryption\Plaintext;
-use OpenEMR\Encryption\Keys\KeyMaterial;
 use OpenEMR\Common\Crypto\CryptoGenException;
-use OpenEMR\Encryption\Keys\KeyManagerInterface;
+use OpenEMR\Encryption\Keys\KeyMaterial;
+use OpenEMR\Encryption\Plaintext;
 
 /**
  * Legacy "version 2-3" handling.
