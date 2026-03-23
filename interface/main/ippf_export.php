@@ -647,7 +647,7 @@ if ($selmonth < 1) {
 <center>
 &nbsp;<br />
 <form method='post' action='ippf_export.php'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <table style='width:30em'>
  <tr>

@@ -268,7 +268,7 @@ function doclick(pfx, id) {
 <body>
     <div class="container">
         <form method='post' action='problem_encounter.php' onsubmit='return top.restoreSession()'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <?php
             echo "<input type='hidden' name='form_pid' value='" . attr($pid) . "' />\n";
             // pelist looks like /problem,encounter/problem,encounter/[...].

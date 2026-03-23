@@ -191,7 +191,7 @@ if (empty($form_patient)) {
 <div id="report_parameters">
 
 <form method="post" name="theform" id='theform' action="custom_report_range.php">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 <table>
  <tr>

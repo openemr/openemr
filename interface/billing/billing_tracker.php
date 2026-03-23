@@ -52,7 +52,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
     </style>
     <script type="text/javascript">
         $(document).ready(function() {
-            const serverUrl = "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/library/ajax/billing_tracker_ajax.php?csrf_token_form=" + <?php echo js_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>;
+            const serverUrl = "<?php echo OEGlobalsBag::getInstance()->get('webroot'); ?>/library/ajax/billing_tracker_ajax.php?csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
             const oTable = $('#billing-tracker-table').DataTable({
                 "processing": true,
                 // next 2 lines invoke server side processing
@@ -94,7 +94,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                             // Build the URL so the user can download the claim batch file
                             if (type === 'display') {
                                 const params = new URLSearchParams({
-                                    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>,
+                                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                                     key: data,
                                     partner: row.x12_partner_id
                                 });

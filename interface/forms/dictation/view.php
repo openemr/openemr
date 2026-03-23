@@ -43,7 +43,7 @@ $obj = formFetch("form_dictation", $_GET["id"]);
     <div class="row">
         <div class="col-12">
             <form method=post action="<?php echo $rootdir?>/forms/dictation/save.php?mode=update&id=<?php echo attr_url($_GET["id"]);?>" name="my_form">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <fieldset>
                     <legend class=""><?php echo xlt('Dictation')?></legend>
                     <div class="form-group">

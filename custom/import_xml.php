@@ -212,7 +212,7 @@ if (!empty($_POST['form_import'])) {
 </head>
 <body class="body_top" onload="javascript:document.forms[0].form_import_data.focus()">
 <form method='post' action="import_xml.php" onsubmit="return top.restoreSession()">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
     <div class="container">
         <div class="row">
             <div class="col-12">

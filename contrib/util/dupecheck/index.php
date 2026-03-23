@@ -104,7 +104,7 @@ body {
 </head>
 <body>
 <form name="search_form" id="search_form" method="post" action="index.php">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <input type="hidden" name="go" value="Go">
 Matching criteria:
 <input type="checkbox" name="match_name" id="match_name" <?php echo ($parameters['match_name']) ? "CHECKED" : ""; ?>>
@@ -278,7 +278,7 @@ $(function () {
         const dupecount = $(this).attr("dupecount");
         const masterid = $(this).attr("oemrid");
         const params = new URLSearchParams({
-            csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>,
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
             dupecount: dupecount,
             masterid: masterid
         });

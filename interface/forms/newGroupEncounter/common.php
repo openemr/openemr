@@ -168,7 +168,7 @@ $help_icon = '';
                     <input type='hidden' name='mode' value='new' />
                 <?php } ?>
                 <fieldset>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <legend><?php echo xlt('Visit Details')?></legend>
                     <div id="visit-details">
                       <div class="row p-3">

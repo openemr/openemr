@@ -23,6 +23,7 @@
 
 namespace OpenEMR\Common\Csrf;
 
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CsrfUtils
@@ -44,12 +45,11 @@ class CsrfUtils
     //  $subject allows creation of different csrf tokens:
     //    Using 'api' for the internal api csrf token
     //    Using 'default' for everything else (for now)
-    public static function collectCsrfToken(SessionInterface $session, string $subject = 'default'): false|string
+    public static function collectCsrfToken(SessionInterface $session, string $subject = 'default'): string
     {
         $privateKey = $session->get('csrf_private_key', null);
-        if (empty($privateKey)) {
-            error_log("OpenEMR Error : OpenEMR is potentially not secure because CSRF key is empty.");
-            return false;
+        if ($privateKey === null || $privateKey === '') {
+            throw new RuntimeException("OpenEMR is potentially not secure because CSRF key is empty.");
         }
         return substr(hash_hmac('sha256', $subject, (string) $privateKey), 0, 40);
     }
@@ -59,16 +59,10 @@ class CsrfUtils
     {
         $currentToken = self::collectCsrfToken($session, $subject);
 
-        if (empty($currentToken)) {
-            error_log("OpenEMR Error : OpenEMR is potentially not secure because CSRF token was not formed correctly.");
-            return false;
-        } elseif (empty($token)) {
-            return false;
-        } elseif (hash_equals($currentToken, $token)) {
-            return true;
-        } else {
+        if (in_array($token, [null, '', false], true)) {
             return false;
         }
+        return hash_equals($currentToken, $token);
     }
 
     /**

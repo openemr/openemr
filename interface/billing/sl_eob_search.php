@@ -714,7 +714,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                 {
                     target: target,
                     setting: val,
-                    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                 }
             );
         }
@@ -810,7 +810,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
     <div class="row">
         <div class="col-lg">
             <form id="formSearch" action="" enctype='multipart/form-data' method='post'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>"/>
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"/>
                 <fieldset id="payment-allocate" class="oe-show-hide px-2">
                     <legend>
                         &nbsp;<?php echo xlt('Post Item'); ?><i id="payment-info-do-not-remove"> </i>
@@ -1275,7 +1275,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
         var debug = f.form_without.checked ? '1' : '0';
         var paydate = f.form_paydate.value;
         const params = new URLSearchParams({
-            csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>,
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
             debug: debug,
             eraname: <?php echo js_escape($eraname); ?>,
             original: 'original',

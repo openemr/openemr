@@ -211,7 +211,7 @@ $verifyMessageReceivedChecked = OEGlobalsBag::getInstance()->getBoolean('phimail
                             <div class="col-12 oe-custom-line">
                                 <div class="row">
                                     <div class="col-12">
-                                        <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                                        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                                         <input id='message-submit' type="submit" class="btn-transmit btn btn-primary" name="submit" value="<?php echo xla("Send"); ?>" />
                                         <i id='message-spinner' class="fa fa-spinner d-none"></i>
                                     </div>

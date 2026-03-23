@@ -372,7 +372,7 @@ $(function () {
       type: 'patient_reminder',
       setting: this.value,
       patient_id: <?php echo js_escape($patient_id); ?>,
-      csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+      csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
     });
   });
 
@@ -387,7 +387,7 @@ $(function () {
 
    top.restoreSession();
    $.get("../../../library/ajax/collect_new_report_id.php",
-     { csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?> },
+     { csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?> },
      function(data){
        // Set the report id in page form
        $("#form_new_report_id").attr("value",data);
@@ -400,7 +400,7 @@ $(function () {
        $.post("../../../library/ajax/execute_pat_reminder.php",
          {process_type: processType,
           execute_report_id: $("#form_new_report_id").val(),
-          csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+          csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
          });
    });
 
@@ -414,7 +414,7 @@ $(function () {
    $.post("../../../library/ajax/status_report.php",
      {
        status_report_id: report_id,
-       csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+       csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
      },
      function(data){
        if (data == "PENDING") {

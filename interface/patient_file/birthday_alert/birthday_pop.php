@@ -49,7 +49,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
             var pid = <?php echo js_escape($_GET['pid'])?>;
             var user_id = <?php echo js_escape($_GET['user_id'])?>;
             var value = $("#turnOff").prop('checked');
-            var csrf_token_form = <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>;
+            var csrf_token_form = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
             var data =  {
                 "pid": pid,
                 "user_id": user_id,

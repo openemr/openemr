@@ -99,7 +99,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
     } ?>    <div class="row">
                 <div class="col-sm-12">
                     <form method='post' class="form-horizontal" action='mfa_totp.php' onsubmit="doregister('reg2')">
-                        <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 
 

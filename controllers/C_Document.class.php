@@ -355,18 +355,6 @@ class C_Document extends Controller
                         $error = $tmp;
                     }
                 }
-                // Following is just an example of code in such a plugin file.
-                /*****************************************************
-                public function documentUploadPostProcess($filename, &$d) {
-                  $userid = $_SESSION['authUserID'];
-                  $row = sqlQuery("SELECT username FROM users WHERE id = ?", array($userid));
-                  $owner = strtolower($row['username']);
-                  $dn = '1_' . ucfirst($owner);
-                  $filepath = "/shared_network_directory/$dn/$filename";
-                  if (@unlink($filepath)) return '';
-                  return "Failed to delete '$filepath'.";
-                }
-                *****************************************************/
             }
         }
 

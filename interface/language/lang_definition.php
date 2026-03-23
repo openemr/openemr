@@ -41,9 +41,9 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 
 <form name='filterform' id='filterform' method='post'
-      action='?m=definition&csrf_token_form=<?php echo attr_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>'
+      action='?m=definition&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>'
       onsubmit="return top.restoreSession()">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
     <!-- Filter for Constants -->
     <div class="form-group">
         <label for="filterForConstants"><?php echo xlt('Filter for Constants'); ?>:</label>
@@ -211,8 +211,8 @@ if (!empty($_POST['edit'])) {
 
         $isResults = false; //flag to record whether there are any results
     echo ('<table><form method="post" action="?m=definition&csrf_token_form='
-        . attr_url((string) CsrfUtils::collectCsrfToken(session: $session)) . '" onsubmit="return top.restoreSession()">');
-    echo ('<input type="hidden" name="csrf_token_form" value="' . attr((string) CsrfUtils::collectCsrfToken(session: $session)) . '" />');
+        . CsrfUtils::collectCsrfToken(session: $session) . '" onsubmit="return top.restoreSession()">');
+    echo ('<input type="hidden" name="csrf_token_form" value="' . CsrfUtils::collectCsrfToken(session: $session) . '" />');
     // only english definitions
     if ($lang_id == 1) {
         while ($row = sqlFetchArray($res)) {

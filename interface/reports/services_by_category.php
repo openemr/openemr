@@ -83,7 +83,7 @@ if (!empty($_POST)) {
 <span class='title'><?php echo xlt('Report'); ?> - <?php echo xlt('Services by Category'); ?></span>
 
 <form method='post' action='services_by_category.php' name='theform' id='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 

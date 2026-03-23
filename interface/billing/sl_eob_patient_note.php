@@ -67,7 +67,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
         </div>
         <div class="row mx-auto">
             <form method='post' action='sl_eob_patient_note.php?patient_id=<?php echo attr_url($patient_id); ?>'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <div class="row">
                     <div class="col-12 pb-1">
                         <div class="form-group">

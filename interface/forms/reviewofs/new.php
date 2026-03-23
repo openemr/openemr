@@ -36,7 +36,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
             <div class="col-12">
                 <h2><?php echo xlt("Review of Systems Checks");?></h2>
                 <form method="post" action="<?php echo $rootdir;?>/forms/reviewofs/save.php?mode=new" name="my_form" onsubmit="return top.restoreSession()">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <fieldset>
                         <legend><?php echo xlt('General')?></legend>
                         <div class="container">

@@ -90,7 +90,7 @@ if (!empty($_POST['confirm'])) {
                 <h2><?php echo xlt('Delete Encounter Form'); ?></h2>
                 <form method="post" action="<?php echo $rootdir; ?>/forms/procedure_order/delete.php"
                     name="my_form" id="my_form">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <?php
                     // output each GET variable as a hidden form input
                     foreach ($_GET as $key => $value) {

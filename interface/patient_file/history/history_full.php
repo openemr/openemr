@@ -279,7 +279,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             <script> var constraints = <?php echo $constraints;?>; </script>
 
             <form action="history_save.php" id="HIS" name='history_form' method='post' onsubmit="submitme(<?php echo OEGlobalsBag::getInstance()->getBoolean('new_validate') ? 1 : 0;?>,event,'HIS',constraints)">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <input type='hidden' name='mode' value='save' />
 
                 <div class="btn-group">

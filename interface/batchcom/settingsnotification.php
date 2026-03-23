@@ -107,7 +107,7 @@ if ($result) {
         }
         ?>
         <form name="select_form" method="post" action="">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <input type="hidden" name="type" value="SMS">
             <input type="Hidden" name="SettingsId" value="<?php echo attr($SettingsId);?>">
 

@@ -312,7 +312,7 @@ function deleteme() {
 // onclick='return deleteme()'
  const params = new URLSearchParams({
   transaction: <?php echo js_escape((string) $transid); ?>,
-  csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+  csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
  });
  dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 450);
  return false;
@@ -400,7 +400,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
 <body onload="<?php echo $body_onload_code; ?>" >
     <div id="container_div" class="<?php echo $oemr_ui->oeContainer();?> mt-3">
         <form name='new_transaction' method='post' action='add_transaction.php?transid=<?php echo attr_url((string) $transid); ?>' onsubmit='return validate(this)'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <input type='hidden' name='mode' value='add' />
             <div class="row">
                 <div class="col-sm-12">
