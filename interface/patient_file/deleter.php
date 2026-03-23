@@ -38,20 +38,22 @@ if (!empty($_GET)) {
     }
 }
 
-$patient     = (int) ($_REQUEST['patient'] ?? 0);
-$encounterid = (int) ($_REQUEST['encounterid'] ?? 0);
-$formid      = (int) ($_REQUEST['formid'] ?? 0);
-$issue       = $_REQUEST['issue'] ?? '';
-$document    = (int) ($_REQUEST['document'] ?? 0);
-$payment     = $_REQUEST['payment'] ?? '';
-$billing     = $_REQUEST['billing'] ?? '';
-$transaction = (int) ($_REQUEST['transaction'] ?? 0);
+$patient     = filter_input(INPUT_GET, 'patient', FILTER_VALIDATE_INT) ?: 0;
+$encounterid = filter_input(INPUT_GET, 'encounterid', FILTER_VALIDATE_INT) ?: 0;
+$formid      = filter_input(INPUT_GET, 'formid', FILTER_VALIDATE_INT) ?: 0;
+$issue       = filter_input(INPUT_GET, 'issue') ?: '';
+$document    = filter_input(INPUT_GET, 'document', FILTER_VALIDATE_INT) ?: 0;
+$payment     = filter_input(INPUT_GET, 'payment') ?: '';
+$billing     = filter_input(INPUT_GET, 'billing') ?: '';
+$transaction = filter_input(INPUT_GET, 'transaction', FILTER_VALIDATE_INT) ?: 0;
 
 $info_msg = "";
 
 /**
  * Delete rows, with logging, for the specified table using the
  * specified WHERE clause.
+ *
+ * @param list<scalar> $binds
  */
 function deleter_row_delete(string $table, string $where, array $binds = []): void
 {
@@ -90,6 +92,8 @@ function deleter_row_delete(string $table, string $where, array $binds = []): vo
 /**
  * Deactivate rows, with logging, for the specified table using the
  * specified SET and WHERE clauses.
+ *
+ * @param list<scalar> $binds
  */
 function deleter_row_modify(string $table, string $set, string $where, array $binds = []): void
 {
@@ -463,7 +467,7 @@ function popup_close() {
         }
         ?>
 
-        <form method='post' name="deletefrm" action='deleter.php?patient=<?php echo attr_url($patient) ?>&encounterid=<?php echo attr_url($encounterid) ?>&formid=<?php echo attr_url($formid) ?>&issue=<?php echo attr_url($issue) ?>&document=<?php echo attr_url($document) ?>&payment=<?php echo attr_url($payment) ?>&billing=<?php echo attr_url($billing) ?>&transaction=<?php echo attr_url($transaction); ?>&csrf_token_form=<?php echo attr_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>'>
+        <form method='post' name="deletefrm" action='deleter.php?patient=<?php echo $patient ?>&encounterid=<?php echo $encounterid ?>&formid=<?php echo $formid ?>&issue=<?php echo attr_url($issue) ?>&document=<?php echo $document ?>&payment=<?php echo attr_url($payment) ?>&billing=<?php echo attr_url($billing) ?>&transaction=<?php echo $transaction; ?>&csrf_token_form=<?php echo attr_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>'>
             <input type="hidden" name="csrf_token_form"
                 value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
             <p>
