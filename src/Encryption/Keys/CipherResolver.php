@@ -9,7 +9,7 @@ use OpenEMR\Encryption\Cipher\Aes256CbcHmacSha384;
 use OpenEMR\Encryption\Cipher\Aes256CbcNoHmac;
 use OpenEMR\Encryption\Cipher\CipherInterface;
 
-readonly class KeyResolver implements KeyResolverInterface
+readonly class CipherResolver // implements KeyResolverInterface
 {
     public function __construct(
         private KeyManagerInterface $keyManager,
