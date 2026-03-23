@@ -13,7 +13,6 @@
 namespace OpenEMR\Tests\Common\Database\Repository\Acl;
 
 use OpenEMR\Common\Database\Repository\Acl\AclGroupSettingRepository;
-use OpenEMR\Common\Database\Repository\RepositoryFactory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\Group;
@@ -29,7 +28,7 @@ final class AclGroupSettingRepositoryTest extends TestCase
     #[Test]
     public function findByTest(): void
     {
-        $repository = RepositoryFactory::createRepository(AclGroupSettingRepository::class);
+        $repository = AclGroupSettingRepository::getInstance();
         $settings = $repository->findBySectionId(5);
 
         $this->assertCount(1, $settings);

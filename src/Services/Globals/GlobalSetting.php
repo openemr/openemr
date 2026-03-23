@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Ken Chapple <ken@mi-squared.com>
  * @copyright Copyright (c) 2019 Ken Chapple <ken@mi-squared.com>

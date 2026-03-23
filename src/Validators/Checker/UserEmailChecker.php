@@ -22,7 +22,7 @@ class UserEmailChecker
 
     protected static function createInstance(): static
     {
-        return new UserEmailChecker(
+        return new self(
             UserRepository::getInstance(),
         );
     }

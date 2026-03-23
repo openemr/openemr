@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -11,13 +12,6 @@
  */
 
 namespace OpenEMR\Common\Database\Repository;
-
-use OpenEMR\Common\Database\Database;
-use OpenEMR\Common\Database\DatabaseManagerFactory;
-use OpenEMR\Common\Database\Exception\DatabaseQueryException;
-use OpenEMR\Common\Database\Exception\NonUniqueDatabaseResultException;
-use OpenEMR\Common\Database\SqlQueryException;
-use Webmozart\Assert\InvalidArgumentException;
 
 /**
  * Usage:
@@ -33,10 +27,10 @@ use Webmozart\Assert\InvalidArgumentException;
  *   $nursesCount = $userRepository->countBySpecialty('Nursing');
  *
  * @template TEntity of array
- * @extends AbstractRepository<TEntity>
+ * @template-extends AbstractRepository<TEntity>
  */
 abstract class IdAwareAbstractRepository extends AbstractRepository
 {
-    /** @uses IdAwareRepositoryTrait<TEntity> */
+    /** @use IdAwareRepositoryTrait<TEntity> */
     use IdAwareRepositoryTrait;
 }

@@ -12,9 +12,12 @@
 
 namespace OpenEMR\Tests\Services\Acl;
 
+use OpenEMR\Fixture\CompositeFixture;
+use OpenEMR\Fixture\CompositeFixtureFactory;
+use OpenEMR\Fixture\Purger\CompositePurger;
+use OpenEMR\Fixture\Purger\CompositePurgerFactory;
 use OpenEMR\Services\Acl\AclGroupMemberService;
-use OpenEMR\Services\UserService;
-use OpenEMR\Tests\Fixtures\UserFixture;
+use OpenEMR\Fixture\AdditionalUserFixture;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\Group;
@@ -31,21 +34,32 @@ use PHPUnit\Framework\TestCase;
 #[CoversMethod(AclGroupMemberService::class, 'deleteUserFromAllGroups')]
 class AclGroupMemberServiceTest extends TestCase
 {
-    private UserFixture $userFixture;
+    private CompositePurger $purger;
+
+    private CompositeFixture $fixture;
+
+    private AdditionalUserFixture $userFixture;
 
     private AclGroupMemberService $aclGroupMemberService;
 
     protected function setUp(): void
     {
-        $this->userFixture = new UserFixture();
-        $this->aclGroupMemberService = new AclGroupMemberService(new UserService());
+        $this->purger = CompositePurgerFactory::createPurgeable();
+        $this->purger->purge();
 
-        $this->userFixture->load();
+        $this->userFixture = AdditionalUserFixture::getInstance();
+        $this->fixture = new CompositeFixture([
+            ...CompositeFixtureFactory::createLikeCleanInstallation()->getFixtures(),
+            $this->userFixture,
+        ]);
+        $this->fixture->load();
+
+        $this->aclGroupMemberService = AclGroupMemberService::getInstance();
     }
 
     protected function tearDown(): void
     {
-        $this->userFixture->removeFixtureRecords();
+        $this->purger->restore();
     }
 
     #[Test]

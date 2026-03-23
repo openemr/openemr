@@ -18,7 +18,6 @@ use Psr\Http\Message\ResponseInterface;
 use OpenEMR\RestControllers\Standard\Admin\GlobalSetting\AdminGlobalSettingRestController;
 use OpenEMR\RestControllers\Standard\Admin\GlobalSetting\AdminGlobalSettingSectionRestController;
 use OpenEMR\RestControllers\Config\RestConfig;
-use OpenEMR\Core\OEGlobalsBag;
 
 // @todo Move initialization to classes
 require_once(__DIR__ . "/../../../../library/globals.inc.php"); // As we need section names
@@ -33,25 +32,16 @@ return [
      *         "admin",
      *         "global-setting",
      *     },
+     *     security={{"openemr_auth":{}, "bearer":{}}},
      *
-     *     @OA\Response(
-     *         response="200",
-     *         ref="#/components/responses/standard"
-     *     ),
-     *     @OA\Response(
-     *         response="400",
-     *         ref="#/components/responses/badrequest"
-     *     ),
-     *     @OA\Response(
-     *         response="401",
-     *         ref="#/components/responses/unauthorized"
-     *     ),
-     *     security={{"openemr_auth":{}}}
-     *  )
+     *     @OA\Response(response="200", ref="#/components/responses/standard"),
+     *     @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *     @OA\Response(response="401", ref="#/components/responses/unauthorized")
+     * )
      */
     'GET /api/admin/global-setting/section' => static function(HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
-        return (new AdminGlobalSettingSectionRestController())->getAll($request);
+        return AdminGlobalSettingSectionRestController::getInstance()->getAll($request);
     },
 
     /**
@@ -63,25 +53,16 @@ return [
      *         "admin",
      *         "global-setting",
      *     },
+     *     security={{"openemr_auth":{}, "bearer":{}}},
      *
-     *     @OA\Response(
-     *         response="200",
-     *         ref="#/components/responses/api_standard_setting_response"
-     *     ),
-     *     @OA\Response(
-     *         response="400",
-     *         ref="#/components/responses/badrequest"
-     *     ),
-     *     @OA\Response(
-     *         response="401",
-     *         ref="#/components/responses/unauthorized"
-     *     ),
-     *     security={{"openemr_auth":{}}}
-     *  )
+     *     @OA\Response(response="200", ref="#/components/responses/api_standard_setting_response"),
+     *     @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *     @OA\Response(response="401", ref="#/components/responses/unauthorized")
+     * )
      */
     'GET /api/admin/global-setting' => static function(HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
-        return (new AdminGlobalSettingRestController())->getAll($request);
+        return AdminGlobalSettingRestController::getInstance()->getAll($request);
     },
 
     /**
@@ -93,25 +74,17 @@ return [
      *         "admin",
      *         "global-setting",
      *     },
+     *     security={{"openemr_auth":{}, "bearer":{}}},
      *
-     *     @OA\Response(
-     *         response="200",
-     *         ref="#/components/responses/api_standard_setting_response"
-     *     ),
-     *     @OA\Response(
-     *         response="400",
-     *         ref="#/components/responses/badrequest"
-     *     ),
-     *     @OA\Response(
-     *         response="401",
-     *         ref="#/components/responses/unauthorized"
-     *     ),
-     *     security={{"openemr_auth":{}}}
-     *  )
+     *     @OA\Parameter(name="section", in="path", description="Section.", required=true, @OA\Schema(type="string")),
+     *     @OA\Response(response="200", ref="#/components/responses/api_standard_setting_response"),
+     *     @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *     @OA\Response(response="401", ref="#/components/responses/unauthorized")
+     * )
      */
     'GET /api/admin/global-setting/:section' => static function(string $section, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
-        return (new AdminGlobalSettingRestController())->getBySectionSlug($request, $section);
+        return adminGlobalSettingRestController::GetInstance()->getBySectionSlug($request, $section);
     },
 
     /**
@@ -123,88 +96,48 @@ return [
      *         "admin",
      *         "global-setting",
      *     },
+     *     security={{"openemr_auth":{}, "bearer":{}}},
      *
-     *     @OA\Response(
-     *         response="200",
-     *         ref="#/components/responses/standard"
-     *     ),
-     *     @OA\Response(
-     *         response="400",
-     *         ref="#/components/responses/badrequest"
-     *     ),
-     *     @OA\Response(
-     *         response="401",
-     *         ref="#/components/responses/unauthorized"
-     *     ),
-     *     security={{"openemr_auth":{}}}
-     *  )
+     *     @OA\Parameter(name="section", in="path", description="Section.", required=true, @OA\Schema(type="string")),
+     *     @OA\Parameter(name="key", in="path", description="Setting Key.", required=true, @OA\Schema(type="string")),
+     *     @OA\Response(response="200", ref="#/components/responses/standard"),
+     *     @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *     @OA\Response(response="401", ref="#/components/responses/unauthorized")
+     * )
      */
     'GET /api/admin/global-setting/:section/:key' => static function(string $section, string $key, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
-        return (new AdminGlobalSettingRestController())->getOneBySettingKey($request, $section, $key);
+        return adminGlobalSettingRestController::GetInstance()->getOneBySettingKey($request, $section, $key);
     },
 
     /**
      * @OA\Put(
      *     path="/api/admin/global-setting/{section}",
-     *     description="Set Given User Section's Settings to given values",
+     *     description="Set Global Settings by Section to given values",
      *     tags={
      *         "standard",
      *         "admin",
-     *         "user",
-     *         "setting",
+     *         "global-setting",
      *     },
-     *     @OA\Parameter(
-     *         name="userId",
-     *         in="path",
-     *         description="User ID.",
-     *         required=true,
+     *     security={{"openemr_auth":{}, "bearer":{}}},
      *
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="section",
-     *         in="path",
-     *         description="Section.",
-     *         required=true,
-     *
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *
+     *     @OA\Parameter(name="section", in="path", description="Section.", required=true, @OA\Schema(type="string")),
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\MediaType(
-     *             mediaType="application/json",
-     *             @OA\Schema(ref="#/components/schemas/api_standard_setting_put_request")
-     *         )
+     *         @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/api_standard_setting_put_request"))
      *     ),
-     *
-     *     @OA\Response(
-     *         response="200",
-     *         ref="#/components/responses/api_standard_setting_response"
-     *     ),
-     *     @OA\Response(
-     *         response="400",
-     *         ref="#/components/responses/badrequest"
-     *     ),
-     *     @OA\Response(
-     *         response="401",
-     *         ref="#/components/responses/unauthorized"
-     *     ),
-     *     security={{"openemr_auth":{}}}
-     *  )
+     *     @OA\Response(response="200", ref="#/components/responses/api_standard_setting_response"),
+     *     @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *     @OA\Response(response="401", ref="#/components/responses/unauthorized")
+     * )
      */
     'PUT /api/admin/global-setting/:section' => static function(string $section, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
 
-        return (new AdminGlobalSettingRestController())->putBySectionSlug(
+        return adminGlobalSettingRestController::GetInstance()->putBySectionSlug(
             $request,
             $section,
-            file_get_contents('php://input'),
+            file_get_contents('php://input') ?: '',
         );
     },
 
@@ -215,37 +148,19 @@ return [
      *     tags={
      *         "standard",
      *         "admin",
-     *         "setting",
+     *         "global-setting",
      *     },
-     *     @OA\Parameter(
-     *         name="section",
-     *         in="path",
-     *         description="Section.",
-     *         required=true,
+     *     security={{"openemr_auth":{}, "bearer":{}}},
      *
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response="200",
-     *         ref="#/components/responses/api_standard_setting_response"
-     *     ),
-     *     @OA\Response(
-     *         response="400",
-     *         ref="#/components/responses/badrequest"
-     *     ),
-     *     @OA\Response(
-     *         response="401",
-     *         ref="#/components/responses/unauthorized"
-     *     ),
-     *     security={{"openemr_auth":{}}}
-     *  )
+     *     @OA\Parameter(name="section", in="path", description="Section.", required=true, @OA\Schema(type="string")),
+     *     @OA\Response(response="200", ref="#/components/responses/api_standard_setting_response"),
+     *     @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *     @OA\Response(response="401", ref="#/components/responses/unauthorized")
+     * )
      */
     'POST /api/admin/global-setting/:section/reset' => static function(string $section, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
-        return (new AdminGlobalSettingRestController())->resetBySectionSlug($request, $section);
+        return adminGlobalSettingRestController::GetInstance()->resetBySectionSlug($request, $section);
     },
 
     /**
@@ -257,44 +172,17 @@ return [
      *         "admin",
      *         "global-setting",
      *     },
-     *     @OA\Parameter(
-     *         name="section",
-     *         in="path",
-     *         description="Section.",
-     *         required=true,
+     *     security={{"openemr_auth":{}, "bearer":{}}},
      *
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="key",
-     *         in="path",
-     *         description="Setting Key.",
-     *         required=true,
-     *
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response="200",
-     *         ref="#/components/responses/standard"
-     *     ),
-     *     @OA\Response(
-     *         response="400",
-     *         ref="#/components/responses/badrequest"
-     *     ),
-     *     @OA\Response(
-     *         response="401",
-     *         ref="#/components/responses/unauthorized"
-     *     ),
-     *     security={{"openemr_auth":{}}}
-     *  )
+     *     @OA\Parameter(name="section", in="path", description="Section.", required=true, @OA\Schema(type="string")),
+     *     @OA\Parameter(name="key", in="path", description="Setting Key.", required=true, @OA\Schema(type="string")),
+     *     @OA\Response(response="200", ref="#/components/responses/standard"),
+     *     @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *     @OA\Response(response="401", ref="#/components/responses/unauthorized")
+     * )
      */
     'POST /api/admin/global-setting/:section/:key/reset' => static function(string $section, string $key, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
-        return (new AdminGlobalSettingRestController())->resetOneBySettingKey($request, $section, $key);
+        return adminGlobalSettingRestController::GetInstance()->resetOneBySettingKey($request, $section, $key);
     },
 ];

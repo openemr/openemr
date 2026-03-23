@@ -1,0 +1,74 @@
+[
+  {
+    "acl_id": 10,
+    "group_id": 11
+  },
+  {
+    "acl_id": 11,
+    "group_id": 13
+  },
+  {
+    "acl_id": 12,
+    "group_id": 13
+  },
+  {
+    "acl_id": 13,
+    "group_id": 13
+  },
+  {
+    "acl_id": 14,
+    "group_id": 13
+  },
+  {
+    "acl_id": 15,
+    "group_id": 12
+  },
+  {
+    "acl_id": 16,
+    "group_id": 12
+  },
+  {
+    "acl_id": 17,
+    "group_id": 12
+  },
+  {
+    "acl_id": 18,
+    "group_id": 12
+  },
+  {
+    "acl_id": 19,
+    "group_id": 14
+  },
+  {
+    "acl_id": 20,
+    "group_id": 14
+  },
+  {
+    "acl_id": 21,
+    "group_id": 14
+  },
+  {
+    "acl_id": 22,
+    "group_id": 14
+  },
+  {
+    "acl_id": 23,
+    "group_id": 15
+  },
+  {
+    "acl_id": 24,
+    "group_id": 15
+  },
+  {
+    "acl_id": 25,
+    "group_id": 15
+  },
+  {
+    "acl_id": 26,
+    "group_id": 15
+  },
+  {
+    "acl_id": 27,
+    "group_id": 16
+  }
+]

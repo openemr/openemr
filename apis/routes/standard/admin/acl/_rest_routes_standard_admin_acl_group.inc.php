@@ -18,85 +18,80 @@ use Psr\Http\Message\ResponseInterface;
 
 /**
  * @OA\Schema(
- *     schema="api_admin_acl_group_request",
+ *     schema="api_standard_admin_acl_group_common",
+ *     type="object",
  *
- *     @OA\Property(
- *         property="parent_id",
- *         description="Parent Group ID. Fallbacks to Root Group ID if not provided.",
- *         type="string"
- *     ),
- *     @OA\Property(
- *         property="name",
- *         description="Group Name.",
- *         type="string"
- *     ),
- *     @OA\Property(
- *         property="value",
- *         description="Group Value.",
- *         type="string"
- *     ),
+ *     @OA\Property(property="id", description="Group ID", type="integer"),
+ *     @OA\Property(property="parent_id", description="Parent Group ID", type="integer"),
+ *     @OA\Property(property="name", description="Group Name", type="string"),
+ *     @OA\Property(property="value", description="Group Value", type="string"),
+ *
+ *     example={
+ *         "id": 11,
+ *         "parent_id": 10,
+ *         "name": "Testers",
+ *         "value": "testers"
+ *     }
+ * )
+ *
+ * @OA\Schema(
+ *     schema="api_standard_admin_acl_group_request",
+ *     type="object",
+ *
+ *     @OA\Property(property="parent_id", description="Parent Group ID. Fallbacks to Root Group ID if not provided.", type="string"),
+ *     @OA\Property(property="name", description="Group Name.", type="string"),
+ *     @OA\Property(property="value", description="Group Value.", type="string"),
+ *
  *     required={"name", "value"},
  *     example={
  *         "parent_id": 10,
  *         "name": "Testers",
- *         "value": "testers",
+ *         "value": "testers"
  *     }
  * )
  *
  * @OA\Response(
- *     response="api_admin_acl_group_response",
- *     description="Sections List Response",
+ *     response="api_standard_admin_acl_group_get_all_response",
+ *     description="ACL Groups List Response",
  *     @OA\MediaType(
  *         mediaType="application/json",
  *         @OA\Schema(
- *             @OA\Property(
- *                 property="validationErrors",
- *                 description="Validation errors.",
- *                 type="array",
- *                 @OA\Items(
- *                     type="object",
- *                 ),
- *             ),
- *             @OA\Property(
- *                 property="internalErrors",
- *                 description="Internal errors.",
- *                 type="array",
- *                 @OA\Items(
- *                     type="object",
- *                 ),
- *             ),
+ *             @OA\Property(property="validationErrors", description="Validation errors.", type="array", @OA\Items(type="object")),
+ *             @OA\Property(property="internalErrors", description="Internal errors.", type="array", @OA\Items(type="object")),
  *             @OA\Property(
  *                 property="data",
  *                 description="Returned data.",
  *                 type="array",
- *
- *                 @OA\Items(
- *                     @OA\Property(
- *                         property="id",
- *                         description="Group ID",
- *                         type="integer",
- *                     ),
- *                     @OA\Property(
- *                         property="parent_id",
- *                         description="Parent Group ID",
- *                         type="integer",
- *                     ),
- *                     @OA\Property(
- *                         property="name",
- *                         description="Group Name",
- *                         type="string",
- *                     ),
- *                     @OA\Property(
- *                         property="value",
- *                         description="Group Value",
- *                         type="string",
- *                     )
- *                 ),
+ *                 @OA\Items(ref="#/components/schemas/api_standard_admin_acl_group_common")
  *             ),
  *             example={
  *                 "validationErrors": {},
  *                 "internalErrors": {},
+ *                 "data": {{
+ *                     "id": 11,
+ *                     "parent_id": 10,
+ *                     "name": "Testers",
+ *                     "value": "testers"
+ *                 }}
+ *             }
+ *         )
+ *     )
+ * )
+ *
+ * @OA\Response(
+ *     response="api_standard_admin_acl_group_get_one_response",
+ *     description="Single ACL Group Response",
+ *     @OA\MediaType(
+ *         mediaType="application/json",
+ *         @OA\Schema(
+ *             @OA\Property(property="validationErrors", description="Validation errors.", type="array", @OA\Items(type="object")),
+ *             @OA\Property(property="internalErrors", description="Internal errors.", type="array", @OA\Items(type="object")),
+ *             @OA\Property(property="data", ref="#/components/schemas/api_standard_admin_acl_group_common"),
+ *             example={
+ *                 "validationErrors": {},
+ *                 "internalErrors": {},
  *                 "data": {
+ *                     "id": 11,
  *                     "parent_id": 10,
  *                     "name": "Testers",
  *                     "value": "testers"
@@ -116,26 +111,17 @@ return [
      *         "admin",
      *         "ACL",
      *     },
+     *     security={{"openemr_auth":{}, "bearer":{}}},
      *
-     *     @OA\Response(
-     *         response="200",
-     *         ref="#/components/responses/standard"
-     *     ),
-     *     @OA\Response(
-     *         response="400",
-     *         ref="#/components/responses/badrequest"
-     *     ),
-     *     @OA\Response(
-     *         response="401",
-     *         ref="#/components/responses/unauthorized"
-     *     ),
-     *     security={{"openemr_auth":{}}}
-     *  )
+     *     @OA\Response(response="200", ref="#/components/responses/api_standard_admin_acl_group_get_all_response"),
+     *     @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *     @OA\Response(response="401", ref="#/components/responses/unauthorized")
+     * )
      */
     'GET /api/admin/acl/group' => static function (HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'groups');
 
-        return (new AdminAclGroupRestController())->getAll($request);
+        return AdminAclGroupRestController::getInstance()->getAll($request);
     },
 
     /**
@@ -147,37 +133,18 @@ return [
      *         "admin",
      *         "ACL",
      *     },
+     *     security={{"openemr_auth":{}, "bearer":{}}},
      *
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Group ID.",
-     *         required=true,
-     *
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response="200",
-     *         ref="#/components/responses/standard"
-     *     ),
-     *     @OA\Response(
-     *         response="400",
-     *         ref="#/components/responses/badrequest"
-     *     ),
-     *     @OA\Response(
-     *         response="401",
-     *         ref="#/components/responses/unauthorized"
-     *     ),
-     *     security={{"openemr_auth":{}}}
-     *  )
+     *     @OA\Parameter(name="id", in="path", description="Group ID.", required=true, @OA\Schema(type="string")),
+     *     @OA\Response(response="200", ref="#/components/responses/api_standard_admin_acl_group_get_one_response"),
+     *     @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *     @OA\Response(response="401", ref="#/components/responses/unauthorized")
+     * )
      */
     'GET /api/admin/acl/group/:id' => static function (string $id, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'groups');
 
-        return (new AdminAclGroupRestController())->getOne($request, $id);
+        return adminAclGroupRestController::GetInstance()->getOne($request, $id);
     },
 
     /**
@@ -189,35 +156,21 @@ return [
      *         "admin",
      *         "ACL",
      *     },
+     *     security={{"openemr_auth":{}, "bearer":{}}},
      *
      *     @OA\RequestBody(
      *         required=true,
-     *
-     *         @OA\MediaType(
-     *             mediaType="application/json",
-     *
-     *             @OA\Schema(ref="#/components/schemas/api_admin_acl_group_request")
-     *         )
+     *         @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/api_standard_admin_acl_group_request"))
      *     ),
-     *
-     *     @OA\Response(
-     *         response="200",
-     *         ref="#/components/responses/api_admin_acl_group_response"
-     *         description="Standard response",
-     *     ),
-     *
-     *     @OA\Response(
-     *         response="401",
-     *         ref="#/components/responses/unauthorized"
-     *     ),
-     *     security={{"openemr_auth":{}}}
-     *  )
+     *     @OA\Response(response="201", ref="#/components/responses/api_standard_admin_acl_group_get_one_response"),
+     *     @OA\Response(response="401", ref="#/components/responses/unauthorized")
+     * )
      */
     'POST /api/admin/acl/group' => static function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, 'admin', 'groups');
-        $data = (array) (json_decode(file_get_contents('php://input')));
+        $data = (array) (json_decode(file_get_contents('php://input') ?: ''));
 
-        return (new AdminAclGroupRestController())->post($data, $request);
+        return adminAclGroupRestController::GetInstance()->post($data, $request);
     },
 
     /**
@@ -229,33 +182,16 @@ return [
      *         "admin",
      *         "ACL",
      *     },
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="Group ID.",
-     *         required=true,
+     *     security={{"openemr_auth":{}, "bearer":{}}},
      *
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response="200",
-     *         ref="#/components/responses/standard"
-     *     ),
-     *     @OA\Response(
-     *         response="400",
-     *         ref="#/components/responses/badrequest"
-     *     ),
-     *     @OA\Response(
-     *         response="401",
-     *         ref="#/components/responses/unauthorized"
-     *     ),
-     *     security={{"openemr_auth":{}}}
-     *  )
+     *     @OA\Parameter(name="id", in="path", description="Group ID.", required=true, @OA\Schema(type="string")),
+     *     @OA\Response(response="200", ref="#/components/responses/standard"),
+     *     @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *     @OA\Response(response="401", ref="#/components/responses/unauthorized")
+     * )
      */
     "DELETE /api/admin/acl/group/:id" => static function (string $id, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "groups");
-        return (new AdminAclGroupRestController())->delete($request, $id);
+        return adminAclGroupRestController::GetInstance()->delete($request, $id);
     },
 ];

@@ -1,0 +1,16 @@
+[
+  {
+    "id": 1,
+    "value": "system",
+    "order_value": 1,
+    "name": "System",
+    "hidden": 0
+  },
+  {
+    "id": 2,
+    "value": "user",
+    "order_value": 2,
+    "name": "User",
+    "hidden": 0
+  }
+]

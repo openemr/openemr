@@ -22,7 +22,7 @@ class UserUuidChecker
 
     protected static function createInstance(): static
     {
-        return new UserUuidChecker(
+        return new self(
             UserRepository::getInstance(),
         );
     }

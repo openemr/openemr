@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -12,10 +13,14 @@
 
 namespace OpenEMR\Tests\Api\Standard\Admin\Acl;
 
+use OpenEMR\Fixture\AclGroupFixture;
+use OpenEMR\Fixture\CompositeFixture;
+use OpenEMR\Fixture\CompositeFixtureFactory;
+use OpenEMR\Fixture\Purger\CompositePurger;
+use OpenEMR\Fixture\Purger\CompositePurgerFactory;
 use OpenEMR\RestControllers\Standard\Admin\Acl\AdminAclGroupRestController;
 use OpenEMR\Services\Acl\AclGroupService;
 use OpenEMR\Tests\Api\ApiTestClient;
-use OpenEMR\Tests\Fixtures\Acl\AclGroupFixture;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -34,37 +39,35 @@ use PHPUnit\Framework\TestCase;
 #[CoversMethod(AdminAclGroupRestController::class, 'getAll')]
 class AdminAclGroupApiTest extends TestCase
 {
-    private AclGroupFixture $fixture;
+    private readonly CompositePurger $purger;
+
+    private readonly CompositeFixture $fixture;
+
+    private AclGroupFixture $aclGroupFixture;
 
     private ApiTestClient $testClient;
 
     protected function setUp(): void
     {
+        $this->purger = CompositePurgerFactory::createPurgeable();
+        $this->purger->purge();
+
+        $this->aclGroupFixture = AclGroupFixture::getInstance();
+        $this->fixture = new CompositeFixture([
+            ...CompositeFixtureFactory::createLikeCleanInstallation()->getFixtures(),
+            $this->aclGroupFixture,
+        ]);
+        $this->fixture->load();
+
         $baseUrl = getenv('OPENEMR_BASE_URL_API', true) ?: 'https://localhost';
 
         $this->testClient = new ApiTestClient($baseUrl, false);
         $this->testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
-
-        $this->fixture = new AclGroupFixture();
-        $this->fixture->load();
     }
 
     protected function tearDown(): void
     {
-        // @todo Test DB isolation and wiping, as otherwise new records inserting into non-test db and only wiped manually like this:
-
-        // Remove all groups added by post*Test
-        $groupService = new AclGroupService();
-        foreach (['inspectors', 'inspectorswithparentid'] as $groupValue) {
-            $groupService->deleteByValue($groupValue);
-        }
-
-        // Remove all groups added by fixtures
-        $this->fixture->removeFixtureRecords();
-
-        // Remove test client created by ApiTestClient
-        // $this->testClient->cleanupRevokeAuth();
-        $this->testClient->cleanupClient();
+        $this->purger->restore();
     }
 
     /**
@@ -251,7 +254,7 @@ class AdminAclGroupApiTest extends TestCase
     #[Test]
     public function getOneSucceededTest(): void
     {
-        $record = $this->fixture->getRandomRecord();
+        $record = $this->aclGroupFixture->getRandomRecord();
 
         $response = $this->testClient->request('GET', sprintf('/apis/default/api/admin/acl/group/%s', $record['id']));
         $this->assertEquals(200, $response->getStatusCode());
@@ -324,7 +327,7 @@ class AdminAclGroupApiTest extends TestCase
     #[Test]
     public function deleteSucceededTest(): void
     {
-        $record = $this->fixture->getRandomRecord();
+        $record = $this->aclGroupFixture->getRandomRecord();
 
         $response = $this->testClient->request('DELETE', sprintf('/apis/default/api/admin/acl/group/%s', $record['id']));
         $this->assertEquals(200, $response->getStatusCode());

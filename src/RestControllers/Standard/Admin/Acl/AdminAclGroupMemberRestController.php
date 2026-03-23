@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -12,10 +13,11 @@
 
 namespace OpenEMR\RestControllers\Standard\Admin\Acl;
 
+use OpenEMR\Common\Database\Repository\User\UserRepository;
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Core\Traits\SingletonTrait;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\Acl\AclGroupMemberService;
-use OpenEMR\Services\UserService;
 use OpenEMR\Validators\Acl\AclGroupMemberValidator;
 use OpenEMR\Validators\BaseValidator;
 use OpenEMR\Validators\ProcessingResult;
@@ -25,36 +27,22 @@ use Webmozart\Assert\InvalidArgumentException;
 
 class AdminAclGroupMemberRestController
 {
-    private readonly UserService $userService;
+    use SingletonTrait;
 
-    private readonly AclGroupMemberService $aclGroupMemberService;
-
-    private readonly AclGroupMemberValidator $aclGroupMemberValidator;
-
-    public function __construct()
+    protected static function createInstance(): static
     {
-        $this->userService = new UserService();
-        $this->aclGroupMemberService = new AclGroupMemberService($this->userService);
-        $this->aclGroupMemberValidator = new AclGroupMemberValidator();
+        return new self(
+            UserRepository::getInstance(),
+            AclGroupMemberService::getInstance(),
+            AclGroupMemberValidator::getInstance(),
+        );
     }
 
-    public function post(int $groupId, int $userId, array $data, HttpRestRequest $request): ResponseInterface
-    {
-        $data['group_id'] = $groupId;
-        $data['user_id'] = $userId;
-
-        $result = $this->aclGroupMemberValidator->validate($data, BaseValidator::DATABASE_INSERT_CONTEXT);
-        if ($result->isValid()) {
-            $user = $this->userService->getUser($data['user_id']);
-
-            try {
-                $this->aclGroupMemberService->addUserToGroup($user, $groupId, $data);
-            } catch (InvalidArgumentException $exception) {
-                $result->addInternalError($exception->getMessage());
-            }
-        }
-
-        return RestControllerHelper::createProcessingResultResponse($request, $result,201);
+    public function __construct(
+        private readonly UserRepository $userRepository,
+        private readonly AclGroupMemberService $aclGroupMemberService,
+        private readonly AclGroupMemberValidator $aclGroupMemberValidator,
+    ) {
     }
 
     public function getAll(int $groupId, HttpRestRequest $request): ResponseInterface
@@ -69,17 +57,35 @@ class AdminAclGroupMemberRestController
         );
     }
 
-    public function delete(HttpRestRequest $request, string $groupId, string $userId): ResponseInterface
+    public function post(int $groupId, string $uuid, array $data, HttpRestRequest $request): ResponseInterface
+    {
+        $data['group_id'] = $groupId;
+        $data['uuid'] = $uuid;
+
+        $result = $this->aclGroupMemberValidator->validate($data, BaseValidator::DATABASE_INSERT_CONTEXT);
+        if ($result->isValid()) {
+            $user = $this->userRepository->findOneByUuid($data['uuid']);
+
+            try {
+                $this->aclGroupMemberService->addUserToGroup($user, $groupId, $data);
+            } catch (InvalidArgumentException $exception) {
+                $result->addInternalError($exception->getMessage());
+            }
+        }
+
+        return RestControllerHelper::createProcessingResultResponse($request, $result,201);
+    }
+
+    public function delete(HttpRestRequest $request, string $groupId, string $uuid): ResponseInterface
     {
         $result = new ProcessingResult();
         try {
             Assert::integerish($groupId, sprintf('Group ID %s is invalid. Integer expected', $groupId));
-            Assert::integerish($userId, sprintf('User ID %s is invalid. Integer expected', $userId));
 
-            $user = $this->userService->getUser($userId);
+            $user = $this->userRepository->findOneByUuid($uuid);
             Assert::notNull(
                 $user,
-                sprintf('User with ID %s was not found', $userId)
+                sprintf('User with UUID %s was not found', $uuid)
             );
 
             $this->aclGroupMemberService->deleteUserFromGroup($user, $groupId);

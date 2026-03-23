@@ -23,57 +23,20 @@ use Psr\Http\Message\ResponseInterface;
  *     @OA\MediaType(
  *         mediaType="application/json",
  *         @OA\Schema(
- *             @OA\Property(
- *                 property="validationErrors",
- *                 description="Validation errors.",
- *                 type="array",
- *                 @OA\Items(
- *                     type="object",
- *                 ),
- *             ),
- *             @OA\Property(
- *                 property="internalErrors",
- *                 description="Internal errors.",
- *                 type="array",
- *                 @OA\Items(
- *                     type="object",
- *                 ),
- *             ),
+ *             @OA\Property(property="validationErrors", description="Validation errors.", type="array", @OA\Items(type="object")),
+ *             @OA\Property(property="internalErrors", description="Internal errors.", type="array", @OA\Items(type="object")),
  *             @OA\Property(
  *                 property="data",
  *                 description="Returned data.",
  *                 type="array",
  *                 @OA\Items(
  *                     type="object",
- *                 ),
- *
- *                 @OA\Items(
- *                     @OA\Property(
- *                         property="parent_section",
- *                         description="Parent Section ID.",
- *                         type="integer",
- *                     ),
- *                     @OA\Property(
- *                         property="section_id",
- *                         description="Section ID.",
- *                         type="integer",
- *                     ),
- *                     @OA\Property(
- *                         property="section_identifier",
- *                         description="Section identifier (slug).",
- *                         type="string",
- *                     ),
- *                     @OA\Property(
- *                         property="section_name",
- *                         description="Section name.",
- *                         type="string",
- *                     ),
- *                     @OA\Property(
- *                         property="module_id",
- *                         description="Module ID.",
- *                         type="integer",
- *                     ),
- *                 ),
+ *                     @OA\Property(property="parent_section", description="Parent Section ID.", type="integer"),
+ *                     @OA\Property(property="section_id", description="Section ID.", type="integer"),
+ *                     @OA\Property(property="section_identifier", description="Section identifier (slug).", type="string"),
+ *                     @OA\Property(property="section_name", description="Section name.", type="string"),
+ *                     @OA\Property(property="module_id", description="Module ID.", type="integer")
+ *                 )
  *             ),
  *             example={
  *                 "validationErrors": {},
@@ -101,26 +64,16 @@ return [
      *         "acl",
      *         "section",
      *     },
+     *     security={{"openemr_auth":{}, "bearer":{}}},
      *
-     *     @OA\Response(
-     *         response="200",
-     *         ref="#/components/responses/api_admin_acl_section_response"
-     *     ),
-     *     @OA\Response(
-     *         response="400",
-     *         ref="#/components/responses/badrequest"
-     *     ),
-     *     @OA\Response(
-     *         response="401",
-     *         ref="#/components/responses/unauthorized"
-     *     ),
-     *     security={{"openemr_auth":{}}}
-     *  )
-     *
+     *     @OA\Response(response="200", ref="#/components/responses/api_admin_acl_section_response"),
+     *     @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *     @OA\Response(response="401", ref="#/components/responses/unauthorized")
+     * )
      */
     'GET /api/admin/acl/section' => static function (HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
 
-        return (new AdminAclSectionRestController())->getAll($request);
+        return AdminAclSectionRestController::getInstance()->getAll($request);
     },
 ];

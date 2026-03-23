@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -12,15 +13,20 @@
 
 namespace OpenEMR\Tests\Api\Standard\Admin\User;
 
-use OpenEMR\Common\Database\Repository\RepositoryFactory;
-use OpenEMR\Common\Database\Repository\User\UserRepository;
 use OpenEMR\Common\Database\Repository\User\UserSecureRepository;
-use OpenEMR\Common\Database\Repository\UuidRegistryRepository;
+use OpenEMR\Fixture\CompositeFixture;
+use OpenEMR\Fixture\CompositeFixtureFactory;
+use OpenEMR\Fixture\Purger\CompositePurger;
+use OpenEMR\Fixture\Purger\CompositePurgerFactory;
 use OpenEMR\RestControllers\Standard\User\UserRestController;
-use OpenEMR\Services\UserService;
+use OpenEMR\Services\User\UserService;
 use OpenEMR\Tests\Api\ApiTestClient;
-use OpenEMR\Tests\Common\Auth\AuthHashAwareTrait;
-use OpenEMR\Tests\Fixtures\UserFixture;
+use OpenEMR\Tests\Api\Standard\Common\UserApiPatchDataProviderAwareTrait;
+use OpenEMR\Tests\Api\Standard\Common\UserApiPostDataProviderAwareTrait;
+use OpenEMR\Tests\Api\Standard\User\AssertValidUserAwareTrait;
+use OpenEMR\Tests\Api\Standard\User\MeAwareTrait;
+use OpenEMR\Tests\Common\Auth\AssertCorrectUserPasswordAwareTrait;
+use OpenEMR\Fixture\AdditionalUserFixture;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -30,335 +36,65 @@ use PHPUnit\Framework\TestCase;
 
 #[Group('api')]
 #[Group('api-standard')]
-#[Group('api-standard-user')]
+#[Group('api-standard-admin-user')]
 #[CoversClass(UserRestController::class)]
-#[CoversMethod(UserRestController::class, 'post')]
 #[CoversMethod(UserRestController::class, 'getOne')]
 #[CoversMethod(UserRestController::class, 'getAll')]
+#[CoversMethod(UserRestController::class, 'post')]
+#[CoversMethod(UserRestController::class, 'patch')]
 class AdminUserApiTest extends TestCase
 {
-    use AuthHashAwareTrait;
+    use UserApiPostDataProviderAwareTrait;
+    use UserApiPatchDataProviderAwareTrait;
+    use AssertValidUserAwareTrait;
+    use AssertCorrectUserPasswordAwareTrait;
+    use MeAwareTrait;
 
-    private readonly UserRepository $userRepository;
+    private readonly CompositePurger $purger;
 
-    private readonly UuidRegistryRepository $uuidRegistryRepository;
-
-    private readonly UserFixture $fixture;
-
-    private ApiTestClient $testClient;
+    private readonly CompositeFixture $fixture;
 
     protected function setUp(): void
     {
+        $this->userSecureRepository = UserSecureRepository::getInstance();
+
+        $this->purger = CompositePurgerFactory::createPurgeable();
+        $this->purger->purge();
+
+        $this->fixture = new CompositeFixture([
+            ...CompositeFixtureFactory::createLikeCleanInstallation()->getFixtures(),
+            AdditionalUserFixture::getInstance(),
+        ]);
+        $this->fixture->load();
+
         $baseUrl = getenv('OPENEMR_BASE_URL_API', true) ?: 'https://localhost';
 
         $this->testClient = new ApiTestClient($baseUrl, false);
         $this->testClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT);
-
-        $this->userRepository = RepositoryFactory::createRepository(UserRepository::class);
-        $this->userSecureRepository = RepositoryFactory::createRepository(UserSecureRepository::class);
-        $this->uuidRegistryRepository = RepositoryFactory::createRepository(UuidRegistryRepository::class);
-
-        $this->fixture = new UserFixture();
-        $this->fixture->load();
     }
 
     protected function tearDown(): void
     {
-        // @todo Test DB isolation and wiping, as otherwise new records inserting into non-test db and only wiped manually like this:
-
-        // Remove all users added by post*Test
-        foreach (['testuser0', 'testuser1', 'testuser2', 'testuser3'] as $username) {
-            $user = $this->userRepository->findOneByUsername($username);
-            if (null === $user) {
-                continue;
-            }
-
-            if (null !== $user['uuid']) {
-                $this->uuidRegistryRepository->removeByUuidAndTable($user['uuid'], 'users');
-            }
-
-            $this->userRepository->remove($user['id']);
-            $this->userSecureRepository->remove($user['id']);
-        }
-
-        // Remove all users added by fixtures
-        $this->fixture->removeFixtureRecords();
-
-        // Remove test client created by ApiTestClient
-        // $this->testClient->cleanupRevokeAuth();
-        $this->testClient->cleanupClient();
-    }
-
-    /**
-     * @see UserRestController::post()
-     * @see UserService::insert()
-     */
-    #[Test]
-    #[DataProvider('postFailedValidationDataProvider')]
-    public function postFailedValidationTest(
-        array $data,
-        int $expectedValidationErrorsCount,
-        ?array $expectedValidationErrors = null,
-    ): void {
-        $response = $this->testClient->request('POST', '/apis/default/api/admin/user', [], $data);
-        $this->assertEquals(400, $response->getStatusCode());
-
-        $json = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
-        $this->assertCount($expectedValidationErrorsCount, $json['validationErrors']);
-        $this->assertCount(0, $json['internalErrors']);
-        $this->assertArrayNotHasKey('id', $json['data']);
-        $this->assertArrayNotHasKey('uuid', $json['data']);
-
-        if (null !== $expectedValidationErrors) {
-            $this->assertEquals($expectedValidationErrors, $json['validationErrors']);
-        }
-    }
-
-    public static function postFailedValidationDataProvider(): iterable
-    {
-        yield 'Empty payload' => [[], 3];
-
-        yield 'One mandatory field provided' => [[
-            'fname' => 'Correct',
-        ], 2];
-
-        yield 'Two mandatory fields provided' => [[
-            'fname' => 'Correct',
-            'lname' => 'Correct',
-        ], 1];
-
-        yield 'Too long fname' => [[
-            'fname' => str_pad('', 256, '_'),
-            'lname' => 'Correct',
-            'username' => 'testuser0',
-        ], 1, [
-            'fname' => [
-                'LengthBetween::TOO_LONG' => 'First Name must be 255 characters or shorter',
-            ],
-        ]];
-
-        yield 'Too short lname' => [[
-            'fname' => 'Correct',
-            'lname' => str_pad('', 1, '_'),
-            'username' => 'testuser0',
-        ], 1, [
-            'lname' => [
-                'LengthBetween::TOO_SHORT' => 'Last Name must be 2 characters or longer',
-            ],
-        ]];
-
-        yield 'Too long lname' => [[
-            'fname' => 'Correct',
-            'lname' => str_pad('', 256, '_'),
-            'username' => 'testuser0',
-        ], 1, [
-            'lname' => [
-                'LengthBetween::TOO_LONG' => 'Last Name must be 255 characters or shorter',
-            ],
-        ]];
-
-        yield 'Invalid email' => [[
-            'fname' => 'Correct',
-            'lname' => 'Correct',
-            'email' => 'invalid@examplecom',
-            'username' => 'testuser0',
-        ], 1, [
-            'email' => [
-                'email' => 'Email invalid@examplecom is not a valid email',
-            ],
-        ]];
-
-        yield 'Too short username' => [[
-            'fname' => 'Correct',
-            'lname' => 'Correct',
-            'username' => str_pad('', 2, '_'),
-        ], 1, [
-            'username' => [
-                'LengthBetween::TOO_SHORT' => 'Username must be 3 characters or longer',
-            ],
-        ]];
-
-        yield 'Too long username' => [[
-            'fname' => 'Correct',
-            'lname' => 'Correct',
-            'username' => str_pad('', 33, '_'),
-        ], 1, [
-            'username' => [
-                'LengthBetween::TOO_LONG' => 'Username must be 32 characters or shorter',
-            ],
-        ]];
-
-        yield 'Too short password' => [[
-            'fname' => 'Correct',
-            'lname' => 'Correct',
-            'username' => 'testuser0',
-            'password' => str_pad('aB1@', 8, '_'),
-        ], 1, [
-            'password' => [
-                'LengthBetween::TOO_SHORT' => 'Password must be 9 characters or longer',
-            ],
-        ]];
-
-        yield 'Too long password' => [[
-            'fname' => 'Correct',
-            'lname' => 'Correct',
-            'username' => 'testuser0',
-            'password' => str_pad('aB1@', 73, '_'),
-        ], 1, [
-            'password' => [
-                'LengthBetween::TOO_LONG' => 'Password must be 72 characters or shorter',
-            ],
-        ]];
-
-        if ((bool) $GLOBALS['secure_password']) {
-            yield 'Not strong password passed' => [[
-                'fname' => 'Correct',
-                'lname' => 'Correct',
-                'username' => 'testuser0',
-                'password' => str_pad('aB', 9, '_'), // Valid length, but missing numerics
-            ], 1, [
-                'password' => [
-                    'Callback::INVALID_VALUE' => 'Password is invalid',
-                ],
-            ]];
-        }
-    }
-
-    /**
-     * Password autogenerated in this case
-     *
-     * @see UserRestController::post()
-     * @see UserService::insert()
-     */
-    #[Test]
-    public function postSucceededMinimalTest(): void
-    {
-        $data = [
-            'fname' => 'Test',
-            'lname' => 'User',
-            'username' => 'testuser1',
-        ];
-        $response = $this->testClient->request('POST', '/apis/default/api/admin/user', [], $data);
-        $this->assertEquals(201, $response->getStatusCode());
-
-        $json = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
-        $this->assertCount(0, $json['validationErrors']);
-        $this->assertCount(0, $json['internalErrors']);
-        $this->assertNotEmpty($json['data']['id']);
-        $this->assertNotEmpty($json['data']['uuid']);
-        $this->assertNotEmpty($json['data']['password']);
-
-        $this->assertCorrectUserPassword($json['data']['password'], $json['data']['id'], $data['username']); // returned === actual
-    }
-
-    /**
-     * Password passed
-     *
-     * @see UserRestController::post()
-     * @see UserService::insert()
-     */
-    #[Test]
-    public function postSucceededMinimalWithPasswordTest(): void
-    {
-        $data = [
-            'fname' => 'Test',
-            'lname' => 'User',
-            'username' => 'testuser2',
-            'password' => 'testUser2Pa$$w0rd',
-        ];
-
-        $response = $this->testClient->request('POST', '/apis/default/api/admin/user', [], $data);
-        $this->assertEquals(201, $response->getStatusCode());
-
-        $json = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
-        $this->assertCount(0, $json['validationErrors']);
-        $this->assertCount(0, $json['internalErrors']);
-        $this->assertNotEmpty($json['data']['id']);
-        $this->assertNotEmpty($json['data']['uuid']);
-        $this->assertNotEmpty($json['data']['password']);
-
-        $this->assertEquals($data['password'], $json['data']['password']); // sent === returned
-        $this->assertCorrectUserPassword($json['data']['password'], $json['data']['id'], $data['username']); // returned === actual
-    }
-
-    /**
-     * @see UserRestController::post()
-     * @see UserService::insert()
-     */
-    #[Test]
-    public function postSucceededFullTest(): void
-    {
-        $data = [
-            'title' => 'Dr.',
-            'fname' => 'Test',
-            'mname' => 'M.',
-            'lname' => 'User',
-            'federaltaxid' => '999-99-9999',
-            'federaldrugid' => 'EF2345678',
-            'upin' => '',
-            'facility_id' => '6',
-            'facility' => 'Harmony Medical Group',
-            'npi' => '1234567890',
-            'email' => 'apatel@example.com',
-            'specialty' => 'Cardiology',
-            'billname' => null,
-            'url' => null,
-            'assistant' => null,
-            'organization' => 'Harmony Medical',
-            'valedictory' => 'MD',
-            'street' => '321 Ocean Blvd',
-            'streetb' => 'Suite 500',
-            'city' => 'Miami',
-            'state' => 'FL',
-            'zip' => '33101',
-            'phone' => '{305} 555-3310',
-            'fax' => '{305} 555-3311',
-            'phonew1' => '{305} 555-3312',
-            'phonecell' => '{305} 555-3313',
-            'notes' => null,
-            'state_license_number' => 'FL778899',
-            'username' => 'testuser3',
-        ];
-
-        $response = $this->testClient->request('POST', '/apis/default/api/admin/user', [], $data);
-        $this->assertEquals(201, $response->getStatusCode());
-
-        $json = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
-        $this->assertCount(0, $json['validationErrors']);
-        $this->assertCount(0, $json['internalErrors']);
-        $this->assertNotEmpty($json['data']['id']);
-        $this->assertNotEmpty($json['data']['uuid']);
-
-        $this->assertCorrectUserPassword($json['data']['password'], $json['data']['id'], $data['username']); // returned === actual
-
-        $response = $this->testClient->request('GET', sprintf('/apis/default/api/admin/user/%s', $json['data']['uuid']));
-        $this->assertEquals(200, $response->getStatusCode());
-
-        $json = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
-        $this->assertCount(0, $json['validationErrors']);
-        $this->assertCount(0, $json['internalErrors']);
-
-        foreach ($data as $fieldName => $value) {
-            $this->assertEquals($value, $json['data'][$fieldName]);
-        }
+        $this->purger->restore();
     }
 
     /**
      * @see UserRestController::getOne()
-     * @see UserService::getUserByUUID()
+     * @see UserService::getOneByUuid()
      */
     #[Test]
     public function getOneTest(): void
     {
-        $record = $this->fixture->getRandomRecord();
-
-        $response = $this->testClient->request('GET', sprintf('/apis/default/api/admin/user/%s', $record['uuid']));
+        $record = $this->getMyUser();
+        $response = $this->testClient->request('GET', sprintf(
+            '/apis/default/api/admin/user/%s',
+            $record['uuid'],
+        ));
         $this->assertEquals(200, $response->getStatusCode());
 
         $json = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
         $this->assertCount(0, $json['validationErrors']);
         $this->assertCount(0, $json['internalErrors']);
-        $this->assertEquals($record['uuid'], $json['data']['uuid']);
 
         foreach ($record as $fieldName => $value) {
             $this->assertEquals($record[$fieldName], $json['data'][$fieldName], sprintf(
@@ -410,6 +146,11 @@ class AdminUserApiTest extends TestCase
 
     public static function getAllDataProvider(): iterable
     {
+        yield 'No search' => [
+            [], // No search parameters
+            7, // 4 existing default users + 3 from fixtures
+        ];
+
         yield 'Search users by First name' => [
             ['fname' => 'Benjamin'],
             1,
@@ -502,8 +243,253 @@ class AdminUserApiTest extends TestCase
     }
 
     /**
+     * @see UserRestController::post()
+     * @see UserService::insert()
+     */
+    #[Test]
+    #[DataProvider('postFailedValidationDataProvider')]
+    public function postFailedValidationTest(
+        array $data,
+        int|array $expectedValidationErrors,
+    ): void {
+        $response = $this->testClient->request('POST', '/apis/default/api/admin/user', [], $data);
+        $this->assertEquals(400, $response->getStatusCode());
+
+        $json = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+
+        if (is_integer($expectedValidationErrors)) {
+            $this->assertCount($expectedValidationErrors, $json['validationErrors']);
+        }
+        $this->assertCount(0, $json['internalErrors']);
+        $this->assertArrayNotHasKey('id', $json['data']);
+        $this->assertArrayNotHasKey('uuid', $json['data']);
+
+        if (is_array($expectedValidationErrors)) {
+            $this->assertEquals($expectedValidationErrors, $json['validationErrors']);
+        }
+    }
+
+    public static function postFailedValidationDataProvider(): iterable
+    {
+        yield 'Empty payload' => [[], 3];
+
+        yield 'One mandatory field provided' => [[
+            'fname' => 'Correct',
+        ], 2];
+
+        yield 'Two mandatory fields provided' => [[
+            'fname' => 'Correct',
+            'lname' => 'Correct',
+        ], 1];
+
+        yield 'Too long fname' => [[
+            'fname' => str_pad('', 256, '_'),
+            'lname' => 'Correct',
+            'username' => 'testuser0',
+        ], 1, [
+            'fname' => [
+                'LengthBetween::TOO_LONG' => 'First Name must be 255 characters or shorter',
+            ],
+        ]];
+
+        yield 'Too short lname' => [[
+            'fname' => 'Correct',
+            'lname' => str_pad('', 1, '_'),
+            'username' => 'testuser0',
+        ], 1, [
+            'lname' => [
+                'LengthBetween::TOO_SHORT' => 'Last Name must be 2 characters or longer',
+            ],
+        ]];
+
+        yield 'Too long lname' => [[
+            'fname' => 'Correct',
+            'lname' => str_pad('', 256, '_'),
+            'username' => 'testuser0',
+        ], 1, [
+            'lname' => [
+                'LengthBetween::TOO_LONG' => 'Last Name must be 255 characters or shorter',
+            ],
+        ]];
+
+        yield 'Invalid email' => [[
+            'fname' => 'Correct',
+            'lname' => 'Correct',
+            'email' => 'invalid@examplecom',
+            'username' => 'testuser0',
+        ], 1, [
+            'email' => [
+                'Email::INVALID' => 'Email invalid@examplecom is not a valid email',
+            ],
+        ]];
+
+        yield 'Too short username' => [[
+            'fname' => 'Correct',
+            'lname' => 'Correct',
+            'username' => str_pad('', 2, '_'),
+        ], 1, [
+            'username' => [
+                'LengthBetween::TOO_SHORT' => 'Username must be 3 characters or longer',
+            ],
+        ]];
+
+        yield 'Too long username' => [[
+            'fname' => 'Correct',
+            'lname' => 'Correct',
+            'username' => str_pad('', 33, '_'),
+        ], 1, [
+            'username' => [
+                'LengthBetween::TOO_LONG' => 'Username must be 32 characters or shorter',
+            ],
+        ]];
+
+        yield 'Too short password' => [[
+            'fname' => 'Correct',
+            'lname' => 'Correct',
+            'username' => 'testuser0',
+            'password' => str_pad('aB1@', 8, '_'),
+        ], 1, [
+            'password' => [
+                'Password::TOO_WEAK' => 'Provided password is too weak'
+            ],
+        ]];
+
+        yield 'Too long password' => [[
+            'fname' => 'Correct',
+            'lname' => 'Correct',
+            'username' => 'testuser0',
+            'password' => str_pad('aB1@', 73, '_'),
+        ], 1, [
+            'password' => [
+                'LengthBetween::TOO_LONG' => 'Password must be 72 characters or shorter',
+            ],
+        ]];
+
+        if ((bool) $GLOBALS['secure_password']) {
+            yield 'Not strong password passed' => [[
+                'fname' => 'Correct',
+                'lname' => 'Correct',
+                'username' => 'testuser0',
+                'password' => str_pad('aB', 9, '_'), // Valid length, but missing numerics
+            ], 1, [
+                'password' => [
+                    'Callback::INVALID_VALUE' => 'Password is invalid',
+                ],
+            ]];
+        }
+    }
+
+    /**
+     * Password autogenerated in this case
+     *
+     * @see UserRestController::post()
+     * @see UserService::insert()
+     */
+    #[Test]
+    #[DataProvider('postSucceededDataProvider')]
+    public function postSucceededTest(array $data): void
+    {
+        $response = $this->testClient->request('POST', '/apis/default/api/admin/user', [], $data);
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $json = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+        $this->assertCount(0, $json['validationErrors']);
+        $this->assertCount(0, $json['internalErrors']);
+        $this->assertNotEmpty($json['data']['id']);
+        $this->assertNotEmpty($json['data']['uuid']);
+        $this->assertNotEmpty($json['data']['username']);
+        $this->assertNotEmpty($json['data']['password']);
+
+        $this->assertEquals($data['username'], $json['data']['username']); // sent === returned
+
+        if (isset($data['password'])) {
+            $this->assertEquals($data['password'], $json['data']['password']); // sent === returned
+            $this->assertCorrectUserPassword($data['password'], $json['data']); // returned === actual
+        }
+
+        $response = $this->testClient->request('GET', sprintf('/apis/default/api/admin/user/%s', $json['data']['uuid']));
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $json = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+        $this->assertCount(0, $json['validationErrors']);
+        $this->assertCount(0, $json['internalErrors']);
+
+        foreach ($data as $fieldName => $value) {
+            if ('password' === $fieldName) {
+                continue; // We omit password checking here, as it was checked proper way before
+            }
+
+            $this->assertEquals($value, $json['data'][$fieldName]);
+        }
+    }
+
+    /**
+     * @see UserRestController::patch()
+     * @see UserService::patch()
+     */
+    #[Test]
+    #[DataProvider('patchFailedValidationDataProvider')]
+    public function patchFailedValidationTest(
+        array $data,
+        int $expectedValidationErrorsCount,
+        ?array $expectedValidationErrors = null,
+    ): void {
+        $uuid = $this->getMyUuid();
+        $response = $this->testClient->request('PATCH', sprintf('/apis/default/api/admin/user/%s', $uuid), [], $data);
+        $this->assertEquals(400, $response->getStatusCode());
+
+        $json = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+        $this->assertCount($expectedValidationErrorsCount, $json['validationErrors']);
+        $this->assertCount(0, $json['internalErrors']);
+        $this->assertArrayNotHasKey('id', $json['data']);
+        $this->assertArrayNotHasKey('uuid', $json['data']);
+
+        if (null !== $expectedValidationErrors) {
+            $this->assertEquals($expectedValidationErrors, $json['validationErrors']);
+        }
+    }
+
+    /**
+     * @see UserRestController::patch()
+     * @see UserService::patch()
+     */
+    #[Test]
+    #[DataProvider('patchSucceededDataProvider')]
+    public function patchSucceededTest(array $data): void
+    {
+        $uuid = $this->getMyUuid();
+        $response = $this->testClient->request('PATCH', sprintf('/apis/default/api/admin/user/%s', $uuid), [], $data);
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $json = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+        $this->assertCount(0, $json['validationErrors']);
+        $this->assertCount(0, $json['internalErrors']);
+
+        $this->assertValidUser($json['data']);
+
+        if (isset($data['password'])) {
+            $this->assertCorrectUserPassword($data['password'], $json['data']);
+        }
+
+        $response = $this->testClient->request('GET', sprintf('/apis/default/api/admin/user/%s', $uuid));
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $json = json_decode($response->getBody()->getContents(), true, 512, \JSON_THROW_ON_ERROR);
+        $this->assertCount(0, $json['validationErrors']);
+        $this->assertCount(0, $json['internalErrors']);
+
+        foreach ($data as $fieldName => $value) {
+            if ('password' === $fieldName) {
+                continue;
+            }
+
+            $this->assertEquals($value, $json['data'][$fieldName]);
+        }
+    }
+
+    /**
      * @see UserRestController::delete()
-     * @see UserService::deleteByUuid()
+     * @see UserService::deleteOneByUuid()
      */
     #[Test]
     #[DataProvider('deleteFailedDataProvider')]
@@ -511,7 +497,7 @@ class AdminUserApiTest extends TestCase
         string $uuid,
         int $expectedValidationErrorsCount,
         ?array $expectedValidationErrors = null,
-        int $expectedStatusCode = 400
+        int $expectedStatusCode = 400,
     ): void {
         $response = $this->testClient->request('DELETE', sprintf('/apis/default/api/admin/user/%s', $uuid));
         $this->assertEquals($expectedStatusCode, $response->getStatusCode());
@@ -539,9 +525,11 @@ class AdminUserApiTest extends TestCase
     #[Test]
     public function deleteSucceededTest(): void
     {
-        $record = $this->fixture->getRandomRecord();
+        $response = $this->testClient->request('DELETE', sprintf(
+            '/apis/default/api/admin/user/%s',
+            $this->getMyUuid(),
+        ));
 
-        $response = $this->testClient->request('DELETE', sprintf('/apis/default/api/admin/user/%s', $record['uuid']));
         $this->assertEquals(200, $response->getStatusCode());
     }
 }

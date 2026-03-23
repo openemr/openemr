@@ -25,6 +25,7 @@ use Webmozart\Assert\InvalidArgumentException;
  * Usage:
  *   $userId = AuthorizedUserRetriever::getInstance()->getAuthorizedUserIdFromRequest($request);
  *   $user = AuthorizedUserRetriever::getInstance()->getAuthorizedUserFromRequest($request);
+ *   $uuid = AuthorizedUserRetriever::getInstance()->getAuthorizedUserUuidFromRequest($request);
  *
  * @phpstan-import-type TUser from UserRepository
  */
@@ -71,5 +72,13 @@ class AuthorizedUserRetriever
         return $this->userRepository->find(
             $this->getAuthorizedUserIdFromRequest($request),
         );
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function getAuthorizedUserUuidFromRequest(HttpRestRequest $request): string
+    {
+        return $this->getAuthorizedUserFromRequest($request)['uuid'];
     }
 }

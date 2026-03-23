@@ -29,7 +29,7 @@ use LogicException;
 trait KeyAwareSingletonTrait
 {
     /** @var array<class-string<static>, array<TKey, static>> */
-    private static array $instances = [];
+    protected static array $instances = [];
 
     final public function __clone()
     {
@@ -45,7 +45,7 @@ trait KeyAwareSingletonTrait
     public static function getInstanceByKey($key): static
     {
         if (!isset(static::$instances[static::class][$key])) {
-            self::$instances[static::class][$key] = static::createInstance($key);
+            static::$instances[static::class][$key] = static::createInstance($key);
         }
 
         return static::$instances[static::class][$key];

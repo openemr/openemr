@@ -20,6 +20,7 @@ use OpenEMR\Common\Database\Exception\DatabaseQueryException;
 use OpenEMR\Common\Database\Exception\DatabaseResultException;
 use OpenEMR\Common\Database\Exception\NonUniqueDatabaseResultException;
 use OpenEMR\Common\Database\Exception\NoResultDatabaseResultException;
+use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Traits\SingletonTrait;
 use Webmozart\Assert\InvalidArgumentException;
 use Webmozart\Assert\Assert;
@@ -34,8 +35,9 @@ class DatabaseManager
 
     protected static function createInstance(): static
     {
+        $globals = OEGlobalsBag::getInstance();
         return new self(
-            $GLOBALS['adodb']['db'],
+            $globals->get('adodb')['db'],
         );
     }
 
@@ -53,7 +55,10 @@ class DatabaseManager
      */
     public function insert(string $table, array $data): int
     {
-        Assert::minCount($data, 1);
+        Assert::minCount($data, 1, sprintf(
+            'Data passed to %s can not be empty',
+            __METHOD__,
+        ));
 
         return $this->getLastInsertId(
             sprintf(
@@ -77,7 +82,10 @@ class DatabaseManager
      */
     public function update(string $table, array $data, array $condition): int
     {
-        Assert::minCount($data, 1);
+        Assert::minCount($data, 1, sprintf(
+            'Data passed to %s can not be empty',
+            __METHOD__,
+        ));
 
         return $this->getAffectedRows(
             trim(sprintf(
@@ -359,6 +367,26 @@ class DatabaseManager
 
     /**
      * @throws DatabaseQueryException
+     * @throws NoResultDatabaseResultException
+     * @throws NonUniqueDatabaseResultException
+     */
+    public function getOneResult(string $statement, array $binds = []): array
+    {
+        $recordset = $this->execute($statement, $binds);
+
+        if (0 === $recordset->NumRows()) {
+            throw new NoResultDatabaseResultException($statement);
+        }
+
+        if ($recordset->NumRows() > 1) {
+            throw new NonUniqueDatabaseResultException($statement);
+        }
+
+        return $recordset->FetchRow();
+    }
+
+    /**
+     * @throws DatabaseQueryException
      * @throws NonUniqueDatabaseResultException
      */
     public function getOneOrNullResult(string $statement, array $binds = []): null|array
@@ -384,12 +412,12 @@ class DatabaseManager
      * @throws NonUniqueDatabaseResultException
      * @throws DatabaseResultException
      */
-    public function getSingleScalarResult(string $statement, array $binds = [], int|string|null $default = null): int|string|null
+    public function getSingleScalarResult(string $statement, array $binds = [], null|int|string $default = null): null|int|string
     {
         $recordset = $this->execute($statement, $binds);
 
         if (0 === $recordset->NumRows()) {
-            throw new NoResultDatabaseResultException($statement);
+            return $default;
         }
 
         if ($recordset->NumRows() > 1) {

@@ -6,6 +6,835 @@ servers:
   -
     url: /apis/default/
 paths:
+  /api/admin/acl/group:
+    get:
+      tags:
+        - standard
+        - admin
+        - ACL
+      description: 'Retrieves a list of ACL Groups'
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  /api/admin/acl/group/setting:
+    get:
+      tags:
+        - standard
+        - admin
+        - acl
+        - group
+        - setting
+      description: 'Retrieves a list of all ACL Group Settings'
+      responses:
+        200:
+          $ref: '#/components/responses/api_admin_acl_group_setting_response'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/api/admin/acl/group/setting/{sectionId}':
+    get:
+      tags:
+        - standard
+        - admin
+        - acl
+        - group
+        - setting
+      description: 'Retrieves a list of ACL Group Settings by Section ID'
+      parameters:
+        -
+          name: sectionId
+          in: path
+          description: 'Section ID.'
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/api_admin_acl_group_setting_response'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/api/admin/acl/group/{groupId}/member':
+    get:
+      tags:
+        - standard
+        - admin
+        - ACL
+      description: 'Retrieves a list of Group Members - Users'
+      parameters:
+        -
+          name: groupId
+          in: path
+          description: 'Group ID.'
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+    post:
+      tags:
+        - standard
+        - admin
+        - ACL
+      description: 'Add Member (User) to Group'
+      parameters:
+        -
+          name: groupId
+          in: path
+          description: 'Group ID.'
+          required: true
+          schema:
+            type: string
+        -
+          name: userId
+          in: path
+          description: 'User ID.'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_group_member_request'
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/api/admin/acl/group/{groupId}/member/{userId}':
+    delete:
+      tags:
+        - standard
+        - admin
+        - ACL
+      description: 'Delete a Group Member (User) by ID'
+      parameters:
+        -
+          name: groupId
+          in: path
+          description: 'Group ID.'
+          required: true
+          schema:
+            type: string
+        -
+          name: userId
+          in: path
+          description: 'User ID.'
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/api/admin/acl/group/{id}':
+    delete:
+      tags:
+        - standard
+        - admin
+        - ACL
+      description: 'Delete an ACL Group by ID'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Group ID.'
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+    get:
+      tags:
+        - standard
+        - admin
+        - ACL
+      description: 'Retrieves a single ACL Group details by ID'
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'Group ID.'
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  /api/admin/acl/section:
+    get:
+      tags:
+        - standard
+        - admin
+        - acl
+        - section
+      description: 'Retrieves a list of ACL Sections'
+      responses:
+        200:
+          $ref: '#/components/responses/api_admin_acl_section_response'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  /api/admin/acl/user/setting:
+    get:
+      tags:
+        - standard
+        - admin
+        - acl
+        - user
+        - setting
+      description: 'Retrieves a list of all ACL User Settings'
+      responses:
+        200:
+          $ref: '#/components/responses/api_admin_acl_user_setting_response'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/api/admin/acl/user/setting/{sectionId}':
+    get:
+      tags:
+        - standard
+        - admin
+        - acl
+        - user
+        - setting
+      description: 'Retrieves a list of ACL User Settings by Section ID'
+      parameters:
+        -
+          name: sectionId
+          in: path
+          description: 'Section ID.'
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/api_admin_acl_user_setting_response'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  /api/admin/global-setting:
+    get:
+      tags:
+        - standard
+        - admin
+        - global-setting
+      description: 'Retrieves a list of all Global Settings'
+      responses:
+        200:
+          $ref: '#/components/responses/api_standard_setting_response'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  /api/admin/global-setting/section:
+    get:
+      tags:
+        - standard
+        - admin
+        - global-setting
+      description: 'Retrieves a list of All Global Setting Sections'
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/api/admin/global-setting/{section}':
+    get:
+      tags:
+        - standard
+        - admin
+        - global-setting
+      description: 'Retrieves a list of all Global Settings by Section'
+      responses:
+        200:
+          $ref: '#/components/responses/api_standard_setting_response'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+    put:
+      tags:
+        - standard
+        - admin
+        - user
+        - setting
+      description: "Set Given User Section's Settings to given values"
+      parameters:
+        -
+          name: userId
+          in: path
+          description: 'User ID.'
+          required: true
+          schema:
+            type: string
+        -
+          name: section
+          in: path
+          description: Section.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_standard_setting_put_request'
+      responses:
+        200:
+          $ref: '#/components/responses/api_standard_setting_response'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/api/admin/global-setting/{section}/reset':
+    post:
+      tags:
+        - standard
+        - admin
+        - setting
+      description: 'Resets All Global Settings to Defaults by Section'
+      parameters:
+        -
+          name: section
+          in: path
+          description: Section.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/api_standard_setting_response'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/api/admin/global-setting/{section}/{key}':
+    get:
+      tags:
+        - standard
+        - admin
+        - global-setting
+      description: 'Returns Global Setting Value by Key'
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/api/admin/global-setting/{section}/{key}/reset':
+    post:
+      tags:
+        - standard
+        - admin
+        - global-setting
+      description: 'Resets Global Setting to Default Value by Setting Key'
+      parameters:
+        -
+          name: section
+          in: path
+          description: Section.
+          required: true
+          schema:
+            type: string
+        -
+          name: key
+          in: path
+          description: 'Setting Key.'
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  /api/admin/user:
+    get:
+      tags:
+        - standard
+        - admin
+      description: 'Retrieves a list of users'
+      parameters:
+        -
+          $ref: '#/components/parameters/api_standard_user_title'
+        -
+          $ref: '#/components/parameters/api_standard_user_fname'
+        -
+          $ref: '#/components/parameters/api_standard_user_lname'
+        -
+          $ref: '#/components/parameters/api_standard_user_mname'
+        -
+          $ref: '#/components/parameters/api_standard_user_username'
+        -
+          $ref: '#/components/parameters/api_standard_user_email'
+        -
+          $ref: '#/components/parameters/api_standard_user_federaltaxid'
+        -
+          $ref: '#/components/parameters/api_standard_user_federaldrugid'
+        -
+          $ref: '#/components/parameters/api_standard_user_upin'
+        -
+          $ref: '#/components/parameters/api_standard_user_facility_id'
+        -
+          $ref: '#/components/parameters/api_standard_user_facility'
+        -
+          $ref: '#/components/parameters/api_standard_user_npi'
+        -
+          $ref: '#/components/parameters/api_standard_user_specialty'
+        -
+          $ref: '#/components/parameters/api_standard_user_billname'
+        -
+          $ref: '#/components/parameters/api_standard_user_url'
+        -
+          $ref: '#/components/parameters/api_standard_user_assistant'
+        -
+          $ref: '#/components/parameters/api_standard_user_organization'
+        -
+          $ref: '#/components/parameters/api_standard_user_valedictory'
+        -
+          $ref: '#/components/parameters/api_standard_user_street'
+        -
+          $ref: '#/components/parameters/api_standard_user_streetb'
+        -
+          $ref: '#/components/parameters/api_standard_user_city'
+        -
+          $ref: '#/components/parameters/api_standard_user_state'
+        -
+          $ref: '#/components/parameters/api_standard_user_zip'
+        -
+          $ref: '#/components/parameters/api_standard_user_phone'
+        -
+          $ref: '#/components/parameters/api_standard_user_fax'
+        -
+          $ref: '#/components/parameters/api_standard_user_phonew1'
+        -
+          $ref: '#/components/parameters/api_standard_user_phonecell'
+        -
+          $ref: '#/components/parameters/api_standard_user_notes'
+        -
+          $ref: '#/components/parameters/api_standard_user_state_license_number2'
+      responses:
+        200:
+          $ref: '#/components/responses/api_standard_user_get_all_response'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          bearer: {  }
+    post:
+      tags:
+        - standard
+        - admin
+      description: 'Creates a new user'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_standard_user_post_request'
+      responses:
+        201:
+          $ref: '#/components/responses/api_standard_user_post_patch_response'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          bearer: {  }
+  /api/admin/user/setting/section:
+    get:
+      tags:
+        - standard
+        - admin
+        - user
+        - setting
+        - setting-section
+      description: 'Retrieves a list of User-specific Setting Sections'
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/api/admin/user/{userId}/setting':
+    get:
+      tags:
+        - standard
+        - user
+        - setting
+      description: "Retrieves a list of all Given User's Settings"
+      parameters:
+        -
+          name: userId
+          in: path
+          description: 'User ID.'
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/api_standard_setting_response'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/api/admin/user/{userId}/setting/{section}':
+    get:
+      tags:
+        - standard
+        - admin
+        - acl
+        - user
+        - setting
+      description: "Retrieves a list of Given User's Settings by Section"
+      parameters:
+        -
+          name: userId
+          in: path
+          description: 'User ID.'
+          required: true
+          schema:
+            type: string
+        -
+          name: section
+          in: path
+          description: Section.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/api_standard_setting_response'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+    put:
+      tags:
+        - standard
+        - admin
+        - user
+        - setting
+      description: "Set Given User Section's Settings to given values"
+      parameters:
+        -
+          name: userId
+          in: path
+          description: 'User ID.'
+          required: true
+          schema:
+            type: string
+        -
+          name: section
+          in: path
+          description: Section.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_standard_setting_put_request'
+      responses:
+        200:
+          $ref: '#/components/responses/api_standard_setting_response'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/api/admin/user/{userId}/setting/{section}/reset':
+    post:
+      tags:
+        - standard
+        - admin
+        - user
+        - setting
+      description: "Resets All Given User's Settings to Defaults"
+      parameters:
+        -
+          name: userId
+          in: path
+          description: 'User ID.'
+          required: true
+          schema:
+            type: string
+        -
+          name: section
+          in: path
+          description: Section.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/api_standard_setting_response'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/api/admin/user/{userId}/setting/{section}/{key}':
+    get:
+      tags:
+        - standard
+        - admin
+        - user
+        - setting
+      description: "Returns Given User's Setting Value by Key"
+      parameters:
+        -
+          name: userId
+          in: path
+          description: 'User ID.'
+          required: true
+          schema:
+            type: string
+        -
+          name: section
+          in: path
+          description: Section.
+          required: true
+          schema:
+            type: string
+        -
+          name: key
+          in: path
+          description: 'Setting Key.'
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/api/admin/user/{userId}/setting/{section}/{key}/reset':
+    post:
+      tags:
+        - standard
+        - admin
+        - user
+        - setting
+      description: "Resets Given User's Setting to Default Value by Setting Key"
+      parameters:
+        -
+          name: userId
+          in: path
+          description: 'User ID.'
+          required: true
+          schema:
+            type: string
+        -
+          name: section
+          in: path
+          description: Section.
+          required: true
+          schema:
+            type: string
+        -
+          name: key
+          in: path
+          description: 'Setting Key.'
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/api/admin/user/{uuid}':
+    delete:
+      tags:
+        - standard
+        - admin
+      description: 'Delete an user'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The UUID of the user.'
+          required: true
+          schema: string
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          bearer: {  }
+    get:
+      tags:
+        - standard
+        - admin
+      description: 'Retrieves a single user by uuid'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid of the user.'
+          required: true
+          schema: string
+      responses:
+        200:
+          $ref: '#/components/responses/api_standard_user_get_one_response'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          bearer: {  }
+    patch:
+      tags:
+        - standard
+        - user
+      description: 'Update user'
+      parameters:
+        -
+          name: uuid
+          in: path
+          description: 'The uuid of the user.'
+          required: true
+          schema: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_standard_user_patch_request'
+      responses:
+        200:
+          $ref: '#/components/responses/api_standard_user_post_patch_response'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          bearer: {  }
   /api/allergy:
     get:
       tags:
@@ -3852,220 +4681,174 @@ paths:
       security:
         -
           openemr_auth: {  }
-  /api/user:
+  /api/user/me:
     get:
       tags:
         - standard
-      description: 'Retrieves a list of users'
+        - user
+      description: 'Retrieves single logged in user'
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          bearer: {  }
+    patch:
+      tags:
+        - standard
+        - user
+      description: 'Update logged in user'
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          bearer: {  }
+  /api/user/setting:
+    get:
+      tags:
+        - standard
+        - user
+        - setting
+      description: "Retrieves a list of all Authorized User's Settings"
+      responses:
+        200:
+          $ref: '#/components/responses/api_standard_setting_response'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  /api/user/setting/section:
+    get:
+      tags:
+        - standard
+        - user
+        - setting
+      description: "Retrieves a list of all Authorized User's Setting Sections"
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/api/user/setting/{section}':
+    get:
+      tags:
+        - standard
+        - admin
+        - acl
+        - user
+        - setting
+      description: "Retrieves a list of Authorized User's Settings by Section"
       parameters:
         -
-          name: id
-          in: query
-          description: 'The id for the user.'
-          required: false
+          name: section
+          in: path
+          description: Section.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/api_standard_setting_response'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+    put:
+      tags:
+        - standard
+        - user
+        - setting
+      description: "Set Authorized User Section's Settings to given values"
+      parameters:
+        -
+          name: section
+          in: path
+          description: Section.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/api_standard_setting_put_request'
+      responses:
+        200:
+          $ref: '#/components/responses/api_standard_setting_response'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/api/user/setting/{section}/reset':
+    post:
+      tags:
+        - standard
+        - user
+        - setting
+      description: "Resets All Authorized User's Settings to Defaults"
+      parameters:
+        -
+          name: section
+          in: path
+          description: Section.
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/api_standard_setting_response'
+        400:
+          $ref: '#/components/responses/badrequest'
+        401:
+          $ref: '#/components/responses/unauthorized'
+      security:
+        -
+          openemr_auth: {  }
+  '/api/user/setting/{section}/{key}':
+    get:
+      tags:
+        - standard
+        - admin
+        - user
+        - setting
+      description: "Returns Authorized User's Setting Value by Key"
+      parameters:
+        -
+          name: section
+          in: path
+          description: Section.
+          required: true
           schema:
             type: string
         -
-          name: title
-          in: query
-          description: 'The title for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: fname
-          in: query
-          description: 'The first name for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: lname
-          in: query
-          description: 'The last name for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: mname
-          in: query
-          description: 'The middle name for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: federaltaxid
-          in: query
-          description: 'The federal tax id for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: federaldrugid
-          in: query
-          description: 'The federal drug id for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: upin
-          in: query
-          description: 'The upin for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: facility_id
-          in: query
-          description: 'The facility id for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: facility
-          in: query
-          description: 'The facility for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: npi
-          in: query
-          description: 'The npi for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: email
-          in: query
-          description: 'The email for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: specialty
-          in: query
-          description: 'The specialty for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: billname
-          in: query
-          description: 'The billname for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: url
-          in: query
-          description: 'The url for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: assistant
-          in: query
-          description: 'The assistant for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: organization
-          in: query
-          description: 'The organization for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: valedictory
-          in: query
-          description: 'The valedictory for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: street
-          in: query
-          description: 'The street for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: streetb
-          in: query
-          description: 'The street (line 2) for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: city
-          in: query
-          description: 'The city for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: state
-          in: query
-          description: 'The state for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: zip
-          in: query
-          description: 'The zip for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: phone
-          in: query
-          description: 'The phone for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: fax
-          in: query
-          description: 'The fax for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: phonew1
-          in: query
-          description: 'The phonew1 for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: phonecell
-          in: query
-          description: 'The phonecell for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: notes
-          in: query
-          description: 'The notes for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: state_license_number2
-          in: query
-          description: 'The state license number for the user.'
-          required: false
-          schema:
-            type: string
-        -
-          name: username
-          in: query
-          description: 'The username for the user.'
-          required: false
+          name: key
+          in: path
+          description: 'Setting Key.'
+          required: true
           schema:
             type: string
       responses:
@@ -4078,16 +4861,25 @@ paths:
       security:
         -
           openemr_auth: {  }
-  '/api/user/{uuid}':
-    get:
+  '/api/user/setting/{section}/{key}/reset':
+    post:
       tags:
         - standard
-      description: 'Retrieves a single user by their uuid'
+        - user
+        - setting
+      description: "Resets Authorized User's Setting to Default Value by Setting Key"
       parameters:
         -
-          name: uuid
+          name: section
           in: path
-          description: 'The uuid for the user.'
+          description: Section.
+          required: true
+          schema:
+            type: string
+        -
+          name: key
+          in: path
+          description: 'Setting Key.'
           required: true
           schema:
             type: string
@@ -9009,22 +9801,254 @@ components:
       required: false
       schema:
         type: string
+    api_standard_user_assistant:
+      name: assistant
+      in: query
+      description: 'The assistant for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_billname:
+      name: billname
+      in: query
+      description: 'The billname for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_city:
+      name: city
+      in: query
+      description: 'The city for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_email:
+      name: email
+      in: query
+      description: 'The email for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_facility:
+      name: facility
+      in: query
+      description: 'The facility for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_facility_id:
+      name: facility_id
+      in: query
+      description: 'The facility id for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_fax:
+      name: fax
+      in: query
+      description: 'The fax for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_federaldrugid:
+      name: federaldrugid
+      in: query
+      description: 'The federal drug id for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_federaltaxid:
+      name: federaltaxid
+      in: query
+      description: 'The federal tax id for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_fname:
+      name: fname
+      in: query
+      description: 'The first name for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_lname:
+      name: lname
+      in: query
+      description: 'The last name for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_mname:
+      name: mname
+      in: query
+      description: 'The middle name for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_notes:
+      name: notes
+      in: query
+      description: 'The notes for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_npi:
+      name: npi
+      in: query
+      description: 'The npi for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_organization:
+      name: organization
+      in: query
+      description: 'The organization for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_phone:
+      name: phone
+      in: query
+      description: 'The phone for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_phonecell:
+      name: phonecell
+      in: query
+      description: 'The phonecell for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_phonew1:
+      name: phonew1
+      in: query
+      description: 'The phonew1 for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_specialty:
+      name: specialty
+      in: query
+      description: 'The specialty for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_state:
+      name: state
+      in: query
+      description: 'The state for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_state_license_number2:
+      name: state_license_number2
+      in: query
+      description: 'The state license number for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_street:
+      name: street
+      in: query
+      description: 'The street for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_streetb:
+      name: streetb
+      in: query
+      description: 'The street (line 2) for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_title:
+      name: title
+      in: query
+      description: 'The title for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_upin:
+      name: upin
+      in: query
+      description: 'The upin for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_url:
+      name: url
+      in: query
+      description: 'The url for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_username:
+      name: username
+      in: query
+      description: 'The username for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_valedictory:
+      name: valedictory
+      in: query
+      description: 'The valedictory for the user.'
+      required: false
+      schema:
+        type: string
+    api_standard_user_zip:
+      name: zip
+      in: query
+      description: 'The zip for the user.'
+      required: false
+      schema:
+        type: string
   responses:
-    badrequest:
-      description: 'Bad Request'
+    api_admin_acl_group_response:
+      description: 'Sections List Response'
       content:
         application/json:
           schema:
             properties:
               validationErrors:
                 description: 'Validation errors.'
-                type: object
+                type: array
+                items:
+                  type: object
+              internalErrors:
+                description: 'Internal errors.'
+                type: array
+                items:
+                  type: object
+              data:
+                description: 'Returned data.'
+                type: array
+                items:
+                  properties:
+                    id:
+                      description: 'Group ID'
+                      type: integer
+                    parent_id:
+                      description: 'Parent Group ID'
+                      type: integer
+                    name:
+                      description: 'Group Name'
+                      type: string
+                    value:
+                      description: 'Group Value'
+                      type: string
+                  type: object
             type: object
             example:
-              validationErrors:
-                _id: 'The search field argument was invalid, improperly formatted, or could not be parsed.  Inner message: UUID columns must be a valid UUID string'
-    standard:
-      description: 'Standard Response'
+              validationErrors: {  }
+              internalErrors: {  }
+              data:
+                parent_id: 10
+                name: Testers
+                value: testers
+    api_admin_acl_group_setting_response:
+      description: 'ACL Group Setting List Response'
       content:
         application/json:
           schema:
@@ -9047,7 +10071,209 @@ components:
             type: object
             example:
               validationErrors: {  }
-              error_description: {  }
+              internalErrors: {  }
+              data:
+                group_id: 11
+                section_id: 1
+                allowed: 1
+    api_admin_acl_section_response:
+      description: 'Sections List Response'
+      content:
+        application/json:
+          schema:
+            properties:
+              validationErrors:
+                description: 'Validation errors.'
+                type: array
+                items:
+                  type: object
+              internalErrors:
+                description: 'Internal errors.'
+                type: array
+                items:
+                  type: object
+              data:
+                description: 'Returned data.'
+                type: array
+                items:
+                  type: object
+            type: object
+            example:
+              validationErrors: {  }
+              internalErrors: {  }
+              data:
+                parent_section: 0
+                section_id: 1
+                section_identifier: immunization
+                section_name: Immunization
+                module_id: 0
+    api_admin_acl_user_setting_response:
+      description: 'ACL User Setting List Response'
+      content:
+        application/json:
+          schema:
+            properties:
+              validationErrors:
+                description: 'Validation errors.'
+                type: array
+                items:
+                  type: object
+              internalErrors:
+                description: 'Internal errors.'
+                type: array
+                items:
+                  type: object
+              data:
+                description: 'Returned data.'
+                type: array
+                items:
+                  type: object
+            type: object
+            example:
+              validationErrors: {  }
+              internalErrors: {  }
+              data:
+                user_id: 11
+                section_id: 1
+                allowed: 1
+    api_standard_setting_response:
+      description: 'Setting List Response'
+      content:
+        application/json:
+          schema:
+            properties:
+              validationErrors:
+                description: 'Validation errors.'
+                type: array
+                items:
+                  type: object
+              internalErrors:
+                description: 'Internal errors.'
+                type: array
+                items:
+                  type: object
+              data:
+                description: 'Returned data.'
+                type: array
+                items:
+                  type: object
+            type: object
+            example:
+              validationErrors: {  }
+              internalErrors: {  }
+              data:
+                setting_section: ''
+    api_standard_user_get_all_response:
+      description: 'Get all user response'
+      content:
+        application/json:
+          schema:
+            properties:
+              validationErrors:
+                type: array
+                items:
+                  type: object
+              internalErrors:
+                type: array
+                items:
+                  type: object
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/api_standard_user_common_response_data'
+            type: object
+            example:
+              validationErrors: {  }
+              internalErrors: {  }
+              data:
+                -
+                  id: 1
+                  uuid: 90cde167-7b9b-4ed1-bd55-533925cb2605
+                  username: admin
+    api_standard_user_get_one_response:
+      description: 'Get one user response'
+      content:
+        application/json:
+          schema:
+            properties:
+              validationErrors:
+                type: array
+                items:
+                  type: object
+              internalErrors:
+                type: array
+                items:
+                  type: object
+              data:
+                $ref: '#/components/schemas/api_standard_user_common_response_data'
+            type: object
+            example:
+              validationErrors: {  }
+              internalErrors: {  }
+              data:
+                id: 1
+                uuid: 90cde167-7b9b-4ed1-bd55-533925cb2605
+                username: admin
+    api_standard_user_post_patch_response:
+      description: 'Created/updated user response'
+      content:
+        application/json:
+          schema:
+            properties:
+              validationErrors:
+                type: array
+                items:
+                  type: object
+              internalErrors:
+                type: array
+                items:
+                  type: object
+              data:
+                $ref: '#/components/schemas/api_standard_user_post_patch_response_data'
+            type: object
+            example:
+              validationErrors: {  }
+              internalErrors: {  }
+              data:
+                id: 1
+                uuid: 90cde167-7b9b-4ed1-bd55-533925cb2605
+                username: test
+                password: 55006c9b20ba100a
+    badrequest:
+      description: 'Bad Request'
+      content:
+        application/json:
+          schema:
+            properties:
+              validationErrors:
+                description: 'Validation errors.'
+                type: object
+            type: object
+            example:
+              validationErrors:
+                _id: 'The search field argument was invalid, improperly formatted, or could not be parsed.  Inner message: UUID columns must be a valid UUID string'
+    standard:
+      description: 'Standard Response'
+      content:
+        application/json:
+          schema:
+            properties:
+              validationErrors:
+                type: array
+                items:
+                  type: object
+              internalErrors:
+                type: array
+                items:
+                  type: object
+              data:
+                type: array
+                items:
+                  type: object
+            type: object
+            example:
+              validationErrors: {  }
+              internalErrors: {  }
               data: {  }
     unauthorized:
       description: Unauthorized
@@ -9085,6 +10311,25 @@ components:
             type: object
             example: {  }
   schemas:
+    api_admin_acl_group_request:
+      required:
+        - name
+        - value
+      properties:
+        parent_id:
+          description: 'Parent Group ID. Fallbacks to Root Group ID if not provided.'
+          type: string
+        name:
+          description: 'Group Name.'
+          type: string
+        value:
+          description: 'Group Value.'
+          type: string
+      type: object
+      example:
+        parent_id: 10
+        name: Testers
+        value: testers
     api_allergy_request:
       description: 'Schema for the allergy request'
       required:
@@ -9319,6 +10564,20 @@ components:
           class_title: ambulatory
           pc_catname: 'Office Visit'
           billing_facility_name: 'Owerri General Hospital'
+    api_group_member_request:
+      description: 'Schema for the group request'
+      required: {  }
+      properties:
+        order:
+          description: 'Member sort order. Optional. 0 by default.'
+          type: integer
+        hidden:
+          description: 'Is Member hidden? Optional. False by defailt.'
+          type: boolean
+      type: object
+      example:
+        order: 0
+        hidden: false
     api_insurance_company_request:
       description: 'Schema for the insurance_company request'
       required:
@@ -9810,6 +11069,187 @@ components:
         objective: 'The patient with finger laceration on exam.'
         assessment: 'The patient with finger laceration requiring sutures.'
         plan: 'Sutured finger laceration.'
+    api_standard_setting_put_request:
+      description: 'Setting PATCH Request'
+      required:
+        - setting_key
+        - setting_value
+      properties:
+        setting_key:
+          description: 'The setting key.'
+          type: string
+        setting_value:
+          description: 'The setting value.'
+          type: null|bool|int|string|array
+      type: object
+      example:
+        setting_key: default_search_code_type
+        setting_value: ICD9
+    api_standard_user_common:
+      properties:
+        title:
+          description: 'The title for the user.'
+          type: string
+        fname:
+          description: 'The first name for the user.'
+          type: string
+        lname:
+          description: 'The last name for the user.'
+          type: string
+        mname:
+          description: 'The middle name for the user.'
+          type: string
+        username:
+          description: 'The username for the user.'
+          type: string
+        email:
+          description: 'The email for the user.'
+          type: string
+        federaltaxid:
+          description: 'The federal tax id for the user.'
+          type: string
+        federaldrugid:
+          description: 'The federal drug id for the user.'
+          type: string
+        upin:
+          description: 'The upin for the user.'
+          type: string
+        facility_id:
+          description: 'The facility id for the user.'
+          type: string
+        facility:
+          description: 'The facility for the user.'
+          type: string
+        npi:
+          description: 'The npi for the user.'
+          type: string
+        specialty:
+          description: 'The specialty for the user.'
+          type: string
+        billname:
+          description: 'The billname for the user.'
+          type: string
+        url:
+          description: 'The url for the user.'
+          type: string
+        assistant:
+          description: 'The assistant for the user.'
+          type: string
+        organization:
+          description: 'The organization for the user.'
+          type: string
+        valedictory:
+          description: 'The valedictory for the user.'
+          type: string
+        street:
+          description: 'The street for the user.'
+          type: string
+        streetb:
+          description: 'The street (line 2) for the user.'
+          type: string
+        city:
+          description: 'The city for the user.'
+          type: string
+        state:
+          description: 'The state for the user.'
+          type: string
+        zip:
+          description: 'The zip for the user.'
+          type: string
+        phone:
+          description: 'The phone for the user.'
+          type: string
+        fax:
+          description: 'The fax for the user.'
+          type: string
+        phonew1:
+          description: 'The phonew1 for the user.'
+          type: string
+        phonecell:
+          description: 'The phonecell for the user.'
+          type: string
+        notes:
+          description: 'The notes for the user.'
+          type: string
+        state_license_number2:
+          description: 'The state license number for the user.'
+          type: string
+      type: object
+      example:
+        username: admin
+    api_standard_user_common_response_data:
+      type: object
+      example:
+        id: 1
+        uuid: 90cde167-7b9b-4ed1-bd55-533925cb2605
+        username: admin
+      allOf:
+        -
+          properties:
+            id:
+              type: integer
+            uuid:
+              description: UUID
+              type: string
+          type: object
+        -
+          $ref: '#/components/schemas/api_standard_user_common'
+    api_standard_user_patch_request:
+      type: object
+      example:
+        username: new_username
+        password: newPassword123
+      allOf:
+        -
+          properties:
+            password:
+              description: 'The password for the user to update.'
+              type: string
+          type: object
+        -
+          $ref: '#/components/schemas/api_standard_user_common'
+    api_standard_user_post_patch_response_data:
+      type: object
+      example:
+        id: 1
+        uuid: 90cde167-7b9b-4ed1-bd55-533925cb2605
+        username: admin
+        password: 55006c9b20ba100a
+      allOf:
+        -
+          properties:
+            password:
+              description: 'The password for the user (if it was passed).'
+              type: string
+          type: object
+        -
+          $ref: '#/components/schemas/api_standard_user_common_response_data'
+    api_standard_user_post_request:
+      required:
+        - fname
+        - lname
+        - username
+      type: object
+      example:
+        fname: Foo
+        lname: Bar
+        username: foobar
+        acl_group_ids:
+          - 11
+      allOf:
+        -
+          properties:
+            password:
+              description: 'The password for the user (generated if not passed).'
+              type: string
+            acl_group_ids:
+              description: 'ACL groups IDs to add user to.'
+              type: array
+              items:
+                type: integer
+          type: object
+        -
+          $ref: '#/components/schemas/api_standard_user_common'
     api_surgery_request:
       description: 'Schema for the surgery request'
       required:
@@ -10095,6 +11535,12 @@ components:
             patient/patient.read: 'Read patient data the patient has access to (api:port)'
             patient/appointment.read: 'Read appointments the patient has access to (api:port)'
 tags:
+  -
+    name: ACL
+    description: 'Standard OpenEMR Admin ACL API'
+  -
+    name: admin
+    description: 'Standard OpenEMR Admin API'
   -
     name: fhir
     description: 'FHIR R4 API'

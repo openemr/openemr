@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -13,6 +14,7 @@
 namespace OpenEMR\RestControllers\Standard\Admin\Acl;
 
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Core\Traits\SingletonTrait;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\Services\Acl\AclSectionService;
 use OpenEMR\Validators\ProcessingResult;
@@ -20,11 +22,18 @@ use Psr\Http\Message\ResponseInterface;
 
 class AdminAclSectionRestController
 {
-    private readonly AclSectionService $sectionService;
+    use SingletonTrait;
 
-    public function __construct()
+    protected static function createInstance(): static
     {
-        $this->sectionService = new AclSectionService();
+        return new self(
+            AclSectionService::getInstance(),
+        );
+    }
+
+    public function __construct(
+        private readonly AclSectionService $sectionService
+    ) {
     }
 
     public function getAll(HttpRestRequest $request): ResponseInterface

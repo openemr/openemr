@@ -23,14 +23,16 @@ class ArrayUtils
      *
      * @throws InvalidArgumentException when allowedFields has unknown fields
      */
-    public static function filter(array $data, array $allowedFields = []): array
+    public static function filter(array $data, array $allowedFields = [], bool $silent = false): array
     {
-        $unknownFields = array_diff($allowedFields, array_keys($data));
-        Assert::isEmpty($unknownFields, sprintf(
-            'Unknown allowed fields: %s. Valid ones: %s.',
-            implode(', ', $unknownFields),
-            implode(', ', array_keys($data)),
-        ));
+        if (!$silent) {
+            $unknownFields = array_diff($allowedFields, array_keys($data));
+            Assert::isEmpty($unknownFields, sprintf(
+                'Unknown allowed fields: %s. Valid ones: %s.',
+                implode(', ', $unknownFields),
+                implode(', ', array_keys($data)),
+            ));
+        }
 
         if ([] === $allowedFields) {
             return $data;

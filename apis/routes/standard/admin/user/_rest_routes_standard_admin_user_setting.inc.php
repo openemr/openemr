@@ -31,122 +31,68 @@ return [
      *         "setting",
      *         "setting-section",
      *     },
+     *     security={{"openemr_auth":{}, "bearer":{}}},
      *
-     *     @OA\Response(
-     *         response="200",
-     *         ref="#/components/responses/standard"
-     *     ),
-     *     @OA\Response(
-     *         response="400",
-     *         ref="#/components/responses/badrequest"
-     *     ),
-     *     @OA\Response(
-     *         response="401",
-     *         ref="#/components/responses/unauthorized"
-     *     ),
-     *     security={{"openemr_auth":{}}}
-     *  )
+     *     @OA\Response(response="200", ref="#/components/responses/standard"),
+     *     @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *     @OA\Response(response="401", ref="#/components/responses/unauthorized")
+     * )
      */
     'GET /api/admin/user/setting/section' => static function(HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
-        return (new AdminUserSettingSectionRestController())->getUserSpecificSections($request);
+        return AdminUserSettingSectionRestController::getInstance()->getUserSpecificSections($request);
     },
 
     /**
      * @OA\Get(
-     *     path="/api/admin/user/{userId}/setting",
+     *     path="/api/admin/user/{uuid}/setting",
      *     description="Retrieves a list of all Given User's Settings",
      *     tags={
      *         "standard",
+     *         "admin",
      *         "user",
      *         "setting",
      *     },
-     *     @OA\Parameter(
-     *         name="userId",
-     *         in="path",
-     *         description="User ID.",
-     *         required=true,
+     *     security={{"openemr_auth":{}, "bearer":{}}},
      *
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response="200",
-     *         ref="#/components/responses/api_standard_setting_response"
-     *     ),
-     *     @OA\Response(
-     *         response="400",
-     *         ref="#/components/responses/badrequest"
-     *     ),
-     *     @OA\Response(
-     *         response="401",
-     *         ref="#/components/responses/unauthorized"
-     *     ),
-     *     security={{"openemr_auth":{}}}
-     *  )
+     *     @OA\Parameter(name="uuid", in="path", description="UUID.", required=true, @OA\Schema(type="string")),
+     *     @OA\Response(response="200", ref="#/components/responses/api_standard_setting_response"),
+     *     @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *     @OA\Response(response="401", ref="#/components/responses/unauthorized")
+     * )
      */
-    'GET /api/admin/user/:userId/setting' => static function (string $userId, HttpRestRequest $request): ResponseInterface {
+    'GET /api/admin/user/:uuid/setting' => static function (string $uuid, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
-        return (new AdminUserSettingRestController())->getAll($request, $userId);
+        return AdminUserSettingRestController::getInstance()->getAll($request, $uuid);
     },
 
     /**
      * @OA\Get(
-     *     path="/api/admin/user/{userId}/setting/{section}",
+     *     path="/api/admin/user/{uuid}/setting/{section}",
      *     description="Retrieves a list of Given User's Settings by Section",
      *     tags={
      *         "standard",
      *         "admin",
-     *         "acl",
      *         "user",
      *         "setting",
      *     },
-     *     @OA\Parameter(
-     *         name="userId",
-     *         in="path",
-     *         description="User ID.",
-     *         required=true,
+     *     security={{"openemr_auth":{}, "bearer":{}}},
      *
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="section",
-     *         in="path",
-     *         description="Section.",
-     *         required=true,
-     *
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response="200",
-     *         ref="#/components/responses/api_standard_setting_response"
-     *     ),
-     *     @OA\Response(
-     *         response="400",
-     *         ref="#/components/responses/badrequest"
-     *     ),
-     *     @OA\Response(
-     *         response="401",
-     *         ref="#/components/responses/unauthorized"
-     *     ),
-     *     security={{"openemr_auth":{}}}
-     *  )
+     *     @OA\Parameter(name="uuid", in="path", description="UUID.", required=true, @OA\Schema(type="string")),
+     *     @OA\Parameter(name="section", in="path", description="Section.", required=true, @OA\Schema(type="string")),
+     *     @OA\Response(response="200", ref="#/components/responses/api_standard_setting_response"),
+     *     @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *     @OA\Response(response="401", ref="#/components/responses/unauthorized")
+     * )
      */
-    'GET /api/admin/user/:userId/setting/:section' => static function(string $userId, string $section, HttpRestRequest $request): ResponseInterface {
+    'GET /api/admin/user/:uuid/setting/:section' => static function(string $uuid, string $section, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
-        return (new AdminUserSettingRestController())->getBySectionSlug($request, $userId, $section);
+        return AdminUserSettingRestController::getInstance()->getBySectionSlug($request, $uuid, $section);
     },
 
     /**
      * @OA\Get(
-     *     path="/api/admin/user/{userId}/setting/{section}/{key}",
+     *     path="/api/admin/user/{uuid}/setting/{section}/{key}",
      *     description="Returns Given User's Setting Value by Key",
      *     tags={
      *         "standard",
@@ -154,125 +100,92 @@ return [
      *         "user",
      *         "setting",
      *     },
-     *     @OA\Parameter(
-     *         name="userId",
-     *         in="path",
-     *         description="User ID.",
-     *         required=true,
+     *     security={{"openemr_auth":{}, "bearer":{}}},
      *
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="section",
-     *         in="path",
-     *         description="Section.",
-     *         required=true,
-     *
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="key",
-     *         in="path",
-     *         description="Setting Key.",
-     *         required=true,
-     *
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response="200",
-     *         ref="#/components/responses/standard"
-     *     ),
-     *     @OA\Response(
-     *         response="400",
-     *         ref="#/components/responses/badrequest"
-     *     ),
-     *     @OA\Response(
-     *         response="401",
-     *         ref="#/components/responses/unauthorized"
-     *     ),
-     *     security={{"openemr_auth":{}}}
-     *  )
+     *     @OA\Parameter(name="uuid", in="path", description="UUID.", required=true, @OA\Schema(type="string")),
+     *     @OA\Parameter(name="section", in="path", description="Section.", required=true, @OA\Schema(type="string")),
+     *     @OA\Parameter(name="key", in="path", description="Setting Key.", required=true, @OA\Schema(type="string")),
+     *     @OA\Response(response="200", ref="#/components/responses/standard"),
+     *     @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *     @OA\Response(response="401", ref="#/components/responses/unauthorized")
+     * )
      */
-    'GET /api/admin/user/:userId/setting/:section/:key' => static function(string $userId, string $section, string $key, HttpRestRequest $request): ResponseInterface {
+    'GET /api/admin/user/:uuid/setting/:section/:key' => static function(string $uuid, string $section, string $key, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
-        return (new AdminUserSettingRestController())->getOneBySettingKey($request, $userId, $section, $key);
+        return AdminUserSettingRestController::getInstance()->getOneBySettingKey($request, $uuid, $section, $key);
     },
 
     /**
      * @OA\Put(
-     *     path="/api/admin/user/{userId}/setting/{section}",
-     *     description="Set Given User Section's Settings to given values",
+     *     path="/api/admin/user/{uuid}/setting/{section}",
+     *     description="User's Section Settings full update",
      *     tags={
      *         "standard",
      *         "admin",
      *         "user",
      *         "setting",
      *     },
-     *     @OA\Parameter(
-     *         name="userId",
-     *         in="path",
-     *         description="User ID.",
-     *         required=true,
+     *     security={{"openemr_auth":{}, "bearer":{}}},
      *
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="section",
-     *         in="path",
-     *         description="Section.",
-     *         required=true,
-     *
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *
+     *     @OA\Parameter(name="uuid", in="path", description="UUID.", required=true, @OA\Schema(type="string")),
+     *     @OA\Parameter(name="section", in="path", description="Section.", required=true, @OA\Schema(type="string")),
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\MediaType(
-     *             mediaType="application/json",
-     *             @OA\Schema(ref="#/components/schemas/api_standard_setting_put_request")
-     *         )
+     *         @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/api_standard_setting_put_request"))
      *     ),
-     *
-     *     @OA\Response(
-     *         response="200",
-     *         ref="#/components/responses/api_standard_setting_response"
-     *     ),
-     *     @OA\Response(
-     *         response="400",
-     *         ref="#/components/responses/badrequest"
-     *     ),
-     *     @OA\Response(
-     *         response="401",
-     *         ref="#/components/responses/unauthorized"
-     *     ),
-     *     security={{"openemr_auth":{}}}
-     *  )
+     *     @OA\Response(response="200", ref="#/components/responses/api_standard_setting_response"),
+     *     @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *     @OA\Response(response="401", ref="#/components/responses/unauthorized")
+     * )
      */
-    'PUT /api/admin/user/:userId/setting/:section' => static function(string $userId, string $section, HttpRestRequest $request): ResponseInterface {
+    'PUT /api/admin/user/:uuid/setting/:section' => static function(string $uuid, string $section, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
 
-        return (new AdminUserSettingRestController())->putBySectionSlug(
+        return AdminUserSettingRestController::getInstance()->putBySectionSlug(
             $request,
-            $userId,
+            $uuid,
             $section,
-            file_get_contents('php://input'),
+            file_get_contents('php://input') ?: '',
+        );
+    },
+
+    /**
+     * @OA\Patch(
+     *     path="/api/admin/user/{uuid}/setting/{section}",
+     *     description="User's Section Settings partial update",
+     *     tags={
+     *         "standard",
+     *         "admin",
+     *         "user",
+     *         "setting",
+     *     },
+     *     security={{"openemr_auth":{}, "bearer":{}}},
+     *
+     *     @OA\Parameter(name="uuid", in="path", description="UUID.", required=true, @OA\Schema(type="string")),
+     *     @OA\Parameter(name="section", in="path", description="Section.", required=true, @OA\Schema(type="string")),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(mediaType="application/json", @OA\Schema(ref="#/components/schemas/api_standard_setting_put_request"))
+     *     ),
+     *     @OA\Response(response="200", ref="#/components/responses/api_standard_setting_response"),
+     *     @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *     @OA\Response(response="401", ref="#/components/responses/unauthorized")
+     * )
+     */
+    'PATCH /api/admin/user/:uuid/setting/:section' => static function(string $uuid, string $section, HttpRestRequest $request): ResponseInterface {
+        RestConfig::request_authorization_check($request, 'admin', 'users');
+
+        return AdminUserSettingRestController::getInstance()->patchBySectionSlug(
+            $request,
+            $uuid,
+            $section,
+            file_get_contents('php://input') ?: '',
         );
     },
 
     /**
      * @OA\Post(
-     *     path="/api/admin/user/{userId}/setting/{section}/reset",
+     *     path="/api/admin/user/{uuid}/setting/{section}/reset",
      *     description="Resets All Given User's Settings to Defaults",
      *     tags={
      *         "standard",
@@ -280,50 +193,23 @@ return [
      *         "user",
      *         "setting",
      *     },
-     *     @OA\Parameter(
-     *         name="userId",
-     *         in="path",
-     *         description="User ID.",
-     *         required=true,
+     *     security={{"openemr_auth":{}, "bearer":{}}},
      *
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="section",
-     *         in="path",
-     *         description="Section.",
-     *         required=true,
-     *
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response="200",
-     *         ref="#/components/responses/api_standard_setting_response"
-     *     ),
-     *     @OA\Response(
-     *         response="400",
-     *         ref="#/components/responses/badrequest"
-     *     ),
-     *     @OA\Response(
-     *         response="401",
-     *         ref="#/components/responses/unauthorized"
-     *     ),
-     *     security={{"openemr_auth":{}}}
-     *  )
+     *     @OA\Parameter(name="uuid", in="path", description="UUID.", required=true, @OA\Schema(type="string")),
+     *     @OA\Parameter(name="section", in="path", description="Section.", required=true, @OA\Schema(type="string")),
+     *     @OA\Response(response="200", ref="#/components/responses/api_standard_setting_response"),
+     *     @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *     @OA\Response(response="401", ref="#/components/responses/unauthorized")
+     * )
      */
-    'POST /api/admin/user/:userId/setting/:section/reset' => static function(string $userId, string $section, HttpRestRequest $request): ResponseInterface {
+    'POST /api/admin/user/:uuid/setting/:section/reset' => static function(string $uuid, string $section, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
-        return (new AdminUserSettingRestController())->resetBySectionSlug($request, $userId, $section);
+        return AdminUserSettingRestController::getInstance()->resetBySectionSlug($request, $uuid, $section);
     },
 
     /**
      * @OA\Post(
-     *     path="/api/admin/user/{userId}/setting/{section}/{key}/reset",
+     *     path="/api/admin/user/{uuid}/setting/{section}/{key}/reset",
      *     description="Resets Given User's Setting to Default Value by Setting Key",
      *     tags={
      *         "standard",
@@ -331,54 +217,18 @@ return [
      *         "user",
      *         "setting",
      *     },
-     *     @OA\Parameter(
-     *         name="userId",
-     *         in="path",
-     *         description="User ID.",
-     *         required=true,
+     *     security={{"openemr_auth":{}, "bearer":{}}},
      *
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="section",
-     *         in="path",
-     *         description="Section.",
-     *         required=true,
-     *
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="key",
-     *         in="path",
-     *         description="Setting Key.",
-     *         required=true,
-     *
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response="200",
-     *         ref="#/components/responses/standard"
-     *     ),
-     *     @OA\Response(
-     *         response="400",
-     *         ref="#/components/responses/badrequest"
-     *     ),
-     *     @OA\Response(
-     *         response="401",
-     *         ref="#/components/responses/unauthorized"
-     *     ),
-     *     security={{"openemr_auth":{}}}
-     *  )
+     *     @OA\Parameter(name="uuid", in="path", description="UUID.", required=true, @OA\Schema(type="string")),
+     *     @OA\Parameter(name="section", in="path", description="Section.", required=true, @OA\Schema(type="string")),
+     *     @OA\Parameter(name="key", in="path", description="Setting Key.", required=true, @OA\Schema(type="string")),
+     *     @OA\Response(response="200", ref="#/components/responses/standard"),
+     *     @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *     @OA\Response(response="401", ref="#/components/responses/unauthorized")
+     * )
      */
-    'POST /api/admin/user/:userId/setting/:section/:key/reset' => static function(string $userId, string $section, string $key, HttpRestRequest $request): ResponseInterface {
+    'POST /api/admin/user/:uuid/setting/:section/:key/reset' => static function(string $uuid, string $section, string $key, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
-        return (new AdminUserSettingRestController())->resetOneBySettingKey($request, $userId, $section, $key);
+        return AdminUserSettingRestController::getInstance()->resetOneBySettingKey($request, $uuid, $section, $key);
     },
 ];

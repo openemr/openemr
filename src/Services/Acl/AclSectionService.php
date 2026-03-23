@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -12,20 +13,23 @@
 
 namespace OpenEMR\Services\Acl;
 
-use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\Repository\Acl\AclSectionRepository;
-use OpenEMR\Common\Database\Repository\RepositoryFactory;
-use OpenEMR\Gacl\GaclApi;
-use Webmozart\Assert\Assert;
-use Webmozart\Assert\InvalidArgumentException;
+use OpenEMR\Core\Traits\SingletonTrait;
 
 class AclSectionService
 {
-    private readonly AclSectionRepository $aclSectionRepository;
+    use SingletonTrait;
 
-    public function __construct()
+    protected static function createInstance(): static
     {
-        $this->aclSectionRepository = RepositoryFactory::createRepository(AclSectionRepository::class);
+        return new self(
+            AclSectionRepository::getInstance(),
+        );
+    }
+
+    public function __construct(
+        private readonly AclSectionRepository $aclSectionRepository,
+    ) {
     }
 
     public function getAll(): array

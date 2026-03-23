@@ -1,0 +1,19 @@
+[
+  {
+    "id": 1,
+    "username": "admin",
+    "password": "$2y$12$.NuwzyChszxv2xZfVHJgIulW2HbN2xKmRsX2CnSi1CMWJKkBGP50e",
+    "last_update_password": "2026-01-05 12:12:20",
+    "last_update": "2026-01-05 12:12:20",
+    "password_history1": null,
+    "password_history2": null,
+    "password_history3": null,
+    "password_history4": null,
+    "last_challenge_response": null,
+    "login_work_area": null,
+    "total_login_fail_counter": 0,
+    "login_fail_counter": 0,
+    "last_login_fail": null,
+    "auto_block_emailed": 0
+  }
+]

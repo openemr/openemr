@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -12,6 +13,7 @@
 
 namespace OpenEMR\Validators\Acl;
 
+use OpenEMR\Core\Traits\SingletonTrait;
 use OpenEMR\Services\Acl\AclGroupService;
 use OpenEMR\Validators\BaseValidator;
 use Particle\Validator\Exception\InvalidValueException;
@@ -19,12 +21,18 @@ use Particle\Validator\Validator;
 
 class AclGroupValidator extends BaseValidator
 {
-    private readonly AclGroupService $groupService;
+    use SingletonTrait;
 
-    public function __construct()
+    protected static function createInstance(): static
     {
-        $this->groupService = new AclGroupService;
+        return new self(
+            AclGroupService::getInstance(),
+        );
+    }
 
+    public function __construct(
+        private readonly AclGroupService $groupService,
+    ) {
         parent::__construct();
     }
 

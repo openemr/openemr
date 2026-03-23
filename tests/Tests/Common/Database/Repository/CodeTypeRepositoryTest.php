@@ -12,7 +12,6 @@
 
 namespace OpenEMR\Tests\Common\Database\Repository;
 
-use OpenEMR\Common\Database\Repository\RepositoryFactory;
 use OpenEMR\Common\Database\Repository\Settings\CodeTypeRepository;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
@@ -31,7 +30,7 @@ final class CodeTypeRepositoryTest extends TestCase
     #[Test]
     public function findOneByTest(): void
     {
-        $repository = RepositoryFactory::createRepository(CodeTypeRepository::class);
+        $repository = CodeTypeRepository::getInstance();
         $codeType = $repository->findOneBy(['ct_key' => 'CPT4']);
 
         $this->assertNotNull($codeType);
@@ -41,7 +40,7 @@ final class CodeTypeRepositoryTest extends TestCase
     #[Test]
     public function findAllTest(): void
     {
-        $repository = RepositoryFactory::createRepository(CodeTypeRepository::class);
+        $repository = CodeTypeRepository::getInstance();
         $codeTypes = $repository->findAll();
 
         $this->assertIsArray($codeTypes);
@@ -53,7 +52,7 @@ final class CodeTypeRepositoryTest extends TestCase
     #[Test]
     public function findActiveTest(): void
     {
-        $repository = RepositoryFactory::createRepository(CodeTypeRepository::class);
+        $repository = CodeTypeRepository::getInstance();
         $codeTypes = $repository->findActive();
 
         $this->assertIsArray($codeTypes);

@@ -1,0 +1,1027 @@
+[
+  {
+    "acl_id": 10,
+    "section_value": "acct",
+    "value": "bill"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "acct",
+    "value": "disc"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "acct",
+    "value": "eob"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "acct",
+    "value": "rep"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "acct",
+    "value": "rep_a"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "admin",
+    "value": "acl"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "admin",
+    "value": "batchcom"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "admin",
+    "value": "calendar"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "admin",
+    "value": "database"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "admin",
+    "value": "drugs"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "admin",
+    "value": "forms"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "admin",
+    "value": "language"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "admin",
+    "value": "manage_modules"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "admin",
+    "value": "menu"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "admin",
+    "value": "multipledb"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "admin",
+    "value": "practice"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "admin",
+    "value": "super"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "admin",
+    "value": "superbill"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "admin",
+    "value": "users"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "encounters",
+    "value": "auth"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "encounters",
+    "value": "auth_a"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "encounters",
+    "value": "coding"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "encounters",
+    "value": "coding_a"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "encounters",
+    "value": "date_a"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "encounters",
+    "value": "notes"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "encounters",
+    "value": "notes_a"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "encounters",
+    "value": "relaxed"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "groups",
+    "value": "gadd"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "groups",
+    "value": "gcalendar"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "groups",
+    "value": "gdlog"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "groups",
+    "value": "glog"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "groups",
+    "value": "gm"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "inventory",
+    "value": "adjustments"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "inventory",
+    "value": "consumption"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "inventory",
+    "value": "destruction"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "inventory",
+    "value": "lots"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "inventory",
+    "value": "purchases"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "inventory",
+    "value": "reporting"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "inventory",
+    "value": "sales"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "inventory",
+    "value": "transfers"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "lists",
+    "value": "country"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "lists",
+    "value": "default"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "lists",
+    "value": "ethrace"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "lists",
+    "value": "language"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "lists",
+    "value": "state"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "menus",
+    "value": "modle"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "nationnotes",
+    "value": "nn_configure"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "patientportal",
+    "value": "portal"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "patients",
+    "value": "alert"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "patients",
+    "value": "amendment"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "patients",
+    "value": "appt"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "patients",
+    "value": "demo"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "patients",
+    "value": "disclosure"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "patients",
+    "value": "docs"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "patients",
+    "value": "docs_rm"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "patients",
+    "value": "lab"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "patients",
+    "value": "med"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "patients",
+    "value": "notes"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "patients",
+    "value": "pat_rep"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "patients",
+    "value": "reminder"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "patients",
+    "value": "rx"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "patients",
+    "value": "sign"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "patients",
+    "value": "trans"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "sensitivities",
+    "value": "high"
+  },
+  {
+    "acl_id": 10,
+    "section_value": "sensitivities",
+    "value": "normal"
+  },
+  {
+    "acl_id": 11,
+    "section_value": "patients",
+    "value": "pat_rep"
+  },
+  {
+    "acl_id": 12,
+    "section_value": "placeholder",
+    "value": "filler"
+  },
+  {
+    "acl_id": 13,
+    "section_value": "placeholder",
+    "value": "filler"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "acct",
+    "value": "disc"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "acct",
+    "value": "rep"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "admin",
+    "value": "drugs"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "encounters",
+    "value": "auth"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "encounters",
+    "value": "auth_a"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "encounters",
+    "value": "coding"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "encounters",
+    "value": "coding_a"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "encounters",
+    "value": "date_a"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "encounters",
+    "value": "notes"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "encounters",
+    "value": "notes_a"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "encounters",
+    "value": "relaxed"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "groups",
+    "value": "gcalendar"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "groups",
+    "value": "glog"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "patients",
+    "value": "alert"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "patients",
+    "value": "amendment"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "patients",
+    "value": "appt"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "patients",
+    "value": "demo"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "patients",
+    "value": "disclosure"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "patients",
+    "value": "docs"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "patients",
+    "value": "lab"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "patients",
+    "value": "med"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "patients",
+    "value": "notes"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "patients",
+    "value": "reminder"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "patients",
+    "value": "rx"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "patients",
+    "value": "sign"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "patients",
+    "value": "trans"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "sensitivities",
+    "value": "high"
+  },
+  {
+    "acl_id": 14,
+    "section_value": "sensitivities",
+    "value": "normal"
+  },
+  {
+    "acl_id": 15,
+    "section_value": "patients",
+    "value": "pat_rep"
+  },
+  {
+    "acl_id": 16,
+    "section_value": "encounters",
+    "value": "notes"
+  },
+  {
+    "acl_id": 16,
+    "section_value": "encounters",
+    "value": "relaxed"
+  },
+  {
+    "acl_id": 16,
+    "section_value": "patients",
+    "value": "alert"
+  },
+  {
+    "acl_id": 16,
+    "section_value": "patients",
+    "value": "amendment"
+  },
+  {
+    "acl_id": 16,
+    "section_value": "patients",
+    "value": "demo"
+  },
+  {
+    "acl_id": 16,
+    "section_value": "patients",
+    "value": "disclosure"
+  },
+  {
+    "acl_id": 16,
+    "section_value": "patients",
+    "value": "docs"
+  },
+  {
+    "acl_id": 16,
+    "section_value": "patients",
+    "value": "lab"
+  },
+  {
+    "acl_id": 16,
+    "section_value": "patients",
+    "value": "med"
+  },
+  {
+    "acl_id": 16,
+    "section_value": "patients",
+    "value": "notes"
+  },
+  {
+    "acl_id": 16,
+    "section_value": "patients",
+    "value": "reminder"
+  },
+  {
+    "acl_id": 16,
+    "section_value": "patients",
+    "value": "rx"
+  },
+  {
+    "acl_id": 16,
+    "section_value": "patients",
+    "value": "trans"
+  },
+  {
+    "acl_id": 16,
+    "section_value": "sensitivities",
+    "value": "normal"
+  },
+  {
+    "acl_id": 17,
+    "section_value": "placeholder",
+    "value": "filler"
+  },
+  {
+    "acl_id": 18,
+    "section_value": "admin",
+    "value": "drugs"
+  },
+  {
+    "acl_id": 18,
+    "section_value": "encounters",
+    "value": "auth"
+  },
+  {
+    "acl_id": 18,
+    "section_value": "encounters",
+    "value": "coding"
+  },
+  {
+    "acl_id": 18,
+    "section_value": "encounters",
+    "value": "notes"
+  },
+  {
+    "acl_id": 18,
+    "section_value": "groups",
+    "value": "gcalendar"
+  },
+  {
+    "acl_id": 18,
+    "section_value": "groups",
+    "value": "glog"
+  },
+  {
+    "acl_id": 18,
+    "section_value": "patients",
+    "value": "appt"
+  },
+  {
+    "acl_id": 19,
+    "section_value": "patients",
+    "value": "alert"
+  },
+  {
+    "acl_id": 20,
+    "section_value": "placeholder",
+    "value": "filler"
+  },
+  {
+    "acl_id": 21,
+    "section_value": "placeholder",
+    "value": "filler"
+  },
+  {
+    "acl_id": 22,
+    "section_value": "groups",
+    "value": "gcalendar"
+  },
+  {
+    "acl_id": 22,
+    "section_value": "patients",
+    "value": "appt"
+  },
+  {
+    "acl_id": 22,
+    "section_value": "patients",
+    "value": "demo"
+  },
+  {
+    "acl_id": 23,
+    "section_value": "patients",
+    "value": "alert"
+  },
+  {
+    "acl_id": 24,
+    "section_value": "placeholder",
+    "value": "filler"
+  },
+  {
+    "acl_id": 25,
+    "section_value": "placeholder",
+    "value": "filler"
+  },
+  {
+    "acl_id": 26,
+    "section_value": "acct",
+    "value": "bill"
+  },
+  {
+    "acl_id": 26,
+    "section_value": "acct",
+    "value": "disc"
+  },
+  {
+    "acl_id": 26,
+    "section_value": "acct",
+    "value": "eob"
+  },
+  {
+    "acl_id": 26,
+    "section_value": "acct",
+    "value": "rep"
+  },
+  {
+    "acl_id": 26,
+    "section_value": "acct",
+    "value": "rep_a"
+  },
+  {
+    "acl_id": 26,
+    "section_value": "admin",
+    "value": "practice"
+  },
+  {
+    "acl_id": 26,
+    "section_value": "admin",
+    "value": "superbill"
+  },
+  {
+    "acl_id": 26,
+    "section_value": "encounters",
+    "value": "auth_a"
+  },
+  {
+    "acl_id": 26,
+    "section_value": "encounters",
+    "value": "coding_a"
+  },
+  {
+    "acl_id": 26,
+    "section_value": "encounters",
+    "value": "date_a"
+  },
+  {
+    "acl_id": 26,
+    "section_value": "patients",
+    "value": "appt"
+  },
+  {
+    "acl_id": 26,
+    "section_value": "patients",
+    "value": "demo"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "acct",
+    "value": "bill"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "acct",
+    "value": "disc"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "acct",
+    "value": "eob"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "acct",
+    "value": "rep"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "acct",
+    "value": "rep_a"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "admin",
+    "value": "acl"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "admin",
+    "value": "batchcom"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "admin",
+    "value": "calendar"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "admin",
+    "value": "database"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "admin",
+    "value": "drugs"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "admin",
+    "value": "forms"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "admin",
+    "value": "language"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "admin",
+    "value": "manage_modules"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "admin",
+    "value": "menu"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "admin",
+    "value": "multipledb"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "admin",
+    "value": "practice"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "admin",
+    "value": "super"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "admin",
+    "value": "superbill"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "admin",
+    "value": "users"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "encounters",
+    "value": "auth"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "encounters",
+    "value": "auth_a"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "encounters",
+    "value": "coding"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "encounters",
+    "value": "coding_a"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "encounters",
+    "value": "date_a"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "encounters",
+    "value": "notes"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "encounters",
+    "value": "notes_a"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "encounters",
+    "value": "relaxed"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "groups",
+    "value": "gadd"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "groups",
+    "value": "gcalendar"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "groups",
+    "value": "gdlog"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "groups",
+    "value": "glog"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "groups",
+    "value": "gm"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "inventory",
+    "value": "adjustments"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "inventory",
+    "value": "consumption"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "inventory",
+    "value": "destruction"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "inventory",
+    "value": "lots"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "inventory",
+    "value": "purchases"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "inventory",
+    "value": "reporting"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "inventory",
+    "value": "sales"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "inventory",
+    "value": "transfers"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "lists",
+    "value": "country"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "lists",
+    "value": "default"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "lists",
+    "value": "ethrace"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "lists",
+    "value": "language"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "lists",
+    "value": "state"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "menus",
+    "value": "modle"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "nationnotes",
+    "value": "nn_configure"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "patientportal",
+    "value": "portal"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "patients",
+    "value": "alert"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "patients",
+    "value": "amendment"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "patients",
+    "value": "appt"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "patients",
+    "value": "demo"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "patients",
+    "value": "disclosure"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "patients",
+    "value": "docs"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "patients",
+    "value": "docs_rm"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "patients",
+    "value": "lab"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "patients",
+    "value": "med"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "patients",
+    "value": "notes"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "patients",
+    "value": "pat_rep"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "patients",
+    "value": "reminder"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "patients",
+    "value": "rx"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "patients",
+    "value": "sign"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "patients",
+    "value": "trans"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "sensitivities",
+    "value": "high"
+  },
+  {
+    "acl_id": 27,
+    "section_value": "sensitivities",
+    "value": "normal"
+  }
+]

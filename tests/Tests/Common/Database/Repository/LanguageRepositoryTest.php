@@ -12,7 +12,6 @@
 
 namespace OpenEMR\Tests\Common\Database\Repository;
 
-use OpenEMR\Common\Database\Repository\RepositoryFactory;
 use OpenEMR\Common\Database\Repository\Settings\LanguageRepository;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
@@ -30,7 +29,7 @@ final class LanguageRepositoryTest extends TestCase
     #[Test]
     public function findOneByTest(): void
     {
-        $repository = RepositoryFactory::createRepository(LanguageRepository::class);
+        $repository = LanguageRepository::getInstance();
         $this->assertEquals([
             'lang_id' => 1,
             'lang_code' => 'en',
@@ -42,7 +41,7 @@ final class LanguageRepositoryTest extends TestCase
     #[Test]
     public function findAllTest(): void
     {
-        $repository = RepositoryFactory::createRepository(LanguageRepository::class);
+        $repository = LanguageRepository::getInstance();
         $codeTypes = $repository->findAll();
 
         $this->assertIsArray($codeTypes);

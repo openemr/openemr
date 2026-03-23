@@ -24,7 +24,7 @@ trait UserUuidCheckerAwareTestTrait
     private const UUID_EXISTING = '550e8400-e29b-41d4-a716-446655440000';
 
     /**
-     * @return MockObject&UserUsernameChecker
+     * @return MockObject&UserUuidChecker
      */
     private function getUserUuidCheckerMock(): MockObject
     {

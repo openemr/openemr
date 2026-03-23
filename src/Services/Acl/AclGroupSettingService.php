@@ -4,6 +4,7 @@
  * @package   OpenEMR
  *
  * @link      http://www.open-emr.org
+ * @link      https://opencoreemr.com
  *
  * @author    Igor Mukhin <igor.mukhin@gmail.com>
  * @copyright Copyright (c) 2025 OpenCoreEMR Inc
@@ -13,7 +14,7 @@
 namespace OpenEMR\Services\Acl;
 
 use OpenEMR\Common\Database\Repository\Acl\AclGroupSettingRepository;
-use OpenEMR\Common\Database\Repository\RepositoryFactory;
+use OpenEMR\Core\Traits\SingletonTrait;
 use Webmozart\Assert\Assert;
 use Webmozart\Assert\InvalidArgumentException;
 
@@ -22,14 +23,20 @@ use Webmozart\Assert\InvalidArgumentException;
  */
 class AclGroupSettingService
 {
-    private readonly AclSectionService $aclSectionService;
+    use SingletonTrait;
 
-    private readonly AclGroupSettingRepository $aclGroupSettingRepository;
-
-    public function __construct()
+    protected static function createInstance(): static
     {
-        $this->aclSectionService = new AclSectionService();
-        $this->aclGroupSettingRepository = RepositoryFactory::createRepository(AclGroupSettingRepository::class);
+        return new self(
+            AclSectionService::getInstance(),
+            AclGroupSettingRepository::getInstance(),
+        );
+    }
+
+    public function __construct(
+        private readonly AclSectionService $aclSectionService,
+        private readonly AclGroupSettingRepository $aclGroupSettingRepository,
+    ) {
     }
 
     /**

@@ -23,47 +23,18 @@ use Psr\Http\Message\ResponseInterface;
  *     @OA\MediaType(
  *         mediaType="application/json",
  *         @OA\Schema(
- *             @OA\Property(
- *                 property="validationErrors",
- *                 description="Validation errors.",
- *                 type="array",
- *                 @OA\Items(
- *                     type="object",
- *                 ),
- *             ),
- *             @OA\Property(
- *                 property="internalErrors",
- *                 description="Internal errors.",
- *                 type="array",
- *                 @OA\Items(
- *                     type="object",
- *                 ),
- *             ),
+ *             @OA\Property(property="validationErrors", description="Validation errors.", type="array", @OA\Items(type="object")),
+ *             @OA\Property(property="internalErrors", description="Internal errors.", type="array", @OA\Items(type="object")),
  *             @OA\Property(
  *                 property="data",
  *                 description="Returned data.",
  *                 type="array",
  *                 @OA\Items(
  *                     type="object",
- *                 ),
- *
- *                 @OA\Items(
- *                     @OA\Property(
- *                         property="group_id",
- *                         description="Group ID.",
- *                         type="integer",
- *                     ),
- *                     @OA\Property(
- *                         property="section_id",
- *                         description="Section ID.",
- *                         type="integer",
- *                     ),
- *                     @OA\Property(
- *                         property="allowed",
- *                         description="Allowed?",
- *                         type="integer",
- *                     ),
- *                 ),
+ *                     @OA\Property(property="group_id", description="Group ID.", type="integer"),
+ *                     @OA\Property(property="section_id", description="Section ID.", type="integer"),
+ *                     @OA\Property(property="allowed", description="Allowed?", type="integer")
+ *                 )
  *             ),
  *             example={
  *                 "validationErrors": {},
@@ -90,26 +61,17 @@ return [
      *         "group",
      *         "setting",
      *     },
+     *     security={{"openemr_auth":{}, "bearer":{}}},
      *
-     *     @OA\Response(
-     *         response="200",
-     *         ref="#/components/responses/api_admin_acl_group_setting_response"
-     *     ),
-     *     @OA\Response(
-     *         response="400",
-     *         ref="#/components/responses/badrequest"
-     *     ),
-     *     @OA\Response(
-     *         response="401",
-     *         ref="#/components/responses/unauthorized"
-     *     ),
-     *     security={{"openemr_auth":{}}}
-     *  )
+     *     @OA\Response(response="200", ref="#/components/responses/api_admin_acl_group_setting_response"),
+     *     @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *     @OA\Response(response="401", ref="#/components/responses/unauthorized")
+     * )
      */
     'GET /api/admin/acl/group/setting' => static function (HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
 
-        return (new AdminAclGroupSettingRestController())->getAll($request);
+        return AdminAclGroupSettingRestController::getInstance()->getAll($request);
     },
 
     /**
@@ -123,36 +85,17 @@ return [
      *         "group",
      *         "setting",
      *     },
+     *     security={{"openemr_auth":{}, "bearer":{}}},
      *
-     *     @OA\Parameter(
-     *         name="sectionId",
-     *         in="path",
-     *         description="Section ID.",
-     *         required=true,
-     *
-     *         @OA\Schema(
-     *             type="string"
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response="200",
-     *         ref="#/components/responses/api_admin_acl_group_setting_response"
-     *     ),
-     *     @OA\Response(
-     *         response="400",
-     *         ref="#/components/responses/badrequest"
-     *     ),
-     *     @OA\Response(
-     *         response="401",
-     *         ref="#/components/responses/unauthorized"
-     *     ),
-     *     security={{"openemr_auth":{}}}
-     *  )
+     *     @OA\Parameter(name="sectionId", in="path", description="Section ID.", required=true, @OA\Schema(type="string")),
+     *     @OA\Response(response="200", ref="#/components/responses/api_admin_acl_group_setting_response"),
+     *     @OA\Response(response="400", ref="#/components/responses/badrequest"),
+     *     @OA\Response(response="401", ref="#/components/responses/unauthorized")
+     * )
      */
     'GET /api/admin/acl/group/setting/:sectionId' => static function (int $sectionId, HttpRestRequest $request): ResponseInterface {
         RestConfig::request_authorization_check($request, 'admin', 'users');
 
-        return (new AdminAclGroupSettingRestController())->getBySection($request, $sectionId);
+        return AdminAclGroupSettingRestController::getInstance()->getBySection($request, $sectionId);
     },
 ];

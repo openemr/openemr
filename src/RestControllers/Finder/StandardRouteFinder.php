@@ -27,7 +27,8 @@ class StandardRouteFinder implements IRouteFinder
         /**
          * @see ../../../apis/routes/_rest_routes_standard.inc.php
          *
-         * @see ../../../apis/routes/standard/_rest_routes_standard_common.inc.php
+         * @see ../../../apis/routes/standard/_rest_routes_standard_common_setting.inc.php
+         * @see ../../../apis/routes/standard/_rest_routes_standard_common_user.inc.php
          *
          * @see ../../../apis/routes/standard/user/_rest_routes_standard_user_setting.inc.php
          * @see ../../../apis/routes/standard/user/_rest_routes_standard_user.inc.php
@@ -46,10 +47,11 @@ class StandardRouteFinder implements IRouteFinder
         $routes = array_merge(
             include __DIR__ . '/../../../apis/routes/_rest_routes_standard.inc.php',
 
-            include __DIR__ . '/../../../apis/routes/standard/_rest_routes_standard_common.inc.php',
+            include __DIR__ . '/../../../apis/routes/standard/_rest_routes_standard_common_setting.inc.php',
+            include __DIR__ . '/../../../apis/routes/standard/_rest_routes_standard_common_user.inc.php',
 
             include __DIR__ . '/../../../apis/routes/standard/user/_rest_routes_standard_user_setting.inc.php',
-            include __DIR__ . '/../../../apis/routes/standard/user/_rest_routes_standard_user.inc.php', // @todo Decide
+            include __DIR__ . '/../../../apis/routes/standard/user/_rest_routes_standard_user.inc.php',
 
             include __DIR__ . '/../../../apis/routes/standard/admin/_rest_routes_standard_admin_global_setting.inc.php',
 

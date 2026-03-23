@@ -87,22 +87,65 @@ Installation
 76 Access Control Objects across sections:
 
 **admin section (14 ACOs):**
-`super`, `calendar`, `database`, `forms`, `practice`, `superbill`, `users`, `batchcom`, `language`, `drugs`, `acl`, `multipledb`, `menu`, `manage_modules`
+- `super` — Superuser
+- `calendar` — Calendar Settings
+- `database` — Database Reporting
+- `forms` — Forms Administration
+- `practice` — Practice Settings
+- `superbill` — Superbill Codes Administration
+- `users` — Users/Groups/Logs Administration
+- `batchcom` — Batch Communication Tool
+- `language` — Language Interface Tool
+- `drugs` — Inventory Administration
+- `acl` — ACL Administration
+- `multipledb` — Multipledb
+- `menu` — Menu
+- `manage_modules` — Manage modules
 
 **patients section (15 ACOs):**
-`appt`, `demo`, `med`, `trans`, `docs`, `docs_rm`, `notes`, `sign`, `reminder`, `alert`, `disclosure`, `rx`, `amendment`, `lab`, `pat_rep`
+- `appt` — Appointments (write,wsome optional)
+- `demo` — Demographics (write,addonly optional)
+- `med` — Medical/History (write,addonly optional)
+- `trans` — Transactions (write optional)
+- `docs` — Documents (write,addonly optional)
+- `docs_rm` — Documents Delete
+- `notes` — Patient Notes (write,addonly optional)
+- `sign` — Sign Lab Results (write,addonly optional)
+- `reminder` — Patient Reminders (write,addonly optional)
+- `alert` — Clinical Reminders/Alerts (write,addonly optional)
+- `disclosure` — Disclosures (write,addonly optional)
+- `rx` — Prescriptions (write,addonly optional)
+- `amendment` — Amendments (write,addonly optional)
+- `lab` — Lab Results (write,addonly optional)
+- `pat_rep` — Patient Report
 
 **encounters section (8 ACOs):**
-`auth`, `auth_a`, `coding`, `coding_a`, `notes`, `notes_a`, `date_a`, `relaxed`
+- `auth` — Authorize - my encounters
+- `auth_a` — Authorize - any encounters
+- `coding` — Coding - my encounters (write,wsome optional)
+- `coding_a` — Coding - any encounters (write,wsome optional)
+- `notes` — Notes - my encounters (write,addonly optional)
+- `notes_a` — Notes - any encounters (write,addonly optional)
+- `date_a` — Fix encounter dates - any encounters
+- `relaxed` — Less-protected information (write,addonly optional)
 
 **acct section (5 ACOs):**
-`bill`, `disc`, `eob`, `rep`, `rep_a`
+- `bill` — Billing (write optional)
+- `disc` — Price Discounting
+- `eob` — EOB Data Entry
+- `rep` — Financial Reporting - my encounters
+- `rep_a` — Financial Reporting - anything
 
 **groups section (5 ACOs):**
-`gadd`, `gcalendar`, `glog`, `gdlog`, `gm`
+- `gadd` — View/Add/Update groups
+- `gcalendar` — View/Create/Update groups appointment in calendar
+- `glog` — Group encounter log
+- `gdlog` — Group detailed log of appointment in patient record
+- `gm` — Send message from the permanent group therapist to the personal therapist
 
 **sensitivities section (2 ACOs):**
-`normal`, `high`
+- `normal` — Normal
+- `high` — High
 
 ### Step 3: Create ARO Groups
 

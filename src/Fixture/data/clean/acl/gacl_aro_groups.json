@@ -1,0 +1,58 @@
+[
+  {
+    "id": 10,
+    "parent_id": 0,
+    "lft": 1,
+    "rgt": 14,
+    "name": "OpenEMR Users",
+    "value": "users"
+  },
+  {
+    "id": 11,
+    "parent_id": 10,
+    "lft": 2,
+    "rgt": 3,
+    "name": "Administrators",
+    "value": "admin"
+  },
+  {
+    "id": 12,
+    "parent_id": 10,
+    "lft": 4,
+    "rgt": 5,
+    "name": "Clinicians",
+    "value": "clin"
+  },
+  {
+    "id": 13,
+    "parent_id": 10,
+    "lft": 6,
+    "rgt": 7,
+    "name": "Physicians",
+    "value": "doc"
+  },
+  {
+    "id": 14,
+    "parent_id": 10,
+    "lft": 8,
+    "rgt": 9,
+    "name": "Front Office",
+    "value": "front"
+  },
+  {
+    "id": 15,
+    "parent_id": 10,
+    "lft": 10,
+    "rgt": 11,
+    "name": "Accounting",
+    "value": "back"
+  },
+  {
+    "id": 16,
+    "parent_id": 10,
+    "lft": 12,
+    "rgt": 13,
+    "name": "Emergency Login",
+    "value": "breakglass"
+  }
+]
