@@ -408,8 +408,8 @@ class PatientService extends BaseService
     public function getAll($search = [], $isAndCondition = true, $puuidBind = null, ?SearchQueryConfig $config = null)
     {
 /** @var array<string,mixed> $search*/
-        $querySearch = [];
-         if (!empty($search)) {
+       $querySearch = [];
+        if (!empty($search)) {
             if (isset($puuidBind)) {
                 $querySearch['uuid'] = new TokenSearchField('uuid', $puuidBind);
             } elseif (isset($search['uuid'])) {
@@ -554,7 +554,7 @@ class PatientService extends BaseService
         $previousNamesFields = array_combine($previousNameColumns, $previousNameColumns);
         $patientOrderedList = [];
         while ($row = sqlFetchArray($queryResource)) {
-           $record = $this->createResultRecordFromDatabaseResult($row);
+            $record = $this->createResultRecordFromDatabaseResult($row);
                        /** @var int $patientUuid */
             $patientUuid = $record['uuid'];
             if (!isset($patientsByUuid[$patientUuid])) {
