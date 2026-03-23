@@ -237,3 +237,13 @@ DROP VIEW IF EXISTS `onsite_activity_view`;
 #IfNotColumnTypeDefault medex_recalls r_created timestamp CURRENT_TIMESTAMP
 ALTER TABLE `medex_recalls` MODIFY `r_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 #EndIf
+
+--
+-- Fix onetime_auth index prefix length for MySQL strict mode compatibility.
+-- With utf8mb4 (4 bytes/char), a 255 character prefix exceeds InnoDB limits.
+-- See: https://github.com/openemr/openemr/issues/11179
+--
+
+#IfIndex onetime_auth pid
+ALTER TABLE `onetime_auth` DROP INDEX `pid`, ADD INDEX `pid` (`pid`, `onetime_token`(32));
+#EndIf

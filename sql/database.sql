@@ -14401,7 +14401,7 @@ CREATE TABLE `onetime_auth` (
     `profile` tinytext COMMENT 'profile of scope for this token',
     `onetime_actions` text COMMENT 'JSON array of actions that can be performed with this token',
     PRIMARY KEY (`id`),
-    KEY `pid` (`pid`,`onetime_token`(255))
+    KEY `pid` (`pid`,`onetime_token`(32))
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `patient_settings`;
