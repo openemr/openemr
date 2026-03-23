@@ -4,17 +4,16 @@ declare(strict_types=1);
 
 namespace OpenEMR\Encryption\Cipher;
 
-use OpenEMR\Encryption\Plaintext;
-use OpenEMR\Encryption\Keys\KeyMaterial;
 use OpenEMR\Common\Crypto\CryptoGenException;
-use OpenEMR\Encryption\Keys\KeyManagerInterface;
+use OpenEMR\Encryption\Keys\KeyMaterial;
+use OpenEMR\Encryption\Plaintext;
 
 /**
  * Legacy "version 2-3" handling.
  *
  * @deprecated
  */
-class Aes256CbcHmacSha256 implements CipherInterface
+readonly class Aes256CbcHmacSha256 implements CipherInterface
 {
     private const HMAC_LENGTH = 32; // 256/8
 

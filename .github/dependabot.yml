@@ -6,7 +6,7 @@ updates:
   schedule:
     interval: weekly
     day: monday
-    time: 08:00
+    time: "08:00"
   rebase-strategy: disabled
   open-pull-requests-limit: 10
   labels:
@@ -52,7 +52,7 @@ updates:
   schedule:
     interval: weekly
     day: monday
-    time: 08:00
+    time: "08:00"
   open-pull-requests-limit: 10
   labels:
   - dependencies
@@ -149,7 +149,7 @@ updates:
   schedule:
     interval: weekly
     day: monday
-    time: 08:00
+    time: "08:00"
   open-pull-requests-limit: 10
   labels:
   - dependencies

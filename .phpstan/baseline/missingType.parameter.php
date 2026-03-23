@@ -34372,11 +34372,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\AuthUtils\\:\\:updatePassword\\(\\) has parameter \\$insert_sql with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\AuthUtils\\:\\:updatePassword\\(\\) has parameter \\$newPwd with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',

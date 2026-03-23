@@ -483,7 +483,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin.php',
 ];
 $ignoreErrors[] = [
