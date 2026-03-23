@@ -249,6 +249,19 @@ ALTER TABLE `onetime_auth` DROP INDEX `pid`, ADD INDEX `pid` (`pid`, `onetime_to
 #EndIf
 
 --
+-- Fix document_templates zero dates for MySQL strict mode compatibility.
+-- See: https://github.com/openemr/openemr/issues/11179
+--
+
+#IfTable document_templates
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `document_templates` SET `send_date` = CURRENT_TIMESTAMP WHERE `send_date` = '0000-00-00 00:00:00';
+UPDATE `document_templates` SET `end_date` = NULL WHERE `end_date` = '0000-00-00 00:00:00';
+SET sql_mode = @currentSQLMode;
+#EndIf
+
+--
 -- Fix openemr_postcalendar_events date defaults for MySQL strict mode.
 -- The zero date values are incompatible with NO_ZERO_DATE mode.
 -- NULL represents "no date" (e.g., no end date for recurring events).
@@ -263,6 +276,7 @@ ALTER TABLE `openemr_postcalendar_events` MODIFY `pc_eventDate` date DEFAULT NUL
 ALTER TABLE `openemr_postcalendar_events` MODIFY `pc_endDate` date DEFAULT NULL;
 #EndIf
 
+--
 -- Convert existing zero dates to NULL
 UPDATE `openemr_postcalendar_events` SET `pc_eventDate` = NULL WHERE `pc_eventDate` = '0000-00-00';
 UPDATE `openemr_postcalendar_events` SET `pc_endDate` = NULL WHERE `pc_endDate` = '0000-00-00';
