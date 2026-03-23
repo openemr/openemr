@@ -217,7 +217,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
              deposit_date: deposit_date,
              original: 'original',
              InsId: <?php echo js_escape($hidden_type_code); ?>,
-             csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+             csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
          });
          window.open('sl_eob_process.php?' + params.toString(), '_blank');
          return false;
@@ -336,7 +336,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
         <div class="row">
             <div class="col-sm-12">
                 <form action='era_payments.php' enctype="multipart/form-data" method='post' style="display:inline">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <fieldset>
                         <div class="jumbotron py-4">
                             <div class="row h3">

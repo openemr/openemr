@@ -108,7 +108,7 @@ $(function () {
             </div>
             <div class="col-12">
                 <form name="disclosure_form" id="disclosure_form" method="POST" action="disclosure_full.php">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <div class="btn-group">
                         <button class='btn btn-primary btn-save' name='form_save' id='form_save'>
                             <?php echo xlt('Save'); ?>

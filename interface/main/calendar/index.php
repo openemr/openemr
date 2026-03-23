@@ -50,9 +50,6 @@ if (isset($_REQUEST['pc_username']) && $_REQUEST['pc_username']) {
 // FACILITY FILTERING (lemonsoftware) (CHEMED)
 $sessionSetArray['pc_facility'] = 0;
 
-/*********************************************************************
-if ($_POST['pc_facility'])  $_SESSION['pc_facility'] = $_POST['pc_facility'];
-*********************************************************************/
 if (OEGlobalsBag::getInstance()->getBoolean('login_into_facility')) {
     $sessionSetArray['pc_facility'] = $session->get('facilityId');
 } else {

@@ -115,7 +115,7 @@ if ($result) {
         }
         ?>
         <form name="select_form" method="post" action="">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <input type="Hidden" name="type" value="Email">
             <input type="Hidden" name="notification_id" value="<?php echo attr($notification_id);?>">
             <div class="row">

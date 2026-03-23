@@ -37,7 +37,7 @@ $(function () {
                         {
                             target: arrFiles[index].trim(),
                             setting: 0,
-                            csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+                            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                         }
                     );
                 });
@@ -52,7 +52,7 @@ $(function () {
                         {
                             target: arrFiles[index].trim(),
                             setting: 1,
-                            csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+                            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                         }
                     );
                 });

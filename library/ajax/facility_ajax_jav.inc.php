@@ -30,7 +30,7 @@ data: {
 pid: pid,
 date: date,
 facility: facility,
-csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
 },
 success: function(thedata){//alert(thedata)
 $("#ajaxdiv").html(thedata);

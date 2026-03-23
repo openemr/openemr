@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Print postcards for patients currently in the $_SESSION['pidList'] variable.
+ * Print postcards for patients currently in the session's 'pidList' variable.
  *
  * @package MedEx
  * @link    http://www.MedExBank.com

@@ -36,7 +36,7 @@ if ($is_module) {
 
 $form_id = $_POST['template_id'] ?? null;
 $pid = $_POST['pid'] ?? 0;
-$user = $session->get('authUserID') ?? $session->get('sessionUser'); // $_SESSION['sessionUser'] is '-patient-'
+$user = $session->get('authUserID') ?? $session->get('sessionUser'); // session 'sessionUser' is '-patient-'
 $prepared_doc = xlt("Error! Missing template or template unavailable.");
 if (!empty($form_id)) {
     $templateRender = new DocumentTemplateRender($pid, $user);

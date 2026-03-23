@@ -94,7 +94,7 @@ if ($isNN) {
     // note these variables are set on backend server side, leaving comment for server side readers
     const isNationNotes = <?php echo $isNN ? "true" : "false"; ?>;
     const dataAsPlainText = !isNationNotes;
-    const csrfToken = <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>;
+    const csrfToken = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
     const allowTemplateWarning = <?php echo $allowTemplateWarning ? "true" : "false"; ?>;
     function refreshme() {
         top.restoreSession();

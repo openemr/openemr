@@ -32,7 +32,6 @@ class CsrfUtilsTest extends TestCase
         CsrfUtils::setupCsrfKey($session);
         $token = CsrfUtils::collectCsrfToken($session);
 
-        $this->assertIsString($token);
         $this->assertTrue(CsrfUtils::verifyCsrfToken($token, $session));
     }
 
@@ -52,16 +51,15 @@ class CsrfUtilsTest extends TestCase
         $default = CsrfUtils::collectCsrfToken($session);
         $api = CsrfUtils::collectCsrfToken($session, 'api');
 
-        $this->assertIsString($default);
-        $this->assertIsString($api);
         $this->assertNotSame($default, $api);
     }
 
-    public function testCollectCsrfTokenReturnsFalseWithoutKey(): void
+    public function testCollectCsrfTokenThrowsWithoutKey(): void
     {
         $session = $this->createSessionStub();
 
-        $this->assertFalse(CsrfUtils::collectCsrfToken($session));
+        $this->expectException(\RuntimeException::class);
+        CsrfUtils::collectCsrfToken($session);
     }
 
     public function testTokenStability(): void
@@ -82,7 +80,6 @@ class CsrfUtilsTest extends TestCase
 
         $apiToken = CsrfUtils::collectCsrfToken($session, 'api');
 
-        $this->assertIsString($apiToken);
         $this->assertTrue(CsrfUtils::verifyCsrfToken($apiToken, $session, 'api'));
         $this->assertFalse(CsrfUtils::verifyCsrfToken($apiToken, $session));
     }

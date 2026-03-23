@@ -164,7 +164,7 @@ if (!empty($_POST['bn_upload'])) {
         <form method='post' action='load_codes.php' enctype='multipart/form-data'
         onsubmit='return top.restoreSession()'>
 
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
             <div class="table-responsive">
                 <table class="table table-bordered">

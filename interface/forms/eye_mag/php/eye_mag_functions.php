@@ -3153,14 +3153,14 @@ function canvas_select($zone, $encounter, $pid)
  *
  *  If there is already a drawing for this zone in this encounter, it is pulled from
  *  from its stored location:
- *  $GLOBALS['web_root']."/sites/".$_SESSION['site_id']."/".$form_folder."/".$pid."/".$encounter."/".$side."_".$zone."_VIEW.png?".rand();
+ *  $GLOBALS['web_root']."/sites/".$session->get('site_id')."/".$form_folder."/".$pid."/".$encounter."/".$side."_".$zone."_VIEW.png?".rand();
  *
  *  Otherwise a "BASE" image is pulled from the images directory of the form...  Customizable.
  *
  *  @param string $zone options ALL,EXT,ANTSEG,RETINA,NEURO
  *  @param string $visit_date Future functionality to limit result set. UTC DATE Formatted
  *  @param string $pid value = patient id
- *  @param string OU by default.  Future functionality will allow OD and OS values- not implemented yet.
+ *  @param string $side OU by default.  Future functionality will allow OD and OS values- not implemented yet.
  *  @return void : outputs the ZONE specific HTML5 CANVAS widget
  */
 function display_draw_section($zone, $encounter, $pid, $side = 'OU', $counter = ''): void

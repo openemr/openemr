@@ -91,7 +91,7 @@ if (($_POST['save'] ?? false) == 'true') {
     <div class="container-fluid">
         <h6 class="text-center"><small><cite><?php echo xlt("Auto Save On for Weno UID."); ?></cite></small></h6>
         <form method="POST">
-            <input type="hidden" id="csrf_token_form" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>">
+            <input type="hidden" id="csrf_token_form" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>">
             <table class="table table-sm table-hover table-striped table-borderless">
                 <thead>
                 <tr>

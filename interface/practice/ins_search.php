@@ -77,7 +77,7 @@ td {
     $("#form_entry").hide();
     var f = document.forms[0];
     const params = new URLSearchParams({
-        csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>,
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
         form_addr1: f.form_addr1.value,
         form_addr2: f.form_addr2.value,
         form_attn: f.form_attn.value,
@@ -266,7 +266,7 @@ if (
 <div id="form_entry">
 
 <form method='post' name='theform' action='ins_search.php' onsubmit='return validate(this)'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <center>
 
 <p>

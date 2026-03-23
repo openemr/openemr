@@ -42,7 +42,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                     complete: false,
                     mode: "add_force",
                     patient_id: <?php echo js_escape($pid); ?>,
-                    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                 });
             });
         });

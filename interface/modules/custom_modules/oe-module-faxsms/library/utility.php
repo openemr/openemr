@@ -233,7 +233,7 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim((string) $_POST['regdate']) : dat
 
             function searchme() {
                 var f = document.forms[0];
-                var url = top.webroot_url + '/interface/main/finder/patient_select.php?popup=1&csrf_token_form=<?php echo attr_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>';
+                var url = top.webroot_url + '/interface/main/finder/patient_select.php?popup=1&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>';
                 <?php
                 $lres = getLayoutRes($SHORT_FORM);
                 while ($lrow = sqlFetchArray($lres)) {
@@ -306,7 +306,7 @@ $form_regdate = $_POST['regdate'] ?? '' ? trim((string) $_POST['regdate']) : dat
     <div class="container-fluid">
         <div class='title'><?php echo $title; ?></div>
         <form class="form" name='new_patient' method='post' action="" onsubmit='return validate()'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <input type="hidden" id="form_create" name="form_create" value="" />
             <input type="hidden" id="form_save_pid" name="form_save_pid" value="" />
             <div class="form-group col">

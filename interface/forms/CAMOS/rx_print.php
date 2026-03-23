@@ -484,7 +484,7 @@ return count_turnoff;
 </head>
 <h1><?php echo xlt('Select CAMOS Entries for Printing'); ?></h1>
 <form method=POST name='pick_items' target=_new>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <input type=button name=cyclerx value='<?php echo xla('Cycle'); ?>' onClick='cycle()'><br/>
 <input type='button' value='<?php echo xla('Select All'); ?>' onClick='checkall()'>
 <input type='button' value='<?php echo xla('Unselect All'); ?>' onClick='uncheckall()'>
@@ -549,7 +549,7 @@ return count_turnoff;
 </form>
 <h1><?php echo xlt('Update User Information'); ?></h1>
 <form method=POST name='pick_items'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <table>
 <tr>
 <td> <?php echo xlt('First Name'); ?>: </td>

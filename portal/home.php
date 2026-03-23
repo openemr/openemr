@@ -101,10 +101,6 @@ foreach ($msgs as $i) {
     }
 }
 
-// force to message page if new messages.
-/*if ($newcnt > 0 && $_SESSION['portal_init']) {
-    $whereto = $_SESSION['whereto'] = '#secure-msgs-card';
-}*/
 $messagesURL = "$web_root/portal/messaging/messages.php";
 
 $isEasyPro = $globalsBag->getBoolean('easipro_enable') && !empty($globalsBag->get('easipro_server')) && !empty($globalsBag->get('easipro_name'));

@@ -367,7 +367,7 @@ $vendors = $boot->getVendorGlobals();
         </div>
         <div class="frame col-12" id="set-service">
             <form id="set_form" name="set_form" class="form" role="form" method="post" action="">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <div class="form-group">
                     <?php if (isset($permissions_saved) && $permissions_saved) { ?>
                         <div class="alert alert-<?php echo attr($permissions_message_type ?? 'success'); ?> text-center alert-dismissible fade show" role="alert">
@@ -490,7 +490,7 @@ $vendors = $boot->getVendorGlobals();
             </form>
 
             <form class="form w-100" id="form_action" method="POST" action="setup_services.php">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <fieldset>
                     <legend><?php echo xlt('Select Background Service to Manage');
                         $showFlag = false; ?></legend>
@@ -576,7 +576,7 @@ $vendors = $boot->getVendorGlobals();
         <?php if (($vendors['oeenable_users_permissions'] ?? '0') == '1') { ?>
             <div class="frame col-12 d-none" id="set-user-permissions">
                 <form id="user_permissions_form" name="user_permissions_form" class="form" role="form" method="post" action="">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <div class="container-fluid">
                         <div class="title text-center"><?php echo xlt("User Service Permissions"); ?></div>
                         <div class="small text-center mb-2">
