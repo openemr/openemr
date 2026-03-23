@@ -13,7 +13,7 @@ use OpenEMR\Encryption\Plaintext;
  *
  * @deprecated
  */
-class Aes256CbcNoHmac implements CipherInterface
+readonly class Aes256CbcNoHmac implements CipherInterface
 {
     private const IV_LENGTH = 16; // openssl_cipher_iv_length('aes-256-cbc')
 

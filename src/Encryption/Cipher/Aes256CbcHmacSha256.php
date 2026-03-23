@@ -13,7 +13,7 @@ use OpenEMR\Encryption\Plaintext;
  *
  * @deprecated
  */
-class Aes256CbcHmacSha256 implements CipherInterface
+readonly class Aes256CbcHmacSha256 implements CipherInterface
 {
     private const HMAC_LENGTH = 32; // 256/8
 
