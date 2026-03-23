@@ -1,6 +1,6 @@
 # OpenEMR-interface
 
-The OpenEMR UI is built with [SASS](https://sass-lang.com/) on top of a bootstrap base (compiled with [gulp](https://gulpjs.com/)).
+The OpenEMR UI is built with [SASS](https://sass-lang.com/) on top of a bootstrap base (compiled with [webpack](https://webpack.js.org/)).
 
 ### Themes
 
@@ -33,9 +33,8 @@ Compiling SASS files locally requires [node.js](http://nodejs.org) and [npm](htt
 - If running in docker: `docker exec -it [your_container_id] /bin/sh` then cd into `openemr`
 
 From here you can either:
-* `npm run dev` - just compiles the local `.scss` files and recompiles them whenever they are changed.
-* `npm run dev-sync` (EXPERIMENTAL*) - loads your local OpenEMR instance using BrowserSync (port 3000) in front of 80 (feel free to edit the package.json to change the port)
-    * [See video of `dev-sync` in action](https://imgur.com/a/C0dVnfq)
+* `npm run dev` - compiles `.scss` files in development mode and watches for changes.
+* `npm run build` - compiles all themes for production.
 
 ## TODOs
 - [ ] Incorporate tabs_style_compact.css and tabs_style_full.css (and associated RTL) into scss

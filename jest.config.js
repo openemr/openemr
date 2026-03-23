@@ -7,7 +7,6 @@ const config = {
     coverageDirectory: 'coverage/js-unit',
     collectCoverageFrom: ['**/*.js'],
     coveragePathIgnorePatterns: [
-        'gulpfile.js',
         'jest.config.js',
         'node_modules',
         'ccdaservice/node_modules',
