@@ -62,7 +62,6 @@ final class Aes256CbcHmacSha256Test extends TestCase
 
         $result = $cipher->decrypt($rawCiphertext);
 
-        self::assertInstanceOf(Plaintext::class, $result);
         self::assertSame(CryptoFixtureManager::PLAINTEXT, $result->wrapped);
     }
 
