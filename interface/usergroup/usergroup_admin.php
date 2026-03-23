@@ -346,47 +346,62 @@ if (isset($_POST["mode"])) {
         }
 
         if ($doit) {
-            $googleSigninEmail = filter_input(INPUT_POST, 'google_signin_email', FILTER_DEFAULT, FILTER_NULL_ON_FAILURE);
-            if ($googleSigninEmail !== null) {
-                $googleSigninEmail = trim($googleSigninEmail);
-                if ($googleSigninEmail === '') {
-                    $googleSigninEmail = null;
-                }
-            }
-            $userData = [
-                'username'             => trim(filter_input(INPUT_POST, 'rumple') ?? ''),
-                'password'             => 'NoLongerUsed',
-                'fname'                => trim(filter_input(INPUT_POST, 'fname') ?? ''),
-                'mname'                => trim(filter_input(INPUT_POST, 'mname') ?? ''),
-                'lname'                => trim(filter_input(INPUT_POST, 'lname') ?? ''),
-                'suffix'               => trim(filter_input(INPUT_POST, 'suffix') ?? ''),
-                'email'                => trim(filter_input(INPUT_POST, 'email') ?? ''),
-                'google_signin_email'  => $googleSigninEmail,
-                'valedictory'          => trim(filter_input(INPUT_POST, 'valedictory') ?? ''),
-                'federaltaxid'         => trim(filter_input(INPUT_POST, 'federaltaxid') ?? ''),
-                'state_license_number' => trim(filter_input(INPUT_POST, 'state_license_number') ?? ''),
-                'newcrop_user_role'    => trim(filter_input(INPUT_POST, 'erxrole') ?? ''),
-                'physician_type'       => trim(filter_input(INPUT_POST, 'physician_type') ?? ''),
-                'main_menu_role'       => trim(filter_input(INPUT_POST, 'main_menu_role') ?? ''),
-                'patient_menu_role'    => trim(filter_input(INPUT_POST, 'patient_menu_role') ?? ''),
-                'weno_prov_id'         => trim(filter_input(INPUT_POST, 'erxprid') ?? ''),
-                'authorized'           => filter_input(INPUT_POST, 'authorized', FILTER_VALIDATE_INT) ?: 0,
-                'info'                 => trim(filter_input(INPUT_POST, 'info') ?? ''),
-                'federaldrugid'        => trim(filter_input(INPUT_POST, 'federaldrugid') ?? ''),
-                'upin'                 => trim(filter_input(INPUT_POST, 'upin') ?? ''),
-                'npi'                  => trim(filter_input(INPUT_POST, 'npi') ?? ''),
-                'taxonomy'             => trim(filter_input(INPUT_POST, 'taxonomy') ?? ''),
-                'facility_id'          => filter_input(INPUT_POST, 'facility_id', FILTER_VALIDATE_INT) ?: 0,
-                'billing_facility_id'  => filter_input(INPUT_POST, 'billing_facility_id', FILTER_VALIDATE_INT) ?: 0,
-                'specialty'            => trim(filter_input(INPUT_POST, 'specialty') ?? ''),
-                'see_auth'             => filter_input(INPUT_POST, 'see_auth', FILTER_VALIDATE_INT) ?: 1,
-                'default_warehouse'    => trim(filter_input(INPUT_POST, 'default_warehouse') ?? ''),
-                'irnpool'              => trim(filter_input(INPUT_POST, 'irnpool') ?? ''),
-                'calendar'             => $calvar,
-                'portal_user'          => $portalvar,
-                'supervisor_id'        => filter_input(INPUT_POST, 'supervisor_id', FILTER_VALIDATE_INT) ?: 0,
+            // Declare field mappings by type: POST key => column name
+            $stringFields = [
+                'rumple'               => 'username',
+                'fname'                => 'fname',
+                'mname'                => 'mname',
+                'lname'                => 'lname',
+                'suffix'               => 'suffix',
+                'email'                => 'email',
+                'valedictory'          => 'valedictory',
+                'federaltaxid'         => 'federaltaxid',
+                'state_license_number' => 'state_license_number',
+                'erxrole'              => 'newcrop_user_role',
+                'physician_type'       => 'physician_type',
+                'main_menu_role'       => 'main_menu_role',
+                'patient_menu_role'    => 'patient_menu_role',
+                'erxprid'              => 'weno_prov_id',
+                'info'                 => 'info',
+                'federaldrugid'        => 'federaldrugid',
+                'upin'                 => 'upin',
+                'npi'                  => 'npi',
+                'taxonomy'             => 'taxonomy',
+                'specialty'            => 'specialty',
+                'default_warehouse'    => 'default_warehouse',
+                'irnpool'              => 'irnpool',
+            ];
+            // POST key => [column name, default value]
+            $intFields = [
+                'authorized'           => ['authorized', 0],
+                'facility_id'          => ['facility_id', 0],
+                'billing_facility_id'  => ['billing_facility_id', 0],
+                'see_auth'             => ['see_auth', 1],
+                'supervisor_id'        => ['supervisor_id', 0],
             ];
 
+            $filters = array_fill_keys(array_keys($stringFields), FILTER_DEFAULT)
+                + array_fill_keys(array_keys($intFields), FILTER_VALIDATE_INT)
+                + ['google_signin_email' => FILTER_DEFAULT];
+            $input = filter_input_array(INPUT_POST, $filters);
+
+            $userData = ['password' => 'NoLongerUsed'];
+            foreach ($stringFields as $postKey => $column) {
+                $userData[$column] = trim((string) ($input[$postKey] ?? ''));
+            }
+            foreach ($intFields as $postKey => [$column, $default]) {
+                $userData[$column] = (int) ($input[$postKey] ?? $default);
+            }
+
+            // google_signin_email has a unique key constraint — store NULL for empty
+            $googleSigninEmail = trim((string) ($input['google_signin_email'] ?? ''));
+            $userData['google_signin_email'] = $googleSigninEmail !== '' ? $googleSigninEmail : null;
+
+            // Precomputed integer fields
+            $userData['calendar'] = $calvar;
+            $userData['portal_user'] = $portalvar;
+
+            $newUsername = $userData['username'];
             $authUtilsNewPassword = new AuthUtils();
             $success = $authUtilsNewPassword->updatePassword(
                 $session->get('authUserID'),
@@ -395,7 +410,7 @@ if (isset($_POST["mode"])) {
                 $_POST['stiltskin'],
                 true,
                 $userData,
-                trim(filter_input(INPUT_POST, 'rumple') ?? '')
+                $newUsername
             );
             if (!empty($authUtilsNewPassword->getErrorMessage())) {
                 $alertmsg .= $authUtilsNewPassword->getErrorMessage();
