@@ -402,6 +402,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/reports/ippf_daily.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Offset \'username\' might not exist on array\\{password\\: \'NoLongerUsed\', username\\?\\: string, fname\\?\\: string, mname\\?\\: string, lname\\?\\: string, suffix\\?\\: string, email\\?\\: string, valedictory\\?\\: string, \\.\\.\\.\\}\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Offset \'ALL\' might not exist on array\\{\\}\\|array\\{ALL\\: string\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
