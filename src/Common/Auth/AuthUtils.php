@@ -685,20 +685,10 @@ class AuthUtils
                     EventAuditLogger::getInstance()->newEvent($event, $session->get('authUser'), $session->get('authProvider'), 0, $beginLogFail . " No user data provided for new user");
                     return false;
                 }
-                $columns = [];
-                $placeholders = [];
-                $params = [];
-                foreach ($userData as $column => $value) {
-                    $columns[] = '`' . $column . '`';
-                    if ($value === null) {
-                        $placeholders[] = 'NULL';
-                    } else {
-                        $placeholders[] = '?';
-                        $params[] = $value;
-                    }
-                }
+                $columns = array_map(fn($col) => '`' . $col . '`', array_keys($userData));
+                $placeholders = array_fill(0, count($userData), '?');
                 $insertSql = 'INSERT INTO `users` (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $placeholders) . ')';
-                $newUserId = QueryUtils::sqlInsert($insertSql, $params);
+                $newUserId = QueryUtils::sqlInsert($insertSql, array_values($userData));
                 // Create the new user password hash
                 $hash = $this->authHashAuth->passwordHash($newPwd);
                 if (empty($hash)) {
