@@ -1,0 +1,164 @@
+[
+  {
+    "id": 10,
+    "section_value": "system",
+    "allow": 1,
+    "enabled": 1,
+    "return_value": "write",
+    "note": "Administrators can do anything",
+    "updated_date": 1767615140
+  },
+  {
+    "id": 11,
+    "section_value": "system",
+    "allow": 1,
+    "enabled": 1,
+    "return_value": "view",
+    "note": "Things that physicians can only read",
+    "updated_date": 1767615140
+  },
+  {
+    "id": 12,
+    "section_value": "system",
+    "allow": 1,
+    "enabled": 1,
+    "return_value": "addonly",
+    "note": "Things that physicians can read and enter but not modify",
+    "updated_date": 1767615140
+  },
+  {
+    "id": 13,
+    "section_value": "system",
+    "allow": 1,
+    "enabled": 1,
+    "return_value": "wsome",
+    "note": "Things that physicians can read and partly modify",
+    "updated_date": 1767615140
+  },
+  {
+    "id": 14,
+    "section_value": "system",
+    "allow": 1,
+    "enabled": 1,
+    "return_value": "write",
+    "note": "Things that physicians can read and modify",
+    "updated_date": 1767615140
+  },
+  {
+    "id": 15,
+    "section_value": "system",
+    "allow": 1,
+    "enabled": 1,
+    "return_value": "view",
+    "note": "Things that clinicians can only read",
+    "updated_date": 1767615140
+  },
+  {
+    "id": 16,
+    "section_value": "system",
+    "allow": 1,
+    "enabled": 1,
+    "return_value": "addonly",
+    "note": "Things that clinicians can read and enter but not modify",
+    "updated_date": 1767615140
+  },
+  {
+    "id": 17,
+    "section_value": "system",
+    "allow": 1,
+    "enabled": 1,
+    "return_value": "wsome",
+    "note": "Things that clinicians can read and partly modify",
+    "updated_date": 1767615141
+  },
+  {
+    "id": 18,
+    "section_value": "system",
+    "allow": 1,
+    "enabled": 1,
+    "return_value": "write",
+    "note": "Things that clinicians can read and modify",
+    "updated_date": 1767615141
+  },
+  {
+    "id": 19,
+    "section_value": "system",
+    "allow": 1,
+    "enabled": 1,
+    "return_value": "view",
+    "note": "Things that front office can only read",
+    "updated_date": 1767615141
+  },
+  {
+    "id": 20,
+    "section_value": "system",
+    "allow": 1,
+    "enabled": 1,
+    "return_value": "addonly",
+    "note": "Things that front office can read and enter but not modify",
+    "updated_date": 1767615141
+  },
+  {
+    "id": 21,
+    "section_value": "system",
+    "allow": 1,
+    "enabled": 1,
+    "return_value": "wsome",
+    "note": "Things that front office can read and partly modify",
+    "updated_date": 1767615141
+  },
+  {
+    "id": 22,
+    "section_value": "system",
+    "allow": 1,
+    "enabled": 1,
+    "return_value": "write",
+    "note": "Things that front office can read and modify",
+    "updated_date": 1767615141
+  },
+  {
+    "id": 23,
+    "section_value": "system",
+    "allow": 1,
+    "enabled": 1,
+    "return_value": "view",
+    "note": "Things that back office can only read",
+    "updated_date": 1767615141
+  },
+  {
+    "id": 24,
+    "section_value": "system",
+    "allow": 1,
+    "enabled": 1,
+    "return_value": "addonly",
+    "note": "Things that back office can read and enter but not modify",
+    "updated_date": 1767615141
+  },
+  {
+    "id": 25,
+    "section_value": "system",
+    "allow": 1,
+    "enabled": 1,
+    "return_value": "wsome",
+    "note": "Things that back office can read and partly modify",
+    "updated_date": 1767615141
+  },
+  {
+    "id": 26,
+    "section_value": "system",
+    "allow": 1,
+    "enabled": 1,
+    "return_value": "write",
+    "note": "Things that back office can read and modify",
+    "updated_date": 1767615141
+  },
+  {
+    "id": 27,
+    "section_value": "system",
+    "allow": 1,
+    "enabled": 1,
+    "return_value": "write",
+    "note": "Emergency Login user can do anything",
+    "updated_date": 1767615141
+  }
+]

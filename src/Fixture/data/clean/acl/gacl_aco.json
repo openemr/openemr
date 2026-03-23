@@ -1,0 +1,530 @@
+[
+  {
+    "id": 10,
+    "section_value": "acct",
+    "value": "bill",
+    "order_value": 10,
+    "name": "Billing (write optional)",
+    "hidden": 0
+  },
+  {
+    "id": 11,
+    "section_value": "acct",
+    "value": "disc",
+    "order_value": 10,
+    "name": "Price Discounting",
+    "hidden": 0
+  },
+  {
+    "id": 12,
+    "section_value": "acct",
+    "value": "eob",
+    "order_value": 10,
+    "name": "EOB Data Entry",
+    "hidden": 0
+  },
+  {
+    "id": 13,
+    "section_value": "acct",
+    "value": "rep",
+    "order_value": 10,
+    "name": "Financial Reporting - my encounters",
+    "hidden": 0
+  },
+  {
+    "id": 14,
+    "section_value": "acct",
+    "value": "rep_a",
+    "order_value": 10,
+    "name": "Financial Reporting - anything",
+    "hidden": 0
+  },
+  {
+    "id": 15,
+    "section_value": "admin",
+    "value": "super",
+    "order_value": 10,
+    "name": "Superuser",
+    "hidden": 0
+  },
+  {
+    "id": 16,
+    "section_value": "admin",
+    "value": "calendar",
+    "order_value": 10,
+    "name": "Calendar Settings",
+    "hidden": 0
+  },
+  {
+    "id": 17,
+    "section_value": "admin",
+    "value": "database",
+    "order_value": 10,
+    "name": "Database Reporting",
+    "hidden": 0
+  },
+  {
+    "id": 18,
+    "section_value": "admin",
+    "value": "forms",
+    "order_value": 10,
+    "name": "Forms Administration",
+    "hidden": 0
+  },
+  {
+    "id": 19,
+    "section_value": "admin",
+    "value": "practice",
+    "order_value": 10,
+    "name": "Practice Settings",
+    "hidden": 0
+  },
+  {
+    "id": 20,
+    "section_value": "admin",
+    "value": "superbill",
+    "order_value": 10,
+    "name": "Superbill Codes Administration",
+    "hidden": 0
+  },
+  {
+    "id": 21,
+    "section_value": "admin",
+    "value": "users",
+    "order_value": 10,
+    "name": "Users/Groups/Logs Administration",
+    "hidden": 0
+  },
+  {
+    "id": 22,
+    "section_value": "admin",
+    "value": "batchcom",
+    "order_value": 10,
+    "name": "Batch Communication Tool",
+    "hidden": 0
+  },
+  {
+    "id": 23,
+    "section_value": "admin",
+    "value": "language",
+    "order_value": 10,
+    "name": "Language Interface Tool",
+    "hidden": 0
+  },
+  {
+    "id": 24,
+    "section_value": "admin",
+    "value": "drugs",
+    "order_value": 10,
+    "name": "Inventory Administration",
+    "hidden": 0
+  },
+  {
+    "id": 25,
+    "section_value": "admin",
+    "value": "acl",
+    "order_value": 10,
+    "name": "ACL Administration",
+    "hidden": 0
+  },
+  {
+    "id": 26,
+    "section_value": "admin",
+    "value": "multipledb",
+    "order_value": 10,
+    "name": "Multipledb",
+    "hidden": 0
+  },
+  {
+    "id": 27,
+    "section_value": "admin",
+    "value": "menu",
+    "order_value": 10,
+    "name": "Menu",
+    "hidden": 0
+  },
+  {
+    "id": 28,
+    "section_value": "admin",
+    "value": "manage_modules",
+    "order_value": 10,
+    "name": "Manage modules",
+    "hidden": 0
+  },
+  {
+    "id": 29,
+    "section_value": "encounters",
+    "value": "auth",
+    "order_value": 10,
+    "name": "Authorize - my encounters",
+    "hidden": 0
+  },
+  {
+    "id": 30,
+    "section_value": "encounters",
+    "value": "auth_a",
+    "order_value": 10,
+    "name": "Authorize - any encounters",
+    "hidden": 0
+  },
+  {
+    "id": 31,
+    "section_value": "encounters",
+    "value": "coding",
+    "order_value": 10,
+    "name": "Coding - my encounters (write,wsome optional)",
+    "hidden": 0
+  },
+  {
+    "id": 32,
+    "section_value": "encounters",
+    "value": "coding_a",
+    "order_value": 10,
+    "name": "Coding - any encounters (write,wsome optional)",
+    "hidden": 0
+  },
+  {
+    "id": 33,
+    "section_value": "encounters",
+    "value": "notes",
+    "order_value": 10,
+    "name": "Notes - my encounters (write,addonly optional)",
+    "hidden": 0
+  },
+  {
+    "id": 34,
+    "section_value": "encounters",
+    "value": "notes_a",
+    "order_value": 10,
+    "name": "Notes - any encounters (write,addonly optional)",
+    "hidden": 0
+  },
+  {
+    "id": 35,
+    "section_value": "encounters",
+    "value": "date_a",
+    "order_value": 10,
+    "name": "Fix encounter dates - any encounters",
+    "hidden": 0
+  },
+  {
+    "id": 36,
+    "section_value": "encounters",
+    "value": "relaxed",
+    "order_value": 10,
+    "name": "Less-protected information (write,addonly optional)",
+    "hidden": 0
+  },
+  {
+    "id": 37,
+    "section_value": "lists",
+    "value": "default",
+    "order_value": 10,
+    "name": "Default List (write,addonly optional)",
+    "hidden": 0
+  },
+  {
+    "id": 38,
+    "section_value": "lists",
+    "value": "state",
+    "order_value": 10,
+    "name": "State List (write,addonly optional)",
+    "hidden": 0
+  },
+  {
+    "id": 39,
+    "section_value": "lists",
+    "value": "country",
+    "order_value": 10,
+    "name": "Country List (write,addonly optional)",
+    "hidden": 0
+  },
+  {
+    "id": 40,
+    "section_value": "lists",
+    "value": "language",
+    "order_value": 10,
+    "name": "Language List (write,addonly optional)",
+    "hidden": 0
+  },
+  {
+    "id": 41,
+    "section_value": "lists",
+    "value": "ethrace",
+    "order_value": 10,
+    "name": "Ethnicity-Race List (write,addonly optional)",
+    "hidden": 0
+  },
+  {
+    "id": 42,
+    "section_value": "patientportal",
+    "value": "portal",
+    "order_value": 10,
+    "name": "Patient Portal",
+    "hidden": 0
+  },
+  {
+    "id": 43,
+    "section_value": "menus",
+    "value": "modle",
+    "order_value": 10,
+    "name": "Modules",
+    "hidden": 0
+  },
+  {
+    "id": 44,
+    "section_value": "patients",
+    "value": "appt",
+    "order_value": 10,
+    "name": "Appointments (write,wsome optional)",
+    "hidden": 0
+  },
+  {
+    "id": 45,
+    "section_value": "patients",
+    "value": "demo",
+    "order_value": 10,
+    "name": "Demographics (write,addonly optional)",
+    "hidden": 0
+  },
+  {
+    "id": 46,
+    "section_value": "patients",
+    "value": "med",
+    "order_value": 10,
+    "name": "Medical/History (write,addonly optional)",
+    "hidden": 0
+  },
+  {
+    "id": 47,
+    "section_value": "patients",
+    "value": "trans",
+    "order_value": 10,
+    "name": "Transactions (write optional)",
+    "hidden": 0
+  },
+  {
+    "id": 48,
+    "section_value": "patients",
+    "value": "docs",
+    "order_value": 10,
+    "name": "Documents (write,addonly optional)",
+    "hidden": 0
+  },
+  {
+    "id": 49,
+    "section_value": "patients",
+    "value": "docs_rm",
+    "order_value": 10,
+    "name": "Documents Delete",
+    "hidden": 0
+  },
+  {
+    "id": 50,
+    "section_value": "patients",
+    "value": "notes",
+    "order_value": 10,
+    "name": "Patient Notes (write,addonly optional)",
+    "hidden": 0
+  },
+  {
+    "id": 51,
+    "section_value": "patients",
+    "value": "sign",
+    "order_value": 10,
+    "name": "Sign Lab Results (write,addonly optional)",
+    "hidden": 0
+  },
+  {
+    "id": 52,
+    "section_value": "patients",
+    "value": "reminder",
+    "order_value": 10,
+    "name": "Patient Reminders (write,addonly optional)",
+    "hidden": 0
+  },
+  {
+    "id": 53,
+    "section_value": "patients",
+    "value": "alert",
+    "order_value": 10,
+    "name": "Clinical Reminders/Alerts (write,addonly optional)",
+    "hidden": 0
+  },
+  {
+    "id": 54,
+    "section_value": "patients",
+    "value": "disclosure",
+    "order_value": 10,
+    "name": "Disclosures (write,addonly optional)",
+    "hidden": 0
+  },
+  {
+    "id": 55,
+    "section_value": "patients",
+    "value": "rx",
+    "order_value": 10,
+    "name": "Prescriptions (write,addonly optional)",
+    "hidden": 0
+  },
+  {
+    "id": 56,
+    "section_value": "patients",
+    "value": "amendment",
+    "order_value": 10,
+    "name": "Amendments (write,addonly optional)",
+    "hidden": 0
+  },
+  {
+    "id": 57,
+    "section_value": "patients",
+    "value": "lab",
+    "order_value": 10,
+    "name": "Lab Results (write,addonly optional)",
+    "hidden": 0
+  },
+  {
+    "id": 58,
+    "section_value": "patients",
+    "value": "pat_rep",
+    "order_value": 10,
+    "name": "Patient Report",
+    "hidden": 0
+  },
+  {
+    "id": 59,
+    "section_value": "groups",
+    "value": "gadd",
+    "order_value": 10,
+    "name": "View/Add/Update groups",
+    "hidden": 0
+  },
+  {
+    "id": 60,
+    "section_value": "groups",
+    "value": "gcalendar",
+    "order_value": 10,
+    "name": "View/Create/Update groups appointment in calendar",
+    "hidden": 0
+  },
+  {
+    "id": 61,
+    "section_value": "groups",
+    "value": "glog",
+    "order_value": 10,
+    "name": "Group encounter log",
+    "hidden": 0
+  },
+  {
+    "id": 62,
+    "section_value": "groups",
+    "value": "gdlog",
+    "order_value": 10,
+    "name": "Group detailed log of appointment in patient record",
+    "hidden": 0
+  },
+  {
+    "id": 63,
+    "section_value": "groups",
+    "value": "gm",
+    "order_value": 10,
+    "name": "Send message from the permanent group therapist to the personal therapist",
+    "hidden": 0
+  },
+  {
+    "id": 64,
+    "section_value": "sensitivities",
+    "value": "normal",
+    "order_value": 10,
+    "name": "Normal",
+    "hidden": 0
+  },
+  {
+    "id": 65,
+    "section_value": "sensitivities",
+    "value": "high",
+    "order_value": 20,
+    "name": "High",
+    "hidden": 0
+  },
+  {
+    "id": 66,
+    "section_value": "placeholder",
+    "value": "filler",
+    "order_value": 10,
+    "name": "Placeholder (Maintains empty ACLs)",
+    "hidden": 0
+  },
+  {
+    "id": 67,
+    "section_value": "nationnotes",
+    "value": "nn_configure",
+    "order_value": 10,
+    "name": "Nation Notes Configure",
+    "hidden": 0
+  },
+  {
+    "id": 68,
+    "section_value": "inventory",
+    "value": "lots",
+    "order_value": 10,
+    "name": "Lots",
+    "hidden": 0
+  },
+  {
+    "id": 69,
+    "section_value": "inventory",
+    "value": "sales",
+    "order_value": 20,
+    "name": "Sales",
+    "hidden": 0
+  },
+  {
+    "id": 70,
+    "section_value": "inventory",
+    "value": "purchases",
+    "order_value": 30,
+    "name": "Purchases",
+    "hidden": 0
+  },
+  {
+    "id": 71,
+    "section_value": "inventory",
+    "value": "transfers",
+    "order_value": 40,
+    "name": "Transfers",
+    "hidden": 0
+  },
+  {
+    "id": 72,
+    "section_value": "inventory",
+    "value": "adjustments",
+    "order_value": 50,
+    "name": "Adjustments",
+    "hidden": 0
+  },
+  {
+    "id": 73,
+    "section_value": "inventory",
+    "value": "consumption",
+    "order_value": 60,
+    "name": "Consumption",
+    "hidden": 0
+  },
+  {
+    "id": 74,
+    "section_value": "inventory",
+    "value": "destruction",
+    "order_value": 70,
+    "name": "Destruction",
+    "hidden": 0
+  },
+  {
+    "id": 75,
+    "section_value": "inventory",
+    "value": "reporting",
+    "order_value": 80,
+    "name": "Reporting",
+    "hidden": 0
+  }
+]

@@ -19,11 +19,13 @@ use LogicException;
  *   class ClassWithoutConstructorArguments {
  *       use SingletonTrait;
  *   }
+ *   $object = ClassWithoutConstructorArguments::getInstance();
  *
  *   class ClassWithConstructorArguments {
  *       use SingletonTrait;
  *       protected static function createInstance(): static { return new static($argumentA, $argumentB); }
  *   }
+ *   $object = ClassWithConstructorArguments::getInstance();
  */
 trait SingletonTrait
 {

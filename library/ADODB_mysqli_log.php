@@ -21,9 +21,9 @@ class ADODB_mysqli_log extends ADODB_mysqli
      *
      * @param  string  $sql         query
      * @param  array|bool $inputarr    binded variables array (optional)
-     * @return ADORecordSet|false   returns false if error
+     * @return ADORecordSet|ADORecordSet_empty|false   returns false if error
      */
-    function Execute($sql, $inputarr = false, $insertNeedReturn = false)
+    function Execute($sql, $inputarr = false, $insertNeedReturn = false): ADORecordSet|ADORecordSet_empty|false
     {
         $retval = parent::Execute($sql, $inputarr);
         if ($retval === false) {
@@ -59,9 +59,9 @@ class ADODB_mysqli_log extends ADODB_mysqli
      *
      * @param string $sql query
      * @param array|bool $inputarr binded variables array (optional)
-     * @return ADORecordSet|false false if error
+     * @return ADORecordSet|ADORecordSet_empty|false false if error
      */
-    function ExecuteNoLog($sql, $inputarr = false)
+    function ExecuteNoLog($sql, $inputarr = false): ADORecordSet|ADORecordSet_empty|false
     {
         return parent::Execute($sql, $inputarr);
     }

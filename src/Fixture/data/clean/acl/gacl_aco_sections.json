@@ -1,0 +1,93 @@
+[
+  {
+    "id": 10,
+    "value": "acct",
+    "order_value": 10,
+    "name": "Accounting",
+    "hidden": 0
+  },
+  {
+    "id": 11,
+    "value": "admin",
+    "order_value": 10,
+    "name": "Administration",
+    "hidden": 0
+  },
+  {
+    "id": 12,
+    "value": "encounters",
+    "order_value": 10,
+    "name": "Encounters",
+    "hidden": 0
+  },
+  {
+    "id": 13,
+    "value": "lists",
+    "order_value": 10,
+    "name": "Lists",
+    "hidden": 0
+  },
+  {
+    "id": 14,
+    "value": "patients",
+    "order_value": 10,
+    "name": "Patients",
+    "hidden": 0
+  },
+  {
+    "id": 15,
+    "value": "squads",
+    "order_value": 10,
+    "name": "Squads",
+    "hidden": 0
+  },
+  {
+    "id": 16,
+    "value": "sensitivities",
+    "order_value": 10,
+    "name": "Sensitivities",
+    "hidden": 0
+  },
+  {
+    "id": 17,
+    "value": "placeholder",
+    "order_value": 10,
+    "name": "Placeholder",
+    "hidden": 0
+  },
+  {
+    "id": 18,
+    "value": "nationnotes",
+    "order_value": 10,
+    "name": "Nation Notes",
+    "hidden": 0
+  },
+  {
+    "id": 19,
+    "value": "patientportal",
+    "order_value": 10,
+    "name": "Patient Portal",
+    "hidden": 0
+  },
+  {
+    "id": 20,
+    "value": "menus",
+    "order_value": 10,
+    "name": "Menus",
+    "hidden": 0
+  },
+  {
+    "id": 21,
+    "value": "groups",
+    "order_value": 10,
+    "name": "Groups",
+    "hidden": 0
+  },
+  {
+    "id": 22,
+    "value": "inventory",
+    "order_value": 10,
+    "name": "Inventory",
+    "hidden": 0
+  }
+]

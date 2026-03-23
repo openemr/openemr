@@ -464,4 +464,25 @@ class ApiTestClient
             "query" => $params
         ]);
     }
+
+    public function request(
+        string $method,
+        string $url,
+        array $query = [],
+        string|array $jsonBody = [],
+        array $headers = []
+    ): ResponseInterface {
+        return $this->client->request(
+            $method,
+            $url,
+            [
+                'query' => $query,
+                'body' => is_string($jsonBody) ? $jsonBody : json_encode($jsonBody),
+                'headers' => array_merge(
+                    $this->headers,
+                    $headers
+                ),
+            ],
+        );
+    }
 }

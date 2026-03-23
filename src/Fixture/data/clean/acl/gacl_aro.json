@@ -1,0 +1,18 @@
+[
+  {
+    "id": 10,
+    "section_value": "users",
+    "value": "admin",
+    "order_value": 10,
+    "name": "Administrator",
+    "hidden": 0
+  },
+  {
+    "id": 11,
+    "section_value": "users",
+    "value": "oe-system",
+    "order_value": 10,
+    "name": "System Operation User",
+    "hidden": 0
+  }
+]

@@ -1,0 +1,18 @@
+[
+    {
+        "value": "testers",
+        "name": "Testers"
+    },
+    {
+        "value": "qas",
+        "name": "QAs"
+    },
+    {
+        "value": "managers",
+        "name": "Managers"
+    },
+    {
+        "value": "readers",
+        "name": "Readers"
+    }
+]

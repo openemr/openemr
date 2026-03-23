@@ -1,0 +1,347 @@
+[
+  {
+    "setting_user": 0,
+    "setting_label": "",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "/interface/main/messages/messages.php.form_facility",
+    "setting_value": ""
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "/interface/main/messages/messages.php.form_provider",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "/interface/main/messages/messages.php.rcb_selectors",
+    "setting_value": "block"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "allergy_ps_expand",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "appointments_ps_expand",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "billing_ps_expand",
+    "setting_value": "0"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "clinical_reminders_ps_expand",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "demographics_ps_expand",
+    "setting_value": "0"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "dental_ps_expand",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "directives_ps_expand",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "disclosures_ps_expand",
+    "setting_value": "0"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "edit_globals_xpd",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "gacl_protect",
+    "setting_value": "0"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "immunizations_ps_expand",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "insurance_ps_expand",
+    "setting_value": "0"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "medical_problem_ps_expand",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "medication_ps_expand",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "patient_reminders_ps_expand",
+    "setting_value": "0"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "pnotes_ps_expand",
+    "setting_value": "0"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "prescriptions_ps_expand",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "setting_bootstrap_submenu",
+    "setting_value": " "
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "surgery_ps_expand",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 0,
+    "setting_label": "vitals_ps_expand",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "/interface/main/messages/messages.php.form_facility",
+    "setting_value": ""
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "/interface/main/messages/messages.php.form_provider",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "/interface/main/messages/messages.php.rcb_selectors",
+    "setting_value": "block"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "edit_globals_xpd",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "gacl_protect",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:calendar_view_type",
+    "setting_value": "week"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:ccda_careplan_section_sort_order",
+    "setting_value": "procedures;dx_tests_labdata;functional_status"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:ccda_ccd_section_sort_order",
+    "setting_value": "medications;dx_tests_labdata"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:ccda_default_section_sort_order",
+    "setting_value": "allergies_required;medications;problems"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:ccda_referral_section_sort_order",
+    "setting_value": "medical_equipment;functional_status;immunizations"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:ccda_toc_section_sort_order",
+    "setting_value": "encounters;assessments;treatment_plan"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:ccda_view_max_sections",
+    "setting_value": "3"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:checkout_roll_off",
+    "setting_value": "5"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:css_header",
+    "setting_value": "style_dark.css"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:date_display_format",
+    "setting_value": "2"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:default_encounter_view",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:enable_compact_mode",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:enable_help",
+    "setting_value": "2"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:erx_import_status_message",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:event_color",
+    "setting_value": "2"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:expand_form",
+    "setting_value": ""
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:gbl_pt_list_new_window",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:gbl_pt_list_page_size",
+    "setting_value": "25"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:ledger_begin_date",
+    "setting_value": "Y2"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:messages_due_date",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:patient_birthday_alert",
+    "setting_value": "2"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:patient_birthday_alert_manual_off",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:pat_trkr_timer",
+    "setting_value": "0:30"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:posting_adj_disable",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:print_next_appointment_on_ledger",
+    "setting_value": ""
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:ptkr_date_range",
+    "setting_value": ""
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:ptkr_end_date",
+    "setting_value": "D1"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:ptkr_start_date",
+    "setting_value": "B0"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:ptkr_visit_reason",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:questionnaire_display_fullscreen",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:questionnaire_display_LOINCnote",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:questionnaire_display_style",
+    "setting_value": "3"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:search_any_patient",
+    "setting_value": "fixed"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:text_templates_enabled",
+    "setting_value": ""
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:theme_tabs_layout",
+    "setting_value": "tabs_style_compact.css"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:time_display_format",
+    "setting_value": "1"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:units_of_measurement",
+    "setting_value": "2"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "global:us_weight_format",
+    "setting_value": "2"
+  },
+  {
+    "setting_user": 1,
+    "setting_label": "setting_bootstrap_submenu",
+    "setting_value": " "
+  }
+]

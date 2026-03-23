@@ -22,10 +22,14 @@ namespace OpenEMR\Common\Auth;
 
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Core\Traits\SingletonTrait;
 
 class AuthHash
 {
+    use SingletonTrait;
+
     private $algo;          // Algorithm setting from globals
+
     private $algo_constant; // Standard algorithm constant, if exists
 
     private $options;       // Standardized array of options

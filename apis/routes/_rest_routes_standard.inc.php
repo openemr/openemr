@@ -18,12 +18,12 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenApi\Annotations as OA;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\RestControllers\AllergyIntoleranceRestController;
 use OpenEMR\RestControllers\AppointmentRestController;
 use OpenEMR\RestControllers\ConditionRestController;
-// TODO: Remove this import when the OpenEMR\RestControllers\Config\RestConfig is no longer needed
 use OpenEMR\RestControllers\Config\RestConfig;
 use OpenEMR\RestControllers\DocumentRestController;
 use OpenEMR\RestControllers\DrugRestController;
@@ -42,7 +42,6 @@ use OpenEMR\RestControllers\ProcedureRestController;
 use OpenEMR\RestControllers\ProductRegistrationRestController;
 use OpenEMR\RestControllers\RestControllerHelper;
 use OpenEMR\RestControllers\TransactionRestController;
-use OpenEMR\RestControllers\UserRestController;
 use OpenEMR\RestControllers\VersionRestController;
 use OpenEMR\Services\Search\SearchQueryConfig;
 

@@ -1,0 +1,37 @@
+[
+  {
+    "section_id": 1,
+    "section_name": "Immunization",
+    "parent_section": 0,
+    "section_identifier": "immunization",
+    "module_id": 1
+  },
+  {
+    "section_id": 2,
+    "section_name": "Syndromicsurveillance",
+    "parent_section": 0,
+    "section_identifier": "syndromicsurveillance",
+    "module_id": 2
+  },
+  {
+    "section_id": 3,
+    "section_name": "Documents",
+    "parent_section": 0,
+    "section_identifier": "documents",
+    "module_id": 3
+  },
+  {
+    "section_id": 4,
+    "section_name": "Ccr",
+    "parent_section": 0,
+    "section_identifier": "ccr",
+    "module_id": 4
+  },
+  {
+    "section_id": 5,
+    "section_name": "Carecoordination",
+    "parent_section": 0,
+    "section_identifier": "carecoordination",
+    "module_id": 5
+  }
+]
