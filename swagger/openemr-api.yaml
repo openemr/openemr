@@ -62,6 +62,7 @@ paths:
               required:
                 - username
                 - password
+                - admin_password
                 - fname
                 - lname
                 - access_group
@@ -69,6 +70,10 @@ paths:
                 username:
                   type: string
                 password:
+                  description: 'Password for the new user'
+                  type: string
+                admin_password:
+                  description: 'Current password of the authenticated admin performing this action'
                   type: string
                 fname:
                   type: string
