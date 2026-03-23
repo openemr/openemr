@@ -295,7 +295,7 @@ function update_event($eid): void
     // this event is forced to NOT REPEAT
         $args['form_repeat'] = "0";
         $args['recurrspec'] = $noRecurrspec;
-        $args['form_enddate'] = "0000-00-00";
+        $args['form_enddate'] = null;
         $args['starttime'] = $starttime;
         $args['endtime'] = $endtime;
         $args['locationspec'] = $locationspec;
