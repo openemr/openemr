@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Encryption\Keys;
+namespace OpenEMR\Encryption\Keys\Storage;
+
+use OpenEMR\Encryption\Keys\KeyMaterial;
 
 /**
  * @deprecated For backwards compatibility only.
  */
-readonly class PlaintextKeyOnDisk implements KeyManagerInterface
+readonly class PlaintextKeyOnDisk implements KeyStorageInterface
 {
     public function __construct(private string $storageDir)
     {

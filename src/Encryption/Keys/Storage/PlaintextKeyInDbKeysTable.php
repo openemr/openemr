@@ -2,17 +2,22 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Encryption\Keys;
+namespace OpenEMR\Encryption\Keys\Storage;
 
-use OpenEMR\Common\Database\QueryUtils;
+use Doctrine\DBAL\Connection;
+use OpenEMR\Encryption\Keys\KeyMaterial;
 
-readonly class PlaintextKeyInDbKeysTableAdodb implements KeyManagerInterface
+readonly class PlaintextKeyInDbKeysTable implements KeyStorageInterface
 {
+    public function __construct(
+        private Connection $conn,
+    ) {
+    }
+
     public function getKey(string $identifier): KeyMaterial
     {
-        $result = QueryUtils::fetchSingleValue(
+        $result = $this->conn->fetchOne(
             'SELECT value FROM `keys` WHERE name = ?',
-            'value',
             [$identifier],
         );
 
