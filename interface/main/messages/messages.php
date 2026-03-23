@@ -840,7 +840,7 @@ if (!empty($_REQUEST['go'])) { ?>
                 window.top.restoreSession();
                 request = new FormData;
                 request.append("ajax", "1");
-                request.append("csrf_token_form", <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>);
+                request.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>);
                 request.append("background_service", "phimail");
                 request.append("background_force", "1");
                 fetch(webRoot + "/library/ajax/execute_background_services.php", {
@@ -1041,7 +1041,7 @@ if (!empty($_REQUEST['go'])) { ?>
             var url = '../../main/finder/multi_patients_finder.php'
             // for edit selected list
             if ($('#reply_to').val() !== '') {
-                url = url + '?patients=' + $('#reply_to').val() + '&csrf_token_form=<?php echo attr_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>';
+                url = url + '?patients=' + $('#reply_to').val() + '&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>';
             }
             dlgopen(url, '_blank', 625, 400);
         }

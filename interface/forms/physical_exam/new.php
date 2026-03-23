@@ -167,7 +167,7 @@ if ($formid) {
 <body class="body_top">
 <form method="post" action="<?php echo $rootdir ?>/forms/physical_exam/new.php?id=<?php echo attr_url($formid); ?>"
  onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <center>
 

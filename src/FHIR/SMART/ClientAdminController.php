@@ -614,11 +614,9 @@ class ClientAdminController
 
     /**
      * Retrieves the CSRF token string to use
-     * @return false|string
      */
-    private function getCSRFToken(): string|false
+    private function getCSRFToken(): string
     {
-        /** @var string|false */
         return CsrfUtils::collectCsrfToken($this->session, self::CSRF_TOKEN_NAME);
     }
 

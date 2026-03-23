@@ -161,7 +161,7 @@ if ($_GET) {
             </div>
             <div class="col-12 filter-section mb-3">
                 <form method="get" id="logForm" onsubmit="return top.restoreSession()">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <div class="card">
                         <div class="card-header bg-primary text-white">
                             <h5 class="mb-0"><?php echo xlt('Filters') ?></h5>

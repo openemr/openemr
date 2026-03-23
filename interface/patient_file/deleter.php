@@ -462,9 +462,9 @@ function popup_close() {
         }
         ?>
 
-        <form method='post' name="deletefrm" action='deleter.php?patient=<?php echo attr_url($patient) ?>&encounterid=<?php echo attr_url($encounterid) ?>&formid=<?php echo attr_url($formid) ?>&issue=<?php echo attr_url($issue) ?>&document=<?php echo attr_url($document) ?>&payment=<?php echo attr_url($payment) ?>&billing=<?php echo attr_url($billing) ?>&transaction=<?php echo attr_url($transaction); ?>&csrf_token_form=<?php echo attr_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>'>
+        <form method='post' name="deletefrm" action='deleter.php?patient=<?php echo attr_url($patient) ?>&encounterid=<?php echo attr_url($encounterid) ?>&formid=<?php echo attr_url($formid) ?>&issue=<?php echo attr_url($issue) ?>&document=<?php echo attr_url($document) ?>&payment=<?php echo attr_url($payment) ?>&billing=<?php echo attr_url($billing) ?>&transaction=<?php echo attr_url($transaction); ?>&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>'>
             <input type="hidden" name="csrf_token_form"
-                value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <p>
             <?php
             $type = '';

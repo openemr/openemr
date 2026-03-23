@@ -445,7 +445,7 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
 <h3 class="ml-1"><?php echo text($title);?></h3>
 <form method='post' name='theform' action='add_edit_drug.php?drug=<?php echo attr_url($drug_id); ?>'
  onsubmit='return validate(this);'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
     <div class="form-group">
         <label><?php echo xlt('Name'); ?>:</label>

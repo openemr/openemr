@@ -189,7 +189,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'process')) {
     }
     ?>
     <form name="select_form" method="post" action="">
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
         <div class="row">
             <div class="col-md card p-3 m-1 form-group">
                 <label for="process_type"><?php echo xlt("Process") . ":"; ?></label>

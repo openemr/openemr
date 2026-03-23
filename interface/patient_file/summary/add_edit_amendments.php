@@ -180,7 +180,7 @@ $(function () {
             </div>
             <div class="col-12">
                 <form action="add_edit_amendments.php" name="add_edit_amendments" id="add_edit_amendments" method="post" onsubmit='return top.restoreSession()'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
                     <div class="form-group mt-3">
                         <label><?php echo xlt('Requested Date'); ?></label>

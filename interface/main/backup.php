@@ -447,7 +447,7 @@ function export_submit(step) {
 <center>
 &nbsp;<br />
 <form method='post' action='backup.php' enctype='multipart/form-data' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <table<?php echo ($form_step != 101) ? " style='width:50em'" : ""; ?>>
  <tr>

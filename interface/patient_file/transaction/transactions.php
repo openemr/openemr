@@ -38,7 +38,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
     // Process click on Delete button.
     function deleteme(transactionId) {
         top.restoreSession();
-        dlgopen('../deleter.php?transaction=' + encodeURIComponent(transactionId) + '&csrf_token_form=' + <?php echo js_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>, '_blank', 500, 450);
+        dlgopen('../deleter.php?transaction=' + encodeURIComponent(transactionId) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>, '_blank', 500, 450);
         return false;
     }
 <?php require_once("$include_root/patient_file/erx_patient_portal_js.php"); // jQuery for popups for eRx and patient portal ?>

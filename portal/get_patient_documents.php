@@ -121,7 +121,7 @@ while ($file = sqlFetchArray($fres)) {
     <div class="container-fluid">
         <h4><?php echo xlt("Select Documents to Download"); ?></h4>
         <form id="download-form" action="report/document_downloads_action.php" method="post" onsubmit="validateForm(event)">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken($session)); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken($session); ?>" />
             <div class="form-check mb-3">
                 <input class="form-check-input" type="checkbox" id="selectAll" onclick="toggleAllCheckboxes(this)">
                 <label class="form-check-label" for="selectAll"><?php echo xlt("Select All Documents"); ?></label>

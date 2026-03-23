@@ -598,7 +598,7 @@ if (
                     const params = new URLSearchParams({
                         code: code,
                         codetype: codetype,
-                        csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session)); ?>,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>,
                         pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : "",
                         selector: selector
                     });
@@ -819,7 +819,7 @@ if (
             const params = new URLSearchParams({
                 code: a[1],
                 codetype: a[0],
-                csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session)); ?>,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>,
                 pricelevel: f.form_fs_pricelevel.value
             });
             $.getScript('<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/ajax/code_attributes_ajax.php?' + params);
@@ -847,7 +847,7 @@ if (
             const params = new URLSearchParams({
                 code: a[1],
                 codetype: a[0],
-                csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session)); ?>,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>,
                 pricelevel: f.form_fs_pricelevel.value,
                 selector: a[2]
             });
@@ -876,7 +876,7 @@ if (
             const params = new URLSearchParams({
                 code: a[1],
                 codetype: a[0],
-                csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session)); ?>,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>,
                 pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : ""
             });
             $.getScript('<?php echo OEGlobalsBag::getInstance()->get('web_root') ?>/library/ajax/code_attributes_ajax.php?' + params);
@@ -888,7 +888,7 @@ if (
             // The option value is an encoded string of code types and codes.
             if (sel.value) {
                 const params = new URLSearchParams({
-                    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session)); ?>,
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>,
                     list: sel.value,
                     pricelevel: f.form_fs_pricelevel ? f.form_fs_pricelevel.value : ""
                 });

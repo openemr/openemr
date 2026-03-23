@@ -77,7 +77,7 @@ function userSelect() {
     </div>
 
 <form method='post' action='chart_tracker.php' class='form-horizontal' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <?php
 // This is the place for status messages.

@@ -318,7 +318,7 @@ if (isset($this_message['pid'])) {
                     </div>
                     <div class="card-body">
                         <form id="addDR" class="form-horizontal" method="post" onsubmit="return top.restoreSession()">
-                            <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
                             <fieldset id='error-info' class='oe-error-modal' style="display: none">
                                 <div class="text-center" id="errorMessage"></div>

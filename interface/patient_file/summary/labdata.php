@@ -344,7 +344,7 @@ function checkAll(bx) {
                                                 track:  thetitle,
                                                 items:  theitem,
                                                 thecheckboxes: checkboxfake,
-                                                csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+                                                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                                             },
                                         dataType: "json",
                                         success: function(returnData){

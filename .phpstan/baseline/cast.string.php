@@ -3013,6 +3013,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../setup.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot cast mixed to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../sites/default/LBF/LBFathbf.plugin.php',
 ];

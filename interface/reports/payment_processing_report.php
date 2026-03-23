@@ -123,7 +123,7 @@ $actionName = $_POST['form_action_name'] ?? null;
 </div>
 
 <form method='post' name='theform' id='theform' action='payment_processing_report.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 

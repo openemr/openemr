@@ -74,7 +74,7 @@ while ($row = sqlFetchArray($list)) {
         <div class="container-fluid" id="facility">
             <h6 class="text-center"><small><cite><?php echo xlt("Auto Save On for Facility Weno Location."); ?></cite></small></h6>
             <form name="wenofacilityinfo" method="post" action="setup_facilities.php" onsubmit="return top.restoreSession()">
-                <input type="hidden" name="csrf_token" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>">
+                <input type="hidden" name="csrf_token" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>">
                 <table class="table table-sm table-hover table-striped table-borderless">
                     <thead>
                     <tr>

@@ -177,7 +177,7 @@ if (!($_REQUEST['flb_table'] ?? null)) {
                     <div name="div_response" id="div_response" class="nodisplay"></div>
                         <form name="flb" id="flb" method="post">
                         <div class="row">
-                          <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                          <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                             <div class="text-center col-4 align-items-center">
                               <!-- Visit Categories Section -->
                               <div class="col-sm">
@@ -799,7 +799,7 @@ if (!($_REQUEST['flb_table'] ?? null)) { ?>
     </div><?php //end container ?>
     <!-- form used to open a new top level window when a patient row is clicked -->
     <form name='fnew' method='post' target='_blank' action='../main/main_screen.php?auth=login&site=<?php echo attr_url($session->get('site_id')); ?>'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
         <input type='hidden' name='patientID' value='0' />
         <input type='hidden' name='encounterID' value='0' />
     </form>
@@ -832,7 +832,7 @@ function myLocalJS(SessionInterface $session): void
             if ($("#flb_selectors").css('display') === 'none') {
                 $.post("<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_tracker/patient_tracker.php"; ?>", {
                     setting_selectors: 'block',
-                    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session)); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>
                 }).done(
                     function (data) {
                         $("#flb_selectors").slideToggle();
@@ -844,7 +844,7 @@ function myLocalJS(SessionInterface $session): void
             } else {
                 $.post("<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_tracker/patient_tracker.php"; ?>", {
                     setting_selectors: 'none',
-                    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session)); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>
                 }).done(
                     function (data) {
                         $("#flb_selectors").slideToggle();
@@ -885,7 +885,7 @@ function myLocalJS(SessionInterface $session): void
                 form_apptcat: $("#form_apptcat").val(),
                 kiosk: $("#kiosk").val(),
                 skip_timeout_reset: skip_timeout_reset,
-                csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session)); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>
             }).done(
                 function (data) {
                     //minimum 400 ms of loader (In the first loading or manual loading not by timer)
@@ -956,7 +956,7 @@ function myLocalJS(SessionInterface $session): void
         // popup for patient tracker status
         function bpopup(tkid) {
             top.restoreSession();
-            dlgopen('../patient_tracker/patient_tracker_status.php?tracker_id=' + encodeURIComponent(tkid) + '&csrf_token_form=' + <?php echo js_url((string) CsrfUtils::collectCsrfToken($session)); ?>, '_blank', 500, 250);
+            dlgopen('../patient_tracker/patient_tracker_status.php?tracker_id=' + encodeURIComponent(tkid) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken($session)); ?>, '_blank', 500, 250);
             return false;
         }
 
@@ -1099,7 +1099,7 @@ function myLocalJS(SessionInterface $session): void
                 $.post("../../library/ajax/drug_screen_completed.php", {
                     trackerid: this.id,
                     testcomplete: testcomplete_toggle,
-                    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session)); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>
                 });
             });
 
@@ -1109,7 +1109,7 @@ function myLocalJS(SessionInterface $session): void
                 top.restoreSession();
                 $.post("<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/interface/patient_tracker/patient_tracker.php"; ?>", {
                     setting_new_window: $('#setting_new_window').val(),
-                    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session)); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>
                 }).done(
                     function (data) {
                 });

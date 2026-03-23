@@ -235,7 +235,7 @@ $vendors = $boot->getVendorGlobals();
         </div>
         <form id="set_form" name="set_form" class="form" role="form" method="post" action="#">
             <div id="set-weno">
-                <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <!-- never active and for persist submit. -->
                 <button type="submit" id="form_save_top" name="form_save_top" class="d-none" value="true"></button>
                 <div class="row form-group">

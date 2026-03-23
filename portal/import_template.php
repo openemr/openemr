@@ -364,7 +364,7 @@ function renderEditorHtml($template_id, $content): void
             <div class="row">
                 <div class="col-10 px-1 sticky-top">
                     <form class="sticky-top" action='./import_template.php' method='post'>
-                        <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken($session, 'import-template-save')); ?>" />
+                        <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken($session, 'import-template-save'); ?>" />
                         <input type="hidden" name="docid" value="<?php echo attr($template_id) ?>">
                         <input type='hidden' name='mode' value="save">
                         <input type='hidden' name='service' value='window'>

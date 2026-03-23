@@ -94,7 +94,7 @@ $obj = $formid ? formFetch("form_misc_billing_options", $formid) : [];
             <div class="col-sm-12">
                 <?php echo  $oemr_ui->pageHeading() . "\r\n"; ?>
             <form method=post <?php echo "name='my_form' " . "action='$rootdir/forms/misc_billing_options/save.php?id=" . attr_url($formid) . "'\n"; ?>>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <fieldset>
                     <legend><?php echo xlt('Select Options for Current Encounter') ?></legend>
                     <div class="container">
