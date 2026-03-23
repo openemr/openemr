@@ -207,7 +207,7 @@ if ($_POST['form_csvexport']) {
 <h2><?php echo xlt('CYP Report')?></h2>
 
 <form method='post' action='ippf_cyp_report.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <table border='0' cellpadding='3'>
 

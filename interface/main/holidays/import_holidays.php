@@ -123,7 +123,7 @@ if (!empty($saved)) {
 <div class="container-fluid">
 <form method='post' action='import_holidays.php' enctype='multipart/form-data'
       onsubmit='return top.restoreSession()'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <div class="table-responsive">
         <table class='table table-bordered text' cellpadding='4'>
             <thead class='thead-light'>
@@ -153,7 +153,7 @@ if (!empty($saved)) {
                         <?php $filename = $path[count($path) - 1];?>
                         <?php unset($path[count($path) - 1]);?>
 
-                        <a href="#" onclick='window.open("import_holidays.php?download_file=1&csrf_token_form=<?php echo attr_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>")'><?php echo text($csv_file_data['date']);?></a>
+                        <a href="#" onclick='window.open("import_holidays.php?download_file=1&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>")'><?php echo text($csv_file_data['date']);?></a>
                         <?php
                     } else {
                         echo xlt('File not found');
@@ -175,7 +175,7 @@ if (!empty($saved)) {
         <tr>
             <td>
                 <form method='post' action='import_holidays.php' onsubmit='return top.restoreSession()'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <input type='submit' class='btn btn-primary' name='import_holidays' value='<?php echo xla('Import holiday events') ?>'><br />
 
                 </form>
@@ -189,7 +189,7 @@ if (!empty($saved)) {
             <tr>
                 <td>
                     <form method='post' action='import_holidays.php' onsubmit='return top.restoreSession()'>
-                        <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                         <input type='submit' class='btn btn-primary' name='sync' value='<?php echo xla('Synchronize') ?>' /><br />
                     </form>
                 </td>

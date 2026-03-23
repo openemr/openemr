@@ -217,7 +217,7 @@ if (($_REQUEST['action'] == 'delete_Recall') && ($_REQUEST['pid'])) {
 }
 
 // Clear the pidList session whenever this page is loaded.
-// $_SESSION['pidList'] will hold array of patient ids
+// session 'pidList' will hold array of patient ids
 // which is then used to print 'postcards' and 'Address Labels'
 // Thanks Terry!
 SessionUtil::unsetSession('pidList');

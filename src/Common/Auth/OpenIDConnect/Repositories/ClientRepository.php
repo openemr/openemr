@@ -47,7 +47,7 @@ class ClientRepository implements ClientRepositoryInterface
         return $this;
     }
 
-    // TODO: @adunsulag this function needs to be updated to remove usage of $_SESSION and other superglobals
+    // TODO: @adunsulag this function needs to be updated to remove usage of superglobals
     public function insertNewClient($clientId, $info, $site): bool
     {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();

@@ -61,7 +61,7 @@ function doedclick_add() {
     var addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Add Mode"); ?>;
     const params = new URLSearchParams({
         ppid: '0',
-        csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
     });
     const scriptTitle = 'procedure_provider_edit.php?' + params.toString();
     dlgopen(scriptTitle, '_blank', 800, 750, false, addTitle);
@@ -73,7 +73,7 @@ function doedclick_edit(ppid) {
     var editTitle = '<i class="fa fa-pencil-alt" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?> + ' ';
     const params = new URLSearchParams({
         ppid: ppid,
-        csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
     });
     const scriptTitle = 'procedure_provider_edit.php?' + params.toString();
     dlgopen(scriptTitle, '_blank', 800, 750, false, editTitle);

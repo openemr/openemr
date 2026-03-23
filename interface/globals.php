@@ -28,6 +28,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Kernel;
 use OpenEMR\Core\ModulesApplication;
@@ -275,12 +276,7 @@ if (empty($siteId) || !empty($_GET['site'])) {
 
     if ($siteId !== null && $siteId != $tmp) {
       // This is to prevent using session to penetrate other OpenEMR instances within same multisite module
-        $storage = SessionWrapperFactory::getInstance()->getActiveStorage();
-        if ($storage instanceof \OpenEMR\Common\Session\Storage\ReadAndCloseNativeSessionStorage && $storage->isClosedByReadAndClose()) {
-            $storage->reopenForWriting();
-        }
-        $session->clear(); // clear session, clean logout
-        $session->save();
+        SessionUtil::clearSession();
         if (isset($landingpage) && !empty($landingpage)) {
           // OpenEMR Patient Portal use
             header('Location: index.php?site=' . urlencode((string) $tmp));
@@ -293,7 +289,7 @@ if (empty($siteId) || !empty($_GET['site'])) {
     }
 
     if ($siteId === null || $siteId != $tmp) {
-        \OpenEMR\Common\Session\SessionUtil::setSession('site_id', $tmp);
+        SessionUtil::setSession('site_id', $tmp);
         // error_log("Session site ID has been set to '$tmp'"); // debugging
     }
 }
@@ -562,7 +558,7 @@ if (!empty($glrow)) {
         }
     } elseif ($session->has('language_choice')) {
         //this will support the onsite patient portal which will have a language choice but not yet a set language direction
-        \OpenEMR\Common\Session\SessionUtil::setSession('language_direction', getLanguageDir($session->get('language_choice')));
+        SessionUtil::setSession('language_direction', getLanguageDir($session->get('language_choice')));
         if (
             $session->get('language_direction') === 'rtl' &&
             !strpos((string) $globalsBag->get('portal_css_header', ''), 'rtl')
@@ -571,7 +567,7 @@ if (!empty($glrow)) {
             $rtl_portal_override = true;
         }
     } else {
-        //$_SESSION['language_direction'] is not set, so will use the default language
+        //session 'language_direction' is not set, so will use the default language
         $default_lang_id = sqlQueryNoLog('SELECT lang_id FROM lang_languages WHERE lang_description = ?', [$GLOBALS['language_default'] ?? '']);
         $globalsBag->set('default_lang_id', $default_lang_id);
         if (getLanguageDir($default_lang_id['lang_id'] ?? '') === 'rtl' && !strpos((string) $GLOBALS['css_header'], 'rtl')) {
@@ -778,9 +774,9 @@ if (!empty($checkModulesTableExists)) {
 $encounter = empty($session->get('encounter')) ? 0 : $session->get('encounter');
 
 if (!empty($_GET['pid']) && empty($session->get('pid'))) {
-    \OpenEMR\Common\Session\SessionUtil::setSession('pid', $_GET['pid']);
+    SessionUtil::setSession('pid', $_GET['pid']);
 } elseif (!empty($_POST['pid']) && empty($session->get('pid'))) {
-    \OpenEMR\Common\Session\SessionUtil::setSession('pid', $_POST['pid']);
+    SessionUtil::setSession('pid', $_POST['pid']);
 }
 
 $pid = $session->get('pid', 0);

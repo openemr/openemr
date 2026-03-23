@@ -102,11 +102,11 @@ $primaryInfos = ConnectorApi::getPrimaryInfos('');
     </style>
 </head>
 <body class="container-fluid">
-    <form method='post' name='theform' action="route_edit.php?labGuid=<?php echo attr_url($labGuid); ?>&csrf_token_form=<?php echo attr_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>">
+    <form method='post' name='theform' action="route_edit.php?labGuid=<?php echo attr_url($labGuid); ?>&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>">
         <div class="row">
             <div class="col-sm-12">
                 <h2><?php echo xlt("DORN Lab Route Configuration") ?></h2>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <input type="hidden" name="form_labGuid" value="<?php echo attr($labGuid); ?>" />
             </div>
         </div>

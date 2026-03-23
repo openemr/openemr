@@ -147,32 +147,7 @@ function eye_mag_report($pid, $encounter, $cols, $id, $formname = 'eye_mag'): vo
    * @return string => returns the HTML of the report selected
    */
 
-    if ($choice == 'DRAW') {
-        /*
-      $side="OU";
-      $zone = array("HPI","PMH","VISION","NEURO","EXT","ANTSEG","RETINA","IMPPLAN");
-        //  for ($i = 0; $i < count($zone); ++$i) {
-        //  show only 2 for now in the encounter page
-      ($choice =='drawing') ? ($count = count($zone)) : ($count ='2');
-      for ($i = 0; $i < $count; ++$i) {
-        $file_location = $GLOBALS["OE_SITES_BASE"]."/".$_SESSION['site_id']."/documents/".$pid."/".$form_folder."/".$encounter."/".$side."_".$zone[$i]."_VIEW.png";
-        $sql = "SELECT * from documents where url='file://".$file_location."'";
-        $doc = sqlQuery($sql);
-        if (file_exists($file_location) && ($doc['id'] > '0')) {
-        $filetoshow = $GLOBALS['web_root']."/controller.php?document&retrieve&patient_id=$pid&document_id=$doc[id]&as_file=false";
-        ?><div style='position:relative;float:left;width:100px;height:75px;'>
-        <img src='<?php echo attr($filetoshow); ?>' width=100 heght=75>
-        </div> <?
-        } else {
-             // $filetoshow = "../../forms/".$form_folder."/images/".$side."_".$zone[$i]."_BASE.png?".rand();
-        }
-        ?>
-
-        <?php
-      }
-      } else if ($choice == "drawing") {
-        */
-        ?>
+    if ($choice == 'DRAW') { ?>
       <div class="borderShadow">
         <?php display_draw_section("VISION", $encounter, $pid); ?>
     </div>

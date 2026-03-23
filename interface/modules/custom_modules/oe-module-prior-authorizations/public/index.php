@@ -185,7 +185,7 @@ const TABLE_TD = "</td><td>";
         }
 
         function removeEntry(id) {
-            let url = 'deleter.php?id=' + encodeURIComponent(id) + '&csrf_token_form=' + <?php echo js_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>;
+            let url = 'deleter.php?id=' + encodeURIComponent(id) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
             ;
             dlgopen(url, '_blank', 290, 290, '', 'Delete Entry', {
                 buttons: [

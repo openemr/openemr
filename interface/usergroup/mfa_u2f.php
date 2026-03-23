@@ -92,7 +92,7 @@ function docancel() {
             </div>
         </div>
         <form method='post' action='mfa_u2f.php' onsubmit='return top.restoreSession()'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
         <?php
 

@@ -97,7 +97,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                         control: "acl",
                         action: "add",
                         title: title,
@@ -169,7 +169,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                         control: "acl",
                         action: "remove",
                         title: title,
@@ -219,7 +219,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                         control: "username",
                         action: "list"
                     },
@@ -268,7 +268,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                         control: "acl",
                         action: "list"
                     },
@@ -374,7 +374,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                     url: "../../library/ajax/adminacl_ajax.php",
                     dataType: "xml",
                     data: {
-                        csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                         name: identityFormatted,
                         control: control,
                         action: action,

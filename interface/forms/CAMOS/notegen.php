@@ -35,7 +35,7 @@ if (!($_POST['submit_pdf'] || $_POST['submit_html']) && ($_GET['pid'] && $_GET['
 <body>
     <?php echo xlt('Choose print format for this encounter report.'); ?><br /><br />
 <form method=post name=choose_patients>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <input type='submit' name='submit_pdf' value='<?php echo xla('Print (PDF)'); ?>'>
 <input type='submit' name='submit_html' value='<?php echo xla('Print (HTML)'); ?>'>
 </form>
@@ -73,7 +73,7 @@ $(function () {
 <body>
 
 <form method=post name=choose_patients>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <table>
 <tr><td>

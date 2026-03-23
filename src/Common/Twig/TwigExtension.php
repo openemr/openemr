@@ -181,7 +181,7 @@ class TwigExtension extends AbstractExtension implements GlobalsInterface
                     if (empty($subject)) {
                         $subject = 'default';
                     }
-                    return sprintf('<input type="hidden" name="%s" value="%s">', $fieldName, attr((string) CsrfUtils::collectCsrfToken($session, is_string($subject) ? $subject : 'default')));
+                    return sprintf('<input type="hidden" name="%s" value="%s">', $fieldName, CsrfUtils::collectCsrfToken($session, is_string($subject) ? $subject : 'default'));
                 }
             ),
             new TwigFunction(

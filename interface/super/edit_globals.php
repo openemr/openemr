@@ -379,7 +379,7 @@ function checkBackgroundServices(): void
     ?>
     <script src="edit_globals.js" type="text/javascript"></script>
     <script>
-        window.oeUI.api.setApiUrlAndCsrfToken(<?php echo js_escape($apiUrl); ?>, <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session, 'api')); ?>);
+        window.oeUI.api.setApiUrlAndCsrfToken(<?php echo js_escape($apiUrl); ?>, <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'api')); ?>);
     </script>
 </head>
 
@@ -400,7 +400,7 @@ function checkBackgroundServices(): void
                     <?php } else { ?>
                     <form method='post' name='theform' id='theform' class='form-horizontal' action='edit_globals.php' onsubmit='return top.restoreSession()'>
                         <?php } ?>
-                        <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                         <div class="clearfix">
                             <div class="btn-group oe-margin-b-10">
                                 <button type='submit' class='btn btn-primary btn-save oe-pull-toward' name='form_save' value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>

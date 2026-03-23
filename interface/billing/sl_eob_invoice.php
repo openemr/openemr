@@ -459,7 +459,7 @@ $bnrow = sqlQuery("select billing_note from form_encounter where pid = ? AND enc
     </div>
     <div class="container-fluid">
         <form class="form" action='sl_eob_invoice.php?id=<?php echo attr_url($trans_id); ?>' method='post' onsubmit='return validate(this)'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>"/>
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"/>
             <input type="hidden" name="isPosting" value="<?php echo attr($from_posting); ?>"/>
             <input type="hidden" name="isLastClosed" value="" />
             <fieldset>

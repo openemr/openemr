@@ -97,7 +97,7 @@ $BTN_TEXT_LOG = xl('Backup/Delete Log Data');
 $BTN_TEXT_CREATE_EVENTLOG = xl('Create Eventlog Backup');
 
 $form_step   = isset($_POST['form_step']) ? trim((string) $_POST['form_step']) : '0';
-$form_status = isset($_POST['form_status' ]) ? trim($_POST['form_status' ]) : '';
+$form_status = isset($_POST['form_status' ]) ? trim((string) $_POST['form_status' ]) : '';
 
 if (!empty($_POST['form_export'])) {
     $form_step = 101;
@@ -447,7 +447,7 @@ function export_submit(step) {
 <center>
 &nbsp;<br />
 <form method='post' action='backup.php' enctype='multipart/form-data' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <table<?php echo ($form_step != 101) ? " style='width:50em'" : ""; ?>>
  <tr>

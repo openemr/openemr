@@ -178,7 +178,7 @@ if (!empty($_POST['bn_upload'])) {
    <div class="container">
       <form method='post' action='manage_document_templates.php' enctype='multipart/form-data'
          onsubmit='return top.restoreSession()'>
-         <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+         <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <h2 class="text-center"><?php echo xlt('Document Template Management'); ?></h2>
             <div class="row">
             <div class="col-6">

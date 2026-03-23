@@ -117,7 +117,7 @@ function renderPaginationControls($currentPage, $totalPages, $active): string
     <div id="officenotes_edit" class="container my-4">
         <!-- Add New Note Form -->
         <form method="post" action="office_comments_full.php" class="mb-4">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <input type="hidden" name="mode" value="new">
             <input type="hidden" name="offset" value="<?php echo attr($offset); ?>">
             <input type="hidden" name="active" value="<?php echo attr($active); ?>">
@@ -154,7 +154,7 @@ function renderPaginationControls($currentPage, $totalPages, $active): string
                 <tr>
                     <td>
                         <form id="toggleForm<?php echo attr($note['id']); ?>" method="post" action="office_comments_full.php">
-                            <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>">
+                            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>">
                             <input type="hidden" name="mode" value="update">
                             <input type="hidden" name="offset" value="<?php echo attr($offset); ?>">
                             <input type="hidden" name="active" value="<?php echo attr($active); ?>">
@@ -187,7 +187,7 @@ function renderPaginationControls($currentPage, $totalPages, $active): string
                                     </button>
                                 </div>
                                 <div class="modal-body">
-                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                                     <input type="hidden" name="mode" value="edit">
                                     <input type="hidden" name="offset" value="<?php echo attr($offset); ?>">
                                     <input type="hidden" name="active" value="<?php echo attr($active); ?>">
@@ -216,7 +216,7 @@ function renderPaginationControls($currentPage, $totalPages, $active): string
                                     </button>
                                 </div>
                                 <div class="modal-body">
-                                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                                     <input type="hidden" name="mode" value="edit">
                                     <input type="hidden" name="offset" value="<?php echo attr($offset); ?>">
                                     <input type="hidden" name="active" value="<?php echo attr($active); ?>">

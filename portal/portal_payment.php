@@ -356,7 +356,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 url: formURL,
                 type: "POST",
                 data: {
-                    'csrf_token_form': <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session, 'messages-portal')); ?>,
+                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'messages-portal')); ?>,
                     'task': 'add',
                     'pid': pid,
                     'inputBody': note,

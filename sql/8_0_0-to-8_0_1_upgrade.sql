@@ -228,3 +228,12 @@ DELETE FROM `globals` WHERE `gl_name` IN (
 --
 
 DROP VIEW IF EXISTS `onsite_activity_view`;
+
+--
+-- Fix medex_recalls.r_created default for MySQL strict mode compatibility.
+-- See: https://github.com/openemr/openemr/issues/11179
+--
+
+#IfNotColumnTypeDefault medex_recalls r_created timestamp CURRENT_TIMESTAMP
+ALTER TABLE `medex_recalls` MODIFY `r_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+#EndIf

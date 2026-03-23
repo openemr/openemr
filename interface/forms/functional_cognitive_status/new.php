@@ -138,7 +138,7 @@ $check_res = $formid ? $check_res : [];
             <div class="col-12">
                 <h2><?php echo xlt('Functional and Cognitive Status Form'); ?></h2>
                 <form method='post' name='my_form' action='<?php echo $rootdir; ?>/forms/functional_cognitive_status/save.php?id=<?php echo attr($formid); ?>'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <fieldset>
                         <legend><?php echo xlt('Enter Details'); ?></legend>
                         <div class="container">

@@ -252,7 +252,7 @@ if ($form_action == 'export') {
 <h2><?php echo xlt('Inventory Transactions'); ?></h2>
 
 <form method='post' action='inventory_transactions.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 <!-- form_action is set to "submit" or "export" at form submit time -->

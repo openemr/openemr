@@ -209,7 +209,7 @@ if ($imauthorized && $see_auth > 1) {
             echo "<span class='font-weight-bold'>" . text($name["fname"]) . " " .
             text($name["lname"]) . "</span></a><br />" .
             "<a class=link_submit href='authorizations.php?mode=authorize" .
-            "&pid=" . attr_url($ppid) . "&csrf_token_form=" . attr_url((string) CsrfUtils::collectCsrfToken(session: $session)) . "' onclick='top.restoreSession()'>" .
+            "&pid=" . attr_url($ppid) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='top.restoreSession()'>" .
             xlt('Authorize') . "</a></td>\n";
 
             /****

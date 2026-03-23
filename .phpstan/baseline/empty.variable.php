@@ -401,5 +401,10 @@ $ignoreErrors[] = [
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Utils/SQLUpgradeService.php',
 ];
+$ignoreErrors[] = [
+    'message' => '#^Variable \\$id in empty\\(\\) always exists and is not falsy\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Services/VitalsService.php',
+];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

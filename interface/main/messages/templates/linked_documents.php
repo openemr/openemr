@@ -186,7 +186,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
             // now we need to make an ajax async request to the server with the document id
             let docId = validateRecord.dataset['doc'];
-            let url = "<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/library/ajax/messages/validate_messages_document_ajax.php?csrf=\" + " . js_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+            let url = "<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/library/ajax/messages/validate_messages_document_ajax.php?csrf=\" + " . js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>
 
             window.fetch(url + "&doc=" + encodeURIComponent(docId) )
                 .then(function(result) {
@@ -256,7 +256,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
             url: '<?php echo OEGlobalsBag::getInstance()->get('webroot') . "/library/ajax/set_pt.php";?>',
             data: {
                 set_pid: pid,
-                csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
             },
             async: false
         });

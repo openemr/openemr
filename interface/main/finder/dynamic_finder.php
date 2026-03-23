@@ -351,7 +351,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
             {
                 target: target,
                 setting: val,
-                csrf_token_form: "<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>"
+                csrf_token_form: "<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"
             }
         );
     }

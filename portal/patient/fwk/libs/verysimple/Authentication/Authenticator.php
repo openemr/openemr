@@ -83,7 +83,7 @@ class Authenticator
     }
 
     /**
-     * Forcibly clear all _SESSION variables and destroys the session
+     * Forcibly clear all session variables and destroys the session
      *
      * @param string $guid
      *          The GUID of this user

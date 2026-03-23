@@ -802,7 +802,7 @@ table.mymaintable td, table.mymaintable th {
 <center>
 
 <form method='post' action='inventory_list.php' name='theform' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <!-- form_action is set to "submit" or "export" at form submit time -->
 <input type='hidden' name='form_action' value='' />

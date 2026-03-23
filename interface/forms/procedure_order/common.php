@@ -596,7 +596,7 @@ if (!empty($row['lab_id'])) {
                         action: 'delete_procedure',
                         order_id: formId,
                         order_seq: orderSeq,
-                        csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                     },
                     success: function (response) {
                         if (response.success) {
@@ -651,7 +651,7 @@ if (!empty($row['lab_id'])) {
                     data: {
                         action: 'delete_specimen',
                         specimen_id: specimenId,
-                        csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                     },
                     success: function (response) {
                         if (response.success) {
@@ -1103,7 +1103,7 @@ if (!empty($row['lab_id'])) {
             const params = new URLSearchParams({
                 action: 'code_detail)',
                 code: code,
-                csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
             });
             url += "?" + params;
             let title = <?php echo xlj("Test") ?> +": " + code + " " + f[codetitle].value;
@@ -1167,7 +1167,7 @@ if (!empty($row['lab_id'])) {
                 acctid: acctid,
                 action: 'print_labels',
                 count: count,
-                csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                 dob: dob,
                 order: order,
                 patient: patient,
@@ -1303,7 +1303,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
 
         <div class="col-md-12">
             <form class="form form-horizontal" method="post" action="" onsubmit="return validate(this,event)">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <input type='hidden' name='id' value='<?php echo attr($formid) ?>' />
                 <fieldset class="container-xl clearfix">
                     <legend class="lfont1" data-toggle="collapse" data-target="#orderOptions" role="button">

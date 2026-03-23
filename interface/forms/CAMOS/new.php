@@ -1053,7 +1053,7 @@ if (!$out_of_encounter) {
       myarray['content'] = (f2.textarea_content.value).substring(f2.textarea_content.selectionStart, f2.textarea_content.selectionEnd);
     }
     else {myarray['content'] = f2.textarea_content.value;}
-    myarray['csrf_token_form'] = <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>;
+    myarray['csrf_token_form'] = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
     var str = setformvalues(myarray);
 //    alert(str);
     processajax ('<?php print OEGlobalsBag::getInstance()->get('webroot') ?>/interface/forms/CAMOS/ajax_save.php', myobj, "post", str);
@@ -1095,7 +1095,7 @@ $(function (body) {
 <body class="body_top">
 <div name="form_container" onKeyPress="gotoOne(event)">
 <form method='post' action="<?php echo $rootdir;?>/forms/CAMOS/save.php?mode=new" name="CAMOS">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <?php
 if (!$out_of_encounter) {
 //  echo "<h1>$out_of_encounter</h1>\n";
