@@ -33,7 +33,7 @@ use OpenEMR\Core\OEGlobalsBag;
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"] ?? '', session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -469,7 +469,7 @@ function popup_close() {
 
         <form method='post' name="deletefrm" action='deleter.php?patient=<?php echo $patient ?>&encounterid=<?php echo $encounterid ?>&formid=<?php echo $formid ?>&issue=<?php echo attr_url($issue) ?>&document=<?php echo $document ?>&payment=<?php echo attr_url($payment) ?>&billing=<?php echo attr_url($billing) ?>&transaction=<?php echo $transaction; ?>&csrf_token_form=<?php echo attr_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>'>
             <input type="hidden" name="csrf_token_form"
-                value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <p>
             <?php
             $type = '';
