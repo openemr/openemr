@@ -401,7 +401,7 @@ class AuthorizationController
                 }
             }
             if (!empty($params['jwks'])) {
-                $params['jwks'] = json_decode((string) $params['jwks'], true);
+                $params['jwks'] = json_decode($params['jwks'], true);
             }
             if (isset($params['require_auth_time'])) {
                 $params['require_auth_time'] = ($params['require_auth_time'] === 1);

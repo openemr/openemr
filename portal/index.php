@@ -256,7 +256,7 @@ if (!empty($_GET['forward_email_verify'])) {
         exit();
     }
     $auth = false;
-    if (strlen($_GET['forward']) >= 64) {
+    if (strlen((string) $_GET['forward']) >= 64) {
         $crypto = ServiceContainer::getCrypto();
         $forwardToken = is_string($_GET['forward']) ? $_GET['forward'] : null;
         if ($crypto->cryptCheckStandard($forwardToken)) {

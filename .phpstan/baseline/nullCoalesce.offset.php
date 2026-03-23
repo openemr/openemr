@@ -2,12 +2,12 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'city\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'city\' on non\\-empty\\-array\\<mixed\\> on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../controllers/C_Prescription.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'state\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'state\' on non\\-empty\\-array\\<mixed\\> on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../controllers/C_Prescription.class.php',
 ];
@@ -32,12 +32,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'is_hospitalized\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'is_hospitalized\' on non\\-empty\\-array\\<mixed\\> on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/misc_billing_options/save.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'is_unable_to_work\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'is_unable_to_work\' on non\\-empty\\-array\\<mixed\\> on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/misc_billing_options/save.php',
 ];
@@ -52,7 +52,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/sdoh/report.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'language_select\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'language_select\' on non\\-empty\\-array\\<mixed\\> on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/language/lang_definition.php',
 ];
@@ -82,17 +82,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/messages/trusted-messages.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'message_code\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'message_code\' on non\\-empty\\-array\\<mixed\\> on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/messages/trusted-messages.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'pubpid\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'pubpid\' on non\\-empty\\-array\\<mixed\\> on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/utility.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'site\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'site\' on non\\-empty\\-array\\<mixed\\> on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-faxsms/library/webhook_receiver.php',
 ];
@@ -107,7 +107,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-weno/src/Services/LogImportBuild.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset 0 on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset 0 on non\\-empty\\-array\\<mixed, mixed\\> on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Controller/EncounterccdadispatchController.php',
 ];
@@ -132,12 +132,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_file/history/history_sdoh_health_concerns.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'form_patient\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'form_patient\' on non\\-empty\\-array\\<mixed\\> on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/custom_report_range.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'form_patient\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'form_patient\' on non\\-empty\\-array\\<mixed\\> on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/patient_flow_board_report.php',
 ];
@@ -147,22 +147,22 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/super/edit_list.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'authorized\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'authorized\' on non\\-empty\\-array\\<mixed\\> on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'encounter_patient…\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'encounter_patient…\' on non\\-empty\\-array\\<mixed\\> on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/payment_ajax.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'insurance_text_ajax\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'insurance_text_ajax\' on non\\-empty\\-array\\<mixed\\> on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/payment_ajax.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'patient_code\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'patient_code\' on non\\-empty\\-array\\<mixed\\> on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/ajax/payment_ajax.php',
 ];
@@ -197,17 +197,17 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/add_edit_event_user.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'upload_name\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'upload_name\' on non\\-empty\\-array\\<mixed\\> on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/import_template.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'searchparm\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'searchparm\' on non\\-empty\\-array\\<mixed\\> on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/lib/patient_groups.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'setting_patient\' on non\\-empty\\-array on left side of \\?\\? always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'setting_patient\' on non\\-empty\\-array\\<mixed\\> on left side of \\?\\? always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/lib/persist.php',
 ];

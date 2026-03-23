@@ -614,27 +614,27 @@ if (!empty($_POST['form_refresh'])) {
         array_push($sqlBindArray, $patient_id);
     }
 
-    if (strlen($age_from) != 0) {
+    if (strlen((string) $age_from) != 0) {
          $whr_stmt .= "   and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 >= ?";
          array_push($sqlBindArray, $age_from);
     }
 
-    if (strlen($age_to) != 0) {
+    if (strlen((string) $age_to) != 0) {
          $whr_stmt .= "   and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 <= ?";
          array_push($sqlBindArray, $age_to);
     }
 
-    if (strlen($sql_gender) != 0) {
+    if (strlen((string) $sql_gender) != 0) {
           $whr_stmt .= "   and pd.sex = ?";
           array_push($sqlBindArray, $sql_gender);
     }
 
-    if (strlen($sql_ethnicity) != 0) {
+    if (strlen((string) $sql_ethnicity) != 0) {
          $whr_stmt .= "   and pd.ethnicity = ?";
          array_push($sqlBindArray, $sql_ethnicity);
     }
 
-    if (strlen($sql_race) != 0) {
+    if (strlen((string) $sql_race) != 0) {
          $whr_stmt .= "   and pd.race = ?";
          array_push($sqlBindArray, $sql_race);
     }

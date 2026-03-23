@@ -743,7 +743,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
       // If applicable, set the invoice reference number.
         $invoice_refno = '';
         if (isset($_POST['form_irnumber'])) {
-            $invoice_refno = trim($_POST['form_irnumber']);
+            $invoice_refno = trim((string) $_POST['form_irnumber']);
         } else {
             $invoice_refno = BillingUtilities::updateInvoiceRefNumber();
         }
