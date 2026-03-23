@@ -104,8 +104,8 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
         $user_data = sqlFetchArray(sqlStatement("select * from users where id= ? ", [$_POST["id"]]));
 
         if (isset($_POST["username"])) {
-            sqlStatement("update users set username=? where id= ? ", [trim($_POST["username"]), $_POST["id"]]);
-            sqlStatement("update `groups` set user=? where user= ?", [trim($_POST["username"]), $user_data["username"]]);
+            sqlStatement("update users set username=? where id= ? ", [trim((string) $_POST["username"]), $_POST["id"]]);
+            sqlStatement("update `groups` set user=? where user= ?", [trim((string) $_POST["username"]), $user_data["username"]]);
         }
 
         if ($_POST["taxid"]) {

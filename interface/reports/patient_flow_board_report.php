@@ -440,7 +440,7 @@ if (!empty($_POST['form_refresh']) || !empty($_POST['form_orderby'])) {
         }
 
         #if a patient id is entered just get that patient.
-        if (strlen($form_pid) != 0) {
+        if (strlen((string) $form_pid) != 0) {
             if ($appointment['pid'] != $form_pid) {
                 continue;
             }

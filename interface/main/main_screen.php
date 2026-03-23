@@ -177,7 +177,7 @@ if (isset($_POST['new_login_session_management'])) {
         $form_response = empty($_POST['form_response']) ? '' : $_POST['form_response'];
         if ($form_response) {
             // TOTP METHOD enabled if TOTP is visible in post request
-            if (isset($_POST['totp']) && trim($_POST['totp']) != "" && $isTOTP) {
+            if (isset($_POST['totp']) && trim((string) $_POST['totp']) != "" && $isTOTP) {
                 $errormsg = false;
 
                 $form_response = '';

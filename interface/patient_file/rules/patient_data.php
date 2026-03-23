@@ -99,7 +99,7 @@ if ($_POST['form_complete'] ?? null) {
 
     // Collect and trim variables
     if (isset($_POST['form_entryID'])) {
-        $form_entryID = trim($_POST['form_entryID']);
+        $form_entryID = trim((string) $_POST['form_entryID']);
     }
 
     $form_date = trim((string) $_POST['form_date']);

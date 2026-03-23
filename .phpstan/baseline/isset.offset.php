@@ -2,7 +2,7 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'action\' on non\\-empty\\-array in isset\\(\\) always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'action\' on non\\-empty\\-array\\<mixed\\> in isset\\(\\) always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/admin/acl_admin.php',
 ];
@@ -37,12 +37,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/test_edih_835_accounting.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'post_sftp\' on non\\-empty\\-array in isset\\(\\) always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'post_sftp\' on non\\-empty\\-array\\<mixed\\> in isset\\(\\) always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset \'blank\\-nav\\-button\' on non\\-empty\\-array in isset\\(\\) always exists and is not nullable\\.$#',
+    'message' => '#^Offset \'blank\\-nav\\-button\' on non\\-empty\\-array\\<mixed\\> in isset\\(\\) always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/import_template.php',
 ];
