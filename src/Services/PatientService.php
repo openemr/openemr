@@ -16,14 +16,12 @@
 
 namespace OpenEMR\Services;
 
-use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryPagination;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Database\TableTypes;
 use OpenEMR\Common\ORDataObject\ContactAddress;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Patient\BeforePatientCreatedEvent;
 use OpenEMR\Events\Patient\BeforePatientUpdatedEvent;
@@ -35,7 +33,6 @@ use OpenEMR\Services\Search\SearchConfigClauseBuilder;
 use OpenEMR\Services\Search\SearchModifier;
 use OpenEMR\Services\Search\SearchQueryConfig;
 use OpenEMR\Services\Search\StringSearchField;
-
 use OpenEMR\Services\Search\TokenSearchField;
 use OpenEMR\Validators\PatientValidator;
 use OpenEMR\Validators\ProcessingResult;
@@ -123,7 +120,7 @@ class PatientService extends BaseService
             LEFT OUTER JOIN users AS u ON u.id = ct.ct_userid
             WHERE ct.ct_pid = ?
             ORDER BY ct.ct_when DESC";
-      return sqlStatement($sql, [$pid]);
+        return sqlStatement($sql, [$pid]);
     }
 
     /**
@@ -293,15 +290,13 @@ class PatientService extends BaseService
         /** @var array<string, mixed> $data */
         if (($data['allow_patient_portal']  ??  '' ) === 'YES') {
             // we're about to set it to YES, so make sure credentials have been created
-            $sql = "SELECT portal_login_username, portal_username FROM patient_access_onsite WHERE pid = ?";
+           $sql = "SELECT portal_login_username, portal_username FROM patient_access_onsite WHERE pid = ?";
          //   $sqlget = sqlStatement($sql, $data['pid']); //deprecated by phpstan
            $sqlget =  QueryUtils::sqlStatementThrowException($sql, [$data['pid']] );
            $names = sqlFetchArray($sqlget);
            if (($names !== false) && (($names['portal_login_username']  ?? '')  === "") ) {
                 // create a portal login username, as it's empty at the moment - use Account Name - portal_username in db
                 $sql =  "UPDATE patient_access_onsite SET portal_login_username = ?  WHERE pid = ?";
-       //         $update_parameters ['portal_login_username'] = $names['portal_username'];
-        //        $update_parameters ['pid'] = $data['pid'];
                 sqlStatement($sql, [$names['portal_username'], $data['pid']]);
             }
         }
