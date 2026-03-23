@@ -408,7 +408,7 @@ class PatientService extends BaseService
     public function getAll($search = [], $isAndCondition = true, $puuidBind = null, ?SearchQueryConfig $config = null)
     {
 /** @var array<string,mixed> $search*/
-       $querySearch = [];
+        $querySearch = [];
         if (!empty($search)) {
             if (isset($puuidBind)) {
                 $querySearch['uuid'] = new TokenSearchField('uuid', $puuidBind);
