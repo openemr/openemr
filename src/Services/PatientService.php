@@ -290,11 +290,11 @@ class PatientService extends BaseService
         /** @var array<string, mixed> $data */
         if (($data['allow_patient_portal']  ??  '' ) === 'YES') {
             // we're about to set it to YES, so make sure credentials have been created
-           $sql = "SELECT portal_login_username, portal_username FROM patient_access_onsite WHERE pid = ?";
+            $sql = "SELECT portal_login_username, portal_username FROM patient_access_onsite WHERE pid = ?";
          //   $sqlget = sqlStatement($sql, $data['pid']); //deprecated by phpstan
-           $sqlget =  QueryUtils::sqlStatementThrowException($sql, [$data['pid']] );
-           $names = sqlFetchArray($sqlget);
-           if (($names !== false) && (($names['portal_login_username']  ?? '')  === "") ) {
+            $sqlget =  QueryUtils::sqlStatementThrowException($sql, [$data['pid']] );
+            $names = sqlFetchArray($sqlget);
+            if (($names !== false) && (($names['portal_login_username']  ?? '')  === "") ) {
                 // create a portal login username, as it's empty at the moment - use Account Name - portal_username in db
                 $sql =  "UPDATE patient_access_onsite SET portal_login_username = ?  WHERE pid = ?";
                 sqlStatement($sql, [$names['portal_username'], $data['pid']]);
@@ -409,7 +409,7 @@ class PatientService extends BaseService
     {
 /** @var array<string,mixed> $search*/
         $querySearch = [];
-            if (!empty($search)) {
+         if (!empty($search)) {
             if (isset($puuidBind)) {
                 $querySearch['uuid'] = new TokenSearchField('uuid', $puuidBind);
             } elseif (isset($search['uuid'])) {
@@ -554,15 +554,15 @@ class PatientService extends BaseService
         $previousNamesFields = array_combine($previousNameColumns, $previousNameColumns);
         $patientOrderedList = [];
         while ($row = sqlFetchArray($queryResource)) {
-                $record = $this->createResultRecordFromDatabaseResult($row);
+           $record = $this->createResultRecordFromDatabaseResult($row);
                        /** @var int $patientUuid */
-                $patientUuid = $record['uuid'];
-                if (!isset($patientsByUuid[$patientUuid])) {
+            $patientUuid = $record['uuid'];
+            if (!isset($patientsByUuid[$patientUuid])) {
                     $patient = array_intersect_key($record, $patientFields);
                     $patient['suffix'] = $this->parseSuffixForPatientRecord($patient);
                     $patient['previous_names'] = [];
                     $patientOrderedList[] = $patientUuid;
-                } else {
+            } else {
                     $patient = $patientsByUuid[$patientUuid];
             }
             // we only want to populate our patient history records if we haven't seen this uuid before and we are working
@@ -994,7 +994,7 @@ class PatientService extends BaseService
         $_rp = serialize($rp);
 
         $sql = "INSERT INTO recent_patients (user_id, patients) VALUES (?, ?) ON DUPLICATE KEY UPDATE patients=?";
-       $res = sqlStatement($sql, [$curUser['id'], $_rp, $_rp]);
+        $res = sqlStatement($sql, [$curUser['id'], $_rp, $_rp]);
     }
 
     /**
