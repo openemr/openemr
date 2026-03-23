@@ -9,7 +9,7 @@ use UnexpectedValueException;
 class Message
 {
     public function __construct(
-        public MessageFormat $format,
+        private MessageFormat $format,
         public string $keyId,
         public string $ciphertext,
     ) {
