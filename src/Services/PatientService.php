@@ -170,12 +170,9 @@ class PatientService extends BaseService
      */
     public function databaseInsert($data)
     {
-<<<<<<< HEAD
+        /** @var array<string, string> $data  */
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-=======
-/** @var array<string, string> $data  */
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
->>>>>>> be83e074d (phpstan errors, use QueryUtils to select data)
+
         $freshPid = $this->getFreshPid();
         $data['pid'] = $freshPid;
         $data['uuid'] = (new UuidRegistry(['table_name' => 'patient_data']))->createUuid();
