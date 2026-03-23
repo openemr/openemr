@@ -56,7 +56,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                 url: "../../library/ajax/easipro_util.php",
                 type: "POST",
                 data: {
-                    'csrf_token_form': <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>,
+                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                     'function': 'list_forms'
                 },
                 dataType: "json",
@@ -209,7 +209,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                             url: "../../library/ajax/easipro_util.php",
                             type: "POST",
                             data: {
-                                'csrf_token_form': <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>,
+                                'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                                 'function': 'order_form',
                                 'formOID': formOID
                             },
@@ -240,7 +240,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                 url: "../../library/ajax/easipro_util.php",
                 type: 'POST',
                 data: {
-                    'csrf_token_form': <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>,
+                    'csrf_token_form': <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                     'function': 'request_assessment',
                     'formOID': formOID,
                     'formName': formName,

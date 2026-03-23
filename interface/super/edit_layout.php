@@ -1416,7 +1416,7 @@ function setListItemOptions(lino, seq, init) {
   // This happens asynchronously so the generated code needs to stand alone.
   f[target].style.display = '';
   const params = new URLSearchParams({
-    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>,
+    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
     current: current,
     listid: list_id,
     target: target
@@ -1488,7 +1488,7 @@ function myChangeCheck() {
 
 <body class="body_top admin-layout">
 <form method='post' name='theform' id='theform' action='edit_layout.php'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <input type="hidden" name="formaction" id="formaction" value="" />
 <!-- elements used to identify a field to delete -->
 <input type="hidden" name="deletefieldid" id="deletefieldid" value="" />

@@ -230,7 +230,7 @@ Search options include diagnosis, procedure, prescription, medical history, and 
 <div id="report_parameters_daterange"> <?php echo text(DateFormatterUtils::oeFormatDateTime($sql_date_from, "global", true)) .
       " &nbsp; " . xlt("to{{Range}}") . " &nbsp; " . text(DateFormatterUtils::oeFormatDateTime($sql_date_to, "global", true)); ?> </div>
 <form name='theform' id='theform' method='post' action='clinical_reports.php' onsubmit='return top.restoreSession()'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
     <div id="report_parameters">
         <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
         <table>

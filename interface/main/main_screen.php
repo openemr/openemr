@@ -442,7 +442,7 @@ $_tabs = $listSvc->getOptionsByListName('default_open_tabs', ['activity' => 1]);
 if ($is_expired) {
     //display the php file containing the password expiration message.
     array_unshift($_tabs, [
-        'notes' => "pwd_expires_alert.php?csrf_token_form=" . attr_url((string) CsrfUtils::collectCsrfToken(session: $session)),
+        'notes' => "pwd_expires_alert.php?csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session),
         'id' => "adm",
         "label" => xl("Password Reset"),
     ]);

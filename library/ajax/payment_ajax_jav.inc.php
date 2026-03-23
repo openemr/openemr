@@ -99,7 +99,7 @@ $(function () {
     insurance_text_ajax: document.getElementById('type_code') ? document.getElementById('type_code').value : '',
     encounter_patient_code:Source=='encounter' ? document.getElementById('hidden_patient_code').value : '',
     submit_or_simple_type:SubmitOrSimple,
-    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
    },
    //async: false,
     success: function(thedata){

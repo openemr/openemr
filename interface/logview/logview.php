@@ -133,7 +133,7 @@ if (!empty($_GET)) {
                         <div class="jumbotron jumbotron-fluid bg-light p-1 m-0">
                             <h3 class="text-center"><?php echo xlt('Main Log'); ?></h3>
                             <form method="get" name="theform" id="theform">
-                                <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                                 <input type="hidden" name="direction" id="direction" value="<?php echo !empty($direction) ? attr($direction) : 'asc'; ?>" />
                                 <input type="hidden" name="sortby" id="sortby" value="<?php echo attr($sortby); ?>" />
                                 <input type=hidden name="csum" value="" />

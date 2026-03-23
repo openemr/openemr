@@ -41,7 +41,7 @@ while ($row = sqlFetchArray($resLanguages)) {
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <form name="process_csv" method="post" enctype="multipart/form-data"
-    action="?m=csvval&csrf_token_form=<?php echo attr_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>"
+    action="?m=csvval&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"
     onsubmit="return top.restoreSession()">
 
     <!-- Select Language. Cloned from lang_definition.php. -->

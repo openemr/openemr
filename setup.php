@@ -75,10 +75,10 @@ function recursive_writable_directory_test($dir)
 {
     // first, collect the directory and subdirectories
     $ri = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir));
-    $dirNames = array();
+    $dirNames = [];
     foreach ($ri as $file) {
         if ($file->isDir()) {
-            if (!preg_match("/\.\.$/", $file->getPathname())) {
+            if (!preg_match("/\.\.$/", (string) $file->getPathname())) {
                 $dirName = realpath($file->getPathname());
                 if (!in_array($dirName, $dirNames)) {
                     $dirNames[] = $dirName;
@@ -88,7 +88,7 @@ function recursive_writable_directory_test($dir)
     }
 
     // second, flag the directories that are not writable
-    $resultsNegative = array();
+    $resultsNegative = [];
     foreach ($dirNames as $value) {
         if (!is_writable($value)) {
             $resultsNegative[] = $value;
@@ -99,9 +99,9 @@ function recursive_writable_directory_test($dir)
     if (!empty($resultsNegative)) {
         echo "<p>";
         $mainDirTest = "";
-        $outputs = array();
+        $outputs = [];
         foreach ($resultsNegative as $failedDir) {
-            if (basename($failedDir) ==  basename($dir)) {
+            if (basename($failedDir) ==  basename((string) $dir)) {
                 // need to reorder output so the main directory is at the top of the list
                 $mainDirTest = "<span class='text-danger'>UNABLE</span> to open directory '" . text(realpath($failedDir)) . "' for writing by web server.<br />\r\n";
             } else {
@@ -123,7 +123,7 @@ function recursive_writable_directory_test($dir)
     }
 }
 
-$state = isset($_POST["state"]) ? ($_POST["state"]) : '';
+$state = $_POST["state"] ?? '';
 $installer = new Installer($_REQUEST, ServiceContainer::getLogger());
 // Make this true for IPPF.
 $ippf_specific = false;
@@ -234,7 +234,7 @@ SITEID;
 // Support "?site=siteid" in the URL, otherwise assume "default".
 $site_id = 'default';
 if (!empty($_REQUEST['site'])) {
-    $site_id = trim($_REQUEST['site']);
+    $site_id = trim((string) $_REQUEST['site']);
 }
 
 // Die if site ID is empty or has invalid characters.
@@ -261,11 +261,11 @@ $docsDirectory = "$OE_SITE_DIR/documents";
 //These are files and dir checked before install for
 // correct permissions.
 if (is_dir($OE_SITE_DIR)) {
-    $writableFileList = array($installer->conffile);
-    $writableDirList = array($docsDirectory);
+    $writableFileList = [$installer->conffile];
+    $writableDirList = [$docsDirectory];
 } else {
-    $writableFileList = array();
-    $writableDirList = array($OE_SITES_BASE);
+    $writableFileList = [];
+    $writableDirList = [$OE_SITES_BASE];
 }
 
 // Include the sqlconf file if it exists yet.
@@ -557,14 +557,14 @@ ENDDIV;
 
             <?php
 
-            $inst = isset($_POST["inst"]) ? ($_POST["inst"]) : '';
+            $inst = $_POST["inst"] ?? '';
 
             switch ($state) {
                 case 1:
                     $session->set('bootstrapStateInSetup', 2);
                     $state_esc = text($state);
                     $site_id_esc = attr($site_id);
-                    $csrf_id_esc = attr((string) CsrfUtils::collectCsrfToken($session, 'state2'));
+                    $csrf_id = CsrfUtils::collectCsrfToken($session, 'state2');
                     $step1 = <<<STP1
                     <h3 class="mb-3 border-bottom">Step $state_esc - Select Database Setup</h3>
                     <div class="jumbotron p-5">
@@ -575,7 +575,7 @@ ENDDIV;
                         <form method='post'>
                             <input name='state' type='hidden' value='2' />
                             <input name='site' type='hidden' value='$site_id_esc' />
-                            <input name='csrf_token_form' type='hidden' value='$csrf_id_esc' />
+                            <input name='csrf_token_form' type='hidden' value='$csrf_id' />
                             <div class="form-check">
                                 <input checked class='form-check-input' id='inst1' name='inst' type='radio' value='1' />
                                 <label class="form-check-label" for="inst1">
@@ -608,7 +608,7 @@ STP1;
                     $state_esc = text($state);
                     $site_id_esc = attr($site_id);
                     $inst_esc = attr($inst);
-                    $csrf_id_esc = attr((string) CsrfUtils::collectCsrfToken($session, 'state3'));
+                    $csrf_id = CsrfUtils::collectCsrfToken($session, 'state3');
                     $step2top = <<<STP2TOP
                     <h3 class="mb-3 border-bottom">Step $state_esc - Database and OpenEMR Initial User Setup Details</h3>
                     <div class="jumbotron p-5">
@@ -620,7 +620,7 @@ STP1;
                             <input name='state' type='hidden' value='3' />
                             <input name='site' type='hidden' value='$site_id_esc' />
                             <input name='inst' type='hidden' value='$inst_esc' />
-                            <input name='csrf_token_form' type='hidden' value='$csrf_id_esc' />
+                            <input name='csrf_token_form' type='hidden' value='$csrf_id' />
 STP2TOP;
                     echo $step2top . "\r\n";
 
@@ -867,9 +867,9 @@ STP2TBLTOP2;
                         die("Cannot read directory '" . text($OE_SITES_BASE) . "'.");
                     }
 
-                    $siteslist = array();
+                    $siteslist = [];
                     while (false !== ($sfname = readdir($dh))) {
-                        if (substr($sfname, 0, 1) == '.') {
+                        if (str_starts_with($sfname, '.')) {
                             continue;
                         }
 
@@ -1184,7 +1184,7 @@ STP2TBLBOT;
                             <input name='state' type='hidden' value='2' />
                             <input name='site' type='hidden' value='" . attr($site_id) . "' />
                             <input name='inst' type='hidden' value='" . attr($inst) . "' />
-                            <input name='csrf_token_form' type='hidden' value='" . attr((string) CsrfUtils::collectCsrfToken($session, 'state2')) . "' />
+                            <input name='csrf_token_form' type='hidden' value='" . CsrfUtils::collectCsrfToken($session, 'state2') . "' />
                             <button type='submit' class='btn btn-primary'><i class='fas fa-chevron-left'></i> " . text("Back") . "</button>
                         </form>";
                         break;
@@ -1207,7 +1207,7 @@ STP2TBLBOT;
                                 <input name='state' type='hidden' value='2' />
                                 <input name='site' type='hidden' value='" . attr($site_id) . "' />
                                 <input name='inst' type='hidden' value='" . attr($inst) . "' />
-                                <input name='csrf_token_form' type='hidden' value='" . attr((string) CsrfUtils::collectCsrfToken($session, 'state2')) . "' />
+                                <input name='csrf_token_form' type='hidden' value='" . CsrfUtils::collectCsrfToken($session, 'state2') . "' />
                                 <button type='submit' class='btn btn-primary'><i class='fas fa-chevron-left'></i> " . text("Back") . "</button>
                             </form>";
                             break;
@@ -1438,7 +1438,7 @@ TOTP;
                     $session->set('bootstrapStateInSetup', $next_state);
                     echo "<form method='post'>
                           <input name='state' type='hidden' value='" . attr($next_state) . "' />
-                          <input name='csrf_token_form' type='hidden' value='" . attr((string) CsrfUtils::collectCsrfToken($session, 'state' . $next_state)) . "' />
+                          <input name='csrf_token_form' type='hidden' value='" . CsrfUtils::collectCsrfToken($session, 'state' . $next_state) . "' />
                           <input name='site' type='hidden' value='" . attr($site_id) . "' />
                           <input name='iuser' type='hidden' value='" . attr($installer->iuser) . "' />
                           <input name='iuserpass' type='hidden' value='" . attr($installer->iuserpass) . "' />
@@ -1597,7 +1597,7 @@ STP4TOP;
                     <br />
                     <form method='post'>
                         <input type='hidden' name='state' value='5' />
-                        <input name='csrf_token_form' type='hidden' value='" . attr((string) CsrfUtils::collectCsrfToken($session, 'state5')) . "' />
+                        <input name='csrf_token_form' type='hidden' value='" . CsrfUtils::collectCsrfToken($session, 'state5') . "' />
                         <input type='hidden' name='site' value='" . attr($site_id) . "' />
                         <input type='hidden' name='iuser' value='" . attr($installer->iuser) . "' />
                         <input type='hidden' name='iuserpass' value='" . attr($installer->iuserpass) . "' />
@@ -1719,7 +1719,7 @@ STP4TOP;
                     <br />
                     <form method='post'>
                         <input type='hidden' name='state' value='6' />
-                        <input name='csrf_token_form' type='hidden' value='" . attr((string) CsrfUtils::collectCsrfToken($session, 'state6')) . "' />
+                        <input name='csrf_token_form' type='hidden' value='" . CsrfUtils::collectCsrfToken($session, 'state6') . "' />
                         <input type='hidden' name='site' value='" . attr($site_id) . "' />
                         <input type='hidden' name='iuser' value='" . attr($installer->iuser) . "' />
                         <input type='hidden' name='iuserpass' value='" . attr($installer->iuserpass) . "' />
@@ -1751,7 +1751,7 @@ STP4TOP;
                     <div class='col-12'>
                         <form method='post'>
                             <input type='hidden' name='state' value='7' />
-                            <input name='csrf_token_form' type='hidden' value='" . attr((string) CsrfUtils::collectCsrfToken($session, 'state7')) . "' />
+                            <input name='csrf_token_form' type='hidden' value='" . CsrfUtils::collectCsrfToken($session, 'state7') . "' />
                             <input type='hidden' name='site' value='" . attr($site_id) . "' />
                             <input type='hidden' name='iuser' value='" . attr($installer->iuser) . "' />
                             <input type='hidden' name='iuserpass' value='" . attr($installer->iuserpass) . "' />
@@ -1863,7 +1863,7 @@ CHKDIR;
                         //RP_CHECK_LOGIC
                         $session->set('bootstrapStateInSetup', 1);
                         $site_id_esc = attr($site_id);
-                        $csrf_id_esc = attr((string) CsrfUtils::collectCsrfToken($session, 'state1'));
+                        $csrf_id = CsrfUtils::collectCsrfToken($session, 'state1');
                         $form = <<<FRM
                                     <p>All required files and directories have been verified.</p>
                                     <p class='mark'>Click <span class="font-weight-bold">Proceed to Step 1</span> to continue with a new installation.</p>
@@ -1872,7 +1872,7 @@ CHKDIR;
                                     <form method='post'>
                                         <input name='state' type='hidden' value='1' />
                                         <input name='site' type='hidden' value='$site_id_esc' />
-                                        <input name='csrf_token_form' type='hidden' value='$csrf_id_esc' />
+                                        <input name='csrf_token_form' type='hidden' value='$csrf_id' />
                                         <div class="form-group">
                                             <div class="col">
                                                 <button type='submit' class='btn btn-primary' value='Continue'>
@@ -1886,7 +1886,7 @@ FRM;
                     } else {
                         $session->set('bootstrapStateInSetup', 1);
                         $site_id_esc = attr($site_id);
-                        $csrf_id_esc = attr((string) CsrfUtils::collectCsrfToken($session, 'state1'));
+                        $csrf_id = CsrfUtils::collectCsrfToken($session, 'state1');
                         $form = <<<FRM
                                     <br />
                                     <p class='p-1 bg-warning'>$caution: Permissions checking has been disabled. All required files and directories have NOT been verified, please manually verify sites/$site_id_esc .</p>
@@ -1896,7 +1896,7 @@ FRM;
                                     <form method='post'>
                                         <input name='state' type='hidden' value='1'>
                                         <input name='site' type='hidden' value='$site_id_esc'>
-                                        <input name='csrf_token_form' type='hidden' value='$csrf_id_esc' />
+                                        <input name='csrf_token_form' type='hidden' value='$csrf_id' />
                                         <button type='submit' value='Continue'><b>Proceed to Step 1</b></button>
                                     </form>
 FRM;

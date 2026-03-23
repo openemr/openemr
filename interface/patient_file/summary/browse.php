@@ -65,7 +65,7 @@ $browsenum = (is_numeric($_REQUEST['browsenum'])) ? $_REQUEST['browsenum'] : 1;
 <a href="javascript:window.close();"><span class="title"><?php echo xlt('Browse for Record'); ?></span><span class="back"><?php echo text($tback);?></span></a>
 
 <form border='0' method='post' name="find_patient" action="browse.php?browsenum=<?php echo attr_url($browsenum); ?>">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <div class="form-row">
 <div class="col-auto">
     <input type='entry' size='10' class='form-control form-control-sm' name='patient' id='searchparm' />
@@ -149,7 +149,7 @@ function auto_populate_employer_address(){
 </script>
 
 <form method="post" name="insurance_form" action="browse.php?browsenum=<?php echo attr_url($browsenum); ?>&set_pid=<?php echo attr_url($_GET['set_pid']); ?>">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <input type="hidden" name="browsenum" value="<?php echo attr($browsenum); ?>">
 <span class='bold'> <?php echo xlt('Insurance Provider'); ?>:</span>
 <select name='insurance' onchange="javascript:document.insurance_form.submit();">

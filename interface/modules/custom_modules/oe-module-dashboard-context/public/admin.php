@@ -25,7 +25,7 @@ if (!AclMain::aclCheckCore('admin', 'super') && !AclMain::aclCheckCore('admin', 
 }
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-$csrfToken = (string) CsrfUtils::collectCsrfToken(session: $session);
+$csrfToken = CsrfUtils::collectCsrfToken(session: $session);
 $moduleUrl = OEGlobalsBag::getInstance()->get('webroot') . '/interface/modules/custom_modules/oe-module-dashboard-context';
 ?>
 <!DOCTYPE html>

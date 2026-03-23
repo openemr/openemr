@@ -56,25 +56,25 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
         </div><!--end of header div-->
         <div class="container-fluid mb-3">
             <form name='translation' id='translation' method='get' action='language.php' onsubmit="return top.restoreSession()">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <input type='hidden' name='m' value='<?php echo attr($_GET['m'] ?? ''); ?>' />
                 <input type='hidden' name='edit' value='<?php echo attr($_GET['edit'] ?? ''); ?>' />
                 <!-- <span class="title"><?php echo xlt('Multi Language Tool'); ?></span> -->
                 <ui class="nav nav-pills">
                     <li class="nav-item" id="li-definition">
-                        <a href="?m=definition&csrf_token_form=<?php echo attr_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" onclick="top.restoreSession()" class="nav-link font-weight-bold" id="definition-link"><?php echo xlt('Edit Definitions'); ?></a>
+                        <a href="?m=definition&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" onclick="top.restoreSession()" class="nav-link font-weight-bold" id="definition-link"><?php echo xlt('Edit Definitions'); ?></a>
                     </li>
                     <li class="nav-item" id="li-language">
-                        <a href="?m=language&csrf_token_form=<?php echo attr_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" onclick="top.restoreSession()" class="nav-link font-weight-bold" id="language-link"><?php echo xlt('Add Language'); ?></a>
+                        <a href="?m=language&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" onclick="top.restoreSession()" class="nav-link font-weight-bold" id="language-link"><?php echo xlt('Add Language'); ?></a>
                     </li>
                     <li class="nav-item" id="li-constant">
-                        <a href="?m=constant&csrf_token_form=<?php echo attr_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" onclick="top.restoreSession()" class="nav-link font-weight-bold" id="constant-link"><?php echo xlt('Add Constant'); ?></a>
+                        <a href="?m=constant&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" onclick="top.restoreSession()" class="nav-link font-weight-bold" id="constant-link"><?php echo xlt('Add Constant'); ?></a>
                     </li>
                     <li class="nav-item" id="li-manage">
-                        <a href="?m=manage&csrf_token_form=<?php echo attr_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" onclick="top.restoreSession()" class="nav-link font-weight-bold" id="manage-link"><?php echo xlt('Manage Translations'); ?></a>
+                        <a href="?m=manage&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" onclick="top.restoreSession()" class="nav-link font-weight-bold" id="manage-link"><?php echo xlt('Manage Translations'); ?></a>
                     </li>
                     <li class="nav-item" id="li-csv">
-                        <a href="?m=csv&csrf_token_form=<?php echo attr_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" onclick="top.restoreSession()" class="nav-link font-weight-bold" id="csv-link"><?php echo xlt('Load from CSV'); ?></a>
+                        <a href="?m=csv&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" onclick="top.restoreSession()" class="nav-link font-weight-bold" id="csv-link"><?php echo xlt('Load from CSV'); ?></a>
                     </li>
                 </ui>
             </form>

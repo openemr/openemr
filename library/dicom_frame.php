@@ -39,7 +39,7 @@ if ($web_path) {
         $type = '.zip';
     }
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
-    $csrf = attr((string) CsrfUtils::collectCsrfToken(session: $session));
+    $csrf = CsrfUtils::collectCsrfToken(session: $session);
     $state_url = OEGlobalsBag::getInstance()->get('web_root') . "/library/ajax/upload.php";
     $web_path = attr($web_path) . '&retrieve&patient_id=' . attr_url($patid) . '&document_id=' . attr_url($docid) . '&as_file=false&type=' . attr_url($type);
 }

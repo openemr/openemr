@@ -35,7 +35,7 @@ $N = 10
 
 <dl>
 
-<form method='post' name='other_form' action="diagnosis.php?mode=add&type=OTHER&csrf_token_form=<?php echo attr_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>"
+<form method='post' name='other_form' action="diagnosis.php?mode=add&type=OTHER&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"
  target='Diagnosis' onsubmit='return top.restoreSession()'>
 <script>
 function clearform(atrib){

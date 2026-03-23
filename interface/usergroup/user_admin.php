@@ -283,7 +283,7 @@ function toggle_password() {
 </table>
 <br />
 <FORM NAME="user_form" id="user_form" METHOD="POST" ACTION="usergroup_admin.php">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <input type=hidden name="pre_active" value="<?php echo attr($iter["active"]); ?>" >
 <input type=hidden name="get_admin_id" value="<?php echo attr(OEGlobalsBag::getInstance()->get('Emergency_Login_email')); ?>" >

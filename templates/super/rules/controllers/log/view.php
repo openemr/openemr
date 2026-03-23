@@ -59,7 +59,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                 let action = $("#theform").attr("action");
                 let uri = new URL(action, window.location.href);
                 uri.searchParams.set("action", "log!download");
-                uri.searchParams.set("csrf_token_form", "<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>");
+                uri.searchParams.set("csrf_token_form", "<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>");
                 uri.searchParams.set("form_begin_date", $("#form_begin_date").val());
                 uri.searchParams.set("form_end_date", $("#form_end_date").val());
                 window.location.href = uri.href;
@@ -103,7 +103,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 <span class='title'><?php echo xlt('Alerts Log'); ?></span>
 
 <form method='post' name='theform' id='theform' action='cdr_log.php' onsubmit='return top.restoreSession()'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
     <input type="hidden" id="cdr_action" name="action" value="log!view" />
 
     <div id="report_parameters">

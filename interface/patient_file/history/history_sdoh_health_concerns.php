@@ -144,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$csrf = (string) CsrfUtils::collectCsrfToken(session: $session);
+$csrf = CsrfUtils::collectCsrfToken(session: $session);
 ?>
 
 <!DOCTYPE html>

@@ -268,7 +268,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 <body>
     <div class="container-fluid">
         <form class="form" id="contact-form" method="post" action="contact.php" role="form">
-            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken($session, 'contact-form')); ?>" />
+            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken($session, 'contact-form'); ?>" />
             <input type="hidden" id="form_file" name="file" value='<?php echo attr($the_file ?? ''); ?>'>
             <input type="hidden" id="form_docid" name="docid" value='<?php echo attr($the_docid ?? ''); ?>'>
             <input type="hidden" id="form_isContent" name="isContent" value='<?php echo attr($isContent ?? ''); ?>'>

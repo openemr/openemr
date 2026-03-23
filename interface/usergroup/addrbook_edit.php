@@ -179,7 +179,7 @@ function addrbook_invalue(string $name): string
     // AI-generated code start (GitHub Copilot) - Refactored to use URLSearchParams
     // Need to fetch more
     const params = new URLSearchParams({
-        csrf_token: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+        csrf_token: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
     });
     if (npi) params.append('number', npi);
     if (firstName) params.append('first_name', firstName + '*');
@@ -576,7 +576,7 @@ if ($type) { // note this only happens when its new
 </script>
 
 <form method='post' name='theform' id="theform" action='addrbook_edit.php?userid=<?php echo attr_url($userid) ?>'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <!-- NPI Lookup Results Container -->
 <div id="npi-lookup-results"></div>

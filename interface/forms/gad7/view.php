@@ -80,7 +80,7 @@ return ( conf );
 </script>
 
 <form method=post action="<?php echo $rootdir;?>/forms/gad7/save.php?mode=update&id=<?php echo attr_url($_GET["id"]); ?>" name="my_form" >
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <br></br>
 <span   ><font size=4><?php echo text($str_form_name); ?></font></span>
 <br></br>

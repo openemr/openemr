@@ -551,7 +551,7 @@ if (!($session->has('password_update') || ($globalsBag->getBoolean('portal_two_p
             </form>
         <?php } elseif ($globalsBag->getBoolean('portal_two_pass_reset') && !empty($globalsBag->get('google_recaptcha_site_key')) && !empty($globalsBag->get('google_recaptcha_secret_key')) && isset($_GET['requestNew'])) { ?>
             <form id="resetPass" action="#" method="post">
-                <input type='hidden' id='csrf_token_form' name='csrf_token_form' value='<?php echo attr((string) CsrfUtils::collectCsrfToken($session, 'passwordResetCsrf')); ?>' />
+                <input type='hidden' id='csrf_token_form' name='csrf_token_form' value='<?php echo CsrfUtils::collectCsrfToken($session, 'passwordResetCsrf'); ?>' />
                 <?php if (isset($redirectUrl)) { ?>
                     <input id="redirect" type="hidden" name="redirect" value="<?php echo attr($redirectUrl); ?>" />
                 <?php } ?>

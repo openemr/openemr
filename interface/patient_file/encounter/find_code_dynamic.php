@@ -72,7 +72,7 @@ $singleCodeSelection = $_GET['singleCodeSelection'] ?? null;
                 "bProcessing": true,
                 // Next 2 lines invoke server side processing
                 "bServerSide": true,
-                "sAjaxSource": "find_code_dynamic_ajax.php?csrf_token_form=" + <?php echo js_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>,
+                "sAjaxSource": "find_code_dynamic_ajax.php?csrf_token_form=" + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                 // Vertical length options and their default
                 "aLengthMenu": [15, 25, 50, 100],
                 "iDisplayLength": 50,
