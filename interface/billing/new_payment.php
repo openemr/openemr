@@ -42,16 +42,18 @@ if (!AclMain::aclCheckCore('acct', 'bill', '', 'write') && !AclMain::aclCheckCor
     $screen = 'new_payment';
 //===============================================================================
 
+// Initialisations
+$mode = filter_input(INPUT_POST, 'mode') ?: '';
+$payment_id = filter_input(INPUT_GET, 'payment_id', FILTER_VALIDATE_INT)
+    ?: filter_input(INPUT_POST, 'payment_id', FILTER_VALIDATE_INT)
+    ?: 0;
+
 // Verify CSRF token for all POST actions
-if (($_POST['mode'] ?? '') !== '') {
+if ($mode !== '') {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
-
-// Initialisations
-$mode                    = $_POST['mode'] ?? '';
-$payment_id              = isset($_REQUEST['payment_id'])          ? $_REQUEST['payment_id'] + 0      : 0;
 $request_payment_id      = $payment_id ;
 $hidden_patient_code     = $_REQUEST['hidden_patient_code'] ?? '';
 $default_search_patient  = $_POST['default_search_patient'] ?? '';
@@ -60,7 +62,7 @@ $hidden_type_code        = $_REQUEST['hidden_type_code'] ?? '';
 //ar_session addition code
 //===============================================================================
 
-if ($mode == "new_payment" || $mode == "distribute") {
+if ($mode === "new_payment" || $mode === "distribute") {
     // Validate and extract POST inputs at the source with filter_input
     $type_name = trim(filter_input(INPUT_POST, 'type_name') ?: '');
     $hidden_type_code_int = filter_input(INPUT_POST, 'hidden_type_code', FILTER_VALIDATE_INT) ?: 0;
@@ -133,7 +135,7 @@ if ($mode == "PostPayments" || $mode == "FinishPayments") {
     }
     if ($mode == "FinishPayments") {
         // @todo This is not useful. Gonna let fall through to form init.
-        header("Location: edit_payment.php?payment_id=" . urlencode($payment_id) . "&ParentPage=new_payment");
+        header("Location: edit_payment.php?payment_id=" . $payment_id . "&ParentPage=new_payment");
         die();
     }
     $mode = "search";
@@ -418,7 +420,7 @@ $payment_id = $payment_id * 1 > 0 ? $payment_id + 0 : $request_payment_id + 0;
                     <input id='default_search_patient' name='default_search_patient' type='hidden' value='<?php echo attr($default_search_patient); ?>' />
                     <input id='ajax_mode' name='ajax_mode' type='hidden' value='' />
                     <input id="after_value" name="after_value" type="hidden" value="<?php echo attr($mode);?>" />
-                    <input id="payment_id" name="payment_id" type="hidden" value="<?php echo attr($payment_id);?>" />
+                    <input id="payment_id" name="payment_id" type="hidden" value="<?php echo $payment_id;?>" />
                     <input id="hidden_type_code" name="hidden_type_code" type="hidden" value="<?php echo attr($hidden_type_code);?>" />
                     <input id='global_amount' name='global_amount' type='hidden' value='' />
                 </form>
