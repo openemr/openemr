@@ -42,24 +42,9 @@ class BCKeychain
             $keychain->addCipher('four', new Cipher\Aes256CbcHmacSha256(key: $foura, hmacKey: $fourb));
         }
 
-        if (($fiveadb = self::tryLoadKey('fivea', $pkidb)) && ($fivebdb = self::tryLoadKey('fiveb', $pkidb))) {
-            $fiveDb = new Cipher\Aes256CbcHmacSha384(key: $fiveadb, hmacKey: $fivebdb);
-            $keychain->addCipher('five-db', $fiveDb);
-
-            // If we get the DB keys, then try to load the encrypted disk ones.
-            if (
-                ($fiveadisk = self::tryLoadEncryptedKey("$storageDir/fivea"))
-                && ($fivebdisk = self::tryLoadEncryptedKey("$storageDir/fiveb"))
-            ) {
-                $fiveadiskkey = $fiveDb->decrypt($fiveadisk->ciphertext);
-                $fivebdiskkey = $fiveDb->decrypt($fivebdisk->ciphertext);
-                $keychain->addCipher('five-disk', new Cipher\Aes256CbcHmacSha384(
-                    key: new KeyMaterial($fiveadiskkey->wrapped),
-                    hmacKey: new KeyMaterial($fivebdiskkey->wrapped),
-                ));
-            }
-        }
-        // TODO: repeat this for 6+7
+        self::tryLoadDbKey('five', $pkidb, $storageDir, $keychain);
+        self::tryLoadDbKey('six', $pkidb, $storageDir, $keychain);
+        self::tryLoadDbKey('seven', $pkidb, $storageDir, $keychain);
 
         return $keychain;
     }
@@ -73,6 +58,34 @@ class BCKeychain
         } catch (Throwable) {
             return null;
         }
+    }
+
+    private static function tryLoadDbKey(
+        string $name,
+        Storage\KeyStorageInterface $storage,
+        string $storageDir,
+        Keychain $keychain,
+    ): void {
+        $key = self::tryLoadKey("{$name}a", $storage);
+        $hmacKey = self::tryLoadKey("{$name}b", $storage);
+        if ($key === null || $hmacKey === null) {
+            return;
+        }
+        $dbCipher = new Cipher\Aes256CbcHmacSha384(key: $key, hmacKey: $hmacKey);
+        $keychain->addCipher("{$name}-db", $dbCipher);
+
+        $diskKeyMsg = self::tryLoadEncryptedKey("$storageDir/{$name}a");
+        $diskHmacKeyMsg = self::tryLoadEncryptedKey("$storageDir/{$name}b");
+        if ($diskKeyMsg === null || $diskHmacKeyMsg === null) {
+            return;
+        }
+
+        $diskKey = $dbCipher->decrypt($diskKeyMsg->ciphertext);
+        $diskHmacKey = $dbCipher->decrypt($diskHmacKeyMsg->ciphertext);
+        $keychain->addCipher("{$name}-disk", new Cipher\Aes256CbcHmacSha384(
+            key: new KeyMaterial($diskKey->wrapped),
+            hmacKey: new KeyMaterial($diskHmacKey->wrapped),
+        ));
     }
 
     private static function tryLoadEncryptedKey(string $file): ?Message
