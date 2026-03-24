@@ -11,11 +11,16 @@ readonly class PlaintextKeyInDbKeysTableAdodb implements KeyStorageInterface
 {
     public function getKey(string $identifier): KeyMaterial
     {
-        $result = QueryUtils::fetchSingleValue(
+        $row = QueryUtils::querySingleRow(
             'SELECT value FROM `keys` WHERE name = ?',
-            'value',
+            // 'value',
             [$identifier],
+            log: false,
         );
+        if ($row === false) {
+            throw new \Exception('No key found');
+        }
+        $result = $row['value'];
 
         if (!is_string($result)) {
             throw new \Exception('No key found');
