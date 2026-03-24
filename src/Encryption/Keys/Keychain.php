@@ -2,25 +2,27 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Encryption;
+namespace OpenEMR\Encryption\Keys;
 
-class Keychain
+use OpenEMR\Encryption\Cipher\CipherInterface;
+
+class Keychain implements KeychainInterface
 {
     /**
-     * @var array<string, Cipher\CipherInterface>
+     * @var array<string, CipherInterface>
      */
     private array $mappings = [];
 
     public function addCipher(
         string $id,
-        Cipher\CipherInterface $cipher,
+        CipherInterface $cipher,
     ): void {
         $this->mappings[$id] = $cipher;
     }
 
     // addLoader to defer key loading?
 
-    public function getCipher(string $keyId): Cipher\CipherInterface
+    public function getCipher(string $keyId): CipherInterface
     {
         return $this->mappings[$keyId];
     }

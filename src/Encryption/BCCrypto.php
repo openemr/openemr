@@ -14,7 +14,7 @@ use Throwable;
 class BCCrypto implements CryptoInterface
 {
     public function __construct(
-        private Keychain $keychain,
+        private Keys\KeychainInterface $keychain,
     ) {
     }
 
@@ -30,7 +30,7 @@ class BCCrypto implements CryptoInterface
         $pkod = new Keys\Storage\PlaintextKeyOnDisk($storageDir);
         $pkidb = new Keys\Storage\PlaintextKeyInDbKeysTableAdodb();
 
-        $keychain = new Keychain();
+        $keychain = new Keys\Keychain();
         if ($one = self::tryLoadKey('one', $pkod)) {
             $keychain->addCipher('one', new Cipher\Aes256CbcNoHmac($one));
         }
