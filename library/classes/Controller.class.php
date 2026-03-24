@@ -1,9 +1,8 @@
 <?php
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\ControllerInterface;
 use OpenEMR\Core\OEGlobalsBag;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -135,23 +134,7 @@ class Controller extends Smarty implements ControllerInterface
         string $message,
         string $auditEvent = 'security-access-denied'
     ): never {
-        $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $user = $session->get('authUser', 'unknown');
-        $group = $session->get('authProvider', '');
-
-        ServiceContainer::getLogger()->warning("Access denied: {comment}", [
-            'comment' => $comment,
-            'user' => $user,
-        ]);
-
-        EventAuditLogger::getInstance()->newEvent(
-            $auditEvent,
-            $user,
-            $group,
-            0,
-            $comment,
-        );
-
+        AccessDeniedHelper::logDenial($comment, $auditEvent);
         throw new AccessDeniedHttpException($message);
     }
 
