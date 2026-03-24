@@ -70,9 +70,7 @@ class Bootstrap
         ?Kernel $kernel = null,
         ?LoggerInterface $logger = null,
     ) {
-        if (empty($kernel)) {
-            $kernel = new Kernel();
-        }
+        $kernel ??= OEGlobalsBag::getInstance()->getKernel();
 
         // NOTE: eventually you will be able to pull the twig container directly from the kernel instead of instantiating
         // it here.
