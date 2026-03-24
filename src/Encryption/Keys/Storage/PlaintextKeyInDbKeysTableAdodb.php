@@ -7,7 +7,7 @@ namespace OpenEMR\Encryption\Keys\Storage;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Encryption\Keys\KeyMaterial;
 
-readonly class PlaintextKeyInDbKeysTableAdodb implements KeyManagerInterface
+readonly class PlaintextKeyInDbKeysTableAdodb implements KeyStorageInterface
 {
     public function getKey(string $identifier): KeyMaterial
     {
