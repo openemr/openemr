@@ -44,7 +44,7 @@ class TwilioSMSClient extends AppDispatch
             throw new RuntimeException(xlt("Access denied! Module not enabled"));
         }
         $this->crypto = ServiceContainer::getCrypto();
-        $this->baseDir = OEGlobalsBag::getInstance()->get('temporary_files_dir');
+        $this->baseDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
         $this->uriDir = OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT');
         $this->credentials = $this->getCredentials();
         parent::__construct();

@@ -50,15 +50,15 @@ function processRecaptcha($gRecaptchaResponse): bool
         ServiceContainer::getLogger()->error("processRecaptcha function: gRecaptchaResponse is empty, so unable to verify recaptcha");
         return false;
     }
-    if (empty($globalsBag->get('google_recaptcha_site_key'))) {
+    if (empty($globalsBag->getString('google_recaptcha_site_key'))) {
         ServiceContainer::getLogger()->error("processRecaptcha function: google_recaptcha_site_key is empty, so unable to verify recaptcha");
         return false;
     }
-    if (empty($globalsBag->get('google_recaptcha_secret_key'))) {
+    if (empty($globalsBag->getString('google_recaptcha_secret_key'))) {
         ServiceContainer::getLogger()->error("processRecaptcha function: google_recaptcha_secret_key is empty, so unable to verify recaptcha");
         return false;
     }
-    $googleRecaptchaSecretKey = (ServiceContainer::getCrypto())->decryptStandard(is_string($globalsBag->get('google_recaptcha_secret_key')) ? $globalsBag->get('google_recaptcha_secret_key') : null);
+    $googleRecaptchaSecretKey = (ServiceContainer::getCrypto())->decryptStandard(is_string($globalsBag->getString('google_recaptcha_secret_key')) ? $globalsBag->getString('google_recaptcha_secret_key') : null);
     if (empty($googleRecaptchaSecretKey)) {
         ServiceContainer::getLogger()->error("processRecaptcha function: decrypted google_recaptcha_secret_key global is empty, so unable to verify recaptcha");
         return false;
@@ -190,9 +190,9 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
         }
 
         // create $encoded_link
-        $site_addr = $globalsBag->get('portal_onsite_two_address');
+        $site_addr = $globalsBag->getString('portal_onsite_two_address');
         $site_id = $session->get('site_id');
-        if (stripos((string) $site_addr, (string) $site_id) === false) {
+        if (stripos($site_addr, (string) $site_id) === false) {
             $encoded_link = sprintf("%s?%s", attr($site_addr), http_build_query([
                 'forward_email_verify' => $token_encrypt,
                 'site' => $site_id
@@ -213,7 +213,7 @@ function verifyEmail(string $languageChoice, string $fname, string $mname, strin
     if ($emailPrepSend) {
         // send email
         $mail = new MyMailer();
-        $email_sender = $globalsBag->get('patient_reminder_sender_email');
+        $email_sender = $globalsBag->getString('patient_reminder_sender_email');
         $mail->AddReplyTo($email_sender, $email_sender);
         $mail->SetFrom($email_sender, $email_sender);
         $mail->AddAddress($email, ($fname . ' ' . $lname));
@@ -405,9 +405,9 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
             return false;
         }
     }
-    $site_addr = $globalsBag->get('portal_onsite_two_address');
+    $site_addr = $globalsBag->getString('portal_onsite_two_address');
     $site_id = $session->get('site_id');
-    if (stripos((string) $site_addr, (string) $site_id) === false) {
+    if (stripos($site_addr, (string) $site_id) === false) {
         $encoded_link = sprintf("%s?%s", attr($site_addr), http_build_query([
             'forward' => $token,
             'site' => $site_id
@@ -454,7 +454,7 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
     $fhirServerConfig = new ServerConfig();
 
     $data = [
-        'portal_onsite_two_address' => $globalsBag->get('portal_onsite_two_address')
+        'portal_onsite_two_address' => $globalsBag->getString('portal_onsite_two_address')
         ,'pin' => $pin
         ,'encoded_link' => $encoded_link
         ,'fhir_address' => $fhirServerConfig->getFhirUrl()
@@ -467,7 +467,7 @@ function doCredentials($pid, $resetPass = false, $resetPassEmail = ''): bool
     $pt_name = text($newpd['fname'] . ' ' . $newpd['lname']);
     $pt_email = text($newpd['email']);
     $email_subject = xlt('Access Your Patient Portal') . ' / ' . xlt('3rd Party API Access');
-    $email_sender = $globalsBag->get('patient_reminder_sender_email');
+    $email_sender = $globalsBag->getString('patient_reminder_sender_email');
     $mail->AddReplyTo($email_sender, $email_sender);
     $mail->SetFrom($email_sender, $email_sender);
     $mail->AddAddress($pt_email, $pt_name);

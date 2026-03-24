@@ -45,8 +45,8 @@ class Encounter_Controller extends Abstract_Controller
         $form->action = '#';
         $signable = new Encounter_Signable($form->encounterId);
         $form->showLock = false;
-        $form->displayGoogleSignin = (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(OEGlobalsBag::getInstance()->get('google_signin_client_id'))) ? true : false;
-        $form->googleSigninClientID = OEGlobalsBag::getInstance()->get('google_signin_client_id');
+        $form->displayGoogleSignin = (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(OEGlobalsBag::getInstance()->getString('google_signin_client_id'))) ? true : false;
+        $form->googleSigninClientID = OEGlobalsBag::getInstance()->getString('google_signin_client_id');
 
         if (
             $signable->isLocked() === false &&
@@ -88,7 +88,7 @@ class Encounter_Controller extends Abstract_Controller
         $googleSigninToken = $this->getRequest()->getParam('google_signin_token', '');
         $force_google = (
             OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') &&
-            !empty(OEGlobalsBag::getInstance()->get('google_signin_client_id')) &&
+            !empty(OEGlobalsBag::getInstance()->getString('google_signin_client_id')) &&
             !empty($usedGoogleSignin) &&
             !empty($googleSigninToken)
         ) ? 1 : 0;

@@ -34,7 +34,7 @@ if ($portalRegistrationAuthorization !== true) {
 
 $session = SessionWrapperFactory::getInstance()->getPortalSession();
 
-if (!$globalsBag->getBoolean('portal_onsite_two_register') || empty($globalsBag->get('google_recaptcha_site_key')) || empty($globalsBag->get('google_recaptcha_secret_key'))) {
+if (!$globalsBag->getBoolean('portal_onsite_two_register') || empty($globalsBag->getString('google_recaptcha_site_key')) || empty($globalsBag->getString('google_recaptcha_secret_key'))) {
     ServiceContainer::getLogger()->debug("Attempted to use register.php despite register feature being turned off, so failed");
     SessionUtil::portalSessionCookieDestroy();
     echo xlt("Not Authorized");

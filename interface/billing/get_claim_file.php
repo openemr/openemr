@@ -42,7 +42,7 @@ $fname = convert_safe_file_dir_name($_GET['key']);
 $location = $_GET['location'] ?? '';
 $claim_file_found = false;
 if ($location === 'tmp') {
-    $claim_file_dir = rtrim((string) OEGlobalsBag::getInstance()->get('temporary_files_dir'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+    $claim_file_dir = rtrim(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
     if (file_exists($claim_file_dir . $fname)) {
         $claim_file_found = true;
     }

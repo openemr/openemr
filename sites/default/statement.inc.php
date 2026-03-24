@@ -31,8 +31,8 @@ use OpenEMR\Core\OEGlobalsBag;
 // The location/name of a temporary file to hold printable statements.
 // May want to alter these names to allow multi-site installs out-of-the-box
 
-$STMT_TEMP_FILE = OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/openemr_statements.txt";
-$STMT_TEMP_FILE_PDF = OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/openemr_statements.pdf";
+$STMT_TEMP_FILE = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/openemr_statements.txt";
+$STMT_TEMP_FILE_PDF = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/openemr_statements.pdf";
 /** @var array{print_command?: string} $moreSecure */
 $moreSecure = OEGlobalsBag::getInstance()->get('more_secure');
 $STMT_PRINT_CMD = (ServiceContainer::getCrypto())->decryptStandard($moreSecure['print_command'] ?? null);
@@ -87,8 +87,8 @@ function report_header_2($stmt, $providerID = '1')
         <tr>
             <?php
                 $haveLogo = false;
-            if (empty(!OEGlobalsBag::getInstance()->get('statement_logo'))) {
-                $practice_logo = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/" . convert_safe_file_dir_name(OEGlobalsBag::getInstance()->get('statement_logo'));
+            if (empty(!OEGlobalsBag::getInstance()->getString('statement_logo'))) {
+                $practice_logo = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/" . convert_safe_file_dir_name(OEGlobalsBag::getInstance()->getString('statement_logo'));
             } else { // 'ya never know.
                     $practice_logo = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/practice_logo.gif"; // can see is safe...
             }
@@ -177,19 +177,19 @@ function create_HTML_statement($stmt)
             // do collection messages
             switch ($stmt['age']) {
                 case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('first_dun_msg_set'):
-                    $dun_message = OEGlobalsBag::getInstance()->get('first_dun_msg_text');
+                    $dun_message = OEGlobalsBag::getInstance()->getString('first_dun_msg_text');
                     break;
                 case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('second_dun_msg_set'):
-                    $dun_message = OEGlobalsBag::getInstance()->get('second_dun_msg_text');
+                    $dun_message = OEGlobalsBag::getInstance()->getString('second_dun_msg_text');
                     break;
                 case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('third_dun_msg_set'):
-                    $dun_message = OEGlobalsBag::getInstance()->get('third_dun_msg_text');
+                    $dun_message = OEGlobalsBag::getInstance()->getString('third_dun_msg_text');
                     break;
                 case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('fourth_dun_msg_set'):
-                    $dun_message = OEGlobalsBag::getInstance()->get('fourth_dun_msg_text');
+                    $dun_message = OEGlobalsBag::getInstance()->getString('fourth_dun_msg_text');
                     break;
                 case $stmt['age'] >= OEGlobalsBag::getInstance()->getInt('fifth_dun_msg_set'):
-                    $dun_message = OEGlobalsBag::getInstance()->get('fifth_dun_msg_text');
+                    $dun_message = OEGlobalsBag::getInstance()->getString('fifth_dun_msg_text');
                     break;
             }
         }
@@ -357,7 +357,7 @@ function create_HTML_statement($stmt)
     $ageline = xl('Current') . ': ' . sprintf("%.2f", $aging[0]);
     for ($age_index = 1; $age_index < ($num_ages - 1); ++$age_index) {
         $ageline .= ' | ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) . ':' .
-            sprintf(" %.2f", OEGlobalsBag::getInstance()->get('gbl_currency_symbol') . '' . $aging[$age_index]);
+            sprintf(" %.2f", OEGlobalsBag::getInstance()->getString('gbl_currency_symbol') . '' . $aging[$age_index]);
     }
 
     // Fixed text labels
@@ -368,7 +368,7 @@ function create_HTML_statement($stmt)
     $label_call = xl('Please call if any of the above information is incorrect.');
     $label_prompt = xl('We appreciate prompt payment of balances due.');
     $label_dept = xl('Billing Department');
-    $label_bill_phone = (!empty(OEGlobalsBag::getInstance()->get('billing_phone_number')) ? OEGlobalsBag::getInstance()->get('billing_phone_number') : $row['phone'] );
+    $label_bill_phone = (!empty(OEGlobalsBag::getInstance()->getString('billing_phone_number')) ? OEGlobalsBag::getInstance()->getString('billing_phone_number') : $row['phone'] );
     $label_appointments = xl('Future Appointments') . ':';
 
     // This is the top portion of the page.
@@ -402,7 +402,7 @@ function create_HTML_statement($stmt)
     $out .= sprintf("  %-s %-25s\n", $label_dept, $label_bill_phone);
     if (OEGlobalsBag::getInstance()->getBoolean('statement_message_to_patient')) {
         $out .= "\n";
-        $statement_message = OEGlobalsBag::getInstance()->get('statement_msg_text');
+        $statement_message = OEGlobalsBag::getInstance()->getString('statement_msg_text');
         $out .= sprintf("%-40s\n", $statement_message);
         $count++;
     }
@@ -624,19 +624,19 @@ function create_statement($stmt)
             // do collection messages
             switch ($stmt['age']) {
                 case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('first_dun_msg_set'):
-                    $dun_message = OEGlobalsBag::getInstance()->get('first_dun_msg_text');
+                    $dun_message = OEGlobalsBag::getInstance()->getString('first_dun_msg_text');
                     break;
                 case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('second_dun_msg_set'):
-                    $dun_message = OEGlobalsBag::getInstance()->get('second_dun_msg_text');
+                    $dun_message = OEGlobalsBag::getInstance()->getString('second_dun_msg_text');
                     break;
                 case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('third_dun_msg_set'):
-                    $dun_message = OEGlobalsBag::getInstance()->get('third_dun_msg_text');
+                    $dun_message = OEGlobalsBag::getInstance()->getString('third_dun_msg_text');
                     break;
                 case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('fourth_dun_msg_set'):
-                    $dun_message = OEGlobalsBag::getInstance()->get('fourth_dun_msg_text');
+                    $dun_message = OEGlobalsBag::getInstance()->getString('fourth_dun_msg_text');
                     break;
                 case $stmt['age'] >= OEGlobalsBag::getInstance()->getInt('fifth_dun_msg_set'):
-                    $dun_message = OEGlobalsBag::getInstance()->get('fifth_dun_msg_text');
+                    $dun_message = OEGlobalsBag::getInstance()->getString('fifth_dun_msg_text');
                     break;
             }
         }
@@ -794,7 +794,7 @@ function create_statement($stmt)
     $label_call = xl('Please call if any of the above information is incorrect.');
     $label_prompt = xl('We appreciate prompt payment of balances due.');
     $label_dept = xl('Billing Department');
-    $label_bill_phone = (!empty(OEGlobalsBag::getInstance()->get('billing_phone_number')) ? OEGlobalsBag::getInstance()->get('billing_phone_number') : $billing_phone );
+    $label_bill_phone = (!empty(OEGlobalsBag::getInstance()->getString('billing_phone_number')) ? OEGlobalsBag::getInstance()->getString('billing_phone_number') : $billing_phone );
     $label_appointments = xl('Future Appointments') . ':';
 
     // This is the bottom portion of the page.
@@ -826,7 +826,7 @@ function create_statement($stmt)
     $out .= sprintf("  %-s %-25s\n", $label_dept, $label_bill_phone);
     if (OEGlobalsBag::getInstance()->getBoolean('statement_message_to_patient')) {
         $out .= "\n";
-        $statement_message = OEGlobalsBag::getInstance()->get('statement_msg_text');
+        $statement_message = OEGlobalsBag::getInstance()->getString('statement_msg_text');
         $out .= sprintf("%-40s\n", $statement_message);
     }
 
@@ -921,19 +921,19 @@ function osp_create_HTML_statement($stmt)
             // do collection messages
             switch ($stmt['age']) {
                 case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('first_dun_msg_set'):
-                    $dun_message = OEGlobalsBag::getInstance()->get('first_dun_msg_text');
+                    $dun_message = OEGlobalsBag::getInstance()->getString('first_dun_msg_text');
                     break;
                 case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('second_dun_msg_set'):
-                    $dun_message = OEGlobalsBag::getInstance()->get('second_dun_msg_text');
+                    $dun_message = OEGlobalsBag::getInstance()->getString('second_dun_msg_text');
                     break;
                 case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('third_dun_msg_set'):
-                    $dun_message = OEGlobalsBag::getInstance()->get('third_dun_msg_text');
+                    $dun_message = OEGlobalsBag::getInstance()->getString('third_dun_msg_text');
                     break;
                 case $stmt['age'] <= OEGlobalsBag::getInstance()->getInt('fourth_dun_msg_set'):
-                    $dun_message = OEGlobalsBag::getInstance()->get('fourth_dun_msg_text');
+                    $dun_message = OEGlobalsBag::getInstance()->getString('fourth_dun_msg_text');
                     break;
                 case $stmt['age'] >= OEGlobalsBag::getInstance()->getInt('fifth_dun_msg_set'):
-                    $dun_message = OEGlobalsBag::getInstance()->get('fifth_dun_msg_text');
+                    $dun_message = OEGlobalsBag::getInstance()->getString('fifth_dun_msg_text');
                     break;
             }
         }
@@ -1045,7 +1045,7 @@ function osp_create_HTML_statement($stmt)
     $ageline = xl('Current') . ': ' . sprintf("%.2f", $aging[0]);
     for ($age_index = 1; $age_index < ($num_ages - 1); ++$age_index) {
         $ageline .= ' | ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) . ':' .
-            sprintf(" %.2f", OEGlobalsBag::getInstance()->get('gbl_currency_symbol') . '' . $aging[$age_index]);
+            sprintf(" %.2f", OEGlobalsBag::getInstance()->getString('gbl_currency_symbol') . '' . $aging[$age_index]);
     }
 
     // Fixed text labels
@@ -1056,7 +1056,7 @@ function osp_create_HTML_statement($stmt)
     $label_call = xl('Please call or message if any of the above information is incorrect.');
     $label_prompt = xl('We appreciate prompt payment of balances due.');
     $label_dept = xl('Billing Department');
-    $label_bill_phone = (!empty(OEGlobalsBag::getInstance()->get('billing_phone_number')) ? OEGlobalsBag::getInstance()->get('billing_phone_number') : $billing_phone );
+    $label_bill_phone = (!empty(OEGlobalsBag::getInstance()->getString('billing_phone_number')) ? OEGlobalsBag::getInstance()->getString('billing_phone_number') : $billing_phone );
     $label_appointments = xl('Future Appointments') . ':';
 
     // This is the top portion of the page.
@@ -1090,7 +1090,7 @@ function osp_create_HTML_statement($stmt)
     $out .= sprintf("  %-s %-25s\n", $label_dept, $label_bill_phone);
     if (OEGlobalsBag::getInstance()->getBoolean('statement_message_to_patient')) {
         $out .= "\n";
-        $statement_message = OEGlobalsBag::getInstance()->get('statement_msg_text');
+        $statement_message = OEGlobalsBag::getInstance()->getString('statement_msg_text');
         $out .= sprintf("%-40s\n", $statement_message);
         $count++;
     }

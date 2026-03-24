@@ -528,7 +528,7 @@ function getContent()
                                 $tempCDoc->onReturnRetrieveKey();
                                 $tempFile = $tempCDoc->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
                                 // tmp file in temporary_files_dir
-                                $tempFileName = tempnam(OEGlobalsBag::getInstance()->get('temporary_files_dir'), "oer");
+                                $tempFileName = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), "oer");
                                 file_put_contents($tempFileName, $tempFile);
                                 $image_data = getimagesize($tempFileName);
                                 $extension = image_type_to_extension($image_data[2]);
@@ -573,7 +573,7 @@ function getContent()
                                         $tempDocC->onReturnRetrieveKey();
                                         $pdfTemp = $tempDocC->retrieve_action($d->get_foreign_id(), $document_id, false, true, true, true);
                                         // tmp file in temporary_files_dir
-                                        $from_file_tmp_name = tempnam(OEGlobalsBag::getInstance()->get('temporary_files_dir'), "oer");
+                                        $from_file_tmp_name = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), "oer");
                                         file_put_contents($from_file_tmp_name, $pdfTemp);
 
                                         $pagecount = $pdf->setSourceFile($from_file_tmp_name);
@@ -585,7 +585,7 @@ function getContent()
                                     } catch (\Throwable) {
                                         // chances are PDF is > v1.4 and compression level not supported.
                                         // regardless, we're here so lets dispose in different way.
-                                        $archive_name = (OEGlobalsBag::getInstance()->get('temporary_files_dir') . '/' . report_basename($pid)['base'] . ".zip");
+                                        $archive_name = (OEGlobalsBag::getInstance()->getString('temporary_files_dir') . '/' . report_basename($pid)['base'] . ".zip");
                                         $rtn = zip_content(basename((string) $d->url), $archive_name, $pdfTemp ?? '');
                                         $err = "<span>" . xlt('PDF Document Parse Error and not included. Check if included in archive.') . " : " . text($fname) . "</span>";
                                         $pdf->writeHTML($err);
@@ -823,7 +823,7 @@ function getContent()
             try {
                 if ($PDF_FAX === 1) {
                     $fax_pdf = $pdf->Output($fn, 'S');
-                    $tmp_file = OEGlobalsBag::getInstance()->get('temporary_files_dir') . '/' . $fn; // is deleted in sendFax...
+                    $tmp_file = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . '/' . $fn; // is deleted in sendFax...
                     file_put_contents($tmp_file, $fax_pdf);
                     echo $tmp_file;
                     exit();

@@ -3747,7 +3747,7 @@ if ($refresh !== null && $refresh !== 'fullscreen') {
                                    */
                                 ?>
                               <script>
-                                  var default_search_type = '<?php echo text(OEGlobalsBag::getInstance()->get('default_search_code_type')); ?>';
+                                  var default_search_type = '<?php echo text(OEGlobalsBag::getInstance()->getString('default_search_code_type')); ?>';
                               </script>
 
                               <dt class="borderShadow"><span><?php echo xlt('Coding Engine'); ?></span></dt>

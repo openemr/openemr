@@ -410,8 +410,8 @@ class SMARTAuthorizationController
 
     public function smartAppStyles(): ResponseInterface
     {
-        $cssTheme = $this->globalsBag->get('css_header');
-        $baseCssTheme = basename((string) $cssTheme);
+        $cssTheme = $this->globalsBag->getString('css_header');
+        $baseCssTheme = basename($cssTheme);
         $parts = explode(".", $baseCssTheme);
         $coreTheme = !empty($parts[0]) ? $parts[0] : "style_light";
         $logoService = $this->getLogoService();

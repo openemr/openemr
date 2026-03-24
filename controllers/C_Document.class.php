@@ -128,12 +128,12 @@ class C_Document extends Controller
     public function zip_dicom_folder($study_name = null)
     {
         $zip = new ZipArchive();
-        $zip_name = OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/" . $study_name;
+        $zip_name = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/" . $study_name;
         if ($zip->open($zip_name, (ZipArchive::CREATE | ZipArchive::OVERWRITE)) === true) {
             foreach ($_FILES['dicom_folder']['name'] as $i => $name) {
                 // Strip directory components to prevent path traversal.
                 $name = basename((string) $name);
-                $zfn = OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/" . $name;
+                $zfn = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/" . $name;
                 $fparts = pathinfo($name);
                 if (empty($fparts['extension'])) {
                     // viewer requires lowercase.
@@ -763,10 +763,10 @@ class C_Document extends Controller
                     die(xlt("File retrieval from CouchDB failed"));
                 }
                 // place the from-file into a temporary file
-                $from_file_tmp_name = tempnam(OEGlobalsBag::getInstance()->get('temporary_files_dir'), "oer");
+                $from_file_tmp_name = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), "oer");
                 file_put_contents($from_file_tmp_name, $contentM);
                 // prepare a temporary file for the to-file
-                $to_file_tmp = tempnam(OEGlobalsBag::getInstance()->get('temporary_files_dir'), "oer");
+                $to_file_tmp = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), "oer");
                 $to_file_tmp_name = $to_file_tmp . ".jpg";
                 // convert file to jpg
                 exec("convert -density 200 " . escapeshellarg($from_file_tmp_name) . " -append -resize 850 " . escapeshellarg($to_file_tmp_name));
@@ -923,10 +923,10 @@ class C_Document extends Controller
                 if ($d->get_encrypted() == 1) {
                     // decrypt the from-file into a temporary file
                     $from_file_unencrypted = $this->cryptoGen->decryptStandard(file_get_contents($originalUrl), KeySource::Database);
-                    $from_file_tmp_name = tempnam(OEGlobalsBag::getInstance()->get('temporary_files_dir'), "oer");
+                    $from_file_tmp_name = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), "oer");
                     file_put_contents($from_file_tmp_name, $from_file_unencrypted);
                     // prepare a temporary file for the unencrypted to-file
-                    $to_file_tmp = tempnam(OEGlobalsBag::getInstance()->get('temporary_files_dir'), "oer");
+                    $to_file_tmp = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), "oer");
                     $to_file_tmp_name = $to_file_tmp . ".jpg";
                     // convert file to jpg
                     exec("convert -density 200 " . escapeshellarg($from_file_tmp_name) . " -append -resize 850 " . escapeshellarg($to_file_tmp_name));
@@ -1303,8 +1303,8 @@ class C_Document extends Controller
 
           $desc = "Please check the attached patient document.\n Content:" . $body;
           $mail = new MyMailer();
-          $from_name = OEGlobalsBag::getInstance()->get("practice_return_email_path");
-          $from =  OEGlobalsBag::getInstance()->get("practice_return_email_path");
+          $from_name = OEGlobalsBag::getInstance()->getString("practice_return_email_path");
+          $from =  OEGlobalsBag::getInstance()->getString("practice_return_email_path");
           $mail->AddReplyTo($from, $from_name);
           $mail->SetFrom($from, $from);
           $to = $email ;

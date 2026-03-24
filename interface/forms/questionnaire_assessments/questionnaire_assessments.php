@@ -158,7 +158,7 @@ if (OEGlobalsBag::getInstance()->get('questionnaire_display_LOINCnote') ?? 0) {
 if ($isPortal) {
     $theme = stripos((string)OEGlobalsBag::getInstance()->get('portal_css_header'), 'dark') !== false ? 'dark' : 'light';
 } else {
-    $theme = stripos((string)OEGlobalsBag::getInstance()->get('css_header'), 'dark') !== false ? 'dark' : 'light';
+    $theme = stripos(OEGlobalsBag::getInstance()->getString('css_header'), 'dark') !== false ? 'dark' : 'light';
 }
 
 if ((OEGlobalsBag::getInstance()->get('questionnaire_display_style') ?? 0) == 3) {

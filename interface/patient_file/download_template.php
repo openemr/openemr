@@ -358,7 +358,7 @@ $templatedir   = "$OE_SITE_DIR/documents/doctemplates";
 $templatepath  = "$templatedir/" . check_file_dir_name($form_filename);
 
 // Create a temporary file to hold the output.
-$fname = tempnam(OEGlobalsBag::getInstance()->get('temporary_files_dir'), 'OED');
+$fname = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), 'OED');
 
 // Get mime type in a way that works with old and new PHP releases.
 $default_mimetype = 'application/octet-stream';
@@ -403,7 +403,7 @@ if ($cryptoGen->cryptCheckStandard($fileData)) {
 }
 
 // Create a temporary file to hold the template.
-$dname = tempnam(OEGlobalsBag::getInstance()->get('temporary_files_dir'), 'OED');
+$dname = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), 'OED');
 file_put_contents($dname, $fileData);
 
 $zipin = new ZipArchive();

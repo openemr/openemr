@@ -109,7 +109,7 @@ class OneTimeAuth
         if (!empty($p['target_link'] ?? null)) {
             $site_addr = trim($p['target_link']);
         } elseif ($this->context == 'portal') {
-            $site_addr = trim((string)$this->globalsBag->get('portal_onsite_two_address', ''));
+            $site_addr = trim($this->globalsBag->getString('portal_onsite_two_address'));
         } else {
             $err = xlt("Onetime creation failed. Missing site address!");
             $this->systemLogger->error($err);

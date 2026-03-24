@@ -207,7 +207,7 @@ if ($is_csv) {
     header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
     header("Content-Type: application/force-download");
     $today = date('YmdHi');
-    $instance_name = (string) OEGlobalsBag::getInstance()->get('openemr_name');
+    $instance_name = OEGlobalsBag::getInstance()->getString('openemr_name');
     $filename = "duplicate_patients_" . $instance_name . "_" . $today . ".csv";
     header("Content-Disposition: attachment; filename=" . $filename);
     header("Content-Description: File Transfer");

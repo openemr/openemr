@@ -99,13 +99,13 @@ echo $twig->render(
         ,'enableSwapSecondaryInsurance' => OEGlobalsBag::getInstance()->getBoolean('enable_swap_secondary_insurance')
         ,'include_employers' => !OEGlobalsBag::getInstance()->getBoolean('omit_employers') === true
         ,'useStateTerminology' => OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1
-        ,'state_list' => OEGlobalsBag::getInstance()->get('state_list')
+        ,'state_list' => OEGlobalsBag::getInstance()->getString('state_list')
         ,'state_data_type' => $state_data_type
         ,'country_data_type' => $country_data_type
-        ,'country_list' => OEGlobalsBag::getInstance()->get('country_list')
+        ,'country_list' => OEGlobalsBag::getInstance()->getString('country_list')
         // policy_types is defined in patient.inc.php
         ,'policy_types' => OEGlobalsBag::getInstance()->get('policy_types')
-        ,'uspsVerifyAddress' => OEGlobalsBag::getInstance()->get('usps_apiv3_client_id')
+        ,'uspsVerifyAddress' => OEGlobalsBag::getInstance()->getString('usps_apiv3_client_id')
         ,'languageDirection' => OEGlobalsBag::getInstance()->get('language_direction') ?? ''
         ,'rightJustifyLabels' => OEGlobalsBag::getInstance()->getBoolean('right_justify_labels_demographics')
     ]

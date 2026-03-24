@@ -792,17 +792,17 @@ function receive_hl7_results(&$hl7, &$matchreq, $lab_id = 0, $direction = 'B', $
     // We'll need the document category IDs for any embedded documents.
     $catrow = sqlQuery(
         "SELECT id FROM categories WHERE name = ?",
-        [OEGlobalsBag::getInstance()->get('lab_results_category_name')]
+        [OEGlobalsBag::getInstance()->getString('lab_results_category_name')]
     );
     if (empty($catrow['id'])) {
         return rhl7LogMsg(xl('Document category for lab results does not exist') .
-            ': ' . OEGlobalsBag::getInstance()->get('lab_results_category_name'), true);
+            ': ' . OEGlobalsBag::getInstance()->getString('lab_results_category_name'), true);
     } else {
         $results_category_id = $catrow['id'];
         $mdm_category_id = $results_category_id;
         $catrow = sqlQuery(
             "SELECT id FROM categories WHERE name = ?",
-            [OEGlobalsBag::getInstance()->get('gbl_mdm_category_name')]
+            [OEGlobalsBag::getInstance()->getString('gbl_mdm_category_name')]
         );
         if (!empty($catrow['id'])) {
             $mdm_category_id = $catrow['id'];

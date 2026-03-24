@@ -1193,7 +1193,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                                 </div>
                             </div>
                                 <?php
-                            } elseif (!empty(OEGlobalsBag::getInstance()->get('gbl_mask_invoice_number'))) { // Otherwise if there is an invoice
+                            } elseif (!empty(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number'))) { // Otherwise if there is an invoice
                                 // reference number mask, ask for the refno.
                                 ?>
                             <div class="row oe-custom-line">
@@ -1201,7 +1201,7 @@ function normal_generate_receipt($patient_id, $encounter = 0): void
                                     <label class="control-label" for="form_irnumber"><?php echo xlt('Invoice Reference Number'); ?>:</label>
                                 </div>
                                 <div class="col-3">
-                                    <input type='text' name='form_irnumber' id='form_irnumber' class='form-control' value='' onkeyup='maskkeyup(this,<?php echo attr_js(OEGlobalsBag::getInstance()->get('gbl_mask_invoice_number')); ?>)' onblur='maskblur(this,<?php echo attr_js(OEGlobalsBag::getInstance()->get('gbl_mask_invoice_number')); ?>)' />
+                                    <input type='text' name='form_irnumber' id='form_irnumber' class='form-control' value='' onkeyup='maskkeyup(this,<?php echo attr_js(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number')); ?>)' onblur='maskblur(this,<?php echo attr_js(OEGlobalsBag::getInstance()->getString('gbl_mask_invoice_number')); ?>)' />
                                 </div>
                             </div>
                                 <?php

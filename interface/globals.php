@@ -551,7 +551,7 @@ if (!empty($glrow)) {
     if ($session->has('language_direction') && empty($session->get('patient_portal_onsite_two'))) {
         if (
             $session->get('language_direction') === 'rtl' &&
-            !strpos((string) $globalsBag->get('css_header', ''), 'rtl')
+            !strpos($globalsBag->getString('css_header', ''), 'rtl')
         ) {
             // the $css_header_value is set above
             $rtl_override = true;
@@ -714,7 +714,7 @@ $globalsBag->set('backpic', $backpic ?? '');
 
 // 1 = send email message to given id for Emergency Login user activation,
 // else 0.
-$globalsBag->set('Emergency_Login_email', $globalsBag->get('Emergency_Login_email_id') ? 1 : 0);
+$globalsBag->set('Emergency_Login_email', $globalsBag->getString('Emergency_Login_email_id') ? 1 : 0);
 
 // Include the authentication module code here, but the rule is
 // if the file has the word "login" in the source code file name,
@@ -722,7 +722,7 @@ $globalsBag->set('Emergency_Login_email', $globalsBag->get('Emergency_Login_emai
 // include loops.
 
 // EMAIL SETTINGS
-$globalsBag->set('SMTP_Auth', !empty($globalsBag->get('SMTP_USER', null)));
+$globalsBag->set('SMTP_Auth', !empty($globalsBag->getString('SMTP_USER')));
 
 if (($ignoreAuth_onsite_portal === true) && ($globalsBag->getInt('portal_onsite_two_enable', 0) == 1)) {
     $ignoreAuth = true;

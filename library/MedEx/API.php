@@ -3345,7 +3345,7 @@ class MedEx
         global $GLOBALS;
 
         if ($sessionFile == 'cookiejar_MedExAPI') {
-            $sessionFile = OEGlobalsBag::getInstance()->get('temporary_files_dir') . '/cookiejar_MedExAPI';
+            $sessionFile = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . '/cookiejar_MedExAPI';
         }
         $this->url      = rtrim('https://' . preg_replace('/^https?\:\/\//', '', is_string($url) ? $url : ''), '/') . '/cart/upload/index.php?route=api/';
         $this->curl     = new CurlRequest($sessionFile);

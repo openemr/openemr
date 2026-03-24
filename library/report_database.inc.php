@@ -526,7 +526,7 @@ function formatReportData($report_id, &$data, $is_amc, $is_cqm, $type_report, $a
                 urlencode((string) $report_id),
                 urlencode((string) $row['itemized_test_id']),
                 urlencode($row['numerator_label'] ?? ''),
-                urlencode((string) $csrf_token)
+                urlencode($csrf_token)
             );
 
             // we need the provider & group id here...

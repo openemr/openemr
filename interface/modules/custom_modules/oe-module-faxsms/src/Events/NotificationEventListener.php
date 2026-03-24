@@ -366,7 +366,7 @@ class NotificationEventListener implements EventSubscriberInterface
             $isHtml = (stripos((string) $content, '<html') !== false) || (stripos((string) $content, '<body') !== false);
             $html = !$isHtml ? "<html><body><div class='wrapper'>" . nl2br((string) $content) . "</div></body></html>" : $content;
             $from_name = text($from_name);
-            $from = OEGlobalsBag::getInstance()->get("practice_return_email_path");
+            $from = OEGlobalsBag::getInstance()->getString("practice_return_email_path");
             $mail->addReplyTo($from, $from_name);
             $mail->setFrom($from, $from);
             $to = $email;
