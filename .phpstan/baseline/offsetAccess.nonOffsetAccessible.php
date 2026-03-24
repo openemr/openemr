@@ -55367,16 +55367,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Services/TrustedUserServiceTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'OE_SITE_DIR\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Crypto/CryptoGenTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'fileroot\' on mixed\\.$#',
-    'count' => 12,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Forms/FormLocatorTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'codes\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Forms/FormVitalsTest.php',

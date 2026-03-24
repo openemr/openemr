@@ -70,8 +70,6 @@ class Bootstrap
         ?Kernel $kernel = null,
         ?LoggerInterface $logger = null,
     ) {
-        global $GLOBALS;
-
         if (empty($kernel)) {
             $kernel = new Kernel();
         }
@@ -119,8 +117,6 @@ class Bootstrap
 
     public function addGlobalSettingsSection(GlobalsInitializedEvent $event)
     {
-        global $GLOBALS;
-
         $service = $event->getGlobalsService();
         $section = xlt("ClaimRev Connect");
         $service->createSection($section, 'Portal');

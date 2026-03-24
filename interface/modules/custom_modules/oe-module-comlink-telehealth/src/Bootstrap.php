@@ -117,8 +117,6 @@ class Bootstrap
         ?Kernel $kernel = null,
         ?LoggerInterface $logger = null,
     ) {
-        global $GLOBALS;
-
         if (empty($kernel)) {
             $kernel = new Kernel();
         }

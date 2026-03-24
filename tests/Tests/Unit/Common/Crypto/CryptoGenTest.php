@@ -843,7 +843,6 @@ final class CryptoGenTest extends TestCase
     public function testCollectCryptoKeyDriveRandomBytesFailure(): void
     {
         // Set up globals for file path
-        global $GLOBALS;
         $GLOBALS['OE_SITE_DIR'] = $this->testSiteDir;
 
         $keyVersion = KeyVersion::CURRENT;
