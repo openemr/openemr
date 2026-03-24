@@ -1,7 +1,6 @@
 <?php
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
-use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\ControllerInterface;
 use OpenEMR\Core\OEGlobalsBag;
