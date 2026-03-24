@@ -28,10 +28,12 @@ class BCCrypto implements CryptoInterface
         $keychain->addKey('fourb', Cipher\Id::Aes256CbcHmacSha256, Keys\Storage\Id::PlaintextDisk);
         // 5-7 depend on keysource but we can rewrap it internally I think
 
+        // TODO: add these
         // fivea-disk (encr.)
         // fiveb-disk
         // fivea-db (plaintext)
         // fiveb-db
+        // six+seven
 
         // sinleton-ify
         return new BCCrypto($keychain);
@@ -54,16 +56,34 @@ class BCCrypto implements CryptoInterface
         try {
             $message = Message::parse($value);
 
+            // BC hack: remap the key id by namebased on the source
+            $keyId = self::remapKeyId($message->keyId, $keySource);
 
+            $cipher = $this->keychain->getCipher($keyId);
 
-            // something translates keyId into CipherInterface
-            $cipher = $this->keychain->getCipher($message->keyId);
-
-            return $cipher->decode($message->ciphertext);
+            return $cipher->decrypt($message->ciphertext)->wrapped;
         } catch (\Throwable $e) {
             // log me
             return false;
         }
+    }
+
+    private static function remapKeyId(string $id, KeySource $source): string
+    {
+        // General BC concept: key versions 5-7 for disk-backed keys were
+        // encrypted-on-disk using a db-managed key of the same name.
+        return match ($id) {
+            'fivea',
+            'fiveb',
+            'sixa',
+            'sixb',
+            'sevena',
+            'sevenb' => match ($source) {
+                KeySource::Drive => "$id-drive",
+                KeySource::Database => "$id-db",
+            },
+            default => $id,
+        };
     }
 
     public function cryptCheckStandard(?string $value): bool
