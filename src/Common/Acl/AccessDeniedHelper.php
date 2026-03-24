@@ -95,6 +95,18 @@ class AccessDeniedHelper
     }
 
     /**
+     * Render the standard unauthorized HTML page (Twig) without logging or exiting.
+     *
+     * @param string $pageTitle  Title to display on the unauthorized page
+     */
+    public static function renderUnauthorizedTemplate(string $pageTitle): string
+    {
+        return (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))
+            ->getTwig()
+            ->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
+    }
+
+    /**
      * Deny access and render the unauthorized template.
      *
      * Convenience method for the common pattern of rendering the unauthorized
@@ -115,9 +127,7 @@ class AccessDeniedHelper
             Response::HTTP_FORBIDDEN,
             AccessDeniedResponseFormat::None,
             static function () use ($pageTitle): void {
-                echo (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))
-                    ->getTwig()
-                    ->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
+                echo self::renderUnauthorizedTemplate($pageTitle);
             },
         );
     }
@@ -142,9 +152,7 @@ class AccessDeniedHelper
     ): Response {
         self::logDenial($comment, $auditEvent);
 
-        $contents = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))
-            ->getTwig()
-            ->render('core/unauthorized.html.twig', ['pageTitle' => $pageTitle]);
+        $contents = self::renderUnauthorizedTemplate($pageTitle);
 
         return new Response($contents, $httpStatus);
     }
