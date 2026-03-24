@@ -99,7 +99,8 @@ class ServiceContainer
 
     public static function getCrypto(): Crypto\CryptoInterface
     {
-        return self::resolve(Crypto\CryptoInterface::class) ?? new Crypto\CryptoGen();
+        // return self::resolve(Crypto\CryptoInterface::class) ?? new Crypto\CryptoGen();
+        return self::resolve(Crypto\CryptoInterface::class) ?? \OpenEMR\Encryption\BCCrypto::instance(self::getLogger());
     }
 
     public static function getLogger(): LoggerInterface

@@ -8,19 +8,21 @@ use OpenEMR\Common\Crypto\{
     CryptoInterface,
     KeySource,
 };
+use Psr\Log\LoggerInterface;
 
 class BCCrypto implements CryptoInterface
 {
     public function __construct(
         private Keys\KeychainInterface $keychain,
+        private LoggerInterface $logger,
     ) {
     }
 
     // Singleton for BC?
-    public static function instance(): BCCrypto
+    public static function instance(LoggerInterface $logger): BCCrypto
     {
         $keychain = Keys\BCKeychain::load();
-        return new BCCrypto($keychain);
+        return new BCCrypto($keychain, $logger);
     }
 
     public function encryptStandard(?string $value, KeySource $keySource = KeySource::Drive): string
