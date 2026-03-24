@@ -20,9 +20,18 @@ class BCCrypto implements CryptoInterface
     public static function instance(): BCCrypto
     {
         $keychain = new Keychain();
-        $keychain->addKey('one', Cipher\Id::Aes256CbcNoHmac);
-        // 2,3
-        // 4,5,6,7
+        $keychain->addKey('one', Cipher\Id::Aes256CbcNoHmac, Keys\Storage\Id::PlaintextDisk);
+        $keychain->addKey('twoa', Cipher\Id::Aes256CbcHmacSha256, Keys\Storage\Id::PlaintextDisk);
+        $keychain->addKey('twob', Cipher\Id::Aes256CbcHmacSha256, Keys\Storage\Id::PlaintextDisk);
+        // three{a|b} does not exist for historic reasons
+        $keychain->addKey('foura', Cipher\Id::Aes256CbcHmacSha256, Keys\Storage\Id::PlaintextDisk);
+        $keychain->addKey('fourb', Cipher\Id::Aes256CbcHmacSha256, Keys\Storage\Id::PlaintextDisk);
+        // 5-7 depend on keysource but we can rewrap it internally I think
+
+        // fivea-disk (encr.)
+        // fiveb-disk
+        // fivea-db (plaintext)
+        // fiveb-db
 
         // sinleton-ify
         return new BCCrypto($keychain);
@@ -44,6 +53,9 @@ class BCCrypto implements CryptoInterface
 
         try {
             $message = Message::parse($value);
+
+
+
             // something translates keyId into CipherInterface
             $cipher = $this->keychain->getCipher($message->keyId);
 
