@@ -18,6 +18,9 @@ readonly class PlaintextKeyOnDisk implements KeyStorageInterface
     public function getKey(string $identifier): KeyMaterial
     {
         $path = sprintf('%s/%s', $this->storageDir, $identifier);
+        if (!file_exists($path)) {
+            throw new \Exception('Key not found');
+        }
         $encoded = file_get_contents($path);
         if ($encoded === false) {
             throw new \Exception('Could not read key');
