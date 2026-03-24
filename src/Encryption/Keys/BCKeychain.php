@@ -82,7 +82,7 @@ class BCKeychain
 
         $diskKey = $dbCipher->decrypt($diskKeyMsg->ciphertext);
         $diskHmacKey = $dbCipher->decrypt($diskHmacKeyMsg->ciphertext);
-        $keychain->addCipher("{$name}-disk", new Cipher\Aes256CbcHmacSha384(
+        $keychain->addCipher("{$name}-drive", new Cipher\Aes256CbcHmacSha384(
             key: new KeyMaterial($diskKey->wrapped),
             hmacKey: new KeyMaterial($diskHmacKey->wrapped),
         ));
