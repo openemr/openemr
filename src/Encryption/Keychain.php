@@ -7,37 +7,21 @@ namespace OpenEMR\Encryption;
 class Keychain
 {
     /**
-     * @var array<string, array{Cipher\Id, Keys\Storage\Id}>
+     * @var array<string, Cipher\CipherInterface>
      */
     private array $mappings = [];
 
-    /**
-     * @var array<string, Keys\Storage\KeyStorageInterface>
-     */
-    private array $storage = [];
-
-    public function addKey(
+    public function addCipher(
         string $id,
-        Cipher\Id $cipherId,
-        Keys\Storage\Id $storageType,
+        Cipher\CipherInterface $cipher,
     ): void {
-        $this->mappings[$id] = [$cipherId, $storageType];
+        $this->mappings[$id] = $cipher;
     }
 
-    public function addStorage(
-        Keys\Storage\Id $storageType,
-        Keys\Storage\KeyStorageInterface $storage,
-    ): void {
-        $this->storage[$storageType->name] = $storage;
-    }
+    // addLoader to defer key loading?
 
     public function getCipher(string $keyId): Cipher\CipherInterface
     {
-        [$cipherId, $storageType] = $this->mappings[$keyId];
-
-        $storage = $this->storage[$storageType->name];
-
-        return match ($cipherId) {
-        };
+        return $this->mappings[$keyId];
     }
 }
