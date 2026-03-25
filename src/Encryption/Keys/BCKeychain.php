@@ -58,14 +58,17 @@ class BCKeychain
         if ($createKeyIfNeeded !== null) {
             if (!$keychain->hasKey($createKeyIfNeeded)) {
                 // Generate and store keys
-                // TODO: actually persist them!!
-                $key = KeyMaterial::generate(openssl_cipher_key_length('aes-256-cbc'));
-                $hmacKey = KeyMaterial::generate(32);
-                // FIXME: persist this data!
-                $keychain->addCipher($createKeyIfNeeded, new Cipher\Aes256CbcHmacSha384(
-                    key: $key,
-                    hmacKey: $hmacKey,
-                ));
+                foreach (['drive', 'db'] as $storage) {
+                    // TODO: actually persist them!!
+                    $key = KeyMaterial::generate(openssl_cipher_key_length('aes-256-cbc'));
+                    $hmacKey = KeyMaterial::generate(32);
+                    // FIXME: persist this data!
+                    $keychain->addCipher($createKeyIfNeeded . '-' . $storage, new Cipher\Aes256CbcHmacSha384(
+                        key: $key,
+                        hmacKey: $hmacKey,
+                    ));
+                }
+
                 // if (!defined('PHPUNIT_COMPOSER_INSTALL')) {
                 //     throw new \RuntimeException('Keys need persistence');
                 // }
