@@ -149,7 +149,7 @@
                 <span class="mx-pre-footer-note">Pricing starts at $9.95/mo · No contracts</span>
                 <div class="mx-pre-actions">
                     <button class="mx-btn mx-btn-secondary" onclick="closeMxPre()">Close</button>
-                    <a href="https://api.hipaabank.net/help/tutorial.html" target="_blank" class="mx-btn mx-btn-primary">
+                    <a href="https://medexbank.com/help/tutorial.html" target="_blank" class="mx-btn mx-btn-primary">
                         View Interactive Tutorial <span>↗</span>
                     </a>
                 </div>

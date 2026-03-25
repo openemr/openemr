@@ -78,6 +78,9 @@ class ModuleManagerListener
         error_log('[MedEx Module] Enabling module...');
 
         try {
+            // Ensure module tables/columns exist even on legacy installs.
+            $this->createModuleTables();
+
             // Enable MedEx globally
             $this->setGlobal('medex_enable', '1');
 
@@ -180,15 +183,66 @@ class ModuleManagerListener
     private function help_requested($modId, $currentActionStatus): mixed
     {
         error_log('[MedEx Module] help_requested method called');
-        // Include the show_help.php file which displays help in a dialog
-        $helpFile = __DIR__ . '/../show_help.php';
-        error_log('[MedEx Module] Looking for help file at: ' . $helpFile);
-        if (file_exists($helpFile)) {
-            error_log('[MedEx Module] Help file found, including it');
-            include $helpFile;
-        } else {
-            error_log('[MedEx Module] Help file NOT found');
+
+        $modActive = 0;
+        $modUiActive = 0;
+        try {
+            $row = QueryUtils::querySingleRow(
+                "SELECT mod_active, mod_ui_active FROM modules WHERE mod_id = ?",
+                [$modId]
+            );
+            $modActive = (int)($row['mod_active'] ?? 0);
+            $modUiActive = (int)($row['mod_ui_active'] ?? 0);
+        } catch (\Throwable $e) {
+            error_log('[MedEx Module] help_requested state lookup failed: ' . $e->getMessage());
         }
+
+        $webroot = $GLOBALS['webroot'] ?? '';
+        $helpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/public/help.php';
+        $stateLabel = 'Pre-Install';
+        if ($modActive === 1) {
+            $helpUrl .= '#daily-workflow';
+            $stateLabel = 'Active Module';
+        } elseif ($modUiActive === 1) {
+            $helpUrl .= '#start-here-connection';
+            $stateLabel = 'Setup Needed';
+        } else {
+            $helpUrl .= '#what-medex-handles';
+        }
+
+        $tutorialUrl = MedExConfig::tutorialUrl();
+        $safeHelpUrl = htmlspecialchars($helpUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $safeTutorialUrl = htmlspecialchars($tutorialUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $safeState = htmlspecialchars($stateLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        $html = <<<HTML
+<div style="position:fixed;inset:0;background:rgba(7,12,22,.5);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;">
+  <div style="max-width:520px;width:100%;background:#fff;border-radius:16px;box-shadow:0 22px 50px rgba(2,8,23,.25);border:1px solid #dbe6f5;padding:22px 22px 18px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+    <div style="font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:#426387;font-weight:700;margin-bottom:8px;">MedEx Help Center</div>
+    <div style="font-size:22px;line-height:1.2;font-weight:800;color:#10233d;margin-bottom:10px;">Opening modern help experience</div>
+    <div style="font-size:14px;color:#4f647d;line-height:1.5;margin-bottom:16px;">
+      Context: <strong>{$safeState}</strong>. You are being redirected to the unified MedEx Help Center.
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <a href="{$safeHelpUrl}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 14px;background:linear-gradient(135deg,#0a66c2,#0ca678);color:#fff;text-decoration:none;border-radius:10px;font-weight:700;">Open Help Center</a>
+      <a href="{$safeTutorialUrl}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:10px 14px;background:#f2f7ff;color:#0c4f92;text-decoration:none;border-radius:10px;font-weight:700;border:1px solid #cfe1fb;">Open Tutorial</a>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var url = "{$safeHelpUrl}";
+  if (window.top && window.top !== window) {
+    window.top.location.href = url;
+  } else {
+    window.location.href = url;
+  }
+})();
+</script>
+HTML;
+
+        // Keep compatibility with caller behavior: emit modern launcher markup
+        // and return success status for Module Manager flow.
+        echo $html;
         return $currentActionStatus;
     }
 
@@ -234,19 +288,136 @@ class ModuleManagerListener
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
         ");
 
+        // Compatibility path for legacy medex_prefs schema (older installs missing newer columns).
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `ME_username` varchar(100) DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `ME_api_key` text DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `ME_facilities` varchar(50) DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `ME_providers` varchar(100) DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `ME_hipaa_default_override` varchar(3) DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `PHONE_country_code` int(4) NOT NULL DEFAULT 1",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `MSGS_default_yes` varchar(3) DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `POSTCARDS_local` varchar(3) DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `POSTCARDS_remote` varchar(3) DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `LABELS_local` varchar(3) DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `LABELS_choice` varchar(50) DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `combine_time` tinyint(4) DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `postcard_top` varchar(255) DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `status` text DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `bad_actor_until` timestamp NULL DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `bad_actor_message` varchar(500) DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `sms_bot_phone_style` varchar(50) DEFAULT 'S8'",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `module_update_cache` text DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `module_update_checked` datetime DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `ME_server_url` varchar(255) DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `medex_prefs` SET `status` = `MedEx_status`
+             WHERE (`status` IS NULL OR `status` = '') AND `MedEx_status` IS NOT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `medex_prefs` SET `ME_facilities` = CAST(`MedEx_facilities` AS CHAR)
+             WHERE (`ME_facilities` IS NULL OR `ME_facilities` = '') AND `MedEx_facilities` IS NOT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `medex_prefs` SET `ME_providers` = CAST(`MedEx_providers` AS CHAR)
+             WHERE (`ME_providers` IS NULL OR `ME_providers` = '') AND `MedEx_providers` IS NOT NULL",
+            []
+        );
+
         // Create medex_icons table (communication icons)
         QueryUtils::sqlStatementThrowException("
             CREATE TABLE IF NOT EXISTS `medex_icons` (
-                `i_ID` int(11) NOT NULL AUTO_INCREMENT,
+                `i_UID` int(11) NOT NULL AUTO_INCREMENT,
                 `msg_type` varchar(50) NOT NULL,
                 `msg_status` varchar(50) NOT NULL,
-                `i_Description` varchar(255) NOT NULL,
+                `i_description` varchar(255) NOT NULL,
                 `i_html` text NOT NULL,
                 `i_blob` longblob,
-                PRIMARY KEY (`i_ID`),
+                PRIMARY KEY (`i_UID`),
                 UNIQUE KEY `msg_type` (`msg_type`,`msg_status`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
         ");
+
+        // Compatibility path for legacy medex_icons schema (older installs used i_type only).
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_icons` ADD COLUMN IF NOT EXISTS `msg_type` varchar(50) NOT NULL DEFAULT ''",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_icons` ADD COLUMN IF NOT EXISTS `msg_status` varchar(50) NOT NULL DEFAULT ''",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `medex_icons` SET `msg_type` = UPPER(`i_type`)
+             WHERE (`msg_type` IS NULL OR `msg_type` = '') AND `i_type` IS NOT NULL AND `i_type` != ''",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "UPDATE `medex_icons` SET `msg_status` = 'LEGACY'
+             WHERE `msg_status` IS NULL OR `msg_status` = ''",
+            []
+        );
 
         // Create medex_outgoing table (message history)
         QueryUtils::sqlStatementThrowException("

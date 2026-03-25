@@ -36,7 +36,7 @@ class MedExConfig
     public const DEFAULT_BASE_URL = 'https://api.hipaabank.net/cart/upload';
 
     /** Root of the API server (no /cart/upload path) — for customer-facing pages, tutorial, etc. */
-    public const DEFAULT_MAIN_URL = 'https://api.hipaabank.net';
+    public const DEFAULT_MAIN_URL = 'https://medexbank.com';
 
     /**
      * Returns the active MedEx base URL (includes /cart/upload path).
@@ -60,7 +60,7 @@ class MedExConfig
      *
      * Resolution order:
      *   1. medex_public_url global (optional override, e.g. for custom domains)
-     *   2. Rewrite internal k8s cluster DNS → api.hipaabank.net (public ingress)
+     *   2. Rewrite internal k8s cluster DNS → medexbank.com (public branded host)
      *   3. Force HTTPS
      */
     public static function publicBaseUrl(): string
@@ -72,13 +72,10 @@ class MedExConfig
 
         $url = self::baseUrl();
 
-        // Rewrite internal Kubernetes service DNS → public application hostname
-        // api.hipaabank.net is a k8s ingress alias; the actual app vhost with shared
-        // session storage is www.medexbank.com — tokens issued by one are NOT valid on the other.
-        // Rewrite internal Kubernetes service DNS → public k8s ingress hostname
+        // Rewrite internal Kubernetes service DNS → public branded hostname
         $url = preg_replace(
             '#https?://medex-api\.medex\.svc\.cluster\.local#i',
-            'https://api.hipaabank.net',
+            'https://medexbank.com',
             $url
         );
 
@@ -100,7 +97,15 @@ class MedExConfig
      */
     public static function mainSiteUrl(): string
     {
-        return rtrim(str_replace('/cart/upload', '', self::baseUrl()), '/');
+        return rtrim(str_replace('/cart/upload', '', self::publicBaseUrl()), '/');
+    }
+
+    /**
+     * Public tutorial URL for browser-facing links.
+     */
+    public static function tutorialUrl(): string
+    {
+        return self::mainSiteUrl() . '/help/tutorial.html';
     }
 
     // Service feature flags

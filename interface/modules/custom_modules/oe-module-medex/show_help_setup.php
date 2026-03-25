@@ -142,7 +142,7 @@ $setupModId = (int)($modId ?? 0);
         </div>
 
         <div class="mx-setup-footer">
-            <a href="https://api.hipaabank.net/help/tutorial.html" target="_blank" style="font-size:12px;color:#667eea;text-decoration:none;">
+            <a href="https://medexbank.com/help/tutorial.html" target="_blank" style="font-size:12px;color:#667eea;text-decoration:none;">
                 <i class="fa fa-book"></i> MedEx Help &amp; Docs ↗
             </a>
             <button class="mx-sbtn mx-sbtn-close" onclick="closeMxSetup()">Close</button>

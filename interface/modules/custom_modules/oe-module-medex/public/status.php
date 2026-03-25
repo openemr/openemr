@@ -13,6 +13,7 @@
  */
 
 require_once(__DIR__ . "/../../../../globals.php");
+require_once(__DIR__ . '/../src/MedExConfig.php');
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\Header;
@@ -42,6 +43,7 @@ $medex_enable = '0';
 $saasRegisterUrl = null;
 $saasDashboardUrl = null;
 $saasSettingsUrl = null;
+$localRegisterUrl = null;
 
 if (!$notInstalled) {
     // Load MedEx API with error handling
@@ -78,10 +80,10 @@ if (!$notInstalled) {
 
                 // Check for updates
                 $updateInfo = $updateManager->checkForUpdates();
-            } elseif (!$isConfigured) {
-                // Not configured - get registration URL (no SSO needed)
-                $baseUrl = $api->getBaseUrl();
-                $saasRegisterUrl = rtrim(str_replace('/cart/upload', '', $baseUrl), '/') . '/cart/upload/index.php?route=account/register&source=openemr';
+            } elseif ($medex_enable === '1' && !$isConfigured) {
+                // Not configured - point to built-in module registration flow first.
+                $siteId = $_GET['site'] ?? 'default';
+                $localRegisterUrl = $GLOBALS['webroot'] . '/interface/modules/custom_modules/oe-module-medex/admin/register.php?site=' . urlencode($siteId);
             }
             // If disabled but configured, we don't test connection or generate URLs
         } catch (\Exception $e) {
@@ -90,6 +92,17 @@ if (!$notInstalled) {
         }
     }
 }
+
+$siteId = $_SESSION['site_id'] ?? ($_GET['site'] ?? 'default');
+$helpAnchor = '#daily-workflow';
+if ($notInstalled) {
+    $helpAnchor = '#what-medex-handles';
+} elseif ($medex_enable !== '1' || !$isConfigured) {
+    $helpAnchor = '#start-here-connection';
+}
+$helpCenterUrl = ($GLOBALS['webroot'] ?? '')
+    . '/interface/modules/custom_modules/oe-module-medex/public/help.php?site=' . urlencode((string)$siteId) . $helpAnchor;
+$tutorialUrl = \OpenEMR\Modules\MedEx\MedExConfig::tutorialUrl();
 
 ?>
 <!DOCTYPE html>
@@ -261,6 +274,28 @@ if (!$notInstalled) {
             font-family: 'Courier New', monospace;
             font-weight: 600;
         }
+        .help-footer {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #dee2e6;
+        }
+        .help-footer-links {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .help-footer-link {
+            color: #485c76;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .help-footer-link:hover {
+            color: #0a4f94;
+        }
         .btn-medex-update {
             background: #10b981;
             color: white;
@@ -343,13 +378,13 @@ if (!$notInstalled) {
                 <span class="status-badge status-not-registered">
                     <i class="fa fa-download"></i> <?php echo xlt('Not Installed'); ?>
                 </span>
-            <?php elseif (!$isConfigured): ?>
-                <span class="status-badge status-not-registered">
-                    <i class="fa fa-exclamation-circle"></i> <?php echo xlt('Not Registered'); ?>
-                </span>
             <?php elseif ($medex_enable != '1'): ?>
                 <span class="status-badge status-disabled">
                     <i class="fa fa-power-off"></i> <?php echo xlt('Disabled'); ?>
+                </span>
+            <?php elseif (!$isConfigured): ?>
+                <span class="status-badge status-not-registered">
+                    <i class="fa fa-exclamation-circle"></i> <?php echo xlt('Not Registered'); ?>
                 </span>
             <?php elseif ($connectionStatus && $connectionStatus['success']): ?>
                 <span class="status-badge status-online">
@@ -384,19 +419,6 @@ if (!$notInstalled) {
             }
             </script>
 
-        <?php elseif (!$isConfigured): ?>
-            <!-- Not Registered - Show Registration Link -->
-            <div class="info-section">
-                <p style="text-align: center; margin: 0;">
-                    <?php echo xlt('MedEx is not yet configured. Register on MedEx SaaS to get started.'); ?>
-                </p>
-            </div>
-            <div class="action-buttons">
-                <a href="<?php echo attr($saasRegisterUrl); ?>" target="_blank" class="btn btn-primary">
-                    <i class="fa fa-user-plus"></i> <?php echo xlt('Register on MedEx'); ?>
-                </a>
-            </div>
-
         <?php elseif ($medex_enable != '1'): ?>
             <!-- Module Disabled - Show Enable Message -->
             <div class="info-section">
@@ -408,6 +430,19 @@ if (!$notInstalled) {
                 <button type="button" class="btn btn-secondary" onclick="window.parent.location.reload()">
                     <i class="fa fa-arrow-left"></i> <?php echo xlt('Back to Module Manager'); ?>
                 </button>
+            </div>
+
+        <?php elseif (!$isConfigured): ?>
+            <!-- Not Registered (enabled) - Show Registration Link -->
+            <div class="info-section">
+                <p style="text-align: center; margin: 0;">
+                    <?php echo xlt('MedEx is enabled but not yet configured. Use the built-in registration flow to connect your practice.'); ?>
+                </p>
+            </div>
+            <div class="action-buttons">
+                <a href="<?php echo attr($localRegisterUrl); ?>" class="btn btn-primary">
+                    <i class="fa fa-user-plus"></i> <?php echo xlt('Open Registration Setup'); ?>
+                </a>
             </div>
 
         <?php elseif ($updateInfo && $updateInfo['update_available']): ?>
@@ -532,10 +567,15 @@ if (!$notInstalled) {
         <?php endif; ?>
 
         <!-- Help Footer -->
-        <div class="help-footer" style="text-align: center; margin-top: 25px; padding-top: 15px; border-top: 1px solid #dee2e6;">
-            <a href="help.php" onclick="top.restoreSession(); return true;" target="_parent" style="color: #6c757d; text-decoration: none;">
-                <i class="fa fa-question-circle"></i> <?php echo xlt('View Full Documentation'); ?>
-            </a>
+        <div class="help-footer">
+            <div class="help-footer-links">
+                <a href="<?php echo attr($helpCenterUrl); ?>" class="help-footer-link" onclick="if (window.top && typeof window.top.restoreSession === 'function') { window.top.restoreSession(); } if (window.top && window.top !== window) { window.top.location.href = this.href; return false; }" target="_parent">
+                    <i class="fa fa-question-circle"></i> <?php echo xlt('Open Help Center'); ?>
+                </a>
+                <a href="<?php echo attr($tutorialUrl); ?>" class="help-footer-link" target="_blank" rel="noopener">
+                    <i class="fa fa-graduation-cap"></i> <?php echo xlt('Interactive Tutorial'); ?>
+                </a>
+            </div>
         </div>
     </div>
 </body>

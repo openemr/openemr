@@ -32,6 +32,7 @@
 */
 
 use OpenEMR\Core\AbstractModuleActionListener;
+require_once __DIR__ . '/src/MedExConfig.php';
 
 /**
  * Allows maintenance of background tasks depending on Module Manager action.
@@ -93,37 +94,57 @@ class ModuleManagerListener extends AbstractModuleActionListener
      */
     private function help_requested($modId, $currentActionStatus): mixed
     {
-        // Choose help content based on installation/activation state.
-        // mod_active=1  → module is fully enabled  → full HELP.md modal
-        // mod_ui_active=1, mod_active=0 → installed but not yet enabled → 3-step setup guide
-        // otherwise (just registered, not installed) → pre-install promo → medexbank.com
+        // Unified Help Center launcher.
+        // Old modal injectors (show_help*.php) are intentionally bypassed because
+        // they create a dated UX and inconsistent entry behavior.
         $row = sqlQuery("SELECT mod_active, mod_ui_active FROM modules WHERE mod_id = ?", [$modId]);
         $modActive   = (int)($row['mod_active']    ?? 0);
         $modUiActive = (int)($row['mod_ui_active'] ?? 0);
 
-        // Capture all HTML output so we can return it as JSON.
-        // The Module Manager AJAX handler (action.js) expects a JSON response:
-        // {"status":"Success","output":"<html...>"}
-        // It then injects the output HTML into the page DOM.  Our overlay is
-        // position:fixed so it renders on top regardless of injection point.
-        ob_start();
+        $webroot = $GLOBALS['webroot'] ?? '';
+        $helpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/public/help.php';
+
+        // Send users to the most relevant section by state.
         if ($modActive === 1) {
-            // Fully enabled — show complete help documentation
-            if (file_exists(__DIR__ . '/show_help.php')) {
-                include __DIR__ . '/show_help.php';
-            }
+            $helpUrl .= '#daily-workflow';
+            $stateLabel = 'Active Module';
         } elseif ($modUiActive === 1) {
-            // Installed but not yet enabled — show 3-step setup guide
-            if (file_exists(__DIR__ . '/show_help_setup.php')) {
-                include __DIR__ . '/show_help_setup.php';
-            }
+            $helpUrl .= '#start-here-connection';
+            $stateLabel = 'Setup Needed';
         } else {
-            // Pre-install — show what MedEx is and link to medexbank.com
-            if (file_exists(__DIR__ . '/show_help_pre_install.php')) {
-                include __DIR__ . '/show_help_pre_install.php';
-            }
+            $helpUrl .= '#what-medex-handles';
+            $stateLabel = 'Pre-Install';
         }
-        $html = ob_get_clean();
+
+        $tutorialUrl = \OpenEMR\Modules\MedEx\MedExConfig::tutorialUrl();
+        $safeHelpUrl = htmlspecialchars($helpUrl, ENT_QUOTES, 'UTF-8');
+        $safeTutorialUrl = htmlspecialchars($tutorialUrl, ENT_QUOTES, 'UTF-8');
+        $safeState = htmlspecialchars($stateLabel, ENT_QUOTES, 'UTF-8');
+        $html = <<<HTML
+<div style="position:fixed;inset:0;background:rgba(7,12,22,.5);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;">
+  <div style="max-width:520px;width:100%;background:#fff;border-radius:16px;box-shadow:0 22px 50px rgba(2,8,23,.25);border:1px solid #dbe6f5;padding:22px 22px 18px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+    <div style="font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:#426387;font-weight:700;margin-bottom:8px;">MedEx Help Center</div>
+    <div style="font-size:22px;line-height:1.2;font-weight:800;color:#10233d;margin-bottom:10px;">Opening modern help experience</div>
+    <div style="font-size:14px;color:#4f647d;line-height:1.5;margin-bottom:16px;">
+      Context: <strong>{$safeState}</strong>. You are being redirected to the unified MedEx Help Center.
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <a href="{$safeHelpUrl}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 14px;background:linear-gradient(135deg,#0a66c2,#0ca678);color:#fff;text-decoration:none;border-radius:10px;font-weight:700;">Open Help Center</a>
+      <a href="{$safeTutorialUrl}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:10px 14px;background:#f2f7ff;color:#0c4f92;text-decoration:none;border-radius:10px;font-weight:700;border:1px solid #cfe1fb;">Open Tutorial</a>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var url = "{$safeHelpUrl}";
+  if (window.top && window.top !== window) {
+    window.top.location.href = url;
+  } else {
+    window.location.href = url;
+  }
+})();
+</script>
+HTML;
 
         // Exit with proper JSON — this prevents manageAction() from appending
         // its own JSON and corrupting the response.
