@@ -602,11 +602,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/ajax_download.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between mixed and \'_NQF_\' results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/ajax_download.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and mixed results in an error\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../custom/ajax_download.php',
@@ -619,11 +614,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and string results in an error\\.$#',
     'count' => 3,
-    'path' => __DIR__ . '/../../custom/ajax_download.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../custom/ajax_download.php',
 ];
 $ignoreErrors[] = [
@@ -2954,11 +2944,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\+" between mixed and 1 results in an error\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/eye_mag/report.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'&nbsp;\' and mixed results in an error\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/report.php',
 ];
 $ignoreErrors[] = [
@@ -11767,17 +11752,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'SELECT \\* FROM medex…\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between \'SELECT \\* FROM …\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/MedEx/API.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'SELECT \\* FROM…\' and mixed results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
@@ -11898,7 +11873,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 17,
+    'count' => 16,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
@@ -15373,7 +15348,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 6,
+    'count' => 5,
     'path' => __DIR__ . '/../../library/pnotes.inc.php',
 ];
 $ignoreErrors[] = [

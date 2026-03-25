@@ -374,12 +374,13 @@ function postcalendar_admin_categoriesUpdate()
     }
 
 
-    $delete = "DELETE FROM $pntable[postcalendar_categories] WHERE pc_catid IN ($dels)";
     $e =  $msg = '';
     if (!pnModAPIFunc(__POSTCALENDAR__, 'admin', 'updateCategories', ['updates' => $updates])) {
         $e .= 'UPDATE FAILED';
     }
     if (isset($dels)) {
+        $safeDels = implode(',', array_map(intval(...), explode(',', (string)$dels)));
+        $delete = "DELETE FROM $pntable[postcalendar_categories] WHERE pc_catid IN ($safeDels)";
         if (!pnModAPIFunc(__POSTCALENDAR__, 'admin', 'deleteCategories', ['delete' => $delete])) {
             $e .= 'DELETE FAILED';
         }

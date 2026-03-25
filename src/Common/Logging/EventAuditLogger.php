@@ -360,7 +360,7 @@ class EventAuditLogger
             }
 
             if ($sortby != "") {
-                $sql .= " ORDER BY `" . escape_sql_column_name($sortby, ['log']) . "`  " . escape_sort_order($direction); // descending order
+                $sql .= " ORDER BY " . escape_sql_column_name($sortby, ['log']) . "  " . escape_sort_order($direction); // descending order
             } else {
                 $sql .= " ORDER BY el.`log_id` DESC";
             }

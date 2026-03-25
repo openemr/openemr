@@ -13848,7 +13848,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$pid might not be defined\\.$#',
-    'count' => 3,
+    'count' => 4,
     'path' => __DIR__ . '/../../interface/patient_file/summary/pnotes_fragment.php',
 ];
 $ignoreErrors[] = [

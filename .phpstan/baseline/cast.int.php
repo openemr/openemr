@@ -553,7 +553,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
-    'count' => 1,
+    'count' => 7,
     'path' => __DIR__ . '/../../library/pnotes.inc.php',
 ];
 $ignoreErrors[] = [
@@ -663,7 +663,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
-    'count' => 3,
+    'count' => 4,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
 ];
 $ignoreErrors[] = [

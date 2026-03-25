@@ -28,11 +28,15 @@ if (!CsrfUtils::verifyCsrfToken($_REQUEST["csrf_token_form"], session: $session)
     CsrfUtils::csrfNotVerified();
 }
 
-$reportID = $_POST['reportID'];
-$ruleID = $_POST['ruleID'];
-$counter = $_POST['counter'];
-$fileName = $_GET['fileName'] ?? "";
-$provider_id = $_POST['provider_id'];
+$reportID = filter_input(INPUT_POST, 'reportID', FILTER_VALIDATE_INT);
+$ruleID = filter_input(INPUT_POST, 'ruleID') ?: '';  // validated later by its presence in $criteriaPatients
+$fileName = filter_input(INPUT_GET, 'fileName') ?: '';  // validated later by check_file_dir_name()
+$provider_id = filter_input(INPUT_POST, 'provider_id', FILTER_VALIDATE_INT);
+
+if ($reportID === null || $reportID === false) {
+    echo xlt("FAILURE: Invalid report ID");
+    exit(0);
+}
 
 if ($fileName) {
     $fileList = explode(",", (string) $fileName);
@@ -78,6 +82,11 @@ $dataSheet = json_decode((string) $report_view['data'], true);
 $target_date = $report_view['date_target'];
 
 $criteriaPatients = getCombinePatients($dataSheet, $reportID);
+// Validate ruleID against the report's actual NQF codes — rejects unknown/malicious values
+if (!isset($criteriaPatients[$ruleID])) {
+    echo xlt("FAILURE: Invalid rule ID") . " " . text($ruleID);
+    exit(0);
+}
 $patients = $criteriaPatients[$ruleID];
 
 //var_dump($dataSheet);

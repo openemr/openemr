@@ -769,7 +769,7 @@ foreach (explode(',', $given) as $item) {
                     </tr>
                     <tr id='row_eye_med'>
                         <td class="right text-nowrap"><strong id="by_whom"><?php echo xlt('Eye Med'); ?>:</strong></td>
-                        <td colspan="3"><?php echo $irow['subtype'] ?? ''; ?>
+                        <td colspan="3"><?php echo text($irow['subtype'] ?? ''); ?>
                             <input type='checkbox' name='form_eye_subtype' id='form_eye_subtype' value='1' <?php
                             if (($irow['subtype'] ?? '') == 'eye') {
                                 echo " checked";

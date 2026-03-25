@@ -33,7 +33,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../custom/ajax_download.php',
 ];
 $ignoreErrors[] = [
@@ -668,7 +668,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 4,
+    'count' => 5,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnadmin.php',
 ];
 $ignoreErrors[] = [
@@ -1893,7 +1893,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 57,
+    'count' => 58,
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
@@ -2223,7 +2223,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 3,
+    'count' => 4,
     'path' => __DIR__ . '/../../library/custom_template/custom_template.php',
 ];
 $ignoreErrors[] = [

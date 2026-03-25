@@ -27327,26 +27327,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/pnotes.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function authorizePnote\\(\\) has parameter \\$authorized with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function authorizePnote\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function deletePnote\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function disappearPnote\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function getPnotesByDate\\(\\) has parameter \\$activity with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/pnotes.inc.php',
@@ -27452,52 +27432,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/pnotes.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Function reappearPnote\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updatePnoteMessageStatus\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updatePnoteMessageStatus\\(\\) has parameter \\$message_status with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function updatePnotePatient\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updatePnote\\(\\) has parameter \\$assigned_to with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updatePnote\\(\\) has parameter \\$datetime with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updatePnote\\(\\) has parameter \\$id with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updatePnote\\(\\) has parameter \\$message_status with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updatePnote\\(\\) has parameter \\$newtext with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/pnotes.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function updatePnote\\(\\) has parameter \\$title with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/pnotes.inc.php',
 ];

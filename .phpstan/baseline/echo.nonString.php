@@ -198,12 +198,12 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 5,
+    'count' => 4,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/SpectacleRx.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 6,
+    'count' => 5,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/a_issue.php',
 ];
 $ignoreErrors[] = [
@@ -1038,7 +1038,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\(mixed\\) of echo cannot be converted to string\\.$#',
-    'count' => 4,
+    'count' => 3,
     'path' => __DIR__ . '/../../library/custom_template/custom_template.php',
 ];
 $ignoreErrors[] = [
