@@ -1,5 +1,15 @@
 # CHANGELOG.md
 
+## [8.0.0.3](https://github.com/openemr/openemr/milestone/28?closed=1) - 2026-03-25
+
+### Changed
+
+  - backport SQL parameterization, CSRF, and serialization fixes to rel-800 ([#11248](https://github.com/openemr/openemr/pull/11248))
+  - parameterize SQL and filter request inputs in add_edit_event ([#11199](https://github.com/openemr/openemr/pull/11199))
+  - parameterize SQL in patient.inc.php and harden column name escaping ([#11214](https://github.com/openemr/openemr/pull/11214))
+  - prevent open redirect in portal messaging (backport #11217) ([#11223](https://github.com/openemr/openemr/pull/11223))
+
+
 ## [8.0.0.2](https://github.com/openemr/openemr/milestone/27?closed=1) - 2026-03-18
 
 ### Fixed
