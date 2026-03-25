@@ -18,5 +18,5 @@ class Mysql extends \PDO
 {
     public const int ATTR_SSL_KEY = 1006;
     public const int ATTR_SSL_CERT = 1007;
-    public const ATTR_SSL_CA = 1008;
+    public const int ATTR_SSL_CA = 1008;
 }
