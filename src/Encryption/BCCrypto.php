@@ -7,6 +7,7 @@ namespace OpenEMR\Encryption;
 use OpenEMR\Common\Crypto\{
     CryptoInterface,
     KeySource,
+    KeyVersion,
 };
 use Psr\Log\LoggerInterface;
 
@@ -20,10 +21,12 @@ final readonly class BCCrypto implements CryptoInterface
     ) {
     }
 
-    // Singleton for BC?
     public static function instance(LoggerInterface $logger): BCCrypto
     {
-        $keychain = Keys\BCKeychain::load(createKeyIfNeeded: 'seven');
+        // Note: this is NOT a singleton otherwise newly-generated keys don't
+        // get picked up properly.
+        // @phpstan-ignore staticMethod.deprecatedClass
+        $keychain = Keys\BCKeychain::load(createKeyIfNeeded: KeyVersion::CURRENT->toString());
         return new BCCrypto($keychain, $logger);
     }
 
