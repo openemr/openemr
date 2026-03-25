@@ -18,7 +18,6 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Encryption;
 
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Encryption\BCCrypto;
 use OpenEMR\Encryption\Cipher\Aes256CbcHmacSha256;
@@ -46,7 +45,6 @@ final class BCCryptoDecryptionTest extends TestCase
     {
         $keychain = $this->buildKeychain();
         $this->crypto = new BCCrypto($keychain, new NullLogger());
-        // $this->crypto = new BCCrypto($keychain, new SystemLogger());
     }
 
     private function buildKeychain(): Keychain
