@@ -784,9 +784,8 @@ class ContactRelationService extends BaseService
         int $ownerId,
         array $relatedPersonData
     ): array {
-        $committed = false;
-        try {
-            QueryUtils::startTransaction();
+        return QueryUtils::inTransaction(function () use ($ownerTable, $ownerId, $relatedPersonData) {
+            $savedRecords = [];
             $this->getLogger()->debug("Batch saving relationships", [
                 'owner_table' => $ownerTable,
                 'owner_id' => $ownerId,
@@ -935,20 +934,8 @@ class ContactRelationService extends BaseService
                 }
             }
 
-            QueryUtils::commitTransaction();
-            $committed = true;
-        } catch (\Throwable $exception) {
-            $this->getLogger()->error("Error batch saving relationships", [
-                'error' => $exception->getMessage()
-            ]);
-            throw $exception;
-        } finally {
-            if (!$committed) {
-                QueryUtils::rollbackTransaction();
-            }
-        }
-
-        return $savedRecords;
+            return $savedRecords;
+        });
     }
 
 
