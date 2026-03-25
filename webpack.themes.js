@@ -269,6 +269,7 @@ const themesConfig = {
 //
 // To add a new module, copy this block and update paths.
 // ---------------------------------------------------------------------------
+// eslint-disable-next-line no-unused-vars -- scaffold helper for new module configs
 function buildModuleConfig(name, entryFile, outputDir) {
   return {
     name,

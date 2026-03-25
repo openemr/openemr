@@ -20,7 +20,7 @@
 - **Backend:** Laminas MVC, Symfony components
 - **Templates:** Twig 3.x (modern), Smarty 4.5 (legacy)
 - **Frontend:** Angular 1.8, jQuery 3.7, Bootstrap 4.6
-- **Build:** Gulp 4, SASS
+- **Build:** Webpack 5, SASS
 - **Database:** MySQL via Doctrine DBAL 4.x (ADODB surface API for legacy code)
 - **Testing:** PHPUnit 11, Jest 29
 - **Static Analysis:** PHPStan level 10, Rector, custom rules in `tests/PHPStan/Rules/`
@@ -251,9 +251,10 @@ npm run stylelint         # CSS/SCSS lint
 ## Build Commands
 
 ```bash
-npm run build        # Production build
-npm run dev          # Development with file watching
-npm run gulp-build   # Build only (no watch)
+npm run build           # Production build (webpack + CSS sync)
+npm run build:webpack   # Webpack theme compilation only
+npm run build:sync      # Sync static CSS to public/themes/
+npm run dev             # Development build with file watching
 ```
 
 ## Coding Standards
