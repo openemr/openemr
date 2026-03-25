@@ -6,6 +6,8 @@ namespace OpenEMR\Encryption\Keys\Storage;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Encryption\Keys\KeyMaterial;
+use OutOfBoundsException;
+use UnexpectedValueException;
 
 readonly class PlaintextKeyInDbKeysTableAdodb implements KeyStorageInterface
 {
@@ -13,22 +15,21 @@ readonly class PlaintextKeyInDbKeysTableAdodb implements KeyStorageInterface
     {
         $row = QueryUtils::querySingleRow(
             'SELECT value FROM `keys` WHERE name = ?',
-            // 'value',
             [$identifier],
             log: false,
         );
         if ($row === false) {
-            throw new \Exception('No key found');
+            throw new OutOfBoundsException('No key found');
         }
         $result = $row['value'];
 
         if (!is_string($result)) {
-            throw new \Exception('No key found');
+            throw new UnexpectedValueException('Key found, invalid data format');
         }
 
         $key = base64_decode($result, strict: true);
         if ($key === false) {
-            throw new \Exception('Malformed key');
+            throw new UnexpectedValueException('Key found, malformed');
         }
 
         return new KeyMaterial($key);
