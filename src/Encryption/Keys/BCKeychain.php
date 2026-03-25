@@ -8,6 +8,8 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Encryption\{
     Cipher,
     Message,
+    MessageFormat,
+    Plaintext,
 };
 use Throwable;
 
@@ -56,22 +58,37 @@ class BCKeychain
         self::tryLoadDbKey('seven', $pkidb, $storageDir, $keychain);
 
         if ($createKeyIfNeeded !== null) {
-            if (!$keychain->hasKey($createKeyIfNeeded)) {
-                // Generate and store keys
-                foreach (['drive', 'db'] as $storage) {
-                    // TODO: actually persist them!!
-                    $key = KeyMaterial::generate(openssl_cipher_key_length('aes-256-cbc'));
-                    $hmacKey = KeyMaterial::generate(32);
-                    // FIXME: persist this data!
-                    $keychain->addCipher($createKeyIfNeeded . '-' . $storage, new Cipher\Aes256CbcHmacSha384(
-                        key: $key,
-                        hmacKey: $hmacKey,
-                    ));
-                }
+            assert($createKeyIfNeeded === 'seven'); // TODO: support others
+            // FIXME: split the db and drive key creation
+            if (!$keychain->hasKey($createKeyIfNeeded . '-db')) {
+                // DB Key
+                $dbKey = KeyMaterial::generate(openssl_cipher_key_length('aes-256-cbc'));
+                $dbHmacKey = KeyMaterial::generate(32);
+                $pkidb->storeKey($createKeyIfNeeded . 'a', $dbKey);
+                $pkidb->storeKey($createKeyIfNeeded . 'b', $dbHmacKey);
+                $dbCipher =  new Cipher\Aes256CbcHmacSha384(
+                    key: $dbKey,
+                    hmacKey: $dbHmacKey,
+                );
+                $keychain->addCipher($createKeyIfNeeded . '-db', $dbCipher);
 
-                // if (!defined('PHPUNIT_COMPOSER_INSTALL')) {
-                //     throw new \RuntimeException('Keys need persistence');
-                // }
+                // Drive key (encrypted)
+                $driveKey = KeyMaterial::generate(openssl_cipher_key_length('aes-256-cbc'));
+                $driveHmacKey = KeyMaterial::generate(32);
+
+                $encDriveKey = $dbCipher->encrypt(new Plaintext($driveKey->key));
+                $encDriveHmacKey = $dbCipher->encrypt(new Plaintext($driveHmacKey->key));
+
+                $driveKeyMessage = new Message(MessageFormat::v7, $createKeyIfNeeded, $encDriveKey);
+                $driveHmacKeyMessage = new Message(MessageFormat::v7, $createKeyIfNeeded, $encDriveHmacKey);
+
+                file_put_contents("$storageDir/{$createKeyIfNeeded}a", $driveKeyMessage->encode());
+                file_put_contents("$storageDir/{$createKeyIfNeeded}b", $driveHmacKeyMessage->encode());
+
+                $keychain->addCipher($createKeyIfNeeded . '-drive', new Cipher\Aes256CbcHmacSha384(
+                    key: $driveKey,
+                    hmacKey: $driveHmacKey,
+                ));
             }
         }
 
