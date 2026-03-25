@@ -18,7 +18,7 @@ use Throwable;
  */
 class BCKeychain
 {
-    public static function load(): KeychainInterface
+    public static function load(?string $createKeyIfNeeded): KeychainInterface
     {
         $bag = OEGlobalsBag::getInstance();
         $storageDir = sprintf(
@@ -45,6 +45,20 @@ class BCKeychain
         self::tryLoadDbKey('five', $pkidb, $storageDir, $keychain);
         self::tryLoadDbKey('six', $pkidb, $storageDir, $keychain);
         self::tryLoadDbKey('seven', $pkidb, $storageDir, $keychain);
+
+        if ($createKeyIfNeeded !== null) {
+            if (!$keychain->hasKey($createKeyIfNeeded)) {
+                // Generate and store keys
+                // TODO: actually persist them!!
+                $key = KeyMaterial::generate(openssl_cipher_key_length('aes-256-cbc'));
+                $hmacKey = KeyMaterial::generate(32);
+                // FIXME: persist this data!
+                $keychain->addCipher($createKeyIfNeeded, new Cipher\Aes256CbcHmacSha384(
+                    key: $key,
+                    hmacKey: $hmacKey,
+                ));
+            }
+        }
 
         return $keychain;
     }

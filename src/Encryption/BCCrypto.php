@@ -21,7 +21,7 @@ class BCCrypto implements CryptoInterface
     // Singleton for BC?
     public static function instance(LoggerInterface $logger): BCCrypto
     {
-        $keychain = Keys\BCKeychain::load();
+        $keychain = Keys\BCKeychain::load(createKeyIfNeeded: 'seven');
         $logger->warning("BCC instance");
         $logger->warning(print_r($keychain, true));
         return new BCCrypto($keychain, $logger);
