@@ -45,6 +45,8 @@ updates:
       # submodules are causing problems, so ignore them
   - dependency-name: '*/onc-certification-g10-test-kit'
   - dependency-name: '*/inferno-files'
+  cooldown:
+    default-days: 7
 
   # JavaScript dependencies (not including ccdaservice)
 - package-ecosystem: npm
@@ -105,6 +107,8 @@ updates:
     versions: [5.x, 6.x]         # Stay on Bootstrap 4 for compatibility
   - dependency-name: angular
     versions: ['>1.8.x']     # Legacy AngularJS, don't update
+  cooldown:
+    default-days: 7
 
   # GitHub Actions
 - package-ecosystem: github-actions
@@ -119,6 +123,8 @@ updates:
     prefix: ci
     include: scope
   open-pull-requests-limit: 5
+  cooldown:
+    default-days: 7
 
   # Docker selenium docker updates in 4 places in the repo as a group
 - package-ecosystem: docker-compose
@@ -142,6 +148,8 @@ updates:
   - dependencies
   - selenium
   - docker
+  cooldown:
+    default-days: 7
 
   # JavaScript dependencies (ccdaservice)
 - package-ecosystem: npm
@@ -162,3 +170,5 @@ updates:
       # Don't update major versions automatically
   - dependency-name: '*'
     update-types: [version-update:semver-major]
+  cooldown:
+    default-days: 7
