@@ -17,24 +17,24 @@ class Keychain implements KeychainInterface
     private array $mappings = [];
 
     public function addCipher(
-        string $id,
+        Id $id,
         CipherInterface $cipher,
     ): void {
-        $this->mappings[$id] = $cipher;
+        $this->mappings[$id->id] = $cipher;
     }
 
     // addLoader to defer key loading?
 
-    public function getCipher(string $keyId): CipherInterface
+    public function getCipher(Id $keyId): CipherInterface
     {
         if ($this->hasKey($keyId)) {
-            return $this->mappings[$keyId];
+            return $this->mappings[$keyId->id];
         }
-        throw new OutOfBoundsException('Key id not registered' . $keyId);
+        throw new OutOfBoundsException('Key id not registered');
     }
 
-    public function hasKey(string $keyId): bool
+    public function hasKey(Id $keyId): bool
     {
-        return array_key_exists($keyId, $this->mappings);
+        return array_key_exists($keyId->id, $this->mappings);
     }
 }

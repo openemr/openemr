@@ -16,7 +16,7 @@ final readonly class BCCrypto implements CryptoInterface
     public function __construct(
         private Keys\KeychainInterface $keychain,
         private LoggerInterface $logger,
-        private string $currentKeyId = 'seven',
+        private Keys\Id $currentKeyId,
         private MessageFormat $format = MessageFormat::v7,
     ) {
     }
@@ -27,7 +27,12 @@ final readonly class BCCrypto implements CryptoInterface
         // get picked up properly.
         // @phpstan-ignore staticMethod.deprecatedClass
         $keychain = Keys\BCKeychain::load(createKeyIfNeeded: KeyVersion::CURRENT->toString());
-        return new BCCrypto($keychain, $logger);
+        return new BCCrypto(
+            $keychain,
+            $logger,
+            new Keys\Id(KeyVersion::CURRENT->toString()),
+            MessageFormat::v7,
+        );
     }
 
     public function encryptStandard(?string $value, KeySource $keySource = KeySource::Drive): string
@@ -69,17 +74,17 @@ final readonly class BCCrypto implements CryptoInterface
         }
     }
 
-    private static function remapKeyId(string $id, KeySource $source): string
+    private static function remapKeyId(Keys\Id $id, KeySource $source): Keys\Id
     {
         // General BC concept: key versions 5-7 for disk-backed keys were
         // encrypted-on-disk using a db-managed key of the same name.
-        return match ($id) {
+        return match ($id->id) {
             'four',
             'five',
             'six',
             'seven' => match ($source) {
-                KeySource::Drive => "$id-drive",
-                KeySource::Database => "$id-db",
+                KeySource::Drive => new Keys\Id("{$id->id}-drive"),
+                KeySource::Database => new Keys\Id("{$id->id}-db"),
             },
             default => $id,
         };

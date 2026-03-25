@@ -8,7 +8,7 @@ use OpenEMR\Encryption\Cipher\CipherInterface;
 
 interface KeychainInterface
 {
-    public function getCipher(string $keyId): CipherInterface;
+    public function getCipher(Id $keyId): CipherInterface;
 
-    public function hasKey(string $keyId): bool;
+    public function hasKey(Id $keyId): bool;
 }

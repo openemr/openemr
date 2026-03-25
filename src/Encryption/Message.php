@@ -10,7 +10,7 @@ final readonly class Message
 {
     public function __construct(
         public MessageFormat $format,
-        public string $keyId,
+        public Keys\Id $keyId,
         public string $ciphertext,
     ) {
     }
@@ -40,7 +40,7 @@ final readonly class Message
             throw new UnexpectedValueException('Could not parse ciphertext');
         }
 
-        return new Message($format, $keyId, $ciphertext);
+        return new Message($format, new Keys\Id($keyId), $ciphertext);
     }
 
     public function encode(): string

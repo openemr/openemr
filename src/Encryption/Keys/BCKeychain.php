@@ -34,21 +34,21 @@ class BCKeychain
         $keychain = new Keychain();
         // v1: broken crypto (no hmac)
         if ($one = self::tryLoadKey('one', $pkod)) {
-            $keychain->addCipher('one', new Cipher\Aes256CbcNoHmac($one));
+            $keychain->addCipher(new Id('one'), new Cipher\Aes256CbcNoHmac($one));
         }
 
         // v2-3: legacy crypto (256CBC-HS256) and storage
         if (($twoa = self::tryLoadKey('twoa', $pkod)) && ($twob = self::tryLoadKey('twob', $pkod))) {
-            $keychain->addCipher('two', new Cipher\Aes256CbcHmacSha256(key: $twoa, hmacKey: $twob));
+            $keychain->addCipher(new Id('two'), new Cipher\Aes256CbcHmacSha256(key: $twoa, hmacKey: $twob));
         }
         // No "three" key for historic reasons
 
         // v4: 256CBC-HS384 encryption, has drive+db but drive key is plaintext
         if (($foura = self::tryLoadKey('foura', $pkod)) && ($fourb = self::tryLoadKey('fourb', $pkod))) {
-            $keychain->addCipher('four-drive', new Cipher\Aes256CbcHmacSha384(key: $foura, hmacKey: $fourb));
+            $keychain->addCipher(new Id('four-drive'), new Cipher\Aes256CbcHmacSha384(key: $foura, hmacKey: $fourb));
         }
         if (($fouraDB = self::tryLoadKey('foura', $pkidb)) && ($fourbDB = self::tryLoadKey('fourb', $pkidb))) {
-            $keychain->addCipher('four-db', new Cipher\Aes256CbcHmacSha384(key: $fouraDB, hmacKey: $fourbDB));
+            $keychain->addCipher(new Id('four-db'), new Cipher\Aes256CbcHmacSha384(key: $fouraDB, hmacKey: $fourbDB));
         }
 
         self::tryLoadDbKey('five', $pkidb, $storageDir, $keychain);
@@ -60,7 +60,7 @@ class BCKeychain
             assert($createKeyIfNeeded === 'seven');
             // TODO: extract this out into a reusable service
             // DB Key
-            if (!$keychain->hasKey('seven-db')) {
+            if (!$keychain->hasKey(new Id('seven-db'))) {
                 $dbKey = KeyMaterial::generate(Cipher\Aes256CbcHmacSha384::KEY_LENGTH);
                 $dbHmacKey = KeyMaterial::generate(32);
                 $pkidb->storeKey('sevena', $dbKey);
@@ -69,13 +69,13 @@ class BCKeychain
                     key: $dbKey,
                     hmacKey: $dbHmacKey,
                 );
-                $keychain->addCipher('seven-db', $dbCipher);
+                $keychain->addCipher(new Id('seven-db'), $dbCipher);
             }
 
             // Drive key (encrypted)
-            if (!$keychain->hasKey('seven-drive')) {
+            if (!$keychain->hasKey(new Id('seven-drive'))) {
                 if (!isset($dbCipher)) {
-                    $dbCipher = $keychain->getCipher('seven-db');
+                    $dbCipher = $keychain->getCipher(new Id('seven-db'));
                 }
                 $driveKey = KeyMaterial::generate(Cipher\Aes256CbcHmacSha384::KEY_LENGTH);
                 $driveHmacKey = KeyMaterial::generate(32);
@@ -83,13 +83,13 @@ class BCKeychain
                 $encDriveKey = $dbCipher->encrypt(new Plaintext($driveKey->key));
                 $encDriveHmacKey = $dbCipher->encrypt(new Plaintext($driveHmacKey->key));
 
-                $driveKeyMessage = new Message(MessageFormat::v7, 'sevena', $encDriveKey);
-                $driveHmacKeyMessage = new Message(MessageFormat::v7, 'sevenb', $encDriveHmacKey);
+                $driveKeyMessage = new Message(MessageFormat::v7, new Id('sevena'), $encDriveKey);
+                $driveHmacKeyMessage = new Message(MessageFormat::v7, new Id('sevenb'), $encDriveHmacKey);
 
                 file_put_contents("$storageDir/sevena", $driveKeyMessage->encode());
                 file_put_contents("$storageDir/sevenb", $driveHmacKeyMessage->encode());
 
-                $keychain->addCipher('seven-drive', new Cipher\Aes256CbcHmacSha384(
+                $keychain->addCipher(new Id('seven-drive'), new Cipher\Aes256CbcHmacSha384(
                     key: $driveKey,
                     hmacKey: $driveHmacKey,
                 ));
@@ -122,7 +122,7 @@ class BCKeychain
             return;
         }
         $dbCipher = new Cipher\Aes256CbcHmacSha384(key: $key, hmacKey: $hmacKey);
-        $keychain->addCipher("{$name}-db", $dbCipher);
+        $keychain->addCipher(new Id("{$name}-db"), $dbCipher);
 
         $diskKeyMsg = self::tryLoadEncryptedKey("$storageDir/{$name}a");
         $diskHmacKeyMsg = self::tryLoadEncryptedKey("$storageDir/{$name}b");
@@ -132,7 +132,7 @@ class BCKeychain
 
         $diskKey = $dbCipher->decrypt($diskKeyMsg->ciphertext);
         $diskHmacKey = $dbCipher->decrypt($diskHmacKeyMsg->ciphertext);
-        $keychain->addCipher("{$name}-drive", new Cipher\Aes256CbcHmacSha384(
+        $keychain->addCipher(new Id("{$name}-drive"), new Cipher\Aes256CbcHmacSha384(
             key: new KeyMaterial($diskKey->wrapped),
             hmacKey: new KeyMaterial($diskHmacKey->wrapped),
         ));
