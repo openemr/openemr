@@ -31,4 +31,8 @@ readonly class PlaintextKeyOnDisk implements KeyStorageInterface
         }
         return new KeyMaterial(key: $decoded);
     }
+
+    public function storeKey(string $identifier, KeyMaterial $key): void
+    {
+    }
 }

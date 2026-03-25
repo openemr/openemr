@@ -33,4 +33,8 @@ readonly class PlaintextKeyInDbKeysTableAdodb implements KeyStorageInterface
 
         return new KeyMaterial($key);
     }
+
+    public function storeKey(string $identifier, KeyMaterial $key): void
+    {
+    }
 }

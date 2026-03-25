@@ -32,4 +32,8 @@ readonly class PlaintextKeyInDbKeysTable implements KeyStorageInterface
 
         return new KeyMaterial($key);
     }
+
+    public function storeKey(string $identifier, KeyMaterial $key): void
+    {
+    }
 }
