@@ -36,7 +36,7 @@ class BCCrypto implements CryptoInterface
         $wrapped = new Plaintext($value);
         return $cipher->encrypt($wrapped);
 
-        // $message = new Message(current format, key id, cyphertext)
+        // $message = new Message(current format, key id, ciphertext)
         // return $message->encode();
         throw new \BadMethodCallException();
     }
