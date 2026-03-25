@@ -22,11 +22,20 @@ class BCCrypto implements CryptoInterface
     public static function instance(LoggerInterface $logger): BCCrypto
     {
         $keychain = Keys\BCKeychain::load();
+        $logger->warning("BCC instance");
+        $logger->warning(print_r($keychain, true));
         return new BCCrypto($keychain, $logger);
     }
 
     public function encryptStandard(?string $value, KeySource $keySource = KeySource::Drive): string
     {
+        $currentKey = 'seven'; // TBD
+        $keyId = self::remapKeyId($currentKey, $keySource);
+        $cipher = $this->keychain->getCipher($keyId);
+
+        $wrapped = new Plaintext($value);
+        return $cipher->encrypt($wrapped);
+
         // $message = new Message(current format, key id, cyphertext)
         // return $message->encode();
         throw new \BadMethodCallException();
