@@ -224,87 +224,26 @@ if ($form_action === "save") {
 //for example monday, or thursday. We set the start date on the first day of the week
 //that the event is scheduled. For example if you set the event to repeat on each monday
 //the start date of the event will be set on the first monday after the day the event is scheduled
-    if ($form_repeat_type === 5) {
-        $exploded_date = explode("-", (string) $event_date);
-        $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
-        if ($edate == "Tue") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
-        } elseif ($edate == "Wed") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 5, $exploded_date[0]));
-        } elseif ($edate == "Thu") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 4, $exploded_date[0]));
-        } elseif ($edate == "Fri") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 3, $exploded_date[0]));
-        } elseif ($edate == "Sat") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 2, $exploded_date[0]));
-        } elseif ($edate == "Sun") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
+    // Repeat types 5-9 map to target weekdays (Mon-Fri). Advance the start
+    // date to the next occurrence of that weekday so the recurrence begins on
+    // the correct day.
+    //   5 = every Monday, 6 = every Tuesday, ... 9 = every Friday
+    $repeatTargetDay = match ($form_repeat_type) {
+        5 => 1,  // Monday  (ISO-8601 weekday number)
+        6 => 2,  // Tuesday
+        7 => 3,  // Wednesday
+        8 => 4,  // Thursday
+        9 => 5,  // Friday
+        default => null,
+    };
+
+    if ($repeatTargetDay !== null) {
+        $currentDay = (int) date('N', strtotime($event_date)); // 1=Mon .. 7=Sun
+        if ($currentDay !== $repeatTargetDay) {
+            $daysUntilTarget = ($repeatTargetDay - $currentDay + 7) % 7;
+            $event_date = date('Y-m-d', strtotime("+{$daysUntilTarget} days", strtotime($event_date)));
         }
-    } elseif ($form_repeat_type === 6) {
-        $exploded_date = explode("-", (string) $event_date);
-        $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
-        if ($edate == "Wed") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
-        } elseif ($edate == "Thu") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 5, $exploded_date[0]));
-        } elseif ($edate == "Fri") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 4, $exploded_date[0]));
-        } elseif ($edate == "Sat") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 3, $exploded_date[0]));
-        } elseif ($edate == "Sun") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 2, $exploded_date[0]));
-        } elseif ($edate == "Mon") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
-        }
-    } elseif ($form_repeat_type === 7) {
-        $exploded_date = explode("-", (string) $event_date);
-        $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
-        if ($edate == "Thu") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
-        } elseif ($edate == "Fri") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 5, $exploded_date[0]));
-        } elseif ($edate == "Sat") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 4, $exploded_date[0]));
-        } elseif ($edate == "Sun") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 3, $exploded_date[0]));
-        } elseif ($edate == "Mon") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 2, $exploded_date[0]));
-        } elseif ($edate == "Tue") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
-        }
-    } elseif ($form_repeat_type === 8) {
-        $exploded_date = explode("-", (string) $event_date);
-        $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
-        if ($edate == "Fri") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
-        } elseif ($edate == "Sat") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 5, $exploded_date[0]));
-        } elseif ($edate == "Sun") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 4, $exploded_date[0]));
-        } elseif ($edate == "Mon") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 3, $exploded_date[0]));
-        } elseif ($edate == "Tue") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 2, $exploded_date[0]));
-        } elseif ($edate == "Wed") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
-        }
-    } elseif ($form_repeat_type === 9) {
-        $exploded_date = explode("-", (string) $event_date);
-        $edate = date("D", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2], $exploded_date[0]));
-        if ($edate == "Sat") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 6, $exploded_date[0]));
-        } elseif ($edate == "Sun") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 5, $exploded_date[0]));
-        } elseif ($edate == "Mon") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 4, $exploded_date[0]));
-        } elseif ($edate == "Tue") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 3, $exploded_date[0]));
-        } elseif ($edate == "Wed") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 2, $exploded_date[0]));
-        } elseif ($edate == "Thu") {
-            $event_date = date("Y-m-d", mktime(0, 0, 0, $exploded_date[1], $exploded_date[2] + 1, $exploded_date[0]));
-        }
-    }//if end
+    }
     /* =======================================================
     //                                  UPDATE EVENTS
     ========================================================*/
