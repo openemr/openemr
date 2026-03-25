@@ -47,6 +47,7 @@ jobs:
         ref: ${{ github.event.pull_request.head.sha || github.sha }}
         # Fetch enough history to find the merge base with the target branch
         fetch-depth: 0
+        persist-credentials: false
 
     - name: Check for full test mode
       id: test-mode
