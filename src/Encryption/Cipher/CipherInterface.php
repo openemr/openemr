@@ -9,4 +9,6 @@ use OpenEMR\Encryption\Plaintext;
 interface CipherInterface
 {
     public function decrypt(string $ciphertext): Plaintext;
+
+    public function encrypt(Plaintext $plaintext): string;
 }
