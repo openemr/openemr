@@ -140,7 +140,7 @@ if (count($missingExtensions) > 0) {
         <script>
             <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/restoreSession.php'); ?>
         </script>
-        <form name="info" method="post" action="<?php echo OEGlobalsBag::getInstance()->get('erx_newcrop_path'); ?>" onsubmit="return top.restoreSession()">
+        <form name="info" method="post" action="<?php echo OEGlobalsBag::getInstance()->getString('erx_newcrop_path'); ?>" onsubmit="return top.restoreSession()">
             <input type="submit" style="display:none">
             <input type="hidden" id="RxInput" name="RxInput" value="<?php echo attr($xml); ?>">
         </form>

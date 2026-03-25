@@ -58,3 +58,6 @@ services:
 - class: OpenEMR\PHPStan\Rules\ForbidDirectSessionWriteRule
   tags:
   - phpstan.rules.rule
+- class: OpenEMR\PHPStan\Rules\ForbiddenRequestGlobalsRule
+  tags:
+  - phpstan.rules.rule

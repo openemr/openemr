@@ -818,7 +818,7 @@ class AuthorizationController
             ,'isU2F' => false
             ,'u2fRequests' => ''
             ,'appId' => ''
-            ,'enforce_signin_email' => $this->globalsBag->get('enforce_signin_email', 0) === '1'
+            ,'enforce_signin_email' => $this->globalsBag->getBoolean('enforce_signin_email')
             ,'user' => [
                 'email' => $request->request->get('email', '')
                 ,'username' => $request->request->get('username', '')

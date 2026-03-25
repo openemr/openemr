@@ -85,7 +85,7 @@ if (!empty($_POST['access_group']) && is_array($_POST['access_group'])) {
                 $row = sqlFetchArray($res);
                 $uname = $row['username'];
                 $mail = new MyMailer();
-                $mail->From = OEGlobalsBag::getInstance()->get("practice_return_email_path");
+                $mail->From = OEGlobalsBag::getInstance()->getString("practice_return_email_path");
                 $mail->FromName = "Administrator OpenEMR";
                 $text_body = "Hello Security Admin,\n\n The Emergency Login user " . $uname .
                     " was activated at " . date('l jS \of F Y h:i:s A') . " \n\nThanks,\nAdmin OpenEMR.";

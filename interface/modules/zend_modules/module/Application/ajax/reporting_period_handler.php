@@ -114,7 +114,7 @@ function handleGetMeasuresForPeriod()
     }
 
     // Temporarily update the global to get measures for the selected period
-    $originalPeriod = OEGlobalsBag::getInstance()->get('cqm_performance_period') ?? null;
+    $originalPeriod = OEGlobalsBag::getInstance()->getString('cqm_performance_period') ?? null;
     OEGlobalsBag::getInstance()->set('cqm_performance_period', $period);
 
     $measures = [];

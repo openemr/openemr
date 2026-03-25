@@ -453,7 +453,7 @@ function narrative($pid, $encounter, $cols, $form_id, $choice = 'full'): void
                    ON cate.id = cate_to_doc.category_id
                 WHERE cate.name LIKE ? and doc.foreign_id = ?";
 
-                    $result = sqlQuery($sql, [OEGlobalsBag::getInstance()->get('patient_photo_category_name'), $pid]);
+                    $result = sqlQuery($sql, [OEGlobalsBag::getInstance()->getString('patient_photo_category_name'), $pid]);
 
                 if (empty($result) || empty($result['id'])) {
                     //echo "no photo";

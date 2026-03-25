@@ -185,7 +185,7 @@ function auto_populate_employer_address(){
 <td><span class='text'>
     <?php
   //Modified 7/2009 by BM to incorporate data types
-    echo generate_display_field(['data_type' => OEGlobalsBag::getInstance()->get('state_data_type'),'list_id' => OEGlobalsBag::getInstance()->get('state_list')], $result3['subscriber_state']);
+    echo generate_display_field(['data_type' => OEGlobalsBag::getInstance()->get('state_data_type'),'list_id' => OEGlobalsBag::getInstance()->getString('state_list')], $result3['subscriber_state']);
     ?>
 </span></td>
 </tr>
@@ -198,7 +198,7 @@ function auto_populate_employer_address(){
 <td><span class='text'>
     <?php
   //Modified 7/2009 by BM to incorporate data types
-    echo generate_display_field(['data_type' => OEGlobalsBag::getInstance()->get('country_data_type'),'list_id' => OEGlobalsBag::getInstance()->get('country_list')], $result3['subscriber_country']);
+    echo generate_display_field(['data_type' => OEGlobalsBag::getInstance()->get('country_data_type'),'list_id' => OEGlobalsBag::getInstance()->getString('country_list')], $result3['subscriber_country']);
     ?>
 </span></td>
 </tr>
@@ -254,7 +254,7 @@ function auto_populate_employer_address(){
 <td><span class='text'>
         <?php
       //Modified 7/2009 by BM to incorporate data types
-        echo generate_display_field(['data_type' => OEGlobalsBag::getInstance()->get('state_data_type'),'list_id' => OEGlobalsBag::getInstance()->get('state_list')], $result3['subscriber_employer_state']);
+        echo generate_display_field(['data_type' => OEGlobalsBag::getInstance()->get('state_data_type'),'list_id' => OEGlobalsBag::getInstance()->getString('state_list')], $result3['subscriber_employer_state']);
         ?>
 </span></td>
 </tr>
@@ -263,7 +263,7 @@ function auto_populate_employer_address(){
 <td><span class='text'>
         <?php
        //Modified 7/2009 by BM to incorporate data types
-        echo generate_display_field(['data_type' => OEGlobalsBag::getInstance()->get('country_data_type'),'list_id' => OEGlobalsBag::getInstance()->get('country_list')], $result3['subscriber_employer_country']);
+        echo generate_display_field(['data_type' => OEGlobalsBag::getInstance()->get('country_data_type'),'list_id' => OEGlobalsBag::getInstance()->getString('country_list')], $result3['subscriber_employer_country']);
         ?>
 </span></td>
 </tr>

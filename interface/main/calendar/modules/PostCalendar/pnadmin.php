@@ -499,7 +499,7 @@ function postcalendar_admin_categories($msg = '', $e = '', $args = [])
     $tpl->assign('action', pnModURL(__POSTCALENDAR__, 'admin', 'categoriesConfirm'));
     $tpl->assign('adminmenu', postcalendar_adminmenu("category"));
     $tpl->assign('BGCOLOR2', OEGlobalsBag::getInstance()->get('style')['BGCOLOR2']);
-    $tpl->assign('css_header', OEGlobalsBag::getInstance()->get('css_header'));
+    $tpl->assign('css_header', OEGlobalsBag::getInstance()->getString('css_header'));
     $tpl->assign('_PC_REP_CAT_TITLE_S', _PC_REP_CAT_TITLE_S);
     $tpl->assign('_PC_NEW_CAT_TITLE_S', _PC_NEW_CAT_TITLE_S);
     $tpl->assign('_PC_CAT_NAME', _PC_CAT_NAME);

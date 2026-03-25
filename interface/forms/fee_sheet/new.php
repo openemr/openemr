@@ -1133,7 +1133,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                                 }
                             }
 
-                            $search_type = OEGlobalsBag::getInstance()->get('default_search_code_type') ?? null;
+                            $search_type = OEGlobalsBag::getInstance()->getString('default_search_code_type') ?? null;
                             if (!empty($_POST['search_type'])) {
                                 $search_type = $_POST['search_type'];
                             }

@@ -487,7 +487,7 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
 
     <div class="form-group mt-3">
         <label><?php echo xlt('NDC Number'); ?>:</label>
-        <input class="form-control w-100" size="40" name="form_ndc_number" maxlength="20" value='<?php echo attr($row['ndc_number']) ?>' onkeyup='maskkeyup(this,"<?php echo attr(addslashes((string) OEGlobalsBag::getInstance()->get('gbl_mask_product_id'))); ?>")' onblur='maskblur(this,"<?php echo attr(addslashes((string) OEGlobalsBag::getInstance()->get('gbl_mask_product_id'))); ?>")' />
+        <input class="form-control w-100" size="40" name="form_ndc_number" maxlength="20" value='<?php echo attr($row['ndc_number']) ?>' onkeyup='maskkeyup(this,"<?php echo attr(addslashes(OEGlobalsBag::getInstance()->getString('gbl_mask_product_id'))); ?>")' onblur='maskblur(this,"<?php echo attr(addslashes(OEGlobalsBag::getInstance()->getString('gbl_mask_product_id'))); ?>")' />
     </div>
 
     <div class="form-group mt-3">

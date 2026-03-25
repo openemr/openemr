@@ -669,7 +669,7 @@ class PatientService extends BaseService
                    ON cate.id = cate_to_doc.category_id
                 WHERE cate.name LIKE ? and doc.foreign_id = ?";
 
-        $result = sqlQuery($sql, [OEGlobalsBag::getInstance()->get('patient_photo_category_name'), $pid]);
+        $result = sqlQuery($sql, [OEGlobalsBag::getInstance()->getString('patient_photo_category_name'), $pid]);
 
         if (empty($result) || empty($result['id'])) {
             return $this->patient_picture_fallback_id;

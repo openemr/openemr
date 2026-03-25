@@ -73,14 +73,14 @@ class SphereRevert
 
         $this->cryptoGen = ServiceContainer::getCrypto();
         if ($front == 'patient') {
-            $this->custid = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('sphere_patientfront_trxcustid'));
-            $this->custpass = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('sphere_ecomm_tc_link_pass'));
+            $this->custid = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_patientfront_trxcustid'));
+            $this->custpass = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_ecomm_tc_link_pass'));
         } elseif ($front == 'clinic-retail') {
-            $this->custid = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('sphere_clinicfront_retail_trxcustid'));
-            $this->custpass = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('sphere_retail_tc_link_pass'));
+            $this->custid = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_clinicfront_retail_trxcustid'));
+            $this->custpass = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_retail_tc_link_pass'));
         } else { // $front == 'clinic-phone'
-            $this->custid = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('sphere_clinicfront_trxcustid'));
-            $this->custpass = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('sphere_moto_tc_link_pass'));
+            $this->custid = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_clinicfront_trxcustid'));
+            $this->custpass = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_moto_tc_link_pass'));
         }
 
         $this->client = new Client(['base_uri' => Sphere::TRUSTEE_API_URL]);

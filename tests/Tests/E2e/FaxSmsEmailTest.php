@@ -138,7 +138,7 @@ class FaxSmsEmailTest extends TestCase
         $globals = OEGlobalsBag::getInstance();
 
         // Save original SMTP_HOST setting
-        $originalSmtpHost = $globals->get('SMTP_HOST');
+        $originalSmtpHost = $globals->getString('SMTP_HOST');
 
         // Temporarily disable SMTP by clearing SMTP_HOST
         // Note: SMTP is considered configured when SMTP_HOST is set,

@@ -77,7 +77,7 @@ function checkCreateCDB()
             return false;
         }
 
-        if (OEGlobalsBag::getInstance()->get('couchdb_host') || OEGlobalsBag::getInstance()->get('couchdb_port') || OEGlobalsBag::getInstance()->get('couchdb_dbase')) {
+        if (OEGlobalsBag::getInstance()->getString('couchdb_host') || OEGlobalsBag::getInstance()->getString('couchdb_port') || OEGlobalsBag::getInstance()->getString('couchdb_dbase')) {
             $couch->createDB();
         }
     }

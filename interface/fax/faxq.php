@@ -32,7 +32,7 @@ $slines = [];
 if (OEGlobalsBag::getInstance()->getBoolean('enable_hylafax')) {
 // Get the recvq entries, parse and sort by filename.
     $statlines = [];
-    exec("faxstat -r -l -h " . escapeshellarg((string) OEGlobalsBag::getInstance()->get('hylafax_server')), $statlines);
+    exec("faxstat -r -l -h " . escapeshellarg(OEGlobalsBag::getInstance()->getString('hylafax_server')), $statlines);
     foreach ($statlines as $line) {
         // This gets pagecount, sender, time, filename.  We are expecting the
         // string to start with "-rw-rw-" so as to exclude faxes not yet fully
@@ -52,7 +52,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('enable_hylafax')) {
     154  124 F nobody 6153551807    0:1   4:12         No carrier detected
     */
     $donelines = [];
-    exec("faxstat -s -d -l -h " . escapeshellarg((string) OEGlobalsBag::getInstance()->get('hylafax_server')), $donelines);
+    exec("faxstat -s -d -l -h " . escapeshellarg(OEGlobalsBag::getInstance()->getString('hylafax_server')), $donelines);
     foreach ($donelines as $line) {
             // This gets jobid, priority, statchar, owner, phone, pages, dials and tts/status.
         if (preg_match('/^(\d+)\s+(\d+)\s+(\S)\s+(\S+)\s+(\S+)\s+(\d+:\d+)\s+(\d+:\d+)(.*)$/', $line, $matches)) {
@@ -63,7 +63,7 @@ if (OEGlobalsBag::getInstance()->getBoolean('enable_hylafax')) {
     ksort($dlines);
 }
 
-$scandir = OEGlobalsBag::getInstance()->get('scanner_output_directory');
+$scandir = OEGlobalsBag::getInstance()->getString('scanner_output_directory');
 if ($scandir && OEGlobalsBag::getInstance()->getBoolean('enable_scanner')) {
     // Get the directory entries, parse and sort by date and time.
     $dh = opendir($scandir);

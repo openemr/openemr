@@ -49,7 +49,7 @@ use OpenEMR\Services\Search\SearchQueryConfig;
 return [
     "GET /api/facility" => function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "users");
-        $return = (new FacilityRestController())->getAll($request, $_GET);
+        $return = (new FacilityRestController())->getAll($request, $request->query->all());
         return $return;
     },
     "GET /api/facility/:fuuid" => function ($fuuid, HttpRestRequest $request) {
@@ -439,7 +439,7 @@ return [
     },
     "GET /api/user" => function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "admin", "users");
-        $return = (new UserRestController())->getAll($_GET);
+        $return = (new UserRestController())->getAll($request->query->all());
 
         return $return;
     },
@@ -491,13 +491,13 @@ return [
         RestConfig::request_authorization_check($request, "patients", "docs", ['write','addonly']);
         $controller = new DocumentRestController();
         $controller->setSession($request->getSession());
-        $return = $controller->postWithPath($pid, $_GET['path'], $_FILES['document'], $_GET['eid']);
+        $return = $controller->postWithPath($pid, $request->query->get('path'), $_FILES['document'], $request->query->get('eid'));
 
         return $return;
     },
     "GET /api/patient/:pid/document" => function ($pid, HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "patients", "docs");
-        $return = (new DocumentRestController())->getAllAtPath($pid, $_GET['path']);
+        $return = (new DocumentRestController())->getAllAtPath($pid, $request->query->get('path'));
 
         return $return;
     },
@@ -621,7 +621,7 @@ return [
     },
     "GET /api/immunization" => function (HttpRestRequest $request) {
         RestConfig::request_authorization_check($request, "patients", "med");
-        $return = (new ImmunizationRestController())->getAll($_GET);
+        $return = (new ImmunizationRestController())->getAll($request->query->all());
 
         return $return;
     },

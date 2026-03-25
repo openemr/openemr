@@ -733,7 +733,7 @@ function generate_form_field($frow, $currvalue): void
             echo " onchange='$tmp'";
         }
 
-        $tmp = htmlspecialchars((string) OEGlobalsBag::getInstance()->get('gbl_mask_patient_id'), ENT_QUOTES);
+        $tmp = htmlspecialchars(OEGlobalsBag::getInstance()->getString('gbl_mask_patient_id'), ENT_QUOTES);
         // If mask is for use at save time, treat as no mask.
         if (str_contains($tmp, '^')) {
             $tmp = '';

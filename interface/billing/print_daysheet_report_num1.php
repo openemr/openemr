@@ -1166,7 +1166,7 @@ if (!isset($_GET["mode"])) {
                                             <?php echo text($iter['last']) . ", " . text($iter['first']); ?>
                                         </td>
 
-                                        <?php if (OEGlobalsBag::getInstance()->get('language_default') === 'English (Standard)') { ?>
+                                        <?php if (OEGlobalsBag::getInstance()->getString('language_default') === 'English (Standard)') { ?>
                                             <td class='text' width='100'>
                                                 <?php echo text(ucwords(strtolower(substr((string) $iter['code_text'], 0, 25)))); ?>
                                             </td>

@@ -34,12 +34,12 @@ class CouchDB
 {
     function __construct()
     {
-        $this->host = OEGlobalsBag::getInstance()->get('couchdb_host');
-        $this->user = (OEGlobalsBag::getInstance()->get('couchdb_user') != '') ? OEGlobalsBag::getInstance()->get('couchdb_user') : null;
+        $this->host = OEGlobalsBag::getInstance()->getString('couchdb_host');
+        $this->user = (OEGlobalsBag::getInstance()->getString('couchdb_user') != '') ? OEGlobalsBag::getInstance()->getString('couchdb_user') : null;
         $cryptoGen = ServiceContainer::getCrypto();
-        $this->pass = ($cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('couchdb_pass')) != '') ? $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('couchdb_pass')) : null;
-        $this->port = OEGlobalsBag::getInstance()->get('couchdb_port');
-        $this->dbase = OEGlobalsBag::getInstance()->get('couchdb_dbase');
+        $this->pass = ($cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('couchdb_pass')) != '') ? $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('couchdb_pass')) : null;
+        $this->port = OEGlobalsBag::getInstance()->getString('couchdb_port');
+        $this->dbase = OEGlobalsBag::getInstance()->getString('couchdb_dbase');
     }
 
     function check_connection()

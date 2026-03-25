@@ -59,9 +59,9 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
         return("$config_err $err");
     }
 
-    $phimail_username = OEGlobalsBag::getInstance()->get('phimail_username');
+    $phimail_username = OEGlobalsBag::getInstance()->getString('phimail_username');
     $cryptoGen = ServiceContainer::getCrypto();
-    $phimail_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('phimail_password'));
+    $phimail_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('phimail_password'));
     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
     if ($ret !== true) {
         return("$config_err " . ErrorConstants::ERROR_CODE_AUTH_FAILED);
@@ -191,9 +191,9 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
         return("$config_err $err");
     }
 
-    $phimail_username = OEGlobalsBag::getInstance()->get('phimail_username');
+    $phimail_username = OEGlobalsBag::getInstance()->getString('phimail_username');
     $cryptoGen = ServiceContainer::getCrypto();
-    $phimail_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('phimail_password'));
+    $phimail_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('phimail_password'));
     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
     if ($ret !== true) {
         return("$config_err " . ErrorConstants::ERROR_CODE_AUTH_FAILED);

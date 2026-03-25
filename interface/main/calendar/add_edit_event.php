@@ -73,7 +73,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $eid           = filter_input(INPUT_GET, 'eid', FILTER_VALIDATE_INT) ?: 0; // only for existing events
 $date          = $_GET['date'] ?? null;        // this and below only for new events
 $userid        = filter_input(INPUT_GET, 'userid', FILTER_VALIDATE_INT) ?: 0;
-$default_catid = !empty($_GET['catid']) ? $_GET['catid'] : (!empty(OEGlobalsBag::getInstance()->get('default_visit_category') ?? '') ? OEGlobalsBag::getInstance()->get('default_visit_category') : '5');
+$default_catid = !empty($_GET['catid']) ? $_GET['catid'] : (!empty(OEGlobalsBag::getInstance()->getString('default_visit_category') ?? '') ? OEGlobalsBag::getInstance()->getString('default_visit_category') : '5');
 
 // form logic fails if not set to boolean
 if (isset($_GET['group'])) {
