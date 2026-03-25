@@ -45,7 +45,7 @@ class BCCrypto implements CryptoInterface
 
     public function decryptStandard(?string $value, KeySource $keySource = KeySource::Drive, ?int $minimumVersion = null): false|string
     {
-        if ($value === null) {
+        if ($value === null || $value === '') {
             // warn?
             return '';
         }
