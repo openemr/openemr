@@ -55,32 +55,34 @@ class BCKeychain
         if ($createKeyIfNeeded !== null) {
             assert($createKeyIfNeeded === 'seven'); // TODO: support others
             // FIXME: split the db and drive key creation
-            if (!$keychain->hasKey($createKeyIfNeeded . '-db')) {
-                // DB Key
+            // DB Key
+            if (!$keychain->hasKey('seven -db')) {
                 $dbKey = KeyMaterial::generate(openssl_cipher_key_length('aes-256-cbc'));
                 $dbHmacKey = KeyMaterial::generate(32);
-                $pkidb->storeKey($createKeyIfNeeded . 'a', $dbKey);
-                $pkidb->storeKey($createKeyIfNeeded . 'b', $dbHmacKey);
+                $pkidb->storeKey('sevena', $dbKey);
+                $pkidb->storeKey('sevenb', $dbHmacKey);
                 $dbCipher =  new Cipher\Aes256CbcHmacSha384(
                     key: $dbKey,
                     hmacKey: $dbHmacKey,
                 );
-                $keychain->addCipher($createKeyIfNeeded . '-db', $dbCipher);
+                $keychain->addCipher('seven-db', $dbCipher);
+            }
 
-                // Drive key (encrypted)
+            // Drive key (encrypted)
+            if (!$keychain->hasKey('seven-drive')) {
                 $driveKey = KeyMaterial::generate(openssl_cipher_key_length('aes-256-cbc'));
                 $driveHmacKey = KeyMaterial::generate(32);
 
                 $encDriveKey = $dbCipher->encrypt(new Plaintext($driveKey->key));
                 $encDriveHmacKey = $dbCipher->encrypt(new Plaintext($driveHmacKey->key));
 
-                $driveKeyMessage = new Message(MessageFormat::v7, $createKeyIfNeeded, $encDriveKey);
-                $driveHmacKeyMessage = new Message(MessageFormat::v7, $createKeyIfNeeded, $encDriveHmacKey);
+                $driveKeyMessage = new Message(MessageFormat::v7, 'sevena', $encDriveKey);
+                $driveHmacKeyMessage = new Message(MessageFormat::v7, 'sevenb', $encDriveHmacKey);
 
-                file_put_contents("$storageDir/{$createKeyIfNeeded}a", $driveKeyMessage->encode());
-                file_put_contents("$storageDir/{$createKeyIfNeeded}b", $driveHmacKeyMessage->encode());
+                file_put_contents("$storageDir/sevena", $driveKeyMessage->encode());
+                file_put_contents("$storageDir/sevenb", $driveHmacKeyMessage->encode());
 
-                $keychain->addCipher($createKeyIfNeeded . '-drive', new Cipher\Aes256CbcHmacSha384(
+                $keychain->addCipher('seven-drive', new Cipher\Aes256CbcHmacSha384(
                     key: $driveKey,
                     hmacKey: $driveHmacKey,
                 ));
