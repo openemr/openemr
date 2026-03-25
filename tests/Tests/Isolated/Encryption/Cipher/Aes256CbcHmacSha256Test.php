@@ -18,8 +18,8 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Encryption\Cipher;
 
 use OpenEMR\Common\Crypto\CryptoGenException;
-use OpenEMR\Encryption\Ciphertext;
 use OpenEMR\Encryption\Cipher\Aes256CbcHmacSha256;
+use OpenEMR\Encryption\Ciphertext;
 use OpenEMR\Encryption\Keys\KeyMaterial;
 use OpenEMR\Tests\Fixtures\CryptoFixtureManager;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -30,13 +30,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class Aes256CbcHmacSha256Test extends TestCase
 {
-    private CryptoFixtureManager $fixtures;
-
-    protected function setUp(): void
-    {
-        // No install() needed - we only use the static test vectors
-        $this->fixtures = new CryptoFixtureManager('/dev/null');
-    }
+    use CipherTestHelperTrait;
 
     /**
      * v2 and v3 both use 'two' keys (v3 has no separate keys).
@@ -145,15 +139,5 @@ final class Aes256CbcHmacSha256Test extends TestCase
 
         $this->expectException(CryptoGenException::class);
         $cipher->decrypt(new Ciphertext($truncated));
-    }
-
-    /**
-     * Strip version prefix and base64 decode to get raw ciphertext.
-     */
-    private function extractRawCiphertext(string $encoded): Ciphertext
-    {
-        $raw = base64_decode(substr($encoded, 3), strict: true);
-        self::assertIsString($raw, 'Test vector base64 decode failed');
-        return new Ciphertext($raw);
     }
 }
