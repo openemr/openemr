@@ -17,6 +17,8 @@ readonly class Aes256CbcHmacSha384 implements CipherInterface
 
     private const IV_LENGTH = 16; // openssl_cipher_iv_length('aes-256-cbc')
 
+    public const KEY_LENGTH = 32; // openssl_cipher_key_length('aes-256-cbc')
+
     public function __construct(
         private KeyMaterial $key,
         private KeyMaterial $hmacKey,

@@ -60,7 +60,7 @@ class BCKeychain
             // FIXME: split the db and drive key creation
             // DB Key
             if (!$keychain->hasKey('seven-db')) {
-                $dbKey = KeyMaterial::generate(openssl_cipher_key_length('aes-256-cbc'));
+                $dbKey = KeyMaterial::generate(Cipher\Aes256CbcHmacSha384::KEY_LENGTH);
                 $dbHmacKey = KeyMaterial::generate(32);
                 $pkidb->storeKey('sevena', $dbKey);
                 $pkidb->storeKey('sevenb', $dbHmacKey);
@@ -76,7 +76,7 @@ class BCKeychain
                 if (!isset($dbCipher)) {
                     $dbCipher = $keychain->getCipher('seven-db');
                 }
-                $driveKey = KeyMaterial::generate(openssl_cipher_key_length('aes-256-cbc'));
+                $driveKey = KeyMaterial::generate(Cipher\Aes256CbcHmacSha384::KEY_LENGTH);
                 $driveHmacKey = KeyMaterial::generate(32);
 
                 $encDriveKey = $dbCipher->encrypt(new Plaintext($driveKey->key));
