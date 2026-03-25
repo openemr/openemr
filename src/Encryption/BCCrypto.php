@@ -50,6 +50,9 @@ final readonly class BCCrypto implements CryptoInterface
 
         try {
             $message = Message::parse($value);
+            if ($minimumVersion !== null && $message->format->value < $minimumVersion) {
+                throw new \Exception('Data is below minimum allowed version');
+            }
 
             // BC hack: remap the key id by namebased on the source
             $keyId = self::remapKeyId($message->keyId, $keySource);
