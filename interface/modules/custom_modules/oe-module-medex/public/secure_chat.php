@@ -35,54 +35,9 @@ $medex = new MedExAPI();
 // Get current user info (needed for logging)
 $currentUser = sqlQuery("SELECT * FROM users WHERE id = ?", [$_SESSION['authUserID'] ?? 0]);
 
-// Check if secure_chat is enabled
-$enabledServices = []; 
-$statusRecord = sqlQuery("SELECT status FROM medex_prefs LIMIT 1");
-
-// Debug output
-error_log('[MedEx Secure Chat] statusRecord: ' . json_encode($statusRecord));
-
-if (!empty($statusRecord['status'])) {
-    $status = json_decode($statusRecord['status'], true);
-    error_log('[MedEx Secure Chat] Decoded status: ' . json_encode($status));
-    
-    // Only use enabled_services if present (ignore error responses)
-    if (!empty($status['enabled_services'])) {
-        $enabledServices = $status['enabled_services'];
-        error_log('[MedEx Secure Chat] Found enabled_services: ' . json_encode($enabledServices));
-    } else {
-        error_log('[MedEx Secure Chat] No enabled_services in status');
-    }
-} else {
-    error_log('[MedEx Secure Chat] No status record found or status is empty');
-}
-
-// Helper function to check if service is enabled (handles both array and object formats)
-$isServiceEnabled = function($service) use ($enabledServices) {
-    if (empty($enabledServices)) {
-        return false;
-    }
-    if (is_array($enabledServices)) {
-        // Object format: {"secure_chat": true} or {"secure_chat": 1}
-        if (isset($enabledServices[$service])) {
-            // Accept both boolean true and integer 1 (JSON sometimes converts true to 1)
-            return $enabledServices[$service] === true || $enabledServices[$service] === 1;
-        }
-        // Array format: ["secure_chat", "medex_messages"]
-        return in_array($service, $enabledServices);
-    }
-    return false;
-};
-
-// Debug logging
-error_log('[MedEx Secure Chat] Checking service enabled - enabledServices: ' . json_encode($enabledServices));
-error_log('[MedEx Secure Chat] Is secure_chat enabled? ' . ($isServiceEnabled('secure_chat') ? 'YES' : 'NO'));
-
-if (!$isServiceEnabled('secure_chat')) {
+// Always verify entitlement against MedEx server (not stale local cache).
+if (!$medex->hasServiceEntitlement('secure_chat')) {
     echo '<div class="alert alert-warning">' . xlt('Secure Chat is not enabled. Please subscribe to this service in the MedEx Admin Dashboard.') . '</div>';
-    echo '<pre style="background:#f0f0f0;padding:10px;border:1px solid #ccc;">Debug status record: ' . htmlspecialchars(json_encode($statusRecord ?? 'NULL', JSON_PRETTY_PRINT)) . '</pre>';
-    echo '<pre style="background:#f0f0f0;padding:10px;border:1px solid #ccc;">Debug decoded status: ' . htmlspecialchars(json_encode($status ?? 'NULL', JSON_PRETTY_PRINT)) . '</pre>';
-    echo '<pre style="background:#f0f0f0;padding:10px;border:1px solid #ccc;">Debug enabled_services: ' . htmlspecialchars(json_encode($enabledServices, JSON_PRETTY_PRINT)) . '</pre>';
     exit;
 }
 
@@ -95,7 +50,7 @@ $apiKey = $medexPrefs['MedEx_apikey'] ?? '';
 
 // Handle AJAX requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '', $session)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '', 'default')) {
         echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
         exit;
     }
@@ -575,7 +530,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     </div>
     
     <script>
-    var csrfToken = <?php echo json_encode(CsrfUtils::collectCsrfToken(session: $session)); ?>;
+    var csrfToken = <?php echo json_encode(CsrfUtils::collectCsrfToken()); ?>;
     var selectedPatient = null;
     var currentHistoryPage = 1;
     var totalHistoryPages = 1;

@@ -46,7 +46,7 @@ $csrfToken = $input['csrf_token'] ?? $_POST['csrf_token'] ?? $_POST['csrf_token_
 error_log("[MedEx Sync] CSRF token received: " . substr($csrfToken, 0, 20) . "...");
 error_log("[MedEx Sync] Input: " . json_encode($input));
 
-if (!CsrfUtils::verifyCsrfToken($csrfToken, $session)) {
+if (!CsrfUtils::verifyCsrfToken($csrfToken, 'default')) {
     error_log("[MedEx Sync] CSRF validation failed for token: " . substr($csrfToken, 0, 20));
     http_response_code(403);
     echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
@@ -70,7 +70,7 @@ try {
 
     // Refuse to sync when there are no active subscriptions — prevents idle practices
     // from generating unnecessary server traffic.
-    $enabledServices = $api->getEnabledServices();
+    $enabledServices = $api->getEnabledServices(true);
     if (empty($enabledServices)) {
         http_response_code(402);
         echo json_encode([

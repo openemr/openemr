@@ -607,13 +607,17 @@ class MedExAPI
      *
      * @return array List of enabled services
      */
-    public function getEnabledServices(): array
+    public function getEnabledServices(bool $forceRefresh = false): array
     {
+        if ($forceRefresh) {
+            $this->clearServicesCache();
+        }
+
         // Return from session cache if fresh enough (avoids a network call on every page load)
         // Key is URL-aware so changing medex_bank_url auto-invalidates the cache
         $urlHash = substr(md5($this->baseUrl ?? ''), 0, 8);
         $cacheKey = 'medex_services_cache_' . $urlHash;
-        if (!empty($_SESSION[$cacheKey]['ts']) && (time() - $_SESSION[$cacheKey]['ts']) < self::SERVICES_CACHE_TTL) {
+        if (!$forceRefresh && !empty($_SESSION[$cacheKey]['ts']) && (time() - $_SESSION[$cacheKey]['ts']) < self::SERVICES_CACHE_TTL) {
             return $_SESSION[$cacheKey]['data'];
         }
 
@@ -621,7 +625,7 @@ class MedExAPI
         // Even an empty result is cached so practices with no subscriptions don't call login() on every session.
         $dbCache   = $this->readStatusCache();
         $dbCheckTs = $dbCache['last_services_check_ts'] ?? 0;
-        if ((time() - $dbCheckTs) < self::SERVICES_DB_CACHE_TTL) {
+        if (!$forceRefresh && (time() - $dbCheckTs) < self::SERVICES_DB_CACHE_TTL) {
             $cachedServices = $dbCache['last_services_result'] ?? [];
             // Warm the inner session cache from the DB result
             $_SESSION[$cacheKey] = ['data' => $cachedServices, 'ts' => time()];
@@ -662,6 +666,18 @@ class MedExAPI
         }
 
         return $services;
+    }
+
+    /**
+     * Verify entitlement for one service using authoritative server refresh.
+     */
+    public function hasServiceEntitlement(string $service): bool
+    {
+        $enabled = $this->getEnabledServices(true);
+        if (isset($enabled[$service])) {
+            return $enabled[$service] === true || $enabled[$service] === 1;
+        }
+        return in_array($service, $enabled, true);
     }
 
     /**
@@ -1272,9 +1288,8 @@ class MedExAPI
             return null;
         }
 
-        // Build URL
-        $baseUrl = str_replace('/cart/upload', '', $this->baseUrl); // Remove legacy path
-        $url = rtrim($baseUrl, '/') . '/cart/upload/index.php';
+        // Build browser-facing URL using public endpoint rewrite (not internal k8s DNS).
+        $url = rtrim(MedExConfig::publicBaseUrl(), '/') . '/index.php';
 
         // Map page names to MedEx routes
         $routes = [
@@ -1959,4 +1974,3 @@ class MedExAPI
         unset($_SESSION[$cacheKey]);
     }
 }
-
