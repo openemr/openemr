@@ -70,6 +70,7 @@ class BCCrypto implements CryptoInterface
         // General BC concept: key versions 5-7 for disk-backed keys were
         // encrypted-on-disk using a db-managed key of the same name.
         return match ($id) {
+            'four',
             'five',
             'six',
             'seven' => match ($source) {

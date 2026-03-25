@@ -35,16 +35,20 @@ class BCKeychain
         $pkidb = new Storage\PlaintextKeyInDbKeysTableAdodb();
 
         $keychain = new Keychain();
+        // v1: broken crypto (no hmac)
         if ($one = self::tryLoadKey('one', $pkod)) {
             $keychain->addCipher('one', new Cipher\Aes256CbcNoHmac($one));
         }
+
+        // v2-3: legacy crypto (256CBC-HS256) and storage
         if (($twoa = self::tryLoadKey('twoa', $pkod)) && ($twob = self::tryLoadKey('twob', $pkod))) {
             $keychain->addCipher('two', new Cipher\Aes256CbcHmacSha256(key: $twoa, hmacKey: $twob));
         }
-        // No "three"
+        // No "three" key for historic reasons
+
+        // v4: 256CBC-HS384 encryption, has drive+db but drive key is plaintext
         if (($foura = self::tryLoadKey('foura', $pkod)) && ($fourb = self::tryLoadKey('fourb', $pkod))) {
-            // 384 here?
-            $keychain->addCipher('four', new Cipher\Aes256CbcHmacSha256(key: $foura, hmacKey: $fourb));
+            $keychain->addCipher('four-drive', new Cipher\Aes256CbcHmacSha384(key: $foura, hmacKey: $fourb));
         }
 
         self::tryLoadDbKey('five', $pkidb, $storageDir, $keychain);
