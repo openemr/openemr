@@ -22,6 +22,8 @@ final readonly class Message
         }
         $format = MessageFormat::from(intval(substr($encodedMessage, 0, 3)));
 
+        // Backwards compatibility: versions 1-7 coupled the data storage with
+        // the key version.
         $keyId = match ($format) {
             MessageFormat::v1 => 'one',
             MessageFormat::v2, // Intentional: v3 uses key id 'two' for historic reasons
