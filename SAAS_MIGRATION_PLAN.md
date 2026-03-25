@@ -82,10 +82,14 @@ git --git-dir="$GIT_DIR" --work-tree="$WORK_TREE" checkout <commit_sha> -- <rela
 - Branded tutorial/help URL routing in OpenEMR module.
 - Server-verified entitlement enforcement added for Secure Chat + manual sync path.
 - Admin-facing API hostname references removed in key configuration views.
+- Server-verified entitlement enforcement extended to:
+  - SMS Bot (`sms_bot.php`, `sms_bot_list.php`)
+  - PDF surfaces (`pdf.php`, `public/api/pdf_data.php`)
+  - Calendar surfaces (`calendar/index.php`, `calendar/get_events.php`, `assets/fullcalendar.php`, `calendar_export_saas.php`)
+  - TeleHealth (`telehealth.php`)
 
 ## Next Implementation Steps
-1. Apply server-verified entitlements to SMS Bot surfaces.
-2. Apply server-verified entitlements to PDF surfaces.
-3. Apply server-verified entitlements to calendar/fullcalendar/export entry points.
-4. Apply same guardrail to telehealth entry points.
-5. Re-run smoke tests across all gated pages and commit each phase.
+1. Re-run targeted smoke tests for all newly gated routes in live OpenEMR UI.
+2. Sweep remaining module entry points for stale-cache entitlement checks.
+3. Start migration of any high-value workflow logic still local-only toward server authority.
+4. Keep production snapshot checkpoints before/after each production-side change.
