@@ -110,7 +110,7 @@ jobs:
 
     - name: Check for missing upgrade SQL
       run: |
-        base_ref="origin/${{ github.base_ref }}"
+        base_ref="origin/${GITHUB_BASE_REF}"
 
         # Check if database.sql was modified in this PR
         if ! git diff --name-only "$base_ref"...HEAD | grep -q '^sql/database.sql$'; then
