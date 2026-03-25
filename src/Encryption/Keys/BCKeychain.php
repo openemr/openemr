@@ -47,6 +47,9 @@ class BCKeychain
         if (($foura = self::tryLoadKey('foura', $pkod)) && ($fourb = self::tryLoadKey('fourb', $pkod))) {
             $keychain->addCipher('four-drive', new Cipher\Aes256CbcHmacSha384(key: $foura, hmacKey: $fourb));
         }
+        if (($fouraDB = self::tryLoadKey('foura', $pkidb)) && ($fourbDB = self::tryLoadKey('fourb', $pkidb))) {
+            $keychain->addCipher('four-db', new Cipher\Aes256CbcHmacSha384(key: $fouraDB, hmacKey: $fourbDB));
+        }
 
         self::tryLoadDbKey('five', $pkidb, $storageDir, $keychain);
         self::tryLoadDbKey('six', $pkidb, $storageDir, $keychain);
