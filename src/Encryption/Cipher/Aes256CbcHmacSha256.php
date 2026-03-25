@@ -53,4 +53,9 @@ readonly class Aes256CbcHmacSha256 implements CipherInterface
         }
         return new Plaintext($decrypted);
     }
+
+    public function encrypt(Plaintext $plaintext): Ciphertext
+    {
+        throw new \BadMethodCallException(__METHOD__);
+    }
 }
