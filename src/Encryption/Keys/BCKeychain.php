@@ -57,9 +57,9 @@ class BCKeychain
                     key: $key,
                     hmacKey: $hmacKey,
                 ));
-                if (!defined('PHPUNIT_COMPOSER_INSTALL')) {
-                    throw new \RuntimeException('Keys need persistence');
-                }
+                // if (!defined('PHPUNIT_COMPOSER_INSTALL')) {
+                //     throw new \RuntimeException('Keys need persistence');
+                // }
             }
         }
 
