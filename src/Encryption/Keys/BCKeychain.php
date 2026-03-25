@@ -70,6 +70,9 @@ class BCKeychain
 
             // Drive key (encrypted)
             if (!$keychain->hasKey('seven-drive')) {
+                if (!isset($dbCipher)) {
+                    $dbCipher = $keychain->getCipher('seven-db');
+                }
                 $driveKey = KeyMaterial::generate(openssl_cipher_key_length('aes-256-cbc'));
                 $driveHmacKey = KeyMaterial::generate(32);
 
