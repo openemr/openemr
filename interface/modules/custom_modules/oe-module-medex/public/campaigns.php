@@ -39,6 +39,13 @@ if (!$api->isConfigured()) {
     exit;
 }
 
+if (!$api->hasAnyServiceEntitlement(['appointment_reminders', 'medex_messages'])) {
+    echo '<div class="alert alert-warning"><i class="fa fa-exclamation-triangle"></i> '
+        . xlt('Appointment reminders service is not enabled. Please subscribe in MedEx Admin Dashboard.')
+        . '</div>';
+    exit;
+}
+
 // Map type slug → hipaabank.net g= parameter and display label
 $typeMap = [
     'reminder' => ['g' => 'rem', 'label' => 'Appointment Reminders',  'icon' => 'fa-bell'],

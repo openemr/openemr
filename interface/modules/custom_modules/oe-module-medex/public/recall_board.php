@@ -9,14 +9,24 @@
 require_once(__DIR__ . "/../../../../globals.php");
 require_once(__DIR__ . "/../src/Services/RecallsBoardService.php");
 require_once(__DIR__ . "/../src/Services/ModalityService.php");
+require_once(__DIR__ . "/../src/MedExAPI.php");
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\MedEx\MedExAPI;
 use OpenEMR\Modules\MedEx\Services\RecallsBoardService;
 
 // Init Services
 $service = new RecallsBoardService();
 $globals = OEGlobalsBag::getInstance();
+$entitlementApi = new MedExAPI();
+
+if (!$entitlementApi->hasAnyServiceEntitlement(['appointment_reminders', 'medex_messages'])) {
+    echo "<div class='alert alert-warning' style='margin:16px;'>" .
+        xlt('Appointment reminders service is not enabled. Please subscribe in MedEx Admin Dashboard.') .
+        "</div>";
+    exit;
+}
 
 // Filters from POST/GET
 $fac = $_REQUEST['form_facility'] ?? '';

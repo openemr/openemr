@@ -13,13 +13,15 @@
 
 require_once(__DIR__ . "/../../../../globals.php");
 require_once(__DIR__ . "/../src/Services/ModalityService.php");
+require_once(__DIR__ . "/../src/MedExAPI.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Modules\MedEx\MedExAPI;
 use OpenEMR\Modules\MedEx\Services\ModalityService;
 
 // CSRF check
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', $session)) {
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', 'default')) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -27,6 +29,13 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', $session)) {
 if (!AclMain::aclCheckCore('patients', 'appt')) {
     http_response_code(403);
     echo json_encode(['error' => 'Access denied']);
+    exit;
+}
+
+$entitlementApi = new MedExAPI();
+if (!$entitlementApi->hasAnyServiceEntitlement(['appointment_reminders', 'medex_messages'])) {
+    http_response_code(403);
+    echo json_encode(['error' => 'Appointment reminders service is not enabled']);
     exit;
 }
 

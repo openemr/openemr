@@ -14,16 +14,18 @@
  */
 
 require_once(__DIR__ . '/../../../../../globals.php');
+require_once(__DIR__ . '/../../src/MedExAPI.php');
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\OEGlobalsBag;
+use OpenEMR\Modules\MedEx\MedExAPI;
 
 $globalsBag = OEGlobalsBag::getInstance();
 
 // Verify CSRF token
-if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', $session)) {
+if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', 'default')) {
     http_response_code(403);
     echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
     exit;
@@ -33,6 +35,13 @@ if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', $session)) {
 if (!AclMain::aclCheckCore('patients', 'appt')) {
     http_response_code(403);
     echo json_encode(['success' => false, 'error' => 'Access denied']);
+    exit;
+}
+
+$entitlementApi = new MedExAPI();
+if (!$entitlementApi->hasAnyServiceEntitlement(['appointment_reminders', 'medex_messages'])) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'error' => 'Appointment reminders service is not enabled']);
     exit;
 }
 
