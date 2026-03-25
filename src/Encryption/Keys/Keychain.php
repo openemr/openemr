@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OpenEMR\Encryption\Keys;
 
 use OpenEMR\Encryption\Cipher\CipherInterface;
+use OutOfBoundsException;
 
 class Keychain implements KeychainInterface
 {
@@ -24,6 +25,9 @@ class Keychain implements KeychainInterface
 
     public function getCipher(string $keyId): CipherInterface
     {
-        return $this->mappings[$keyId];
+        if (array_key_exists($keyId, $this->mappings)) {
+            return $this->mappings[$keyId];
+        }
+        throw new OutOfBoundsException('Key id not registered');
     }
 }
