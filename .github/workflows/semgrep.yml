@@ -28,7 +28,7 @@ jobs:
     name: Semgrep Security Scan
     runs-on: ubuntu-latest
     container:
-      image: semgrep/semgrep:latest
+      image: semgrep/semgrep:1.156.0
 
     steps:
     - name: Checkout code
