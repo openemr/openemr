@@ -20,13 +20,8 @@ use Throwable;
  */
 class BCKeychain
 {
-    private static ?KeychainInterface $instance = null;
-
     public static function load(?string $createKeyIfNeeded): KeychainInterface
     {
-        if (self::$instance !== null) {
-            return self::$instance;
-        }
         $bag = OEGlobalsBag::getInstance();
         $storageDir = sprintf(
             '%s/documents/logs_and_misc/methods',
@@ -92,7 +87,6 @@ class BCKeychain
             }
         }
 
-        self::$instance = $keychain;
         return $keychain;
     }
 
