@@ -45,6 +45,11 @@ if (!$medexApi->isActive()) {
     die('MedEx not configured. Please configure MedEx API credentials in settings.');
 }
 
+if (!$medexApi->hasServiceEntitlement('calendar_export')) {
+    http_response_code(403);
+    die('Active Calendar Export subscription required.');
+}
+
 // Get subscriptions to check which providers have calendar service
 $subscriptions = $medexApi->getSubscriptions();
 $subscribedProviders = [];

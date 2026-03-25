@@ -34,6 +34,13 @@ if (!in_array($phoneStyle, $allowedPhoneStyles)) {
 
 // --- Authenticate via MedExAPI (api/oemr/login) --------------------------------
 $medexApi = new MedExAPI();
+if (!$medexApi->hasAnyServiceEntitlement(['appointment_reminders', 'medex_messages'])) {
+    echo "<html><head><title>MedEx SMS Bot</title></head><body>";
+    echo "<h3>MedEx Service Not Enabled</h3>";
+    echo "<p>SMS Bot requires an active subscription.</p>";
+    echo "</body></html>";
+    exit;
+}
 try {
     $loginData  = $medexApi->login(true);           // force-refresh → fresh oc_api_session token
     $loginToken = $loginData['token'] ?? null;

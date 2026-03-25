@@ -681,6 +681,25 @@ class MedExAPI
     }
 
     /**
+     * Verify at least one service entitlement using authoritative server refresh.
+     *
+     * @param array<int,string> $services
+     */
+    public function hasAnyServiceEntitlement(array $services): bool
+    {
+        $enabled = $this->getEnabledServices(true);
+        foreach ($services as $service) {
+            if (isset($enabled[$service]) && ($enabled[$service] === true || $enabled[$service] === 1)) {
+                return true;
+            }
+            if (in_array($service, $enabled, true)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Make HTTP request to MedEx API using oeHttp
      *
      * @param string $endpoint API endpoint path

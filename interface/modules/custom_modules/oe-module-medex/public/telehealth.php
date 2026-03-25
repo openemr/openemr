@@ -14,6 +14,7 @@
  */
 
 require_once dirname(__FILE__, 6) . '/globals.php';
+require_once __DIR__ . '/../src/MedExAPI.php';
 
 use OpenEMR\Core\Header;
 use OpenEMR\Common\Acl\AclMain;
@@ -28,14 +29,9 @@ if (!AclMain::aclCheckCore('encounters', 'notes')) {
 $pid = $_GET['pid'] ?? ($_SESSION['pid'] ?? 0);
 $encounter = $_GET['encounter'] ?? ($_SESSION['encounter'] ?? 0);
 
-// Get MedEx prefs
-$prefs = sqlQuery("SELECT * FROM medex_prefs LIMIT 1");
-$status = !empty($prefs['status']) ? json_decode($prefs['status'], true) : [];
-$enabledServices = $status['enabled_services'] ?? [];
-// enabled_services is assoc {"TeleHealth": true} — check both key presence and indexed fallback
-$telehealthEnabled = (!empty($enabledServices['TeleHealth']) || !empty($enabledServices['telehealth']))
-                  || in_array('TeleHealth', $enabledServices)
-                  || in_array('telehealth', array_map('strtolower', $enabledServices));
+$telehealthApi = new \OpenEMR\Modules\MedEx\MedExAPI();
+$telehealthEnabled = $telehealthApi->hasAnyServiceEntitlement(['TeleHealth', 'telehealth']);
+$prefs = sqlQuery("SELECT MedEx_id FROM medex_prefs LIMIT 1");
 $practiceId = $prefs['MedEx_id'] ?? '';
 
 if (!$telehealthEnabled) {

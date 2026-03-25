@@ -18,7 +18,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Modules\MedEx\MedExAPI;
 
 // Verify CSRF token
-if (!CsrfUtils::verifyCsrfToken($_GET['csrf_token_form'] ?? '', $session)) {
+if (!CsrfUtils::verifyCsrfToken($_GET['csrf_token_form'] ?? '', 'default')) {
     CsrfUtils::csrfNotVerified(true, true, false);
 }
 
@@ -31,6 +31,15 @@ if (empty($pid)) {
 
 // Initialize MedEx API
 $medexApi = new MedExAPI();
+
+// Server-authoritative entitlement check (do not trust stale local cache)
+if (!$medexApi->hasAnyServiceEntitlement(['appointment_reminders', 'medex_messages'])) {
+    echo "<html><body>";
+    echo "<h3>MedEx Service Not Enabled</h3>";
+    echo "<p>SMS Bot requires an active subscription.</p>";
+    echo "</body></html>";
+    exit;
+}
 
 // Check if MedEx is configured and enabled
 if (!$medexApi->isActive()) {

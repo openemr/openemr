@@ -17,6 +17,7 @@
 ob_start();
 
 require_once(__DIR__ . '/../../../../../globals.php');
+require_once(__DIR__ . '/../../src/MedExAPI.php');
 
 // Redirect ADOdb error output to error_log instead of HTTP response body.
 // This prevents "SQL Statement failed on preparation: ..." from prepending
@@ -57,8 +58,13 @@ if (!isset($_SESSION['authUserID'])) {
     jsonOut(['success' => false, 'error' => 'Unauthorized'], 401);
 }
 
+$pdfApi = new \OpenEMR\Modules\MedEx\MedExAPI();
+if (!$pdfApi->hasServiceEntitlement('pdf_management')) {
+    jsonOut(['success' => false, 'error' => 'PDF Management subscription required'], 403);
+}
+
 // Verify CSRF token
-if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '', $session)) {
+if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '', 'default')) {
     jsonOut(['success' => false, 'error' => 'Invalid CSRF token'], 403);
 }
 

@@ -13,6 +13,7 @@
  */
 
 require_once(__DIR__ . '/../../../../globals.php');
+require_once(__DIR__ . '/../src/MedExAPI.php');
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -20,6 +21,11 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 // Verify user is authenticated
 if (!isset($_SESSION['authUserID'])) {
     die('Access denied. Please log in to OpenEMR.');
+}
+
+$entitlementApi = new \OpenEMR\Modules\MedEx\MedExAPI();
+if (!$entitlementApi->hasServiceEntitlement('pdf_management')) {
+    die('PDF Management service is not enabled. Please subscribe in MedEx Admin Dashboard.');
 }
 
 // Get MedEx credentials from current globals
@@ -94,7 +100,6 @@ if ($openemrIsHttps && str_starts_with($medexUrl, 'http://localhost')) {
 $medexUrl = rtrim($medexUrl, '/') . '/';
 
 // Login to MedEx to get a session token (secure session-based auth)
-require_once(__DIR__ . '/../src/MedExAPI.php');
 $medexApi = new \OpenEMR\Modules\MedEx\MedExAPI();
 
 try {
@@ -162,7 +167,7 @@ if ($patientDisplay) {
     $iframeUrl .= '&patient_display=' . urlencode(base64_encode($patientDisplay));
 }
 
-$csrfToken = CsrfUtils::collectCsrfToken(session: $session);
+$csrfToken = CsrfUtils::collectCsrfToken();
 ?>
 <!DOCTYPE html>
 <html>

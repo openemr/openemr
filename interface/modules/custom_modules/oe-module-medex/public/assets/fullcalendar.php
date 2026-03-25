@@ -5,6 +5,7 @@
  */
 
 require_once(__DIR__ . "/../../../../../globals.php");
+require_once(__DIR__ . "/../../src/MedExAPI.php");
 
 // Security: require authenticated user with an active calendar_full subscription
 if (!isset($_SESSION['authUserID'])) {
@@ -14,12 +15,8 @@ if (!isset($_SESSION['authUserID'])) {
 
 $_fcAllowed = false;
 try {
-    $fcStatus = sqlQuery("SELECT status FROM medex_prefs LIMIT 1");
-    if (!empty($fcStatus['status'])) {
-        $fcSt = json_decode($fcStatus['status'], true);
-        $fcEs = $fcSt['enabled_services'] ?? [];
-        $_fcAllowed = (isset($fcEs['calendar_full']) && $fcEs['calendar_full']) || in_array('calendar_full', $fcEs);
-    }
+    $fcApi = new \OpenEMR\Modules\MedEx\MedExAPI();
+    $_fcAllowed = $fcApi->hasServiceEntitlement('calendar_full');
 } catch (\Throwable $e) { /* silent */ }
 
 if (!$_fcAllowed) {

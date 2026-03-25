@@ -79,6 +79,12 @@ if (!$api->isConfigured()) {
     die('MedEx not configured. Please configure MedEx in <a href="../../admin/settings.php">Settings</a>.');
 }
 
+if (!$api->hasServiceEntitlement('calendar_full')) {
+    $_SESSION['medex_calendar_skip'] = true;
+    header('Location: ' . ($GLOBALS['webroot'] ?? '') . '/interface/main/calendar/index.php');
+    exit;
+}
+
 // Authenticate with MedEx API (validates IP, etc)
 // On network failure: redirect to native OpenEMR calendar rather than showing a crippled view.
 $_medexAuthError = null;

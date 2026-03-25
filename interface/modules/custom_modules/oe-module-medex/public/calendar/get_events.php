@@ -6,6 +6,7 @@
  */
 
 require_once(__DIR__ . "/../../../../../globals.php");
+require_once(__DIR__ . '/../../src/MedExAPI.php');
 
 use OpenEMR\Common\Acl\AclMain;
 
@@ -28,6 +29,13 @@ error_log('[MedEx Calendar] Starting get_events.php for user ' . $_SESSION['auth
 
 header('Content-Type: application/json');
 
+$api = new \OpenEMR\Modules\MedEx\MedExAPI();
+if (!$api->hasServiceEntitlement('calendar_full')) {
+    http_response_code(403);
+    echo json_encode(['error' => 'calendar_full subscription required']);
+    exit;
+}
+
 // Get date range from query params
 $start = $_GET['start'] ?? date('Y-m-d', strtotime('-1 month'));
 $end = $_GET['end'] ?? date('Y-m-d', strtotime('+2 months'));
@@ -42,8 +50,6 @@ $userFacilityId = $userInfo['facility_id'] ?? null;
 $isAuthorized = $userInfo['authorized'] ?? 0;
 
 // Get authorized providers/facilities from calendar_full subscription
-require_once(__DIR__ . '/../../src/MedExAPI.php');
-$api = new \OpenEMR\Modules\MedEx\MedExAPI();
 $subscriptions = $api->getSubscriptions();
 $calendarSub = $subscriptions['calendar_full'] ?? null;
 
