@@ -56,7 +56,7 @@ class BCKeychain
             assert($createKeyIfNeeded === 'seven'); // TODO: support others
             // FIXME: split the db and drive key creation
             // DB Key
-            if (!$keychain->hasKey('seven -db')) {
+            if (!$keychain->hasKey('seven-db')) {
                 $dbKey = KeyMaterial::generate(openssl_cipher_key_length('aes-256-cbc'));
                 $dbHmacKey = KeyMaterial::generate(32);
                 $pkidb->storeKey('sevena', $dbKey);
