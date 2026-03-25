@@ -18,8 +18,8 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Encryption\Cipher;
 
 use OpenEMR\Common\Crypto\CryptoGenException;
-use OpenEMR\Encryption\Ciphertext;
 use OpenEMR\Encryption\Cipher\Aes256CbcHmacSha384;
+use OpenEMR\Encryption\Ciphertext;
 use OpenEMR\Encryption\Keys\KeyMaterial;
 use OpenEMR\Tests\Fixtures\CryptoFixtureManager;
 use PHPUnit\Framework\Attributes\DataProvider;
