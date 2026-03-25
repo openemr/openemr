@@ -36,5 +36,14 @@ readonly class PlaintextKeyInDbKeysTableAdodb implements KeyStorageInterface
 
     public function storeKey(string $identifier, KeyMaterial $key): void
     {
+        // keys table is (currently) `unique(name)` so we can skip checking if it
+        // already exists
+        $encoded = base64_encode($key->key);
+        // Cannot use sqlInsert, it doesn't have a noLog path
+        QueryUtils::sqlStatementThrowException(
+            'INSERT INTO `keys` (name, value) VALUES (?, ?)',
+            [$identifier, $encoded],
+            noLog: true,
+        );
     }
 }

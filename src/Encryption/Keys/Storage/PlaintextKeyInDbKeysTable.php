@@ -35,5 +35,6 @@ readonly class PlaintextKeyInDbKeysTable implements KeyStorageInterface
 
     public function storeKey(string $identifier, KeyMaterial $key): void
     {
+        throw new \BadMethodCallException('Not implemented');
     }
 }
