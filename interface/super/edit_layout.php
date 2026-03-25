@@ -313,10 +313,10 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
     } elseif (!$add && $column_exists) {
         // Do not drop a column that has any data.
         $tmp = sqlQuery(
-            "SELECT `" . escape_sql_column_name($field_id, [$tablename]) .
-            "` AS field_id FROM `" . escape_table_name($tablename) . "` WHERE " .
-            "`" . escape_sql_column_name($field_id, [$tablename]) . "` IS NOT NULL AND `"
-            . escape_sql_column_name($field_id, [$tablename]) . "` != '' LIMIT 1"
+            "SELECT " . escape_sql_column_name($field_id, [$tablename]) .
+            " AS field_id FROM `" . escape_table_name($tablename) . "` WHERE " .
+            escape_sql_column_name($field_id, [$tablename]) . " IS NOT NULL AND "
+            . escape_sql_column_name($field_id, [$tablename]) . " != '' LIMIT 1"
         );
         if (!isset($tmp['field_id']) && !isColumnReserved($tablename, $field_id)) {
             $lotmp = [];
@@ -331,7 +331,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
             }
             if (empty($lotmp['count'])) {
                 $dropQuery = "ALTER TABLE `" . escape_table_name($tablename) . "` " .
-                    "DROP `" . escape_sql_column_name($field_id, [$tablename]) . "`";
+                    "DROP " . escape_sql_column_name($field_id, [$tablename]);
                 sqlStatement($dropQuery);
                 EventAuditLogger::getInstance()->newEvent(
                     "alter_table",
@@ -385,7 +385,7 @@ function renameColumn($layout_id, $old_field_id, $new_field_id)
     if ($colarr['Extra']) {
         $colstr .= " " . add_escape_custom($colarr['Extra']);
     }
-    $query = "ALTER TABLE `" . escape_table_name($tablename) . "` CHANGE `" . escape_sql_column_name($old_field_id, [$tablename]) . "` `" . escape_identifier($new_field_id, 'a-zA-Z0-9_', true) . "` $colstr";
+    $query = "ALTER TABLE `" . escape_table_name($tablename) . "` CHANGE " . escape_sql_column_name($old_field_id, [$tablename]) . " `" . escape_identifier($new_field_id, 'a-zA-Z0-9_', true) . "` $colstr";
     sqlStatement($query);
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     EventAuditLogger::getInstance()->newEvent(

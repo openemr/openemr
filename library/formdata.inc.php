@@ -113,6 +113,11 @@ function escape_sql_column_name($s, $tables, $long = false, $throwException = fa
         return implode(", ", $multiple_columns);
     }
 
+    // Reject column names containing backticks to prevent identifier-context injection
+    if (str_contains($s, '`')) {
+        throw new \OpenEMR\Common\Database\SqlQueryException("", "ERROR: OpenEMR SQL Escaping ERROR of the following string: " . errorLogEscape($s));
+    }
+
     // If the $tables is empty, then process them all
     if (empty($tables)) {
         $res = sqlStatementNoLog("SHOW TABLES");
@@ -138,9 +143,10 @@ function escape_sql_column_name($s, $tables, $long = false, $throwException = fa
         }
     }
 
-    // Now can escape(via whitelisting) the sql column name
+    // Whitelist against actual columns, then backtick-quote to keep in identifier context
     $dieIfNoMatch = !$throwException;
-    return escape_identifier($s, $columns_options, $dieIfNoMatch, true, $throwException);
+    $column = escape_identifier($s, $columns_options, $dieIfNoMatch, true, $throwException);
+    return sprintf('`%s`', $column);
 }
 
 /**
