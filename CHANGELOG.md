@@ -1,5 +1,57 @@
 # CHANGELOG.md
 
+## [8.0.0.3](https://github.com/openemr/openemr/milestone/28?closed=1) - 2026-03-25
+
+### Fixed
+
+#### Security
+
+- **[High]** [Authenticated Blind Boolean-Based SQL Injection in new_search_popup.php](https://github.com/openemr/openemr/security/advisories/GHSA-2r7h-xm8v-m872)
+- **[High]** [Missing Authorization in Procedure Order AJAX Deletion Handler](https://github.com/openemr/openemr/security/advisories/GHSA-3vvq-pfq6-pw98)
+- **[High]** [Stored XSS in patient encounter Eye Exam form $CHRONIC2 and $CHRONIC3](https://github.com/openemr/openemr/security/advisories/GHSA-6ch2-p26g-x33h)
+- **[High]** [Missing Authorization on Claim File Download Endpoint](https://github.com/openemr/openemr/security/advisories/GHSA-g3p5-5grq-m65m)
+- **[High]** [Stored XSS in CCDA Preview via Unsanitized linkHtml Attributes](https://github.com/openemr/openemr/security/advisories/GHSA-g77x-9p3x-2j8f)
+- **[High]** [IDOR in Patient Notes Web UI allows unauthorized note access/modification](https://github.com/openemr/openemr/security/advisories/GHSA-8gj5-r8vm-mghq)
+- **[High]** [XInclude Injection in CCDA Import Allows Reading Arbitrary Server Files](https://github.com/openemr/openemr/security/advisories/GHSA-9757-3cfj-wc8q)
+- **[High]** [SQL Injection in CAMOS Form](https://github.com/openemr/openemr/security/advisories/GHSA-r6xq-mfwf-wgq8)
+- **[High]** [SQL Injection in PostCalendar Category Delete](https://github.com/openemr/openemr/security/advisories/GHSA-rq3v-38x5-3rm5)
+- **[Medium]** [Improper ACL On Import/Export Popup](https://github.com/openemr/openemr/security/advisories/GHSA-54m8-wpg9-9665)
+- **[Medium]** [SQL Injection via Unsanitized Variables in MedEx Recall/Reminder Processing](https://github.com/openemr/openemr/security/advisories/GHSA-6vx2-w9hw-prqj)
+- **[Medium]** [Reflected XSS via Unescaped contextName Parameter in Custom Template Editor](https://github.com/openemr/openemr/security/advisories/GHSA-9qh7-cfq4-j7c3)
+- **[Medium]** [Reflected XSS in ajax_download.php via reportID parameter](https://github.com/openemr/openemr/security/advisories/GHSA-cpph-949w-w79v)
+- **[Medium]** [IDOR in Portal Payment Page Allows Cross-Patient Record Access](https://github.com/openemr/openemr/security/advisories/GHSA-hf37-5rp9-j27j)
+- **[Medium]** [IDOR in Fee Sheet Product Save](https://github.com/openemr/openemr/security/advisories/GHSA-pvvj-mv7h-7847)
+- **[Medium]** [Missing Authorization in show-signature.php Allows Portal Patients to Read Staff Signatures](https://github.com/openemr/openemr/security/advisories/GHSA-w9w5-7x6h-657q)
+- **[Medium]** [Missing ACL Checks on Insurance Company API Routes](https://github.com/openemr/openemr/security/advisories/GHSA-ww94-26v7-x4gp)
+- **[Medium]** [Reflected XSS in graphs.php via title parameter](https://github.com/openemr/openemr/security/advisories/GHSA-wwhf-6cvc-6766)
+- Missing ACL check on eRx log viewer
+- Parameterize all SQL in deleter.php
+- Add CSRF protection and parameterize SQL in new_payment.php
+- Parameterize SQL, add CSRF, fix serialization injection in portal appointment
+- Parameterize SQL in pnotes.inc.php
+- Prevent open redirect in portal messaging ([#11223](https://github.com/openemr/openemr/pull/11223))
+
+#### Bug Fixes
+
+- Include custom LBF layout forms in patient report ([#11146](https://github.com/openemr/openemr/pull/11146))
+- Hide dispensed medications section when inhouse_pharmacy is disabled ([#11144](https://github.com/openemr/openemr/pull/11144))
+- Correct assignment typo in AuthHash SHA512 fallback ([#11019](https://github.com/openemr/openemr/pull/11019))
+- Align allergy begdate validation with YYYY-MM-DD docs ([#10993](https://github.com/openemr/openemr/pull/10993))
+- Enforce newest-first sort in encounters report ([#10991](https://github.com/openemr/openemr/pull/10991))
+- Correct "Dislay" typo in main menu logo description ([#10988](https://github.com/openemr/openemr/pull/10988))
+- Avoid HTML-encoded status text in demographics widgets ([#10985](https://github.com/openemr/openemr/pull/10985))
+- Accept #RRGGBB in status color field ([#10984](https://github.com/openemr/openemr/pull/10984))
+- Add missing site parameter to SDOH assessment URLs ([#10949](https://github.com/openemr/openemr/pull/10949))
+- Qualify column reference in CareTeamService::getCareTeamData() ([#10899](https://github.com/openemr/openemr/pull/10899))
+- Add state license number to eye prescription popup ([#10894](https://github.com/openemr/openemr/pull/10894))
+- Create certificates directory before writing key files ([#10888](https://github.com/openemr/openemr/pull/10888))
+- Dispense glasses Rx: manifest/dispensed refraction ([#10882](https://github.com/openemr/openemr/pull/10882))
+- Use theme-stable colors for receipt background contrast ([#10851](https://github.com/openemr/openemr/pull/10851))
+
+### Changed
+
+- Add missing GHSA and fix advisory URLs in 8.0.0.2 changelog ([#11180](https://github.com/openemr/openemr/pull/11180))
+
 ## [8.0.0.2](https://github.com/openemr/openemr/milestone/27?closed=1) - 2026-03-18
 
 ### Fixed
