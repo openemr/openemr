@@ -56,8 +56,9 @@ class BCKeychain
         self::tryLoadDbKey('seven', $pkidb, $storageDir, $keychain);
 
         if ($createKeyIfNeeded !== null) {
-            assert($createKeyIfNeeded === 'seven'); // TODO: support others
-            // FIXME: split the db and drive key creation
+            // TODO: support others
+            assert($createKeyIfNeeded === 'seven');
+            // TODO: extract this out into a reusable service
             // DB Key
             if (!$keychain->hasKey('seven-db')) {
                 $dbKey = KeyMaterial::generate(Cipher\Aes256CbcHmacSha384::KEY_LENGTH);
