@@ -31,6 +31,9 @@ final readonly class BCCrypto implements CryptoInterface
 
     public function encryptStandard(?string $value, KeySource $keySource = KeySource::Drive): string
     {
+        if ($value === null || $value === '') {
+            return '';
+        }
         $keyId = self::remapKeyId($this->currentKeyId, $keySource);
         $cipher = $this->keychain->getCipher($keyId);
 
