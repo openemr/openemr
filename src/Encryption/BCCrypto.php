@@ -35,7 +35,8 @@ class BCCrypto implements CryptoInterface
         $cipher = $this->keychain->getCipher($keyId);
 
         $wrapped = new Plaintext($value);
-        return $cipher->encrypt($wrapped);
+        $ciphertext = $cipher->encrypt($wrapped);
+        return new Message($this->format, $this->currentKeyId, $ciphertext)->encode();
 
         // $message = new Message(current format, key id, ciphertext)
         // return $message->encode();
