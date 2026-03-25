@@ -29,13 +29,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class Aes256CbcNoHmacTest extends TestCase
 {
-    private CryptoFixtureManager $fixtures;
-
-    protected function setUp(): void
-    {
-        // No install() needed - we only use the static test vectors
-        $this->fixtures = new CryptoFixtureManager('/dev/null');
-    }
+    use CipherTestHelperTrait;
 
     public function testDecryptsKnownCiphertextCorrectly(): void
     {
@@ -99,15 +93,5 @@ final class Aes256CbcNoHmacTest extends TestCase
 
         // It decrypts to something, just not the right thing
         self::assertNotSame(CryptoFixtureManager::PLAINTEXT, $result->wrapped);
-    }
-
-    /**
-     * Strip version prefix and base64 decode to get raw ciphertext.
-     */
-    private function extractRawCiphertext(string $encoded): Ciphertext
-    {
-        $raw = base64_decode(substr($encoded, 3), strict: true);
-        self::assertIsString($raw, 'Test vector base64 decode failed');
-        return new Ciphertext($raw);
     }
 }
