@@ -24,14 +24,13 @@ final readonly class BCCrypto implements CryptoInterface
     public static function instance(LoggerInterface $logger): BCCrypto
     {
         $keychain = Keys\BCKeychain::load(createKeyIfNeeded: 'seven');
-        $logger->warning("BCC instance");
-        $logger->warning(print_r($keychain, true));
         return new BCCrypto($keychain, $logger);
     }
 
     public function encryptStandard(?string $value, KeySource $keySource = KeySource::Drive): string
     {
         if ($value === null || $value === '') {
+            // Should this warn?
             return '';
         }
         $keyId = self::remapKeyId($this->currentKeyId, $keySource);
@@ -45,7 +44,7 @@ final readonly class BCCrypto implements CryptoInterface
     public function decryptStandard(?string $value, KeySource $keySource = KeySource::Drive, ?int $minimumVersion = null): false|string
     {
         if ($value === null || $value === '') {
-            // warn?
+            // Should this warn?
             return '';
         }
 
@@ -59,7 +58,7 @@ final readonly class BCCrypto implements CryptoInterface
 
             return $cipher->decrypt($message->ciphertext)->wrapped;
         } catch (\Throwable $e) {
-            // log me
+            $this->logger->warning('Decrypting data failed', ['exception' => $e]);
             return false;
         }
     }
@@ -78,7 +77,8 @@ final readonly class BCCrypto implements CryptoInterface
             },
             default => $id,
         };
-        // Versions 1-4 always used a drive key regardless of specification
+        // Versions 1-3 always used a drive key regardless of specification
+        // Version 4 used the specified key type, but the drive key was plaintext
         // v8 will embed the key id in the message properly; TBD on Source
     }
 
