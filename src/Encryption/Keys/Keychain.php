@@ -30,7 +30,7 @@ class Keychain implements KeychainInterface
         if ($this->hasKey($keyId)) {
             return $this->mappings[$keyId];
         }
-        throw new OutOfBoundsException('Key id not registered');
+        throw new OutOfBoundsException('Key id not registered' . $keyId);
     }
 
     public function hasKey(string $keyId): bool
