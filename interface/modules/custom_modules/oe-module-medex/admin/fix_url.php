@@ -1,7 +1,7 @@
 <?php
 /**
  * Fix MedEx URL Configuration
- * Updates database to point to api.hipaabank.net
+ * Updates database to point to branded MedEx host
  */
 
 // Ensure site parameter exists to prevent "Site ID is missing" errors
@@ -23,17 +23,17 @@ $message = '';
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['fix_url'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', $session)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', 'default')) {
         $error = 'Invalid security token';
     } else {
         try {
             // Update globals table
-            sqlStatement("UPDATE globals SET gl_value = ? WHERE gl_name = 'medex_bank_url'", ['https://api.hipaabank.net/cart/upload']);
+            sqlStatement("UPDATE globals SET gl_value = ? WHERE gl_name = 'medex_bank_url'", ['https://medexbank.com/cart/upload']);
             
             // Update medex_prefs table
-            sqlStatement("UPDATE medex_prefs SET ME_server_url = ? WHERE ME_server_url LIKE '%localhost%' OR ME_server_url LIKE '%orb.local%'", ['https://api.hipaabank.net/cart/upload']);
+            sqlStatement("UPDATE medex_prefs SET ME_server_url = ? WHERE ME_server_url LIKE '%localhost%' OR ME_server_url LIKE '%orb.local%'", ['https://medexbank.com/cart/upload']);
             
-            $message = 'MedEx URL updated successfully to https://api.hipaabank.net/cart/upload';
+            $message = 'MedEx URL updated successfully to https://medexbank.com/cart/upload';
             
             // Clear any cached configuration
             if (function_exists('opcache_reset')) {
@@ -50,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['fix_url'])) {
 $currentUrl = sqlQuery("SELECT gl_value FROM globals WHERE gl_name = 'medex_bank_url'")['gl_value'] ?? 'Not set';
 $medexPrefs = sqlQuery("SELECT ME_server_url FROM medex_prefs WHERE ME_server_url IS NOT NULL LIMIT 1")['ME_server_url'] ?? 'Not set';
 
-$csrfToken = CsrfUtils::collectCsrfToken(session: $session);
+$csrfToken = CsrfUtils::collectCsrfToken();
 ?>
 <!DOCTYPE html>
 <html>
@@ -99,7 +99,7 @@ $csrfToken = CsrfUtils::collectCsrfToken(session: $session);
             </ul>
             <p>To:</p>
             <ul>
-                <li><code>https://api.hipaabank.net</code></li>
+                <li><code>https://medexbank.com/cart/upload</code></li>
             </ul>
             
             <button type="submit" name="fix_url" class="btn">Update MedEx URL</button>

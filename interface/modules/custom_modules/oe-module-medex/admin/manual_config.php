@@ -26,7 +26,7 @@ $success = '';
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_credentials'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', $session)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', 'default')) {
         $error = 'Invalid security token';
     } else {
         $practiceId = trim($_POST['practice_id'] ?? '');
@@ -197,7 +197,7 @@ $existingEmail = sqlQuery("SELECT ME_username FROM medex_prefs WHERE ME_username
 
         <div class="info-box">
             <strong><i class="fa fa-info-circle"></i> <?php echo xlt('Where to find these credentials:'); ?></strong>
-            <?php echo xlt('Log into your MedEx backend admin panel at'); ?> <code>https://api.hipaabank.net</code> <?php echo xlt('and navigate to Settings > API Credentials to find your Practice ID and API Key.'); ?>
+            <?php echo xlt('Log into your MedEx admin portal at'); ?> <code>https://medexbank.com</code> <?php echo xlt('and navigate to Settings > API Credentials to find your Practice ID and API Key.'); ?>
         </div>
 
         <?php if ($error): ?>
@@ -212,7 +212,7 @@ $existingEmail = sqlQuery("SELECT ME_username FROM medex_prefs WHERE ME_username
             </div>
         <?php else: ?>
             <form method="POST" action="">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>">
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>">
 
                 <div class="form-group">
                     <label><?php echo xlt('Practice ID'); ?> *</label>
