@@ -38,7 +38,7 @@
 - Correct assignment typo in AuthHash SHA512 fallback ([#11019](https://github.com/openemr/openemr/pull/11019))
 - Align allergy begdate validation with YYYY-MM-DD docs ([#10993](https://github.com/openemr/openemr/pull/10993))
 - Enforce newest-first sort in encounters report ([#10991](https://github.com/openemr/openemr/pull/10991))
-- Correct "Dislay" typo in main menu logo description ([#10988](https://github.com/openemr/openemr/pull/10988))
+- Correct typo in main menu logo description ([#10988](https://github.com/openemr/openemr/pull/10988))
 - Avoid HTML-encoded status text in demographics widgets ([#10985](https://github.com/openemr/openemr/pull/10985))
 - Accept #RRGGBB in status color field ([#10984](https://github.com/openemr/openemr/pull/10984))
 - Add missing site parameter to SDOH assessment URLs ([#10949](https://github.com/openemr/openemr/pull/10949))
