@@ -15,6 +15,8 @@ class BCCrypto implements CryptoInterface
     public function __construct(
         private Keys\KeychainInterface $keychain,
         private LoggerInterface $logger,
+        private string $currentKeyId = 'seven',
+        private MessageFormat $format = MessageFormat::v7,
     ) {
     }
 
@@ -29,8 +31,7 @@ class BCCrypto implements CryptoInterface
 
     public function encryptStandard(?string $value, KeySource $keySource = KeySource::Drive): string
     {
-        $currentKey = 'seven'; // TBD
-        $keyId = self::remapKeyId($currentKey, $keySource);
+        $keyId = self::remapKeyId($this->currentKeyId, $keySource);
         $cipher = $this->keychain->getCipher($keyId);
 
         $wrapped = new Plaintext($value);
