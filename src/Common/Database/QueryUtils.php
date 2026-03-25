@@ -474,7 +474,7 @@ class QueryUtils
             // GROSS HACK: if if the first query run goes through QueryUtils
             // rather than the global functions, the connection may not have
             // been set up yet.
-            require_once __DIR__ . '../../library/sql.inc.php';
+            require_once __DIR__ . '/../../../library/sql.inc.php';
         }
 
         return OEGlobalsBag::getInstance()->get('adodb')['db'];
