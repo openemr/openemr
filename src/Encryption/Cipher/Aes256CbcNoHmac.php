@@ -6,7 +6,10 @@ namespace OpenEMR\Encryption\Cipher;
 
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Encryption\Keys\KeyMaterial;
-use OpenEMR\Encryption\Plaintext;
+use OpenEMR\Encryption\{
+    Ciphertext,
+    Plaintext,
+};
 
 /**
  * Legacy "version 1" handling.
@@ -22,8 +25,9 @@ readonly class Aes256CbcNoHmac implements CipherInterface
     ) {
     }
 
-    public function decrypt(string $ciphertext): Plaintext
+    public function decrypt(Ciphertext $ciphertext): Plaintext
     {
+        $ciphertext = $ciphertext->wrapped;
         $iv = substr($ciphertext, 0, self::IV_LENGTH);
         $data = substr($ciphertext, self::IV_LENGTH);
 
@@ -41,7 +45,7 @@ readonly class Aes256CbcNoHmac implements CipherInterface
         return new Plaintext($decrypted);
     }
 
-    public function encrypt(Plaintext $plaintext): string
+    public function encrypt(Plaintext $plaintext): Ciphertext
     {
         throw new \BadMethodCallException(__METHOD__);
     }

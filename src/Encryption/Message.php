@@ -11,7 +11,7 @@ final readonly class Message
     public function __construct(
         public MessageFormat $format,
         public Keys\Id $keyId,
-        public string $ciphertext,
+        public Ciphertext $ciphertext,
     ) {
     }
 
@@ -40,7 +40,11 @@ final readonly class Message
             throw new UnexpectedValueException('Could not parse ciphertext');
         }
 
-        return new Message($format, new Keys\Id($keyId), $ciphertext);
+        return new Message(
+            format: $format,
+            keyId: new Keys\Id($keyId),
+            ciphertext: new Ciphertext($ciphertext),
+        );
     }
 
     public function encode(): string
@@ -49,6 +53,6 @@ final readonly class Message
 
         // if format encodes key id properly, add that in (new path?)
 
-        return sprintf('%s%s', $prefix, base64_encode($this->ciphertext));
+        return sprintf('%s%s', $prefix, base64_encode($this->ciphertext->wrapped));
     }
 }
