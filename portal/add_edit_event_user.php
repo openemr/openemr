@@ -238,10 +238,11 @@ if ($form_action === "save") {
     };
 
     if ($repeatTargetDay !== null) {
-        $currentDay = (int) date('N', strtotime((string) $event_date)); // 1=Mon .. 7=Sun
+        $baseTimestamp = strtotime((string) $event_date) ?: time();
+        $currentDay = (int) date('N', $baseTimestamp); // 1=Mon .. 7=Sun
         if ($currentDay !== $repeatTargetDay) {
             $daysUntilTarget = ($repeatTargetDay - $currentDay + 7) % 7;
-            $event_date = date('Y-m-d', strtotime("+{$daysUntilTarget} days", strtotime((string) $event_date)));
+            $event_date = date('Y-m-d', strtotime("+{$daysUntilTarget} days", $baseTimestamp));
         }
     }
     /* =======================================================
