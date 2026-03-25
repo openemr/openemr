@@ -12,6 +12,4 @@ use OpenEMR\Encryption\{
 interface CipherInterface
 {
     public function decrypt(Ciphertext $ciphertext): Plaintext;
-
-    public function encrypt(Plaintext $plaintext): Ciphertext;
 }
