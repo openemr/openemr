@@ -6,7 +6,7 @@ namespace OpenEMR\Encryption;
 
 use UnexpectedValueException;
 
-class Message
+readonly class Message
 {
     public function __construct(
         private MessageFormat $format,
