@@ -387,7 +387,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
     <?php
     echo $twig->render("interface/main/tabs/therapy_group_template.html.twig", []);
     echo $twig->render("interface/main/tabs/user_data_template.html.twig", [
-        'openemr_name' => OEGlobalsBag::getInstance()->get('openemr_name')
+        'openemr_name' => OEGlobalsBag::getInstance()->getString('openemr_name')
     ]);
     // Collect the menu then build it
     $menuMain = new MainMenuRole(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());

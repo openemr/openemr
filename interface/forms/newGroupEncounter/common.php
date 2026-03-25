@@ -341,7 +341,7 @@ $help_icon = '';
                 <fieldset>
                     <div class="col-md-12 form-group">
                       <legend><?php echo xlt('Reason for Visit')?></legend>
-                      <textarea name="reason" id="reason" class="form-control" cols="80" rows="4"><?php echo $viewmode ? text($result['reason']) : text(OEGlobalsBag::getInstance()->get('default_chief_complaint')); ?></textarea>
+                      <textarea name="reason" id="reason" class="form-control" cols="80" rows="4"><?php echo $viewmode ? text($result['reason']) : text(OEGlobalsBag::getInstance()->getString('default_chief_complaint')); ?></textarea>
                     </div>
                 </fieldset>
                 <div class="col-md-12 form-group clearfix">

@@ -689,7 +689,7 @@ class C_EncounterVisitForm
             'pageTitle' => xl('Patient Encounter'),
             'facilities' => $facilities,
             'providers' => $this->getProvidersForTemplate(new UserService(), $encounter),
-            'visitCategories' => $this->getVisitCategoriesForTemplate($viewmode, $encounter, OEGlobalsBag::getInstance()->get('default_visit_category')),
+            'visitCategories' => $this->getVisitCategoriesForTemplate($viewmode, $encounter, OEGlobalsBag::getInstance()->getString('default_visit_category')),
             'sensitivities' => $this->getSensitivitiesForTemplate($encounter),
             'issuesEnabled' => $issuesEnabled,
             'issuesAuth' => $issuesAuth,

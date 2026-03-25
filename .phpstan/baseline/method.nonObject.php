@@ -1522,8 +1522,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/login/login.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method getString\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/login/login.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/login/login.php',
 ];
 $ignoreErrors[] = [

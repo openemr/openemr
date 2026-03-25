@@ -189,7 +189,7 @@ $display_div = "style='display:block;'";
 
         // Get the category ID for lab reports.
         $query = "SELECT rght FROM categories WHERE name = ?";
-        $catIDRs = sqlQuery($query, [OEGlobalsBag::getInstance()->get('lab_results_category_name')]);
+        $catIDRs = sqlQuery($query, [OEGlobalsBag::getInstance()->getString('lab_results_category_name')]);
         $catID = $catIDRs['rght'];
 
         $query = "SELECT d.*,CONCAT(pd.fname,' ',pd.lname) AS pname,GROUP_CONCAT(n.note ORDER BY n.date DESC SEPARATOR '|') AS docNotes,

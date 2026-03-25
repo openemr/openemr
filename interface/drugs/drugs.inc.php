@@ -27,7 +27,7 @@ $substitute_array = ['', xl('Allowed'), xl('Not Allowed')];
 
 function send_drug_email($subject, $body): void
 {
-    $recipient = OEGlobalsBag::getInstance()->get('practice_return_email_path');
+    $recipient = OEGlobalsBag::getInstance()->getString('practice_return_email_path');
     if (empty($recipient)) {
         return;
     }

@@ -701,14 +701,14 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1) ? xlt('SE State') : xlt('SE Locality') ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
-                            generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('state_data_type'),'field_id' => ('i' . $i . 'subscriber_employer_state'),'list_id' => OEGlobalsBag::getInstance()->get('state_list'),'fld_length' => '15','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_employer_state'] ?? ''));
+                            generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('state_data_type'),'field_id' => ('i' . $i . 'subscriber_employer_state'),'list_id' => OEGlobalsBag::getInstance()->getString('state_list'),'fld_length' => '15','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_employer_state'] ?? ''));
                             ?>
                           </div>
                             <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "</div>" : ""; ?>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1) ? xlt('State') : xlt('Locality') ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
-                            generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('state_data_type'), 'field_id' => ('i' . $i . 'subscriber_state'),'list_id' => OEGlobalsBag::getInstance()->get('state_list'),'fld_length' => '15','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_state'] ?? ''));
+                            generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('state_data_type'), 'field_id' => ('i' . $i . 'subscriber_state'),'list_id' => OEGlobalsBag::getInstance()->getString('state_list'),'fld_length' => '15','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_state'] ?? ''));
                             ?>
                           </div>
                             <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "<div class='d-none'>" : ""; ?>
@@ -725,13 +725,13 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('SE Country'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
-                            generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('country_data_type'),'field_id' => ('i' . $i . 'subscriber_employer_country'),'list_id' => OEGlobalsBag::getInstance()->get('country_list'),'fld_length' => '10','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_employer_country'] ?? ''));
+                            generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('country_data_type'),'field_id' => ('i' . $i . 'subscriber_employer_country'),'list_id' => OEGlobalsBag::getInstance()->getString('country_list'),'fld_length' => '10','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_employer_country'] ?? ''));
                             ?>
                           </div>
                           <label class='col-form-label col-md-1 mb-2 required'><?php echo xlt('Country'); ?>:</label>
                           <div class="col-md-5 mb-2">
                             <?php
-                            generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('country_data_type'),'field_id' => ('i' . $i . 'subscriber_country'),'list_id' => OEGlobalsBag::getInstance()->get('country_list'),'fld_length' => '10','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_country'] ?? ''));
+                            generate_form_field(['data_type' => OEGlobalsBag::getInstance()->get('country_data_type'),'field_id' => ('i' . $i . 'subscriber_country'),'list_id' => OEGlobalsBag::getInstance()->getString('country_list'),'fld_length' => '10','max_length' => '63','edit_options' => 'C', 'smallform' => 'true'], ($result3['subscriber_country'] ?? ''));
                             ?>
                           </div>
                             <?php echo (OEGlobalsBag::getInstance()->getBoolean('omit_employers')) ? "</div>" : ""; ?>

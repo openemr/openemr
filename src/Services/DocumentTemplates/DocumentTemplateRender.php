@@ -115,7 +115,7 @@ class DocumentTemplateRender
         // purify html (and remove js)
         $isLegacy = stripos($template, 'portal_version') === false;
         $config = HTMLPurifier_Config::createDefault();
-        $purifyTempDir = OEGlobalsBag::getInstance()->get('temporary_files_dir') . DIRECTORY_SEPARATOR . 'htmlpurifier';
+        $purifyTempDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . DIRECTORY_SEPARATOR . 'htmlpurifier';
         if (
             !is_dir($purifyTempDir)
         ) {

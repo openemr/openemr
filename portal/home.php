@@ -103,7 +103,7 @@ foreach ($msgs as $i) {
 
 $messagesURL = "$web_root/portal/messaging/messages.php";
 
-$isEasyPro = $globalsBag->getBoolean('easipro_enable') && !empty($globalsBag->get('easipro_server')) && !empty($globalsBag->get('easipro_name'));
+$isEasyPro = $globalsBag->getBoolean('easipro_enable') && !empty($globalsBag->getString('easipro_server')) && !empty($globalsBag->getString('easipro_name'));
 
 $current_date2 = date('Y-m-d');
 $apptLimit = 10;
@@ -368,8 +368,8 @@ try {
         'images_static_relative' => $globalsBag->get('images_static_relative'),
         'youHave' => xl('You have'),
         'navMenu' => $navMenu,
-        'primaryMenuLogoHeight' => $globalsBag->get('portal_primary_menu_logo_height') ?? '30',
-        'pagetitle' => $globalsBag->get('openemr_name') . ' ' . xl('Portal'),
+        'primaryMenuLogoHeight' => $globalsBag->getString('portal_primary_menu_logo_height') ?? '30',
+        'pagetitle' => $globalsBag->getString('openemr_name') . ' ' . xl('Portal'),
         'messagesURL' => $messagesURL,
         'patientID' => $pid,
         'patientName' => $session->get('ptName', null),

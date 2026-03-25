@@ -46,8 +46,8 @@ class SignalWireClient extends AppDispatch
         // Initialize properties before calling parent (like other controllers)
         $globals = OEGlobalsBag::getInstance();
         $this->crypto = ServiceContainer::getCrypto();
-        $this->baseDir = $globals->get('temporary_files_dir');
-        $this->uriDir = $globals->get('OE_SITE_WEBROOT');
+        $this->baseDir = $globals->getString('temporary_files_dir');
+        $this->uriDir = $globals->getString('OE_SITE_WEBROOT');
 
         try {
             $this->credentials = $this->getCredentials();
@@ -147,7 +147,7 @@ class SignalWireClient extends AppDispatch
         $email = $this->getRequest('email');
         $hasEmail = $this->validEmail($email);
         $globals = OEGlobalsBag::getInstance();
-        $smtpEnabled = !empty($globals->get('SMTP_HOST') ?? null);
+        $smtpEnabled = $globals->getString('SMTP_HOST') !== '';
         $user = $this::getLoggedInUser();
 
         // DEBUG: Log parameters received in sendFax
@@ -448,7 +448,7 @@ class SignalWireClient extends AppDispatch
         $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached fax document.");
         $mail = new MyMailer();
         $from_name = text($from_name);
-        $from = $globals->get("practice_return_email_path");
+        $from = $globals->getString("practice_return_email_path");
         $mail->AddReplyTo($from, $from_name);
         $mail->SetFrom($from, $from);
         $mail->AddAddress($email, $email);

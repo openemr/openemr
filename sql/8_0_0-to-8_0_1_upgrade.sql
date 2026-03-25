@@ -247,3 +247,16 @@ ALTER TABLE `medex_recalls` MODIFY `r_created` timestamp NOT NULL DEFAULT CURREN
 #IfIndex onetime_auth pid
 ALTER TABLE `onetime_auth` DROP INDEX `pid`, ADD INDEX `pid` (`pid`, `onetime_token`(32));
 #EndIf
+
+--
+-- Fix document_templates zero dates for MySQL strict mode compatibility.
+-- See: https://github.com/openemr/openemr/issues/11179
+--
+
+#IfTable document_templates
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
+UPDATE `document_templates` SET `send_date` = CURRENT_TIMESTAMP WHERE `send_date` = '0000-00-00 00:00:00';
+UPDATE `document_templates` SET `end_date` = NULL WHERE `end_date` = '0000-00-00 00:00:00';
+SET sql_mode = @currentSQLMode;
+#EndIf

@@ -37,11 +37,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../ccr/transmitCCD.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Part \\$phimail_username \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../ccr/transmitCCD.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Part \\$our_code \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../contrib/util/billing/load_fee_schedule.php',
@@ -4004,11 +3999,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Part \\$idnum \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
     'count' => 2,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Part \\$phimail_username \\(mixed\\) of encapsed string cannot be cast to string\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
 ];
 $ignoreErrors[] = [

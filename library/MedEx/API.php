@@ -123,7 +123,6 @@ class Practice extends Base
 {
     public function sync($token)
     {
-        global $GLOBALS;
         $fields2 = [];
         $fields3 = [];
         $callback = "https://" . OEGlobalsBag::getInstance()->get('_SERVER')['SERVER_NAME'] . OEGlobalsBag::getInstance()->get('_SERVER')['PHP_SELF'];
@@ -3342,10 +3341,8 @@ class MedEx
 
     public function __construct($url, $sessionFile = 'cookiejar_MedExAPI')
     {
-        global $GLOBALS;
-
         if ($sessionFile == 'cookiejar_MedExAPI') {
-            $sessionFile = OEGlobalsBag::getInstance()->get('temporary_files_dir') . '/cookiejar_MedExAPI';
+            $sessionFile = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . '/cookiejar_MedExAPI';
         }
         $this->url      = rtrim('https://' . preg_replace('/^https?\:\/\//', '', is_string($url) ? $url : ''), '/') . '/cart/upload/index.php?route=api/';
         $this->curl     = new CurlRequest($sessionFile);

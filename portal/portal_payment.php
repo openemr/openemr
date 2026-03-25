@@ -451,7 +451,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
                 xl('Until then you will continue to see payment details here.') . "\n" . xl('Thank You.');
             echo json_encode($amsg);
         ?>;
-        var publicKey = <?php echo json_encode($cryptoGen->decryptStandard(is_string($globalsBag->get('gateway_public_key')) ? $globalsBag->get('gateway_public_key') : null)); ?>;
+        var publicKey = <?php echo json_encode($cryptoGen->decryptStandard(is_string($globalsBag->getString('gateway_public_key')) ? $globalsBag->getString('gateway_public_key') : null)); ?>;
 
         function calctotal() {
             var flag = 0;
@@ -1205,7 +1205,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
         // Important: gateway_api_key is NOT a sensitive value when used with Authorize.net (not true for other gateways!)
         ?>
         <script>
-            var apiLoginID = <?php echo json_encode($cryptoGen->decryptStandard(is_string($globalsBag->get('gateway_api_key')) ? $globalsBag->get('gateway_api_key') : null)); ?>;
+            var apiLoginID = <?php echo json_encode($cryptoGen->decryptStandard(is_string($globalsBag->getString('gateway_api_key')) ? $globalsBag->getString('gateway_api_key') : null)); ?>;
         </script>
         <script src="portal_payment.authorizenet.js?v=<?=$v_js_includes?>"></script>
     <?php }  // end authorize.net ?>

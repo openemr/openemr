@@ -39,7 +39,7 @@ if ($_GET['file']) {
     // ensure the file variable has no illegal characters
     check_file_dir_name($filename);
 
-    $filepath = OEGlobalsBag::getInstance()->get('hylafax_basedir') . '/recvq/' . $filename;
+    $filepath = OEGlobalsBag::getInstance()->getString('hylafax_basedir') . '/recvq/' . $filename;
 } elseif ($_GET['scan']) {
     if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
@@ -51,7 +51,7 @@ if ($_GET['file']) {
     // ensure the file variable has no illegal characters
     check_file_dir_name($filename);
 
-    $filepath = OEGlobalsBag::getInstance()->get('scanner_output_directory') . '/' . $filename;
+    $filepath = OEGlobalsBag::getInstance()->getString('scanner_output_directory') . '/' . $filename;
 } else {
     die("No filename was given.");
 }
