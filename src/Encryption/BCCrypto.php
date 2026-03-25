@@ -10,7 +10,7 @@ use OpenEMR\Common\Crypto\{
 };
 use Psr\Log\LoggerInterface;
 
-class BCCrypto implements CryptoInterface
+final readonly class BCCrypto implements CryptoInterface
 {
     public function __construct(
         private Keys\KeychainInterface $keychain,
