@@ -77,8 +77,13 @@ final readonly class BCCrypto implements CryptoInterface
 
     private static function remapKeyId(Keys\Id $id, KeySource $source): Keys\Id
     {
-        // General BC concept: key versions 5-7 for disk-backed keys were
-        // encrypted-on-disk using a db-managed key of the same name.
+        // General BC concept:
+        // Versions 1-3 always used a drive key regardless of specification
+        // Version 4 used the specified key type, but the drive key was plaintext
+        // Versions 5-7 for disk-backed keys were encrypted-on-disk using a
+        //   db-managed key of the same name.
+        // v8 will embed the key id in the message properly; TBD on Source
+        //   (it may be ignored)
         return match ($id->id) {
             'four',
             'five',
@@ -89,9 +94,6 @@ final readonly class BCCrypto implements CryptoInterface
             },
             default => $id,
         };
-        // Versions 1-3 always used a drive key regardless of specification
-        // Version 4 used the specified key type, but the drive key was plaintext
-        // v8 will embed the key id in the message properly; TBD on Source
     }
 
     public function cryptCheckStandard(?string $value): bool
