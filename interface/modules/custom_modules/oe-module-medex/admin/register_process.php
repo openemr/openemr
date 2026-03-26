@@ -24,8 +24,8 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     exit;
 }
 
-// Verify CSRF token
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', $session)) {
+// Verify CSRF token (subject-first signature on this OpenEMR build).
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', 'default')) {
     echo json_encode(['success' => false, 'error' => 'Invalid security token']);
     exit;
 }
@@ -48,17 +48,18 @@ try {
 $api = new \OpenEMR\Modules\MedEx\MedExAPI();
 
 // Get primary facility details as default practice info
-$facility = sqlQuery("SELECT name, phone, street, city, state, postal_code FROM facility WHERE primary_business_entity = 1 ORDER BY id LIMIT 1");
+$facility = sqlQuery("SELECT name, phone, street, city, state, postal_code, country_code FROM facility WHERE primary_business_entity = 1 ORDER BY id LIMIT 1");
 if (!$facility) {
-    $facility = sqlQuery("SELECT name, phone, street, city, state, postal_code FROM facility ORDER BY id LIMIT 1");
+    $facility = sqlQuery("SELECT name, phone, street, city, state, postal_code, country_code FROM facility ORDER BY id LIMIT 1");
 }
 
 $practice_name = $facility['name'] ?? $GLOBALS['openemr_name'] ?? 'OpenEMR Practice';
 $practice_phone = $facility['phone'] ?? '';
-$practice_address = trim(
-    ($facility['street'] ?? '') . "\n" .
-    ($facility['city'] ?? '') . ', ' . ($facility['state'] ?? '') . ' ' . ($facility['postal_code'] ?? '')
-);
+$practice_street = trim($facility['street'] ?? '');
+$practice_city = trim($facility['city'] ?? '');
+$practice_state = trim($facility['state'] ?? '');
+$practice_postcode = trim($facility['postal_code'] ?? '');
+$practice_country_code = strtoupper(trim($facility['country_code'] ?? 'US'));
 
 // Prepare registration data
 $data = [
@@ -66,7 +67,12 @@ $data = [
     'password' => $_POST['password'],
     'practice_name' => $practice_name,
     'phone' => $practice_phone,
-    'address' => $practice_address,
+    'address' => $practice_street,
+    'street' => $practice_street,
+    'city' => $practice_city,
+    'state' => $practice_state,
+    'postcode' => $practice_postcode,
+    'country_code' => $practice_country_code,
     'ehr' => 'OpenEMR',
     'ehr_version' => $GLOBALS['v_major'] . '.' . $GLOBALS['v_minor'] . '.' . $GLOBALS['v_patch']
 ];
