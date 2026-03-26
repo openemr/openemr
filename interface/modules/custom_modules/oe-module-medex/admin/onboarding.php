@@ -152,6 +152,24 @@ if ($step > 1 && !$api->isConfigured()) {
                         <?php echo xlt("This is a production-ready deployment (not a test/demo sandbox)"); ?>
                     </label>
                 </div>
+                <div class="form-group" style="margin-bottom: 12px;">
+                    <label style="font-weight:600;">
+                        <input type="checkbox" id="TERMS_yes" name="TERMS_yes" value="1" required>
+                        <?php echo xlt("I have read and my practice agrees to the"); ?>
+                        <a href="#" onclick="window.open('<?php echo \OpenEMR\Modules\MedEx\MedExConfig::publicBaseUrl(); ?>/index.php?route=information/information&information_id=5','TERMS',800,600); return false;">
+                            <?php echo xlt("MedEx Terms and Conditions"); ?>
+                        </a>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label style="font-weight:600;">
+                        <input type="checkbox" id="BusAgree_yes" name="BusAgree_yes" value="1" required>
+                        <?php echo xlt("I have read and accept the"); ?>
+                        <a href="#" onclick="window.open('<?php echo \OpenEMR\Modules\MedEx\MedExConfig::publicBaseUrl(); ?>/index.php?route=information/information&information_id=8','BusAssocAgree',800,600); return false;">
+                            <?php echo xlt("MedEx Business Associate Agreement (BAA)"); ?>
+                        </a>
+                    </label>
+                </div>
                 <div style="margin-top: 30px; text-align: right;">
                     <button type="button" class="btn btn-primary" onclick="submitStep1()"><?php echo xlt("Next: Configure Services"); ?> <i class="fa fa-arrow-right"></i></button>
                 </div>
@@ -376,6 +394,8 @@ if ($step > 1 && !$api->isConfigured()) {
             const rpassword = $("#rpassword").val();
             const callbackUrl = $("#callback_url").val();
             const productionConfirm = $("#production_confirm").is(':checked');
+            const termsAgreed = $("#TERMS_yes").is(':checked');
+            const baaAgreed = $("#BusAgree_yes").is(':checked');
 
             if (!email || !password || !callbackUrl) {
                 alert("Please fill all required fields");
@@ -393,6 +413,14 @@ if ($step > 1 && !$api->isConfigured()) {
                 alert("Production verification confirmation is required");
                 return;
             }
+            if (!termsAgreed) {
+                alert("You must agree to the Terms & Conditions before signing up");
+                return;
+            }
+            if (!baaAgreed) {
+                alert("You must agree to the HIPAA Business Associate Agreement before signing up");
+                return;
+            }
 
             $("#result").html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Registering...</div>');
 
@@ -404,7 +432,9 @@ if ($step > 1 && !$api->isConfigured()) {
                     email: email,
                     password: password,
                     callback_url: callbackUrl,
-                    production_confirm: '1'
+                    production_confirm: '1',
+                    TERMS_yes: '1',
+                    BusAgree_yes: '1'
                 },
                 dataType: 'json',
                 success: function(response) {
