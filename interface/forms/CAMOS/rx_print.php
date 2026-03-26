@@ -110,15 +110,19 @@ if ($result = sqlFetchArray($query)) {
     $practice_dea = $result['federaldrugid'];
 }
 
+// Cache escaped table name to avoid repeated SHOW TABLES lookups.
+// escape_table_name() on a literal handles case-insensitive matching
+// on MySQL installs where the actual table case differs from the code.
+$tbl_camos = escape_table_name("form_CAMOS");
+
 if ($_POST['print_pdf'] || $_POST['print_html']) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
-
     $camos_content = [];
     foreach ($_POST as $key => $val) {
         if (str_starts_with((string) $key, 'ch_')) {
-            $query = sqlStatement("select content from " . mitigateSqlTableUpperCase("form_CAMOS") . " where id =?", [substr((string) $key, 3)]);
+            $query = sqlStatement("select content from " . $tbl_camos . " where id =?", [substr((string) $key, 3)]);
             if ($result = sqlFetchArray($query)) {
                 if ($_POST['print_html']) { //do this change to formatting only for html output
                             $content = preg_replace('|\n|', '<br/>', text($result['content']));
@@ -499,13 +503,13 @@ return count_turnoff;
 //check if an encounter is set
     if ($session->get('encounter') == null) {
         $query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " .
-        mitigateSqlTableUpperCase("form_CAMOS") . " as x join forms as y on (x.id = y.form_id) " .
+        $tbl_camos . " as x join forms as y on (x.id = y.form_id) " .
         "where y.pid = ?" .
         " and y.form_name like 'CAMOS%'" .
         " and x.activity = 1", [$session->get('pid')]);
     } else {
         $query = sqlStatement("select x.id as id, x.category, x.subcategory, x.item from " .
-        mitigateSqlTableUpperCase("form_CAMOS") . "  as x join forms as y on (x.id = y.form_id) " .
+        $tbl_camos . "  as x join forms as y on (x.id = y.form_id) " .
         "where y.encounter = ?" .
         " and y.pid = ?" .
         " and y.form_name like 'CAMOS%'" .

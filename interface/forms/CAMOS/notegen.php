@@ -450,7 +450,8 @@ function getFormData($start_date, $end_date, $lname, $fname)
         }
 
         if (str_starts_with(strtolower((string) $results1['form_name']), 'camos')) { // deal with camos
-            $query2 = sqlStatement("select category,subcategory,item,content,date_format(date,'%h:%i %p') as date from " . mitigateSqlTableUpperCase("form_CAMOS") . " where id = ?", [$results1['form_id']]);
+            // escape_table_name() on a literal handles case-insensitive table name matching.
+            $query2 = sqlStatement("select category,subcategory,item,content,date_format(date,'%h:%i %p') as date from " . escape_table_name("form_CAMOS") . " where id = ?", [$results1['form_id']]);
             if ($results2 = sqlFetchArray($query2)) {
                 if ($results2['category'] == 'exam') {
                     array_push($dates[$results1['datekey']][$results1['pid'] . '_' . $results1['enc']]['exam'], $results2['content']);

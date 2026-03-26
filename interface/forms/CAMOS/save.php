@@ -26,13 +26,17 @@ if ($_GET["mode"] == "delete") {
         CsrfUtils::csrfNotVerified();
     }
 
+    // Cache escaped table name to avoid repeated SHOW TABLES lookups.
+    // escape_table_name() on a literal handles case-insensitive matching
+    // on MySQL installs where the actual table case differs from the code.
+    $tbl_camos = escape_table_name("form_CAMOS");
     foreach ($_POST as $key => $val) {
         if (!(str_starts_with((string) $key, 'ch_') and $val === 'on')) {
             continue;
         }
         $id = substr((string) $key, 3);
         if ($_POST['delete']) {
-            sqlStatement("delete from " . mitigateSqlTableUpperCase("form_CAMOS") . " where id=?", [$id]);
+            sqlStatement("delete from " . $tbl_camos . " where id=?", [$id]);
             sqlStatement("delete from forms where form_name like 'CAMOS%' and form_id=?", [$id]);
         }
 
@@ -44,7 +48,7 @@ if ($_GET["mode"] == "delete") {
             //   version 4.0).
             $content = $_POST['textarea_' . $id];
             $content = replace($pid, $encounter, $content);
-            sqlStatement("update " . mitigateSqlTableUpperCase("form_CAMOS") . " set content=? where id=?", [$content, $id]);
+            sqlStatement("update " . $tbl_camos . " set content=? where id=?", [$content, $id]);
         }
     }
 }
