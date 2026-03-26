@@ -21,6 +21,7 @@ use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Encryption\Cipher\Aes256CbcHmacSha384;
 use OpenEMR\Encryption\Ciphertext;
 use OpenEMR\Encryption\Keys\KeyMaterial;
+use OpenEMR\Encryption\Plaintext;
 use OpenEMR\Tests\Fixtures\CryptoFixtureManager;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -134,5 +135,100 @@ final class Aes256CbcHmacSha384Test extends TestCase
 
         $this->expectException(CryptoGenException::class);
         $cipher->decrypt(new Ciphertext($truncated));
+    }
+
+    public function testEncryptProducesDecryptableCiphertext(): void
+    {
+        $cipher = new Aes256CbcHmacSha384(
+            key: new KeyMaterial($this->fixtures->getTestKey('sevena')),
+            hmacKey: new KeyMaterial($this->fixtures->getTestKey('sevenb')),
+        );
+
+        $plaintext = new Plaintext(CryptoFixtureManager::PLAINTEXT);
+        $ciphertext = $cipher->encrypt($plaintext);
+
+        $decrypted = $cipher->decrypt($ciphertext);
+
+        self::assertSame(CryptoFixtureManager::PLAINTEXT, $decrypted->wrapped);
+    }
+
+    #[DataProvider('versionProvider')]
+    public function testEncryptProducesCompatibleOutput(int $version, string $keyPrefix): void
+    {
+        $cipher = new Aes256CbcHmacSha384(
+            key: new KeyMaterial($this->fixtures->getTestKey($keyPrefix . 'a')),
+            hmacKey: new KeyMaterial($this->fixtures->getTestKey($keyPrefix . 'b')),
+        );
+
+        // Encrypt the same plaintext used in fixtures
+        $plaintext = new Plaintext(CryptoFixtureManager::PLAINTEXT);
+        $newCiphertext = $cipher->encrypt($plaintext);
+
+        // Decrypt the fixture ciphertext
+        $fixtureCiphertext = $this->extractRawCiphertext($this->fixtures->getCiphertext($version));
+        $fixtureDecrypted = $cipher->decrypt($fixtureCiphertext);
+
+        // Decrypt our new ciphertext
+        $newDecrypted = $cipher->decrypt($newCiphertext);
+
+        // Both should produce the same plaintext
+        self::assertSame($fixtureDecrypted->wrapped, $newDecrypted->wrapped);
+        self::assertSame(CryptoFixtureManager::PLAINTEXT, $newDecrypted->wrapped);
+    }
+
+    public function testEncryptProducesDifferentCiphertextEachCall(): void
+    {
+        $cipher = new Aes256CbcHmacSha384(
+            key: new KeyMaterial($this->fixtures->getTestKey('sevena')),
+            hmacKey: new KeyMaterial($this->fixtures->getTestKey('sevenb')),
+        );
+
+        $plaintext = new Plaintext(CryptoFixtureManager::PLAINTEXT);
+
+        $ciphertext1 = $cipher->encrypt($plaintext);
+        $ciphertext2 = $cipher->encrypt($plaintext);
+
+        // Different IVs should produce different ciphertexts
+        self::assertNotSame($ciphertext1->wrapped, $ciphertext2->wrapped);
+
+        // But both should decrypt to the same plaintext
+        self::assertSame(CryptoFixtureManager::PLAINTEXT, $cipher->decrypt($ciphertext1)->wrapped);
+        self::assertSame(CryptoFixtureManager::PLAINTEXT, $cipher->decrypt($ciphertext2)->wrapped);
+    }
+
+    public function testEncryptedDataCannotBeDecryptedWithWrongKey(): void
+    {
+        $cipher1 = new Aes256CbcHmacSha384(
+            key: new KeyMaterial($this->fixtures->getTestKey('sevena')),
+            hmacKey: new KeyMaterial($this->fixtures->getTestKey('sevenb')),
+        );
+        $cipher2 = new Aes256CbcHmacSha384(
+            key: new KeyMaterial('different_key___________________'), // 32 bytes
+            hmacKey: new KeyMaterial('different_hmac__________________'), // 32 bytes
+        );
+
+        $ciphertext = $cipher1->encrypt(new Plaintext(CryptoFixtureManager::PLAINTEXT));
+
+        $this->expectException(CryptoGenException::class);
+        $this->expectExceptionMessage('HMAC invalid');
+        $cipher2->decrypt($ciphertext);
+    }
+
+    public function testEncryptedDataCannotBeDecryptedWithWrongHmacKey(): void
+    {
+        $cipher1 = new Aes256CbcHmacSha384(
+            key: new KeyMaterial($this->fixtures->getTestKey('sevena')),
+            hmacKey: new KeyMaterial($this->fixtures->getTestKey('sevenb')),
+        );
+        $cipher2 = new Aes256CbcHmacSha384(
+            key: new KeyMaterial($this->fixtures->getTestKey('sevena')),
+            hmacKey: new KeyMaterial('different_hmac__________________'), // 32 bytes
+        );
+
+        $ciphertext = $cipher1->encrypt(new Plaintext(CryptoFixtureManager::PLAINTEXT));
+
+        $this->expectException(CryptoGenException::class);
+        $this->expectExceptionMessage('HMAC invalid');
+        $cipher2->decrypt($ciphertext);
     }
 }
