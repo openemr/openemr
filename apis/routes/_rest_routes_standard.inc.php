@@ -460,28 +460,33 @@ return [
         return $return;
     },
     "GET /api/insurance_company" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "acct", "bill");
         $return = (new InsuranceCompanyRestController())->getAll();
 
         return $return;
     },
     "GET /api/insurance_company/:iid" => function ($iid, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "acct", "bill");
         $return = (new InsuranceCompanyRestController())->getOne($iid);
 
         return $return;
     },
     "GET /api/insurance_type" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "acct", "bill");
         $return = (new InsuranceCompanyRestController())->getInsuranceTypes();
 
         return $return;
     },
 
     "POST /api/insurance_company" => function (HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "acct", "bill", 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new InsuranceCompanyRestController())->post($data);
 
         return $return;
     },
     "PUT /api/insurance_company/:iid" => function ($iid, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "acct", "bill", 'write');
         $data = (array) (json_decode(file_get_contents("php://input")));
         $return = (new InsuranceCompanyRestController())->put($iid, $data);
 

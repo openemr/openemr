@@ -6,12 +6,17 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(__DIR__ . "/../../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AccessDeniedResponseFormat;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
@@ -22,6 +27,11 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', session: $sessi
     http_response_code(403);
     echo json_encode(['success' => false, 'error' => 'CSRF validation failed']);
     exit;
+}
+
+// Verify user has admin/super privileges (consistent with delete.php)
+if (!AclMain::aclCheckCore('admin', 'super')) {
+    AccessDeniedHelper::deny('Procedure order deletion access denied', format: AccessDeniedResponseFormat::Json);
 }
 
 $action = $_POST['action'] ?? '';

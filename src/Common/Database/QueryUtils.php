@@ -470,6 +470,13 @@ class QueryUtils
      */
     private static function getADODB()
     {
+        if (!function_exists('sqlQuery')) {
+            // GROSS HACK: if if the first query run goes through QueryUtils
+            // rather than the global functions, the connection may not have
+            // been set up yet.
+            require_once __DIR__ . '/../../../library/sql.inc.php';
+        }
+
         return OEGlobalsBag::getInstance()->get('adodb')['db'];
     }
 }

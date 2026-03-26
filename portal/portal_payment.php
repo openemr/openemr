@@ -84,7 +84,7 @@ if ($session->get('authUserID', '')) {
     $adminUser = sqlQueryNoLog($query, [$session->get('authUserID')]);
 }
 
-$edata = $recid ? $appsql->getPortalAuditRec($recid) : $appsql->getPortalAudit($pid, 'review', 'payment');
+$edata = $recid ? $appsql->getPortalAuditRec($recid, $isPortal ? (int)$pid : null) : $appsql->getPortalAudit($pid, 'review', 'payment');
 $ccdata = [];
 $invdata = [];
 if ($edata) {

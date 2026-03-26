@@ -453,7 +453,7 @@ if ($_REQUEST['dispensed'] ?? '') {
                                     } elseif ($row['REFTYPE'] == "CTL") {
                                         echo xlt('Contact Lens');
                                     } else {
-                                        echo $row['REFTYPE'];
+                                        echo text($row['REFTYPE']);
                                     } ?>
                                         <input type="hidden" name="REFTYPE" value="<?php echo attr($row['REFTYPE']); ?>"/>
                                     </td>

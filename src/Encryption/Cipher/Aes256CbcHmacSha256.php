@@ -4,9 +4,13 @@ declare(strict_types=1);
 
 namespace OpenEMR\Encryption\Cipher;
 
+use BadMethodCallException;
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Encryption\Keys\KeyMaterial;
-use OpenEMR\Encryption\Plaintext;
+use OpenEMR\Encryption\{
+    Ciphertext,
+    Plaintext,
+};
 
 /**
  * Legacy "version 2-3" handling.
@@ -25,8 +29,9 @@ readonly class Aes256CbcHmacSha256 implements CipherInterface
     ) {
     }
 
-    public function decrypt(string $ciphertext): Plaintext
+    public function decrypt(Ciphertext $ciphertext): Plaintext
     {
+        $ciphertext = $ciphertext->wrapped;
         $hmac = mb_substr($ciphertext, 0, self::HMAC_LENGTH, '8bit');
         $iv = mb_substr($ciphertext, self::HMAC_LENGTH, self::IV_LENGTH, '8bit');
         $data = mb_substr($ciphertext, (self::HMAC_LENGTH + self::IV_LENGTH), null, '8bit');
@@ -48,5 +53,13 @@ readonly class Aes256CbcHmacSha256 implements CipherInterface
             throw new CryptoGenException('Decryption failed despite HMAC validating');
         }
         return new Plaintext($decrypted);
+    }
+
+    public function encrypt(Plaintext $plaintext): Ciphertext
+    {
+        throw new BadMethodCallException(sprintf(
+            'Encrypting new data with %s is not supported',
+            self::class,
+        ));
     }
 }

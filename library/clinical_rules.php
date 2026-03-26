@@ -2123,7 +2123,7 @@ function set_plan_activity_patient($plan, $type, $setting, $patient_id): void
     }
 
   // Update patient specific row
-    $query = "UPDATE `clinical_plans` SET `" . escape_sql_column_name($type . "_flag", ["clinical_plans"]) . "`= ? WHERE id = ? AND pid = ?";
+    $query = "UPDATE `clinical_plans` SET " . escape_sql_column_name($type . "_flag", ["clinical_plans"]) . "= ? WHERE id = ? AND pid = ?";
     sqlStatementCdrEngine($query, [$setting,$plan,$patient_id]);
 }
 
@@ -2290,7 +2290,7 @@ function set_rule_activity_patient($rule, $type, $setting, $patient_id): void
     }
 
   // Update patient specific row
-    $query = "UPDATE `clinical_rules` SET `" . escape_sql_column_name($type . "_flag", ["clinical_rules"]) . "`= ?, `access_control` = ? WHERE id = ? AND pid = ?";
+    $query = "UPDATE `clinical_rules` SET " . escape_sql_column_name($type . "_flag", ["clinical_rules"]) . "= ?, `access_control` = ? WHERE id = ? AND pid = ?";
     sqlStatementCdrEngine($query, [$setting,$patient_rule_original['access_control'],$rule,$patient_id]);
 }
 
@@ -2735,12 +2735,12 @@ function exist_database_item($patient_id, $table, ?string $column = null, $data_
             //To handle standard forms starting with form_
             //In this case, we are assuming the date field is "date"
             $sql = sqlStatementCdrEngine(
-                "SELECT b.`" . escape_sql_column_name($column, [$table]) . "` " .
+                "SELECT b." . escape_sql_column_name($column, [$table]) . " " .
                 "FROM forms a " .
                 "LEFT JOIN `" . escape_table_name($table) . "` " . " b " .
                 "ON (a.form_id=b.id AND a.formdir LIKE '" . add_escape_custom(substr($table, 5)) . "') " .
                 "WHERE a.deleted != '1' " .
-                "AND b.`" . escape_sql_column_name($column, [$table]) . "`" . $compSql .
+                "AND b." . escape_sql_column_name($column, [$table]) . "" . $compSql .
                 "AND b." . add_escape_custom($patient_id_label) . "=? " . $customSQL
                 . str_replace("`date`", "b.`date`", $dateSql),
                 [$data, $patient_id]
@@ -2753,10 +2753,10 @@ function exist_database_item($patient_id, $table, ?string $column = null, $data_
             }
 
             // search for number of specific items
-            $sql = sqlStatementCdrEngine("SELECT `" . escape_sql_column_name($column, [$table]) . "` " .
+            $sql = sqlStatementCdrEngine("SELECT " . escape_sql_column_name($column, [$table]) . " " .
                 "FROM `" . escape_table_name($table) . "` " .
                 " " . $whereTables . " " .
-                "WHERE `" . escape_sql_column_name($column, [$table]) . "`" . $compSql .
+                "WHERE " . escape_sql_column_name($column, [$table]) . "" . $compSql .
                 "AND " . add_escape_custom($patient_id_label) . "=? " . $customSQL .
                 $dateSql, [$data, $patient_id]);
         }

@@ -291,4 +291,5 @@ $graph_build['title'] = $titleGraph;
 // Note need to also use " when building the $data_final rather
 // than ' , or else JSON_UNESCAPED_SLASHES doesn't work and \n and
 // \t get escaped.
+header('Content-Type: application/json');
 echo json_encode($graph_build, JSON_UNESCAPED_SLASHES);
