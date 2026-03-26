@@ -217,10 +217,14 @@ if (!empty($prefs['ME_username'])) {
         <div style="font-size: 3rem; font-weight: 800; color: var(--medex-blue); margin-bottom: 16px;">
             MedEx
         </div>
-        <h1><?php echo xlt("Elevate Your Practice Communication"); ?></h1>
+        <h1><?php echo xlt("Production-Only MedEx Onboarding"); ?></h1>
         <p class="subtitle">
-            <?php echo xlt("MedEx provides comprehensive patient communication and practice management tools integrated directly with OpenEMR. Reduce no-shows, improve collections, and engage your patients across every channel."); ?>
+            <?php echo xlt("MedEx is a SaaS platform for live clinical operations. Test/demo environments and private callback endpoints are routed to manual review, not instant activation."); ?>
         </p>
+        <div style="max-width: 760px; margin: 0 auto 24px; text-align: left; background:#fff7ed; border:1px solid #fed7aa; color:#9a3412; border-radius:10px; padding:14px 16px;">
+            <strong><i class="fa fa-shield"></i> <?php echo xlt("Before you continue"); ?>:</strong>
+            <div style="margin-top:8px;"><?php echo xlt("Use a production email, public HTTPS callback URL, and verify providers/facilities/insurance are configured."); ?></div>
+        </div>
         <div class="cta-container">
             <?php if ($existingEmail): ?>
                 <a href="reconnect.php" class="btn-get-started">

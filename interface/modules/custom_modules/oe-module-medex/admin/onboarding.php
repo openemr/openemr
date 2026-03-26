@@ -146,6 +146,12 @@ if ($step > 1 && !$api->isConfigured()) {
                            required>
                     <small style="color:#64748b;"><?php echo xlt("Production HTTPS endpoint required for auto-approval."); ?></small>
                 </div>
+                <div class="form-group">
+                    <label style="font-weight:600;">
+                        <input type="checkbox" id="production_confirm" name="production_confirm" value="1" required>
+                        <?php echo xlt("This is a production-ready deployment (not a test/demo sandbox)"); ?>
+                    </label>
+                </div>
                 <div style="margin-top: 30px; text-align: right;">
                     <button type="button" class="btn btn-primary" onclick="submitStep1()"><?php echo xlt("Next: Configure Services"); ?> <i class="fa fa-arrow-right"></i></button>
                 </div>
@@ -369,6 +375,7 @@ if ($step > 1 && !$api->isConfigured()) {
             const password = $("#password").val();
             const rpassword = $("#rpassword").val();
             const callbackUrl = $("#callback_url").val();
+            const productionConfirm = $("#production_confirm").is(':checked');
 
             if (!email || !password || !callbackUrl) {
                 alert("Please fill all required fields");
@@ -382,6 +389,10 @@ if ($step > 1 && !$api->isConfigured()) {
                 alert("Callback URL must use HTTPS");
                 return;
             }
+            if (!productionConfirm) {
+                alert("Production verification confirmation is required");
+                return;
+            }
 
             $("#result").html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Registering...</div>');
 
@@ -392,7 +403,8 @@ if ($step > 1 && !$api->isConfigured()) {
                     csrf_token_form: $('input[name="csrf_token_form"]').val(),
                     email: email,
                     password: password,
-                    callback_url: callbackUrl
+                    callback_url: callbackUrl,
+                    production_confirm: '1'
                 },
                 dataType: 'json',
                 success: function(response) {

@@ -197,6 +197,10 @@ if (!empty($callbackToken) && !empty($_SERVER['HTTP_HOST'])) {
             <h2><?php echo xlt("Welcome to MedEx"); ?></h2>
 
             <div class="jumbotron">
+                <div class="alert alert-warning">
+                    <strong><i class="fa fa-shield"></i> <?php echo xlt("Production Verification Required"); ?>:</strong><br>
+                    <?php echo xlt("MedEx is a SaaS service for live practices. Public HTTPS callback URL and production readiness are required for activation."); ?>
+                </div>
                 <p style="font-size: 16px; line-height: 1.6; text-align: center;">
                     <?php echo xlt("MedEx provides comprehensive patient communication and practice management tools integrated directly with OpenEMR"); ?>.
                 </p>
@@ -346,6 +350,13 @@ if (!empty($callbackToken) && !empty($_SERVER['HTTP_HOST'])) {
                         </label>
                     </div>
 
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="Production_yes" name="Production_yes" required />
+                        <label for="Production_yes">
+                            <?php echo xlt('I confirm this is a production-ready deployment with a publicly reachable HTTPS callback endpoint'); ?>.
+                        </label>
+                    </div>
+
                     <div class="text-center" style="margin-top: 30px;">
                         <button type="button" id="Register" class="btn btn-primary" onclick="signUp();">
                             <i class="fa fa-user-plus"></i> <?php echo xlt('Register'); ?>
@@ -479,6 +490,12 @@ if (!empty($callbackToken) && !empty($_SERVER['HTTP_HOST'])) {
             return false;
         }
 
+        // Check production confirmation
+        if (!$("#Production_yes").is(':checked')) {
+            $("#result").html('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> <?php echo xlt('Production verification confirmation is required'); ?>...</div>');
+            return false;
+        }
+
         // Check callback URL
         var callbackUrl = $("#callback_url").val();
         if (!callbackUrl || !callbackUrl.startsWith('https://')) {
@@ -496,7 +513,8 @@ if (!empty($callbackToken) && !empty($_SERVER['HTTP_HOST'])) {
                 csrf_token_form: $('input[name="csrf_token_form"]').val(),
                 email: email,
                 password: password,
-                callback_url: callbackUrl
+                callback_url: callbackUrl,
+                production_confirm: '1'
             },
             dataType: 'json',
             success: function(response) {

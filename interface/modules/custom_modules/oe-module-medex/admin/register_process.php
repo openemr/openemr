@@ -70,12 +70,16 @@ try {
     require_once(__DIR__ . '/../src/Services/PracticeService.php');
 
     // Validate required fields (only email and password - practice details come from facility sync)
-    $required = ['email', 'password', 'callback_url'];
+    $required = ['email', 'password', 'callback_url', 'production_confirm'];
     foreach ($required as $field) {
         if (empty($_POST[$field])) {
             echo json_encode(['success' => false, 'error' => "Missing required field: {$field}"]);
             exit;
         }
+    }
+    if ((string)($_POST['production_confirm'] ?? '') !== '1') {
+        echo json_encode(['success' => false, 'error' => 'Production verification confirmation is required']);
+        exit;
     }
 
     [$callbackOk, $callbackErr] = medexValidateCallbackUrl((string)($_POST['callback_url'] ?? ''));
