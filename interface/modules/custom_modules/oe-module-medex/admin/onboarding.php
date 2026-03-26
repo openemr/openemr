@@ -125,7 +125,7 @@ if ($step > 1 && !$api->isConfigured()) {
         <?php if ($step == 1): ?>
             <!-- Step 1: Account Registration -->
             <form id="form-step-1">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                 <div class="form-group">
                     <label for="email"><?php echo xlt("Administrator E-mail"); ?></label>
                     <input type="email" id="email" name="email" class="form-control" placeholder="admin@practice.com" required>
@@ -160,7 +160,7 @@ if ($step > 1 && !$api->isConfigured()) {
         <?php elseif ($step == 2): ?>
             <!-- Step 2: Service Configuration -->
             <form id="form-step-2">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
                 <p><?php echo xlt("Select the services you wish to enable for your practice. You can start with a trial for any provider-based service."); ?></p>
 
@@ -335,7 +335,7 @@ if ($step > 1 && !$api->isConfigured()) {
                 <div style="margin: 30px 0;">
                     <h4><?php echo xlt("Payment Information"); ?></h4>
                     <form id="payment-form">
-                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+                        <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
                         <div class="form-group">
                             <label for="cardholder-name"><?php echo xlt("Cardholder Name"); ?></label>
                             <input type="text" id="cardholder-name" class="form-control" required>
