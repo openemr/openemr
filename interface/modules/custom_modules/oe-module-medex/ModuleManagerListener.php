@@ -100,7 +100,7 @@ class ModuleManagerListener extends AbstractModuleActionListener
         $modUiActive = (int)($row['mod_ui_active'] ?? 0);
 
         $webroot = $GLOBALS['webroot'] ?? '';
-        $helpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/public/help.php';
+        $helpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/help.php?site=default';
         $setupUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/admin/splash.php?minimal=1&site=default';
 
         $primaryLabel = 'Open Help';
@@ -112,7 +112,7 @@ class ModuleManagerListener extends AbstractModuleActionListener
             $stateLabel = 'Not Installed';
             $hint = 'Install the module first, then continue setup.';
             $primaryLabel = 'Install Module';
-            $primaryAction = "if (typeof window.top.manage === 'function') { window.top.manage('{$modId}', 'install'); }";
+            $primaryAction = "if (typeof window.manage === 'function') { window.manage('{$modId}', 'install'); } else if (window.top && typeof window.top.manage === 'function') { window.top.manage('{$modId}', 'install'); }";
         } elseif ($modActive === 0) {
             $stateLabel = 'Installed, Not Enabled';
             $hint = 'Enable module and complete onboarding.';
