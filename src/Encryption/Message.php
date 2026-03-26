@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Encryption;
 
+use DomainException;
 use UnexpectedValueException;
 
 final readonly class Message
@@ -25,22 +26,27 @@ final readonly class Message
 
     public static function parse(string $encodedMessage): Message
     {
-        if (strlen($encodedMessage) < 3) {
-            throw new UnexpectedValueException('Message is missing expected prefix');
-        }
-        $format = MessageFormat::from(intval(substr($encodedMessage, 0, 3)));
+        $format = MessageFormat::detect($encodedMessage);
 
-        // Backwards compatibility: versions 1-7 coupled the data storage with
-        // the key version.
-        $keyId = match ($format) {
-            MessageFormat::v1 => 'one',
-            MessageFormat::v2, // Intentional: v3 uses key id 'two' for historic reasons
-            MessageFormat::v3 => 'two',
-            MessageFormat::v4 => 'four',
-            MessageFormat::v5 => 'five',
-            MessageFormat::v6 => 'six',
-            MessageFormat::v7 => 'seven',
-            // v8 will look at the message for more keyId info
+        return match ($format) {
+            MessageFormat::Legacy => self::parseLegacy($encodedMessage),
+        };
+    }
+
+    // Backwards compatibility: versions 1-7 coupled the data storage with
+    // the key version.
+    private static function parseLegacy(string $encodedMessage): Message
+    {
+        assert(strlen($encodedMessage) >= 3);
+        $keyNumber = substr($encodedMessage, 0, 3);
+        $keyId = match ($keyNumber) {
+            '001' => 'one',
+            '002', '003' => 'two', // Intentional: v3 uses key id 'two' for historic reasons
+            '004' => 'four',
+            '005' => 'five',
+            '006' => 'six',
+            '007' => 'seven',
+            default => throw new DomainException('Invalid prefix in legacy key parsing'),
         };
 
         $ciphertext = base64_decode(substr($encodedMessage, 3), strict: true);
@@ -49,7 +55,7 @@ final readonly class Message
         }
 
         return new Message(
-            format: $format,
+            format: MessageFormat::Legacy,
             keyId: new Keys\Id($keyId),
             ciphertext: new Ciphertext($ciphertext),
         );
@@ -57,7 +63,17 @@ final readonly class Message
 
     public function encode(): string
     {
-        $prefix = sprintf('%03d', $this->format->value);
+        // Future guard: once >1 MessageFormat, switch encoder
+        $prefix = match ($this->keyId->id) {
+            'one' => '001',
+            'two' => '002',
+            'four' => '004',
+            'five' => '005',
+            'six' => '006',
+            'seven' => '007',
+            // default => throw 
+        };
+        // $prefix = sprintf('%03d', $this->format->value);
 
         // if format encodes key id properly, add that in (new path?)
 
