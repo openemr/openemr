@@ -9,9 +9,9 @@ use UnexpectedValueException;
 final readonly class Message
 {
     public function __construct(
-        public MessageFormat $format,
         public Keys\Id $keyId,
         public Ciphertext $ciphertext,
+        public MessageFormat $format = MessageFormat::LATEST,
     ) {
     }
 

@@ -17,7 +17,6 @@ final readonly class BCCrypto implements CryptoInterface
         private Keys\KeychainInterface $keychain,
         private LoggerInterface $logger,
         private Keys\Id $currentKeyId,
-        private MessageFormat $format = MessageFormat::v7,
     ) {
     }
 
@@ -31,7 +30,6 @@ final readonly class BCCrypto implements CryptoInterface
             $keychain,
             $logger,
             new Keys\Id(KeyVersion::CURRENT->toString()),
-            MessageFormat::v7,
         );
     }
 
@@ -46,7 +44,10 @@ final readonly class BCCrypto implements CryptoInterface
 
         $wrapped = new Plaintext($value);
         $ciphertext = $cipher->encrypt($wrapped);
-        return (new Message($this->format, $this->currentKeyId, $ciphertext))->encode();
+        return (new Message(
+            keyId: $this->currentKeyId,
+            ciphertext: $ciphertext,
+        ))->encode();
     }
 
     public function decryptStandard(?string $value, KeySource $keySource = KeySource::Drive, ?int $minimumVersion = null): false|string

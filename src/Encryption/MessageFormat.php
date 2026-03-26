@@ -18,4 +18,5 @@ enum MessageFormat: int
     // Future: v8 will allow for actual key versioning without additional code
     // changes. It will get different handling in Message.
 
+    const LATEST = self::v7;
 }

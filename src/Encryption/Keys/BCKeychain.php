@@ -83,8 +83,14 @@ class BCKeychain
                 $encDriveKey = $dbCipher->encrypt(new Plaintext($driveKey->key));
                 $encDriveHmacKey = $dbCipher->encrypt(new Plaintext($driveHmacKey->key));
 
-                $driveKeyMessage = new Message(MessageFormat::v7, new Id('sevena'), $encDriveKey);
-                $driveHmacKeyMessage = new Message(MessageFormat::v7, new Id('sevenb'), $encDriveHmacKey);
+                $driveKeyMessage = new Message(
+                    keyId: new Id('sevena'),
+                    ciphertext: $encDriveKey,
+                );
+                $driveHmacKeyMessage = new Message(
+                    keyId: new Id('sevenb'),
+                    ciphertext: $encDriveHmacKey,
+                );
 
                 file_put_contents("$storageDir/sevena", $driveKeyMessage->encode());
                 file_put_contents("$storageDir/sevenb", $driveHmacKeyMessage->encode());
