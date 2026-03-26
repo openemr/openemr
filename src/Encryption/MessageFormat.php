@@ -17,11 +17,11 @@ use UnexpectedValueException;
 enum MessageFormat
 {
     // Existing format as of March 2026: the "format" id is also a key id
-    case Legacy;
-    // Future: v8 will allow for actual key versioning without additional code
-    // changes. It will get different handling in Message.
+    case ImplicitKey;
+    // "Modern" format: explcitly indicate the key id
+    case ExplicitKey;
 
-    const LATEST = self::Legacy;
+    const LATEST = self::ImplicitKey;
 
     // This is effectively BackedEnum's `::from`, rejiggered in
     // a backwards-compatible way
@@ -32,7 +32,7 @@ enum MessageFormat
         }
         $prefix = substr($message, 0, 3);
         return match ($prefix) {
-            '001', '002', '003', '004', '005', '006', '007' => self::Legacy,
+            '001', '002', '003', '004', '005', '006', '007' => self::ImplicitKey,
             // 008: modern
             default => throw new UnexpectedValueException(''),
             // default: plaintext?

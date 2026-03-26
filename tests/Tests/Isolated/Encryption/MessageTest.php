@@ -87,7 +87,7 @@ class MessageTest extends TestCase
         $data = $this->fixtures->getCiphertext($version);
         $message = Message::parse($data);
 
-        self::assertSame(MessageFormat::Legacy, $message->format);
+        self::assertSame(MessageFormat::ImplicitKey, $message->format);
         self::assertSame($expectedKeyId, $message->keyId->id);
         self::assertSame($data, $message->encode(), 'Roundtrip encoding failed');
     }
@@ -96,9 +96,9 @@ class MessageTest extends TestCase
     {
         $keyId = new Id('four');
         $ciphertext = new Ciphertext('test data');
-        $message = new Message($keyId, $ciphertext, MessageFormat::Legacy);
+        $message = new Message($keyId, $ciphertext, MessageFormat::ImplicitKey);
 
-        self::assertSame(MessageFormat::Legacy, $message->format);
+        self::assertSame(MessageFormat::ImplicitKey, $message->format);
         self::assertStringStartsWith('004', $message->encode());
     }
 

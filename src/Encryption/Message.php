@@ -29,13 +29,13 @@ final readonly class Message
         $format = MessageFormat::detect($encodedMessage);
 
         return match ($format) {
-            MessageFormat::Legacy => self::parseLegacy($encodedMessage),
+            MessageFormat::ImplicitKey => self::parseImplicitKey($encodedMessage),
         };
     }
 
     // Backwards compatibility: versions 1-7 coupled the data storage with
     // the key version.
-    private static function parseLegacy(string $encodedMessage): Message
+    private static function parseImplicitKey(string $encodedMessage): Message
     {
         assert(strlen($encodedMessage) >= 3);
         $keyNumber = substr($encodedMessage, 0, 3);
@@ -46,7 +46,7 @@ final readonly class Message
             '005' => 'five',
             '006' => 'six',
             '007' => 'seven',
-            default => throw new DomainException('Invalid prefix in legacy key parsing'),
+            default => throw new DomainException('Invalid prefix in implicit key parsing'),
         };
 
         $ciphertext = base64_decode(substr($encodedMessage, 3), strict: true);
@@ -55,7 +55,7 @@ final readonly class Message
         }
 
         return new Message(
-            format: MessageFormat::Legacy,
+            format: MessageFormat::ImplicitKey,
             keyId: new Keys\Id($keyId),
             ciphertext: new Ciphertext($ciphertext),
         );
