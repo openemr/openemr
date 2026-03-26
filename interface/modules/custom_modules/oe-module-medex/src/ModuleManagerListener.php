@@ -270,6 +270,13 @@ HTML;
                 `status` text DEFAULT NULL,
                 `bad_actor_until` timestamp NULL DEFAULT NULL,
                 `bad_actor_message` varchar(500) DEFAULT NULL,
+                `terms_version` varchar(32) DEFAULT NULL,
+                `terms_accepted_at` datetime DEFAULT NULL,
+                `terms_accepted_ip` varchar(45) DEFAULT NULL,
+                `baa_version` varchar(32) DEFAULT NULL,
+                `baa_accepted_at` datetime DEFAULT NULL,
+                `baa_accepted_ip` varchar(45) DEFAULT NULL,
+                `agreement_user_agent` varchar(255) DEFAULT NULL,
                 PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
         ");
@@ -353,6 +360,34 @@ HTML;
         );
         QueryUtils::sqlStatementThrowException(
             "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `ME_server_url` varchar(255) DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `terms_version` varchar(32) DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `terms_accepted_at` datetime DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `terms_accepted_ip` varchar(45) DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `baa_version` varchar(32) DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `baa_accepted_at` datetime DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `baa_accepted_ip` varchar(45) DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `agreement_user_agent` varchar(255) DEFAULT NULL",
             []
         );
         QueryUtils::sqlStatementThrowException(

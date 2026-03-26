@@ -14,6 +14,8 @@ require_once(__DIR__ . "/../../../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Modules\MedEx\MedExConfig;
 
 function medexIsPrivateHost(string $host): bool
 {
@@ -47,6 +49,27 @@ function medexValidateCallbackUrl(string $url): array
         return [false, 'Callback URL cannot be a private or local host'];
     }
     return [true, 'ok'];
+}
+
+function medexEnsureAgreementColumns(): void
+{
+    $alterStatements = [
+        "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `terms_version` varchar(32) DEFAULT NULL",
+        "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `terms_accepted_at` datetime DEFAULT NULL",
+        "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `terms_accepted_ip` varchar(45) DEFAULT NULL",
+        "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `baa_version` varchar(32) DEFAULT NULL",
+        "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `baa_accepted_at` datetime DEFAULT NULL",
+        "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `baa_accepted_ip` varchar(45) DEFAULT NULL",
+        "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `agreement_user_agent` varchar(255) DEFAULT NULL",
+    ];
+
+    foreach ($alterStatements as $sql) {
+        try {
+            QueryUtils::sqlStatementThrowException($sql, []);
+        } catch (\Throwable $e) {
+            error_log('[MedEx] agreement schema update skipped: ' . $e->getMessage());
+        }
+    }
 }
 
 // Set JSON response header
@@ -89,6 +112,16 @@ try {
         echo json_encode(['success' => false, 'error' => 'You must agree to the HIPAA Business Associate Agreement before signing up']);
         exit;
     }
+    $termsVersion = trim((string)($_POST['terms_version'] ?? MedExConfig::TERMS_VERSION));
+    $baaVersion = trim((string)($_POST['baa_version'] ?? MedExConfig::BAA_VERSION));
+    if ($termsVersion === '' || $termsVersion !== MedExConfig::TERMS_VERSION) {
+        echo json_encode(['success' => false, 'error' => 'Terms and Conditions version mismatch. Refresh and review current Terms.']);
+        exit;
+    }
+    if ($baaVersion === '' || $baaVersion !== MedExConfig::BAA_VERSION) {
+        echo json_encode(['success' => false, 'error' => 'Business Associate Agreement version mismatch. Refresh and review current BAA.']);
+        exit;
+    }
 
     [$callbackOk, $callbackErr] = medexValidateCallbackUrl((string)($_POST['callback_url'] ?? ''));
     if (!$callbackOk) {
@@ -116,6 +149,9 @@ $providerCountRow = sqlQuery("SELECT COUNT(*) AS c FROM users WHERE authorized =
 $facilityCountRow = sqlQuery("SELECT COUNT(*) AS c FROM facility WHERE service_location = 1");
 $insuranceCountRow = sqlQuery("SELECT COUNT(*) AS c FROM insurance_companies");
 $siteUrl = 'https://' . ($_SERVER['HTTP_HOST'] ?? ($_SERVER['SERVER_NAME'] ?? ''));
+$requestIp = trim((string)($_SERVER['REMOTE_ADDR'] ?? ''));
+$requestUserAgent = substr(trim((string)($_SERVER['HTTP_USER_AGENT'] ?? '')), 0, 255);
+$acceptedAtUtc = gmdate('Y-m-d H:i:s');
 
 // Prepare registration data
 $data = [
@@ -135,7 +171,14 @@ $data = [
     'facility_count' => (int)($facilityCountRow['c'] ?? 0),
     'insurance_count' => (int)($insuranceCountRow['c'] ?? 0),
     'ehr' => 'OpenEMR',
-    'ehr_version' => $GLOBALS['v_major'] . '.' . $GLOBALS['v_minor'] . '.' . $GLOBALS['v_patch']
+    'ehr_version' => $GLOBALS['v_major'] . '.' . $GLOBALS['v_minor'] . '.' . $GLOBALS['v_patch'],
+    'terms_accepted' => true,
+    'terms_version' => $termsVersion,
+    'terms_accepted_at_utc' => $acceptedAtUtc,
+    'baa_accepted' => true,
+    'baa_version' => $baaVersion,
+    'baa_accepted_at_utc' => $acceptedAtUtc,
+    'agreement_ip' => $requestIp
 ];
 
 // Attempt registration
@@ -143,6 +186,8 @@ $result = $api->register($data);
 
 // If registration successful, perform initial practice sync
 if (!empty($result['success'])) {
+    medexEnsureAgreementColumns();
+
     // Pre-fetch and DB-cache pricing immediately so the Services tab never hits the server on first open.
     // This is a fire-and-forget; failure is non-fatal — getPricing() has built-in defaults.
     try {
@@ -181,11 +226,25 @@ if (!empty($result['success'])) {
         "UPDATE medex_prefs SET
             ME_facilities = ?,
             ME_providers = ?,
+            terms_version = ?,
+            terms_accepted_at = ?,
+            terms_accepted_ip = ?,
+            baa_version = ?,
+            baa_accepted_at = ?,
+            baa_accepted_ip = ?,
+            agreement_user_agent = ?,
             MedEx_lastupdated = NOW()
          WHERE ME_username = ?",
         [
             !empty($facility_ids) ? implode('|', $facility_ids) : '',
             !empty($provider_ids) ? implode('|', $provider_ids) : '',
+            $termsVersion,
+            $acceptedAtUtc,
+            $requestIp,
+            $baaVersion,
+            $acceptedAtUtc,
+            $requestIp,
+            $requestUserAgent,
             $data['email']
         ]
     );

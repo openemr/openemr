@@ -18,6 +18,7 @@ require_once(__DIR__ . "/../../../../globals.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Core\Header;
+use OpenEMR\Modules\MedEx\MedExConfig;
 
 // Check admin access
 if (!AclMain::aclCheckCore('admin', 'super')) {
@@ -29,6 +30,10 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 require_once(__DIR__ . '/../src/MedExAPI.php');
 $api = new \OpenEMR\Modules\MedEx\MedExAPI();
 $step = $_GET['step'] ?? '1';
+$termsVersion = MedExConfig::TERMS_VERSION;
+$baaVersion = MedExConfig::BAA_VERSION;
+$termsUrl = MedExConfig::termsUrl();
+$baaUrl = MedExConfig::baaUrl();
 $callbackTokenRow = \OpenEMR\Common\Database\QueryUtils::querySingleRow("SELECT gl_value FROM globals WHERE gl_name = 'medex_callback_token' LIMIT 1", []);
 $callbackToken = trim($callbackTokenRow['gl_value'] ?? '');
 $defaultCallbackUrl = '';
@@ -156,18 +161,20 @@ if ($step > 1 && !$api->isConfigured()) {
                     <label style="font-weight:600;">
                         <input type="checkbox" id="TERMS_yes" name="TERMS_yes" value="1" required>
                         <?php echo xlt("I have read and my practice agrees to the"); ?>
-                        <a href="#" onclick="window.open('<?php echo \OpenEMR\Modules\MedEx\MedExConfig::publicBaseUrl(); ?>/index.php?route=information/information&information_id=5','TERMS',800,600); return false;">
+                        <a href="#" onclick="window.open('<?php echo attr_js($termsUrl); ?>','TERMS',800,600); return false;">
                             <?php echo xlt("MedEx Terms and Conditions"); ?>
                         </a>
+                        (<?php echo xlt("Version"); ?> <?php echo text($termsVersion); ?>)
                     </label>
                 </div>
                 <div class="form-group">
                     <label style="font-weight:600;">
                         <input type="checkbox" id="BusAgree_yes" name="BusAgree_yes" value="1" required>
                         <?php echo xlt("I have read and accept the"); ?>
-                        <a href="#" onclick="window.open('<?php echo \OpenEMR\Modules\MedEx\MedExConfig::publicBaseUrl(); ?>/index.php?route=information/information&information_id=8','BusAssocAgree',800,600); return false;">
+                        <a href="#" onclick="window.open('<?php echo attr_js($baaUrl); ?>','BusAssocAgree',800,600); return false;">
                             <?php echo xlt("MedEx Business Associate Agreement (BAA)"); ?>
                         </a>
+                        (<?php echo xlt("Version"); ?> <?php echo text($baaVersion); ?>)
                     </label>
                 </div>
                 <div style="margin-top: 30px; text-align: right;">
@@ -434,7 +441,9 @@ if ($step > 1 && !$api->isConfigured()) {
                     callback_url: callbackUrl,
                     production_confirm: '1',
                     TERMS_yes: '1',
-                    BusAgree_yes: '1'
+                    BusAgree_yes: '1',
+                    terms_version: '<?php echo attr_js($termsVersion); ?>',
+                    baa_version: '<?php echo attr_js($baaVersion); ?>'
                 },
                 dataType: 'json',
                 success: function(response) {

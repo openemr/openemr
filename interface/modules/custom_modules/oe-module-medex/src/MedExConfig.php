@@ -37,6 +37,8 @@ class MedExConfig
 
     /** Root of the API server (no /cart/upload path) — for customer-facing pages, tutorial, etc. */
     public const DEFAULT_MAIN_URL = 'https://medexbank.com';
+    public const TERMS_VERSION = '2026-03-26';
+    public const BAA_VERSION = '2026-03-26';
 
     /**
      * Returns the active MedEx base URL (includes /cart/upload path).
@@ -106,6 +108,16 @@ class MedExConfig
     public static function tutorialUrl(): string
     {
         return self::mainSiteUrl() . '/help/tutorial.html';
+    }
+
+    public static function termsUrl(): string
+    {
+        return self::publicBaseUrl() . '/index.php?route=information/information&information_id=5';
+    }
+
+    public static function baaUrl(): string
+    {
+        return self::publicBaseUrl() . '/index.php?route=information/information&information_id=8';
     }
 
     // Service feature flags
