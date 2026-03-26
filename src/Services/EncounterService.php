@@ -559,13 +559,20 @@ class EncounterService extends BaseService
 
     public function updateVital($pid, $eid, $vid, $data)
     {
+        // Verify the vital belongs to this patient/encounter before updating
+        // to prevent IDOR attacks where an attacker supplies another patient's vid.
+        $vitalsService = new VitalsService();
+        $existingVital = $vitalsService->getVitalsForForm($vid);
+        if (empty($existingVital) || $existingVital['pid'] != $pid || $existingVital['eid'] != $eid) {
+            return null;
+        }
+
         $data['date'] = date("Y-m-d H:i:s");
         $data['activity'] = 1;
         $data['id'] = $vid;
         $data['pid'] = $pid;
         $data['eid'] = $eid;
 
-        $vitalsService = new VitalsService();
         $updatedRecords = $vitalsService->save($data);
         return $updatedRecords;
     }

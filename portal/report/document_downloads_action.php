@@ -15,13 +15,13 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . "/../../vendor/autoload.php");
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $globalsBag = OEGlobalsBag::getInstance();
 require_once("../verify_session.php");
 require_once("{$globalsBag->getString('srcdir')}/documents.php");
 require_once("{$globalsBag->getString('fileroot')}/controllers/C_Document.class.php");
 
-if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', 'default', $session->getSymfonySession())) {
+if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 

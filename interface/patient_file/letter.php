@@ -22,7 +22,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // Set up crypto object
 $cryptoGen = ServiceContainer::getCrypto();
@@ -30,13 +30,13 @@ $cryptoGen = ServiceContainer::getCrypto();
 $template_dir = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/documents/letter_templates";
 
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
 
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], 'default', $session->getSymfonySession())) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -219,7 +219,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
     <div class='paddingdiv'>
         <?php echo $cpstring; ?>
         <div class="navigate">
-    <a href='<?php echo OEGlobalsBag::getInstance()->get('rootdir') . '/patient_file/letter.php?template=autosaved&csrf_token_form=' . attr_url(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
+    <a href='<?php echo OEGlobalsBag::getInstance()->get('rootdir') . '/patient_file/letter.php?template=autosaved&csrf_token_form=' . CsrfUtils::collectCsrfToken(session: $session); ?>' onclick='top.restoreSession()'>(<?php echo xlt('Back'); ?>)</a>
     </div>
     <script>
     window.print();
@@ -302,14 +302,15 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         die(xlt("Requested template does not exist"));
     }
 
+    $bodytext = "";
     while (!feof($fh)) {
-        $bodytext = fread($fh, 8192);
+        $bodytext .= fread($fh, 8192);
     }
 
     fclose($fh);
 
     if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = $cryptoGen->decryptStandard($bodytext, keySource: KeySource::Database);
+        $bodytext = (string) $cryptoGen->decryptStandard($bodytext, keySource: KeySource::Database);
     }
 
     // translate from constant to the definition
@@ -343,14 +344,15 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "generate")) {
         die(xlt("Requested template does not exist"));
     }
 
+    $bodytext = "";
     while (!feof($fh)) {
-        $bodytext = fread($fh, 8192);
+        $bodytext .= fread($fh, 8192);
     }
 
     fclose($fh);
 
     if ($cryptoGen->cryptCheckStandard($bodytext)) {
-        $bodytext = $cryptoGen->decryptStandard($bodytext, keySource: KeySource::Database);
+        $bodytext = (string) $cryptoGen->decryptStandard($bodytext, keySource: KeySource::Database);
     }
 
     // translate from constant to the definition
@@ -483,7 +485,7 @@ function insertAtCursor(myField, myValue) {
 <body class="body_top" onunload='imclosing()'>
 
 <form method='post' action='letter.php' id="theform" name="theform" onsubmit="return top.restoreSession()">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <input type="hidden" name="formaction" id="formaction" value="">
 <input type='hidden' name='form_pid' value='<?php echo attr($pid) ?>' />
 

@@ -20,15 +20,20 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 // Will start the (patient) portal OpenEMR session/cookie.
 // Need access to classes, so run autoloader now instead of in globals.php.
 require_once(__DIR__ . "/../../vendor/autoload.php");
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+// Every request writes session state (portal_init, whereto), so keep session writable
+// to avoid repeated reopen-write-close cycles from read_and_close mode.
+$sessionAllowWrite = true;
+SessionWrapperFactory::getInstance()->setSessionReadOnly(false);
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
+if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_two'))) {
     $pid = $session->get('pid');
     $ignoreAuth_onsite_portal = true;
     require_once(__DIR__ . "/../../interface/globals.php");
 } else {
-    SessionUtil::portalSessionCookieDestroy();
+    SessionWrapperFactory::getInstance()->destroyPortalSession();
     $ignoreAuth = false;
+    $session = SessionWrapperFactory::getInstance()->getCoreSession();
     require_once(__DIR__ . "/../../interface/globals.php");
     if (!$session->has('authUserID')) {
         $landingpage = "index.php";
@@ -40,14 +45,14 @@ if ($session->isSymfonySession() && !empty($session->get('pid')) && !empty($sess
 require_once("./appsql.class.php");
 
 if ($session->get('portal_init') !== true) {
-    $session->set('whereto', '#paymentcard');
+    SessionUtil::setSession('whereto', '#paymentcard');
 }
 
-$session->set('portal_init', false);
+SessionUtil::setSession('portal_init', false);
 
 if ($_POST['mode'] == 'Sphere') {
     $cryptoGen = ServiceContainer::getCrypto();
-    $dataTrans = $cryptoGen->decryptStandard($_POST['enc_data']);
+    $dataTrans = $cryptoGen->decryptStandard(is_string($_POST['enc_data']) ? $_POST['enc_data'] : null);
     $dataTrans = json_decode($dataTrans, true);
 
     $form_pid = $dataTrans['get']['patient_id_cc'];
@@ -63,7 +68,7 @@ if ($_POST['mode'] == 'Sphere') {
     $ccaudit = json_encode($cc);
     $invoice = $_POST['invValues'] ?? '';
 
-    $session->set('whereto', '#paymentcard');
+    SessionUtil::setSession('whereto', '#paymentcard');
 
     SaveAudit($form_pid, $invoice, $ccaudit);
 
@@ -98,7 +103,7 @@ if ($_POST['mode'] == 'AuthorizeNet') {
         return $ex->getMessage();
     }
 
-    $session->set('whereto', '#paymentcard');
+    SessionUtil::setSession('whereto', '#paymentcard');
     if (!$response->isSuccessful()) {
         echo $response;
         exit();
@@ -135,7 +140,7 @@ if ($_POST['mode'] == 'Stripe') {
         echo $ex->getMessage();
     }
 
-    $session->set('whereto', '#paymentcard');
+    SessionUtil::setSession('whereto', '#paymentcard');
     if (!$response->isSuccessful()) {
         echo $response;
         exit();
@@ -192,7 +197,7 @@ function SaveAudit($pid, $amts, $cc)
         $audit['action_user'] = "0";
         $audit['action_taken_time'] = "";
         $cryptoGen = ServiceContainer::getCrypto();
-        $audit['checksum'] = $cryptoGen->encryptStandard($cc);
+        $audit['checksum'] = $cryptoGen->encryptStandard(is_string($cc) ? $cc : null);
 
         $edata = $appsql->getPortalAudit($pid, 'review', 'payment');
         $audit['date'] = $edata['date'];
@@ -210,7 +215,7 @@ function SaveAudit($pid, $amts, $cc)
 
 function CloseAudit($pid, $amts, $cc, $action = 'payment posted', $paction = 'notify patient')
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $appsql = new ApplicationTable();
     try {
         $audit = [];
@@ -226,7 +231,7 @@ function CloseAudit($pid, $amts, $cc, $action = 'payment posted', $paction = 'no
         $audit['action_user'] = $session->get('authUserID', "0");
         $audit['action_taken_time'] = date("Y-m-d H:i:s");
         $cryptoGen = ServiceContainer::getCrypto();
-        $audit['checksum'] = $cryptoGen->encryptStandard($cc);
+        $audit['checksum'] = $cryptoGen->encryptStandard(is_string($cc) ? $cc : null);
 
         $edata = $appsql->getPortalAudit($pid, 'review', 'payment');
         $audit['date'] = $edata['date'];

@@ -38,7 +38,7 @@ class SMARTAuthorizationControllerTest extends TestCase
     private function getDefaultSMARTAuthorizationController(SessionInterface $session, HttpRestRequest $request)
     {
         CsrfUtils::setupCsrfKey($session);
-        $request->request->set("csrf_token", CsrfUtils::collectCsrfToken("oauth2", $session)); // Simulate a CSRF token in the request
+        $request->request->set("csrf_token", CsrfUtils::collectCsrfToken($session, "oauth2")); // Simulate a CSRF token in the request
         $session->set("user_id", 1); // Simulate a user ID being set in the session
         $mockLogger = $this->createMock(LoggerInterface::class);
         $kernel = $this->createMock(OEHttpKernel::class);
@@ -140,7 +140,7 @@ class SMARTAuthorizationControllerTest extends TestCase
 
         $session = $this->getMockSessionForRequest($request);
         CsrfUtils::setupCsrfKey($session);
-        $request->request->set("csrf_token", CsrfUtils::collectCsrfToken("oauth2", $session)); // Simulate a CSRF token in the request
+        $request->request->set("csrf_token", CsrfUtils::collectCsrfToken($session, "oauth2")); // Simulate a CSRF token in the request
         $session->set("user_id", 1); // Simulate a user ID being set in the session
         $mockLogger = $this->createMock(LoggerInterface::class);
 

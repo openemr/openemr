@@ -36,21 +36,20 @@ class OEGlobalsBagTypedGetterRule implements Rule
      */
     private const TYPE_TO_GETTER = [
         'bool' => ['getBoolean', 'boolean'],
-        // Uncomment these when the Rector rule is expanded to handle them:
-        // 'num' => ['getInt', 'integer'],
-        // 'hour' => ['getInt', 'integer'],
-        // 'text' => ['getString', 'string'],
-        // 'encrypted' => ['getString', 'string'],
-        // 'encrypted_hash' => ['getString', 'string'],
-        // 'color_code' => ['getString', 'string'],
-        // 'css' => ['getString', 'string'],
-        // 'tabs_css' => ['getString', 'string'],
-        // 'lang' => ['getString', 'string'],
-        // 'all_code_types' => ['getString', 'string'],
-        // 'default_visit_category' => ['getString', 'string'],
-        // 'if_empty_create_random_uuid' => ['getString', 'string'],
-        // 'm_lang' => ['getString', 'string'],
-        // 'm_dashboard_cards' => ['getString', 'string'],
+        'num' => ['getInt', 'integer'],
+        'hour' => ['getInt', 'integer'],
+        'text' => ['getString', 'string'],
+        'encrypted' => ['getString', 'string'],
+        'encrypted_hash' => ['getString', 'string'],
+        'color_code' => ['getString', 'string'],
+        'css' => ['getString', 'string'],
+        'tabs_css' => ['getString', 'string'],
+        'lang' => ['getString', 'string'],
+        'all_code_types' => ['getString', 'string'],
+        'default_visit_category' => ['getString', 'string'],
+        'if_empty_create_random_uuid' => ['getString', 'string'],
+        'm_lang' => ['getString', 'string'],
+        'm_dashboard_cards' => ['getString', 'string'],
     ];
 
     /**

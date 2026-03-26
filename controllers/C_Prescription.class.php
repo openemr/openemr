@@ -24,6 +24,7 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Forms\FormActionBarSettings;
 use OpenEMR\Common\Http\oeHttp;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Rx\RxList;
@@ -67,7 +68,8 @@ class C_Prescription extends Controller
         $this->assign("RXNORMS_AVAILABLE", !empty($rxn));
         $this->assign("RXCUI_AVAILABLE", !empty($rxcui));
         // Assign the CSRF_TOKEN_FORM
-        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken());
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken(session: $session));
 
         if (OEGlobalsBag::getInstance()->get('inhouse_pharmacy')) {
             // Make an array of drug IDs and selectors for the template.
@@ -149,19 +151,21 @@ class C_Prescription extends Controller
             $this->prescriptions[0]->set_patient_id($patient_id);
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+
         $urlCodes = $this->getCodeTypesService()->collectCodeTypes("diagnosis", "csv");
         $url = OEGlobalsBag::getInstance()->get('webroot') . '/interface/patient_file/encounter/select_codes.php?codetype=' . urlencode((string) $urlCodes);
         $this->assign('diagnosisCodes', $this->getDiagnosisCodesList($this->prescriptions[0]));
         $this->assign("addCodeUrl", $url);
 
-        $this->assign("GBL_CURRENCY_SYMBOL", OEGlobalsBag::getInstance()->get('gbl_currency_symbol'));
+        $this->assign("GBL_CURRENCY_SYMBOL", OEGlobalsBag::getInstance()->getString('gbl_currency_symbol'));
 
         // If quantity to dispense is not already set from a POST, set its
         // default value.
         if (! $this->getTemplateVars('DISP_QUANTITY')) {
             $this->assign('DISP_QUANTITY', $this->prescriptions[0]->quantity);
         }
-        $defaultEncounterId = $this->prescriptions[0]->get_encounter() ?? $_SESSION['encounter'] ?? '';
+        $defaultEncounterId = $this->prescriptions[0]->get_encounter() ?? $session->get('encounter') ?? '';
         $this->assign("defaultEncounterId", $defaultEncounterId);
 
         // Track whether this is a new prescription (no ID yet) - affects dispense behavior
@@ -198,7 +202,7 @@ class C_Prescription extends Controller
                 $nameList = [];
                 while ($name = sqlFetchArray($medList)) {
                     $drug = explode(" ", (string) $name['drug']);
-                    $rXn = sqlQuery("SELECT `rxcui` FROM `" . mitigateSqlTableUpperCase('RXNCONSO') . "` WHERE `str` LIKE ?", ["%" . $drug[0] . "%"]);
+                    $rXn = sqlQuery("SELECT `rxcui` FROM " . mitigateSqlTableUpperCase('RXNCONSO') . " WHERE `str` LIKE ?", ["%" . $drug[0] . "%"]);
                     $nameList[] = $rXn['rxcui'];
                 }
                 if (count($nameList) < 2) {
@@ -240,9 +244,9 @@ class C_Prescription extends Controller
         $vars['baseModDir'] = OEGlobalsBag::getInstance()->get('baseModDir') ?? '';
         $vars['zendModDir'] = OEGlobalsBag::getInstance()->get('zendModDir') ?? '';
         $vars['printm'] = null; // TODO: figure out where printm is used or defined
-        $vars['rx_zend_pdf_action'] = OEGlobalsBag::getInstance()->get('rx_zend_pdf_action') ?? '';
+        $vars['rx_zend_pdf_action'] = OEGlobalsBag::getInstance()->getString('rx_zend_pdf_action') ?? '';
         $vars['rx_zend_html_template'] = OEGlobalsBag::getInstance()->getBoolean('rx_zend_html_template');
-        $vars['rx_zend_html_action'] = OEGlobalsBag::getInstance()->get('rx_zend_pdf_action') ?? '';
+        $vars['rx_zend_html_action'] = OEGlobalsBag::getInstance()->getString('rx_zend_pdf_action') ?? '';
         $vars['rx_use_fax_template'] = OEGlobalsBag::getInstance()->getBoolean('rx_use_fax_template');
         $vars['rx_send_email'] = OEGlobalsBag::getInstance()->getBoolean('rx_send_email');
         $vars['faxSignatureMissing'] = false;
@@ -327,7 +331,7 @@ class C_Prescription extends Controller
         $this->prescriptions[0]->persist();
         $_POST['process'] = "";
 
-        $this->assign("GBL_CURRENCY_SYMBOL", OEGlobalsBag::getInstance()->get('gbl_currency_symbol'));
+        $this->assign("GBL_CURRENCY_SYMBOL", OEGlobalsBag::getInstance()->getString('gbl_currency_symbol'));
 
     // Set the AMC reporting flag (to record percentage of prescriptions that
     // are set as e-prescriptions)
@@ -660,7 +664,8 @@ class C_Prescription extends Controller
     function current_user_has_signature()
     {
         if (!empty($this->pconfig['signature'])) {
-            $sigfile = str_replace('{userid}', $_SESSION["authUser"], $this->pconfig['signature']);
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $sigfile = str_replace('{userid}', $session->get("authUser"), $this->pconfig['signature']);
             if (file_exists($sigfile)) {
                 return true;
             }
@@ -675,7 +680,8 @@ class C_Prescription extends Controller
             && $this->current_user_has_signature()
             && ( $this->is_faxing || $this->is_print_to_fax )
         ) {
-            $sigfile = str_replace('{userid}', $_SESSION["authUser"], $this->pconfig['signature']);
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $sigfile = str_replace('{userid}', $session->get('authUser'), $this->pconfig['signature']);
             if (file_exists($sigfile)) {
                 $pdf->ezText(xl('Signature') . ": ", 12);
                 $width = 0; // set to 0 so it uses the image width
@@ -956,7 +962,7 @@ class C_Prescription extends Controller
         $this->multiprintplain_footer();
         $data = ob_get_clean();
         $result = [
-            'subject' => OEGlobalsBag::getInstance()->get('openemr_name') . " " . xl(" Prescription ")
+            'subject' => OEGlobalsBag::getInstance()->getString('openemr_name') . " " . xl(" Prescription ")
             ,'message' => $data
         ];
         http_response_code(200);
@@ -1062,17 +1068,17 @@ class C_Prescription extends Controller
         if ($sendAsPdf) {
             [$pdf, $patient] = $this->generatePdfObjectForPrescriptionIds($id);
             $pdfAsString = $pdf->output();
-            $mailBody = OEGlobalsBag::getInstance()->get('openemr_name') . " " . xl("Prescription attached to this email.") . " " . xl("Patient") . " " . $patient->get_name_display();
+            $mailBody = OEGlobalsBag::getInstance()->getString('openemr_name') . " " . xl("Prescription attached to this email.") . " " . xl("Patient") . " " . $patient->get_name_display();
         } else {
             [$mailBody, $patient] = $this->generateHtmlObjectForPrescriptionIds($id);
             $mail->isHTML(true);
         }
 
-        $mail->From = OEGlobalsBag::getInstance()->get('practice_return_email_path');
+        $mail->From = OEGlobalsBag::getInstance()->getString('practice_return_email_path');
 //        $mail->FromName = $p->provider->get_name_display();
 //        $text_body  = $p->get_prescription_display();
         $mail->Body = $mailBody;
-        $mail->Subject = OEGlobalsBag::getInstance()->get('openemr_name') . " " . xl("Prescription");
+        $mail->Subject = OEGlobalsBag::getInstance()->getString('openemr_name') . " " . xl("Prescription");
         $mail->AddAddress($email);
         if ($sendAsPdf) {
             $mail->addStringAttachment($pdfAsString, 'Prescription-' . date("Y-m-d_H_i_s") . ".pdf");

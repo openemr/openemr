@@ -14,6 +14,8 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 class ONoteService
 {
     /**
@@ -31,7 +33,8 @@ class ONoteService
      */
     public function add($body)
     {
-        return sqlInsert("INSERT INTO `onotes` (`date`, `body`, `user`, `groupname`, `activity`) VALUES (NOW(), ?, ?, ?, 1)", [$body, $_SESSION["authUser"], $_SESSION['authProvider']]);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        return sqlInsert("INSERT INTO `onotes` (`date`, `body`, `user`, `groupname`, `activity`) VALUES (NOW(), ?, ?, ?, 1)", [$body, $session->get("authUser"), $session->get('authProvider')]);
     }
 
     /**

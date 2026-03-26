@@ -42,7 +42,7 @@ $eventDispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher(
 set_time_limit(0);
 if (isset($_POST["mode"])) {
     if ($_POST["mode"] == "DeletePayments") {
-        $DeletePaymentId = isset($_POST['DeletePaymentId']) ? trim($_POST['DeletePaymentId']) : '';
+        $DeletePaymentId = isset($_POST['DeletePaymentId']) ? trim((string) $_POST['DeletePaymentId']) : '';
         $ResultSearch = sqlStatement(
             "SELECT distinct encounter, pid from ar_activity where deleted IS NULL AND session_id = ?",
             [$DeletePaymentId]
@@ -68,17 +68,17 @@ if (isset($_POST["mode"])) {
 //Search section.
 //===============================================================================
     if ($_POST["mode"] == "SearchPayment") {
-        $FromDate = isset($_POST['FromDate']) ? trim($_POST['FromDate']) : '';
-        $ToDate = isset($_POST['ToDate']) ? trim($_POST['ToDate']) : '';
-        $PaymentMethod = isset($_POST['payment_method']) ? trim($_POST['payment_method']) : '';
-        $CheckNumber = isset($_POST['check_number']) ? trim($_POST['check_number']) : '';
-        $PaymentAmount = isset($_POST['payment_amount']) ? trim($_POST['payment_amount']) : '';
-        $PayingEntity = isset($_POST['type_name']) ? trim($_POST['type_name']) : '';
-        $PaymentCategory = isset($_POST['adjustment_code']) ? trim($_POST['adjustment_code']) : '';
-        $PaymentFrom = isset($_POST['hidden_type_code']) ? trim($_POST['hidden_type_code']) : '';
-        $PaymentStatus = isset($_POST['PaymentStatus']) ? trim($_POST['PaymentStatus']) : '';
-        $PaymentSortBy = isset($_POST['PaymentSortBy']) ? trim($_POST['PaymentSortBy']) : '';
-        $PaymentDate = isset($_POST['payment_date']) ? trim($_POST['payment_date']) : '';
+        $FromDate = isset($_POST['FromDate']) ? trim((string) $_POST['FromDate']) : '';
+        $ToDate = isset($_POST['ToDate']) ? trim((string) $_POST['ToDate']) : '';
+        $PaymentMethod = isset($_POST['payment_method']) ? trim((string) $_POST['payment_method']) : '';
+        $CheckNumber = isset($_POST['check_number']) ? trim((string) $_POST['check_number']) : '';
+        $PaymentAmount = isset($_POST['payment_amount']) ? trim((string) $_POST['payment_amount']) : '';
+        $PayingEntity = isset($_POST['type_name']) ? trim((string) $_POST['type_name']) : '';
+        $PaymentCategory = isset($_POST['adjustment_code']) ? trim((string) $_POST['adjustment_code']) : '';
+        $PaymentFrom = isset($_POST['hidden_type_code']) ? trim((string) $_POST['hidden_type_code']) : '';
+        $PaymentStatus = isset($_POST['PaymentStatus']) ? trim((string) $_POST['PaymentStatus']) : '';
+        $PaymentSortBy = isset($_POST['PaymentSortBy']) ? trim((string) $_POST['PaymentSortBy']) : '';
+        $PaymentDate = isset($_POST['payment_date']) ? trim((string) $_POST['payment_date']) : '';
         $QueryString = "Select * from  ar_session where  ";
         $And = '';
 
@@ -199,8 +199,8 @@ if (isset($_POST["mode"])) {
         }
 
         if ($PaymentSortBy != '') {
-            $SortFieldOld = isset($_POST['SortFieldOld']) ? trim($_POST['SortFieldOld']) : '';
-            $Sort = isset($_POST['Sort']) ? trim($_POST['Sort']) : '';
+            $SortFieldOld = isset($_POST['SortFieldOld']) ? trim((string) $_POST['SortFieldOld']) : '';
+            $Sort = isset($_POST['Sort']) ? trim((string) $_POST['Sort']) : '';
             if ($SortFieldOld == $PaymentSortBy) {
                 $Sort = $Sort == 'DESC' || $Sort == '' ? 'ASC' : 'DESC';
             } else {

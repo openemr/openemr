@@ -53,7 +53,7 @@ class C_Document extends Controller
     public function __construct($template_mod = "general")
     {
         parent::__construct();
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->facilityService = new FacilityService();
         $this->patientService = new PatientService();
         $this->documents = [];
@@ -63,7 +63,7 @@ class C_Document extends Controller
 
         if (php_sapi_name() !== 'cli') {
             // skip when this is being called via command line for the ccda importing
-            $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken('default', $session->getSymfonySession()));
+            $this->assign("CSRF_TOKEN_FORM", CsrfUtils::collectCsrfToken($session));
         }
 
         $this->assign("IMAGES_STATIC_RELATIVE", OEGlobalsBag::getInstance()->get('images_static_relative'));
@@ -128,11 +128,13 @@ class C_Document extends Controller
     public function zip_dicom_folder($study_name = null)
     {
         $zip = new ZipArchive();
-        $zip_name = OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/" . $study_name;
+        $zip_name = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/" . $study_name;
         if ($zip->open($zip_name, (ZipArchive::CREATE | ZipArchive::OVERWRITE)) === true) {
             foreach ($_FILES['dicom_folder']['name'] as $i => $name) {
-                $zfn = OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/" . $name;
-                $fparts = pathinfo((string) $name);
+                // Strip directory components to prevent path traversal.
+                $name = basename((string) $name);
+                $zfn = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/" . $name;
+                $fparts = pathinfo($name);
                 if (empty($fparts['extension'])) {
                     // viewer requires lowercase.
                     $fparts['extension'] = "dcm";
@@ -165,7 +167,7 @@ class C_Document extends Controller
     //Upload multiple files on single click
     public function upload_action_process()
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Collect a manually set owner if this has been set
         // Used when want to manually assign the owning user/service such as the Direct mechanism
         $non_HTTP_owner = false;
@@ -353,18 +355,6 @@ class C_Document extends Controller
                         $error = $tmp;
                     }
                 }
-                // Following is just an example of code in such a plugin file.
-                /*****************************************************
-                public function documentUploadPostProcess($filename, &$d) {
-                  $userid = $_SESSION['authUserID'];
-                  $row = sqlQuery("SELECT username FROM users WHERE id = ?", array($userid));
-                  $owner = strtolower($row['username']);
-                  $dn = '1_' . ucfirst($owner);
-                  $filepath = "/shared_network_directory/$dn/$filename";
-                  if (@unlink($filepath)) return '';
-                  return "Failed to delete '$filepath'.";
-                }
-                *****************************************************/
             }
         }
 
@@ -381,7 +371,7 @@ class C_Document extends Controller
         if ($_POST['process'] != "true") {
             return;
         }
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $n = new Note();
         $n->set_owner($session->get('authUserID'));
         parent::populate_object($n);
@@ -455,7 +445,7 @@ class C_Document extends Controller
         global $ISSUE_TYPES;
 
         require_once(__DIR__ . "/../library/lists.inc.php");
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $d = new Document($doc_id);
 
         // Verify the document belongs to the requested patient to prevent IDOR.
@@ -478,7 +468,7 @@ class C_Document extends Controller
 
         $notes = $d->get_notes();
 
-        $this->assign("csrf_token_form", CsrfUtils::collectCsrfToken('default', $session->getSymfonySession()));
+        $this->assign("csrf_token_form", CsrfUtils::collectCsrfToken(session: $session));
 
         $this->assign("file", $d);
         $this->assign("web_path", $this->_link("retrieve") . "document_id=" . urlencode((string) $d->get_id()) . "&");
@@ -615,7 +605,7 @@ class C_Document extends Controller
      * */
     public function retrieve_action(?string $patient_id, $document_id, $as_file = true, $original_file = true, $disable_exit = false, $show_original = false, $context = "normal")
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $encrypted = $_POST['encrypted'] ?? false;
         $passphrase = $_POST['passphrase'] ?? '';
         $doEncryption = false;
@@ -773,10 +763,10 @@ class C_Document extends Controller
                     die(xlt("File retrieval from CouchDB failed"));
                 }
                 // place the from-file into a temporary file
-                $from_file_tmp_name = tempnam(OEGlobalsBag::getInstance()->get('temporary_files_dir'), "oer");
+                $from_file_tmp_name = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), "oer");
                 file_put_contents($from_file_tmp_name, $contentM);
                 // prepare a temporary file for the to-file
-                $to_file_tmp = tempnam(OEGlobalsBag::getInstance()->get('temporary_files_dir'), "oer");
+                $to_file_tmp = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), "oer");
                 $to_file_tmp_name = $to_file_tmp . ".jpg";
                 // convert file to jpg
                 exec("convert -density 200 " . escapeshellarg($from_file_tmp_name) . " -append -resize 850 " . escapeshellarg($to_file_tmp_name));
@@ -933,10 +923,10 @@ class C_Document extends Controller
                 if ($d->get_encrypted() == 1) {
                     // decrypt the from-file into a temporary file
                     $from_file_unencrypted = $this->cryptoGen->decryptStandard(file_get_contents($originalUrl), KeySource::Database);
-                    $from_file_tmp_name = tempnam(OEGlobalsBag::getInstance()->get('temporary_files_dir'), "oer");
+                    $from_file_tmp_name = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), "oer");
                     file_put_contents($from_file_tmp_name, $from_file_unencrypted);
                     // prepare a temporary file for the unencrypted to-file
-                    $to_file_tmp = tempnam(OEGlobalsBag::getInstance()->get('temporary_files_dir'), "oer");
+                    $to_file_tmp = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), "oer");
                     $to_file_tmp_name = $to_file_tmp . ".jpg";
                     // convert file to jpg
                     exec("convert -density 200 " . escapeshellarg($from_file_tmp_name) . " -append -resize 850 " . escapeshellarg($to_file_tmp_name));
@@ -1151,7 +1141,7 @@ class C_Document extends Controller
 
     public function list_action($patient_id = "")
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->_last_node = null;
         $categories_list = $this->tree->_get_categories_array($patient_id);
         //print_r($categories_list);
@@ -1170,7 +1160,7 @@ class C_Document extends Controller
         $used_msg = xl('Current patient unavailable here. Use Patient Documents');
         if ($cur_pid == '00') {
             if (!AclMain::aclCheckCore('patients', 'docs', '', ['write', 'addonly'])) {
-                AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/docs write|addonly: Documents", xl("Documents"));
+                $this->throwAccessDenied("ACL check failed for patients/docs write|addonly: Documents", xl("Documents"));
             }
             $cur_pid = '0';
             $is_new = 1;
@@ -1186,7 +1176,7 @@ class C_Document extends Controller
             }
         }
         if (!AclMain::aclCheckCore('patients', 'docs')) {
-            AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/docs: Documents", xl("Documents"));
+            $this->throwAccessDenied("ACL check failed for patients/docs: Documents", xl("Documents"));
         }
         $this->assign('is_new', $is_new);
         $this->assign('place_hld', $place_hld);
@@ -1313,8 +1303,8 @@ class C_Document extends Controller
 
           $desc = "Please check the attached patient document.\n Content:" . $body;
           $mail = new MyMailer();
-          $from_name = OEGlobalsBag::getInstance()->get("practice_return_email_path");
-          $from =  OEGlobalsBag::getInstance()->get("practice_return_email_path");
+          $from_name = OEGlobalsBag::getInstance()->getString("practice_return_email_path");
+          $from =  OEGlobalsBag::getInstance()->getString("practice_return_email_path");
           $mail->AddReplyTo($from, $from_name);
           $mail->SetFrom($from, $from);
           $to = $email ;
@@ -1347,7 +1337,7 @@ class C_Document extends Controller
             die("process is '" . text($_POST['process']) . "', expected 'true'");
             return;
         }
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Create Encounter and Tag it.
         $event_date = date('Y-m-d H:i:s');
         $encounter_id = $_POST['encounter_id'];
@@ -1456,7 +1446,7 @@ class C_Document extends Controller
 
     public function image_result_indication($doc_id, $encounter, $image_procedure_id = 0)
     {
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $doc_notes = sqlQuery("select note from notes where foreign_id = ?", [$doc_id]);
         $narration = isset($doc_notes['note']) ? 'With Narration' : 'Without Narration';
 

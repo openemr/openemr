@@ -19,6 +19,7 @@ use Documents\Controller\DocumentsController;
 use Documents\Model\DocumentsTable;
 use Laminas\Mvc\Controller\AbstractActionController;
 use Laminas\View\Model\ViewModel;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 class CcdController extends AbstractActionController
 {
@@ -65,7 +66,8 @@ class CcdController extends AbstractActionController
             $obj_doc            = $this->documentsController;
             $cdoc               = $obj_doc->uploadAction($request);
             $uploaded_documents = [];
-            $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(['user' => $_SESSION['authUserID'], 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]);
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            $uploaded_documents = $this->getCarecoordinationTable()->fetch_uploaded_documents(['user' => $session->get('authUserID'), 'time_start' => $time_start, 'time_end' => date('Y-m-d H:i:s')]);
             if ($uploaded_documents[0]['id'] > 0) {
                 $_REQUEST["document_id"]    = $uploaded_documents[0]['id'];
                 $_REQUEST["batch_import"]   = 'YES';

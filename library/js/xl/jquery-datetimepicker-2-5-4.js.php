@@ -41,8 +41,11 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Services\Utils\DateFormatterUtils;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+$language_direction = $session->get('language_direction');
 ?>
     i18n:{
         en: {
@@ -56,7 +59,7 @@ use OpenEMR\Services\Utils\DateFormatterUtils;
             ]
         },
     },
-    <?php if (($_SESSION['language_direction'] ?? '') == 'rtl') { ?>
+    <?php if (($language_direction ?? '') === 'rtl') { ?>
     /**
      * In RTL languages a datepicker popup is opened on the left and cut by the edge of the window
      * This patch resolves that and moves a datepicker popup to right side.
@@ -78,7 +81,7 @@ use OpenEMR\Services\Utils\DateFormatterUtils;
     yearStart: '1900',
     scrollInput: false,
     scrollMonth: false,
-    rtl: <?php echo (($_SESSION['language_direction'] ?? '') == 'rtl') ? "true" : "false"; ?>,
+    rtl: <?php echo (($language_direction ?? '') === 'rtl') ? "true" : "false"; ?>,
     <?php if (!empty($datetimepicker_minDate)) { ?>
         minDate: '<?php echo $datetimepicker_minDate; ?>',
     <?php } ?>

@@ -126,8 +126,10 @@ class OnsiteActivityViewReporter extends Reporter
 
         // the criteria can be used or you can write your own custom logic.
         // be sure to escape any user input with $criteria->Escape()
-        $sql .= $criteria->GetWhere();
-        $sql .= $criteria->GetOrder();
+        $where = $criteria->GetWhere();
+        $sql .= is_string($where) ? $where : '';
+        $order = $criteria->GetOrder();
+        $sql .= is_string($order) ? $order : '';
 
         return $sql;
     }
@@ -152,7 +154,8 @@ class OnsiteActivityViewReporter extends Reporter
 
         // the criteria can be used or you can write your own custom logic.
         // be sure to escape any user input with $criteria->Escape()
-        $sql .= $criteria->GetWhere();
+        $where = $criteria->GetWhere();
+        $sql .= is_string($where) ? $where : '';
 
         return $sql;
     }

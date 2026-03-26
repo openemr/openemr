@@ -21,6 +21,7 @@ use OpenEMR\Common\Forms\BmiCategory;
 use OpenEMR\Common\Forms\FormVitalDetails;
 use OpenEMR\Common\Forms\FormVitals;
 use OpenEMR\Common\Forms\ReasonStatusCodes;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -334,6 +335,7 @@ class C_FormVitals
             $vitalsHistoryLookback = $results ?? null;
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $data = [
             'vitals' => $vitals
             ,'vitalFields' => $vitalFields
@@ -346,7 +348,7 @@ class C_FormVitals
             ,'MEASUREMENT_PERSIST_IN_METRIC' => FormVitals::MEASUREMENT_PERSIST_IN_METRIC
             ,'MEASUREMENT_PERSIST_IN_USA' => FormVitals::MEASUREMENT_PERSIST_IN_USA
             ,'hide_circumferences' => OEGlobalsBag::getInstance()->get('gbl_vitals_options') > 0
-            ,'CSRF_TOKEN_FORM' => CsrfUtils::collectCsrfToken()
+            ,'CSRF_TOKEN_FORM' => CsrfUtils::collectCsrfToken(session: $session)
             ,'results' => $results ?? null
             ,'vitalsHistoryLookback' => $vitalsHistoryLookback
             ,'hasMoreVitals' => $hasMoreVitals
@@ -417,7 +419,18 @@ class C_FormVitals
 
         // grab our vitals data and then populate what is in the post
         $vitalsService = new VitalsService();
-        $vitalsArray = $vitalsService->getVitalsForForm($_POST['id']) ?? [];
+        $vitalsArray = [];
+        if (!empty($_POST['id'])) {
+            $vitalsArray = $vitalsService->getVitalsForForm($_POST['id']) ?? [];
+            // Verify the vital belongs to this patient/encounter to prevent IDOR.
+            // If not, treat as a new form (ignore the supplied id).
+            if (
+                !empty($vitalsArray)
+                && ($vitalsArray['pid'] != $GLOBALS['pid'] || $vitalsArray['eid'] != $GLOBALS['encounter'])
+            ) {
+                $vitalsArray = [];
+            }
+        }
         // vitals form returns string representation of uuid, need to convert it back to binary
         if (isset($vitalsArray['uuid'])) {
             $vitalsArray['uuid'] = UuidRegistry::uuidToBytes($vitalsArray['uuid']);
@@ -454,10 +467,11 @@ class C_FormVitals
             OEGlobalsBag::getInstance()->set('encounter', date("Ymd"));
         }
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // have to set these global settings in order for us to save.
         $obj->set_encounter(OEGlobalsBag::getInstance()->get('encounter'));
         $obj->set_pid(OEGlobalsBag::getInstance()->get('pid'));
-        $obj->set_authorized($_SESSION['userauthorized']);
+        $obj->set_authorized($session->get('userauthorized'));
 
         // handle all of the vital details that we need here.
         $detailsToUpdate = [];
@@ -525,7 +539,8 @@ class C_FormVitals
 
     private function populate_session_user_information(FormVitals $vitals)
     {
-        $vitals->set_groupname($_SESSION['authProvider']);
-        $vitals->set_user($_SESSION['authUser']);
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $vitals->set_groupname($session->get('authProvider'));
+        $vitals->set_user($session->get('authUser'));
     }
 }
