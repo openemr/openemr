@@ -14,6 +14,12 @@ namespace OpenEMR\Encryption\Keys;
 
 use OpenEMR\Encryption\Cipher\CipherInterface;
 
+/**
+ * Implementations of KeychainInterface are responsible for key management and
+ * cipher selection. How keys are stored and loaded are implementation-specific:
+ * these could be lazy-loaded, fetched from a remote service, or handled in
+ * other ways.
+ */
 interface KeychainInterface
 {
     public function getCipher(Id $keyId): CipherInterface;

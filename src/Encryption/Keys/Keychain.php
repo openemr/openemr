@@ -17,6 +17,9 @@ use OutOfBoundsException;
 
 use function array_key_exists;
 
+/**
+ * An eager-loaded keychain, which holds all of the keys/ciphers for active use.
+ */
 class Keychain implements KeychainInterface
 {
     /**
@@ -30,8 +33,6 @@ class Keychain implements KeychainInterface
     ): void {
         $this->mappings[$id->id] = $cipher;
     }
-
-    // addLoader to defer key loading?
 
     public function getCipher(Id $keyId): CipherInterface
     {
