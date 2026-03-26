@@ -222,7 +222,7 @@ function largest_id_plus_one($table)
  */
 function largest_id($table)
 {
-    $res = sqlStatement("SELECT MAX(id) as largestId FROM `" . escape_table_name($table) . "`");
+    $res = sqlStatement("SELECT MAX(id) as largestId FROM " . escape_table_name($table));
     $getMaxid = sqlFetchArray($res);
     return $getMaxid['largestId'];
 }

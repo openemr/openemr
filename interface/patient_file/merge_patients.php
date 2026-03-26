@@ -547,7 +547,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                     // Don't mess with log data.
                 } else {
                     $crow = sqlQuery(
-                        "SHOW COLUMNS FROM `" . escape_table_name($tblname) . "` WHERE " .
+                        "SHOW COLUMNS FROM " . escape_table_name($tblname) . " WHERE " .
                         "`Field` LIKE 'pid' OR `Field` LIKE 'patient_id'"
                     );
                     if (!empty($crow['Field'])) {
