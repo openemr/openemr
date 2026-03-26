@@ -204,12 +204,13 @@ final class Aes256CbcHmacSha384Test extends TestCase
         );
         $cipher2 = new Aes256CbcHmacSha384(
             key: new KeyMaterial('different_key___________________'), // 32 bytes
-            hmacKey: new KeyMaterial($this->fixtures->getTestKey('sevenb')),
+            hmacKey: new KeyMaterial('different_hmac__________________'), // 32 bytes
         );
 
         $ciphertext = $cipher1->encrypt(new Plaintext(CryptoFixtureManager::PLAINTEXT));
 
         $this->expectException(CryptoGenException::class);
+        $this->expectExceptionMessage('HMAC invalid');
         $cipher2->decrypt($ciphertext);
     }
 
