@@ -218,11 +218,15 @@ final readonly class DatabaseConnectionOptions
 
         $driverOptions = [];
         if ($this->sslCaPath !== null) {
-            $driverOptions[PDO::MYSQL_ATTR_SSL_CA] = $this->sslCaPath;
+            // PHP 8.5+ moved MySQL-specific PDO attributes to Pdo\Mysql
+            $attrSslCa = class_exists(\Pdo\Mysql::class) ? \Pdo\Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA;
+            $driverOptions[$attrSslCa] = $this->sslCaPath;
         }
         if ($this->sslClientCert !== null) {
-            $driverOptions[PDO::MYSQL_ATTR_SSL_CERT] = $this->sslClientCert['cert'];
-            $driverOptions[PDO::MYSQL_ATTR_SSL_KEY] = $this->sslClientCert['key'];
+            $attrSslCert = class_exists(\Pdo\Mysql::class) ? \Pdo\Mysql::ATTR_SSL_CERT : PDO::MYSQL_ATTR_SSL_CERT;
+            $attrSslKey = class_exists(\Pdo\Mysql::class) ? \Pdo\Mysql::ATTR_SSL_KEY : PDO::MYSQL_ATTR_SSL_KEY;
+            $driverOptions[$attrSslCert] = $this->sslClientCert['cert'];
+            $driverOptions[$attrSslKey] = $this->sslClientCert['key'];
         }
         if ($driverOptions !== []) {
             $params['driverOptions'] = $driverOptions;
