@@ -50,7 +50,7 @@ readonly class Aes256CbcNoHmac implements CipherInterface
     {
         throw new BadMethodCallException(sprintf(
             'Encrypting new data with %s is not supported',
-            __CLASS__,
+            self::class,
         ));
     }
 }
