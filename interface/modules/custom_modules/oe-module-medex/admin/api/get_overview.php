@@ -2,7 +2,7 @@
 /**
  * Get Overview Dashboard Data
  *
- * Returns system status, subscription summary, stats, and recent activity
+ * Returns system status, subscription summary, and stats
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
@@ -38,6 +38,12 @@ try {
     $loginData = []; // Not configured or invalid credentials - proceed gracefully
 }
 $medexUsername = $loginData['email'] ?? null;
+$creditBalance = (float)($loginData['credit_balance'] ?? 0.00);
+$rechargeData = is_array($loginData['recharge'] ?? null) ? $loginData['recharge'] : [];
+$rechargeOn = (int)($rechargeData['recharge_on'] ?? 0) === 1;
+$rechargePoint = (float)($rechargeData['recharge_point'] ?? 20.00);
+$rechargeAmount = (float)($rechargeData['recharge_amt'] ?? 0.00);
+$isDemoCustomer = in_array((int)($loginData['customer_group_id'] ?? 0), [3, 7], true);
 
 // Fallback to ME_username from medex_prefs if login data not available
 if (!$medexUsername) {
@@ -90,106 +96,6 @@ $confirmedAppts = sqlQuery("SELECT COUNT(*) as count FROM medex_outgoing WHERE m
 $confirmedCount = $confirmedAppts['count'] ?? 0;
 $confirmRate = $messagesSentCount > 0 ? round(($confirmedCount / $messagesSentCount) * 100) : 0;
 
-// Campaign counts by type - query API which uses hipaa_campaigns
-$campaignCounts = [
-    'reminder' => 0,
-    'recall' => 0,
-    'gogreen' => 0,
-    'announce' => 0,
-    'clinical' => 0
-];
-try {
-    $campaigns = $api->getCampaigns();
-    if (!empty($campaigns)) {
-        foreach ($campaigns as $campaign) {
-            $type = strtolower($campaign['type'] ?? 'reminder');
-            // Normalize type names
-            if ($type === 'gogreens') $type = 'gogreen';
-            if ($type === 'announcements' || $type === 'announcement') $type = 'announce';
-            if ($type === 'clinical_reminder') $type = 'clinical';
-            if (isset($campaignCounts[$type])) {
-                $campaignCounts[$type]++;
-            }
-        }
-    }
-} catch (\Exception $e) {
-    // Fallback: check local status JSON
-    $prefsResult = sqlQuery("SELECT status FROM medex_prefs LIMIT 1");
-    if ($prefsResult && !empty($prefsResult['status'])) {
-        $status = json_decode($prefsResult['status'], true);
-        if (isset($status['status']['campaigns']) && is_array($status['status']['campaigns'])) {
-            foreach ($status['status']['campaigns'] as $campaign) {
-                $type = strtolower($campaign['type'] ?? 'reminder');
-                if ($type === 'gogreens') $type = 'gogreen';
-                if ($type === 'announcements' || $type === 'announcement') $type = 'announce';
-                if (isset($campaignCounts[$type])) {
-                    $campaignCounts[$type]++;
-                }
-            }
-        }
-    }
-}
-$totalCampaigns = array_sum($campaignCounts);
-
-// Clinical reminders (patient reminders due)
-$clinicalDueCount = sqlQuery("SELECT COUNT(DISTINCT pid) as cnt FROM patient_reminders WHERE active = 1 AND due_status IN ('soon', 'due', 'past_due')");
-$patientsDueClinical = (int)($clinicalDueCount['cnt'] ?? 0);
-
-// Service status - Base package includes SMS/Email
-// appointment_reminders is the base package
-$basePackage = $activeSubscriptions['appointment_reminders'] ?? null;
-$baseActive = $basePackage && ($basePackage['status'] ?? '') === 'active';
-$baseProviderCount = $basePackage['provider_count'] ?? 0;
-$baseProviderIds = [];
-if (!empty($basePackage['provider_ids'])) {
-    $baseProviderIds = is_array($basePackage['provider_ids']) ? $basePackage['provider_ids'] : json_decode($basePackage['provider_ids'], true) ?? [];
-}
-
-// Count total providers in practice
-$totalProviders = sqlQuery("SELECT COUNT(*) as cnt FROM users WHERE authorized = 1 AND active = 1");
-$totalProviderCount = (int)($totalProviders['cnt'] ?? 0);
-if ($totalProviderCount < 1) $totalProviderCount = 3; // Default assumption
-
-// Check if Dial 0 is enabled (requires base package AND dial0 campaign configured)
-$dial0Enabled = false;
-if ($baseActive && !empty($campaigns)) {
-    foreach ($campaigns as $campaign) {
-        if (strtolower($campaign['type'] ?? '') === 'dial0') {
-            $dial0Enabled = true;
-            break;
-        }
-    }
-}
-
-// Add-on services status
-$serviceStatus = [
-    'base_active' => $baseActive,
-    'base_providers' => count($baseProviderIds),
-    'total_providers' => $totalProviderCount,
-    'dial_0' => $dial0Enabled, // Dial 0 requires activation within base package
-    'vfax' => isset($activeSubscriptions['vfax']) || isset($activeSubscriptions['virtual_fax']),
-    'ai_rescheduler' => isset($activeSubscriptions['calendar_ai']),
-    'secure_chat' => isset($activeSubscriptions['secure_chat']),
-    'whatsapp' => isset($activeSubscriptions['whatsapp']),
-    'calendar_view' => isset($activeSubscriptions['calendar_view']) || isset($activeSubscriptions['calendar_export']),
-    'pdf_management' => isset($activeSubscriptions['pdf_management'])
-];
-
-// Usage stats for active services
-$usageStats = [];
-
-// Secure Chat count (if active)
-if ($serviceStatus['secure_chat']) {
-    $chatCount = sqlQuery("SELECT COUNT(*) as cnt FROM medex_outgoing WHERE msg_type = 'CHAT' AND msg_date >= ?", [$thirtyDaysAgo]);
-    $usageStats['secure_chats'] = (int)($chatCount['cnt'] ?? 0);
-}
-
-// AI Rescheduler events (if active)
-if ($serviceStatus['ai_rescheduler']) {
-    $aiEvents = sqlQuery("SELECT COUNT(*) as cnt FROM medex_outgoing WHERE msg_type IN ('AI_RESCHEDULE','RESCHEDULE') AND msg_date >= ?", [$thirtyDaysAgo]);
-    $usageStats['ai_reschedules'] = (int)($aiEvents['cnt'] ?? 0);
-}
-
 // Scheduled/pending messages waiting to go out
 $pendingMessages = sqlQuery("SELECT COUNT(*) as cnt FROM medex_outgoing WHERE msg_date > NOW() AND (msg_reply IS NULL OR msg_reply = '')");
 $pendingCount = (int)($pendingMessages['cnt'] ?? 0);
@@ -197,49 +103,6 @@ $pendingCount = (int)($pendingMessages['cnt'] ?? 0);
 // Calendar events (from integrated calendar) - next 7 days
 $upcomingEvents = sqlQuery("SELECT COUNT(*) as count FROM openemr_postcalendar_events WHERE pc_eventDate >= CURDATE() AND pc_eventDate <= DATE_ADD(CURDATE(), INTERVAL 7 DAY)");
 $eventsCount = $upcomingEvents['count'] ?? 0;
-
-// Get recent activity
-$recentActivity = [];
-
-// Recent sync
-if ($lastSyncTime) {
-    $recentActivity[] = [
-        'icon' => 'fa-sync-alt',
-        'text' => 'Practice data synced',
-        'time' => $lastSyncFormatted
-    ];
-}
-
-// Recent campaign activity - campaigns are stored in medex_prefs.status JSON
-// Show when prefs were last updated as a proxy for campaign changes
-if ($lastSyncTime) {
-    $prefsUpdate = sqlQuery("SELECT MedEx_lastupdated FROM medex_prefs LIMIT 1");
-    if ($prefsUpdate && !empty($prefsUpdate['MedEx_lastupdated'])) {
-        $updateTime = strtotime($prefsUpdate['MedEx_lastupdated']);
-        $now = time();
-        $diffHours = floor(($now - $updateTime) / 3600);
-
-        // Only show if updated in last 7 days
-        if ($diffHours < 168) {
-            $recentActivity[] = [
-                'icon' => 'fa-bullhorn',
-                'text' => 'Campaign settings updated',
-                'time' => date('M j, Y g:i A', $updateTime)
-            ];
-        }
-    }
-}
-
-// Recent messages
-$todayMessages = sqlQuery("SELECT COUNT(*) as count FROM medex_outgoing WHERE DATE(msg_date) = CURDATE()");
-$todayCount = $todayMessages['count'] ?? 0;
-if ($todayCount > 0) {
-    $recentActivity[] = [
-        'icon' => 'fa-paper-plane',
-        'text' => $todayCount . ' reminder' . ($todayCount != 1 ? 's' : '') . ' sent today',
-        'time' => 'Today'
-    ];
-}
 
 // Service names from live API (OpenCart product descriptions) — no hardcoding.
 // Falls back to slug-formatted key when API is unavailable.
@@ -252,17 +115,46 @@ foreach ($livePricingServices as $svcKey => $svcData) {
 
 ?>
 
+<style>
+.ov-toggle-switch input[type="checkbox"] {
+    position: relative;
+    width: 40px;
+    height: 22px;
+    appearance: none;
+    -webkit-appearance: none;
+    background: #cbd5e1;
+    border: 1px solid #94a3b8;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.ov-toggle-switch input[type="checkbox"]:checked {
+    background: #4ade80;
+    border-color: #22c55e;
+}
+.ov-toggle-switch input[type="checkbox"]::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    top: 2px;
+    left: 2px;
+    transition: left 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+.ov-toggle-switch input[type="checkbox"]:checked::before {
+    left: 20px;
+}
+</style>
+
 <div class="overview-grid">
     <!-- System Status Card -->
     <div class="overview-card">
         <h3><i class="fa fa-server"></i> <?php echo xlt('System Status'); ?></h3>
 
-        <?php if ($isActive): ?>
-            <div class="status-badge success">
-                <i class="fa fa-check-circle"></i>
-                <?php echo xlt('Connected to MedEx'); ?>
-            </div>
-        <?php else: ?>
+        <?php if (!$isActive): ?>
             <div class="status-badge error">
                 <i class="fa fa-exclamation-circle"></i>
                 <?php echo xlt('Not Connected'); ?>
@@ -386,117 +278,128 @@ foreach ($livePricingServices as $svcKey => $svcData) {
             </div>
         </div>
 
-        <!-- Campaign Breakdown -->
-        <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #e0e0e0;">
-            <div style="font-size: 11px; font-weight: 600; color: #333; margin-bottom: 6px;">
-                <i class="fa fa-bullhorn" style="color: #667eea;"></i> <?php echo xlt('Campaigns'); ?>
-                <?php if ($totalCampaigns > 0): ?>
-                    <span style="font-weight: normal; color: #28a745;">(<?php echo $totalCampaigns; ?> <?php echo xlt('active'); ?>)</span>
-                <?php endif; ?>
-            </div>
-            <div style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 11px;">
-                <span style="background: <?php echo $campaignCounts['reminder'] > 0 ? '#d4edda' : '#f8f9fa'; ?>; color: <?php echo $campaignCounts['reminder'] > 0 ? '#155724' : '#999'; ?>; padding: 2px 8px; border-radius: 10px;">
-                    <i class="fa fa-bell"></i> <?php echo $campaignCounts['reminder']; ?> <?php echo xlt('Reminder'); ?>
-                </span>
-                <span style="background: <?php echo $campaignCounts['recall'] > 0 ? '#cce5ff' : '#f8f9fa'; ?>; color: <?php echo $campaignCounts['recall'] > 0 ? '#004085' : '#999'; ?>; padding: 2px 8px; border-radius: 10px;">
-                    <i class="fa fa-redo"></i> <?php echo $campaignCounts['recall']; ?> <?php echo xlt('Recall'); ?>
-                </span>
-                <span style="background: <?php echo $campaignCounts['gogreen'] > 0 ? '#c3e6cb' : '#f8f9fa'; ?>; color: <?php echo $campaignCounts['gogreen'] > 0 ? '#155724' : '#999'; ?>; padding: 2px 8px; border-radius: 10px;">
-                    <i class="fa fa-leaf"></i> <?php echo $campaignCounts['gogreen']; ?> <?php echo xlt('GoGreen'); ?>
-                </span>
-                <span style="background: <?php echo $campaignCounts['announce'] > 0 ? '#e2d5f1' : '#f8f9fa'; ?>; color: <?php echo $campaignCounts['announce'] > 0 ? '#6f42c1' : '#999'; ?>; padding: 2px 8px; border-radius: 10px;">
-                    <i class="fa fa-bullhorn"></i> <?php echo $campaignCounts['announce']; ?> <?php echo xlt('Announce'); ?>
-                </span>
-                <span style="background: <?php echo $campaignCounts['clinical'] > 0 ? '#fff3cd' : '#f8f9fa'; ?>; color: <?php echo $campaignCounts['clinical'] > 0 ? '#856404' : '#999'; ?>; padding: 2px 8px; border-radius: 10px;">
-                    <i class="fa fa-heartbeat"></i> <?php echo $campaignCounts['clinical']; ?> <?php echo xlt('Clinical'); ?>
-                </span>
-            </div>
-            <?php if ($patientsDueClinical > 0): ?>
-            <div style="font-size: 10px; color: #856404; margin-top: 4px;">
-                <i class="fa fa-exclamation-circle"></i> <?php echo $patientsDueClinical; ?> <?php echo xlt('patients due for clinical reminders'); ?>
-            </div>
-            <?php endif; ?>
-        </div>
-
-        <!-- Service Status -->
-        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #e0e0e0;">
-            <div style="font-size: 11px; font-weight: 600; color: #333; margin-bottom: 6px;">
-                <i class="fa fa-plug" style="color: #667eea;"></i> <?php echo xlt('Services'); ?>
-            </div>
-            
-            <!-- Base Package -->
-            <div style="margin-bottom: 6px; font-size: 11px;">
-                <?php if ($serviceStatus['base_active']): ?>
-                    <span style="background: #28a745; color: white; padding: 2px 8px; border-radius: 3px;">
-                        <i class="fa fa-check"></i> <?php echo xlt('Base Package'); ?>
-                    </span>
-                    <span style="color: #666; margin-left: 4px;"><?php echo $serviceStatus['base_providers']; ?>/<?php echo $serviceStatus['total_providers']; ?> <?php echo xlt('providers'); ?></span>
-                <?php else: ?>
-                    <span style="background: #dc3545; color: white; padding: 2px 8px; border-radius: 3px;">
-                        <i class="fa fa-times"></i> <?php echo xlt('Base Package'); ?>
-                    </span>
-                    <span style="color: #999; margin-left: 4px;"><?php echo xlt('Not subscribed'); ?></span>
-                <?php endif; ?>
-            </div>
-            
-            <!-- Add-on Services -->
-            <div style="display: flex; flex-wrap: wrap; gap: 6px; font-size: 10px;">
-                <?php 
-                    $dial0Title = $serviceStatus['dial_0'] ? xla('Active') : ($serviceStatus['base_active'] ? xla('Enable in MedEx Messaging settings') : xla('Requires Base Package'));
-                ?>
-                <span style="background: <?php echo $serviceStatus['dial_0'] ? '#28a745' : ($serviceStatus['base_active'] ? '#ffc107' : '#6c757d'); ?>; color: <?php echo $serviceStatus['dial_0'] ? 'white' : ($serviceStatus['base_active'] ? '#212529' : 'white'); ?>; padding: 2px 6px; border-radius: 3px;" title="<?php echo $dial0Title; ?>">
-                    <i class="fa fa-<?php echo $serviceStatus['dial_0'] ? 'check' : ($serviceStatus['base_active'] ? 'exclamation' : 'times'); ?>"></i> Dial 0
-                </span>
-                <span style="background: <?php echo $serviceStatus['ai_rescheduler'] ? '#28a745' : '#6c757d'; ?>; color: white; padding: 2px 6px; border-radius: 3px;">
-                    <i class="fa fa-<?php echo $serviceStatus['ai_rescheduler'] ? 'check' : 'times'; ?>"></i> AI Rescheduler
-                    <?php if ($serviceStatus['ai_rescheduler'] && isset($usageStats['ai_reschedules'])): ?>
-                        <span style="background: rgba(255,255,255,0.3); padding: 0 4px; border-radius: 2px; margin-left: 2px;"><?php echo $usageStats['ai_reschedules']; ?></span>
-                    <?php endif; ?>
-                </span>
-                <span style="background: <?php echo $serviceStatus['secure_chat'] ? '#28a745' : '#6c757d'; ?>; color: white; padding: 2px 6px; border-radius: 3px;">
-                    <i class="fa fa-<?php echo $serviceStatus['secure_chat'] ? 'check' : 'times'; ?>"></i> Secure Chat
-                    <?php if ($serviceStatus['secure_chat'] && isset($usageStats['secure_chats'])): ?>
-                        <span style="background: rgba(255,255,255,0.3); padding: 0 4px; border-radius: 2px; margin-left: 2px;"><?php echo $usageStats['secure_chats']; ?></span>
-                    <?php endif; ?>
-                </span>
-                <span style="background: <?php echo $serviceStatus['vfax'] ? '#28a745' : '#6c757d'; ?>; color: white; padding: 2px 6px; border-radius: 3px;">
-                    <i class="fa fa-<?php echo $serviceStatus['vfax'] ? 'check' : 'times'; ?>"></i> vFax
-                </span>
-                <span style="background: <?php echo $serviceStatus['whatsapp'] ? '#28a745' : '#6c757d'; ?>; color: white; padding: 2px 6px; border-radius: 3px;">
-                    <i class="fa fa-<?php echo $serviceStatus['whatsapp'] ? 'check' : 'times'; ?>"></i> WhatsApp
-                </span>
-                <span style="background: <?php echo $serviceStatus['calendar_view'] ? '#28a745' : '#6c757d'; ?>; color: white; padding: 2px 6px; border-radius: 3px;">
-                    <i class="fa fa-<?php echo $serviceStatus['calendar_view'] ? 'check' : 'times'; ?>"></i> Calendar
-                </span>
-            </div>
-        </div>
     </div>
 
-    <!-- Recent Activity Card -->
+    <!-- A La Carte Credits Card -->
     <div class="overview-card">
-        <h3><i class="fa fa-history"></i> <?php echo xlt('Recent Activity'); ?></h3>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;">
+            <h3 style="margin:0;">
+                <i class="fa fa-coins"></i> <?php echo xlt('A La Carte Credits'); ?>
+            </h3>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <a
+                    href="<?php echo attr($GLOBALS['webroot']); ?>/interface/modules/custom_modules/oe-module-medex/admin/splash.php?minimal=1&site=<?php echo urlencode($_SESSION['site_id'] ?? 'default'); ?>"
+                    target="_blank"
+                    onclick="return window.confirm('MedEx onboarding is production-only. Continue to readiness checklist?');"
+                    title="<?php echo xla('Pay-as-you-go credits for SMS/voice/email usage. Auto-refill tops up credits when balance falls below your threshold.'); ?>"
+                    style="color:#667eea; text-decoration:none; font-size:15px;"
+                ><i class="fa fa-question-circle"></i></a>
+                <?php if (!$isDemoCustomer): ?>
+                    <label class="ov-toggle-switch" title="<?php echo xla('Toggle auto-refill on or off'); ?>" style="margin:0;">
+                        <input type="checkbox" id="ov-recharge-on-toggle" <?php echo $rechargeOn ? 'checked' : ''; ?> onchange="ovToggleRechargeFields()">
+                    </label>
+                <?php endif; ?>
+            </div>
+        </div>
 
-        <?php if (empty($recentActivity)): ?>
-            <p style="color: #999; font-size: 14px;">
-                <?php echo xlt('No recent activity'); ?>
-            </p>
+        <div class="stat-item">
+            <span class="stat-label"><?php echo xlt('Current Balance (as of last sync)'); ?></span>
+            <span class="stat-value" id="ov-credit-balance">$<?php echo number_format($creditBalance, 2); ?></span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label"><?php echo xlt('Refill Threshold'); ?></span>
+            <span class="stat-value">$<?php echo number_format($rechargePoint, 2); ?></span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label"><?php echo xlt('Refill Amount'); ?></span>
+            <span class="stat-value">$<?php echo number_format($rechargeAmount, 2); ?></span>
+        </div>
+
+        <?php if ($isDemoCustomer): ?>
+            <div style="margin-top: 12px; font-size: 12px; color: #0c5460; background: #d1ecf1; border: 1px solid #bee5eb; border-radius: 6px; padding: 8px;">
+                <i class="fa fa-info-circle"></i> <?php echo xlt('Demo account: billing and auto-refill are bypassed.'); ?>
+            </div>
         <?php else: ?>
-            <ul class="activity-list">
-                <?php foreach (array_slice($recentActivity, 0, 5) as $activity): ?>
-                    <li class="activity-item">
-                        <div class="activity-icon">
-                            <i class="fa <?php echo $activity['icon']; ?>"></i>
-                        </div>
-                        <div class="activity-content">
-                            <p class="activity-text"><?php echo text($activity['text']); ?></p>
-                            <p class="activity-time"><?php echo text($activity['time']); ?></p>
-                        </div>
-                    </li>
-                <?php endforeach; ?>
-            </ul>
+            <div style="margin-top: 12px;">
+                <div id="ov-recharge-fields" style="display: <?php echo $rechargeOn ? 'block' : 'none'; ?>;">
+                    <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+                        <label for="ov-recharge-point" style="font-size:12px; color:#666; min-width:80px;"><?php echo xlt('Threshold'); ?></label>
+                        <input type="number" id="ov-recharge-point" min="1" max="9999" step="0.01" value="<?php echo attr($rechargePoint); ?>" style="width:100%; border:1px solid #ccc; border-radius:4px; padding:6px;">
+                    </div>
+                    <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
+                        <label for="ov-recharge-amt" style="font-size:12px; color:#666; min-width:80px;"><?php echo xlt('Amount'); ?></label>
+                        <input type="number" id="ov-recharge-amt" min="10" max="9999" step="1" value="<?php echo attr($rechargeAmount ?: 50); ?>" style="width:100%; border:1px solid #ccc; border-radius:4px; padding:6px;">
+                    </div>
+                </div>
+
+                <button type="button" onclick="ovSaveRechargeSettings()" style="width:100%; padding:8px 10px; background:#667eea; color:#fff; border:none; border-radius:4px; font-weight:600;">
+                    <i class="fa fa-save"></i> <?php echo xlt('Save Auto-Refill'); ?>
+                </button>
+                <div id="ov-recharge-status-msg" style="display:none; margin-top:8px; font-size:12px;"></div>
+            </div>
         <?php endif; ?>
     </div>
+
 </div>
+
+<script>
+function ovToggleRechargeFields() {
+    const on = document.getElementById('ov-recharge-on-toggle').checked;
+    const fields = document.getElementById('ov-recharge-fields');
+    if (fields) {
+        fields.style.display = on ? 'block' : 'none';
+    }
+}
+
+function ovSaveRechargeSettings() {
+    const msg = document.getElementById('ov-recharge-status-msg');
+    const on = document.getElementById('ov-recharge-on-toggle') ? (document.getElementById('ov-recharge-on-toggle').checked ? 1 : 0) : 0;
+    const point = document.getElementById('ov-recharge-point') ? parseFloat(document.getElementById('ov-recharge-point').value) || 0 : 0;
+    const amt = document.getElementById('ov-recharge-amt') ? parseInt(document.getElementById('ov-recharge-amt').value) || 0 : 0;
+
+    if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') {
+        top.restoreSession();
+    }
+
+    fetch('<?php echo $GLOBALS['webroot']; ?>/interface/modules/custom_modules/oe-module-medex/admin/update_recharge.php?site=<?php echo urlencode($_SESSION['site_id'] ?? 'default'); ?>', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'recharge_on=' + encodeURIComponent(on) +
+              '&recharge_point=' + encodeURIComponent(point) +
+              '&recharge_amt=' + encodeURIComponent(amt)
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (!msg) {
+            return;
+        }
+        msg.style.display = 'block';
+        if (data.success) {
+            msg.style.color = '#28a745';
+            msg.innerHTML = '<i class="fa fa-check-circle"></i> <?php echo xlt('Saved.'); ?>';
+            if (data.credit_balance !== undefined) {
+                const balEl = document.getElementById('ov-credit-balance');
+                if (balEl) {
+                    balEl.textContent = '$' + parseFloat(data.credit_balance).toFixed(2);
+                }
+            }
+            setTimeout(() => { msg.style.display = 'none'; }, 2500);
+        } else {
+            msg.style.color = '#dc3545';
+            msg.innerHTML = '<i class="fa fa-exclamation-circle"></i> ' + (data.error || '<?php echo xlt('Save failed.'); ?>');
+        }
+    })
+    .catch(() => {
+        if (!msg) {
+            return;
+        }
+        msg.style.display = 'block';
+        msg.style.color = '#dc3545';
+        msg.innerHTML = '<i class="fa fa-exclamation-circle"></i> <?php echo xlt('Network error.'); ?>';
+    });
+}
+</script>
 
 <!-- Quick Actions -->
 <div class="overview-card" style="margin-top: 20px;">

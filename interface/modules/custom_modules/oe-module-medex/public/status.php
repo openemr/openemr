@@ -101,7 +101,7 @@ if ($notInstalled) {
     $helpAnchor = '#start-here-connection';
 }
 $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
-    . '/interface/modules/custom_modules/oe-module-medex/public/help.php?site=' . urlencode((string)$siteId) . $helpAnchor;
+    . '/interface/modules/custom_modules/oe-module-medex/admin/splash.php?minimal=1&site=' . urlencode((string)$siteId);
 $tutorialUrl = \OpenEMR\Modules\MedEx\MedExConfig::tutorialUrl();
 
 ?>
@@ -569,7 +569,7 @@ $tutorialUrl = \OpenEMR\Modules\MedEx\MedExConfig::tutorialUrl();
         <!-- Help Footer -->
         <div class="help-footer">
             <div class="help-footer-links">
-                <a href="<?php echo attr($helpCenterUrl); ?>" class="help-footer-link" onclick="if (window.top && typeof window.top.restoreSession === 'function') { window.top.restoreSession(); } if (window.top && window.top !== window) { window.top.location.href = this.href; return false; }" target="_parent">
+                <a href="<?php echo attr($helpCenterUrl); ?>" class="help-footer-link" onclick="return openProductionReadiness(this.href);" target="_parent">
                     <i class="fa fa-question-circle"></i> <?php echo xlt('Open Help Center'); ?>
                 </a>
                 <a href="<?php echo attr($tutorialUrl); ?>" class="help-footer-link" target="_blank" rel="noopener">
@@ -578,5 +578,22 @@ $tutorialUrl = \OpenEMR\Modules\MedEx\MedExConfig::tutorialUrl();
             </div>
         </div>
     </div>
+<script>
+function openProductionReadiness(url) {
+    const msg = 'MedEx onboarding is production-only. Continue to readiness checklist?';
+    if (!window.confirm(msg)) {
+        return false;
+    }
+    if (window.top && typeof window.top.restoreSession === 'function') {
+        window.top.restoreSession();
+    }
+    if (window.top && window.top !== window) {
+        window.top.location.href = url;
+        return false;
+    }
+    window.location.href = url;
+    return false;
+}
+</script>
 </body>
 </html>

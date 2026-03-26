@@ -56,7 +56,10 @@ if (!in_array($currentTab, $validTabs)) {
 }
 
 // Get CSRF token
-$csrfToken = CsrfUtils::collectCsrfToken(session: $session);
+$csrfToken = CsrfUtils::collectCsrfToken();
+$siteId = $_SESSION['site_id'] ?? ($_GET['site'] ?? 'default');
+$helpCenterUrl = ($GLOBALS['webroot'] ?? '')
+    . '/interface/modules/custom_modules/oe-module-medex/admin/splash.php?minimal=1&site=' . urlencode((string)$siteId);
 
 ?>
 <!DOCTYPE html>
@@ -134,6 +137,26 @@ $csrfToken = CsrfUtils::collectCsrfToken(session: $session);
         }
         .sync-button.syncing {
             background: rgba(255,255,255,0.3);
+        }
+        .help-center-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 700;
+            color: #102d4c;
+            background: #f4fbff;
+            border: 1px solid #b8def7;
+            transition: all 0.2s ease;
+        }
+        .help-center-link:hover {
+            background: #ffffff;
+            border-color: #ffffff;
+            color: #0b4a82;
+            box-shadow: 0 8px 18px rgba(7, 39, 74, 0.22);
         }
         .header-toggle-switch {
             display: flex;
@@ -765,6 +788,7 @@ $csrfToken = CsrfUtils::collectCsrfToken(session: $session);
             .dashboard-actions {
                 width: 100%;
                 justify-content: space-between;
+                flex-wrap: wrap;
             }
             .tab-navigation-inner {
                 overflow-x: auto;
@@ -817,6 +841,14 @@ $csrfToken = CsrfUtils::collectCsrfToken(session: $session);
                 <?php endif; ?>
             </div>
             <div class="dashboard-actions">
+                <a
+                    href="<?php echo attr($helpCenterUrl); ?>"
+                    class="help-center-link"
+                    onclick="return openProductionReadiness(this.href);"
+                >
+                    <i class="fa fa-life-ring"></i>
+                    <?php echo xlt('Help Center'); ?>
+                </a>
                 <label class="header-toggle-switch" style="color: white; font-size: 14px; margin: 0;">
                     <input type="checkbox" id="medex_enable_header" value="1" <?php echo ($GLOBALS['medex_enable'] ?? '0') == '1' ? 'checked' : ''; ?> onchange="toggleMedExEnable(this)">
                     <span style="margin-left: 8px;"><?php echo xlt('MedEx Enabled'); ?></span>
@@ -939,6 +971,22 @@ $csrfToken = CsrfUtils::collectCsrfToken(session: $session);
 
         function hideToast() {
             document.getElementById('toast').classList.remove('show');
+        }
+
+        function openProductionReadiness(url) {
+            const msg = 'MedEx onboarding is production-only. Continue to readiness checklist?';
+            if (!window.confirm(msg)) {
+                return false;
+            }
+            if (window.top && typeof window.top.restoreSession === 'function') {
+                window.top.restoreSession();
+            }
+            if (window.top && window.top !== window) {
+                window.top.location.href = url;
+                return false;
+            }
+            window.location.href = url;
+            return false;
         }
 
         // Toggle MedEx Enable/Disable

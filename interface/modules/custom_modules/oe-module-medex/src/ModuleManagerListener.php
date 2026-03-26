@@ -198,16 +198,12 @@ class ModuleManagerListener
         }
 
         $webroot = $GLOBALS['webroot'] ?? '';
-        $helpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/public/help.php';
+        $helpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/admin/splash.php?minimal=1&site=default';
         $stateLabel = 'Pre-Install';
         if ($modActive === 1) {
-            $helpUrl .= '#daily-workflow';
             $stateLabel = 'Active Module';
         } elseif ($modUiActive === 1) {
-            $helpUrl .= '#start-here-connection';
             $stateLabel = 'Setup Needed';
-        } else {
-            $helpUrl .= '#what-medex-handles';
         }
 
         $tutorialUrl = MedExConfig::tutorialUrl();
@@ -217,27 +213,17 @@ class ModuleManagerListener
         $html = <<<HTML
 <div style="position:fixed;inset:0;background:rgba(7,12,22,.5);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;">
   <div style="max-width:520px;width:100%;background:#fff;border-radius:16px;box-shadow:0 22px 50px rgba(2,8,23,.25);border:1px solid #dbe6f5;padding:22px 22px 18px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-    <div style="font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:#426387;font-weight:700;margin-bottom:8px;">MedEx Help Center</div>
-    <div style="font-size:22px;line-height:1.2;font-weight:800;color:#10233d;margin-bottom:10px;">Opening modern help experience</div>
+    <div style="font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:#426387;font-weight:700;margin-bottom:8px;">MedEx Readiness Gate</div>
+    <div style="font-size:22px;line-height:1.2;font-weight:800;color:#10233d;margin-bottom:10px;">Production onboarding only</div>
     <div style="font-size:14px;color:#4f647d;line-height:1.5;margin-bottom:16px;">
-      Context: <strong>{$safeState}</strong>. You are being redirected to the unified MedEx Help Center.
+      Context: <strong>{$safeState}</strong>. MedEx activation requires production readiness and a public HTTPS callback URL.
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <a href="{$safeHelpUrl}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 14px;background:linear-gradient(135deg,#0a66c2,#0ca678);color:#fff;text-decoration:none;border-radius:10px;font-weight:700;">Open Help Center</a>
+      <a href="{$safeHelpUrl}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 14px;background:linear-gradient(135deg,#0a66c2,#0ca678);color:#fff;text-decoration:none;border-radius:10px;font-weight:700;">Open Readiness Checklist</a>
       <a href="{$safeTutorialUrl}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:10px 14px;background:#f2f7ff;color:#0c4f92;text-decoration:none;border-radius:10px;font-weight:700;border:1px solid #cfe1fb;">Open Tutorial</a>
     </div>
   </div>
 </div>
-<script>
-(function(){
-  var url = "{$safeHelpUrl}";
-  if (window.top && window.top !== window) {
-    window.top.location.href = url;
-  } else {
-    window.location.href = url;
-  }
-})();
-</script>
 HTML;
 
         // Keep compatibility with caller behavior: emit modern launcher markup
