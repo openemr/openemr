@@ -1,8 +1,6 @@
 <?php
 
 /**
- * Unit tests for Message class.
- *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Eric Stern <erics@opencoreemr.com>
