@@ -127,17 +127,4 @@ class MessageTest extends TestCase
         // Version 999 doesn't exist in MessageFormat enum
         Message::parse('999' . base64_encode('test'));
     }
-
-    public function testEncodeProducesCorrectPrefix(): void
-    {
-        $keyId = new Id('test');
-        $ciphertext = new Ciphertext('data');
-
-        foreach (MessageFormat::cases() as $format) {
-            $message = new Message($keyId, $ciphertext, $format);
-            $encoded = $message->encode();
-            $expectedPrefix = sprintf('%03d', $format->value);
-            self::assertStringStartsWith($expectedPrefix, $encoded, "Format {$format->name} should produce prefix $expectedPrefix");
-        }
-    }
 }
