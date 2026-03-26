@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\Encryption;
 
 use UnexpectedValueException;
+use ValueError;
 
 enum MessageFormat
 {
@@ -34,7 +35,7 @@ enum MessageFormat
         return match ($prefix) {
             '001', '002', '003', '004', '005', '006', '007' => self::ImplicitKey,
             '008' => self::ExplicitKey,
-            default => throw new UnexpectedValueException(''),
+            default => throw new ValueError('Unknown message format'),
             // default: plaintext?
         };
     }
