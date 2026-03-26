@@ -15,6 +15,8 @@ require_once(__DIR__ . "/../../../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Modules\MedEx\MedExConfig;
 
 // Set JSON response header
 header('Content-Type: application/json');
@@ -26,28 +28,45 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 }
 
 // Verify CSRF token
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', $session)) {
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', 'default')) {
     echo json_encode(['success' => false, 'error' => 'Invalid security token']);
     exit;
 }
 
 try {
-    // Delete MedEx credentials from globals (but keep server URL with default)
-    sqlStatement("DELETE FROM globals WHERE gl_name IN ('medex_api_key', 'medex_practice_id', 'medex_enable')");
+    QueryUtils::sqlStatementThrowException("DELETE FROM globals WHERE gl_name IN ('medex_api_key', 'medex_practice_id', 'medex_bad_actor_until', 'medex_bad_actor_message')");
+    QueryUtils::sqlStatementThrowException("REPLACE INTO globals (gl_name, gl_index, gl_value) VALUES ('medex_enable', 0, '0')");
+    QueryUtils::sqlStatementThrowException("REPLACE INTO globals (gl_name, gl_index, gl_value) VALUES ('medex_server_url', 0, ?)", [MedExConfig::publicBaseUrl()]);
+    QueryUtils::sqlStatementThrowException("DELETE FROM medex_prefs");
 
-    // Ensure server URL is set to default
-    sqlStatement("REPLACE INTO globals (gl_name, gl_index, gl_value) VALUES ('medex_server_url', 0, 'http://localhost/cart/upload')");
+    // Verify wipe really happened
+    $prefsCount = (int)(QueryUtils::querySingleRow("SELECT COUNT(*) AS c FROM medex_prefs", [])['c'] ?? 0);
+    $apiKeyRow = QueryUtils::querySingleRow("SELECT gl_value FROM globals WHERE gl_name = 'medex_api_key' LIMIT 1", []);
+    $practiceIdRow = QueryUtils::querySingleRow("SELECT gl_value FROM globals WHERE gl_name = 'medex_practice_id' LIMIT 1", []);
+    $isClean = ($prefsCount === 0) && empty($apiKeyRow['gl_value']) && empty($practiceIdRow['gl_value']);
 
-    // Clear all medex_prefs data
-    sqlStatement("DELETE FROM medex_prefs");
-
-    // Background services removed; no action required to reset background service.
+    if (!$isClean) {
+        echo json_encode([
+            'success' => false,
+            'error' => 'Reset incomplete. Credentials still present.',
+            'details' => [
+                'prefs_count' => $prefsCount,
+                'has_api_key' => !empty($apiKeyRow['gl_value']),
+                'has_practice_id' => !empty($practiceIdRow['gl_value']),
+            ]
+        ]);
+        exit;
+    }
 
     echo json_encode([
         'success' => true,
-        'message' => 'All MedEx credentials and settings have been cleared. You can now register as a new customer.'
+        'message' => 'All MedEx credentials and settings have been cleared. You can now register as a new customer.',
+        'details' => [
+            'prefs_count' => 0,
+            'has_api_key' => false,
+            'has_practice_id' => false,
+        ]
     ]);
-
 } catch (Exception $e) {
     echo json_encode([
         'success' => false,

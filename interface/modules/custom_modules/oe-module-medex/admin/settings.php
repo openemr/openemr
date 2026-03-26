@@ -289,7 +289,7 @@ $updateInfo = $updateManager->checkForUpdates();
         <?php endif; ?>
 
         <form method="post" id="prefs-form" action="save_preferences.php">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
             <div class="compact-row">
                 <!-- Column 1: Connection & Configuration -->
@@ -572,7 +572,7 @@ $updateInfo = $updateManager->checkForUpdates();
                     url: 'reset_connection.php',
                     type: 'POST',
                     data: {
-                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
+                        csrf_token_form: $('input[name="csrf_token_form"]').val()
                     },
                     dataType: 'json',
                     success: function(response) {
