@@ -70,14 +70,12 @@ class MessageTest extends TestCase
 
     public function testConstructRoundtrip(): void
     {
-        // IMPORTANT: once we support message format v8, this test should start
-        // failing and get updated so the keys align again.
         $keyId = new Id('some-key-id');
         $ciphertext = new Ciphertext('some encrypted data');
         $message = new Message($keyId, $ciphertext);
         $encoded = $message->encode();
         $parsed = Message::parse($encoded);
-        self::assertSame('seven', $parsed->keyId->id, 'Key mismatch');
+        self::assertSame('some-key-id', $parsed->keyId->id, 'Key mismatch');
         self::assertSame($ciphertext->wrapped, $parsed->ciphertext->wrapped, 'Ciphertext mismatch');
     }
 
