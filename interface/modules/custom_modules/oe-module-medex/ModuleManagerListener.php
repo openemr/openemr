@@ -268,8 +268,8 @@ HTML;
         try {
             sqlStatement(
                 "UPDATE modules SET
-                    mod_name = 'oe-module-medex',
-                    mod_ui_name = 'MedEx Module',
+                    mod_name = 'MedEx Module',
+                    mod_ui_name = 'Oe-module-medex',
                     sql_version = '1.1.0'
                  WHERE mod_id = ?",
                 [$modId]
@@ -439,8 +439,8 @@ HTML;
         try {
             sqlStatement(
                 "UPDATE modules SET
-                    mod_name = 'oe-module-medex',
-                    mod_ui_name = 'MedEx Module',
+                    mod_name = 'MedEx Module',
+                    mod_ui_name = 'Oe-module-medex',
                     sql_version = '1.1.0'
                  WHERE mod_id = ?",
                 [$modId]
