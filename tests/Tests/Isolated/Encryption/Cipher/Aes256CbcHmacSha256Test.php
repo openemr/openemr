@@ -17,10 +17,12 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Encryption\Cipher;
 
+use BadMethodCallException;
 use OpenEMR\Common\Crypto\CryptoGenException;
 use OpenEMR\Encryption\Cipher\Aes256CbcHmacSha256;
 use OpenEMR\Encryption\Ciphertext;
 use OpenEMR\Encryption\Keys\KeyMaterial;
+use OpenEMR\Encryption\Plaintext;
 use OpenEMR\Tests\Fixtures\CryptoFixtureManager;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -139,5 +141,17 @@ final class Aes256CbcHmacSha256Test extends TestCase
 
         $this->expectException(CryptoGenException::class);
         $cipher->decrypt(new Ciphertext($truncated));
+    }
+
+    public function testEncryptThrowsBadMethodCallException(): void
+    {
+        $cipher = new Aes256CbcHmacSha256(
+            key: new KeyMaterial($this->fixtures->getTestKey('twoa')),
+            hmacKey: new KeyMaterial($this->fixtures->getTestKey('twob')),
+        );
+
+        $this->expectException(BadMethodCallException::class);
+        $this->expectExceptionMessage('Encrypting new data with');
+        $cipher->encrypt(new Plaintext(CryptoFixtureManager::PLAINTEXT));
     }
 }
