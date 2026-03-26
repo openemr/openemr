@@ -21,7 +21,7 @@ enum MessageFormat
     // "Modern" format: explcitly indicate the key id
     case ExplicitKey;
 
-    const LATEST = self::ImplicitKey;
+    const LATEST = self::ExplicitKey;
 
     // This is effectively BackedEnum's `::from`, rejiggered in
     // a backwards-compatible way
