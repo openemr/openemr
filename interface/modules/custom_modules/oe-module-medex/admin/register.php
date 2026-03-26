@@ -25,11 +25,19 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 }
 
 $stage = $_GET['stage'] ?? '1';
+$siteId = $_GET['site'] ?? 'default';
+$csrfToken = CsrfUtils::collectCsrfToken();
 
 // Check if already registered (but still allow re-registration/reconnection)
 $existing = \OpenEMR\Common\Database\QueryUtils::querySingleRow("SELECT ME_api_key, MedEx_id, ME_username FROM medex_prefs WHERE ME_api_key IS NOT NULL AND ME_api_key != '' LIMIT 1", []);
 $already_registered = !empty($existing['ME_api_key']) && !empty($existing['MedEx_id']);
 $existing_email = $existing['ME_username'] ?? '';
+$callbackTokenRow = \OpenEMR\Common\Database\QueryUtils::querySingleRow("SELECT gl_value FROM globals WHERE gl_name = 'medex_callback_token' LIMIT 1", []);
+$callbackToken = trim($callbackTokenRow['gl_value'] ?? '');
+$defaultCallbackUrl = '';
+if (!empty($callbackToken) && !empty($_SERVER['HTTP_HOST'])) {
+    $defaultCallbackUrl = 'https://' . $_SERVER['HTTP_HOST'] . '/interface/modules/custom_modules/oe-module-medex/public/callback.php?token=' . rawurlencode($callbackToken);
+}
 
 ?>
 <!DOCTYPE html>
@@ -163,7 +171,8 @@ $existing_email = $existing['ME_username'] ?? '';
     </style>
 </head>
 <body>
-    <div class="container"> && $stage == '1'): ?>
+    <div class="container">
+        <?php if ($already_registered && $stage == '1'): ?>
             <!-- Show reconnect option on stage 1 only -->
             <div class="alert alert-info">
                 <strong><i class="fa fa-check-circle"></i> <?php echo xlt("Already Registered"); ?></strong><br>
@@ -181,8 +190,7 @@ $existing_email = $existing['ME_username'] ?? '';
                 </a>
                 <a href="reconnect.php" class="btn btn-warning">
                     <i class="fa fa-refresh"></i> <?php echo xlt("Reconnect/Re-register"); ?>
-                
-                <a href="settings.php" class="btn btn-primary"><?php echo xlt("Go to Settings"); ?></a>
+                </a>
             </div>
         <?php elseif ($stage == '1'): ?>
             <!-- Stage 1: Service Overview -->
@@ -218,7 +226,7 @@ $existing_email = $existing['ME_username'] ?? '';
                 </div>
 
                 <div class="text-center" style="margin-top: 30px;">
-                    <a href="register.php?stage=2" class="btn btn-primary">
+                    <a href="register.php?stage=2&amp;site=<?php echo attr_url($siteId); ?>" class="btn btn-primary">
                         <i class="fa fa-arrow-right"></i> <?php echo xlt('Sign-up'); ?>
                     </a>
                 </div>
@@ -235,7 +243,7 @@ $existing_email = $existing['ME_username'] ?? '';
             </div>
 
             <form name="medex_start" id="medex_start" class="jumbotron">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrfToken); ?>" />
 
                 <div id="setup_1">
                     <div id="answer" name="answer">
@@ -300,13 +308,29 @@ $existing_email = $existing['ME_username'] ?? '';
                             </div>
                         </div>
 
+                        <div class="form-group">
+                            <label for="callback_url">
+                                <?php echo xlt('Callback URL (Required)'); ?>:
+                            </label>
+                            <input type="url"
+                                   class="form-control"
+                                   id="callback_url"
+                                   name="callback_url"
+                                   value="<?php echo attr($defaultCallbackUrl); ?>"
+                                   placeholder="<?php echo xla('https://your-domain/interface/modules/custom_modules/oe-module-medex/public/callback.php?token=...'); ?>"
+                                   required />
+                            <div class="signup_help">
+                                <?php echo xlt('Must be a production HTTPS endpoint. Private/local/test URLs are not auto-approved.'); ?>
+                            </div>
+                        </div>
+
                     </div>
 
                     <div class="checkbox-group">
                         <input type="checkbox" id="TERMS_yes" name="TERMS_yes" required />
                         <label for="TERMS_yes">
                             <?php echo xlt('I have read and my practice agrees to the'); ?>
-                            <a href="#" onclick="window.open('<?php echo \OpenEMR\Modules\MedEx\MedExConfig::baseUrl(); ?>/index.php?route=information/information&information_id=5','TERMS',800,600); return false;">
+                            <a href="#" onclick="window.open('<?php echo \OpenEMR\Modules\MedEx\MedExConfig::publicBaseUrl(); ?>/index.php?route=information/information&information_id=5','TERMS',800,600); return false;">
                                 MedEx <?php echo xlt('Terms and Conditions'); ?>
                             </a>
                         </label>
@@ -316,7 +340,7 @@ $existing_email = $existing['ME_username'] ?? '';
                         <input type="checkbox" id="BusAgree_yes" name="BusAgree_yes" required />
                         <label for="BusAgree_yes">
                             <?php echo xlt('I have read and accept the'); ?>
-                            <a href="#" onclick="window.open('<?php echo \OpenEMR\Modules\MedEx\MedExConfig::baseUrl(); ?>/index.php?route=information/information&information_id=8','Bus Assoc Agree',800,600); return false;">
+                            <a href="#" onclick="window.open('<?php echo \OpenEMR\Modules\MedEx\MedExConfig::publicBaseUrl(); ?>/index.php?route=information/information&information_id=8','Bus Assoc Agree',800,600); return false;">
                                 MedEx <?php echo xlt('Business Associate Agreement'); ?>
                             </a>
                         </label>
@@ -455,6 +479,13 @@ $existing_email = $existing['ME_username'] ?? '';
             return false;
         }
 
+        // Check callback URL
+        var callbackUrl = $("#callback_url").val();
+        if (!callbackUrl || !callbackUrl.startsWith('https://')) {
+            $("#result").html('<div class="alert alert-danger"><i class="fa fa-exclamation-circle"></i> <?php echo xlt('Callback URL is required and must use HTTPS'); ?>.</div>');
+            return false;
+        }
+
         // Submit registration
         $("#result").html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> <?php echo xlt("Registering your practice"); ?>...</div>');
 
@@ -464,7 +495,8 @@ $existing_email = $existing['ME_username'] ?? '';
             data: {
                 csrf_token_form: $('input[name="csrf_token_form"]').val(),
                 email: email,
-                password: password
+                password: password,
+                callback_url: callbackUrl
             },
             dataType: 'json',
             success: function(response) {

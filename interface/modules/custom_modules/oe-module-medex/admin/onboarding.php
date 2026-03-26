@@ -29,6 +29,12 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 require_once(__DIR__ . '/../src/MedExAPI.php');
 $api = new \OpenEMR\Modules\MedEx\MedExAPI();
 $step = $_GET['step'] ?? '1';
+$callbackTokenRow = \OpenEMR\Common\Database\QueryUtils::querySingleRow("SELECT gl_value FROM globals WHERE gl_name = 'medex_callback_token' LIMIT 1", []);
+$callbackToken = trim($callbackTokenRow['gl_value'] ?? '');
+$defaultCallbackUrl = '';
+if (!empty($callbackToken) && !empty($_SERVER['HTTP_HOST'])) {
+    $defaultCallbackUrl = 'https://' . $_SERVER['HTTP_HOST'] . '/interface/modules/custom_modules/oe-module-medex/public/callback.php?token=' . rawurlencode($callbackToken);
+}
 
 // Fetch pricing from API for step 2
 $pricing = $api->getPricing();
@@ -119,7 +125,7 @@ if ($step > 1 && !$api->isConfigured()) {
         <?php if ($step == 1): ?>
             <!-- Step 1: Account Registration -->
             <form id="form-step-1">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                 <div class="form-group">
                     <label for="email"><?php echo xlt("Administrator E-mail"); ?></label>
                     <input type="email" id="email" name="email" class="form-control" placeholder="admin@practice.com" required>
@@ -132,6 +138,14 @@ if ($step > 1 && !$api->isConfigured()) {
                     <label for="rpassword"><?php echo xlt("Confirm Password"); ?></label>
                     <input type="password" id="rpassword" name="rpassword" class="form-control" required>
                 </div>
+                <div class="form-group">
+                    <label for="callback_url"><?php echo xlt("Callback URL (Required)"); ?></label>
+                    <input type="url" id="callback_url" name="callback_url" class="form-control"
+                           value="<?php echo attr($defaultCallbackUrl); ?>"
+                           placeholder="https://your-domain/interface/modules/custom_modules/oe-module-medex/public/callback.php?token=..."
+                           required>
+                    <small style="color:#64748b;"><?php echo xlt("Production HTTPS endpoint required for auto-approval."); ?></small>
+                </div>
                 <div style="margin-top: 30px; text-align: right;">
                     <button type="button" class="btn btn-primary" onclick="submitStep1()"><?php echo xlt("Next: Configure Services"); ?> <i class="fa fa-arrow-right"></i></button>
                 </div>
@@ -140,7 +154,7 @@ if ($step > 1 && !$api->isConfigured()) {
         <?php elseif ($step == 2): ?>
             <!-- Step 2: Service Configuration -->
             <form id="form-step-2">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
                 <p><?php echo xlt("Select the services you wish to enable for your practice. You can start with a trial for any provider-based service."); ?></p>
 
@@ -315,7 +329,7 @@ if ($step > 1 && !$api->isConfigured()) {
                 <div style="margin: 30px 0;">
                     <h4><?php echo xlt("Payment Information"); ?></h4>
                     <form id="payment-form">
-                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
                         <div class="form-group">
                             <label for="cardholder-name"><?php echo xlt("Cardholder Name"); ?></label>
                             <input type="text" id="cardholder-name" class="form-control" required>
@@ -354,13 +368,18 @@ if ($step > 1 && !$api->isConfigured()) {
             const email = $("#email").val();
             const password = $("#password").val();
             const rpassword = $("#rpassword").val();
+            const callbackUrl = $("#callback_url").val();
 
-            if (!email || !password) {
+            if (!email || !password || !callbackUrl) {
                 alert("Please fill all required fields");
                 return;
             }
             if (password !== rpassword) {
                 alert("Passwords do not match");
+                return;
+            }
+            if (!callbackUrl.startsWith("https://")) {
+                alert("Callback URL must use HTTPS");
                 return;
             }
 
@@ -372,7 +391,8 @@ if ($step > 1 && !$api->isConfigured()) {
                 data: {
                     csrf_token_form: $('input[name="csrf_token_form"]').val(),
                     email: email,
-                    password: password
+                    password: password,
+                    callback_url: callbackUrl
                 },
                 dataType: 'json',
                 success: function(response) {

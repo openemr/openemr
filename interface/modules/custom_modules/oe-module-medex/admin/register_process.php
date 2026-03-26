@@ -15,6 +15,40 @@ require_once(__DIR__ . "/../../../../globals.php");
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 
+function medexIsPrivateHost(string $host): bool
+{
+    $host = strtolower(trim($host));
+    if ($host === '' || $host === 'localhost') {
+        return true;
+    }
+
+    if (filter_var($host, FILTER_VALIDATE_IP)) {
+        return !filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
+    }
+
+    return false;
+}
+
+function medexValidateCallbackUrl(string $url): array
+{
+    $url = trim($url);
+    if ($url === '') {
+        return [false, 'Callback URL is required'];
+    }
+    if (stripos($url, 'https://') !== 0) {
+        return [false, 'Callback URL must use HTTPS'];
+    }
+    $parts = parse_url($url);
+    $host = strtolower($parts['host'] ?? '');
+    if ($host === '') {
+        return [false, 'Callback URL host is invalid'];
+    }
+    if (medexIsPrivateHost($host)) {
+        return [false, 'Callback URL cannot be a private or local host'];
+    }
+    return [true, 'ok'];
+}
+
 // Set JSON response header
 header('Content-Type: application/json');
 
@@ -36,12 +70,18 @@ try {
     require_once(__DIR__ . '/../src/Services/PracticeService.php');
 
     // Validate required fields (only email and password - practice details come from facility sync)
-    $required = ['email', 'password'];
+    $required = ['email', 'password', 'callback_url'];
     foreach ($required as $field) {
         if (empty($_POST[$field])) {
             echo json_encode(['success' => false, 'error' => "Missing required field: {$field}"]);
             exit;
         }
+    }
+
+    [$callbackOk, $callbackErr] = medexValidateCallbackUrl((string)($_POST['callback_url'] ?? ''));
+    if (!$callbackOk) {
+        echo json_encode(['success' => false, 'error' => $callbackErr]);
+        exit;
     }
 
 // Create API instance
@@ -60,6 +100,10 @@ $practice_city = trim($facility['city'] ?? '');
 $practice_state = trim($facility['state'] ?? '');
 $practice_postcode = trim($facility['postal_code'] ?? '');
 $practice_country_code = strtoupper(trim($facility['country_code'] ?? 'US'));
+$providerCountRow = sqlQuery("SELECT COUNT(*) AS c FROM users WHERE authorized = 1 AND active = 1");
+$facilityCountRow = sqlQuery("SELECT COUNT(*) AS c FROM facility WHERE service_location = 1");
+$insuranceCountRow = sqlQuery("SELECT COUNT(*) AS c FROM insurance_companies");
+$siteUrl = 'https://' . ($_SERVER['HTTP_HOST'] ?? ($_SERVER['SERVER_NAME'] ?? ''));
 
 // Prepare registration data
 $data = [
@@ -73,6 +117,11 @@ $data = [
     'state' => $practice_state,
     'postcode' => $practice_postcode,
     'country_code' => $practice_country_code,
+    'callback_url' => trim($_POST['callback_url']),
+    'site_url' => $siteUrl,
+    'provider_count' => (int)($providerCountRow['c'] ?? 0),
+    'facility_count' => (int)($facilityCountRow['c'] ?? 0),
+    'insurance_count' => (int)($insuranceCountRow['c'] ?? 0),
     'ehr' => 'OpenEMR',
     'ehr_version' => $GLOBALS['v_major'] . '.' . $GLOBALS['v_minor'] . '.' . $GLOBALS['v_patch']
 ];
@@ -149,6 +198,9 @@ if (!empty($result['success'])) {
         $result['sync_performed'] = false;
         $result['sync_message'] = 'No facilities or providers with calendars found to sync';
     }
+} elseif (!empty($result['pending_review'])) {
+    $result['success'] = false;
+    $result['error'] = $result['message'] ?? 'Signup pending review by MedEx support.';
 }
 
     // Return result
