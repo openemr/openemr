@@ -29,8 +29,23 @@ final readonly class Message
         $format = MessageFormat::detect($encodedMessage);
 
         return match ($format) {
+            MessageFormat::ExplicitKey => self::parseExplicitKey($encodedMessage),
             MessageFormat::ImplicitKey => self::parseImplicitKey($encodedMessage),
         };
+    }
+
+    private static function parseExplicitKey(string $encodedMessage): Message
+    {
+        $parts = explode(':', $encodedMessage);
+        if (count($parts) !== 3) {
+            throw new UnexpectedValueException('Malformed message');
+        }
+        [$formatId, $keyId, $ciphertext] = $parts;
+        return new Message(
+            keyId: new Keys\Id($keyId),
+            ciphertext: new Ciphertext(base64_decode($ciphertext)),
+            format: MessageFormat::ExplicitKey,
+        );
     }
 
     // Backwards compatibility: versions 1-7 coupled the data storage with
@@ -63,6 +78,14 @@ final readonly class Message
 
     public function encode(): string
     {
+        return match ($this->format) {
+            MessageFormat::ImplicitKey =>  $this->encodeImplicit(),
+            MessageFormat::ExplicitKey => $this->encodeExplicit(),
+        };
+    }
+
+    private function encodeImplicit(): string
+    {
         // Future guard: once >1 MessageFormat, switch encoder
         $prefix = match ($this->keyId->id) {
             'one' => '001',
@@ -78,5 +101,15 @@ final readonly class Message
         // if format encodes key id properly, add that in (new path?)
 
         return sprintf('%s%s', $prefix, base64_encode($this->ciphertext->wrapped));
+    }
+
+    private function encodeExplicit(): string
+    {
+        return sprintf(
+            '%s:%s:%s',
+            '008',
+            $this->keyId->id,
+            base64_encode($this->ciphertext->wrapped),
+        );
     }
 }
