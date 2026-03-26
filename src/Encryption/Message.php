@@ -94,12 +94,9 @@ final readonly class Message
             'five' => '005',
             'six' => '006',
             'seven' => '007',
-            // default => throw 
+            // three, default (syntax error)
+            default => throw new UnexpectedValueException('Unexpected historic key'),
         };
-        // $prefix = sprintf('%03d', $this->format->value);
-
-        // if format encodes key id properly, add that in (new path?)
-
         return sprintf('%s%s', $prefix, base64_encode($this->ciphertext->wrapped));
     }
 
