@@ -94,60 +94,56 @@ class ModuleManagerListener extends AbstractModuleActionListener
      */
     private function help_requested($modId, $currentActionStatus): mixed
     {
-        // Unified Help Center launcher.
-        // Old modal injectors (show_help*.php) are intentionally bypassed because
-        // they create a dated UX and inconsistent entry behavior.
-        $row = sqlQuery("SELECT mod_active, mod_ui_active FROM modules WHERE mod_id = ?", [$modId]);
-        $modActive   = (int)($row['mod_active']    ?? 0);
+        $row = sqlQuery("SELECT sql_run, mod_active, mod_ui_active FROM modules WHERE mod_id = ?", [$modId]);
+        $sqlRun      = (int)($row['sql_run'] ?? 0);
+        $modActive   = (int)($row['mod_active'] ?? 0);
         $modUiActive = (int)($row['mod_ui_active'] ?? 0);
 
         $webroot = $GLOBALS['webroot'] ?? '';
         $helpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/public/help.php';
+        $setupUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/admin/splash.php?minimal=1&site=default';
 
-        // Send users to the most relevant section by state.
-        if ($modActive === 1) {
-            $helpUrl .= '#daily-workflow';
-            $stateLabel = 'Active Module';
+        $primaryLabel = 'Open Help';
+        $primaryAction = "window.top.location.href='{$helpUrl}';";
+        $stateLabel = 'Active';
+        $hint = 'User guide and setup resources for MedEx.';
+
+        if ($sqlRun === 0) {
+            $stateLabel = 'Not Installed';
+            $hint = 'Install the module first, then continue setup.';
+            $primaryLabel = 'Install Module';
+            $primaryAction = "if (typeof window.top.manage === 'function') { window.top.manage('{$modId}', 'install'); }";
+        } elseif ($modActive === 0) {
+            $stateLabel = 'Installed, Not Enabled';
+            $hint = 'Enable module and complete onboarding.';
+            $primaryLabel = 'Open Setup';
+            $primaryAction = "window.top.location.href='{$setupUrl}';";
         } elseif ($modUiActive === 1) {
-            $helpUrl .= '#start-here-connection';
             $stateLabel = 'Setup Needed';
-        } else {
-            $helpUrl .= '#what-medex-handles';
-            $stateLabel = 'Pre-Install';
+            $hint = 'Finish onboarding and connection validation.';
+            $primaryLabel = 'Open Setup';
+            $primaryAction = "window.top.location.href='{$setupUrl}';";
         }
 
-        $tutorialUrl = \OpenEMR\Modules\MedEx\MedExConfig::tutorialUrl();
-        $safeHelpUrl = htmlspecialchars($helpUrl, ENT_QUOTES, 'UTF-8');
-        $safeTutorialUrl = htmlspecialchars($tutorialUrl, ENT_QUOTES, 'UTF-8');
         $safeState = htmlspecialchars($stateLabel, ENT_QUOTES, 'UTF-8');
+        $safeHint = htmlspecialchars($hint, ENT_QUOTES, 'UTF-8');
+        $safePrimary = htmlspecialchars($primaryLabel, ENT_QUOTES, 'UTF-8');
+        $safeHelpUrl = htmlspecialchars($helpUrl, ENT_QUOTES, 'UTF-8');
+        $safePrimaryAction = htmlspecialchars($primaryAction, ENT_QUOTES, 'UTF-8');
+
         $html = <<<HTML
-<div style="position:fixed;inset:0;background:rgba(7,12,22,.5);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;">
-  <div style="max-width:520px;width:100%;background:#fff;border-radius:16px;box-shadow:0 22px 50px rgba(2,8,23,.25);border:1px solid #dbe6f5;padding:22px 22px 18px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
-    <div style="font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:#426387;font-weight:700;margin-bottom:8px;">MedEx Help Center</div>
-    <div style="font-size:22px;line-height:1.2;font-weight:800;color:#10233d;margin-bottom:10px;">Opening modern help experience</div>
-    <div style="font-size:14px;color:#4f647d;line-height:1.5;margin-bottom:16px;">
-      Context: <strong>{$safeState}</strong>. You are being redirected to the unified MedEx Help Center.
-    </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <a href="{$safeHelpUrl}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 14px;background:linear-gradient(135deg,#0a66c2,#0ca678);color:#fff;text-decoration:none;border-radius:10px;font-weight:700;">Open Help Center</a>
-      <a href="{$safeTutorialUrl}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:10px 14px;background:#f2f7ff;color:#0c4f92;text-decoration:none;border-radius:10px;font-weight:700;border:1px solid #cfe1fb;">Open Tutorial</a>
-    </div>
+<div style="margin:10px 0;padding:16px;border:1px solid #d8e2ee;border-radius:10px;background:#f8fbff;max-width:680px;">
+  <div style="font-weight:700;color:#123a66;margin-bottom:6px;">MedEx Module</div>
+  <div style="font-size:13px;color:#415a77;margin-bottom:12px;">
+    Status: <strong>{$safeState}</strong>.<br>{$safeHint}
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <button type="button" onclick="{$safePrimaryAction}" style="padding:8px 12px;border:0;border-radius:6px;background:#0f4b8f;color:#fff;font-weight:600;cursor:pointer;">{$safePrimary}</button>
+    <a href="{$safeHelpUrl}" target="_blank" style="display:inline-flex;align-items:center;padding:8px 12px;border:1px solid #aac4df;border-radius:6px;background:#fff;color:#0f4b8f;text-decoration:none;font-weight:600;">View Help</a>
   </div>
 </div>
-<script>
-(function(){
-  var url = "{$safeHelpUrl}";
-  if (window.top && window.top !== window) {
-    window.top.location.href = url;
-  } else {
-    window.location.href = url;
-  }
-})();
-</script>
 HTML;
 
-        // Exit with proper JSON — this prevents manageAction() from appending
-        // its own JSON and corrupting the response.
         echo json_encode(["status" => "Success", "output" => $html]);
         exit(0);
     }
@@ -272,13 +268,13 @@ HTML;
         try {
             sqlStatement(
                 "UPDATE modules SET
-                    mod_name = 'MedEx Communication Manager',
-                    mod_ui_name = 'MedEx Communication Manager',
+                    mod_name = 'oe-module-medex',
+                    mod_ui_name = 'MedEx Module',
                     sql_version = '1.1.0'
                  WHERE mod_id = ?",
                 [$modId]
             );
-            error_log('[MedEx] Module installed - name set to "MedEx Communication Manager"');
+            error_log('[MedEx] Module installed - display name set to "MedEx Module"');
         } catch (\Exception $e) {
             error_log('[MedEx] Failed to set module name on install: ' . $e->getMessage());
         }
@@ -439,6 +435,19 @@ HTML;
     private function enable($modId, $currentActionStatus): mixed
     {
         self::setModuleActiveState($modId, '1', '0'); // mod_active=1, mod_ui_active=0 (shows Disable button)
+
+        try {
+            sqlStatement(
+                "UPDATE modules SET
+                    mod_name = 'oe-module-medex',
+                    mod_ui_name = 'MedEx Module',
+                    sql_version = '1.1.0'
+                 WHERE mod_id = ?",
+                [$modId]
+            );
+        } catch (\Exception $e) {
+            error_log('[MedEx] Failed to enforce module metadata on enable: ' . $e->getMessage());
+        }
 
         // Set medex_enable global to enable the module
         try {

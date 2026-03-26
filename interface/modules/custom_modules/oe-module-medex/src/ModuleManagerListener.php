@@ -87,7 +87,7 @@ class ModuleManagerListener
             // Correct module registration to match the "MedEx Communication Manager" name
             // and ensure it shows "Disable" button by setting mod_ui_active=0
             QueryUtils::sqlStatementThrowException(
-                "UPDATE modules SET mod_name = 'MedEx Communication Manager', mod_ui_name = 'MedEx Communication Manager', sql_version = '1.0.0', mod_ui_active = 0, mod_active = 1 WHERE mod_directory = 'oe-module-medex'"
+                "UPDATE modules SET mod_name = 'oe-module-medex', mod_ui_name = 'MedEx Module', sql_version = '1.1.0', mod_ui_active = 0, mod_active = 1 WHERE mod_directory = 'oe-module-medex'"
             );
 
             // No background_services updates required; module manages external connections itself.
