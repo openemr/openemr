@@ -301,7 +301,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
     if ($add && !$column_exists) {
-        $addQuery = "ALTER TABLE `" . escape_table_name($tablename) . "` ADD `" . escape_identifier($field_id, 'a-zA-Z0-9_', true) . "` TEXT";
+        $addQuery = "ALTER TABLE " . escape_table_name($tablename) . " ADD `" . escape_identifier($field_id, 'a-zA-Z0-9_', true) . "` TEXT";
         sqlStatement($addQuery);
         EventAuditLogger::getInstance()->newEvent(
             "alter_table",
@@ -314,7 +314,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
         // Do not drop a column that has any data.
         $tmp = sqlQuery(
             "SELECT " . escape_sql_column_name($field_id, [$tablename]) .
-            " AS field_id FROM `" . escape_table_name($tablename) . "` WHERE " .
+            " AS field_id FROM " . escape_table_name($tablename) . " WHERE " .
             escape_sql_column_name($field_id, [$tablename]) . " IS NOT NULL AND "
             . escape_sql_column_name($field_id, [$tablename]) . " != '' LIMIT 1"
         );
@@ -330,7 +330,7 @@ function addOrDeleteColumn($layout_id, $field_id, $add = true): void
                 );
             }
             if (empty($lotmp['count'])) {
-                $dropQuery = "ALTER TABLE `" . escape_table_name($tablename) . "` " .
+                $dropQuery = "ALTER TABLE " . escape_table_name($tablename) . " " .
                     "DROP " . escape_sql_column_name($field_id, [$tablename]);
                 sqlStatement($dropQuery);
                 EventAuditLogger::getInstance()->newEvent(
@@ -363,13 +363,13 @@ function renameColumn($layout_id, $old_field_id, $new_field_id)
         return 4;
     }
     // Make sure old column exists.
-    $colarr = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE '" . add_escape_custom($old_field_id) . "'");
+    $colarr = sqlQuery("SHOW COLUMNS FROM " . escape_table_name($tablename) . " LIKE '" . add_escape_custom($old_field_id) . "'");
     if (empty($colarr)) {
         // Error, old name does not exist.
         return 2;
     }
     // Make sure new column does not exist.
-    $tmp = sqlQuery("SHOW COLUMNS FROM `" . escape_table_name($tablename) . "` LIKE '" . add_escape_custom($new_field_id) . "'");
+    $tmp = sqlQuery("SHOW COLUMNS FROM " . escape_table_name($tablename) . " LIKE '" . add_escape_custom($new_field_id) . "'");
     if (!empty($tmp)) {
         // Error, new name already in use.
         return 3;
@@ -385,7 +385,7 @@ function renameColumn($layout_id, $old_field_id, $new_field_id)
     if ($colarr['Extra']) {
         $colstr .= " " . add_escape_custom($colarr['Extra']);
     }
-    $query = "ALTER TABLE `" . escape_table_name($tablename) . "` CHANGE " . escape_sql_column_name($old_field_id, [$tablename]) . " `" . escape_identifier($new_field_id, 'a-zA-Z0-9_', true) . "` $colstr";
+    $query = "ALTER TABLE " . escape_table_name($tablename) . " CHANGE " . escape_sql_column_name($old_field_id, [$tablename]) . " `" . escape_identifier($new_field_id, 'a-zA-Z0-9_', true) . "` $colstr";
     sqlStatement($query);
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     EventAuditLogger::getInstance()->newEvent(

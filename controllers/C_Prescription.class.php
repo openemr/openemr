@@ -202,7 +202,7 @@ class C_Prescription extends Controller
                 $nameList = [];
                 while ($name = sqlFetchArray($medList)) {
                     $drug = explode(" ", (string) $name['drug']);
-                    $rXn = sqlQuery("SELECT `rxcui` FROM `" . mitigateSqlTableUpperCase('RXNCONSO') . "` WHERE `str` LIKE ?", ["%" . $drug[0] . "%"]);
+                    $rXn = sqlQuery("SELECT `rxcui` FROM " . mitigateSqlTableUpperCase('RXNCONSO') . " WHERE `str` LIKE ?", ["%" . $drug[0] . "%"]);
                     $nameList[] = $rXn['rxcui'];
                 }
                 if (count($nameList) < 2) {
