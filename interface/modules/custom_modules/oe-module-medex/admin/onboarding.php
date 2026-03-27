@@ -188,6 +188,7 @@ if ($step > 1 && !$api->isConfigured()) {
                         <?php echo xlt("We use a one-time password to verify your identity before enabling your MedEx setup."); ?>
                         <a href="#" onclick="window.open('<?php echo attr_js($privacyUrl); ?>','PrivacyPolicy',900,700); return false;"><?php echo xlt("Privacy Policy"); ?></a>
                     </small>
+                    <small style="color:#64748b; display:block; margin-top:4px;"><?php echo xlt("SMS OTP currently supports U.S./Canada numbers only."); ?></small>
                     <?php // SMS/WhatsApp OTP intentionally hidden in UI until end-to-end destination + verification flow is implemented. ?>
                     <div id="otp-sms-destination-wrap" class="form-group" style="display:none; margin-top: 10px;">
                         <label for="otp_sms_destination"><?php echo xlt("Mobile Number for SMS OTP"); ?></label>
