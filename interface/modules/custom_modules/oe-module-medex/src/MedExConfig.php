@@ -57,10 +57,10 @@ class MedExConfig
             ?? self::DEFAULT_BASE_URL;
         $url = rtrim((string)$url, '/');
 
-        // In-cluster OpenEMR pods can fail TLS handshake to the public edge host.
-        // Prefer the internal service URL for server-to-server API calls in k8s.
+        // In-cluster OpenEMR pods currently fail TLS handshake to api.hipaabank.net.
+        // Keep server-to-server calls on an external host by using medexbank.com.
         if (!empty(getenv('KUBERNETES_SERVICE_HOST')) && preg_match('#^https?://api\.hipaabank\.net/cart/upload$#i', $url)) {
-            return 'http://medex-api.medex.svc.cluster.local/cart/upload';
+            return 'https://medexbank.com/cart/upload';
         }
         return $url;
     }
