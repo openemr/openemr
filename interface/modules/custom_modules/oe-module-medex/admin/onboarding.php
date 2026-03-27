@@ -668,7 +668,7 @@ if ($step > 1 && !$api->isConfigured()) {
 
             const csrf = $('input[name="csrf_token_form"]').val();
             const callbackUrl = ($("#callback_url").val() || "").trim();
-            setCallbackStatus("Checking install from api.hipaabank.net...", "");
+            setCallbackStatus("Checking installation...", "");
             ensureActiveSession();
 
             $.ajax({
@@ -686,15 +686,15 @@ if ($step > 1 && !$api->isConfigured()) {
                         setCallbackStatus(response.message || "OpenEMR URL verified.", "ok");
                     } else {
                         callbackValidated = false;
-                        setFieldError("#callback_url", "#callback-error", response.error || "Unable to verify install");
-                        setCallbackStatus("Unable to verify install from api.hipaabank.net.", "err");
+                        setFieldError("#callback_url", "#callback-error", response.error || "Unable to verify install. Confirm your URL and module setup, then try again.");
+                        setCallbackStatus("", "");
                     }
                     updateStep1SubmitState();
                 },
                 error: function(jqXHR) {
                     callbackValidated = false;
-                    setFieldError("#callback_url", "#callback-error", ajaxErrorMessage(jqXHR, "Unable to verify install from api.hipaabank.net"));
-                    setCallbackStatus("Unable to verify install from api.hipaabank.net.", "err");
+                    setFieldError("#callback_url", "#callback-error", ajaxErrorMessage(jqXHR, "Unable to verify install right now. Confirm your URL and module setup, then try again."));
+                    setCallbackStatus("", "");
                     updateStep1SubmitState();
                 }
             });
@@ -816,7 +816,7 @@ if ($step > 1 && !$api->isConfigured()) {
             }
             if (!callbackValidated) {
                 setFieldError("#callback_url", "#callback-error", "Verify your OpenEMR URL before continuing.");
-                setCallbackStatus("OpenEMR URL has not been verified from api.hipaabank.net.", "err");
+                setCallbackStatus("", "");
                 return;
             }
             if (password !== rpassword) {
