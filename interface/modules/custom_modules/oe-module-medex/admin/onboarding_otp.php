@@ -15,6 +15,7 @@ require_once(__DIR__ . '/../src/MedExAPI.php');
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Http\oeHttp;
 
 header('Content-Type: application/json');
 
@@ -241,20 +242,21 @@ function medexSendOtpThroughApi(string $channel, string $destination, string $co
     $api = new \OpenEMR\Modules\MedEx\MedExAPI();
     $message = 'Your MedEx one-time password is ' . $code . '. It expires in 10 minutes.';
     $subject = 'Your MedEx One-Time Password';
+    $payload = [
+        'practice_id' => 'onboarding',
+        'pid' => 'onboarding',
+        'destination' => $destination,
+        'method' => $channel,
+        'message' => $message,
+        'subject' => $subject,
+        'type' => 'onboarding_otp',
+        'signup_ip' => $signupIp
+    ];
 
     try {
         $response = $api->makeRequest(
             '/index.php?route=api/send_secure_chat_link',
-            [
-                'practice_id' => 'onboarding',
-                'pid' => 'onboarding',
-                'destination' => $destination,
-                'method' => $channel,
-                'message' => $message,
-                'subject' => $subject,
-                'type' => 'onboarding_otp',
-                'signup_ip' => $signupIp
-            ],
+            $payload,
             'POST'
         );
 
@@ -265,7 +267,31 @@ function medexSendOtpThroughApi(string $channel, string $destination, string $co
         $err = (string)($response['error'] ?? 'Unable to send one-time password');
         return [false, $err];
     } catch (\Throwable $e) {
-        error_log('[MedEx OTP] send error: ' . $e->getMessage());
+        // External route can be unavailable on certain hosts; keep onboarding reliable.
+        // Try direct OTP API service path as fallback.
+        error_log('[MedEx OTP] primary send error: ' . $e->getMessage());
+    }
+
+    try {
+        $http = oeHttp::setOptions([
+            'timeout' => 5,
+            'verify' => false,
+            'http_errors' => false
+        ]);
+        $fallbackUrl = 'http://medex-api.medex.svc.cluster.local/cart/upload/index.php?route=api/send_secure_chat_link';
+        $resp = $http->asFormParams()->post($fallbackUrl, $payload);
+        $codeHttp = (int)$resp->getStatusCode();
+        $body = (string)$resp->getBody();
+        if ($codeHttp !== 200) {
+            return [false, 'Unable to send one-time password right now.'];
+        }
+        $decoded = json_decode($body, true);
+        if (!empty($decoded['success'])) {
+            return [true, 'One-time password sent.'];
+        }
+        return [false, (string)($decoded['error'] ?? 'Unable to send one-time password right now.')];
+    } catch (\Throwable $e) {
+        error_log('[MedEx OTP] fallback send error: ' . $e->getMessage());
         return [false, 'Unable to send one-time password right now.'];
     }
 }
