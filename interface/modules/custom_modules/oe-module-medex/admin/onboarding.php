@@ -486,6 +486,7 @@ if ($step > 1 && !$api->isConfigured()) {
     <script>
         let otpVerified = false;
         let callbackValidated = false;
+        const wizardStep = <?php echo (int)$step; ?>;
 
         function togglePasswordField(inputSelector, iconSelector) {
             const input = $(inputSelector);
@@ -734,7 +735,16 @@ if ($step > 1 && !$api->isConfigured()) {
 
         function updateStep1Progress(accountReady, urlReady, otpReady, agreementsReady) {
             const completed = (accountReady ? 1 : 0) + (urlReady ? 1 : 0) + (otpReady ? 1 : 0) + (agreementsReady ? 1 : 0);
-            const pct = Math.round((completed / 4) * 100);
+            const pct = Math.round((completed / 4) * 50);
+            $("#wizard-progress-fill").css("width", pct + "%");
+        }
+
+        function updateStep2Progress() {
+            const anyServiceSelected = $("#form-step-2 input[type='checkbox'][name^='service_']:checked").length > 0;
+            const remindersSelected = $("#service_reminders").is(":checked");
+            const providerReady = !remindersSelected || $("input[name='reminders_providers[]']:checked").length > 0;
+            const completed = (anyServiceSelected ? 1 : 0) + (providerReady ? 1 : 0);
+            const pct = 50 + Math.round((completed / 2) * 50);
             $("#wizard-progress-fill").css("width", pct + "%");
         }
 
@@ -967,6 +977,15 @@ if ($step > 1 && !$api->isConfigured()) {
         }
 
         $(document).ready(function() {
+            if (wizardStep === 3) {
+                $("#wizard-progress-fill").css("width", "100%");
+            } else if (wizardStep === 2) {
+                updateStep2Progress();
+                $("#form-step-2 input[type='checkbox']").on("change", function() {
+                    updateStep2Progress();
+                });
+            }
+
             $("#toggle-password").on("click", function() {
                 togglePasswordField("#password", "#toggle-password");
             });
