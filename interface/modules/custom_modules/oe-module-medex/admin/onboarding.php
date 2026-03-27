@@ -195,6 +195,10 @@ if ($step > 1 && !$api->isConfigured()) {
                                 <?php echo xlt("Detected URL"); ?>: <strong id="callback-url-display"><?php echo text($defaultOpenEmrUrl); ?></strong>
                             </div>
                             <div id="callback-error" class="field-error"><?php echo xlt("OpenEMR URL must be a valid public HTTPS URL."); ?></div>
+                            <div id="callback-help" class="field-status" style="display:none;">
+                                <?php echo xlt("Need help?"); ?>
+                                <a href="https://medexbank.com/cart/upload/index.php?route=information/contact" target="_blank" rel="noopener noreferrer"><?php echo xlt("Contact support"); ?></a>
+                            </div>
                             <div id="callback-status" class="field-status"></div>
                         </div>
                 </div>
@@ -618,16 +622,26 @@ if ($step > 1 && !$api->isConfigured()) {
             el.text(message || '');
         }
 
+        function setCallbackHelpVisible(visible) {
+            if (visible) {
+                $("#callback-help").show();
+            } else {
+                $("#callback-help").hide();
+            }
+        }
+
         function validateOpenEmrUrlFormat(showMessage = true) {
             const value = ($("#callback_url").val() || "").trim();
             const valid = /^https:\/\/[^\s/$.?#].[^\s]*$/i.test(value) &&
                 !/^https:\/\/(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[0-1])\.)/i.test(value);
             if (valid) {
                 clearFieldError("#callback_url", "#callback-error");
+                setCallbackHelpVisible(false);
                 return true;
             }
             if (showMessage) {
                 setFieldError("#callback_url", "#callback-error", "OpenEMR URL must be a valid public HTTPS URL.");
+                setCallbackHelpVisible(true);
             }
             return false;
         }
@@ -640,6 +654,7 @@ if ($step > 1 && !$api->isConfigured()) {
             } catch (e) {
                 if (showMessage) {
                     setFieldError("#callback_url", "#callback-error", "OpenEMR URL is invalid.");
+                    setCallbackHelpVisible(true);
                 }
                 return false;
             }
@@ -647,6 +662,10 @@ if ($step > 1 && !$api->isConfigured()) {
             const matches = parsedHost !== "" && currentHost !== "" && parsedHost === currentHost;
             if (!matches && showMessage) {
                 setFieldError("#callback_url", "#callback-error", "OpenEMR URL must match this server URL.");
+                setCallbackHelpVisible(true);
+            }
+            if (matches) {
+                setCallbackHelpVisible(false);
             }
             return matches;
         }
@@ -683,7 +702,9 @@ if ($step > 1 && !$api->isConfigured()) {
             }
             callbackValidated = true;
             clearFieldError("#callback_url", "#callback-error");
-            setCallbackStatus("OpenEMR URL accepted.", "ok");
+            setCallbackHelpVisible(false);
+            const url = ($("#callback_url").val() || "").trim();
+            setCallbackStatus("Secure connection to " + url + " confirmed.", "ok");
             updateStep1SubmitState();
         }
 
@@ -939,6 +960,7 @@ if ($step > 1 && !$api->isConfigured()) {
                 callbackValidated = false;
                 clearFieldError("#callback_url", "#callback-error");
                 setCallbackStatus("", "");
+                setCallbackHelpVisible(false);
                 updateStep1SubmitState();
             });
             $("#callback_url").on("blur", function() {
