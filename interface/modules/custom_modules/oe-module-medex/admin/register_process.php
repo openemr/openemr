@@ -479,6 +479,15 @@ try {
         echo json_encode(['success' => false, 'error' => $callbackErr]);
         exit;
     }
+    $submittedHost = strtolower((string)(parse_url($submittedOpenEmrUrl, PHP_URL_HOST) ?? ''));
+    $currentHost = strtolower(trim((string)($_SERVER['HTTP_HOST'] ?? '')));
+    if (($hostPos = strpos($currentHost, ':')) !== false) {
+        $currentHost = substr($currentHost, 0, $hostPos);
+    }
+    if ($submittedHost === '' || $currentHost === '' || $submittedHost !== $currentHost) {
+        echo json_encode(['success' => false, 'error' => 'OpenEMR URL must match this server URL']);
+        exit;
+    }
     [$derivedOk, $openEmrBaseUrl, $derivedCallbackUrl, $deriveErr] = medexBuildCallbackUrl($submittedOpenEmrUrl);
     if (!$derivedOk) {
         echo json_encode(['success' => false, 'error' => $deriveErr]);

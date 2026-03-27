@@ -10,7 +10,6 @@ if (empty($_GET['site'])) {
 }
 
 require_once(__DIR__ . "/../../../../globals.php");
-require_once(__DIR__ . '/../src/MedExAPI.php');
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -113,31 +112,22 @@ if (!$buildOk) {
     exit;
 }
 
-$api = new \OpenEMR\Modules\MedEx\MedExAPI();
-try {
-    $probe = $api->makeRequest(
-        'index.php?route=api/oemr/validate_callback',
-        ['callback_url' => $callbackUrl],
-        'POST'
-    );
-    if (!empty($probe['success'])) {
-        echo json_encode([
-            'success' => true,
-            'message' => 'OpenEMR URL verified from MedEx API.',
-            'openemr_url' => $baseUrl
-        ]);
-        exit;
-    }
+$submittedHost = strtolower((string)(parse_url($baseUrl, PHP_URL_HOST) ?? ''));
+$currentHost = strtolower(trim((string)($_SERVER['HTTP_HOST'] ?? '')));
+if (($pos = strpos($currentHost, ':')) !== false) {
+    $currentHost = substr($currentHost, 0, $pos);
+}
+if ($submittedHost === '' || $currentHost === '' || $submittedHost !== $currentHost) {
     echo json_encode([
         'success' => false,
-        'error' => (string)($probe['error'] ?? 'Unable to verify MedEx callback install from API side')
-    ]);
-    exit;
-} catch (\Throwable $e) {
-    error_log('[MedEx Onboarding URL Validation] ' . $e->getMessage());
-    echo json_encode([
-        'success' => false,
-        'error' => 'Unable to verify install from api.hipaabank.net right now. Please try again.'
+        'error' => 'OpenEMR URL must match this server URL.'
     ]);
     exit;
 }
+
+echo json_encode([
+    'success' => true,
+    'message' => 'OpenEMR URL accepted.',
+    'openemr_url' => $baseUrl
+]);
+exit;
