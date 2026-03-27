@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Common\Logging;
 
+use Lcobucci\Clock\FrozenClock;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Logging\Audit\Event;
 use OpenEMR\Common\Logging\Audit\SinkInterface;
@@ -22,6 +23,7 @@ use OpenEMR\Common\Logging\BreakglassCheckerInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class EventAuditLoggerTest extends TestCase
@@ -30,6 +32,7 @@ class EventAuditLoggerTest extends TestCase
     private SessionInterface&MockObject $session;
     private AuditConfig $config;
     private BreakglassCheckerInterface&MockObject $breakglassChecker;
+    private ClockInterface $clock;
 
     protected function setUp(): void
     {
@@ -43,6 +46,7 @@ class EventAuditLoggerTest extends TestCase
             eventTypeFlags: [],
         );
         $this->breakglassChecker = $this->createMock(BreakglassCheckerInterface::class);
+        $this->clock = new FrozenClock(new \DateTimeImmutable('2026-01-15 10:30:00'));
     }
 
     public function testRecordLogItemDispatchesToAllSinks(): void
@@ -66,6 +70,7 @@ class EventAuditLoggerTest extends TestCase
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
         );
 
         $logger->recordLogItem(
@@ -100,6 +105,7 @@ class EventAuditLoggerTest extends TestCase
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
         );
 
         $logger->recordLogItem(
@@ -136,6 +142,7 @@ class EventAuditLoggerTest extends TestCase
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
         );
 
         $logger->recordLogItem(
@@ -165,6 +172,7 @@ class EventAuditLoggerTest extends TestCase
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
         );
 
         $logger->recordLogItem(
@@ -185,6 +193,7 @@ class EventAuditLoggerTest extends TestCase
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
         );
 
         $logger->recordLogItem(
@@ -218,6 +227,7 @@ class EventAuditLoggerTest extends TestCase
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
         );
 
         $logger->recordLogItem(
@@ -254,6 +264,7 @@ class EventAuditLoggerTest extends TestCase
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
         );
 
         $logger->recordLogItem(
@@ -292,6 +303,7 @@ class EventAuditLoggerTest extends TestCase
             session: $this->session,
             config: $this->config,
             breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
         );
 
         // Legacy code sometimes passes "NULL" as a string
