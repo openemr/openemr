@@ -37,6 +37,7 @@ class MedExConfig
 
     /** Root of the API server (no /cart/upload path) — for customer-facing pages, tutorial, etc. */
     public const DEFAULT_MAIN_URL = 'https://medexbank.com';
+    public const DEFAULT_AGREEMENTS_URL = 'https://api.hipaabank.net';
     public const TERMS_VERSION = '2026-03-26';
     public const BAA_VERSION = '2026-03-26';
 
@@ -112,12 +113,14 @@ class MedExConfig
 
     public static function termsUrl(): string
     {
-        return self::publicBaseUrl() . '/index.php?route=information/information&information_id=5';
+        $base = rtrim((string)($GLOBALS['medex_agreements_url'] ?? self::DEFAULT_AGREEMENTS_URL), '/');
+        return $base . '/index.php?route=information/information&information_id=5';
     }
 
     public static function baaUrl(): string
     {
-        return self::publicBaseUrl() . '/index.php?route=information/information&information_id=8';
+        $base = rtrim((string)($GLOBALS['medex_agreements_url'] ?? self::DEFAULT_AGREEMENTS_URL), '/');
+        return $base . '/index.php?route=information/information&information_id=8';
     }
 
     // Service feature flags
