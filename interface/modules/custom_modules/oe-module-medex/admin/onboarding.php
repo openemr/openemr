@@ -165,7 +165,7 @@ if ($step > 1 && !$api->isConfigured()) {
                            value="<?php echo attr($defaultOpenEmrUrl); ?>"
                            placeholder="https://your-openemr-domain.com"
                            required>
-                    <small style="color:#64748b;"><?php echo xlt("Enter your OpenEMR base URL. MedEx will derive the callback endpoint automatically."); ?></small>
+                    <small style="color:#64748b;"><?php echo xlt("Enter the url you use to reach your OpenEMR server."); ?></small>
                 </div>
                 <div class="form-group">
                     <label style="font-weight:400;">
