@@ -84,8 +84,14 @@ if (!validateCallbackToken()) {
     exit;
 }
 
-// Check if MedEx is enabled
-if ($GLOBALS['medex_enable'] != '1') {
+// Get request data
+$data = getRequestData();
+$action = $data['action'] ?? 'unknown';
+
+error_log('[MedEx Callback] Action: ' . $action);
+
+// Allow token-auth ping even before module is fully enabled/configured.
+if ($action !== 'ping' && ($GLOBALS['medex_enable'] ?? '0') != '1') {
     http_response_code(503);
     echo json_encode([
         'success' => false,
@@ -93,12 +99,6 @@ if ($GLOBALS['medex_enable'] != '1') {
     ]);
     exit;
 }
-
-// Get request data
-$data = getRequestData();
-$action = $data['action'] ?? 'unknown';
-
-error_log('[MedEx Callback] Action: ' . $action);
 
 // Route to appropriate handler based on action
 switch ($action) {
