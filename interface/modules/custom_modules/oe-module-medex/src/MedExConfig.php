@@ -37,7 +37,7 @@ class MedExConfig
 
     /** Root of the API server (no /cart/upload path) — for customer-facing pages, tutorial, etc. */
     public const DEFAULT_MAIN_URL = 'https://medexbank.com';
-    public const DEFAULT_AGREEMENTS_URL = 'https://api.hipaabank.net';
+    public const DEFAULT_AGREEMENTS_URL = 'https://api.hipaabank.net/cart/upload';
     public const TERMS_VERSION = '2026-03-26';
     public const BAA_VERSION = '2026-03-26';
     public const OTP_WHATSAPP_ENABLED = false;
