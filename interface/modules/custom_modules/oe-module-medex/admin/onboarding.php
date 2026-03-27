@@ -73,7 +73,7 @@ if ($step > 1 && !$api->isConfigured()) {
     <?php endif; ?>
     <style>
         body { background: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .wizard-container { max-width: 800px; margin: 50px auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .wizard-container { max-width: 1100px; margin: 50px auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .wizard-header { text-align: center; margin-bottom: 40px; position: relative; }
         .wizard-back-link { position: absolute; left: 0; top: 12px; color: #64748b; text-decoration: none; font-size: 14px; }
         .wizard-steps { display: flex; justify-content: space-between; margin-bottom: 40px; position: relative; }
