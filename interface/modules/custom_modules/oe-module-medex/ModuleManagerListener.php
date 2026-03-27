@@ -101,50 +101,20 @@ class ModuleManagerListener extends AbstractModuleActionListener
 
         $webroot = $GLOBALS['webroot'] ?? '';
         $helpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/help.php?site=default';
-        $setupUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/admin/splash.php?minimal=1&site=default';
+        $setupHelpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/show_help_setup.php?site=default';
 
-        $primaryLabel = 'Open Help';
-        $primaryAction = "window.top.location.href='{$helpUrl}';";
-        $stateLabel = 'Active';
-        $hint = 'User guide and setup resources for MedEx.';
-
-        if ($sqlRun === 0) {
-            $stateLabel = 'Not Installed';
-            $hint = 'Install the module first, then continue setup.';
-            $primaryLabel = 'Install Module';
-            $primaryAction = "if (typeof window.manage === 'function') { window.manage('{$modId}', 'install'); } else if (window.top && typeof window.top.manage === 'function') { window.top.manage('{$modId}', 'install'); }";
-        } elseif ($modActive === 0) {
-            $stateLabel = 'Installed, Not Enabled';
-            $hint = 'Enable module and complete onboarding.';
-            $primaryLabel = 'Open Setup';
-            $primaryAction = "window.top.location.href='{$setupUrl}';";
-        } elseif ($modUiActive === 1) {
-            $stateLabel = 'Setup Needed';
-            $hint = 'Finish onboarding and connection validation.';
-            $primaryLabel = 'Open Setup';
-            $primaryAction = "window.top.location.href='{$setupUrl}';";
+        // Keep help flow deterministic and non-modal:
+        // - not installed/not enabled/setup-needed -> setup help
+        // - active -> user help
+        $targetUrl = $helpUrl;
+        if ($sqlRun === 0 || $modActive === 0 || $modUiActive === 1) {
+            $targetUrl = $setupHelpUrl;
         }
 
-        $safeState = htmlspecialchars($stateLabel, ENT_QUOTES, 'UTF-8');
-        $safeHint = htmlspecialchars($hint, ENT_QUOTES, 'UTF-8');
-        $safePrimary = htmlspecialchars($primaryLabel, ENT_QUOTES, 'UTF-8');
-        $safeHelpUrl = htmlspecialchars($helpUrl, ENT_QUOTES, 'UTF-8');
-        $safePrimaryAction = htmlspecialchars($primaryAction, ENT_QUOTES, 'UTF-8');
+        $safeTarget = htmlspecialchars($targetUrl, ENT_QUOTES, 'UTF-8');
+        $script = '<script>(function(){try{if(window.top&&window.top.location){window.top.location.href="' . $safeTarget . '";}else{window.location.href="' . $safeTarget . '";}}catch(e){window.location.href="' . $safeTarget . '";}})();</script>';
 
-        $html = <<<HTML
-<div style="margin:10px 0;padding:16px;border:1px solid #d8e2ee;border-radius:10px;background:#f8fbff;max-width:680px;">
-  <div style="font-weight:700;color:#123a66;margin-bottom:6px;">MedEx Module</div>
-  <div style="font-size:13px;color:#415a77;margin-bottom:12px;">
-    Status: <strong>{$safeState}</strong>.<br>{$safeHint}
-  </div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;">
-    <button type="button" onclick="{$safePrimaryAction}" style="padding:8px 12px;border:0;border-radius:6px;background:#0f4b8f;color:#fff;font-weight:600;cursor:pointer;">{$safePrimary}</button>
-    <a href="{$safeHelpUrl}" target="_blank" style="display:inline-flex;align-items:center;padding:8px 12px;border:1px solid #aac4df;border-radius:6px;background:#fff;color:#0f4b8f;text-decoration:none;font-weight:600;">View Help</a>
-  </div>
-</div>
-HTML;
-
-        echo json_encode(["status" => "Success", "output" => $html]);
+        echo json_encode(["status" => "Success", "output" => $script]);
         exit(0);
     }
 
