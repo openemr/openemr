@@ -204,30 +204,28 @@ if ($step > 1 && !$api->isConfigured()) {
                             <div id="callback-status" class="field-status"></div>
                         </div>
                     </div>
-                    <div class="panel-card">
-                        <div class="form-group">
-                            <label for="otp_channel"><?php echo xlt("One-Time Password (OTP) Method"); ?></label>
-                            <select id="otp_channel" name="otp_channel" class="form-control">
-                                <option value="email"><?php echo xlt("Email One-Time Password (OTP)"); ?></option>
-                                <option value="sms"><?php echo xlt("SMS One-Time Password (OTP)"); ?></option>
-                            </select>
-                            <small style="color:#64748b;">
-                                <?php echo xlt("We use a one-time password to verify your identity before enabling your MedEx setup."); ?>
-                                <a href="#" onclick="window.open('<?php echo attr_js($privacyUrl); ?>','PrivacyPolicy',900,700); return false;"><?php echo xlt("Privacy Policy"); ?></a>
-                            </small>
-                            <small style="color:#64748b; display:block; margin-top:4px;"><?php echo xlt("SMS OTP currently supports U.S./Canada numbers only."); ?></small>
-                            <?php // SMS/WhatsApp OTP intentionally hidden in UI until end-to-end destination + verification flow is implemented. ?>
-                            <div id="otp-sms-destination-wrap" class="form-group" style="display:none; margin-top: 10px;">
-                                <label for="otp_sms_destination"><?php echo xlt("Mobile Number for SMS OTP"); ?></label>
-                                <input type="tel" id="otp_sms_destination" name="otp_sms_destination" class="form-control"
-                                       placeholder="+15551234567">
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="panel-card full-width-card">
                     <div class="service-title" style="margin-bottom: 6px;"><?php echo xlt("Send One-Time Password"); ?></div>
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label for="otp_channel"><?php echo xlt("One-Time Password (OTP) Method"); ?></label>
+                        <select id="otp_channel" name="otp_channel" class="form-control">
+                            <option value="email"><?php echo xlt("Email One-Time Password (OTP)"); ?></option>
+                            <option value="sms"><?php echo xlt("SMS One-Time Password (OTP)"); ?></option>
+                        </select>
+                        <small style="color:#64748b;">
+                            <?php echo xlt("Select how you want to receive your verification code. We use this one-time password to verify your identity before enabling your MedEx setup."); ?>
+                            <a href="#" onclick="window.open('<?php echo attr_js($privacyUrl); ?>','PrivacyPolicy',900,700); return false;"><?php echo xlt("Privacy Policy"); ?></a>
+                        </small>
+                        <small style="color:#64748b; display:block; margin-top:4px;"><?php echo xlt("SMS OTP currently supports U.S./Canada numbers only."); ?></small>
+                        <?php // SMS/WhatsApp OTP intentionally hidden in UI until end-to-end destination + verification flow is implemented. ?>
+                        <div id="otp-sms-destination-wrap" class="form-group" style="display:none; margin-top: 10px;">
+                            <label for="otp_sms_destination"><?php echo xlt("Mobile Number for SMS OTP"); ?></label>
+                            <input type="tel" id="otp_sms_destination" name="otp_sms_destination" class="form-control"
+                                   placeholder="+15551234567">
+                        </div>
+                    </div>
                     <div class="otp-panel" style="margin-top: 0;">
                         <div class="otp-inline">
                             <button type="button" class="btn btn-primary" id="send-otp-btn"><?php echo xlt("Send One-Time Password (OTP)"); ?></button>
