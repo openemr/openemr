@@ -211,7 +211,7 @@ if ($step > 1 && !$api->isConfigured()) {
                             <option value="sms"><?php echo xlt("SMS One-Time Password (OTP)"); ?></option>
                         </select>
                         <small style="color:#64748b;">
-                            <?php echo xlt("Select how you want to receive your verification code. We use this one-time password to verify your identity before enabling your MedEx setup."); ?>
+                            <span id="otp-consent-copy"><?php echo xlt("You agree to allow us to send you this email to verify your identity before enabling your MedEx setup."); ?></span>
                             <a href="#" onclick="window.open('<?php echo attr_js($privacyUrl); ?>','PrivacyPolicy',900,700); return false;"><?php echo xlt("Privacy Policy"); ?></a>
                         </small>
                         <?php // SMS/WhatsApp OTP intentionally hidden in UI until end-to-end destination + verification flow is implemented. ?>
@@ -220,6 +220,7 @@ if ($step > 1 && !$api->isConfigured()) {
                             <input type="tel" id="otp_sms_destination" name="otp_sms_destination" class="form-control"
                                    placeholder="+15551234567">
                             <small style="color:#64748b; display:block; margin-top:4px;"><?php echo xlt("SMS OTP currently supports U.S./Canada numbers only."); ?></small>
+                            <div id="otp-sms-error" class="field-error"><?php echo xlt("Enter a valid U.S./Canada mobile number (for example 555-123-4567 or +1 555 123 4567)."); ?></div>
                         </div>
                     </div>
                     <div class="otp-panel" style="margin-top: 0;">
@@ -527,12 +528,61 @@ if ($step > 1 && !$api->isConfigured()) {
             } else {
                 $("#otp-sms-destination-wrap").hide();
                 $("#otp_sms_destination").val("");
+                clearFieldError("#otp_sms_destination", "#otp-sms-error");
             }
             otpVerified = false;
             $("#otp_proof").val("");
             $("#otp_code").val("");
             setOtpStatus("Send and verify your one-time password before continuing.");
+            updateOtpConsentCopy();
             updateStep1SubmitState();
+        }
+
+        function updateOtpConsentCopy() {
+            const channel = $("#otp_channel").val() === "sms" ? "text message" : "email";
+            $("#otp-consent-copy").text(
+                "You agree to allow us to send you this " + channel + " to verify your identity before enabling your MedEx setup. "
+            );
+        }
+
+        function normalizeSmsForE164(raw) {
+            let value = (raw || "").trim();
+            if (!value) {
+                return "";
+            }
+            value = value.replace(/(ext|x)\s*\d+$/i, "").trim();
+            if (value.startsWith("00")) {
+                value = "+" + value.slice(2);
+            }
+            if (value.startsWith("+")) {
+                const digits = value.slice(1).replace(/\D/g, "");
+                return digits ? ("+" + digits) : "";
+            }
+            const digitsOnly = value.replace(/\D/g, "");
+            if (digitsOnly.length === 10) {
+                return "+1" + digitsOnly;
+            }
+            if (digitsOnly.length === 11 && digitsOnly.startsWith("1")) {
+                return "+" + digitsOnly;
+            }
+            return "";
+        }
+
+        function validateSmsField(showMessage = true) {
+            const normalized = normalizeSmsForE164($("#otp_sms_destination").val() || "");
+            if (/^\+1\d{10}$/.test(normalized)) {
+                $("#otp_sms_destination").val(normalized);
+                clearFieldError("#otp_sms_destination", "#otp-sms-error");
+                return normalized;
+            }
+            if (showMessage) {
+                setFieldError(
+                    "#otp_sms_destination",
+                    "#otp-sms-error",
+                    "Enter a valid U.S./Canada mobile number (for example 555-123-4567 or +1 555 123 4567)."
+                );
+            }
+            return "";
         }
 
         function validateOtpDestination(channel, email, sms) {
@@ -548,7 +598,7 @@ if ($step > 1 && !$api->isConfigured()) {
                 return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue);
             }
             if (channel === "sms") {
-                return /^\+\d{10,15}$/.test((sms || "").trim());
+                return !!validateSmsField(true);
             }
             return false;
         }
@@ -711,7 +761,7 @@ if ($step > 1 && !$api->isConfigured()) {
         function sendOtp() {
             const channel = $("#otp_channel").val();
             const email = ($("#email").val() || "").trim();
-            const sms = ($("#otp_sms_destination").val() || "").trim();
+            const sms = (channel === "sms") ? validateSmsField(true) : "";
             const csrf = $('input[name="csrf_token_form"]').val();
 
             if (!validateOtpDestination(channel, email, sms)) {
@@ -758,7 +808,7 @@ if ($step > 1 && !$api->isConfigured()) {
             const csrf = $('input[name="csrf_token_form"]').val();
             const channel = $("#otp_channel").val();
             const email = ($("#email").val() || "").trim();
-            const sms = ($("#otp_sms_destination").val() || "").trim();
+            const sms = (channel === "sms") ? validateSmsField(true) : "";
 
             if (!/^\d{6}$/.test(code)) {
                 setOtpStatus("Enter a valid 6-digit one-time password.", "err");
@@ -965,6 +1015,14 @@ if ($step > 1 && !$api->isConfigured()) {
             });
             $("#callback_url").on("blur", function() {
                 validateCallbackFromApi();
+            });
+            $("#otp_sms_destination").on("blur", function() {
+                if ($("#otp_channel").val() === "sms") {
+                    validateSmsField(true);
+                }
+            });
+            $("#otp_sms_destination").on("input", function() {
+                clearFieldError("#otp_sms_destination", "#otp-sms-error");
             });
             $("#TERMS_yes, #BusAgree_yes, #comms_consent").on("change", function() {
                 updateStep1SubmitState();
