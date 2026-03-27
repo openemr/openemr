@@ -153,6 +153,7 @@ if ($step > 1 && !$api->isConfigured()) {
                 <div class="form-group">
                     <label for="email"><?php echo xlt("Administrator E-mail"); ?></label>
                     <input type="email" id="email" name="email" class="form-control" placeholder="admin@practice.com" required>
+                    <small style="color:#64748b; display:block; margin-top:6px;"><?php echo xlt("This email will be your username for signing in to MedEx."); ?></small>
                     <div id="email-error" class="field-error"><?php echo xlt("Please enter a valid administrator email address."); ?></div>
                 </div>
                 <div class="form-group">
