@@ -187,8 +187,6 @@ if ($step > 1 && !$api->isConfigured()) {
                             </div>
                             <div id="rpassword-error" class="field-error"><?php echo xlt("Confirm password must match the password."); ?></div>
                         </div>
-                </div>
-                <div class="panel-card full-width-card">
                         <div class="form-group">
                             <label for="callback_url"><?php echo xlt("OpenEMR URL"); ?></label>
                             <input type="url" id="callback_url" name="callback_url" class="form-control"
