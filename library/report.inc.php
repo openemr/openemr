@@ -12,6 +12,7 @@
 
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("srcdir") . "/options.inc.php");
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Utils\FormatMoney;
 use OpenEMR\Core\OEGlobalsBag;
@@ -514,7 +515,7 @@ function printData($retar, $key, $sep, $date_format): void
     if (@array_key_exists($key, $retar)) {
         $length = count($retar[$key]);
         for ($iter = $length; $iter >= 1; $iter--) {
-            if ($retar[$key][$iter]["value"] != "0000-00-00 00:00:00") {
+            if (!Utilities::isDateEmpty($retar[$key][$iter]["value"])) {
                 print text($retar[$key][$iter]["value"]) . " (" . text(oeFormatSDFT(strtotime((string) $retar[$key][$iter]["date"]))) . ")$sep";
             }
         }
@@ -534,7 +535,7 @@ function printRecDataOne($data_array, $recres, $N): void
     print "<table><tr>\n";
     $count = 0;
     foreach ($data_array as $akey => $aval) {
-        if (!empty($recres[$akey]) && count($recres[$akey]) > 0 && ($recres[$akey][1]["value"] != "0000-00-00 00:00:00")) {
+        if (!empty($recres[$akey]) && count($recres[$akey]) > 0 && !Utilities::isDateEmpty($recres[$akey][1]["value"])) {
             if ($count == $N) {
                 print "</tr><tr>\n";
                 $count = 0;
@@ -555,7 +556,7 @@ function printDataOne($retar, $key, $sep, $date_format): void
     //this function supports the printRecDataOne function above
     if (@array_key_exists($key, $retar)) {
         $length = count($retar[$key]);
-        if ($retar[$key][$length]["value"] != "0000-00-00 00:00:00") {
+        if (!Utilities::isDateEmpty($retar[$key][$length]["value"])) {
             $tmp = $retar[$key][$length]["value"];
             if (strstr((string) $key, 'DOB')) {
                 $tmp = oeFormatShortDate($tmp);
