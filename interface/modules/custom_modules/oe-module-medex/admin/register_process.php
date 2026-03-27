@@ -139,6 +139,55 @@ function medexEnsureOnboardingAttemptsTable(): void
     );
 }
 
+function medexEnsureEmailBlocklistTable(): void
+{
+    QueryUtils::sqlStatementThrowException(
+        "CREATE TABLE IF NOT EXISTS `medex_onboarding_email_blocklist` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `match_type` varchar(20) NOT NULL DEFAULT 'email',
+            `match_value` varchar(190) NOT NULL,
+            `reason` varchar(255) DEFAULT NULL,
+            `is_active` tinyint(1) NOT NULL DEFAULT 1,
+            `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            UNIQUE KEY `uniq_match` (`match_type`, `match_value`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+        []
+    );
+}
+
+function medexBlockedEmailReason(string $email): string
+{
+    $email = strtolower(trim($email));
+    if ($email === '' || strpos($email, '@') === false) {
+        return '';
+    }
+    $domain = substr(strrchr($email, '@'), 1);
+    if ($domain === false || $domain === '') {
+        return '';
+    }
+
+    $exact = QueryUtils::querySingleRow(
+        "SELECT reason FROM medex_onboarding_email_blocklist
+         WHERE is_active = 1 AND match_type = 'email' AND LOWER(match_value) = ? LIMIT 1",
+        [$email]
+    );
+    if (!empty($exact)) {
+        return (string)($exact['reason'] ?? 'blocked_email');
+    }
+
+    $domainHit = QueryUtils::querySingleRow(
+        "SELECT reason FROM medex_onboarding_email_blocklist
+         WHERE is_active = 1 AND match_type = 'domain' AND LOWER(match_value) = ? LIMIT 1",
+        [$domain]
+    );
+    if (!empty($domainHit)) {
+        return (string)($domainHit['reason'] ?? 'blocked_domain');
+    }
+
+    return '';
+}
+
 function medexGetAttemptState(string $email): array
 {
     $row = QueryUtils::querySingleRow(
@@ -328,6 +377,7 @@ try {
     require_once(__DIR__ . '/../src/MedExAPI.php');
     require_once(__DIR__ . '/../src/Services/PracticeService.php');
     medexEnsureOnboardingAttemptsTable();
+    medexEnsureEmailBlocklistTable();
 
     // Validate required fields (only email and password - practice details come from facility sync)
     $required = ['email', 'password', 'callback_url', 'TERMS_yes', 'BusAgree_yes', 'comms_consent', 'otp_proof'];
@@ -352,6 +402,15 @@ try {
     $email = trim((string)($_POST['email'] ?? ''));
     if ($email === '') {
         echo json_encode(['success' => false, 'error' => 'E-mail is required']);
+        exit;
+    }
+    $blockedReason = medexBlockedEmailReason($email);
+    if ($blockedReason !== '') {
+        echo json_encode([
+            'success' => false,
+            'pending_review' => true,
+            'error' => 'Auto-approval is not available for this email. Please contact support@medexbank.com for review.'
+        ]);
         exit;
     }
     [$isLocked, $lockedUntil] = medexIsLocked($email);

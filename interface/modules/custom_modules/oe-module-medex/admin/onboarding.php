@@ -181,7 +181,7 @@ if ($step > 1 && !$api->isConfigured()) {
                         <option value="sms"><?php echo xlt("SMS One-Time Password (OTP)"); ?></option>
                     </select>
                     <small style="color:#64748b;">
-                        <?php echo xlt("We use a one-time password to verify account control and protect your MedEx setup."); ?>
+                        <?php echo xlt("We use a one-time password to verify your identity before enabling your MedEx setup."); ?>
                         <a href="#" onclick="window.open('<?php echo attr_js($privacyUrl); ?>','PrivacyPolicy',900,700); return false;"><?php echo xlt("Privacy Policy"); ?></a>
                     </small>
                     <?php // SMS/WhatsApp OTP intentionally hidden in UI until end-to-end destination + verification flow is implemented. ?>
