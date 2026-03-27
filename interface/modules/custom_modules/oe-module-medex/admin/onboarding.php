@@ -73,7 +73,7 @@ if ($step > 1 && !$api->isConfigured()) {
     <?php endif; ?>
     <style>
         body { background: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .wizard-container { max-width: 1100px; margin: 50px auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .wizard-container { max-width: 1100px; margin: 50px auto; background: #f5f5f5; padding: 32px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .wizard-header { text-align: center; margin-bottom: 40px; position: relative; }
         .wizard-back-link { position: absolute; left: 0; top: 12px; color: #64748b; text-decoration: none; font-size: 14px; }
         .wizard-steps { display: flex; justify-content: space-between; margin-bottom: 40px; position: relative; }
@@ -105,24 +105,25 @@ if ($step > 1 && !$api->isConfigured()) {
         .btn-primary { background: #0f4b8f; color: white; }
         .btn-primary:hover { background: #0a3460; }
 
-        .service-card { border: 1px solid #eee; padding: 20px; border-radius: 8px; margin-bottom: 15px; display: flex; align-items: flex-start; gap: 15px; transition: all 0.2s; }
-        .service-card:hover { border-color: #0f4b8f; background: #f9faff; }
+        .service-card { border: 2px solid #e0e0e0; padding: 20px; border-radius: 10px; margin-bottom: 15px; display: flex; align-items: flex-start; gap: 15px; transition: all 0.2s ease; background: #fff; }
+        .service-card:hover { border-color: #667eea; background: #f8f9ff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateY(-1px); }
         .service-info { flex: 1; }
-        .service-title { font-weight: bold; font-size: 16px; margin-bottom: 5px; }
-        .service-desc { font-size: 13px; color: #666; }
+        .service-title { font-size: 17px; font-weight: 600; color: #333; margin-bottom: 6px; }
+        .service-desc { font-size: 13px; color: #666; line-height: 1.5; }
         .service-price { font-size: 14px; color: #0f4b8f; font-weight: 600; margin-top: 8px; }
 
         .provider-list { max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 6px; margin-top: 10px; }
         .provider-item { display: flex; align-items: center; gap: 10px; padding: 5px 0; border-bottom: 1px solid #f5f5f5; }
         .onboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 8px; }
-        .panel-card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; background: #ffffff; }
+        .panel-card { border: 2px solid #e0e0e0; border-radius: 10px; padding: 20px; background: #ffffff; transition: all 0.2s ease; }
+        .panel-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-color: #d3d9e6; }
         .panel-card .form-group:last-child { margin-bottom: 0; }
         .full-width-card { margin-top: 14px; }
 
         #result { margin-top: 20px; }
         .alert { padding: 15px; border-radius: 6px; margin-bottom: 20px; }
         .alert-danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
-        .otp-panel { border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; margin-top: 10px; background: #f8fafc; }
+        .otp-panel { border: 1px solid #d9e2ef; border-radius: 8px; padding: 14px; margin-top: 10px; background: #f8f9ff; }
         .otp-inline { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
         .otp-status { font-size: 13px; color: #475569; margin-top: 8px; }
         .otp-status.ok { color: #15803d; }
