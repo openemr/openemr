@@ -200,6 +200,13 @@ if ($step > 1 && !$api->isConfigured()) {
                         </div>
                         <div id="otp-status" class="otp-status"><?php echo xlt("Send and verify your one-time password before continuing."); ?></div>
                         <input type="hidden" id="otp_proof" name="otp_proof" value="">
+                        <div class="form-group" style="margin-top: 12px; margin-bottom: 0;">
+                            <label style="font-weight:400; margin-bottom: 0;">
+                                <input type="checkbox" id="comms_consent" name="comms_consent" value="1" required>
+                                <?php echo xlt("I agree to receive onboarding and account-related emails and text messages from MedEx."); ?>
+                            </label>
+                            <small style="color:#64748b; display:block; margin-top:6px;"><?php echo xlt("Message and data rates may apply for SMS."); ?></small>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group" style="margin-bottom: 12px;">
@@ -221,13 +228,6 @@ if ($step > 1 && !$api->isConfigured()) {
                         </a>
                         (<?php echo xlt("Version"); ?> <?php echo text($baaVersion); ?>)
                     </label>
-                </div>
-                <div class="form-group">
-                    <label style="font-weight:400;">
-                        <input type="checkbox" id="comms_consent" name="comms_consent" value="1" required>
-                        <?php echo xlt("I agree to receive onboarding and account-related emails and text messages from MedEx."); ?>
-                    </label>
-                    <small style="color:#64748b;"><?php echo xlt("Message and data rates may apply for SMS."); ?></small>
                 </div>
                 <div style="margin-top: 30px; text-align: right;">
                     <button type="button" class="btn btn-primary" onclick="submitStep1()"><?php echo xlt("Next: Configure Services"); ?> <i class="fa fa-arrow-right"></i></button>
