@@ -290,7 +290,7 @@ if ($destination === '') {
 
 if ($action === 'send') {
     $signupIp = medexResolveClientIp();
-    [$rateAllowed, $retryAfterSec, $ipCount] = medexCheckAndBumpOtpIpRate($signupIp, $destination);
+    [$rateAllowed, $retryAfterSec] = medexCheckAndBumpOtpIpRate($signupIp, $destination);
     if (!$rateAllowed) {
         medexAuditOtpDecision('send', $channel, $destination, '', 'reject', 'ip_rate_limited');
         echo json_encode([
