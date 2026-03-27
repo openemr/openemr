@@ -12,6 +12,11 @@
  * @license   Proprietary - All Rights Reserved
  */
 
+if (empty($_GET['site'])) {
+    $_GET['site'] = 'default';
+}
+$ignoreAuth = true;
+
 require_once(__DIR__ . "/../../../../globals.php");
 
 // Set JSON response header
