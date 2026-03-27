@@ -21,9 +21,11 @@ require_once("$fileroot/custom/code_types.inc.php");
 require_once("$fileroot/interface/drugs/drugs.inc.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 //verify csrf
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -33,10 +35,11 @@ function write_code_info($codetype, $code, $selector, $pricelevel): void
 
     $wh = ''; // options for warehouse selection
 
-    if ($codetype == 'PROD') {
+    if ($codetype === 'PROD') {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $wrow = sqlQuery(
             "SELECT default_warehouse FROM users WHERE username = ?",
-            [$_SESSION['authUser']]
+            [$session->get('authUser')]
         );
         $defaultwh = empty($wrow['default_warehouse']) ? '' : $wrow['default_warehouse'];
       //

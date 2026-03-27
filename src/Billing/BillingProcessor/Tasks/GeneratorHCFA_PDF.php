@@ -187,7 +187,7 @@ class GeneratorHCFA_PDF extends AbstractGenerator implements
     public function completeToScreen(array $context)
     {
         // If we are just validating, make a temp file
-        $tmp_claim_file = OEGlobalsBag::getInstance()->get('temporary_files_dir') .
+        $tmp_claim_file = OEGlobalsBag::getInstance()->getString('temporary_files_dir') .
             DIRECTORY_SEPARATOR .
             $this->batch->getBatFilename();
         file_put_contents($tmp_claim_file, $this->pdf->ezOutput());

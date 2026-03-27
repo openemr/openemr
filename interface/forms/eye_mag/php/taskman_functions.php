@@ -17,6 +17,7 @@
  */
 
 use Mpdf\Mpdf;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\Config_Mpdf;
 use OpenEMR\Services\FacilityService;
@@ -190,14 +191,14 @@ function deliver_document($task)
         $from_name .= ", " . $from_data['suffix'];
     }
     $from_fax       = preg_replace("/[^0-9]/", "", (string) $facility_data['fax']);
-    $email_sender   = OEGlobalsBag::getInstance()->get('patient_reminder_sender_email');
+    $email_sender   = OEGlobalsBag::getInstance()->getString('patient_reminder_sender_email');
 
     $to_data        = sqlQuery($query, [$task['TO_ID']]);
     $to_fax         = preg_replace("/[^0-9]/", "", (string) $to_data['fax']);
 
     $mail           = new MyMailer();
 
-    $to_email       = $to_fax . "@" . OEGlobalsBag::getInstance()->get('hylafax_server');
+    $to_email       = $to_fax . "@" . OEGlobalsBag::getInstance()->getString('hylafax_server');
     //consider using admin email = Notification Email Address
     //this must be a fax server approved From: address
     $file_to_attach = preg_replace('/^file:\/\//', "", (string) $task['DOC_url']);
@@ -277,7 +278,7 @@ function make_document($task)
     $encounter      = $task['ENC_ID'];
 
  //   $mail           = new MyMailer();
-    $to_email       = $to_fax . "@" . OEGlobalsBag::getInstance()->get('hylafax_server');
+    $to_email       = $to_fax . "@" . OEGlobalsBag::getInstance()->getString('hylafax_server');
 
     $query = "select  *,form_encounter.date as encounter_date
 
@@ -353,7 +354,8 @@ function make_document($task)
 
     $config_mpdf = Config_Mpdf::getConfigMpdf();
     $pdf = new mPDF($config_mpdf);
-    if ($_SESSION['language_direction'] == 'rtl') {
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
+    if ($session->get('language_direction') === 'rtl') {
         $pdf->SetDirectionality('rtl');
     }
 
@@ -554,7 +556,7 @@ mpdf-->
     $pdf->WriteHTML($header);
     $pdf->writeHTML($content);
 
-    $temp_filename = tempnam(OEGlobalsBag::getInstance()->get('temporary_files_dir'), "oer");
+    $temp_filename = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), "oer");
     $pdf->Output($temp_filename, 'F');
 
     $type = "application/pdf";

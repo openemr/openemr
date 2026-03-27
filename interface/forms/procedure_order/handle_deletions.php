@@ -6,19 +6,32 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Jerry Padgett <sjpadgett@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2025 Jerry Padgett <sjpadgett@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
 require_once(__DIR__ . "/../../globals.php");
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AccessDeniedResponseFormat;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 // Verify CSRF token
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '')) {
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', session: $session)) {
     http_response_code(403);
     echo json_encode(['success' => false, 'error' => 'CSRF validation failed']);
     exit;
+}
+
+// Verify user has admin/super privileges (consistent with delete.php)
+if (!AclMain::aclCheckCore('admin', 'super')) {
+    AccessDeniedHelper::deny('Procedure order deletion access denied', format: AccessDeniedResponseFormat::Json);
 }
 
 $action = $_POST['action'] ?? '';
@@ -67,12 +80,13 @@ function deleteProcedure()
             [$orderId, $orderSeq]
         );
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Soft delete specimens (set deleted = 1)
         sqlStatement(
             "UPDATE procedure_specimen
              SET deleted = 1, updated_by = ?
              WHERE procedure_order_id = ? AND procedure_order_seq = ?",
-            [($_SESSION['authUserID'] ?? null), $orderId, $orderSeq]
+            [($session->get('authUserID')), $orderId, $orderSeq]
         );
 
         // Hard delete the procedure order code
@@ -120,11 +134,12 @@ function deleteSpecimen()
     }
 
     try {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         sqlStatement(
             "UPDATE procedure_specimen
              SET deleted = 1, updated_by = ?
              WHERE procedure_specimen_id = ?",
-            [($_SESSION['authUserID'] ?? null), $specimenId]
+            [$session->get('authUserID'), $specimenId]
         );
 
         return ['success' => true];

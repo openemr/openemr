@@ -27,6 +27,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Auth\AuthHash;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\RandomGenUtils;
 use OpenEMR\Common\Utils\ValidationUtils;
@@ -57,8 +58,9 @@ class PatientAccessOnsiteService
 
     public function __construct(?LoggerInterface $logger = null)
     {
-        $this->authUser = $_SESSION['authUser'];
-        $this->authProvider = $_SESSION['authProvider'];
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $this->authUser = $session->get('authUser');
+        $this->authProvider = $session->get('authProvider');
         $this->kernel = OEGlobalsBag::getInstance()->getKernel();
         $this->twig = (new TwigContainer(null, $this->kernel))->getTwig();
         $this->logger = $logger ?? ServiceContainer::getLogger();
@@ -74,8 +76,9 @@ class PatientAccessOnsiteService
      */
     public static function fetchUserSetting($label, $user = null): mixed
     {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $sql = "SELECT setting_value FROM user_settings WHERE setting_user = ? AND setting_label = ? ORDER BY setting_user LIMIT 1";
-        $user = (is_null($user) ? $_SESSION['authUserID'] ?? null : $user);
+        $user = (is_null($user) ? $session->get('authUserID') : $user);
         $rtn = sqlQueryNoLog($sql, [$user, $label]);
 
         return $rtn['setting_value'] ?? 0;
@@ -149,7 +152,7 @@ class PatientAccessOnsiteService
         $fhirServerConfig = new ServerConfig();
         $data = [
             'portal_onsite_two_enable' => OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable')
-            , 'portal_onsite_two_address' => OEGlobalsBag::getInstance()->get('portal_onsite_two_address')
+            , 'portal_onsite_two_address' => OEGlobalsBag::getInstance()->getString('portal_onsite_two_address')
             , 'enforce_signin_email' => OEGlobalsBag::getInstance()->getBoolean('enforce_signin_email')
             , 'uname' => $username
             , 'login_uname' => $loginUsername
@@ -253,12 +256,12 @@ class PatientAccessOnsiteService
     private function emailLogin($patient_id, $htmlMsg, $plainMsg, Environment $twig)
     {
         $patientData = sqlQuery("SELECT * FROM `patient_data` WHERE `pid`=?", [$patient_id]);
-        if ($patientData['hipaa_allowemail'] != "YES" || empty($patientData['email']) || empty(OEGlobalsBag::getInstance()->get('patient_reminder_sender_email'))) {
+        if ($patientData['hipaa_allowemail'] != "YES" || empty($patientData['email']) || empty(OEGlobalsBag::getInstance()->getString('patient_reminder_sender_email'))) {
             $this->logger->debug(
                 "PatientAccessOnSiteService->emailLogin() Skipping email send",
                 ['hipaa_allowemail' => $patientData['hipaa_allowemail']
                     , 'email' => empty($patientData['email']) ? "email is empty" : "patient has email"
-                    , 'GLOBALS[patient_reminder_sender_email]' => OEGlobalsBag::getInstance()->get('patient_reminder_sender_email')]
+                    , 'GLOBALS[patient_reminder_sender_email]' => OEGlobalsBag::getInstance()->getString('patient_reminder_sender_email')]
             );
             return false;
         }
@@ -268,10 +271,10 @@ class PatientAccessOnsiteService
             return false;
         }
 
-        if (!($this->validEmail(OEGlobalsBag::getInstance()->get('patient_reminder_sender_email')))) {
+        if (!($this->validEmail(OEGlobalsBag::getInstance()->getString('patient_reminder_sender_email')))) {
             $this->logger->debug(
                 "PatientAccessOnSiteService->emailLogin() Skipping email send, GLOBALS[patient_reminder_sender_email] is invalid",
-                ['GLOBALS[patient_reminder_sender_email]' => OEGlobalsBag::getInstance()->get('patient_reminder_sender_email')]
+                ['GLOBALS[patient_reminder_sender_email]' => OEGlobalsBag::getInstance()->getString('patient_reminder_sender_email')]
             );
             return false;
         }
@@ -279,7 +282,7 @@ class PatientAccessOnsiteService
         $pt_name = $patientData['fname'] . ' ' . $patientData['lname'];
         $pt_email = $patientData['email'];
         $email_subject = xl('Access Your Patient Portal') . ' / ' . xl('3rd Party API Access');
-        $email_sender = OEGlobalsBag::getInstance()->get('patient_reminder_sender_email');
+        $email_sender = OEGlobalsBag::getInstance()->getString('patient_reminder_sender_email');
         $mail->AddReplyTo($email_sender, $email_sender);
         $mail->SetFrom($email_sender, $email_sender);
         $mail->AddAddress($pt_email, $pt_name);

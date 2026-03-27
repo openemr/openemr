@@ -35,22 +35,22 @@ $t = $twig->getTwig();
 $versionService = new VersionService();
 
 // Auto-generate the link if no override is specified. This is tied directly to the OpenEMR Wiki
-$userManual = (OEGlobalsBag::getInstance()->get('user_manual_link') === '')
+$userManual = (OEGlobalsBag::getInstance()->getString('user_manual_link') === '')
     ? "https://open-emr.org/wiki/index.php/OpenEMR_" . $versionService->asString(false, false) . "_Users_Guide"
-    : OEGlobalsBag::getInstance()->get('user_manual_link');
+    : OEGlobalsBag::getInstance()->getString('user_manual_link');
 
 // Collect registered email, if applicable
 $emailRegistered = (new ProductRegistrationService())->getRegistrationEmail() ?? '';
 
 $viewArgs = [
-    'onlineSupportHref' => OEGlobalsBag::getInstance()->get("online_support_link"),
+    'onlineSupportHref' => OEGlobalsBag::getInstance()->getString("online_support_link"),
     'ackHref' => "../../acknowledge_license_cert.html",
     'applicationTitle' => $openemr_name,
     'versionNumber' => $versionService->asString(),
-    'supportPhoneNumber' => OEGlobalsBag::getInstance()->get('support_phone_number') ?? false,
+    'supportPhoneNumber' => OEGlobalsBag::getInstance()->getString('support_phone_number') ?? false,
     'theUUID' => UniqueInstallationUuid::getUniqueInstallationUuid(),
     'userManualHref' => $userManual,
-    'onlineSupportLink' => OEGlobalsBag::getInstance()->get('online_support_link') ?? false,
+    'onlineSupportLink' => OEGlobalsBag::getInstance()->getString('online_support_link') ?? false,
     'displayAcknowledgements' => OEGlobalsBag::getInstance()->getBoolean('display_acknowledgements'),
     'displayDonations' => OEGlobalsBag::getInstance()->getBoolean('display_donations_link'),
     'displayReview' => OEGlobalsBag::getInstance()->getBoolean('display_review_link'),

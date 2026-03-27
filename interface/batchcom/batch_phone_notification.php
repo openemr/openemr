@@ -39,10 +39,10 @@ $before_trigger_hours = 72; // 3 days is default
 //Get the values from Global
 $before_trigger_hours = OEGlobalsBag::getInstance()->getInt('phone_notification_hour');
 //set up the phone notification settings for external phone service
-$phone_url = OEGlobalsBag::getInstance()->get('phone_gateway_url') ;
-$phone_id = OEGlobalsBag::getInstance()->get('phone_gateway_username');
+$phone_url = OEGlobalsBag::getInstance()->getString('phone_gateway_url') ;
+$phone_id = OEGlobalsBag::getInstance()->getString('phone_gateway_username');
 $cryptoGen = ServiceContainer::getCrypto();
-$phone_token = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('phone_gateway_password'));
+$phone_token = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('phone_gateway_password'));
 $phone_time_range = OEGlobalsBag::getInstance()->get('phone_time_range');
 
 //get the facility_id-message map

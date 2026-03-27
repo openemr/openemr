@@ -30,6 +30,7 @@ use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthProvisioningServ
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TelehealthRegistrationCodeService;
 use Comlink\OpenEMR\Modules\TeleHealthModule\Services\TeleHealthRemoteRegistrationService;
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Common\Utils\CacheUtils;
 use OpenEMR\Core\Kernel;
@@ -116,11 +117,7 @@ class Bootstrap
         ?Kernel $kernel = null,
         ?LoggerInterface $logger = null,
     ) {
-        global $GLOBALS;
-
-        if (empty($kernel)) {
-            $kernel = new Kernel();
-        }
+        $kernel ??= OEGlobalsBag::getInstance()->getKernel();
         $twig = new TwigContainer($this->getTemplatePath(), $kernel);
         $twigEnv = $twig->getTwig();
         $this->twig = $twigEnv;
@@ -189,7 +186,8 @@ class Bootstrap
 
     public function getCurrentLoggedInUser()
     {
-        return $_SESSION['authUserID'] ?? null;
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        return $session->get('authUserID');
     }
 
     public function subscribeToProviderEvents()

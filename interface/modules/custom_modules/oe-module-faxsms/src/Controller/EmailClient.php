@@ -40,9 +40,9 @@ class EmailClient extends AppDispatch
             throw new \RuntimeException(xlt("Access denied! Module not enabled"));
         }
         $this->crypto = ServiceContainer::getCrypto();
-        $this->baseDir = OEGlobalsBag::getInstance()->get('temporary_files_dir');
+        $this->baseDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
         $this->uriDir = OEGlobalsBag::getInstance()->get('OE_SITE_WEBROOT');
-        $this->smtpEnabled = !empty(OEGlobalsBag::getInstance()->get('SMTP_HOST') ?? null);
+        $this->smtpEnabled = !empty(OEGlobalsBag::getInstance()->getString('SMTP_HOST') ?? null);
         parent::__construct();
     }
 
@@ -119,7 +119,7 @@ class EmailClient extends AppDispatch
         $desc = xlt("Comment") . ":\n" . text($body) . "\n" . xlt("This email has an attached document.");
         $mail = new MyMailer();
         $from_name = text($from_name);
-        $from = OEGlobalsBag::getInstance()->get("practice_return_email_path");
+        $from = OEGlobalsBag::getInstance()->getString("practice_return_email_path");
         $mail->AddReplyTo($from, $from_name);
         $mail->SetFrom($from, $from);
         $mail->AddAddress($email, $email);
@@ -144,15 +144,15 @@ class EmailClient extends AppDispatch
         if (!$this->smtpEnabled) {
             throw new SmtpNotConfiguredException(sprintf(
                 "SMTP not configured (SMTP_HOST=%s, SMTP_PORT=%s, SMTP_USER=%s)",
-                OEGlobalsBag::getInstance()->get('SMTP_HOST') ?? 'NOT_SET',
+                OEGlobalsBag::getInstance()->getString('SMTP_HOST') ?? 'NOT_SET',
                 OEGlobalsBag::getInstance()->getInt('SMTP_PORT'),
-                !empty(OEGlobalsBag::getInstance()->get('SMTP_USER')) ? 'SET' : 'NOT_SET'
+                !empty(OEGlobalsBag::getInstance()->getString('SMTP_USER')) ? 'SET' : 'NOT_SET'
             ));
         }
         $from_name = text(OEGlobalsBag::getInstance()->get("Patient Reminder Sender Name") ?? 'UNK');
         $desc = text($body);
         $mail = new MyMailer();
-        $from = text(OEGlobalsBag::getInstance()->get("practice_return_email_path"));
+        $from = text(OEGlobalsBag::getInstance()->getString("practice_return_email_path"));
         $mail->AddReplyTo($from, $from_name);
         $mail->SetFrom($from, $from);
         $mail->AddAddress($email, $email);

@@ -20,21 +20,21 @@ use OpenEMR\Common\Logging\Audit\SinkInterface;
 use OpenEMR\Common\Logging\AuditConfig;
 use OpenEMR\Common\Logging\BreakglassCheckerInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
-use OpenEMR\Common\Session\SessionWrapperInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class EventAuditLoggerTest extends TestCase
 {
     private CryptoInterface&MockObject $crypto;
-    private SessionWrapperInterface&MockObject $session;
+    private SessionInterface&MockObject $session;
     private AuditConfig $config;
     private BreakglassCheckerInterface&MockObject $breakglassChecker;
 
     protected function setUp(): void
     {
         $this->crypto = $this->createMock(CryptoInterface::class);
-        $this->session = $this->createMock(SessionWrapperInterface::class);
+        $this->session = $this->createMock(SessionInterface::class);
         $this->config = new AuditConfig(
             enabled: true,
             forceBreakglass: false,

@@ -27,7 +27,7 @@ class EncounterSessionUtil
 
         $formsService = new FormService();
 
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
         $attendant_id = $attendant_type === 'pid' ? $pid : $session->get('therapy_group');
 

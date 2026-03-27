@@ -52,7 +52,7 @@ class CcdaServiceDocumentRequestor
                 // node server is quite with errors(hidden process) so we'll do redirect of tty
                 // to generally Windows/Temp.
                 $redirect_errors = " > " .
-                    $system->escapeshellcmd(OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/ccdaserver.log") . " 2>&1";
+                    $system->escapeshellcmd(OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/ccdaserver.log") . " 2>&1";
                 $cmd = $system->escapeshellcmd("node " . $path . "/serveccda.js") . $redirect_errors;
                 $pipeHandle = popen("start /B " . $cmd, "r");
                 if ($pipeHandle === false) {

@@ -142,7 +142,7 @@ class MfaUtils
         // Decrypt the secret
         // First, try standard method that uses standard key
         $cryptoGen = ServiceContainer::getCrypto();
-        $secret = $cryptoGen->decryptStandard($registrationSecret);
+        $secret = $cryptoGen->decryptStandard(is_string($registrationSecret) ? $registrationSecret : null);
         if (empty($secret)) {
             // Second, try the password hash, which was setup during install and is temporary
             $passwordResults = privQuery(

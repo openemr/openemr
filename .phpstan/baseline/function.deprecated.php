@@ -338,7 +338,7 @@ Use the standard DB connections instead\\.$#',
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function prevSetting\\(\\)\\:
 7\\.0\\.3 see UserSettingsService\\:\\:prevSetting$#',
-    'count' => 6,
+    'count' => 4,
     'path' => __DIR__ . '/../../interface/main/messages/messages.php',
 ];
 $ignoreErrors[] = [
@@ -695,13 +695,13 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function privQuery\\(\\)\\:
 Use the standard DB connections instead\\.$#',
-    'count' => 15,
+    'count' => 14,
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function privStatement\\(\\)\\:
 Use the standard DB connections instead\\.$#',
-    'count' => 13,
+    'count' => 11,
     'path' => __DIR__ . '/../../src/Common/Auth/AuthUtils.php',
 ];
 $ignoreErrors[] = [

@@ -24,11 +24,13 @@ use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -78,11 +80,11 @@ function create_client_cert(): void
         $error_msg .= xl('Error, User Certificate Authentication is not enabled in OpenEMR');
         return;
     }
-    if (!file_exists(OEGlobalsBag::getInstance()->get('certificate_authority_crt'))) {
+    if (!file_exists(OEGlobalsBag::getInstance()->getString('certificate_authority_crt'))) {
         $error_msg .= xl('Error, the CA Certificate File doesn\'t exist');
         return;
     }
-    if (!file_exists(OEGlobalsBag::getInstance()->get('certificate_authority_key'))) {
+    if (!file_exists(OEGlobalsBag::getInstance()->getString('certificate_authority_key'))) {
         $error_msg .= xl('Error, the CA Key File doesn\'t exist');
         return;
     }
@@ -104,8 +106,8 @@ function create_client_cert(): void
         $user,
         $email,
         $serial,
-        OEGlobalsBag::getInstance()->get('certificate_authority_crt'),
-        OEGlobalsBag::getInstance()->get('certificate_authority_key'),
+        OEGlobalsBag::getInstance()->getString('certificate_authority_crt'),
+        OEGlobalsBag::getInstance()->getString('certificate_authority_key'),
         OEGlobalsBag::getInstance()->getInt('client_certificate_valid_in_days')
     );
     if ($data === false) {
@@ -113,7 +115,7 @@ function create_client_cert(): void
         return;
     }
 
-    $filename = OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/openemr_client_cert.p12";
+    $filename = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/openemr_client_cert.p12";
     $handle = fopen($filename, 'w');
     fwrite($handle, $data);
     fclose($handle);
@@ -131,7 +133,7 @@ function create_client_cert(): void
  */
 function delete_certificates(): void
 {
-    $tempDir = OEGlobalsBag::getInstance()->get('temporary_files_dir');
+    $tempDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
     $files = ["CertificateAuthority.key", "CertificateAuthority.crt",
                    "Server.key", "Server.crt", "admin.p12", "ssl.zip"];
 
@@ -154,7 +156,7 @@ function delete_certificates(): void
 function create_and_download_certificates(): void
 {
     global $error_msg;
-    $tempDir = OEGlobalsBag::getInstance()->get('temporary_files_dir');
+    $tempDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
 
     $zipName = $tempDir . "/ssl.zip";
     if (file_exists($zipName)) {
@@ -339,8 +341,9 @@ if (!empty($_POST["mode"]) && ($_POST["mode"] == "create_client_certificate")) {
     create_and_download_certificates();
 }
 
-if (!empty($_SESSION["zip_error"])) {
-    $zipErrorOutput = '<div><table align="center"><tr valign="top"><td rowspan="3"><font class="redtext">' . text($_SESSION["zip_error"]) . '</td></tr></table></div>';
+$zip_error = $session->get('zip_error');
+if (!empty($zip_error)) {
+    $zipErrorOutput = '<div><table align="center"><tr valign="top"><td rowspan="3"><font class="redtext">' . text($zip_error) . '</td></tr></table></div>';
     SessionUtil::unsetSession('zip_error');
 }
 
@@ -480,12 +483,12 @@ if (!empty($_SESSION["zip_error"])) {
   </ul>
   <br />
         <?php
-        if (OEGlobalsBag::getInstance()->get('certificate_authority_crt') != "" && OEGlobalsBag::getInstance()->getBoolean('is_client_ssl_enabled')) {
+        if (OEGlobalsBag::getInstance()->getString('certificate_authority_crt') != "" && OEGlobalsBag::getInstance()->getBoolean('is_client_ssl_enabled')) {
             echo xlt('OpenEMR already has a Certificate Authority configured.');
         }
         ?>
   <form method='post' name=ssl_certificate_frm action='ssl_certificates_admin.php'>
-  <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+  <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
   <input type='hidden' name='mode' value='download_certificates'>
   <div class='borderbox'>
     <b><?php echo xlt('Create the SSL Certificate Authority and Server certificates.'); ?></b><br />
@@ -588,7 +591,7 @@ if (!empty($_SESSION["zip_error"])) {
   <br />
   <div class="borderbox">
     <form name='ssl_frm' method='post'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
     <b><?php echo xlt('Configure Apache to use Client side SSL certificates'); ?> </b>
     <br /><br />
         <?php echo xlt('Add following lines to the Apache configuration file'); ?>:<br />
@@ -621,13 +624,13 @@ if (!empty($_SESSION["zip_error"])) {
         <?php
         if (
             !OEGlobalsBag::getInstance()->getBoolean('is_client_ssl_enabled') ||
-            OEGlobalsBag::getInstance()->get('certificate_authority_crt') == ""
+            OEGlobalsBag::getInstance()->getString('certificate_authority_crt') == ""
         ) {
             echo "<font class='redtext'>" . xlt('OpenEMR must be configured to use certificates before it can create client certificates.') . "</font><br />";
         }
         ?>
     <form name='client_cert_frm' method='post' action='ssl_certificates_admin.php'>
-      <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+      <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
       <input type='hidden' name='mode' value='create_client_certificate'>
       <table>
         <tr class='text'>

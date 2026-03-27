@@ -17,14 +17,22 @@
 
 require_once(__DIR__ . '/../globals.php');
 
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
+if (!AclMain::aclCheckCore('admin', 'users')) {
+    AccessDeniedHelper::denyWithTemplate('eRx log viewer access denied', xl("eRx Logs"));
+}
+
 $error_log_path = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . '/documents/erx_error';
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (array_key_exists('filename', $_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -35,7 +43,7 @@ if (array_key_exists('filename', $_GET)) {
 }
 
 if (array_key_exists('start_date', $_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -89,7 +97,7 @@ if ($filename) {
     </head>
     <body class="body_top">
         <form method="post">
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
         <span class="title"><?php echo xlt('eRx Logs'); ?></span><br /><br />
         <table>
@@ -110,7 +118,7 @@ if ($filename) {
 
     $check_for_file = 0;
 if (array_key_exists('search_logs', $_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -123,7 +131,7 @@ if (array_key_exists('search_logs', $_POST)) {
                 $fd = fopen($error_log_path . '/' . $file, 'r');
                 $bat_content = fread($fd, filesize($error_log_path . '/' . $file));
                 ?>
-                <p><?php echo xlt('Download'); ?>: <a href="erx_logview.php?filename=<?php echo attr_url($file); ?>&csrf_token_form=<?php echo attr_url(CsrfUtils::collectCsrfToken()); ?>"><?php echo text($file); ?></a></p>
+                <p><?php echo xlt('Download'); ?>: <a href="erx_logview.php?filename=<?php echo attr_url($file); ?>&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"><?php echo text($file); ?></a></p>
                 <textarea rows="35" cols="132"><?php echo text($bat_content); ?></textarea>
                 <?php
             }

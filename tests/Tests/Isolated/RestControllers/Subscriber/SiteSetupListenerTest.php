@@ -20,6 +20,9 @@ namespace OpenEMR\Tests\Isolated\RestControllers\Subscriber;
 
 use OpenEMR\Common\Auth\OAuth2KeyException;
 use OpenEMR\Common\Http\HttpRestRequest;
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Session\Storage\ReadAndCloseNativeSessionStorage;
+use OpenEMR\Common\Session\WriteThroughSession;
 use OpenEMR\RestControllers\Subscriber\SiteSetupListener;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Request;
@@ -96,6 +99,33 @@ class RealCoreSessionListener extends SiteSetupListener
     {
         $request->setApiBaseFullUrl('https://localhost/apis');
     }
+
+    protected function setupCoreSessionBridge(HttpRestRequest $request, string $webroot): void
+    {
+        $session = new \Symfony\Component\HttpFoundation\Session\Session(
+            new \Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage()
+        );
+        $session->start();
+        $request->setSession($session);
+    }
+}
+
+/**
+ * Variant that runs the real setupCoreSessionBridge() so we can verify
+ * it correctly registers the storage in SessionWrapperFactory.
+ * Other environment-dependent methods remain stubbed.
+ */
+class StorageTrackingCoreSessionListener extends SiteSetupListener
+{
+    protected function loadApplicationGlobals(RequestEvent $event, bool $ignoreAuth): mixed
+    {
+        return null;
+    }
+
+    protected function setupOAuthKeys(mixed $globalsBag, HttpRestRequest $request): void
+    {
+        $request->setApiBaseFullUrl('https://localhost/apis');
+    }
 }
 
 class SiteSetupListenerTest extends TestCase
@@ -114,6 +144,7 @@ class SiteSetupListenerTest extends TestCase
     {
         $_SERVER['DOCUMENT_ROOT'] = $this->originalDocRoot;
         unset($_GET['site']);
+        $this->resetSessionWrapperFactorySingleton();
         parent::tearDown();
     }
 
@@ -321,6 +352,61 @@ class SiteSetupListenerTest extends TestCase
         $this->assertNotNull($request->attributes->get('webroot'));
     }
 
+    // ── setupCoreSessionBridge: storage tracking ───────────────────
+
+    public function testSetupCoreSessionBridgeRegistersStorageInSessionWrapperFactory(): void
+    {
+        $this->resetSessionWrapperFactorySingleton();
+
+        $listener = new StorageTrackingCoreSessionListener();
+        $event = $this->createRequestEvent('/default/api/patient', headers: ['APICSRFTOKEN' => 'test-token']);
+
+        $listener->onKernelRequest($event);
+
+        $storage = SessionWrapperFactory::getInstance()->getActiveStorage();
+        $this->assertInstanceOf(
+            ReadAndCloseNativeSessionStorage::class,
+            $storage,
+            'setupCoreSessionBridge must register the storage in SessionWrapperFactory'
+        );
+    }
+
+    public function testSetupCoreSessionBridgeCreatesWriteThroughSession(): void
+    {
+        $this->resetSessionWrapperFactorySingleton();
+
+        $listener = new StorageTrackingCoreSessionListener();
+        $event = $this->createRequestEvent('/default/api/patient', headers: ['APICSRFTOKEN' => 'test-token']);
+
+        $listener->onKernelRequest($event);
+
+        /** @var HttpRestRequest $request */
+        $request = $event->getRequest();
+        $this->assertInstanceOf(
+            WriteThroughSession::class,
+            $request->getSession(),
+            'setupCoreSessionBridge must create a WriteThroughSession on the request'
+        );
+    }
+
+    public function testSetupCoreSessionBridgeSessionMatchesWrapperFactorySession(): void
+    {
+        $this->resetSessionWrapperFactorySingleton();
+
+        $listener = new StorageTrackingCoreSessionListener();
+        $event = $this->createRequestEvent('/default/api/patient', headers: ['APICSRFTOKEN' => 'test-token']);
+
+        $listener->onKernelRequest($event);
+
+        /** @var HttpRestRequest $request */
+        $request = $event->getRequest();
+        $this->assertSame(
+            $request->getSession(),
+            SessionWrapperFactory::getInstance()->getActiveSession(),
+            'The session on the request and in SessionWrapperFactory must be the same instance'
+        );
+    }
+
     // ── Helper ───────────────────────────────────────────────────────
 
     /**
@@ -339,5 +425,12 @@ class SiteSetupListenerTest extends TestCase
             $request->headers->set($name, $value);
         }
         return new RequestEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST);
+    }
+
+    private function resetSessionWrapperFactorySingleton(): void
+    {
+        $reflection = new \ReflectionClass(SessionWrapperFactory::class);
+        $instancesProperty = $reflection->getProperty('instances');
+        $instancesProperty->setValue(null, []);
     }
 }

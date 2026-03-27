@@ -910,7 +910,7 @@ class Document extends ORDataObject
         ) {
             return xl('Reference table and reference id must both be set');
         }
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $this->set_foreign_reference_id($foreign_reference_id);
         $this->set_foreign_reference_table($foreign_reference_table);
         // The original code used the encounter ID but never set it to anything.
@@ -921,7 +921,7 @@ class Document extends ORDataObject
         $cryptoGen = ServiceContainer::getCrypto();
 
         if (OEGlobalsBag::getInstance()->getBoolean('generate_doc_thumb')) {
-            $thumb_size = (OEGlobalsBag::getInstance()->get('thumb_doc_max_size') > 0) ? OEGlobalsBag::getInstance()->get('thumb_doc_max_size') : null;
+            $thumb_size = (OEGlobalsBag::getInstance()->getString('thumb_doc_max_size') > 0) ? OEGlobalsBag::getInstance()->getString('thumb_doc_max_size') : null;
             $thumbnail_class = new Thumbnail($thumb_size);
 
             $has_thumbnail = !is_null($tmpfile) ? $thumbnail_class->file_support_thumbnail($tmpfile) : false;

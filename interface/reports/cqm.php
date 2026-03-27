@@ -25,6 +25,7 @@ use OpenEMR\ClinicalDecisionRules\AMC\CertificationReportTypes;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\PractitionerService;
@@ -34,8 +35,9 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Report", xl("Report"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -91,12 +93,12 @@ if (!empty($report_id)) {
   // Collect form parameters (set defaults if empty)
     if ($is_amc_report) {
         $begin_date = (isset($_POST['form_begin_date'])) ? DateTimeToYYYYMMDDHHMMSS(trim((string) $_POST['form_begin_date'])) : "";
-        $labs_manual = (isset($_POST['labs_manual_entry'])) ? trim($_POST['labs_manual_entry']) : "0";
+        $labs_manual = (isset($_POST['labs_manual_entry'])) ? trim((string) $_POST['labs_manual_entry']) : "0";
     }
 
     $target_date = (isset($_POST['form_target_date'])) ? DateTimeToYYYYMMDDHHMMSS(trim((string) $_POST['form_target_date'])) : date('Y-m-d H:i:s');
-    $rule_filter = (isset($_POST['form_rule_filter'])) ? trim($_POST['form_rule_filter']) : CertificationReportTypes::DEFAULT;
-    $plan_filter = (isset($_POST['form_plan_filter'])) ? trim($_POST['form_plan_filter']) : "";
+    $rule_filter = (isset($_POST['form_rule_filter'])) ? trim((string) $_POST['form_rule_filter']) : CertificationReportTypes::DEFAULT;
+    $plan_filter = (isset($_POST['form_plan_filter'])) ? trim((string) $_POST['form_plan_filter']) : "";
     $organize_method = (empty($plan_filter)) ? "default" : "plans";
     $provider  = trim($_POST['form_provider'] ?? '');
     $pat_prov_rel = (empty($_POST['form_pat_prov_rel'])) ? "primary" : trim((string) $_POST['form_pat_prov_rel']);
@@ -138,7 +140,7 @@ $formData = [
         'show_help_icon' => $show_help,
         'help_file_name' => $help_file_name
     ]
-    ,'csrf_token' => CsrfUtils::collectCsrfToken()
+    ,'csrf_token' => CsrfUtils::collectCsrfToken(session: $session)
     ,'widthDyn' => '610px'
     ,'is_amc_report' => $is_amc_report
     ,'dis_text' => (!empty($report_id) ? "disabled='disabled'" : "")

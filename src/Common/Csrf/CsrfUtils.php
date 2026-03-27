@@ -23,6 +23,7 @@
 
 namespace OpenEMR\Common\Csrf;
 
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CsrfUtils
@@ -30,20 +31,12 @@ class CsrfUtils
     // Function to create a private csrf key and store as a session variable
     //  Note this key always remains private and never leaves server session. It is used to create
     //  the csrf tokens.
-    public static function setupCsrfKey(?SessionInterface $session = null)
+    public static function setupCsrfKey(SessionInterface $session): void
     {
         $privateKey = random_bytes(32);
-        if (!empty($session)) {
-            $session->set('csrf_private_key', $privateKey);
-            if (empty($session->get('csrf_private_key', null))) {
-                error_log("OpenEMR Error : OpenEMR is potentially not secure because unable to create the CSRF key.");
-            }
-        } else {
-            // If session is not available, we will use the global $_SESSION variable
-            $_SESSION['csrf_private_key'] = $privateKey;
-            if (empty($_SESSION['csrf_private_key'])) {
-                error_log("OpenEMR Error : OpenEMR is potentially not secure because unable to create the CSRF key.");
-            }
+        $session->set('csrf_private_key', $privateKey);
+        if (empty($session->get('csrf_private_key', null))) {
+            error_log("OpenEMR Error : OpenEMR is potentially not secure because unable to create the CSRF key.");
         }
     }
 
@@ -52,31 +45,24 @@ class CsrfUtils
     //  $subject allows creation of different csrf tokens:
     //    Using 'api' for the internal api csrf token
     //    Using 'default' for everything else (for now)
-    public static function collectCsrfToken($subject = 'default', ?SessionInterface $session = null)
+    public static function collectCsrfToken(SessionInterface $session, string $subject = 'default'): string
     {
-        $privateKey = !empty($session) ? $session->get('csrf_private_key', null) : $_SESSION['csrf_private_key'] ?? null;
-        if (empty($privateKey)) {
-            error_log("OpenEMR Error : OpenEMR is potentially not secure because CSRF key is empty.");
-            return false;
+        $privateKey = $session->get('csrf_private_key', null);
+        if ($privateKey === null || $privateKey === '') {
+            throw new RuntimeException("OpenEMR is potentially not secure because CSRF key is empty.");
         }
-        return substr(hash_hmac('sha256', (string) $subject, (string) $privateKey), 0, 40);
+        return substr(hash_hmac('sha256', $subject, (string) $privateKey), 0, 40);
     }
 
     // Function to verify a csrf_token
-    public static function verifyCsrfToken($token, $subject = 'default', ?SessionInterface $session = null)
+    public static function verifyCsrfToken($token, SessionInterface $session, string $subject = 'default'): bool
     {
-        $currentToken = self::collectCsrfToken($subject, $session);
+        $currentToken = self::collectCsrfToken($session, $subject);
 
-        if (empty($currentToken)) {
-            error_log("OpenEMR Error : OpenEMR is potentially not secure because CSRF token was not formed correctly.");
-            return false;
-        } elseif (empty($token)) {
-            return false;
-        } elseif (hash_equals($currentToken, $token)) {
-            return true;
-        } else {
+        if (in_array($token, [null, '', false], true)) {
             return false;
         }
+        return hash_equals($currentToken, $token);
     }
 
     /**

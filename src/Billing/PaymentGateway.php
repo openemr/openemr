@@ -30,8 +30,8 @@ class PaymentGateway
         $this->production = !OEGlobalsBag::getInstance()->getBoolean('gateway_mode_production');
 
         $cryptoGen = ServiceContainer::getCrypto();
-        $this->apiKey = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('gateway_api_key'));
-        $this->transactionKey = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('gateway_transaction_key'));
+        $this->apiKey = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('gateway_api_key'));
+        $this->transactionKey = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('gateway_transaction_key'));
 
         // Setup payment Gateway
         $this->setGateway($name);
