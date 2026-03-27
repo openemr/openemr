@@ -163,13 +163,13 @@ if ($step > 1 && !$api->isConfigured()) {
             <!-- Step 1: Account Registration -->
             <form id="form-step-1">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
-                <div class="form-group">
-                    <label for="email"><?php echo xlt("Administrator E-mail"); ?></label>
-                    <input type="email" id="email" name="email" class="form-control" placeholder="admin@practice.com" required>
-                    <small style="color:#64748b; display:block; margin-top:6px;"><?php echo xlt("This email will be your username for signing in to MedEx."); ?></small>
-                    <div id="email-error" class="field-error"><?php echo xlt("Please enter a valid administrator email address."); ?></div>
-                </div>
                 <div class="panel-card full-width-card">
+                        <div class="form-group">
+                            <label for="email"><?php echo xlt("Administrator E-mail"); ?></label>
+                            <input type="email" id="email" name="email" class="form-control" placeholder="admin@practice.com" required>
+                            <small style="color:#64748b; display:block; margin-top:6px;"><?php echo xlt("This email will be your username for signing in to MedEx."); ?></small>
+                            <div id="email-error" class="field-error"><?php echo xlt("Please enter a valid administrator email address."); ?></div>
+                        </div>
                         <div class="form-group">
                             <label for="password"><?php echo xlt("Password"); ?></label>
                             <div class="password-wrap">
@@ -189,13 +189,11 @@ if ($step > 1 && !$api->isConfigured()) {
                         </div>
                         <div class="form-group">
                             <label for="callback_url"><?php echo xlt("OpenEMR URL"); ?></label>
-                            <input type="url" id="callback_url" name="callback_url" class="form-control"
-                                   value="<?php echo attr($defaultOpenEmrUrl); ?>"
-                                   placeholder="https://your-openemr-domain.com"
-                                   readonly
-                                   required>
+                            <input type="hidden" id="callback_url" name="callback_url" value="<?php echo attr($defaultOpenEmrUrl); ?>">
                             <small style="color:#64748b; display:block; margin-top:6px;"><?php echo xlt("Required so MedEx can securely connect callbacks to this OpenEMR server."); ?></small>
-                            <small style="color:#64748b; display:block; margin-top:4px;"><?php echo xlt("Detected URL"); ?>: <?php echo text($defaultOpenEmrUrl); ?></small>
+                            <div style="margin-top:4px; color:#475569; font-size:14px;">
+                                <?php echo xlt("Detected URL"); ?>: <strong id="callback-url-display"><?php echo text($defaultOpenEmrUrl); ?></strong>
+                            </div>
                             <div id="callback-error" class="field-error"><?php echo xlt("OpenEMR URL must be a valid public HTTPS URL."); ?></div>
                             <div id="callback-status" class="field-status"></div>
                         </div>
