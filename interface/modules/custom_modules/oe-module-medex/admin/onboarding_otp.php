@@ -67,6 +67,100 @@ function medexEnsureOtpAuditTable(): void
     );
 }
 
+function medexEnsureOtpIpRateTable(): void
+{
+    QueryUtils::sqlStatementThrowException(
+        "CREATE TABLE IF NOT EXISTS `medex_onboarding_otp_ip_rate` (
+            `ip` varchar(45) NOT NULL,
+            `window_start` datetime NOT NULL,
+            `send_count` int(11) NOT NULL DEFAULT 0,
+            `blocked_until` datetime DEFAULT NULL,
+            `last_destination` varchar(64) DEFAULT NULL,
+            `last_seen` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`ip`),
+            KEY `idx_blocked_until` (`blocked_until`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+        []
+    );
+}
+
+function medexResolveClientIp(): string
+{
+    $xff = trim((string)($_SERVER['HTTP_X_FORWARDED_FOR'] ?? ''));
+    if ($xff !== '') {
+        $parts = explode(',', $xff);
+        foreach ($parts as $part) {
+            $ip = trim($part);
+            if (filter_var($ip, FILTER_VALIDATE_IP)) {
+                return $ip;
+            }
+        }
+    }
+    $remote = trim((string)($_SERVER['REMOTE_ADDR'] ?? ''));
+    if ($remote !== '' && filter_var($remote, FILTER_VALIDATE_IP)) {
+        return $remote;
+    }
+    return '';
+}
+
+function medexCheckAndBumpOtpIpRate(string $ip, string $destination): array
+{
+    if ($ip === '') {
+        return [true, 0, 0];
+    }
+    medexEnsureOtpIpRateTable();
+
+    $windowSeconds = 60;
+    $maxPerWindow = 20;
+    $blockSeconds = 900; // 15 minutes
+    $nowTs = time();
+    $nowSql = gmdate('Y-m-d H:i:s', $nowTs);
+
+    $row = QueryUtils::querySingleRow(
+        "SELECT window_start, send_count, blocked_until
+         FROM medex_onboarding_otp_ip_rate WHERE ip = ? LIMIT 1",
+        [$ip]
+    );
+
+    $count = (int)($row['send_count'] ?? 0);
+    $windowStartTs = !empty($row['window_start']) ? strtotime((string)$row['window_start']) : 0;
+    $blockedUntilTs = !empty($row['blocked_until']) ? strtotime((string)$row['blocked_until']) : 0;
+    if ($blockedUntilTs > $nowTs) {
+        $remaining = $blockedUntilTs - $nowTs;
+        return [false, $remaining, $count];
+    }
+
+    if ($windowStartTs <= 0 || ($nowTs - $windowStartTs) > $windowSeconds) {
+        $count = 1;
+        $windowStartSql = $nowSql;
+    } else {
+        $count++;
+        $windowStartSql = (string)$row['window_start'];
+    }
+
+    $blockedUntilSql = null;
+    if ($count > $maxPerWindow) {
+        $blockedUntilSql = gmdate('Y-m-d H:i:s', $nowTs + $blockSeconds);
+    }
+
+    QueryUtils::sqlStatementThrowException(
+        "INSERT INTO medex_onboarding_otp_ip_rate (ip, window_start, send_count, blocked_until, last_destination, last_seen)
+         VALUES (?, ?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE
+            window_start = VALUES(window_start),
+            send_count = VALUES(send_count),
+            blocked_until = VALUES(blocked_until),
+            last_destination = VALUES(last_destination),
+            last_seen = VALUES(last_seen)",
+        [$ip, $windowStartSql, $count, $blockedUntilSql, substr($destination, 0, 64), $nowSql]
+    );
+
+    if ($blockedUntilSql !== null) {
+        return [false, $blockSeconds, $count];
+    }
+    return [true, 0, $count];
+}
+
 function medexAuditOtpDecision(string $action, string $channel, string $destination, string $countryCode, string $decision, string $reason): void
 {
     try {
@@ -134,7 +228,7 @@ function medexNormalizeEmailDestination(string $email): string
     return '';
 }
 
-function medexSendOtpThroughApi(string $channel, string $destination, string $code): array
+function medexSendOtpThroughApi(string $channel, string $destination, string $code, string $signupIp): array
 {
     $api = new \OpenEMR\Modules\MedEx\MedExAPI();
     $message = 'Your MedEx one-time password is ' . $code . '. It expires in 10 minutes.';
@@ -150,7 +244,8 @@ function medexSendOtpThroughApi(string $channel, string $destination, string $co
                 'method' => $channel,
                 'message' => $message,
                 'subject' => $subject,
-                'type' => 'onboarding_otp'
+                'type' => 'onboarding_otp',
+                'signup_ip' => $signupIp
             ],
             'POST'
         );
@@ -194,6 +289,18 @@ if ($destination === '') {
 }
 
 if ($action === 'send') {
+    $signupIp = medexResolveClientIp();
+    [$rateAllowed, $retryAfterSec, $ipCount] = medexCheckAndBumpOtpIpRate($signupIp, $destination);
+    if (!$rateAllowed) {
+        medexAuditOtpDecision('send', $channel, $destination, '', 'reject', 'ip_rate_limited');
+        echo json_encode([
+            'success' => false,
+            'error' => 'Too many OTP requests from this network. Please wait and try again.',
+            'retry_after_seconds' => $retryAfterSec
+        ]);
+        exit;
+    }
+
     if ($channel === 'sms') {
         [$smsOk, $countryCode, $smsReason] = medexSmsCountryPolicy($destination);
         if (!$smsOk) {
@@ -207,7 +314,7 @@ if ($action === 'send') {
     }
 
     $code = (string)random_int(100000, 999999);
-    [$ok, $msg] = medexSendOtpThroughApi($channel, $destination, $code);
+    [$ok, $msg] = medexSendOtpThroughApi($channel, $destination, $code, $signupIp);
     if (!$ok) {
         medexAuditOtpDecision('send', $channel, $destination, ($channel === 'sms' ? '1' : ''), 'reject', 'provider_send_failed');
         echo json_encode(['success' => false, 'error' => $msg]);
