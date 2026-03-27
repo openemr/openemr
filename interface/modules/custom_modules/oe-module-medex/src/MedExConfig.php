@@ -40,6 +40,11 @@ class MedExConfig
     public const DEFAULT_AGREEMENTS_URL = 'https://api.hipaabank.net';
     public const TERMS_VERSION = '2026-03-26';
     public const BAA_VERSION = '2026-03-26';
+    public const OTP_WHATSAPP_ENABLED = false;
+    public const OTP_HOUSE_ACCOUNT_SMS = 'HOUSE_SMS';
+    public const OTP_HOUSE_ACCOUNT_WHATSAPP = 'HOUSE_WHATSAPP';
+    public const OTP_HOUSE_ACCOUNT_EMAIL = 'HOUSE_EMAIL';
+    public const OTP_HOUSE_EMAIL_COST = 0.01;
 
     /**
      * Returns the active MedEx base URL (includes /cart/upload path).

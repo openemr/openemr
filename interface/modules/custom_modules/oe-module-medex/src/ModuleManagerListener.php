@@ -277,6 +277,9 @@ HTML;
                 `baa_accepted_at` datetime DEFAULT NULL,
                 `baa_accepted_ip` varchar(45) DEFAULT NULL,
                 `agreement_user_agent` varchar(255) DEFAULT NULL,
+                `otp_channel` varchar(20) DEFAULT NULL,
+                `otp_house_account` varchar(50) DEFAULT NULL,
+                `otp_house_cost` decimal(10,4) DEFAULT NULL,
                 PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
         ");
@@ -388,6 +391,18 @@ HTML;
         );
         QueryUtils::sqlStatementThrowException(
             "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `agreement_user_agent` varchar(255) DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `otp_channel` varchar(20) DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `otp_house_account` varchar(50) DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `otp_house_cost` decimal(10,4) DEFAULT NULL",
             []
         );
         QueryUtils::sqlStatementThrowException(

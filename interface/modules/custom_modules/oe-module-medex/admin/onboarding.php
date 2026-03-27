@@ -34,6 +34,7 @@ $termsVersion = MedExConfig::TERMS_VERSION;
 $baaVersion = MedExConfig::BAA_VERSION;
 $termsUrl = MedExConfig::termsUrl();
 $baaUrl = MedExConfig::baaUrl();
+$whatsappOtpEnabled = MedExConfig::OTP_WHATSAPP_ENABLED;
 $callbackTokenRow = \OpenEMR\Common\Database\QueryUtils::querySingleRow("SELECT gl_value FROM globals WHERE gl_name = 'medex_callback_token' LIMIT 1", []);
 $callbackToken = trim($callbackTokenRow['gl_value'] ?? '');
 $defaultCallbackUrl = '';
@@ -86,6 +87,7 @@ if ($step > 1 && !$api->isConfigured()) {
         .form-group { margin-bottom: 25px; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #333; }
         .form-control { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 15px; }
+        .form-control::placeholder { color: #9ca3af; opacity: 1; }
         .btn { padding: 12px 30px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s; border: none; font-size: 16px; }
         .btn-primary { background: #0f4b8f; color: white; }
         .btn-primary:hover { background: #0a3460; }
@@ -152,13 +154,24 @@ if ($step > 1 && !$api->isConfigured()) {
                     <small style="color:#64748b;"><?php echo xlt("Production HTTPS endpoint required for auto-approval."); ?></small>
                 </div>
                 <div class="form-group">
-                    <label style="font-weight:600;">
+                    <label style="font-weight:400;">
                         <input type="checkbox" id="production_confirm" name="production_confirm" value="1" required>
                         <?php echo xlt("This is a production-ready deployment (not a test/demo sandbox)"); ?>
                     </label>
                 </div>
+                <div class="form-group">
+                    <label for="otp_channel"><?php echo xlt("Verification Channel"); ?></label>
+                    <select id="otp_channel" name="otp_channel" class="form-control">
+                        <option value="email"><?php echo xlt("Email OTP"); ?> - <?php echo xlt("House"); ?> $<?php echo text(number_format((float) MedExConfig::OTP_HOUSE_EMAIL_COST, 2)); ?></option>
+                        <option value="sms"><?php echo xlt("SMS OTP"); ?> - <?php echo xlt("House Account"); ?> <?php echo text(MedExConfig::OTP_HOUSE_ACCOUNT_SMS); ?></option>
+                        <option value="whatsapp" <?php echo !$whatsappOtpEnabled ? 'disabled' : ''; ?>>
+                            <?php echo xlt("WhatsApp OTP"); ?><?php echo !$whatsappOtpEnabled ? ' (' . xlt("Coming Soon") . ')' : ''; ?> - <?php echo xlt("House Account"); ?> <?php echo text(MedExConfig::OTP_HOUSE_ACCOUNT_WHATSAPP); ?>
+                        </option>
+                    </select>
+                    <small style="color:#64748b;"><?php echo xlt("WhatsApp OTP is scaffolded but disabled until provider connection is configured."); ?></small>
+                </div>
                 <div class="form-group" style="margin-bottom: 12px;">
-                    <label style="font-weight:600;">
+                    <label style="font-weight:400;">
                         <input type="checkbox" id="TERMS_yes" name="TERMS_yes" value="1" required>
                         <?php echo xlt("I have read and my practice agrees to the"); ?>
                         <a href="#" onclick="window.open('<?php echo attr_js($termsUrl); ?>','TERMS',800,600); return false;">
@@ -168,7 +181,7 @@ if ($step > 1 && !$api->isConfigured()) {
                     </label>
                 </div>
                 <div class="form-group">
-                    <label style="font-weight:600;">
+                    <label style="font-weight:400;">
                         <input type="checkbox" id="BusAgree_yes" name="BusAgree_yes" value="1" required>
                         <?php echo xlt("I have read and accept the"); ?>
                         <a href="#" onclick="window.open('<?php echo attr_js($baaUrl); ?>','BusAssocAgree',800,600); return false;">
@@ -403,6 +416,7 @@ if ($step > 1 && !$api->isConfigured()) {
             const productionConfirm = $("#production_confirm").is(':checked');
             const termsAgreed = $("#TERMS_yes").is(':checked');
             const baaAgreed = $("#BusAgree_yes").is(':checked');
+            const otpChannel = $("#otp_channel").val();
 
             if (!email || !password || !callbackUrl) {
                 alert("Please fill all required fields");
@@ -442,6 +456,7 @@ if ($step > 1 && !$api->isConfigured()) {
                     production_confirm: '1',
                     TERMS_yes: '1',
                     BusAgree_yes: '1',
+                    otp_channel: otpChannel,
                     terms_version: '<?php echo attr_js($termsVersion); ?>',
                     baa_version: '<?php echo attr_js($baaVersion); ?>'
                 },

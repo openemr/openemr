@@ -61,6 +61,9 @@ function medexEnsureAgreementColumns(): void
         "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `baa_accepted_at` datetime DEFAULT NULL",
         "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `baa_accepted_ip` varchar(45) DEFAULT NULL",
         "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `agreement_user_agent` varchar(255) DEFAULT NULL",
+        "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `otp_channel` varchar(20) DEFAULT NULL",
+        "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `otp_house_account` varchar(50) DEFAULT NULL",
+        "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `otp_house_cost` decimal(10,4) DEFAULT NULL",
     ];
 
     foreach ($alterStatements as $sql) {
@@ -112,6 +115,23 @@ try {
         echo json_encode(['success' => false, 'error' => 'You must agree to the HIPAA Business Associate Agreement before signing up']);
         exit;
     }
+    $otpChannel = strtolower(trim((string)($_POST['otp_channel'] ?? 'email')));
+    $allowedOtpChannels = ['email', 'sms', 'whatsapp'];
+    if (!in_array($otpChannel, $allowedOtpChannels, true)) {
+        echo json_encode(['success' => false, 'error' => 'Invalid OTP channel selected']);
+        exit;
+    }
+    if ($otpChannel === 'whatsapp' && !MedExConfig::OTP_WHATSAPP_ENABLED) {
+        echo json_encode(['success' => false, 'error' => 'WhatsApp OTP is not enabled yet']);
+        exit;
+    }
+
+    $otpHouseAccount = match ($otpChannel) {
+        'sms' => MedExConfig::OTP_HOUSE_ACCOUNT_SMS,
+        'whatsapp' => MedExConfig::OTP_HOUSE_ACCOUNT_WHATSAPP,
+        default => MedExConfig::OTP_HOUSE_ACCOUNT_EMAIL,
+    };
+    $otpHouseCost = ($otpChannel === 'email') ? (float) MedExConfig::OTP_HOUSE_EMAIL_COST : 0.0;
     $termsVersion = trim((string)($_POST['terms_version'] ?? MedExConfig::TERMS_VERSION));
     $baaVersion = trim((string)($_POST['baa_version'] ?? MedExConfig::BAA_VERSION));
     if ($termsVersion === '' || $termsVersion !== MedExConfig::TERMS_VERSION) {
@@ -179,6 +199,9 @@ $data = [
     'baa_version' => $baaVersion,
     'baa_accepted_at_utc' => $acceptedAtUtc,
     'agreement_ip' => $requestIp
+    ,'otp_channel' => $otpChannel
+    ,'otp_house_account' => $otpHouseAccount
+    ,'otp_house_cost' => $otpHouseCost
 ];
 
 // Attempt registration
@@ -233,6 +256,9 @@ if (!empty($result['success'])) {
             baa_accepted_at = ?,
             baa_accepted_ip = ?,
             agreement_user_agent = ?,
+            otp_channel = ?,
+            otp_house_account = ?,
+            otp_house_cost = ?,
             MedEx_lastupdated = NOW()
          WHERE ME_username = ?",
         [
@@ -245,6 +271,9 @@ if (!empty($result['success'])) {
             $acceptedAtUtc,
             $requestIp,
             $requestUserAgent,
+            $otpChannel,
+            $otpHouseAccount,
+            $otpHouseCost,
             $data['email']
         ]
     );
