@@ -13,6 +13,8 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\Utilities;
+
 function generate_list_payment_category($tag_name, $list_id, $currvalue, $title, $empty_name = ' ', $class = '', $onchange = '', $PaymentType = 'insurance', $screen = 'new_payment')
 {
     $s = '';
@@ -89,13 +91,13 @@ if ($payment_id > 0) {
     $InsuranceCompanyId = $row['payer_id'];
     $PatientId = $row['patient_id'];
     $CheckNumber = $row['reference'];
-    $CheckDate = $row['check_date'] == '0000-00-00' ? '' : $row['check_date'];
+    $CheckDate = Utilities::isDateEmpty($row['check_date']) ? '' : $row['check_date'];
     $PayTotal = $row['pay_total'];
-    $PostToDate = $row['post_to_date'] == '0000-00-00' ? '' : $row['post_to_date'];
+    $PostToDate = Utilities::isDateEmpty($row['post_to_date']) ? '' : $row['post_to_date'];
     $PaymentMethod = $row['payment_method'];
     $PaymentType = $row['payment_type'];
     $AdjustmentCode = $row['adjustment_code'];
-    $DepositDate = $row['deposit_date'] == '0000-00-00' ? '' : $row['deposit_date'];
+    $DepositDate = Utilities::isDateEmpty($row['deposit_date']) ? '' : $row['deposit_date'];
     $Description = $row['description'];
     if ($row['payment_type'] == 'insurance' || $row['payer_id'] * 1 > 0) {
         $res = sqlStatement("SELECT insurance_companies.name FROM insurance_companies

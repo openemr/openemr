@@ -20,6 +20,7 @@ require_once(__DIR__ . "/../../globals.php");
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -40,14 +41,14 @@ if (!$encounter) { // comes from globals.php
     die(xlt("Internal error: we do not seem to be in an encounter!"));
 }
 
-if ($_POST["off_work_from"] == "0000-00-00" || $_POST["off_work_from"] == "") {
+if (Utilities::isDateEmpty($_POST["off_work_from"])) {
     $_POST["is_unable_to_work"] = "0";
     $_POST["off_work_to"] = "";
 } else {
     $_POST["is_unable_to_work"] = "1";
 }
 
-if ($_POST["hospitalization_date_from"] == "0000-00-00" || $_POST["hospitalization_date_from"] == "") {
+if (Utilities::isDateEmpty($_POST["hospitalization_date_from"])) {
     $_POST["is_hospitalized"] = "0";
     $_POST["hospitalization_date_to"] = "";
 } else {
