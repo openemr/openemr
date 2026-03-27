@@ -125,6 +125,9 @@ if ($step > 1 && !$api->isConfigured()) {
         .otp-status { font-size: 13px; color: #475569; margin-top: 8px; }
         .otp-status.ok { color: #15803d; }
         .otp-status.err { color: #b91c1c; }
+        .field-status { font-size: 12px; margin-top: 6px; color: #475569; }
+        .field-status.ok { color: #15803d; }
+        .field-status.err { color: #b91c1c; }
         @media (max-width: 900px) {
             .onboard-grid { grid-template-columns: 1fr; }
         }
@@ -191,6 +194,8 @@ if ($step > 1 && !$api->isConfigured()) {
                                    placeholder="https://your-openemr-domain.com"
                                    required>
                             <small style="color:#64748b;"><?php echo xlt("Enter the url we can use to reach your OpenEMR server."); ?></small>
+                            <div id="callback-error" class="field-error"><?php echo xlt("OpenEMR URL must be a valid public HTTPS URL."); ?></div>
+                            <div id="callback-status" class="field-status"></div>
                         </div>
                     </div>
                     <div class="panel-card">
@@ -253,7 +258,7 @@ if ($step > 1 && !$api->isConfigured()) {
                     </label>
                 </div>
                 <div style="margin-top: 30px; text-align: right;">
-                    <button type="button" class="btn btn-primary" onclick="submitStep1()"><?php echo xlt("Next: Configure Services"); ?> <i class="fa fa-arrow-right"></i></button>
+                    <button type="button" id="step1-next-btn" class="btn btn-primary" onclick="submitStep1()" disabled><?php echo xlt("Next: Configure Services"); ?> <i class="fa fa-arrow-right"></i></button>
                 </div>
             </form>
 
@@ -471,6 +476,7 @@ if ($step > 1 && !$api->isConfigured()) {
 
     <script>
         let otpVerified = false;
+        let callbackValidated = false;
 
         function togglePasswordField(inputSelector, iconSelector) {
             const input = $(inputSelector);
@@ -518,6 +524,7 @@ if ($step > 1 && !$api->isConfigured()) {
             $("#otp_proof").val("");
             $("#otp_code").val("");
             setOtpStatus("Send and verify your one-time password before continuing.");
+            updateStep1SubmitState();
         }
 
         function validateOtpDestination(channel, email, sms) {
@@ -582,6 +589,83 @@ if ($step > 1 && !$api->isConfigured()) {
                 );
             }
             return false;
+        }
+
+        function setCallbackStatus(message, kind = '') {
+            const el = $("#callback-status");
+            el.removeClass('ok err');
+            if (kind) {
+                el.addClass(kind);
+            }
+            el.text(message || '');
+        }
+
+        function validateOpenEmrUrlFormat(showMessage = true) {
+            const value = ($("#callback_url").val() || "").trim();
+            const valid = /^https:\/\/[^\s/$.?#].[^\s]*$/i.test(value) &&
+                !/^https:\/\/(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[0-1])\.)/i.test(value);
+            if (valid) {
+                clearFieldError("#callback_url", "#callback-error");
+                return true;
+            }
+            if (showMessage) {
+                setFieldError("#callback_url", "#callback-error", "OpenEMR URL must be a valid public HTTPS URL.");
+            }
+            return false;
+        }
+
+        function updateStep1SubmitState() {
+            const canSubmit = validateEmailField(false) &&
+                validatePasswordField(false) &&
+                ($("#password").val() || "") === ($("#rpassword").val() || "") &&
+                callbackValidated &&
+                otpVerified &&
+                $("#TERMS_yes").is(':checked') &&
+                $("#BusAgree_yes").is(':checked') &&
+                $("#comms_consent").is(':checked');
+            $("#step1-next-btn").prop("disabled", !canSubmit);
+        }
+
+        function validateCallbackFromApi() {
+            callbackValidated = false;
+            updateStep1SubmitState();
+            if (!validateOpenEmrUrlFormat(true)) {
+                setCallbackStatus("", "");
+                return;
+            }
+
+            const csrf = $('input[name="csrf_token_form"]').val();
+            const callbackUrl = ($("#callback_url").val() || "").trim();
+            setCallbackStatus("Checking install from api.hipaabank.net...", "");
+            ensureActiveSession();
+
+            $.ajax({
+                url: 'onboarding_validate_url.php',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    csrf_token_form: csrf,
+                    callback_url: callbackUrl
+                },
+                success: function(response) {
+                    if (response.success) {
+                        callbackValidated = true;
+                        clearFieldError("#callback_url", "#callback-error");
+                        setCallbackStatus(response.message || "OpenEMR URL verified.", "ok");
+                    } else {
+                        callbackValidated = false;
+                        setFieldError("#callback_url", "#callback-error", response.error || "Unable to verify install");
+                        setCallbackStatus("Unable to verify install from api.hipaabank.net.", "err");
+                    }
+                    updateStep1SubmitState();
+                },
+                error: function(jqXHR) {
+                    callbackValidated = false;
+                    setFieldError("#callback_url", "#callback-error", ajaxErrorMessage(jqXHR, "Unable to verify install from api.hipaabank.net"));
+                    setCallbackStatus("Unable to verify install from api.hipaabank.net.", "err");
+                    updateStep1SubmitState();
+                }
+            });
         }
 
         function sendOtp() {
@@ -665,11 +749,13 @@ if ($step > 1 && !$api->isConfigured()) {
                         $("#otp_proof").val("");
                         setOtpStatus(response.error || "One-time password verification failed.", "err");
                     }
+                    updateStep1SubmitState();
                 },
                 error: function() {
                     otpVerified = false;
                     $("#otp_proof").val("");
                     setOtpStatus(ajaxErrorMessage(arguments[0], "Unable to verify one-time password due to a request error."), "err");
+                    updateStep1SubmitState();
                 }
             });
         }
@@ -696,12 +782,13 @@ if ($step > 1 && !$api->isConfigured()) {
             if (!validatePasswordField(true)) {
                 return;
             }
-            if (password !== rpassword) {
-                alert("Passwords do not match");
+            if (!callbackValidated) {
+                setFieldError("#callback_url", "#callback-error", "Verify your OpenEMR URL before continuing.");
+                setCallbackStatus("OpenEMR URL has not been verified from api.hipaabank.net.", "err");
                 return;
             }
-            if (!callbackUrl.startsWith("https://")) {
-                alert("OpenEMR URL must use HTTPS");
+            if (password !== rpassword) {
+                alert("Passwords do not match");
                 return;
             }
             if (!termsAgreed) {
@@ -807,21 +894,41 @@ if ($step > 1 && !$api->isConfigured()) {
             });
             $("#email").on("blur", function() {
                 validateEmailField(true);
+                updateStep1SubmitState();
             });
             $("#email").on("input", function() {
                 if (validateEmailField(false)) {
                     clearFieldError("#email", "#email-error");
                 }
+                updateStep1SubmitState();
             });
             $("#password").on("blur", function() {
                 validatePasswordField(true);
+                updateStep1SubmitState();
             });
             $("#password").on("input", function() {
                 if (validatePasswordField(false)) {
                     clearFieldError("#password", "#password-error");
                 }
+                updateStep1SubmitState();
+            });
+            $("#rpassword").on("input blur", function() {
+                updateStep1SubmitState();
+            });
+            $("#callback_url").on("input", function() {
+                callbackValidated = false;
+                clearFieldError("#callback_url", "#callback-error");
+                setCallbackStatus("", "");
+                updateStep1SubmitState();
+            });
+            $("#callback_url").on("blur", function() {
+                validateCallbackFromApi();
+            });
+            $("#TERMS_yes, #BusAgree_yes, #comms_consent").on("change", function() {
+                updateStep1SubmitState();
             });
             updateOtpDestinationVisibility();
+            updateStep1SubmitState();
 
             if (window.location.search.includes('step=3')) {
                 const summary = JSON.parse(sessionStorage.getItem('medex_onboarding_summary') || '{}');
