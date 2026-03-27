@@ -113,6 +113,9 @@ if ($step > 1 && !$api->isConfigured()) {
 
         .provider-list { max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 6px; margin-top: 10px; }
         .provider-item { display: flex; align-items: center; gap: 10px; padding: 5px 0; border-bottom: 1px solid #f5f5f5; }
+        .onboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 8px; }
+        .panel-card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; background: #ffffff; }
+        .panel-card .form-group:last-child { margin-bottom: 0; }
 
         #result { margin-top: 20px; }
         .alert { padding: 15px; border-radius: 6px; margin-bottom: 20px; }
@@ -122,6 +125,9 @@ if ($step > 1 && !$api->isConfigured()) {
         .otp-status { font-size: 13px; color: #475569; margin-top: 8px; }
         .otp-status.ok { color: #15803d; }
         .otp-status.err { color: #b91c1c; }
+        @media (max-width: 900px) {
+            .onboard-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -156,63 +162,73 @@ if ($step > 1 && !$api->isConfigured()) {
                     <small style="color:#64748b; display:block; margin-top:6px;"><?php echo xlt("This email will be your username for signing in to MedEx."); ?></small>
                     <div id="email-error" class="field-error"><?php echo xlt("Please enter a valid administrator email address."); ?></div>
                 </div>
-                <div class="form-group">
-                    <label for="password"><?php echo xlt("Password"); ?></label>
-                    <div class="password-wrap">
-                        <input type="password" id="password" name="password" class="form-control" required style="padding-right:40px;">
-                        <i class="fa fa-eye-slash password-toggle" id="toggle-password" title="<?php echo xla("Show/Hide Password"); ?>"></i>
-                    </div>
-                    <small style="color:#64748b; display:block; margin-top:6px;"><?php echo xlt("Use at least 8 characters with uppercase, lowercase, number, and special character."); ?></small>
-                    <div id="password-error" class="field-error"><?php echo xlt("Password must be at least 8 characters and include uppercase, lowercase, number, and special character."); ?></div>
-                </div>
-                <div class="form-group">
-                    <label for="rpassword"><?php echo xlt("Confirm Password"); ?></label>
-                    <div class="password-wrap">
-                        <input type="password" id="rpassword" name="rpassword" class="form-control" required style="padding-right:40px;">
-                        <i class="fa fa-eye-slash password-toggle" id="toggle-rpassword" title="<?php echo xla("Show/Hide Password"); ?>"></i>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="callback_url"><?php echo xlt("OpenEMR URL (Required)"); ?></label>
-                    <input type="url" id="callback_url" name="callback_url" class="form-control"
-                           value="<?php echo attr($defaultOpenEmrUrl); ?>"
-                           placeholder="https://your-openemr-domain.com"
-                           required>
-                    <small style="color:#64748b;"><?php echo xlt("Enter the url we can use to reach your OpenEMR server."); ?></small>
-                </div>
-                <div class="form-group">
-                    <label for="otp_channel"><?php echo xlt("One-Time Password (OTP) Method"); ?></label>
-                    <select id="otp_channel" name="otp_channel" class="form-control">
-                        <option value="email"><?php echo xlt("Email One-Time Password (OTP)"); ?></option>
-                        <option value="sms"><?php echo xlt("SMS One-Time Password (OTP)"); ?></option>
-                    </select>
-                    <small style="color:#64748b;">
-                        <?php echo xlt("We use a one-time password to verify your identity before enabling your MedEx setup."); ?>
-                        <a href="#" onclick="window.open('<?php echo attr_js($privacyUrl); ?>','PrivacyPolicy',900,700); return false;"><?php echo xlt("Privacy Policy"); ?></a>
-                    </small>
-                    <small style="color:#64748b; display:block; margin-top:4px;"><?php echo xlt("SMS OTP currently supports U.S./Canada numbers only."); ?></small>
-                    <?php // SMS/WhatsApp OTP intentionally hidden in UI until end-to-end destination + verification flow is implemented. ?>
-                    <div id="otp-sms-destination-wrap" class="form-group" style="display:none; margin-top: 10px;">
-                        <label for="otp_sms_destination"><?php echo xlt("Mobile Number for SMS OTP"); ?></label>
-                        <input type="tel" id="otp_sms_destination" name="otp_sms_destination" class="form-control"
-                               placeholder="+15551234567">
-                    </div>
-                    <div class="otp-panel">
-                        <div class="otp-inline">
-                            <button type="button" class="btn btn-primary" id="send-otp-btn"><?php echo xlt("Send One-Time Password (OTP)"); ?></button>
+                <div class="onboard-grid">
+                    <div class="panel-card">
+                        <div class="form-group">
+                            <label for="password"><?php echo xlt("Password"); ?></label>
+                            <div class="password-wrap">
+                                <input type="password" id="password" name="password" class="form-control" required style="padding-right:40px;">
+                                <i class="fa fa-eye-slash password-toggle" id="toggle-password" title="<?php echo xla("Show/Hide Password"); ?>"></i>
+                            </div>
+                            <small style="color:#64748b; display:block; margin-top:6px;"><?php echo xlt("Use at least 8 characters with uppercase, lowercase, number, and special character."); ?></small>
+                            <div id="password-error" class="field-error"><?php echo xlt("Password must be at least 8 characters and include uppercase, lowercase, number, and special character."); ?></div>
                         </div>
-                        <div class="otp-inline">
-                            <input type="text" id="otp_code" class="form-control" style="max-width: 220px;" placeholder="<?php echo xla("Enter 6-digit code"); ?>" maxlength="6">
-                            <button type="button" class="btn" style="background:#e2e8f0;" id="verify-otp-btn"><?php echo xlt("Verify Code"); ?></button>
+                    </div>
+                    <div class="panel-card">
+                        <div class="form-group">
+                            <label for="rpassword"><?php echo xlt("Confirm Password"); ?></label>
+                            <div class="password-wrap">
+                                <input type="password" id="rpassword" name="rpassword" class="form-control" required style="padding-right:40px;">
+                                <i class="fa fa-eye-slash password-toggle" id="toggle-rpassword" title="<?php echo xla("Show/Hide Password"); ?>"></i>
+                            </div>
                         </div>
-                        <div id="otp-status" class="otp-status"><?php echo xlt("Send and verify your one-time password before continuing."); ?></div>
-                        <input type="hidden" id="otp_proof" name="otp_proof" value="">
-                        <div class="form-group" style="margin-top: 12px; margin-bottom: 0;">
-                            <label style="font-weight:400; margin-bottom: 0;">
-                                <input type="checkbox" id="comms_consent" name="comms_consent" value="1" required>
-                                <?php echo xlt("I agree to receive onboarding and account-related emails and text messages from MedEx."); ?>
-                            </label>
-                            <small style="color:#64748b; display:block; margin-top:6px;"><?php echo xlt("Message and data rates may apply for SMS."); ?></small>
+                    </div>
+                    <div class="panel-card">
+                        <div class="form-group">
+                            <label for="callback_url"><?php echo xlt("OpenEMR URL (Required)"); ?></label>
+                            <input type="url" id="callback_url" name="callback_url" class="form-control"
+                                   value="<?php echo attr($defaultOpenEmrUrl); ?>"
+                                   placeholder="https://your-openemr-domain.com"
+                                   required>
+                            <small style="color:#64748b;"><?php echo xlt("Enter the url we can use to reach your OpenEMR server."); ?></small>
+                        </div>
+                    </div>
+                    <div class="panel-card">
+                        <div class="form-group">
+                            <label for="otp_channel"><?php echo xlt("One-Time Password (OTP) Method"); ?></label>
+                            <select id="otp_channel" name="otp_channel" class="form-control">
+                                <option value="email"><?php echo xlt("Email One-Time Password (OTP)"); ?></option>
+                                <option value="sms"><?php echo xlt("SMS One-Time Password (OTP)"); ?></option>
+                            </select>
+                            <small style="color:#64748b;">
+                                <?php echo xlt("We use a one-time password to verify your identity before enabling your MedEx setup."); ?>
+                                <a href="#" onclick="window.open('<?php echo attr_js($privacyUrl); ?>','PrivacyPolicy',900,700); return false;"><?php echo xlt("Privacy Policy"); ?></a>
+                            </small>
+                            <small style="color:#64748b; display:block; margin-top:4px;"><?php echo xlt("SMS OTP currently supports U.S./Canada numbers only."); ?></small>
+                            <?php // SMS/WhatsApp OTP intentionally hidden in UI until end-to-end destination + verification flow is implemented. ?>
+                            <div id="otp-sms-destination-wrap" class="form-group" style="display:none; margin-top: 10px;">
+                                <label for="otp_sms_destination"><?php echo xlt("Mobile Number for SMS OTP"); ?></label>
+                                <input type="tel" id="otp_sms_destination" name="otp_sms_destination" class="form-control"
+                                       placeholder="+15551234567">
+                            </div>
+                        </div>
+                        <div class="otp-panel">
+                            <div class="otp-inline">
+                                <button type="button" class="btn btn-primary" id="send-otp-btn"><?php echo xlt("Send One-Time Password (OTP)"); ?></button>
+                            </div>
+                            <div class="otp-inline">
+                                <input type="text" id="otp_code" class="form-control" style="max-width: 220px;" placeholder="<?php echo xla("Enter 6-digit code"); ?>" maxlength="6">
+                                <button type="button" class="btn" style="background:#e2e8f0;" id="verify-otp-btn"><?php echo xlt("Verify Code"); ?></button>
+                            </div>
+                            <div id="otp-status" class="otp-status"><?php echo xlt("Send and verify your one-time password before continuing."); ?></div>
+                            <input type="hidden" id="otp_proof" name="otp_proof" value="">
+                            <div class="form-group" style="margin-top: 12px; margin-bottom: 0;">
+                                <label style="font-weight:400; margin-bottom: 0;">
+                                    <input type="checkbox" id="comms_consent" name="comms_consent" value="1" required>
+                                    <?php echo xlt("I agree to receive onboarding and account-related emails and text messages from MedEx."); ?>
+                                </label>
+                                <small style="color:#64748b; display:block; margin-top:6px;"><?php echo xlt("Message and data rates may apply for SMS."); ?></small>
+                            </div>
                         </div>
                     </div>
                 </div>
