@@ -635,6 +635,25 @@ if ($step > 1 && !$api->isConfigured()) {
             return false;
         }
 
+        function validateCallbackHostMatchesCurrent(showMessage = true) {
+            const value = ($("#callback_url").val() || "").trim();
+            let parsedHost = "";
+            try {
+                parsedHost = new URL(value).hostname.toLowerCase();
+            } catch (e) {
+                if (showMessage) {
+                    setFieldError("#callback_url", "#callback-error", "OpenEMR URL is invalid.");
+                }
+                return false;
+            }
+            const currentHost = (window.location.hostname || "").toLowerCase();
+            const matches = parsedHost !== "" && currentHost !== "" && parsedHost === currentHost;
+            if (!matches && showMessage) {
+                setFieldError("#callback_url", "#callback-error", "OpenEMR URL must match this server URL.");
+            }
+            return matches;
+        }
+
         function updateStep1SubmitState() {
             const accountReady = validateEmailField(false) &&
                 validatePasswordField(false) &&
@@ -660,39 +679,15 @@ if ($step > 1 && !$api->isConfigured()) {
                 setCallbackStatus("", "");
                 return;
             }
-
-            const csrf = $('input[name="csrf_token_form"]').val();
-            const callbackUrl = ($("#callback_url").val() || "").trim();
-            setCallbackStatus("Checking installation...", "");
-            ensureActiveSession();
-
-            $.ajax({
-                url: 'onboarding_validate_url.php',
-                type: 'POST',
-                dataType: 'json',
-                data: {
-                    csrf_token_form: csrf,
-                    callback_url: callbackUrl
-                },
-                success: function(response) {
-                    if (response.success) {
-                        callbackValidated = true;
-                        clearFieldError("#callback_url", "#callback-error");
-                        setCallbackStatus(response.message || "OpenEMR URL verified.", "ok");
-                    } else {
-                        callbackValidated = false;
-                        setFieldError("#callback_url", "#callback-error", response.error || "Unable to verify install. Confirm your URL and module setup, then try again.");
-                        setCallbackStatus("", "");
-                    }
-                    updateStep1SubmitState();
-                },
-                error: function(jqXHR) {
-                    callbackValidated = false;
-                    setFieldError("#callback_url", "#callback-error", ajaxErrorMessage(jqXHR, "Unable to verify install right now. Confirm your URL and module setup, then try again."));
-                    setCallbackStatus("", "");
-                    updateStep1SubmitState();
-                }
-            });
+            if (!validateCallbackHostMatchesCurrent(true)) {
+                setCallbackStatus("", "");
+                updateStep1SubmitState();
+                return;
+            }
+            callbackValidated = true;
+            clearFieldError("#callback_url", "#callback-error");
+            setCallbackStatus("OpenEMR URL accepted.", "ok");
+            updateStep1SubmitState();
         }
 
         function sendOtp() {
