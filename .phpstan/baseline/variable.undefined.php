@@ -15302,16 +15302,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/OFX.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$arr might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$string might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$b2 might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../library/classes/fpdf/fpdf.php',
