@@ -30,6 +30,10 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 require_once(__DIR__ . '/../src/MedExAPI.php');
 $api = new \OpenEMR\Modules\MedEx\MedExAPI();
 $step = $_GET['step'] ?? '1';
+if (empty($session->get('csrf_private_key', null))) {
+    CsrfUtils::setupCsrfKey($session);
+}
+$csrfToken = (string) CsrfUtils::collectCsrfToken(session: $session);
 $termsVersion = MedExConfig::TERMS_VERSION;
 $baaVersion = MedExConfig::BAA_VERSION;
 $termsUrl = MedExConfig::termsUrl();
@@ -162,7 +166,7 @@ if ($step > 1 && !$api->isConfigured()) {
         <?php if ($step == 1): ?>
             <!-- Step 1: Account Registration -->
             <form id="form-step-1">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrfToken); ?>" />
                 <div class="panel-card full-width-card">
                         <div class="form-group">
                             <label for="email"><?php echo xlt("Administrator E-mail"); ?></label>
@@ -274,7 +278,7 @@ if ($step > 1 && !$api->isConfigured()) {
         <?php elseif ($step == 2): ?>
             <!-- Step 2: Service Configuration -->
             <form id="form-step-2">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrfToken); ?>" />
 
                 <p><?php echo xlt("Select the services you wish to enable for your practice. You can start with a trial for any provider-based service."); ?></p>
 
@@ -449,7 +453,7 @@ if ($step > 1 && !$api->isConfigured()) {
                 <div style="margin: 30px 0;">
                     <h4><?php echo xlt("Payment Information"); ?></h4>
                     <form id="payment-form">
-                        <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                        <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrfToken); ?>" />
                         <div class="form-group">
                             <label for="cardholder-name"><?php echo xlt("Cardholder Name"); ?></label>
                             <input type="text" id="cardholder-name" class="form-control" required>
