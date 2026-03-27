@@ -180,10 +180,8 @@ if ($step > 1 && !$api->isConfigured()) {
                             <small style="color:#64748b; display:block; margin-top:6px;"><?php echo xlt("Use at least 8 characters with uppercase, lowercase, number, and special character."); ?></small>
                             <div id="password-error" class="field-error"><?php echo xlt("Password must be at least 8 characters and include uppercase, lowercase, number, and special character."); ?></div>
                         </div>
-                    </div>
-                    <div class="panel-card">
                         <div class="form-group">
-                            <label for="rpassword"><?php echo xlt("Confirm Password"); ?></label>
+                            <label for="rpassword"><?php echo xlt("Confirm"); ?></label>
                             <div class="password-wrap">
                                 <input type="password" id="rpassword" name="rpassword" class="form-control" required style="padding-right:40px;">
                                 <i class="fa fa-eye-slash password-toggle" id="toggle-rpassword" title="<?php echo xla("Show/Hide Password"); ?>"></i>
