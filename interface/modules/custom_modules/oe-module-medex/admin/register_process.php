@@ -399,6 +399,14 @@ try {
         echo json_encode(['success' => false, 'error' => 'You must agree to receive onboarding and account-related messages from MedEx']);
         exit;
     }
+    $password = (string)($_POST['password'] ?? '');
+    if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}$/', $password)) {
+        echo json_encode([
+            'success' => false,
+            'error' => 'Password must be at least 12 characters and include uppercase, lowercase, number, and special character'
+        ]);
+        exit;
+    }
     $email = trim((string)($_POST['email'] ?? ''));
     if ($email === '') {
         echo json_encode(['success' => false, 'error' => 'E-mail is required']);

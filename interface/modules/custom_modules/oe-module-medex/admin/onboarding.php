@@ -162,6 +162,8 @@ if ($step > 1 && !$api->isConfigured()) {
                         <input type="password" id="password" name="password" class="form-control" required style="padding-right:40px;">
                         <i class="fa fa-eye-slash password-toggle" id="toggle-password" title="<?php echo xla("Show/Hide Password"); ?>"></i>
                     </div>
+                    <small style="color:#64748b; display:block; margin-top:6px;"><?php echo xlt("Use at least 12 characters with uppercase, lowercase, number, and special character."); ?></small>
+                    <div id="password-error" class="field-error"><?php echo xlt("Password must be at least 12 characters and include uppercase, lowercase, number, and special character."); ?></div>
                 </div>
                 <div class="form-group">
                     <label for="rpassword"><?php echo xlt("Confirm Password"); ?></label>
@@ -548,6 +550,24 @@ if ($step > 1 && !$api->isConfigured()) {
             return false;
         }
 
+        function validatePasswordField(showMessage = true) {
+            const passwordValue = ($("#password").val() || "").trim();
+            const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}$/;
+            const isValid = strongPassword.test(passwordValue);
+            if (isValid) {
+                clearFieldError("#password", "#password-error");
+                return true;
+            }
+            if (showMessage) {
+                setFieldError(
+                    "#password",
+                    "#password-error",
+                    "Password must be at least 12 characters and include uppercase, lowercase, number, and special character."
+                );
+            }
+            return false;
+        }
+
         function sendOtp() {
             const channel = $("#otp_channel").val();
             const email = ($("#email").val() || "").trim();
@@ -655,6 +675,9 @@ if ($step > 1 && !$api->isConfigured()) {
                 return;
             }
             if (!validateEmailField(true)) {
+                return;
+            }
+            if (!validatePasswordField(true)) {
                 return;
             }
             if (password !== rpassword) {
@@ -772,6 +795,14 @@ if ($step > 1 && !$api->isConfigured()) {
             $("#email").on("input", function() {
                 if (validateEmailField(false)) {
                     clearFieldError("#email", "#email-error");
+                }
+            });
+            $("#password").on("blur", function() {
+                validatePasswordField(true);
+            });
+            $("#password").on("input", function() {
+                if (validatePasswordField(false)) {
+                    clearFieldError("#password", "#password-error");
                 }
             });
             updateOtpDestinationVisibility();
