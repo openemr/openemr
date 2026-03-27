@@ -173,13 +173,12 @@ if ($step > 1 && !$api->isConfigured()) {
                     <label for="otp_channel"><?php echo xlt("One-Time Password (OTP) Method"); ?></label>
                     <select id="otp_channel" name="otp_channel" class="form-control">
                         <option value="email"><?php echo xlt("Email One-Time Password (OTP)"); ?></option>
-                        <option value="sms"><?php echo xlt("SMS One-Time Password (OTP)"); ?></option>
                     </select>
                     <small style="color:#64748b;">
                         <?php echo xlt("We use a one-time password to verify account control and protect your MedEx setup."); ?>
                         <a href="#" onclick="window.open('<?php echo attr_js($privacyUrl); ?>','PrivacyPolicy',900,700); return false;"><?php echo xlt("Privacy Policy"); ?></a>
                     </small>
-                    <?php // WhatsApp OTP intentionally hidden in UI for now; backend scaffold remains. ?>
+                    <?php // SMS/WhatsApp OTP intentionally hidden in UI until end-to-end destination + verification flow is implemented. ?>
                 </div>
                 <div class="form-group" style="margin-bottom: 12px;">
                     <label style="font-weight:400;">
