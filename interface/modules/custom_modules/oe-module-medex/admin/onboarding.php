@@ -168,10 +168,10 @@ if ($step > 1 && !$api->isConfigured()) {
                     <small style="color:#64748b;"><?php echo xlt("Enter the url you use to reach your OpenEMR server."); ?></small>
                 </div>
                 <div class="form-group">
-                    <label for="otp_channel"><?php echo xlt("Verification Channel"); ?></label>
+                    <label for="otp_channel"><?php echo xlt("One-Time Password (OTP) Method"); ?></label>
                     <select id="otp_channel" name="otp_channel" class="form-control">
-                        <option value="email"><?php echo xlt("Email OTP"); ?></option>
-                        <option value="sms"><?php echo xlt("SMS OTP"); ?></option>
+                        <option value="email"><?php echo xlt("Email One-Time Password (OTP)"); ?></option>
+                        <option value="sms"><?php echo xlt("SMS One-Time Password (OTP)"); ?></option>
                     </select>
                     <?php // WhatsApp OTP intentionally hidden in UI for now; backend scaffold remains. ?>
                 </div>
