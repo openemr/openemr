@@ -34,7 +34,6 @@ $termsVersion = MedExConfig::TERMS_VERSION;
 $baaVersion = MedExConfig::BAA_VERSION;
 $termsUrl = MedExConfig::termsUrl();
 $baaUrl = MedExConfig::baaUrl();
-$whatsappOtpEnabled = MedExConfig::OTP_WHATSAPP_ENABLED;
 $defaultOpenEmrUrl = '';
 if (!empty($_SERVER['HTTP_HOST'])) {
     $webroot = trim((string)($GLOBALS['webroot'] ?? ''), '/');
@@ -179,11 +178,8 @@ if ($step > 1 && !$api->isConfigured()) {
                     <select id="otp_channel" name="otp_channel" class="form-control">
                         <option value="email"><?php echo xlt("Email OTP"); ?></option>
                         <option value="sms"><?php echo xlt("SMS OTP"); ?></option>
-                        <option value="whatsapp" <?php echo !$whatsappOtpEnabled ? 'disabled' : ''; ?>>
-                            <?php echo xlt("WhatsApp OTP"); ?><?php echo !$whatsappOtpEnabled ? ' (' . xlt("Coming Soon") . ')' : ''; ?>
-                        </option>
                     </select>
-                    <small style="color:#64748b;"><?php echo xlt("WhatsApp OTP is scaffolded but disabled until provider connection is configured."); ?></small>
+                    <?php // WhatsApp OTP intentionally hidden in UI for now; backend scaffold remains. ?>
                 </div>
                 <div class="form-group" style="margin-bottom: 12px;">
                     <label style="font-weight:400;">
