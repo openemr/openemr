@@ -500,7 +500,15 @@ if ($step > 1 && !$api->isConfigured()) {
 
         function validateOtpDestination(channel, email, sms) {
             if (channel === "email") {
-                return !!email;
+                const emailValue = (email || "").trim();
+                const emailInput = document.getElementById("email");
+                if (!emailValue) {
+                    return false;
+                }
+                if (emailInput && typeof emailInput.checkValidity === "function") {
+                    return emailInput.checkValidity();
+                }
+                return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailValue);
             }
             if (channel === "sms") {
                 return /^\+\d{10,15}$/.test((sms || "").trim());
@@ -611,6 +619,11 @@ if ($step > 1 && !$api->isConfigured()) {
 
             if (!email || !password || !callbackUrl) {
                 alert("Please fill all required fields");
+                return;
+            }
+            const emailInput = document.getElementById("email");
+            if (!emailInput || !emailInput.checkValidity()) {
+                alert("Please enter a valid administrator email address");
                 return;
             }
             if (password !== rpassword) {
