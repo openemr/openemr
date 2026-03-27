@@ -259,7 +259,7 @@ final class EventAuditLoggerTest extends TestCase
             ->willReturnCallback(fn(string $key) => $sessionValues[$key] ?? null);
 
         // Return positional array matching constructor parameter order:
-        // sinks, cryptoGen, shouldEncrypt, session, config, breakglassChecker
+        // sinks, cryptoGen, shouldEncrypt, session, config, breakglassChecker, clock
         return [
             [],                                         // sinks
             $this->createMock(CryptoGen::class),        // cryptoGen
@@ -267,6 +267,7 @@ final class EventAuditLoggerTest extends TestCase
             $sessionMock,                               // session
             $config ?? $this->config,                   // config
             $this->breakglassChecker,                   // breakglassChecker
+            $this->clock,
         ];
     }
 
