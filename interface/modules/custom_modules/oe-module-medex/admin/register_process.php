@@ -260,6 +260,51 @@ function medexIsAutoApprovalFailureMessage(string $message): bool
     return false;
 }
 
+function medexNormalizeSmsDestination(string $sms): string
+{
+    $sms = trim($sms);
+    if (preg_match('/^\+\d{10,15}$/', $sms)) {
+        return $sms;
+    }
+    return '';
+}
+
+function medexValidateOtpProof(string $email, string $channel, string $smsDestination, string $proof): array
+{
+    $state = $_SESSION['medex_onboarding_otp'] ?? null;
+    if (!is_array($state)) {
+        return [false, 'Send and verify your one-time password before continuing'];
+    }
+    if (empty($state['verified']) || empty($state['proof'])) {
+        return [false, 'One-time password is not verified'];
+    }
+    if (!hash_equals((string)$state['proof'], $proof)) {
+        return [false, 'One-time password verification proof is invalid'];
+    }
+    if (!empty($state['expires_at']) && (int)$state['expires_at'] < time()) {
+        return [false, 'One-time password expired. Send and verify a new code'];
+    }
+    if (($state['channel'] ?? '') !== $channel) {
+        return [false, 'One-time password method does not match the verified method'];
+    }
+    if ($channel === 'email') {
+        if (strtolower((string)($state['email'] ?? '')) !== strtolower($email)) {
+            return [false, 'One-time password was verified for a different email'];
+        }
+    } elseif ($channel === 'sms') {
+        if (($state['destination'] ?? '') !== $smsDestination) {
+            return [false, 'One-time password was verified for a different mobile number'];
+        }
+    }
+
+    return [true, 'ok'];
+}
+
+function medexClearOtpSession(): void
+{
+    unset($_SESSION['medex_onboarding_otp']);
+}
+
 // Set JSON response header
 header('Content-Type: application/json');
 
@@ -282,7 +327,7 @@ try {
     medexEnsureOnboardingAttemptsTable();
 
     // Validate required fields (only email and password - practice details come from facility sync)
-    $required = ['email', 'password', 'callback_url', 'TERMS_yes', 'BusAgree_yes'];
+    $required = ['email', 'password', 'callback_url', 'TERMS_yes', 'BusAgree_yes', 'otp_proof'];
     foreach ($required as $field) {
         if (empty($_POST[$field])) {
             echo json_encode(['success' => false, 'error' => "Missing required field: {$field}"]);
@@ -327,6 +372,17 @@ try {
         default => MedExConfig::OTP_HOUSE_ACCOUNT_EMAIL,
     };
     $otpHouseCost = ($otpChannel === 'email') ? (float) MedExConfig::OTP_HOUSE_EMAIL_COST : 0.0;
+    $otpSmsDestination = medexNormalizeSmsDestination((string)($_POST['otp_sms_destination'] ?? ''));
+    if ($otpChannel === 'sms' && $otpSmsDestination === '') {
+        echo json_encode(['success' => false, 'error' => 'A valid SMS number is required for SMS one-time password verification']);
+        exit;
+    }
+    $otpProof = trim((string)($_POST['otp_proof'] ?? ''));
+    [$otpProofOk, $otpProofErr] = medexValidateOtpProof($email, $otpChannel, $otpSmsDestination, $otpProof);
+    if (!$otpProofOk) {
+        echo json_encode(['success' => false, 'error' => $otpProofErr]);
+        exit;
+    }
     $termsVersion = trim((string)($_POST['terms_version'] ?? MedExConfig::TERMS_VERSION));
     $baaVersion = trim((string)($_POST['baa_version'] ?? MedExConfig::BAA_VERSION));
     if ($termsVersion === '' || $termsVersion !== MedExConfig::TERMS_VERSION) {
@@ -523,6 +579,7 @@ if (!empty($result['success'])) {
         $result['sync_message'] = 'No facilities or providers with calendars found to sync';
     }
     medexClearAutoApprovalFailures($email);
+    medexClearOtpSession();
 } elseif (!empty($result['pending_review'])) {
     $reviewMsg = $result['message'] ?? 'Signup pending review by MedEx support.';
     if (medexIsAutoApprovalFailureMessage($reviewMsg)) {

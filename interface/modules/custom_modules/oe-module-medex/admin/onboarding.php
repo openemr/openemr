@@ -115,6 +115,11 @@ if ($step > 1 && !$api->isConfigured()) {
         #result { margin-top: 20px; }
         .alert { padding: 15px; border-radius: 6px; margin-bottom: 20px; }
         .alert-danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+        .otp-panel { border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; margin-top: 10px; background: #f8fafc; }
+        .otp-inline { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 10px; }
+        .otp-status { font-size: 13px; color: #475569; margin-top: 8px; }
+        .otp-status.ok { color: #15803d; }
+        .otp-status.err { color: #b91c1c; }
     </style>
 </head>
 <body>
@@ -173,12 +178,29 @@ if ($step > 1 && !$api->isConfigured()) {
                     <label for="otp_channel"><?php echo xlt("One-Time Password (OTP) Method"); ?></label>
                     <select id="otp_channel" name="otp_channel" class="form-control">
                         <option value="email"><?php echo xlt("Email One-Time Password (OTP)"); ?></option>
+                        <option value="sms"><?php echo xlt("SMS One-Time Password (OTP)"); ?></option>
                     </select>
                     <small style="color:#64748b;">
                         <?php echo xlt("We use a one-time password to verify account control and protect your MedEx setup."); ?>
                         <a href="#" onclick="window.open('<?php echo attr_js($privacyUrl); ?>','PrivacyPolicy',900,700); return false;"><?php echo xlt("Privacy Policy"); ?></a>
                     </small>
                     <?php // SMS/WhatsApp OTP intentionally hidden in UI until end-to-end destination + verification flow is implemented. ?>
+                    <div id="otp-sms-destination-wrap" class="form-group" style="display:none; margin-top: 10px;">
+                        <label for="otp_sms_destination"><?php echo xlt("Mobile Number for SMS OTP"); ?></label>
+                        <input type="tel" id="otp_sms_destination" name="otp_sms_destination" class="form-control"
+                               placeholder="+15551234567">
+                    </div>
+                    <div class="otp-panel">
+                        <div class="otp-inline">
+                            <button type="button" class="btn btn-primary" id="send-otp-btn"><?php echo xlt("Send One-Time Password (OTP)"); ?></button>
+                        </div>
+                        <div class="otp-inline">
+                            <input type="text" id="otp_code" class="form-control" style="max-width: 220px;" placeholder="<?php echo xla("Enter 6-digit code"); ?>" maxlength="6">
+                            <button type="button" class="btn" style="background:#e2e8f0;" id="verify-otp-btn"><?php echo xlt("Verify Code"); ?></button>
+                        </div>
+                        <div id="otp-status" class="otp-status"><?php echo xlt("Send and verify your one-time password before continuing."); ?></div>
+                        <input type="hidden" id="otp_proof" name="otp_proof" value="">
+                    </div>
                 </div>
                 <div class="form-group" style="margin-bottom: 12px;">
                     <label style="font-weight:400;">
@@ -418,12 +440,134 @@ if ($step > 1 && !$api->isConfigured()) {
     </div>
 
     <script>
+        let otpVerified = false;
+
         function togglePasswordField(inputSelector, iconSelector) {
             const input = $(inputSelector);
             const icon = $(iconSelector);
             const isPassword = input.attr('type') === 'password';
             input.attr('type', isPassword ? 'text' : 'password');
             icon.toggleClass('fa-eye fa-eye-slash');
+        }
+
+        function setOtpStatus(message, kind = '') {
+            const el = $("#otp-status");
+            el.removeClass('ok err');
+            if (kind) {
+                el.addClass(kind);
+            }
+            el.text(message);
+        }
+
+        function updateOtpDestinationVisibility() {
+            const channel = $("#otp_channel").val();
+            if (channel === "sms") {
+                $("#otp-sms-destination-wrap").show();
+            } else {
+                $("#otp-sms-destination-wrap").hide();
+                $("#otp_sms_destination").val("");
+            }
+            otpVerified = false;
+            $("#otp_proof").val("");
+            $("#otp_code").val("");
+            setOtpStatus("Send and verify your one-time password before continuing.");
+        }
+
+        function validateOtpDestination(channel, email, sms) {
+            if (channel === "email") {
+                return !!email;
+            }
+            if (channel === "sms") {
+                return /^\+\d{10,15}$/.test((sms || "").trim());
+            }
+            return false;
+        }
+
+        function sendOtp() {
+            const channel = $("#otp_channel").val();
+            const email = ($("#email").val() || "").trim();
+            const sms = ($("#otp_sms_destination").val() || "").trim();
+            const csrf = $('input[name="csrf_token_form"]').val();
+
+            if (!validateOtpDestination(channel, email, sms)) {
+                if (channel === "sms") {
+                    setOtpStatus("Enter a valid SMS number in E.164 format, for example +15551234567.", "err");
+                } else {
+                    setOtpStatus("Enter a valid administrator email before sending OTP.", "err");
+                }
+                return;
+            }
+
+            otpVerified = false;
+            $("#otp_proof").val("");
+            setOtpStatus("Sending one-time password...", "");
+
+            $.ajax({
+                url: 'onboarding_otp.php',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    csrf_token_form: csrf,
+                    action: 'send',
+                    otp_channel: channel,
+                    email: email,
+                    otp_sms_destination: sms
+                },
+                success: function(response) {
+                    if (response.success) {
+                        setOtpStatus(response.message || "One-time password sent. Check your selected channel.", "ok");
+                    } else {
+                        setOtpStatus(response.error || "Unable to send one-time password.", "err");
+                    }
+                },
+                error: function() {
+                    setOtpStatus("Unable to send one-time password due to a request error.", "err");
+                }
+            });
+        }
+
+        function verifyOtp() {
+            const code = ($("#otp_code").val() || "").trim();
+            const csrf = $('input[name="csrf_token_form"]').val();
+            const channel = $("#otp_channel").val();
+            const email = ($("#email").val() || "").trim();
+            const sms = ($("#otp_sms_destination").val() || "").trim();
+
+            if (!/^\d{6}$/.test(code)) {
+                setOtpStatus("Enter a valid 6-digit one-time password.", "err");
+                return;
+            }
+
+            setOtpStatus("Verifying one-time password...", "");
+            $.ajax({
+                url: 'onboarding_otp.php',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    csrf_token_form: csrf,
+                    action: 'verify',
+                    otp_channel: channel,
+                    email: email,
+                    otp_sms_destination: sms,
+                    otp_code: code
+                },
+                success: function(response) {
+                    if (response.success) {
+                        otpVerified = true;
+                        $("#otp_proof").val(response.otp_proof || "");
+                        setOtpStatus(response.message || "One-time password verified.", "ok");
+                    } else {
+                        otpVerified = false;
+                        $("#otp_proof").val("");
+                        setOtpStatus(response.error || "One-time password verification failed.", "err");
+                    }
+                },
+                error: function() {
+                    otpVerified = false;
+                    $("#otp_proof").val("");
+                    setOtpStatus("Unable to verify one-time password due to a request error.", "err");
+                }
+            });
         }
 
         function submitStep1() {
@@ -434,6 +578,8 @@ if ($step > 1 && !$api->isConfigured()) {
             const termsAgreed = $("#TERMS_yes").is(':checked');
             const baaAgreed = $("#BusAgree_yes").is(':checked');
             const otpChannel = $("#otp_channel").val();
+            const otpProof = ($("#otp_proof").val() || "").trim();
+            const otpSmsDestination = ($("#otp_sms_destination").val() || "").trim();
 
             if (!email || !password || !callbackUrl) {
                 alert("Please fill all required fields");
@@ -455,6 +601,10 @@ if ($step > 1 && !$api->isConfigured()) {
                 alert("You must agree to the HIPAA Business Associate Agreement before signing up");
                 return;
             }
+            if (!otpVerified || !otpProof) {
+                setOtpStatus("You must send and verify your one-time password before continuing.", "err");
+                return;
+            }
 
             $("#result").html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Registering...</div>');
 
@@ -469,6 +619,8 @@ if ($step > 1 && !$api->isConfigured()) {
                     TERMS_yes: '1',
                     BusAgree_yes: '1',
                     otp_channel: otpChannel,
+                    otp_sms_destination: otpSmsDestination,
+                    otp_proof: otpProof,
                     terms_version: '<?php echo attr_js($termsVersion); ?>',
                     baa_version: '<?php echo attr_js($baaVersion); ?>'
                 },
@@ -527,6 +679,16 @@ if ($step > 1 && !$api->isConfigured()) {
             $("#toggle-rpassword").on("click", function() {
                 togglePasswordField("#rpassword", "#toggle-rpassword");
             });
+            $("#otp_channel").on("change", function() {
+                updateOtpDestinationVisibility();
+            });
+            $("#send-otp-btn").on("click", function() {
+                sendOtp();
+            });
+            $("#verify-otp-btn").on("click", function() {
+                verifyOtp();
+            });
+            updateOtpDestinationVisibility();
 
             if (window.location.search.includes('step=3')) {
                 const summary = JSON.parse(sessionStorage.getItem('medex_onboarding_summary') || '{}');
