@@ -202,7 +202,6 @@ if ($step > 1 && !$api->isConfigured()) {
                 <div class="panel-card full-width-card">
                     <div class="service-title" style="margin-bottom: 6px;"><?php echo xlt("Send One-Time Passcode"); ?></div>
                     <div class="form-group" style="margin-bottom: 12px;">
-                        <label for="otp_channel"><?php echo xlt("One-Time Password (OTP) Method"); ?></label>
                         <select id="otp_channel" name="otp_channel" class="form-control">
                             <option value="email"><?php echo xlt("Email One-Time Password (OTP)"); ?></option>
                             <option value="sms"><?php echo xlt("SMS One-Time Password (OTP)"); ?></option>
