@@ -400,10 +400,10 @@ try {
         exit;
     }
     $password = (string)($_POST['password'] ?? '');
-    if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}$/', $password)) {
+    if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/', $password)) {
         echo json_encode([
             'success' => false,
-            'error' => 'Password must be at least 12 characters and include uppercase, lowercase, number, and special character'
+            'error' => 'Password must be at least 8 characters and include uppercase, lowercase, number, and special character'
         ]);
         exit;
     }

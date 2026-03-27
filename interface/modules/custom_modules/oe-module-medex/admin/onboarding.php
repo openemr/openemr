@@ -162,8 +162,8 @@ if ($step > 1 && !$api->isConfigured()) {
                         <input type="password" id="password" name="password" class="form-control" required style="padding-right:40px;">
                         <i class="fa fa-eye-slash password-toggle" id="toggle-password" title="<?php echo xla("Show/Hide Password"); ?>"></i>
                     </div>
-                    <small style="color:#64748b; display:block; margin-top:6px;"><?php echo xlt("Use at least 12 characters with uppercase, lowercase, number, and special character."); ?></small>
-                    <div id="password-error" class="field-error"><?php echo xlt("Password must be at least 12 characters and include uppercase, lowercase, number, and special character."); ?></div>
+                    <small style="color:#64748b; display:block; margin-top:6px;"><?php echo xlt("Use at least 8 characters with uppercase, lowercase, number, and special character."); ?></small>
+                    <div id="password-error" class="field-error"><?php echo xlt("Password must be at least 8 characters and include uppercase, lowercase, number, and special character."); ?></div>
                 </div>
                 <div class="form-group">
                     <label for="rpassword"><?php echo xlt("Confirm Password"); ?></label>
@@ -552,7 +552,7 @@ if ($step > 1 && !$api->isConfigured()) {
 
         function validatePasswordField(showMessage = true) {
             const passwordValue = ($("#password").val() || "").trim();
-            const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}$/;
+            const strongPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
             const isValid = strongPassword.test(passwordValue);
             if (isValid) {
                 clearFieldError("#password", "#password-error");
@@ -562,7 +562,7 @@ if ($step > 1 && !$api->isConfigured()) {
                 setFieldError(
                     "#password",
                     "#password-error",
-                    "Password must be at least 12 characters and include uppercase, lowercase, number, and special character."
+                    "Password must be at least 8 characters and include uppercase, lowercase, number, and special character."
                 );
             }
             return false;
