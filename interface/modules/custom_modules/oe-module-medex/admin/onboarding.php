@@ -88,6 +88,16 @@ if ($step > 1 && !$api->isConfigured()) {
         .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #333; }
         .form-control { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 15px; }
         .form-control::placeholder { color: #9ca3af; opacity: 1; }
+        .password-wrap { position: relative; }
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 16px;
+        }
         .btn { padding: 12px 30px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s; border: none; font-size: 16px; }
         .btn-primary { background: #0f4b8f; color: white; }
         .btn-primary:hover { background: #0a3460; }
@@ -139,11 +149,17 @@ if ($step > 1 && !$api->isConfigured()) {
                 </div>
                 <div class="form-group">
                     <label for="password"><?php echo xlt("Password"); ?></label>
-                    <input type="password" id="password" name="password" class="form-control" required>
+                    <div class="password-wrap">
+                        <input type="password" id="password" name="password" class="form-control" required style="padding-right:40px;">
+                        <i class="fa fa-eye-slash password-toggle" id="toggle-password" title="<?php echo xla("Show/Hide Password"); ?>"></i>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="rpassword"><?php echo xlt("Confirm Password"); ?></label>
-                    <input type="password" id="rpassword" name="rpassword" class="form-control" required>
+                    <div class="password-wrap">
+                        <input type="password" id="rpassword" name="rpassword" class="form-control" required style="padding-right:40px;">
+                        <i class="fa fa-eye-slash password-toggle" id="toggle-rpassword" title="<?php echo xla("Show/Hide Password"); ?>"></i>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="callback_url"><?php echo xlt("Callback URL (Required)"); ?></label>
@@ -408,6 +424,14 @@ if ($step > 1 && !$api->isConfigured()) {
     </div>
 
     <script>
+        function togglePasswordField(inputSelector, iconSelector) {
+            const input = $(inputSelector);
+            const icon = $(iconSelector);
+            const isPassword = input.attr('type') === 'password';
+            input.attr('type', isPassword ? 'text' : 'password');
+            icon.toggleClass('fa-eye fa-eye-slash');
+        }
+
         function submitStep1() {
             const email = $("#email").val();
             const password = $("#password").val();
@@ -509,6 +533,13 @@ if ($step > 1 && !$api->isConfigured()) {
         }
 
         $(document).ready(function() {
+            $("#toggle-password").on("click", function() {
+                togglePasswordField("#password", "#toggle-password");
+            });
+            $("#toggle-rpassword").on("click", function() {
+                togglePasswordField("#rpassword", "#toggle-rpassword");
+            });
+
             if (window.location.search.includes('step=3')) {
                 const summary = JSON.parse(sessionStorage.getItem('medex_onboarding_summary') || '{}');
                 let html = '';
