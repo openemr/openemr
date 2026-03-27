@@ -197,8 +197,9 @@ if ($step > 1 && !$api->isConfigured()) {
                             <input type="url" id="callback_url" name="callback_url" class="form-control"
                                    value="<?php echo attr($defaultOpenEmrUrl); ?>"
                                    placeholder="https://your-openemr-domain.com"
+                                   readonly
                                    required>
-                            <small style="color:#64748b;"><?php echo xlt("Enter the url we can use to reach your OpenEMR server."); ?></small>
+                            <small style="color:#64748b;"><?php echo xlt("This is auto-detected from your current OpenEMR server."); ?></small>
                             <div id="callback-error" class="field-error"><?php echo xlt("OpenEMR URL must be a valid public HTTPS URL."); ?></div>
                             <div id="callback-status" class="field-status"></div>
                         </div>
@@ -962,6 +963,7 @@ if ($step > 1 && !$api->isConfigured()) {
                 updateStep1SubmitState();
             });
             updateOtpDestinationVisibility();
+            validateCallbackFromApi();
             updateStep1SubmitState();
 
             if (window.location.search.includes('step=3')) {
