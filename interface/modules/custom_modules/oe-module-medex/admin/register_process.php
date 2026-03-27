@@ -120,6 +120,146 @@ function medexEnsureAgreementColumns(): void
     }
 }
 
+function medexEnsureOnboardingAttemptsTable(): void
+{
+    QueryUtils::sqlStatementThrowException(
+        "CREATE TABLE IF NOT EXISTS `medex_onboarding_attempts` (
+            `email` varchar(190) NOT NULL,
+            `fail_count` int(11) NOT NULL DEFAULT 0,
+            `window_start` datetime DEFAULT NULL,
+            `locked_until` datetime DEFAULT NULL,
+            `last_reason` varchar(255) DEFAULT NULL,
+            `updated_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`email`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+        []
+    );
+}
+
+function medexGetAttemptState(string $email): array
+{
+    $row = QueryUtils::querySingleRow(
+        "SELECT fail_count, window_start, locked_until, last_reason
+         FROM medex_onboarding_attempts WHERE email = ? LIMIT 1",
+        [$email]
+    );
+    return [
+        'fail_count' => (int)($row['fail_count'] ?? 0),
+        'window_start' => (string)($row['window_start'] ?? ''),
+        'locked_until' => (string)($row['locked_until'] ?? ''),
+        'last_reason' => (string)($row['last_reason'] ?? ''),
+    ];
+}
+
+function medexIsLocked(string $email): array
+{
+    $state = medexGetAttemptState($email);
+    if (!empty($state['locked_until']) && strtotime($state['locked_until']) > time()) {
+        return [true, $state['locked_until']];
+    }
+    return [false, ''];
+}
+
+function medexRecordAutoApprovalFailure(string $email, string $reason): array
+{
+    $now = gmdate('Y-m-d H:i:s');
+    $windowSeconds = 30 * 60;
+    $maxAttempts = 3;
+    $lockSeconds = 24 * 60 * 60;
+
+    $state = medexGetAttemptState($email);
+    $windowStart = !empty($state['window_start']) ? strtotime($state['window_start']) : 0;
+    $count = (int)$state['fail_count'];
+
+    if ($windowStart <= 0 || (time() - $windowStart) > $windowSeconds) {
+        $count = 1;
+        $windowStartSql = $now;
+    } else {
+        $count++;
+        $windowStartSql = $state['window_start'];
+    }
+
+    $lockedUntil = null;
+    if ($count >= $maxAttempts) {
+        $lockedUntil = gmdate('Y-m-d H:i:s', time() + $lockSeconds);
+    }
+
+    QueryUtils::sqlStatementThrowException(
+        "INSERT INTO medex_onboarding_attempts (email, fail_count, window_start, locked_until, last_reason, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?)
+         ON DUPLICATE KEY UPDATE
+            fail_count = VALUES(fail_count),
+            window_start = VALUES(window_start),
+            locked_until = VALUES(locked_until),
+            last_reason = VALUES(last_reason),
+            updated_at = VALUES(updated_at)",
+        [$email, $count, $windowStartSql, $lockedUntil, substr($reason, 0, 255), $now]
+    );
+
+    return [
+        'count' => $count,
+        'remaining' => max(0, $maxAttempts - $count),
+        'locked' => !empty($lockedUntil),
+        'locked_until' => (string)($lockedUntil ?? ''),
+    ];
+}
+
+function medexClearAutoApprovalFailures(string $email): void
+{
+    QueryUtils::sqlStatementThrowException(
+        "DELETE FROM medex_onboarding_attempts WHERE email = ?",
+        [$email]
+    );
+}
+
+function medexDetectedOpenEmrBaseUrl(): string
+{
+    $host = trim((string)($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? ''));
+    if ($host === '') {
+        return '';
+    }
+
+    $proto = trim((string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''));
+    if ($proto === '') {
+        $https = strtolower((string)($_SERVER['HTTPS'] ?? ''));
+        $proto = ($https === 'on' || $https === '1') ? 'https' : 'http';
+    } else {
+        $proto = strtolower(explode(',', $proto)[0]);
+    }
+    if ($proto !== 'https') {
+        $proto = 'https';
+    }
+
+    $webroot = trim((string)($GLOBALS['webroot'] ?? ''), '/');
+    return $proto . '://' . $host . ($webroot !== '' ? '/' . $webroot : '');
+}
+
+function medexIsAutoApprovalFailureMessage(string $message): bool
+{
+    $m = strtolower(trim($message));
+    if ($m === '') {
+        return false;
+    }
+    $needles = [
+        'unreachable',
+        'reachable',
+        'auto-approval',
+        'auto approval',
+        'callback',
+        'production',
+        'private',
+        'local host',
+        'site url',
+        'pending review',
+    ];
+    foreach ($needles as $needle) {
+        if (strpos($m, $needle) !== false) {
+            return true;
+        }
+    }
+    return false;
+}
+
 // Set JSON response header
 header('Content-Type: application/json');
 
@@ -139,6 +279,7 @@ try {
     // Load MedEx API and Services
     require_once(__DIR__ . '/../src/MedExAPI.php');
     require_once(__DIR__ . '/../src/Services/PracticeService.php');
+    medexEnsureOnboardingAttemptsTable();
 
     // Validate required fields (only email and password - practice details come from facility sync)
     $required = ['email', 'password', 'callback_url', 'production_confirm', 'TERMS_yes', 'BusAgree_yes'];
@@ -158,6 +299,19 @@ try {
     }
     if ((string)($_POST['BusAgree_yes'] ?? '') !== '1') {
         echo json_encode(['success' => false, 'error' => 'You must agree to the HIPAA Business Associate Agreement before signing up']);
+        exit;
+    }
+    $email = trim((string)($_POST['email'] ?? ''));
+    if ($email === '') {
+        echo json_encode(['success' => false, 'error' => 'E-mail is required']);
+        exit;
+    }
+    [$isLocked, $lockedUntil] = medexIsLocked($email);
+    if ($isLocked) {
+        echo json_encode([
+            'success' => false,
+            'error' => 'Auto-approval is temporarily disabled due to repeated unreachable/mismatch checks. Please contact support@medexbank.com or retry after ' . $lockedUntil . ' UTC.'
+        ]);
         exit;
     }
     $otpChannel = strtolower(trim((string)($_POST['otp_channel'] ?? 'email')));
@@ -199,6 +353,29 @@ try {
         echo json_encode(['success' => false, 'error' => $deriveErr]);
         exit;
     }
+    $detectedBaseUrl = medexNormalizeOpenEmrBaseUrl(medexDetectedOpenEmrBaseUrl());
+    if ($detectedBaseUrl === '') {
+        $attempt = medexRecordAutoApprovalFailure($email, 'missing_detected_site_url');
+        $msg = 'Auto-approval unavailable: site URL could not be detected from current request headers.';
+        if ($attempt['locked']) {
+            $msg .= ' Too many failed attempts. Please contact support@medexbank.com.';
+        } else {
+            $msg .= ' Attempts remaining before support is required: ' . $attempt['remaining'] . '.';
+        }
+        echo json_encode(['success' => false, 'error' => $msg, 'pending_review' => true]);
+        exit;
+    }
+    if ($detectedBaseUrl !== $openEmrBaseUrl) {
+        $attempt = medexRecordAutoApprovalFailure($email, 'submitted_url_mismatch');
+        $msg = 'Auto-approval unavailable: submitted OpenEMR URL does not match detected site URL.';
+        if ($attempt['locked']) {
+            $msg .= ' Too many failed attempts. Please contact support@medexbank.com.';
+        } else {
+            $msg .= ' Attempts remaining before support is required: ' . $attempt['remaining'] . '.';
+        }
+        echo json_encode(['success' => false, 'error' => $msg, 'pending_review' => true]);
+        exit;
+    }
 
 // Create API instance
 $api = new \OpenEMR\Modules\MedEx\MedExAPI();
@@ -219,14 +396,14 @@ $practice_country_code = strtoupper(trim($facility['country_code'] ?? 'US'));
 $providerCountRow = sqlQuery("SELECT COUNT(*) AS c FROM users WHERE authorized = 1 AND active = 1");
 $facilityCountRow = sqlQuery("SELECT COUNT(*) AS c FROM facility WHERE service_location = 1");
 $insuranceCountRow = sqlQuery("SELECT COUNT(*) AS c FROM insurance_companies");
-$siteUrl = 'https://' . ($_SERVER['HTTP_HOST'] ?? ($_SERVER['SERVER_NAME'] ?? ''));
+$siteUrl = $openEmrBaseUrl;
 $requestIp = trim((string)($_SERVER['REMOTE_ADDR'] ?? ''));
 $requestUserAgent = substr(trim((string)($_SERVER['HTTP_USER_AGENT'] ?? '')), 0, 255);
 $acceptedAtUtc = gmdate('Y-m-d H:i:s');
 
 // Prepare registration data
 $data = [
-    'email' => trim($_POST['email']),
+    'email' => $email,
     'password' => $_POST['password'],
     'practice_name' => $practice_name,
     'phone' => $practice_phone,
@@ -237,7 +414,7 @@ $data = [
     'postcode' => $practice_postcode,
     'country_code' => $practice_country_code,
     'callback_url' => $derivedCallbackUrl,
-    'site_url' => $openEmrBaseUrl,
+    'site_url' => $siteUrl,
     'provider_count' => (int)($providerCountRow['c'] ?? 0),
     'facility_count' => (int)($facilityCountRow['c'] ?? 0),
     'insurance_count' => (int)($insuranceCountRow['c'] ?? 0),
@@ -349,9 +526,19 @@ if (!empty($result['success'])) {
         $result['sync_performed'] = false;
         $result['sync_message'] = 'No facilities or providers with calendars found to sync';
     }
+    medexClearAutoApprovalFailures($email);
 } elseif (!empty($result['pending_review'])) {
+    $reviewMsg = $result['message'] ?? 'Signup pending review by MedEx support.';
+    if (medexIsAutoApprovalFailureMessage($reviewMsg)) {
+        $attempt = medexRecordAutoApprovalFailure($email, 'auto_approval_pending_review');
+        if ($attempt['locked']) {
+            $reviewMsg .= ' Too many failed auto-approval attempts. Please contact support@medexbank.com.';
+        } else {
+            $reviewMsg .= ' Attempts remaining before support is required: ' . $attempt['remaining'] . '.';
+        }
+    }
     $result['success'] = false;
-    $result['error'] = $result['message'] ?? 'Signup pending review by MedEx support.';
+    $result['error'] = $reviewMsg;
 }
 
     // Return result
