@@ -177,10 +177,10 @@ if ($step > 1 && !$api->isConfigured()) {
                 <div class="form-group">
                     <label for="otp_channel"><?php echo xlt("Verification Channel"); ?></label>
                     <select id="otp_channel" name="otp_channel" class="form-control">
-                        <option value="email"><?php echo xlt("Email OTP"); ?> - <?php echo xlt("House"); ?> $<?php echo text(number_format((float) MedExConfig::OTP_HOUSE_EMAIL_COST, 2)); ?></option>
-                        <option value="sms"><?php echo xlt("SMS OTP"); ?> - <?php echo xlt("House Account"); ?> <?php echo text(MedExConfig::OTP_HOUSE_ACCOUNT_SMS); ?></option>
+                        <option value="email"><?php echo xlt("Email OTP"); ?></option>
+                        <option value="sms"><?php echo xlt("SMS OTP"); ?></option>
                         <option value="whatsapp" <?php echo !$whatsappOtpEnabled ? 'disabled' : ''; ?>>
-                            <?php echo xlt("WhatsApp OTP"); ?><?php echo !$whatsappOtpEnabled ? ' (' . xlt("Coming Soon") . ')' : ''; ?> - <?php echo xlt("House Account"); ?> <?php echo text(MedExConfig::OTP_HOUSE_ACCOUNT_WHATSAPP); ?>
+                            <?php echo xlt("WhatsApp OTP"); ?><?php echo !$whatsappOtpEnabled ? ' (' . xlt("Coming Soon") . ')' : ''; ?>
                         </option>
                     </select>
                     <small style="color:#64748b;"><?php echo xlt("WhatsApp OTP is scaffolded but disabled until provider connection is configured."); ?></small>
