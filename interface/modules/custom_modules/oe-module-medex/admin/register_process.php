@@ -35,20 +35,65 @@ function medexValidateCallbackUrl(string $url): array
 {
     $url = trim($url);
     if ($url === '') {
-        return [false, 'Callback URL is required'];
+        return [false, 'OpenEMR URL is required'];
     }
     if (stripos($url, 'https://') !== 0) {
-        return [false, 'Callback URL must use HTTPS'];
+        return [false, 'OpenEMR URL must use HTTPS'];
     }
     $parts = parse_url($url);
     $host = strtolower($parts['host'] ?? '');
     if ($host === '') {
-        return [false, 'Callback URL host is invalid'];
+        return [false, 'OpenEMR URL host is invalid'];
     }
     if (medexIsPrivateHost($host)) {
-        return [false, 'Callback URL cannot be a private or local host'];
+        return [false, 'OpenEMR URL cannot be a private or local host'];
     }
     return [true, 'ok'];
+}
+
+function medexNormalizeOpenEmrBaseUrl(string $url): string
+{
+    $url = trim($url);
+    $parts = parse_url($url);
+    if (!$parts || empty($parts['host'])) {
+        return '';
+    }
+
+    $scheme = 'https';
+    $host = strtolower((string)$parts['host']);
+    $port = isset($parts['port']) ? ':' . (int)$parts['port'] : '';
+    $path = trim((string)($parts['path'] ?? ''), '/');
+
+    // Backward compatibility: if user pastes full callback endpoint, collapse to OpenEMR base.
+    $callbackPath = 'interface/modules/custom_modules/oe-module-medex/public/callback.php';
+    if ($path !== '' && stripos($path, $callbackPath) !== false) {
+        $beforeCallback = substr($path, 0, stripos($path, $callbackPath));
+        $path = trim((string)$beforeCallback, '/');
+    }
+
+    return $scheme . '://' . $host . $port . ($path !== '' ? '/' . $path : '');
+}
+
+function medexBuildCallbackUrl(string $openEmrBaseUrl): array
+{
+    $baseUrl = medexNormalizeOpenEmrBaseUrl($openEmrBaseUrl);
+    if ($baseUrl === '') {
+        return [false, '', '', 'OpenEMR URL is invalid'];
+    }
+
+    $tokenRow = QueryUtils::querySingleRow(
+        "SELECT gl_value FROM globals WHERE gl_name = 'medex_callback_token' LIMIT 1",
+        []
+    );
+    $token = trim((string)($tokenRow['gl_value'] ?? ''));
+    if ($token === '') {
+        return [false, $baseUrl, '', 'Callback token is not configured. Please refresh module settings and retry.'];
+    }
+
+    $callbackUrl = rtrim($baseUrl, '/') .
+        '/interface/modules/custom_modules/oe-module-medex/public/callback.php?token=' .
+        rawurlencode($token);
+    return [true, $baseUrl, $callbackUrl, 'ok'];
 }
 
 function medexEnsureAgreementColumns(): void
@@ -143,9 +188,15 @@ try {
         exit;
     }
 
-    [$callbackOk, $callbackErr] = medexValidateCallbackUrl((string)($_POST['callback_url'] ?? ''));
+    $submittedOpenEmrUrl = trim((string)($_POST['callback_url'] ?? ''));
+    [$callbackOk, $callbackErr] = medexValidateCallbackUrl($submittedOpenEmrUrl);
     if (!$callbackOk) {
         echo json_encode(['success' => false, 'error' => $callbackErr]);
+        exit;
+    }
+    [$derivedOk, $openEmrBaseUrl, $derivedCallbackUrl, $deriveErr] = medexBuildCallbackUrl($submittedOpenEmrUrl);
+    if (!$derivedOk) {
+        echo json_encode(['success' => false, 'error' => $deriveErr]);
         exit;
     }
 
@@ -185,8 +236,8 @@ $data = [
     'state' => $practice_state,
     'postcode' => $practice_postcode,
     'country_code' => $practice_country_code,
-    'callback_url' => trim($_POST['callback_url']),
-    'site_url' => $siteUrl,
+    'callback_url' => $derivedCallbackUrl,
+    'site_url' => $openEmrBaseUrl,
     'provider_count' => (int)($providerCountRow['c'] ?? 0),
     'facility_count' => (int)($facilityCountRow['c'] ?? 0),
     'insurance_count' => (int)($insuranceCountRow['c'] ?? 0),

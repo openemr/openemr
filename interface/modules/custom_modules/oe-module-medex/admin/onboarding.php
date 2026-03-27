@@ -35,11 +35,10 @@ $baaVersion = MedExConfig::BAA_VERSION;
 $termsUrl = MedExConfig::termsUrl();
 $baaUrl = MedExConfig::baaUrl();
 $whatsappOtpEnabled = MedExConfig::OTP_WHATSAPP_ENABLED;
-$callbackTokenRow = \OpenEMR\Common\Database\QueryUtils::querySingleRow("SELECT gl_value FROM globals WHERE gl_name = 'medex_callback_token' LIMIT 1", []);
-$callbackToken = trim($callbackTokenRow['gl_value'] ?? '');
-$defaultCallbackUrl = '';
-if (!empty($callbackToken) && !empty($_SERVER['HTTP_HOST'])) {
-    $defaultCallbackUrl = 'https://' . $_SERVER['HTTP_HOST'] . '/interface/modules/custom_modules/oe-module-medex/public/callback.php?token=' . rawurlencode($callbackToken);
+$defaultOpenEmrUrl = '';
+if (!empty($_SERVER['HTTP_HOST'])) {
+    $webroot = trim((string)($GLOBALS['webroot'] ?? ''), '/');
+    $defaultOpenEmrUrl = 'https://' . $_SERVER['HTTP_HOST'] . ($webroot !== '' ? '/' . $webroot : '');
 }
 
 // Fetch pricing from API for step 2
@@ -162,12 +161,12 @@ if ($step > 1 && !$api->isConfigured()) {
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="callback_url"><?php echo xlt("Callback URL (Required)"); ?></label>
+                    <label for="callback_url"><?php echo xlt("OpenEMR URL (Required)"); ?></label>
                     <input type="url" id="callback_url" name="callback_url" class="form-control"
-                           value="<?php echo attr($defaultCallbackUrl); ?>"
-                           placeholder="https://your-domain/interface/modules/custom_modules/oe-module-medex/public/callback.php?token=..."
+                           value="<?php echo attr($defaultOpenEmrUrl); ?>"
+                           placeholder="https://your-openemr-domain.com"
                            required>
-                    <small style="color:#64748b;"><?php echo xlt("Production HTTPS endpoint required for auto-approval."); ?></small>
+                    <small style="color:#64748b;"><?php echo xlt("Enter your OpenEMR base URL. MedEx will derive the callback endpoint automatically."); ?></small>
                 </div>
                 <div class="form-group">
                     <label style="font-weight:400;">
@@ -451,7 +450,7 @@ if ($step > 1 && !$api->isConfigured()) {
                 return;
             }
             if (!callbackUrl.startsWith("https://")) {
-                alert("Callback URL must use HTTPS");
+                alert("OpenEMR URL must use HTTPS");
                 return;
             }
             if (!productionConfirm) {
