@@ -109,6 +109,9 @@ function medexEnsureAgreementColumns(): void
         "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `otp_channel` varchar(20) DEFAULT NULL",
         "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `otp_house_account` varchar(50) DEFAULT NULL",
         "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `otp_house_cost` decimal(10,4) DEFAULT NULL",
+        "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `comms_consent_at` datetime DEFAULT NULL",
+        "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `comms_consent_ip` varchar(45) DEFAULT NULL",
+        "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `comms_consent_channel` varchar(20) DEFAULT NULL",
     ];
 
     foreach ($alterStatements as $sql) {
@@ -327,7 +330,7 @@ try {
     medexEnsureOnboardingAttemptsTable();
 
     // Validate required fields (only email and password - practice details come from facility sync)
-    $required = ['email', 'password', 'callback_url', 'TERMS_yes', 'BusAgree_yes', 'otp_proof'];
+    $required = ['email', 'password', 'callback_url', 'TERMS_yes', 'BusAgree_yes', 'comms_consent', 'otp_proof'];
     foreach ($required as $field) {
         if (empty($_POST[$field])) {
             echo json_encode(['success' => false, 'error' => "Missing required field: {$field}"]);
@@ -340,6 +343,10 @@ try {
     }
     if ((string)($_POST['BusAgree_yes'] ?? '') !== '1') {
         echo json_encode(['success' => false, 'error' => 'You must agree to the HIPAA Business Associate Agreement before signing up']);
+        exit;
+    }
+    if ((string)($_POST['comms_consent'] ?? '') !== '1') {
+        echo json_encode(['success' => false, 'error' => 'You must agree to receive onboarding and account-related messages from MedEx']);
         exit;
     }
     $email = trim((string)($_POST['email'] ?? ''));
@@ -482,6 +489,9 @@ $data = [
     ,'otp_channel' => $otpChannel
     ,'otp_house_account' => $otpHouseAccount
     ,'otp_house_cost' => $otpHouseCost
+    ,'comms_consent_at_utc' => $acceptedAtUtc
+    ,'comms_consent_ip' => $requestIp
+    ,'comms_consent_channel' => $otpChannel
 ];
 
 // Attempt registration
@@ -539,6 +549,9 @@ if (!empty($result['success'])) {
             otp_channel = ?,
             otp_house_account = ?,
             otp_house_cost = ?,
+            comms_consent_at = ?,
+            comms_consent_ip = ?,
+            comms_consent_channel = ?,
             MedEx_lastupdated = NOW()
          WHERE ME_username = ?",
         [
@@ -554,6 +567,9 @@ if (!empty($result['success'])) {
             $otpChannel,
             $otpHouseAccount,
             $otpHouseCost,
+            $acceptedAtUtc,
+            $requestIp,
+            $otpChannel,
             $data['email']
         ]
     );

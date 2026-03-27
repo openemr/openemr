@@ -280,6 +280,9 @@ HTML;
                 `otp_channel` varchar(20) DEFAULT NULL,
                 `otp_house_account` varchar(50) DEFAULT NULL,
                 `otp_house_cost` decimal(10,4) DEFAULT NULL,
+                `comms_consent_at` datetime DEFAULT NULL,
+                `comms_consent_ip` varchar(45) DEFAULT NULL,
+                `comms_consent_channel` varchar(20) DEFAULT NULL,
                 PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
         ");
@@ -403,6 +406,18 @@ HTML;
         );
         QueryUtils::sqlStatementThrowException(
             "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `otp_house_cost` decimal(10,4) DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `comms_consent_at` datetime DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `comms_consent_ip` varchar(45) DEFAULT NULL",
+            []
+        );
+        QueryUtils::sqlStatementThrowException(
+            "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `comms_consent_channel` varchar(20) DEFAULT NULL",
             []
         );
         QueryUtils::sqlStatementThrowException(
