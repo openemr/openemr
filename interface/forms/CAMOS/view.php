@@ -95,7 +95,8 @@ echo "<a href='" . OEGlobalsBag::getInstance()->get('form_exit_url') . "'>[" . x
 $pid = OEGlobalsBag::getInstance()->get('pid');
 $encounter = OEGlobalsBag::getInstance()->get('encounter');
 
-$query = "select t1.id, t1.content from " . mitigateSqlTableUpperCase("form_CAMOS") . " as t1 join forms as t2 " .
+// escape_table_name() on a literal handles case-insensitive table name matching.
+$query = "select t1.id, t1.content from " . escape_table_name("form_CAMOS") . " as t1 join forms as t2 " .
   "on (t1.id = t2.form_id) where t2.form_name like 'CAMOS%' " .
   "and t2.encounter like ? and t2.pid = ?";
 

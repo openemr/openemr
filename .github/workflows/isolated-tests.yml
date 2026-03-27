@@ -49,8 +49,7 @@ jobs:
       run: |
         vendor/bin/phpunit -c phpunit-isolated.xml \
                            --coverage-clover=clover.xml \
-                           --log-junit=junit.xml \
-                           --testdox
+                           --log-junit=junit.xml
 
     - name: Upload test results to Codecov
       if: ${{ !cancelled() }}

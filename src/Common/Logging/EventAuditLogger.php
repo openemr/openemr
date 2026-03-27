@@ -23,6 +23,7 @@ use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Core\Traits\SingletonTrait;
+use Psr\Clock\ClockInterface;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
@@ -87,6 +88,7 @@ class EventAuditLogger
             session: SessionWrapperFactory::getInstance()->getActiveSession(),
             config: $auditConfig,
             breakglassChecker: new BreakglassChecker($auditConn),
+            clock: ServiceContainer::getClock(),
         );
     }
 
@@ -100,6 +102,7 @@ class EventAuditLogger
         private readonly SessionInterface $session,
         private readonly AuditConfig $config,
         private readonly BreakglassCheckerInterface $breakglassChecker,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -242,14 +245,15 @@ class EventAuditLogger
             $cols = $params['cols'];
         }
 
-        $date1 = date("Y-m-d H:i:s", time());
-        if (isset($params['sdate']) && $params['sdate'] != "") {
-            $date1 = $params['sdate'];
+        $now = $this->clock->now()->format('Y-m-d H:i:s');
+        $date1 = $params['sdate'] ?? $now;
+        if ($date1 === '') {
+            $date1 = $now;
         }
 
-        $date2 = date("Y-m-d H:i:s", time());
-        if (isset($params['edate']) && $params['edate'] != "") {
-            $date2 = $params['edate'];
+        $date2 = $params['edate'] ?? $now;
+        if ($date2 === '') {
+            $date2 = $now;
         }
 
         $user = "";
@@ -652,7 +656,7 @@ class EventAuditLogger
         }
 
         // Collect timestamp and if pertinent, collect client cert name
-        $current_datetime = date("Y-m-d H:i:s");
+        $current_datetime = $this->clock->now()->format('Y-m-d H:i:s');
         $SSL_CLIENT_S_DN_CN = $_SERVER['SSL_CLIENT_S_DN_CN'] ?? '';
 
         // Note that no longer using checksum field in log table in OpenEMR 6.0 and onward since using the checksum in log_comment_encrypt table.

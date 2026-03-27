@@ -199,10 +199,12 @@ class C_Prescription extends Controller
                 //   Grab medication list from prescriptions list and load into array
                 $pid = OEGlobalsBag::getInstance()->get('pid');
                 $medList = sqlStatement("SELECT drug FROM prescriptions WHERE active = 1 AND patient_id = ?", [$pid]);
+                // escape_table_name() on a literal handles case-insensitive table name matching.
+                $tbl_rxnconso = escape_table_name('RXNCONSO');
                 $nameList = [];
                 while ($name = sqlFetchArray($medList)) {
                     $drug = explode(" ", (string) $name['drug']);
-                    $rXn = sqlQuery("SELECT `rxcui` FROM " . mitigateSqlTableUpperCase('RXNCONSO') . " WHERE `str` LIKE ?", ["%" . $drug[0] . "%"]);
+                    $rXn = sqlQuery("SELECT `rxcui` FROM " . $tbl_rxnconso . " WHERE `str` LIKE ?", ["%" . $drug[0] . "%"]);
                     $nameList[] = $rXn['rxcui'];
                 }
                 if (count($nameList) < 2) {
