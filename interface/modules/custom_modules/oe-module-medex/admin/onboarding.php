@@ -190,7 +190,7 @@ if ($step > 1 && !$api->isConfigured()) {
                         <div class="form-group">
                             <label for="callback_url"><?php echo xlt("OpenEMR URL"); ?></label>
                             <input type="hidden" id="callback_url" name="callback_url" value="<?php echo attr($defaultOpenEmrUrl); ?>">
-                            <small style="color:#64748b; display:block; margin-top:6px;"><?php echo xlt("Required so MedEx can securely connect callbacks to this OpenEMR server."); ?></small>
+                            <small style="color:#64748b; display:block; margin-top:6px;"><?php echo xlt("MedEx requires a secure connection to this server for automatic deployment."); ?></small>
                             <div style="margin-top:4px; color:#475569; font-size:14px;">
                                 <?php echo xlt("Detected URL"); ?>: <strong id="callback-url-display"><?php echo text($defaultOpenEmrUrl); ?></strong>
                             </div>
