@@ -74,7 +74,8 @@ if ($step > 1 && !$api->isConfigured()) {
     <style>
         body { background: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         .wizard-container { max-width: 800px; margin: 50px auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        .wizard-header { text-align: center; margin-bottom: 40px; }
+        .wizard-header { text-align: center; margin-bottom: 40px; position: relative; }
+        .wizard-back-link { position: absolute; left: 0; top: 12px; color: #64748b; text-decoration: none; font-size: 14px; }
         .wizard-steps { display: flex; justify-content: space-between; margin-bottom: 40px; position: relative; }
         .wizard-steps::before { content: ''; position: absolute; top: 15px; left: 0; right: 0; height: 2px; background: #e0e0e0; z-index: 1; }
         .step { width: 30px; height: 30px; border-radius: 50%; background: #fff; border: 2px solid #e0e0e0; display: flex; align-items: center; justify-content: center; font-weight: bold; z-index: 2; position: relative; color: #999; }
@@ -119,7 +120,7 @@ if ($step > 1 && !$api->isConfigured()) {
 <body>
     <div class="wizard-container">
         <div class="wizard-header">
-            <a href="splash.php" style="float: left; color: #64748b; text-decoration: none; font-size: 14px; margin-top: 15px;">
+            <a href="splash.php" class="wizard-back-link">
                 <i class="fa fa-arrow-left"></i> <?php echo xlt("Back to Overview"); ?>
             </a>
             <div style="font-size: 2rem; font-weight: 800; color: #0f4b8f; margin-bottom: 15px;">MedEx</div>
