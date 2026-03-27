@@ -466,6 +466,23 @@ if ($step > 1 && !$api->isConfigured()) {
             el.text(message);
         }
 
+        function ensureActiveSession() {
+            if (typeof top !== "undefined" && typeof top.restoreSession === "function") {
+                top.restoreSession();
+            }
+        }
+
+        function ajaxErrorMessage(jqXHR, fallbackMessage) {
+            const body = (jqXHR && typeof jqXHR.responseText === "string") ? jqXHR.responseText : "";
+            if (body.indexOf("login_screen.php?error=1") !== -1 || body.indexOf("timed_out = true") !== -1) {
+                return "Your session timed out. Please log in again and retry.";
+            }
+            if (jqXHR && jqXHR.responseJSON && jqXHR.responseJSON.error) {
+                return jqXHR.responseJSON.error;
+            }
+            return fallbackMessage;
+        }
+
         function updateOtpDestinationVisibility() {
             const channel = $("#otp_channel").val();
             if (channel === "sms") {
@@ -508,6 +525,7 @@ if ($step > 1 && !$api->isConfigured()) {
             otpVerified = false;
             $("#otp_proof").val("");
             setOtpStatus("Sending one-time password...", "");
+            ensureActiveSession();
 
             $.ajax({
                 url: 'onboarding_otp.php',
@@ -528,7 +546,7 @@ if ($step > 1 && !$api->isConfigured()) {
                     }
                 },
                 error: function() {
-                    setOtpStatus("Unable to send one-time password due to a request error.", "err");
+                    setOtpStatus(ajaxErrorMessage(arguments[0], "Unable to send one-time password due to a request error."), "err");
                 }
             });
         }
@@ -546,6 +564,7 @@ if ($step > 1 && !$api->isConfigured()) {
             }
 
             setOtpStatus("Verifying one-time password...", "");
+            ensureActiveSession();
             $.ajax({
                 url: 'onboarding_otp.php',
                 type: 'POST',
@@ -572,7 +591,7 @@ if ($step > 1 && !$api->isConfigured()) {
                 error: function() {
                     otpVerified = false;
                     $("#otp_proof").val("");
-                    setOtpStatus("Unable to verify one-time password due to a request error.", "err");
+                    setOtpStatus(ajaxErrorMessage(arguments[0], "Unable to verify one-time password due to a request error."), "err");
                 }
             });
         }
@@ -619,6 +638,7 @@ if ($step > 1 && !$api->isConfigured()) {
             }
 
             $("#result").html('<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> Registering...</div>');
+            ensureActiveSession();
 
             $.ajax({
                 url: 'register_process.php',
@@ -645,8 +665,8 @@ if ($step > 1 && !$api->isConfigured()) {
                         $("#result").html('<div class="alert alert-danger">' + response.error + '</div>');
                     }
                 },
-                error: function() {
-                    $("#result").html('<div class="alert alert-danger">Registration request failed</div>');
+                error: function(jqXHR) {
+                    $("#result").html('<div class="alert alert-danger">' + ajaxErrorMessage(jqXHR, 'Registration request failed') + '</div>');
                 }
             });
         }
