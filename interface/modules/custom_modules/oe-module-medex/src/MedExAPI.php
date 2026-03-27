@@ -716,7 +716,8 @@ class MedExAPI
         $isPublicEndpoint = strpos($endpoint, 'register') !== false ||
                            strpos($endpoint, 'login') !== false ||
                            strpos($endpoint, 'pricing') !== false || // Pricing is public info
-                           strpos($endpoint, 'send_link') !== false; // Public: called from external OpenEMR
+                           strpos($endpoint, 'send_link') !== false ||
+                           strpos($endpoint, 'send_secure_chat_link') !== false; // Public: onboarding OTP + external OpenEMR sends
 
         // Add authentication for non-public endpoints
         // Uses session token (secure) obtained from login, not raw API key
