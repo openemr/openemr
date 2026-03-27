@@ -187,6 +187,7 @@ if ($step > 1 && !$api->isConfigured()) {
                                 <input type="password" id="rpassword" name="rpassword" class="form-control" required style="padding-right:40px;">
                                 <i class="fa fa-eye-slash password-toggle" id="toggle-rpassword" title="<?php echo xla("Show/Hide Password"); ?>"></i>
                             </div>
+                            <div id="rpassword-error" class="field-error"><?php echo xlt("Confirm password must match the password."); ?></div>
                         </div>
                     </div>
                     <div class="panel-card">
@@ -602,6 +603,20 @@ if ($step > 1 && !$api->isConfigured()) {
             return false;
         }
 
+        function validateConfirmPasswordField(showMessage = true) {
+            const password = ($("#password").val() || "");
+            const confirm = ($("#rpassword").val() || "");
+            const matches = confirm.length > 0 && password === confirm;
+            if (matches) {
+                clearFieldError("#rpassword", "#rpassword-error");
+                return true;
+            }
+            if (showMessage && confirm.length > 0) {
+                setFieldError("#rpassword", "#rpassword-error", "Confirm password must match the password.");
+            }
+            return false;
+        }
+
         function setCallbackStatus(message, kind = '') {
             const el = $("#callback-status");
             el.removeClass('ok err');
@@ -628,7 +643,7 @@ if ($step > 1 && !$api->isConfigured()) {
         function updateStep1SubmitState() {
             const accountReady = validateEmailField(false) &&
                 validatePasswordField(false) &&
-                ($("#password").val() || "") === ($("#rpassword").val() || "");
+                validateConfirmPasswordField(false);
             const agreementsReady = $("#TERMS_yes").is(':checked') &&
                 $("#BusAgree_yes").is(':checked') &&
                 $("#comms_consent").is(':checked');
@@ -805,7 +820,7 @@ if ($step > 1 && !$api->isConfigured()) {
                 return;
             }
             if (password !== rpassword) {
-                alert("Passwords do not match");
+                validateConfirmPasswordField(true);
                 return;
             }
             if (!termsAgreed) {
@@ -930,6 +945,7 @@ if ($step > 1 && !$api->isConfigured()) {
                 updateStep1SubmitState();
             });
             $("#rpassword").on("input blur", function() {
+                validateConfirmPasswordField(true);
                 updateStep1SubmitState();
             });
             $("#callback_url").on("input", function() {
