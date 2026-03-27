@@ -282,16 +282,12 @@ try {
     medexEnsureOnboardingAttemptsTable();
 
     // Validate required fields (only email and password - practice details come from facility sync)
-    $required = ['email', 'password', 'callback_url', 'production_confirm', 'TERMS_yes', 'BusAgree_yes'];
+    $required = ['email', 'password', 'callback_url', 'TERMS_yes', 'BusAgree_yes'];
     foreach ($required as $field) {
         if (empty($_POST[$field])) {
             echo json_encode(['success' => false, 'error' => "Missing required field: {$field}"]);
             exit;
         }
-    }
-    if ((string)($_POST['production_confirm'] ?? '') !== '1') {
-        echo json_encode(['success' => false, 'error' => 'Production verification confirmation is required']);
-        exit;
     }
     if ((string)($_POST['TERMS_yes'] ?? '') !== '1') {
         echo json_encode(['success' => false, 'error' => 'You must agree to the Terms & Conditions before signing up']);

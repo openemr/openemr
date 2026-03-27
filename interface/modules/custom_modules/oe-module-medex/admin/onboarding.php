@@ -168,12 +168,6 @@ if ($step > 1 && !$api->isConfigured()) {
                     <small style="color:#64748b;"><?php echo xlt("Enter the url you use to reach your OpenEMR server."); ?></small>
                 </div>
                 <div class="form-group">
-                    <label style="font-weight:400;">
-                        <input type="checkbox" id="production_confirm" name="production_confirm" value="1" required>
-                        <?php echo xlt("This is a production-ready deployment (not a test/demo sandbox)"); ?>
-                    </label>
-                </div>
-                <div class="form-group">
                     <label for="otp_channel"><?php echo xlt("Verification Channel"); ?></label>
                     <select id="otp_channel" name="otp_channel" class="form-control">
                         <option value="email"><?php echo xlt("Email OTP"); ?></option>
@@ -432,7 +426,6 @@ if ($step > 1 && !$api->isConfigured()) {
             const password = $("#password").val();
             const rpassword = $("#rpassword").val();
             const callbackUrl = $("#callback_url").val();
-            const productionConfirm = $("#production_confirm").is(':checked');
             const termsAgreed = $("#TERMS_yes").is(':checked');
             const baaAgreed = $("#BusAgree_yes").is(':checked');
             const otpChannel = $("#otp_channel").val();
@@ -447,10 +440,6 @@ if ($step > 1 && !$api->isConfigured()) {
             }
             if (!callbackUrl.startsWith("https://")) {
                 alert("OpenEMR URL must use HTTPS");
-                return;
-            }
-            if (!productionConfirm) {
-                alert("Production verification confirmation is required");
                 return;
             }
             if (!termsAgreed) {
@@ -472,7 +461,6 @@ if ($step > 1 && !$api->isConfigured()) {
                     email: email,
                     password: password,
                     callback_url: callbackUrl,
-                    production_confirm: '1',
                     TERMS_yes: '1',
                     BusAgree_yes: '1',
                     otp_channel: otpChannel,
