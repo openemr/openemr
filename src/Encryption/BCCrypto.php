@@ -98,6 +98,11 @@ final readonly class BCCrypto implements CryptoInterface
 
     public function cryptCheckStandard(?string $value): bool
     {
-        throw new \BadMethodCallException();
+        try {
+            Message::parse($value);
+            return true;
+        } catch (\Throwable) {
+            return false;
+        }
     }
 }
