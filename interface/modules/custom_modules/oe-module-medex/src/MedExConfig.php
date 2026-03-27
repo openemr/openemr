@@ -128,6 +128,12 @@ class MedExConfig
         return $base . '/index.php?route=information/information&information_id=8';
     }
 
+    public static function privacyUrl(): string
+    {
+        $base = rtrim((string)($GLOBALS['medex_agreements_url'] ?? self::DEFAULT_AGREEMENTS_URL), '/');
+        return $base . '/index.php?route=information/information&information_id=3';
+    }
+
     // Service feature flags
     public const SERVICE_MESSAGES = 'medex_messages';
     public const SERVICE_CALENDAR_VIEW = 'medex_calendar_view';

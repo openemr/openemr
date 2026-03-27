@@ -34,6 +34,7 @@ $termsVersion = MedExConfig::TERMS_VERSION;
 $baaVersion = MedExConfig::BAA_VERSION;
 $termsUrl = MedExConfig::termsUrl();
 $baaUrl = MedExConfig::baaUrl();
+$privacyUrl = MedExConfig::privacyUrl();
 $defaultOpenEmrUrl = '';
 if (!empty($_SERVER['HTTP_HOST'])) {
     $webroot = trim((string)($GLOBALS['webroot'] ?? ''), '/');
@@ -165,7 +166,7 @@ if ($step > 1 && !$api->isConfigured()) {
                            value="<?php echo attr($defaultOpenEmrUrl); ?>"
                            placeholder="https://your-openemr-domain.com"
                            required>
-                    <small style="color:#64748b;"><?php echo xlt("Enter the url you use to reach your OpenEMR server."); ?></small>
+                    <small style="color:#64748b;"><?php echo xlt("Enter the url we can use to reach your OpenEMR server."); ?></small>
                 </div>
                 <div class="form-group">
                     <label for="otp_channel"><?php echo xlt("One-Time Password (OTP) Method"); ?></label>
@@ -173,6 +174,10 @@ if ($step > 1 && !$api->isConfigured()) {
                         <option value="email"><?php echo xlt("Email One-Time Password (OTP)"); ?></option>
                         <option value="sms"><?php echo xlt("SMS One-Time Password (OTP)"); ?></option>
                     </select>
+                    <small style="color:#64748b;">
+                        <?php echo xlt("We use a one-time password to verify account control and protect your MedEx setup."); ?>
+                        <a href="#" onclick="window.open('<?php echo attr_js($privacyUrl); ?>','PrivacyPolicy',900,700); return false;"><?php echo xlt("Privacy Policy"); ?></a>
+                    </small>
                     <?php // WhatsApp OTP intentionally hidden in UI for now; backend scaffold remains. ?>
                 </div>
                 <div class="form-group" style="margin-bottom: 12px;">
