@@ -78,6 +78,7 @@ if ($step > 1 && !$api->isConfigured()) {
         .wizard-back-link { position: absolute; left: 0; top: 12px; color: #64748b; text-decoration: none; font-size: 14px; }
         .wizard-steps { display: flex; justify-content: space-between; margin-bottom: 40px; position: relative; }
         .wizard-steps::before { content: ''; position: absolute; top: 15px; left: 0; right: 0; height: 2px; background: #e0e0e0; z-index: 1; }
+        .wizard-progress-fill { position: absolute; top: 15px; left: 0; height: 2px; width: 0%; background: #0f4b8f; z-index: 1; transition: width 0.25s ease; }
         .step { width: 30px; height: 30px; border-radius: 50%; background: #fff; border: 2px solid #e0e0e0; display: flex; align-items: center; justify-content: center; font-weight: bold; z-index: 2; position: relative; color: #999; }
         .step.active { border-color: #0f4b8f; color: #0f4b8f; }
         .step.completed { background: #0f4b8f; border-color: #0f4b8f; color: #white; }
@@ -116,6 +117,7 @@ if ($step > 1 && !$api->isConfigured()) {
         .onboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 8px; }
         .panel-card { border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; background: #ffffff; }
         .panel-card .form-group:last-child { margin-bottom: 0; }
+        .full-width-card { margin-top: 14px; }
 
         #result { margin-top: 20px; }
         .alert { padding: 15px; border-radius: 6px; margin-bottom: 20px; }
@@ -144,6 +146,7 @@ if ($step > 1 && !$api->isConfigured()) {
         </div>
 
         <div class="wizard-steps">
+            <div id="wizard-progress-fill" class="wizard-progress-fill"></div>
             <div class="step <?php echo $step == 1 ? 'active' : 'completed'; ?>">1
                 <div class="step-label"><?php echo xlt("Register"); ?></div>
             </div>
@@ -217,45 +220,53 @@ if ($step > 1 && !$api->isConfigured()) {
                                        placeholder="+15551234567">
                             </div>
                         </div>
-                        <div class="otp-panel">
-                            <div class="otp-inline">
-                                <button type="button" class="btn btn-primary" id="send-otp-btn"><?php echo xlt("Send One-Time Password (OTP)"); ?></button>
-                            </div>
-                            <div class="otp-inline">
-                                <input type="text" id="otp_code" class="form-control" style="max-width: 220px;" placeholder="<?php echo xla("Enter 6-digit code"); ?>" maxlength="6">
-                                <button type="button" class="btn" style="background:#e2e8f0;" id="verify-otp-btn"><?php echo xlt("Verify Code"); ?></button>
-                            </div>
-                            <div id="otp-status" class="otp-status"><?php echo xlt("Send and verify your one-time password before continuing."); ?></div>
-                            <input type="hidden" id="otp_proof" name="otp_proof" value="">
-                            <div class="form-group" style="margin-top: 12px; margin-bottom: 0;">
-                                <label style="font-weight:400; margin-bottom: 0;">
-                                    <input type="checkbox" id="comms_consent" name="comms_consent" value="1" required>
-                                    <?php echo xlt("I agree to receive onboarding and account-related emails and text messages from MedEx."); ?>
-                                </label>
-                                <small style="color:#64748b; display:block; margin-top:6px;"><?php echo xlt("Message and data rates may apply for SMS."); ?></small>
-                            </div>
-                        </div>
                     </div>
                 </div>
-                <div class="form-group" style="margin-bottom: 12px;">
-                    <label style="font-weight:400;">
-                        <input type="checkbox" id="TERMS_yes" name="TERMS_yes" value="1" required>
-                        <?php echo xlt("I have read and my practice agrees to the"); ?>
-                        <a href="#" onclick="window.open('<?php echo attr_js($termsUrl); ?>','TERMS',800,600); return false;">
-                            <?php echo xlt("MedEx Terms and Conditions"); ?>
-                        </a>
-                        (<?php echo xlt("Version"); ?> <?php echo text($termsVersion); ?>)
-                    </label>
+
+                <div class="panel-card full-width-card">
+                    <div class="service-title" style="margin-bottom: 6px;"><?php echo xlt("Send One-Time Password"); ?></div>
+                    <div class="otp-panel" style="margin-top: 0;">
+                        <div class="otp-inline">
+                            <button type="button" class="btn btn-primary" id="send-otp-btn"><?php echo xlt("Send One-Time Password (OTP)"); ?></button>
+                        </div>
+                        <div class="otp-inline">
+                            <input type="text" id="otp_code" class="form-control" style="max-width: 220px;" placeholder="<?php echo xla("Enter 6-digit code"); ?>" maxlength="6">
+                            <button type="button" class="btn" style="background:#e2e8f0;" id="verify-otp-btn"><?php echo xlt("Verify Code"); ?></button>
+                        </div>
+                        <div id="otp-status" class="otp-status"><?php echo xlt("Send and verify your one-time password before continuing."); ?></div>
+                        <input type="hidden" id="otp_proof" name="otp_proof" value="">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label style="font-weight:400;">
-                        <input type="checkbox" id="BusAgree_yes" name="BusAgree_yes" value="1" required>
-                        <?php echo xlt("I have read and accept the"); ?>
-                        <a href="#" onclick="window.open('<?php echo attr_js($baaUrl); ?>','BusAssocAgree',800,600); return false;">
-                            <?php echo xlt("MedEx Business Associate Agreement (BAA)"); ?>
-                        </a>
-                        (<?php echo xlt("Version"); ?> <?php echo text($baaVersion); ?>)
-                    </label>
+
+                <div class="panel-card full-width-card">
+                    <div class="service-title" style="margin-bottom: 10px;"><?php echo xlt("Required Agreements"); ?></div>
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label style="font-weight:400; margin-bottom: 0;">
+                            <input type="checkbox" id="comms_consent" name="comms_consent" value="1" required>
+                            <?php echo xlt("I agree to receive onboarding and account-related emails and text messages from MedEx."); ?>
+                        </label>
+                        <small style="color:#64748b; display:block; margin-top:6px;"><?php echo xlt("Message and data rates may apply for SMS."); ?></small>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label style="font-weight:400; margin-bottom: 0;">
+                            <input type="checkbox" id="TERMS_yes" name="TERMS_yes" value="1" required>
+                            <?php echo xlt("I have read and my practice agrees to the"); ?>
+                            <a href="#" onclick="window.open('<?php echo attr_js($termsUrl); ?>','TERMS',800,600); return false;">
+                                <?php echo xlt("MedEx Terms and Conditions"); ?>
+                            </a>
+                            (<?php echo xlt("Version"); ?> <?php echo text($termsVersion); ?>)
+                        </label>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="font-weight:400; margin-bottom: 0;">
+                            <input type="checkbox" id="BusAgree_yes" name="BusAgree_yes" value="1" required>
+                            <?php echo xlt("I have read and accept the"); ?>
+                            <a href="#" onclick="window.open('<?php echo attr_js($baaUrl); ?>','BusAssocAgree',800,600); return false;">
+                                <?php echo xlt("MedEx Business Associate Agreement (BAA)"); ?>
+                            </a>
+                            (<?php echo xlt("Version"); ?> <?php echo text($baaVersion); ?>)
+                        </label>
+                    </div>
                 </div>
                 <div style="margin-top: 30px; text-align: right;">
                     <button type="button" id="step1-next-btn" class="btn btn-primary" onclick="submitStep1()" disabled><?php echo xlt("Next: Configure Services"); ?> <i class="fa fa-arrow-right"></i></button>
@@ -615,15 +626,21 @@ if ($step > 1 && !$api->isConfigured()) {
         }
 
         function updateStep1SubmitState() {
-            const canSubmit = validateEmailField(false) &&
+            const accountReady = validateEmailField(false) &&
                 validatePasswordField(false) &&
-                ($("#password").val() || "") === ($("#rpassword").val() || "") &&
-                callbackValidated &&
-                otpVerified &&
-                $("#TERMS_yes").is(':checked') &&
+                ($("#password").val() || "") === ($("#rpassword").val() || "");
+            const agreementsReady = $("#TERMS_yes").is(':checked') &&
                 $("#BusAgree_yes").is(':checked') &&
                 $("#comms_consent").is(':checked');
+            const canSubmit = accountReady && callbackValidated && otpVerified && agreementsReady;
             $("#step1-next-btn").prop("disabled", !canSubmit);
+            updateStep1Progress(accountReady, callbackValidated, otpVerified, agreementsReady);
+        }
+
+        function updateStep1Progress(accountReady, urlReady, otpReady, agreementsReady) {
+            const completed = (accountReady ? 1 : 0) + (urlReady ? 1 : 0) + (otpReady ? 1 : 0) + (agreementsReady ? 1 : 0);
+            const pct = Math.round((completed / 4) * 100);
+            $("#wizard-progress-fill").css("width", pct + "%");
         }
 
         function validateCallbackFromApi() {
