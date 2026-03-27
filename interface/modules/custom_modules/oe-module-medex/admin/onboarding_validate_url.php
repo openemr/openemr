@@ -71,11 +71,16 @@ function medexBuildCallbackUrlValidate(string $openEmrBaseUrl): array
     );
     $token = trim((string)($tokenRow['gl_value'] ?? ''));
     if ($token === '') {
-        return [false, $baseUrl, '', 'Callback token is not configured. Please refresh module settings and retry.'];
+        $token = bin2hex(random_bytes(32));
+        QueryUtils::sqlStatementThrowException(
+            "REPLACE INTO globals (gl_name, gl_index, gl_value) VALUES ('medex_callback_token', 0, ?)",
+            [$token]
+        );
     }
     $callbackUrl = rtrim($baseUrl, '/') .
         '/interface/modules/custom_modules/oe-module-medex/public/callback.php?token=' .
-        rawurlencode($token);
+        rawurlencode($token) .
+        '&site=default';
     return [true, $baseUrl, $callbackUrl, 'ok'];
 }
 
@@ -136,4 +141,3 @@ try {
     ]);
     exit;
 }
-
