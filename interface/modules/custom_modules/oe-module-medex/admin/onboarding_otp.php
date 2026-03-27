@@ -23,7 +23,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     exit;
 }
 
-if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', 'default')) {
+if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', $session)) {
     echo json_encode(['success' => false, 'error' => 'Invalid security token']);
     exit;
 }
