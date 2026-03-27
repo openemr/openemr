@@ -17,7 +17,7 @@ class Utilities
 {
     public static function isDateEmpty(mixed $date): bool
     {
-        if ($date === null) {
+        if ($date === null || $date === '') {
             return true;
         }
         if ($date instanceof DateTimeInterface) {
