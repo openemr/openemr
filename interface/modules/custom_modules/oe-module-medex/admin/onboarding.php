@@ -76,6 +76,7 @@ if ($step > 1 && !$api->isConfigured()) {
         .wizard-container { max-width: 800px; margin: 50px auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .wizard-header { text-align: center; margin-bottom: 40px; position: relative; }
         .wizard-back-link { position: absolute; left: 0; top: 12px; color: #64748b; text-decoration: none; font-size: 14px; }
+        .wizard-admin-link { position: absolute; right: 0; top: 12px; color: #64748b; text-decoration: none; font-size: 14px; }
         .wizard-steps { display: flex; justify-content: space-between; margin-bottom: 40px; position: relative; }
         .wizard-steps::before { content: ''; position: absolute; top: 15px; left: 0; right: 0; height: 2px; background: #e0e0e0; z-index: 1; }
         .step { width: 30px; height: 30px; border-radius: 50%; background: #fff; border: 2px solid #e0e0e0; display: flex; align-items: center; justify-content: center; font-weight: bold; z-index: 2; position: relative; color: #999; }
@@ -127,6 +128,9 @@ if ($step > 1 && !$api->isConfigured()) {
         <div class="wizard-header">
             <a href="splash.php" class="wizard-back-link">
                 <i class="fa fa-arrow-left"></i> <?php echo xlt("Back to Overview"); ?>
+            </a>
+            <a href="onboarding_blocklist.php" class="wizard-admin-link">
+                <i class="fa fa-shield"></i> <?php echo xlt("Blocklist"); ?>
             </a>
             <div style="font-size: 2rem; font-weight: 800; color: #0f4b8f; margin-bottom: 15px;">MedEx</div>
             <h2><?php echo xlt("Practice Onboarding"); ?></h2>
