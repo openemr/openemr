@@ -87,6 +87,8 @@ if ($step > 1 && !$api->isConfigured()) {
         .form-group { margin-bottom: 25px; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 8px; color: #333; }
         .form-control { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 15px; }
+        .form-control.invalid { border-color: #dc2626; }
+        .field-error { color: #dc2626; font-size: 12px; margin-top: 6px; display: none; }
         .form-control::placeholder { color: #9ca3af; opacity: 1; }
         .password-wrap { position: relative; }
         .password-toggle {
@@ -151,6 +153,7 @@ if ($step > 1 && !$api->isConfigured()) {
                 <div class="form-group">
                     <label for="email"><?php echo xlt("Administrator E-mail"); ?></label>
                     <input type="email" id="email" name="email" class="form-control" placeholder="admin@practice.com" required>
+                    <div id="email-error" class="field-error"><?php echo xlt("Please enter a valid administrator email address."); ?></div>
                 </div>
                 <div class="form-group">
                     <label for="password"><?php echo xlt("Password"); ?></label>
@@ -516,6 +519,34 @@ if ($step > 1 && !$api->isConfigured()) {
             return false;
         }
 
+        function setFieldError(inputSelector, errorSelector, message) {
+            const input = $(inputSelector);
+            const error = $(errorSelector);
+            input.addClass('invalid');
+            error.text(message).show();
+        }
+
+        function clearFieldError(inputSelector, errorSelector) {
+            $(inputSelector).removeClass('invalid');
+            $(errorSelector).hide();
+        }
+
+        function validateEmailField(showMessage = true) {
+            const emailInput = document.getElementById("email");
+            const emailValue = (emailInput && emailInput.value ? emailInput.value : "").trim();
+            const isValid = !!emailValue && emailInput && emailInput.checkValidity();
+
+            if (isValid) {
+                clearFieldError("#email", "#email-error");
+                return true;
+            }
+
+            if (showMessage) {
+                setFieldError("#email", "#email-error", "Please enter a valid administrator email address.");
+            }
+            return false;
+        }
+
         function sendOtp() {
             const channel = $("#otp_channel").val();
             const email = ($("#email").val() || "").trim();
@@ -526,6 +557,7 @@ if ($step > 1 && !$api->isConfigured()) {
                 if (channel === "sms") {
                     setOtpStatus("Enter a valid SMS number in E.164 format, for example +15551234567.", "err");
                 } else {
+                    validateEmailField(true);
                     setOtpStatus("Enter a valid administrator email before sending OTP.", "err");
                 }
                 return;
@@ -621,9 +653,7 @@ if ($step > 1 && !$api->isConfigured()) {
                 alert("Please fill all required fields");
                 return;
             }
-            const emailInput = document.getElementById("email");
-            if (!emailInput || !emailInput.checkValidity()) {
-                alert("Please enter a valid administrator email address");
+            if (!validateEmailField(true)) {
                 return;
             }
             if (password !== rpassword) {
@@ -734,6 +764,14 @@ if ($step > 1 && !$api->isConfigured()) {
             });
             $("#verify-otp-btn").on("click", function() {
                 verifyOtp();
+            });
+            $("#email").on("blur", function() {
+                validateEmailField(true);
+            });
+            $("#email").on("input", function() {
+                if (validateEmailField(false)) {
+                    clearFieldError("#email", "#email-error");
+                }
             });
             updateOtpDestinationVisibility();
 
