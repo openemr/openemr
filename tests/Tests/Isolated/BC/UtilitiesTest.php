@@ -25,6 +25,9 @@ class UtilitiesTest extends TestCase
         self::assertSame($expected, Utilities::isDateEmpty($value));
     }
 
+    /**
+     * @return array<string, array{mixed, bool}>
+     */
     public static function dateProvider(): array
     {
         return [
