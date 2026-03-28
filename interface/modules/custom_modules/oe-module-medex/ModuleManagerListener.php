@@ -103,16 +103,64 @@ class ModuleManagerListener extends AbstractModuleActionListener
         $helpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/help.php?site=default';
         $setupHelpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/show_help_setup.php?site=default';
 
-        // Keep help flow deterministic and non-modal:
-        // - not installed/not enabled/setup-needed -> setup help
-        // - active -> user help
-        $targetUrl = $helpUrl;
-        if ($sqlRun === 0 || $modActive === 0 || $modUiActive === 1) {
-            $targetUrl = $setupHelpUrl;
-        }
+        // Pre-install/setup-needed state: open mini help modal in-tab.
+        // Active state: keep direct navigation to full help page.
+        $isPreInstallState = ($sqlRun === 0 || $modActive === 0 || $modUiActive === 1);
+        if ($isPreInstallState) {
+            $target = json_encode($setupHelpUrl, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+            $script = <<<HTML
+<script>
+(function () {
+  var doc = window.top && window.top.document ? window.top.document : document;
+  if (doc.getElementById('medex-help-mini-overlay')) {
+    return;
+  }
+  var overlay = doc.createElement('div');
+  overlay.id = 'medex-help-mini-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(2,6,23,.45);z-index:2147483646;display:flex;align-items:center;justify-content:center;padding:20px;';
 
-        $safeTarget = htmlspecialchars($targetUrl, ENT_QUOTES, 'UTF-8');
-        $script = '<script>(function(){try{if(window.top&&window.top.location){window.top.location.href="' . $safeTarget . '";}else{window.location.href="' . $safeTarget . '";}}catch(e){window.location.href="' . $safeTarget . '";}})();</script>';
+  var modal = doc.createElement('div');
+  modal.style.cssText = 'width:min(980px,96vw);height:min(760px,92vh);background:#fff;border-radius:14px;border:1px solid #cfe1fb;box-shadow:0 24px 60px rgba(2,6,23,.35);display:flex;flex-direction:column;overflow:hidden;';
+
+  var head = doc.createElement('div');
+  head.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:#0f4b8f;color:#fff;font:700 16px/1.2 Segoe UI,Arial,sans-serif;';
+  head.innerHTML = '<span>MedEx Quick Help</span>';
+
+  var close = doc.createElement('button');
+  close.type = 'button';
+  close.textContent = 'Close';
+  close.style.cssText = 'border:1px solid rgba(255,255,255,.45);background:transparent;color:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;font:600 13px Segoe UI,Arial,sans-serif;';
+  close.onclick = function () { overlay.remove(); };
+  head.appendChild(close);
+
+  var frame = doc.createElement('iframe');
+  frame.setAttribute('src', {$target});
+  frame.setAttribute('title', 'MedEx Setup Help');
+  frame.style.cssText = 'border:0;flex:1 1 auto;width:100%;background:#fff;';
+
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) {
+      overlay.remove();
+    }
+  });
+  doc.addEventListener('keydown', function escHandler(e) {
+    if (e.key === 'Escape' && doc.getElementById('medex-help-mini-overlay')) {
+      overlay.remove();
+      doc.removeEventListener('keydown', escHandler);
+    }
+  });
+
+  modal.appendChild(head);
+  modal.appendChild(frame);
+  overlay.appendChild(modal);
+  doc.body.appendChild(overlay);
+})();
+</script>
+HTML;
+        } else {
+            $safeTarget = htmlspecialchars($helpUrl, ENT_QUOTES, 'UTF-8');
+            $script = '<script>(function(){try{if(window.top&&window.top.location){window.top.location.href="' . $safeTarget . '";}else{window.location.href="' . $safeTarget . '";}}catch(e){window.location.href="' . $safeTarget . '";}})();</script>';
+        }
 
         echo json_encode(["status" => "Success", "output" => $script]);
         exit(0);
