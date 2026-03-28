@@ -287,6 +287,13 @@ foreach ($readinessChecklist as $readinessItem) {
             <p class="subtitle">
                 <?php echo xlt('Use this quick visual guide to onboard safely, verify your practice identity, and activate services without breaking your live workflow.'); ?>
             </p>
+            <?php if ($hasTutorial): ?>
+                <div class="actions" style="margin-bottom: 12px;">
+                    <a class="btn btn-secondary" href="<?php echo attr($tutorialUrl); ?>" target="_blank" rel="noopener noreferrer">
+                        <i class="fa fa-play-circle"></i> <?php echo xlt('Open Full Tutorial Video'); ?>
+                    </a>
+                </div>
+            <?php endif; ?>
             <section class="checklist" style="margin-bottom: 14px;">
                 <h3><?php echo xlt('Live Readiness Checklist'); ?></h3>
                 <?php foreach ($readinessChecklist as $item): ?>
@@ -310,11 +317,6 @@ foreach ($readinessChecklist as $readinessItem) {
                     <span class="btn btn-primary btn-disabled" title="<?php echo attr(xl('Complete all readiness checks to enable onboarding')); ?>">
                         <i class="fa fa-lock"></i> <?php echo xlt('Start Onboarding'); ?>
                     </span>
-                <?php endif; ?>
-                <?php if ($hasTutorial): ?>
-                    <a class="btn btn-secondary" href="<?php echo attr($tutorialUrl); ?>" target="_blank" rel="noopener noreferrer">
-                        <i class="fa fa-play-circle"></i> <?php echo xlt('Open Full Tutorial Video'); ?>
-                    </a>
                 <?php endif; ?>
             </div>
             <span class="pill"><?php echo xlt('For practice administrators only'); ?></span>
