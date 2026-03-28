@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Encryption;
 
+use BadMethodCallException;
+use OpenEMR\BC\Crypto\Key;
 use OpenEMR\Common\Crypto\{
     CryptoInterface,
     KeySource,
@@ -11,6 +13,9 @@ use OpenEMR\Common\Crypto\{
 };
 use Psr\Log\LoggerInterface;
 
+/**
+ * @deprecated
+ */
 final readonly class BCCrypto implements CryptoInterface
 {
     public function __construct(
@@ -59,12 +64,21 @@ final readonly class BCCrypto implements CryptoInterface
 
         try {
             $message = Message::parse($value);
-            if ($minimumVersion !== null && $message->format->value < $minimumVersion) {
+
+            if ($message->format !== MessageFormat::ImplicitKey) {
+                throw new BadMethodCallException('Unhandled message type');
+            }
+
+            $keyVersion = KeyVersion::fromPrefix($value);
+
+            if ($minimumVersion !== null && $keyVersion->value < $minimumVersion) {
                 throw new \Exception('Data is below minimum allowed version');
             }
 
-            // BC hack: remap the key id by namebased on the source
-            $keyId = self::remapKeyId($message->keyId, $keySource);
+            $bcKey = Key::fromCryptoGen($keyVersion, $keySource);
+
+            // Delegate back to the "real" version? This is duplicative
+            $keyId = $bcKey->getId();
 
             $cipher = $this->keychain->getCipher($keyId);
 
