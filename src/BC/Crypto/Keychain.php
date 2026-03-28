@@ -15,15 +15,15 @@ namespace OpenEMR\BC\Crypto;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Encryption\{
     Cipher,
+    Keys\Id,
+    Keys\Keychain as EagerKeychain,
+    Keys\KeychainInterface,
+    Keys\KeyMaterial,
+    Keys\Storage,
     Message,
     MessageFormat,
     Plaintext,
 };
-use OpenEMR\Encryption\Keys\Id;
-use OpenEMR\Encryption\Keys\Keychain as EagerKeychain;
-use OpenEMR\Encryption\Keys\KeychainInterface;
-use OpenEMR\Encryption\Keys\KeyMaterial;
-use OpenEMR\Encryption\Keys\Storage;
 use Throwable;
 
 /**
