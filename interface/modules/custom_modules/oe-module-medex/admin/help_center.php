@@ -34,6 +34,7 @@ $isIp = filter_var($host, FILTER_VALIDATE_IP) !== false;
 $isPrivateIp = $isIp && !filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
 $looksPublicHost = !empty($host) && stripos($host, 'localhost') === false && stripos($host, '.local') === false && !$isPrivateIp;
 $urlReady = $isHttps && $looksPublicHost;
+$detectedUrl = ($isHttps ? 'https://' : 'http://') . $host;
 
 $providerCount = 0;
 $facilityCount = 0;
@@ -54,7 +55,7 @@ $readinessChecklist = [
     [
         'label' => xlt('Production OpenEMR URL uses HTTPS and looks publicly reachable'),
         'ok' => $urlReady,
-        'detail' => $urlReady ? xlt('Detected secure/public URL pattern.') : xlt('Current URL is not HTTPS or appears local/private.')
+        'detail' => $urlReady ? (xlt('Verified URL') . ': ' . $detectedUrl) : (xlt('Current URL is not HTTPS or appears local/private') . ': ' . $detectedUrl)
     ],
     [
         'label' => xlt('At least one provider and one facility are configured'),
@@ -248,6 +249,10 @@ foreach ($readinessChecklist as $readinessItem) {
             font-size: 12px;
             color: #64748b;
         }
+        .check-detail.ok {
+            color: #059669;
+            font-weight: 700;
+        }
         .pill {
             display: inline-block;
             margin-top: 8px;
@@ -291,7 +296,7 @@ foreach ($readinessChecklist as $readinessItem) {
                         </div>
                         <div>
                             <div class="check-label"><?php echo text($item['label']); ?></div>
-                            <div class="check-detail"><?php echo text($item['detail']); ?></div>
+                            <div class="check-detail <?php echo $item['ok'] ? 'ok' : ''; ?>"><?php echo text($item['detail']); ?></div>
                         </div>
                     </div>
                 <?php endforeach; ?>
