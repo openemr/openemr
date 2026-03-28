@@ -101,7 +101,7 @@ foreach ($readinessChecklist as $readinessItem) {
             grid-template-columns: 1.1fr 1fr;
             gap: 18px;
             margin-bottom: 18px;
-            align-items: stretch;
+            align-items: start;
         }
         .panel {
             background: #fff;
