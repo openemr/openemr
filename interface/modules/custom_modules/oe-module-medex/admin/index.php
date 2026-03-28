@@ -20,7 +20,7 @@ require_once(__DIR__ . "/../../../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 // Check admin access
@@ -57,7 +57,7 @@ if (!in_array($currentTab, $validTabs)) {
 }
 
 // Get CSRF token
-$session = SessionUtil::getSession();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $csrfToken = CsrfUtils::collectCsrfToken(session: $session);
 $siteId = $_SESSION['site_id'] ?? ($_GET['site'] ?? 'default');
 $helpCenterUrl = ($GLOBALS['webroot'] ?? '')

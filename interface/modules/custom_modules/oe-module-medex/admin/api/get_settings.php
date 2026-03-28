@@ -14,7 +14,7 @@ require_once(__DIR__ . "/../../../../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionUtil;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     http_response_code(403);
@@ -24,7 +24,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
 require_once(__DIR__ . '/../../src/MedExAPI.php');
 $api = new \OpenEMR\Modules\MedEx\MedExAPI();
-$session = SessionUtil::getSession();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!$api->isConfigured()) {
     echo '<div class="panel"><h3>' . xlt('Setup Required') . '</h3>';
