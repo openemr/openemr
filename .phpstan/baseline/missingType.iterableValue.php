@@ -1967,11 +1967,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/POSRef.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_diagnosis\\(\\) has parameter \\$diagnosis with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method HTML_TreeMenu\\:\\:createFromStructure\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/TreeMenu.php',

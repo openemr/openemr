@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace OpenEMR\Encryption;
 
 use BadMethodCallException;
-use OpenEMR\Common\Crypto\KeyVersion;
 use UnexpectedValueException;
 
 final readonly class Message
@@ -23,6 +22,11 @@ final readonly class Message
         public Ciphertext $ciphertext,
         public MessageFormat $format = MessageFormat::LATEST,
     ) {
+        if ($this->format === MessageFormat::ImplicitKey){
+            if (!preg_match('/^00[1-7]$/', $this->keyId->id)) {
+                throw new BadMethodCallException('Only legacy key versions can use ImplicitKey format');
+            }
+        }
     }
 
     public static function parse(string $encodedMessage): Message
@@ -30,14 +34,20 @@ final readonly class Message
         $format = MessageFormat::detect($encodedMessage);
         return match ($format) {
             MessageFormat::ImplicitKey => self::parseImplicitKey($encodedMessage),
+            // @codeCoverageIgnoreStart
             MessageFormat::UnusedCaseToSupportConditionals => throw new BadMethodCallException('Unhandled message type'),
+            // @codeCoverageIgnoreEnd
         };
     }
 
     /**
-     * The messages in Implicit format MUST have their keys remapped through
-     * BC\Crypto; they will not work with the keyring directly since there's not
-     * enough context in the message alone to decrypt (it also needs KeySource)
+     * The messages in Implicit format MUST have their keys remapped to the new
+     * Keychain-based ids prior to use. It's the responsibility of the
+     * interacting service to handle this.
+     *
+     * This is unavoidable: the legacy CryptoInterface allows specifying
+     * a KeySource and that information is both needed to know which key to use
+     * and not available in the message.
      */
     private static function parseImplicitKey(string $encodedMessage): Message
     {
@@ -62,7 +72,9 @@ final readonly class Message
     {
         return match ($this->format) {
             MessageFormat::ImplicitKey => $this->encodeImplicitKey(),
+            // @codeCoverageIgnoreStart
             MessageFormat::UnusedCaseToSupportConditionals => throw new BadMethodCallException('Unhandled message type'),
+            // @codeCoverageIgnoreEnd
         };
     }
 
