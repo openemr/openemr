@@ -61,7 +61,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $csrfToken = CsrfUtils::collectCsrfToken(session: $session);
 $siteId = $_SESSION['site_id'] ?? ($_GET['site'] ?? 'default');
 $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
-    . '/interface/modules/custom_modules/oe-module-medex/admin/splash.php?minimal=1&site=' . urlencode((string)$siteId);
+    . '/interface/modules/custom_modules/oe-module-medex/admin/help_center.php?site=' . urlencode((string)$siteId);
 
 ?>
 <!DOCTYPE html>
@@ -976,7 +976,7 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
         }
 
         function openProductionReadiness(url) {
-            const msg = 'MedEx onboarding is production-only. Continue to readiness checklist?';
+            const msg = 'Open MedEx Help Center?';
             if (!window.confirm(msg)) {
                 return false;
             }

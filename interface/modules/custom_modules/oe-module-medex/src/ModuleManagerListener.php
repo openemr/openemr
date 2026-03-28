@@ -203,7 +203,7 @@ class ModuleManagerListener
         }
 
         $webroot = $GLOBALS['webroot'] ?? '';
-        $helpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/admin/splash.php?minimal=1&site=default';
+        $helpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/admin/help_center.php?site=default';
         $stateLabel = 'Pre-Install';
         if ($modActive === 1) {
             $stateLabel = 'Active Module';
@@ -224,7 +224,7 @@ class ModuleManagerListener
       Context: <strong>{$safeState}</strong>. MedEx activation requires production readiness and a public HTTPS callback URL.
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;">
-      <a href="{$safeHelpUrl}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 14px;background:linear-gradient(135deg,#0a66c2,#0ca678);color:#fff;text-decoration:none;border-radius:10px;font-weight:700;">Open Readiness Checklist</a>
+      <a href="{$safeHelpUrl}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 14px;background:linear-gradient(135deg,#0a66c2,#0ca678);color:#fff;text-decoration:none;border-radius:10px;font-weight:700;">Open Help Center</a>
       <a href="{$safeTutorialUrl}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;padding:10px 14px;background:#f2f7ff;color:#0c4f92;text-decoration:none;border-radius:10px;font-weight:700;border:1px solid #cfe1fb;">Open Tutorial</a>
     </div>
   </div>

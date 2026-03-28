@@ -230,12 +230,18 @@ if (!empty($prefs['ME_username'])) {
                 <a href="reconnect.php" class="btn-get-started">
                     <i class="fa fa-refresh"></i> <?php echo xlt("Reconnect Account"); ?>
                 </a>
+                <a href="help_center.php?site=<?php echo urlencode((string)($_GET['site'] ?? 'default')); ?>" class="btn-get-started" style="margin-left:10px;background:#ffffff;color:var(--medex-blue);border:1px solid #bfdbfe;">
+                    <i class="fa fa-life-ring"></i> <?php echo xlt("Help"); ?>
+                </a>
                 <p style="margin-top: 12px; font-size: 14px; color: #64748b;">
                     <?php echo xlt("Found existing account:"); ?> <strong><?php echo text($existingEmail); ?></strong>
                 </p>
             <?php else: ?>
-                <a href="onboarding.php?step=1" class="btn-get-started" target="_blank" onclick="setTimeout(function() { window.parent.document.getElementById('medexStatusModal')?.remove(); }, 500);">
+                <a href="onboarding.php?step=1" class="btn-get-started" onclick="setTimeout(function() { window.parent.document.getElementById('medexStatusModal')?.remove(); }, 500);">
                     <?php echo xlt("Get Started"); ?> <i class="fa fa-arrow-right" style="margin-left: 8px;"></i>
+                </a>
+                <a href="help_center.php?site=<?php echo urlencode((string)($_GET['site'] ?? 'default')); ?>" class="btn-get-started" style="margin-left:10px;background:#ffffff;color:var(--medex-blue);border:1px solid #bfdbfe;">
+                    <i class="fa fa-life-ring"></i> <?php echo xlt("Help"); ?>
                 </a>
             <?php endif; ?>
         </div>
