@@ -20,6 +20,7 @@ require_once(__DIR__ . "/../../../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Core\Header;
 
 // Check admin access
@@ -56,7 +57,8 @@ if (!in_array($currentTab, $validTabs)) {
 }
 
 // Get CSRF token
-$csrfToken = CsrfUtils::collectCsrfToken('default');
+$session = SessionUtil::getSession();
+$csrfToken = CsrfUtils::collectCsrfToken(session: $session);
 $siteId = $_SESSION['site_id'] ?? ($_GET['site'] ?? 'default');
 $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
     . '/interface/modules/custom_modules/oe-module-medex/admin/splash.php?minimal=1&site=' . urlencode((string)$siteId);

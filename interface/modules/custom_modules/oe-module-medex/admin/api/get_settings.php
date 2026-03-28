@@ -14,6 +14,7 @@ require_once(__DIR__ . "/../../../../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionUtil;
 
 if (!AclMain::aclCheckCore('admin', 'super')) {
     http_response_code(403);
@@ -23,6 +24,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
 require_once(__DIR__ . '/../../src/MedExAPI.php');
 $api = new \OpenEMR\Modules\MedEx\MedExAPI();
+$session = SessionUtil::getSession();
 
 if (!$api->isConfigured()) {
     echo '<div class="panel"><h3>' . xlt('Setup Required') . '</h3>';
@@ -92,7 +94,7 @@ $billingNotifyEmail = trim((string)($globalConfig['medex_bill_notify_email'] ?? 
 </style>
 
 <form id="settings-form">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
 
     <div class="settings-grid">
         <!-- HIPAA Defaults -->
@@ -246,7 +248,7 @@ function disconnectMedEx() {
     fetch('../admin/disconnect.php', {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'csrf_token_form=' + encodeURIComponent('<?php echo attr(CsrfUtils::collectCsrfToken()); ?>')
+        body: 'csrf_token_form=' + encodeURIComponent('<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>')
     })
     .then(r => r.json())
     .then(data => {
