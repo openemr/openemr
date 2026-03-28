@@ -219,7 +219,7 @@ if (!empty($prefs['ME_username'])) {
         </div>
         <h1><?php echo xlt("Production-Only MedEx Onboarding"); ?></h1>
         <p class="subtitle">
-            <?php echo xlt("MedEx is a SaaS platform for live clinical operations. Test/demo environments and private callback endpoints are routed to manual review, not instant activation."); ?>
+            <?php echo xlt("MedEx is a SaaS platform for live clinical operations. If your site is a test/demo setup or cannot be reached publicly from the internet, we review your signup before activation instead of turning it on right away."); ?>
         </p>
         <div style="max-width: 760px; margin: 0 auto 24px; text-align: left; background:#fff7ed; border:1px solid #fed7aa; color:#9a3412; border-radius:10px; padding:14px 16px;">
             <strong><i class="fa fa-shield"></i> <?php echo xlt("Before you continue"); ?>:</strong>
