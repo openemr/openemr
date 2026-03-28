@@ -34,9 +34,13 @@ final readonly class Message
     }
 
     /**
-     * The messages in Implicit format MUST have their keys remapped through
-     * BCCrypto; they will not work with the keyring directly since there's not
-     * enough context in the message alone to decrypt (it also needs KeySource)
+     * The messages in Implicit format MUST have their keys remapped to the new
+     * Keychain-based ids prior to use. It's the responsibility of the
+     * interacting service to handle this.
+     *
+     * This is unavoidable: the legacy CryptoInterface allows specifying
+     * a KeySource and that information is both needed to know which key to use
+     * and not available in the message.
      */
     private static function parseImplicitKey(string $encodedMessage): Message
     {
