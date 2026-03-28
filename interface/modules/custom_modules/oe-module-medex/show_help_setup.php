@@ -1,196 +1,272 @@
 <?php
 /**
- * MedEx Setup Help — shown after Install but before Enable.
- * Content mirrors help.php which is the canonical setup guide.
- * $modId is in scope (passed from ModuleManagerListener::help_requested).
+ * MedEx Setup Help (pre-install / pre-enable)
+ * Rendered inside the Module Manager help modal iframe.
  */
-$setupModId = (int)($modId ?? 0);
+
+if (empty($_GET['site'])) {
+    $_GET['site'] = 'default';
+}
+
+require_once(__DIR__ . '/../../../globals.php');
+
+use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Database\QueryUtils;
+
+if (!AclMain::aclCheckCore('admin', 'super')) {
+    http_response_code(403);
+    echo 'Access denied';
+    exit;
+}
+
+function medexSetupStatus(): array
+{
+    $row = QueryUtils::querySingleRow(
+        "SELECT mod_active, mod_ui_active, sql_run
+         FROM modules
+         WHERE mod_directory = 'oe-module-medex'
+         ORDER BY mod_id DESC
+         LIMIT 1",
+        []
+    ) ?: [];
+
+    $sqlRun = (int)($row['sql_run'] ?? 0);
+    $modActive = (int)($row['mod_active'] ?? 0);
+    $modUiActive = (int)($row['mod_ui_active'] ?? 0);
+
+    $installed = ($sqlRun === 1);
+    $enabled = ($modActive === 1);
+    $managerReloaded = $installed && ($enabled || $modUiActive === 1);
+    $dashboardReady = $enabled;
+
+    $nextAction = 'install';
+    if (!$installed) {
+        $nextAction = 'install';
+    } elseif (!$enabled) {
+        $nextAction = 'enable';
+    } else {
+        $nextAction = 'configure';
+    }
+
+    return [
+        'installed' => $installed,
+        'manager_reloaded' => $managerReloaded,
+        'enabled' => $enabled,
+        'dashboard_ready' => $dashboardReady,
+        'next_action' => $nextAction,
+    ];
+}
+
+if (($_GET['action'] ?? '') === 'status') {
+    header('Content-Type: application/json');
+    echo json_encode(['success' => true, 'status' => medexSetupStatus()]);
+    exit;
+}
+
+$status = medexSetupStatus();
 ?>
-<style id="mxSetupStyle">
-.mx-setup-overlay {
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,.72); backdrop-filter: blur(4px);
-    z-index: 99999; display: flex; align-items: center; justify-content: center;
-    padding: 20px; animation: mxsFadeIn .2s ease-out;
-}
-@keyframes mxsFadeIn  { from{opacity:0} to{opacity:1} }
-@keyframes mxsSlideUp { from{transform:translateY(20px);opacity:0} to{transform:translateY(0);opacity:1} }
-@keyframes mxsFadeOut { from{opacity:1} to{opacity:0} }
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MedEx Setup</title>
+    <style>
+        :root {
+            --ink: #0f172a;
+            --muted: #475569;
+            --line: #dbeafe;
+            --ok: #047857;
+            --todo: #0f4b8f;
+            --bg: #f8fbff;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Segoe UI", Tahoma, Arial, sans-serif;
+            color: var(--ink);
+            background: var(--bg);
+        }
+        .wrap {
+            padding: 16px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .hdr {
+            margin-bottom: 14px;
+        }
+        .hdr h2 {
+            margin: 0 0 6px;
+            font-size: 24px;
+            color: #0f4b8f;
+        }
+        .hdr p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+        .next {
+            margin: 12px 0 14px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #bfdbfe;
+            background: #eff6ff;
+            color: #1e3a8a;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .steps {
+            display: grid;
+            gap: 10px;
+        }
+        .step {
+            display: grid;
+            grid-template-columns: 28px 1fr;
+            gap: 10px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: #fff;
+            padding: 12px;
+        }
+        .icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            font-weight: 800;
+            margin-top: 2px;
+            border: 1px solid #93c5fd;
+            color: var(--todo);
+            background: #eff6ff;
+        }
+        .step.done .icon {
+            border-color: #86efac;
+            color: var(--ok);
+            background: #ecfdf5;
+        }
+        .step h3 {
+            margin: 0 0 4px;
+            font-size: 16px;
+        }
+        .step p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.45;
+        }
+        .step .state {
+            margin-top: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #1d4ed8;
+        }
+        .step.done .state {
+            color: var(--ok);
+        }
+        .foot {
+            margin-top: 14px;
+            font-size: 12px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="hdr">
+        <h2>MedEx Setup Checklist</h2>
+        <p>Follow these four steps. This status updates automatically while you work in Module Manager.</p>
+    </div>
 
-.mx-setup-modal {
-    background: #fff; border-radius: 14px;
-    max-width: 640px; width: 100%;
-    box-shadow: 0 25px 60px rgba(0,0,0,.45);
-    animation: mxsSlideUp .28s ease-out; overflow: hidden;
-}
-.mx-setup-header {
-    background: linear-gradient(135deg,#667eea 0%,#764ba2 100%);
-    padding: 22px 28px; color: #fff;
-    display: flex; align-items: center; justify-content: space-between;
-}
-.mx-setup-header h2 { margin:0; font-size:20px; font-weight:700; display:flex; align-items:center; gap:10px; }
-.mx-setup-close {
-    background: rgba(255,255,255,.2); border: none; color:#fff;
-    width:32px; height:32px; border-radius:50%;
-    font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center;
-    transition: background .2s;
-}
-.mx-setup-close:hover { background:rgba(255,255,255,.35); }
+    <div id="nextAction" class="next"></div>
 
-.mx-setup-body { padding: 28px; }
-.mx-setup-intro { font-size:14px; color:#6c757d; margin:0 0 26px; line-height:1.6; }
-
-.mx-step {
-    display: flex; gap: 18px; margin-bottom: 22px;
-    padding-bottom: 22px; border-bottom: 1px solid #f0f0f0;
-}
-.mx-step:last-of-type { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-
-.mx-step-num {
-    flex-shrink: 0;
-    width: 40px; height: 40px; border-radius: 50%;
-    background: linear-gradient(135deg,#667eea,#764ba2);
-    color: #fff; font-size: 18px; font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 2px 8px rgba(102,126,234,.35);
-}
-.mx-step-content {}
-.mx-step-title {
-    font-size: 15px; font-weight: 700; color: #2d3748;
-    margin: 0 0 6px; display:flex; align-items:center; gap:8px;
-}
-.mx-step-desc { font-size: 13px; color: #718096; margin: 0; line-height: 1.6; }
-.mx-step-action { margin-top: 10px; }
-
-.mx-sbtn {
-    padding: 8px 16px; border-radius: 7px; font-size: 13px;
-    font-weight: 600; cursor: pointer; border: none;
-    transition: all .2s; text-decoration: none;
-    display: inline-flex; align-items: center; gap: 6px;
-}
-.mx-sbtn-primary {
-    background: linear-gradient(135deg,#667eea,#764ba2); color: #fff;
-    box-shadow: 0 2px 6px rgba(102,126,234,.4);
-}
-.mx-sbtn-primary:hover { transform:translateY(-1px); box-shadow:0 4px 12px rgba(102,126,234,.45); color:#fff; text-decoration:none; }
-.mx-sbtn-gear {
-    background: #fff3cd; color: #856404; border: 1px solid #ffc107;
-}
-.mx-sbtn-gear:hover { background: #ffe69c; transform:translateY(-1px); }
-
-.mx-setup-footer {
-    padding: 14px 28px 20px;
-    display: flex; justify-content: space-between; align-items: center;
-    border-top: 1px solid #f0f0f0;
-}
-.mx-setup-footer-note { font-size: 12px; color: #adb5bd; }
-.mx-sbtn-close {
-    background: #f1f3f5; color: #495057;
-}
-.mx-sbtn-close:hover { background: #e9ecef; }
-</style>
-
-<div class="mx-setup-overlay" id="mxSetupOverlay" onclick="if(event.target===this)closeMxSetup()">
-    <div class="mx-setup-modal">
-
-        <div class="mx-setup-header">
-            <h2>⚙️ MedEx — 3-Step Setup</h2>
-            <button class="mx-setup-close" onclick="closeMxSetup()" title="Close">×</button>
-        </div>
-        <p style="margin:0;padding:4px 24px 0;font-size:12px;font-style:italic;opacity:.65;text-align:center;">Let's use this to think like a user.</p>
-
-        <div class="mx-setup-body">
-            <p class="mx-setup-intro">
-                To begin using the MedEx Communication Platform, complete these three steps.
-            </p>
-
-            <!-- Step 1 -->
-            <div class="mx-step">
-                <div class="mx-step-num">1</div>
-                <div class="mx-step-content">
-                    <p class="mx-step-title"><i class="fa fa-toggle-on"></i> Enable the module first</p>
-                    <p class="mx-step-desc">
-                        The module is not yet enabled. You need to <strong>Enable</strong> it in the
-                        Module Manager before proceeding — then click the gear icon to configure.
-                    </p>
-                </div>
-            </div>
-
-            <!-- Step 2 -->
-            <div class="mx-step">
-                <div class="mx-step-num">2</div>
-                <div class="mx-step-content">
-                    <p class="mx-step-title"><i class="fa fa-cogs"></i> Configuration</p>
-                    <p class="mx-step-desc">
-                        Once enabled, click the <i class="fa fa-gear"></i> <strong>Gear Icon</strong>
-                        next to the module in the Module Manager to access the MedEx Dashboard.
-                    </p>
-                </div>
-            </div>
-
-            <!-- Step 3 -->
-            <div class="mx-step">
-                <div class="mx-step-num">3</div>
-                <div class="mx-step-content">
-                    <p class="mx-step-title"><i class="fa fa-user-plus"></i> Registration</p>
-                    <p class="mx-step-desc">
-                        If you are a new customer, you will be guided through an onboarding wizard
-                        to create your account and select your communication services.
-                    </p>
-                </div>
+    <div class="steps">
+        <div id="step-install" class="step">
+            <div class="icon">1</div>
+            <div>
+                <h3>Install the module</h3>
+                <p>Click <strong>Install</strong> for <strong>oe-module-medex</strong> in Module Manager.</p>
+                <div class="state"></div>
             </div>
         </div>
 
-        <div class="mx-setup-footer">
-            <a href="https://medexbank.com/help/tutorial.html" target="_blank" style="font-size:12px;color:#667eea;text-decoration:none;">
-                <i class="fa fa-book"></i> MedEx Help &amp; Docs ↗
-            </a>
-            <button class="mx-sbtn mx-sbtn-close" onclick="closeMxSetup()">Close</button>
+        <div id="step-reload" class="step">
+            <div class="icon">2</div>
+            <div>
+                <h3>Confirm status button updated</h3>
+                <p>If the row still shows <strong>Install</strong> after install, reload Module Manager once.</p>
+                <div class="state"></div>
+            </div>
+        </div>
+
+        <div id="step-enable" class="step">
+            <div class="icon">3</div>
+            <div>
+                <h3>Enable the module</h3>
+                <p>Click <strong>Enable</strong> so MedEx is active.</p>
+                <div class="state"></div>
+            </div>
+        </div>
+
+        <div id="step-dashboard" class="step">
+            <div class="icon">4</div>
+            <div>
+                <h3>Open MedEx dashboard (gear icon)</h3>
+                <p>Click the <strong>gear</strong> icon to launch onboarding/dashboard.</p>
+                <div class="state"></div>
+            </div>
         </div>
     </div>
+
+    <div class="foot">This guide reflects current module state in real time.</div>
 </div>
 
 <script>
-(function() {
-    var T  = window.top;
-    var TD = T.document;
-    // Copy styles into top document
-    if (!TD.getElementById('mxSetupStyle')) {
-        var ts = TD.createElement('style');
-        ts.id = 'mxSetupStyle';
-        ts.textContent = document.getElementById('mxSetupStyle').textContent;
-        TD.head.appendChild(ts);
+    const initStatus = <?php echo json_encode($status, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+
+    function setStep(stepId, done, doneText, todoText) {
+        const step = document.getElementById(stepId);
+        if (!step) return;
+        step.classList.toggle('done', !!done);
+        const state = step.querySelector('.state');
+        if (state) {
+            state.textContent = done ? doneText : todoText;
+        }
     }
-    // Close function on top window
-    T.closeMxSetup = function() {
-        var o = TD.getElementById('mxSetupOverlay');
-        var s = TD.getElementById('mxSetupStyle');
-        var logDiv = document.getElementById('install_upgrade_log');
-        if (o) { o.style.animation = 'mxsFadeOut .2s ease-out'; setTimeout(function(){ o.remove(); if (s) s.remove(); if (logDiv) logDiv.style.display = 'none'; }, 190); }
-    };
-    // Gear click — mirrors help.php closeAndOpenStatus() but targets top.document
-    // (the modal is now adopted into top.document.body, not in a popup)
-    T.mxClickGear = function() {
-        T.closeMxSetup();
-        setTimeout(function() {
-            var configLinks = TD.querySelectorAll('a[onclick*="configure"]');
-            for (var i = 0; i < configLinks.length; i++) {
-                var row = configLinks[i].closest('tr');
-                if (row && row.textContent.indexOf('MedEx Communication Manager') !== -1) {
-                    configLinks[i].click();
-                    return;
-                }
+
+    function render(status) {
+        setStep('step-install', status.installed, 'Done', 'Pending');
+        setStep('step-reload', status.manager_reloaded, 'Done', 'Pending');
+        setStep('step-enable', status.enabled, 'Done', 'Pending');
+        setStep('step-dashboard', status.dashboard_ready, 'Ready', 'Locked until enabled');
+
+        const msg = document.getElementById('nextAction');
+        if (!msg) return;
+        if (status.next_action === 'install') {
+            msg.textContent = 'Next action: Install the module in Module Manager.';
+        } else if (status.next_action === 'enable') {
+            msg.textContent = 'Next action: Enable the module.';
+        } else {
+            msg.textContent = 'Next action: Click the gear icon to continue onboarding.';
+        }
+    }
+
+    async function refresh() {
+        try {
+            const r = await fetch('show_help_setup.php?action=status&site=default', { cache: 'no-store' });
+            const j = await r.json();
+            if (j && j.success && j.status) {
+                render(j.status);
             }
-            // Fallback: nothing found (shouldn't happen), do nothing
-        }, 220); // slight delay so fade-out completes first
-    };
-    // Adopt overlay into top document body
-    var overlay = document.getElementById('mxSetupOverlay');
-    if (overlay) TD.body.appendChild(TD.adoptNode(overlay));
-    // Hide the install_upgrade_log div — action.js shows it on success; our leftover markup causes a 500px gap
-    var logDiv = document.getElementById('install_upgrade_log');
-    if (logDiv) logDiv.style.display = 'none';
-    // Escape key on top document
-    TD.addEventListener('keydown', function kh(e){ if (e.key === 'Escape') { T.closeMxSetup(); TD.removeEventListener('keydown', kh); } });
-})();
+        } catch (e) {
+            // Keep last known state visible.
+        }
+    }
+
+    render(initStatus);
+    setInterval(refresh, 2500);
 </script>
+</body>
+</html>
