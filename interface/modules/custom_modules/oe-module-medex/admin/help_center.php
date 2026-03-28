@@ -178,10 +178,10 @@ foreach ($readinessChecklist as $readinessItem) {
             height: 100%;
             border: 0;
         }
-        .video-panel {
+        .hero > .panel:last-child {
             display: flex;
         }
-        .video-panel .video-box {
+        .hero > .panel:last-child .video-box {
             flex: 1 1 auto;
             min-height: 0;
         }
@@ -341,7 +341,7 @@ foreach ($readinessChecklist as $readinessItem) {
             </div>
             <span class="pill"><?php echo xlt('For practice administrators only'); ?></span>
         </section>
-        <section class="panel video-panel">
+        <section class="panel">
             <div class="video-box">
                 <?php if ($hasTutorial): ?>
                     <iframe src="<?php echo attr($tutorialUrl); ?>" allowfullscreen title="<?php echo attr(xl('MedEx tutorial video')); ?>"></iframe>
