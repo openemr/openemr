@@ -155,15 +155,20 @@ class ModuleManagerListener
             // Clean up downloaded assets from documents directory (e.g., FullCalendar)
             $this->cleanupDocumentsDirectory();
 
-            // Drop module-specific tables
-            $this->dropModuleTables();
-
-            // Also remove medex_enable and medex_api_host to ensure they are completely wiped out
+            // Preserve shared MedEx schema on uninstall/reset. Only clear credentials/runtime state.
             QueryUtils::sqlStatementThrowException(
-                "DELETE FROM globals WHERE gl_name IN ('medex_enable', 'medex_api_host')"
+                "DELETE FROM globals WHERE gl_name IN (
+                    'medex_enable',
+                    'medex_api_host',
+                    'medex_api_key',
+                    'medex_practice_id',
+                    'medex_bad_actor_until',
+                    'medex_bad_actor_message'
+                )"
             );
+            QueryUtils::sqlStatementThrowException("DELETE FROM medex_prefs");
 
-            error_log('[MedEx Module] Uninstallation complete with socket services cleanup');
+            error_log('[MedEx Module] Uninstall cleanup complete (schema preserved)');
             $event->setSuccess(true);
 
         } catch (\Exception $e) {
