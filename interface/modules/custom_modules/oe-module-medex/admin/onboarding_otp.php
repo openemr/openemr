@@ -76,6 +76,18 @@ function medexEnsureOtpAuditTable(): void
     );
 }
 
+function medexAllowDevOtpFallback(): bool
+{
+    $host = strtolower(trim((string)($_SERVER['HTTP_HOST'] ?? '')));
+    if ($host === 'emr-dev.hipaabank.net') {
+        return true;
+    }
+    if ($host === 'localhost' || str_starts_with($host, '127.')) {
+        return true;
+    }
+    return false;
+}
+
 function medexEnsureOtpIpRateTable(): void
 {
     QueryUtils::sqlStatementThrowException(
@@ -349,6 +361,16 @@ if ($action === 'send') {
 
     $code = (string)random_int(100000, 999999);
     [$ok, $msg] = medexSendOtpThroughApi($channel, $destination, $code, $signupIp);
+    $debugOtpCode = '';
+    if (!$ok && $channel === 'email' && medexAllowDevOtpFallback()) {
+        $lowerMsg = strtolower($msg);
+        if (str_contains($lowerMsg, 'delivery is currently unavailable') || str_contains($lowerMsg, 'unable to send email')) {
+            $ok = true;
+            $msg = 'Email delivery is unavailable in this dev environment. Use the displayed development OTP code.';
+            $debugOtpCode = $code;
+            medexAuditOtpDecision('send', $channel, $destination, '', 'allow', 'dev_fallback_code_displayed');
+        }
+    }
     if (!$ok) {
         medexAuditOtpDecision('send', $channel, $destination, ($channel === 'sms' ? '1' : ''), 'reject', 'provider_send_failed');
         echo json_encode(['success' => false, 'error' => $msg]);
@@ -369,7 +391,11 @@ if ($action === 'send') {
         'proof' => '',
     ];
 
-    echo json_encode(['success' => true, 'message' => 'One-time password sent.']);
+    $response = ['success' => true, 'message' => 'One-time password sent.'];
+    if ($debugOtpCode !== '') {
+        $response['debug_otp_code'] = $debugOtpCode;
+    }
+    echo json_encode($response);
     exit;
 }
 

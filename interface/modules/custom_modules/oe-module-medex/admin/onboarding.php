@@ -806,7 +806,11 @@ if ($step > 1 && !$api->isConfigured()) {
                 },
                 success: function(response) {
                     if (response.success) {
-                        setOtpStatus(response.message || "One-time password sent. Check your selected channel.", "ok");
+                        let msg = response.message || "One-time password sent. Check your selected channel.";
+                        if (response.debug_otp_code) {
+                            msg += " Development OTP code: " + response.debug_otp_code;
+                        }
+                        setOtpStatus(msg, "ok");
                     } else {
                         setOtpStatus(response.error || "Unable to send one-time password.", "err");
                     }
