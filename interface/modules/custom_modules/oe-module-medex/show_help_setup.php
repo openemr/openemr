@@ -22,7 +22,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 function medexSetupStatus(): array
 {
     $row = QueryUtils::querySingleRow(
-        "SELECT mod_active, mod_ui_active, sql_run
+        "SELECT mod_id, mod_active, mod_ui_active, sql_run
          FROM modules
          WHERE mod_directory = 'oe-module-medex'
          ORDER BY mod_id DESC
@@ -31,6 +31,7 @@ function medexSetupStatus(): array
     ) ?: [];
 
     $sqlRun = (int)($row['sql_run'] ?? 0);
+    $modId = (int)($row['mod_id'] ?? 0);
     $modActive = (int)($row['mod_active'] ?? 0);
     $modUiActive = (int)($row['mod_ui_active'] ?? 0);
 
@@ -49,6 +50,7 @@ function medexSetupStatus(): array
     }
 
     return [
+        'mod_id' => $modId,
         'installed' => $installed,
         'manager_reloaded' => $managerReloaded,
         'enabled' => $enabled,
@@ -275,29 +277,35 @@ $status = medexSetupStatus();
         }
     }
 
-    function findMedexRow(doc) {
-        const rows = Array.from(doc.querySelectorAll('tr'));
-        return rows.find((tr) => {
-            const t = (tr.textContent || '').toLowerCase();
-            return t.includes('oe-module-medex') || t.includes('medex module');
-        }) || null;
-    }
-
-    function clickModuleAction(actionName) {
-        const topDoc = (window.top && window.top.document) ? window.top.document : document;
-        const row = findMedexRow(topDoc);
-        if (!row) return false;
-        const action = actionName.toLowerCase();
-
-        const candidates = Array.from(row.querySelectorAll('a,button,input[type="button"],input[type="submit"]'));
-        const control = candidates.find((el) => {
-            const txt = ((el.textContent || el.value || '') + ' ' + (el.getAttribute('title') || '') + ' ' + (el.getAttribute('onclick') || '')).toLowerCase();
-            return txt.includes(action);
+    async function runManageAction(actionName) {
+        if (!initStatus.mod_id || initStatus.mod_id <= 0) {
+            throw new Error('Module ID not available');
+        }
+        const body = new URLSearchParams({
+            modId: String(initStatus.mod_id),
+            modAction: actionName,
+            mod_enc_menu: '',
+            mod_nick_name: ''
         });
-        if (!control) return false;
-
-        control.click();
-        return true;
+        const res = await fetch('../../zend_modules/public/Installer/manage', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+            body: body.toString()
+        });
+        if (!res.ok) {
+            throw new Error('Installer/manage request failed');
+        }
+        const txt = await res.text();
+        let parsed = null;
+        try {
+            parsed = JSON.parse(txt);
+        } catch (e) {
+            // Some installs may emit plain text; status polling is source of truth.
+        }
+        if (parsed && parsed.status && String(parsed.status).toLowerCase() !== 'success') {
+            throw new Error(String(parsed.status));
+        }
     }
 
     async function refresh() {
@@ -312,24 +320,26 @@ $status = medexSetupStatus();
         }
     }
 
-    document.getElementById('installBtn').addEventListener('click', () => {
-        const ok = clickModuleAction('install');
-        if (!ok) {
-            alert('Install action button not found in Module Manager row.');
-            return;
+    document.getElementById('installBtn').addEventListener('click', async () => {
+        try {
+            await runManageAction('install');
+            setTimeout(refresh, 1000);
+            setTimeout(refresh, 2500);
+            setTimeout(refresh, 5000);
+        } catch (e) {
+            alert('Install failed: ' + (e && e.message ? e.message : 'request error'));
         }
-        setTimeout(refresh, 1200);
-        setTimeout(refresh, 3000);
     });
 
-    document.getElementById('enableBtn').addEventListener('click', () => {
-        const ok = clickModuleAction('enable');
-        if (!ok) {
-            alert('Enable action button not found in Module Manager row.');
-            return;
+    document.getElementById('enableBtn').addEventListener('click', async () => {
+        try {
+            await runManageAction('enable');
+            setTimeout(refresh, 1000);
+            setTimeout(refresh, 2500);
+            setTimeout(refresh, 5000);
+        } catch (e) {
+            alert('Enable failed: ' + (e && e.message ? e.message : 'request error'));
         }
-        setTimeout(refresh, 1200);
-        setTimeout(refresh, 3000);
     });
 
     render(initStatus);
