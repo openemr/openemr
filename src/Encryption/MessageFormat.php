@@ -12,19 +12,12 @@ declare(strict_types=1);
 
 namespace OpenEMR\Encryption;
 
-enum MessageFormat: int
+enum MessageFormat
 {
-    // Existing formats as of March 2026: these all mapped 1:1 with key ids and
-    // versions
-    case v1 = 1;
-    case v2 = 2;
-    case v3 = 3;
-    case v4 = 4;
-    case v5 = 5;
-    case v6 = 6;
-    case v7 = 7;
-    // Future: v8 will allow for actual key versioning without additional code
-    // changes. It will get different handling in Message.
+    // Existing format as of March 2026: the "format" id is also a key id
+    case ImplicitKey;
+    // Future: ExplicitKey
+    // Maybe future: Plaintext
 
-    const LATEST = self::v7;
+    const LATEST = self::ImplicitKey;
 }
