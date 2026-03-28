@@ -12,6 +12,7 @@ if (empty($_GET['site'])) {
 require_once(__DIR__ . "/../../../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\MedEx\MedExConfig;
 
@@ -24,6 +25,55 @@ $siteId = $_GET['site'] ?? 'default';
 $tutorialUrl = trim((string) MedExConfig::tutorialUrl());
 $hasTutorial = $tutorialUrl !== '';
 $startUrl = 'onboarding.php?step=1&site=' . urlencode((string) $siteId);
+
+$host = (string)($_SERVER['HTTP_HOST'] ?? '');
+$proto = (string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '');
+$httpsRaw = (string)($_SERVER['HTTPS'] ?? '');
+$isHttps = ($proto === 'https') || (!empty($httpsRaw) && strtolower($httpsRaw) !== 'off');
+$isIp = filter_var($host, FILTER_VALIDATE_IP) !== false;
+$isPrivateIp = $isIp && !filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
+$looksPublicHost = !empty($host) && stripos($host, 'localhost') === false && stripos($host, '.local') === false && !$isPrivateIp;
+$urlReady = $isHttps && $looksPublicHost;
+
+$providerCount = 0;
+$facilityCount = 0;
+$adminEmail = '';
+$isConfigured = false;
+try {
+    $providerCount = (int)(QueryUtils::querySingleRow("SELECT COUNT(*) AS c FROM users WHERE authorized = 1 AND active = 1", [])['c'] ?? 0);
+    $facilityCount = (int)(QueryUtils::querySingleRow("SELECT COUNT(*) AS c FROM facility WHERE service_location = 1", [])['c'] ?? 0);
+    $adminEmail = trim((string)(QueryUtils::querySingleRow("SELECT ME_username FROM medex_prefs WHERE ME_username IS NOT NULL ORDER BY MedEx_lastupdated DESC LIMIT 1", [])['ME_username'] ?? ''));
+    require_once(__DIR__ . '/../src/MedExAPI.php');
+    $isConfigured = (new \OpenEMR\Modules\MedEx\MedExAPI())->isConfigured();
+} catch (\Throwable $e) {
+    // Keep checklist render resilient.
+}
+
+$emailReady = (bool)filter_var($adminEmail, FILTER_VALIDATE_EMAIL);
+$practiceDataReady = ($providerCount > 0 && $facilityCount > 0);
+$agreementsReady = $isConfigured;
+$checklist = [
+    [
+        'label' => xlt('Production OpenEMR URL uses HTTPS and looks publicly reachable'),
+        'ok' => $urlReady,
+        'detail' => $urlReady ? xlt('Detected secure/public URL pattern.') : xlt('Current URL is not HTTPS or appears local/private.')
+    ],
+    [
+        'label' => xlt('At least one provider and one facility are configured'),
+        'ok' => $practiceDataReady,
+        'detail' => xlt('Providers') . ': ' . $providerCount . ' | ' . xlt('Facilities') . ': ' . $facilityCount
+    ],
+    [
+        'label' => xlt('Practice administrator email is valid'),
+        'ok' => $emailReady,
+        'detail' => $emailReady ? $adminEmail : xlt('No valid MedEx admin email found yet.')
+    ],
+    [
+        'label' => xlt('Terms/BAA step has been completed in onboarding'),
+        'ok' => $agreementsReady,
+        'detail' => $agreementsReady ? xlt('MedEx account is configured.') : xlt('Not configured yet; complete onboarding first.')
+    ],
+];
 ?>
 <!DOCTYPE html>
 <html>
@@ -168,6 +218,34 @@ $startUrl = 'onboarding.php?step=1&site=' . urlencode((string) $siteId);
         .checklist li {
             margin: 6px 0;
         }
+        .check-row {
+            display: grid;
+            grid-template-columns: 26px 1fr;
+            gap: 10px;
+            align-items: start;
+            padding: 10px 0;
+            border-bottom: 1px solid #eef4ff;
+        }
+        .check-row:last-child {
+            border-bottom: 0;
+        }
+        .check-icon {
+            font-size: 18px;
+            line-height: 1;
+            margin-top: 1px;
+        }
+        .check-icon.ok { color: #059669; }
+        .check-icon.bad { color: #dc2626; }
+        .check-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .check-detail {
+            margin-top: 2px;
+            font-size: 12px;
+            color: #64748b;
+        }
         .pill {
             display: inline-block;
             margin-top: 8px;
@@ -253,12 +331,17 @@ $startUrl = 'onboarding.php?step=1&site=' . urlencode((string) $siteId);
 
     <section class="checklist">
         <h3><?php echo xlt('Live Readiness Checklist'); ?></h3>
-        <ul>
-            <li><?php echo xlt('Production OpenEMR URL uses HTTPS and is publicly reachable'); ?></li>
-            <li><?php echo xlt('At least one provider and one facility are configured'); ?></li>
-            <li><?php echo xlt('Practice administrator email and verification channel are valid'); ?></li>
-            <li><?php echo xlt('You reviewed Terms, BAA, and Privacy Policy before activation'); ?></li>
-        </ul>
+        <?php foreach ($checklist as $item): ?>
+            <div class="check-row">
+                <div class="check-icon <?php echo $item['ok'] ? 'ok' : 'bad'; ?>">
+                    <i class="fa <?php echo $item['ok'] ? 'fa-check-circle' : 'fa-times-circle'; ?>"></i>
+                </div>
+                <div>
+                    <div class="check-label"><?php echo text($item['label']); ?></div>
+                    <div class="check-detail"><?php echo text($item['detail']); ?></div>
+                </div>
+            </div>
+        <?php endforeach; ?>
     </section>
 </div>
 </body>
