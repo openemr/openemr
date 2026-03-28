@@ -56,7 +56,7 @@ if (!in_array($currentTab, $validTabs)) {
 }
 
 // Get CSRF token
-$csrfToken = CsrfUtils::collectCsrfToken();
+$csrfToken = CsrfUtils::collectCsrfToken('default');
 $siteId = $_SESSION['site_id'] ?? ($_GET['site'] ?? 'default');
 $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
     . '/interface/modules/custom_modules/oe-module-medex/admin/splash.php?minimal=1&site=' . urlencode((string)$siteId);
