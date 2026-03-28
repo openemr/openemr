@@ -22,6 +22,11 @@ final readonly class Message
         public Ciphertext $ciphertext,
         public MessageFormat $format = MessageFormat::LATEST,
     ) {
+        if ($this->format === MessageFormat::ImplicitKey){
+            if (!preg_match('/^00[1-7]$/', $this->keyId->id)) {
+                throw new BadMethodCallException('Only legacy key versions can use ImplicitKey format');
+            }
+        }
     }
 
     public static function parse(string $encodedMessage): Message
@@ -76,9 +81,6 @@ final readonly class Message
     private function encodeImplicitKey(): string
     {
         assert($this->format === MessageFormat::ImplicitKey);
-        if (!preg_match('/^00[1-7]$/', $this->keyId->id)) {
-            throw new BadMethodCallException('Only legacy key versions can use ImplicitKey format');
-        }
         return sprintf('%s%s',
             $this->keyId->id,
             base64_encode($this->ciphertext->wrapped),

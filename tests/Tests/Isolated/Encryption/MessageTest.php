@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Encryption;
 
+use BadMethodCallException;
 use OpenEMR\Encryption\{
     Ciphertext,
     Keys\Id,
@@ -68,18 +69,6 @@ class MessageTest extends TestCase
         $reencoded = $message->encode();
         self::assertSame($data, $reencoded);
     }
-
-    public function testConstructParseRoundtripImplicitKey(): void
-    {
-        $keyId = new Id('007');
-        $ciphertext = new Ciphertext('some encrypted data');
-        $message = new Message($keyId, $ciphertext, MessageFormat::ImplicitKey);
-        $encoded = $message->encode();
-        $parsed = Message::parse($encoded);
-        self::assertSame($keyId->id, $parsed->keyId->id, 'Key mismatch');
-        self::assertSame($ciphertext->wrapped, $parsed->ciphertext->wrapped, 'Ciphertext mismatch');
-    }
-
     #[DataProvider('previousFormatsProvider')]
     public function testParsingPreviousFormats(int $version, string $expectedKeyId): void
     {
@@ -93,12 +82,32 @@ class MessageTest extends TestCase
 
     public function testConstructWithImplicitKeyFormat(): void
     {
-        $keyId = new Id('legacy-key-number-needing-remapping');
+        $keyId = new Id('005');
         $ciphertext = new Ciphertext('test data');
         $message = new Message($keyId, $ciphertext, MessageFormat::ImplicitKey);
 
         self::assertSame(MessageFormat::ImplicitKey, $message->format);
-        self::assertStringStartsWith('legacy-key-number-needing-remapping', $message->encode());
+        self::assertStringStartsWith('005', $message->encode());
+    }
+
+    public function testConstructWithInvalidImplicitKey(): void
+    {
+        $keyId = new Id('not-a-number');
+        $ciphertext = new Ciphertext('test data');
+        $this->expectException(BadMethodCallException::class);
+        $message = new Message($keyId, $ciphertext, MessageFormat::ImplicitKey);
+    }
+
+
+    public function testConstructParseRoundtripImplicitKey(): void
+    {
+        $keyId = new Id('007');
+        $ciphertext = new Ciphertext('some encrypted data');
+        $message = new Message($keyId, $ciphertext, MessageFormat::ImplicitKey);
+        $encoded = $message->encode();
+        $parsed = Message::parse($encoded);
+        self::assertSame($keyId->id, $parsed->keyId->id, 'Key mismatch');
+        self::assertSame($ciphertext->wrapped, $parsed->ciphertext->wrapped, 'Ciphertext mismatch');
     }
 
     public function testParseThrowsOnTooShortMessage(): void
