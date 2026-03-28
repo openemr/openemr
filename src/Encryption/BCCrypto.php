@@ -21,7 +21,6 @@ final readonly class BCCrypto implements CryptoInterface
     public function __construct(
         private Keys\KeychainInterface $keychain,
         private LoggerInterface $logger,
-        private Keys\Id $currentKeyId,
     ) {
     }
 
@@ -29,13 +28,8 @@ final readonly class BCCrypto implements CryptoInterface
     {
         // Note: this is NOT a singleton otherwise newly-generated keys don't
         // get picked up properly.
-        // @phpstan-ignore staticMethod.deprecatedClass
         $keychain = Keys\BCKeychain::load(createKeyIfNeeded: KeyVersion::CURRENT->toString());
-        return new BCCrypto(
-            $keychain,
-            $logger,
-            new Keys\Id(KeyVersion::CURRENT->toString()),
-        );
+        return new BCCrypto($keychain, $logger);
     }
 
     public function encryptStandard(?string $value, KeySource $keySource = KeySource::Drive): string
@@ -44,14 +38,22 @@ final readonly class BCCrypto implements CryptoInterface
             // Should this warn?
             return '';
         }
-        $keyId = self::remapKeyId($this->currentKeyId, $keySource);
+
+        $keyVersion = KeyVersion::CURRENT;
+
+        $bcKey = Key::fromCryptoGen($keyVersion, $keySource);
+
+        $keyId = $bcKey->getId();
         $cipher = $this->keychain->getCipher($keyId);
 
+        // There's the option (once MessageFormat::ExplicitKey exists) to avoid
+        // the key munging and still emit the new format.
         $wrapped = new Plaintext($value);
         $ciphertext = $cipher->encrypt($wrapped);
         return (new Message(
-            keyId: $this->currentKeyId,
+            keyId: new Keys\Id($keyVersion->toPaddedString()),
             ciphertext: $ciphertext,
+            format: MessageFormat::ImplicitKey,
         ))->encode();
     }
 
@@ -89,29 +91,11 @@ final readonly class BCCrypto implements CryptoInterface
         }
     }
 
-    private static function remapKeyId(Keys\Id $id, KeySource $source): Keys\Id
-    {
-        // General BC concept:
-        // Versions 1-3 always used a drive key regardless of specification
-        // Version 4 used the specified key type, but the drive key was plaintext
-        // Versions 5-7 for disk-backed keys were encrypted-on-disk using a
-        //   db-managed key of the same name.
-        // v8 will embed the key id in the message properly; TBD on Source
-        //   (it may be ignored)
-        return match ($id->id) {
-            'four',
-            'five',
-            'six',
-            'seven' => match ($source) {
-                KeySource::Drive => new Keys\Id("{$id->id}-drive"),
-                KeySource::Database => new Keys\Id("{$id->id}-db"),
-            },
-            default => $id,
-        };
-    }
-
     public function cryptCheckStandard(?string $value): bool
     {
+        if ($value === null) {
+            return false;
+        }
         try {
             Message::parse($value);
             return true;
