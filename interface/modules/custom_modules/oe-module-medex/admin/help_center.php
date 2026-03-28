@@ -110,6 +110,13 @@ foreach ($readinessChecklist as $readinessItem) {
             padding: 20px;
             box-shadow: 0 10px 24px rgba(15, 75, 143, 0.08);
         }
+        .help-left {
+            display: block;
+        }
+        .help-left > * {
+            display: block;
+            width: 100%;
+        }
         .title {
             font-size: 34px;
             font-weight: 800;
@@ -126,6 +133,9 @@ foreach ($readinessChecklist as $readinessItem) {
             display: flex;
             gap: 10px;
             flex-wrap: wrap;
+        }
+        .help-left .actions {
+            justify-content: flex-start;
         }
         .btn {
             display: inline-flex;
@@ -328,7 +338,7 @@ foreach ($readinessChecklist as $readinessItem) {
             </div>
             <span class="pill"><?php echo xlt('For practice administrators only'); ?></span>
         </section>
-        <section class="panel">
+        <section class="panel help-left">
             <div class="video-box">
                 <?php if ($hasTutorial): ?>
                     <iframe src="<?php echo attr($tutorialUrl); ?>" allowfullscreen title="<?php echo attr(xl('MedEx tutorial video')); ?>"></iframe>
