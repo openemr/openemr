@@ -231,13 +231,6 @@ if ($step > 1 && !$api->isConfigured()) {
                     <div class="service-title" style="margin-bottom: 10px;"><?php echo xlt("Required Agreements"); ?></div>
                     <div class="form-group" style="margin-bottom: 12px;">
                         <label style="font-weight:400; margin-bottom: 0;">
-                            <input type="checkbox" id="comms_consent" name="comms_consent" value="1">
-                            <?php echo xlt("I agree to receive onboarding and account-related emails and text messages from MedEx."); ?>
-                        </label>
-                        <small style="color:#64748b; display:block; margin-top:6px;"><?php echo xlt("Message and data rates may apply for SMS."); ?></small>
-                    </div>
-                    <div class="form-group" style="margin-bottom: 12px;">
-                        <label style="font-weight:400; margin-bottom: 0;">
                             <input type="checkbox" id="TERMS_yes" name="TERMS_yes" value="1" required>
                             <?php echo xlt("I have read and my practice agrees to the"); ?>
                             <a href="#" onclick="window.open('<?php echo attr_js($termsUrl); ?>','TERMS',800,600); return false;">
@@ -783,7 +776,6 @@ if ($step > 1 && !$api->isConfigured()) {
             const callbackUrl = $("#callback_url").val();
             const termsAgreed = $("#TERMS_yes").is(':checked');
             const baaAgreed = $("#BusAgree_yes").is(':checked');
-            const commsConsent = $("#comms_consent").is(':checked');
             const otpChannel = $("#otp_channel").val();
             const otpProof = ($("#otp_proof").val() || "").trim();
             const otpSmsDestination = ($("#otp_sms_destination").val() || "").trim();
@@ -828,7 +820,7 @@ if ($step > 1 && !$api->isConfigured()) {
                     callback_url: callbackUrl,
                     TERMS_yes: '1',
                     BusAgree_yes: '1',
-                    comms_consent: commsConsent ? '1' : '0',
+                    comms_consent: '0',
                     otp_channel: otpChannel,
                     otp_sms_destination: otpSmsDestination,
                     otp_proof: otpProof,
@@ -940,7 +932,7 @@ if ($step > 1 && !$api->isConfigured()) {
             $("#otp_sms_destination").on("input", function() {
                 clearFieldError("#otp_sms_destination", "#otp-sms-error");
             });
-            $("#TERMS_yes, #BusAgree_yes, #comms_consent").on("change", function() {
+            $("#TERMS_yes, #BusAgree_yes").on("change", function() {
                 updateStep1SubmitState();
             });
             updateOtpDestinationVisibility();
