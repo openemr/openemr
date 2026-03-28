@@ -17,7 +17,7 @@ use Psr\Log\{
     LoggerInterface,
     NullLogger,
 };
-use OpenEMR\Common\Crypto;
+use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Logging;
 use Lcobucci\Clock\SystemClock;
 use OpenEMR\Common\Http\Psr17Factory;
@@ -97,10 +97,10 @@ class ServiceContainer
         return self::resolve(ClockInterface::class) ?? SystemClock::fromSystemTimezone();
     }
 
-    public static function getCrypto(): Crypto\CryptoInterface
+    public static function getCrypto(): CryptoInterface
     {
         // return self::resolve(Crypto\CryptoInterface::class) ?? new Crypto\CryptoGen();
-        return self::resolve(Crypto\CryptoInterface::class) ?? \OpenEMR\BC\Crypto\Crypto::instance(self::getLogger());
+        return self::resolve(CryptoInterface::class) ?? Crypto\Crypto::instance(self::getLogger());
     }
 
     public static function getLogger(): LoggerInterface
