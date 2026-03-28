@@ -28,6 +28,9 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 
+/**
+ * @deprecated (since SUT is also deprecated)
+ */
 final class BCCryptoDecryptionTest extends TestCase
 {
     private static CryptoFixtureManager $fixtureManager;
@@ -91,7 +94,7 @@ final class BCCryptoDecryptionTest extends TestCase
 
         $result = $this->crypto->decryptStandard($ciphertext, KeySource::Drive);
 
-        $this->assertSame(
+        self::assertSame(
             $expectedPlaintext,
             $result,
             "Decryption failed for version $version with drive key source"
@@ -106,7 +109,7 @@ final class BCCryptoDecryptionTest extends TestCase
 
         $result = $this->crypto->decryptStandard($ciphertext, KeySource::Database);
 
-        $this->assertSame(
+        self::assertSame(
             $expectedPlaintext,
             $result,
             "Decryption failed for version $version with database key source"
@@ -119,7 +122,7 @@ final class BCCryptoDecryptionTest extends TestCase
 
         $result = $this->crypto->decryptStandard($invalidCiphertext, KeySource::Drive);
 
-        $this->assertFalse($result);
+        self::assertFalse($result);
     }
 
     public function testDecryptionRejectsMalformedCiphertext(): void
@@ -129,7 +132,7 @@ final class BCCryptoDecryptionTest extends TestCase
 
         $result = $this->crypto->decryptStandard($malformedCiphertext, KeySource::Drive);
 
-        $this->assertFalse($result);
+        self::assertFalse($result);
     }
 
     public function testDecryptionRejectsTamperedHmac(): void
@@ -144,7 +147,7 @@ final class BCCryptoDecryptionTest extends TestCase
 
         $result = $this->crypto->decryptStandard($tamperedCiphertext, KeySource::Drive);
 
-        $this->assertFalse($result);
+        self::assertFalse($result);
     }
 
     public function testDecryptionRejectsVersionBelowMinimum(): void
@@ -158,7 +161,7 @@ final class BCCryptoDecryptionTest extends TestCase
             minimumVersion: 5
         );
 
-        $this->assertFalse($result);
+        self::assertFalse($result);
     }
 
     public function testDecryptionAcceptsVersionAtMinimum(): void
@@ -172,20 +175,20 @@ final class BCCryptoDecryptionTest extends TestCase
             minimumVersion: 5
         );
 
-        $this->assertSame($expectedPlaintext, $result);
+        self::assertSame($expectedPlaintext, $result);
     }
 
     public function testDecryptionHandlesEmptyString(): void
     {
         $result = $this->crypto->decryptStandard('', KeySource::Drive);
 
-        $this->assertSame('', $result);
+        self::assertSame('', $result);
     }
 
     public function testDecryptionHandlesNull(): void
     {
         $result = $this->crypto->decryptStandard(null, KeySource::Drive);
 
-        $this->assertSame('', $result);
+        self::assertSame('', $result);
     }
 }
