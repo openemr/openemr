@@ -111,11 +111,10 @@ foreach ($readinessChecklist as $readinessItem) {
             box-shadow: 0 10px 24px rgba(15, 75, 143, 0.08);
         }
         .help-left {
-            display: block;
-        }
-        .help-left > * {
-            display: block;
-            width: 100%;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: stretch;
+            gap: 12px;
         }
         .title {
             font-size: 34px;
@@ -124,7 +123,7 @@ foreach ($readinessChecklist as $readinessItem) {
             margin: 0 0 10px;
         }
         .subtitle {
-            margin: 0 0 18px;
+            margin: 0;
             color: var(--muted);
             line-height: 1.5;
             font-size: 16px;
@@ -136,6 +135,10 @@ foreach ($readinessChecklist as $readinessItem) {
         }
         .help-left .actions {
             justify-content: flex-start;
+        }
+        .help-left .pill {
+            align-self: flex-start;
+            margin-top: 0;
         }
         .btn {
             display: inline-flex;
