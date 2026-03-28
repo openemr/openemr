@@ -12,6 +12,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Encryption;
 
+use BadMethodCallException;
+use OpenEMR\Common\Crypto\KeyVersion;
 use UnexpectedValueException;
 
 final readonly class Message
@@ -25,23 +27,24 @@ final readonly class Message
 
     public static function parse(string $encodedMessage): Message
     {
-        if (strlen($encodedMessage) < 3) {
-            throw new UnexpectedValueException('Message is missing expected prefix');
-        }
-        $format = MessageFormat::from(intval(substr($encodedMessage, 0, 3)));
-
-        // Backwards compatibility: versions 1-7 coupled the data storage with
-        // the key version.
-        $keyId = match ($format) {
-            MessageFormat::v1 => 'one',
-            MessageFormat::v2, // Intentional: v3 uses key id 'two' for historic reasons
-            MessageFormat::v3 => 'two',
-            MessageFormat::v4 => 'four',
-            MessageFormat::v5 => 'five',
-            MessageFormat::v6 => 'six',
-            MessageFormat::v7 => 'seven',
-            // v8 will look at the message for more keyId info
+        $format = MessageFormat::detect($encodedMessage);
+        return match ($format) {
+            MessageFormat::ImplicitKey => self::parseImplicitKey($encodedMessage),
+            MessageFormat::UnusedCaseToSupportConditionals => throw new BadMethodCallException('Unhandled message type'),
         };
+    }
+
+    /**
+     * The messages in Implicit format MUST have their keys remapped through
+     * BCCrypto; they will not work with the keyring directly since there's not
+     * enough context in the message alone to decrypt (it also needs KeySource)
+     */
+    private static function parseImplicitKey(string $encodedMessage): Message
+    {
+        assert(strlen($encodedMessage) >= 3);
+
+        // `001`-`007`
+        $numericKeyId = substr($encodedMessage, 0, 3);
 
         $ciphertext = base64_decode(substr($encodedMessage, 3), strict: true);
         if ($ciphertext === false) {
@@ -49,18 +52,26 @@ final readonly class Message
         }
 
         return new Message(
-            format: $format,
-            keyId: new Keys\Id($keyId),
+            format: MessageFormat::ImplicitKey,
+            keyId: new Keys\Id($numericKeyId),
             ciphertext: new Ciphertext($ciphertext),
         );
     }
 
     public function encode(): string
     {
-        $prefix = sprintf('%03d', $this->format->value);
+        return match ($this->format) {
+            MessageFormat::ImplicitKey => $this->encodeImplicitKey(),
+            MessageFormat::UnusedCaseToSupportConditionals => throw new BadMethodCallException('Unhandled message type'),
+        };
+    }
 
-        // if format encodes key id properly, add that in (new path?)
-
-        return sprintf('%s%s', $prefix, base64_encode($this->ciphertext->wrapped));
+    private function encodeImplicitKey(): string
+    {
+        assert($this->format === MessageFormat::ImplicitKey);
+        return sprintf('%s%s',
+            $this->keyId->id,
+            base64_encode($this->ciphertext->wrapped),
+        );
     }
 }
