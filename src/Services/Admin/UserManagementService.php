@@ -174,103 +174,104 @@ class UserManagementService extends UserService
 
         // Wrap all DB writes in a transaction so a failure in any step
         // (UUID, facility, groups, ACL) rolls back the entire user creation.
-        /** @var array{uuid: string}|null $created */
-        $created = QueryUtils::inTransaction(function () use (
-            $authUtils,
-            $session,
-            $adminPass,
-            $password,
-            $insertUserSQL,
-            $username,
-            $fname,
-            $mname,
-            $lname,
-            $facilityId,
-            $billingFacilityId,
-            $groupname,
-            $accessGroup,
-            $processingResult,
-            $data,
-        ): ?array {
-            $success = $authUtils->updatePassword(
-                $session->get('authUserID'),
-                0,
-                $adminPass,
-                $password,
-                true,
+        // On updatePassword() validation failure we throw to trigger rollback,
+        // then catch the specific exception to return a 400 instead of 500.
+        try {
+            $uuidString = QueryUtils::inTransaction(function () use (
+                &$adminPass,
+                &$password,
+                $authUtils,
+                $session,
                 $insertUserSQL,
-                $username
-            );
-
-            if (!$success) {
-                $rawError = $authUtils->getErrorMessage();
-                $errorMsg = is_string($rawError) && $rawError !== '' ? $rawError : 'User creation failed';
-                $field = match (true) {
-                    str_contains($errorMsg, 'Incorrect password') => 'admin_password',
-                    str_contains($errorMsg, 'not long enough'),
-                    str_contains($errorMsg, 'Empty Password') => 'password',
-                    str_contains($errorMsg, 'existing username') => 'username',
-                    default => 'admin_password',
-                };
-                $processingResult->setValidationMessages([$field => [$errorMsg]]);
-                return null;
-            }
-
-            // Always assign UUID to the newly created user
-            $uuid = UuidRegistry::getRegistryForTable('users')->createUuid();
-            QueryUtils::sqlStatementThrowException("UPDATE users SET uuid = ? WHERE BINARY username = ?", [$uuid, $username]);
-
-            // Update facility name fields (IDs were validated above)
-            if ($facilityId !== '') {
-                QueryUtils::sqlStatementThrowException(
-                    "UPDATE users, facility SET users.facility = facility.name WHERE facility.id = ? AND users.username = ?",
-                    [$facilityId, $username]
+                $username,
+                $fname,
+                $mname,
+                $lname,
+                $facilityId,
+                $billingFacilityId,
+                $groupname,
+                $accessGroup,
+                $processingResult,
+                $data,
+            ): string {
+                $success = $authUtils->updatePassword(
+                    $session->get('authUserID'),
+                    0,
+                    $adminPass,
+                    $password,
+                    true,
+                    $insertUserSQL,
+                    $username
                 );
-            }
-            if ($billingFacilityId !== '') {
-                QueryUtils::sqlStatementThrowException(
-                    "UPDATE users, facility SET users.billing_facility = facility.name WHERE facility.id = ? AND users.username = ?",
-                    [$billingFacilityId, $username]
+
+                if (!$success) {
+                    $rawError = $authUtils->getErrorMessage();
+                    $errorMsg = is_string($rawError) && $rawError !== '' ? $rawError : 'User creation failed';
+                    $field = match (true) {
+                        str_contains($errorMsg, 'Incorrect password') => 'admin_password',
+                        str_contains($errorMsg, 'not long enough'),
+                        str_contains($errorMsg, 'Empty Password') => 'password',
+                        str_contains($errorMsg, 'existing username') => 'username',
+                        default => 'admin_password',
+                    };
+                    $processingResult->setValidationMessages([$field => [$errorMsg]]);
+                    throw new \InvalidArgumentException($errorMsg);
+                }
+
+                // Always assign UUID to the newly created user
+                $uuid = UuidRegistry::getRegistryForTable('users')->createUuid();
+                QueryUtils::sqlStatementThrowException("UPDATE users SET uuid = ? WHERE BINARY username = ?", [$uuid, $username]);
+
+                // Update facility name fields (IDs were validated above)
+                if ($facilityId !== '') {
+                    QueryUtils::sqlStatementThrowException(
+                        "UPDATE users, facility SET users.facility = facility.name WHERE facility.id = ? AND users.username = ?",
+                        [$facilityId, $username]
+                    );
+                }
+                if ($billingFacilityId !== '') {
+                    QueryUtils::sqlStatementThrowException(
+                        "UPDATE users, facility SET users.billing_facility = facility.name WHERE facility.id = ? AND users.username = ?",
+                        [$billingFacilityId, $username]
+                    );
+                }
+
+                // Insert into groups
+                QueryUtils::sqlStatementThrowException("INSERT INTO `groups` SET name = ?, user = ?", [$groupname, $username]);
+
+                // Set ACL groups
+                AclExtended::setUserAro($accessGroup, $username, $fname, $mname, $lname);
+
+                // Audit log
+                EventAuditLogger::getInstance()->newEvent(
+                    'user-create',
+                    self::strVal($session->get('authUser')),
+                    self::strVal($session->get('authProvider')),
+                    1,
+                    "New user created via API: " . $username
                 );
-            }
 
-            // Insert into groups
-            QueryUtils::sqlStatementThrowException("INSERT INTO `groups` SET name = ?, user = ?", [$groupname, $username]);
+                // Dispatch event
+                $eventData = $data;
+                $eventData['uuid'] = UuidRegistry::uuidToString($uuid);
+                $eventData['username'] = $username;
+                unset($eventData['password'], $eventData['admin_password']);
+                $userCreatedEvent = new UserCreatedEvent($eventData);
+                OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(
+                    $userCreatedEvent,
+                    UserCreatedEvent::EVENT_HANDLE
+                );
 
-            // Set ACL groups
-            AclExtended::setUserAro($accessGroup, $username, $fname, $mname, $lname);
-
-            // Audit log
-            EventAuditLogger::getInstance()->newEvent(
-                'user-create',
-                self::strVal($session->get('authUser')),
-                self::strVal($session->get('authProvider')),
-                1,
-                "New user created via API: " . $username
-            );
-
-            // Dispatch event
-            $eventData = $data;
-            $eventData['uuid'] = UuidRegistry::uuidToString($uuid);
-            $eventData['username'] = $username;
-            unset($eventData['password'], $eventData['admin_password']);
-            $userCreatedEvent = new UserCreatedEvent($eventData);
-            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(
-                $userCreatedEvent,
-                UserCreatedEvent::EVENT_HANDLE
-            );
-
-            return ['uuid' => UuidRegistry::uuidToString($uuid)];
-        });
-
-        // updatePassword() returned false — validation errors already set
-        if ($created === null) {
+                return UuidRegistry::uuidToString($uuid);
+            });
+        } catch (\InvalidArgumentException) {
+            // updatePassword() validation failure — messages already set on $processingResult
             return $processingResult;
         }
 
         // Return created user
         $processingResult->addData([
-            'uuid' => $created['uuid'],
+            'uuid' => $uuidString,
             'username' => $username,
             'fname' => $fname,
             'lname' => $lname,
