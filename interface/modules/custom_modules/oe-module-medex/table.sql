@@ -13,9 +13,29 @@ CREATE TABLE IF NOT EXISTS `medex_icons` (
   PRIMARY KEY (`i_UID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- Compatibility: migrate legacy medex_icons schema (older installs used i_type only)
+#IfMissingColumn medex_icons msg_type
+ALTER TABLE `medex_icons` ADD COLUMN `msg_type` varchar(50) NOT NULL DEFAULT '' AFTER `i_UID`;
+#EndIf
+
+#IfMissingColumn medex_icons msg_status
+ALTER TABLE `medex_icons` ADD COLUMN `msg_status` varchar(10) NOT NULL DEFAULT '' AFTER `msg_type`;
+#EndIf
+
+#IfColumn medex_icons i_type
+UPDATE `medex_icons`
+SET `msg_type` = UPPER(`i_type`)
+WHERE (`msg_type` IS NULL OR `msg_type` = '') AND `i_type` IS NOT NULL AND `i_type` != '';
+#EndIf
+
+UPDATE `medex_icons`
+SET `msg_status` = 'LEGACY'
+WHERE `msg_status` IS NULL OR `msg_status` = '';
+
 -- Populate medex_icons table with icon HTML for all modality types and statuses
 -- These icons are displayed in the Status column of the Recall Board
 -- AVM Icons (Automated Voice Message)
+#IfNotRow2D medex_icons msg_type AVM msg_status ALLOWED
 INSERT INTO `medex_icons` (`msg_type`, `msg_status`, `i_description`, `i_html`) VALUES
 ('AVM', 'ALLOWED', '', '<i title="Automated Voice Messaging is possible." class="fas fa-phone fa-fw"></i>'),
 ('AVM', 'NotAllowed', '', '<span class="fas fa-stack" title="Automated Voice Messaging is not allowed"><i class="fas fa-phone fa-fw"></i><i class="fas fa-ban fa-stack-2x text-danger"></i></span>'),
@@ -28,8 +48,10 @@ INSERT INTO `medex_icons` (`msg_type`, `msg_status`, `i_description`, `i_html`) 
 ('AVM', 'STOP', '', '<i title="Patient requests communication STOP. This is an OPT-OUT request. Check SMS Messaging opt-in status." class="fas fa-stop-circle fa-fw" style="color:red;"></i>'),
 ('AVM', 'FAILED', '', '<i title="Automated Voice Messaging event failed to be delivered." class="fas fa-phone fa-fw" style="color:red;"></i>'),
 ('AVM', 'Other', '', '<i title="There was no response from patient." class="fas fa-phone fa-fw" style="color:red;"></i>');
+#EndIf
 
 -- EMAIL Icons
+#IfNotRow2D medex_icons msg_type EMAIL msg_status ALLOWED
 INSERT INTO `medex_icons` (`msg_type`, `msg_status`, `i_description`, `i_html`) VALUES
 ('EMAIL', 'ALLOWED', '', '<i title="EMAIL is possible." class="far fa-envelope fa-fw"></i>'),
 ('EMAIL', 'NotAllowed', '', '<span class="fas fa-stack" title="EMAIL is not possible"><i class="far fa-envelope fa-fw"></i><i class="fas fa-ban fa-stack-2x text-danger"></i></span>'),
@@ -42,8 +64,10 @@ INSERT INTO `medex_icons` (`msg_type`, `msg_status`, `i_description`, `i_html`) 
 ('EMAIL', 'STOP', '', '<i title="Patient requests communication STOP. This is an OPT-OUT request. Check SMS Messaging opt-in status." class="fas fa-stop-circle fa-fw" style="color:red;"></i>'),
 ('EMAIL', 'FAILED', '', '<i title="EMAIL event failed to be delivered." class="far fa-envelope fa-fw" style="color:red;"></i>'),
 ('EMAIL', 'Other', '', '<i title="There was no response from patient." class="far fa-envelope fa-fw" style="color:red;"></i>');
+#EndIf
 
 -- SMS Icons (Short Message Service - Text Messages)
+#IfNotRow2D medex_icons msg_type SMS msg_status ALLOWED
 INSERT INTO `medex_icons` (`msg_type`, `msg_status`, `i_description`, `i_html`) VALUES
 ('SMS', 'ALLOWED', '', '<i title="SMS is possible." class="far fa-comment-dots fa-fw"></i>'),
 ('SMS', 'NotAllowed', '', '<span class="fas fa-stack" title="SMS not possible"><i title="SMS is not possible." class="fas fa-comment-dots fa-fw"></i><i class="fas fa-ban fa-stack-2x text-danger"></i></span>'),
@@ -56,13 +80,16 @@ INSERT INTO `medex_icons` (`msg_type`, `msg_status`, `i_description`, `i_html`) 
 ('SMS', 'STOP', '', '<i title="Patient requests communication STOP. This is an OPT-OUT request. Check SMS Messaging opt-in status." class="fas fa-stop-circle fa-fw" style="color:red;"></i>'),
 ('SMS', 'FAILED', '', '<i title="SMS message failed to be delivered." class="fas fa-comment-dots fa-fw" style="color:red;"></i>'),
 ('SMS', 'EXTRA', '', '<i title="Custom SMS message sent to patient outside of automated campaigns." class="fas fa-comment-medical fa-fw" style="color:green;"></i>');
+#EndIf
 
 -- POSTCARD Icons (Physical Mail)
+#IfNotRow2D medex_icons msg_type POSTCARD msg_status SCHEDULED
 INSERT INTO `medex_icons` (`msg_type`, `msg_status`, `i_description`, `i_html`) VALUES
 ('POSTCARD', 'SCHEDULED', '', '<i title="Postcard is scheduled." class="far fa-clock fa-fw"></i>'),
 ('POSTCARD', 'SENT', '', '<i title="Postcard was printed/sent." class="fas fa-file-image fa-fw" style="color:green;"></i>'),
 ('POSTCARD', 'READ', '', '<i title="Postcard was delivered." class="fas fa-mailbox fa-fw" style="color:green;"></i>'),
 ('POSTCARD', 'FAILED', '', '<i title="Postcard delivery failed." class="fas fa-file-image fa-fw" style="color:red;"></i>');
+#EndIf
 
 -- Outgoing messages table - tracks all MedEx campaign events (SMS/EMAIL/AVM/etc)
 CREATE TABLE IF NOT EXISTS `medex_outgoing` (
@@ -101,8 +128,111 @@ CREATE TABLE IF NOT EXISTS `medex_prefs` (
   `sms_bot_phone_style` varchar(50) DEFAULT 'S8',
   `module_update_cache` text DEFAULT NULL COMMENT 'Cached update check JSON from MedEx server',
   `module_update_checked` datetime DEFAULT NULL COMMENT 'Timestamp of last update check',
+  `session_token` varchar(255) DEFAULT NULL,
+  `session_token_expiry` datetime DEFAULT NULL,
   UNIQUE KEY `ME_username` (`ME_username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Compatibility: legacy medex_prefs schemas may miss newer columns used by status/licensing/update code
+#IfMissingColumn medex_prefs ME_username
+ALTER TABLE `medex_prefs` ADD `ME_username` varchar(100) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn medex_prefs ME_api_key
+ALTER TABLE `medex_prefs` ADD `ME_api_key` text DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn medex_prefs ME_facilities
+ALTER TABLE `medex_prefs` ADD `ME_facilities` varchar(50) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn medex_prefs ME_providers
+ALTER TABLE `medex_prefs` ADD `ME_providers` varchar(100) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn medex_prefs ME_hipaa_default_override
+ALTER TABLE `medex_prefs` ADD `ME_hipaa_default_override` varchar(3) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn medex_prefs PHONE_country_code
+ALTER TABLE `medex_prefs` ADD `PHONE_country_code` int(4) NOT NULL DEFAULT 1;
+#EndIf
+
+#IfMissingColumn medex_prefs MSGS_default_yes
+ALTER TABLE `medex_prefs` ADD `MSGS_default_yes` varchar(3) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn medex_prefs POSTCARDS_local
+ALTER TABLE `medex_prefs` ADD `POSTCARDS_local` varchar(3) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn medex_prefs POSTCARDS_remote
+ALTER TABLE `medex_prefs` ADD `POSTCARDS_remote` varchar(3) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn medex_prefs LABELS_local
+ALTER TABLE `medex_prefs` ADD `LABELS_local` varchar(3) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn medex_prefs LABELS_choice
+ALTER TABLE `medex_prefs` ADD `LABELS_choice` varchar(50) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn medex_prefs combine_time
+ALTER TABLE `medex_prefs` ADD `combine_time` tinyint(4) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn medex_prefs postcard_top
+ALTER TABLE `medex_prefs` ADD `postcard_top` varchar(255) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn medex_prefs status
+ALTER TABLE `medex_prefs` ADD `status` text DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn medex_prefs bad_actor_until
+ALTER TABLE `medex_prefs` ADD `bad_actor_until` timestamp NULL DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn medex_prefs bad_actor_message
+ALTER TABLE `medex_prefs` ADD `bad_actor_message` varchar(500) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn medex_prefs sms_bot_phone_style
+ALTER TABLE `medex_prefs` ADD `sms_bot_phone_style` varchar(50) DEFAULT 'S8';
+#EndIf
+
+#IfMissingColumn medex_prefs module_update_cache
+ALTER TABLE `medex_prefs` ADD `module_update_cache` text DEFAULT NULL COMMENT 'Cached update check JSON from MedEx server';
+#EndIf
+
+#IfMissingColumn medex_prefs module_update_checked
+ALTER TABLE `medex_prefs` ADD `module_update_checked` datetime DEFAULT NULL COMMENT 'Timestamp of last update check';
+#EndIf
+
+#IfMissingColumn medex_prefs session_token
+ALTER TABLE `medex_prefs` ADD `session_token` varchar(255) DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn medex_prefs session_token_expiry
+ALTER TABLE `medex_prefs` ADD `session_token_expiry` datetime DEFAULT NULL;
+#EndIf
+
+#IfMissingColumn medex_prefs ME_server_url
+ALTER TABLE `medex_prefs` ADD `ME_server_url` varchar(255) DEFAULT NULL;
+#EndIf
+
+#IfColumn medex_prefs MedEx_status
+UPDATE `medex_prefs` SET `status` = `MedEx_status` WHERE (`status` IS NULL OR `status` = '') AND `MedEx_status` IS NOT NULL;
+#EndIf
+
+#IfColumn medex_prefs MedEx_facilities
+UPDATE `medex_prefs` SET `ME_facilities` = CAST(`MedEx_facilities` AS CHAR) WHERE (`ME_facilities` IS NULL OR `ME_facilities` = '') AND `MedEx_facilities` IS NOT NULL;
+#EndIf
+
+#IfColumn medex_prefs MedEx_providers
+UPDATE `medex_prefs` SET `ME_providers` = CAST(`MedEx_providers` AS CHAR) WHERE (`ME_providers` IS NULL OR `ME_providers` = '') AND `MedEx_providers` IS NOT NULL;
+#EndIf
 
 -- Database migrations tracking table
 CREATE TABLE IF NOT EXISTS `medex_migrations` (
