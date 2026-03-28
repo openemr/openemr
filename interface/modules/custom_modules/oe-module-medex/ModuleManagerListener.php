@@ -630,6 +630,40 @@ HTML;
     }
 
     /**
+     * Reset module to initial registered/uninstalled state while preserving display metadata.
+     *
+     * @param $modId
+     * @param $currentActionStatus
+     * @return mixed
+     */
+    private function reset_module($modId, $currentActionStatus): mixed
+    {
+        try {
+            // Keep module in resettable state (registered, not installed, not enabled).
+            sqlStatement(
+                "UPDATE modules SET
+                    mod_active = 0,
+                    mod_ui_active = 0,
+                    sql_run = 0,
+                    mod_name = 'MedEx Module',
+                    mod_ui_name = 'Oe-module-medex',
+                    sql_version = '1.1.0'
+                 WHERE mod_id = ?",
+                [$modId]
+            );
+
+            // Clear runtime credentials/state for a clean start.
+            sqlStatement("UPDATE globals SET gl_value = '' WHERE gl_name IN ('medex_api_key', 'medex_practice_id')");
+            sqlStatement("UPDATE globals SET gl_value = '0' WHERE gl_name = 'medex_enable'");
+            sqlStatement("DELETE FROM medex_prefs");
+        } catch (\Exception $e) {
+            error_log('[MedEx] reset_module metadata/state fix failed: ' . $e->getMessage());
+        }
+
+        return $currentActionStatus;
+    }
+
+    /**
      * @param $modId
      * @param $currentActionStatus
      * @return mixed
