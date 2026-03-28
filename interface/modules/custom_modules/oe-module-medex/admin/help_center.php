@@ -117,6 +117,9 @@ foreach ($readinessChecklist as $readinessItem) {
             gap: 12px;
             height: 100%;
         }
+        .help-right {
+            height: 100%;
+        }
         .title {
             font-size: 34px;
             font-weight: 800;
@@ -335,7 +338,7 @@ foreach ($readinessChecklist as $readinessItem) {
             </div>
             <span class="pill"><?php echo xlt('For practice administrators only'); ?></span>
         </section>
-        <section class="panel">
+        <section class="panel help-right">
             <div class="video-box">
                 <?php if ($hasTutorial): ?>
                     <iframe src="<?php echo attr($tutorialUrl); ?>" allowfullscreen title="<?php echo attr(xl('MedEx tutorial video')); ?>"></iframe>
