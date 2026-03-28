@@ -142,30 +142,28 @@ class UserManagementService extends UserService
             }
         }
 
-        // Build INSERT SQL — AuthUtils::updatePassword() requires raw SQL string
-        // (it executes via privStatement($insert_sql, []) with no bind params)
-        $insertUserSQL =
-            "INSERT INTO users SET " .
-            "username = '" . self::escape($username) .
-            "', password = 'NoLongerUsed'" .
-            ", fname = '" . self::escape($fname) .
-            "', mname = '" . self::escape($mname) .
-            "', lname = '" . self::escape($lname) .
-            "', suffix = '" . self::escape($suffix) .
-            "', email = '" . self::escape($email) .
-            "', federaltaxid = '" . self::escape($federaltaxid) .
-            "', state_license_number = '" . self::escape($stateLicenseNumber) .
-            "', authorized = '" . self::escape((string) $authorized) .
-            "', federaldrugid = '" . self::escape($federaldrugid) .
-            "', upin = '" . self::escape($upin) .
-            "', npi = '" . self::escape($npi) .
-            "', taxonomy = '" . self::escape($taxonomy) .
-            "', facility_id = '" . self::escape($facilityId) .
-            "', billing_facility_id = '" . self::escape($billingFacilityId) .
-            "', specialty = '" . self::escape($specialty) .
-            "', calendar = '" . self::escape((string) $calendar) .
-            "', portal_user = '" . self::escape((string) $portalUser) .
-            "'";
+        // Structured user data for AuthUtils::updatePassword() parameterized INSERT
+        $userData = [
+            'username' => $username,
+            'password' => 'NoLongerUsed',
+            'fname' => $fname,
+            'mname' => $mname,
+            'lname' => $lname,
+            'suffix' => $suffix,
+            'email' => $email,
+            'federaltaxid' => $federaltaxid,
+            'state_license_number' => $stateLicenseNumber,
+            'authorized' => $authorized,
+            'federaldrugid' => $federaldrugid,
+            'upin' => $upin,
+            'npi' => $npi,
+            'taxonomy' => $taxonomy,
+            'facility_id' => $facilityId,
+            'billing_facility_id' => $billingFacilityId,
+            'specialty' => $specialty,
+            'calendar' => $calendar,
+            'portal_user' => $portalUser,
+        ];
 
         // AuthUtils::updatePassword() verifies the admin password and executes the INSERT
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -185,7 +183,7 @@ class UserManagementService extends UserService
                 $adminPass,
                 $password,
                 true,
-                $insertUserSQL,
+                $userData,
                 $username
             );
 
@@ -263,16 +261,6 @@ class UserManagementService extends UserService
         ]);
 
         return $processingResult;
-    }
-
-    /**
-     * Type-safe wrapper for add_escape_custom() which returns mixed.
-     */
-    private static function escape(string $value): string
-    {
-        /** @var string $escaped */
-        $escaped = add_escape_custom($value);
-        return $escaped;
     }
 
     /**
