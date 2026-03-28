@@ -8,6 +8,7 @@ use OpenEMR\Common\Crypto\{
     KeySource,
     KeyVersion,
 };
+use OpenEMR\Encryption\Keys\Id;
 
 /**
  * Backwards-compatibility wrapper that translates the historic format=version
@@ -26,7 +27,7 @@ enum Key: string
     case v7Drive = 'seven-drive';
     case v7Db = 'seven-db';
 
-    public static function fromMessageFormat(KeyVersion $format, KeySource $source): self
+    public static function fromCryptoGen(KeyVersion $format, KeySource $source): self
     {
         return match ($format) {
             KeyVersion::ONE => self::v1,
@@ -48,5 +49,10 @@ enum Key: string
                 KeySource::Database => self::v7Db,
             },
         };
+    }
+
+    public function getId(): Id
+    {
+        return new Id($this->value);
     }
 }
