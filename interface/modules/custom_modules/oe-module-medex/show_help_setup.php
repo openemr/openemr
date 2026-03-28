@@ -231,6 +231,9 @@ $siteId = (string)($_GET['site'] ?? 'default');
                 <h3>Open onboarding</h3>
                 <p>After Enable succeeds, onboarding opens automatically.</p>
                 <div class="state"></div>
+                <div class="act">
+                    <button type="button" class="act-btn" id="onboardingBtn">Open Onboarding</button>
+                </div>
             </div>
         </div>
 
@@ -251,29 +254,33 @@ $siteId = (string)($_GET['site'] ?? 'default');
     const initStatus = <?php echo json_encode($status, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
     const setupSiteId = <?php echo json_encode($siteId, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 
-    function setStep(stepId, done, doneText, todoText) {
+    function setStep(stepId, done, doneText) {
         const step = document.getElementById(stepId);
         if (!step) return;
         step.classList.toggle('done', !!done);
         const state = step.querySelector('.state');
         if (state) {
-            state.textContent = done ? doneText : todoText;
+            state.textContent = done ? doneText : '';
         }
     }
 
     function render(status) {
-        setStep('step-install', status.installed, 'Done', 'Pending');
-        setStep('step-enable', status.enabled, 'Done', 'Pending');
-        setStep('step-configure', status.enabled, 'Ready', 'Waiting for enable');
-        setStep('step-dashboard', status.dashboard_ready, 'Ready', 'Locked until enabled');
+        setStep('step-install', status.installed, 'Done');
+        setStep('step-enable', status.enabled, 'Done');
+        setStep('step-configure', status.enabled, 'Ready');
+        setStep('step-dashboard', status.dashboard_ready, 'Ready');
 
         const installBtn = document.getElementById('installBtn');
         const enableBtn = document.getElementById('enableBtn');
+        const onboardingBtn = document.getElementById('onboardingBtn');
         if (installBtn) {
             installBtn.style.display = status.installed ? 'none' : 'inline-flex';
         }
         if (enableBtn) {
             enableBtn.style.display = (status.installed && !status.enabled) ? 'inline-flex' : 'none';
+        }
+        if (onboardingBtn) {
+            onboardingBtn.style.display = status.enabled ? 'inline-flex' : 'none';
         }
 
         const msg = document.getElementById('nextAction');
@@ -411,6 +418,10 @@ $siteId = (string)($_GET['site'] ?? 'default');
         } catch (e) {
             alert('Enable failed: ' + (e && e.message ? e.message : 'request error'));
         }
+    });
+
+    document.getElementById('onboardingBtn').addEventListener('click', () => {
+        openOnboardingNow();
     });
 
     render(initStatus);
