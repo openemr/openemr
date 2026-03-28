@@ -52,7 +52,6 @@ function medexSetupStatus(): array
     return [
         'mod_id' => $modId,
         'installed' => $installed,
-        'manager_reloaded' => $managerReloaded,
         'enabled' => $enabled,
         'dashboard_ready' => $dashboardReady,
         'next_action' => $nextAction,
@@ -66,6 +65,7 @@ if (($_GET['action'] ?? '') === 'status') {
 }
 
 $status = medexSetupStatus();
+$siteId = (string)($_GET['site'] ?? 'default');
 ?>
 <!doctype html>
 <html lang="en">
@@ -213,20 +213,11 @@ $status = medexSetupStatus();
             </div>
         </div>
 
-        <div id="step-reload" class="step">
+        <div id="step-enable" class="step">
             <div class="icon">2</div>
             <div>
-                <h3>Confirm status button updated</h3>
-                <p>If the row still shows <strong>Install</strong> after install, reload Module Manager once.</p>
-                <div class="state"></div>
-            </div>
-        </div>
-
-        <div id="step-enable" class="step">
-            <div class="icon">3</div>
-            <div>
                 <h3>Enable the module</h3>
-                <p>Click <strong>Enable</strong> so MedEx is active.</p>
+                <p>Click <strong>Enable</strong> to activate MedEx.</p>
                 <div class="state"></div>
                 <div class="act">
                     <button type="button" class="act-btn" id="enableBtn">Run Enable</button>
@@ -234,11 +225,20 @@ $status = medexSetupStatus();
             </div>
         </div>
 
+        <div id="step-configure" class="step">
+            <div class="icon">3</div>
+            <div>
+                <h3>Open onboarding</h3>
+                <p>After Enable succeeds, onboarding opens automatically.</p>
+                <div class="state"></div>
+            </div>
+        </div>
+
         <div id="step-dashboard" class="step">
             <div class="icon">4</div>
             <div>
-                <h3>Open MedEx dashboard (gear icon)</h3>
-                <p>Click the <strong>gear</strong> icon to launch onboarding/dashboard.</p>
+                <h3>Complete onboarding</h3>
+                <p>Finish signup and service selection in onboarding.</p>
                 <div class="state"></div>
             </div>
         </div>
@@ -249,6 +249,7 @@ $status = medexSetupStatus();
 
 <script>
     const initStatus = <?php echo json_encode($status, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+    const setupSiteId = <?php echo json_encode($siteId, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
 
     function setStep(stepId, done, doneText, todoText) {
         const step = document.getElementById(stepId);
@@ -262,9 +263,18 @@ $status = medexSetupStatus();
 
     function render(status) {
         setStep('step-install', status.installed, 'Done', 'Pending');
-        setStep('step-reload', status.manager_reloaded, 'Done', 'Pending');
         setStep('step-enable', status.enabled, 'Done', 'Pending');
+        setStep('step-configure', status.enabled, 'Ready', 'Waiting for enable');
         setStep('step-dashboard', status.dashboard_ready, 'Ready', 'Locked until enabled');
+
+        const installBtn = document.getElementById('installBtn');
+        const enableBtn = document.getElementById('enableBtn');
+        if (installBtn) {
+            installBtn.style.display = status.installed ? 'none' : 'inline-flex';
+        }
+        if (enableBtn) {
+            enableBtn.style.display = (status.installed && !status.enabled) ? 'inline-flex' : 'none';
+        }
 
         const msg = document.getElementById('nextAction');
         if (!msg) return;
@@ -275,6 +285,12 @@ $status = medexSetupStatus();
         } else {
             msg.textContent = 'Next action: Click the gear icon to continue onboarding.';
         }
+    }
+
+    function openOnboardingNow() {
+        const topWin = window.top || window;
+        const url = '/interface/modules/custom_modules/oe-module-medex/admin/splash.php?minimal=1&site=' + encodeURIComponent(setupSiteId || 'default');
+        topWin.location.href = url;
     }
 
     async function runManageAction(actionName) {
@@ -336,7 +352,18 @@ $status = medexSetupStatus();
             await runManageAction('enable');
             setTimeout(refresh, 1000);
             setTimeout(refresh, 2500);
-            setTimeout(refresh, 5000);
+            setTimeout(async () => {
+                await refresh();
+                try {
+                    const r = await fetch('show_help_setup.php?action=status&site=default', { cache: 'no-store' });
+                    const j = await r.json();
+                    if (j && j.success && j.status && j.status.enabled) {
+                        openOnboardingNow();
+                    }
+                } catch (e) {
+                    // keep user on page if status check fails
+                }
+            }, 5000);
         } catch (e) {
             alert('Enable failed: ' + (e && e.message ? e.message : 'request error'));
         }
