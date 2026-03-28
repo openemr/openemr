@@ -22,7 +22,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 }
 
 $siteId = $_GET['site'] ?? 'default';
-$tutorialUrl = trim((string) MedExConfig::tutorialUrl());
+$tutorialUrl = 'https://medexbank.com/help/tutorial.html';
 $hasTutorial = $tutorialUrl !== '';
 $startUrl = 'onboarding.php?step=1&site=' . urlencode((string) $siteId);
 
