@@ -28,6 +28,13 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 }
 
 
+// Cache escaped table names to avoid repeated SHOW TABLES lookups.
+// escape_table_name() on literals is needed for case-insensitive matching
+// on MySQL installs where the actual table case differs from the code.
+$tbl_camos_category = escape_table_name("form_CAMOS_category");
+$tbl_camos_subcategory = escape_table_name("form_CAMOS_subcategory");
+$tbl_camos_item = escape_table_name("form_CAMOS_item");
+
 if ($_POST['export']) {
     if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
@@ -37,19 +44,19 @@ if ($_POST['export']) {
     if ($temp === false) {
         echo "<h1>" . xlt("failed") . "</h1>";
     } else {
-        $query1 = "select id, category from " . mitigateSqlTableUpperCase("form_CAMOS_category");
+        $query1 = "select id, category from " . $tbl_camos_category;
         $statement1 = sqlStatement($query1);
         while ($result1 = sqlFetchArray($statement1)) {
                 $tmp = $result1['category'];
                 $tmp = "<category>$tmp</category>" . "\n";
                 fwrite($temp, $tmp);
-                $query2 = "select id,subcategory from " . mitigateSqlTableUpperCase("form_CAMOS_subcategory") . " where category_id=?";
+                $query2 = "select id,subcategory from " . $tbl_camos_subcategory . " where category_id=?";
                 $statement2 = sqlStatement($query2, [$result1['id']]);
             while ($result2 = sqlFetchArray($statement2)) {
                 $tmp = $result2['subcategory'];
                 $tmp = "<subcategory>$tmp</subcategory>" . "\n";
                 fwrite($temp, $tmp);
-                $query3 = "select item, content from " . mitigateSqlTableUpperCase("form_CAMOS_item") . " where subcategory_id=?";
+                $query3 = "select item, content from " . $tbl_camos_item . " where subcategory_id=?";
                 $statement3 = sqlStatement($query3, [$result2['id']]);
                 while ($result3 = sqlFetchArray($statement3)) {
                     $tmp = $result3['item'];
@@ -100,14 +107,14 @@ if ($_POST['import']) {
             $buffer = fgets($handle);
             if (preg_match('/<category>(.*?)<\/category>/', $buffer, $matches)) {
                 $category = trim($matches[1]); //trim in case someone edited by hand and added spaces
-                $statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_category") . " where category like ?", [$category]);
+                $statement = sqlStatement("select id from " . $tbl_camos_category . " where category like ?", [$category]);
                 if ($result = sqlFetchArray($statement)) {
                     $category_id = $result['id'];
                 } else {
-                    $query = "INSERT INTO " . mitigateSqlTableUpperCase("form_CAMOS_category") . " (user, category) " .
+                    $query = "INSERT INTO " . $tbl_camos_category . " (user, category) " .
                     "values (?, ?)";
                     sqlStatement($query, [$session->get('authUser'), $category]);
-                    $statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_category") . " where category like ?", [$category]);
+                    $statement = sqlStatement("select id from " . $tbl_camos_category . " where category like ?", [$category]);
                     if ($result = sqlFetchArray($statement)) {
                         $category_id = $result['id'];
                     }
@@ -116,15 +123,15 @@ if ($_POST['import']) {
 
             if (preg_match('/<subcategory>(.*?)<\/subcategory>/', $buffer, $matches)) {
                 $subcategory = trim($matches[1]);
-                $statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_subcategory") . " where subcategory " .
+                $statement = sqlStatement("select id from " . $tbl_camos_subcategory . " where subcategory " .
                 "like ? and category_id = ?", [$subcategory, $category_id]);
                 if ($result = sqlFetchArray($statement)) {
                     $subcategory_id = $result['id'];
                 } else {
-                    $query = "INSERT INTO " . mitigateSqlTableUpperCase("form_CAMOS_subcategory") . " (user, subcategory, category_id) " .
+                    $query = "INSERT INTO " . $tbl_camos_subcategory . " (user, subcategory, category_id) " .
                     "values (?, ?, ?)";
                     sqlStatement($query, [$session->get('authUser'), $subcategory, $category_id]);
-                    $statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_subcategory") . " where subcategory " .
+                    $statement = sqlStatement("select id from " . $tbl_camos_subcategory . " where subcategory " .
                     "like ? and category_id = ?", [$subcategory, $category_id]);
                     if ($result = sqlFetchArray($statement)) {
                         $subcategory_id = $result['id'];
@@ -141,18 +148,18 @@ if ($_POST['import']) {
                 $insert_value = '';
                 if ($mode == 'item') {
                     $postfix = 0;
-                    $statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_item") . " where item like ? " .
+                    $statement = sqlStatement("select id from " . $tbl_camos_item . " where item like ? " .
                     "and subcategory_id = ?", [$value, $subcategory_id]);
                     if ($result = sqlFetchArray($statement)) {//let's count until we find a number available
                         $postfix = 1;
                         $inserted_duplicate = false;
                         while ($inserted_duplicate === false) {
                             $insert_value = $value . "_" . $postfix;
-                            $inner_statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_item") . " " .
+                            $inner_statement = sqlStatement("select id from " . $tbl_camos_item . " " .
                                 "where item like ? " .
                                 "and subcategory_id = ?", [$insert_value, $subcategory_id]);
                             if (!($inner_result = sqlFetchArray($inner_statement))) {//doesn't exist
-                                    $inner_query = "INSERT INTO " . mitigateSqlTableUpperCase("form_CAMOS_item") . " (user, item, subcategory_id) " .
+                                    $inner_query = "INSERT INTO " . $tbl_camos_item . " (user, item, subcategory_id) " .
                                     "values (?, ?, ?)";
                                     sqlStatement($inner_query, [$session->get('authUser'), $insert_value, $subcategory_id]);
                                     $inserted_duplicate = true;
@@ -161,7 +168,7 @@ if ($_POST['import']) {
                             }
                         }
                     } else {
-                        $query = "INSERT INTO " . mitigateSqlTableUpperCase("form_CAMOS_item") . " (user, item, subcategory_id) " .
+                        $query = "INSERT INTO " . $tbl_camos_item . " (user, item, subcategory_id) " .
                         "values (?, ?, ?)";
                         sqlStatement($query, [$session->get('authUser'), $value, $subcategory_id]);
                     }
@@ -170,13 +177,13 @@ if ($_POST['import']) {
                         $insert_value = $value;
                     }
 
-                    $statement = sqlStatement("select id from " . mitigateSqlTableUpperCase("form_CAMOS_item") . " where item like ? " .
+                    $statement = sqlStatement("select id from " . $tbl_camos_item . " where item like ? " .
                     "and subcategory_id = ?", [$insert_value, $subcategory_id]);
                     if ($result = sqlFetchArray($statement)) {
                         $item_id = $result['id'];
                     }
                 } elseif ($mode == 'content') {
-                    $statement = sqlStatement("select content from " . mitigateSqlTableUpperCase("form_CAMOS_item") . " where id = ?", [$item_id]);
+                    $statement = sqlStatement("select content from " . $tbl_camos_item . " where id = ?", [$item_id]);
                     if ($result = sqlFetchArray($statement)) {
                         //$content = "/*old*/\n\n".$result['content']."\n\n/*new*/\n\n$value";
                         $content = $value;
@@ -184,7 +191,7 @@ if ($_POST['import']) {
                         $content = $value;
                     }
 
-                    $query = "UPDATE " . mitigateSqlTableUpperCase("form_CAMOS_item") . " set content = ? where id = ?";
+                    $query = "UPDATE " . $tbl_camos_item . " set content = ? where id = ?";
                     sqlStatement($query, [$content, $item_id]);
                 }
             }
