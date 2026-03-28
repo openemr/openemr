@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace OpenEMR\Encryption;
 
 use BadMethodCallException;
-use OpenEMR\Common\Crypto\KeyVersion;
 use UnexpectedValueException;
 
 final readonly class Message
