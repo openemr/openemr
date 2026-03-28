@@ -33,13 +33,13 @@ class MessageTest extends TestCase
      * Expected key IDs for each message format version.
      */
     private const EXPECTED_KEY_IDS = [
-        1 => 'one',
-        2 => 'two',
-        3 => 'two', // v3 shares v2 keys
-        4 => 'four',
-        5 => 'five',
-        6 => 'six',
-        7 => 'seven',
+        1 => '001',
+        2 => '002',
+        3 => '003',
+        4 => '004',
+        5 => '005',
+        6 => '006',
+        7 => '007',
     ];
 
     protected function setUp(): void
@@ -92,9 +92,9 @@ class MessageTest extends TestCase
         self::assertSame($data, $message->encode(), 'Roundtrip encoding failed');
     }
 
-    public function testConstructWithExplicitFormat(): void
+    public function testConstructWithImplicitKeyFormat(): void
     {
-        $keyId = new Id('four');
+        $keyId = new Id('004');
         $ciphertext = new Ciphertext('test data');
         $message = new Message($keyId, $ciphertext, MessageFormat::ImplicitKey);
 
