@@ -18,8 +18,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\BC\Crypto;
 
-use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\BC\Crypto\Crypto;
+use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Encryption\Cipher\Aes256CbcHmacSha256;
 use OpenEMR\Encryption\Cipher\Aes256CbcHmacSha384;
 use OpenEMR\Encryption\Cipher\Aes256CbcNoHmac;

@@ -21,8 +21,8 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Common\BC\Crypto;
 
-use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\BC\Crypto\Crypto;
+use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Tests\Fixtures\CryptoFixtureManager;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
