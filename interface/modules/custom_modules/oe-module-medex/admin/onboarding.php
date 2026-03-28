@@ -231,7 +231,7 @@ if ($step > 1 && !$api->isConfigured()) {
                     <div class="service-title" style="margin-bottom: 10px;"><?php echo xlt("Required Agreements"); ?></div>
                     <div class="form-group" style="margin-bottom: 12px;">
                         <label style="font-weight:400; margin-bottom: 0;">
-                            <input type="checkbox" id="comms_consent" name="comms_consent" value="1" required>
+                            <input type="checkbox" id="comms_consent" name="comms_consent" value="1">
                             <?php echo xlt("I agree to receive onboarding and account-related emails and text messages from MedEx."); ?>
                         </label>
                         <small style="color:#64748b; display:block; margin-top:6px;"><?php echo xlt("Message and data rates may apply for SMS."); ?></small>
@@ -659,8 +659,7 @@ if ($step > 1 && !$api->isConfigured()) {
                 validatePasswordField(false) &&
                 validateConfirmPasswordField(false);
             const agreementsReady = $("#TERMS_yes").is(':checked') &&
-                $("#BusAgree_yes").is(':checked') &&
-                $("#comms_consent").is(':checked');
+                $("#BusAgree_yes").is(':checked');
             const canSubmit = accountReady && otpVerified && agreementsReady;
             $("#step1-next-btn").prop("disabled", !canSubmit);
             updateStep1Progress(accountReady, otpVerified, agreementsReady);
@@ -811,10 +810,6 @@ if ($step > 1 && !$api->isConfigured()) {
                 alert("You must agree to the HIPAA Business Associate Agreement before signing up");
                 return;
             }
-            if (!commsConsent) {
-                alert("You must agree to receive onboarding and account-related messages from MedEx");
-                return;
-            }
             if (!otpVerified || !otpProof) {
                 setOtpStatus("You must send and verify your one-time password before continuing.", "err");
                 return;
@@ -833,7 +828,7 @@ if ($step > 1 && !$api->isConfigured()) {
                     callback_url: callbackUrl,
                     TERMS_yes: '1',
                     BusAgree_yes: '1',
-                    comms_consent: '1',
+                    comms_consent: commsConsent ? '1' : '0',
                     otp_channel: otpChannel,
                     otp_sms_destination: otpSmsDestination,
                     otp_proof: otpProof,

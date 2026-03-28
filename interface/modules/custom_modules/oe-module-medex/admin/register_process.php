@@ -399,7 +399,7 @@ try {
     medexEnsureEmailBlocklistTable();
 
     // Validate required fields (only email and password - practice details come from facility sync)
-    $required = ['email', 'password', 'callback_url', 'TERMS_yes', 'BusAgree_yes', 'comms_consent', 'otp_proof'];
+    $required = ['email', 'password', 'callback_url', 'TERMS_yes', 'BusAgree_yes', 'otp_proof'];
     foreach ($required as $field) {
         if (empty($_POST[$field])) {
             echo json_encode(['success' => false, 'error' => "Missing required field: {$field}"]);
@@ -414,10 +414,7 @@ try {
         echo json_encode(['success' => false, 'error' => 'You must agree to the HIPAA Business Associate Agreement before signing up']);
         exit;
     }
-    if ((string)($_POST['comms_consent'] ?? '') !== '1') {
-        echo json_encode(['success' => false, 'error' => 'You must agree to receive onboarding and account-related messages from MedEx']);
-        exit;
-    }
+    $hasCommsConsent = ((string)($_POST['comms_consent'] ?? '0') === '1');
     $password = (string)($_POST['password'] ?? '');
     if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/', $password)) {
         echo json_encode([
@@ -556,7 +553,7 @@ $requestUserAgent = substr(trim((string)($_SERVER['HTTP_USER_AGENT'] ?? '')), 0,
 $acceptedAtUtc = gmdate('Y-m-d H:i:s');
 
 // Prepare registration data
-$data = [
+    $data = [
     'email' => $email,
     'password' => $_POST['password'],
     'practice_name' => $practice_name,
@@ -584,9 +581,9 @@ $data = [
     ,'otp_channel' => $otpChannel
     ,'otp_house_account' => $otpHouseAccount
     ,'otp_house_cost' => $otpHouseCost
-    ,'comms_consent_at_utc' => $acceptedAtUtc
-    ,'comms_consent_ip' => $requestIp
-    ,'comms_consent_channel' => $otpChannel
+    ,'comms_consent_at_utc' => ($hasCommsConsent ? $acceptedAtUtc : null)
+    ,'comms_consent_ip' => ($hasCommsConsent ? $requestIp : null)
+    ,'comms_consent_channel' => ($hasCommsConsent ? $otpChannel : null)
 ];
 
 // Attempt registration
@@ -662,9 +659,9 @@ if (!empty($result['success'])) {
             $otpChannel,
             $otpHouseAccount,
             $otpHouseCost,
-            $acceptedAtUtc,
-            $requestIp,
-            $otpChannel,
+            ($hasCommsConsent ? $acceptedAtUtc : null),
+            ($hasCommsConsent ? $requestIp : null),
+            ($hasCommsConsent ? $otpChannel : null),
             $data['email']
         ]
     );
