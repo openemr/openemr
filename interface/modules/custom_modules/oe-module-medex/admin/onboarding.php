@@ -191,20 +191,7 @@ if ($step > 1 && !$api->isConfigured()) {
                             </div>
                             <div id="rpassword-error" class="field-error"><?php echo xlt("Confirm password must match the password."); ?></div>
                         </div>
-                        <div class="form-group">
-                            <label for="callback_url"><?php echo xlt("OpenEMR URL"); ?></label>
-                            <input type="hidden" id="callback_url" name="callback_url" value="<?php echo attr($defaultOpenEmrUrl); ?>">
-                            <small style="color:#64748b; display:block; margin-top:6px;"><?php echo xlt("MedEx requires a secure connection to this server for automatic deployment."); ?></small>
-                            <div style="margin-top:4px; color:#475569; font-size:14px;">
-                                <?php echo xlt("Detected URL"); ?>: <strong id="callback-url-display"><?php echo text($defaultOpenEmrUrl); ?></strong>
-                            </div>
-                            <div id="callback-error" class="field-error"><?php echo xlt("OpenEMR URL must be a valid public HTTPS URL."); ?></div>
-                            <div id="callback-help" class="field-status" style="display:none;">
-                                <?php echo xlt("Need help?"); ?>
-                                <a href="https://medexbank.com/cart/upload/index.php?route=information/contact" target="_blank" rel="noopener noreferrer"><?php echo xlt("Contact support"); ?></a>
-                            </div>
-                            <div id="callback-status" class="field-status"></div>
-                        </div>
+                        <input type="hidden" id="callback_url" name="callback_url" value="<?php echo attr($defaultOpenEmrUrl); ?>">
                 </div>
 
                 <div class="panel-card full-width-card">
@@ -489,7 +476,6 @@ if ($step > 1 && !$api->isConfigured()) {
 
     <script>
         let otpVerified = false;
-        let callbackValidated = false;
         const wizardStep = <?php echo (int)$step; ?>;
 
         function togglePasswordField(inputSelector, iconSelector) {
@@ -668,63 +654,6 @@ if ($step > 1 && !$api->isConfigured()) {
             return false;
         }
 
-        function setCallbackStatus(message, kind = '') {
-            const el = $("#callback-status");
-            el.removeClass('ok err');
-            if (kind) {
-                el.addClass(kind);
-            }
-            el.text(message || '');
-        }
-
-        function setCallbackHelpVisible(visible) {
-            if (visible) {
-                $("#callback-help").show();
-            } else {
-                $("#callback-help").hide();
-            }
-        }
-
-        function validateOpenEmrUrlFormat(showMessage = true) {
-            const value = ($("#callback_url").val() || "").trim();
-            const valid = /^https:\/\/[^\s/$.?#].[^\s]*$/i.test(value) &&
-                !/^https:\/\/(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[0-1])\.)/i.test(value);
-            if (valid) {
-                clearFieldError("#callback_url", "#callback-error");
-                setCallbackHelpVisible(false);
-                return true;
-            }
-            if (showMessage) {
-                setFieldError("#callback_url", "#callback-error", "OpenEMR URL must be a valid public HTTPS URL.");
-                setCallbackHelpVisible(true);
-            }
-            return false;
-        }
-
-        function validateCallbackHostMatchesCurrent(showMessage = true) {
-            const value = ($("#callback_url").val() || "").trim();
-            let parsedHost = "";
-            try {
-                parsedHost = new URL(value).hostname.toLowerCase();
-            } catch (e) {
-                if (showMessage) {
-                    setFieldError("#callback_url", "#callback-error", "OpenEMR URL is invalid.");
-                    setCallbackHelpVisible(true);
-                }
-                return false;
-            }
-            const currentHost = (window.location.hostname || "").toLowerCase();
-            const matches = parsedHost !== "" && currentHost !== "" && parsedHost === currentHost;
-            if (!matches && showMessage) {
-                setFieldError("#callback_url", "#callback-error", "OpenEMR URL must match this server URL.");
-                setCallbackHelpVisible(true);
-            }
-            if (matches) {
-                setCallbackHelpVisible(false);
-            }
-            return matches;
-        }
-
         function updateStep1SubmitState() {
             const accountReady = validateEmailField(false) &&
                 validatePasswordField(false) &&
@@ -732,14 +661,14 @@ if ($step > 1 && !$api->isConfigured()) {
             const agreementsReady = $("#TERMS_yes").is(':checked') &&
                 $("#BusAgree_yes").is(':checked') &&
                 $("#comms_consent").is(':checked');
-            const canSubmit = accountReady && callbackValidated && otpVerified && agreementsReady;
+            const canSubmit = accountReady && otpVerified && agreementsReady;
             $("#step1-next-btn").prop("disabled", !canSubmit);
-            updateStep1Progress(accountReady, callbackValidated, otpVerified, agreementsReady);
+            updateStep1Progress(accountReady, otpVerified, agreementsReady);
         }
 
-        function updateStep1Progress(accountReady, urlReady, otpReady, agreementsReady) {
-            const completed = (accountReady ? 1 : 0) + (urlReady ? 1 : 0) + (otpReady ? 1 : 0) + (agreementsReady ? 1 : 0);
-            const pct = Math.round((completed / 4) * 50);
+        function updateStep1Progress(accountReady, otpReady, agreementsReady) {
+            const completed = (accountReady ? 1 : 0) + (otpReady ? 1 : 0) + (agreementsReady ? 1 : 0);
+            const pct = Math.round((completed / 3) * 50);
             $("#wizard-progress-fill").css("width", pct + "%");
         }
 
@@ -750,26 +679,6 @@ if ($step > 1 && !$api->isConfigured()) {
             const completed = (anyServiceSelected ? 1 : 0) + (providerReady ? 1 : 0);
             const pct = 50 + Math.round((completed / 2) * 50);
             $("#wizard-progress-fill").css("width", pct + "%");
-        }
-
-        function validateCallbackFromApi() {
-            callbackValidated = false;
-            updateStep1SubmitState();
-            if (!validateOpenEmrUrlFormat(true)) {
-                setCallbackStatus("", "");
-                return;
-            }
-            if (!validateCallbackHostMatchesCurrent(true)) {
-                setCallbackStatus("", "");
-                updateStep1SubmitState();
-                return;
-            }
-            callbackValidated = true;
-            clearFieldError("#callback_url", "#callback-error");
-            setCallbackHelpVisible(false);
-            const url = ($("#callback_url").val() || "").trim();
-            setCallbackStatus("Secure connection to " + url + " confirmed.", "ok");
-            updateStep1SubmitState();
         }
 
         function sendOtp() {
@@ -888,11 +797,6 @@ if ($step > 1 && !$api->isConfigured()) {
                 return;
             }
             if (!validatePasswordField(true)) {
-                return;
-            }
-            if (!callbackValidated) {
-                setFieldError("#callback_url", "#callback-error", "Verify your OpenEMR URL before continuing.");
-                setCallbackStatus("", "");
                 return;
             }
             if (password !== rpassword) {
@@ -1033,16 +937,6 @@ if ($step > 1 && !$api->isConfigured()) {
                 validateConfirmPasswordField(true);
                 updateStep1SubmitState();
             });
-            $("#callback_url").on("input", function() {
-                callbackValidated = false;
-                clearFieldError("#callback_url", "#callback-error");
-                setCallbackStatus("", "");
-                setCallbackHelpVisible(false);
-                updateStep1SubmitState();
-            });
-            $("#callback_url").on("blur", function() {
-                validateCallbackFromApi();
-            });
             $("#otp_sms_destination").on("blur", function() {
                 if ($("#otp_channel").val() === "sms") {
                     validateSmsField(true);
@@ -1055,7 +949,6 @@ if ($step > 1 && !$api->isConfigured()) {
                 updateStep1SubmitState();
             });
             updateOtpDestinationVisibility();
-            validateCallbackFromApi();
             updateStep1SubmitState();
 
             if (window.location.search.includes('step=3')) {
