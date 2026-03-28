@@ -242,7 +242,7 @@ $startUrl = 'onboarding.php?step=1&site=' . urlencode((string) $siteId);
         <article class="step">
             <span class="step-num">3</span>
             <h3><?php echo xlt('Choose Services'); ?></h3>
-            <p><?php echo xlt('Select only the services you need now. Additional services can be enabled later from your dashboard.'); ?></p>
+            <p><?php echo xlt('Select only the services you need for testing. Additional services can be enabled later from your dashboard.'); ?></p>
         </article>
         <article class="step">
             <span class="step-num">4</span>
