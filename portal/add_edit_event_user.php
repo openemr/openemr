@@ -238,11 +238,13 @@ if ($form_action === "save") {
     };
 
     if ($repeatTargetDay !== null) {
-        $baseTimestamp = strtotime((string) $event_date) ?: time();
-        $currentDay = (int) date('N', $baseTimestamp); // 1=Mon .. 7=Sun
-        if ($currentDay !== $repeatTargetDay) {
-            $daysUntilTarget = ($repeatTargetDay - $currentDay + 7) % 7;
-            $event_date = date('Y-m-d', strtotime("+{$daysUntilTarget} days", $baseTimestamp));
+        $baseTimestamp = strtotime((string) $event_date);
+        if ($baseTimestamp !== false) {
+            $currentDay = (int) date('N', $baseTimestamp); // 1=Mon .. 7=Sun
+            if ($currentDay !== $repeatTargetDay) {
+                $daysUntilTarget = ($repeatTargetDay - $currentDay + 7) % 7;
+                $event_date = date('Y-m-d', strtotime("+{$daysUntilTarget} days", $baseTimestamp));
+            }
         }
     }
     /* =======================================================
