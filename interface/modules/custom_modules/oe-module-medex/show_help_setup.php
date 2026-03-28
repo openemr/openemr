@@ -166,6 +166,22 @@ $status = medexSetupStatus();
         .step.done .state {
             color: var(--ok);
         }
+        .step .act {
+            margin-top: 8px;
+        }
+        .act-btn {
+            border: 1px solid #93c5fd;
+            background: #eff6ff;
+            color: #1d4ed8;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 6px 10px;
+            cursor: pointer;
+        }
+        .act-btn:hover {
+            background: #dbeafe;
+        }
         .foot {
             margin-top: 14px;
             font-size: 12px;
@@ -189,6 +205,9 @@ $status = medexSetupStatus();
                 <h3>Install the module</h3>
                 <p>Click <strong>Install</strong> for <strong>oe-module-medex</strong> in Module Manager.</p>
                 <div class="state"></div>
+                <div class="act">
+                    <button type="button" class="act-btn" id="installBtn">Run Install</button>
+                </div>
             </div>
         </div>
 
@@ -207,6 +226,9 @@ $status = medexSetupStatus();
                 <h3>Enable the module</h3>
                 <p>Click <strong>Enable</strong> so MedEx is active.</p>
                 <div class="state"></div>
+                <div class="act">
+                    <button type="button" class="act-btn" id="enableBtn">Run Enable</button>
+                </div>
             </div>
         </div>
 
@@ -253,6 +275,31 @@ $status = medexSetupStatus();
         }
     }
 
+    function findMedexRow(doc) {
+        const rows = Array.from(doc.querySelectorAll('tr'));
+        return rows.find((tr) => {
+            const t = (tr.textContent || '').toLowerCase();
+            return t.includes('oe-module-medex') || t.includes('medex module');
+        }) || null;
+    }
+
+    function clickModuleAction(actionName) {
+        const topDoc = (window.top && window.top.document) ? window.top.document : document;
+        const row = findMedexRow(topDoc);
+        if (!row) return false;
+        const action = actionName.toLowerCase();
+
+        const candidates = Array.from(row.querySelectorAll('a,button,input[type="button"],input[type="submit"]'));
+        const control = candidates.find((el) => {
+            const txt = ((el.textContent || el.value || '') + ' ' + (el.getAttribute('title') || '') + ' ' + (el.getAttribute('onclick') || '')).toLowerCase();
+            return txt.includes(action);
+        });
+        if (!control) return false;
+
+        control.click();
+        return true;
+    }
+
     async function refresh() {
         try {
             const r = await fetch('show_help_setup.php?action=status&site=default', { cache: 'no-store' });
@@ -264,6 +311,26 @@ $status = medexSetupStatus();
             // Keep last known state visible.
         }
     }
+
+    document.getElementById('installBtn').addEventListener('click', () => {
+        const ok = clickModuleAction('install');
+        if (!ok) {
+            alert('Install action button not found in Module Manager row.');
+            return;
+        }
+        setTimeout(refresh, 1200);
+        setTimeout(refresh, 3000);
+    });
+
+    document.getElementById('enableBtn').addEventListener('click', () => {
+        const ok = clickModuleAction('enable');
+        if (!ok) {
+            alert('Enable action button not found in Module Manager row.');
+            return;
+        }
+        setTimeout(refresh, 1200);
+        setTimeout(refresh, 3000);
+    });
 
     render(initStatus);
     setInterval(refresh, 2500);
