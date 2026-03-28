@@ -242,7 +242,7 @@ foreach ($serviceSources as $svcId => $priceInfo) {
         )
     ) {
         // Legacy API payloads may still label this as "a la carte".
-        $serviceName = 'Monthly Reminder Service';
+        $serviceName = 'Automated Reminders';
     }
 
     $serviceDefinitions[$svcId] = [
@@ -3097,7 +3097,7 @@ function getServiceName(serviceId) {
     }
 
     const names = {
-        'appointment_reminders': 'Monthly Reminder Service',
+        'appointment_reminders': 'Automated Reminders',
         'secure_chat': 'Secure Patient Chat',
         'calendar_export': 'Calendar Export',
         'calendar_full': 'Full Calendar View',
