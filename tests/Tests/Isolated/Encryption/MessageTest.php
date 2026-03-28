@@ -68,16 +68,16 @@ class MessageTest extends TestCase
         self::assertSame($data, $reencoded);
     }
 
-    public function testConstructRoundtrip(): void
+    public function testConstructRoundtripImplicitKey(): void
     {
         // IMPORTANT: once we support message format v8, this test should start
         // failing and get updated so the keys align again.
-        $keyId = new Id('some-key-id');
+        $keyId = new Id('007');
         $ciphertext = new Ciphertext('some encrypted data');
-        $message = new Message($keyId, $ciphertext);
+        $message = new Message($keyId, $ciphertext, MessageFormat::ImplicitKey);
         $encoded = $message->encode();
         $parsed = Message::parse($encoded);
-        self::assertSame('seven', $parsed->keyId->id, 'Key mismatch');
+        self::assertSame('007', $parsed->keyId->id, 'Key mismatch');
         self::assertSame($ciphertext->wrapped, $parsed->ciphertext->wrapped, 'Ciphertext mismatch');
     }
 
