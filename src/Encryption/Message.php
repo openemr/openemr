@@ -36,7 +36,7 @@ final readonly class Message
 
     /**
      * The messages in Implicit format MUST have their keys remapped through
-     * BCCrypto; they will not work with the keyring directly since there's not
+     * BC\Crypto; they will not work with the keyring directly since there's not
      * enough context in the message alone to decrypt (it also needs KeySource)
      */
     private static function parseImplicitKey(string $encodedMessage): Message

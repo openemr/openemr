@@ -2,34 +2,38 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Encryption;
+namespace OpenEMR\BC\Crypto;
 
 use BadMethodCallException;
-use OpenEMR\BC\Crypto\Key;
 use OpenEMR\Common\Crypto\{
     CryptoInterface,
     KeySource,
     KeyVersion,
 };
+use OpenEMR\Encryption\Keys\Id;
+use OpenEMR\Encryption\Keys\KeychainInterface;
+use OpenEMR\Encryption\Message;
+use OpenEMR\Encryption\MessageFormat;
+use OpenEMR\Encryption\Plaintext;
 use Psr\Log\LoggerInterface;
 
 /**
  * @deprecated
  */
-final readonly class BCCrypto implements CryptoInterface
+final readonly class Crypto implements CryptoInterface
 {
     public function __construct(
-        private Keys\KeychainInterface $keychain,
+        private KeychainInterface $keychain,
         private LoggerInterface $logger,
     ) {
     }
 
-    public static function instance(LoggerInterface $logger): BCCrypto
+    public static function instance(LoggerInterface $logger): Crypto
     {
         // Note: this is NOT a singleton otherwise newly-generated keys don't
         // get picked up properly.
-        $keychain = Keys\BCKeychain::load(createKeyIfNeeded: KeyVersion::CURRENT->toString());
-        return new BCCrypto($keychain, $logger);
+        $keychain = Keychain::load(createKeyIfNeeded: KeyVersion::CURRENT->toString());
+        return new Crypto($keychain, $logger);
     }
 
     public function encryptStandard(?string $value, KeySource $keySource = KeySource::Drive): string
@@ -51,7 +55,7 @@ final readonly class BCCrypto implements CryptoInterface
         $wrapped = new Plaintext($value);
         $ciphertext = $cipher->encrypt($wrapped);
         return (new Message(
-            keyId: new Keys\Id($keyVersion->toPaddedString()),
+            keyId: new Id($keyVersion->toPaddedString()),
             ciphertext: $ciphertext,
             format: MessageFormat::ImplicitKey,
         ))->encode();

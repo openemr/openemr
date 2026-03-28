@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Isolated tests for BCCrypto decryption across all key versions.
+ * Isolated tests for BC\Crypto decryption across all key versions.
  *
- * These tests verify BCCrypto decryption without requiring a database or
+ * These tests verify BC\Crypto decryption without requiring a database or
  * filesystem. Test keys are injected directly via a constructed keychain,
  * making these tests fast and portable.
  *
@@ -16,10 +16,10 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Tests\Isolated\Encryption;
+namespace OpenEMR\Tests\Isolated\BC\Crypto;
 
 use OpenEMR\Common\Crypto\KeySource;
-use OpenEMR\Encryption\BCCrypto;
+use OpenEMR\BC\Crypto\Crypto;
 use OpenEMR\Encryption\Cipher\Aes256CbcHmacSha256;
 use OpenEMR\Encryption\Cipher\Aes256CbcHmacSha384;
 use OpenEMR\Encryption\Cipher\Aes256CbcNoHmac;
@@ -34,10 +34,10 @@ use Psr\Log\NullLogger;
 /**
  * @deprecated (since SUT is also deprecated)
  */
-final class BCCryptoDecryptionTest extends TestCase
+final class CryptoDecryptionTest extends TestCase
 {
     private static CryptoFixtureManager $fixtures;
-    private BCCrypto $crypto;
+    private Crypto $crypto;
 
     public static function setUpBeforeClass(): void
     {
@@ -48,7 +48,7 @@ final class BCCryptoDecryptionTest extends TestCase
     protected function setUp(): void
     {
         $keychain = $this->buildKeychain();
-        $this->crypto = new BCCrypto(
+        $this->crypto = new Crypto(
             $keychain,
             new NullLogger(),
         );

@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Integration tests for BCCrypto decryption across all key versions.
+ * Integration tests for Crypto decryption across all key versions.
  *
- * These tests verify that BCCrypto can correctly decrypt data encrypted
- * with all supported key versions (v1-v7). This ensures the new BCCrypto
+ * These tests verify that Crypto can correctly decrypt data encrypted
+ * with all supported key versions (v1-v7). This ensures the new Crypto
  * implementation is backward compatible with CryptoGen.
  *
  * Tests use known keys seeded into the database and filesystem, with
@@ -19,10 +19,10 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Tests\Common\Crypto;
+namespace OpenEMR\Tests\Common\BC\Crypto;
 
 use OpenEMR\Common\Crypto\KeySource;
-use OpenEMR\Encryption\BCCrypto;
+use OpenEMR\BC\Crypto\Crypto;
 use OpenEMR\Tests\Fixtures\CryptoFixtureManager;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -31,10 +31,10 @@ use Psr\Log\NullLogger;
 /**
  * @deprecated (since SUT is also deprecated)
  */
-final class BCCryptoDecryptionTest extends TestCase
+final class CryptoDecryptionTest extends TestCase
 {
     private static CryptoFixtureManager $fixtureManager;
-    private BCCrypto $crypto;
+    private Crypto $crypto;
 
     public static function setUpBeforeClass(): void
     {
@@ -53,7 +53,7 @@ final class BCCryptoDecryptionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->crypto = BCCrypto::instance(new NullLogger());
+        $this->crypto = Crypto::instance(new NullLogger());
     }
 
     /**

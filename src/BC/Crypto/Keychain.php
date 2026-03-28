@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Encryption\Keys;
+namespace OpenEMR\BC\Crypto;
 
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Encryption\{
@@ -19,14 +19,19 @@ use OpenEMR\Encryption\{
     MessageFormat,
     Plaintext,
 };
+use OpenEMR\Encryption\Keys\Id;
+use OpenEMR\Encryption\Keys\Keychain as EagerKeychain;
+use OpenEMR\Encryption\Keys\KeychainInterface;
+use OpenEMR\Encryption\Keys\KeyMaterial;
+use OpenEMR\Encryption\Keys\Storage;
 use Throwable;
 
 /**
- * Implements v1-v7 keys in a way that matches key names from BCCrypto
+ * Implements v1-v7 keys in a way that matches key names from Crypto
  *
  * @deprecated
  */
-class BCKeychain
+class Keychain
 {
     public static function load(?string $createKeyIfNeeded): KeychainInterface
     {
@@ -39,7 +44,7 @@ class BCKeychain
         $pkod = new Storage\PlaintextKeyOnDisk($storageDir);
         $pkidb = new Storage\PlaintextKeyInDbKeysTableAdodb();
 
-        $keychain = new Keychain();
+        $keychain = new EagerKeychain();
         // v1: broken crypto (no hmac)
         if ($one = self::tryLoadKey('one', $pkod)) {
             $keychain->addCipher(new Id('one'), new Cipher\Aes256CbcNoHmac($one));
@@ -128,7 +133,7 @@ class BCKeychain
         string $name,
         Storage\KeyStorageInterface $storage,
         string $storageDir,
-        Keychain $keychain,
+        EagerKeychain $keychain,
     ): void {
         $key = self::tryLoadKey("{$name}a", $storage);
         $hmacKey = self::tryLoadKey("{$name}b", $storage);
