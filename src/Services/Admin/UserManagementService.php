@@ -38,11 +38,11 @@ class UserManagementService extends UserService
 
     /**
      * @inheritDoc
-     * Adds username and authorized to the base column list.
+     * Adds authorized to the base column list.
      */
     protected function getSelectColumns(): string
     {
-        return parent::getSelectColumns() . ", authorized, last_updated";
+        return parent::getSelectColumns() . ", authorized";
     }
 
     /**
@@ -71,18 +71,15 @@ class UserManagementService extends UserService
     /**
      * Get a single user by UUID with ACL group enrichment.
      *
+     * Routes through searchUsers() so the detail endpoint returns the same
+     * column set and enrichment as the list endpoint.
+     *
      * @param string $uuid UUID string
      * @return ProcessingResult
      */
     public function getOneByUuid(string $uuid): ProcessingResult
     {
-        $processingResult = new ProcessingResult();
-        $user = $this->getUserByUUID($uuid);
-        if ($user !== false) {
-            $this->enrichWithAclGroups($user);
-            $processingResult->addData($user);
-        }
-        return $processingResult;
+        return $this->searchUsers(['uuid' => UuidRegistry::uuidToBytes($uuid)]);
     }
 
     /**
@@ -129,6 +126,22 @@ class UserManagementService extends UserService
             return $processingResult;
         }
 
+        // Validate facility IDs exist before creating the user
+        if ($facilityId !== '') {
+            $facility = QueryUtils::querySingleRow("SELECT id FROM facility WHERE id = ?", [$facilityId]);
+            if ($facility === false) {
+                $processingResult->setValidationMessages(['facility_id' => ['Facility does not exist']]);
+                return $processingResult;
+            }
+        }
+        if ($billingFacilityId !== '') {
+            $billingFacility = QueryUtils::querySingleRow("SELECT id FROM facility WHERE id = ?", [$billingFacilityId]);
+            if ($billingFacility === false) {
+                $processingResult->setValidationMessages(['billing_facility_id' => ['Billing facility does not exist']]);
+                return $processingResult;
+            }
+        }
+
         // Build INSERT SQL — AuthUtils::updatePassword() requires raw SQL string
         // (it executes via privStatement($insert_sql, []) with no bind params)
         $insertUserSQL =
@@ -158,74 +171,106 @@ class UserManagementService extends UserService
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $adminPass = self::strVal($data['admin_password'] ?? '');
         $authUtils = new AuthUtils();
-        $success = $authUtils->updatePassword(
-            $session->get('authUserID'),
-            0,
+
+        // Wrap all DB writes in a transaction so a failure in any step
+        // (UUID, facility, groups, ACL) rolls back the entire user creation.
+        /** @var array{uuid: string}|null $created */
+        $created = QueryUtils::inTransaction(function () use (
+            $authUtils,
+            $session,
             $adminPass,
             $password,
-            true,
             $insertUserSQL,
-            $username
-        );
+            $username,
+            $fname,
+            $mname,
+            $lname,
+            $facilityId,
+            $billingFacilityId,
+            $groupname,
+            $accessGroup,
+            $processingResult,
+            $data,
+        ): ?array {
+            $success = $authUtils->updatePassword(
+                $session->get('authUserID'),
+                0,
+                $adminPass,
+                $password,
+                true,
+                $insertUserSQL,
+                $username
+            );
 
-        if (!$success) {
-            $errorMsg = $authUtils->getErrorMessage();
-            if ($errorMsg === null || $errorMsg === '') {
-                $errorMsg = 'User creation failed';
+            if (!$success) {
+                $rawError = $authUtils->getErrorMessage();
+                $errorMsg = is_string($rawError) && $rawError !== '' ? $rawError : 'User creation failed';
+                $field = match (true) {
+                    str_contains($errorMsg, 'Incorrect password') => 'admin_password',
+                    str_contains($errorMsg, 'not long enough'),
+                    str_contains($errorMsg, 'Empty Password') => 'password',
+                    str_contains($errorMsg, 'existing username') => 'username',
+                    default => 'admin_password',
+                };
+                $processingResult->setValidationMessages([$field => [$errorMsg]]);
+                return null;
             }
-            $processingResult->addInternalError($errorMsg);
+
+            // Always assign UUID to the newly created user
+            $uuid = UuidRegistry::getRegistryForTable('users')->createUuid();
+            QueryUtils::sqlStatementThrowException("UPDATE users SET uuid = ? WHERE BINARY username = ?", [$uuid, $username]);
+
+            // Update facility name fields (IDs were validated above)
+            if ($facilityId !== '') {
+                QueryUtils::sqlStatementThrowException(
+                    "UPDATE users, facility SET users.facility = facility.name WHERE facility.id = ? AND users.username = ?",
+                    [$facilityId, $username]
+                );
+            }
+            if ($billingFacilityId !== '') {
+                QueryUtils::sqlStatementThrowException(
+                    "UPDATE users, facility SET users.billing_facility = facility.name WHERE facility.id = ? AND users.username = ?",
+                    [$billingFacilityId, $username]
+                );
+            }
+
+            // Insert into groups
+            QueryUtils::sqlStatementThrowException("INSERT INTO `groups` SET name = ?, user = ?", [$groupname, $username]);
+
+            // Set ACL groups
+            AclExtended::setUserAro($accessGroup, $username, $fname, $mname, $lname);
+
+            // Audit log
+            EventAuditLogger::getInstance()->newEvent(
+                'user-create',
+                self::strVal($session->get('authUser')),
+                self::strVal($session->get('authProvider')),
+                1,
+                "New user created via API: " . $username
+            );
+
+            // Dispatch event
+            $eventData = $data;
+            $eventData['uuid'] = UuidRegistry::uuidToString($uuid);
+            $eventData['username'] = $username;
+            unset($eventData['password'], $eventData['admin_password']);
+            $userCreatedEvent = new UserCreatedEvent($eventData);
+            OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(
+                $userCreatedEvent,
+                UserCreatedEvent::EVENT_HANDLE
+            );
+
+            return ['uuid' => UuidRegistry::uuidToString($uuid)];
+        });
+
+        // updatePassword() returned false — validation errors already set
+        if ($created === null) {
             return $processingResult;
         }
 
-        // Generate UUID and update facility names
-        $uuid = UuidRegistry::getRegistryForTable('users')->createUuid();
-
-        QueryUtils::sqlStatementThrowException(
-            "UPDATE users, facility SET users.facility = facility.name, users.uuid = ? WHERE facility.id = ? AND users.username = ?",
-            [$uuid, $facilityId, $username]
-        );
-
-        if ($billingFacilityId !== '') {
-            QueryUtils::sqlStatementThrowException(
-                "UPDATE users, facility SET users.billing_facility = facility.name, users.uuid = ? WHERE facility.id = ? AND users.username = ?",
-                [$uuid, $billingFacilityId, $username]
-            );
-        }
-
-        // If no facility_id was provided, still set the UUID
-        if ($facilityId === '') {
-            QueryUtils::sqlStatementThrowException("UPDATE users SET uuid = ? WHERE BINARY username = ?", [$uuid, $username]);
-        }
-
-        // Insert into groups
-        QueryUtils::sqlStatementThrowException("INSERT INTO `groups` SET name = ?, user = ?", [$groupname, $username]);
-
-        // Set ACL groups
-        AclExtended::setUserAro($accessGroup, $username, $fname, $mname, $lname);
-
-        // Audit log
-        EventAuditLogger::getInstance()->newEvent(
-            'user-create',
-            self::strVal($session->get('authUser')),
-            self::strVal($session->get('authProvider')),
-            1,
-            "New user created via API: " . $username
-        );
-
-        // Dispatch event
-        $eventData = $data;
-        $eventData['uuid'] = UuidRegistry::uuidToString($uuid);
-        $eventData['username'] = $username;
-        unset($eventData['password'], $eventData['admin_password']);
-        $userCreatedEvent = new UserCreatedEvent($eventData);
-        OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch(
-            $userCreatedEvent,
-            UserCreatedEvent::EVENT_HANDLE
-        );
-
         // Return created user
         $processingResult->addData([
-            'uuid' => UuidRegistry::uuidToString($uuid),
+            'uuid' => $created['uuid'],
             'username' => $username,
             'fname' => $fname,
             'lname' => $lname,

@@ -25,7 +25,7 @@ class UserManagementApiTest extends TestCase
 
     private ApiTestClient $testClient;
 
-    /** @var list<string> UUIDs of users created during tests, for cleanup */
+    /** @var list<string> Usernames of users created during tests, for cleanup */
     private static array $createdUsernames = [];
 
     protected function setUp(): void
@@ -351,6 +351,127 @@ class UserManagementApiTest extends TestCase
         /** @var array<string, mixed> $validationErrors */
         $validationErrors = $body["validationErrors"] ?? [];
         $this->assertNotEmpty($validationErrors);
+    }
+
+    #[Test]
+    public function testPostWrongAdminPasswordReturns400(): void
+    {
+        $response = $this->testClient->post(self::API_ENDPOINT, [
+            "username" => "phpunit_badpass_" . bin2hex(random_bytes(4)),
+            "password" => "TestPass123!strong",
+            "admin_password" => "wrong_admin_password",
+            "fname" => "Bad",
+            "lname" => "AdminPass",
+            "access_group" => ["Physicians"],
+        ]);
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $validationErrors */
+        $validationErrors = $body["validationErrors"] ?? [];
+        $this->assertNotEmpty($validationErrors);
+        $this->assertArrayHasKey('admin_password', $validationErrors);
+    }
+
+    #[Test]
+    public function testPostInvalidFacilityIdReturns400(): void
+    {
+        $adminPass = getenv("OE_PASS", true) ?: "pass";
+        $response = $this->testClient->post(self::API_ENDPOINT, [
+            "username" => "phpunit_badfac_" . bin2hex(random_bytes(4)),
+            "password" => "TestPass123!strong",
+            "admin_password" => $adminPass,
+            "fname" => "Bad",
+            "lname" => "Facility",
+            "facility_id" => "999999",
+            "access_group" => ["Physicians"],
+        ]);
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $validationErrors */
+        $validationErrors = $body["validationErrors"] ?? [];
+        $this->assertNotEmpty($validationErrors);
+        $this->assertArrayHasKey('facility_id', $validationErrors);
+    }
+
+    #[Test]
+    public function testPostInvalidBillingFacilityIdReturns400(): void
+    {
+        $adminPass = getenv("OE_PASS", true) ?: "pass";
+        $response = $this->testClient->post(self::API_ENDPOINT, [
+            "username" => "phpunit_badbfac_" . bin2hex(random_bytes(4)),
+            "password" => "TestPass123!strong",
+            "admin_password" => $adminPass,
+            "fname" => "Bad",
+            "lname" => "BillingFacility",
+            "billing_facility_id" => "999999",
+            "access_group" => ["Physicians"],
+        ]);
+
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $validationErrors */
+        $validationErrors = $body["validationErrors"] ?? [];
+        $this->assertNotEmpty($validationErrors);
+        $this->assertArrayHasKey('billing_facility_id', $validationErrors);
+    }
+
+    #[Test]
+    public function testPostWithValidFacilityIdSucceeds(): void
+    {
+        $adminPass = getenv("OE_PASS", true) ?: "pass";
+        $username = "phpunit_fac_" . bin2hex(random_bytes(4));
+        $response = $this->testClient->post(self::API_ENDPOINT, [
+            "username" => $username,
+            "password" => "TestPass123!strong",
+            "admin_password" => $adminPass,
+            "fname" => "Facility",
+            "lname" => "User",
+            "facility_id" => "3",
+            "access_group" => ["Physicians"],
+        ]);
+
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $data */
+        $data = $body["data"] ?? [];
+        $this->assertNotEmpty($data["uuid"]);
+
+        self::$createdUsernames[] = $username;
+    }
+
+    #[Test]
+    public function testGetOneAndGetListReturnConsistentFields(): void
+    {
+        // Get the list and pick the first user
+        $listResponse = $this->testClient->get(self::API_ENDPOINT);
+        $listBody = $this->decodeResponse($listResponse);
+        /** @var list<array<string, mixed>> $listData */
+        $listData = $listBody["data"] ?? [];
+        $this->assertNotEmpty($listData);
+
+        $listUser = $listData[0];
+        /** @var string $uuid */
+        $uuid = $listUser["uuid"];
+
+        // Get the same user via the detail endpoint (returns unwrapped single object)
+        $detailResponse = $this->testClient->getOne(self::API_ENDPOINT, $uuid);
+        $detailBody = $this->decodeResponse($detailResponse);
+        /** @var array<string, mixed> $detailUser */
+        $detailUser = $detailBody["data"] ?? [];
+        $this->assertNotEmpty($detailUser);
+
+        // Both endpoints should return the same set of keys
+        $listKeys = array_keys($listUser);
+        $detailKeys = array_keys($detailUser);
+        sort($listKeys);
+        sort($detailKeys);
+        $this->assertEquals($listKeys, $detailKeys, 'GET list and GET detail should return the same field set');
     }
 
     // ----------------------------------------------------------------
