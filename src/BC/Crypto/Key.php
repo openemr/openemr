@@ -13,6 +13,8 @@ use OpenEMR\Encryption\Keys\Id;
 /**
  * Backwards-compatibility wrapper that translates the historic format=version
  * keys into the new Keychain-based names
+ *
+ * @deprecated
  */
 enum Key: string
 {
