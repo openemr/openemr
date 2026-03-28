@@ -35,6 +35,7 @@ enum MessageFormat
         $prefix = substr($message, 0, 3);
         return match ($prefix) {
             '001', '002', '003', '004', '005', '006', '007' => self::ImplicitKey,
+            // Future: 008 => ExplicitKey
             default => throw new ValueError('Unknown message format'),
             // default: plaintext?
         };
