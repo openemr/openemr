@@ -25,8 +25,8 @@ enum MessageFormat
 
     const LATEST = self::ImplicitKey;
 
-    // This is effectively BackedEnum's `::from`, rejiggered in
-    // a backwards-compatible way
+    // This is effectively BackedEnum's `::from`, adjusted to the way the
+    // historic encrypted messages were structured.
     public static function detect(string $message): MessageFormat
     {
         if (strlen($message) < 3) {

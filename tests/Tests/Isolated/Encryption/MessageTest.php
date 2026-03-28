@@ -110,6 +110,7 @@ class MessageTest extends TestCase
 
     public function testParseThrowsOnEmptyMessage(): void
     {
+        // This test may be removed if plaintext support is added.
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Message is missing expected prefix');
         Message::parse('');
@@ -125,7 +126,7 @@ class MessageTest extends TestCase
     public function testParseThrowsOnInvalidVersion(): void
     {
         $this->expectException(\ValueError::class);
-        // Version 999 doesn't exist in MessageFormat enum
+        // Version 999 is an invalid prefix.
         Message::parse('999' . base64_encode('test'));
     }
 }
