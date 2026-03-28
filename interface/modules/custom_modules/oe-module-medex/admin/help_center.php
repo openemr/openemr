@@ -101,6 +101,7 @@ foreach ($readinessChecklist as $readinessItem) {
             grid-template-columns: 1.1fr 1fr;
             gap: 18px;
             margin-bottom: 18px;
+            align-items: stretch;
         }
         .panel {
             background: #fff;
@@ -156,14 +157,20 @@ foreach ($readinessChecklist as $readinessItem) {
             border: 1px solid #bfdbfe;
             border-radius: 12px;
             background: #0b2340;
-            min-height: 260px;
             overflow: hidden;
+            height: 100%;
         }
         .video-box iframe {
             width: 100%;
             height: 100%;
-            min-height: 260px;
             border: 0;
+        }
+        .video-panel {
+            display: flex;
+        }
+        .video-panel .video-box {
+            flex: 1 1 auto;
+            min-height: 0;
         }
         .video-fallback {
             color: #dbeafe;
@@ -282,7 +289,7 @@ foreach ($readinessChecklist as $readinessItem) {
 <body>
 <div class="wrap">
     <div class="hero">
-        <section class="panel">
+        <section class="panel video-panel">
             <h1 class="title"><?php echo xlt('MedEx Help Center'); ?></h1>
             <p class="subtitle">
                 <?php echo xlt('Use this quick visual guide to onboard safely, verify your practice identity, and activate services without breaking your live workflow.'); ?>
