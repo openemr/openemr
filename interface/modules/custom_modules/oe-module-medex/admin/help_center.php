@@ -302,7 +302,7 @@ foreach ($readinessChecklist as $readinessItem) {
 <body>
 <div class="wrap">
     <div class="hero">
-        <section class="panel video-panel">
+        <section class="panel help-left">
             <h1 class="title"><?php echo xlt('MedEx Help Center'); ?></h1>
             <p class="subtitle">
                 <?php echo xlt('Use this quick visual guide to onboard safely, verify your practice identity, and activate services without breaking your live workflow.'); ?>
@@ -341,7 +341,7 @@ foreach ($readinessChecklist as $readinessItem) {
             </div>
             <span class="pill"><?php echo xlt('For practice administrators only'); ?></span>
         </section>
-        <section class="panel help-left">
+        <section class="panel video-panel">
             <div class="video-box">
                 <?php if ($hasTutorial): ?>
                     <iframe src="<?php echo attr($tutorialUrl); ?>" allowfullscreen title="<?php echo attr(xl('MedEx tutorial video')); ?>"></iframe>
