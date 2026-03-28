@@ -232,8 +232,21 @@ foreach ($serviceSources as $svcId => $priceInfo) {
         $price = (float)$priceInfo['monthly_cost'];
     }
 
+    $serviceName = $priceInfo['name'] ?? ucwords(str_replace('_', ' ', $svcId));
+    if (
+        $svcId === 'appointment_reminders'
+        && (
+            !is_string($serviceName)
+            || trim($serviceName) === ''
+            || preg_match('/a\\s*la\\s*carte/i', $serviceName)
+        )
+    ) {
+        // Legacy API payloads may still label this as "a la carte".
+        $serviceName = 'Monthly Reminder Service';
+    }
+
     $serviceDefinitions[$svcId] = [
-        'name'           => $priceInfo['name'] ?? ucwords(str_replace('_', ' ', $svcId)),
+        'name'           => $serviceName,
         'description'    => $meta['description'] ?? 'MedEx service — see hipaabank.net for details',
         'icon'           => $meta['icon'] ?? 'fas fa-gear',
         'price'          => $price,
@@ -2348,131 +2361,6 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
         </div>
 </div>
 
-<!-- A la Carte Credits & Auto-Refill Panel -->
-<div class="panel" id="alacarte-panel" style="margin-top: 20px;">
-    <h3><i class="fas fa-coins"></i> <?php echo xlt('A La Carte Credits'); ?></h3>
-
-    <?php if ($isDemoCustomer): ?>
-    <div class="alert alert-info" style="margin-bottom: 0;">
-        <i class="fas fa-info-circle"></i>
-        <?php echo xlt('Demo accounts — billing is bypassed. Credits are not consumed.'); ?>
-    </div>
-    <?php else: ?>
-
-    <div style="display: flex; align-items: center; gap: 24px; flex-wrap: wrap; margin-bottom: 20px;">
-        <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 16px 24px; text-align: center; min-width: 160px;">
-            <div style="font-size: 28px; font-weight: 700; color: #28a745;" id="credit-balance-display">
-                $<?php echo number_format($creditBalance, 2); ?>
-            </div>
-            <div style="font-size: 12px; color: #666; margin-top: 4px;"><?php echo xlt('Current Balance'); ?></div>
-        </div>
-        <div style="font-size: 13px; color: #666; flex: 1; min-width: 200px;">
-            <?php echo xlt('Credits are deducted per message sent (SMS, voice, email). When your balance runs low, auto-refill can top it up automatically using your card on file.'); ?>
-        </div>
-    </div>
-
-    <form id="recharge-settings-form" style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px;">
-        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-            <label class="toggle-switch" style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 0;">
-                <input type="checkbox" id="recharge-on-toggle" <?php echo $rechargeOn ? 'checked' : ''; ?>
-                    onchange="toggleRechargeFields()" style="width: 18px; height: 18px; cursor: pointer;">
-                <span style="font-weight: 600; font-size: 15px;"><?php echo xlt('Enable Auto-Refill'); ?></span>
-            </label>
-        </div>
-
-        <div id="recharge-fields" style="display: <?php echo $rechargeOn ? 'block' : 'none'; ?>;">
-            <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-end;">
-                <div style="flex: 1; min-width: 160px;">
-                    <label for="recharge-point" style="display: block; font-size: 13px; color: #555; margin-bottom: 4px; font-weight: 600;">
-                        <?php echo xlt('Refill when balance drops below'); ?>
-                    </label>
-                    <div style="position: relative;">
-                        <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #666;">$</span>
-                        <input type="number" id="recharge-point" min="1" max="9999" step="0.01"
-                            value="<?php echo attr($rechargePoint); ?>"
-                            style="padding: 8px 8px 8px 22px; border: 1px solid #ccc; border-radius: 4px; width: 100%; font-size: 14px;">
-                    </div>
-                </div>
-                <div style="flex: 1; min-width: 160px;">
-                    <label for="recharge-amt" style="display: block; font-size: 13px; color: #555; margin-bottom: 4px; font-weight: 600;">
-                        <?php echo xlt('Refill amount'); ?>
-                    </label>
-                    <div style="position: relative;">
-                        <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #666;">$</span>
-                        <input type="number" id="recharge-amt" min="10" max="9999" step="1"
-                            value="<?php echo attr($rechargeAmt ?: 50); ?>"
-                            style="padding: 8px 8px 8px 22px; border: 1px solid #ccc; border-radius: 4px; width: 100%; font-size: 14px;">
-                    </div>
-                </div>
-                <div style="flex: 0 0 auto;">
-                    <button type="button" onclick="saveRechargeSettings()"
-                        style="padding: 9px 20px; background: #667eea; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 14px;">
-                        <i class="fas fa-save"></i> <?php echo xlt('Save'); ?>
-                    </button>
-                </div>
-            </div>
-            <p style="margin: 12px 0 0; font-size: 12px; color: #888;">
-                <i class="fas fa-info-circle"></i>
-                <?php echo xlt('Your stored payment method will be charged automatically by the nightly job when the balance falls below your threshold.'); ?>
-            </p>
-        </div>
-
-        <div id="recharge-status-msg" style="display: none; margin-top: 12px;"></div>
-    </form>
-    <?php endif; ?>
-</div>
-
-<script>
-function toggleRechargeFields() {
-    const on = document.getElementById('recharge-on-toggle').checked;
-    document.getElementById('recharge-fields').style.display = on ? 'block' : 'none';
-    if (!on) { saveRechargeSettings(); } // save the off state immediately
-}
-
-function saveRechargeSettings() {
-    const on    = document.getElementById('recharge-on-toggle') ? (document.getElementById('recharge-on-toggle').checked ? 1 : 0) : 0;
-    const point = document.getElementById('recharge-point') ? parseFloat(document.getElementById('recharge-point').value) || 0 : 0;
-    const amt   = document.getElementById('recharge-amt')   ? parseInt(document.getElementById('recharge-amt').value)   || 0 : 0;
-    const msg   = document.getElementById('recharge-status-msg');
-
-    const baseUrl = <?php echo json_encode(($api->getBaseUrl() ?? '') . '/index.php?route=api/oemr/updaterecharge&token=' . urlencode($api->getSessionToken())); ?>;
-
-    fetch(baseUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: 'recharge_on=' + on + '&recharge_point=' + point + '&recharge_amt=' + amt
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) {
-            if (data.credit_balance !== undefined) {
-                const el = document.getElementById('credit-balance-display');
-                if (el) el.textContent = '$' + parseFloat(data.credit_balance).toFixed(2);
-            }
-            if (msg) {
-                msg.style.display = 'block';
-                msg.style.color   = '#28a745';
-                msg.innerHTML     = '<i class="fas fa-check-circle"></i> <?php echo xlt('Saved.'); ?>';
-                setTimeout(() => { msg.style.display = 'none'; }, 2500);
-            }
-        } else {
-            if (msg) {
-                msg.style.display = 'block';
-                msg.style.color   = '#dc3545';
-                msg.innerHTML     = '<i class="fas fa-exclamation-circle"></i> ' + (data.error || '<?php echo xlt('Save failed.'); ?>');
-            }
-        }
-    })
-    .catch(err => {
-        if (msg) {
-            msg.style.display = 'block';
-            msg.style.color   = '#dc3545';
-            msg.innerHTML     = '<i class="fas fa-exclamation-circle"></i> <?php echo xlt('Network error.'); ?>';
-        }
-    });
-}
-</script>
-
 </div><!-- Close subscription-container -->
 
 <script>
@@ -2763,7 +2651,7 @@ function saveProvidersAndFacilities(serviceId) {
 
     // Save via AJAX
     const formData = new FormData();
-    formData.append('csrf_token_form', <?php echo json_encode(CsrfUtils::collectCsrfToken(session: $session)); ?>);
+    formData.append('csrf_token_form', <?php echo json_encode(CsrfUtils::collectCsrfToken()); ?>);
     formData.append('service_id', serviceId);
     formData.append('providers', selectedProviders.join('|'));
     formData.append('facilities', selectedFacilities.join('|'));
@@ -3203,8 +3091,13 @@ function removeService(serviceId) {
 
 // Get service display name
 function getServiceName(serviceId) {
+    const fromApi = window.serviceDefinitions?.[serviceId]?.name;
+    if (fromApi && String(fromApi).trim() !== '') {
+        return fromApi;
+    }
+
     const names = {
-        'appointment_reminders': 'MedEx Messaging',
+        'appointment_reminders': 'Monthly Reminder Service',
         'secure_chat': 'Secure Patient Chat',
         'calendar_export': 'Calendar Export',
         'calendar_full': 'Full Calendar View',
@@ -3317,7 +3210,7 @@ function processSubscriptionChanges() {
 
     // Build request data - only use existing payment if token exists
     const requestData = {
-        csrf_token: <?php echo json_encode(CsrfUtils::collectCsrfToken(session: $session)); ?>,
+        csrf_token: <?php echo json_encode(CsrfUtils::collectCsrfToken()); ?>,
         add: window.pendingChanges.add,
         remove: window.pendingChanges.remove,
         use_existing_payment: hasAdditions && hasPaymentOnFile,
@@ -3422,7 +3315,7 @@ window.processPayment = function processPayment() {
             return;
         }
         const requestData = {
-            csrf_token: <?php echo json_encode(CsrfUtils::collectCsrfToken(session: $session)); ?>,
+            csrf_token: <?php echo json_encode(CsrfUtils::collectCsrfToken()); ?>,
             add: window.pendingChanges.add,
             remove: window.pendingChanges.remove,
             payment_nonce: payload.nonce,
