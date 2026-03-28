@@ -115,6 +115,7 @@ foreach ($readinessChecklist as $readinessItem) {
             flex-direction: column !important;
             align-items: stretch;
             gap: 12px;
+            height: 100%;
         }
         .title {
             font-size: 34px;
