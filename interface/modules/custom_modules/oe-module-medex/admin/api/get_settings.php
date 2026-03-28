@@ -36,11 +36,27 @@ if (!$prefs) $prefs = [];
 
 $globalConfig = \OpenEMR\Common\Database\QueryUtils::querySingleRow("SELECT
     MAX(CASE WHEN gl_name = 'medex_api_key' THEN gl_value END) as medex_api_key,
-    MAX(CASE WHEN gl_name = 'medex_practice_id' THEN gl_value END) as medex_practice_id
-    FROM globals WHERE gl_name IN ('medex_api_key', 'medex_practice_id')", []);
+    MAX(CASE WHEN gl_name = 'medex_practice_id' THEN gl_value END) as medex_practice_id,
+    MAX(CASE WHEN gl_name = 'medex_bill_notify_receipts' THEN gl_value END) as medex_bill_notify_receipts,
+    MAX(CASE WHEN gl_name = 'medex_bill_notify_failures' THEN gl_value END) as medex_bill_notify_failures,
+    MAX(CASE WHEN gl_name = 'medex_bill_notify_cancellations' THEN gl_value END) as medex_bill_notify_cancellations,
+    MAX(CASE WHEN gl_name = 'medex_bill_notify_email' THEN gl_value END) as medex_bill_notify_email
+    FROM globals
+    WHERE gl_name IN (
+        'medex_api_key',
+        'medex_practice_id',
+        'medex_bill_notify_receipts',
+        'medex_bill_notify_failures',
+        'medex_bill_notify_cancellations',
+        'medex_bill_notify_email'
+    )", []);
 
 $medex_api_key = $globalConfig['medex_api_key'] ?? '';
 $medex_practice_id = $globalConfig['medex_practice_id'] ?? '';
+$billingNotifyReceipts = (($globalConfig['medex_bill_notify_receipts'] ?? '1') !== '0');
+$billingNotifyFailures = (($globalConfig['medex_bill_notify_failures'] ?? '1') !== '0');
+$billingNotifyCancellations = (($globalConfig['medex_bill_notify_cancellations'] ?? '1') !== '0');
+$billingNotifyEmail = trim((string)($globalConfig['medex_bill_notify_email'] ?? ($prefs['ME_username'] ?? '')));
 ?>
 
 <style>
@@ -76,7 +92,7 @@ $medex_practice_id = $globalConfig['medex_practice_id'] ?? '';
 </style>
 
 <form id="settings-form">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
     <div class="settings-grid">
         <!-- HIPAA Defaults -->
@@ -138,6 +154,31 @@ $medex_practice_id = $globalConfig['medex_practice_id'] ?? '';
             <button type="button" class="btn-advanced" onclick="showAdvancedModal()">
                 <i class="fa fa-exclamation-triangle"></i> <?php echo xlt('Disconnect Account'); ?>
             </button>
+        </div>
+
+        <!-- Billing Notifications -->
+        <div class="settings-card">
+            <h4><i class="fa fa-receipt"></i> <?php echo xlt('Billing Notifications'); ?></h4>
+            <input type="hidden" name="ME_bill_notify_receipts_present" value="1">
+            <input type="hidden" name="ME_bill_notify_failures_present" value="1">
+            <input type="hidden" name="ME_bill_notify_cancellations_present" value="1">
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" name="ME_bill_notify_receipts" id="ME_bill_notify_receipts" value="1" <?php echo $billingNotifyReceipts ? 'checked' : ''; ?>>
+                <label class="form-check-label" for="ME_bill_notify_receipts"><?php echo xlt('Send payment receipts'); ?></label>
+            </div>
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" name="ME_bill_notify_failures" id="ME_bill_notify_failures" value="1" <?php echo $billingNotifyFailures ? 'checked' : ''; ?>>
+                <label class="form-check-label" for="ME_bill_notify_failures"><?php echo xlt('Send payment failure alerts'); ?></label>
+            </div>
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" name="ME_bill_notify_cancellations" id="ME_bill_notify_cancellations" value="1" <?php echo $billingNotifyCancellations ? 'checked' : ''; ?>>
+                <label class="form-check-label" for="ME_bill_notify_cancellations"><?php echo xlt('Send cancellation/proration receipts'); ?></label>
+            </div>
+            <div class="form-group" style="margin-top: 8px;">
+                <label for="ME_bill_notify_email"><?php echo xlt('Billing notification email'); ?></label>
+                <input type="email" class="form-control form-control-sm" name="ME_bill_notify_email" id="ME_bill_notify_email" value="<?php echo attr($billingNotifyEmail); ?>" placeholder="support@medexbank.com">
+                <div class="help-text"><?php echo xlt('Practice-wide destination for MedEx billing notices.'); ?></div>
+            </div>
         </div>
     </div>
 
@@ -205,7 +246,7 @@ function disconnectMedEx() {
     fetch('../admin/disconnect.php', {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'csrf_token_form=' + encodeURIComponent('<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>')
+        body: 'csrf_token_form=' + encodeURIComponent('<?php echo attr(CsrfUtils::collectCsrfToken()); ?>')
     })
     .then(r => r.json())
     .then(data => {

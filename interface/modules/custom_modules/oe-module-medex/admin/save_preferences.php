@@ -26,7 +26,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 }
 
 // Verify CSRF token
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', $session)) {
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', 'default')) {
     echo json_encode(['success' => false, 'error' => 'Invalid security token']);
     exit;
 }
@@ -34,10 +34,58 @@ if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', $session)) {
 error_log('[MedEx save_preferences] Called with POST data: ' . json_encode($_POST));
 
 try {
+    $getGlobalPref = function (string $name, string $default = ''): string {
+        $row = \OpenEMR\Common\Database\QueryUtils::querySingleRow(
+            "SELECT gl_value FROM globals WHERE gl_name = ? ORDER BY gl_index DESC LIMIT 1",
+            [$name]
+        );
+        return isset($row['gl_value']) ? (string)$row['gl_value'] : $default;
+    };
+
     // Handle global configuration settings
     if (isset($_POST['medex_enable'])) {
         \OpenEMR\Common\Database\QueryUtils::sqlStatementThrowException("REPLACE INTO globals (gl_name, gl_index, gl_value) VALUES ('medex_enable', 0, ?)", [$_POST['medex_enable']]);
     }
+
+    $bill_notify_receipts_current = $getGlobalPref('medex_bill_notify_receipts', '1');
+    $bill_notify_failures_current = $getGlobalPref('medex_bill_notify_failures', '1');
+    $bill_notify_cancellations_current = $getGlobalPref('medex_bill_notify_cancellations', '1');
+    $bill_notify_email_current = $getGlobalPref('medex_bill_notify_email', '');
+
+    $bill_notify_receipts = isset($_POST['ME_bill_notify_receipts_present'])
+        ? (isset($_POST['ME_bill_notify_receipts']) ? '1' : '0')
+        : $bill_notify_receipts_current;
+    $bill_notify_failures = isset($_POST['ME_bill_notify_failures_present'])
+        ? (isset($_POST['ME_bill_notify_failures']) ? '1' : '0')
+        : $bill_notify_failures_current;
+    $bill_notify_cancellations = isset($_POST['ME_bill_notify_cancellations_present'])
+        ? (isset($_POST['ME_bill_notify_cancellations']) ? '1' : '0')
+        : $bill_notify_cancellations_current;
+    $bill_notify_email = isset($_POST['ME_bill_notify_email'])
+        ? trim((string)$_POST['ME_bill_notify_email'])
+        : $bill_notify_email_current;
+
+    if ($bill_notify_email !== '' && !filter_var($bill_notify_email, FILTER_VALIDATE_EMAIL)) {
+        echo json_encode(['success' => false, 'error' => 'Billing notification email is invalid']);
+        exit;
+    }
+
+    \OpenEMR\Common\Database\QueryUtils::sqlStatementThrowException(
+        "REPLACE INTO globals (gl_name, gl_index, gl_value) VALUES ('medex_bill_notify_receipts', 0, ?)",
+        [$bill_notify_receipts]
+    );
+    \OpenEMR\Common\Database\QueryUtils::sqlStatementThrowException(
+        "REPLACE INTO globals (gl_name, gl_index, gl_value) VALUES ('medex_bill_notify_failures', 0, ?)",
+        [$bill_notify_failures]
+    );
+    \OpenEMR\Common\Database\QueryUtils::sqlStatementThrowException(
+        "REPLACE INTO globals (gl_name, gl_index, gl_value) VALUES ('medex_bill_notify_cancellations', 0, ?)",
+        [$bill_notify_cancellations]
+    );
+    \OpenEMR\Common\Database\QueryUtils::sqlStatementThrowException(
+        "REPLACE INTO globals (gl_name, gl_index, gl_value) VALUES ('medex_bill_notify_email', 0, ?)",
+        [$bill_notify_email]
+    );
 
     // Background services removed; sync frequency is managed by the module externally.
     if (isset($_POST['execute_interval'])) {
