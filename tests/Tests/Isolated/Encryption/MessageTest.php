@@ -60,10 +60,11 @@ class MessageTest extends TestCase
         }
     }
 
-    public function testParseRoundtrip(): void
+    public function testParseRoundtripImplicitFormat(): void
     {
         $data = $this->fixtures->getCiphertext(7);
         $message = Message::parse($data);
+        assert($message->format === MessageFormat::ImplicitKey);
         $reencoded = $message->encode();
         self::assertSame($data, $reencoded);
     }
@@ -90,7 +91,7 @@ class MessageTest extends TestCase
         self::assertSame($data, $message->encode(), 'Roundtrip encoding failed');
     }
 
-    public function testConstructWithExplicitFormat(): void
+    public function testConstructWithImplicitKeyFormat(): void
     {
         $keyId = new Id('legacy-key-number-needing-remapping');
         $ciphertext = new Ciphertext('test data');

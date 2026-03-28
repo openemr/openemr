@@ -29,7 +29,9 @@ final readonly class Message
         $format = MessageFormat::detect($encodedMessage);
         return match ($format) {
             MessageFormat::ImplicitKey => self::parseImplicitKey($encodedMessage),
+            // @codeCoverageIgnoreStart
             MessageFormat::UnusedCaseToSupportConditionals => throw new BadMethodCallException('Unhandled message type'),
+            // @codeCoverageIgnoreEnd
         };
     }
 
@@ -65,13 +67,18 @@ final readonly class Message
     {
         return match ($this->format) {
             MessageFormat::ImplicitKey => $this->encodeImplicitKey(),
+            // @codeCoverageIgnoreStart
             MessageFormat::UnusedCaseToSupportConditionals => throw new BadMethodCallException('Unhandled message type'),
+            // @codeCoverageIgnoreEnd
         };
     }
 
     private function encodeImplicitKey(): string
     {
         assert($this->format === MessageFormat::ImplicitKey);
+        if (!preg_match('/^00[1-7]$/', $this->keyId->id)) {
+            throw new BadMethodCallException('Only legacy key versions can use ImplicitKey format');
+        }
         return sprintf('%s%s',
             $this->keyId->id,
             base64_encode($this->ciphertext->wrapped),
