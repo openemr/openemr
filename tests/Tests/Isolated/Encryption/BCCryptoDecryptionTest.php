@@ -51,7 +51,6 @@ final class BCCryptoDecryptionTest extends TestCase
         $this->crypto = new BCCrypto(
             $keychain,
             new NullLogger(),
-            new Id('seven-drive'),
         );
     }
 
@@ -155,7 +154,8 @@ final class BCCryptoDecryptionTest extends TestCase
     {
         $ciphertext = self::$fixtures->getCiphertext(7);
 
-        $decoded = base64_decode(substr($ciphertext, 3));
+        $decoded = base64_decode(substr($ciphertext, 3), strict: true);
+        assert($decoded !== false);
         $tampered = chr(ord($decoded[0]) ^ 0xFF) . substr($decoded, 1);
         $tamperedCiphertext = '007' . base64_encode($tampered);
 

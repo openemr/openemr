@@ -141,7 +141,8 @@ final class BCCryptoDecryptionTest extends TestCase
         $ciphertext = self::$fixtureManager->getCiphertext(7);
 
         // Decode, tamper with first byte of HMAC, re-encode
-        $decoded = base64_decode(substr($ciphertext, 3));
+        $decoded = base64_decode(substr($ciphertext, 3), strict: true);
+        assert($decoded !== false);
         $tampered = chr(ord($decoded[0]) ^ 0xFF) . substr($decoded, 1);
         $tamperedCiphertext = '007' . base64_encode($tampered);
 
