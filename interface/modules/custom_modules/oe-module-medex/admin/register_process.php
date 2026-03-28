@@ -328,7 +328,16 @@ function medexNormalizeSmsDestination(string $sms): string
 
 function medexValidateOtpProof(string $email, string $channel, string $smsDestination, string $proof): array
 {
-    $state = $_SESSION['medex_onboarding_otp'] ?? null;
+    global $session;
+    $key = 'medex_onboarding_otp';
+    $state = null;
+    if (isset($session) && is_object($session) && method_exists($session, 'get')) {
+        $state = $session->get($key, null);
+    }
+    if (!is_array($state)) {
+        $raw = $_SESSION[$key] ?? null;
+        $state = is_array($raw) ? $raw : null;
+    }
     if (!is_array($state)) {
         return [false, 'Send and verify your one-time password before continuing'];
     }
@@ -359,7 +368,12 @@ function medexValidateOtpProof(string $email, string $channel, string $smsDestin
 
 function medexClearOtpSession(): void
 {
-    unset($_SESSION['medex_onboarding_otp']);
+    global $session;
+    $key = 'medex_onboarding_otp';
+    if (isset($session) && is_object($session) && method_exists($session, 'remove')) {
+        $session->remove($key);
+    }
+    unset($_SESSION[$key]);
 }
 
 // Set JSON response header

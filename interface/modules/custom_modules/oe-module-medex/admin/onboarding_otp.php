@@ -42,6 +42,40 @@ function medexOtpSessionKey(): string
     return 'medex_onboarding_otp';
 }
 
+function medexGetOtpState()
+{
+    global $session;
+    $key = medexOtpSessionKey();
+    if (isset($session) && is_object($session) && method_exists($session, 'get')) {
+        $val = $session->get($key, null);
+        if (is_array($val)) {
+            return $val;
+        }
+    }
+    $raw = $_SESSION[$key] ?? null;
+    return is_array($raw) ? $raw : null;
+}
+
+function medexSetOtpState(array $state): void
+{
+    global $session;
+    $key = medexOtpSessionKey();
+    if (isset($session) && is_object($session) && method_exists($session, 'set')) {
+        $session->set($key, $state);
+    }
+    $_SESSION[$key] = $state;
+}
+
+function medexClearOtpState(): void
+{
+    global $session;
+    $key = medexOtpSessionKey();
+    if (isset($session) && is_object($session) && method_exists($session, 'remove')) {
+        $session->remove($key);
+    }
+    unset($_SESSION[$key]);
+}
+
 function medexNormalizeOtpChannel(string $channel): string
 {
     $channel = strtolower(trim($channel));
@@ -379,7 +413,7 @@ if ($action === 'send') {
 
     medexAuditOtpDecision('send', $channel, $destination, ($channel === 'sms' ? '1' : ''), 'allow', 'sent');
 
-    $_SESSION[medexOtpSessionKey()] = [
+    medexSetOtpState([
         'channel' => $channel,
         'destination' => $destination,
         'email' => $email,
@@ -389,7 +423,7 @@ if ($action === 'send') {
         'attempts' => 0,
         'verified' => false,
         'proof' => '',
-    ];
+    ]);
 
     $response = ['success' => true, 'message' => 'One-time password sent.'];
     if ($debugOtpCode !== '') {
@@ -399,7 +433,7 @@ if ($action === 'send') {
     exit;
 }
 
-$state = $_SESSION[medexOtpSessionKey()] ?? null;
+$state = medexGetOtpState();
 if (!is_array($state)) {
     medexAuditOtpDecision('verify', $channel, $destination, '', 'reject', 'no_state');
     echo json_encode(['success' => false, 'error' => 'Send one-time password first']);
@@ -411,7 +445,7 @@ if (($state['channel'] ?? '') !== $channel || ($state['destination'] ?? '') !== 
     exit;
 }
 if ((int)($state['expires_at'] ?? 0) < time()) {
-    unset($_SESSION[medexOtpSessionKey()]);
+    medexClearOtpState();
     medexAuditOtpDecision('verify', $channel, $destination, '', 'reject', 'expired');
     echo json_encode(['success' => false, 'error' => 'One-time password expired. Send a new code.']);
     exit;
@@ -427,14 +461,14 @@ if (!preg_match('/^\d{6}$/', $code)) {
 $attempts = (int)($state['attempts'] ?? 0) + 1;
 $state['attempts'] = $attempts;
 if ($attempts > 5) {
-    unset($_SESSION[medexOtpSessionKey()]);
+    medexClearOtpState();
     medexAuditOtpDecision('verify', $channel, $destination, '', 'reject', 'too_many_attempts');
     echo json_encode(['success' => false, 'error' => 'Too many invalid attempts. Send a new one-time password.']);
     exit;
 }
 
 if (!password_verify($code, (string)($state['code_hash'] ?? ''))) {
-    $_SESSION[medexOtpSessionKey()] = $state;
+    medexSetOtpState($state);
     medexAuditOtpDecision('verify', $channel, $destination, '', 'reject', 'incorrect_code');
     echo json_encode(['success' => false, 'error' => 'Incorrect one-time password']);
     exit;
@@ -444,7 +478,7 @@ $proof = bin2hex(random_bytes(16));
 $state['verified'] = true;
 $state['verified_at'] = time();
 $state['proof'] = $proof;
-$_SESSION[medexOtpSessionKey()] = $state;
+medexSetOtpState($state);
 medexAuditOtpDecision('verify', $channel, $destination, '', 'allow', 'verified');
 
 echo json_encode([
