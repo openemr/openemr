@@ -49,10 +49,8 @@ try {
     // Keep checklist render resilient.
 }
 
-$emailReady = (bool)filter_var($adminEmail, FILTER_VALIDATE_EMAIL);
 $practiceDataReady = ($providerCount > 0 && $facilityCount > 0);
-$agreementsReady = $isConfigured;
-$checklist = [
+$readinessChecklist = [
     [
         'label' => xlt('Production OpenEMR URL uses HTTPS and looks publicly reachable'),
         'ok' => $urlReady,
@@ -63,17 +61,14 @@ $checklist = [
         'ok' => $practiceDataReady,
         'detail' => xlt('Providers') . ': ' . $providerCount . ' | ' . xlt('Facilities') . ': ' . $facilityCount
     ],
-    [
-        'label' => xlt('Practice administrator email is valid'),
-        'ok' => $emailReady,
-        'detail' => $emailReady ? $adminEmail : xlt('No valid MedEx admin email found yet.')
-    ],
-    [
-        'label' => xlt('Terms/BAA step has been completed in onboarding'),
-        'ok' => $agreementsReady,
-        'detail' => $agreementsReady ? xlt('MedEx account is configured.') : xlt('Not configured yet; complete onboarding first.')
-    ],
 ];
+$allReadinessPassed = true;
+foreach ($readinessChecklist as $readinessItem) {
+    if (empty($readinessItem['ok'])) {
+        $allReadinessPassed = false;
+        break;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -144,6 +139,13 @@ $checklist = [
             background: var(--brand);
             color: #fff;
         }
+        .btn-disabled {
+            background: #cbd5e1;
+            color: #475569;
+            border-color: #cbd5e1;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
         .btn-secondary {
             background: #fff;
             color: var(--brand);
@@ -201,7 +203,7 @@ $checklist = [
             line-height: 1.45;
         }
         .checklist {
-            margin-top: 16px;
+            margin-top: 14px;
             background: #fff;
             border: 1px solid var(--line);
             border-radius: 12px;
@@ -280,10 +282,30 @@ $checklist = [
             <p class="subtitle">
                 <?php echo xlt('Use this quick visual guide to onboard safely, verify your practice identity, and activate services without breaking your live workflow.'); ?>
             </p>
+            <section class="checklist" style="margin-bottom: 14px;">
+                <h3><?php echo xlt('Live Readiness Checklist'); ?></h3>
+                <?php foreach ($readinessChecklist as $item): ?>
+                    <div class="check-row">
+                        <div class="check-icon <?php echo $item['ok'] ? 'ok' : 'bad'; ?>">
+                            <i class="fa <?php echo $item['ok'] ? 'fa-check-circle' : 'fa-times-circle'; ?>"></i>
+                        </div>
+                        <div>
+                            <div class="check-label"><?php echo text($item['label']); ?></div>
+                            <div class="check-detail"><?php echo text($item['detail']); ?></div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </section>
             <div class="actions">
-                <a class="btn btn-primary" href="<?php echo attr($startUrl); ?>">
-                    <i class="fa fa-rocket"></i> <?php echo xlt('Start Onboarding'); ?>
-                </a>
+                <?php if ($allReadinessPassed): ?>
+                    <a class="btn btn-primary" href="<?php echo attr($startUrl); ?>">
+                        <i class="fa fa-rocket"></i> <?php echo xlt('Start Onboarding'); ?>
+                    </a>
+                <?php else: ?>
+                    <span class="btn btn-primary btn-disabled" title="<?php echo attr(xl('Complete all readiness checks to enable onboarding')); ?>">
+                        <i class="fa fa-lock"></i> <?php echo xlt('Start Onboarding'); ?>
+                    </span>
+                <?php endif; ?>
                 <?php if ($hasTutorial): ?>
                     <a class="btn btn-secondary" href="<?php echo attr($tutorialUrl); ?>" target="_blank" rel="noopener noreferrer">
                         <i class="fa fa-play-circle"></i> <?php echo xlt('Open Full Tutorial Video'); ?>
@@ -329,20 +351,6 @@ $checklist = [
         </article>
     </section>
 
-    <section class="checklist">
-        <h3><?php echo xlt('Live Readiness Checklist'); ?></h3>
-        <?php foreach ($checklist as $item): ?>
-            <div class="check-row">
-                <div class="check-icon <?php echo $item['ok'] ? 'ok' : 'bad'; ?>">
-                    <i class="fa <?php echo $item['ok'] ? 'fa-check-circle' : 'fa-times-circle'; ?>"></i>
-                </div>
-                <div>
-                    <div class="check-label"><?php echo text($item['label']); ?></div>
-                    <div class="check-detail"><?php echo text($item['detail']); ?></div>
-                </div>
-            </div>
-        <?php endforeach; ?>
-    </section>
 </div>
 </body>
 </html>
