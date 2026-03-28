@@ -324,9 +324,57 @@ $siteId = (string)($_GET['site'] ?? 'default');
         }
     }
 
+    function inferStatusFromModuleRow() {
+        const topDoc = (window.top && window.top.document) ? window.top.document : document;
+        const rows = Array.from(topDoc.querySelectorAll('tr'));
+        const row = rows.find((tr) => {
+            const t = (tr.textContent || '').toLowerCase();
+            return t.includes('oe-module-medex') || t.includes('medex module');
+        });
+        if (!row) {
+            return null;
+        }
+
+        const text = (row.textContent || '').toLowerCase();
+        const hasInstall = text.includes('install');
+        const hasEnable = text.includes('enable');
+        const hasDisable = text.includes('disable');
+
+        let installed = true;
+        let enabled = false;
+        if (hasInstall && !hasEnable && !hasDisable) {
+            installed = false;
+            enabled = false;
+        } else if (hasEnable && !hasDisable) {
+            installed = true;
+            enabled = false;
+        } else if (hasDisable) {
+            installed = true;
+            enabled = true;
+        }
+
+        const nextAction = !installed ? 'install' : (!enabled ? 'enable' : 'configure');
+        return {
+            mod_id: initStatus.mod_id || 0,
+            installed,
+            enabled,
+            dashboard_ready: enabled,
+            next_action: nextAction
+        };
+    }
+
     async function refresh() {
+        const inferred = inferStatusFromModuleRow();
+        if (inferred) {
+            render(inferred);
+            return;
+        }
+        // Fallback once if row is not found.
         try {
-            const r = await fetch('show_help_setup.php?action=status&site=default', { cache: 'no-store' });
+            const r = await fetch('show_help_setup.php?action=status&site=default', { cache: 'no-store', credentials: 'same-origin' });
+            if (r.status === 401) {
+                return;
+            }
             const j = await r.json();
             if (j && j.success && j.status) {
                 render(j.status);
@@ -352,17 +400,13 @@ $siteId = (string)($_GET['site'] ?? 'default');
             await runManageAction('enable');
             setTimeout(refresh, 1000);
             setTimeout(refresh, 2500);
-            setTimeout(async () => {
-                await refresh();
-                try {
-                    const r = await fetch('show_help_setup.php?action=status&site=default', { cache: 'no-store' });
-                    const j = await r.json();
-                    if (j && j.success && j.status && j.status.enabled) {
+            setTimeout(() => {
+                refresh().finally(() => {
+                    const inferred = inferStatusFromModuleRow();
+                    if (inferred && inferred.enabled) {
                         openOnboardingNow();
                     }
-                } catch (e) {
-                    // keep user on page if status check fails
-                }
+                });
             }, 5000);
         } catch (e) {
             alert('Enable failed: ' + (e && e.message ? e.message : 'request error'));
