@@ -60,7 +60,7 @@ function getRegistered($state = "1", $limit = "unlimited", $offset = "0", $encou
     $sql .= "order by priority, name ";
     if ($limit != "unlimited") {
         $sql .= " LIMIT ?, ?";
-        array_push($sqlBindArray, (int)$limit, (int)$offset);
+        array_push($sqlBindArray, (is_numeric($limit) ? (int) $limit : 0), (is_numeric($offset) ? (int) $offset : 0));
     }
 
     $res = sqlStatement($sql, $sqlBindArray);

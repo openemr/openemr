@@ -1392,13 +1392,13 @@ function writeITLine($it_array): void
             <?php
             // Get the selected list's elements.
             if ($list_id) {
-                $sql_limits = 'ASC LIMIT 0, ' . (int) $records_per_page;
+                $sql_limits = 'ASC LIMIT 0, ' . (is_numeric($records_per_page) ? (int) $records_per_page : 40);
                 $total_rows = 0;
                 if ($list_from > 0) {
                     $list_from--;
                 }
                 if ($list_to > 0) {
-                    $sql_limits = " ASC LIMIT " . (int) $list_from . (intval($list_to) > 0 ? ", " . (int) ($list_to - $list_from) : "");
+                    $sql_limits = " ASC LIMIT " . (is_numeric($list_from) ? (int) $list_from : 0) . (intval($list_to) > 0 ? ", " . (is_numeric($list_to - $list_from) ? (int) ($list_to - $list_from) : 0) : "");
                 }
 
                 if ($list_id == 'feesheet') {

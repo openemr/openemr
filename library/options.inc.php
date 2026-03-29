@@ -3438,7 +3438,7 @@ function getLayoutProperties($formtype, &$grparr, $sel = "grp_title", $limit = n
     $sqlLimit = "";
     if ($limit) {
         $sqlLimit = "LIMIT ?";
-        $sqlBindArray[] = (int)$limit;
+        $sqlBindArray[] = (is_numeric($limit) ? (int) $limit : 0);
     }
     $gres = sqlStatement("SELECT $sel FROM layout_group_properties WHERE grp_form_id = ? " .
         " ORDER BY grp_group_id " . $sqlLimit, $sqlBindArray);

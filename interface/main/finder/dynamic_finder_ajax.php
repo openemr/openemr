@@ -54,8 +54,8 @@ if ($searchAny) {
 }
 // Paging parameters.  -1 means not applicable.
 //
-$iDisplayStart  = isset($_GET['iDisplayStart' ]) ? (int) $_GET['iDisplayStart' ] : -1;
-$iDisplayLength = isset($_GET['iDisplayLength']) ? (int) $_GET['iDisplayLength'] : -1;
+$iDisplayStart  = isset($_GET['iDisplayStart' ]) ? (is_numeric($_GET['iDisplayStart' ]) ? (int) $_GET['iDisplayStart' ] : -1) : -1;
+$iDisplayLength = isset($_GET['iDisplayLength']) ? (is_numeric($_GET['iDisplayLength']) ? (int) $_GET['iDisplayLength'] : -1) : -1;
 $limit = '';
 $limitBinds = [];
 if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {

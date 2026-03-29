@@ -148,8 +148,8 @@ $simpleSearch = $_GET['simple_search'] ?? null;
             "LIMIT ?, ?";
 
         $sqlBindArray = array_merge($sqlBindArray, $sqlBindArraySpecial);
-        $sqlBindArray[] = (int) $fstart;
-        $sqlBindArray[] = (int) $MAXSHOW;
+        $sqlBindArray[] = (is_numeric($fstart) ? (int) $fstart : 0);
+        $sqlBindArray[] = (is_numeric($MAXSHOW) ? (int) $MAXSHOW : 0);
         $rez = sqlStatement($sql, $sqlBindArray);
         $result = [];
         while ($row = sqlFetchArray($rez)) {

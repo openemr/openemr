@@ -54,7 +54,8 @@ class SearchConfigClauseBuilder
         $limit = $pagination != null ? $pagination->getLimit() : 0;
         if ($limit > 0) { // we do nothing if its 0
             // we go one beyond the pagination limit to see if we need to add a next link
-            $clause = "LIMIT " . (int) $pagination->getCurrentOffsetId() . ", " . (int) ($pagination->getLimit() + 1);
+            $paginationLimit = $pagination->getLimit() + 1;
+            $clause = "LIMIT " . (is_numeric($pagination->getCurrentOffsetId()) ? (int) $pagination->getCurrentOffsetId() : 0) . ", " . (is_numeric($paginationLimit) ? (int) $paginationLimit : 0);
         }
 
         return $clause;

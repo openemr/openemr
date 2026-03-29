@@ -148,7 +148,9 @@ class SyndromicsurveillanceTable
             return count($result);
         }
 
-        $query      .= " LIMIT " . (int) $start . "," . (int) $end;
+        $query .= " LIMIT ?, ?";
+        $query_string[] = is_numeric($start) ? (int) $start : 0;
+        $query_string[] = is_numeric($end) ? (int) $end : 0;
 
         return QueryUtils::fetchRecords($query, $query_string);
     }

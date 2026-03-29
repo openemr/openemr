@@ -97,7 +97,7 @@ function getPortalPatientDeleted($owner = '', $limit = '', $offset = 0, $search 
     $limitBind = [];
     if ($limit) {
         $limitSql = "LIMIT ?, ?";
-        $limitBind = [(int)$offset, (int)$limit];
+        $limitBind = [(is_numeric($offset) ? (int) $offset : 0), (is_numeric($limit) ? (int) $limit : 0)];
     }
 
     $sql = "
@@ -151,7 +151,7 @@ function getPortalPatientNotes($owner = '', $limit = '', $offset = 0, $search = 
     $limitBind = [];
     if ($limit) {
         $limitSql = "LIMIT ?, ?";
-        $limitBind = [(int)$offset, (int)$limit];
+        $limitBind = [(is_numeric($offset) ? (int) $offset : 0), (is_numeric($limit) ? (int) $limit : 0)];
     }
 
     $sql = "
@@ -205,7 +205,7 @@ function getPortalPatientNotifications($owner = '', $limit = '', $offset = 0, $s
     $limitBind = [];
     if ($limit) {
         $limitSql = "LIMIT ?, ?";
-        $limitBind = [(int)$offset, (int)$limit];
+        $limitBind = [(is_numeric($offset) ? (int) $offset : 0), (is_numeric($limit) ? (int) $limit : 0)];
     }
 
     $sql = "
@@ -256,7 +256,7 @@ function getPortalPatientSentNotes($owner = '', $limit = '', $offset = 0, $searc
     $limitBind = [];
     if ($limit) {
         $limitSql = "LIMIT ?, ?";
-        $limitBind = [(int)$offset, (int)$limit];
+        $limitBind = [(is_numeric($offset) ? (int) $offset : 0), (is_numeric($limit) ? (int) $limit : 0)];
     }
 
     $sql = "

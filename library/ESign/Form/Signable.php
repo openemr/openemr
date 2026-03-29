@@ -123,7 +123,7 @@ class Form_Signable extends DbRow_Signable implements SignableIF
         $sqlBindArray = [ $this->_formId ];
         if ($limit <> '*') {
             $sql .= ' LIMIT ?';
-            $sqlBindArray[] = (int)$limit;
+            $sqlBindArray[] = (is_numeric($limit) ? (int) $limit : 0);
         }
 
         $rs = sqlStatement($sql, $sqlBindArray);

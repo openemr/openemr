@@ -140,7 +140,7 @@ function getPnotesByUser($activity = "1", $show_all = "no", $user = '', $count =
         $sql .= " order by " . escape_sql_column_name($sortby, ['users','patient_data','pnotes'], true) .
             " " . escape_sort_order($sortorder) .
             " LIMIT ?, ?";
-        array_push($sqlBindArray, (int)$begin, (int)$listnumber);
+        array_push($sqlBindArray, (is_numeric($begin) ? (int) $begin : 0), (is_numeric($listnumber) ? (int) $listnumber : 0));
     }
     return QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
 }
@@ -201,7 +201,7 @@ function getPnotesByDate(
     $sql .= " ORDER BY date DESC";
     if ($limit != "all") {
         $sql .= " LIMIT ?, ?";
-        array_push($sqlParameterArray, (int)$start, (int)$limit);
+        array_push($sqlParameterArray, (is_numeric($start) ? (int) $start : 0), (is_numeric($limit) ? (int) $limit : 0));
     }
 
     return QueryUtils::fetchRecords($sql, $sqlParameterArray);
@@ -264,7 +264,7 @@ function getSentPnotesByDate(
     $sql .= " ORDER BY date DESC";
     if ($limit != "all") {
         $sql .= " LIMIT ?, ?";
-        array_push($sqlParameterArray, (int)$start, (int)$limit);
+        array_push($sqlParameterArray, (is_numeric($start) ? (int) $start : 0), (is_numeric($limit) ? (int) $limit : 0));
     }
 
     return QueryUtils::fetchRecords($sql, $sqlParameterArray);

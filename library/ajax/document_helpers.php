@@ -36,7 +36,7 @@ function get_patients_list($req): void
             HAVING label LIKE ?
             ORDER BY IF(IFNULL(deceased_date,0)=0, 0, 1) ASC, IFNULL(deceased_date,0) DESC, lname ASC, fname ASC
             LIMIT ?",
-        [$term, (int)$req['sql_limit']]
+        [$term, (is_numeric($req['sql_limit']) ? (int) $req['sql_limit'] : 0)]
     );
     while ($row = sqlFetchArray($response)) {
         if (OEGlobalsBag::getInstance()->get('pid') == $row['value']) {

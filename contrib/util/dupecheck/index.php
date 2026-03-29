@@ -148,11 +148,13 @@ if ($parameters['go'] == "Go") {
     };
 
     $sqlstmt .= $orderby;
+    $sqlBindArray = [];
     if ($parameters['limit']) {
-        $sqlstmt .= " LIMIT 0," . (int) $parameters['limit'];
+        $sqlstmt .= " LIMIT 0, ?";
+        $sqlBindArray[] = is_numeric($parameters['limit']) ? (int) $parameters['limit'] : 100;
     }
 
-    $qResults = sqlStatement($sqlstmt);
+    $qResults = sqlStatement($sqlstmt, $sqlBindArray);
     while ($row = sqlFetchArray($qResults)) {
         if ($dupelist[$row['id']] == 1) {
             continue;
