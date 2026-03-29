@@ -8488,7 +8488,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getCurrentOffsetId\\(\\) on OpenEMR\\\\Common\\\\Database\\\\QueryPagination\\|null\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Services/Search/SearchConfigClauseBuilder.php',
 ];
 $ignoreErrors[] = [
