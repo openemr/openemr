@@ -244,7 +244,6 @@ $siteId = (string)($_GET['site'] ?? 'default');
         </div>
     </div>
 
-    <div class="foot">This guide reflects current module state in real time.</div>
 </div>
 
 <script>
