@@ -411,6 +411,7 @@ JS;
 
         $medexConfigured = false;
         $medexActive = false;
+        $api = null;
         $webroot = $GLOBALS['webroot'] ?? '';
 
         // Load MedExAPI class
@@ -527,7 +528,15 @@ JS;
                 // Use $enabledServices from database ONLY - do NOT call API to avoid stale cache
                 // 'calendar_full' appears as a key in the enabled services array.
                 try {
-                    $hasCalendarSubscription = $calFullEnabled;
+                    $hasCalendarSubscription = false;
+                    if ($medexActive && $api instanceof \OpenEMR\Modules\MedEx\MedExAPI) {
+                        try {
+                            $hasCalendarSubscription = $api->hasServiceEntitlement('calendar_full');
+                        } catch (\Throwable $e) {
+                            // Fall back to cached DB view only if entitlement check fails.
+                            $hasCalendarSubscription = $calFullEnabled;
+                        }
+                    }
                     error_log('[MedEx Calendar] Has calendar_full subscription: ' . ($hasCalendarSubscription ? 'YES' : 'NO'));
 
                         if ($medexActive && $hasCalendarSubscription) {

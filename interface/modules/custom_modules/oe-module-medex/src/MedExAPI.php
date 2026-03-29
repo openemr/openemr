@@ -610,7 +610,7 @@ class MedExAPI
     public function getEnabledServices(bool $forceRefresh = false): array
     {
         if ($forceRefresh) {
-            $this->clearServicesCache();
+            $this->bustServicesCache();
         }
 
         // Return from session cache if fresh enough (avoids a network call on every page load)
