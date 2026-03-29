@@ -112,12 +112,25 @@ class ModuleManagerListener extends AbstractModuleActionListener
 <script>
 (function () {
   var doc = window.top && window.top.document ? window.top.document : document;
-  function cleanupInstallerLog() {
-    var logDiv = doc.getElementById('install_upgrade_log');
-    if (logDiv) {
-      logDiv.innerHTML = '';
-      logDiv.style.display = 'none';
+  function eachDoc(fn) {
+    var seen = [];
+    function add(d) {
+      if (!d || seen.indexOf(d) !== -1) return;
+      seen.push(d);
+      fn(d);
     }
+    try { add(document); } catch (e) {}
+    try { add(window.parent && window.parent.document ? window.parent.document : null); } catch (e) {}
+    try { add(window.top && window.top.document ? window.top.document : null); } catch (e) {}
+  }
+  function cleanupInstallerLog() {
+    eachDoc(function(d) {
+      var logDiv = d.getElementById('install_upgrade_log');
+      if (logDiv) {
+        logDiv.innerHTML = '';
+        logDiv.style.display = 'none';
+      }
+    });
   }
   function closeOverlay(overlay) {
     cleanupInstallerLog();

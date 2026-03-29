@@ -37,7 +37,6 @@ function medexSetupStatus(): array
 
     $installed = ($sqlRun === 1);
     $enabled = ($modActive === 1);
-    $managerReloaded = $installed && ($enabled || $modUiActive === 1);
     $dashboardReady = $enabled;
 
     $nextAction = 'install';
@@ -107,16 +106,6 @@ $siteId = (string)($_GET['site'] ?? 'default');
             color: var(--muted);
             font-size: 14px;
         }
-        .next {
-            margin: 12px 0 14px;
-            padding: 10px 12px;
-            border-radius: 10px;
-            border: 1px solid #bfdbfe;
-            background: #eff6ff;
-            color: #1e3a8a;
-            font-size: 14px;
-            font-weight: 700;
-        }
         .steps {
             display: grid;
             gap: 10px;
@@ -184,11 +173,6 @@ $siteId = (string)($_GET['site'] ?? 'default');
         .act-btn:hover {
             background: #dbeafe;
         }
-        .foot {
-            margin-top: 14px;
-            font-size: 12px;
-            color: #64748b;
-        }
     </style>
 </head>
 <body>
@@ -234,14 +218,6 @@ $siteId = (string)($_GET['site'] ?? 'default');
             </div>
         </div>
 
-        <div id="step-dashboard" class="step">
-            <div class="icon">4</div>
-            <div>
-                <h3>Complete onboarding</h3>
-                <p>Finish signup and service selection in onboarding.</p>
-                <div class="state"></div>
-            </div>
-        </div>
     </div>
 
 </div>
@@ -264,7 +240,6 @@ $siteId = (string)($_GET['site'] ?? 'default');
         setStep('step-install', status.installed, 'Done');
         setStep('step-enable', status.enabled, 'Done');
         setStep('step-configure', status.enabled, 'Ready');
-        setStep('step-dashboard', status.dashboard_ready, 'Ready');
 
         const installBtn = document.getElementById('installBtn');
         const enableBtn = document.getElementById('enableBtn');
@@ -357,7 +332,84 @@ $siteId = (string)($_GET['site'] ?? 'default');
         };
     }
 
+    function getFrameDocs() {
+        const docs = [];
+        const add = (d) => {
+            if (!d) return;
+            if (!docs.includes(d)) docs.push(d);
+        };
+        try { add(document); } catch (e) {}
+        try { add(window.parent && window.parent.document ? window.parent.document : null); } catch (e) {}
+        try { add(window.top && window.top.document ? window.top.document : null); } catch (e) {}
+        return docs;
+    }
+
+    function cleanupInstallerLogEverywhere() {
+        getFrameDocs().forEach((d) => {
+            try {
+                const log = d.getElementById('install_upgrade_log');
+                if (log) {
+                    log.innerHTML = '';
+                    log.style.display = 'none';
+                }
+            } catch (e) {}
+        });
+    }
+
+    function findMedexModuleRow() {
+        for (const d of getFrameDocs()) {
+            try {
+                const byId = d.querySelector(`tr#${String(initStatus.mod_id || '')}`);
+                if (byId) return byId;
+                const rows = Array.from(d.querySelectorAll('tr'));
+                const row = rows.find((tr) => {
+                    const t = (tr.textContent || '').toLowerCase();
+                    return t.includes('oe-module-medex') || t.includes('medex module');
+                });
+                if (row) return row;
+            } catch (e) {}
+        }
+        return null;
+    }
+
+    function setRowActionButton(mode) {
+        const row = findMedexModuleRow();
+        if (!row) return;
+        const cells = row.querySelectorAll('td');
+        if (!cells || cells.length < 9) return;
+        const actionCell = cells[8];
+        if (!actionCell) return;
+
+        const links = Array.from(actionCell.querySelectorAll('a[onclick*="manage("]'));
+        links.forEach((a) => {
+            const txt = (a.getAttribute('onclick') || '').toLowerCase();
+            if (txt.includes("'install'") || txt.includes("'enable'") || txt.includes("'disable'")) {
+                a.remove();
+            }
+        });
+
+        const id = String(initStatus.mod_id || '');
+        let html = '';
+        if (mode === 'install') {
+            html = `<a href="javascript:void(0)" class="link_submit install" onclick="manage('${id}','install');" title="Click Here to Install This module"><input type="button" class="activate" value="Install"></a>`;
+        } else if (mode === 'enable') {
+            html = `<a href="javascript:void(0)" class="link_submit inactive" onclick="manage('${id}','enable');" title="Click Here to Enable This module"><input type="button" class="activate" value="Enable"></a>`;
+        } else {
+            html = `<a href="javascript:void(0)" class="link_submit active" onclick="manage('${id}','disable');" title="Click Here to Disable This module"><input type="button" class="deactivate" value="Disable"></a>`;
+        }
+        actionCell.insertAdjacentHTML('afterbegin', html);
+    }
+
+    function setRowStatusLabel(label) {
+        const row = findMedexModuleRow();
+        if (!row) return;
+        const cells = row.querySelectorAll('td');
+        if (!cells || cells.length < 4) return;
+        cells[3].textContent = label;
+    }
+
     async function refresh() {
+        cleanupInstallerLogEverywhere();
         const inferred = inferStatusFromModuleRow();
         if (inferred) {
             render(inferred);
@@ -381,6 +433,9 @@ $siteId = (string)($_GET['site'] ?? 'default');
     document.getElementById('installBtn').addEventListener('click', async () => {
         try {
             await runManageAction('install');
+            setRowActionButton('enable');
+            setRowStatusLabel('Inactive');
+            cleanupInstallerLogEverywhere();
             setTimeout(refresh, 1000);
             setTimeout(refresh, 2500);
             setTimeout(refresh, 5000);
@@ -392,6 +447,9 @@ $siteId = (string)($_GET['site'] ?? 'default');
     document.getElementById('enableBtn').addEventListener('click', async () => {
         try {
             await runManageAction('enable');
+            setRowActionButton('disable');
+            setRowStatusLabel('Active');
+            cleanupInstallerLogEverywhere();
             setTimeout(refresh, 1000);
             setTimeout(refresh, 2500);
             setTimeout(() => {
@@ -411,6 +469,7 @@ $siteId = (string)($_GET['site'] ?? 'default');
         openOnboardingNow();
     });
 
+    cleanupInstallerLogEverywhere();
     render(initStatus);
     setInterval(refresh, 2500);
 </script>
