@@ -112,7 +112,21 @@ class ModuleManagerListener extends AbstractModuleActionListener
 <script>
 (function () {
   var doc = window.top && window.top.document ? window.top.document : document;
+  function cleanupInstallerLog() {
+    var logDiv = doc.getElementById('install_upgrade_log');
+    if (logDiv) {
+      logDiv.innerHTML = '';
+      logDiv.style.display = 'none';
+    }
+  }
+  function closeOverlay(overlay) {
+    cleanupInstallerLog();
+    if (overlay && overlay.parentNode) {
+      overlay.parentNode.removeChild(overlay);
+    }
+  }
   if (doc.getElementById('medex-help-mini-overlay')) {
+    cleanupInstallerLog();
     return;
   }
   var overlay = doc.createElement('div');
@@ -130,7 +144,7 @@ class ModuleManagerListener extends AbstractModuleActionListener
   close.type = 'button';
   close.textContent = 'Close';
   close.style.cssText = 'border:1px solid rgba(255,255,255,.45);background:transparent;color:#fff;border-radius:8px;padding:6px 10px;cursor:pointer;font:600 13px Segoe UI,Arial,sans-serif;';
-  close.onclick = function () { overlay.remove(); };
+  close.onclick = function () { closeOverlay(overlay); };
   head.appendChild(close);
 
   var frame = doc.createElement('iframe');
@@ -140,12 +154,12 @@ class ModuleManagerListener extends AbstractModuleActionListener
 
   overlay.addEventListener('click', function (e) {
     if (e.target === overlay) {
-      overlay.remove();
+      closeOverlay(overlay);
     }
   });
   doc.addEventListener('keydown', function escHandler(e) {
     if (e.key === 'Escape' && doc.getElementById('medex-help-mini-overlay')) {
-      overlay.remove();
+      closeOverlay(overlay);
       doc.removeEventListener('keydown', escHandler);
     }
   });
@@ -153,6 +167,7 @@ class ModuleManagerListener extends AbstractModuleActionListener
   modal.appendChild(head);
   modal.appendChild(frame);
   overlay.appendChild(modal);
+  cleanupInstallerLog();
   doc.body.appendChild(overlay);
 })();
 </script>
