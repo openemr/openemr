@@ -87,7 +87,7 @@ while (!$finished && time() < $endtime) {
 
     // echo "$query1\n"; // debugging
 
-    $res1 = sqlStatementNoLog($query1, [(int) $querylimit]);
+    $res1 = sqlStatementNoLog($query1, [$querylimit]);
     while ($row1 = sqlFetchArray($res1)) {
         $scores[$row1['pid']] = $row1['dupscore'];
     };

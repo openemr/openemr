@@ -323,8 +323,8 @@ if ($what == 'fields' && $source == 'V') {
     // only go out to 500 records for performance reasons, we'll display a message if there are more
     $maxCount = 500;
     if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {
-        $start  = (int) $iDisplayStart;
-        $number = (int) $iDisplayLength;
+        $start  = $iDisplayStart;
+        $number = $iDisplayLength;
     }
     $res = main_code_set_search(
         $codetype,

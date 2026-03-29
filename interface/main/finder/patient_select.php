@@ -226,7 +226,7 @@ if ($popup) {
     "WHERE $where ORDER BY $orderby LIMIT ?, ?";
 
     $sqlBindArray[] = (is_numeric($fstart) ? (int) $fstart : 0);
-    $sqlBindArray[] = (int) $sqllimit;
+    $sqlBindArray[] = $sqllimit;
     $rez = sqlStatement($sql, $sqlBindArray);
     $result = [];
     while ($row = sqlFetchArray($rez)) {

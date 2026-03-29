@@ -118,7 +118,7 @@ if (isset($_GET['deletelid'])) {
             " WHERE patient_id = ? AND event IN (SELECT option_id FROM list_options WHERE list_id = 'disclosure_type' AND activity = 1)" .
             " ORDER BY date DESC LIMIT ?, ?";
 
-            $r1 = sqlStatement($disclInnerQry, [$pid, (is_numeric($offset) ? (int) $offset : 0), (int) $N]);
+            $r1 = sqlStatement($disclInnerQry, [$pid, (is_numeric($offset) ? (int) $offset : 0), $N]);
             $n = sqlNumRows($r1);
             $noOfRecordsLeft = ($totalRecords - $offset);
             if ($n > 0) {?>

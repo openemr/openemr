@@ -1398,7 +1398,7 @@ function writeITLine($it_array): void
                     $list_from--;
                 }
                 if ($list_to > 0) {
-                    $sql_limits = " ASC LIMIT " . (int) $list_from . (intval($list_to) > 0 ? ", " . (int) ($list_to - $list_from) : "");
+                    $sql_limits = " ASC LIMIT " . $list_from . (intval($list_to) > 0 ? ", " . $list_to - $list_from : "");
                 }
 
                 if ($list_id == 'feesheet') {

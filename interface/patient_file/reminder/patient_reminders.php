@@ -279,7 +279,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                       escape_sort_order($sortorder) . " " .
                     "LIMIT ?, ?";
                     $sqlBindArray[] = (is_numeric($begin) ? (int) $begin : 0);
-                    $sqlBindArray[] = (int) $listnumber;
+                    $sqlBindArray[] = $listnumber;
                     $result = sqlStatement($sql, $sqlBindArray);
                 while ($myrow = sqlFetchArray($result)) { ?>
                         <tr>
