@@ -257,9 +257,8 @@ $siteId = (string)($_GET['site'] ?? 'default');
     }
 
     function openOnboardingNow() {
-        const topWin = window.top || window;
         const url = '/interface/modules/custom_modules/oe-module-medex/admin/splash.php?minimal=1&site=' + encodeURIComponent(setupSiteId || 'default');
-        topWin.location.href = url;
+        window.location.href = url;
     }
 
     async function runManageAction(actionName) {
