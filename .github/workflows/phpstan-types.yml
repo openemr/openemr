@@ -52,6 +52,7 @@ jobs:
       run: |
         php bin/generate-phpstan-types.php sql/database.sql \
           patient_data users form_encounter insurance_data billing \
+          background_services \
           > src/Common/Database/TableTypes.php
 
     - name: Check for differences
@@ -69,6 +70,7 @@ jobs:
             echo "\`\`\`bash"
             echo "php bin/generate-phpstan-types.php sql/database.sql \\"
             echo "  patient_data users form_encounter insurance_data billing \\"
+            echo "  background_services \\"
             echo "  > src/Common/Database/TableTypes.php"
             echo "\`\`\`"
             echo ""
