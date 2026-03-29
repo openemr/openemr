@@ -20,6 +20,16 @@ class CalendarInjectionListener
      */
     public function injectCalendar(): void
     {
+        // Only inject when module is truly active (enabled + configured).
+        try {
+            $api = new \OpenEMR\Modules\MedEx\MedExAPI();
+            if (!$api->isActive()) {
+                return;
+            }
+        } catch (\Throwable $e) {
+            return;
+        }
+
         // Check for Calendar subscription
         $hasCalendarSubscription = false;
         try {
@@ -31,11 +41,8 @@ class CalendarInjectionListener
                 $svcOn = function($k) use ($services) {
                     return (isset($services[$k]) && $services[$k]) || in_array($k, $services);
                 };
-                // Check for calendar subscriptions: calendar_view, calendar_full, calendar_export, or calendar_ai
-                $hasCalendarSubscription = $svcOn('calendar_view') ||
-                                          $svcOn('calendar_full') ||
-                                          $svcOn('calendar_export') ||
-                                          $svcOn('calendar_ai');
+                // Full calendar redirect requires explicit calendar_full entitlement.
+                $hasCalendarSubscription = $svcOn('calendar_full');
             }
         } catch (\Exception $e) {
             error_log('[MedEx Calendar] Error checking calendar subscription: ' . $e->getMessage());

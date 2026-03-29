@@ -618,9 +618,8 @@ JS;
         }
 
         // If user chose OpenEMR calendar, inject view selector buttons into #bottomLeft.
-        // Do NOT gate on $calFullEnabled — if the user clicked the button they have the
-        // subscription, and a silent DB failure was preventing injection.
-        if ($userChoseOpenEMR && $isOpenEMRCalendar) {
+        // Only when MedEx is active AND calendar_full is currently entitled.
+        if ($userChoseOpenEMR && $isOpenEMRCalendar && $medexActive && $calFullEnabled) {
             error_log('[MedEx] User is on OpenEMR calendar with preference set - will inject view selector');
             register_shutdown_function(function () use ($webroot) {
                 $output = ob_get_clean();
@@ -702,6 +701,13 @@ HTML;
                 echo $output;
             });
             ob_start();
+        } elseif ($isOpenEMRCalendar && (!$medexActive || !$calFullEnabled)) {
+            // Clear stale preference when account is not active / not entitled.
+            try {
+                \OpenEMR\Common\Session\SessionUtil::unsetSession('medex_use_openemr_calendar');
+            } catch (\Throwable $e) {
+                unset($_SESSION['medex_use_openemr_calendar']);
+            }
         }
 
         // Register shutdown function for script injection (only if configured)
