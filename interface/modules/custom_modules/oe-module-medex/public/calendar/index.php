@@ -76,7 +76,9 @@ $api = new \OpenEMR\Modules\MedEx\MedExAPI();
 
 // Check if configured
 if (!$api->isConfigured()) {
-    die('MedEx not configured. Please configure MedEx in <a href="../../admin/settings.php">Settings</a>.');
+    $_SESSION['medex_calendar_skip'] = true;
+    header('Location: ' . ($GLOBALS['webroot'] ?? '') . '/interface/main/calendar/index.php');
+    exit;
 }
 
 if (!$api->hasServiceEntitlement('calendar_full')) {

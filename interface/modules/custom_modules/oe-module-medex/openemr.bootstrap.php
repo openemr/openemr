@@ -357,6 +357,14 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
         // AJAX URL. Without it, globals.php returns 400 when the session lacks site_id.
         // We inject after page load so the override runs after action.js has defined configure().
         register_shutdown_function(function () {
+            $requestUri = $_SERVER['REQUEST_URI'] ?? '';
+
+            // This patch is only for Module Manager installer pages.
+            // Injecting on unrelated pages (like module help) can leak script text into output.
+            if (strpos($requestUri, '/interface/modules/zend_modules/public/Installer') === false) {
+                return;
+            }
+
             // Skip injection on XHR/AJAX requests — appending a <script> after a JSON
             // response body breaks JSON.parse() in action.js (help icon, manage, etc.)
             if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
@@ -402,6 +410,7 @@ JS;
         error_log('[MedEx] Registering event listeners...');
 
         $medexConfigured = false;
+        $medexActive = false;
         $webroot = $GLOBALS['webroot'] ?? '';
 
         // Load MedExAPI class
@@ -421,9 +430,9 @@ JS;
                 $api = new \OpenEMR\Modules\MedEx\MedExAPI();
 
                 // isActive() checks for global enable, active module, AND valid API credentials/session
-                $isActive = $api->isActive();
-                error_log('[MedEx] isActive() returned: ' . ($isActive ? 'true' : 'false'));
-                if ($isActive) {
+                $medexActive = $api->isActive();
+                error_log('[MedEx] isActive() returned: ' . ($medexActive ? 'true' : 'false'));
+                if ($medexActive) {
                     $services = $api->getEnabledServices();
                     error_log('[MedEx] getEnabledServices() returned: ' . print_r($services, true));
                     // At minimum, one service must be enabled to register listeners
@@ -451,7 +460,7 @@ JS;
         // We do a direct, minimal DB query here to avoid a fatal "call to non-callable".
         $calFullEnabled = false;
         try {
-            if (function_exists('sqlQuery')) {
+            if ($medexActive && function_exists('sqlQuery')) {
                 $calRec = sqlQuery("SELECT status FROM medex_prefs LIMIT 1");
                 if (!empty($calRec['status'])) {
                     $calSt = json_decode($calRec['status'], true);
@@ -521,7 +530,7 @@ JS;
                     $hasCalendarSubscription = $calFullEnabled;
                     error_log('[MedEx Calendar] Has calendar_full subscription: ' . ($hasCalendarSubscription ? 'YES' : 'NO'));
 
-                        if ($hasCalendarSubscription) {
+                        if ($medexActive && $hasCalendarSubscription) {
                             // Check user preferences - allow individual users to opt out
                             $userOptedOut = false;
                             $userId = $_SESSION['authUserID'] ?? null;
