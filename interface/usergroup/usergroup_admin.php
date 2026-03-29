@@ -108,48 +108,39 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             sqlStatement("update `groups` set user=? where user= ?", [trim((string) $_POST["username"]), $user_data["username"]]);
         }
 
-        if (isset($_POST["taxid"])) {
-            sqlStatement("update users set federaltaxid=? where id= ? ", [$_POST["taxid"], $_POST["id"]]);
+        // Map POST keys to DB columns for simple string fields.
+        // Built as a single UPDATE and only includes fields whose value
+        // actually changed, so we avoid unnecessary writes and audit noise.
+        $stringFields = [
+            'taxid' => 'federaltaxid',
+            'state_license_number' => 'state_license_number',
+            'drugid' => 'federaldrugid',
+            'upin' => 'upin',
+            'npi' => 'npi',
+            'taxonomy' => 'taxonomy',
+            'lname' => 'lname',
+            'fname' => 'fname',
+            'suffix' => 'suffix',
+            'valedictory' => 'valedictory',
+            'job' => 'specialty',
+            'mname' => 'mname',
+        ];
+
+        $setClauses = [];
+        $sqlBindArray = [];
+        foreach ($stringFields as $postKey => $dbColumn) {
+            if (isset($_POST[$postKey]) && (string) $_POST[$postKey] !== (string) ($user_data[$dbColumn] ?? '')) {
+                $setClauses[] = "`$dbColumn` = ?";
+                $sqlBindArray[] = $_POST[$postKey];
+            }
         }
 
-        if (isset($_POST["state_license_number"])) {
-            sqlStatement("update users set state_license_number=? where id= ? ", [$_POST["state_license_number"], $_POST["id"]]);
-        }
-
-        if (isset($_POST["drugid"])) {
-            sqlStatement("update users set federaldrugid=? where id= ? ", [$_POST["drugid"], $_POST["id"]]);
-        }
-
-        if (isset($_POST["upin"])) {
-            sqlStatement("update users set upin=? where id= ? ", [$_POST["upin"], $_POST["id"]]);
-        }
-
-        if (isset($_POST["npi"])) {
-            sqlStatement("update users set npi=? where id= ? ", [$_POST["npi"], $_POST["id"]]);
-        }
-
-        if (isset($_POST["taxonomy"])) {
-            sqlStatement("update users set taxonomy = ? where id= ? ", [$_POST["taxonomy"], $_POST["id"]]);
-        }
-
-        if (isset($_POST["lname"])) {
-            sqlStatement("update users set lname=? where id= ? ", [$_POST["lname"], $_POST["id"]]);
-        }
-
-        if (isset($_POST["suffix"])) {
-            sqlStatement("update users set suffix=? where id= ? ", [$_POST["suffix"], $_POST["id"]]);
-        }
-
-        if (isset($_POST["valedictory"])) {
-            sqlStatement("update users set valedictory=? where id= ? ", [$_POST["valedictory"], $_POST["id"]]);
-        }
-
-        if (isset($_POST["job"])) {
-            sqlStatement("update users set specialty=? where id= ? ", [$_POST["job"], $_POST["id"]]);
-        }
-
-        if (isset($_POST["mname"])) {
-            sqlStatement("update users set mname=? where id= ? ", [$_POST["mname"], $_POST["id"]]);
+        if ($setClauses !== []) {
+            $sqlBindArray[] = $_POST["id"];
+            sqlStatement(
+                "UPDATE users SET " . implode(", ", $setClauses) . " WHERE id = ?",
+                $sqlBindArray
+            );
         }
 
         if ($_POST["facility_id"]) {
@@ -221,10 +212,6 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
                     );
                 }
             }
-        }
-
-        if (isset($_POST["fname"])) {
-            sqlStatement("update users set fname=? where id= ? ", [$_POST["fname"], $_POST["id"]]);
         }
 
         if (isset($_POST['default_warehouse'])) {
