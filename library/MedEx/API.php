@@ -933,7 +933,7 @@ class Events extends Base
                     if ($no_fu) {
                         $sql_NoFollowUp = "SELECT COUNT(*) AS num FROM openemr_postcalendar_events WHERE
                             pc_pid = ? AND
-                            pc_eventDate > ( ? + INTERVAL " . (is_numeric($no_interval) ? (int) $no_interval : 0) . " DAY)";
+                            pc_eventDate > ( ? + INTERVAL " . (int) $no_interval . " DAY)";
                         $result = sqlQuery($sql_NoFollowUp, [$appt['pc_pid'], $appt['pc_eventDate']]);
                         if ($result['num'] > 0) {
                             continue;

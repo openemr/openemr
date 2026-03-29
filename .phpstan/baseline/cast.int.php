@@ -454,6 +454,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
     'count' => 1,
+    'path' => __DIR__ . '/../../interface/patient_file/summary/disc_fragment.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot cast mixed to int\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/procedure_tools/libs/labs_ajax.php',
 ];
 $ignoreErrors[] = [
@@ -530,6 +535,11 @@ $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/clinical_rules.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot cast mixed to int\\.$#',
+    'count' => 3,
+    'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to int\\.$#',
