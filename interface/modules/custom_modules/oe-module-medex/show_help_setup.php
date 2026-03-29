@@ -195,10 +195,7 @@ $siteId = (string)($_GET['site'] ?? 'default');
 <div class="wrap">
     <div class="hdr">
         <h2>MedEx Setup Checklist</h2>
-        <p>Follow these four steps. This status updates automatically while you work in Module Manager.</p>
     </div>
-
-    <div id="nextAction" class="next"></div>
 
     <div class="steps">
         <div id="step-install" class="step">
@@ -283,15 +280,6 @@ $siteId = (string)($_GET['site'] ?? 'default');
             onboardingBtn.style.display = status.enabled ? 'inline-flex' : 'none';
         }
 
-        const msg = document.getElementById('nextAction');
-        if (!msg) return;
-        if (status.next_action === 'install') {
-            msg.textContent = 'Next action: Install the module in Module Manager.';
-        } else if (status.next_action === 'enable') {
-            msg.textContent = 'Next action: Enable the module.';
-        } else {
-            msg.textContent = 'Next action: Click the gear icon to continue onboarding.';
-        }
     }
 
     function openOnboardingNow() {
