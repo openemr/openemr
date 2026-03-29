@@ -108,9 +108,10 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             sqlStatement("update `groups` set user=? where user= ?", [trim((string) $_POST["username"]), $user_data["username"]]);
         }
 
-        // Map POST keys to DB columns for simple string fields.
-        // Built as a single UPDATE and only includes fields whose value
-        // actually changed, so we avoid unnecessary writes and audit noise.
+        // Map POST keys → DB columns for simple string fields.
+        // Collect new values for fields that actually changed, then issue
+        // a single fixed-shape UPDATE.  Fields that did not change are
+        // excluded so we avoid unnecessary writes and audit-log noise.
         $stringFields = [
             'taxid' => 'federaltaxid',
             'state_license_number' => 'state_license_number',
@@ -126,20 +127,36 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
             'mname' => 'mname',
         ];
 
-        $setClauses = [];
-        $sqlBindArray = [];
+        $changedFields = [];
         foreach ($stringFields as $postKey => $dbColumn) {
             if (isset($_POST[$postKey]) && (string) $_POST[$postKey] !== (string) ($user_data[$dbColumn] ?? '')) {
-                $setClauses[] = "`$dbColumn` = ?";
-                $sqlBindArray[] = $_POST[$postKey];
+                $changedFields[$dbColumn] = $_POST[$postKey];
             }
         }
 
-        if ($setClauses !== []) {
-            $sqlBindArray[] = $_POST["id"];
+        if ($changedFields !== []) {
             sqlStatement(
-                "UPDATE users SET " . implode(", ", $setClauses) . " WHERE id = ?",
-                $sqlBindArray
+                "UPDATE users SET"
+                . " federaltaxid = ?, state_license_number = ?,"
+                . " federaldrugid = ?, upin = ?, npi = ?, taxonomy = ?,"
+                . " lname = ?, fname = ?, suffix = ?, valedictory = ?,"
+                . " specialty = ?, mname = ?"
+                . " WHERE id = ?",
+                [
+                    $changedFields['federaltaxid'] ?? $user_data['federaltaxid'] ?? '',
+                    $changedFields['state_license_number'] ?? $user_data['state_license_number'] ?? '',
+                    $changedFields['federaldrugid'] ?? $user_data['federaldrugid'] ?? '',
+                    $changedFields['upin'] ?? $user_data['upin'] ?? '',
+                    $changedFields['npi'] ?? $user_data['npi'] ?? '',
+                    $changedFields['taxonomy'] ?? $user_data['taxonomy'] ?? '',
+                    $changedFields['lname'] ?? $user_data['lname'] ?? '',
+                    $changedFields['fname'] ?? $user_data['fname'] ?? '',
+                    $changedFields['suffix'] ?? $user_data['suffix'] ?? '',
+                    $changedFields['valedictory'] ?? $user_data['valedictory'] ?? '',
+                    $changedFields['specialty'] ?? $user_data['specialty'] ?? '',
+                    $changedFields['mname'] ?? $user_data['mname'] ?? '',
+                    $_POST["id"],
+                ]
             );
         }
 
