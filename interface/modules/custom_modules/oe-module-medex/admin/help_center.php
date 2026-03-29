@@ -22,7 +22,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 }
 
 $siteId = $_GET['site'] ?? 'default';
-$tutorialUrl = 'https://medexbank.com/help/tutorial.html';
+$tutorialUrl = 'https://medexbank.com/help/tutorial_box.html';
 $hasTutorial = $tutorialUrl !== '';
 $startUrl = 'onboarding.php?step=1&site=' . urlencode((string) $siteId);
 
@@ -309,7 +309,7 @@ foreach ($readinessChecklist as $readinessItem) {
         <section class="panel help-left">
             <h1 class="title"><?php echo xlt('MedEx Help Center'); ?></h1>
             <p class="subtitle">
-                <?php echo xlt('Use this quick visual guide to onboard safely, verify your practice identity, and activate services without breaking your live workflow.'); ?>
+                <?php echo xlt('Use this quick visual guide to onboard safely, verify your practice identity, and activate services.'); ?>
             </p>
             <section class="checklist" style="margin-bottom: 14px;">
                 <h3><?php echo xlt('Live Readiness Checklist'); ?></h3>
