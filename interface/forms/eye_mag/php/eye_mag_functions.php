@@ -4253,7 +4253,7 @@ function Menu_myGetRegistered($state = "1", $limit = "unlimited", $offset = "0")
       "unpackaged, date FROM registry WHERE " .
       "state LIKE ? ORDER BY category, priority, name";
     if ($limit != "unlimited") {
-        $sql .= " limit " . escape_limit($limit) . ", " . escape_limit($offset);
+        $sql .= " limit " . (int) $limit . ", " . (int) $offset;
     }
 
     $res = sqlStatement($sql, [$state]);

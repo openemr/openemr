@@ -157,7 +157,7 @@ class ImmunizationTable
             return count($result);
         }
 
-        $query .= " LIMIT " . \Application\Plugin\CommonPlugin::escapeLimit($form_data['limit_start']) . "," . \Application\Plugin\CommonPlugin::escapeLimit($form_data['results']);
+        $query .= " LIMIT " . (int) $form_data['limit_start'] . "," . (int) $form_data['results'];
         return QueryUtils::fetchRecords($query, $query_data);
     }
 

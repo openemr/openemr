@@ -54,11 +54,13 @@ if ($searchAny) {
 }
 // Paging parameters.  -1 means not applicable.
 //
-$iDisplayStart  = isset($_GET['iDisplayStart' ]) ? 0 + $_GET['iDisplayStart' ] : -1;
-$iDisplayLength = isset($_GET['iDisplayLength']) ? 0 + $_GET['iDisplayLength'] : -1;
+$iDisplayStart  = isset($_GET['iDisplayStart' ]) ? (int) $_GET['iDisplayStart' ] : -1;
+$iDisplayLength = isset($_GET['iDisplayLength']) ? (int) $_GET['iDisplayLength'] : -1;
 $limit = '';
+$limitBinds = [];
 if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {
-    $limit = "LIMIT " . escape_limit($iDisplayStart) . ", " . escape_limit($iDisplayLength);
+    $limit = "LIMIT ?, ?";
+    $limitBinds = [$iDisplayStart, $iDisplayLength];
 }
 // Search parameter.  -1 means .
 //
@@ -256,7 +258,7 @@ while ($row = sqlFetchArray($res)) {
 }
 
 $query = "SELECT $sellist FROM patient_data WHERE $where $orderby $limit";
-$res = sqlStatement($query, $srch_bind);
+$res = sqlStatement($query, array_merge($srch_bind, $limitBinds));
 while ($row = sqlFetchArray($res)) {
     // Each <tr> will have an ID identifying the patient.
     $arow = ['DT_RowId' => 'pid_' . $row['pid']];

@@ -25,11 +25,13 @@ require_once(OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.
 
 // Paging parameters.  -1 means not applicable.
 //
-$iDisplayStart  = isset($_GET['iDisplayStart' ]) ? 0 + $_GET['iDisplayStart' ] : -1;
-$iDisplayLength = isset($_GET['iDisplayLength']) ? 0 + $_GET['iDisplayLength'] : -1;
+$iDisplayStart  = isset($_GET['iDisplayStart' ]) ? (int) $_GET['iDisplayStart' ] : -1;
+$iDisplayLength = isset($_GET['iDisplayLength']) ? (int) $_GET['iDisplayLength'] : -1;
 $limit = '';
+$limitBinds = [];
 if ($iDisplayStart >= 0 && $iDisplayLength >= 0) {
-    $limit = "LIMIT " . escape_limit($iDisplayStart) . ", " . escape_limit($iDisplayLength);
+    $limit = "LIMIT ?, ?";
+    $limitBinds = [$iDisplayStart, $iDisplayLength];
 }
 $searchTerm = $_GET['sSearch'] ?? '';
 
@@ -367,7 +369,7 @@ if ($what == 'fields' && $source == 'V') {
     $out['iTotalRecords'] = min($maxCount, $start + $count);
 } else {
     $query = "SELECT $sellist FROM $from $where1 " . ($where2 ?? '') . " $orderby $limit";
-    $res = sqlStatement($query);
+    $res = sqlStatement($query, $limitBinds);
     while ($row = sqlFetchArray($res)) {
         $arow = ['DT_RowId' => genFieldIdString($row)];
         if ($what == 'fields') {

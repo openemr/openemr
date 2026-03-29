@@ -447,7 +447,9 @@ window.onload = function() {
 
 
             if ($pagesize > 0) {
-                $query .= " LIMIT " . escape_limit($pagestart) . "," . escape_limit($pagesize);
+                $query .= " LIMIT ?, ?";
+                $sqlBindArray[] = (int) $pagestart;
+                $sqlBindArray[] = (int) $pagesize;
             }
             $upper  = $pagestart + $pagesize;
             if (($upper > $numRes) || ($pagesize == 0)) {

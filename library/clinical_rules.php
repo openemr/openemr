@@ -3105,43 +3105,43 @@ function sql_interval_string($table, $intervalType, $intervalValue, $dateFocus, 
             case "year":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . escape_limit($intervalValue) .
+                    "', INTERVAL " . (int)$intervalValue .
                     " YEAR) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "month":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . escape_limit($intervalValue) .
+                    "', INTERVAL " . (int)$intervalValue .
                     " MONTH) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "week":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . escape_limit($intervalValue) .
+                    "', INTERVAL " . (int)$intervalValue .
                     " WEEK) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "day":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . escape_limit($intervalValue) .
+                    "', INTERVAL " . (int)$intervalValue .
                     " DAY) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "hour":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . escape_limit($intervalValue) .
+                    "', INTERVAL " . (int)$intervalValue .
                     " HOUR) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "minute":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . escape_limit($intervalValue) .
+                    "', INTERVAL " . (int)$intervalValue .
                     " MINUTE) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "second":
                 $dateSql = "AND (" . add_escape_custom($date_label) .
                     " BETWEEN DATE_SUB('" . add_escape_custom($dateFocus) .
-                    "', INTERVAL " . escape_limit($intervalValue) .
+                    "', INTERVAL " . (int)$intervalValue .
                     " SECOND) AND '" . add_escape_custom($dateTarget) . "') ";
                 break;
             case "flu_season":

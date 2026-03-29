@@ -1027,9 +1027,9 @@ function limit_query_string($limit = null, $start = null, $number = null, $retur
 {
     if (!is_null($start) && !is_null($number)) {
         // For pagination of results
-        $limit_query = " LIMIT " . escape_limit($start) . ", " . escape_limit($number) . " ";
+        $limit_query = " LIMIT " . (int)$start . ", " . (int)$number . " ";
     } elseif (!is_null($limit)) {
-        $limit_query = " LIMIT " . escape_limit($limit) . " ";
+        $limit_query = " LIMIT " . (int)$limit . " ";
     } else {
         // No pagination and no limit
         $limit_query = '';

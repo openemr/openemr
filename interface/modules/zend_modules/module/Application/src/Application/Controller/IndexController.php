@@ -100,7 +100,7 @@ class IndexController extends AbstractActionController
      */
     private function listAutoSuggest($post, $limit)
     {
-        $limitEnd = \Application\Plugin\CommonPlugin::escapeLimit($limit);
+        $limitEnd = (int) $limit;
 
         if (OEGlobalsBag::getInstance()->has('set_autosuggest_options')) {
             $leading = OEGlobalsBag::getInstance()->get('set_autosuggest_options') == 1 ? '%' : $post->leading;
@@ -120,7 +120,7 @@ class IndexController extends AbstractActionController
         $page = $post->page;
         $searchType = $post->searchType;
 
-        $limitStart = $page == '' ? 0 : \Application\Plugin\CommonPlugin::escapeLimit($page);
+        $limitStart = $page == '' ? 0 : (int) $page;
 
         $keyword = $leading . $queryString . $trailing;
         $rowCount = 0;

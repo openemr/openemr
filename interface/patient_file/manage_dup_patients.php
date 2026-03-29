@@ -167,7 +167,7 @@ function calculateScores(): int
         $query = "SELECT p1.pid, MAX(" . getDupScoreSQL() . ") AS dupscore" .
             " FROM patient_data AS p1, patient_data AS p2" .
             " WHERE p1.dupscore = -9 AND p2.pid < p1.pid" .
-            " GROUP BY p1.pid ORDER BY p1.pid LIMIT " . escape_limit($query_limit);
+            " GROUP BY p1.pid ORDER BY p1.pid LIMIT " . (int) $query_limit;
         $results = sqlStatementNoLog($query);
         while ($row1 = sqlFetchArray($results)) {
             $scores[$row1['pid']] = $row1['dupscore'];

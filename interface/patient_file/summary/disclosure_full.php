@@ -116,9 +116,9 @@ if (isset($_GET['deletelid'])) {
             $disclInnerQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el" .
             " LEFT JOIN users u ON u.username = el.user" .
             " WHERE patient_id = ? AND event IN (SELECT option_id FROM list_options WHERE list_id = 'disclosure_type' AND activity = 1)" .
-            " ORDER BY date DESC LIMIT " . escape_limit($offset) . " , " . escape_limit($N);
+            " ORDER BY date DESC LIMIT ?, ?";
 
-            $r1 = sqlStatement($disclInnerQry, [$pid]);
+            $r1 = sqlStatement($disclInnerQry, [$pid, (int) $offset, (int) $N]);
             $n = sqlNumRows($r1);
             $noOfRecordsLeft = ($totalRecords - $offset);
             if ($n > 0) {?>

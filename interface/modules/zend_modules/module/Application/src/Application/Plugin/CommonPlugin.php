@@ -58,11 +58,6 @@ class CommonPlugin extends AbstractPlugin
         return ApplicationTable::fixDate($date, $output_format, $input_format);
     }
 
-    public static function escapeLimit($val)
-    {
-        return escape_limit($val);
-    }
-
     /*
   * Insert the imprted data to audit master table
   *

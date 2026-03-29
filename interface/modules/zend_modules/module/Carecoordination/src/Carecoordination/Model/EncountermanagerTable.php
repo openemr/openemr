@@ -13,7 +13,6 @@
 
 namespace Carecoordination\Model;
 
-use Application\Plugin\CommonPlugin;
 use CouchDB;
 use DOMDocument;
 use Dompdf\Dompdf;
@@ -99,7 +98,7 @@ class EncountermanagerTable
             return count($res);
         }
 
-        $query .= " LIMIT " . CommonPlugin::escapeLimit($data['limit_start']) . "," . CommonPlugin::escapeLimit($data['results']);
+        $query .= " LIMIT " . (int) $data['limit_start'] . "," . (int) $data['results'];
         return QueryUtils::fetchRecords($query, $query_data);
     }
 
@@ -331,7 +330,7 @@ class EncountermanagerTable
 
     public function getFileID($pid, $limit = 1)
     {
-        $limit = CommonPlugin::escapeLimit($limit);
+        $limit = (int) $limit;
         $query = "SELECT cc.id, pd.fname, pd.lname, pd.pid FROM ccda AS cc
 		    LEFT JOIN patient_data AS pd ON pd.pid=cc.pid
 		    WHERE cc.pid = ?

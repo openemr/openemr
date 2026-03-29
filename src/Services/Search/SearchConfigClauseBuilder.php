@@ -14,7 +14,6 @@
 namespace OpenEMR\Services\Search;
 
 use OpenEMR\Common\Database\QueryPagination;
-use OpenEMR\Common\Database\QueryUtils;
 
 class SearchConfigClauseBuilder
 {
@@ -55,7 +54,7 @@ class SearchConfigClauseBuilder
         $limit = $pagination != null ? $pagination->getLimit() : 0;
         if ($limit > 0) { // we do nothing if its 0
             // we go one beyond the pagination limit to see if we need to add a next link
-            $clause = "LIMIT " . QueryUtils::escapeLimit($pagination->getCurrentOffsetId()) . ", " . QueryUtils::escapeLimit($pagination->getLimit() + 1);
+            $clause = "LIMIT " . (int) $pagination->getCurrentOffsetId() . ", " . (int) ($pagination->getLimit() + 1);
         }
 
         return $clause;

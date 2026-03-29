@@ -277,8 +277,9 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     "WHERE a.active='1' AND a.pid=b.pid " . ($add_sql ?? '') .
                     "ORDER BY " . $escapedsortby . " " .
                       escape_sort_order($sortorder) . " " .
-                    "LIMIT " . escape_limit($begin) . ", " .
-                      escape_limit($listnumber);
+                    "LIMIT ?, ?";
+                    $sqlBindArray[] = (int) $begin;
+                    $sqlBindArray[] = (int) $listnumber;
                     $result = sqlStatement($sql, $sqlBindArray);
                 while ($myrow = sqlFetchArray($result)) { ?>
                         <tr>

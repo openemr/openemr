@@ -149,7 +149,7 @@ if ($parameters['go'] == "Go") {
 
     $sqlstmt .= $orderby;
     if ($parameters['limit']) {
-        $sqlstmt .= " LIMIT 0," . escape_limit($parameters['limit']);
+        $sqlstmt .= " LIMIT 0," . (int) $parameters['limit'];
     }
 
     $qResults = sqlStatement($sqlstmt);

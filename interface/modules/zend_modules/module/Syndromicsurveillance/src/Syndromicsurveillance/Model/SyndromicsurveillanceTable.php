@@ -148,7 +148,7 @@ class SyndromicsurveillanceTable
             return count($result);
         }
 
-        $query      .= " LIMIT " . \Application\Plugin\CommonPlugin::escapeLimit($start) . "," . \Application\Plugin\CommonPlugin::escapeLimit($end);
+        $query      .= " LIMIT " . (int) $start . "," . (int) $end;
 
         return QueryUtils::fetchRecords($query, $query_string);
     }

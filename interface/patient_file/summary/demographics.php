@@ -191,7 +191,7 @@ function get_document_by_catg($pid, $doc_catg, $limit = 1)
             AND cd.document_id = d.id
             AND c.id = cd.category_id
             AND c.name LIKE ?
-            ORDER BY d.date DESC LIMIT " . escape_limit($limit), [$pid, $doc_catg]);
+            ORDER BY d.date DESC LIMIT ?", [$pid, $doc_catg, (int) $limit]);
     }
     while ($result = sqlFetchArray($query)) {
         $results[] = $result['id'];
