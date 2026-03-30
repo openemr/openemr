@@ -84,28 +84,12 @@ class Keychain
             if (!isset($dbCipher)) {
                 $dbCipher = $keychain->getCipher(Key::v7Db->getId());
             }
-            $driveKey = KeyMaterial::generate(Cipher\Aes256CbcHmacSha384::KEY_LENGTH);
-            $driveHmacKey = KeyMaterial::generate(32);
-
-            $encDriveKey = $dbCipher->encrypt(new Plaintext($driveKey->key));
-            $encDriveHmacKey = $dbCipher->encrypt(new Plaintext($driveHmacKey->key));
-
-            $driveKeyMessage = new Message(
-                keyId: new Id('007'), // $createKeyIfNeeded->toPaddedString(), but don't trust the assertion
-                ciphertext: $encDriveKey,
-            );
-            $driveHmacKeyMessage = new Message(
-                keyId: new Id('007'),
-                ciphertext: $encDriveHmacKey,
+            $driveCipher = KeyGenerator::generateEncryptedDiskKey(
+                dbCipher: $dbCipher,
+                storageDir: $storageDir,
             );
 
-            file_put_contents("$storageDir/sevena", $driveKeyMessage->encode());
-            file_put_contents("$storageDir/sevenb", $driveHmacKeyMessage->encode());
-
-            $keychain->addCipher(Key::v7Drive->getId(), new Cipher\Aes256CbcHmacSha384(
-                key: $driveKey,
-                hmacKey: $driveHmacKey,
-            ));
+            $keychain->addCipher(Key::v7Drive->getId(), $driveCipher);
         }
 
         return $keychain;
