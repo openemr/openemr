@@ -14,7 +14,7 @@ use OpenEMR\Encryption\{
     Plaintext,
 };
 
-class KeyGenerator
+class KeyV7Generator
 {
     public static function generateDbKey(
         Storage\KeyStorageInterface $storage,

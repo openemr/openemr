@@ -75,7 +75,7 @@ class Keychain
         // TODO: extract this out into a reusable service
         // DB Key
         if (!$keychain->hasKey(Key::v7Db->getId())) {
-            $dbCipher = KeyGenerator::generateDbKey($pkidb);
+            $dbCipher = KeyV7Generator::generateDbKey($pkidb);
             $keychain->addCipher(Key::v7Db->getId(), $dbCipher);
         }
 
@@ -84,7 +84,7 @@ class Keychain
             if (!isset($dbCipher)) {
                 $dbCipher = $keychain->getCipher(Key::v7Db->getId());
             }
-            $driveCipher = KeyGenerator::generateEncryptedDiskKey(
+            $driveCipher = KeyV7Generator::generateEncryptedDiskKey(
                 dbCipher: $dbCipher,
                 storageDir: $storageDir,
             );
