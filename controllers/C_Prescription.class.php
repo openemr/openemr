@@ -460,11 +460,15 @@ class C_Prescription extends Controller
         );
         $addr = '';
         if ($res) {
-            $addr = '<b>' . ($res['name'] ?? '') . "</b>\n"
-                . ($res['street'] ?? '') . "\n"
-                . ($res['city'] ?? '') . ', ' . ($res['state'] ?? '') . ' ' . ($res['postal_code'] ?? '') . "\n"
-                . 'Tel:' . ($res['phone'] ?? '')
-                . (!empty($res['fax']) ? "\nFax: " . $res['fax'] : '');
+            $name = (string) ($res['name'] ?? '');
+            $street = (string) ($res['street'] ?? '');
+            $city = (string) ($res['city'] ?? '');
+            $state = (string) ($res['state'] ?? '');
+            $zip = (string) ($res['postal_code'] ?? '');
+            $phone = (string) ($res['phone'] ?? '');
+            $fax = (string) ($res['fax'] ?? '');
+            $addr = "<b>{$name}</b>\n{$street}\n{$city}, {$state} {$zip}\nTel:{$phone}"
+                . ($fax !== '' ? "\nFax: {$fax}" : '');
         }
         $pdf->ezText($addr, 12);
         $my_y = $pdf->y;
@@ -518,10 +522,12 @@ class C_Prescription extends Controller
         );
         $patientAddr = '';
         if ($res) {
-            $phone = $res['phone_home'] ?: ($res['phone_cell'] ?: ($res['phone_biz'] ?: ''));
-            $patientAddr = ($res['street'] ?? '') . "\n"
-                . ($res['city'] ?? '') . ', ' . ($res['state'] ?? '') . ' ' . ($res['postal_code'] ?? '') . "\n"
-                . $phone;
+            $phone = (string) ($res['phone_home'] ?: ($res['phone_cell'] ?: ($res['phone_biz'] ?: '')));
+            $street = (string) ($res['street'] ?? '');
+            $city = (string) ($res['city'] ?? '');
+            $state = (string) ($res['state'] ?? '');
+            $zip = (string) ($res['postal_code'] ?? '');
+            $patientAddr = "{$street}\n{$city}, {$state} {$zip}\n{$phone}";
         }
         $pdf->ezText($patientAddr);
         $my_y = $pdf->y;
@@ -564,11 +570,18 @@ class C_Prescription extends Controller
         );
         $facilityAddr = '';
         if ($res) {
-            $facilityAddr = '<b>' . text($res['name'] ?? '') . "</b><br />"
-                . text($res['street'] ?? '') . "<br />"
-                . text($res['city'] ?? '') . ', ' . text($res['state'] ?? '') . ' ' . text($res['postal_code'] ?? '') . "<br />"
-                . xl('Tel') . ':' . text($res['phone'] ?? '')
-                . (!empty($res['fax']) ? '<br />' . xl('Fax') . ': ' . text($res['fax']) : '');
+            $name = (string) ($res['name'] ?? '');
+            $street = (string) ($res['street'] ?? '');
+            $city = (string) ($res['city'] ?? '');
+            $state = (string) ($res['state'] ?? '');
+            $zip = (string) ($res['postal_code'] ?? '');
+            $phone = (string) ($res['phone'] ?? '');
+            $fax = (string) ($res['fax'] ?? '');
+            $facilityAddr = '<b>' . text($name) . "</b><br />"
+                . text($street) . "<br />"
+                . text($city) . ', ' . text($state) . ' ' . text($zip) . "<br />"
+                . xl('Tel') . ':' . text($phone)
+                . ($fax !== '' ? '<br />' . xl('Fax') . ': ' . text($fax) : '');
         }
 
         echo ('<span class="large">' . $facilityAddr . '</span>');
@@ -612,11 +625,14 @@ class C_Prescription extends Controller
             [$p->patient->id]
         );
         if ($res) {
-            $phone = $res['phone_home'] ?: ($res['phone_cell'] ?: ($res['phone_biz'] ?: ''));
-            $patientAddrHtml = text($res['street'] ?? '') . '<br />'
-                . text($res['city'] ?? '') . ', ' . text($res['state'] ?? '') . ' ' . text($res['postal_code'] ?? '') . '<br />'
+            $phone = (string) ($res['phone_home'] ?: ($res['phone_cell'] ?: ($res['phone_biz'] ?: '')));
+            $street = (string) ($res['street'] ?? '');
+            $city = (string) ($res['city'] ?? '');
+            $state = (string) ($res['state'] ?? '');
+            $zip = (string) ($res['postal_code'] ?? '');
+            echo text($street) . '<br />'
+                . text($city) . ', ' . text($state) . ' ' . text($zip) . '<br />'
                 . text($phone);
-            echo $patientAddrHtml;
         }
         echo ("</td>\n");
         echo ("<td class='bordered'>\n");
