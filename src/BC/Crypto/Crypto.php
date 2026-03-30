@@ -18,11 +18,13 @@ use OpenEMR\Common\Crypto\{
     KeySource,
     KeyVersion,
 };
-use OpenEMR\Encryption\Keys\Id;
-use OpenEMR\Encryption\Keys\KeychainInterface;
-use OpenEMR\Encryption\Message;
-use OpenEMR\Encryption\MessageFormat;
-use OpenEMR\Encryption\Plaintext;
+use OpenEMR\Encryption\{
+    Keys\Id,
+    Keys\KeychainInterface,
+    Message,
+    MessageFormat,
+    Plaintext,
+};
 use Psr\Log\LoggerInterface;
 
 /**
