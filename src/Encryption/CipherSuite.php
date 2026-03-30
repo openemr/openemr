@@ -6,7 +6,7 @@ namespace OpenEMR\Encryption;
 
 use SensitiveParameter;
 
-readonly class CipherSuite implements CipherSuiteInterface
+final readonly class CipherSuite implements CipherSuiteInterface
 {
     public function __construct(
         private Keys\KeychainInterface $keychain,
