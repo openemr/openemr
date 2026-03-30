@@ -77,8 +77,6 @@ class C_Prescription extends Controller
             $drug_array_output = ["-- " . xl('or select from inventory') . " --"];
             $drug_attributes = '';
 
-            // $res = sqlStatement("SELECT * FROM drugs ORDER BY selector");
-
             $res = sqlStatement("SELECT d.name, d.ndc_number, d.form, d.size, " .
                 "d.unit, d.route, d.substitute, t.drug_id, t.selector, t.dosage, " .
                 "t.period, t.quantity, t.refills, d.drug_code " .
@@ -193,9 +191,9 @@ class C_Prescription extends Controller
             $interaction = "";
             // Ensure RxNorm installed
             $rxn = sqlQuery("SELECT table_name FROM information_schema.tables WHERE table_name = 'RXNCONSO' OR table_name = 'rxconso'");
-            if ($rxn == false) {
+            if ($rxn === false) {
                 $interaction = xlt("Could not find RxNorm Table! Please install.");
-            } elseif ($rxn == true) {
+            } else {
                 //   Grab medication list from prescriptions list and load into array
                 $pid = OEGlobalsBag::getInstance()->get('pid');
                 $medList = sqlStatement("SELECT drug FROM prescriptions WHERE active = 1 AND patient_id = ?", [$pid]);
@@ -274,7 +272,6 @@ class C_Prescription extends Controller
             $this->assign("prescriptions", Prescription::prescriptions_factory($id));
         }
 
-        //print_r(Prescription::prescriptions_factory($id));
         $this->display(OEGlobalsBag::getInstance()->get('template_dir') . "prescription/" . $this->template_mod . "_block.html");
     }
 
@@ -299,7 +296,6 @@ class C_Prescription extends Controller
             $this->assign("prescriptions", Prescription::prescriptions_factory($id));
         }
 
-        //print_r(Prescription::prescriptions_factory($id));
         $this->display(OEGlobalsBag::getInstance()->get('template_dir') . "prescription/" . $this->template_mod . "_fragment.html");
     }
 
@@ -457,9 +453,20 @@ class C_Prescription extends Controller
         //print header
         $pdf->ezImage(OEGlobalsBag::getInstance()->get('oer_config')['prescriptions']['logo'], null, '50', '', 'center', '');
         $pdf->ezColumnsStart(['num' => 2, 'gap' => 10]);
-        $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.fax != '',concat('\nFax: ',f.fax),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" .
-            add_escape_custom($p->provider->id) . "'");
-        $pdf->ezText($res['addr'] ?? '', 12);
+        $res = sqlQuery(
+            "SELECT f.name, f.street, f.city, f.state, f.postal_code, f.phone, f.fax"
+            . " FROM users JOIN facility AS f ON f.name = users.facility WHERE users.id = ?",
+            [$p->provider->id]
+        );
+        $addr = '';
+        if ($res) {
+            $addr = '<b>' . ($res['name'] ?? '') . "</b>\n"
+                . ($res['street'] ?? '') . "\n"
+                . ($res['city'] ?? '') . ', ' . ($res['state'] ?? '') . ' ' . ($res['postal_code'] ?? '') . "\n"
+                . 'Tel:' . ($res['phone'] ?? '')
+                . (!empty($res['fax']) ? "\nFax: " . $res['fax'] : '');
+        }
+        $pdf->ezText($addr, 12);
         $my_y = $pdf->y;
         $pdf->ezNewPage();
         $pdf->ezText('<b>' . $p->provider->get_name_display() . '</b>', 12);
@@ -504,8 +511,19 @@ class C_Prescription extends Controller
         $pdf->line($pdf->ez['leftMargin'], $pdf->y, $pdf->ez['pageWidth'] - $pdf->ez['rightMargin'], $pdf->y);
         $pdf->ezText('<b>' . xl('Patient Name & Address') . '</b>', 6);
         $pdf->ezText($p->patient->get_name_display(), 10);
-        $res = sqlQuery("SELECT  concat(street,'\n',city,', ',state,' ',postal_code,'\n',if(phone_home!='',phone_home,if(phone_cell!='',phone_cell,if(phone_biz!='',phone_biz,'')))) addr from patient_data where pid =" . add_escape_custom($p->patient->id));
-        $pdf->ezText($res['addr']);
+        $res = sqlQuery(
+            "SELECT street, city, state, postal_code, phone_home, phone_cell, phone_biz"
+            . " FROM patient_data WHERE pid = ?",
+            [$p->patient->id]
+        );
+        $patientAddr = '';
+        if ($res) {
+            $phone = $res['phone_home'] ?: ($res['phone_cell'] ?: ($res['phone_biz'] ?: ''));
+            $patientAddr = ($res['street'] ?? '') . "\n"
+                . ($res['city'] ?? '') . ', ' . ($res['state'] ?? '') . ' ' . ($res['postal_code'] ?? '') . "\n"
+                . $phone;
+        }
+        $pdf->ezText($patientAddr);
         $my_y = $pdf->y;
         $pdf->ezNewPage();
         $pdf->line($pdf->ez['leftMargin'], $pdf->y, $pdf->ez['pageWidth'] - $pdf->ez['rightMargin'], $pdf->y);
@@ -539,14 +557,21 @@ class C_Prescription extends Controller
         echo ("</tr>\n");
         echo ("<tr>\n");
         echo ("<td>\n");
-        $res = sqlQuery("SELECT concat('<b>',f.name,'</b>\n',f.street,'\n',f.city,', ',f.state,' ',f.postal_code,'\nTel:',f.phone,if(f.fax != '',concat('\nFax: ',f.fax),'')) addr FROM users JOIN facility AS f ON f.name = users.facility where users.id ='" . add_escape_custom($p->provider->id) . "'");
-        if (!empty($res)) {
-            $patterns =  ['/\n/','/Tel:/','/Fax:/'];
-            $replace =  ['<br />', xl('Tel') . ':', xl('Fax') . ':'];
-            $res = preg_replace($patterns, $replace, $res);
+        $res = sqlQuery(
+            "SELECT f.name, f.street, f.city, f.state, f.postal_code, f.phone, f.fax"
+            . " FROM users JOIN facility AS f ON f.name = users.facility WHERE users.id = ?",
+            [$p->provider->id]
+        );
+        $facilityAddr = '';
+        if ($res) {
+            $facilityAddr = '<b>' . text($res['name'] ?? '') . "</b><br />"
+                . text($res['street'] ?? '') . "<br />"
+                . text($res['city'] ?? '') . ', ' . text($res['state'] ?? '') . ' ' . text($res['postal_code'] ?? '') . "<br />"
+                . xl('Tel') . ':' . text($res['phone'] ?? '')
+                . (!empty($res['fax']) ? '<br />' . xl('Fax') . ': ' . text($res['fax']) : '');
         }
 
-        echo ('<span class="large">' . ($res['addr'] ?? '') . '</span>');
+        echo ('<span class="large">' . $facilityAddr . '</span>');
         echo ("</td>\n");
         echo ("<td>\n");
         echo ('<b><span class="large">' .  $p->provider->get_name_display() . '</span></b>' . '<br />');
@@ -581,9 +606,17 @@ class C_Prescription extends Controller
         echo ("<td rowspan='2' class='bordered'>\n");
         echo ('<b><span class="small">' . xl('Patient Name & Address') . '</span></b>' . '<br />');
         echo (text($p->patient->get_name_display()) . '<br />');
-        $res = sqlQuery("SELECT  concat(street,'\n',city,', ',state,' ',postal_code,'\n',if(phone_home!='',phone_home,if(phone_cell!='',phone_cell,if(phone_biz!='',phone_biz,'')))) addr from patient_data where pid =" . add_escape_custom($p->patient->id));
-        if (!empty($res['addr'])) {
-            echo nl2br(text($res['addr']));
+        $res = sqlQuery(
+            "SELECT street, city, state, postal_code, phone_home, phone_cell, phone_biz"
+            . " FROM patient_data WHERE pid = ?",
+            [$p->patient->id]
+        );
+        if ($res) {
+            $phone = $res['phone_home'] ?: ($res['phone_cell'] ?: ($res['phone_biz'] ?: ''));
+            $patientAddrHtml = text($res['street'] ?? '') . '<br />'
+                . text($res['city'] ?? '') . ', ' . text($res['state'] ?? '') . ' ' . text($res['postal_code'] ?? '') . '<br />'
+                . text($phone);
+            echo $patientAddrHtml;
         }
         echo ("</td>\n");
         echo ("<td class='bordered'>\n");
@@ -934,7 +967,7 @@ class C_Prescription extends Controller
      */
     function getDefaultMailClientText_action()
     {
-        $idsGet = $_GET['ids'];
+        $idsGet = filter_input(INPUT_GET, 'ids');
 
         if (empty($idsGet)) {
             $this->function_argument_error();
