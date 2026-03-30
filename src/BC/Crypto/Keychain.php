@@ -75,14 +75,7 @@ class Keychain
         // TODO: extract this out into a reusable service
         // DB Key
         if (!$keychain->hasKey(Key::v7Db->getId())) {
-            $dbKey = KeyMaterial::generate(Cipher\Aes256CbcHmacSha384::KEY_LENGTH);
-            $dbHmacKey = KeyMaterial::generate(32);
-            $pkidb->storeKey('sevena', $dbKey);
-            $pkidb->storeKey('sevenb', $dbHmacKey);
-            $dbCipher =  new Cipher\Aes256CbcHmacSha384(
-                key: $dbKey,
-                hmacKey: $dbHmacKey,
-            );
+            $dbCipher = KeyGenerator::generateDbKey($pkidb);
             $keychain->addCipher(Key::v7Db->getId(), $dbCipher);
         }
 
