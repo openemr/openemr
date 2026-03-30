@@ -72,16 +72,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FHIR/Observation/FhirObservationPatientService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Offset int on array\\{\\} in isset\\(\\) does not exist\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Offset string on array\\{\\} in isset\\(\\) does not exist\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Offset OpenEMR\\\\Services\\\\Search\\\\ServiceField on array\\<OpenEMR\\\\Services\\\\Search\\\\FhirSearchParameterDefinition\\> in isset\\(\\) does not exist\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Search/FHIRSearchFieldFactory.php',
