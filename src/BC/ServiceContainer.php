@@ -99,10 +99,8 @@ class ServiceContainer
 
     public static function getCrypto(): CryptoInterface
     {
-        // return self::resolve(Crypto\CryptoInterface::class) ?? new Crypto\CryptoGen();
-        // return self::resolve(CryptoInterface::class) ?? Crypto\Crypto::instance(self::getLogger());
-        // FIXME: remove this. Logging to debug tests.
-        return self::resolve(CryptoInterface::class) ?? Crypto\Crypto::instance(new Logging\SystemLogger());
+        // @phpstan-ignore staticMethod.deprecatedClass
+        return self::resolve(CryptoInterface::class) ?? Crypto\Crypto::instance(self::getLogger());
     }
 
     public static function getLogger(): LoggerInterface
