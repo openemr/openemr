@@ -331,6 +331,18 @@ namespace OpenEMR\Common\Database;
  *   revenue_code: string,
  *   chargecat: ?string
  * }
+ *
+ * @phpstan-type BackgroundServicesRow array{
+ *   name: string,
+ *   title: string,
+ *   active: int,
+ *   running: int,
+ *   next_run: string,
+ *   execute_interval: int,
+ *   function: string,
+ *   require_once: ?string,
+ *   sort_order: int
+ * }
  */
 interface TableTypes
 {
