@@ -16,7 +16,6 @@ namespace OpenEMR\Tests\Isolated\BC;
 
 use InvalidArgumentException;
 use OpenEMR\BC\ServiceContainer;
-use OpenEMR\Common\Crypto\CryptoInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Clock\ClockInterface;
 use Psr\Http\Message\{
