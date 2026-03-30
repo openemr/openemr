@@ -14,56 +14,64 @@
 
 require_once(__DIR__ . "/../../globals.php");
 require_once("../../../library/api.inc.php");
-require_once("../../../library/forms.inc.php");
 require_once("content_parser.php");
 
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Services\FormService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
+if (!CsrfUtils::verifyCsrfToken(filter_input(INPUT_POST, 'csrf_token_form') ?? '', session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
-$field_names = ['category' => $_POST["category"], 'subcategory' => $_POST["subcategory"], 'item' => $_POST["item"], 'content' => $_POST['content']];
+/** @var array{category: string, subcategory: string, item: string, content: string} $field_names */
+$field_names = ['category' => filter_input(INPUT_POST, 'category') ?? '', 'subcategory' => filter_input(INPUT_POST, 'subcategory') ?? '', 'item' => filter_input(INPUT_POST, 'item') ?? '', 'content' => filter_input(INPUT_POST, 'content') ?? ''];
 $camos_array = [];
 process_commands($field_names['content'], $camos_array);
 
 $CAMOS_form_name = "CAMOS-" . $field_names['category'] . '-' . $field_names['subcategory'] . '-' . $field_names['item'];
 
-if ($encounter == "") {
-    $encounter = date("Ymd");
+$rawPid = $session->get('pid');
+$pid = is_numeric($rawPid) ? (int) $rawPid : 0;
+if ($pid <= 0) {
+    die(xlt('Patient context required'));
+}
+$rawEncounter = $session->get('encounter');
+$encounter = is_numeric($rawEncounter) ? (int) $rawEncounter : 0;
+$userauthorized = $session->get('userauthorized');
+
+if ($encounter === 0) {
+    $encounter = (int) date("Ymd");
 }
 
-if (preg_match("/^[\s\\r\\n\\\\r\\\\n]*$/", (string) $field_names['content']) == 0) { //make sure blanks do not get submitted
+if (preg_match("/^[\s\\r\\n\\\\r\\\\n]*$/", $field_names['content']) == 0) { //make sure blanks do not get submitted
   // Replace the placeholders before saving the form. This was changed in version 4.0. Previous to this, placeholders
   //   were submitted into the database and converted when viewing. All new notes will now have placeholders converted
   //   before being submitted to the database. Will also continue to support placeholder conversion on report
   //   views to support notes within database that still contain placeholders (ie. notes that were created previous to
   //   version 4.0).
     $field_names['content'] = replace($pid, $encounter, $field_names['content']);
-    reset($field_names);
-    $newid = formSubmit("form_CAMOS", $field_names, $_GET["id"], $userauthorized);
-    addForm($encounter, $CAMOS_form_name, $newid, "CAMOS", $pid, $userauthorized);
+    $newid = formSubmit("form_CAMOS", $field_names, filter_input(INPUT_GET, 'id') ?? '', $userauthorized);
+    (new FormService())->addForm($encounter, $CAMOS_form_name, $newid, "CAMOS", $pid, $userauthorized);
 }
 
 //deal with embedded camos submissions here
 foreach ($camos_array as $val) {
-    if (preg_match("/^[\s\\r\\n\\\\r\\\\n]*$/", (string) $val['content']) == 0) { //make sure blanks not submitted
+    if (preg_match("/^[\s\\r\\n\\\\r\\\\n]*$/", $val['content']) == 0) { //make sure blanks not submitted
         foreach ($val as $k => $v) {
             // Replace the placeholders before saving the form. This was changed in version 4.0. Previous to this, placeholders
             //   were submitted into the database and converted when viewing. All new notes will now have placeholders converted
             //   before being submitted to the database. Will also continue to support placeholder conversion on report
             //   views to support notes within database that still contain placeholders (ie. notes that were created previous to
             //   version 4.0).
-            $val[$k] = trim((string) replace($pid, $encounter, $v));
+            $val[$k] = trim(replace($pid, $encounter, $v));
         }
 
         $CAMOS_form_name = "CAMOS-" . $val['category'] . '-' . $val['subcategory'] . '-' . $val['item'];
-        reset($val);
-        $newid = formSubmit("form_CAMOS", $val, $_GET["id"], $userauthorized);
-        addForm($encounter, $CAMOS_form_name, $newid, "CAMOS", $pid, $userauthorized);
+        $newid = formSubmit("form_CAMOS", $val, filter_input(INPUT_GET, 'id') ?? '', $userauthorized);
+        (new FormService())->addForm($encounter, $CAMOS_form_name, $newid, "CAMOS", $pid, $userauthorized);
     }
 }
 
-echo "<font color=red><b>" . xlt('submitted') . ": " . text(time()) . "</b></font>";
+echo "<font color=red><b>" . xlt('submitted') . ": " . text(strval(time())) . "</b></font>";

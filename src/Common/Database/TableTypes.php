@@ -343,6 +343,105 @@ namespace OpenEMR\Common\Database;
  *   require_once: ?string,
  *   sort_order: numeric-string
  * }
+ *
+ * @phpstan-type FormsRow array{
+ *   id: numeric-string,
+ *   date: ?string,
+ *   encounter: ?numeric-string,
+ *   form_name: ?string,
+ *   form_id: ?numeric-string,
+ *   pid: ?numeric-string,
+ *   user: ?string,
+ *   groupname: ?string,
+ *   authorized: ?numeric-string,
+ *   deleted: ?numeric-string,
+ *   formdir: ?string,
+ *   therapy_group_id: ?numeric-string,
+ *   issue_id: numeric-string,
+ *   provider_id: numeric-string
+ * }
+ *
+ * @phpstan-type FormVitalsRow array{
+ *   id: numeric-string,
+ *   uuid: ?string,
+ *   date: ?string,
+ *   pid: ?numeric-string,
+ *   user: ?string,
+ *   groupname: ?string,
+ *   authorized: ?numeric-string,
+ *   activity: ?numeric-string,
+ *   bps: ?string,
+ *   bpd: ?string,
+ *   weight: ?numeric-string,
+ *   height: ?numeric-string,
+ *   temperature: ?numeric-string,
+ *   temp_method: ?string,
+ *   pulse: ?numeric-string,
+ *   respiration: ?numeric-string,
+ *   note: ?string,
+ *   BMI: ?numeric-string,
+ *   BMI_status: ?string,
+ *   waist_circ: ?numeric-string,
+ *   head_circ: ?numeric-string,
+ *   oxygen_saturation: ?numeric-string,
+ *   oxygen_flow_rate: ?numeric-string,
+ *   external_id: ?string,
+ *   ped_weight_height: ?numeric-string,
+ *   ped_bmi: ?numeric-string,
+ *   ped_head_circ: ?numeric-string,
+ *   inhaled_oxygen_concentration: ?numeric-string,
+ *   last_updated: string
+ * }
+ *
+ * @phpstan-type FormCAMOSRow array{
+ *   id: numeric-string,
+ *   date: ?string,
+ *   pid: ?numeric-string,
+ *   user: ?string,
+ *   groupname: ?string,
+ *   authorized: ?numeric-string,
+ *   activity: ?numeric-string,
+ *   category: ?string,
+ *   subcategory: ?string,
+ *   item: ?string,
+ *   content: ?string
+ * }
+ *
+ * @phpstan-type FormCAMOSCategoryRow array{
+ *   id: numeric-string,
+ *   date: ?string,
+ *   pid: ?numeric-string,
+ *   user: ?string,
+ *   groupname: ?string,
+ *   authorized: ?numeric-string,
+ *   activity: ?numeric-string,
+ *   category: ?string
+ * }
+ *
+ * @phpstan-type FormCAMOSSubcategoryRow array{
+ *   id: numeric-string,
+ *   date: ?string,
+ *   pid: ?numeric-string,
+ *   user: ?string,
+ *   groupname: ?string,
+ *   authorized: ?numeric-string,
+ *   activity: ?numeric-string,
+ *   subcategory: ?string,
+ *   category_id: numeric-string
+ * }
+ *
+ * @phpstan-type FormCAMOSItemRow array{
+ *   id: numeric-string,
+ *   date: ?string,
+ *   pid: ?numeric-string,
+ *   user: ?string,
+ *   groupname: ?string,
+ *   authorized: ?numeric-string,
+ *   activity: ?numeric-string,
+ *   item: ?string,
+ *   content: ?string,
+ *   subcategory_id: numeric-string
+ * }
  */
 interface TableTypes
 {
