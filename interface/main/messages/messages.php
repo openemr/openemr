@@ -671,7 +671,7 @@ if (!empty($_REQUEST['go'])) { ?>
                                 <tr id=\"row" . attr($count) . "\" height='24' class='messages-item-row' role='button'>
                                     <td align='center'>
                                         <input type='checkbox' id=\"check" . attr($count) . "\" name=\"delete_id[]\" value=\"" .
-                                        attr($myrow['id']) . "\" onclick=\"if(this.checked==true){ selectRow(" . attr(js_escape($count)) . "); }else{ deselectRow(" . attr(js_escape($count)) . "); }\"></td>
+                                        attr($myrow['id']) . "\" onclick=\"if(this.checked==true){ selectRow(" . attr(js_escape('row' . $count)) . "); }else{ deselectRow(" . attr(js_escape('row' . $count)) . "); }\"></td>
                                     <td>
                                         <div>" . text($name) . "</div>
                                     </td>
