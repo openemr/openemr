@@ -51,8 +51,18 @@ class Common
      */
     public static function get($var, $default = ''): string
     {
-        $val = $_GET[$var] ?? null;
-        return isset($val) && $val !== '' ? $val : $default;
+        // filter_input reads the original SAPI input, not the $_GET array.
+        // It returns null when not set, false on failure — neither is a
+        // usable string, so fall back to $_GET for CLI/test environments
+        // or filter failure.
+        $val = filter_input(INPUT_GET, $var);
+        if (!is_string($val)) {
+            $val = $_GET[$var] ?? null;
+        }
+        if (is_string($val)) {
+            return $val;
+        }
+        return $default;
     }
 
     /**
@@ -64,8 +74,21 @@ class Common
      */
     public static function post($var, $default = ''): string|array
     {
-        $val = $_POST[$var] ?? null;
-        return isset($val) && $val !== '' ? $val : $default;
+        // filter_input returns null when not set, false on failure
+        // (including array values without FILTER_REQUIRE_ARRAY).
+        // Fall back to $_POST for CLI/test, arrays, or filter failure.
+        $val = filter_input(INPUT_POST, $var);
+        if (!is_string($val)) {
+            $val = $_POST[$var] ?? null;
+        }
+        if (is_array($val)) {
+            /** @var string[] $val */
+            return $val;
+        }
+        if (is_string($val)) {
+            return $val;
+        }
+        return $default;
     }
 
     /**

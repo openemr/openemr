@@ -188,17 +188,18 @@ class TreatmentPreferenceViewCard extends CardModel
 
     private function handlePost(): void
     {
-        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+        if ((filter_input(INPUT_SERVER, 'REQUEST_METHOD') ?: 'GET') !== 'POST') {
             return;
         }
-        if (($_POST['pref_type'] ?? '') !== 'treatment_intervention') {
+        if ((filter_input(INPUT_POST, 'pref_type') ?: '') !== 'treatment_intervention') {
             return;
         }
         CsrfUtils::checkCsrfInput(INPUT_POST, key: 'csrf_token', dieOnFail: true);
 
-        $action = $_POST['action'] ?? '';
+        $action = filter_input(INPUT_POST, 'action') ?: '';
         if ($action === 'save') {
-            $id   = isset($_POST['id']) && $_POST['id'] !== '' ? (int)$_POST['id'] : null;
+            $idInput = filter_input(INPUT_POST, 'id');
+            $id   = $idInput !== null && $idInput !== '' ? (filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT) ?: null) : null;
             $data = $this->collectPost($_POST);  // note: returns patient_id
             if ($id) {
                 $this->service->update($id, $data);
@@ -208,7 +209,7 @@ class TreatmentPreferenceViewCard extends CardModel
                 $this->flashMessage = xl('Preference saved');
             }
         } elseif ($action === 'delete') {
-            $id = (int)($_POST['id'] ?? 0);
+            $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT) ?: 0;
             if ($id) {
                 $this->service->delete($id);     // method exists
                 $this->flashMessage = xl('Preference deleted');

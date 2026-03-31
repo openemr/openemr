@@ -1,0 +1,13 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Construct empty\(\) is not allowed\. Use more strict comparison\.$#'
+			identifier: empty.notAllowed
+			count: 1
+			path: portal/add_edit_event_user.php
+
+		-
+			message: '#^Parameter \#1 \$text of function attr expects string, mixed given\.$#'
+			identifier: argument.type
+			count: 1
+			path: portal/add_edit_event_user.php

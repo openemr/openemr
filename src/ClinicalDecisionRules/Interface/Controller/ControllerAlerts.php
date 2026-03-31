@@ -47,11 +47,11 @@ class ControllerAlerts extends BaseController
     {
 
 
-        $ids = $_POST["id"];
-        $actives = $_POST["active"] ?? null;
-        $passives = $_POST["passive"];
-        $reminders = $_POST["reminder"] ?? null;
-        $access_controls = $_POST["access_control"];
+        $ids = filter_input(INPUT_POST, 'id', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
+        $actives = filter_input(INPUT_POST, 'active', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
+        $passives = filter_input(INPUT_POST, 'passive', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
+        $reminders = filter_input(INPUT_POST, 'reminder', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
+        $access_controls = filter_input(INPUT_POST, 'access_control', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
 
 
         // The array of check-boxes we get from the POST are only those of the checked ones with value 'on'.

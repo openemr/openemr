@@ -122,14 +122,14 @@ class CareTeamViewCard extends CardModel
 
     private function handleFormSubmission()
     {
-        if (($_POST['save_care_team'] ?? '') === 'true') {
+        if ((filter_input(INPUT_POST, 'save_care_team') ?: '') === 'true') {
             CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
-            $teamId = ValidationUtils::validateInt($_POST['team_id']);
+            $teamId = ValidationUtils::validateInt(filter_input(INPUT_POST, 'team_id'));
             $teamId = $teamId === false ? null : $teamId;
-            $teamName = trim($_POST['team_name'] ?? '');
-            $team = $_POST['team'] ?? [];
-            $teamStatus = trim($_POST['team_status'] ?? 'active'); // AI-generated addition
+            $teamName = trim(filter_input(INPUT_POST, 'team_name') ?: '');
+            $team = filter_input(INPUT_POST, 'team', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?: [];
+            $teamStatus = trim(filter_input(INPUT_POST, 'team_status') ?: 'active'); // AI-generated addition
 
             if (!$this->pid) {
                 die(xlt("Invalid request."));
