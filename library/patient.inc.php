@@ -539,7 +539,7 @@ function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, p
         // Do not search last name
         $where = "fname LIKE ? ";
         array_push($sqlBindArray, $names['first']);
-        if ($names['middle'] != '') {
+        if (!empty($names['middle'])) {
             $where .= "AND mname LIKE ? ";
             array_push($sqlBindArray, $names['middle']);
         }
@@ -552,7 +552,7 @@ function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, p
         $names['first'] = $names['last'];
         $where = "lname LIKE ? OR fname LIKE ? ";
         array_push($sqlBindArray, $names['last'], $names['first']);
-    } elseif ($names['middle'] != '') {
+    } elseif (!empty($names['middle'])) {
         $where = "lname LIKE ? AND fname LIKE ? AND mname LIKE ? ";
         array_push($sqlBindArray, $names['last'], $names['first'], $names['middle']);
     } else {
@@ -659,6 +659,7 @@ function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, provid
         $sql .= " limit " . escape_limit($start) . ", " . escape_limit($limit);
     }
 
+    $returnval = [];
     $rez = sqlStatement($sql, $sqlBindArray);
     for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
         $returnval[$iter] = $row;

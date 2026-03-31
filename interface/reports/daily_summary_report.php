@@ -307,6 +307,9 @@ $selectedProvider = $_POST['form_provider'] ?? "";  // provider filter
 
         while ($totalPaymentRecord = sqlFetchArray($totalPaymetsSql)) {
             $totalPayment[$totalPaymentRecord['Date']][$totalPaymentRecord['facilityName']][$totalPaymentRecord['provider_name']]['payments'] ??= 0;
+            if (!isset($totalPayment[$totalPaymentRecord['Date']][$totalPaymentRecord['facilityName']][$totalPaymentRecord['provider_name']]['payments'])) {
+                $totalPayment[$totalPaymentRecord['Date']][$totalPaymentRecord['facilityName']][$totalPaymentRecord['provider_name']]['payments'] = 0;
+            }
             $totalPayment[$totalPaymentRecord['Date']][$totalPaymentRecord['facilityName']][$totalPaymentRecord['provider_name']]['payments'] += $totalPaymentRecord['totalpayment'];
         }
 
@@ -321,6 +324,9 @@ $selectedProvider = $_POST['form_provider'] ?? "";  // provider filter
 
 
         while ($totalPaidRecord = sqlFetchArray($totalPaidAmountSql)) {
+            if (!isset($totalPaid[$totalPaidRecord['Date']][$totalPaidRecord['facilityName']][$totalPaidRecord['provider_name']]['paidAmount'])) {
+                $totalPaid[$totalPaidRecord['Date']][$totalPaidRecord['facilityName']][$totalPaidRecord['provider_name']]['paidAmount'] = 0;
+            }
             $totalPaid[$totalPaidRecord['Date']][$totalPaidRecord['facilityName']][$totalPaidRecord['provider_name']]['paidAmount'] += $totalPaidRecord['totalPaidAmount'];
         }
 
@@ -369,7 +375,7 @@ $selectedProvider = $_POST['form_provider'] ?? "";  // provider filter
                                         <td>
                                             <?php
                                             if (isset($information['payments']) || isset($information['paidAmount'])) {
-                                                $dueAmount = number_format(floatval(str_replace(",", "", $information['payments'])) - floatval(str_replace(",", "", ($information['paidAmount'] ?? null))), 2);
+                                                $dueAmount = number_format(floatval(str_replace(",", "", ($information['payments'] ?? ''))) - floatval(str_replace(",", "", ($information['paidAmount'] ?? ''))), 2);
                                             } else {
                                                 $dueAmount = number_format(0, 2);
                                             }
