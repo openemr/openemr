@@ -149,7 +149,7 @@ npm run stylelint         # CSS/SCSS lint
 npm run build           # Production build (webpack + CSS sync)
 npm run build:webpack   # Webpack theme compilation only
 npm run build:sync      # Sync static CSS to public/themes/
-npm run dev             # Development build with file watching
+npm run dev             # Dev theme build, static CSS sync, then webpack watch
 ```
 
 ## Coding Standards
