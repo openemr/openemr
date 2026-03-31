@@ -14,6 +14,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\FaxSMS\Controller\AppDispatch;
@@ -511,7 +512,7 @@ function logRemindersArray(): array
         $reminders[$i]['messageID'] = $drRow['dr_id'];
         $reminders[$i]['PatientID'] = $drRow['pid'];
 
-        $reminders[$i]['pDate'] = ($drRow['processedDate'] == '0000-00-00 00:00:00' ? 'N/A' : $drRow['processedDate']);
+        $reminders[$i]['pDate'] = (Utilities::isDateEmpty($drRow['processedDate']) ? 'N/A' : $drRow['processedDate']);
         $reminders[$i]['sDate'] = $drRow['sDate'];
         $reminders[$i]['dDate'] = $drRow['dDate'];
 

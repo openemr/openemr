@@ -52,6 +52,7 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('incdir') . "/main/h
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/group.inc.php');
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Database\QueryUtils;
@@ -960,7 +961,7 @@ if ($groupid) {
     $group_data = getGroup($groupid);
     $groupname = $group_data['group_name'];
     $group_end_date = $group_data['group_end_date'];
-    if (!$recurrence_end_date && $group_end_date && $group_end_date != '0000-00-00') {
+    if (!$recurrence_end_date && $group_end_date && !Utilities::isDateEmpty($group_end_date)) {
         $recurrence_end_date = $group_end_date;// If there is no recurr end date get group's end date as default (only if group has an end date)
     }
 }

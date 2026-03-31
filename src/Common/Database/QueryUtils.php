@@ -42,6 +42,11 @@ class QueryUtils
 
     public static function escapeTableName(string $table): string
     {
+        // Reject table names containing backticks to prevent identifier-context injection
+        if (str_contains($table, '`')) {
+            throw new SqlQueryException("", "ERROR: OpenEMR SQL Escaping ERROR of the following string: " . \errorLogEscape($table));
+        }
+
         $res = self::sqlStatementThrowException("SHOW TABLES", [], noLog: true);
         $tables_array = [];
         while ($row = self::fetchArrayFromResultSet($res)) {
@@ -49,8 +54,9 @@ class QueryUtils
             $tables_array[] = $row[$keys_return[0]];
         }
 
-        // Now can escape(via whitelisting) the sql table name
-        return \escape_identifier($table, $tables_array, true, false);
+        // Whitelist against actual tables, then backtick-quote to keep in identifier context
+        $tableName = \escape_identifier($table, $tables_array, true, false);
+        return sprintf('`%s`', $tableName);
     }
 
     /**

@@ -18,6 +18,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Billing\InsurancePolicyTypes;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -1158,7 +1159,7 @@ function pdValueOrNull($key, $value)
     if (
         (in_array($key, ['DOB', 'regdate', 'contrastart']) ||
         str_starts_with((string) $key, 'userdate') || $key == 'deceased_date') &&
-        (empty($value) || $value == '0000-00-00')
+        Utilities::isDateEmpty($value)
     ) {
         return "NULL";
     } else {

@@ -20,6 +20,7 @@
 
 require_once('../globals.php');
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Billing\BillingUtilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
@@ -64,7 +65,7 @@ function deleter_row_delete(string $table, string $where, array $binds = []): vo
     while ($trow = QueryUtils::fetchArrayFromResultSet($tres)) {
         $logstring = "";
         foreach ($trow as $key => $value) {
-            if (! $value || $value == '0000-00-00 00:00:00') {
+            if (Utilities::isDateEmpty($value)) {
                 continue;
             }
 

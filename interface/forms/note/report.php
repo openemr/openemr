@@ -14,6 +14,7 @@
 
 
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . '/../../globals.php');
@@ -28,8 +29,7 @@ function note_report($pid, $encounter, $cols, $id): void
         foreach ($data as $key => $value) {
             if (
                 in_array($key, ["id", "pid", "user", "groupname", "authorized", "activity", "date"]) ||
-                $value == "" ||
-                $value == "0000-00-00 00:00:00"
+                Utilities::isDateEmpty($value)
             ) {
                 continue;
             }
