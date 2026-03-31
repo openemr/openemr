@@ -33,7 +33,7 @@ Compiling SASS files locally requires [node.js](http://nodejs.org) and [npm](htt
 - If running in docker: `docker exec -it [your_container_id] /bin/sh` then cd into `openemr`
 
 From here you can either:
-* `npm run dev` - compiles `.scss` files in development mode and watches for changes.
+* `npm run dev` - compiles `.scss` files in development mode, syncs static CSS to `public/themes/`, then watches for changes.
 * `npm run build` - compiles all themes for production.
 
 ## TODOs

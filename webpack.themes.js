@@ -3,20 +3,18 @@
 const fs = require("fs");
 
 /**
- * Webpack build for OpenEMR SCSS themes and custom module React assets.
+ * Webpack build for OpenEMR SCSS themes.
  *
  * Invoked by `npm run build` and `npm run build:webpack`.
  *
  * Usage:
- *   npm run build             # Webpack (all themes + React)
+ *   npm run build             # Themes webpack + static CSS sync (scripts/sync-css.js)
  *   npm run build:webpack     # Webpack only (dev/CI iteration)
- *   npm run watch:webpack     # Webpack dev build with file watching
+ *   npm run watch             # Webpack dev build with file watching
  *
  * Outputs:
  *   public/themes/            ← BS4 SCSS base theme CSS (same paths as Gulp)
  *   public/themes/misc/       ← misc SCSS
- *   interface/modules/custom_modules/<module>/public/assets/js/dist/
- *                             ← React/JS module bundles (when entries exist)
  *
  * Docker cache:
  *   The filesystem cache writes to .webpack-cache/ (mapped by the Dockerfile's
@@ -100,8 +98,8 @@ function sassRule() {
             ],
             importer: publicAssetsImporter,
           },
-          // webpackImporter: true ensures every transitively imported SCSS file
-          // also passes through the sass-bsimport-loader pre-loader chain.
+          // webpackImporter: true uses webpack's module resolution for @import,
+          // complementing publicAssetsImporter for public/assets/... paths.
           webpackImporter: true,
         },
       },
@@ -256,58 +254,5 @@ const themesConfig = {
   stats: { colors: true },
   cache: sharedCacheConfig(),
 };
-
-// ---------------------------------------------------------------------------
-// Config 2+ — Custom module React/TypeScript bundles
-//
-// Each OpenCoreEMR module with a React frontend gets its own webpack config
-// so it can specify its own output.path (the module's public/assets/js/dist/).
-// The rsync in the Dockerfile picks up *.js / *.css from anywhere in the tree,
-// so these bundles land in the nginx image at the correct sub-path.
-//
-// To add a new module, copy the block below, uncomment, and update paths:
-//
-// To add a new module, copy this block and update paths.
-// ---------------------------------------------------------------------------
-// eslint-disable-next-line no-unused-vars -- scaffold helper for new module configs
-function buildModuleConfig(name, entryFile, outputDir) {
-  return {
-    name,
-    mode: isProduction ? "production" : "development",
-    entry: { app: entryFile },
-    output: {
-      path: outputDir,
-      filename: "[name].js",
-      chunkFilename: "[name].chunk.js",
-      clean: false,
-    },
-    resolve: {
-      extensions: [".tsx", ".ts", ".js", ".jsx"],
-    },
-    module: {
-      rules: [
-        {
-          test: /\.(ts|tsx|js|jsx)$/,
-          exclude: /node_modules/,
-          use: [
-            {
-              loader: "babel-loader",
-              options: {
-                presets: [
-                  ["@babel/preset-env", { targets: "> 1%, not dead" }],
-                  ["@babel/preset-react", { runtime: "automatic" }],
-                  "@babel/preset-typescript",
-                ],
-              },
-            },
-          ],
-        },
-      ],
-    },
-    devtool: isProduction ? "source-map" : "eval-source-map",
-    stats: { colors: true },
-    cache: sharedCacheConfig(),
-  };
-}
 
 module.exports = [themesConfig];
