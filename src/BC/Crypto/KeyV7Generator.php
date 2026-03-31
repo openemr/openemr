@@ -13,6 +13,7 @@ use OpenEMR\Encryption\{
     Message,
     Plaintext,
 };
+use RuntimeException;
 
 class KeyV7Generator
 {
@@ -21,6 +22,8 @@ class KeyV7Generator
     ): CipherInterface {
         $dbKey = KeyMaterial::generate(Aes256CbcHmacSha384::KEY_LENGTH);
         $dbHmacKey = KeyMaterial::generate(32);
+        // This doesn't locally check for existence since the interface
+        // promises it won't ovewrite data.
         $storage->storeKey('sevena', $dbKey);
         $storage->storeKey('sevenb', $dbHmacKey);
         return new Aes256CbcHmacSha384(
@@ -33,27 +36,41 @@ class KeyV7Generator
         CipherInterface $dbCipher,
         string $storageDir,
     ): CipherInterface {
-        $driveKey = KeyMaterial::generate(Aes256CbcHmacSha384::KEY_LENGTH);
-        $driveHmacKey = KeyMaterial::generate(32);
+        // Opening with 'x' will error if the file exists; this functions as
+        // a cross-process lock for the create operation. These are done as
+        // a pair at the start rather than inside of createDriveKey
+        // individually to get an all-or-nothing operation.
+        $fhKey = fopen("$storageDir/sevena", 'x');
+        $fhHmac = fopen("$storageDir/sevenb", 'x');
+        if ($fhKey === false || $fhHmac === false) {
+            throw new RuntimeException('Could not fopen key file for creation.');
+        }
 
-        $encDriveKey = $dbCipher->encrypt(new Plaintext($driveKey->key));
-        $encDriveHmacKey = $dbCipher->encrypt(new Plaintext($driveHmacKey->key));
-
-        $driveKeyMessage = new Message(
-            keyId: new Id('007'), // $createKeyIfNeeded->toPaddedString(), but don't trust the assertion
-            ciphertext: $encDriveKey,
-        );
-        $driveHmacKeyMessage = new Message(
-            keyId: new Id('007'),
-            ciphertext: $encDriveHmacKey,
-        );
-
-        file_put_contents("$storageDir/sevena", $driveKeyMessage->encode());
-        file_put_contents("$storageDir/sevenb", $driveHmacKeyMessage->encode());
+        $driveKey = self::createDriveKey($fhKey, Aes256CbcHmacSha384::KEY_LENGTH, $dbCipher);
+        $driveHmacKey = self::createDriveKey($fhHmac, 32, $dbCipher);
 
         return new Aes256CbcHmacSha384(
             key: $driveKey,
             hmacKey: $driveHmacKey,
         );
+    }
+
+    /**
+     * @param resource $fh An open file handle to where the key will be written
+     * @param int<1, max> $length
+     */
+    private static function createDriveKey(
+        $fh,
+        int $length,
+        CipherInterface $cipher,
+    ): KeyMaterial {
+        $key = KeyMaterial::generate($length);
+        $encKey = $cipher->encrypt(new Plaintext($key->key));
+        $keyMessage = new Message(keyId: new Id('007'), ciphertext: $encKey);
+        $result = fwrite($fh, $keyMessage->encode());
+        if ($result === false) {
+            throw new RuntimeException('Failed to write key');
+        }
+        return $key;
     }
 }
