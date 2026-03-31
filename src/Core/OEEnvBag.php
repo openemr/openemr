@@ -38,6 +38,8 @@ class OEEnvBag extends ParameterBag
 
     protected static function createInstance(): static
     {
-        return new static(array_merge($_SERVER, $_ENV, getenv())); // @phpstan-ignore new.static
+        $environment = getenv();
+
+        return new static(array_merge($_SERVER, $_ENV, is_array($environment) ? $environment : [])); // @phpstan-ignore new.static
     }
 }
