@@ -21,10 +21,11 @@ enum ConnectionType
      */
     case Main;
     /**
-     * Used during audit operations. Separate from the main because:
-     * - It enables offsite audit
-     * - It will not disrupt autoincrement ids from writing to the audit tables
+     * Used during audit operations and some application bootstrapping.
+     * Separate from the main connection because it:
+     * - Enables offsite audit
+     * - Will not disrupt autoincrement ids when writing to the audit tables
      * - Breaks a circular dependency when setting up auditing middleware
      */
-    case Audit;
+    case NonAudited;
 }
