@@ -88,10 +88,7 @@ class PatientNameHistoryService extends BaseService
 
     public static function formatPreviousName($item)
     {
-        if (
-            Utilities::isDateEmpty($item['previous_name_enddate'])
-            || $item['previous_name_enddate'] === '00/00/0000'
-        ) {
+        if (Utilities::isDateEmpty($item['previous_name_enddate'])) {
             $item['previous_name_enddate'] = '';
         }
         $item['previous_name_enddate'] = oeFormatShortDate($item['previous_name_enddate']);

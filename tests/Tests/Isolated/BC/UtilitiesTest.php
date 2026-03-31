@@ -35,6 +35,8 @@ class UtilitiesTest extends TestCase
             'empty string' => ['', true],
             'zero date' => ['0000-00-00', true],
             'zero datetime' => ['0000-00-00 00:00:00', true],
+            'zero date slash format' => ['00/00/0000', true],
+            'zero date reversed' => ['00-00-0000', true],
             'valid date string' => ['2024-01-15', false],
             'valid datetime string' => ['2024-01-15 10:30:00', false],
             'DateTimeImmutable' => [new DateTimeImmutable('2024-01-15'), false],

@@ -29,8 +29,13 @@ class Utilities
         if ($date === '0000-00-00 00:00:00') {
             return true;
         }
+        if ($date === '00/00/0000') {
+            return true;
+        }
+        if ($date === '00-00-0000') {
+            return true;
+        }
 
-        // what else could show up?
         return false;
     }
 }
