@@ -17,11 +17,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/eRxStore.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Call to function myauth\\(\\) with incorrect case\\: myAuth$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/new.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Call to function sqlQuery\\(\\) with incorrect case\\: sqlquery$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/misc_billing_options/new.php',

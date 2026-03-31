@@ -15,6 +15,7 @@ require_once "../interface/globals.php";
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
 //ensure user has proper access
 if (!AclMain::aclCheckCore('patient', 'rx', '', 'write')) {
@@ -22,9 +23,10 @@ if (!AclMain::aclCheckCore('patient', 'rx', '', 'write')) {
     exit;
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 $id = (isset($_POST['drugid'])) ? (int)$_POST['drugid'] : '';
 if ((!empty($id)) && ($id > 0)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 
@@ -50,7 +52,7 @@ if ((!empty($id)) && ($id > 0)) {
         if (!empty($drugname)) {
             $medicationlist = "DELETE FROM lists WHERE pid = ? AND type = 'medication' AND title = ?";
             sqlStatement($medicationlist, [$pid, $drugname]);
-            EventAuditLogger::getInstance()->newEvent("delete", $_SESSION['authUser'], $_SESSION['authProvider'], 1, $drugname . " prescription/medication removed", $pid);
+            EventAuditLogger::getInstance()->newEvent("delete", $session->get('authUser'), $session->get('authProvider'), 1, $drugname . " prescription/medication removed", $pid);
         }
     } catch (\Throwable $e) {
         echo 'Caught exception ', text($e->getMessage()), "\n";

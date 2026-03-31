@@ -446,7 +446,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                     if (date("Y-m-d", strtotime((string) $iter['bill_date'])) == "1969-12-31") {
                         print "<td class='w-100'><span class='text'><center>" . text($iter['units']) . "</center>" ;
                         print "</span></td><td class='w-100'><span class='text'><center>" . text($iter['fee']) . "</center>";
-                        if (OEGlobalsBag::getInstance()->get('language_default') === 'English (Standard)') {
+                        if (OEGlobalsBag::getInstance()->getString('language_default') === 'English (Standard)') {
                             print "</span></td><td width='250'><span class='text'><center>" . text(ucwords(strtolower(substr((string) $iter['code_text'], 0, 38)))) . "</center>";
                         } else {
                             print "</span></td><td width='250'><span class='text'><center>" . text(substr((string) $iter['code_text'], 0, 38)) . "</center>";
@@ -462,7 +462,7 @@ if ($ret = getBillsBetweendayReport($code_type)) {
                             $line_total += $iter['fee'];
                             print "<td class='w-100'><span class='text'><center>" . text($iter["units"]) . "</center>";
                             print "</span></td><td class='w-100'><span class='text'><center>" . text($iter['fee']) . "</center>";
-                            if (OEGlobalsBag::getInstance()->get('language_default') === 'English (Standard)') {
+                            if (OEGlobalsBag::getInstance()->getString('language_default') === 'English (Standard)') {
                                  print "</span></td><td width='250'><span class='text'><center>" . text(ucwords(strtolower(substr((string) $iter['code_text'], 0, 38)))) . "</center>";
                             } else {
                                  print "</span></td><td width='250'><span class='text'><center>" . text(substr((string) $iter['code_text'], 0, 38)) . "</center>";

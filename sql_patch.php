@@ -26,11 +26,13 @@ $ignoreAuth = true; // no login required
 require_once('interface/globals.php');
 require_once('library/sql_upgrade_fx.php');
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\SQLUpgradeService;
 use OpenEMR\Services\VersionService;
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 // Force logging off
 OEGlobalsBag::getInstance()->set("enable_auditlog", 0);
 
@@ -50,7 +52,7 @@ $sqlUpgradeService = new SQLUpgradeService();
 <div style="box-shadow: 3px 3px 5px 6px #ccc; border-radius: 20px; padding: 10px 40px;background-color:#EFEFEF; width:500px; margin:40px auto">
 
   <p style="font-weight:bold; font-size:1.8em; text-align:center">OpenEMR <?php echo text($EMRversion),' ',xlt('Database Patch'),' ',text($v_realpatch) ?></p>
-  <p style="font-weight:bold; text-align:center;"><?php echo xlt('Applying Patch to site'),' : ',text($_SESSION['site_id']) ?></p>
+  <p style="font-weight:bold; text-align:center;"><?php echo xlt('Applying Patch to site'),' : ',text($session->get('site_id')) ?></p>
 
 
     <?php
@@ -103,7 +105,7 @@ $sqlUpgradeService = new SQLUpgradeService();
 
     echo '<p style="text-align:center; font-size:1.8em;">OpenEMR ',xlt('Version'),' = ',text($EMRversion . '(' . $desiredVersion['v_realpatch'] . ')'),'.</p>';
 
-    echo '<p><a style="border-radius: 10px; padding:5px; width:200px; margin:0 auto; background-color:green; color:white; font-weight:bold; display:block; text-align:center;" href="index.php?site=',attr($_SESSION['site_id']) . '">',xlt('Log in'),'</a></p>';
+    echo '<p><a style="border-radius: 10px; padding:5px; width:200px; margin:0 auto; background-color:green; color:white; font-weight:bold; display:block; text-align:center;" href="index.php?site=',attr($session->get('site_id')) . '">',xlt('Log in'),'</a></p>';
 
     if (isset($_SERVER['HTTP_REFERER'])) {
         $split = preg_split('/\//', (string) $_SERVER['HTTP_REFERER']);

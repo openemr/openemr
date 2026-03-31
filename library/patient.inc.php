@@ -19,6 +19,7 @@
  */
 
 use OpenEMR\Billing\InsurancePolicyTypes;
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
@@ -140,7 +141,7 @@ function getFacility($facid = 0)
 {
     global $facilityService;
 
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $facility = null;
 
     if ($facid > 0) {
@@ -258,11 +259,14 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
     //--------------------------------
     //(CHEMED) facility filter
     $param2 = "";
+    $sqlBindArray = [];
     if ($facility) {
         if (OEGlobalsBag::getInstance()->getBoolean('restrict_user_facility')) {
-            $param2 = " AND (facility_id = '" . add_escape_custom($facility) . "' OR  '" . add_escape_custom($facility) . "' IN (select facility_id from users_facility where tablename = 'users' and table_id = id))";
+            $param2 = " AND (facility_id = ? OR ? IN (select facility_id from users_facility where tablename = 'users' and table_id = id))";
+            array_push($sqlBindArray, $facility, $facility);
         } else {
-            $param2 = " AND facility_id = '" . add_escape_custom($facility) . "' ";
+            $param2 = " AND facility_id = ? ";
+            $sqlBindArray[] = $facility;
         }
     }
 
@@ -274,12 +278,12 @@ function getProviderInfo($providerID = "%", $providers_only = true, $facility = 
     }
 
 // removing active from query since is checked above with $providers_only argument
-    $query = "select distinct id, username, lname, fname, mname, authorized, info, facility, suffix, valedictory " .
-        "from users where username != '' and id $command '" .
-        add_escape_custom($providerID) . "' " . $param1 . $param2;
+    $query = "select distinct id, username, lname, fname, mname, authorized, info, facility, suffix, valedictory
+        from users where username != '' and id $command ? " . $param1 . $param2;
+    array_unshift($sqlBindArray, $providerID);
     // sort by last name -- JRM June 2008
     $query .= " ORDER BY lname, fname ";
-    $rez = sqlStatement($query);
+    $rez = QueryUtils::sqlStatementThrowException($query, $sqlBindArray);
     for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
         $returnval[$iter] = $row;
     }
@@ -509,7 +513,7 @@ function _set_patient_inc_count($limit, $count, $where, $whereBindArray = []): v
 // it needs to be escaped via whitelisting prior to using this function.
 function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $names = getPatientNameSplit($term);
 
     foreach ($names as $key => $val) {
@@ -556,11 +560,12 @@ function getPatientLnames($term = "%", $given = "pid, id, lname, fname, mname, p
         array_push($sqlBindArray, $names['last'], $names['first']);
     }
 
-    if (!empty(OEGlobalsBag::getInstance()->get('pt_restrict_field'))) {
-        if ($session->get("authUser") != 'admin' || OEGlobalsBag::getInstance()->get('pt_restrict_admin')) {
-            $where .= " AND ( patient_data." . add_escape_custom(OEGlobalsBag::getInstance()->get('pt_restrict_field')) .
+    if (!empty(OEGlobalsBag::getInstance()->getString('pt_restrict_field'))) {
+        if ($session->get("authUser") != 'admin' || OEGlobalsBag::getInstance()->getBoolean('pt_restrict_admin')) {
+            $restrictCol = escape_sql_column_name(OEGlobalsBag::getInstance()->getString('pt_restrict_field'), ['patient_data']);
+            $where .= " AND ( patient_data." . $restrictCol .
                 " = ( SELECT facility_id FROM users WHERE username = ?) OR patient_data." .
-                add_escape_custom(OEGlobalsBag::getInstance()->get('pt_restrict_field')) . " = '' ) ";
+                $restrictCol . " = '' ) ";
             array_push($sqlBindArray, $session->get("authUser"));
         }
     }
@@ -635,15 +640,16 @@ function getPatientNameSplit($term)
 // it needs to be escaped via whitelisting prior to using this function.
 function getPatientId($pid = "%", $given = "pid, id, lname, fname, mname, providerID, DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $sqlBindArray = [];
     $where = "pubpid LIKE ? ";
     array_push($sqlBindArray, $pid . "%");
-    if (!empty(OEGlobalsBag::getInstance()->get('pt_restrict_field')) && OEGlobalsBag::getInstance()->get('pt_restrict_by_id')) {
-        if ($session->get("authUser") != 'admin' || OEGlobalsBag::getInstance()->get('pt_restrict_admin')) {
-            $where .= "AND ( patient_data." . add_escape_custom(OEGlobalsBag::getInstance()->get('pt_restrict_field')) .
+    if (!empty(OEGlobalsBag::getInstance()->getString('pt_restrict_field')) && OEGlobalsBag::getInstance()->getBoolean('pt_restrict_by_id')) {
+        if ($session->get("authUser") != 'admin' || OEGlobalsBag::getInstance()->getBoolean('pt_restrict_admin')) {
+            $restrictCol = escape_sql_column_name(OEGlobalsBag::getInstance()->getString('pt_restrict_field'), ['patient_data']);
+            $where .= "AND ( patient_data." . $restrictCol .
                     " = ( SELECT facility_id FROM users WHERE username = ?) OR patient_data." .
-                    add_escape_custom(OEGlobalsBag::getInstance()->get('pt_restrict_field')) . " = '' ) ";
+                    $restrictCol . " = '' ) ";
             array_push($sqlBindArray, $session->get("authUser"));
         }
     }
@@ -816,12 +822,13 @@ function getPatientPID($args)
         $command = "like";
     }
 
-    $sql = "select $given from patient_data where pid $command '" . add_escape_custom($pid) . "' order by $orderby";
+    $sql = "select $given from patient_data where pid $command ? order by $orderby";
+    $sqlBindArray = [$pid];
     if ($limit != "all") {
         $sql .= " limit " . escape_limit($start) . ", " . escape_limit($limit);
     }
 
-    $rez = sqlStatement($sql);
+    $rez = QueryUtils::sqlStatementThrowException($sql, $sqlBindArray);
     for ($iter = 0; $row = sqlFetchArray($rez); $iter++) {
         $returnval[$iter] = $row;
     }
@@ -906,15 +913,16 @@ function getPatientNameFirstLast($pid)
 // it needs to be escaped via whitelisting prior to using this function.
 function getPatientDOB($DOB = "%", $given = "pid, id, lname, fname, mname", $orderby = "lname ASC, fname ASC", $limit = "all", $start = "0")
 {
-    $session = SessionWrapperFactory::getInstance()->getWrapper();
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $sqlBindArray = [];
     $where = "DOB like ? ";
     array_push($sqlBindArray, $DOB . "%");
-    if (!empty(OEGlobalsBag::getInstance()->get('pt_restrict_field'))) {
-        if ($session->get("authUser") != 'admin' || OEGlobalsBag::getInstance()->get('pt_restrict_admin')) {
-            $where .= "AND ( patient_data." . add_escape_custom(OEGlobalsBag::getInstance()->get('pt_restrict_field')) .
+    if (!empty(OEGlobalsBag::getInstance()->getString('pt_restrict_field'))) {
+        if ($session->get("authUser") != 'admin' || OEGlobalsBag::getInstance()->getBoolean('pt_restrict_admin')) {
+            $restrictCol = escape_sql_column_name(OEGlobalsBag::getInstance()->getString('pt_restrict_field'), ['patient_data']);
+            $where .= "AND ( patient_data." . $restrictCol .
                     " = ( SELECT facility_id FROM users WHERE username = ?) OR patient_data." .
-                    add_escape_custom(OEGlobalsBag::getInstance()->get('pt_restrict_field')) . " = '' ) ";
+                    $restrictCol . " = '' ) ";
             array_push($sqlBindArray, $session->get("authUser"));
         }
     }
@@ -1056,60 +1064,39 @@ function newPatientData(
       "list_id = 'pricelevel' AND activity = 1 ORDER BY is_default DESC, seq ASC LIMIT 1");
     $pricelevel = empty($lrow['option_id']) ? '' : $lrow['option_id'];
 
-    $query = ("replace into patient_data set
-        id='" . add_escape_custom($db_id) . "',
-        title='" . add_escape_custom($title) . "',
-        fname='" . add_escape_custom($fname) . "',
-        lname='" . add_escape_custom($lname) . "',
-        mname='" . add_escape_custom($mname) . "',
-        sex='" . add_escape_custom($sex) . "',
-        DOB='" . add_escape_custom($DOB) . "',
-        street='" . add_escape_custom($street) . "',
-        postal_code='" . add_escape_custom($postal_code) . "',
-        city='" . add_escape_custom($city) . "',
-        state='" . add_escape_custom($state) . "',
-        country_code='" . add_escape_custom($country_code) . "',
-        drivers_license='" . add_escape_custom($drivers_license) . "',
-        ss='" . add_escape_custom($ss) . "',
-        occupation='" . add_escape_custom($occupation) . "',
-        phone_home='" . add_escape_custom($phone_home) . "',
-        phone_biz='" . add_escape_custom($phone_biz) . "',
-        phone_contact='" . add_escape_custom($phone_contact) . "',
-        status='" . add_escape_custom($status) . "',
-        contact_relationship='" . add_escape_custom($contact_relationship) . "',
-        referrer='" . add_escape_custom($referrer) . "',
-        referrerID='" . add_escape_custom($referrerID) . "',
-        email='" . add_escape_custom($email) . "',
-        language='" . add_escape_custom($language) . "',
-        ethnoracial='" . add_escape_custom($ethnoracial) . "',
-        interpreter='" . add_escape_custom($interpreter) . "',
-        migrantseasonal='" . add_escape_custom($migrantseasonal) . "',
-        family_size='" . add_escape_custom($family_size) . "',
-        monthly_income='" . add_escape_custom($monthly_income) . "',
-        homeless='" . add_escape_custom($homeless) . "',
-        financial_review='" . add_escape_custom($financial_review) . "',
-        pubpid='" . add_escape_custom($pubpid) . "',
-        pid= '" . add_escape_custom($pid) . "',
-        providerID = '" . add_escape_custom($providerID) . "',
-        genericname1 = '" . add_escape_custom($genericname1) . "',
-        genericval1 = '" . add_escape_custom($genericval1) . "',
-        genericname2 = '" . add_escape_custom($genericname2) . "',
-        genericval2 = '" . add_escape_custom($genericval2) . "',
-        billing_note= '" . add_escape_custom($billing_note) . "',
-        phone_cell = '" . add_escape_custom($phone_cell) . "',
-        pharmacy_id = '" . add_escape_custom($pharmacy_id) . "',
-        hipaa_mail = '" . add_escape_custom($hipaa_mail) . "',
-        hipaa_voice = '" . add_escape_custom($hipaa_voice) . "',
-        hipaa_notice = '" . add_escape_custom($hipaa_notice) . "',
-        hipaa_message = '" . add_escape_custom($hipaa_message) . "',
-        squad = '" . add_escape_custom($squad) . "',
-        fitness='" . add_escape_custom($fitness) . "',
-        referral_source='" . add_escape_custom($referral_source) . "',
-        regdate='" . add_escape_custom($regdate) . "',
-        pricelevel='" . add_escape_custom($pricelevel) . "',
-        date=NOW()");
-
-    $id = sqlInsert($query);
+    $id = QueryUtils::sqlInsert(
+        "REPLACE INTO patient_data SET
+            id = ?, title = ?, fname = ?, lname = ?, mname = ?,
+            sex = ?, DOB = ?, street = ?, postal_code = ?, city = ?,
+            state = ?, country_code = ?, drivers_license = ?, ss = ?,
+            occupation = ?, phone_home = ?, phone_biz = ?, phone_contact = ?,
+            status = ?, contact_relationship = ?, referrer = ?, referrerID = ?,
+            email = ?, language = ?, ethnoracial = ?, interpreter = ?,
+            migrantseasonal = ?, family_size = ?, monthly_income = ?,
+            homeless = ?, financial_review = ?, pubpid = ?, pid = ?,
+            providerID = ?, genericname1 = ?, genericval1 = ?,
+            genericname2 = ?, genericval2 = ?, billing_note = ?,
+            phone_cell = ?, pharmacy_id = ?, hipaa_mail = ?,
+            hipaa_voice = ?, hipaa_notice = ?, hipaa_message = ?,
+            squad = ?, fitness = ?, referral_source = ?,
+            regdate = ?, pricelevel = ?, date = NOW()",
+        [
+            $db_id, $title, $fname, $lname, $mname,
+            $sex, $DOB, $street, $postal_code, $city,
+            $state, $country_code, $drivers_license, $ss,
+            $occupation, $phone_home, $phone_biz, $phone_contact,
+            $status, $contact_relationship, $referrer, $referrerID,
+            $email, $language, $ethnoracial, $interpreter,
+            $migrantseasonal, $family_size, $monthly_income,
+            $homeless, $financial_review, $pubpid, $pid,
+            $providerID, $genericname1, $genericval1,
+            $genericname2, $genericval2, $billing_note,
+            $phone_cell, $pharmacy_id, $hipaa_mail,
+            $hipaa_voice, $hipaa_notice, $hipaa_message,
+            $squad, $fitness, $referral_source,
+            $regdate, $pricelevel,
+        ]
+    );
 
     if (!$db_id) {
       // find the last inserted id for new patient case
@@ -1224,16 +1211,12 @@ function newEmployerData(
     $country = ""
 ) {
 
-    return sqlInsert("insert into employer_data set
-        name='" . add_escape_custom($name) . "',
-        street='" . add_escape_custom($street) . "',
-        postal_code='" . add_escape_custom($postal_code) . "',
-        city='" . add_escape_custom($city) . "',
-        state='" . add_escape_custom($state) . "',
-        country='" . add_escape_custom($country) . "',
-        pid='" . add_escape_custom($pid) . "',
-        date=NOW()
-        ");
+    return QueryUtils::sqlInsert(
+        "INSERT INTO employer_data SET
+            name = ?, street = ?, postal_code = ?, city = ?,
+            state = ?, country = ?, pid = ?, date = NOW()",
+        [$name, $street, $postal_code, $city, $state, $country, $pid]
+    );
 }
 
 /**

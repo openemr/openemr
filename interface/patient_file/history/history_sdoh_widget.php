@@ -28,7 +28,7 @@ use OpenEMR\Menu\PatientMenuRole;
 use OpenEMR\Services\SDOH\HistorySdohService;
 
 $logger = ServiceContainer::getLogger();
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 /** Lookup a list option title by (list_id, option_id). */
 function hs_lo_title(string $listId, ?string $value): string

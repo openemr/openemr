@@ -64,7 +64,6 @@ class PortalCard extends CardModel
     // used in twigs
     private function setOpts()
     {
-        global $GLOBALS;
         global $pid;
         // RM get name for 'choices' group, i.e. group 4 in 'layout_gropu_properties' table in db
         $sql = "SELECT grp_title FROM layout_group_properties WHERE grp_group_id = 4 AND grp_form_id = 'DEM'";

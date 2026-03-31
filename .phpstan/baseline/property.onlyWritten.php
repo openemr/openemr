@@ -177,16 +177,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/ClinicalTypes/ClinicalType.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Prescription\\:\\:\\$erx_source is never read, only written\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Prescription\\:\\:\\$persisted_values is never read, only written\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property CacheMemCache\\:\\:\\$_lockFilePath is never read, only written\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/CacheMemCache.php',

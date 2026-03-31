@@ -16,8 +16,10 @@ require_once(__DIR__ . "/../../interface/globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 
@@ -289,4 +291,5 @@ $graph_build['title'] = $titleGraph;
 // Note need to also use " when building the $data_final rather
 // than ' , or else JSON_UNESCAPED_SLASHES doesn't work and \n and
 // \t get escaped.
+header('Content-Type: application/json');
 echo json_encode($graph_build, JSON_UNESCAPED_SLASHES);

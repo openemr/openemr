@@ -73,7 +73,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$id on mixed\\.$#',
-    'count' => 23,
+    'count' => 17,
     'path' => __DIR__ . '/../../controllers/C_Prescription.class.php',
 ];
 $ignoreErrors[] = [
@@ -300,21 +300,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$result on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/eRxSOAP.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$drug on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/rx_print.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$id on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/rx_print.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$start_date on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/rx_print.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$code_is_in_fee_sheet on mixed\\.$#',
@@ -2427,11 +2412,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CarecoordinationTable.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$data on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/EncountermanagerTable.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access property \\$textContent on DOMNameSpaceNode\\|DOMNode\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Ccr/src/Ccr/Model/CcrTable.php',
@@ -2460,11 +2440,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$modId on mixed\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$id on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/PrescriptionTemplates/src/PrescriptionTemplates/Controller/PrescriptionTemplatesController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$HL7Message on mixed\\.$#',
@@ -2860,36 +2835,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$fields on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Note.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$date_of_birth on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$federal_drug_id on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$fname on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$id on mixed\\.$#',
-    'count' => 19,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$lname on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$mname on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$id on mixed\\.$#',
@@ -5145,11 +5090,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$url on mixed\\.$#',
     'count' => 8,
     'path' => __DIR__ . '/../../src/Menu/PatientMenuRole.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access property \\$data on mixed\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/CDADocumentService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access property \\$length on DOMNodeList\\<DOMNameSpaceNode\\|DOMNode\\>\\|false\\.$#',

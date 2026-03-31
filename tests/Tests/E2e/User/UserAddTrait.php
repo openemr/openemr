@@ -109,12 +109,13 @@ trait UserAddTrait
         // The dialog calls dlgclose('reload', false) on success, which closes the modal
         // and triggers a reload of the admin iframe.
         //
-        // Use a short initial timeout to detect failure quickly. If the modal
-        // doesn't close, gather diagnostics and retry once with a fresh session.
-        if (!$this->waitForModalClose(10)) {
+        // Scale the timeout with the page load timeout — coverage mode makes
+        // the AJAX round-trip (bcrypt + DB writes + instrumented PHP) much slower.
+        $modalTimeout = max(10, (int) ((int) (getenv("SELENIUM_PAGE_LOAD_TIMEOUT") ?: 60) / 2));
+        if (!$this->waitForModalClose($modalTimeout)) {
             // Modal didn't close - gather diagnostics before retrying
             $diagnostics = $this->gatherModalDiagnostics($username);
-            fwrite(STDERR, "[E2E] Modal failed to close after user creation. Diagnostics: {$diagnostics}\n");
+            fwrite(STDERR, "[E2E] Modal failed to close after user creation (waited {$modalTimeout}s). Diagnostics: {$diagnostics}\n");
 
             // Check if user was actually created despite modal not closing
             if ($this->isUserExist($username)) {
@@ -122,6 +123,9 @@ trait UserAddTrait
                 // Force close by refreshing the page - modal state is broken but data is saved
                 $this->client->request('GET', '/interface/main/main_screen.php');
                 $this->waitForAppReady(10);
+                // Navigate back to Admin > Users since force refresh loads the default view
+                $this->goToMainMenuLink('Admin||Users');
+                $this->assertActiveTab("User / Groups");
             } elseif ($isRetry) {
                 // Already retried once - fail with diagnostics
                 throw new TimeoutException(

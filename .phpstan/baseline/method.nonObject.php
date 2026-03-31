@@ -368,7 +368,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method get_x12_sftp_pass\\(\\) on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../controllers/C_X12Partner.class.php',
 ];
 $ignoreErrors[] = [
@@ -1522,8 +1522,13 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/login/login.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method getString\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/login/login.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
-    'count' => 2,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/login/login.php',
 ];
 $ignoreErrors[] = [
@@ -1630,16 +1635,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method save_recall\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/messages/save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getMessage\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/messages/trusted-messages-ajax.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method getTraceAsString\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/messages/trusted-messages-ajax.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method get_data\\(\\) on mixed\\.$#',
@@ -3805,21 +3800,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method toString\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Pharmacy.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method get_dob\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method get_name_display\\(\\) on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method get_provider_number_default\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method get_group_number\\(\\) on mixed\\.$#',
@@ -6122,26 +6102,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/ORDataObject/Person.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method invalidate\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method remove\\(\\) on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method save\\(\\) on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method set\\(\\) on mixed\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method deleteObservationById\\(\\) on OpenEMR\\\\Services\\\\ObservationService\\|null\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Controllers/Interface/Forms/Observation/ObservationController.php',
@@ -6330,11 +6290,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method lastpageno\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Gacl/GaclAdminApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot call method GetRows\\(\\) on ADORecordSet\\|false\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method clean\\(\\) on mixed\\.$#',
