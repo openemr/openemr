@@ -855,11 +855,12 @@ const OPENEMR_GLOBALS_LOADED = true;
 register_shutdown_function(function ()  use ($logger) {
     if (!defined('FRONT_CONTROLLER_USED')) {
         $logger->warning(
-            'Your request did not go through the front controller. This ' .
+            'The request to {req_url} did not go through the front controller. This ' .
             'means your web server may not be configured correctly. See ' .
-            '{url} for more details.',
+            '{doc_url} for more details.',
             [
-                'url' => 'https://need-some-page',
+                'req_url' => $_SERVER['REQUEST_URI'] ?? '(unknown)',
+                'doc_url' => 'https://need-some-page',
             ],
         );
     }

@@ -1,13 +1,15 @@
 <?php
 
-// Future: include bootstrap.php here. It may have unsafe assumptions for
-// legacy code.
-require_once __DIR__ . '/../vendor/autoload.php';
+declare(strict_types=1);
 
-use OpenEMR\BC\{
-    FallbackRouter,
-    ServiceContainer,
-};
+
+use Firehed\Container\TypedContainerInterface;
+use OpenEMR\BC\FallbackRouter;
+
+$container = require_once __DIR__ . '/../bootstrap.php';
+assert($container instanceof TypedContainerInterface);
+
+// Guard against non-web requests, e.g. PHP_SAPI === 'cli'?
 
 const FRONT_CONTROLLER_USED = true;
 
@@ -15,8 +17,10 @@ const FRONT_CONTROLLER_USED = true;
 // new routes will be executed without touching the existing systems. Such new
 // routes must rely only on modern conventions (DI, no reliance on globals,
 // etc).
+// primaryRouter = $container->get(Router::class)
+// if router would 404/405, fall back to below?
 
-$router = new FallbackRouter(dirname(__DIR__), ServiceContainer::getLogger());
+$router = $container->get(FallbackRouter::class);
 $fileToInclude = $router->performLegacyRouting($_SERVER['REQUEST_URI']);
 if ($fileToInclude === null) {
     http_response_code(404);
