@@ -30,12 +30,12 @@ class BillingExport
 
     function fixString($string)
     {
-        return addslashes(trim((string) $string));
+        return trim((string) $string);
     }
 
     function fixMI($string)
     {
-        return addslashes(substr(trim((string) $string), 0, 1));
+        return substr(trim((string) $string), 0, 1);
     }
 
     function fixSex($sex)
@@ -98,12 +98,12 @@ class BillingExport
             $code .= '-' . $mod;
         }
 
-        return addslashes($code);
+        return $code;
     }
 
     function fixJust($str)
     {
-        return addslashes(trim(str_replace(':', ' ', $str)));
+        return trim(str_replace(':', ' ', $str));
     }
 
     function fixDate($date)
@@ -137,24 +137,25 @@ class BillingExport
         $prow = sqlQuery($query, [$patient_id, $patient_id]);
 
         // Patient line.
-        fwrite($this->tmpfh, 'PT' .
-        ',"' . $this->fixString($prow['pubpid'])      . '"' .
-        ',"' . $this->fixString($prow['lname'])       . '"' .
-        ',"' . $this->fixString($prow['fname'])       . '"' .
-        ',"' . $this->fixMI($prow['mname'])           . '"' .
-        ',"' . $this->fixString($prow['street'])      . '"' .
-        ',""'                                  .
-        ',"' . $this->fixString($prow['city'])        . '"' .
-        ',"' . $this->fixString($prow['state'])       . '"' .
-        ',"' . $this->fixString($prow['postal_code']) . '"' .
-        ',"' . PhoneNumberService::formatPhone($prow['phone_home'] ?? '') . '"' .
-        ',"' . PhoneNumberService::formatPhone($prow['phone_biz'] ?? '')  . '"' .
-        ',"' . $this->fixSex($prow['sex'])            . '"' .
-        ',"' . $prow['DOB']                    . '"' .
-        ',"' . $this->fixSSN($prow['ss'])             . '"' .
-        ',"' . $this->fixEStatus($prow['name'])       . '"' .
-        ',"' . $this->fixString($prow['name'])        . '"' .
-        "\n");
+        fputcsv($this->tmpfh, [
+            'PT',
+            $this->fixString($prow['pubpid']),
+            $this->fixString($prow['lname']),
+            $this->fixString($prow['fname']),
+            $this->fixMI($prow['mname']),
+            $this->fixString($prow['street']),
+            '',
+            $this->fixString($prow['city']),
+            $this->fixString($prow['state']),
+            $this->fixString($prow['postal_code']),
+            PhoneNumberService::formatPhone($prow['phone_home'] ?? ''),
+            PhoneNumberService::formatPhone($prow['phone_biz'] ?? ''),
+            $this->fixSex($prow['sex']),
+            $prow['DOB'],
+            $this->fixSSN($prow['ss']),
+            $this->fixEStatus($prow['name']),
+            $this->fixString($prow['name']),
+        ]);
 
         // Encounter information:
 
@@ -172,12 +173,13 @@ class BillingExport
         $erow = sqlQuery($query, [$patient_id, $patient_id, $encounter]);
 
         // Performing Provider line.
-        fwrite($this->tmpfh, 'PP' .
-          ',"' . $this->fixString($erow['lname'])       . '"' .
-          ',"' . $this->fixString($erow['fname'])       . '"' .
-          ',"' . $this->fixMI($erow['mname'])           . '"' .
-          ',"' . $this->fixString($erow['upin'])        . '"' .
-        "\n");
+        fputcsv($this->tmpfh, [
+            'PP',
+            $this->fixString($erow['lname']),
+            $this->fixString($erow['fname']),
+            $this->fixMI($erow['mname']),
+            $this->fixString($erow['upin']),
+        ]);
 
         // TBD: Referring Provider line when we have such a thing.
 
@@ -211,28 +213,29 @@ class BillingExport
 
               $prev_type = $irow['type'];
 
-              fwrite($this->tmpfh, 'IN' .
-              ',"' . $this->fixString($irow['subscriber_lname'])          . '"' .
-              ',"' . $this->fixString($irow['subscriber_fname'])          . '"' .
-              ',"' . $this->fixMI($irow['subscriber_mname'])              . '"' .
-              ',"' . $this->fixString($irow['subscriber_street'])         . '"' .
-              ',"' . $this->fixString($irow['subscriber_city'])           . '"' .
-              ',"' . $this->fixString($irow['subscriber_state'])          . '"' .
-              ',"' . $this->fixString($irow['subscriber_postal_code'])    . '"' .
-              ',"' . $irow['subscriber_DOB']                       . '"' .
-              ',"' . $this->fixRelation($irow['subscriber_relationship']) . '"' .
-              ',"' . $this->fixString($irow['policy_number'])             . '"' .
-              ',"' . $this->fixString($irow['group_number'])              . '"' .
-              ',"' . $this->fixString($irow['name'])                      . '"' .
-              ',"' . $this->fixString($irow['line1'])                     . '"' .
-              ',"' . $this->fixString($irow['line2'])                     . '"' .
-              ',"' . $this->fixString($irow['city'])                      . '"' .
-              ',"' . $this->fixString($irow['state'])                     . '"' .
-              ',"' . $this->fixString($irow['zip'])                       . '"' .
-              ',"' . PhoneNumberService::formatPhone(($irow['area_code'] ?? '') . ($irow['prefix'] ?? '') . ($irow['number'] ?? '')) . '"' .
-              ',"' . $this->fixString($irow['provider_number'])           . '"' .
-              ',"' . $this->fixString($irow['provider_number'])           . '"' . // TBD: referring provider
-              "\n");
+              fputcsv($this->tmpfh, [
+                  'IN',
+                  $this->fixString($irow['subscriber_lname']),
+                  $this->fixString($irow['subscriber_fname']),
+                  $this->fixMI($irow['subscriber_mname']),
+                  $this->fixString($irow['subscriber_street']),
+                  $this->fixString($irow['subscriber_city']),
+                  $this->fixString($irow['subscriber_state']),
+                  $this->fixString($irow['subscriber_postal_code']),
+                  $irow['subscriber_DOB'],
+                  $this->fixRelation($irow['subscriber_relationship']),
+                  $this->fixString($irow['policy_number']),
+                  $this->fixString($irow['group_number']),
+                  $this->fixString($irow['name']),
+                  $this->fixString($irow['line1']),
+                  $this->fixString($irow['line2']),
+                  $this->fixString($irow['city']),
+                  $this->fixString($irow['state']),
+                  $this->fixString($irow['zip']),
+                  PhoneNumberService::formatPhone(($irow['area_code'] ?? '') . ($irow['prefix'] ?? '') . ($irow['number'] ?? '')),
+                  $this->fixString($irow['provider_number']),
+                  $this->fixString($irow['provider_number']), // TBD: referring provider
+              ]);
         }
 
         // Procedure information:
@@ -245,19 +248,20 @@ class BillingExport
         $bres = sqlStatement($query, [$patient_id, $encounter]);
 
         while ($brow = sqlFetchArray($bres)) {
-              fwrite($this->tmpfh, 'PR' .
-                ',"' . $this->fixCPT($brow['code'], $brow['modifier']) . '"' .
-                ',"' . $this->fixJust($brow['justify'])                . '"' .
-                ',"' . $this->fixDate($erow['date'])                   . '"' .
-                ',"' . $this->fixString($erow['pos_code'])             . '"' .
-                ',"' . $this->fixString($erow['clia_code'])            . '"' .
-                ',"' . $this->fixString($erow['facility'])             . '"' .
-                ',"' . $this->fixString($erow['street'])               . '"' .
-                ',""'                                           .
-                ',"' . $this->fixString($erow['city'])                 . '"' .
-                ',"' . $this->fixString($erow['state'])                . '"' .
-                ',"' . $this->fixString($erow['postal_code'])          . '"' .
-              "\n");
+              fputcsv($this->tmpfh, [
+                  'PR',
+                  $this->fixCPT($brow['code'], $brow['modifier']),
+                  $this->fixJust($brow['justify']),
+                  $this->fixDate($erow['date']),
+                  $this->fixString($erow['pos_code']),
+                  $this->fixString($erow['clia_code']),
+                  $this->fixString($erow['facility']),
+                  $this->fixString($erow['street']),
+                  '',
+                  $this->fixString($erow['city']),
+                  $this->fixString($erow['state']),
+                  $this->fixString($erow['postal_code']),
+              ]);
         }
     }
 
