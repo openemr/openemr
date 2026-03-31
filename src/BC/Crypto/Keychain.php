@@ -47,21 +47,28 @@ class Keychain
 
         $keychain = new EagerKeychain();
         // v1: broken crypto (no hmac)
-        if ($one = self::tryLoadKey('one', $pkod)) {
+        $one = self::tryLoadKey('one', $pkod);
+        if ($one !== null) {
             $keychain->addCipher(Key::v1->getId(), new Cipher\Aes256CbcNoHmac($one));
         }
 
         // v2-3: legacy crypto (256CBC-HS256) and storage
-        if (($twoa = self::tryLoadKey('twoa', $pkod)) && ($twob = self::tryLoadKey('twob', $pkod))) {
+        $twoa = self::tryLoadKey('twoa', $pkod);
+        $twob = self::tryLoadKey('twob', $pkod);
+        if ($twoa !== null && $twob !== null) {
             $keychain->addCipher(Key::v2->getId(), new Cipher\Aes256CbcHmacSha256(key: $twoa, hmacKey: $twob));
         }
         // No "three" key for historic reasons
 
         // v4: 256CBC-HS384 encryption, has drive+db but drive key is plaintext
-        if (($foura = self::tryLoadKey('foura', $pkod)) && ($fourb = self::tryLoadKey('fourb', $pkod))) {
+        $foura = self::tryLoadKey('foura', $pkod);
+        $fourb = self::tryLoadKey('fourb', $pkod);
+        if ($foura !== null && $fourb !== null) {
             $keychain->addCipher(Key::v4Drive->getId(), new Cipher\Aes256CbcHmacSha384(key: $foura, hmacKey: $fourb));
         }
-        if (($fouraDB = self::tryLoadKey('foura', $pkidb)) && ($fourbDB = self::tryLoadKey('fourb', $pkidb))) {
+        $fouraDB = self::tryLoadKey('foura', $pkidb);
+        $fourbDB = self::tryLoadKey('fourb', $pkidb);
+        if ($fouraDB !== null && $fourbDB !== null) {
             $keychain->addCipher(Key::v4Db->getId(), new Cipher\Aes256CbcHmacSha384(key: $fouraDB, hmacKey: $fourbDB));
         }
 
