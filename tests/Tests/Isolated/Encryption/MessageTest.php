@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Encryption;
 
+use BadMethodCallException;
 use OpenEMR\Encryption\{
     Ciphertext,
     Keys\Id,
@@ -33,13 +34,13 @@ class MessageTest extends TestCase
      * Expected key IDs for each message format version.
      */
     private const EXPECTED_KEY_IDS = [
-        1 => 'one',
-        2 => 'two',
-        3 => 'two', // v3 shares v2 keys
-        4 => 'four',
-        5 => 'five',
-        6 => 'six',
-        7 => 'seven',
+        1 => '001',
+        2 => '002',
+        3 => '003',
+        4 => '004',
+        5 => '005',
+        6 => '006',
+        7 => '007',
     ];
 
     protected function setUp(): void
@@ -60,46 +61,53 @@ class MessageTest extends TestCase
         }
     }
 
-    public function testParseRoundtrip(): void
+    public function testParseRoundtripImplicitFormat(): void
     {
         $data = $this->fixtures->getCiphertext(7);
         $message = Message::parse($data);
+        assert($message->format === MessageFormat::ImplicitKey);
         $reencoded = $message->encode();
         self::assertSame($data, $reencoded);
     }
-
-    public function testConstructRoundtrip(): void
-    {
-        // IMPORTANT: once we support message format v8, this test should start
-        // failing and get updated so the keys align again.
-        $keyId = new Id('some-key-id');
-        $ciphertext = new Ciphertext('some encrypted data');
-        $message = new Message($keyId, $ciphertext);
-        $encoded = $message->encode();
-        $parsed = Message::parse($encoded);
-        self::assertSame('seven', $parsed->keyId->id, 'Key mismatch');
-        self::assertSame($ciphertext->wrapped, $parsed->ciphertext->wrapped, 'Ciphertext mismatch');
-    }
-
     #[DataProvider('previousFormatsProvider')]
     public function testParsingPreviousFormats(int $version, string $expectedKeyId): void
     {
         $data = $this->fixtures->getCiphertext($version);
         $message = Message::parse($data);
 
-        self::assertSame($version, $message->format->value);
+        self::assertSame(MessageFormat::ImplicitKey, $message->format);
         self::assertSame($expectedKeyId, $message->keyId->id);
         self::assertSame($data, $message->encode(), 'Roundtrip encoding failed');
     }
 
-    public function testConstructWithExplicitFormat(): void
+    public function testConstructWithImplicitKeyFormat(): void
     {
-        $keyId = new Id('four');
+        $keyId = new Id('005');
         $ciphertext = new Ciphertext('test data');
-        $message = new Message($keyId, $ciphertext, MessageFormat::v4);
+        $message = new Message($keyId, $ciphertext, MessageFormat::ImplicitKey);
 
-        self::assertSame(MessageFormat::v4, $message->format);
-        self::assertStringStartsWith('004', $message->encode());
+        self::assertSame(MessageFormat::ImplicitKey, $message->format);
+        self::assertStringStartsWith('005', $message->encode());
+    }
+
+    public function testConstructWithInvalidImplicitKey(): void
+    {
+        $keyId = new Id('not-a-number');
+        $ciphertext = new Ciphertext('test data');
+        $this->expectException(BadMethodCallException::class);
+        $message = new Message($keyId, $ciphertext, MessageFormat::ImplicitKey);
+    }
+
+
+    public function testConstructParseRoundtripImplicitKey(): void
+    {
+        $keyId = new Id('007');
+        $ciphertext = new Ciphertext('some encrypted data');
+        $message = new Message($keyId, $ciphertext, MessageFormat::ImplicitKey);
+        $encoded = $message->encode();
+        $parsed = Message::parse($encoded);
+        self::assertSame($keyId->id, $parsed->keyId->id, 'Key mismatch');
+        self::assertSame($ciphertext->wrapped, $parsed->ciphertext->wrapped, 'Ciphertext mismatch');
     }
 
     public function testParseThrowsOnTooShortMessage(): void
@@ -111,6 +119,7 @@ class MessageTest extends TestCase
 
     public function testParseThrowsOnEmptyMessage(): void
     {
+        // This test may be removed if plaintext support is added.
         $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Message is missing expected prefix');
         Message::parse('');
@@ -126,20 +135,7 @@ class MessageTest extends TestCase
     public function testParseThrowsOnInvalidVersion(): void
     {
         $this->expectException(\ValueError::class);
-        // Version 999 doesn't exist in MessageFormat enum
+        // Version 999 is an invalid prefix.
         Message::parse('999' . base64_encode('test'));
-    }
-
-    public function testEncodeProducesCorrectPrefix(): void
-    {
-        $keyId = new Id('test');
-        $ciphertext = new Ciphertext('data');
-
-        foreach (MessageFormat::cases() as $format) {
-            $message = new Message($keyId, $ciphertext, $format);
-            $encoded = $message->encode();
-            $expectedPrefix = sprintf('%03d', $format->value);
-            self::assertStringStartsWith($expectedPrefix, $encoded, "Format {$format->name} should produce prefix $expectedPrefix");
-        }
     }
 }

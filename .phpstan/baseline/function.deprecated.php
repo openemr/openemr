@@ -74,12 +74,6 @@ Use FormService\\:\\:addForm\\(\\) instead$#',
 $ignoreErrors[] = [
     'message' => '#^Call to deprecated function addForm\\(\\)\\:
 Use FormService\\:\\:addForm\\(\\) instead$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/ajax_save.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Call to deprecated function addForm\\(\\)\\:
-Use FormService\\:\\:addForm\\(\\) instead$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/LBF/new.php',
 ];
