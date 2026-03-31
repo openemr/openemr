@@ -25,34 +25,36 @@ class BillingExport
     public $TMP_DIR    = "/home/billing/tmp";
     public $TARGET_DIR = "/home/billing/ftp";
 
+    /** @var string */
     public $tmpname; // output filename including path
+    /** @var resource */
     public $tmpfh;   // output file handle
 
-    function fixString($string)
+    private function fixString(mixed $string): string
     {
         return trim((string) $string);
     }
 
-    function fixMI($string)
+    private function fixMI(mixed $string): string
     {
         return substr(trim((string) $string), 0, 1);
     }
 
-    function fixSex($sex)
+    private function fixSex(mixed $sex): string
     {
         $sex = substr(strtoupper(trim((string) $sex)), 0, 1);
-        if ($sex == 'M') {
+        if ($sex === 'M') {
             return 'Male';
         }
 
-        if ($sex == 'F') {
+        if ($sex === 'F') {
             return 'Female';
         }
 
         return '';
     }
 
-    function fixSSN($ssn)
+    private function fixSSN(mixed $ssn): string
     {
         $tmparr = [];
         if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)/", (string) $ssn, $tmparr)) {
@@ -62,35 +64,30 @@ class BillingExport
         return '';
     }
 
-    function fixMStatus($status)
-    {
-        return ucfirst(trim((string) $status));
-    }
-
-    function fixEStatus($employer)
+    private function fixEStatus(mixed $employer): string
     {
         $status = strtoupper(trim((string) $employer));
         if (! $status) {
             return '';
         }
 
-        if ($status == 'STUDENT') {
+        if ($status === 'STUDENT') {
             return 'Student';
         }
 
-        if ($status == 'RETIRED') {
+        if ($status === 'RETIRED') {
             return 'Retired';
         }
 
         return 'Full-time';
     }
 
-    function fixRelation($rel)
+    private function fixRelation(mixed $rel): string
     {
         return ucfirst(trim((string) $rel));
     }
 
-    function fixCPT($code, $mod)
+    private function fixCPT(mixed $code, mixed $mod): string
     {
         $code = trim((string) $code);
         $mod = trim((string) $mod);
@@ -101,28 +98,43 @@ class BillingExport
         return $code;
     }
 
-    function fixJust($str)
+    private function fixJust(mixed $str): string
     {
-        return trim(str_replace(':', ' ', $str));
+        return trim(str_replace(':', ' ', (string) $str));
     }
 
-    function fixDate($date)
+    private function fixDate(mixed $date): string
     {
         return substr((string) $date, 0, 10);
+    }
+
+    /**
+     * @param list<bool|float|int|string|null> $fields
+     */
+    private function writeCsvRow(array $fields): void
+    {
+        if (fputcsv($this->tmpfh, $fields) === false) {
+            throw new RuntimeException('Unable to write billing export row.');
+        }
     }
 
   // Creating a BillingExport object opens the output file.
   // Filename format is "transYYYYMMDDHHMMSS.txt".
   //
-    function __construct()
+    public function __construct()
     {
         $this->tmpname = $this->TMP_DIR . '/trans' . date("YmdHis") . '.txt';
-        $this->tmpfh = fopen($this->tmpname, 'w');
+        $handle = fopen($this->tmpname, 'w');
+        if ($handle === false) {
+            throw new RuntimeException('Unable to open billing export file: ' . $this->tmpname);
+        }
+
+        $this->tmpfh = $handle;
     }
 
   // Call this once for each claim to be processed.
   //
-    function addClaim($patient_id, $encounter)
+    public function addClaim($patient_id, $encounter): void
     {
 
         // Patient information:
@@ -137,7 +149,7 @@ class BillingExport
         $prow = sqlQuery($query, [$patient_id, $patient_id]);
 
         // Patient line.
-        fputcsv($this->tmpfh, [
+        $this->writeCsvRow([
             'PT',
             $this->fixString($prow['pubpid']),
             $this->fixString($prow['lname']),
@@ -151,7 +163,7 @@ class BillingExport
             PhoneNumberService::formatPhone($prow['phone_home'] ?? ''),
             PhoneNumberService::formatPhone($prow['phone_biz'] ?? ''),
             $this->fixSex($prow['sex']),
-            $prow['DOB'],
+            $this->fixDate($prow['DOB']),
             $this->fixSSN($prow['ss']),
             $this->fixEStatus($prow['name']),
             $this->fixString($prow['name']),
@@ -173,7 +185,7 @@ class BillingExport
         $erow = sqlQuery($query, [$patient_id, $patient_id, $encounter]);
 
         // Performing Provider line.
-        fputcsv($this->tmpfh, [
+        $this->writeCsvRow([
             'PP',
             $this->fixString($erow['lname']),
             $this->fixString($erow['fname']),
@@ -213,7 +225,7 @@ class BillingExport
 
               $prev_type = $irow['type'];
 
-              fputcsv($this->tmpfh, [
+              $this->writeCsvRow([
                   'IN',
                   $this->fixString($irow['subscriber_lname']),
                   $this->fixString($irow['subscriber_fname']),
@@ -222,7 +234,7 @@ class BillingExport
                   $this->fixString($irow['subscriber_city']),
                   $this->fixString($irow['subscriber_state']),
                   $this->fixString($irow['subscriber_postal_code']),
-                  $irow['subscriber_DOB'],
+                  $this->fixDate($irow['subscriber_DOB']),
                   $this->fixRelation($irow['subscriber_relationship']),
                   $this->fixString($irow['policy_number']),
                   $this->fixString($irow['group_number']),
@@ -248,7 +260,7 @@ class BillingExport
         $bres = sqlStatement($query, [$patient_id, $encounter]);
 
         while ($brow = sqlFetchArray($bres)) {
-              fputcsv($this->tmpfh, [
+              $this->writeCsvRow([
                   'PR',
                   $this->fixCPT($brow['code'], $brow['modifier']),
                   $this->fixJust($brow['justify']),
@@ -267,7 +279,7 @@ class BillingExport
 
   // Close the output file and move it to the ftp download area.
   //
-    function close()
+    public function close(): void
     {
         fclose($this->tmpfh);
         chmod($this->tmpname, 0666);
