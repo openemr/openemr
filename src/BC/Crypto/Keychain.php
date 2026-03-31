@@ -12,11 +12,13 @@ declare(strict_types=1);
 
 namespace OpenEMR\BC\Crypto;
 
-use OpenEMR\Common\Crypto\KeyVersion;
+use OpenEMR\Common\Crypto\{
+    KeySource,
+    KeyVersion,
+};
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Encryption\{
     Cipher,
-    Keys\Id,
     Keys\Keychain as EagerKeychain,
     Keys\KeychainInterface,
     Keys\KeyMaterial,
@@ -72,7 +74,6 @@ class Keychain
             $keychain->addCipher(Key::v4Db->getId(), new Cipher\Aes256CbcHmacSha384(key: $fouraDB, hmacKey: $fourbDB));
         }
 
-        // FIXME: apply the Key enum in here somehow
         self::tryLoadDbKey('five', $pkidb, $storageDir, $keychain);
         self::tryLoadDbKey('six', $pkidb, $storageDir, $keychain);
         self::tryLoadDbKey('seven', $pkidb, $storageDir, $keychain);
@@ -119,13 +120,18 @@ class Keychain
         string $storageDir,
         EagerKeychain $keychain,
     ): void {
+        // Checking KeyVersion early ensures this only runs on legacy keys
+        $version = KeyVersion::fromString($name);
         $key = self::tryLoadKey("{$name}a", $storage);
         $hmacKey = self::tryLoadKey("{$name}b", $storage);
         if ($key === null || $hmacKey === null) {
             return;
         }
         $dbCipher = new Cipher\Aes256CbcHmacSha384(key: $key, hmacKey: $hmacKey);
-        $keychain->addCipher(new Id("{$name}-db"), $dbCipher);
+        $keychain->addCipher(
+            Key::fromCryptoGen($version, KeySource::Database)->getId(),
+            $dbCipher,
+        );
 
         $diskKeyMsg = self::tryLoadEncryptedKey("$storageDir/{$name}a");
         $diskHmacKeyMsg = self::tryLoadEncryptedKey("$storageDir/{$name}b");
@@ -135,10 +141,13 @@ class Keychain
 
         $diskKey = $dbCipher->decrypt($diskKeyMsg->ciphertext);
         $diskHmacKey = $dbCipher->decrypt($diskHmacKeyMsg->ciphertext);
-        $keychain->addCipher(new Id("{$name}-drive"), new Cipher\Aes256CbcHmacSha384(
-            key: new KeyMaterial($diskKey->wrapped),
-            hmacKey: new KeyMaterial($diskHmacKey->wrapped),
-        ));
+        $keychain->addCipher(
+            Key::fromCryptoGen($version, KeySource::Drive)->getId(),
+            new Cipher\Aes256CbcHmacSha384(
+                key: new KeyMaterial($diskKey->wrapped),
+                hmacKey: new KeyMaterial($diskHmacKey->wrapped),
+            ),
+        );
     }
 
     private static function tryLoadEncryptedKey(string $file): ?Message
