@@ -10,8 +10,6 @@ use DateTimeInterface;
  * Do not create new code that references this class. It should only be used to
  * encapsulate and highlight antipatterns to ease migration towards best
  * practices.
- *
- * @deprecated
  */
 class Utilities
 {
