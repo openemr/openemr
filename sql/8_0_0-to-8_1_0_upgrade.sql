@@ -278,5 +278,8 @@ ALTER TABLE `openemr_postcalendar_events` MODIFY `pc_endDate` date DEFAULT NULL;
 
 --
 -- Convert existing zero dates to NULL
+SET @currentSQLMode = (SELECT @@sql_mode);
+SET sql_mode = '';
 UPDATE `openemr_postcalendar_events` SET `pc_eventDate` = NULL WHERE `pc_eventDate` = '0000-00-00';
 UPDATE `openemr_postcalendar_events` SET `pc_endDate` = NULL WHERE `pc_endDate` = '0000-00-00';
+SET sql_mode = @currentSQLMode;
