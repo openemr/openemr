@@ -29,9 +29,9 @@ readonly class Aes256CbcHmacSha384 implements CipherInterface
     public function decrypt(Ciphertext $ciphertext): Plaintext
     {
         $ciphertext = $ciphertext->wrapped;
-        $hmac = mb_substr($ciphertext, 0, self::HMAC_LENGTH, '8bit');
-        $iv = mb_substr($ciphertext, self::HMAC_LENGTH, self::IV_LENGTH, '8bit');
-        $data = mb_substr($ciphertext, (self::HMAC_LENGTH + self::IV_LENGTH), null, '8bit');
+        $hmac = substr($ciphertext, 0, self::HMAC_LENGTH);
+        $iv = substr($ciphertext, self::HMAC_LENGTH, self::IV_LENGTH);
+        $data = substr($ciphertext, self::HMAC_LENGTH + self::IV_LENGTH);
 
         $expectedHmac = hash_hmac('sha384', $iv . $data, $this->hmacKey->key, true);
         if (!hash_equals(known_string: $expectedHmac, user_string: $hmac)) {
