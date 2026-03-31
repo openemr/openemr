@@ -152,16 +152,17 @@ class BackgroundServiceRunnerTest extends TestCase
         bool $running = false,
         int $executeInterval = 5,
     ): array {
+        // Use string values to match ADOdb runtime behavior (numeric-string)
         return [
             'name' => $name,
             'title' => $name,
-            'active' => $active ? 1 : 0,
-            'running' => $running ? 1 : 0,
+            'active' => $active ? '1' : '0',
+            'running' => $running ? '1' : '0',
             'next_run' => '2020-01-01 00:00:00',
-            'execute_interval' => $executeInterval,
+            'execute_interval' => (string) $executeInterval,
             'function' => 'test_function_' . $name,
             'require_once' => null,
-            'sort_order' => 100,
+            'sort_order' => '100',
         ];
     }
 }
