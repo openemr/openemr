@@ -43,11 +43,17 @@ class KeyV7Generator
         $fhKey = fopen("$storageDir/sevena", 'x');
         $fhHmac = fopen("$storageDir/sevenb", 'x');
         if ($fhKey === false || $fhHmac === false) {
+            // The ordering here ensures there's no data races. In the event of
+            // a crash during generation, files could be left in an
+            // inconsistent state requiring manual intervention.
             throw new RuntimeException('Could not fopen key file for creation.');
         }
 
         $driveKey = self::createDriveKey($fhKey, Aes256CbcHmacSha384::KEY_LENGTH, $dbCipher);
         $driveHmacKey = self::createDriveKey($fhHmac, 32, $dbCipher);
+
+        fclose($fhKey);
+        fclose($fhHmac);
 
         return new Aes256CbcHmacSha384(
             key: $driveKey,
@@ -57,7 +63,7 @@ class KeyV7Generator
 
     /**
      * @param resource $fh An open file handle to where the key will be written
-     * @param int<1, max> $length
+     * @param int<1, max> $length The number of bytes in the key
      */
     private static function createDriveKey(
         $fh,
