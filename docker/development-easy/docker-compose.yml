@@ -58,7 +58,7 @@ services:
       XDEBUG_PROFILER_ON: 1
       # setting xdebug client host for cases where xdebug.discover_client_host fails
       XDEBUG_CLIENT_HOST: host.docker.internal
-      GITHUB_COMPOSER_TOKEN: ${GITHUB_COMPOSER_TOKEN}
+      GITHUB_COMPOSER_TOKEN: ${GITHUB_COMPOSER_TOKEN:-}
       SELENIUM_USE_GRID: "true"
       SELENIUM_HOST: selenium
       SELENIUM_FORCE_HEADLESS: "false"
