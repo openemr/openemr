@@ -118,9 +118,6 @@ readonly class FallbackRouter
         $rootRelative = substr($path, strlen($this->installRoot));
         $this->debug("IPA/R=$rootRelative");
 
-        // TODO:
-        // - Any equivalent `.htaccess` deny rules
-        // - configs
         return match (true) {
             // All dotfiles and directories, including git
             str_starts_with($rootRelative, '/.') => false,
@@ -128,6 +125,8 @@ readonly class FallbackRouter
             str_starts_with($rootRelative, '/src') => false,
             str_starts_with($rootRelative, '/tests') => false,
             str_starts_with($rootRelative, '/vendor') => false,
+            // DI container configuration (sensitive)
+            str_starts_with($rootRelative, '/config') => false,
             // Other non-executable content
             str_ends_with($rootRelative, '.inc') => false,
             str_ends_with($rootRelative, '.inc.php') => false,
@@ -136,6 +135,11 @@ readonly class FallbackRouter
             // Covers most DB configs in most locations
             str_ends_with($rootRelative, 'sqlconf.php') => false,
             str_contains($rootRelative, '/templates') => false,
+            // Historic `.htaccess` rules
+            str_starts_with($rootRelative, '/bin') => false,
+            str_starts_with($rootRelative, '/portal/patient/fwk/libs') => false,
+            preg_match('#^/sites/[^/]+/documents/#', $rootRelative) === 1 => false,
+
             default => true, // Future: default deny instead?
         };
     }
