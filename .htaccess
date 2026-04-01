@@ -8,6 +8,10 @@
 
 RewriteEngine On
 
+# Apache can strip Authoriation headers by deafult... restore them.
+# Equivalent: `CGIPassAuth On`
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+
 # Static files - serve directly
 RewriteCond %{REQUEST_FILENAME} -f
 RewriteCond %{REQUEST_URI} !\.php$
