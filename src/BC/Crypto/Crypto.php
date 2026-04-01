@@ -53,6 +53,8 @@ final readonly class Crypto implements CryptoInterface
             return '';
         }
 
+        // This ignores the keychain's specified preferred version for
+        // backwards compatibility.
         $keyVersion = KeyVersion::CURRENT;
 
         $bcKey = Key::fromCryptoGen($keyVersion, $keySource);
