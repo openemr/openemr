@@ -83,7 +83,7 @@ final readonly class Message
         assert($this->format === MessageFormat::ImplicitKey);
         return sprintf('%s%s',
             $this->keyId->id,
-            base64_encode($this->ciphertext->wrapped),
+            base64_encode($this->ciphertext->value),
         );
     }
 }

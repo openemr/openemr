@@ -98,7 +98,7 @@ final readonly class Crypto implements CryptoInterface
 
             $cipher = $this->keychain->getCipher($keyId);
 
-            return $cipher->decrypt($message->ciphertext)->wrapped;
+            return $cipher->decrypt($message->ciphertext)->bytes;
         } catch (\Throwable $e) {
             $this->logger->warning('Decrypting data failed', ['exception' => $e]);
             return false;

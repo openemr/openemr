@@ -19,7 +19,7 @@ final readonly class CipherSuite implements CipherSuiteInterface
     {
         $parsed = Message::parse($encodedMessage);
         $cipher = $this->keychain->getCipher($parsed->keyId);
-        return $cipher->decrypt($parsed->ciphertext)->wrapped;
+        return $cipher->decrypt($parsed->ciphertext)->bytes;
     }
 
     public function encrypt(#[SensitiveParameter] string $plaintext): string

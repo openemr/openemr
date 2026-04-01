@@ -144,8 +144,8 @@ class Keychain
         $keychain->addCipher(
             Key::fromCryptoGen($version, KeySource::Drive)->getId(),
             new Cipher\Aes256CbcHmacSha384(
-                key: new KeyMaterial($diskKey->wrapped),
-                hmacKey: new KeyMaterial($diskHmacKey->wrapped),
+                key: new KeyMaterial($diskKey->bytes),
+                hmacKey: new KeyMaterial($diskHmacKey->bytes),
             ),
         );
     }

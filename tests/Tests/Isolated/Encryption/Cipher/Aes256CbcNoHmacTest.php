@@ -43,7 +43,7 @@ final class Aes256CbcNoHmacTest extends TestCase
 
         $result = $cipher->decrypt($rawCiphertext);
 
-        self::assertSame(CryptoFixtureManager::PLAINTEXT, $result->wrapped);
+        self::assertSame(CryptoFixtureManager::PLAINTEXT, $result->bytes);
     }
 
     public function testThrowsOnWrongKey(): void
@@ -83,7 +83,7 @@ final class Aes256CbcNoHmacTest extends TestCase
         );
 
         $rawCiphertext = $this->extractRawCiphertext($this->fixtures->getCiphertext(1))
-            ->wrapped;
+            ->value;
 
         // Corrupt the ciphertext (after IV = 16 bytes)
         // Without HMAC, this just produces garbage output
@@ -94,7 +94,7 @@ final class Aes256CbcNoHmacTest extends TestCase
         $result = $cipher->decrypt(new Ciphertext($corrupted));
 
         // It decrypts to something, just not the right thing
-        self::assertNotSame(CryptoFixtureManager::PLAINTEXT, $result->wrapped);
+        self::assertNotSame(CryptoFixtureManager::PLAINTEXT, $result->bytes);
     }
 
     public function testEncryptThrowsBadMethodCallException(): void
