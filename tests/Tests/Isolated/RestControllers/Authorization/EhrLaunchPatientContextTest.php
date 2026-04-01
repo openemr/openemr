@@ -31,6 +31,9 @@ class EhrLaunchPatientContextTest extends TestCase
 {
     protected function setUp(): void
     {
+        // Reset first so a prior test failure can't leak an override.
+        ServiceContainer::reset();
+
         // Provide a no-op crypto implementation so SMARTLaunchToken can
         // serialize/deserialize without database-backed encryption keys.
         $crypto = new class implements CryptoInterface {
