@@ -14,20 +14,39 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Common\Logging;
 
+use Lcobucci\Clock\FrozenClock;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Logging\Audit\Event;
 use OpenEMR\Common\Logging\Audit\SinkInterface;
+use OpenEMR\Common\Logging\AuditConfig;
+use OpenEMR\Common\Logging\BreakglassCheckerInterface;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Psr\Clock\ClockInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class EventAuditLoggerTest extends TestCase
 {
     private CryptoInterface&MockObject $crypto;
+    private SessionInterface&MockObject $session;
+    private AuditConfig $config;
+    private BreakglassCheckerInterface&MockObject $breakglassChecker;
+    private ClockInterface $clock;
 
     protected function setUp(): void
     {
         $this->crypto = $this->createMock(CryptoInterface::class);
+        $this->session = $this->createMock(SessionInterface::class);
+        $this->config = new AuditConfig(
+            enabled: true,
+            forceBreakglass: false,
+            queryEvents: true,
+            httpRequestEvents: true,
+            eventTypeFlags: [],
+        );
+        $this->breakglassChecker = $this->createMock(BreakglassCheckerInterface::class);
+        $this->clock = new FrozenClock(new \DateTimeImmutable('2026-01-15 10:30:00'));
     }
 
     public function testRecordLogItemDispatchesToAllSinks(): void
@@ -48,6 +67,10 @@ class EventAuditLoggerTest extends TestCase
             sinks: [$sink1, $sink2],
             cryptoGen: $this->crypto,
             shouldEncrypt: false,
+            session: $this->session,
+            config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
         );
 
         $logger->recordLogItem(
@@ -79,6 +102,10 @@ class EventAuditLoggerTest extends TestCase
             sinks: [$sink],
             cryptoGen: $this->crypto,
             shouldEncrypt: false,
+            session: $this->session,
+            config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
         );
 
         $logger->recordLogItem(
@@ -112,6 +139,10 @@ class EventAuditLoggerTest extends TestCase
             sinks: [$sink],
             cryptoGen: $this->crypto,
             shouldEncrypt: true,
+            session: $this->session,
+            config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
         );
 
         $logger->recordLogItem(
@@ -138,6 +169,10 @@ class EventAuditLoggerTest extends TestCase
             sinks: [$sink],
             cryptoGen: $this->crypto,
             shouldEncrypt: false,
+            session: $this->session,
+            config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
         );
 
         $logger->recordLogItem(
@@ -155,6 +190,10 @@ class EventAuditLoggerTest extends TestCase
             sinks: [],
             cryptoGen: $this->crypto,
             shouldEncrypt: false,
+            session: $this->session,
+            config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
         );
 
         $logger->recordLogItem(
@@ -185,6 +224,10 @@ class EventAuditLoggerTest extends TestCase
             sinks: [$failingSink, $successSink],
             cryptoGen: $this->crypto,
             shouldEncrypt: false,
+            session: $this->session,
+            config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
         );
 
         $logger->recordLogItem(
@@ -218,6 +261,10 @@ class EventAuditLoggerTest extends TestCase
             sinks: [$sink],
             cryptoGen: $this->crypto,
             shouldEncrypt: true,
+            session: $this->session,
+            config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
         );
 
         $logger->recordLogItem(
@@ -253,6 +300,10 @@ class EventAuditLoggerTest extends TestCase
             sinks: [$sink],
             cryptoGen: $this->crypto,
             shouldEncrypt: false,
+            session: $this->session,
+            config: $this->config,
+            breakglassChecker: $this->breakglassChecker,
+            clock: $this->clock,
         );
 
         // Legacy code sometimes passes "NULL" as a string

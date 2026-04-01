@@ -17,6 +17,7 @@ require_once __DIR__ . "/../../../../globals.php";
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Modules\Dorn\ConnectorApi;
 
@@ -37,6 +38,7 @@ if (!empty($_POST)) {
     }
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 <!DOCTYPE html>
 <html>
@@ -49,7 +51,7 @@ if (!empty($_POST)) {
     function doedclick_edit(npi) {
         top.restoreSession();
         var addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?>;
-        let scriptTitle = 'primary_config_edit.php?npi=' + encodeURIComponent(npi) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+        let scriptTitle = 'primary_config_edit.php?npi=' + encodeURIComponent(npi) + '&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
         dlgopen(scriptTitle, '_blank', 600, 750, false, addTitle, {
             buttons: [
                 {text: '<?php echo xla('Close'); ?>', close: true, style: 'secondary btn-sm'}
@@ -60,7 +62,7 @@ if (!empty($_POST)) {
     function doedclick_add() {
         top.restoreSession();
         var addTitle = '<i class="fa fa-plus" style="width:20px;" aria-hidden="true"></i> ' + <?php echo xlj("Edit Mode"); ?>;
-        let scriptTitle = 'primary_config_edit.php?csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken()); ?>;
+        let scriptTitle = 'primary_config_edit.php?csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
         dlgopen(scriptTitle, '_blank', 600, 750, false, addTitle, {
             buttons: [
                 {text: '<?php echo xla('Close'); ?>', close: true, style: 'secondary btn-sm'}

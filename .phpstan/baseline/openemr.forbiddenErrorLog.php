@@ -358,12 +358,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Use a PSR\\-3 logger such as OpenEMR\\\\BC\\\\ServiceContainer\\:\\:getLogger\\(\\) instead of error_log\\(\\)\\.$#',
-    'count' => 13,
-    'path' => __DIR__ . '/../../src/Common/Crypto/CryptoGen.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Use a PSR\\-3 logger such as OpenEMR\\\\BC\\\\ServiceContainer\\:\\:getLogger\\(\\) instead of error_log\\(\\)\\.$#',
-    'count' => 5,
+    'count' => 2,
     'path' => __DIR__ . '/../../src/Common/Csrf/CsrfUtils.php',
 ];
 $ignoreErrors[] = [

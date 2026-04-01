@@ -364,7 +364,7 @@ class TokenIntrospectionRestController {
                 }
                 // lets verify secret to prevent bad guys.
                 if (!empty($client['client_secret'])) {
-                    $decryptedSecret = $this->getCryptoGen()->decryptStandard($client['client_secret']);
+                    $decryptedSecret = $this->getCryptoGen()->decryptStandard(is_string($client['client_secret']) ? $client['client_secret'] : null);
                     if ($decryptedSecret !== $clientSecret) {
                         throw new OAuthServerException('Client failed security', 0, 'invalid_request', Response::HTTP_UNAUTHORIZED);
                     }

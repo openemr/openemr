@@ -1,10 +1,12 @@
 <?php
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+
 /**
  * Format a date string according to the user's language preference.
  *
  * Returns a formatted date string based on the user's language choice stored in
- * $_SESSION['language_choice']. The format varies by language and can optionally
+ * the session's 'language_choice' value. The format varies by language and can optionally
  * include the day of the week.
  *
  * @param string|int $strtime Unix timestamp or date string. If empty, uses current time.
@@ -47,9 +49,10 @@ function dateformat(string|int $strtime = '', bool $with_dow = false): string
     ];
     $nom = xl($months[$month]);
 
+    $session = SessionWrapperFactory::getInstance()->getActiveSession();
     // Date string format
     // First, get current language title
-    $languageTitle = getLanguageTitle($_SESSION['language_choice']);
+    $languageTitle = getLanguageTitle($session->get('language_choice'));
     $day_num = date("d", $strtime);
     $year = date("Y", $strtime);
     $dt = match ($languageTitle) {

@@ -14,6 +14,7 @@ namespace OpenEMR\Cqm\QrdaControllers;
 
 use DOMDocument;
 use OpenEMR\Common\Logging\EventAuditLogger;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Qrda\QrdaReportService;
 use XSLTProcessor;
@@ -356,11 +357,12 @@ class QrdaReportController
         // Clean up temporary directory
         $this->cleanupDirectory($zip_directory);
 
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         // Log the event
         EventAuditLogger::getInstance()->newEvent(
             "qrda3-export",
-            $_SESSION['authUser'],
-            $_SESSION['authProvider'],
+            $session->get('authUser'),
+            $session->get('authProvider'),
             1,
             "QRDA3 download - " . count($measures) . " measures, " . count($pids) . " patients"
         );
@@ -449,11 +451,12 @@ class QrdaReportController
 
             // Save file locally. Placeholder for future use.
 
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             // Log the event
             EventAuditLogger::getInstance()->newEvent(
                 "qrda3-consolidated-export",
-                $_SESSION['authUser'],
-                $_SESSION['authProvider'],
+                $session->get('authUser'),
+                $session->get('authProvider'),
                 1,
                 "QRDA III Consolidated download - " . count($measures) . " measures"
             );

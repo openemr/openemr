@@ -18,6 +18,7 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get("include_root") . "/
 use Mpdf\Mpdf;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Pdf\Config_Mpdf;
@@ -28,7 +29,10 @@ if (!$thisauth) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Order Results", xl("Order Results"));
 }
 
-$orderid = intval($_GET['orderid']);
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+/** @var string|int $rawOrderId */
+$rawOrderId = $_GET['orderid'];
+$orderid = intval($rawOrderId);
 
 $finals_only = empty($_POST['form_showall']);
 
@@ -61,7 +65,7 @@ if (!empty($_POST['form_send_to_portal'])) {
     require_once(OEGlobalsBag::getInstance()->get("include_root") . "/cmsportal/portal.inc.php");
     $config_mpdf = Config_Mpdf::getConfigMpdf();
     $pdf = new mPDF($config_mpdf);
-    if ($_SESSION['language_direction'] == 'rtl') {
+    if ($session->get('language_direction') === 'rtl') {
         $pdf->SetDirectionality('rtl');
     }
     ob_start();

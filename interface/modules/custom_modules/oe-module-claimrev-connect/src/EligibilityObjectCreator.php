@@ -14,6 +14,7 @@
 
 namespace OpenEMR\Modules\ClaimRevConnector;
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Modules\ClaimRevConnector\EligibilityData;
 use OpenEMR\Modules\ClaimRevConnector\RevenueToolsPayer;
@@ -114,7 +115,7 @@ class EligibilityObjectCreator
             $payer->subscriberNumber = $subscriberRow['policy_number'];
             $revenueTools->subscriberFirstName = $subscriberRow['subscriber_fname'];
             $revenueTools->subscriberLastName = $subscriberRow['subscriber_lname'];
-            if ($subscriberRow['subscriber_dob'] != "0000-00-00") {
+            if (!Utilities::isDateEmpty($subscriberRow['subscriber_dob'])) {
                 $revenueTools->subscriberDob = $subscriberRow['subscriber_dob'];
             }
 

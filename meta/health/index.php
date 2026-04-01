@@ -59,6 +59,10 @@ try {
             $ignoreAuth = true;
             // Skip audit logging - health checks should not pollute the audit log
             $skipAuditLog = true;
+            // Allow session writes — each probe starts a fresh session (no cookie)
+            // so globals.php always writes site_id, triggering a read_and_close
+            // reopen. Marking writable avoids that reopen and its log warning.
+            $sessionAllowWrite = true;
             require_once __DIR__ . "/../../interface/globals.php";
 
             // Run full health checks

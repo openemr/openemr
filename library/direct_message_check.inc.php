@@ -47,10 +47,10 @@ function phimail_connect(&$phimail_error)
         return false; //for safety
     }
 
-    $phimail_server = @parse_url((string) OEGlobalsBag::getInstance()->get('phimail_server_address'));
-    $phimail_username = OEGlobalsBag::getInstance()->get('phimail_username');
+    $phimail_server = @parse_url(OEGlobalsBag::getInstance()->getString('phimail_server_address'));
+    $phimail_username = OEGlobalsBag::getInstance()->getString('phimail_username');
     $cryptoGen = ServiceContainer::getCrypto();
-    $phimail_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('phimail_password'));
+    $phimail_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('phimail_password'));
 
     // if test mode is disabled we use the production cert, otherwise we use the test certificate.
     if (OEGlobalsBag::getInstance()->has('phimail_testmode_disabled') && OEGlobalsBag::getInstance()->getBoolean('phimail_testmode_disabled')) {
@@ -77,7 +77,7 @@ function phimail_connect(&$phimail_error)
         case "ssl":
         case "sslv3":
         case "tls":
-            $server = OEGlobalsBag::getInstance()->get('phimail_server_address');
+            $server = OEGlobalsBag::getInstance()->getString('phimail_server_address');
             break;
         default:
             $phimail_error = 'C2';
@@ -161,9 +161,9 @@ function phimail_check(): void
         return;
     }
 
-    $phimail_username = OEGlobalsBag::getInstance()->get('phimail_username');
+    $phimail_username = OEGlobalsBag::getInstance()->getString('phimail_username');
     $cryptoGen = ServiceContainer::getCrypto();
-    $phimail_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('phimail_password'));
+    $phimail_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('phimail_password'));
 
     $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
     if ($ret !== true) {
@@ -171,7 +171,7 @@ function phimail_check(): void
         return;
     }
 
-    if (!($notifyUsername = OEGlobalsBag::getInstance()->get('phimail_notify'))) {
+    if (!($notifyUsername = OEGlobalsBag::getInstance()->getString('phimail_notify'))) {
         $notifyUsername = 'admin'; //fallback
     }
 
@@ -519,7 +519,7 @@ function phimail_logit($success, $text, $pid = 0, $event = "direct-message-check
 function phimail_read_blob($fp, $len): string|false
 {
 
-    $fpath = OEGlobalsBag::getInstance()->get('temporary_files_dir');
+    $fpath = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
     if (!@file_exists($fpath)) {
         phimail_logit(0, "M13 temp dir does not exist: " . $fpath);
         return false;
@@ -669,7 +669,7 @@ function phimail_store($name, $mime_type, $fn)
  */
 function phimail_notify($subj, $body)
 {
-    $recipient = OEGlobalsBag::getInstance()->get('practice_return_email_path');
+    $recipient = OEGlobalsBag::getInstance()->getString('practice_return_email_path');
     if (empty($recipient)) {
         return false;
     }

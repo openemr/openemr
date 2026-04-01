@@ -18,8 +18,10 @@ require_once("$srcdir/options.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
+if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
     CsrfUtils::csrfNotVerified();
 }
 

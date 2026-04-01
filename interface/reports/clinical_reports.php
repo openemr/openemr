@@ -20,6 +20,7 @@ require_once("../../custom/code_types.inc.php");
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\Utils\DateFormatterUtils;
@@ -28,8 +29,9 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
     AccessDeniedHelper::denyWithTemplate("ACL check failed for patients/med: Clinical Reports", xl("Clinical Reports"));
 }
 
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"])) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
         CsrfUtils::csrfNotVerified();
     }
 }
@@ -228,7 +230,7 @@ Search options include diagnosis, procedure, prescription, medical history, and 
 <div id="report_parameters_daterange"> <?php echo text(DateFormatterUtils::oeFormatDateTime($sql_date_from, "global", true)) .
       " &nbsp; " . xlt("to{{Range}}") . " &nbsp; " . text(DateFormatterUtils::oeFormatDateTime($sql_date_to, "global", true)); ?> </div>
 <form name='theform' id='theform' method='post' action='clinical_reports.php' onsubmit='return top.restoreSession()'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
     <div id="report_parameters">
         <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
         <table>
@@ -612,27 +614,27 @@ if (!empty($_POST['form_refresh'])) {
         array_push($sqlBindArray, $patient_id);
     }
 
-    if (strlen($age_from) != 0) {
+    if (strlen((string) $age_from) != 0) {
          $whr_stmt .= "   and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 >= ?";
          array_push($sqlBindArray, $age_from);
     }
 
-    if (strlen($age_to) != 0) {
+    if (strlen((string) $age_to) != 0) {
          $whr_stmt .= "   and DATE_FORMAT(FROM_DAYS(DATEDIFF(NOW(),pd.dob)), '%Y')+0 <= ?";
          array_push($sqlBindArray, $age_to);
     }
 
-    if (strlen($sql_gender) != 0) {
+    if (strlen((string) $sql_gender) != 0) {
           $whr_stmt .= "   and pd.sex = ?";
           array_push($sqlBindArray, $sql_gender);
     }
 
-    if (strlen($sql_ethnicity) != 0) {
+    if (strlen((string) $sql_ethnicity) != 0) {
          $whr_stmt .= "   and pd.ethnicity = ?";
          array_push($sqlBindArray, $sql_ethnicity);
     }
 
-    if (strlen($sql_race) != 0) {
+    if (strlen((string) $sql_race) != 0) {
          $whr_stmt .= "   and pd.race = ?";
          array_push($sqlBindArray, $sql_race);
     }

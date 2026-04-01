@@ -19,6 +19,7 @@ set_time_limit(0);
 require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -27,7 +28,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
-$session = SessionWrapperFactory::getInstance()->getWrapper();
+$session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $form_pid1 = empty($_GET['pid1']) ? 0 : intval($_GET['pid1']);
 $form_pid2 = empty($_GET['pid2']) ? 0 : intval($_GET['pid2']);
@@ -288,7 +289,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
          */
         function logMergeEvent($target_pid, $event_type, $log_message): void
         {
-            $session = SessionWrapperFactory::getInstance()->getWrapper();
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
             EventAuditLogger::getInstance()->newEvent(
                 "patient-merge-" . $event_type,
                 $session->get('authUser'),
@@ -336,7 +337,6 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         function resolveDuplicateEncounters($targets): void
         {
             global $PRODUCTION;
-            $session = SessionWrapperFactory::getInstance()->getWrapper();
 
             $target_pid = $targets[0]['pid'];
             $target = $targets[0]['encounter'];
@@ -394,7 +394,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         }
 
         if (!empty($_POST['form_submit'])) {
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default', $session->getSymfonySession())) {
+            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
                 CsrfUtils::csrfNotVerified();
             }
 
@@ -444,10 +444,10 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                 if ($tprow['ss'] != $sprow['ss']) {
                     die(xlt('Target and source SSN do not match'));
                 }
-                if (empty($tprow['DOB']) || $tprow['DOB'] == '0000-00-00') {
+                if (Utilities::isDateEmpty($tprow['DOB'])) {
                     die(xlt('Target patient has no DOB'));
                 }
-                if (empty($sprow['DOB']) || $sprow['DOB'] == '0000-00-00') {
+                if (Utilities::isDateEmpty($sprow['DOB'])) {
                     die(xlt('Source patient has no DOB'));
                 }
                 if ($tprow['DOB'] != $sprow['DOB']) {
@@ -477,13 +477,15 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
             }
 
             // Move scanned encounter documents and delete their container.
+            // nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
+            // PIDs are sanitized via intval() (line 400-401) and check_file_dir_name() (line 456-457)
             if (is_dir($sencdir)) {
                 if ($PRODUCTION && !file_exists($tdocdir)) {
                     mkdir($tdocdir);
                 }
 
-                if ($PRODUCTION && !file_exists($tencdir)) {
-                    mkdir($tencdir);
+                if ($PRODUCTION && !file_exists($tencdir)) { // nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
+                    mkdir($tencdir); // nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
                 }
 
                 $dh = opendir($sencdir);
@@ -499,8 +501,8 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                     if ($sfname == 'index.html') {
                         echo "<br />" . xlt('Deleting') . " " . text($sencdir) . "/"
                             . text($sfname);
-                        if ($PRODUCTION) {
-                            if (!unlink("$sencdir/$sfname")) {
+                        if ($PRODUCTION) { // nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
+                            if (!unlink("$sencdir/$sfname")) { // nosemgrep: php.lang.security.injection.tainted-filename.tainted-filename
                                 die("<br />" . xlt('Delete failed!'));
                             }
                         }
@@ -546,7 +548,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                     // Don't mess with log data.
                 } else {
                     $crow = sqlQuery(
-                        "SHOW COLUMNS FROM `" . escape_table_name($tblname) . "` WHERE " .
+                        "SHOW COLUMNS FROM " . escape_table_name($tblname) . " WHERE " .
                         "`Field` LIKE 'pid' OR `Field` LIKE 'patient_id'"
                     );
                     if (!empty($crow['Field'])) {
@@ -607,7 +609,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
         <p>
         </p>
         <form method='post' action='merge_patients.php?<?php echo "pid1=" . attr_url($form_pid1) . "&pid2=" . attr_url($form_pid2); ?>'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken('default', $session->getSymfonySession())); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <div class="table-responsive">
                 <table class="table w-100">
                     <tr>

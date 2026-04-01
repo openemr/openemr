@@ -144,11 +144,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../library/classes/rulesets/Amc/library/AbstractAmcReport.php',
 ];
 $ignoreErrors[] = [
@@ -215,11 +210,6 @@ $ignoreErrors[] = [
     'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Unreachable statement \\- code above always terminates\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Common/Session/PHPSessionWrapper.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Unreachable statement \\- code above always terminates\\.$#',

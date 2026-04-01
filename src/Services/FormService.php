@@ -73,7 +73,7 @@ class FormService
     ) {
 
         global $attendant_type;
-        $session = SessionWrapperFactory::getInstance()->getWrapper();
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
         if (!$user) {
             $user = $session->get('authUser');
         }
@@ -86,7 +86,7 @@ class FormService
             $therapy_group = $attendant_type == 'pid' ? null : $session->get('therapy_group');
         }
 
-        //print_r($_SESSION['therapy_group']);die;
+        //print_r($session->get('therapy_group'));die;
         $arraySqlBind = [];
         $sql = "insert into forms (date, encounter, form_name, form_id, pid, " .
             "user, groupname, authorized, formdir, therapy_group_id) values (";

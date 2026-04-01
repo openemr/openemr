@@ -2,11 +2,6 @@
 
 $ignoreErrors = [];
 $ignoreErrors[] = [
-    'message' => '#^Loose comparison using \\!\\= between \'\' and \'\' will always evaluate to false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/new.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Loose comparison using \\!\\= between 0 and 0 will always evaluate to false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Installer/src/Installer/Model/InstModuleTable.php',
