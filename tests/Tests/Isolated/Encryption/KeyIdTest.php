@@ -10,19 +10,19 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Tests\Isolated\Encryption\Keys;
+namespace OpenEMR\Tests\Isolated\Encryption;
 
-use OpenEMR\Encryption\Keys\Id;
+use OpenEMR\Encryption\KeyId;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
 
 #[Small]
-class IdTest extends TestCase
+class KeyIdTest extends TestCase
 {
     public function testWrapping(): void
     {
         $raw = 'some-key-123';
-        $id = new Id($raw);
+        $id = new KeyId($raw);
         self::assertSame($raw, $id->id);
     }
 }

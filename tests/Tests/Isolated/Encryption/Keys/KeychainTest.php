@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Encryption\Keys;
 
 use OpenEMR\Encryption\Cipher\CipherInterface;
+use OpenEMR\Encryption\KeyId;
 use OpenEMR\Encryption\Keys\{
-    Id,
     Keychain,
 };
 use OutOfBoundsException;
@@ -27,11 +27,11 @@ class KeychainTest extends TestCase
     public function testHasKey(): void
     {
         $keychain = new Keychain();
-        $id = new Id('abc');
+        $id = new KeyId('abc');
         self::assertFalse($keychain->hasKey($id), 'Initial state should have no keys');
 
         $cipher = self::createStub(CipherInterface::class);
-        $keychain->addCipher($id, $cipher);
+        $keychain->registerCipher($id, $cipher);
         self::assertTrue($keychain->hasKey($id), 'Key should exist after adding');
     }
 
@@ -39,13 +39,13 @@ class KeychainTest extends TestCase
     {
         $keychain = new Keychain();
 
-        $id1 = new Id('one');
+        $id1 = new KeyId('one');
         $cipher1 = self::createStub(CipherInterface::class);
-        $keychain->addCipher($id1, $cipher1);
+        $keychain->registerCipher($id1, $cipher1);
 
-        $id2 = new Id('two');
+        $id2 = new KeyId('two');
         $cipher2 = self::createStub(CipherInterface::class);
-        $keychain->addCipher($id2, $cipher2);
+        $keychain->registerCipher($id2, $cipher2);
 
 
         assert($cipher1 !== $cipher2);
@@ -60,6 +60,6 @@ class KeychainTest extends TestCase
     {
         $keychain = new Keychain();
         self::expectException(OutOfBoundsException::class);
-        $keychain->getCipher(new Id('not registered'));
+        $keychain->getCipher(new KeyId('not registered'));
     }
 }
