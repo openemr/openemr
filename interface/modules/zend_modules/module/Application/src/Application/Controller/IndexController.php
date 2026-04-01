@@ -138,8 +138,8 @@ class IndexController extends AbstractActionController
             $params = [$keyword, $keyword, $keyword, $keyword, $keyword, $keyword];
             $countResult = QueryUtils::fetchRecords($sql, $params);
             $rowCount = count($countResult);
-            $sql .= "LIMIT ?, ?";
-            $result = QueryUtils::fetchRecords($sql, array_merge($params, [$limitStart, $limitEnd]));
+            $sql .= "LIMIT ? OFFSET ?";
+            $result = QueryUtils::fetchRecords($sql, array_merge($params, [$limitEnd, $limitStart]));
         } elseif (strtolower((string) $searchType) == 'emrdirect') {
             $sql = "SELECT fname, mname, lname,email_direct AS 'email',id FROM users
                 WHERE (CONCAT(fname, ' ', lname) LIKE ?
@@ -151,8 +151,8 @@ class IndexController extends AbstractActionController
             $params = [$keyword, $keyword, $keyword];
             $countResult = QueryUtils::fetchRecords($sql, $params);
             $rowCount = count($countResult);
-            $sql .= "LIMIT ?, ?";
-            $result = QueryUtils::fetchRecords($sql, array_merge($params, [$limitStart, $limitEnd]));
+            $sql .= "LIMIT ? OFFSET ?";
+            $result = QueryUtils::fetchRecords($sql, array_merge($params, [$limitEnd, $limitStart]));
         }
 
         $arr = [];

@@ -145,11 +145,11 @@ $simpleSearch = $_GET['simple_search'] ?? null;
             "DATE_FORMAT(DOB,'%m/%d/%Y') as DOB_TS " .
             "FROM patient_data WHERE $where " .
             "ORDER BY relevance DESC, lname, fname, mname " .
-            "LIMIT ?, ?";
+            "LIMIT ? OFFSET ?";
 
         $sqlBindArray = array_merge($sqlBindArray, $sqlBindArraySpecial);
-        $sqlBindArray[] = (int) $fstart;
         $sqlBindArray[] = $MAXSHOW;
+        $sqlBindArray[] = (int) $fstart;
         $rez = sqlStatement($sql, $sqlBindArray);
         $result = [];
         while ($row = sqlFetchArray($rez)) {

@@ -104,7 +104,7 @@ function RemindersArray($days_to_show, $today, $alerts_to_show, $userID = null)
             JOIN `dated_reminders_link` drl ON dr.dr_id = drl.dr_id
             WHERE drl.to_id = ? AND dr.`message_processed` = 0
             AND dr.`dr_message_due_date` < ADDDATE(NOW(), INTERVAL " . (int) $days_to_show . " DAY)
-            ORDER BY `dr_message_due_date` ASC , `message_priority` ASC LIMIT 0, ?", [$userID, (int) $alerts_to_show]);
+            ORDER BY `dr_message_due_date` ASC , `message_priority` ASC LIMIT ?", [$userID, (int) $alerts_to_show]);
 
 // --------- loop through the results
     for ($i = 0; $drRow = sqlFetchArray($drSQL); $i++) {

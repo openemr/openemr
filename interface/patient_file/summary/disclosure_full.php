@@ -104,7 +104,7 @@ if (isset($_GET['deletelid'])) {
         <div class="col-12 jumbotron mt-3 p-4">
             <?php
             $N = 15;
-            $offset = $_REQUEST['offset'] ?? 0;
+            $offset = filter_input(INPUT_GET, 'offset', FILTER_VALIDATE_INT) ?? filter_input(INPUT_POST, 'offset', FILTER_VALIDATE_INT) ?? 0;
 
             $disclQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el" .
             " LEFT JOIN users u ON u.username = el.user " .
@@ -116,9 +116,9 @@ if (isset($_GET['deletelid'])) {
             $disclInnerQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el" .
             " LEFT JOIN users u ON u.username = el.user" .
             " WHERE patient_id = ? AND event IN (SELECT option_id FROM list_options WHERE list_id = 'disclosure_type' AND activity = 1)" .
-            " ORDER BY date DESC LIMIT ?, ?";
+            " ORDER BY date DESC LIMIT ? OFFSET ?";
 
-            $r1 = sqlStatement($disclInnerQry, [$pid, (is_numeric($offset) ? (int) $offset : 0), $N]);
+            $r1 = sqlStatement($disclInnerQry, [$pid, $N, $offset]);
             $n = sqlNumRows($r1);
             $noOfRecordsLeft = ($totalRecords - $offset);
             if ($n > 0) {?>

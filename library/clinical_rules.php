@@ -1389,7 +1389,7 @@ function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'pr
                 }
             } else {
                 // batching
-                $rez = sqlStatementCdrEngine("SELECT `pid` FROM `patient_data` ORDER BY `pid` LIMIT ?,?", [($start - 1),$batchSize]);
+                $rez = sqlStatementCdrEngine("SELECT `pid` FROM `patient_data` ORDER BY `pid` LIMIT ? OFFSET ?", [$batchSize, ($start - 1)]);
             }
         } else {
             // Look at an individual physician
@@ -1416,7 +1416,7 @@ function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'pr
                     }
                 } else {
                     //batching
-                    $sql .= " LIMIT " . intval($start) - 1 . "," . intval($batchSize);
+                    $sql .= " LIMIT " . intval($batchSize) . " OFFSET " . (intval($start) - 1);
                     $rez = sqlStatementCdrEngine($sql, [$provider, $provider, $provider]);
                 }
             } else {  //$pat_prov_rel == 'primary'
@@ -1429,7 +1429,7 @@ function buildPatientArray($patient_id = '', $provider = '', $pat_prov_rel = 'pr
                     }
                 } else {
                     $rez = sqlStatementCdrEngine("SELECT `pid` FROM `patient_data` " .
-                              "WHERE `providerID`=? ORDER BY `pid` LIMIT ?,?", [$provider,($start - 1),$batchSize]);
+                              "WHERE `providerID`=? ORDER BY `pid` LIMIT ? OFFSET ?", [$provider, $batchSize, ($start - 1)]);
                 }
             }
         }

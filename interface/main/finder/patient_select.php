@@ -223,10 +223,10 @@ if ($popup) {
     $where = empty($where) ? $customWhere : "$customWhere AND $where";
 
     $sql = "SELECT $given FROM patient_data " .
-    "WHERE $where ORDER BY $orderby LIMIT ?, ?";
+    "WHERE $where ORDER BY $orderby LIMIT ? OFFSET ?";
 
-    $sqlBindArray[] = (is_numeric($fstart) ? (int) $fstart : 0);
     $sqlBindArray[] = $sqllimit;
+    $sqlBindArray[] = (is_numeric($fstart) ? (int) $fstart : 0);
     $rez = sqlStatement($sql, $sqlBindArray);
     $result = [];
     while ($row = sqlFetchArray($rez)) {

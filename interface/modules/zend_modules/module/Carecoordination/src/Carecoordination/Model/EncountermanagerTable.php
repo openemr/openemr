@@ -98,9 +98,9 @@ class EncountermanagerTable
             return count($res);
         }
 
-        $query .= " LIMIT ?, ?";
-        $query_data[] = is_numeric($data['limit_start']) ? (int) $data['limit_start'] : 0;
+        $query .= " LIMIT ? OFFSET ?";
         $query_data[] = is_numeric($data['results']) ? (int) $data['results'] : 0;
+        $query_data[] = is_numeric($data['limit_start']) ? (int) $data['limit_start'] : 0;
         return QueryUtils::fetchRecords($query, $query_data);
     }
 

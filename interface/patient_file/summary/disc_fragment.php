@@ -31,7 +31,7 @@ function getDisclosureByDate($pid, $limit)
     $discQry = " SELECT el.id, el.event, el.recipient, el.description, el.date, CONCAT(u.fname, ' ', u.lname) as user_fullname FROM extended_log el" .
     " LEFT JOIN users u ON u.username = el.user " .
     " WHERE el.patient_id = ? AND el.event IN (SELECT option_id FROM list_options WHERE list_id = 'disclosure_type' AND activity = 1)" .
-    " ORDER BY el.date DESC LIMIT 0, ?";
+    " ORDER BY el.date DESC LIMIT ?";
     $r1 = sqlStatement($discQry, [$pid, (int) $limit]);
     $result2 = [];
     for ($iter = 0; $frow = sqlFetchArray($r1); $iter++) {

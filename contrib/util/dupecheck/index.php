@@ -150,7 +150,7 @@ if ($parameters['go'] == "Go") {
     $sqlstmt .= $orderby;
     $sqlBindArray = [];
     if ($parameters['limit']) {
-        $sqlstmt .= " LIMIT 0, ?";
+        $sqlstmt .= " LIMIT ?";
         $sqlBindArray[] = is_numeric($parameters['limit']) ? (int) $parameters['limit'] : 100;
     }
 

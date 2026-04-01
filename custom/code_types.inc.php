@@ -1027,7 +1027,7 @@ function limit_query_string($limit = null, $start = null, $number = null, $retur
 {
     if (!is_null($start) && !is_null($number)) {
         // For pagination of results
-        $limit_query = " LIMIT " . (int)$start . ", " . (int)$number . " ";
+        $limit_query = " LIMIT " . (int)$number . " OFFSET " . (int)$start . " ";
     } elseif (!is_null($limit)) {
         $limit_query = " LIMIT " . (int)$limit . " ";
     } else {
