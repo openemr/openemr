@@ -28,9 +28,7 @@ function isValid($date, $format = 'Y-m-d'): bool
 }
 
 if (!empty($_POST['token'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["token"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, key: 'token', dieOnFail: true);
 
     $postStartDate = DateToYYYYMMDD($_POST['start_date']);
     $startDate = isValid($postStartDate) === true ? $postStartDate : $_POST['start_date'];

@@ -21,9 +21,7 @@ if (!AclMain::aclCheckCore('admin', 'practice')) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-if (!CsrfUtils::verifyCsrfToken($_GET['csrf_token_form'], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 sqlQuery("delete from `module_prior_authorizations` where `id` = ?", [$_GET['id']]);
 
 ?>

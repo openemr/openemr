@@ -20,8 +20,6 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 EventAuditLogger::getInstance()->newEvent("print", $session->get('authUser'), $session->get('authProvider'), 1, (new Html2Text($_POST['comments'], ['do_links' => 'none', 'width' => 0]))->getText());

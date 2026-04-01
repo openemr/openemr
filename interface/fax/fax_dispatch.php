@@ -29,9 +29,7 @@ use OpenEMR\Core\OEGlobalsBag;
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if ($_GET['file']) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     $mode = 'fax';
     $filename = $_GET['file'];
@@ -41,9 +39,7 @@ if ($_GET['file']) {
 
     $filepath = OEGlobalsBag::getInstance()->getString('hylafax_basedir') . '/recvq/' . $filename;
 } elseif ($_GET['scan']) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     $mode = 'scan';
     $filename = $_GET['scan'];
@@ -112,9 +108,7 @@ function mergeTiffs()
 // If we are submitting...
 //
 if ($_POST['form_save']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $action_taken = false;
     $tmp1 = [];

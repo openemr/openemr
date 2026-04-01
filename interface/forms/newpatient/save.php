@@ -29,9 +29,7 @@ use OpenEMR\Services\PatientService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $facilityService = new FacilityService();
 $encounterService = new EncounterService();

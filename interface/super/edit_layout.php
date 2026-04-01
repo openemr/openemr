@@ -429,9 +429,7 @@ $lbfonly = str_starts_with(attr($layout_id), 'LBF') ? "" : "style='display:none;
 // Handle the Form actions
 
 if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     // If we are saving, then save.
     $fld = $_POST['fld'];
     for ($lino = 1; isset($fld[$lino]['id']); ++$lino) {
@@ -506,9 +504,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         }
     }
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "addfield") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     // Add a new field to a specific group
     $data_type = trim((string) $_POST['newdatatype']);
     $max_length = $data_type == 3 ? 3 : 255;
@@ -546,9 +542,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     addOrDeleteColumn($layout_id, trim((string) $_POST['newid']), true);
     setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "movefields") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     // Move field(s) to a new group in the layout
     // AI/Claude Code change: refactored to use query parameters
     $fields = explode(" ", (string) $_POST['selectedfields']);
@@ -601,9 +595,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
         setLayoutTimestamp($tlayout);
     }
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "deletefields") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     // Delete a field from a specific group
     // AI/Claude Code change: refactored to use query parameters
     $fieldsToDelete = [];
@@ -626,9 +618,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     }
     // End of AI/Claude Code changes
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "addgroup") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     // Generate new value for layout_items.group_id.
     $newgroupid = genGroupId($_POST['newgroupparent']);
     sqlStatement(
@@ -640,9 +630,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     );
     setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && $_POST['formaction'] == "deletegroup" && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     // drop the fields from the related table (this is critical)
     $res = sqlStatement(
         "SELECT field_id FROM layout_options WHERE " .
@@ -665,9 +653,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     );
     setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "movegroup") && $layout_id) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     // Note that in some cases below the swapGroups() call will do nothing.
     $res = sqlStatement(
         "SELECT DISTINCT group_id " .
@@ -694,9 +680,7 @@ if (!empty($_POST['formaction']) && ($_POST['formaction'] == "save") && $layout_
     setLayoutTimestamp($layout_id);
 } elseif (!empty($_POST['formaction']) && ($_POST['formaction'] == "renamegroup") && $layout_id) {
     // Renaming a group. This might include moving to a different parent group.
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $newparent = $_POST['renamegroupparent'];  // this is an ID
     $oldid     = $_POST['renameoldgroupname']; // this is an ID
     $oldparent = substr((string) $oldid, 0, -1);

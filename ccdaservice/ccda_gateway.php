@@ -45,9 +45,7 @@ if (!empty($session->get('pid')) && !empty($session->get('patient_portal_onsite_
     define('IS_PORTAL', false);
 }
 
-if (!CsrfUtils::verifyCsrfToken(($_GET["csrf_token_form"] ?? ''), $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 if (!isServiceEnabled()) {
     die(xlt("CDA generation service is disabled. Verify in Administration->Globals."));
