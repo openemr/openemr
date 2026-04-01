@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Encryption\Keys\Storage;
+namespace OpenEMR\Encryption\Storage;
 
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Encryption\Keys\KeyMaterial;

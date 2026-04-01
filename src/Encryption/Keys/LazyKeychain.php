@@ -10,6 +10,7 @@ use OpenEMR\Encryption\Cipher\{
     SeparateHmacKeyCipherInterface,
     SingleKeyCipherInterface,
 };
+use OpenEMR\Encryption\Storage;
 
 class LazyKeychain implements KeychainInterface
 {
