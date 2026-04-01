@@ -5,6 +5,7 @@ declare(strict_types=1);
 
 use Firehed\Container\TypedContainerInterface;
 use OpenEMR\BC\FallbackRouter;
+use Psr\Log\LoggerInterface;
 
 $container = require_once __DIR__ . '/../bootstrap.php';
 assert($container instanceof TypedContainerInterface);
@@ -12,6 +13,9 @@ assert($container instanceof TypedContainerInterface);
 // Guard against non-web requests, e.g. PHP_SAPI === 'cli'?
 
 const FRONT_CONTROLLER_USED = true;
+
+$logger = $container->get(LoggerInterface::class);
+$logger->debug('Request routed through front-controller');
 
 // Future scope: Put a router ahead of the fallback routing; any well-formed
 // new routes will be executed without touching the existing systems. Such new

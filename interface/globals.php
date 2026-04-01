@@ -852,6 +852,9 @@ if ($globalsBag->getBoolean('translation_preload_cache')) {
  */
 const OPENEMR_GLOBALS_LOADED = true;
 
+/*
+ * At some point in the future, the front-controller will be required or at
+ * least highly encouraged. This will log requests that didn't use it.
 register_shutdown_function(function ()  use ($logger) {
     if (!defined('FRONT_CONTROLLER_USED')) {
         $logger->warning(
@@ -865,5 +868,6 @@ register_shutdown_function(function ()  use ($logger) {
         );
     }
 });
+ */
 
 return $globalsBag; // if anyone wants to use the global bag they can just use the return value
