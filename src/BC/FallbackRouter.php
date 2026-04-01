@@ -6,6 +6,8 @@ namespace OpenEMR\BC;
 
 use Psr\Log\LoggerInterface;
 
+use function str_starts_with;
+
 /**
  * Sets up the application for "legacy" routing, i.e. as if the request was
  * being processed directly by the target file.
@@ -17,7 +19,7 @@ use Psr\Log\LoggerInterface;
  * through this path.
  *
  * .htaccess files:
- * - [ ] ./apis/.htaccess
+ * - [x] ./apis/.htaccess
  * - [x] ./bin/.htaccess
  * - [ ] ./interface/modules/custom_modules/oe-module-faxsms/.htaccess
  * - [ ] ./interface/modules/zend_modules/public/.htaccess
@@ -63,7 +65,7 @@ readonly class FallbackRouter
         // PHP-equivalent to `.htaccess` mod_rewrite rules
         $path = match (true) {
             // Future example: /apis/.htaccess RewriteRule
-            // str_starts_with($requestUri, '/apis') => '/apis/dispatch.php',
+            str_starts_with($requestUri, '/apis') => '/apis/dispatch.php',
             default => parse_url($requestUri, PHP_URL_PATH),
         };
 
