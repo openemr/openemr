@@ -14,7 +14,7 @@ use OpenEMR\Encryption\{
 /**
  * "Modern" (v4-7) handling.
  */
-readonly class Aes256CbcHmacSha384 implements CipherInterface
+readonly class Aes256CbcHmacSha384 implements SeparateHmacKeyCipherInterface
 {
     private const HMAC_LENGTH = 48; // 384/8
 
