@@ -21,9 +21,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 if (in_array("set_pid", $_GET, true) && !empty($_GET["set_pid"]) && ($_GET["set_pid"] != $session->get('pid'))) {
     setpid($_GET["set_pid"]);

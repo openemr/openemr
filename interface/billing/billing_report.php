@@ -60,9 +60,7 @@ if (OEGlobalsBag::getInstance()->get('use_custom_daysheet') != 0) {
 $alertmsg = '';
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (isset($_POST['mode'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($_POST['mode'] == 'export') {
         $sql = BillingReport::returnOFXSql();

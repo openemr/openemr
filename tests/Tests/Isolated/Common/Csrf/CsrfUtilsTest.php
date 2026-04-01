@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Common\Csrf;
 
+use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -82,6 +83,26 @@ class CsrfUtilsTest extends TestCase
 
         $this->assertTrue(CsrfUtils::verifyCsrfToken($apiToken, $session, 'api'));
         $this->assertFalse(CsrfUtils::verifyCsrfToken($apiToken, $session));
+    }
+
+    public function testCheckCsrfInputThrowsWhenTokenMissing(): void
+    {
+        $session = $this->createSessionStub();
+        CsrfUtils::setupCsrfKey($session);
+
+        // filter_input(INPUT_POST, ...) returns null when not in a real request,
+        // so this always throws in a test context — which is the missing-token case.
+        $this->expectException(CsrfInvalidException::class);
+        CsrfUtils::checkCsrfInput(INPUT_POST, $session);
+    }
+
+    public function testCheckCsrfInputThrowsForCustomKey(): void
+    {
+        $session = $this->createSessionStub();
+        CsrfUtils::setupCsrfKey($session);
+
+        $this->expectException(CsrfInvalidException::class);
+        CsrfUtils::checkCsrfInput(INPUT_GET, $session, key: 'csrf_token');
     }
 
     private function createSessionStub(): SessionInterface

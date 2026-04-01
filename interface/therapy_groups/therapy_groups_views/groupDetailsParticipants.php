@@ -16,6 +16,7 @@
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Core\OEGlobalsBag;
 
@@ -137,7 +138,7 @@ use OpenEMR\Core\OEGlobalsBag;
                                       </select>
                                   </td>
                                   <td><input type="text" name="group_patient_start[]" id="start-date<?php echo $i + 1?>" class="datepicker"  value="<?php echo attr(oeFormatShortDate($participant['group_patient_start']));?>" <?php echo $readonly; ?> /></td>
-                                  <td><input type="text" name="group_patient_end[]" id="end-date<?php echo $i + 1?>" class="datepicker" value="<?php echo $participant['group_patient_end'] == '0000-00-00' ? '' : attr(oeFormatShortDate($participant['group_patient_end'])) ;?>" <?php echo $readonly; ?> /></td>
+                                  <td><input type="text" name="group_patient_end[]" id="end-date<?php echo $i + 1?>" class="datepicker" value="<?php echo Utilities::isDateEmpty($participant['group_patient_end']) ? '' : attr(oeFormatShortDate($participant['group_patient_end'])) ;?>" <?php echo $readonly; ?> /></td>
                                   <td><input type="text" name="group_patient_comment[]" class="w-100" value="<?php echo attr($participant['group_patient_comment']);?>" <?php echo $readonly; ?> /></td>
                                   <?php if ($readonly == '') { ?>
                                       <td class="delete_btn">

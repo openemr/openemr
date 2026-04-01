@@ -198,9 +198,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 // First check for duplicates.
 //
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $drugName = trim((string) $_POST['form_name']);
     if ($drugName === '') {
@@ -230,9 +228,7 @@ if (!empty($_POST['form_save'])) {
 }
 
 if ((!empty($_POST['form_save']) || !empty($_POST['form_delete'])) && !$alertmsg) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $new_drug = false;
     if ($drug_id) {

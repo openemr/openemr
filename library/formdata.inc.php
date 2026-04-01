@@ -162,29 +162,14 @@ function escape_sql_column_name($s, $tables, $long = false, $throwException = fa
  * openemr database (should use escape_identifier() function below for that scenario).
  * Another use of this function is to deal with casing issues that arise in tables that
  * contain upper case letter(s) (these tables can be huge issues when transferring databases
- * from Windows to Linux and vice versa); this function can avoid this issues if run the
- * table name through this function (To avoid confusion, there is a wrapper function
- * entitled mitigateSqlTableUpperCase() that is used when just need to mitigate casing
- * for table names that contain any uppercase letters).
+ * from Windows to Linux and vice versa); this function can avoid these issues if the
+ * table name is run through this function.
  * @param   string $s  sql table name variable to be escaped/sanitized.
  * @return  string     Escaped table name variable.
  */
 function escape_table_name($s)
 {
     return \OpenEMR\Common\Database\QueryUtils::escapeTableName($s);
-}
-
-/**
- * Process tables that contain any upper case letters; this is simple a wrapper function of
- * escape_table_name() above when using it for the sole purpose of mitigating sql table names
- * that contain upper case letters.
- *
- * @param   string $s  sql table name variable to be escaped/sanitized.
- * @return  string     Escaped table name variable.
- */
-function mitigateSqlTableUpperCase($s)
-{
-    return escape_table_name($s);
 }
 
 /**

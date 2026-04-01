@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Encryption;
 
+use BadMethodCallException;
 use UnexpectedValueException;
 
 final readonly class Message
@@ -21,27 +22,39 @@ final readonly class Message
         public Ciphertext $ciphertext,
         public MessageFormat $format = MessageFormat::LATEST,
     ) {
+        if ($this->format === MessageFormat::ImplicitKey){
+            if (!preg_match('/^00[1-7]$/', $this->keyId->id)) {
+                throw new BadMethodCallException('Only legacy key versions can use ImplicitKey format');
+            }
+        }
     }
 
     public static function parse(string $encodedMessage): Message
     {
-        if (strlen($encodedMessage) < 3) {
-            throw new UnexpectedValueException('Message is missing expected prefix');
-        }
-        $format = MessageFormat::from(intval(substr($encodedMessage, 0, 3)));
-
-        // Backwards compatibility: versions 1-7 coupled the data storage with
-        // the key version.
-        $keyId = match ($format) {
-            MessageFormat::v1 => 'one',
-            MessageFormat::v2, // Intentional: v3 uses key id 'two' for historic reasons
-            MessageFormat::v3 => 'two',
-            MessageFormat::v4 => 'four',
-            MessageFormat::v5 => 'five',
-            MessageFormat::v6 => 'six',
-            MessageFormat::v7 => 'seven',
-            // v8 will look at the message for more keyId info
+        $format = MessageFormat::detect($encodedMessage);
+        return match ($format) {
+            MessageFormat::ImplicitKey => self::parseImplicitKey($encodedMessage),
+            // @codeCoverageIgnoreStart
+            MessageFormat::UnusedCaseToSupportConditionals => throw new BadMethodCallException('Unhandled message type'),
+            // @codeCoverageIgnoreEnd
         };
+    }
+
+    /**
+     * The messages in Implicit format MUST have their keys remapped to the new
+     * Keychain-based ids prior to use. It's the responsibility of the
+     * interacting service to handle this.
+     *
+     * This is unavoidable: the legacy CryptoInterface allows specifying
+     * a KeySource and that information is both needed to know which key to use
+     * and not available in the message.
+     */
+    private static function parseImplicitKey(string $encodedMessage): Message
+    {
+        assert(strlen($encodedMessage) >= 3);
+
+        // `001`-`007`
+        $numericKeyId = substr($encodedMessage, 0, 3);
 
         $ciphertext = base64_decode(substr($encodedMessage, 3), strict: true);
         if ($ciphertext === false) {
@@ -49,18 +62,28 @@ final readonly class Message
         }
 
         return new Message(
-            format: $format,
-            keyId: new Keys\Id($keyId),
+            format: MessageFormat::ImplicitKey,
+            keyId: new Keys\Id($numericKeyId),
             ciphertext: new Ciphertext($ciphertext),
         );
     }
 
     public function encode(): string
     {
-        $prefix = sprintf('%03d', $this->format->value);
+        return match ($this->format) {
+            MessageFormat::ImplicitKey => $this->encodeImplicitKey(),
+            // @codeCoverageIgnoreStart
+            MessageFormat::UnusedCaseToSupportConditionals => throw new BadMethodCallException('Unhandled message type'),
+            // @codeCoverageIgnoreEnd
+        };
+    }
 
-        // if format encodes key id properly, add that in (new path?)
-
-        return sprintf('%s%s', $prefix, base64_encode($this->ciphertext->wrapped));
+    private function encodeImplicitKey(): string
+    {
+        assert($this->format === MessageFormat::ImplicitKey);
+        return sprintf('%s%s',
+            $this->keyId->id,
+            base64_encode($this->ciphertext->wrapped),
+        );
     }
 }

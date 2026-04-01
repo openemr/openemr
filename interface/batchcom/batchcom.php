@@ -37,9 +37,7 @@ $sort_by_choices = [xl('Zip Code') => 'patient_data.postal_code', xl('Last Name'
 // process form
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'process')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     //validation uses the functions in batchcom.inc.php
     //validate dates

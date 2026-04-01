@@ -46,9 +46,7 @@ $grparr = [];
 getLayoutProperties($form_id, $grparr);
 
 if ($mode) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $sets = "title = ?, user = ?, groupname = ?, authorized = ?, date = NOW()";
     $sqlBindArray = [$form_id, $session->get('authUser'), $session->get('authProvider'), $userauthorized];

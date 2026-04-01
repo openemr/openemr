@@ -35,9 +35,7 @@ require_once("$srcdir/forms.inc.php");
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $formid = $_GET["form_id"] ?? 0;
 $mode = $_GET["mode"] ?? '';

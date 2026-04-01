@@ -184,9 +184,7 @@ if (
     ($_POST['form_save'] ?? '')
     || ($_POST['form_update'] ?? '')
 ) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $ins_id = ($_POST['form_save'] ?? '') == 'Save as New' ? '' : $_POST['form_id'];
     $ins_name = $_POST['form_name'];

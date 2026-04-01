@@ -18,9 +18,7 @@ use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_GET['csrf_token'] ?? '', session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_GET, key: 'csrf_token', dieOnFail: true);
 
 $loincCode = $_GET['loinc_code'] ?? '';
 

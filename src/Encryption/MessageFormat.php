@@ -12,19 +12,32 @@ declare(strict_types=1);
 
 namespace OpenEMR\Encryption;
 
-enum MessageFormat: int
-{
-    // Existing formats as of March 2026: these all mapped 1:1 with key ids and
-    // versions
-    case v1 = 1;
-    case v2 = 2;
-    case v3 = 3;
-    case v4 = 4;
-    case v5 = 5;
-    case v6 = 6;
-    case v7 = 7;
-    // Future: v8 will allow for actual key versioning without additional code
-    // changes. It will get different handling in Message.
+use UnexpectedValueException;
+use ValueError;
 
-    const LATEST = self::v7;
+enum MessageFormat
+{
+    // Existing format as of March 2026: the "format" id is also a key id
+    case ImplicitKey;
+    // Future: ExplicitKey
+    // Maybe future: Plaintext
+    case UnusedCaseToSupportConditionals;
+
+    const LATEST = self::ImplicitKey;
+
+    // This is effectively BackedEnum's `::from`, adjusted to the way the
+    // historic encrypted messages were structured.
+    public static function detect(string $message): MessageFormat
+    {
+        if (strlen($message) < 3) {
+            throw new UnexpectedValueException('Message is missing expected prefix');
+        }
+        $prefix = substr($message, 0, 3);
+        return match ($prefix) {
+            '001', '002', '003', '004', '005', '006', '007' => self::ImplicitKey,
+            // Future: 008 => ExplicitKey
+            default => throw new ValueError('Unknown message format'),
+            // default: plaintext?
+        };
+    }
 }

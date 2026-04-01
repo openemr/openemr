@@ -32,9 +32,7 @@ $errmsg = '';
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['bn_submit'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($source == 'MLP') {
         // MedlinePlus Connect Web Application.  See:

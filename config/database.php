@@ -56,10 +56,6 @@ return [
         $manager = new ConnectionManager();
         $opts = $c->get(DatabaseConnectionOptions::class);
 
-        // Audit connection: no middleware, used by EventAuditLogger
-        $manager->register(ConnectionType::Audit, fn () =>
-            DriverManager::getConnection($opts->toDbalParams()));
-
         // Main connection: middleware will be added here
         $manager->register(ConnectionType::Main, function () use ($opts, $c) {
             return DriverManager::getConnection(
@@ -67,6 +63,11 @@ return [
                 config: $c->get(Configuration::class),
             );
         });
+
+        // Audit connection: no middleware, used by EventAuditLogger and some
+        // application bootstrapping
+        $manager->register(ConnectionType::NonAudited, fn () =>
+            DriverManager::getConnection($opts->toDbalParams()));
 
         return $manager;
     },

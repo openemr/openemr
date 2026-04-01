@@ -145,9 +145,7 @@ function docancel() {
         </div>
             <?php
         } elseif ($action == 'reg2') {
-            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-                CsrfUtils::csrfNotVerified();
-            }
+            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
             try {
                 $data = $u2f->doRegister(json_decode((string) $_POST['form_request']), json_decode((string) $_POST['form_registration']));
             } catch (\u2flib_server\Error $e) {
