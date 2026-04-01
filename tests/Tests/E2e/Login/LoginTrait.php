@@ -71,6 +71,30 @@ trait LoginTrait
     }
 
     /**
+     * Runs a lambda after performing basic setup and login operations.
+     *
+     * Simplifies reusable logic seen elsewhere to minimize code duplication.
+     *
+     * @param $testFunction
+     * @return void
+     * @throws \Throwable
+     */
+    private function runTest($testFunction): void {
+        $this->base();
+        try {
+            $this->login(LoginTestData::username, LoginTestData::password);
+            $testFunction();
+        } catch (\Throwable $e) {
+            // Close client
+            $this->client->quit();
+            // re-throw the exception
+            throw $e;
+        }
+        // Close client
+        $this->client->quit();
+    }
+
+    /**
      * Submit the login form.
      */
     private function performLogin(string $name, string $password, bool $goalPass): void

@@ -144,7 +144,7 @@ trait BaseTrait
 
     private function switchToIFrame(string $xpath): void
     {
-        $selector = WebDriverBy::xpath($xpath);
+        $selector = $this->createXpath($xpath);
         $iframe = $this->client->findElement($selector);
         $this->client->switchTo()->frame($iframe);
         $this->crawler = $this->client->refreshCrawler();
@@ -247,7 +247,7 @@ trait BaseTrait
             // crawler snapshot and the click
             $element = $this->client->wait(30)->until(
                 WebDriverExpectedCondition::elementToBeClickable(
-                    WebDriverBy::xpath($menuLink)
+                    $this->createXpath($menuLink)
                 )
             );
             $element->click();
@@ -281,13 +281,13 @@ trait BaseTrait
         $menuLink2 = '//ul[@id="userdropdown"]//i[contains(@class, "' . $menuTreeIcon . '")]';
         $element = $this->client->wait(10)->until(
             WebDriverExpectedCondition::elementToBeClickable(
-                WebDriverBy::xpath($menuLink)
+                $this->createXpath($menuLink)
             )
         );
         $element->click();
         $element2 = $this->client->wait(10)->until(
             WebDriverExpectedCondition::elementToBeClickable(
-                WebDriverBy::xpath($menuLink2)
+                $this->createXpath($menuLink2)
             )
         );
         $element2->click();
@@ -325,6 +325,23 @@ trait BaseTrait
         } else {
             return false;
         }
+    }
+
+    private function findElement(string $xpath)
+    {
+        return $this->client->findElement($this->createXpath($xpath));
+    }
+
+    /**
+     * Created single place where to generate XPaths from to minimize the import lines.
+     *
+     * This is a basic convenience method.
+     *
+     * @param string $xpath
+     * @return mixed
+     */
+    private function createXpath(string $xpath) {
+        return WebDriverBy::xpath($xpath);
     }
 
     private function logOut(): void
