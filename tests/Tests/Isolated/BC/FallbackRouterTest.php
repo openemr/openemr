@@ -131,4 +131,30 @@ class FallbackRouterTest extends TestCase
 
         self::assertNull($result);
     }
+
+    /**
+     * Tests that requests are rewritten to the correct entry point.
+     *
+     * @return array<string, array{0: string, 1: string}>
+     */
+    public static function rewriteRuleProvider(): array
+    {
+        return [
+            'apis fhir' => ['/apis/default/fhir/metadata', '/apis/dispatch.php'],
+            'apis api' => ['/apis/default/api/patient', '/apis/dispatch.php'],
+            'oauth2 well-known' => ['/oauth2/default/.well-known/openid-configuration', '/oauth2/authorize.php'],
+            'oauth2 authorize' => ['/oauth2/default/authorize', '/oauth2/authorize.php'],
+        ];
+    }
+
+    #[DataProvider('rewriteRuleProvider')]
+    public function testRewriteRules(string $requestUri, string $expectedTarget): void
+    {
+        $installRoot = self::getInstallRoot();
+        $router = new FallbackRouter($installRoot, new NullLogger());
+
+        $result = $router->performLegacyRouting($requestUri);
+
+        self::assertSame($installRoot . $expectedTarget, $result);
+    }
 }

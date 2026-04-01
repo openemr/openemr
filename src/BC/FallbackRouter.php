@@ -24,7 +24,7 @@ use function str_starts_with;
  * - [ ] ./interface/modules/custom_modules/oe-module-faxsms/.htaccess
  * - [ ] ./interface/modules/zend_modules/public/.htaccess
  * - [ ] ./meta/health/.htaccess
- * - [ ] ./oauth2/.htaccess
+ * - [x] ./oauth2/.htaccess
  * - [ ] ./portal/patient/.htaccess
  * - [x] ./portal/patient/fwk/libs/.htaccess
  * - [x] ./sites/default/documents/.htaccess
@@ -64,8 +64,8 @@ readonly class FallbackRouter
 
         // PHP-equivalent to `.htaccess` mod_rewrite rules
         $path = match (true) {
-            // Future example: /apis/.htaccess RewriteRule
             str_starts_with($requestUri, '/apis') => '/apis/dispatch.php',
+            str_starts_with($requestUri, '/oauth2') => '/oauth2/authorize.php',
             default => parse_url($requestUri, PHP_URL_PATH),
         };
 

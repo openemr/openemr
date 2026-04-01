@@ -25,7 +25,7 @@ RewriteRule ^ public/index.php [QSA,L]
 # Paths migrated to front controller (add incrementally as subdirectory
 # .htaccess files are decommissioned):
 RewriteRule ^apis/ public/index.php [QSA,L]
-# RewriteRule ^oauth2/ public/index.php [QSA,L]
+RewriteRule ^oauth2/ public/index.php [QSA,L]
 
 # Everything else: pass through to subdirectory .htaccess or 404
 
