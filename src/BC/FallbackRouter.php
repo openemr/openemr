@@ -15,6 +15,17 @@ use Psr\Log\LoggerInterface;
  * getting a functional front-controller in place ASAP and support approaches
  * less reliant on global state, minimizing the number of requests flowing
  * through this path.
+ *
+ * .htaccess files:
+ * - [ ] ./apis/.htaccess
+ * - [x] ./bin/.htaccess
+ * - [ ] ./interface/modules/custom_modules/oe-module-faxsms/.htaccess
+ * - [ ] ./interface/modules/zend_modules/public/.htaccess
+ * - [ ] ./meta/health/.htaccess
+ * - [ ] ./oauth2/.htaccess
+ * - [ ] ./portal/patient/.htaccess
+ * - [x] ./portal/patient/fwk/libs/.htaccess
+ * - [x] ./sites/default/documents/.htaccess
  */
 readonly class FallbackRouter
 {
