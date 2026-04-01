@@ -18,6 +18,7 @@ require_once("$srcdir/api.inc.php");
 require_once("$srcdir/group.inc.php");
 require_once("$srcdir/classes/POSRef.class.php");
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -254,7 +255,7 @@ $help_icon = '';
                                 <label for='form_onset_date' class="col-form-label col-sm-2"><?php echo xlt('Onset/hosp. date'); ?>:</label>
                                 <div class="col-sm-3">
                                     <input type='text' class='form-control datepicker' name='form_onset_date' id='form_onset_date'
-                                           value='<?php echo $viewmode && $result['onset_date'] != '0000-00-00 00:00:00' ? attr(oeFormatShortDate(substr((string) $result['onset_date'], 0, 10))) : ''; ?>'
+                                           value='<?php echo $viewmode && !Utilities::isDateEmpty($result['onset_date']) ? attr(oeFormatShortDate(substr((string) $result['onset_date'], 0, 10))) : ''; ?>'
                                            title='<?php echo xla('Date of onset or hospitalization'); ?>' />
                                 </div>
                             <?php if (OEGlobalsBag::getInstance()->get('ippf_specific')) {

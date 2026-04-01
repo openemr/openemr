@@ -19,6 +19,7 @@ set_time_limit(0);
 require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
@@ -443,10 +444,10 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
                 if ($tprow['ss'] != $sprow['ss']) {
                     die(xlt('Target and source SSN do not match'));
                 }
-                if (empty($tprow['DOB']) || $tprow['DOB'] == '0000-00-00') {
+                if (Utilities::isDateEmpty($tprow['DOB'])) {
                     die(xlt('Target patient has no DOB'));
                 }
-                if (empty($sprow['DOB']) || $sprow['DOB'] == '0000-00-00') {
+                if (Utilities::isDateEmpty($sprow['DOB'])) {
                     die(xlt('Source patient has no DOB'));
                 }
                 if ($tprow['DOB'] != $sprow['DOB']) {

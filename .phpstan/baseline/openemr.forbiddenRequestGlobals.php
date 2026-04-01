@@ -1073,7 +1073,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Direct access to \\$_POST is forbidden\\. Use Symfony\'s Request object or filter_input\\(\\) instead\\.$#',
-    'count' => 63,
+    'count' => 61,
     'path' => __DIR__ . '/../../interface/forms/misc_billing_options/save.php',
 ];
 $ignoreErrors[] = [
