@@ -27,8 +27,7 @@ class Keychain implements KeychainInterface
      */
     private array $mappings = [];
 
-    // TODO: rename to registerCipher
-    public function addCipher(
+    public function registerCipher(
         Id $id,
         CipherInterface $cipher,
     ): void {

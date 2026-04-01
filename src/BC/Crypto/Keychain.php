@@ -51,14 +51,14 @@ class Keychain
         // v1: broken crypto (no hmac)
         $one = self::tryLoadKey('one', $pkod);
         if ($one !== null) {
-            $keychain->addCipher(Key::v1->getId(), new Cipher\Aes256CbcNoHmac($one));
+            $keychain->registerCipher(Key::v1->getId(), new Cipher\Aes256CbcNoHmac($one));
         }
 
         // v2-3: legacy crypto (256CBC-HS256) and storage
         $twoa = self::tryLoadKey('twoa', $pkod);
         $twob = self::tryLoadKey('twob', $pkod);
         if ($twoa !== null && $twob !== null) {
-            $keychain->addCipher(Key::v2->getId(), new Cipher\Aes256CbcHmacSha256(key: $twoa, hmacKey: $twob));
+            $keychain->registerCipher(Key::v2->getId(), new Cipher\Aes256CbcHmacSha256(key: $twoa, hmacKey: $twob));
         }
         // No "three" key for historic reasons
 
@@ -66,12 +66,12 @@ class Keychain
         $foura = self::tryLoadKey('foura', $pkod);
         $fourb = self::tryLoadKey('fourb', $pkod);
         if ($foura !== null && $fourb !== null) {
-            $keychain->addCipher(Key::v4Drive->getId(), new Cipher\Aes256CbcHmacSha384(key: $foura, hmacKey: $fourb));
+            $keychain->registerCipher(Key::v4Drive->getId(), new Cipher\Aes256CbcHmacSha384(key: $foura, hmacKey: $fourb));
         }
         $fouraDB = self::tryLoadKey('foura', $pkidb);
         $fourbDB = self::tryLoadKey('fourb', $pkidb);
         if ($fouraDB !== null && $fourbDB !== null) {
-            $keychain->addCipher(Key::v4Db->getId(), new Cipher\Aes256CbcHmacSha384(key: $fouraDB, hmacKey: $fourbDB));
+            $keychain->registerCipher(Key::v4Db->getId(), new Cipher\Aes256CbcHmacSha384(key: $fouraDB, hmacKey: $fourbDB));
         }
 
         self::tryLoadDbKey('five', $pkidb, $storageDir, $keychain);
@@ -84,7 +84,7 @@ class Keychain
         // DB Key
         if (!$keychain->hasKey(Key::v7Db->getId())) {
             $dbCipher = KeyV7Generator::generateDbKey($pkidb);
-            $keychain->addCipher(Key::v7Db->getId(), $dbCipher);
+            $keychain->registerCipher(Key::v7Db->getId(), $dbCipher);
         }
 
         // Drive key (encrypted)
@@ -97,7 +97,7 @@ class Keychain
                 storageDir: $storageDir,
             );
 
-            $keychain->addCipher(Key::v7Drive->getId(), $driveCipher);
+            $keychain->registerCipher(Key::v7Drive->getId(), $driveCipher);
         }
 
         return $keychain;
@@ -128,7 +128,7 @@ class Keychain
             return;
         }
         $dbCipher = new Cipher\Aes256CbcHmacSha384(key: $key, hmacKey: $hmacKey);
-        $keychain->addCipher(
+        $keychain->registerCipher(
             Key::fromCryptoGen($version, KeySource::Database)->getId(),
             $dbCipher,
         );
@@ -141,7 +141,7 @@ class Keychain
 
         $diskKey = $dbCipher->decrypt($diskKeyMsg->ciphertext);
         $diskHmacKey = $dbCipher->decrypt($diskHmacKeyMsg->ciphertext);
-        $keychain->addCipher(
+        $keychain->registerCipher(
             Key::fromCryptoGen($version, KeySource::Drive)->getId(),
             new Cipher\Aes256CbcHmacSha384(
                 key: new KeyMaterial($diskKey->bytes),
