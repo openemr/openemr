@@ -13,6 +13,22 @@ use OpenEMR\Encryption\Cipher\{
 
 class LazyKeychain implements KeychainInterface
 {
+    private Keychain $keychain;
+
+    /**
+     * @var array<string, array{
+     *   class: class-string<SingleKeyCipherInterface|SeparateHmacKeyCipherInterface>,
+     *   storage: Storage\KeyStorageInterface,
+     *   ids: string[],
+     * }>
+     */
+    private array $registrations = [];
+
+    public function __construct()
+    {
+        $this->keychain = new Keychain();
+    }
+
     /**
      * @param class-string<SingleKeyCipherInterface> $cipherClass
      */
@@ -46,24 +62,10 @@ class LazyKeychain implements KeychainInterface
         ];
     }
 
-    /**
-     * @var array<string, array{
-     *   class: class-string<SingleKeyCipherInterface|SeparateHmacKeyCipherInterface>,
-     *   storage: Storage\KeyStorageInterface,
-     *   ids: string[],
-     * }>
-     */
-    private array $registrations = [];
-
-    /**
-     * @var array<string, CipherInterface>
-     */
-    private array $loaded = [];
-
     public function getCipher(Id $keyId): CipherInterface
     {
-        if (array_key_exists($keyId->id, $this->loaded)) {
-            return $this->loaded[$keyId->id];
+        if ($this->keychain->hasKey($keyId)) {
+            return $this->keychain->getCipher($keyId);
         }
 
         if (!$this->hasKey($keyId)) {
@@ -78,12 +80,13 @@ class LazyKeychain implements KeychainInterface
         $keys = array_map(fn ($id) => $storage->getKey($id), $ids);
         // This is a little sketchy but should work based on registration
         $cipher = new $class(...$keys);
-        $this->loaded[$keyId->id] = $cipher;
+        $this->keychain->registerCipher($keyId, $cipher);
         return $cipher;
     }
 
     public function hasKey(Id $keyId): bool
     {
+        // check the wrapped keychain too?
         return array_key_exists($keyId->id, $this->registrations);
     }
 }
