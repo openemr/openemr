@@ -16,7 +16,7 @@ use OpenEMR\Common\Crypto\{
     KeySource,
     KeyVersion,
 };
-use OpenEMR\Encryption\Keys\Id;
+use OpenEMR\Encryption\KeyId;
 
 /**
  * Backwards-compatibility wrapper that translates the historic format=version
@@ -61,8 +61,8 @@ enum Key: string
         };
     }
 
-    public function getId(): Id
+    public function getId(): KeyId
     {
-        return new Id($this->value);
+        return new KeyId($this->value);
     }
 }

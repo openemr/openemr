@@ -11,7 +11,7 @@ final readonly class CipherSuite implements CipherSuiteInterface
     public function __construct(
         private Keys\KeychainInterface $keychain,
         // Future: current/preferred key moves to KeychainInterface
-        private Keys\Id $currentKeyId,
+        private KeyId $currentKeyId,
     ) {
     }
 

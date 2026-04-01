@@ -7,7 +7,7 @@ namespace OpenEMR\BC\Crypto;
 use OpenEMR\Encryption\{
     Cipher\Aes256CbcHmacSha384,
     Cipher\CipherInterface,
-    Keys\Id,
+    KeyId,
     Keys\KeyMaterial,
     Message,
     Plaintext,
@@ -72,7 +72,7 @@ class KeyV7Generator
     ): KeyMaterial {
         $key = KeyMaterial::generate($length);
         $encKey = $cipher->encrypt(new Plaintext($key->key));
-        $keyMessage = new Message(keyId: new Id('007'), ciphertext: $encKey);
+        $keyMessage = new Message(keyId: new KeyId('007'), ciphertext: $encKey);
         $result = fwrite($fh, $keyMessage->encode());
         if ($result === false) {
             throw new RuntimeException('Failed to write key');

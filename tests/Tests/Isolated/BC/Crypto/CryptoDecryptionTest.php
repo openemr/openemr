@@ -23,7 +23,7 @@ use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Encryption\Cipher\Aes256CbcHmacSha256;
 use OpenEMR\Encryption\Cipher\Aes256CbcHmacSha384;
 use OpenEMR\Encryption\Cipher\Aes256CbcNoHmac;
-use OpenEMR\Encryption\Keys\Id;
+use OpenEMR\Encryption\KeyId;
 use OpenEMR\Encryption\Keys\Keychain;
 use OpenEMR\Encryption\Keys\KeyMaterial;
 use OpenEMR\Tests\Fixtures\CryptoFixtureManager;
@@ -60,23 +60,23 @@ final class CryptoDecryptionTest extends TestCase
         $keychain = new Keychain();
 
         // v1: single key, no HMAC
-        $keychain->registerCipher(new Id('one'), new Aes256CbcNoHmac(
+        $keychain->registerCipher(new KeyId('one'), new Aes256CbcNoHmac(
             new KeyMaterial($f->getTestKey('one'))
         ));
 
         // v2 & v3: encryption + HMAC (v3 shares v2 keys)
-        $keychain->registerCipher(new Id('two'), new Aes256CbcHmacSha256(
+        $keychain->registerCipher(new KeyId('two'), new Aes256CbcHmacSha256(
             key: new KeyMaterial($f->getTestKey('twoa')),
             hmacKey: new KeyMaterial($f->getTestKey('twob'))
         ));
 
         // v4-7: SHA384 HMAC for both drive and database keys
         foreach (['four', 'five', 'six', 'seven'] as $version) {
-            $keychain->registerCipher(new Id("{$version}-drive"), new Aes256CbcHmacSha384(
+            $keychain->registerCipher(new KeyId("{$version}-drive"), new Aes256CbcHmacSha384(
                 key: new KeyMaterial($f->getTestKey("{$version}a")),
                 hmacKey: new KeyMaterial($f->getTestKey("{$version}b"))
             ));
-            $keychain->registerCipher(new Id("{$version}-db"), new Aes256CbcHmacSha384(
+            $keychain->registerCipher(new KeyId("{$version}-db"), new Aes256CbcHmacSha384(
                 key: new KeyMaterial($f->getDbKey("{$version}a")),
                 hmacKey: new KeyMaterial($f->getDbKey("{$version}b"))
             ));

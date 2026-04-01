@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\Encryption\Keys;
 
 use OpenEMR\Encryption\Cipher\CipherInterface;
+use OpenEMR\Encryption\KeyId;
 
 /**
  * Implementations of KeychainInterface are responsible for key management and
@@ -22,7 +23,7 @@ use OpenEMR\Encryption\Cipher\CipherInterface;
  */
 interface KeychainInterface
 {
-    public function getCipher(Id $keyId): CipherInterface;
+    public function getCipher(KeyId $keyId): CipherInterface;
 
-    public function hasKey(Id $keyId): bool;
+    public function hasKey(KeyId $keyId): bool;
 }

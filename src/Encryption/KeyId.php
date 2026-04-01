@@ -10,9 +10,9 @@
 
 declare(strict_types=1);
 
-namespace OpenEMR\Encryption\Keys;
+namespace OpenEMR\Encryption;
 
-final readonly class Id
+final readonly class KeyId
 {
     public function __construct(public string $id)
     {

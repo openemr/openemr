@@ -19,7 +19,7 @@ use OpenEMR\Common\Crypto\{
     KeyVersion,
 };
 use OpenEMR\Encryption\{
-    Keys\Id,
+    KeyId,
     Keys\KeychainInterface,
     Message,
     MessageFormat,
@@ -65,7 +65,7 @@ final readonly class Crypto implements CryptoInterface
         $wrapped = new Plaintext($value);
         $ciphertext = $cipher->encrypt($wrapped);
         return (new Message(
-            keyId: new Id($keyVersion->toPaddedString()),
+            keyId: new KeyId($keyVersion->toPaddedString()),
             ciphertext: $ciphertext,
             format: MessageFormat::ImplicitKey,
         ))->encode();

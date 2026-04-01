@@ -10,6 +10,7 @@ use OpenEMR\Encryption\Cipher\{
     SeparateHmacKeyCipherInterface,
     SingleKeyCipherInterface,
 };
+use OpenEMR\Encryption\KeyId;
 use OpenEMR\Encryption\Storage;
 
 class LazyKeychain implements KeychainInterface
@@ -34,7 +35,7 @@ class LazyKeychain implements KeychainInterface
      * @param class-string<SingleKeyCipherInterface> $cipherClass
      */
     public function registerSingleKeyCipher(
-        Id $keyId,
+        KeyId $keyId,
         string $cipherClass,
         Storage\KeyStorageInterface $storage,
         string $keyMaterialId,
@@ -50,7 +51,7 @@ class LazyKeychain implements KeychainInterface
      * @param class-string<SeparateHmacKeyCipherInterface> $cipherClass
      */
     public function registerTwoKeyCipher(
-        Id $keyId,
+        KeyId $keyId,
         string $cipherClass,
         Storage\KeyStorageInterface $storage,
         string $keyMaterialId,
@@ -63,7 +64,7 @@ class LazyKeychain implements KeychainInterface
         ];
     }
 
-    public function getCipher(Id $keyId): CipherInterface
+    public function getCipher(KeyId $keyId): CipherInterface
     {
         if ($this->keychain->hasKey($keyId)) {
             return $this->keychain->getCipher($keyId);
@@ -85,7 +86,7 @@ class LazyKeychain implements KeychainInterface
         return $cipher;
     }
 
-    public function hasKey(Id $keyId): bool
+    public function hasKey(KeyId $keyId): bool
     {
         // check the wrapped keychain too?
         return array_key_exists($keyId->id, $this->registrations);

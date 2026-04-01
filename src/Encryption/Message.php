@@ -18,7 +18,7 @@ use UnexpectedValueException;
 final readonly class Message
 {
     public function __construct(
-        public Keys\Id $keyId,
+        public KeyId $keyId,
         public Ciphertext $ciphertext,
         public MessageFormat $format = MessageFormat::LATEST,
     ) {
@@ -63,7 +63,7 @@ final readonly class Message
 
         return new Message(
             format: MessageFormat::ImplicitKey,
-            keyId: new Keys\Id($numericKeyId),
+            keyId: new KeyId($numericKeyId),
             ciphertext: new Ciphertext($ciphertext),
         );
     }
