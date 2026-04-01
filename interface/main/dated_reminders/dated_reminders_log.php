@@ -28,9 +28,7 @@ $authUserID = $session->get('authUserID');
     -------------------  HANDLE POST ---------------------
 */
 if ($_GET) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     if (!$isAdmin) {
         // Force non-admin users to only see their own reminders,

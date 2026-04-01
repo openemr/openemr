@@ -28,7 +28,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 13,
+    'count' => 12,
     'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
 ];
 $ignoreErrors[] = [
@@ -3960,16 +3960,6 @@ $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',
     'count' => 8,
     'path' => __DIR__ . '/../../tests/Tests/E2e/EeCreateEncounterTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/EmailSendTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot cast mixed to string\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FaxSmsEmailTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot cast mixed to string\\.$#',

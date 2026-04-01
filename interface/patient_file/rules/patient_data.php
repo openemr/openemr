@@ -90,9 +90,7 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if ($_POST['form_complete'] ?? null) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     // Save that form as a row in rule_patient_data table
     //  and then close the window/module.

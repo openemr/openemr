@@ -15,6 +15,7 @@ require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/options.inc.php");
 require_once("$srcdir/report_database.inc.php");
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Utils\PaginationUtils;
@@ -422,7 +423,7 @@ if ($result) {
             text($iter['phone_home']) . "</td>\n";
 
         echo "<td class='srSS'>" . text($iter['ss']) . "</td>";
-        if ($iter["DOB"] != "0000-00-00 00:00:00") {
+        if (!Utilities::isDateEmpty($iter["DOB"])) {
             echo "<td class='srDOB'>" . text(oeFormatShortDate($iter['DOB'])) . "</td>";
         } else {
             echo "<td class='srDOB'>&nbsp;</td>";

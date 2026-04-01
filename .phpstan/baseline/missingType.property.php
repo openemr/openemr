@@ -162,16 +162,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property BillingExport\\:\\:\\$tmpfh has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property BillingExport\\:\\:\\$tmpname has no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Cache_Lite\\:\\:\\$_automaticSerialization has no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',

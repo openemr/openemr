@@ -33,9 +33,7 @@ if ($search) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if ($_POST['form_create'] ?? null) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $clientApp = AppDispatch::getApiService('fax');
 
     if (!empty($_POST["pubpid"])) {

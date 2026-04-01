@@ -62,6 +62,7 @@ require_once("patient.inc.php");
 require_once("lists.inc.php");
 require_once(dirname(__DIR__) . "/custom/code_types.inc.php");
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AclExtended;
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Forms\Types\BillingCodeType;
@@ -3531,7 +3532,7 @@ function display_layout_rows($formtype, $result1, $result2 = ''): void
             }
 
             // filter out all the empty field data from the patient report.
-            if (!empty($currvalue) && !($currvalue == '0000-00-00 00:00:00')) {
+            if (!Utilities::isDateEmpty($currvalue)) {
                 // Handle starting of a new row.
                 if (($titlecols > 0 && $cell_count >= $CPR) || $cell_count == 0 || $prepend_blank_row || $jump_new_row) {
                     disp_end_row();

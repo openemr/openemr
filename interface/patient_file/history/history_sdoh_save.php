@@ -25,9 +25,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $pid = (int)$session->get('pid');
 
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 if (!AclMain::aclCheckCore('patients', 'med', '', ['write', 'addonly'])) {
     AccessDeniedHelper::deny('Unauthorized access to SDOH save');
 }

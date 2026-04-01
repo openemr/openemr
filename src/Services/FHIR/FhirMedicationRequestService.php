@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Services\FHIR;
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\FHIR\DomainModels\OpenEMRFHIRDosage;
 use OpenEMR\FHIR\DomainModels\OpenEMRFHIRTiming;
 use OpenEMR\FHIR\R4\FHIRDomainResource\FHIRMedicationRequest;
@@ -363,7 +364,7 @@ class FhirMedicationRequestService extends FhirServiceBase implements IResourceU
         $dateExtension->setUrl("dateAsserted");
         $dateAsserted = $dataRecord['medication_adherence_date_asserted'];
         // empty date
-        if ('0000-00-00 00:00:00' !== $dateAsserted) {
+        if (!Utilities::isDateEmpty($dateAsserted)) {
             $formattedDate = UtilsService::getLocalDateAsUTC($dataRecord['medication_adherence_date_asserted']);
             $dateExtension->setValueDateTime($formattedDate);
             $extension->addExtension($dateExtension);

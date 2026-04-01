@@ -552,26 +552,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../controllers/C_X12Partner.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'IN,"\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'PP,"\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'PR,"\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between \'PT,"\' and mixed results in an error\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and \'/\' results in an error\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
@@ -584,11 +564,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between mixed and mixed results in an error\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 42,
     'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
 ];
 $ignoreErrors[] = [

@@ -23,9 +23,7 @@ use OpenEMR\Services\Utils\DateFormatterUtils;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session, 'ip_tracker')) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'ip_tracker', dieOnFail: true);
 }
 
 if (!AclMain::aclCheckCore('admin', 'super')) {

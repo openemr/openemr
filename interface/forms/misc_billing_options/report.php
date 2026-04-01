@@ -14,6 +14,7 @@
  */
 
 
+use OpenEMR\BC\Utilities;
 use OpenEMR\Core\OEGlobalsBag;
 
 require_once(__DIR__ . '/../../globals.php');
@@ -28,8 +29,8 @@ function misc_billing_options_report($pid, $encounter, $cols, $id): void
         print "<table><tr>";
         foreach ($data as $key => $value) {
             if (
-                in_array($key, ["id", "pid", "user", "groupname", "authorized", "activity", "date"]) || $value == "" ||
-                $value == "0" || $value == "0000-00-00 00:00:00" || $value == "0000-00-00" ||
+                in_array($key, ["id", "pid", "user", "groupname", "authorized", "activity", "date"]) ||
+                Utilities::isDateEmpty($value) || $value == "0" ||
                 ($key == "box_14_date_qual" && ($data['onset_date'] == 0)) ||
                 ($key == "box_15_date_qual" && ($data['date_initial_treatment'] == 0))
             ) {

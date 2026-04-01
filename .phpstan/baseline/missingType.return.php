@@ -487,66 +487,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../controllers/C_X12Partner.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:addClaim\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:close\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixCPT\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixDate\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixEStatus\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixJust\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixMI\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixMStatus\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixRelation\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixSSN\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixSex\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixString\\(\\) has no return type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function collect_codetypes\\(\\) has no return type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/code_types.inc.php',

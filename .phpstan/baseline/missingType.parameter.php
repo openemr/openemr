@@ -637,61 +637,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixCPT\\(\\) has parameter \\$code with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixCPT\\(\\) has parameter \\$mod with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixDate\\(\\) has parameter \\$date with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixEStatus\\(\\) has parameter \\$employer with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixJust\\(\\) has parameter \\$str with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixMI\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixMStatus\\(\\) has parameter \\$status with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixRelation\\(\\) has parameter \\$rel with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixSSN\\(\\) has parameter \\$ssn with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixSex\\(\\) has parameter \\$sex with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method BillingExport\\:\\:fixString\\(\\) has parameter \\$string with no type specified\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../custom/BillingExport.csv.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Function check_code_set_filters\\(\\) has parameter \\$filters with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../custom/code_types.inc.php',

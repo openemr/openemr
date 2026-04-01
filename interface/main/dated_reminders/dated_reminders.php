@@ -41,9 +41,7 @@ $updateDelay *= 1000;
 // Javascript will send a post
 // ----------------------------------------------------------------------------
 if (isset($_POST['drR'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     // set as processed
     setReminderAsProcessed($_POST['drR']);
