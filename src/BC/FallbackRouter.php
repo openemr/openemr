@@ -23,7 +23,7 @@ use function str_starts_with;
  * - [x] ./bin/.htaccess
  * - [ ] ./interface/modules/custom_modules/oe-module-faxsms/.htaccess
  * - [ ] ./interface/modules/zend_modules/public/.htaccess
- * - [ ] ./meta/health/.htaccess
+ * - [x] ./meta/health/.htaccess
  * - [x] ./oauth2/.htaccess
  * - [ ] ./portal/patient/.htaccess
  * - [x] ./portal/patient/fwk/libs/.htaccess
@@ -66,6 +66,7 @@ readonly class FallbackRouter
         $path = match (true) {
             str_starts_with($requestUri, '/apis') => '/apis/dispatch.php',
             str_starts_with($requestUri, '/oauth2') => '/oauth2/authorize.php',
+            str_starts_with($requestUri, '/meta/health') => '/meta/health/index.php',
             default => parse_url($requestUri, PHP_URL_PATH),
         };
 
