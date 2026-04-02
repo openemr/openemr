@@ -681,6 +681,7 @@ $vendors = $boot->getVendorGlobals();
                 </div>
             </form>
         </div>
+        <?php } ?>
     </div>
 </body>
 </html>
