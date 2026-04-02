@@ -54,7 +54,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 //
 function getSearchClass($data_type)
 {
-    return match ($data_type) {
+    return match ((int)$data_type) {
         // facilities
         1, 10, 11, 12, 13, 14, 26, 35 => 2,
         // date
