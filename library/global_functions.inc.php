@@ -324,6 +324,22 @@ function getAge($dob, $asof = '')
 }
 
 /**
+ * Get layout options for the demographics form.
+ *
+ * @param bool $shortForm Whether to filter for short form mode (only required fields or those with 'N' edit option)
+ * @return ADORecordSet_mysqli
+ */
+function getLayoutRes(bool $shortForm)
+{
+    $sql = "SELECT * FROM layout_options WHERE form_id = 'DEM' AND uor > 0 AND field_id != ''";
+    if ($shortForm) {
+        $sql .= " AND (uor > 1 OR edit_options LIKE '%N%')";
+    }
+    $sql .= " ORDER BY group_id, seq";
+    return sqlStatement($sql);
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -742,22 +758,6 @@ function markTaxes($taxrates): void
             $taxes[$value][2] = '1';
         }
     }
-}
-
-/**
- * Get layout options for the demographics form.
- *
- * @param bool $shortForm Whether to filter for short form mode (only required fields or those with 'N' edit option)
- * @return ADORecordSet_mysqli
- */
-function getLayoutRes(bool $shortForm)
-{
-    $sql = "SELECT * FROM layout_options WHERE form_id = 'DEM' AND uor > 0 AND field_id != ''";
-    if ($shortForm) {
-        $sql .= " AND (uor > 1 OR edit_options LIKE '%N%')";
-    }
-    $sql .= " ORDER BY group_id, seq";
-    return sqlStatement($sql);
 }
 
 /**
