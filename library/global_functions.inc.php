@@ -441,6 +441,23 @@ function hl7RelationCode(string $s, bool $childAsOther): string
 }
 
 /**
+ * Convert a relationship string to its word form for HL7.
+ *
+ * @param string $s The relationship string (e.g., 'self', 'spouse', 'child', 'other')
+ * @return string The normalized relationship word, or the original value if unrecognized
+ */
+function hl7RelationWord(string $s): string
+{
+    return match (strtolower($s)) {
+        '', 'self' => 'self',
+        'spouse' => 'spouse',
+        'child' => 'child',
+        'other' => 'other',
+        default => $s,
+    };
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -691,23 +708,6 @@ function hl7SSN($s, bool $withDashes)
             : $tmp[1] . $tmp[2] . $tmp[3];
     }
     return '';
-}
-
-/**
- * Convert a relationship string to its word form for HL7.
- *
- * @param string $s The relationship string (e.g., 'self', 'spouse', 'child', 'other')
- * @return string The normalized relationship word, or the original value if unrecognized
- */
-function hl7RelationWord(string $s): string
-{
-    return match (strtolower($s)) {
-        '', 'self' => 'self',
-        'spouse' => 'spouse',
-        'child' => 'child',
-        'other' => 'other',
-        default => $s,
-    };
 }
 
 function rbvalue($rbname): string
