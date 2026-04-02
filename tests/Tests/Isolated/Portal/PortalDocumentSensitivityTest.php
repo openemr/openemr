@@ -19,9 +19,9 @@
 
 namespace OpenEMR\Tests\Isolated\Portal;
 
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Unit tests for portal document sensitivity filtering.
