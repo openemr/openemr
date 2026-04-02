@@ -61,13 +61,18 @@ if (file_exists("{$webserver_root}/.env")) {
 }
 
 $logger = ServiceContainer::getLogger();
+
+// Set up exception handling: ensure that any uncaught exceptions have some
+// guaranteed way of reaching the logs, regardless of other settings.
 $handler = new \OpenEMR\Core\ErrorHandler(
     logger: $logger,
     shouldDisplayErrors: ($_ENV['OPENEMR__ENVIRONMENT'] ?? null) === 'dev',
 );
 $handler->installExceptionHandler();
+// Note: installErrorHandler() is intentionally NOT called, too much would
+// break today. As we gain confidence in error handling, we can call it with
+// a high-severity level and incrementally move it to cover more.
 
-throw new \Exception('crashy');
 
 // Throw error if the php openssl module is not installed.
 if (!(extension_loaded('openssl'))) {
