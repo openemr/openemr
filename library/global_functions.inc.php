@@ -423,6 +423,24 @@ function hl7Priority($s)
 }
 
 /**
+ * Convert a relationship string to an HL7 Table 0063 relationship code.
+ *
+ * @param string $s The relationship string (e.g., 'self', 'spouse', 'child', 'other')
+ * @param bool $childAsOther Whether to treat 'child' as 'other' (code 8) instead of code 3
+ * @return string The HL7 relationship code, or the original value if unrecognized
+ */
+function hl7RelationCode(string $s, bool $childAsOther): string
+{
+    return match (strtolower($s)) {
+        '', 'self' => '1',
+        'spouse' => '2',
+        'child' => $childAsOther ? '8' : '3',
+        'other' => '8',
+        default => $s,
+    };
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -688,24 +706,6 @@ function hl7RelationWord(string $s): string
         'spouse' => 'spouse',
         'child' => 'child',
         'other' => 'other',
-        default => $s,
-    };
-}
-
-/**
- * Convert a relationship string to an HL7 Table 0063 relationship code.
- *
- * @param string $s The relationship string (e.g., 'self', 'spouse', 'child', 'other')
- * @param bool $childAsOther Whether to treat 'child' as 'other' (code 8) instead of code 3
- * @return string The HL7 relationship code, or the original value if unrecognized
- */
-function hl7RelationCode(string $s, bool $childAsOther): string
-{
-    return match (strtolower($s)) {
-        '', 'self' => '1',
-        'spouse' => '2',
-        'child' => $childAsOther ? '8' : '3',
-        'other' => '8',
         default => $s,
     };
 }
