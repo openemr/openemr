@@ -83,6 +83,7 @@ readonly class ErrorHandler
         // headers), switching on exception type to yield the correct http
         // code, etc.
         http_response_code(500);
+        header('Content-type: text/plain');
         echo 'An error has occurred.';
 
         if ($this->shouldDisplayErrors) {
