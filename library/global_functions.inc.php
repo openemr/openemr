@@ -611,14 +611,6 @@ function OpenTag($tag): void
 }
 
 /**
- * Reads $_POST and trims the value. New code should NOT use this function.
- */
-function trimPost(string $key): string
-{
-    return \trim($_POST[$key] ?? '');
-}
-
-/**
  * Parse note content to extract items within {| and |} markers.
  *
  * @param string $note The note content
@@ -628,6 +620,14 @@ function parse_note($note)
 {
     $result = preg_match_all("/\{\|([^\]]*)\|\}/", (string) $note, $matches);
     return json_encode($matches[1]);
+}
+
+/**
+ * Reads $_POST and trims the value. New code should NOT use this function.
+ */
+function trimPost(string $key): string
+{
+    return \trim($_POST[$key] ?? '');
 }
 
 /**
