@@ -27,10 +27,6 @@ function trimPost(string $key): string
     return \trim($_POST[$key] ?? '');
 }
 
-// ============================================================================
-// XML Export Functions (used by ippf_export.php, export_xml.php)
-// ============================================================================
-
 /**
  * Open an XML tag with proper indentation.
  *
@@ -68,10 +64,6 @@ function CloseTag($tag): void
 
     $out .= "</$tag>\n";
 }
-
-// ============================================================================
-// String/Number Utility Functions
-// ============================================================================
 
 /**
  * Remove all non-digits from a string.
@@ -148,10 +140,6 @@ function parse_note($note)
     return json_encode($matches[1]);
 }
 
-// ============================================================================
-// User/Patient Lookup Functions
-// ============================================================================
-
 /**
  * Look up a user's full name by ID.
  *
@@ -173,10 +161,6 @@ function User_Id_Look($thisField)
 
     return $ret;
 }
-
-// ============================================================================
-// Report Display Functions
-// ============================================================================
 
 /**
  * Print an encounter header row for patient ledger reports.
@@ -237,10 +221,6 @@ function genEndRow(): void
     }
 }
 
-// ============================================================================
-// Age Calculation Functions
-// ============================================================================
-
 /**
  * Compute age in years given a DOB and "as of" date.
  *
@@ -264,10 +244,6 @@ function getAge($dob, $asof = '')
     return $age;
 }
 
-// ============================================================================
-// HL7 Helper Functions
-// ============================================================================
-
 /**
  * Convert a date string to HL7 format (digits only).
  *
@@ -287,10 +263,6 @@ function hl7Priority($s)
 {
     return strtoupper(substr((string) $s, 0, 1)) === 'H' ? 'S' : 'R';
 }
-
-// ============================================================================
-// Cron/Notification Functions
-// ============================================================================
 
 /**
  * Get patient data for phone alert notifications.
@@ -335,10 +307,6 @@ function cron_getPhoneAlertpatientData($type, $trigger_hours)
 
     return $patient_array;
 }
-
-// ============================================================================
-// File/Report Functions
-// ============================================================================
 
 /**
  * Generate a base filename for patient reports.
@@ -392,10 +360,6 @@ function zip_content($source, $destination, $content = '', $create = true)
     return $zip->close();
 }
 
-// ============================================================================
-// Simple String Utility Functions
-// ============================================================================
-
 
 /**
  * Properly capitalize a name handling hyphens and apostrophes.
@@ -433,10 +397,6 @@ function issueTypeIndex($tstr)
     }
     return $i;
 }
-
-// ============================================================================
-// HL7 Order Generation Helper Functions
-// ============================================================================
 
 /**
  * Escape special characters for HL7 text fields.
@@ -664,10 +624,6 @@ function getListItem($listid, $value)
     return $tmp;
 }
 
-// ============================================================================
-// Tax Calculation Functions
-// ============================================================================
-
 /**
  * Compute taxes from a tax rate string and a possibly taxable amount.
  *
@@ -788,10 +744,6 @@ function cron_updateentry(string $type, $pid, $pc_eid): void
     sqlStatement($query, [$pid, $pc_eid]);
 }
 
-// ============================================================================
-// Layout Options Functions
-// ============================================================================
-
 /**
  * Get layout options for the demographics form.
  *
@@ -821,3 +773,4 @@ function getLayoutUOR($form_id, $field_id)
         "form_id = ? AND field_id = ? LIMIT 1", [$form_id, $field_id]);
     return 0 + $crow['uor'];
 }
+
