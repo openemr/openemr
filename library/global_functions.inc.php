@@ -229,6 +229,17 @@ function decorateString($fmt, $str)
 }
 
 /**
+ * Remove all non-digits from a string.
+ *
+ * @param mixed $field The input to process
+ * @return string The string with only digits remaining
+ */
+function Digits($field)
+{
+    return preg_replace("/\D/", "", (string) $field);
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -253,17 +264,6 @@ function OpenTag($tag): void
 
     ++$indent;
     $out .= "<$tag>\n";
-}
-
-/**
- * Remove all non-digits from a string.
- *
- * @param mixed $field The input to process
- * @return string The string with only digits remaining
- */
-function Digits($field)
-{
-    return preg_replace("/\D/", "", (string) $field);
 }
 
 /**
