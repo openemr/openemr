@@ -129,12 +129,30 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
 
         $changedFields = [];
         foreach ($stringFields as $postKey => $dbColumn) {
-            if (isset($_POST[$postKey]) && (string) $_POST[$postKey] !== (string) ($user_data[$dbColumn] ?? '')) {
-                $changedFields[$dbColumn] = $_POST[$postKey];
+            if (isset($_POST[$postKey])) {
+                $submittedValue = (string) $_POST[$postKey];
+                $currentValue = is_array($user_data) && array_key_exists($dbColumn, $user_data)
+                    ? $user_data[$dbColumn]
+                    : null;
+                $currentStringValue = $currentValue === null ? null : (string) $currentValue;
+
+                if ($currentStringValue !== $submittedValue) {
+                    $changedFields[$dbColumn] = $_POST[$postKey];
+                }
             }
         }
 
         if ($changedFields !== []) {
+            $preserveUserValue = static function (string $dbColumn) use ($changedFields, $user_data) {
+                if (array_key_exists($dbColumn, $changedFields)) {
+                    return $changedFields[$dbColumn];
+                }
+
+                return is_array($user_data) && array_key_exists($dbColumn, $user_data)
+                    ? $user_data[$dbColumn]
+                    : null;
+            };
+
             sqlStatement(
                 "UPDATE users SET"
                 . " federaltaxid = ?, state_license_number = ?,"
@@ -143,18 +161,18 @@ if (isset($_POST["privatemode"]) && $_POST["privatemode"] == "user_admin") {
                 . " specialty = ?, mname = ?"
                 . " WHERE id = ?",
                 [
-                    $changedFields['federaltaxid'] ?? $user_data['federaltaxid'] ?? '',
-                    $changedFields['state_license_number'] ?? $user_data['state_license_number'] ?? '',
-                    $changedFields['federaldrugid'] ?? $user_data['federaldrugid'] ?? '',
-                    $changedFields['upin'] ?? $user_data['upin'] ?? '',
-                    $changedFields['npi'] ?? $user_data['npi'] ?? '',
-                    $changedFields['taxonomy'] ?? $user_data['taxonomy'] ?? '',
-                    $changedFields['lname'] ?? $user_data['lname'] ?? '',
-                    $changedFields['fname'] ?? $user_data['fname'] ?? '',
-                    $changedFields['suffix'] ?? $user_data['suffix'] ?? '',
-                    $changedFields['valedictory'] ?? $user_data['valedictory'] ?? '',
-                    $changedFields['specialty'] ?? $user_data['specialty'] ?? '',
-                    $changedFields['mname'] ?? $user_data['mname'] ?? '',
+                    $preserveUserValue('federaltaxid'),
+                    $preserveUserValue('state_license_number'),
+                    $preserveUserValue('federaldrugid'),
+                    $preserveUserValue('upin'),
+                    $preserveUserValue('npi'),
+                    $preserveUserValue('taxonomy'),
+                    $preserveUserValue('lname'),
+                    $preserveUserValue('fname'),
+                    $preserveUserValue('suffix'),
+                    $preserveUserValue('valedictory'),
+                    $preserveUserValue('specialty'),
+                    $preserveUserValue('mname'),
                     $_POST["id"],
                 ]
             );
