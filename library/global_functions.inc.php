@@ -576,6 +576,22 @@ function markTaxes($taxrates): void
 }
 
 /**
+ * Adapt text to be suitable as the contents of a table cell.
+ *
+ * @param  string $s Input text.
+ * @return string  Output text.
+ */
+function myCellText($s)
+{
+    $s = trim($s ?? '');
+    if ($s === '') {
+        return '&nbsp;';
+    }
+
+    return text($s);
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -756,20 +772,4 @@ function rbinput($name, $value, $desc, $colname): string
 function rbcell($name, $value, $desc, $colname): string
 {
     return "<td width='25%' nowrap>" . rbinput($name, $value, $desc, $colname) . "</td>\n";
-}
-
-/**
- * Adapt text to be suitable as the contents of a table cell.
- *
- * @param  string $s Input text.
- * @return string  Output text.
- */
-function myCellText($s)
-{
-    $s = trim($s ?? '');
-    if ($s === '') {
-        return '&nbsp;';
-    }
-
-    return text($s);
 }
