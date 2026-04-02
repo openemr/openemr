@@ -204,6 +204,31 @@ function cron_updateentry(string $type, $pid, $pc_eid): void
 }
 
 /**
+ * Put dashes, colons, etc. back into a timestamp based on a format string.
+ * The format uses '.' as a placeholder for each character from the input.
+ *
+ * @param string $fmt The format string (e.g., '....-..-..' for dates)
+ * @param string $str The input string to decorate
+ * @return string The decorated string
+ */
+function decorateString($fmt, $str)
+{
+    $res = '';
+    while ($fmt) {
+        $fc = substr((string) $fmt, 0, 1);
+        $fmt = substr((string) $fmt, 1);
+        if ($fc == '.') {
+            $res .= substr((string) $str, 0, 1);
+            $str = substr((string) $str, 1);
+        } else {
+            $res .= $fc;
+        }
+    }
+
+    return $res;
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -239,31 +264,6 @@ function OpenTag($tag): void
 function Digits($field)
 {
     return preg_replace("/\D/", "", (string) $field);
-}
-
-/**
- * Put dashes, colons, etc. back into a timestamp based on a format string.
- * The format uses '.' as a placeholder for each character from the input.
- *
- * @param string $fmt The format string (e.g., '....-..-..' for dates)
- * @param string $str The input string to decorate
- * @return string The decorated string
- */
-function decorateString($fmt, $str)
-{
-    $res = '';
-    while ($fmt) {
-        $fc = substr((string) $fmt, 0, 1);
-        $fmt = substr((string) $fmt, 1);
-        if ($fc == '.') {
-            $res .= substr((string) $str, 0, 1);
-            $str = substr((string) $str, 1);
-        } else {
-            $res .= $fc;
-        }
-    }
-
-    return $res;
 }
 
 /**
