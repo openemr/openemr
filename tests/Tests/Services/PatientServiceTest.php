@@ -127,6 +127,32 @@ class PatientServiceTest extends TestCase
     }
 
     #[Test]
+    public function testUpdateBackfillsPortalLoginUsername(): void
+    {
+        $actualResult = $this->patientService->insert($this->patientFixture);
+        $this->assertTrue($actualResult->isValid());
+        $dataResult = $actualResult->getData()[0];
+        $pid = $dataResult['pid'];
+        $actualUuid = $dataResult['uuid'];
+
+        // Create portal credentials with a username but empty login username
+        sqlStatement(
+            "INSERT INTO patient_access_onsite (pid, portal_username, portal_login_username) VALUES (?, ?, '')",
+            [$pid, 'testportaluser']
+        );
+
+        // Update patient with portal access enabled — should backfill login username
+        $this->patientFixture['allow_patient_portal'] = 'YES';
+        $this->patientService->update($actualUuid, $this->patientFixture);
+
+        $row = sqlQuery("SELECT portal_login_username FROM patient_access_onsite WHERE pid = ?", [$pid]);
+        $this->assertSame('testportaluser', $row['portal_login_username']);
+
+        // Clean up
+        sqlStatement("DELETE FROM patient_access_onsite WHERE pid = ?", [$pid]);
+    }
+
+    #[Test]
     public function testPatientQueries(): void
     {
         $this->fixtureManager->installPatientFixtures();
