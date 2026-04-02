@@ -675,6 +675,23 @@ function rbvalue($rbname): string
 }
 
 /**
+ * Generate a base filename for patient reports.
+ *
+ * @param int $pid The patient ID
+ * @return array Contains 'base' filename, 'fname', and 'lname'
+ */
+function report_basename($pid)
+{
+    $ptd = getPatientData($pid, "fname,lname");
+    // escape names for pesky periods hyphen etc.
+    $esc = $ptd['fname'] . '_' . $ptd['lname'];
+    $esc = str_replace(['.', ',', ' '], '', $esc);
+    $fn = basename_international(strtolower($esc . '_' . $pid . '_' . xl('report')));
+
+    return ['base' => $fn, 'fname' => $ptd['fname'], 'lname' => $ptd['lname']];
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -702,23 +719,6 @@ function User_Id_Look($thisField)
     }
 
     return $ret;
-}
-
-/**
- * Generate a base filename for patient reports.
- *
- * @param int $pid The patient ID
- * @return array Contains 'base' filename, 'fname', and 'lname'
- */
-function report_basename($pid)
-{
-    $ptd = getPatientData($pid, "fname,lname");
-    // escape names for pesky periods hyphen etc.
-    $esc = $ptd['fname'] . '_' . $ptd['lname'];
-    $esc = str_replace(['.', ',', ' '], '', $esc);
-    $fn = basename_international(strtolower($esc . '_' . $pid . '_' . xl('report')));
-
-    return ['base' => $fn, 'fname' => $ptd['fname'], 'lname' => $ptd['lname']];
 }
 
 /**
