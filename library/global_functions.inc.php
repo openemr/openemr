@@ -77,6 +77,11 @@ function cbinput($name, $colname): string
     return $ret;
 }
 
+function cbvalue($cbname): string
+{
+    return $_POST[$cbname] ? '1' : '0';
+}
+
 /**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
@@ -598,11 +603,6 @@ function rbvalue($rbname): string
     }
 
     return "$tmp";
-}
-
-function cbvalue($cbname): string
-{
-    return $_POST[$cbname] ? '1' : '0';
 }
 
 function rbinput($name, $value, $desc, $colname): string
