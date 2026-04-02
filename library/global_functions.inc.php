@@ -700,6 +700,23 @@ function trimPost(string $key): string
 }
 
 /**
+ * Properly capitalize a name handling hyphens and apostrophes.
+ *
+ * @param string $string The name to capitalize
+ * @return string The properly capitalized name
+ */
+function ucname($string): string
+{
+    $string = ucwords(strtolower((string) $string));
+    foreach (['-', '\''] as $delimiter) {
+        if (str_contains($string, $delimiter)) {
+            $string = implode($delimiter, array_map(ucfirst(...), explode($delimiter, $string)));
+        }
+    }
+    return $string;
+}
+
+/**
  * Look up a user's full name by ID.
  *
  * @param int|string $thisField The user ID
@@ -754,22 +771,4 @@ function zip_content($source, $destination, $content = '', $create = true)
     }
 
     return $zip->close();
-}
-
-
-/**
- * Properly capitalize a name handling hyphens and apostrophes.
- *
- * @param string $string The name to capitalize
- * @return string The properly capitalized name
- */
-function ucname($string): string
-{
-    $string = ucwords(strtolower((string) $string));
-    foreach (['-', '\''] as $delimiter) {
-        if (str_contains($string, $delimiter)) {
-            $string = implode($delimiter, array_map(ucfirst(...), explode($delimiter, $string)));
-        }
-    }
-    return $string;
 }
