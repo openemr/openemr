@@ -183,6 +183,27 @@ function cron_getPhoneAlertpatientData($type, $trigger_hours)
 }
 
 /**
+ * Update calendar event to mark that an alert was sent to the patient.
+ *
+ * @param string $type The notification type ('SMS', 'Email', or 'Phone')
+ * @param int|string $pid The patient ID
+ * @param int|string $pc_eid The calendar event ID
+ */
+function cron_updateentry(string $type, $pid, $pc_eid): void
+{
+    $query = "UPDATE openemr_postcalendar_events SET ";
+
+    if ($type === 'SMS' || $type === 'Phone') {
+        $query .= "pc_sendalertsms = 'YES'";
+    } elseif ($type === 'Email') {
+        $query .= "pc_sendalertemail = 'YES'";
+    }
+
+    $query .= " WHERE pc_pid = ? AND pc_eid = ?";
+    sqlStatement($query, [$pid, $pc_eid]);
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -721,27 +742,6 @@ function markTaxes($taxrates): void
             $taxes[$value][2] = '1';
         }
     }
-}
-
-/**
- * Update calendar event to mark that an alert was sent to the patient.
- *
- * @param string $type The notification type ('SMS', 'Email', or 'Phone')
- * @param int|string $pid The patient ID
- * @param int|string $pc_eid The calendar event ID
- */
-function cron_updateentry(string $type, $pid, $pc_eid): void
-{
-    $query = "UPDATE openemr_postcalendar_events SET ";
-
-    if ($type === 'SMS' || $type === 'Phone') {
-        $query .= "pc_sendalertsms = 'YES'";
-    } elseif ($type === 'Email') {
-        $query .= "pc_sendalertemail = 'YES'";
-    }
-
-    $query .= " WHERE pc_pid = ? AND pc_eid = ?";
-    sqlStatement($query, [$pid, $pc_eid]);
 }
 
 /**
