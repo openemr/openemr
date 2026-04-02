@@ -240,6 +240,21 @@ function Digits($field)
 }
 
 /**
+ * Extract description from a string, removing any prefix before colon.
+ *
+ * @param string $desc The description string
+ * @return string The cleaned description
+ */
+function display_desc($desc)
+{
+    if (preg_match('/^\S*?:(.+)$/', (string) $desc, $matches)) {
+        $desc = $matches[1];
+    }
+
+    return $desc;
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -264,21 +279,6 @@ function OpenTag($tag): void
 
     ++$indent;
     $out .= "<$tag>\n";
-}
-
-/**
- * Extract description from a string, removing any prefix before colon.
- *
- * @param string $desc The description string
- * @return string The cleaned description
- */
-function display_desc($desc)
-{
-    if (preg_match('/^\S*?:(.+)$/', (string) $desc, $matches)) {
-        $desc = $matches[1];
-    }
-
-    return $desc;
 }
 
 /**
