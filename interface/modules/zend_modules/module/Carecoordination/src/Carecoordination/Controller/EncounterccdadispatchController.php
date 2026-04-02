@@ -249,7 +249,7 @@ class EncounterccdadispatchController extends AbstractActionController
                         ServiceContainer::getLogger()->error("EncounterccdadispatchController: Error generating CCDA: {message}", ['message' => $content]);
                         die();
                     }
-                    $xml = simplexml_load_string($content);
+                    $xml = simplexml_load_string($content, 'SimpleXMLElement', LIBXML_NONET);
                     $xsl = new DOMDocument();
                     // cda.xsl is self-contained with bootstrap and jquery.
                     // cda-web.xsl when used, is for referencing styles from internet.

@@ -128,7 +128,7 @@ class RestResponse
         $this->Url = $matches[1];
         $this->QueryString = $matches[2];
         if ($this->HttpStatus != 204) {
-            $this->ResponseXml = @simplexml_load_string((string) $this->ResponseText);
+            $this->ResponseXml = @simplexml_load_string((string) $this->ResponseText, 'SimpleXMLElement', LIBXML_NONET);
         }
 
         if ($this->IsError = ($this->HttpStatus >= 400)) {
