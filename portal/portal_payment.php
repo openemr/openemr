@@ -116,19 +116,7 @@ if ($_POST['form_save'] ?? '') {
             $alertmsg = xl('Invalid prepayment amount.');
         } else {
             $payment_id = sqlInsert(
-                "insert into ar_session set " .
-                "payer_id = ?" .
-                ", patient_id = ?" .
-                ", user_id = ?" .
-                ", closed = ?" .
-                ", reference = ?" .
-                ", check_date =  now() , deposit_date = now() " .
-                ",  pay_total = ?" .
-                ", payment_type = 'patient'" .
-                ", description = ?" .
-                ", adjustment_code = 'pre_payment'" .
-                ", post_to_date = now() " .
-                ", payment_method = ?",
+                "insert into ar_session set payer_id = ?, patient_id = ?, user_id = ?, closed = ?, reference = ?, check_date = now(), deposit_date = now(), pay_total = ?, payment_type = 'patient', description = ?, adjustment_code = 'pre_payment', post_to_date = now(), payment_method = ?",
                 [0, $form_pid, $session->get('authUserID'), 0, $form_source, $form_prepayment, $NameNew, $form_method]
             );
 
@@ -623,14 +611,12 @@ if ($alertmsg === '' && (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] 
                 document.getElementById("check_number").value = authnum;
             }
         }
+        <?php if ($alertmsg !== '') { ?>
+        document.addEventListener('DOMContentLoaded', function() {
+            alert(<?php echo js_escape($alertmsg); ?>);
+        });
+        <?php } ?>
     </script>
-    <?php if ($alertmsg !== '') { ?>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        alert(<?php echo js_escape($alertmsg); ?>);
-    });
-    </script>
-    <?php } ?>
 
     <body class="skin-blue" onunload='imclosing()' onLoad="cursor_pointer();"
           style="text-align: center; margin: auto;">
