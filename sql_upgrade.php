@@ -83,7 +83,7 @@ while (false !== ($sfname = readdir($dh))) {
 closedir($dh);
 ksort($versions);
 
-$res2 = sqlStatement("select * from lang_languages where lang_description = ?", [OEGlobalsBag::getInstance()->get('language_default') ?? '']);
+$res2 = sqlStatement("select * from lang_languages where lang_description = ?", [OEGlobalsBag::getInstance()->getString('language_default')]);
 for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
     $result2[$iter] = $row;
 }
@@ -136,7 +136,7 @@ header('Content-type: text/html; charset=utf-8');
             // start polling
             let url = "library/ajax/sql_server_status.php?poll=" + encodeURIComponent(currentVersion);
             let data = new FormData;
-            data.append("csrf_token_form", <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session, 'sqlupgrade')); ?>);
+            data.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'sqlupgrade')); ?>);
             data.append("poll", currentVersion);
 
             let response = await fetch(url, {

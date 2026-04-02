@@ -32,9 +32,7 @@ $code     = $_GET['code'];
 $text     = $_GET['text'];
 
 if (isset($mode)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     if ($mode == "add") {
         if (strtolower((string) $type) == "copay") {
@@ -114,7 +112,7 @@ while ($index < $numlines) {
                 "&fee="      . attr_url($code["fee"]) .
                 "&code="     . attr_url($code["code"]) .
                 "&text="     . attr_url($code["code_text"]) .
-                "&csrf_token_form=" . attr_url((string) CsrfUtils::collectCsrfToken(session: $session)) .
+                "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) .
             "' onclick='top.restoreSession()'>";
             echo "<b>" . text($code['code']) . "</b>" . "&nbsp;" . text($code['modifier']) . "&nbsp;" . text($code['code_text']);
             echo "</a></dd>\n";

@@ -29,18 +29,14 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     foreach ($_POST as $key => $value) {
         $parameters[$key] = $value;
     }
 }
 
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
     foreach ($_GET as $key => $value) {
         $parameters[$key] = $value;
     }
@@ -192,7 +188,7 @@ function UpdateTable($tablename, $pid_col, $oldvalue, $newvalue): void
 Nothing has been changed yet. What you see above are the changes that will be made if you choose to commit them.<br />
 Do you wish to commit these changes to the database?
 <form method="post" action="mergerecords.php">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <input type="hidden" name="masterid" value="<?php echo attr($parameters['masterid']); ?>">
 <input type="hidden" name="dupecount" value="<?php echo attr($parameters['dupecount']); ?>">
     <?php

@@ -32,9 +32,7 @@ $errmsg = '';
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['bn_submit'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($source == 'MLP') {
         // MedlinePlus Connect Web Application.  See:
@@ -144,7 +142,7 @@ if (!empty($_POST['bn_submit'])) {
         <div class='row'>
             <div class='col-12'>
                 <form method='post' action='education.php' onsubmit='return top.restoreSession()'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <input type='hidden' name='type' value='<?php echo attr($codetype); ?>' />
                     <input type='hidden' name='code' value='<?php echo attr($codevalue); ?>' />
                     <input type='hidden' name='language' value='<?php echo attr($language); ?>' />

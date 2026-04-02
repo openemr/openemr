@@ -32,9 +32,7 @@ use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 // Specify if product or warehouse is the first column.
@@ -480,7 +478,7 @@ table.mymaintable td, table.mymaintable th {
 <h2><?php echo xlt('Inventory Activity'); ?></h2>
 
 <form method='post' action='inventory_activity.php?product=<?php echo attr_url($product_first); ?>' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div id="report_parameters">
 <!-- form_action is set to "submit" or "export" at form submit time -->

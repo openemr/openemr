@@ -353,7 +353,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
             let delok = confirm(<?php echo xlj('You are about to delete a template'); ?> +
                 ": " + "\n" + <?php echo xlj('Is this Okay?'); ?>);
             if (delok === true) {
-                handleTemplate(id, 'delete', '', false, template, <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session, 'import-template-delete')); ?>)
+                handleTemplate(id, 'delete', '', false, template, <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'import-template-delete')); ?>)
             }
             return false;
         };
@@ -680,7 +680,7 @@ if (!empty($_GET['search_term']) || !empty($_GET['search'])) {
                 <div class='col col-12'>
                     <?php if ($authUploadTemplates) { ?>
                         <form id='form_upload' class='form-inline row' action='import_template.php' method='post' enctype='multipart/form-data'>
-                            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken($session, 'import-template-upload')); ?>" />
+                            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken($session, 'import-template-upload'); ?>" />
                             <hr />
                             <div class='col'>
                                 <div id='upload_scope_category'></div>

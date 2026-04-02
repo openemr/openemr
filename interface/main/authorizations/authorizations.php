@@ -37,9 +37,7 @@ $imauthorized = $session->get('userauthorized') || $see_auth > 2;
 
 // This authorizes everything for the specified patient.
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize" && $imauthorized) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     $retVal = getProviderId($session->get('authUser'));
     EventAuditLogger::getInstance()->newEvent("authorize", $session->get("authUser"), $session->get("authProvider"), 1, $_GET["pid"]);
@@ -209,7 +207,7 @@ if ($imauthorized && $see_auth > 1) {
             echo "<span class='font-weight-bold'>" . text($name["fname"]) . " " .
             text($name["lname"]) . "</span></a><br />" .
             "<a class=link_submit href='authorizations.php?mode=authorize" .
-            "&pid=" . attr_url($ppid) . "&csrf_token_form=" . attr_url((string) CsrfUtils::collectCsrfToken(session: $session)) . "' onclick='top.restoreSession()'>" .
+            "&pid=" . attr_url($ppid) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='top.restoreSession()'>" .
             xlt('Authorize') . "</a></td>\n";
 
             /****

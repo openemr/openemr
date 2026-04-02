@@ -63,9 +63,7 @@ if (!AclMain::aclCheckCore('patients', 'demo', '', 'write')) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['form_import'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $apatient    = [];
     $apcp        = [];
@@ -212,7 +210,7 @@ if (!empty($_POST['form_import'])) {
 </head>
 <body class="body_top" onload="javascript:document.forms[0].form_import_data.focus()">
 <form method='post' action="import_xml.php" onsubmit="return top.restoreSession()">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
     <div class="container">
         <div class="row">
             <div class="col-12">

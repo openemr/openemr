@@ -38,7 +38,7 @@ class TransmitProperties
     private $pharmacy;
     private $encounter;
     private readonly mixed $wenoProviderID;
-    private readonly string|false $csrf;
+    private readonly string $csrf;
     private mixed $responsibleParty;
     public mixed $wenoLocation;
 
@@ -69,7 +69,7 @@ class TransmitProperties
         $this->wenoLocation = $_GET['location'] ?? '';
         $this->setWenoLocation($this->wenoLocation);
         $this->errors = ['errors' => '', 'warnings' => '', 'info' => '', 'string' => ''];
-        $this->csrf = js_escape((string) CsrfUtils::collectCsrfToken(session: $session));
+        $this->csrf = js_escape(CsrfUtils::collectCsrfToken(session: $session));
         $this->cryptoGen = ServiceContainer::getCrypto();
         $this->wenoProviderID = $this->getWenoProviderID();
         $this->ncpdp = $this->getPharmacy();

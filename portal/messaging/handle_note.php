@@ -85,10 +85,7 @@ if (!$globalsBag->getBoolean('portal_onsite_two_enable')) {
     echo xlt('Patient Portal is turned off');
     exit;
 }
-// confirm csrf (from both portal and core)
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session, 'messages-portal')) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'messages-portal', dieOnFail: true);
 
 if (empty($owner)) {
     echo xlt('Critical error, so exiting');
@@ -114,7 +111,7 @@ $header = '';
 switch ($task) {
     case "forward":
         $pid = $_POST['pid'] ?? 0;
-        addPnote($pid, $note, 1, 1, $title, $sid, '', 'New');
+        addPnote($pid, $note, 1, 1, $title, $sn, '', 'New');
         updatePortalMailMessageStatus($noteid, 'Sent', $owner);
         if (empty($_POST["submit"])) {
             echo 'ok';

@@ -479,7 +479,7 @@ class EhiExporter
     {
         $zip = new \ZipArchive();
 
-        $tempDir = OEGlobalsBag::getInstance()->get('temporary_files_dir');
+        $tempDir = OEGlobalsBag::getInstance()->getString('temporary_files_dir');
         if (!file_exists($tempDir)) {
             throw new \RuntimeException("Could not access globals temporary_files_dir location. Verify the property is set correctly and the webserver has write access to the location.");
         }

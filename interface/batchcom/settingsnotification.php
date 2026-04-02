@@ -31,9 +31,7 @@ if (!AclMain::aclCheckCore('admin', 'notification')) {
 // process form
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'save')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($_POST['Send_SMS_Before_Hours'] == "") {
         $form_err .= xl('Empty value in "SMS Hours"') . '<br />';
@@ -107,7 +105,7 @@ if ($result) {
         }
         ?>
         <form name="select_form" method="post" action="">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <input type="hidden" name="type" value="SMS">
             <input type="Hidden" name="SettingsId" value="<?php echo attr($SettingsId);?>">
 

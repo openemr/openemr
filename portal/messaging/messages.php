@@ -160,7 +160,7 @@ function getAuthPortalUsers()
                 $scope.xLate.confirm.one = <?php echo xlj('Confirm to Archive Current Thread?'); ?>;
                 $scope.xLate.confirm.all = <?php echo xlj('Confirm to Archive Selected Messages?'); ?>;
                 $scope.xLate.confirm.err = <?php echo xlj('You are sending to yourself!'); ?>;  // I think I got rid of this ability - look into..
-                $scope.csrf = <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session, 'messages-portal')); ?>;
+                $scope.csrf = <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'messages-portal')); ?>;
                 $scope.isInit = false;
 
                 $scope.init = function () {

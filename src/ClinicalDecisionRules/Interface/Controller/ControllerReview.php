@@ -86,7 +86,7 @@ class ControllerReview extends BaseController
         // so we need to check the length here, but note that the client side may see a different length in certain edge cases.
         if (mb_strlen((string) $rule->getFeedback()) > 2048) {
             ServiceContainer::getLogger()->error("Rule {ruleId} feedback length exceeded, client side should have caught this", ['ruleId' => $ruleId]);
-            return $this->redirect("index.php?action=review!view&rule_id=" . urlencode($ruleId) . '&pid=' . urlencode((string) $pid) . '&csrf_token_form=' . urlencode((string) CsrfUtils::collectCsrfToken(session: $session))
+            return $this->redirect("index.php?action=review!view&rule_id=" . urlencode($ruleId) . '&pid=' . urlencode((string) $pid) . '&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken(session: $session))
                 . '&message=' . self::ERROR_MESSAGE_INVALID);
         }
         $this->viewBean->rule = $rule;
@@ -107,12 +107,12 @@ class ControllerReview extends BaseController
         $clinicalRuleLog = $this->findClinicalRuleLog($deserializeData, $rule);
         if (!empty($clinicalRuleLog)) {
             $this->insertFeedbackForClinicalRuleLog($clinicalRuleLog, $rule, $pid, $authUserID);
-            return $this->redirect("index.php?action=review!view&rule_id=" . urlencode($ruleId) . '&pid=' . urlencode((string) $pid) . '&csrf_token_form=' . urlencode((string) CsrfUtils::collectCsrfToken(session: $session))
+            return $this->redirect("index.php?action=review!view&rule_id=" . urlencode($ruleId) . '&pid=' . urlencode((string) $pid) . '&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken(session: $session))
                 . '&message=' . self::ERROR_MESSAGE_SUCCESS);
         } else {
             // TODO: if there is no feedback... we never should have gotten here... log an error and throw an exception
             ServiceContainer::getLogger()->error("No rule {ruleId} found in clinical rule log. This should never have been reached", ['ruleId' => $ruleId]);
-            return $this->redirect("index.php?action=review!view&rule_id=" . urlencode($ruleId) . '&pid=' . urlencode((string) $pid) . '&csrf_token_form=' . urlencode((string) CsrfUtils::collectCsrfToken(session: $session))
+            return $this->redirect("index.php?action=review!view&rule_id=" . urlencode($ruleId) . '&pid=' . urlencode((string) $pid) . '&csrf_token_form=' . urlencode(CsrfUtils::collectCsrfToken(session: $session))
                 . '&message=' . self::ERROR_MESSAGE_FAILED);
         }
     }

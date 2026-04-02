@@ -30,9 +30,7 @@ if (!$thisauth) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['add'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     //validate
     $pat = "^[a-z]{2}\$";
@@ -65,8 +63,8 @@ if (!empty($_POST['add'])) {
 
 ?>
 
-<form name="lang_form" method="post" action="?m=language&csrf_token_form=<?php echo attr_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" onsubmit="return top.restoreSession()">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<form name="lang_form" method="post" action="?m=language&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" onsubmit="return top.restoreSession()">
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
     <!-- Language Code -->
     <div class="form-group">
         <label for="languageCode"><?php  echo xlt('Language Code'); ?>:</label>

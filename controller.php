@@ -1,6 +1,8 @@
 <?php
 
 use OpenEMR\BC\ServiceContainer;
+use OpenEMR\Common\Acl\AccessDeniedHelper;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
@@ -16,6 +18,9 @@ try {
     // Use explicit routing if 'controller' param is set, otherwise fall back to legacy positional routing
     $dispatcher = isset($_GET['controller']) ? $controller->dispatch(...) : $controller->act(...);
     echo $dispatcher($_GET);
+} catch (AccessDeniedHttpException $e) {
+    http_response_code($e->getStatusCode());
+    echo AccessDeniedHelper::renderUnauthorizedTemplate($e->getMessage());
 } catch (HttpExceptionInterface $e) {
     http_response_code($e->getStatusCode());
     echo htmlspecialchars($e->getMessage());

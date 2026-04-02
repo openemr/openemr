@@ -84,9 +84,7 @@ $form_facility  = $_POST['form_facility'];
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if ($_POST['form_csvexport']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     header("Pragma: public");
     header("Expires: 0");
@@ -134,7 +132,7 @@ if ($_POST['form_csvexport']) {
 <h2><?php echo xlt('Pending Followup from Results')?></h2>
 
 <form method='post' action='pending_followup.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <table border='0' cellpadding='3'>
 
@@ -197,9 +195,7 @@ if ($_POST['form_csvexport']) {
 // If generating a report.
 //
 if ($_POST['form_refresh'] || $_POST['form_csvexport']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $sqlBindArray = [];
 

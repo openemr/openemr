@@ -99,7 +99,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
     } ?>    <div class="row">
                 <div class="col-sm-12">
                     <form method='post' class="form-horizontal" action='mfa_totp.php' onsubmit="doregister('reg2')">
-                        <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 
 
@@ -136,9 +136,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                             <?php
                         // step 2 is to validate password and display qr code
                         } elseif ($action == 'reg2') {
-                            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-                                CsrfUtils::csrfNotVerified();
-                            }
+                            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
                             // Redirect back to step 1 if user password is incorrect
                             if (!(new AuthUtils())->confirmPassword($session->get('authUser'), $_POST['clearPass'])) {
@@ -220,9 +218,7 @@ $user_full_name = $user_name['fname'] . " " . $user_name['lname'];
                             <?php
                         // step 3 is to save the qr code
                         } elseif ($action == 'reg3') {
-                            if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-                                CsrfUtils::csrfNotVerified();
-                            }
+                            CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
                             echo "<script>\n";
 

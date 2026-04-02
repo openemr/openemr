@@ -61,8 +61,9 @@ if (empty($isNN)) {
 }
 // either NN context from layout or text template default.
 $rowContext = sqlQuery("SELECT * FROM customlists WHERE cl_list_type = 2 AND cl_list_item_long = ?", [$contextName]);
+$contextHint = '';
 if (empty($isNN) && empty($rowContext)) {
-    $contextName .= " <small><em>(" . xlt("Add Missing Context Template.") . ")</em></small>";
+    $contextHint = " <small><em>(" . xlt("Add Missing Context Template.") . ")</em></small>";
 }
 ?>
 <html>
@@ -94,7 +95,7 @@ if ($isNN) {
     // note these variables are set on backend server side, leaving comment for server side readers
     const isNationNotes = <?php echo $isNN ? "true" : "false"; ?>;
     const dataAsPlainText = !isNationNotes;
-    const csrfToken = <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>;
+    const csrfToken = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
     const allowTemplateWarning = <?php echo $allowTemplateWarning ? "true" : "false"; ?>;
     function refreshme() {
         top.restoreSession();
@@ -260,8 +261,7 @@ if ($isNN) {
 <div class="container-fluid">
   <input type="hidden" name="list_id" id="list_id" value="<?php echo $rowContext['cl_list_id'] ?? ''; ?>" />
   <?php if (($rowContext['cl_list_item_long'] ?? null) || !$isNN) { ?>
-  <!-- don't escape $contextName it's html -->
-  <h3 class="text-center"><?php echo (text($rowContext['cl_list_item_long'] ?? ''))  ?: $contextName; ?></h3>
+  <h3 class="text-center"><?php echo (text($rowContext['cl_list_item_long'] ?? ''))  ?: text((string)$contextName) . $contextHint; ?></h3>
     <div id="tab1" class="tabset_content tabset_content_active">
         <form id="mainForm">
             <input type="hidden" name="type" id="type" value="<?php echo  attr($type); ?>" />

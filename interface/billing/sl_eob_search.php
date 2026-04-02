@@ -204,7 +204,7 @@ function emailLogin(int $patient_id, string $message): void
     }
 
     $patientData = QueryUtils::querySingleRow("SELECT * FROM `patient_data` WHERE `pid`=?", [$patient_id]);
-    if ($patientData['hipaa_allowemail'] != "YES" || ($patientData['email'] ?? '') === '' || (OEGlobalsBag::getInstance()->get('patient_reminder_sender_email') ?? '') === '') {
+    if ($patientData['hipaa_allowemail'] != "YES" || ($patientData['email'] ?? '') === '' || (OEGlobalsBag::getInstance()->getString('patient_reminder_sender_email') ?? '') === '') {
         throw new RuntimeException(xl('Email is not allowed or not configured for this patient'));
     }
 
@@ -212,7 +212,7 @@ function emailLogin(int $patient_id, string $message): void
         throw new RuntimeException(xl('Patient email address is invalid'));
     }
 
-    if (!(ValidationUtils::isValidEmail(OEGlobalsBag::getInstance()->get('patient_reminder_sender_email')))) {
+    if (!(ValidationUtils::isValidEmail(OEGlobalsBag::getInstance()->getString('patient_reminder_sender_email')))) {
         throw new RuntimeException(xl('Sender email address is not configured or invalid'));
     }
 
@@ -228,7 +228,7 @@ function emailLogin(int $patient_id, string $message): void
     $pt_name = $patientData['fname'] . ' ' . $patientData['lname'];
     $pt_email = $patientData['email'];
     $email_subject = ($facility['name'] . ' ' . xl('Patient Statement Bill'));
-    $email_sender = OEGlobalsBag::getInstance()->get('patient_reminder_sender_email');
+    $email_sender = OEGlobalsBag::getInstance()->getString('patient_reminder_sender_email');
     $mail->AddReplyTo($email_sender, $email_sender);
     $mail->SetFrom($email_sender, $email_sender);
     $mail->AddAddress($pt_email, $pt_name);
@@ -273,7 +273,7 @@ function upload_file_to_client_pdf($file_to_send, $aPatFirstName = '', $aPatID =
 
     $aPatFName = convert_safe_file_dir_name($aPatFirstName); //modified for statement title name
     if ($flagCFN) {
-        $STMT_TEMP_FILE_PDF = OEGlobalsBag::getInstance()->get('temporary_files_dir') . "/Stmt_{$aPatFName}_{$aPatID}.pdf";
+        $STMT_TEMP_FILE_PDF = OEGlobalsBag::getInstance()->getString('temporary_files_dir') . "/Stmt_{$aPatFName}_{$aPatID}.pdf";
     } else {
         global $STMT_TEMP_FILE_PDF;
     }
@@ -714,7 +714,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                 {
                     target: target,
                     setting: val,
-                    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                 }
             );
         }
@@ -810,7 +810,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
     <div class="row">
         <div class="col-lg">
             <form id="formSearch" action="" enctype='multipart/form-data' method='post'>
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>"/>
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"/>
                 <fieldset id="payment-allocate" class="oe-show-hide px-2">
                     <legend>
                         &nbsp;<?php echo xlt('Post Item'); ?><i id="payment-info-do-not-remove"> </i>
@@ -1275,7 +1275,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
         var debug = f.form_without.checked ? '1' : '0';
         var paydate = f.form_paydate.value;
         const params = new URLSearchParams({
-            csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>,
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
             debug: debug,
             eraname: <?php echo js_escape($eraname); ?>,
             original: 'original',

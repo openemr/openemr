@@ -59,10 +59,7 @@ $code_type = empty($_POST['form_code_type']) ? '' : $_POST['form_code_type'];
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 // Handle uploads.
 if (!empty($_POST['bn_upload'])) {
-    //verify csrf
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if (empty($code_types[$code_type])) {
         die(xlt('Code type not yet defined') . ": '" . text($code_type) . "'");
@@ -164,7 +161,7 @@ if (!empty($_POST['bn_upload'])) {
         <form method='post' action='load_codes.php' enctype='multipart/form-data'
         onsubmit='return top.restoreSession()'>
 
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
             <div class="table-responsive">
                 <table class="table table-bordered">

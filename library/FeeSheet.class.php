@@ -21,6 +21,8 @@
  * @package OpenEMR
  * @license https://www.gnu.org/licenses/licenses.html#GPL GNU GPL V3+
  * @author  Rod Roark <rod@sunsetsystems.com>
+ * @author  Michael A. Smith <michael@opencoreemr.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @link    https://www.open-emr.org
  */
 
@@ -1218,13 +1220,14 @@ class FeeSheet
                 // If the item is already in the database...
                 if ($sale_id) {
                     // Get existing values from database.
+                    // Verify the sale belongs to this patient/encounter to prevent IDOR
                     $tmprow = sqlQuery(
                         "SELECT ds.prescription_id, ds.quantity, ds.inventory_id, ds.fee, " .
                         "ds.sale_date, ds.drug_id, ds.selector, ds.pricelevel, di.warehouse_id " .
                         "FROM drug_sales AS ds " .
                         "LEFT JOIN drug_inventory AS di ON di.inventory_id = ds.inventory_id " .
-                        "WHERE ds.sale_id = ?",
-                        [$sale_id]
+                        "WHERE ds.sale_id = ? AND ds.pid = ? AND ds.encounter = ?",
+                        [$sale_id, $this->pid, $this->encounter]
                     );
                     $rxid = (int) $tmprow['prescription_id'];
                     $logarr = null;
@@ -1245,7 +1248,10 @@ class FeeSheet
                         if (!empty($tmprow)) {
                             // Delete this sale and reverse its inventory update.
                             $this->logFSMessage(xl('Item deleted'), '', $logarr);
-                            sqlStatement("DELETE FROM drug_sales WHERE sale_id = ?", [$sale_id]);
+                            sqlStatement(
+                                "DELETE FROM drug_sales WHERE sale_id = ? AND pid = ? AND encounter = ?",
+                                [$sale_id, $this->pid, $this->encounter]
+                            );
                             if (!empty($tmprow['inventory_id'])) {
                                 sqlStatement(
                                     "UPDATE drug_inventory SET on_hand = on_hand + ? WHERE inventory_id = ?",
@@ -1288,8 +1294,8 @@ class FeeSheet
                                     }
 
                                                   sqlStatement(
-                                                      "UPDATE drug_sales SET `$key` = ? WHERE sale_id = ?",
-                                                      [$value, $sale_id]
+                                                      "UPDATE drug_sales SET `$key` = ? WHERE sale_id = ? AND pid = ? AND encounter = ?",
+                                                      [$value, $sale_id, $this->pid, $this->encounter]
                                                   );
                                     if ($key == 'quantity' && $tmprow['inventory_id']) {
                                         sqlStatement(
@@ -1304,7 +1310,10 @@ class FeeSheet
                                 // Changing warehouse.  Requires deleting and re-adding the sale.
                                 // Not setting $somechange because this alone does not affect a prescription.
                                 $this->logFSMessage(xl('Warehouse changed'), $warehouse_id, $logarr);
-                                sqlStatement("DELETE FROM drug_sales WHERE sale_id = ?", [$sale_id]);
+                                sqlStatement(
+                                    "DELETE FROM drug_sales WHERE sale_id = ? AND pid = ? AND encounter = ?",
+                                    [$sale_id, $this->pid, $this->encounter]
+                                );
                                 sqlStatement(
                                     "UPDATE drug_inventory SET on_hand = on_hand + ? WHERE inventory_id = ?",
                                     [$inv_units, $tmprow['inventory_id']]
@@ -1330,7 +1339,10 @@ class FeeSheet
 
                           // Delete Rx if $rxid and flag not set.
                         if (OEGlobalsBag::getInstance()->get('gbl_auto_create_rx') && $rxid && empty($iter['rx'])) {
-                            sqlStatement("UPDATE drug_sales SET prescription_id = 0 WHERE sale_id = ?", [$sale_id]);
+                            sqlStatement(
+                                "UPDATE drug_sales SET prescription_id = 0 WHERE sale_id = ? AND pid = ? AND encounter = ?",
+                                [$sale_id, $this->pid, $this->encounter]
+                            );
                             sqlStatement("DELETE FROM prescriptions WHERE id = ?", [$rxid]);
                         }
                     }

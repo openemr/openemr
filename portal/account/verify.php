@@ -36,7 +36,7 @@ require_once("../../interface/globals.php");
 
 $landingpage = "../index.php?site=" . urlencode((string) $session->get('site_id'));
 
-if (!$globalsBag->getBoolean('portal_onsite_two_register') || empty($globalsBag->get('google_recaptcha_site_key')) || empty($globalsBag->get('google_recaptcha_secret_key'))) {
+if (!$globalsBag->getBoolean('portal_onsite_two_register') || empty($globalsBag->getString('google_recaptcha_site_key')) || empty($globalsBag->getString('google_recaptcha_secret_key'))) {
     SessionUtil::portalSessionCookieDestroy();
     echo xlt("Not Authorized");
     header('HTTP/1.1 401 Unauthorized');
@@ -47,7 +47,7 @@ if (!$globalsBag->getBoolean('portal_onsite_two_register') || empty($globalsBag-
 CsrfUtils::setupCsrfKey($session);
 
 $res2 = sqlStatement("select * from lang_languages where lang_description = ?", [
-    $globalsBag->get('language_default')
+    $globalsBag->getString('language_default')
 ]);
 for ($iter = 0; $row = sqlFetchArray($res2); $iter++) {
     $result2[$iter] = $row;
@@ -225,7 +225,7 @@ if ($globalsBag->get('language_menu_login')) {
         </div>
         <!-- // Start Forms // -->
         <form id="startForm" role="form" action="account.php?action=verify_email" method="post">
-            <input type='hidden' name='csrf_token_form' value='<?php echo attr((string) CsrfUtils::collectCsrfToken($session, 'verifyEmailCsrf')); ?>' />
+            <input type='hidden' name='csrf_token_form' value='<?php echo CsrfUtils::collectCsrfToken($session, 'verifyEmailCsrf'); ?>' />
             <div class="text-center setup-content" id="step-1">
                 <legend class="bg-primary text-white"><?php echo xlt('Contact Information') ?></legend>
                 <div class="jumbotron">
@@ -285,7 +285,7 @@ if ($globalsBag->get('language_menu_login')) {
                     </div>
                     <div class="form-group">
                         <div class="d-flex justify-content-center">
-                            <div class="g-recaptcha" data-sitekey="<?php echo attr($globalsBag->get('google_recaptcha_site_key')); ?>" data-callback="enableVerifyBtn"></div>
+                            <div class="g-recaptcha" data-sitekey="<?php echo attr($globalsBag->getString('google_recaptcha_site_key')); ?>" data-callback="enableVerifyBtn"></div>
                         </div>
                     </div>
                 </div>

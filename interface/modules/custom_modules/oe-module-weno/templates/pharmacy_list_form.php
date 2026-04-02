@@ -105,7 +105,7 @@ $defaultFilters = $pharmacyService->getWenoLastSearch($pid) ?? [];
 <div id="weno_form"></div>
 
 <template id="weno_template">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
     <input type="text" name="primary_pharmacy" id="primary_pharmacy" hidden>
     <input type="text" name="alternate_pharmacy" id="alternate_pharmacy" hidden>
     <hr class="bg-light font-weight-bold text-dark my-0 my-1">

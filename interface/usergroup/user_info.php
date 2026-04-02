@@ -56,7 +56,7 @@ function update_password()
             curPass:    $("input[name='curPass']").val(),
             newPass:    $("input[name='newPass']").val(),
             newPass2:   $("input[name='newPass2']").val(),
-            csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+            csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
         },
         function(data)
         {

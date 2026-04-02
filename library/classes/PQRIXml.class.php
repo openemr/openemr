@@ -53,8 +53,8 @@ class PQRIXml extends XmlWriterOemr
     {
 
         $this->push('registry');
-        $this->element('registry-name', OEGlobalsBag::getInstance()->get('pqri_registry_name'));
-        $this->element('registry-id', OEGlobalsBag::getInstance()->get('pqri_registry_id'));
+        $this->element('registry-name', OEGlobalsBag::getInstance()->getString('pqri_registry_name'));
+        $this->element('registry-id', OEGlobalsBag::getInstance()->getString('pqri_registry_id'));
         $this->element('submit-method', $submission_method);
         $this->pop();
     }

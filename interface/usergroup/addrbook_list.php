@@ -31,9 +31,7 @@ if (!AclMain::aclCheckCore('admin', 'practice')) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $popup = empty($_GET['popup']) ? 0 : 1;
@@ -122,7 +120,7 @@ $res = sqlStatement($query, $sqlBindArray);
             <h3><?php echo xlt('Address Book'); ?></h3>
 
         <form class='navbar-form' method='post' action='addrbook_list.php' onsubmit='return top.restoreSession()'>
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <input type="hidden" name="popup" value="<?php echo attr($rtn_selection); ?>" />
 
                 <div class="form-group">

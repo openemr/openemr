@@ -44,9 +44,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
  // If we are saving, then save and close the window.
  //
 if ($_POST['form_save']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $query = "DELETE FROM form_physical_exam_diagnoses WHERE line_id = ?";
     sqlStatement($query, [$line_id]);
@@ -87,7 +85,7 @@ if ($_POST['form_save']) {
     ?>
 <form method='post' name='theform' action='edit_diagnoses.php?lineid=<?php echo attr_url($line_id); ?>'
  onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <center>
 

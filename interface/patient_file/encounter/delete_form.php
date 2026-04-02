@@ -46,9 +46,7 @@ if (file_exists($deleteform)) {
 $returnurl = 'forms.php';
 
 if (!empty($_POST['confirm'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($_POST['id'] != "*" && $_POST['id'] != '') {
       // set the deleted flag of the indicated form
@@ -87,7 +85,7 @@ if (!empty($_POST['confirm'])) {
             <div class="col-12">
                 <h2><?php echo xlt('Delete Encounter Form'); ?></h2>
                 <form method="post" action="<?php echo $rootdir;?>/patient_file/encounter/delete_form.php" name="my_form" id="my_form">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <?php
                     // output each GET variable as a hidden form input
                     foreach ($_GET as $key => $value) {

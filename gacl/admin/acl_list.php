@@ -24,10 +24,7 @@ $getAction = $_GET['action'] ?? null;
 switch ($getAction) {
     case 'Delete':
 
-        //CSRF prevent
-        if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-            CsrfUtils::csrfNotVerified();
-        }
+        CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
         $gacl_api->debug_text('Delete!');
 

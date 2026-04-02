@@ -26,9 +26,7 @@ use OpenEMR\Services\FacilityService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 // Might want something different here.
@@ -1055,7 +1053,7 @@ $(function () {
 <h2><?php echo $report_title; ?></h2>
 
 <form name='theform' method='post' action='ippf_statistics.php?t=<?php echo attr_url($report_type); ?>' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <table border='0' cellspacing='5' cellpadding='1'>
 

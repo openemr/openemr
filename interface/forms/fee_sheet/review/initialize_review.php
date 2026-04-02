@@ -33,7 +33,7 @@ if (!$isBilled) {
     // for now, only "internal codes" included.
     var diag_code_types = <?php echo diag_code_types('json');?>;
     var ippf_specific = <?php echo OEGlobalsBag::getInstance()->get('ippf_specific') ? 'true' : 'false'; ?>;
-    var csrf_token_js = <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>;
+    var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
 </script>
 <script>
     function fee_sheet_option(code,code_type,description,fee)

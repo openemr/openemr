@@ -22,9 +22,7 @@ use OpenEMR\Core\OEGlobalsBag;
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 if (isset($_GET["mode"]) && $_GET["mode"] == "authorize") {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     EventAuditLogger::getInstance()->newEvent("authorize", $session->get('authUser'), $session->get('authProvider'), 1, '', $_GET["pid"]);
     sqlStatement("update billing set authorized=1 where pid=?", [$_GET["pid"]]);
@@ -127,7 +125,7 @@ if (!empty($authorize)) {
 
         echo "<tr><td valign=top><span class=bold>" . text($name["fname"] . " " . $name["lname"]) .
              "</span><br /><a class=link_submit href='authorizations_full.php?mode=authorize&pid=" .
-             attr_url($ppid) . "&csrf_token_form=" . attr_url((string) CsrfUtils::collectCsrfToken(session: $session)) . "' onclick='top.restoreSession()'>" . xlt('Authorize') . "</a></td>\n";
+             attr_url($ppid) . "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) . "' onclick='top.restoreSession()'>" . xlt('Authorize') . "</a></td>\n";
         echo "<td valign=top><span class=bold>" . xlt('Billing') .
              ":</span><span class=text><br />" . $patient["billing"] . "</td>\n";
         echo "<td valign=top><span class=bold>" . xlt('Transactions') .

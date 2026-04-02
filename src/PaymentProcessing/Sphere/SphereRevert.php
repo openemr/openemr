@@ -73,14 +73,14 @@ class SphereRevert
 
         $this->cryptoGen = ServiceContainer::getCrypto();
         if ($front == 'patient') {
-            $this->custid = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('sphere_patientfront_trxcustid'));
-            $this->custpass = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('sphere_ecomm_tc_link_pass'));
+            $this->custid = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_patientfront_trxcustid'));
+            $this->custpass = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_ecomm_tc_link_pass'));
         } elseif ($front == 'clinic-retail') {
-            $this->custid = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('sphere_clinicfront_retail_trxcustid'));
-            $this->custpass = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('sphere_retail_tc_link_pass'));
+            $this->custid = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_clinicfront_retail_trxcustid'));
+            $this->custpass = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_retail_tc_link_pass'));
         } else { // $front == 'clinic-phone'
-            $this->custid = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('sphere_clinicfront_trxcustid'));
-            $this->custpass = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('sphere_moto_tc_link_pass'));
+            $this->custid = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_clinicfront_trxcustid'));
+            $this->custpass = $this->cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('sphere_moto_tc_link_pass'));
         }
 
         $this->client = new Client(['base_uri' => Sphere::TRUSTEE_API_URL]);
@@ -117,7 +117,7 @@ class SphereRevert
                 'aggregator1' => Sphere::AGGREGATOR_ID,
                 'custid' => $this->custid,
                 'password' => $this->custpass,
-                'returnurl' => $this->returnUrl . "?action=" . urlencode($action) . "&front=" . urlencode($this->front) . "&uuid_tx=" . urlencode($uuidTx) . "&revert=1&csrf_token=" . urlencode((string) CsrfUtils::collectCsrfToken($session, 'sphere_revert')),
+                'returnurl' => $this->returnUrl . "?action=" . urlencode($action) . "&front=" . urlencode($this->front) . "&uuid_tx=" . urlencode($uuidTx) . "&revert=1&csrf_token=" . urlencode(CsrfUtils::collectCsrfToken($session, 'sphere_revert')),
                 'action' => $action,
                 'transid' => $transid
             ]
@@ -233,7 +233,7 @@ class SphereRevert
                 request.append("front", front);
                 request.append("trans_id", transId);
                 request.append("uuid_tx", uuidTx);
-                request.append("csrf_token", ' . js_escape((string) CsrfUtils::collectCsrfToken($session, 'sphere_revert_token')) . ');
+                request.append("csrf_token", ' . js_escape(CsrfUtils::collectCsrfToken($session, 'sphere_revert_token')) . ');
 
                 top.restoreSession();
                 fetch(top.webroot_url + "/sphere/token.php", {
@@ -264,7 +264,7 @@ class SphereRevert
             function processSphereRevert(token, front, action, transId, uuidTx) {
                 // Note that the returnUrl needs to match the returnurl that is created in getToken() function, so
                 //  if modify this, also need to modify there
-                let returnUrl = ' . js_escape(OEGlobalsBag::getInstance()->get("site_addr_oath") . OEGlobalsBag::getInstance()->get("web_root")) . ' + "/sphere/initial_response.php?action=" + encodeURIComponent(action) + "&front=" + encodeURIComponent(front) + "&uuid_tx=" + encodeURIComponent(uuidTx) + "&revert=1&csrf_token=" + ' . js_url((string) CsrfUtils::collectCsrfToken($session, 'sphere_revert')) . ';
+                let returnUrl = ' . js_escape(OEGlobalsBag::getInstance()->get("site_addr_oath") . OEGlobalsBag::getInstance()->get("web_root")) . ' + "/sphere/initial_response.php?action=" + encodeURIComponent(action) + "&front=" + encodeURIComponent(front) + "&uuid_tx=" + encodeURIComponent(uuidTx) + "&revert=1&csrf_token=" + ' . js_url(CsrfUtils::collectCsrfToken($session, 'sphere_revert')) . ';
                 let mainUrl = ' . js_escape(Sphere::TRUSTEE_API_URL) . ' + "payment.php?aggregators=1&aggregator1=" + ' . js_escape(Sphere::AGGREGATOR_ID) . ' + "&transid=" + encodeURIComponent(transId) + "&token=" + encodeURIComponent(token) + "&action=" + encodeURIComponent(action) + "&returnurl=" + encodeURIComponent(returnUrl);
                 dlgopen(mainUrl, "_blank", 950, 650, "", "Sphere " + action, {allowExternal: true});
             }

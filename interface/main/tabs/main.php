@@ -28,6 +28,7 @@ use OpenEMR\Common\Session\SessionUtil;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\Header;
+use OpenEMR\Core\OEEnvBag;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Menu\MainMenuRole;
@@ -50,12 +51,9 @@ $allowTelemetry = $product_row['allowTelemetry'] ?? null; // for dialog
 $allowEmail = $product_row['allowEmail'] ?? null; // for dialog
 
 // Check if telemetry is disabled via environment variable
-// Telemetry disable flag (set env var to: 1/true)
-$val = getenv(ENV_DISABLE_TELEMETRY);
-if ($val === false || $val === '') {
-    $val = $_ENV[ENV_DISABLE_TELEMETRY] ?? $_SERVER[ENV_DISABLE_TELEMETRY] ?? null;
-}
-$disableTelemetry = ($val !== null) && filter_var($val, FILTER_VALIDATE_BOOLEAN);
+$disableTelemetry = OEEnvBag::getInstance()->getBoolean(ENV_DISABLE_TELEMETRY);
+// Check if background service piggybacking is disabled via environment variable
+$noBackgroundTasks = OEEnvBag::getInstance()->getBoolean('OPENEMR__NO_BACKGROUND_TASKS');
 if ($disableTelemetry) {
     $allowRegisterDialog = false;
     $allowTelemetry = false;
@@ -126,7 +124,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
         // only use var
         var isPortalEnabled = "<?php echo OEGlobalsBag::getInstance()->getBoolean('portal_onsite_two_enable') ?>";
         // Set the csrf_token_js token that is used in the below js/tabs_view_model.js script
-        var csrf_token_js = <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session)); ?>;
+        var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>;
         var userDebug = <?php echo js_escape(OEGlobalsBag::getInstance()->get('user_debug')); ?>;
         var webroot_url = <?php echo js_escape($web_root); ?>;
         var jsLanguageDirection = <?php echo js_escape($session->get('language_direction')); ?> ||
@@ -145,6 +143,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
         const isFax = "<?php echo !empty(OEGlobalsBag::getInstance()->get('oefax_enable_fax')) ?? null?>";
         const isServicesOther = (isSms || isFax);
         var telemetryEnabled = <?php echo js_escape((new TelemetryService())->isTelemetryEnabled()); ?>;
+        var noBackgroundTasks = <?php echo $noBackgroundTasks ? 'true' : 'false'; ?>;
 
         /**
          * Async function to get session value from the server
@@ -161,7 +160,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
          */
         async function getSessionValue(key) {
             restoreSession();
-            let csrf_token_js = <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session)); ?>;
+            let csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken($session)); ?>;
             const config = {
                 url: `${webroot_url}/library/ajax/set_pt.php?csrf_token_form=${csrf_token_js}`,
                 method: 'POST',
@@ -250,24 +249,26 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
             // run background-services
             // delay 10 seconds to prevent both utility trigger at close to same time.
             // Both call globals so that is my concern.
-            setTimeout(function () {
-                restoreSession();
-                request = new FormData;
-                request.append("skip_timeout_reset", "1");
-                request.append("ajax", "1");
-                request.append("csrf_token_form", csrf_token_js);
-                fetch(webroot_url + "/library/ajax/execute_background_services.php", {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    body: request
-                }).then((response) => {
-                    if (response.status !== 200) {
-                        console.log('Background Service start failed. Status Code: ' + response.status);
-                    }
-                }).catch(function (error) {
-                    console.log('HTML Background Service start Request failed: ', error);
-                });
-            }, 10000);
+            if (!noBackgroundTasks) {
+                setTimeout(function () {
+                    restoreSession();
+                    request = new FormData;
+                    request.append("skip_timeout_reset", "1");
+                    request.append("ajax", "1");
+                    request.append("csrf_token_form", csrf_token_js);
+                    fetch(webroot_url + "/library/ajax/execute_background_services.php", {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        body: request
+                    }).then((response) => {
+                        if (response.status !== 200) {
+                            console.log('Background Service start failed. Status Code: ' + response.status);
+                        }
+                    }).catch(function (error) {
+                        console.log('HTML Background Service start Request failed: ', error);
+                    });
+                }, 10000);
+            }
 
             // auto run this function every 60 seconds
             var repeater = setTimeout("goRepeaterServices()", 60000);
@@ -387,7 +388,7 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
     <?php
     echo $twig->render("interface/main/tabs/therapy_group_template.html.twig", []);
     echo $twig->render("interface/main/tabs/user_data_template.html.twig", [
-        'openemr_name' => OEGlobalsBag::getInstance()->get('openemr_name')
+        'openemr_name' => OEGlobalsBag::getInstance()->getString('openemr_name')
     ]);
     // Collect the menu then build it
     $menuMain = new MainMenuRole(OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher());
@@ -535,11 +536,9 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
             }
         });
         document.addEventListener('touchstart', {}); //specifically added for iOS devices, especially in iframes
-        <?php if (($_ENV['OPENEMR__NO_BACKGROUND_TASKS'] ?? 'false') !== 'true') { ?>
         $(function () {
             goRepeaterServices();
         });
-        <?php } ?>
     </script>
     <?php
 

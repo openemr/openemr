@@ -247,6 +247,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to function is_string\\(\\) with string will always evaluate to true\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../portal/portal_payment.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to function is_object\\(\\) with ADORecordSet will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Database/QueryUtils.php',
@@ -405,6 +410,11 @@ $ignoreErrors[] = [
     'message' => '#^Call to function is_string\\(\\) with string will always evaluate to true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/UserService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to function is_string\\(\\) with non\\-falsy\\-string will always evaluate to true\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../src/USPS/USPSAddressVerifyV3.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to function is_int\\(\\) with int will always evaluate to true\\.$#',

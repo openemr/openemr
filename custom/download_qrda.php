@@ -23,9 +23,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 $report_id = (isset($_GET['report_id'])) ? trim((string) $_GET['report_id']) : "";
 $provider_id = (isset($_GET['provider_id'])) ? trim((string) $_GET['provider_id']) : "";
@@ -87,7 +85,7 @@ $type_report = (in_array($type_report, ["amc", "amc_2011", "amc_2014", "cqm", "c
                 counter: counter,
                 ruleID: $("#text" + counter).val(),
                 provider_id: provider_id,
-                csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
             },
             context: document.body,
             success :
@@ -109,7 +107,7 @@ $type_report = (in_array($type_report, ["amc", "amc_2011", "amc_2014", "cqm", "c
                     var zipFiles = zipFileArray.join(",");
                     //console.log(zipFiles);
                     const params = new URLSearchParams({
-                        csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>,
+                        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                         fileName: zipFiles
                     });
                     window.location = 'ajax_download.php?' + params;

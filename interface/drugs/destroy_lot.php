@@ -79,9 +79,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
  // If we are saving, then save and close the window.
  //
 if ($_POST['form_save']) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     sqlStatement(
         "UPDATE drug_inventory SET " .
@@ -120,7 +118,7 @@ if ($_POST['form_save']) {
 <form method='post' name='theform' onsubmit='return validate(this);'
  action='destroy_lot.php?drug=<?php echo attr_url($drug_id) ?>&lot=<?php echo attr_url($lot_id) ?>'>
 
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <center>
 

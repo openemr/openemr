@@ -52,7 +52,7 @@ class ContextWidgetController
         $canSwitch = (OEGlobalsBag::getInstance()->get('dashboard_context_user_can_switch') ?? true) && !$isLocked;
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $csrfToken = (string) CsrfUtils::collectCsrfToken(session: $session);
+        $csrfToken = CsrfUtils::collectCsrfToken(session: $session);
         $webRoot = OEGlobalsBag::getInstance()->get('webroot') ?? '';
         $moduleUrl = $webRoot . '/interface/modules/custom_modules/oe-module-dashboard-context';
 
@@ -711,7 +711,7 @@ class ContextWidgetController
         $canSwitch = (OEGlobalsBag::getInstance()->get('dashboard_context_user_can_switch') ?? true) && !$isLocked;
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        $csrfToken = (string) CsrfUtils::collectCsrfToken(session: $session);
+        $csrfToken = CsrfUtils::collectCsrfToken(session: $session);
         $webRoot = OEGlobalsBag::getInstance()->get('webroot') ?? '';
         $moduleUrl = $webRoot . '/interface/modules/custom_modules/oe-module-dashboard-context';
         ob_start();

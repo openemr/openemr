@@ -43,7 +43,7 @@ $code_type = $_GET['type'];
 <td class="align-top">
 
 <form name="search_form" id="search_form" method="post" action="search_code.php?type=<?php echo attr_url($code_type); ?>">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <input type="hidden" name="mode" value="search" />
 
@@ -59,18 +59,14 @@ $code_type = $_GET['type'];
 
 <?php
 if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] == "") {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     echo "<div id='resultsummary bg-success'>";
     echo "Enter search criteria above</div>";
 }
 
 if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "") {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
   // $sql = "SELECT * FROM codes WHERE (code_text LIKE '%" . $_POST["text"] .
   //   "%' OR code LIKE '%" . $_POST["text"] . "%') AND code_type = '" .
@@ -129,7 +125,7 @@ if (isset($_POST["mode"]) && $_POST["mode"] == "search" && $_POST["text"] != "")
                     // "&fee="      . attr_url($iter["fee"]) .
                     "&fee="      . attr_url($iter['pr_price']) .
                     "&text="     . attr_url($iter["code_text"]) .
-                    "&csrf_token_form=" . attr_url((string) CsrfUtils::collectCsrfToken(session: $session)) .
+                    "&csrf_token_form=" . CsrfUtils::collectCsrfToken(session: $session) .
                     "' onclick='top.restoreSession()'>";
                 echo ucwords("<b>" . text(strtoupper((string) $iter["code"])) . "&nbsp;" . text($iter['modifier']) .
                     "</b>" . " " . text(strtolower((string) $iter["code_text"])));

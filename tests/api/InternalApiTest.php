@@ -44,7 +44,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                 url: '../../apis/default/api/facility',
                 dataType: 'json',
                 headers: {
-                    'apicsrftoken': <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session, 'api')); ?>
+                    'apicsrftoken': <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'api')); ?>
                 },
                 success: function(thedata){
                     let thedataJSON = JSON.stringify(thedata);
@@ -60,7 +60,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                 credentials: 'same-origin',
                 method: 'GET',
                 headers: new Headers({
-                    'apicsrftoken': <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session, 'api')); ?>
+                    'apicsrftoken': <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'api')); ?>
                 })
             })
             .then(response => response.json())

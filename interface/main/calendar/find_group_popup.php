@@ -27,9 +27,7 @@ use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $info_msg = "";
@@ -186,7 +184,7 @@ if ($searchby && $searchparm) {
 
 <div id="searchCriteria">
     <form method='post' name='theform' id="theform" action='find_group_popup.php'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
         <?php echo xlt('Search by') . ':'; ?>
         <select name='searchby'>
             <option value="Name"><?php echo xlt('Name'); ?></option>

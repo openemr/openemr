@@ -102,9 +102,7 @@ function get_related() {
 <?php
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['form_submit']) && !$alertmsg) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($group_id) {
         $sets =
@@ -247,7 +245,7 @@ if ($layout_id) {
 ?>
 
 <form method='post' action='edit_layout_props.php?<?php echo "layout_id=" . attr_url($layout_id) . "&group_id=" . attr_url($group_id); ?>'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <center>
 
 <table class='w-100 border-0'>

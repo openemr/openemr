@@ -33,9 +33,7 @@ use OpenEMR\Core\OEGlobalsBag;
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $language_choice = $session->get('language_choice');
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 // Below allows the list to default to the first item on the list
@@ -1133,7 +1131,7 @@ function writeITLine($it_array): void
 </head>
 <body class="body_top">
     <form method='post' name='theform' id='theform' action='edit_list.php'>
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
         <input type="hidden" id="list_from" name="list_from" value="<?php echo attr($list_from); ?>" />
         <input type="hidden" id="list_to" name="list_to" value="<?php echo attr($list_to); ?>" />
         <nav class="navbar navbar-light bg-light navbar-expand-md fixed-top">
@@ -1491,7 +1489,7 @@ function writeITLine($it_array): void
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <form action="edit_list.php" method="post" class="form">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <div class="modal-header">
                         <h4 class="modal-title"><?php echo xlt('New List'); ?></h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="<?php echo xla('Close'); ?>"><i class="fa fa-times" aria-hidden="true"></i></button>

@@ -415,7 +415,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         // Process click on Delete link.
         function deleteme() { // @todo don't think this is used any longer!!
             const params = new URLSearchParams({
-                csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>,
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>,
                 patient: <?php echo js_escape($pid); ?>
             });
             dlgopen('../deleter.php?' + params.toString(), '_blank', 500, 450, '', '', {
@@ -451,7 +451,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $.post("../../../library/ajax/user_settings.php", {
                     target: div,
                     mode: 0,
-                    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                 });
             } else {
                 $(target).find(".indicator").text(<?php echo xlj('collapse'); ?>);
@@ -459,7 +459,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $.post("../../../library/ajax/user_settings.php", {
                     target: div,
                     mode: 1,
-                    csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+                    csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
                 });
             }
         }
@@ -496,7 +496,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
             }
             let csrf = new FormData;
             // a security given.
-            csrf.append("csrf_token_form", <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>);
+            csrf.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>);
             if (embedded === true) {
                 // special formatting in certain widgets.
                 csrf.append("embeddedScreen", true);
@@ -611,7 +611,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 $(this).on("click", ".complete_btn", function () {
                     let btn = $(this);
                     let csrf = new FormData;
-                    csrf.append("csrf_token_form", <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>);
+                    csrf.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>);
                     fetch("pnotes_fragment.php?docUpdateId=" + encodeURIComponent(btn.attr('data-id')), {
                         method: "POST",
                         credentials: 'same-origin',
@@ -651,7 +651,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 });
                 $(".cdr-rule-btn-info-launch").on("click", function (e) {
                     let pid = <?php echo js_escape($pid); ?>;
-                    let csrfToken = <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>;
+                    let csrfToken = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
                     let ruleId = $(this).data("ruleId");
                     const params = new URLSearchParams({
                         action: 'review!view',
@@ -725,7 +725,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 ORDER BY grp_seq, grp_title");
             while ($gfrow = sqlFetchArray($gfres)) { ?>
             $(<?php echo js_escape("#" . $gfrow['grp_form_id'] . "_ps_expand"); ?>).load("lbf_fragment.php?formname=" + <?php echo js_url($gfrow['grp_form_id']); ?>, {
-                csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+                csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
             });
             <?php } ?>
             tabbify();
@@ -896,7 +896,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                 }
             }
             let formData = new FormData();
-            formData.append("csrf_token_form", <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>);
+            formData.append("csrf_token_form", <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>);
             formData.append("target", targetStr);
             formData.append("mode", (target.classList.contains("show")) ? 0 : 1);
             top.restoreSession();
@@ -1079,8 +1079,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
         $menuPatient->displayHorizNavBarMenu();
         // Get the document ID of the patient ID card if access to it is wanted here.
         $idcard_doc_id = false;
-        if (OEGlobalsBag::getInstance()->get('patient_id_category_name')) {
-            $idcard_doc_id = get_document_by_catg($pid, OEGlobalsBag::getInstance()->get('patient_id_category_name'), 3);
+        if (OEGlobalsBag::getInstance()->getString('patient_id_category_name')) {
+            $idcard_doc_id = get_document_by_catg($pid, OEGlobalsBag::getInstance()->getString('patient_id_category_name'), 3);
         }
         ?>
         <div class="main mb-1">
@@ -1631,7 +1631,7 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                     endif;
 
                     // If there is an ID Card or any Photos show the widget
-                    $photos = pic_array($pid, OEGlobalsBag::getInstance()->get('patient_photo_category_name'));
+                    $photos = pic_array($pid, OEGlobalsBag::getInstance()->getString('patient_photo_category_name'));
                     if ($photos or $idcard_doc_id) {
                         $id = "photos_ps_expand";
                         $dispatchResult = $ed->dispatch(new CardRenderEvent('patient_photo'), CardRenderEvent::EVENT_HANDLE);
@@ -1643,8 +1643,8 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                             'linkMethod' => "javascript",
                             'bodyClass' => 'collapse show',
                             'auth' => false,
-                            'patientIDCategoryID' => OEGlobalsBag::getInstance()->get('patient_id_category_name'),
-                            'patientPhotoCategoryName' => OEGlobalsBag::getInstance()->get('patient_photo_category_name'),
+                            'patientIDCategoryID' => OEGlobalsBag::getInstance()->getString('patient_id_category_name'),
+                            'patientPhotoCategoryName' => OEGlobalsBag::getInstance()->getString('patient_photo_category_name'),
                             'photos' => $photos,
                             'idCardDocID' => $idcard_doc_id,
                             'prependedInjection' => $dispatchResult->getPrependedInjection(),
@@ -1753,10 +1753,10 @@ $oemr_ui = new OemrUI($arrOeUiSettings);
                         $apptNum2 = ($apptNum != 0) ? abs($apptNum) : 10;
 
                         $mode1 = !OEGlobalsBag::getInstance()->getBoolean('appt_display_sets_option');
-                        $colorSet1 = OEGlobalsBag::getInstance()->get('appt_display_sets_color_1');
-                        $colorSet2 = OEGlobalsBag::getInstance()->get('appt_display_sets_color_2');
-                        $colorSet3 = OEGlobalsBag::getInstance()->get('appt_display_sets_color_3');
-                        $colorSet4 = OEGlobalsBag::getInstance()->get('appt_display_sets_color_4');
+                        $colorSet1 = OEGlobalsBag::getInstance()->getString('appt_display_sets_color_1');
+                        $colorSet2 = OEGlobalsBag::getInstance()->getString('appt_display_sets_color_2');
+                        $colorSet3 = OEGlobalsBag::getInstance()->getString('appt_display_sets_color_3');
+                        $colorSet4 = OEGlobalsBag::getInstance()->getString('appt_display_sets_color_4');
                         $extraAppts = ($mode1) ? 1 : 6;
                         $extraApptDate = '';
 

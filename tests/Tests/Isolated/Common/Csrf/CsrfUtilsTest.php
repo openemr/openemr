@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Tests\Isolated\Common\Csrf;
 
+use OpenEMR\Common\Csrf\CsrfInvalidException;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -32,7 +33,6 @@ class CsrfUtilsTest extends TestCase
         CsrfUtils::setupCsrfKey($session);
         $token = CsrfUtils::collectCsrfToken($session);
 
-        $this->assertIsString($token);
         $this->assertTrue(CsrfUtils::verifyCsrfToken($token, $session));
     }
 
@@ -52,16 +52,15 @@ class CsrfUtilsTest extends TestCase
         $default = CsrfUtils::collectCsrfToken($session);
         $api = CsrfUtils::collectCsrfToken($session, 'api');
 
-        $this->assertIsString($default);
-        $this->assertIsString($api);
         $this->assertNotSame($default, $api);
     }
 
-    public function testCollectCsrfTokenReturnsFalseWithoutKey(): void
+    public function testCollectCsrfTokenThrowsWithoutKey(): void
     {
         $session = $this->createSessionStub();
 
-        $this->assertFalse(CsrfUtils::collectCsrfToken($session));
+        $this->expectException(\RuntimeException::class);
+        CsrfUtils::collectCsrfToken($session);
     }
 
     public function testTokenStability(): void
@@ -82,9 +81,28 @@ class CsrfUtilsTest extends TestCase
 
         $apiToken = CsrfUtils::collectCsrfToken($session, 'api');
 
-        $this->assertIsString($apiToken);
         $this->assertTrue(CsrfUtils::verifyCsrfToken($apiToken, $session, 'api'));
         $this->assertFalse(CsrfUtils::verifyCsrfToken($apiToken, $session));
+    }
+
+    public function testCheckCsrfInputThrowsWhenTokenMissing(): void
+    {
+        $session = $this->createSessionStub();
+        CsrfUtils::setupCsrfKey($session);
+
+        // filter_input(INPUT_POST, ...) returns null when not in a real request,
+        // so this always throws in a test context — which is the missing-token case.
+        $this->expectException(CsrfInvalidException::class);
+        CsrfUtils::checkCsrfInput(INPUT_POST, $session);
+    }
+
+    public function testCheckCsrfInputThrowsForCustomKey(): void
+    {
+        $session = $this->createSessionStub();
+        CsrfUtils::setupCsrfKey($session);
+
+        $this->expectException(CsrfInvalidException::class);
+        CsrfUtils::checkCsrfInput(INPUT_GET, $session, key: 'csrf_token');
     }
 
     private function createSessionStub(): SessionInterface

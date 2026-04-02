@@ -198,9 +198,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 // First check for duplicates.
 //
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $drugName = trim((string) $_POST['form_name']);
     if ($drugName === '') {
@@ -230,9 +228,7 @@ if (!empty($_POST['form_save'])) {
 }
 
 if ((!empty($_POST['form_save']) || !empty($_POST['form_delete'])) && !$alertmsg) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $new_drug = false;
     if ($drug_id) {
@@ -445,7 +441,7 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
 <h3 class="ml-1"><?php echo text($title);?></h3>
 <form method='post' name='theform' action='add_edit_drug.php?drug=<?php echo attr_url($drug_id); ?>'
  onsubmit='return validate(this);'>
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
     <div class="form-group">
         <label><?php echo xlt('Name'); ?>:</label>
@@ -487,7 +483,7 @@ $title = $drug_id ? xl("Update Drug") : xl("Add Drug");
 
     <div class="form-group mt-3">
         <label><?php echo xlt('NDC Number'); ?>:</label>
-        <input class="form-control w-100" size="40" name="form_ndc_number" maxlength="20" value='<?php echo attr($row['ndc_number']) ?>' onkeyup='maskkeyup(this,"<?php echo attr(addslashes((string) OEGlobalsBag::getInstance()->get('gbl_mask_product_id'))); ?>")' onblur='maskblur(this,"<?php echo attr(addslashes((string) OEGlobalsBag::getInstance()->get('gbl_mask_product_id'))); ?>")' />
+        <input class="form-control w-100" size="40" name="form_ndc_number" maxlength="20" value='<?php echo attr($row['ndc_number']) ?>' onkeyup='maskkeyup(this,"<?php echo attr(addslashes(OEGlobalsBag::getInstance()->getString('gbl_mask_product_id'))); ?>")' onblur='maskblur(this,"<?php echo attr(addslashes(OEGlobalsBag::getInstance()->getString('gbl_mask_product_id'))); ?>")' />
     </div>
 
     <div class="form-group mt-3">

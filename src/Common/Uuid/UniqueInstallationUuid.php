@@ -22,8 +22,8 @@ class UniqueInstallationUuid
     public static function getUniqueInstallationUuid()
     {
         // Return $GLOBALS if it exists
-        if (!empty(OEGlobalsBag::getInstance()->get('unique_installation_id'))) {
-            return OEGlobalsBag::getInstance()->get('unique_installation_id');
+        if (!empty(OEGlobalsBag::getInstance()->getString('unique_installation_id'))) {
+            return OEGlobalsBag::getInstance()->getString('unique_installation_id');
         }
 
         // If $GLOBALS does not exists, then try to get it from globals table and return if it exists

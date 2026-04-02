@@ -33,9 +33,7 @@ if (!empty($_GET['setup']) ?? null) {
      * 'ctsiOrgId' => 'OPENEM2xxxx']];
      *
      * */
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     $content = trim(file_get_contents("php://input"));
     $credentials = json_decode($content, true);
@@ -72,7 +70,7 @@ if (!empty($_GET['setup']) ?? null) {
             }
             // fix twig single quote escaping of passed in object.
             let prepared = e.data.replace(/&quot;/ig, '"');
-            let url = 'moduleConfig.php?setup=1&csrf_token_form=' + <?php echo js_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>;
+            let url = 'moduleConfig.php?setup=1&csrf_token_form=' + <?php echo js_url(CsrfUtils::collectCsrfToken(session: $session)); ?>;
             fetch(url, {
                 method: 'POST',
                 credentials: 'same-origin',

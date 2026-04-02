@@ -40,7 +40,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
         <div class="row">
             <div class="col-12">
                 <form name="my_form" method=post action="<?php echo $rootdir;?>/forms/dictation/save.php?mode=new" onsubmit="return top.restoreSession()">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                         <fieldset>
                             <legend><?php echo xlt('Dictation')?></legend>
                             <div class="container">

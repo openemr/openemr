@@ -396,9 +396,7 @@ function endFacility(): void
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($form_submit)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $beg_year  = $_POST['form_year'];
     $beg_month = $_POST['form_month'];
@@ -647,7 +645,7 @@ if ($selmonth < 1) {
 <center>
 &nbsp;<br />
 <form method='post' action='ippf_export.php'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <table style='width:30em'>
  <tr>

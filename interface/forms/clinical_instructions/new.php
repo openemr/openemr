@@ -39,7 +39,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                 <div class="col-12">
                     <h2><?php echo xlt('Clinical Instructions'); ?></h2>
                     <form method="post" name="my_form" action="<?php echo $rootdir; ?>/forms/clinical_instructions/save.php?id=<?php echo attr_url($formid); ?>">
-                        <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                         <fieldset>
                             <legend><?php echo xlt('Instructions'); ?></legend>
                             <div class="container">

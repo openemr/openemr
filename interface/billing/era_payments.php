@@ -79,9 +79,7 @@ $validEraName = $pending_eraname !== '' && preg_match('/^[0-9]{8}_[0-9]+_[0-9]+$
 
 // Handle confirmed overwrite from pending upload
 if ($confirm_overwrite === 'yes' && $validEraName) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
     $eraDir = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/documents/era";
     // basename() strips path components; realpath() resolves symlinks and verifies existence
     $safeName = basename($pending_eraname);
@@ -116,9 +114,7 @@ if ($confirm_overwrite === 'yes' && $validEraName) {
 //===============================================================================
   // Handle X12 835 file upload.
 elseif (!empty($_FILES['form_erafile']['size'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $tmp_name = $_FILES['form_erafile']['tmp_name'] ?? null;
     if (!is_string($tmp_name)) {
@@ -217,7 +213,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
              deposit_date: deposit_date,
              original: 'original',
              InsId: <?php echo js_escape($hidden_type_code); ?>,
-             csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+             csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
          });
          window.open('sl_eob_process.php?' + params.toString(), '_blank');
          return false;
@@ -336,7 +332,7 @@ elseif (!empty($_FILES['form_erafile']['size'])) {
         <div class="row">
             <div class="col-sm-12">
                 <form action='era_payments.php' enctype="multipart/form-data" method='post' style="display:inline">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <fieldset>
                         <div class="jumbotron py-4">
                             <div class="row h3">

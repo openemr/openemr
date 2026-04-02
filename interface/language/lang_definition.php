@@ -41,9 +41,9 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 ?>
 
 <form name='filterform' id='filterform' method='post'
-      action='?m=definition&csrf_token_form=<?php echo attr_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>'
+      action='?m=definition&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>'
       onsubmit="return top.restoreSession()">
-    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
     <!-- Filter for Constants -->
     <div class="form-group">
         <label for="filterForConstants"><?php echo xlt('Filter for Constants'); ?>:</label>
@@ -107,9 +107,7 @@ $case_sensitive_collation = "COLLATE utf8mb4_bin";
 $case_insensitive_collation = "COLLATE utf8mb4_general_ci";
 
 if (!empty($_POST['load'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
   // query for entering new definitions; uses cons_id because the constant already exists.
     if (!empty($_POST['cons_id'])) {
@@ -172,9 +170,7 @@ if (!empty($_POST['load'])) {
 }
 
 if (!empty($_POST['edit'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if ($_POST['language_select'] == '') {
          exit(xlt("Please select a language"));
@@ -211,8 +207,8 @@ if (!empty($_POST['edit'])) {
 
         $isResults = false; //flag to record whether there are any results
     echo ('<table><form method="post" action="?m=definition&csrf_token_form='
-        . attr_url((string) CsrfUtils::collectCsrfToken(session: $session)) . '" onsubmit="return top.restoreSession()">');
-    echo ('<input type="hidden" name="csrf_token_form" value="' . attr((string) CsrfUtils::collectCsrfToken(session: $session)) . '" />');
+        . CsrfUtils::collectCsrfToken(session: $session) . '" onsubmit="return top.restoreSession()">');
+    echo ('<input type="hidden" name="csrf_token_form" value="' . CsrfUtils::collectCsrfToken(session: $session) . '" />');
     // only english definitions
     if ($lang_id == 1) {
         while ($row = sqlFetchArray($res)) {

@@ -20,9 +20,7 @@ use OpenEMR\Core\Header;
 use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 $disablePreviousNameAdds = (int)($session->get('disablePreviousNameAdds') ?? 0);
 
@@ -89,7 +87,7 @@ echo "<script>var form=" . js_escape($form) . "</script>";
     <?php } elseif ($form === 'name_history') { ?>
         <div class="container-fluid">
             <form class="form" id="names_form">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                 <input type="hidden" name="pid" value="<?php echo attr($pid); ?>" />
                 <input type="hidden" name="task_name_history" value="save" />
                 <div class="col">

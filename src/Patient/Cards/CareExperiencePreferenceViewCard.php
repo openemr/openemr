@@ -194,10 +194,7 @@ class CareExperiencePreferenceViewCard extends CardModel
         if (($_POST['pref_type'] ?? '') !== 'care_experience') {
             return;
         }
-        $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '', session: $session)) {
-            CsrfUtils::csrfNotVerified();
-        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, key: 'csrf_token', dieOnFail: true);
 
         $action = $_POST['action'] ?? '';
         if ($action === 'save') {

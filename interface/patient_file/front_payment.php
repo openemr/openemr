@@ -97,9 +97,7 @@ $alertmsg = ''; // anything here pops up in an alert box
 
 // If the Save button was clicked...
 if (!empty($_POST['form_save'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $form_pid = $_POST['form_pid'];
     $form_method = trim((string) $_POST['form_method']);
@@ -399,7 +397,7 @@ function printlog_before_print() {
 function deleteme() {
     const params = new URLSearchParams({
         payment: <?php echo js_escape($payment_key); ?>,
-        csrf_token_form: <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>
+        csrf_token_form: <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>
     });
     dlgopen('deleter.php?' + params.toString(), '_blank', 500, 450);
     return false;
@@ -694,7 +692,7 @@ function toencounter(enc, datestr, topframe) {
 
 <script>
     var chargeMsg = <?php echo xlj('Payment was successfully authorized and charged. Thank You.'); ?>;
-    var publicKey = <?php echo json_encode($cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('gateway_public_key'))); ?>;
+    var publicKey = <?php echo json_encode($cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('gateway_public_key'))); ?>;
 $(function() {
     $('#openPayModal').on('show.bs.modal', function () {
         let total = $("[name='form_paytotal']").val();
@@ -1077,7 +1075,7 @@ function make_insurance() {
         <div class="row">
             <div class="col-sm-12">
                 <form class="form form-vertical" method='post' action='front_payment.php<?php echo (!empty($payid)) ? "?payid=" . attr_url($payid) : ""; ?>' onsubmit='return validate();'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <input name='form_pid' type='hidden' value='<?php echo attr($pid) ?>' />
                     <fieldset>
                         <legend><?php echo xlt('Payment'); ?></legend>
@@ -1579,7 +1577,7 @@ function make_insurance() {
             ?>
             <script>
                 var ccerr = <?php echo xlj('Invalid Credit Card Number'); ?>
-                var apiLoginID = <?php echo json_encode($cryptoGen->decryptStandard($globalsBag->get('gateway_api_key'))); ?>;
+                var apiLoginID = <?php echo json_encode($cryptoGen->decryptStandard($globalsBag->getString('gateway_api_key'))); ?>;
 
                     // In House CC number Validation
                     $('#cardNumber').validateCreditCard(function (result) {

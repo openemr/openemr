@@ -32,9 +32,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_GET)) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 }
 
 ?>
@@ -135,7 +133,7 @@ if (empty($form_patient)) {
 ?>
 <br />
 <FORM METHOD="GET" name="theform" id="theform" onSubmit='top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <?php
 
 $sortby = $_GET['sortby'] ?? null;

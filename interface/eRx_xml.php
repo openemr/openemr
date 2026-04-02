@@ -23,21 +23,21 @@ $facilityService = new FacilityService();
 
 function getErxPath()
 {
-    return OEGlobalsBag::getInstance()->get('erx_newcrop_path');
+    return OEGlobalsBag::getInstance()->getString('erx_newcrop_path');
 }
 
 function getErxSoapPath()
 {
-    return OEGlobalsBag::getInstance()->get('erx_newcrop_path_soap');
+    return OEGlobalsBag::getInstance()->getString('erx_newcrop_path_soap');
 }
 
 function getErxCredentials()
 {
     $cred = [];
-    $cred[] = OEGlobalsBag::getInstance()->get('erx_account_partner_name');
-    $cred[] = OEGlobalsBag::getInstance()->get('erx_account_name');
+    $cred[] = OEGlobalsBag::getInstance()->getString('erx_account_partner_name');
+    $cred[] = OEGlobalsBag::getInstance()->getString('erx_account_name');
     $cryptoGen = ServiceContainer::getCrypto();
-    $cred[] = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->get('erx_account_password'));
+    $cred[] = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('erx_account_password'));
 
     return $cred;
 }
@@ -203,7 +203,7 @@ function account($doc, $r): void
 
     $session = SessionWrapperFactory::getInstance()->getActiveSession();
     $b = $doc->createElement("Account");
-    $b->setAttribute('ID', OEGlobalsBag::getInstance()->get('erx_account_id'));
+    $b->setAttribute('ID', OEGlobalsBag::getInstance()->getString('erx_account_id'));
     $erxSiteID['name'] = stripSpecialCharacterFacility($erxSiteID['name']);
     $erxSiteID['name'] = trimData($erxSiteID['name'], 35);
     $msg = validation(xl('Account Name'), $erxSiteID['name'], $msg);

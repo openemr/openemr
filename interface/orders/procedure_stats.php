@@ -299,7 +299,7 @@ $(function () {
 <h2><?php echo text($report_title); ?></h2>
 
 <form name='theform' method='post' action='procedure_stats.php' onsubmit='return top.restoreSession()'>
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <div class="col-8 col-md-8">
     <div class="row">
@@ -412,9 +412,7 @@ $(function () {
 } // end not export
 
 if (!empty($_POST['form_submit'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $pd_fields = '';
     foreach ($arr_show as $askey => $asval) {

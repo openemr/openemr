@@ -126,7 +126,7 @@ function getDefaultLanguage(): array
 {
     global $globalsBag;
     $sql = "SELECT * FROM lang_languages where lang_description = ?";
-    $res = sqlStatement($sql, [$globalsBag->get('language_default')]);
+    $res = sqlStatement($sql, [$globalsBag->getString('language_default')]);
     $langs = [];
 
     while ($row = sqlFetchArray($res)) {
@@ -234,14 +234,14 @@ $viewArgs = [
     'displayFacilities' => $globalsBag->getBoolean("login_into_facility"),
     'facilityList' => $facilities,
     'facilitySelected' => $facilitySelected,
-    'displayGoogleSignin' => $globalsBag->getBoolean('google_signin_enabled') && !empty($globalsBag->get('google_signin_client_id')),
-    'googleSigninClientID' => $globalsBag->get('google_signin_client_id'),
+    'displayGoogleSignin' => $globalsBag->getBoolean('google_signin_enabled') && !empty($globalsBag->getString('google_signin_client_id')),
+    'googleSigninClientID' => $globalsBag->getString('google_signin_client_id'),
     'displaySmallLogo' => $displaySmallLogo,
     'smallLogoOne' => $smallLogoOne,
     'smallLogoTwo' => $smallLogoTwo,
     'showTitleOnLogin' => $globalsBag->getBoolean('show_label_login'),
     'displayTagline' => $globalsBag->getBoolean('show_tagline_on_login'),
-    'tagline' => $globalsBag->get('login_tagline_text'),
+    'tagline' => $globalsBag->getString('login_tagline_text'),
     'displayAck' => $globalsBag->getBoolean('display_acknowledgements_on_login'),
     'hasSession' => true,
     'cookieText' => $cookie,

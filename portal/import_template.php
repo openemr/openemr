@@ -117,9 +117,7 @@ if (($_POST['mode'] ?? null) === 'send') {
 }
 
 if (($_POST['mode'] ?? null) === 'save') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session, 'import-template-save')) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-save', dieOnFail: true);
     if (!$authUploadTemplates) {
         AccessDeniedHelper::deny('Not authorized to edit template');
     }
@@ -136,9 +134,7 @@ if (($_POST['mode'] ?? null) === 'save') {
         die(xlt('Invalid File'));
     }
 } elseif (($_POST['mode'] ?? null) === 'delete') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session, 'import-template-delete')) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-delete', dieOnFail: true);
     if (!$authUploadTemplates) {
         AccessDeniedHelper::deny('Not authorized to delete template');
     }
@@ -157,9 +153,7 @@ if (($_POST['mode'] ?? null) === 'save') {
 }
 
 if (isset($_POST['blank-nav-button'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session, 'import-template-upload')) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-upload', dieOnFail: true);
     if (!$authUploadTemplates) {
         xlt("Not Authorized to Upload Templates");
         exit;
@@ -190,9 +184,7 @@ if (isset($_POST['blank-nav-button'])) {
 }
 
 if (isset($_REQUEST['q_mode']) && !empty($_REQUEST['q_mode'])) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session, 'import-template-upload')) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-upload', dieOnFail: true);
     if (!$authUploadTemplates) {
         xlt("Not Authorized to Upload Templates");
         exit;
@@ -223,9 +215,7 @@ if (isset($_REQUEST['q_mode']) && !empty($_REQUEST['q_mode'])) {
 
 // templates file import
 if ((count($_FILES['template_files']['name'] ?? []) > 0) && !empty($_FILES['template_files']['name'][0] ?? '')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session, 'import-template-upload')) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-upload', dieOnFail: true);
     if (!$authUploadTemplates) {
         xlt("Not Authorized to Upload Templates");
         exit;
@@ -269,9 +259,7 @@ if ((count($_FILES['template_files']['name'] ?? []) > 0) && !empty($_FILES['temp
 }
 
 if (isset($_POST['repository-submit']) && !empty($_POST['upload_name'] ?? '')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session, 'import-template-upload')) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'import-template-upload', dieOnFail: true);
     if (!$authUploadTemplates) {
         xlt("Not Authorized to Upload Templates");
         exit;
@@ -364,7 +352,7 @@ function renderEditorHtml($template_id, $content): void
             <div class="row">
                 <div class="col-10 px-1 sticky-top">
                     <form class="sticky-top" action='./import_template.php' method='post'>
-                        <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken($session, 'import-template-save')); ?>" />
+                        <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken($session, 'import-template-save'); ?>" />
                         <input type="hidden" name="docid" value="<?php echo attr($template_id) ?>">
                         <input type='hidden' name='mode' value="save">
                         <input type='hidden' name='service' value='window'>

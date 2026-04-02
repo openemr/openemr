@@ -37,9 +37,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\FacilityService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 $facilityService = new FacilityService();
 
@@ -1518,7 +1516,7 @@ fclose($fileQRDAOPen);
 <center>
 <form>
 <p class="text">
-    <a href="qrda_download.php?qrda_fname=<?php echo attr_url($qrda_fname); ?>&csrf_token_form=<?php echo attr_url((string) CsrfUtils::collectCsrfToken(session: $session)); ?>"><?php echo xlt("Download QRDA Category III File");?></a>
+    <a href="qrda_download.php?qrda_fname=<?php echo attr_url($qrda_fname); ?>&csrf_token_form=<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>"><?php echo xlt("Download QRDA Category III File");?></a>
 </p>
 <textarea rows='50' cols='500' style='width:95%' readonly>
 <?php echo trim((string) $xml->getXml()); ?>

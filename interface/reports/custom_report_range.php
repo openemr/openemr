@@ -30,9 +30,7 @@ if (!AclMain::aclCheckCore('encounters', 'coding_a')) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 }
 
 $facilityService = new FacilityService();
@@ -191,7 +189,7 @@ if (empty($form_patient)) {
 <div id="report_parameters">
 
 <form method="post" name="theform" id='theform' action="custom_report_range.php">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 <input type='hidden' name='form_refresh' id='form_refresh' value=''/>
 <table>
  <tr>

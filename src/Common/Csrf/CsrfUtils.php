@@ -23,6 +23,8 @@
 
 namespace OpenEMR\Common\Csrf;
 
+use OpenEMR\Common\Session\SessionWrapperFactory;
+use RuntimeException;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class CsrfUtils
@@ -44,14 +46,43 @@ class CsrfUtils
     //  $subject allows creation of different csrf tokens:
     //    Using 'api' for the internal api csrf token
     //    Using 'default' for everything else (for now)
-    public static function collectCsrfToken(SessionInterface $session, string $subject = 'default'): false|string
+    public static function collectCsrfToken(SessionInterface $session, string $subject = 'default'): string
     {
         $privateKey = $session->get('csrf_private_key', null);
-        if (empty($privateKey)) {
-            error_log("OpenEMR Error : OpenEMR is potentially not secure because CSRF key is empty.");
-            return false;
+        if ($privateKey === null || $privateKey === '') {
+            throw new RuntimeException("OpenEMR is potentially not secure because CSRF key is empty.");
         }
         return substr(hash_hmac('sha256', $subject, (string) $privateKey), 0, 40);
+    }
+
+    /**
+     * Verify the CSRF token from request input and throw on failure.
+     *
+     * Combines token extraction, type safety, and verification into a single call.
+     * Uses filter_input() to read from the specified superglobal.
+     *
+     * @param 0|1|2|4|5 $inputType INPUT_POST, INPUT_GET, INPUT_COOKIE, INPUT_SERVER, or INPUT_ENV
+     * @param ?SessionInterface $session Defaults to the active session from SessionWrapperFactory
+     * @param bool $dieOnFail If true, call csrfNotVerified() (sets 403 and
+     *                        exits) instead of throwing. Use for legacy call
+     *                        sites that rely on the hard-exit behavior.
+     * @throws CsrfInvalidException if the token is missing or invalid (when $dieOnFail is false)
+     */
+    public static function checkCsrfInput(
+        int $inputType,
+        ?SessionInterface $session = null,
+        string $key = 'csrf_token_form',
+        string $subject = 'default',
+        bool $dieOnFail = false,
+    ): void {
+        $session ??= SessionWrapperFactory::getInstance()->getActiveSession();
+        $token = filter_input($inputType, $key, FILTER_DEFAULT, FILTER_REQUIRE_SCALAR);
+        if (!self::verifyCsrfToken($token, $session, $subject)) {
+            if ($dieOnFail) {
+                self::csrfNotVerified();
+            }
+            throw new CsrfInvalidException('CSRF token validation failed');
+        }
     }
 
     // Function to verify a csrf_token
@@ -59,16 +90,10 @@ class CsrfUtils
     {
         $currentToken = self::collectCsrfToken($session, $subject);
 
-        if (empty($currentToken)) {
-            error_log("OpenEMR Error : OpenEMR is potentially not secure because CSRF token was not formed correctly.");
-            return false;
-        } elseif (empty($token)) {
-            return false;
-        } elseif (hash_equals($currentToken, $token)) {
-            return true;
-        } else {
+        if (in_array($token, [null, '', false], true)) {
             return false;
         }
+        return hash_equals($currentToken, $token);
     }
 
     /**

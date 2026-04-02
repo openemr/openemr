@@ -80,9 +80,7 @@ $patientName = ($patient['fname'] ?? '') . ' ' . ($patient['lname'] ?? '');
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $selectedConcerns = $_POST['health_concerns'] ?? [];
     $userId = $session->get('authUserID') ?? 0;
@@ -144,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$csrf = (string) CsrfUtils::collectCsrfToken(session: $session);
+$csrf = CsrfUtils::collectCsrfToken(session: $session);
 ?>
 
 <!DOCTYPE html>

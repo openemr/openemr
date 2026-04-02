@@ -736,9 +736,7 @@ function eob_process_era_callback(array &$out): void
 
 $info_msg = "";
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 $eraname = $_REQUEST['eraname'];
 
@@ -814,7 +812,7 @@ if (!$debug) {
 </head>
 <body class='m-0'>
 <form action="sl_eob_process.php" method="get">
-<input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+<input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
 <?php
 if (!empty($_GET['original']) && $_GET['original'] === 'original') {

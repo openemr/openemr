@@ -41,10 +41,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 // Thus the current browser page should remain displayed.
 //
 if (!empty($_POST['bn_download'])) {
-    //verify csrf
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $templatepath = "$templatedir/$form_filename";
 
@@ -71,10 +68,7 @@ if (!empty($_POST['bn_download'])) {
 }
 
 if (!empty($_POST['bn_delete'])) {
-    //verify csrf
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     $templatepath = "$templatedir/$form_filename";
     if (is_file($templatepath)) {
@@ -83,10 +77,7 @@ if (!empty($_POST['bn_delete'])) {
 }
 
 if (!empty($_POST['bn_upload'])) {
-    //verify csrf
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     // Handle uploads.
     $tmp_name = $_FILES['form_file']['tmp_name'];
@@ -178,7 +169,7 @@ if (!empty($_POST['bn_upload'])) {
    <div class="container">
       <form method='post' action='manage_document_templates.php' enctype='multipart/form-data'
          onsubmit='return top.restoreSession()'>
-         <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+         <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <h2 class="text-center"><?php echo xlt('Document Template Management'); ?></h2>
             <div class="row">
             <div class="col-6">

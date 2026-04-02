@@ -496,14 +496,14 @@ abstract class AppDispatch
 
         if (empty($credentials)) {
             $credentials = [
-                'sender_name' => OEGlobalsBag::getInstance()->get('patient_reminder_sender_name'),
-                'sender_email' => OEGlobalsBag::getInstance()->get('patient_reminder_sender_email'),
-                'notification_email' => OEGlobalsBag::getInstance()->get('practice_return_email_path'),
+                'sender_name' => OEGlobalsBag::getInstance()->getString('patient_reminder_sender_name'),
+                'sender_email' => OEGlobalsBag::getInstance()->getString('patient_reminder_sender_email'),
+                'notification_email' => OEGlobalsBag::getInstance()->getString('practice_return_email_path'),
                 'email_transport' => OEGlobalsBag::getInstance()->get('EMAIL_METHOD'),
-                'smtp_host' => OEGlobalsBag::getInstance()->get('SMTP_HOST'),
+                'smtp_host' => OEGlobalsBag::getInstance()->getString('SMTP_HOST'),
                 'smtp_port' => OEGlobalsBag::getInstance()->getInt('SMTP_PORT'),
-                'smtp_user' => OEGlobalsBag::getInstance()->get('SMTP_USER'),
-                'smtp_password' => OEGlobalsBag::getInstance()->get('SMTP_PASS'),
+                'smtp_user' => OEGlobalsBag::getInstance()->getString('SMTP_USER'),
+                'smtp_password' => OEGlobalsBag::getInstance()->getString('SMTP_PASS'),
                 'smtp_security' => OEGlobalsBag::getInstance()->get('SMTP_SECURE'),
                 'notification_hours' => OEGlobalsBag::getInstance()->getInt('EMAIL_NOTIFICATION_HOUR'),
                 'email_message' => OEGlobalsBag::getInstance()->get('EMAIL_MESSAGE') ?? '',
@@ -644,7 +644,7 @@ abstract class AppDispatch
             }
             $content = text($body) . "\n";
             $from_name = text($from_name);
-            $from = OEGlobalsBag::getInstance()->get("practice_return_email_path");
+            $from = OEGlobalsBag::getInstance()->getString("practice_return_email_path");
             $mail->AddReplyTo($from, $from_name);
             $mail->SetFrom($from, $from);
             $to = $email;

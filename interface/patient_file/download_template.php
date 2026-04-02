@@ -28,9 +28,7 @@ use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\OEGlobalsBag;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
 $nextLocation = 0;      // offset to resume scanning
 $keyLocation  = false;  // offset of a potential {string} to replace
@@ -358,7 +356,7 @@ $templatedir   = "$OE_SITE_DIR/documents/doctemplates";
 $templatepath  = "$templatedir/" . check_file_dir_name($form_filename);
 
 // Create a temporary file to hold the output.
-$fname = tempnam(OEGlobalsBag::getInstance()->get('temporary_files_dir'), 'OED');
+$fname = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), 'OED');
 
 // Get mime type in a way that works with old and new PHP releases.
 $default_mimetype = 'application/octet-stream';
@@ -403,7 +401,7 @@ if ($cryptoGen->cryptCheckStandard($fileData)) {
 }
 
 // Create a temporary file to hold the template.
-$dname = tempnam(OEGlobalsBag::getInstance()->get('temporary_files_dir'), 'OED');
+$dname = tempnam(OEGlobalsBag::getInstance()->getString('temporary_files_dir'), 'OED');
 file_put_contents($dname, $fileData);
 
 $zipin = new ZipArchive();

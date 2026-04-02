@@ -28,9 +28,7 @@ $authUserID = $session->get('authUserID');
     -------------------  HANDLE POST ---------------------
 */
 if ($_GET) {
-    if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
     if (!$isAdmin) {
         // Force non-admin users to only see their own reminders,
@@ -161,7 +159,7 @@ if ($_GET) {
             </div>
             <div class="col-12 filter-section mb-3">
                 <form method="get" id="logForm" onsubmit="return top.restoreSession()">
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <div class="card">
                         <div class="card-header bg-primary text-white">
                             <h5 class="mb-0"><?php echo xlt('Filters') ?></h5>

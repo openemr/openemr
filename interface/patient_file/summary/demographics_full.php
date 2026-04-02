@@ -111,7 +111,7 @@ $CPR = 4; // cells per row
                     // delete from table.
                     const url = top.webroot_url + '/library/ajax/specialty_form_ajax.php?delete=true';
                     let doData = new FormData();
-                    doData.append('csrf_token_form', <?php echo js_escape((string) CsrfUtils::collectCsrfToken(session: $session)); ?>);
+                    doData.append('csrf_token_form', <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>);
                     doData.append('id', data.id);
                     doData.append('task_name_history', 'delete');
                     fetch(url, {
@@ -419,7 +419,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
 
         <form action='demographics_save.php' name='demographics_form' id="DEM" method='post' class='form-inline'
         onsubmit="submitme(<?php echo OEGlobalsBag::getInstance()->getBoolean('new_validate') ? 1 : 0; ?>,event,'DEM',constraints)">
-        <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
         <input type='hidden' name='mode' value='save' />
         <input type='hidden' name='db_id' value="<?php echo attr($result['id']); ?>" />
         <input type="hidden" name="isSwapClicked" value="" />
@@ -611,7 +611,7 @@ $constraints = LBF_Validation::generate_validate_constraints("DEM");
                 width: 'resolve',
                 <?php require(OEGlobalsBag::getInstance()->get('srcdir') . '/js/xl/select2.js.php'); ?>
             });
-            <?php if (OEGlobalsBag::getInstance()->get('usps_apiv3_client_id')) { ?>
+            <?php if (OEGlobalsBag::getInstance()->getString('usps_apiv3_client_id')) { ?>
             $("#value_id_text_postal_code").append(
                 "<input type='button' class='btn btn-sm btn-secondary mb-1' onclick='address_verify()' value='<?php echo xla('Verify Address') ?>' />");
             <?php } ?>

@@ -77,7 +77,7 @@ function checkCreateCDB()
             return false;
         }
 
-        if (OEGlobalsBag::getInstance()->get('couchdb_host') || OEGlobalsBag::getInstance()->get('couchdb_port') || OEGlobalsBag::getInstance()->get('couchdb_dbase')) {
+        if (OEGlobalsBag::getInstance()->getString('couchdb_host') || OEGlobalsBag::getInstance()->getString('couchdb_port') || OEGlobalsBag::getInstance()->getString('couchdb_dbase')) {
             $couch->createDB();
         }
     }
@@ -158,10 +158,7 @@ function checkBackgroundServices(): void
     // If we are saving user_specific globals.
     //
     if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && $userMode) {
-        //verify csrf
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-            CsrfUtils::csrfNotVerified();
-        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
         $i = 0;
         $authUserID = $session->get('authUserID');
@@ -217,10 +214,7 @@ function checkBackgroundServices(): void
     // If we are saving main globals.
     //
     if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) {
-        //verify csrf
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-            CsrfUtils::csrfNotVerified();
-        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
         // Aug 22, 2014: Ensoftek: For Auditable events and tamper-resistance (MU2)
         // Check the current status of Audit Logging
@@ -379,7 +373,7 @@ function checkBackgroundServices(): void
     ?>
     <script src="edit_globals.js" type="text/javascript"></script>
     <script>
-        window.oeUI.api.setApiUrlAndCsrfToken(<?php echo js_escape($apiUrl); ?>, <?php echo js_escape((string) CsrfUtils::collectCsrfToken($session, 'api')); ?>);
+        window.oeUI.api.setApiUrlAndCsrfToken(<?php echo js_escape($apiUrl); ?>, <?php echo js_escape(CsrfUtils::collectCsrfToken($session, 'api')); ?>);
     </script>
 </head>
 
@@ -400,7 +394,7 @@ function checkBackgroundServices(): void
                     <?php } else { ?>
                     <form method='post' name='theform' id='theform' class='form-horizontal' action='edit_globals.php' onsubmit='return top.restoreSession()'>
                         <?php } ?>
-                        <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                        <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                         <div class="clearfix">
                             <div class="btn-group oe-margin-b-10">
                                 <button type='submit' class='btn btn-primary btn-save oe-pull-toward' name='form_save' value='<?php echo xla('Save'); ?>'><?php echo xlt('Save'); ?></button>

@@ -37,7 +37,7 @@ $isForward = ($clientApp->getRequest('mode', false) == 'forward') ? 1 : 0;
 $isFax = ($serviceType == 'fax') ? 1 : 0;
 $isUniversal = (int)$clientApp->getRequest('isUniversal', false);
 
-$isSMTP = !empty(OEGlobalsBag::getInstance()->get('SMTP_HOST') ?? null);
+$isSMTP = !empty(OEGlobalsBag::getInstance()->getString('SMTP_HOST') ?? null);
 $isOnetime = (int)$clientApp->getRequest('isOnetime', false);
 
 if ($isUniversal) {
@@ -67,7 +67,7 @@ if (empty($isSMS)) {
 } else {
 // SMS contact dialog. Passed in phone or select patient from popup.
     $interface_pid = $clientApp->getRequest('pid', '');
-    $portal_url = OEGlobalsBag::getInstance()->get('portal_onsite_two_address');
+    $portal_url = OEGlobalsBag::getInstance()->getString('portal_onsite_two_address');
     $details = json_decode((string) $clientApp->getRequest('details', ''), true);
     $recipient_phone = $clientApp->getRequest('recipient', $details['phone'] ?? '');
     $pid = $interface_pid;
@@ -268,7 +268,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 <body>
     <div class="container-fluid">
         <form class="form" id="contact-form" method="post" action="contact.php" role="form">
-            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken($session, 'contact-form')); ?>" />
+            <input type="hidden" name="csrf_token_form" id="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken($session, 'contact-form'); ?>" />
             <input type="hidden" id="form_file" name="file" value='<?php echo attr($the_file ?? ''); ?>'>
             <input type="hidden" id="form_docid" name="docid" value='<?php echo attr($the_docid ?? ''); ?>'>
             <input type="hidden" id="form_isContent" name="isContent" value='<?php echo attr($isContent ?? ''); ?>'>

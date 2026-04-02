@@ -103,7 +103,7 @@ $reasonCodeStatii[ReasonStatusCodes::NONE]['description'] = xl("Select a status 
             <div class="col-12">
                 <h2><?php echo xlt('Care Plan Form'); ?></h2>
                 <form method='post' name='my_form' action='<?php echo $rootdir ?>/forms/care_plan/save.php?id=<?php echo attr_url($formid) ?>'>
-                    <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                    <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
                     <fieldset>
                         <legend><?php echo xlt('Enter Details'); ?></legend>
                         <div class="container">

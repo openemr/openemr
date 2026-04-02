@@ -90,16 +90,14 @@ if (!AclMain::aclCheckCore('patients', 'med')) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if ($_POST['form_complete'] ?? null) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     // Save that form as a row in rule_patient_data table
     //  and then close the window/module.
 
     // Collect and trim variables
     if (isset($_POST['form_entryID'])) {
-        $form_entryID = trim($_POST['form_entryID']);
+        $form_entryID = trim((string) $_POST['form_entryID']);
     }
 
     $form_date = trim((string) $_POST['form_date']);
@@ -158,7 +156,7 @@ if (isset($entryID)) {
 
 <br />
 <form action='patient_data.php' name='patient_data' method='post' onsubmit='return top.restoreSession()'>
-  <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+  <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
 
   <table border=0 cellpadding=1 cellspacing=1>
     <?php

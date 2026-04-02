@@ -30,9 +30,7 @@ if (!AclMain::aclCheckCore('admin', 'notification')) {
 // process form
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST['form_action']) && ($_POST['form_action'] == 'save')) {
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
     if (! is_numeric($_POST['notification_id'])) {  // shouldn't happen
         $form_err .= xl('Missing/invalid notification id') . '<br />';
@@ -115,7 +113,7 @@ $sms_gateway =  ['CLICKATELL','TMB4'];
         }
         ?>
         <form name="select_form" method="post" action="">
-            <input type="hidden" name="csrf_token_form" value="<?php echo attr((string) CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+            <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
             <input type="hidden" name="type" value="SMS">
             <input type="hidden" name="notification_id" value="<?php echo attr($notification_id); ?>">
             <div class="row">

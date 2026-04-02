@@ -58,13 +58,18 @@ class ApplicationTable
         return $return;
     }
 
-    public function getPortalAuditRec($recid)
+    public function getPortalAuditRec($recid, ?int $patientId = null)
     {
         $return = false;
         $result = false;
         try {
-            $sql = "Select * From onsite_portal_activity Where  id = ?";
-            $return = sqlStatementNoLog($sql, $recid);
+            if ($patientId !== null) {
+                $sql = "Select * From onsite_portal_activity Where id = ? And patient_id = ?";
+                $return = sqlStatementNoLog($sql, [$recid, $patientId]);
+            } else {
+                $sql = "Select * From onsite_portal_activity Where id = ?";
+                $return = sqlStatementNoLog($sql, $recid);
+            }
             $result = true;
         } catch (\Throwable $e) {
             $this->errorHandler($e, $sql);
