@@ -381,7 +381,7 @@ if (!empty($_POST['form_action']) && ($_POST['form_action'] == "duplicate" || $_
         $event_date = setEventDate($_POST['form_date'], $my_repeat_freq);
     } elseif (!empty($_POST['form_repeat'])) {
         $my_recurrtype = 1;
-        if ($my_repeat_type > 6 || $my_repeat_type == 5) { // Changed from 4 to 6 to accommodate new options.
+        if ($my_repeat_type > 6 || $my_repeat_type == 5) { // 5 is nth weekday (REPEAT_ON); >6 handles 7th, 8th, 9th occurrences
             $my_recurrtype = 2;
             $time = strtotime((string) $event_date);
             $my_repeat_on_day = 0 + date('w', $time);
