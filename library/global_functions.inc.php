@@ -414,6 +414,15 @@ function hl7Phone($s, bool $formatted)
 }
 
 /**
+ * @param string
+ * @return string
+ */
+function hl7Priority($s)
+{
+    return strtoupper(substr((string) $s, 0, 1)) === 'H' ? 'S' : 'R';
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -497,15 +506,6 @@ function PrintEncHeader($dt, $rsn, $dr): void
     echo "<td colspan='5'><span class='font-weight-bold'>" . xlt('Provider') . ": </span><span class='detail'>" . text(User_Id_Look($dr)) . "</span></td>";
     echo "</tr>\n";
     $orow++;
-}
-
-/**
- * @param string
- * @return string
- */
-function hl7Priority($s)
-{
-    return strtoupper(substr((string) $s, 0, 1)) === 'H' ? 'S' : 'R';
 }
 
 /**
