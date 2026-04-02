@@ -4102,6 +4102,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_parse.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method getActiveSession\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method get\\(\\) on mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method getAllBillingLocations\\(\\) on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/options.inc.php',

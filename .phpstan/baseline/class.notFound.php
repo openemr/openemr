@@ -227,6 +227,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/edih_csv_inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Call to static method getInstance\\(\\) on an unknown class SessionWrapperFactory\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/global_functions.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Call to static method getInstance\\(\\) on an unknown class OEGlobalsBag\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/smarty/plugins/function.assetVersionNumber.php',
