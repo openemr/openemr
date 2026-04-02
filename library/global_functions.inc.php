@@ -592,14 +592,6 @@ function myCellText($s)
 }
 
 /**
- * Reads $_POST and trims the value. New code should NOT use this function.
- */
-function trimPost(string $key): string
-{
-    return \trim($_POST[$key] ?? '');
-}
-
-/**
  * Open an XML tag with proper indentation.
  *
  * @param string $tag The tag name to open
@@ -616,6 +608,14 @@ function OpenTag($tag): void
 
     ++$indent;
     $out .= "<$tag>\n";
+}
+
+/**
+ * Reads $_POST and trims the value. New code should NOT use this function.
+ */
+function trimPost(string $key): string
+{
+    return \trim($_POST[$key] ?? '');
 }
 
 /**
