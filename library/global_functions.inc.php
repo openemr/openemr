@@ -255,6 +255,18 @@ function display_desc($desc)
 }
 
 /**
+ * Format a money amount with decimals but no other decoration.
+ *
+ * @param float $value The value to format
+ * @param int $extradecimals Extra decimal places beyond currency standard
+ * @return string The formatted number
+ */
+function formatMoneyNumber($value, $extradecimals = 0)
+{
+    return sprintf('%01.' . (OEGlobalsBag::getInstance()->get('currency_decimals') + $extradecimals) . 'f', $value);
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -279,18 +291,6 @@ function OpenTag($tag): void
 
     ++$indent;
     $out .= "<$tag>\n";
-}
-
-/**
- * Format a money amount with decimals but no other decoration.
- *
- * @param float $value The value to format
- * @param int $extradecimals Extra decimal places beyond currency standard
- * @return string The formatted number
- */
-function formatMoneyNumber($value, $extradecimals = 0)
-{
-    return sprintf('%01.' . (OEGlobalsBag::getInstance()->get('currency_decimals') + $extradecimals) . 'f', $value);
 }
 
 /**
