@@ -102,6 +102,31 @@ function CloseTag($tag): void
 }
 
 /**
+ * Get facilities data and build facility-to-message and facility-to-phone maps.
+ *
+ * @return array{msg_map: array<int, string>, phone_map: array<int, string>}
+ */
+function cron_getFacilitiesMap(FacilityService $facilityService)
+{
+    /** @var array<string, string> $message_map */
+    $message_map = OEGlobalsBag::getInstance()->get('phone_appt_message');
+    $facility_msg_map = [];
+    $facility_phone_map = [];
+
+    $facilities = $facilityService->getAllFacility();
+    foreach ($facilities as $row) {
+        /** @var array{id: int, name: string, phone: string} $row */
+        $facility_msg_map[$row['id']] = $message_map[$row['name']] ?? '';
+        $facility_phone_map[$row['id']] = $row['phone'];
+    }
+
+    return [
+        'msg_map' => $facility_msg_map,
+        'phone_map' => $facility_phone_map
+    ];
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -684,31 +709,6 @@ function markTaxes($taxrates): void
             $taxes[$value][2] = '1';
         }
     }
-}
-
-/**
- * Get facilities data and build facility-to-message and facility-to-phone maps.
- *
- * @return array{msg_map: array<int, string>, phone_map: array<int, string>}
- */
-function cron_getFacilitiesMap(FacilityService $facilityService)
-{
-    /** @var array<string, string> $message_map */
-    $message_map = OEGlobalsBag::getInstance()->get('phone_appt_message');
-    $facility_msg_map = [];
-    $facility_phone_map = [];
-
-    $facilities = $facilityService->getAllFacility();
-    foreach ($facilities as $row) {
-        /** @var array{id: int, name: string, phone: string} $row */
-        $facility_msg_map[$row['id']] = $message_map[$row['name']] ?? '';
-        $facility_phone_map[$row['id']] = $row['phone'];
-    }
-
-    return [
-        'msg_map' => $facility_msg_map,
-        'phone_map' => $facility_phone_map
-    ];
 }
 
 /**
