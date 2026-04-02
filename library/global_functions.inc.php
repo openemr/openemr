@@ -10,7 +10,7 @@
  * No new code should be authored into this file; use it only for consolidating
  * and refactoring existing functions.
  *
- * PLEASE KEEP THE FUNCTION DEFINITONS IN THIS FILE SORTED ALPHABETICALLY
+ * PLEASE KEEP THE FUNCTION DEFINITIONS IN THIS FILE SORTED ALPHABETICALLY
  *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
