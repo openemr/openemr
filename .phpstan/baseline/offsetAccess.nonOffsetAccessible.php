@@ -4807,11 +4807,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'hylafax_enscript\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'name\' on array\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/fax/fax_dispatch.php',
@@ -40012,11 +40007,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../sites/default/config.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'hylafax_enscript\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../sites/default/config.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'left\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../sites/default/config.php',
@@ -40049,11 +40039,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'prescriptions\' on mixed\\.$#',
     'count' => 4,
-    'path' => __DIR__ . '/../../sites/default/config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset \'print_command\' on mixed\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../sites/default/config.php',
 ];
 $ignoreErrors[] = [
@@ -40098,11 +40083,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot access offset \'use_signature\' on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../sites/default/config.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset mixed on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../sites/default/config.php',
 ];
