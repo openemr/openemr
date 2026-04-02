@@ -52,9 +52,9 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 // 2 = select list
 // 0 = not searchable
 //
-function getSearchClass($data_type)
+function getSearchClass(int $data_type)
 {
-    return match ((int)$data_type) {
+    return match ($data_type) {
         // facilities
         1, 10, 11, 12, 13, 14, 26, 35 => 2,
         // date
@@ -333,7 +333,7 @@ while ($lrow = sqlFetchArray($lres)) {
         continue;
     }
 
-    $data_type = $lrow['data_type'];
+    $data_type = (int)$lrow['data_type'];
     $fldname = "form_$field_id";
     switch (getSearchClass($data_type)) {
         case 1:
@@ -907,7 +907,7 @@ while ($lrow = sqlFetchArray($lres)) {
         continue;
     }
 
-    switch (getSearchClass($lrow['data_type'])) {
+    switch (getSearchClass((int)$lrow['data_type'])) {
         case 1:
             echo "    \$(" . js_escape("#form_" . $field_id) . ").click(function() { toggleSearch(this); });\n";
             break;
