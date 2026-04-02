@@ -354,6 +354,33 @@ function getLayoutUOR($form_id, $field_id)
 }
 
 /**
+ * Get a list item title, translating if required.
+ *
+ * @param  string $listid List identifier.
+ * @param  string $value List item identifier.
+ * @return string  The item's title.
+ */
+function getListItem($listid, $value)
+{
+    $title = QueryUtils::fetchSingleValue(
+        <<<'SQL'
+        SELECT title
+        FROM list_options
+        WHERE list_id = ? AND option_id = ? AND activity = 1
+        LIMIT 1
+        SQL,
+        'title',
+        [$listid, $value]
+    );
+    $tmp = xl_list_label($title);
+    if (empty($tmp)) {
+        $tmp = (($value === '') ? '' : "($value)");
+    }
+
+    return $tmp;
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -724,33 +751,6 @@ function myCellText($s)
     }
 
     return text($s);
-}
-
-/**
- * Get a list item title, translating if required.
- *
- * @param  string $listid List identifier.
- * @param  string $value List item identifier.
- * @return string  The item's title.
- */
-function getListItem($listid, $value)
-{
-    $title = QueryUtils::fetchSingleValue(
-        <<<'SQL'
-        SELECT title
-        FROM list_options
-        WHERE list_id = ? AND option_id = ? AND activity = 1
-        LIMIT 1
-        SQL,
-        'title',
-        [$listid, $value]
-    );
-    $tmp = xl_list_label($title);
-    if (empty($tmp)) {
-        $tmp = (($value === '') ? '' : "($value)");
-    }
-
-    return $tmp;
 }
 
 /**
