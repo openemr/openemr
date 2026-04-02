@@ -16,8 +16,8 @@
 
 namespace OpenEMR\Tests\Isolated\Portal;
 
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Tests for the fix to issue #11202: chart notes displaying portal_username
