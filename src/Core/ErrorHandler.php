@@ -1,0 +1,103 @@
+<?php
+
+declare(strict_types=1);
+
+namespace OpenEMR\Core;
+
+use ErrorException;
+use OpenEMR\BC\ServiceContainer;
+use Psr\Log\LoggerInterface;
+use Throwable;
+
+use function defined;
+use function error_reporting;
+use function http_response_code;
+use function set_error_handler;
+use function set_exception_handler;
+
+use const E_DEPRECATED;
+use const E_USER_DEPRECATED;
+
+readonly class ErrorHandler
+{
+    private LoggerInterface $logger;
+    private bool $isCli;
+
+    public function __construct(
+        ?LoggerInterface $logger,
+        private bool $shouldDisplayErrors = false,
+    ) {
+        $this->isCli = (PHP_SAPI === 'cli');
+        $this->logger = $logger ?? ServiceContainer::getLogger();
+    }
+
+    /**
+     * Promotes errors to ErrorExceptions, respecting the current
+     * error_reporting level (including @)
+     *
+     * @link https://www.php.net/manual/en/function.set-error-handler.php
+     */
+    public function handleError(
+        int $errno,
+        string $errstr,
+        string $errfile,
+        int $errline,
+    ): bool {
+        // If the current error_reporting error level matches the specified
+        // severity, convert it to an error exception. With this check, `@` error
+        // suppression (or changes to `error_reporting`) are respected.
+        if ((error_reporting() & $errno) !== 0) {
+            throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+        }
+        // Always log deprecation warnings even if they're turned off at runtime.
+        // If running inside unit tests, throw anyway.
+        if ($errno === E_USER_DEPRECATED || $errno === E_DEPRECATED) {
+            if (defined('PHPUNIT_COMPOSER_INSTALL')) {
+                throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+            } else {
+                $this->logger->warning('Deprecated: {message} ({file}:{line})', [
+                    'message' => $errstr,
+                    'file' => $errfile,
+                    'line' => $errline,
+                ]);
+            }
+        }
+        // "If the function returns false then the normal error handler
+        // continues."
+        return false;
+    }
+
+    public function handleException(Throwable $e): never
+    {
+        $this->logger->critical('Uncaught exception!', [
+            'exception' => $e,
+        ]);
+
+        // CLI scripts simply exit nonzero
+        if ($this->isCli) {
+            exit(1);
+        }
+
+        // For now, just crash out with minimal detail as before.
+        // In the future, this can be smarter about request context (accept
+        // headers), switching on exception type to yield the correct http
+        // code, etc.
+        http_response_code(500);
+        echo 'An error has occurred.';
+
+        if ($this->shouldDisplayErrors) {
+            echo $e;
+        }
+        exit();
+    }
+
+    public function installErrorHandler(int $level = E_ALL): void
+    {
+        set_error_handler($this->handleError(...), $level);
+    }
+
+    public function installExceptionHandler(): void
+    {
+        set_exception_handler($this->handleException(...));
+    }
+}
