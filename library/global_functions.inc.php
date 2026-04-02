@@ -267,6 +267,22 @@ function formatMoneyNumber($value, $extradecimals = 0)
 }
 
 /**
+ * End an HTML table row for statistics reports.
+ *
+ * @return void
+ * @global int $form_output Output format (3 = CSV)
+ */
+function genEndRow(): void
+{
+    global $form_output;
+    if ($form_output == 3) {
+        echo "\n";
+    } else {
+        echo " </tr>\n";
+    }
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -368,22 +384,6 @@ function genStartRow($att): void
     }
 
     $cellcount = 0;
-}
-
-/**
- * End an HTML table row for statistics reports.
- *
- * @return void
- * @global int $form_output Output format (3 = CSV)
- */
-function genEndRow(): void
-{
-    global $form_output;
-    if ($form_output == 3) {
-        echo "\n";
-    } else {
-        echo " </tr>\n";
-    }
 }
 
 /**
