@@ -458,6 +458,21 @@ function hl7RelationWord(string $s): string
 }
 
 /**
+ * Convert sex/gender to HL7 format (M, F, or U).
+ *
+ * @param string $s The input sex value
+ * @return string M, F, or U
+ */
+function hl7Sex($s)
+{
+    $s = strtoupper(substr((string) $s, 0, 1));
+    if ($s !== 'M' && $s !== 'F') {
+        $s = 'U';
+    }
+    return $s;
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -660,21 +675,6 @@ function hl7Text($s)
 function hl7Zip($s)
 {
     return hl7Text(preg_replace('/[-\s]*/', '', (string) $s));
-}
-
-/**
- * Convert sex/gender to HL7 format (M, F, or U).
- *
- * @param string $s The input sex value
- * @return string M, F, or U
- */
-function hl7Sex($s)
-{
-    $s = strtoupper(substr((string) $s, 0, 1));
-    if ($s !== 'M' && $s !== 'F') {
-        $s = 'U';
-    }
-    return $s;
 }
 
 /**
