@@ -786,16 +786,6 @@ $globalsBag->set('groupname', $groupname);
 $globalsBag->set('attendant_type', $attendant_type);
 $globalsBag->set('groupname', $groupname);
 
-// global interface function to format text length using ellipses
-function strterm(string $string, int $length)
-{
-    if (strlen($string) >= ($length - 3)) {
-        return substr($string, 0, $length - 3) . "...";
-    } else {
-        return $string;
-    }
-}
-
 // Helper function to generate an image URL that defeats browser/proxy caching when needed.
 function UrlIfImageExists($filename, $append = true)
 {

@@ -693,6 +693,16 @@ function report_basename($pid)
     return ['base' => $fn, 'fname' => $ptd['fname'], 'lname' => $ptd['lname']];
 }
 
+// global interface function to format text length using ellipses
+function strterm(string $string, int $length): string
+{
+    if (strlen($string) >= ($length - 3)) {
+        return substr($string, 0, $length - 3) . "...";
+    } else {
+        return $string;
+    }
+}
+
 /**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
