@@ -508,6 +508,22 @@ function hl7Text($s)
 }
 
 /**
+ * Convert a datetime string to HL7 timestamp format.
+ *
+ * @param string $s The datetime string
+ * @param bool $withSeconds Whether to include seconds (YmdHis) or not (YmdHi)
+ * @return string The formatted timestamp, or empty string if input is empty
+ */
+function hl7Time($s, bool $withSeconds)
+{
+    if (empty($s)) {
+        return '';
+    }
+    $format = $withSeconds ? 'YmdHis' : 'YmdHi';
+    return date($format, strtotime((string) $s));
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -692,22 +708,6 @@ function issueTypeIndex($tstr)
 function hl7Zip($s)
 {
     return hl7Text(preg_replace('/[-\s]*/', '', (string) $s));
-}
-
-/**
- * Convert a datetime string to HL7 timestamp format.
- *
- * @param string $s The datetime string
- * @param bool $withSeconds Whether to include seconds (YmdHis) or not (YmdHi)
- * @return string The formatted timestamp, or empty string if input is empty
- */
-function hl7Time($s, bool $withSeconds)
-{
-    if (empty($s)) {
-        return '';
-    }
-    $format = $withSeconds ? 'YmdHis' : 'YmdHi';
-    return date($format, strtotime((string) $s));
 }
 
 function rbvalue($rbname): string
