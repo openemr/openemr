@@ -83,6 +83,25 @@ function cbvalue($cbname): string
 }
 
 /**
+ * Close an XML tag with proper indentation.
+ *
+ * @param string $tag The tag name to close
+ * @return void
+ * @global string $out The output buffer
+ * @global int $indent The current indentation level
+ */
+function CloseTag($tag): void
+{
+    global $out, $indent;
+    --$indent;
+    for ($i = 0; $i < $indent; ++$i) {
+        $out .= "\t";
+    }
+
+    $out .= "</$tag>\n";
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -107,25 +126,6 @@ function OpenTag($tag): void
 
     ++$indent;
     $out .= "<$tag>\n";
-}
-
-/**
- * Close an XML tag with proper indentation.
- *
- * @param string $tag The tag name to close
- * @return void
- * @global string $out The output buffer
- * @global int $indent The current indentation level
- */
-function CloseTag($tag): void
-{
-    global $out, $indent;
-    --$indent;
-    for ($i = 0; $i < $indent; ++$i) {
-        $out .= "\t";
-    }
-
-    $out .= "</$tag>\n";
 }
 
 /**
