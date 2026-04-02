@@ -137,7 +137,6 @@ class PatientServiceTest extends TestCase
         $dataResult = $data[0];
         $this->assertIsArray($dataResult);
         $pid = $dataResult['pid'];
-        $actualUuid = $dataResult['uuid'];
 
         // Create portal credentials with a username but empty login username
         QueryUtils::sqlStatementThrowException(
