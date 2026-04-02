@@ -283,6 +283,24 @@ function genEndRow(): void
 }
 
 /**
+ * Start an HTML table row for statistics reports.
+ *
+ * @param string $att HTML attributes for the row
+ * @return void
+ * @global int $cellcount Cell counter
+ * @global int $form_output Output format (3 = CSV)
+ */
+function genStartRow($att): void
+{
+    global $cellcount, $form_output;
+    if ($form_output != 3) {
+        echo " <tr $att>\n";
+    }
+
+    $cellcount = 0;
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -366,24 +384,6 @@ function PrintEncHeader($dt, $rsn, $dr): void
     echo "<td colspan='5'><span class='font-weight-bold'>" . xlt('Provider') . ": </span><span class='detail'>" . text(User_Id_Look($dr)) . "</span></td>";
     echo "</tr>\n";
     $orow++;
-}
-
-/**
- * Start an HTML table row for statistics reports.
- *
- * @param string $att HTML attributes for the row
- * @return void
- * @global int $cellcount Cell counter
- * @global int $form_output Output format (3 = CSV)
- */
-function genStartRow($att): void
-{
-    global $cellcount, $form_output;
-    if ($form_output != 3) {
-        echo " <tr $att>\n";
-    }
-
-    $cellcount = 0;
 }
 
 /**
