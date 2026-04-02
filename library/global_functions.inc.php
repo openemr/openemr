@@ -490,6 +490,24 @@ function hl7SSN($s, bool $withDashes)
 }
 
 /**
+ * Escape special characters for HL7 text fields.
+ *
+ * @param string $s The input string
+ * @return string The escaped string
+ * @see http://www.interfaceware.com/hl7_escape_protocol.html
+ */
+function hl7Text($s)
+{
+    $s = str_replace('\\', '\\E\\', $s);
+    $s = str_replace('^', '\\S\\', $s);
+    $s = str_replace('|', '\\F\\', $s);
+    $s = str_replace('~', '\\R\\', $s);
+    $s = str_replace('&', '\\T\\', $s);
+    $s = str_replace("\r", '\\X0d\\', $s);
+    return $s;
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -663,24 +681,6 @@ function issueTypeIndex($tstr)
         ++$i;
     }
     return $i;
-}
-
-/**
- * Escape special characters for HL7 text fields.
- *
- * @param string $s The input string
- * @return string The escaped string
- * @see http://www.interfaceware.com/hl7_escape_protocol.html
- */
-function hl7Text($s)
-{
-    $s = str_replace('\\', '\\E\\', $s);
-    $s = str_replace('^', '\\S\\', $s);
-    $s = str_replace('|', '\\F\\', $s);
-    $s = str_replace('~', '\\R\\', $s);
-    $s = str_replace('&', '\\T\\', $s);
-    $s = str_replace("\r", '\\X0d\\', $s);
-    return $s;
 }
 
 /**
