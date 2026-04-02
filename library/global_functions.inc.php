@@ -10,6 +10,8 @@
  * No new code should be authored into this file; use it only for consolidating
  * and refactoring existing functions.
  *
+ * PLEASE KEEP THE FUNCTION DEFINITONS IN THIS FILE SORTED ALPHABETICALLY
+ *
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
