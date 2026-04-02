@@ -65,6 +65,18 @@ function cbcell($name, $desc, $colname): string
     return "<td width='25%' nowrap>" . cbinput($name, $colname) . text($desc) . "</td>\n";
 }
 
+function cbinput($name, $colname): string
+{
+    global $row;
+    $ret  = "<input type='checkbox' name='" . attr($name) . "' value='1'";
+    if ($row[$colname]) {
+        $ret .= " checked";
+    }
+
+    $ret .= " />";
+    return $ret;
+}
+
 /**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
@@ -608,18 +620,6 @@ function rbinput($name, $value, $desc, $colname): string
 function rbcell($name, $value, $desc, $colname): string
 {
     return "<td width='25%' nowrap>" . rbinput($name, $value, $desc, $colname) . "</td>\n";
-}
-
-function cbinput($name, $colname): string
-{
-    global $row;
-    $ret  = "<input type='checkbox' name='" . attr($name) . "' value='1'";
-    if ($row[$colname]) {
-        $ret .= " checked";
-    }
-
-    $ret .= " />";
-    return $ret;
 }
 
 /**
