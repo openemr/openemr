@@ -340,6 +340,20 @@ function getLayoutRes(bool $shortForm)
 }
 
 /**
+ * Get the UOR (Use, Optional, Required) value for a layout field.
+ *
+ * @param string $form_id The form ID
+ * @param string $field_id The field ID
+ * @return int The UOR value (0=unused, 1=optional, 2=required)
+ */
+function getLayoutUOR($form_id, $field_id)
+{
+    $crow = sqlQuery("SELECT uor FROM layout_options WHERE " .
+        "form_id = ? AND field_id = ? LIMIT 1", [$form_id, $field_id]);
+    return 0 + $crow['uor'];
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -759,18 +773,3 @@ function markTaxes($taxrates): void
         }
     }
 }
-
-/**
- * Get the UOR (Use, Optional, Required) value for a layout field.
- *
- * @param string $form_id The form ID
- * @param string $field_id The field ID
- * @return int The UOR value (0=unused, 1=optional, 2=required)
- */
-function getLayoutUOR($form_id, $field_id)
-{
-    $crow = sqlQuery("SELECT uor FROM layout_options WHERE " .
-        "form_id = ? AND field_id = ? LIMIT 1", [$form_id, $field_id]);
-    return 0 + $crow['uor'];
-}
-
