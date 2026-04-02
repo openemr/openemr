@@ -145,18 +145,19 @@ class PatientServiceTest extends TestCase
             [$pid, 'testportaluser']
         );
 
-        // Update patient with portal access enabled via databaseUpdate() —
-        // this is the code path used by demographics_save.php where the fix lives
-        $this->patientFixture['pid'] = $pid;
-        $this->patientFixture['allow_patient_portal'] = 'YES';
-        $this->patientService->databaseUpdate($this->patientFixture);
+        try {
+            // Update patient with portal access enabled via databaseUpdate() —
+            // this is the code path used by demographics_save.php where the fix lives
+            $this->patientFixture['pid'] = $pid;
+            $this->patientFixture['allow_patient_portal'] = 'YES';
+            $this->patientService->databaseUpdate($this->patientFixture);
 
-        $row = QueryUtils::querySingleRow("SELECT portal_login_username FROM patient_access_onsite WHERE pid = ?", [$pid]);
-        $this->assertIsArray($row);
-        $this->assertSame('testportaluser', $row['portal_login_username']);
-
-        // Clean up
-        QueryUtils::sqlStatementThrowException("DELETE FROM patient_access_onsite WHERE pid = ?", [$pid]);
+            $row = QueryUtils::querySingleRow("SELECT portal_login_username FROM patient_access_onsite WHERE pid = ?", [$pid]);
+            $this->assertIsArray($row);
+            $this->assertSame('testportaluser', $row['portal_login_username']);
+        } finally {
+            QueryUtils::sqlStatementThrowException("DELETE FROM patient_access_onsite WHERE pid = ?", [$pid]);
+        }
     }
 
     #[Test]
