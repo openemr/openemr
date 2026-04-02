@@ -127,6 +127,18 @@ function cron_getFacilitiesMap(FacilityService $facilityService)
 }
 
 /**
+ * Get notification settings from the database.
+ *
+ * @return array|false The notification settings row, or false if not found
+ */
+function cron_GetNotificationSettings(): array|false
+{
+    return sqlFetchArray(sqlStatement(
+        "SELECT * FROM notification_settings WHERE type = 'SMS/Email Settings'"
+    ));
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -709,18 +721,6 @@ function markTaxes($taxrates): void
             $taxes[$value][2] = '1';
         }
     }
-}
-
-/**
- * Get notification settings from the database.
- *
- * @return array|false The notification settings row, or false if not found
- */
-function cron_GetNotificationSettings(): array|false
-{
-    return sqlFetchArray(sqlStatement(
-        "SELECT * FROM notification_settings WHERE type = 'SMS/Email Settings'"
-    ));
 }
 
 /**
