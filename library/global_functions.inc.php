@@ -524,6 +524,17 @@ function hl7Time($s, bool $withSeconds)
 }
 
 /**
+ * Format a ZIP code for HL7, removing spaces and dashes.
+ *
+ * @param string $s The input ZIP code
+ * @return string The formatted ZIP code
+ */
+function hl7Zip($s)
+{
+    return hl7Text(preg_replace('/[-\s]*/', '', (string) $s));
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -697,17 +708,6 @@ function issueTypeIndex($tstr)
         ++$i;
     }
     return $i;
-}
-
-/**
- * Format a ZIP code for HL7, removing spaces and dashes.
- *
- * @param string $s The input ZIP code
- * @return string The formatted ZIP code
- */
-function hl7Zip($s)
-{
-    return hl7Text(preg_replace('/[-\s]*/', '', (string) $s));
 }
 
 function rbvalue($rbname): string
