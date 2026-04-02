@@ -188,13 +188,6 @@ $ResolveServerHost = static function () {
     return rtrim(trim($scheme . $host), "/");
 };
 
-// Debug function. Can expand for longer trace or file info.
-function GetCallingScriptName()
-{
-    $e = new Exception();
-    return $e->getTrace()[1]['file'];
-}
-
 // This is the directory that contains site-specific data.  Change this
 // only if you have some reason to.
 $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
