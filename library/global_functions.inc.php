@@ -535,6 +535,26 @@ function hl7Zip($s)
 }
 
 /**
+ * Given an issue type as a string, compute its index.
+ *
+ * @param string $tstr The issue type string
+ * @return int The index of the issue type
+ * @global array $ISSUE_TYPES The array of issue types
+ */
+function issueTypeIndex($tstr)
+{
+    global $ISSUE_TYPES;
+    $i = 0;
+    foreach ($ISSUE_TYPES as $key => $value) {
+        if ($key == $tstr) {
+            break;
+        }
+        ++$i;
+    }
+    return $i;
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -688,26 +708,6 @@ function ucname($string): string
         }
     }
     return $string;
-}
-
-/**
- * Given an issue type as a string, compute its index.
- *
- * @param string $tstr The issue type string
- * @return int The index of the issue type
- * @global array $ISSUE_TYPES The array of issue types
- */
-function issueTypeIndex($tstr)
-{
-    global $ISSUE_TYPES;
-    $i = 0;
-    foreach ($ISSUE_TYPES as $key => $value) {
-        if ($key == $tstr) {
-            break;
-        }
-        ++$i;
-    }
-    return $i;
 }
 
 function rbvalue($rbname): string
