@@ -652,6 +652,18 @@ function rbcell($name, $value, $desc, $colname): string
     return "<td width='25%' nowrap>" . rbinput($name, $value, $desc, $colname) . "</td>\n";
 }
 
+function rbinput($name, $value, $desc, $colname): string
+{
+    global $row;
+    $ret  = "<input type='radio' name='" . attr($name) . "' value='" . attr($value) . "'";
+    if ($row[$colname] == $value) {
+        $ret .= " checked";
+    }
+
+    $ret .= " />" . text($desc);
+    return $ret;
+}
+
 /**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
@@ -760,16 +772,4 @@ function rbvalue($rbname): string
     }
 
     return "$tmp";
-}
-
-function rbinput($name, $value, $desc, $colname): string
-{
-    global $row;
-    $ret  = "<input type='radio' name='" . attr($name) . "' value='" . attr($value) . "'";
-    if ($row[$colname] == $value) {
-        $ret .= " checked";
-    }
-
-    $ret .= " />" . text($desc);
-    return $ret;
 }
