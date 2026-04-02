@@ -647,6 +647,11 @@ function PrintEncHeader($dt, $rsn, $dr): void
     $orow++;
 }
 
+function rbcell($name, $value, $desc, $colname): string
+{
+    return "<td width='25%' nowrap>" . rbinput($name, $value, $desc, $colname) . "</td>\n";
+}
+
 /**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
@@ -767,9 +772,4 @@ function rbinput($name, $value, $desc, $colname): string
 
     $ret .= " />" . text($desc);
     return $ret;
-}
-
-function rbcell($name, $value, $desc, $colname): string
-{
-    return "<td width='25%' nowrap>" . rbinput($name, $value, $desc, $colname) . "</td>\n";
 }
