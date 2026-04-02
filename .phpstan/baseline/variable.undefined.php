@@ -27,11 +27,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../admin.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$dbh might not be defined\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../admin.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$host might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../admin.php',
@@ -3337,11 +3332,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num2.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$user_info might not be defined\\.$#',
-    'count' => 11,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num2.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$catch_user might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num3.php',
@@ -3999,11 +3989,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Variable \\$us9_user might not be defined\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num3.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$user_info might not be defined\\.$#',
-    'count' => 11,
     'path' => __DIR__ . '/../../interface/billing/print_daysheet_report_num3.php',
 ];
 $ignoreErrors[] = [
@@ -9847,11 +9832,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$revenue_code might not be defined\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$rootdir might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/fee_sheet/new.php',
@@ -11612,11 +11592,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/dated_reminders/dated_reminders_add.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$dates might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/display_documents.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/main/display_documents.php',
@@ -12079,11 +12054,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Variable \\$job might not be defined\\.$#',
     'count' => 4,
-    'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Services/EhiExporter.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$pidSlice might not be defined\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/custom_modules/oe-module-ehi-exporter/src/Services/EhiExporter.php',
 ];
 $ignoreErrors[] = [
@@ -14022,11 +13992,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$reason_visit might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$select_facs might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/patient_tracker/patient_tracker.php',
@@ -14133,7 +14098,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$checkSumNewApi might not be defined\\.$#',
-    'count' => 3,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/reports/audit_log_tamper_report.php',
 ];
 $ignoreErrors[] = [
@@ -14170,11 +14135,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$srcdir might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/reports/clinical_reports.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$agecolno might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/reports/collections_report.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$ins_id might not be defined\\.$#',
@@ -14553,7 +14513,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$globalValue might not be defined\\.$#',
-    'count' => 10,
+    'count' => 1,
     'path' => __DIR__ . '/../../interface/super/edit_globals.php',
 ];
 $ignoreErrors[] = [
@@ -15992,11 +15952,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$actn might not be defined\\.$#',
-    'count' => 4,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$dir_to might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
@@ -16009,11 +15964,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Variable \\$host might not be defined\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$ldir might not be defined\\.$#',
-    'count' => 2,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
 ];
 $ignoreErrors[] = [
@@ -16932,11 +16882,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Billing/BillingReport.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$row might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/BillingUtilities.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$msp might not be defined\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../src/Billing/Claim.php',
@@ -16953,11 +16898,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$returnval might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Billing/EDI270.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$segmentcount might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Billing/EDI270.php',
 ];

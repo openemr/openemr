@@ -2,6 +2,7 @@
 
 namespace OpenEMR\Tests\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Services\PatientService;
 use OpenEMR\Tests\Fixtures\FixtureManager;
@@ -131,12 +132,15 @@ class PatientServiceTest extends TestCase
     {
         $actualResult = $this->patientService->insert($this->patientFixture);
         $this->assertTrue($actualResult->isValid());
-        $dataResult = $actualResult->getData()[0];
+        $data = $actualResult->getData();
+        $this->assertIsArray($data);
+        $dataResult = $data[0];
+        $this->assertIsArray($dataResult);
         $pid = $dataResult['pid'];
         $actualUuid = $dataResult['uuid'];
 
         // Create portal credentials with a username but empty login username
-        sqlStatement(
+        QueryUtils::sqlStatementThrowException(
             "INSERT INTO patient_access_onsite (pid, portal_username, portal_login_username) VALUES (?, ?, '')",
             [$pid, 'testportaluser']
         );
@@ -145,11 +149,12 @@ class PatientServiceTest extends TestCase
         $this->patientFixture['allow_patient_portal'] = 'YES';
         $this->patientService->update($actualUuid, $this->patientFixture);
 
-        $row = sqlQuery("SELECT portal_login_username FROM patient_access_onsite WHERE pid = ?", [$pid]);
+        $row = QueryUtils::querySingleRow("SELECT portal_login_username FROM patient_access_onsite WHERE pid = ?", [$pid]);
+        $this->assertIsArray($row);
         $this->assertSame('testportaluser', $row['portal_login_username']);
 
         // Clean up
-        sqlStatement("DELETE FROM patient_access_onsite WHERE pid = ?", [$pid]);
+        QueryUtils::sqlStatementThrowException("DELETE FROM patient_access_onsite WHERE pid = ?", [$pid]);
     }
 
     #[Test]
