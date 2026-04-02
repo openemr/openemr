@@ -60,6 +60,11 @@ function calcTaxes($row, $amount)
     return $total;
 }
 
+function cbcell($name, $desc, $colname): string
+{
+    return "<td width='25%' nowrap>" . cbinput($name, $colname) . text($desc) . "</td>\n";
+}
+
 /**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
@@ -615,11 +620,6 @@ function cbinput($name, $colname): string
 
     $ret .= " />";
     return $ret;
-}
-
-function cbcell($name, $desc, $colname): string
-{
-    return "<td width='25%' nowrap>" . cbinput($name, $colname) . text($desc) . "</td>\n";
 }
 
 /**
