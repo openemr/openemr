@@ -473,6 +473,23 @@ function hl7Sex($s)
 }
 
 /**
+ * Format an SSN for HL7.
+ *
+ * @param string $s The SSN string
+ * @param bool $withDashes Whether to include dashes (123-45-6789) or just digits
+ * @return string The formatted SSN, or empty string if invalid
+ */
+function hl7SSN($s, bool $withDashes)
+{
+    if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
+        return $withDashes
+            ? $tmp[1] . '-' . $tmp[2] . '-' . $tmp[3]
+            : $tmp[1] . $tmp[2] . $tmp[3];
+    }
+    return '';
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -691,23 +708,6 @@ function hl7Time($s, bool $withSeconds)
     }
     $format = $withSeconds ? 'YmdHis' : 'YmdHi';
     return date($format, strtotime((string) $s));
-}
-
-/**
- * Format an SSN for HL7.
- *
- * @param string $s The SSN string
- * @param bool $withDashes Whether to include dashes (123-45-6789) or just digits
- * @return string The formatted SSN, or empty string if invalid
- */
-function hl7SSN($s, bool $withDashes)
-{
-    if (preg_match("/(\d\d\d)\D*(\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
-        return $withDashes
-            ? $tmp[1] . '-' . $tmp[2] . '-' . $tmp[3]
-            : $tmp[1] . $tmp[2] . $tmp[3];
-    }
-    return '';
 }
 
 function rbvalue($rbname): string
