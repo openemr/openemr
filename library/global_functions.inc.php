@@ -664,6 +664,16 @@ function rbinput($name, $value, $desc, $colname): string
     return $ret;
 }
 
+function rbvalue($rbname): string
+{
+    $tmp = $_POST[$rbname];
+    if (! $tmp) {
+        $tmp = '0';
+    }
+
+    return "$tmp";
+}
+
 /**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
@@ -762,14 +772,4 @@ function ucname($string): string
         }
     }
     return $string;
-}
-
-function rbvalue($rbname): string
-{
-    $tmp = $_POST[$rbname];
-    if (! $tmp) {
-        $tmp = '0';
-    }
-
-    return "$tmp";
 }
