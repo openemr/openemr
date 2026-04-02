@@ -392,6 +392,28 @@ function hl7Date($s)
 }
 
 /**
+ * Format a phone number for HL7.
+ *
+ * @param string $s The phone number string
+ * @param bool $formatted Whether to include formatting like (555)123-4567 or just digits
+ * @return string The formatted phone number, or empty string if invalid
+ */
+function hl7Phone($s, bool $formatted)
+{
+    if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
+        return $formatted
+            ? '(' . $tmp[1] . ')' . $tmp[2] . '-' . $tmp[3]
+            : $tmp[1] . $tmp[2] . $tmp[3];
+    }
+    if (preg_match("/(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
+        return $formatted
+            ? $tmp[1] . '-' . $tmp[2]
+            : $tmp[1] . $tmp[2];
+    }
+    return '';
+}
+
+/**
  * Reads $_POST and trims the value. New code should NOT use this function.
  */
 function trimPost(string $key): string
@@ -634,28 +656,6 @@ function hl7Time($s, bool $withSeconds)
     }
     $format = $withSeconds ? 'YmdHis' : 'YmdHi';
     return date($format, strtotime((string) $s));
-}
-
-/**
- * Format a phone number for HL7.
- *
- * @param string $s The phone number string
- * @param bool $formatted Whether to include formatting like (555)123-4567 or just digits
- * @return string The formatted phone number, or empty string if invalid
- */
-function hl7Phone($s, bool $formatted)
-{
-    if (preg_match("/([2-9]\d\d)\D*(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
-        return $formatted
-            ? '(' . $tmp[1] . ')' . $tmp[2] . '-' . $tmp[3]
-            : $tmp[1] . $tmp[2] . $tmp[3];
-    }
-    if (preg_match("/(\d\d\d)\D*(\d\d\d\d)\D*$/", (string) $s, $tmp)) {
-        return $formatted
-            ? $tmp[1] . '-' . $tmp[2]
-            : $tmp[1] . $tmp[2];
-    }
-    return '';
 }
 
 /**
