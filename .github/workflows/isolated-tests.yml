@@ -46,6 +46,8 @@ jobs:
         coverage: xdebug
 
     - name: Run isolated tests with coverage
+      env:
+        ENVIRONMENT: test
       run: |
         vendor/bin/phpunit -c phpunit-isolated.xml \
                            --coverage-clover=clover.xml \
