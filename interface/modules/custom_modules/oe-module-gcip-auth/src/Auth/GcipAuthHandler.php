@@ -106,7 +106,8 @@ final class GcipAuthHandler
                 '',
                 '',
                 0,
-                'GCIP OIDC account not provisioned',
+                'GCIP OIDC account not provisioned for iss=' . $validatedToken->identity->issuer
+                    . ' sub=' . $validatedToken->identity->externalId,
             );
             return;
         }

@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace OpenEMR\Common\Auth\Oidc\Token;
 
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\EventAuditLogger;
 
 final class TokenRevocationService
 {
@@ -47,6 +48,14 @@ final class TokenRevocationService
         QueryUtils::sqlStatementThrowException(
             'INSERT INTO `' . self::TABLE_NAME . '` (`jti`, `token_expiry`) VALUES (?, ?)',
             [$jti, $tokenExpiry->format('Y-m-d H:i:s')],
+        );
+
+        EventAuditLogger::getInstance()->newEvent(
+            'security',
+            '',
+            '',
+            1,
+            'OIDC token revoked: jti=' . $jti,
         );
     }
 

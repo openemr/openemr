@@ -393,4 +393,116 @@ final class OidcTokenValidatorTest extends TestCase
 
         self::assertSame('user-123', $result->identity->externalId);
     }
+
+    // -- Security audit tests (Phase 5.1) --
+
+    public function testRejectsAlgorithmNone(): void
+    {
+        // Craft a token with alg: none by manually building a JWT
+        $header = base64_encode(json_encode(['alg' => 'none', 'typ' => 'JWT']));
+        $payload = base64_encode(json_encode([
+            'iss' => self::ISSUER,
+            'aud' => self::AUDIENCE,
+            'sub' => 'user-123',
+            'iat' => $this->clock->now()->getTimestamp(),
+            'exp' => $this->clock->now()->modify('+1 hour')->getTimestamp(),
+        ]));
+        $unsignedToken = $header . '.' . $payload . '.';
+
+        $this->expectException(OidcTokenValidationException::class);
+
+        $this->validator->validate($unsignedToken, self::JWKS_URI, $this->params);
+    }
+
+    public function testRejectsSymmetricAlgorithmHS256(): void
+    {
+        $params = new OidcValidationParameters(
+            expectedIssuer: self::ISSUER,
+            expectedAudience: self::AUDIENCE,
+            allowedAlgorithms: ['HS256'],
+        );
+
+        $jwt = $this->buildToken();
+
+        // RS256-signed token with HS256 in allowed list should fail
+        // because the token's alg header is RS256 which won't match HS256
+        $this->expectException(OidcTokenValidationException::class);
+        $this->expectExceptionMessage('algorithm');
+
+        $this->validator->validate($jwt, self::JWKS_URI, $params);
+    }
+
+    public function testRejectsEmptyAllowedAlgorithms(): void
+    {
+        $params = new OidcValidationParameters(
+            expectedIssuer: self::ISSUER,
+            expectedAudience: self::AUDIENCE,
+            allowedAlgorithms: [],
+        );
+
+        $jwt = $this->buildToken();
+
+        $this->expectException(OidcTokenValidationException::class);
+        $this->expectExceptionMessage('algorithm');
+
+        $this->validator->validate($jwt, self::JWKS_URI, $params);
+    }
+
+    public function testSignerForAlgorithmRejectsHS256(): void
+    {
+        // Even if someone bypasses the allowlist, signerForAlgorithm rejects non-RSA
+        $params = new OidcValidationParameters(
+            expectedIssuer: self::ISSUER,
+            expectedAudience: self::AUDIENCE,
+            allowedAlgorithms: ['RS256', 'HS256'],
+        );
+
+        // Build a token that claims to be HS256 — should be rejected
+        // because signerForAlgorithm has no HS256 signer
+        $header = rtrim(strtr(base64_encode(json_encode([
+            'alg' => 'HS256',
+            'typ' => 'JWT',
+            'kid' => self::KID,
+        ])), '+/', '-_'), '=');
+        $payload = rtrim(strtr(base64_encode(json_encode([
+            'iss' => self::ISSUER,
+            'aud' => self::AUDIENCE,
+            'sub' => 'user-123',
+            'iat' => $this->clock->now()->getTimestamp(),
+            'exp' => $this->clock->now()->modify('+1 hour')->getTimestamp(),
+        ])), '+/', '-_'), '=');
+        // Fake signature
+        $sig = rtrim(strtr(base64_encode('fake-signature'), '+/', '-_'), '=');
+        $fakeJwt = $header . '.' . $payload . '.' . $sig;
+
+        $this->expectException(OidcTokenValidationException::class);
+
+        $this->validator->validate($fakeJwt, self::JWKS_URI, $params);
+    }
+
+    public function testExceptionMessagesDoNotLeakTokenContent(): void
+    {
+        // A malformed token should produce a generic error, not echo back token contents
+        $sensitiveToken = 'eyJhbGciOiJSUzI1NiJ9.SECRET_PAYLOAD.SIGNATURE';
+
+        try {
+            $this->validator->validate($sensitiveToken, self::JWKS_URI, $this->params);
+            self::fail('Expected exception');
+        } catch (OidcTokenValidationException $e) {
+            self::assertStringNotContainsString('SECRET_PAYLOAD', $e->getMessage());
+        }
+    }
+
+    public function testRejectsTokenWithFutureNbf(): void
+    {
+        $jwt = $this->buildToken(
+            issuedAt: $this->clock->now()->modify('+1 hour'),
+            expiresAt: $this->clock->now()->modify('+2 hours'),
+        );
+
+        $this->expectException(OidcTokenValidationException::class);
+        $this->expectExceptionMessage('Token validation failed');
+
+        $this->validator->validate($jwt, self::JWKS_URI, $this->params);
+    }
 }
