@@ -25,7 +25,6 @@ use OpenEMR\BC\FallbackRouter;
 use OpenEMR\Common\Http\Psr17Factory;
 use Psr\Log\LoggerInterface;
 
-
 return [
     FallbackRouter::class => fn (TC $c) => new FallbackRouter(
         installRoot: $c->get('installRoot'),

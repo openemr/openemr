@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\BC;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
 use OpenEMR\BC\FallbackRouter;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;

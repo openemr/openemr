@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 use Firehed\Container\TypedContainerInterface;
 use OpenEMR\BC\FallbackRouter;
 use Psr\Log\LoggerInterface;
