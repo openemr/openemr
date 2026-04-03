@@ -67,12 +67,10 @@ readonly class FallbackRouter
      */
     public function performLegacyRouting(string $requestUri): ?string
     {
-        $this->debug("PERFORMING LEGACY ROUTING");
         if (str_ends_with($requestUri, '/')) {
             // Special-case the "index" requests
             $requestUri .= 'index.php';
         }
-        $this->debug("REQUEST_URI=$requestUri");
 
         // PHP-equivalent to `.htaccess` mod_rewrite rules
         // Order matters: more specific paths must come before general prefixes
@@ -87,28 +85,24 @@ readonly class FallbackRouter
             default => parse_url($requestUri, PHP_URL_PATH),
         };
 
-        $this->debug("path=$path");
-
         // Normalize the included file to the webroot
         $path = realpath(sprintf('%s%s', $this->installRoot, $path));
         if ($path === false) {
-            $this->debug('Not resolvable');
+            // Future: 400/404
             return null;
         }
         if (!is_file($path)) {
             // Might have been a directory
-            $this->debug('No file');
+            // Future: 404
             return null;
         }
 
         if (!$this->isPathAllowed($path)) {
-            $this->debug("BLOCKED $path");
+            // Future: 403
             return null;
         }
 
-
         $this->prepareRuntime($path);
-        $this->debug("include=$path");
         return $path;
     }
 
@@ -127,11 +121,6 @@ readonly class FallbackRouter
 
         // @phpstan-ignore openemr.forbiddenRequestGlobals, openemr.forbiddenRequestGlobals
         $_SERVER['SCRIPT_NAME'] = $_SERVER['PHP_SELF'] = substr($targetFile, strlen($this->installRoot));
-    }
-
-    private function debug(string $message): void
-    {
-        $this->logger->debug($message);
     }
 
     /**
@@ -157,15 +146,13 @@ readonly class FallbackRouter
      */
     private function isPathAllowed(string $path): bool
     {
-        $this->debug("IPA=$path");
         // Block anything outside of the install root
         if (!str_starts_with(needle: $this->installRoot, haystack: $path)) {
-            $this->debug("Outside of docroot, deny");
+            $this->logger->notice("Request outside of docroot, deny");
             return false;
         }
         // This is just to simplify the matching procedure
         $rootRelative = substr($path, strlen($this->installRoot));
-        $this->debug("IPA/R=$rootRelative");
 
         return match (true) {
             // All dotfiles and directories, including git

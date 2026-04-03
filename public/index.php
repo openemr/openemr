@@ -31,8 +31,13 @@ $router = $container->get(FallbackRouter::class);
 $fileToInclude = $router->performLegacyRouting($_SERVER['REQUEST_URI']);
 if ($fileToInclude === null) {
     http_response_code(404);
+    $logger->info('Front controller cannot find or blocked URI {uri}', [
+        'uri' => $_SERVER['REQUEST_URI'],
+    ]);
     exit(1);
 }
+
+$logger->debug('Routed to {file}', ['file' => $fileToInclude]);
 
 // For global variables to get the correct scoping, this needs to be done at
 // the file root level instead of inside a function. GLOBALS and OEGlobalsBag
