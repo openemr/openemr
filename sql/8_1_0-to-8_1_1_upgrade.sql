@@ -130,9 +130,19 @@ CREATE TABLE `oidc_external_identity` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 #EndIf
 
+-- OIDC token revocation list (for immediate lockout of valid tokens)
+#IfNotTable oidc_token_revocation
+CREATE TABLE `oidc_token_revocation` (
+    `jti` VARCHAR(512) NOT NULL COMMENT 'JWT ID claim',
+    `revoked_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `token_expiry` DATETIME NOT NULL COMMENT 'When token would naturally expire',
+    PRIMARY KEY (`jti`(255))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+#EndIf
+
 #IfNotColumnType form_eye_antseg OSCONJ text
 ALTER TABLE `form_eye_antseg`
-  MODIFY COLUMN OSCONJ text;
+    MODIFY COLUMN OSCONJ text;
 #EndIf
 
 #IfMissingColumn background_services lock_expires_at

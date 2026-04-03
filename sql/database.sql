@@ -14160,6 +14160,14 @@ CREATE TABLE `oidc_external_identity` (
     KEY `idx_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+DROP TABLE IF EXISTS `oidc_token_revocation`;
+CREATE TABLE `oidc_token_revocation` (
+    `jti` VARCHAR(512) NOT NULL COMMENT 'JWT ID claim',
+    `revoked_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `token_expiry` DATETIME NOT NULL COMMENT 'When token would naturally expire',
+    PRIMARY KEY (`jti`(255))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 DROP TABLE IF EXISTS `x12_remote_tracker`;
 CREATE TABLE `x12_remote_tracker` (
 `id` bigint(20) NOT NULL AUTO_INCREMENT,
