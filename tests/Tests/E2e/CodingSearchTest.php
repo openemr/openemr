@@ -195,8 +195,8 @@ class CodingSearchTest extends PantherTestCase
                 $icd10->setAttribute("selected", true);
 
                 # Select CQM
-                $icd10 = $this->findElement(XpathsConstantsCodesScreenTrait::CODE_TYPE_CQM_TRAIT);
-                $icd10->setAttribute("selected", true);
+                $cqm = $this->findElement(XpathsConstantsCodesScreenTrait::CODE_TYPE_CQM_TRAIT);
+                $cqm->setAttribute("selected", true);
 
                 # Find search box
                 $searchBox = $this->findElement(XpathsConstantsCodesScreenTrait::CODE_SEARCH_BOX_TRAIT);
