@@ -84,7 +84,7 @@ if (isset($_GET['prov'])) {
     $_GET['prov'] = $_GET['prov'] == "true" ? true : false;
 }
 $_POST['form_date'] = DateToYYYYMMDD($_POST['form_date'] ?? null);
-$_POST['form_enddate'] = DateToYYYYMMDD($_POST['form_enddate'] ?? null);
+$_POST['form_enddate'] = DateToYYYYMMDD($_POST['form_enddate'] ?? null) ?: null;
 
 $date = $date ? substr((string) $date, 0, 4) . '-' . substr((string) $date, 4, 2) . '-' . substr((string) $date, 6) : date("Y-m-d");
 
