@@ -90,6 +90,9 @@ readonly class ErrorHandler
         // In the future, this can be smarter about request context (accept
         // headers), switching on exception type to yield the correct http
         // code, etc.
+        // Note: under rare circumstances, this could trigger a secondary error
+        // if headers are already sent. The default deployment seems to turn on
+        // output_buffering in php.ini automatically so it's unlikely to occur
         http_response_code(500);
         header('Content-type: text/plain');
         echo 'An error has occurred.';
