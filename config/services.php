@@ -27,7 +27,7 @@ use Psr\Log\LoggerInterface;
 
 return [
     FallbackRouter::class => fn (TC $c) => new FallbackRouter(
-        installRoot: $c->get('installRoot'),
+        installRoot: $c->getString('installRoot'),
         logger: $c->get(LoggerInterface::class),
     ),
 
