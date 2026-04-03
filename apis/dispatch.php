@@ -22,11 +22,11 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\RestControllers\ApiApplication;
 use Symfony\Component\HttpFoundation\Response;
 
-FallbackRouter::handleRoutingTestIfRequested($_SERVER['REQUEST_URI'] ?? '', 'apis');
 
 // create the Request object
 try {
     $request = HttpRestRequest::createFromGlobals();
+    FallbackRouter::handleRoutingTestIfRequested($request->getUri(), 'apis');
     $apiApplication = new ApiApplication();
     $apiApplication->run($request);
 } catch (\Throwable $e) {

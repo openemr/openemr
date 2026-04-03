@@ -16,13 +16,12 @@ use OpenEMR\RestControllers\ApiApplication;
 
 require_once "../vendor/autoload.php";
 
-FallbackRouter::handleRoutingTestIfRequested($_SERVER['REQUEST_URI'] ?? '', 'oauth2');
-
 // TODO: @adunsulag at some point we can have the .htaccess file just hit
 // everything in the dispatch.php file and then we can remove this file
 // create the Request object
 try {
     $request = HttpRestRequest::createFromGlobals();
+    FallbackRouter::handleRoutingTestIfRequested($request->getUri(), 'oauth2');
     $apiApplication = new ApiApplication();
     $apiApplication->run($request);
 } catch (\Throwable $e) {
