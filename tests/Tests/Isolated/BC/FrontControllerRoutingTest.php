@@ -44,14 +44,9 @@ class FrontControllerRoutingTest extends TestCase
         self::$process = new Process([
             'php',
             '-S', sprintf('%s:%d', $host, $port),
-            // docroot?
             $router,
         ]);
         self::$process->start();
-
-        // if (!is_resource(self::$serverProcess)) {
-        //     self::fail('Failed to start PHP built-in server');
-        // }
 
         // Give the server time to start
         usleep(500_000);
