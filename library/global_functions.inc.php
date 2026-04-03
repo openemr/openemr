@@ -273,35 +273,41 @@ function display_desc($desc)
  */
 function fixDate($date, $default = "0000-00-00")
 {
-    $fixed_date = $default;
     $date = trim((string) $date);
-    if (preg_match("'^[0-9]{1,4}[/.-][0-9]{1,2}[/.-][0-9]{1,4}$'", $date)) {
-        $dmy = preg_split("'[/.-]'", $date);
-        if ($dmy[0] > 99) {
-            $fixed_date = sprintf("%04u-%02u-%02u", $dmy[0], $dmy[1], $dmy[2]);
-        } else {
-            if ($dmy[0] != 0 || $dmy[1] != 0 || $dmy[2] != 0) {
-                if ($dmy[2] < 1000) {
-                    $dmy[2] += 1900;
-                }
+    if (preg_match('/^(\d{1,4})[\/.\-](\d{1,2})[\/.\-](\d{1,4})$/', $date, $matches) !== 1) {
+        return $default;
+    }
 
-                if ($dmy[2] < 1910) {
-                    $dmy[2] += 100;
-                }
-            }
-            // Determine if MDY date format is used, preferring Date Display Format from
-            // global settings if it's not YMD, otherwise guessing from country code.
-            $using_mdy = empty(OEGlobalsBag::getInstance()->get('date_display_format')) ?
-                (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1) : (OEGlobalsBag::getInstance()->get('date_display_format') == 1);
-            if ($using_mdy) {
-                $fixed_date = sprintf("%04u-%02u-%02u", $dmy[2], $dmy[0], $dmy[1]);
-            } else {
-                $fixed_date = sprintf("%04u-%02u-%02u", $dmy[2], $dmy[1], $dmy[0]);
-            }
+    [, $first, $second, $third] = $matches;
+    $first = (int)$first;
+    $second = (int)$second;
+    $third = (int)$third;
+
+    // Year-first format (YYYY/MM/DD)
+    if ($first > 99) {
+        return sprintf('%04u-%02u-%02u', $first, $second, $third);
+    }
+
+    // Adjust two/three-digit years: 00-09 → 2000-2009, 10-99 → 1910-1999
+    $year = $third;
+    if ($first !== 0 || $second !== 0 || $third !== 0) {
+        if ($year < 1000) {
+            $year += 1900;
+        }
+        if ($year < 1910) {
+            $year += 100;
         }
     }
 
-    return $fixed_date;
+    // Determine if MDY date format is used, preferring Date Display Format from
+    // global settings if it's not YMD, otherwise guessing from country code.
+    $using_mdy = empty(OEGlobalsBag::getInstance()->get('date_display_format'))
+        ? (OEGlobalsBag::getInstance()->getInt('phone_country_code') === 1)
+        : (OEGlobalsBag::getInstance()->get('date_display_format') == 1);
+
+    [$month, $day] = $using_mdy ? [$first, $second] : [$second, $first];
+
+    return sprintf('%04u-%02u-%02u', $year, $month, $day);
 }
 
 /**
