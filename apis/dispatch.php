@@ -26,7 +26,7 @@ use Symfony\Component\HttpFoundation\Response;
 // create the Request object
 try {
     $request = HttpRestRequest::createFromGlobals();
-    FallbackRouter::handleRoutingTestIfRequested($request->getUri(), 'apis');
+    FallbackRouter::handleRoutingTestIfRequested($request->getRequestUri(), 'apis');
     $apiApplication = new ApiApplication();
     $apiApplication->run($request);
 } catch (\Throwable $e) {

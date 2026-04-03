@@ -21,7 +21,7 @@ require_once "../vendor/autoload.php";
 // create the Request object
 try {
     $request = HttpRestRequest::createFromGlobals();
-    FallbackRouter::handleRoutingTestIfRequested($request->getUri(), 'oauth2');
+    FallbackRouter::handleRoutingTestIfRequested($request->getRequestUri(), 'oauth2');
     $apiApplication = new ApiApplication();
     $apiApplication->run($request);
 } catch (\Throwable $e) {

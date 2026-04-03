@@ -747,6 +747,11 @@ class HttpRestRequest extends Request implements Stringable
         return $clonedRequest;
     }
 
+    public function getUri(): string
+    {
+        return $this->requestUri;
+    }
+
     public function withUri(UriInterface $uri, $preserveHost = false): self
     {
         $clonedRequest = clone $this;
