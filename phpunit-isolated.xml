@@ -28,6 +28,7 @@ This file configures the kind that does not require initialization.
          testdox="false">
 
   <php>
+    <env name="ENV" value="test" />
     <ini name="error_reporting" value="-1"/>
     <!-- Disable database connections for isolated testing -->
     <server name="DISABLE_DATABASE" value="1"/>
