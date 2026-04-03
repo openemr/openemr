@@ -7,6 +7,7 @@
  * @link      https://www.open-emr.org
  * @author    Brady Miller <brady.g.miller@gmail.com>
  * @author    Michael A. Smith <michael@opencoreemr.com>
+ * @author    Luis M. Santos, MD <lsantos@medicalmasses.com>
  * @copyright Copyright (c) 2024 Brady Miller <brady.g.miller@gmail.com>
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc. <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
@@ -17,11 +18,13 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\E2e\Login;
 
 use OpenEMR\Tests\E2e\Base\BaseTrait;
-use OpenEMR\Tests\E2e\Login\LoginTestData;
 
 trait LoginTrait
 {
     use BaseTrait;
+
+    private string $mainScreenUrl = "/interface/main/tabs/main.php";
+    private string $loginScreenUrl = "/interface/login/login.php";
 
     public function testLoginAuthorized(): void
     {
@@ -104,11 +107,20 @@ trait LoginTrait
         $form['authUser'] = $name;
         $form['clearPass'] = $password;
         $this->crawler = $this->client->submit($form);
-        $title = $this->client->getTitle();
+        $url = $this->client->getCurrentURL();
         if ($goalPass) {
-            $this->assertSame('OpenEMR', $title, 'Login FAILED');
+            $this->assertTrue(str_contains($url, $this->mainScreenUrl), 'Login FAILED');
         } else {
-            $this->assertSame('OpenEMR Login', $title, 'Login was successful, but should have FAILED');
+            $this->assertFalse(str_contains($url, $this->loginScreenUrl), 'Login was successful, but should have FAILED');
         }
+    }
+
+    private function logOut(): void
+    {
+        $this->client->switchTo()->defaultContent();
+        $this->goToUserMenuLink('fa-sign-out-alt');
+        $this->client->waitFor('//input[@id="authUser"]');
+        $url = $this->client->getCurrentURL();
+        $this->assertFalse(str_contains($url, $this->loginScreenUrl), 'Logout FAILED');
     }
 }
