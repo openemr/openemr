@@ -3437,6 +3437,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Http/HttpRestRequest.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\HttpRestRequest\\:\\:getUri\\(\\) should return string but returns string\\|null\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/Common/Http/HttpRestRequest.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger\\:\\:createInstance\\(\\) should return static\\(OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger\\) but returns OpenEMR\\\\Common\\\\Logging\\\\EventAuditLogger\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Logging/EventAuditLogger.php',
