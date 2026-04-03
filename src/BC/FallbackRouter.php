@@ -110,8 +110,10 @@ readonly class FallbackRouter
         $fileDirectory = pathinfo($targetFile, PATHINFO_DIRNAME);
         chdir($fileDirectory);
 
+        // @phpstan-ignore openemr.forbiddenRequestGlobals
         $_SERVER['SCRIPT_FILENAME'] = $targetFile;
 
+        // @phpstan-ignore openemr.forbiddenRequestGlobals, openemr.forbiddenRequestGlobals
         $_SERVER['SCRIPT_NAME'] = $_SERVER['PHP_SELF'] = substr($targetFile, strlen($this->installRoot));
     }
 
