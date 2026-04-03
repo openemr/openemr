@@ -1,0 +1,26 @@
+{
+    "name": "openemr/oe-module-gcip-auth",
+    "description": "Google Cloud Identity Platform (GCIP) authentication module for OpenEMR",
+    "type": "openemr-module",
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "Milan Zivkovic",
+            "email": "zivkovic.milan@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "OpenEMR\\Modules\\GcipAuth\\": "src/"
+        }
+    },
+    "extra": {
+        "openemr": {
+            "type": "custom-module",
+            "directory": "oe-module-gcip-auth"
+        }
+    }
+}

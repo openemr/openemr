@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ 'OpenEMR Login'|xlj }}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ webroot|attr }}/public/themes/style_{{ login_page_layout|default('vertical_box')|attr }}.css">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        .gcip-login-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        .gcip-login-container h2 {
+            margin-bottom: 24px;
+            color: #333;
+        }
+        .gcip-login-container .logo {
+            margin-bottom: 20px;
+        }
+        .gcip-login-container .logo img {
+            max-width: 200px;
+            height: auto;
+        }
+        #gcip-status {
+            margin-top: 16px;
+            color: #666;
+        }
+        #gcip-error {
+            margin-top: 16px;
+            color: #dc3545;
+            display: none;
+        }
+        #firebaseui-auth-container {
+            margin-top: 20px;
+        }
+        .gcip-local-login-link {
+            margin-top: 20px;
+            font-size: 0.9em;
+        }
+        .gcip-local-login-link a {
+            color: #007bff;
+            text-decoration: none;
+        }
+    </style>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.css">
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/ui/6.1.0/firebase-ui-auth.js"></script>
+</head>
+<body>
+    <div class="gcip-login-container">
+        {% if logoSrc is defined and logoSrc %}
+            <div class="logo">
+                <img src="{{ logoSrc|attr }}" alt="Logo">
+            </div>
+        {% endif %}
+
+        <h2>{{ 'Sign In'|xlt }}</h2>
+
+        <div id="firebaseui-auth-container"></div>
+
+        <div id="gcip-status">{{ 'Loading authentication...'|xlt }}</div>
+        <div id="gcip-error"></div>
+
+        {# Hidden form for submitting the OIDC token back to OpenEMR #}
+        <form id="gcip-token-form" method="POST"
+              action="{{ webroot|attr }}/interface/main/main_screen.php?auth=login&site={{ siteID|default('default')|attr_url }}">
+            <input type="hidden" name="new_login_session_management" value="1">
+            <input type="hidden" name="oidc_id_token" id="oidc-id-token" value="">
+            {% if languageChoice is defined %}
+                <input type="hidden" name="languageChoice" value="{{ languageChoice|attr }}">
+            {% endif %}
+        </form>
+
+        {% if not gcipLocalLoginDisabled|default(false) %}
+            <div class="gcip-local-login-link">
+                <a href="{{ webroot|attr }}/interface/login/login.php?site={{ siteID|default('default')|attr_url }}&force_local=1">
+                    {{ 'Sign in with local credentials'|xlt }}
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            const firebaseConfig = {
+                apiKey: {{ gcipFirebaseApiKey|json_encode|raw }},
+                authDomain: {{ gcipFirebaseAuthDomain|json_encode|raw }},
+                projectId: {{ gcipFirebaseProjectId|json_encode|raw }}
+            };
+
+            firebase.initializeApp(firebaseConfig);
+
+            {% if gcipAllowedTenantIds|default([])|length > 0 %}
+                firebase.auth().tenantId = {{ gcipAllowedTenantIds[0]|json_encode|raw }};
+            {% endif %}
+
+            const uiConfig = {
+                signInSuccessUrl: '#',
+                signInOptions: [
+                    firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+                    firebase.auth.EmailAuthProvider.PROVIDER_ID
+                ],
+                callbacks: {
+                    signInSuccessWithAuthResult: function(authResult) {
+                        authResult.user.getIdToken(true).then(function(idToken) {
+                            document.getElementById('oidc-id-token').value = idToken;
+                            document.getElementById('gcip-status').textContent = 'Signing in...';
+                            document.getElementById('gcip-token-form').submit();
+                        }).catch(function(error) {
+                            document.getElementById('gcip-error').textContent =
+                                'Authentication failed. Please try again.';
+                            document.getElementById('gcip-error').style.display = 'block';
+                            document.getElementById('gcip-status').textContent = '';
+                        });
+                        return false;
+                    },
+                    signInFailure: function(error) {
+                        document.getElementById('gcip-error').textContent =
+                            'Authentication failed. Please try again.';
+                        document.getElementById('gcip-error').style.display = 'block';
+                        document.getElementById('gcip-status').textContent = '';
+                    }
+                }
+            };
+
+            const ui = new firebaseui.auth.AuthUI(firebase.auth());
+            ui.start('#firebaseui-auth-container', uiConfig);
+            document.getElementById('gcip-status').textContent = '';
+        })();
+    </script>
+</body>
+</html>

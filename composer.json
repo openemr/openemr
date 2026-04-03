@@ -165,7 +165,8 @@
     ],
     "autoload": {
         "psr-4": {
-            "OpenEMR\\": "src"
+            "OpenEMR\\": "src",
+            "OpenEMR\\Modules\\GcipAuth\\": "interface/modules/custom_modules/oe-module-gcip-auth/src"
         },
         "classmap": [
             "library/classes"
