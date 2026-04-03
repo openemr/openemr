@@ -11,6 +11,9 @@ use PHPUnit\Framework\TestCase;
 #[Small]
 class GlobalFunctionsTest extends TestCase
 {
+    /**
+     * @return array{?string, ?string, ?string}[]
+     */
     public static function dateProvider(): array
     {
         return [
