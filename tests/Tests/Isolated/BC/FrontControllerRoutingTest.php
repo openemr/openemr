@@ -62,44 +62,7 @@ class FrontControllerRoutingTest extends TestCase
     }
 
     /**
-     * Routes that should be handled (not 404).
-     * We don't assert on exact status since many require a database.
-     *
-     * @return array<string, array{0: string}>
-     */
-    public static function routedPathProvider(): array
-    {
-        return [
-            // 'apis fhir metadata' => ['/apis/default/fhir/metadata'],
-            // 'oauth2 well-known' => ['/oauth2/default/.well-known/openid-configuration'],
-        ];
-    }
-
-    #[DataProvider('routedPathProvider')]
-    public function testPathIsRouted(string $path): void
-    {
-        $response = self::$http->get($path);
-        $status = $response->getStatusCode();
-        $body = (string) $response->getBody();
-        var_dump($body);
-
-        // Should not be 404 - that would mean routing failed
-        self::assertNotSame(
-            404,
-            $status,
-            "Path $path returned 404 - routing failed",
-        );
-
-        // Should return JSON (even error responses)
-        $decoded = json_decode($body, true);
-        self::assertNotNull(
-            $decoded,
-            "Path $path did not return valid JSON. Status: $status, Body: $body",
-        );
-    }
-
-    /**
-     * @return array<string, array{0: string}>
+     * @return array<string, array{string}>
      */
     public static function blockedPathProvider(): array
     {
@@ -127,7 +90,7 @@ class FrontControllerRoutingTest extends TestCase
      * Routes that should return 418 from the test endpoint, proving
      * the request reached the correct entry point file.
      *
-     * @return array<string, array{0: string, 1: string}>
+     * @return array<string, array{string, string}>
      */
     public static function routingTestProvider(): array
     {
