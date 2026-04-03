@@ -57,7 +57,8 @@ readonly class ErrorHandler
         if ((error_reporting() & $errno) !== 0) {
             throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
         }
-        // Always log deprecation warnings even if they're turned off at runtime.
+        // If the current error_reporting DOES NOT capture the error level,
+        // still log deprecation warnings even if they're turned off at runtime.
         // If running inside unit tests, throw anyway.
         if ($errno === E_USER_DEPRECATED || $errno === E_DEPRECATED) {
             if (defined('PHPUNIT_COMPOSER_INSTALL')) {
