@@ -277,6 +277,15 @@ class PatientService extends BaseService
         $sqlResult = sqlStatement($sql, $query['bind']);
 
         if ($sqlResult) {
+            // If portal access is enabled, ensure the portal login username exists
+            if (is_array($data) && ($data['allow_patient_portal'] ?? '') === 'YES') {
+                $portalSql = "SELECT portal_login_username, portal_username FROM patient_access_onsite WHERE pid = ?";
+                $names = QueryUtils::querySingleRow($portalSql, [$data['pid']]);
+                if ($names !== false && ($names['portal_login_username'] ?? '') === '') {
+                    $updateSql = "UPDATE patient_access_onsite SET portal_login_username = ? WHERE pid = ?";
+                    QueryUtils::sqlStatementThrowException($updateSql, [$names['portal_username'], $data['pid']]);
+                }
+            }
             // Tell subscribers that a new patient has been updated
             $patientUpdatedEvent = new PatientUpdatedEvent($dataBeforeUpdate, $data);
             OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher()->dispatch($patientUpdatedEvent, PatientUpdatedEvent::EVENT_HANDLE);

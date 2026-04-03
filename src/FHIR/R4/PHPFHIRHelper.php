@@ -30,7 +30,7 @@ class PHPFHIRHelper
 {
     public static function recursiveXMLImport(\SimpleXMLElement $sxe, $data)
     {
-        $new = simplexml_load_string((string)$data, '\SimpleXMLElement', LIBXML_NOEMPTYTAG);
+        $new = simplexml_load_string((string)$data, '\SimpleXMLElement', LIBXML_NOEMPTYTAG | LIBXML_NONET);
 
         self::doImport($sxe, $new);
     }

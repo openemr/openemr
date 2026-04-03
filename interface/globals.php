@@ -188,13 +188,6 @@ $ResolveServerHost = static function () {
     return rtrim(trim($scheme . $host), "/");
 };
 
-// Debug function. Can expand for longer trace or file info.
-function GetCallingScriptName()
-{
-    $e = new Exception();
-    return $e->getTrace()[1]['file'];
-}
-
 // This is the directory that contains site-specific data.  Change this
 // only if you have some reason to.
 $GLOBALS['OE_SITES_BASE'] = "$webserver_root/sites";
@@ -792,33 +785,6 @@ $globalsBag->set('userauthorized', $userauthorized);
 $globalsBag->set('groupname', $groupname);
 $globalsBag->set('attendant_type', $attendant_type);
 $globalsBag->set('groupname', $groupname);
-
-// global interface function to format text length using ellipses
-function strterm(string $string, int $length)
-{
-    if (strlen($string) >= ($length - 3)) {
-        return substr($string, 0, $length - 3) . "...";
-    } else {
-        return $string;
-    }
-}
-
-// Helper function to generate an image URL that defeats browser/proxy caching when needed.
-function UrlIfImageExists($filename, $append = true)
-{
-    global $webserver_root, $web_root;
-    $session = SessionWrapperFactory::getInstance()->getActiveSession();
-    $path = "sites/" . $session->get('site_id') . "/images/$filename";
-    // @ in next line because a missing file is not an error.
-    if ($stat = @stat("$webserver_root/$path")) {
-        if ($append) {
-            return "$web_root/$path?v=" . $stat['mtime'];
-        } else {
-            return "$web_root/$path";
-        }
-    }
-    return '';
-}
 
 // Override temporary_files_dir
 $globalsBag->set('temporary_files_dir', rtrim(sys_get_temp_dir(), '/'));
