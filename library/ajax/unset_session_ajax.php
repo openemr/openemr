@@ -19,11 +19,7 @@ require_once("../group.inc.php");
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
-$session = SessionWrapperFactory::getInstance()->getCoreSession();
-
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_POST, session: SessionWrapperFactory::getInstance()->getCoreSession(), dieOnFail: true);
 
 //Setpid function is called on receiving an ajax request.
 if (($_POST['func'] == "unset_pid")) {

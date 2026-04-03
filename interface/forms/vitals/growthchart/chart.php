@@ -47,9 +47,7 @@ use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Services\VitalsService;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
-if (!CsrfUtils::verifyCsrfToken($_GET["csrf_token_form"], session: $session)) {
-    CsrfUtils::csrfNotVerified();
-}
+CsrfUtils::checkCsrfInput(INPUT_GET, dieOnFail: true);
 
 $chartpath = OEGlobalsBag::getInstance()->get('fileroot') . "/interface/forms/vitals/growthchart/";
 $name = "";

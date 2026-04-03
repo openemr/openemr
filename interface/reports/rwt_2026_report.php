@@ -26,9 +26,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
 if (!empty($_POST)) {
-    if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'], $session, 'rwt_2026_report')) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, subject: 'rwt_2026_report', dieOnFail: true);
 }
 
 // dates for this report are hard-coded (see header for details)

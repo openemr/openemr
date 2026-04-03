@@ -50,9 +50,8 @@ require_once("../globals.php");
 require_once("$srcdir/patient.inc.php");
 require_once("$srcdir/appointments.inc.php");
 require_once(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/statement.inc.php");
-// statement.inc.php sets $STMT_TEMP_FILE and $STMT_PRINT_CMD
+// statement.inc.php sets $STMT_TEMP_FILE
 assert(isset($STMT_TEMP_FILE));
-assert(isset($STMT_PRINT_CMD));
 require_once("$srcdir/api.inc.php");
 require_once("$srcdir/forms.inc.php");
 require_once("$srcdir/../controllers/C_Document.class.php");
@@ -629,7 +628,7 @@ if (
         if ($DEBUG) {
             $alertmsg = xl("Printing skipped; see test output in") . ' ' . $STMT_TEMP_FILE;
         } else {
-            exec(escapeshellcmd($STMT_PRINT_CMD) . " " . escapeshellarg((string) $STMT_TEMP_FILE));
+            exec(escapeshellcmd(OPENEMR_PRINT_COMMAND) . " " . escapeshellarg((string) $STMT_TEMP_FILE));
             if ($_REQUEST['form_without']) {
                 $alertmsg = xl('Now printing') . ' ' . $stmt_count . ' ' . xl('statements; invoices will not be updated.');
             } else {
