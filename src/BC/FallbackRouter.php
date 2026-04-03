@@ -27,15 +27,19 @@ use function str_starts_with;
  * through this path.
  *
  * .htaccess files:
- * - [x] ./apis/.htaccess
+ *
+ * Deny rules:
  * - [x] ./bin/.htaccess
+ * - [x] ./portal/patient/fwk/libs/.htaccess
+ * - [x] ./sites/default/documents/.htaccess
+ *
+ * Rewrites:
+ * - [x] ./apis/.htaccess
  * - [x] ./interface/modules/custom_modules/oe-module-faxsms/.htaccess (no path rewrite needed; only adds query param)
  * - [x] ./interface/modules/zend_modules/public/.htaccess
  * - [x] ./meta/health/.htaccess
  * - [x] ./oauth2/.htaccess
  * - [x] ./portal/patient/.htaccess
- * - [x] ./portal/patient/fwk/libs/.htaccess
- * - [x] ./sites/default/documents/.htaccess
  */
 readonly class FallbackRouter
 {
