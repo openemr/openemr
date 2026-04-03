@@ -29,4 +29,3 @@ RewriteRule ^meta/ public/index.php [QSA,L]
 RewriteRule ^oauth2/ public/index.php [QSA,L]
 
 # Everything else: pass through to subdirectory .htaccess or 404
-
