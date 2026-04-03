@@ -62,13 +62,12 @@ readonly class ErrorHandler
         if ($errno === E_USER_DEPRECATED || $errno === E_DEPRECATED) {
             if (defined('PHPUNIT_COMPOSER_INSTALL')) {
                 throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
-            } else {
-                $this->logger->warning('Deprecated: {message} ({file}:{line})', [
-                    'message' => $errstr,
-                    'file' => $errfile,
-                    'line' => $errline,
-                ]);
             }
+            $this->logger->warning('Deprecated: {message} ({file}:{line})', [
+                'message' => $errstr,
+                'file' => $errfile,
+                'line' => $errline,
+            ]);
         }
         // "If the function returns false then the normal error handler
         // continues."
