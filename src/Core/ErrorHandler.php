@@ -75,6 +75,13 @@ readonly class ErrorHandler
         return false;
     }
 
+    /**
+     * Handler for uncaught exceptions. This will do a few things:
+     * - Log information about the exception and stack trace
+     * - Set HTTP status codes for web requests
+     * - Render some basic information that an error occurred
+     * - Abort the request
+     */
     public function handleException(Throwable $e): never
     {
         $this->logger->critical('Uncaught exception!', [
@@ -103,11 +110,20 @@ readonly class ErrorHandler
         exit();
     }
 
+    /**
+     * Configures the runtime with this class's `handleError` as the system
+     * error handler.
+     */
     public function installErrorHandler(int $level = E_ALL): void
     {
         set_error_handler($this->handleError(...), $level);
     }
 
+    /**
+     * Configures the runtime with this class's `handleException` as the system
+     * fallback exception handler. Only exceptions that are uncaught will reach
+     * it; locally-handled exceptions are not changed.
+     */
     public function installExceptionHandler(): void
     {
         set_exception_handler($this->handleException(...));
