@@ -307,9 +307,6 @@ $selectedProvider = $_POST['form_provider'] ?? "";  // provider filter
 
         while ($totalPaymentRecord = sqlFetchArray($totalPaymetsSql)) {
             $totalPayment[$totalPaymentRecord['Date']][$totalPaymentRecord['facilityName']][$totalPaymentRecord['provider_name']]['payments'] ??= 0;
-            if (!isset($totalPayment[$totalPaymentRecord['Date']][$totalPaymentRecord['facilityName']][$totalPaymentRecord['provider_name']]['payments'])) {
-                $totalPayment[$totalPaymentRecord['Date']][$totalPaymentRecord['facilityName']][$totalPaymentRecord['provider_name']]['payments'] = 0;
-            }
             $totalPayment[$totalPaymentRecord['Date']][$totalPaymentRecord['facilityName']][$totalPaymentRecord['provider_name']]['payments'] += $totalPaymentRecord['totalpayment'];
         }
 
@@ -324,9 +321,7 @@ $selectedProvider = $_POST['form_provider'] ?? "";  // provider filter
 
 
         while ($totalPaidRecord = sqlFetchArray($totalPaidAmountSql)) {
-            if (!isset($totalPaid[$totalPaidRecord['Date']][$totalPaidRecord['facilityName']][$totalPaidRecord['provider_name']]['paidAmount'])) {
-                $totalPaid[$totalPaidRecord['Date']][$totalPaidRecord['facilityName']][$totalPaidRecord['provider_name']]['paidAmount'] = 0;
-            }
+            $totalPaid[$totalPaidRecord['Date']][$totalPaidRecord['facilityName']][$totalPaidRecord['provider_name']]['paidAmount'] ??= 0;
             $totalPaid[$totalPaidRecord['Date']][$totalPaidRecord['facilityName']][$totalPaidRecord['provider_name']]['paidAmount'] += $totalPaidRecord['totalPaidAmount'];
         }
 

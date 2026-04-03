@@ -805,7 +805,7 @@ function &postcalendar_userapi_pcQueryEventsFA($args)
                 $events[$i]['contemail']   = $prepFunction($tmp['contemail']);
                 $events[$i]['website']     = $prepFunction(postcalendar_makeValidURL($tmp['website']));
                 $events[$i]['fee']         = $prepFunction($tmp['fee']);
-                $loc = !empty($tmp['location']) ? unserialize($tmp['location'], ['allowed_classes' => false]) : false;
+                $loc = is_string($tmp['location']) && $tmp['location'] !== '' ? unserialize($tmp['location'], ['allowed_classes' => false]) : false;
                 $events[$i]['location']   = $prepFunction(is_array($loc) ? ($loc['event_location'] ?? '') : '');
                 $events[$i]['street1']    = $prepFunction(is_array($loc) ? ($loc['event_street1'] ?? '') : '');
                 $events[$i]['street2']    = $prepFunction(is_array($loc) ? ($loc['event_street2'] ?? '') : '');
@@ -1156,7 +1156,7 @@ function &postcalendar_userapi_pcQueryEvents($args)
                 $events[$i]['contemail']   = $prepFunction($tmp['contemail']);
                 $events[$i]['website']     = $prepFunction(postcalendar_makeValidURL($tmp['website']));
                 $events[$i]['fee']         = $prepFunction($tmp['fee']);
-                $loc = !empty($tmp['location']) ? unserialize($tmp['location'], ['allowed_classes' => false]) : false;
+                $loc = is_string($tmp['location']) && $tmp['location'] !== '' ? unserialize($tmp['location'], ['allowed_classes' => false]) : false;
                 $events[$i]['location']   = $prepFunction(is_array($loc) ? ($loc['event_location'] ?? '') : '');
                 $events[$i]['street1']    = $prepFunction(is_array($loc) ? ($loc['event_street1'] ?? '') : '');
                 $events[$i]['street2']    = $prepFunction(is_array($loc) ? ($loc['event_street2'] ?? '') : '');

@@ -31,8 +31,8 @@ if (!(function_exists('xl'))) {
      */
     function xl($constant)
     {
-        if ($constant === null || $constant === '') {
-            return $constant ?? '';
+        if ($constant === '') {
+            return '';
         }
         if (OEGlobalsBag::getInstance()->getBoolean('disable_translation') || !empty(OEGlobalsBag::getInstance()->get('temp_skip_translations'))) {
             return $constant;
