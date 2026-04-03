@@ -17,6 +17,9 @@
  */
 
 use OpenEMR\Common\Auth\AuthUtils;
+use OpenEMR\Common\Auth\Oidc\Event\OidcLoginRequestEvent;
+use OpenEMR\Common\Auth\Oidc\Event\OidcLogoutEvent;
+use OpenEMR\Common\Auth\Oidc\Session\OidcSessionHelper;
 use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Common\Session\SessionTracker;
 use OpenEMR\Common\Session\SessionWrapperFactory;
@@ -31,9 +34,10 @@ if (
     && ($_GET['auth'] == "login")
     && isset($_POST['new_login_session_management'])
     && (
-        // Either normal login or google sign-in
+        // Either normal login, google sign-in, or OIDC module authentication
         (isset($_POST['authUser']) && isset($_POST['clearPass']))
         || (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(OEGlobalsBag::getInstance()->getString('google_signin_client_id')) && !empty($_POST['used_google_signin']) && !empty($_POST['google_signin_token']))
+        || !empty($_POST['oidc_id_token'])
     )
 ) {
     // Attempt login
@@ -46,10 +50,25 @@ if (
 
     // Note we are purposefully keeping $_POST['clearPass'], which is needed for MFA to work. It is cleared from memory after a
     //  unsuccessful or successful login
-    $passTemp = $_POST['clearPass'];
+    $passTemp = $_POST['clearPass'] ?? '';
 
+    // Dispatch OIDC login event — if a module handles it, skip password/Google auth
     $login_success = false;
-    if (
+    $oidcLoginEvent = new OidcLoginRequestEvent($_POST, $_GET);
+    $dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
+    /** @var OidcLoginRequestEvent $oidcLoginEvent */
+    $oidcLoginEvent = $dispatcher->dispatch($oidcLoginEvent, OidcLoginRequestEvent::EVENT_NAME);
+
+    if ($oidcLoginEvent->isHandled()) {
+        // OIDC module handled authentication
+        AuthUtils::setUserSessionVariables(
+            $oidcLoginEvent->getUsername(),
+            $oidcLoginEvent->getPasswordHash(),
+            $oidcLoginEvent->getUserInfo(),
+            $oidcLoginEvent->getAuthGroup(),
+        );
+        $login_success = true;
+    } elseif (
         OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') &&
         !empty(OEGlobalsBag::getInstance()->getString('google_signin_client_id')) &&
         !empty($_POST['used_google_signin']) &&
@@ -59,16 +78,18 @@ if (
         $login_success = AuthUtils::verifyGoogleSignIn($_POST['google_signin_token']);
     } else {
         // normal login
-        $login_success = (new AuthUtils('login'))->confirmPassword($_POST['authUser'], $passTemp);
+        $login_success = (new AuthUtils('login'))->confirmPassword($_POST['authUser'] ?? '', $passTemp);
     }
 
     if ($login_success !== true) {
         // login attempt failed
         $session->set('loginfailure', 1);
-        if (function_exists('sodium_memzero')) {
-            sodium_memzero($_POST["clearPass"]);
-        } else {
-            $_POST["clearPass"] = '';
+        if (isset($_POST["clearPass"])) {
+            if (function_exists('sodium_memzero')) {
+                sodium_memzero($_POST["clearPass"]);
+            } else {
+                $_POST["clearPass"] = '';
+            }
         }
         authLoginScreen();
     }
@@ -90,6 +111,20 @@ if (
             EventAuditLogger::getInstance()->newEvent("logout", $authUser, $authProvider, 1, "success");
         }
     }
+
+    // Dispatch OIDC logout event so module can perform RP-Initiated Logout
+    if (OidcSessionHelper::isOidcSession()) {
+        $oidcLogoutEvent = new OidcLogoutEvent(
+            issuer: OidcSessionHelper::getIssuer() ?? '',
+            username: is_string($authUser) ? $authUser : '',
+            jti: OidcSessionHelper::getJti(),
+        );
+        $dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
+        /** @var OidcLogoutEvent $oidcLogoutEvent */
+        $oidcLogoutEvent = $dispatcher->dispatch($oidcLogoutEvent, OidcLogoutEvent::EVENT_NAME);
+        OidcSessionHelper::clearTokenMetadata();
+    }
+
     authCloseSession();
     authLoginScreen(true);
 } else {
@@ -108,6 +143,12 @@ if (empty($skipSessionExpirationCheck)) {
     if (SessionTracker::isSessionExpired()) {
         // User has timed out.
         EventAuditLogger::getInstance()->newEvent("logout", $session->get('authUser'), $session->get('authProvider'), 0, "timeout, so force logout");
+        authCloseSession();
+        authLoginScreen(true);
+    } elseif (OidcSessionHelper::isOidcSession() && OidcSessionHelper::isTokenExpired(time())) {
+        // OIDC token has expired and no silent refresh occurred — force re-authentication.
+        EventAuditLogger::getInstance()->newEvent("logout", $session->get('authUser'), $session->get('authProvider'), 0, "OIDC token expired, so force logout");
+        OidcSessionHelper::clearTokenMetadata();
         authCloseSession();
         authLoginScreen(true);
     } elseif (empty($_REQUEST['skip_timeout_reset'])) {
