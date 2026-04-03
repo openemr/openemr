@@ -11,7 +11,6 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Common\Auth\Oidc\Identity;
 
 use OpenEMR\Common\Auth\Oidc\Identity\ClaimMappingException;
-use OpenEMR\Common\Auth\Oidc\Identity\NormalizedIdentity;
 use OpenEMR\Common\Auth\Oidc\Identity\StandardClaimMapper;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;

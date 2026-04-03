@@ -18,12 +18,12 @@ namespace OpenEMR\Common\Auth\Oidc\Cache;
 use Predis\ClientInterface;
 use Psr\SimpleCache\CacheInterface;
 
-final class RedisCache implements CacheInterface
+final readonly class RedisCache implements CacheInterface
 {
     private const KEY_PREFIX = 'oidc_cache:';
 
     public function __construct(
-        private readonly ClientInterface $client,
+        private ClientInterface $client,
     ) {
     }
 

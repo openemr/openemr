@@ -18,9 +18,9 @@ namespace OpenEMR\Common\Auth\Oidc\Cache;
 
 use Psr\SimpleCache\CacheInterface;
 
-final class FilesystemCache implements CacheInterface
+final readonly class FilesystemCache implements CacheInterface
 {
-    private readonly string $directory;
+    private string $directory;
 
     /**
      * @param string $directory Absolute path to the cache directory.
