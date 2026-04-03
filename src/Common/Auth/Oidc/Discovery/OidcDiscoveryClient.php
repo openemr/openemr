@@ -22,16 +22,16 @@ use GuzzleHttp\Psr7\Request;
 use Psr\Http\Client\ClientInterface;
 use Psr\SimpleCache\CacheInterface;
 
-final class OidcDiscoveryClient
+final readonly class OidcDiscoveryClient
 {
     private const WELL_KNOWN_PATH = '/.well-known/openid-configuration';
     private const CACHE_KEY_PREFIX = 'oidc_discovery_';
     private const DEFAULT_TTL_SECONDS = 86400; // 24 hours
 
     public function __construct(
-        private readonly ClientInterface $httpClient,
-        private readonly CacheInterface $cache,
-        private readonly int $ttlSeconds = self::DEFAULT_TTL_SECONDS,
+        private ClientInterface $httpClient,
+        private CacheInterface $cache,
+        private int $ttlSeconds = self::DEFAULT_TTL_SECONDS,
     ) {
     }
 
@@ -123,6 +123,7 @@ final class OidcDiscoveryClient
             );
         }
 
+        /** @var array<string, mixed> $document JSON objects decode to string-keyed arrays */
         return $document;
     }
 

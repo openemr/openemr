@@ -63,7 +63,6 @@ final class OidcDiscoveryClientTest extends TestCase
 
         $metadata = $this->client->getMetadata(self::ISSUER);
 
-        self::assertInstanceOf(OidcProviderMetadata::class, $metadata);
         self::assertSame(self::ISSUER, $metadata->issuer);
         self::assertSame(self::ISSUER . '/jwks', $metadata->jwksUri);
         self::assertSame(self::ISSUER . '/o/oauth2/v2/auth', $metadata->authorizationEndpoint);

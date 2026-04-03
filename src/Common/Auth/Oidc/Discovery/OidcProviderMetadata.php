@@ -74,6 +74,11 @@ final readonly class OidcProviderMetadata
             );
         }
 
+        // Validated as non-empty strings above; assert for PHPStan narrowing.
+        assert(is_string($document['issuer']));
+        assert(is_string($document['authorization_endpoint']));
+        assert(is_string($document['jwks_uri']));
+
         return new self(
             issuer: $document['issuer'],
             authorizationEndpoint: $document['authorization_endpoint'],
@@ -91,12 +96,14 @@ final readonly class OidcProviderMetadata
         );
     }
 
+    /** @param array<string, mixed> $document */
     private static function optionalString(array $document, string $key): string
     {
         $value = $document[$key] ?? '';
         return is_string($value) ? $value : '';
     }
 
+    /** @param array<string, mixed> $document */
     private static function optionalNullableString(array $document, string $key): ?string
     {
         $value = $document[$key] ?? null;
@@ -104,6 +111,7 @@ final readonly class OidcProviderMetadata
     }
 
     /**
+     * @param array<string, mixed> $document
      * @return list<string>
      */
     private static function optionalStringList(array $document, string $key): array
@@ -113,6 +121,6 @@ final readonly class OidcProviderMetadata
             return [];
         }
 
-        return array_values(array_filter($value, 'is_string'));
+        return array_values(array_filter($value, is_string(...)));
     }
 }

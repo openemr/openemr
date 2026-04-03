@@ -81,7 +81,7 @@ final class FakePredisClient implements ClientInterface
             'get' => is_string($a0) ? ($this->store[$a0] ?? null) : null,
             'set' => $this->doSet(is_string($a0) ? $a0 : '', is_string($a1) ? $a1 : ''),
             'setex' => $this->doSetex(is_string($a0) ? $a0 : '', is_int($a1) ? $a1 : 0, is_string($a2) ? $a2 : ''),
-            'del' => $this->doDel(is_array($a0) ? array_values(array_filter($a0, 'is_string')) : []),
+            'del' => $this->doDel(is_array($a0) ? array_values(array_filter($a0, is_string(...))) : []),
             'exists' => is_string($a0) && isset($this->store[$a0]) ? 1 : 0,
             'scan' => $this->doScan(is_string($a0) ? $a0 : '0', is_array($a1) ? $a1 : []),
             default => throw new \BadMethodCallException("Unsupported command: {$cmd}"),

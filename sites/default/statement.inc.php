@@ -84,9 +84,9 @@ function report_header_2($stmt, $providerID = '1')
             <?php
                 $haveLogo = false;
             if (empty(!OEGlobalsBag::getInstance()->getString('statement_logo'))) {
-                $practice_logo = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/" . convert_safe_file_dir_name(OEGlobalsBag::getInstance()->getString('statement_logo'));
+                $practice_logo = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/images/" . convert_safe_file_dir_name(OEGlobalsBag::getInstance()->getString('statement_logo'));
             } else { // 'ya never know.
-                    $practice_logo = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/practice_logo.gif"; // can see is safe...
+                    $practice_logo = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/images/practice_logo.gif"; // can see is safe...
             }
 
                 //Author Daniel Pflieger - daniel@growlingflea.com
@@ -353,7 +353,7 @@ function create_HTML_statement($stmt)
     $ageline = xl('Current') . ': ' . sprintf("%.2f", $aging[0]);
     for ($age_index = 1; $age_index < ($num_ages - 1); ++$age_index) {
         $ageline .= ' | ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) . ':' .
-            sprintf(" %.2f", OEGlobalsBag::getInstance()->getString('gbl_currency_symbol') . '' . $aging[$age_index]);
+            sprintf(" %.2f", OEGlobalsBag::getInstance()->getString('gbl_currency_symbol') . '' . (string) $aging[$age_index]);
     }
 
     // Fixed text labels
@@ -364,7 +364,7 @@ function create_HTML_statement($stmt)
     $label_call = xl('Please call if any of the above information is incorrect.');
     $label_prompt = xl('We appreciate prompt payment of balances due.');
     $label_dept = xl('Billing Department');
-    $label_bill_phone = (!empty(OEGlobalsBag::getInstance()->getString('billing_phone_number')) ? OEGlobalsBag::getInstance()->getString('billing_phone_number') : $row['phone'] );
+    $label_bill_phone = (!empty(OEGlobalsBag::getInstance()->getString('billing_phone_number')) ? OEGlobalsBag::getInstance()->getString('billing_phone_number') : (string) $row['phone'] );
     $label_appointments = xl('Future Appointments') . ':';
 
     // This is the top portion of the page.
@@ -454,8 +454,8 @@ function create_HTML_statement($stmt)
     $out .= $label_cardnum . ': __________________________________  ' . $label_expiry . ': ___ / ____ ' . $label_cvv . ':____<br /><br />';
     $out .= $label_sign . '  ______________________________________________<br />';
     $out .= "</td><td style='width:2.0in;vertical-align:middle;'>";
-    $practice_cards = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/visa_mc_disc_credit_card_logos_176x35.gif";
-    if (file_exists(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/visa_mc_disc_credit_card_logos_176x35.gif")) {
+    $practice_cards = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/images/visa_mc_disc_credit_card_logos_176x35.gif";
+    if (file_exists(OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/images/visa_mc_disc_credit_card_logos_176x35.gif")) {
         $out .= "<img src='$practice_cards' style='width:90px;height:auto; margin:4px auto;'><br /><p>\n<b>" .
             $label_totaldue . "</b>: " . $stmt['amount'] . "<br/>" . xlt('Payment Tracking Id') . ": " .
             text($stmt['pid']);
@@ -471,7 +471,7 @@ function create_HTML_statement($stmt)
     $out .= '</div><br />
    <pre>';
     if (!empty($stmt['to'][3])) { //to avoid double blank lines the if condition is put.
-        $out .= sprintf("   %-32s\n", $stmt['to'][3]);
+        $out .= sprintf("   %-32s\n", (string) $stmt['to'][3]);
     }
 
     $out .= ' </pre>
@@ -677,7 +677,7 @@ function create_statement($stmt)
     $out .= sprintf("       %-30s %s\n", $stmt['to'][2], $remit_csz);
 
     if ($stmt['to'][3] != '') { //to avoid double blank lines the if condition is put.
-        $out .= sprintf("   %-32s\n", $stmt['to'][3]);
+        $out .= sprintf("   %-32s\n", (string) $stmt['to'][3]);
     }
 
     $out .= sprintf("_________________________________________________________________\n");
@@ -1017,14 +1017,14 @@ function osp_create_HTML_statement($stmt)
                     $desc = xl('Note') . ' ' . oeFormatShortDate($ddate) . ': ' . $ddata['rsn'] . ' ' . $ddata['pmt_method'] . ' ' . $ddata['insurance_company'];
                 }
             } elseif ($ddata['chg'] < 0) {
-                $amount = sprintf("%.2f", $ddata['chg']);
+                $amount = sprintf("%.2f", (float) $ddata['chg']);
                 $desc = xl('Patient Payment');
             } else {
-                $amount = sprintf("%.2f", $ddata['chg']);
+                $amount = sprintf("%.2f", (float) $ddata['chg']);
                 $desc = $description;
             }
 
-            $out .= sprintf("%-10s  %-45s%8s\n", oeFormatShortDate($dos), $desc, $amount);
+            $out .= sprintf("%-10s  %-45s%8s\n", oeFormatShortDate($dos), (string) $desc, (string) $amount);
             $dos = '';
             ++$count;
         }
@@ -1038,10 +1038,10 @@ function osp_create_HTML_statement($stmt)
     # Current xxx.xx / 31-60 x.xx / 61-90 x.xx / Over-90 xxx.xx
     # ....+....1....+....2....+....3....+....4....+....5....+....6....+
     #
-    $ageline = xl('Current') . ': ' . sprintf("%.2f", $aging[0]);
+    $ageline = xl('Current') . ': ' . sprintf("%.2f", (float) $aging[0]);
     for ($age_index = 1; $age_index < ($num_ages - 1); ++$age_index) {
         $ageline .= ' | ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) . ':' .
-            sprintf(" %.2f", OEGlobalsBag::getInstance()->getString('gbl_currency_symbol') . '' . $aging[$age_index]);
+            sprintf(" %.2f", OEGlobalsBag::getInstance()->getString('gbl_currency_symbol') . '' . (string) $aging[$age_index]);
     }
 
     // Fixed text labels
@@ -1052,18 +1052,18 @@ function osp_create_HTML_statement($stmt)
     $label_call = xl('Please call or message if any of the above information is incorrect.');
     $label_prompt = xl('We appreciate prompt payment of balances due.');
     $label_dept = xl('Billing Department');
-    $label_bill_phone = (!empty(OEGlobalsBag::getInstance()->getString('billing_phone_number')) ? OEGlobalsBag::getInstance()->getString('billing_phone_number') : $billing_phone );
+    $label_bill_phone = (!empty(OEGlobalsBag::getInstance()->getString('billing_phone_number')) ? OEGlobalsBag::getInstance()->getString('billing_phone_number') : (string) $billing_phone );
     $label_appointments = xl('Future Appointments') . ':';
 
     // This is the top portion of the page.
     $out .= "\n";
     if (strlen((string) $stmt['bill_note']) != 0 && OEGlobalsBag::getInstance()->getBoolean('statement_bill_note_print')) {
-        $out .= sprintf("%-46s\n", $stmt['bill_note']);
+        $out .= sprintf("%-46s\n", (string) $stmt['bill_note']);
         $count++;
     }
 
     if (OEGlobalsBag::getInstance()->getBoolean('use_dunning_message')) {
-        $out .= sprintf("%-46s\n", $dun_message);
+        $out .= sprintf("%-46s\n", (string) $dun_message);
         $count++;
     }
 
@@ -1071,19 +1071,19 @@ function osp_create_HTML_statement($stmt)
     $out .= sprintf(
         "%-s: %-25s %-s: %-14s %-s: %8s\n",
         $label_ptname,
-        $stmt['patient'],
+        (string) $stmt['patient'],
         $label_today,
         oeFormatShortDate($stmt['today']),
         $label_due,
-        $stmt['amount']
+        (string) $stmt['amount']
     );
     $out .= sprintf("__________________________________________________________________\n");
     $out .= "\n";
     $out .= sprintf("%-s\n", $label_call);
     $out .= sprintf("%-s\n", $label_prompt);
     $out .= "\n";
-    $out .= sprintf("%-s\n", $billing_contact);
-    $out .= sprintf("  %-s %-25s\n", $label_dept, $label_bill_phone);
+    $out .= sprintf("%-s\n", (string) $billing_contact);
+    $out .= sprintf("  %-s %-25s\n", $label_dept, (string) $label_bill_phone);
     if (OEGlobalsBag::getInstance()->getBoolean('statement_message_to_patient')) {
         $out .= "\n";
         $statement_message = OEGlobalsBag::getInstance()->getString('statement_msg_text');
@@ -1139,8 +1139,8 @@ function osp_create_HTML_statement($stmt)
     $out .= $label_cardnum . ': {TextInput}  ' . $label_expiry . ': {smTextInput} / {smTextInput} <br /><br />';
     $out .= $label_sign . '  {PatientSignature}<br />';
     $out .= "      </td><td style=width:2.0in;vertical-align:middle;'>";
-    $practice_cards = OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/visa_mc_disc_credit_card_logos_176x35.gif";
-    if (file_exists(OEGlobalsBag::getInstance()->get('OE_SITE_DIR') . "/images/visa_mc_disc_credit_card_logos_176x35.gif")) {
+    $practice_cards = OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/images/visa_mc_disc_credit_card_logos_176x35.gif";
+    if (file_exists(OEGlobalsBag::getInstance()->getString('OE_SITE_DIR') . "/images/visa_mc_disc_credit_card_logos_176x35.gif")) {
         //$out .= "<img onclick='getPayment()' src='$practice_cards' style='width:100%;margin:4px auto;'><br /><p>\n".$label_totaldue.": ".$stmt['amount']."</p>";
         $out .= "<br /><p>" . $label_totaldue . ": " . $stmt['amount'] . "</p>";
     }
@@ -1149,7 +1149,7 @@ function osp_create_HTML_statement($stmt)
 
     $out .= '</div><br />';
     if ($stmt['to'][3] != '') { //to avoid double blank lines the if condition is put.
-        $out .= sprintf("   %-32s\n", $stmt['to'][3]);
+        $out .= sprintf("   %-32s\n", (string) $stmt['to'][3]);
     }
 
     $out .= ' </pre>
