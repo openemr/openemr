@@ -31,7 +31,6 @@ return [
         logger: $c->get(LoggerInterface::class),
     ),
 
-
     Level::class => fn (TC $c) => Level::fromName($c->get('LOG_LEVEL')),
     Logger::class => function (TC $c) {
         // Duplicated from setup in SystemLogger (for now)

@@ -22,7 +22,6 @@ use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\RestControllers\ApiApplication;
 use Symfony\Component\HttpFoundation\Response;
 
-
 // create the Request object
 try {
     $request = HttpRestRequest::createFromGlobals();
