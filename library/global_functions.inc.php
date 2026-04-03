@@ -275,7 +275,7 @@ function fixDate($date, $default = "0000-00-00")
 {
     $fixed_date = $default;
     $date = trim((string) $date);
-    if (preg_match("'^[0-9]{1,4}[/.-][0-9]{1,2}[/.-][0-9]{1,4}$'", $date)) {
+    if (preg_match("'^[0-9]{1,4}[/.-][0-9]{1,2}[/.-][0-9]{1,4}$'", $date) === 1) {
         $dmy = preg_split("'[/.-]'", $date);
         if ($dmy[0] > 99) {
             $fixed_date = sprintf("%04u-%02u-%02u", $dmy[0], $dmy[1], $dmy[2]);
