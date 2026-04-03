@@ -144,6 +144,9 @@ class FallbackRouterTest extends TestCase
             'apis api' => ['/apis/default/api/patient', '/apis/dispatch.php'],
             'oauth2 well-known' => ['/oauth2/default/.well-known/openid-configuration', '/oauth2/authorize.php'],
             'oauth2 authorize' => ['/oauth2/default/authorize', '/oauth2/authorize.php'],
+            'portal patient' => ['/portal/patient/home', '/portal/patient/index.php'],
+            'portal patient root' => ['/portal/patient/', '/portal/patient/index.php'],
+            'zend modules' => ['/interface/modules/zend_modules/public/some-route', '/interface/modules/zend_modules/public/index.php'],
         ];
     }
 

@@ -21,11 +21,11 @@ use function str_starts_with;
  * .htaccess files:
  * - [x] ./apis/.htaccess
  * - [x] ./bin/.htaccess
- * - [ ] ./interface/modules/custom_modules/oe-module-faxsms/.htaccess
- * - [ ] ./interface/modules/zend_modules/public/.htaccess
+ * - [x] ./interface/modules/custom_modules/oe-module-faxsms/.htaccess (no path rewrite needed; only adds query param)
+ * - [x] ./interface/modules/zend_modules/public/.htaccess
  * - [x] ./meta/health/.htaccess
  * - [x] ./oauth2/.htaccess
- * - [ ] ./portal/patient/.htaccess
+ * - [x] ./portal/patient/.htaccess
  * - [x] ./portal/patient/fwk/libs/.htaccess
  * - [x] ./sites/default/documents/.htaccess
  */
@@ -63,10 +63,15 @@ readonly class FallbackRouter
         $this->debug("REQUEST_URI=$requestUri");
 
         // PHP-equivalent to `.htaccess` mod_rewrite rules
+        // Order matters: more specific paths must come before general prefixes
         $path = match (true) {
             str_starts_with($requestUri, '/apis') => '/apis/dispatch.php',
             str_starts_with($requestUri, '/oauth2') => '/oauth2/authorize.php',
             str_starts_with($requestUri, '/meta/health') => '/meta/health/index.php',
+            // fwk/libs has deny-all in its .htaccess, so don't rewrite (let isPathAllowed block it)
+            str_starts_with($requestUri, '/portal/patient/fwk/libs') => parse_url($requestUri, PHP_URL_PATH),
+            str_starts_with($requestUri, '/portal/patient') => '/portal/patient/index.php',
+            str_starts_with($requestUri, '/interface/modules/zend_modules/public') => '/interface/modules/zend_modules/public/index.php',
             default => parse_url($requestUri, PHP_URL_PATH),
         };
 
