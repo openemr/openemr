@@ -24,6 +24,10 @@ $logger->debug('Request routed through front-controller');
 // primaryRouter = $container->get(Router::class)
 // if router would 404/405, fall back to below?
 
+// Turn off strict-mode error handler for fallback code (see bootstrap addition
+// and #11411)
+restore_error_handler();
+
 $router = $container->get(FallbackRouter::class);
 $fileToInclude = $router->performLegacyRouting($_SERVER['REQUEST_URI']);
 if ($fileToInclude === null) {
