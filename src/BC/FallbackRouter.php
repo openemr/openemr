@@ -121,6 +121,22 @@ readonly class FallbackRouter
     }
 
     /**
+     * Test endpoint for E2E routing validation (no DB dependency).
+     * Returns 418 with JSON identifying which entry point was reached.
+     * Does nothing if the request URI doesn't end with /_routing_test.
+     */
+    public static function handleRoutingTestIfRequested(string $requestUri, string $entryPoint): void
+    {
+        if (!str_ends_with($requestUri, '/_routing_test')) {
+            return;
+        }
+        http_response_code(418);
+        header('Content-Type: application/json');
+        echo json_encode(['routed' => $entryPoint]);
+        exit;
+    }
+
+    /**
      * Hook for blocking or permitting paths
      *
      * @param string $path The absolute path to the file that may be `include`d

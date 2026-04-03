@@ -17,9 +17,12 @@
 // below brings in autoloader
 require_once "../vendor/autoload.php";
 
+use OpenEMR\BC\FallbackRouter;
 use OpenEMR\Common\Http\HttpRestRequest;
 use OpenEMR\RestControllers\ApiApplication;
 use Symfony\Component\HttpFoundation\Response;
+
+FallbackRouter::handleRoutingTestIfRequested($_SERVER['REQUEST_URI'] ?? '', 'apis');
 
 // create the Request object
 try {

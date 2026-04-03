@@ -145,4 +145,38 @@ class FrontControllerRoutingTest extends TestCase
             "Path $path should be blocked (404), got " . $response->getStatusCode(),
         );
     }
+
+    /**
+     * Routes that should return 418 from the test endpoint, proving
+     * the request reached the correct entry point file.
+     *
+     * @return array<string, array{0: string, 1: string}>
+     */
+    public static function routingTestProvider(): array
+    {
+        return [
+            'apis' => ['/apis/default/_routing_test', 'apis'],
+            'oauth2' => ['/oauth2/default/_routing_test', 'oauth2'],
+        ];
+    }
+
+    #[DataProvider('routingTestProvider')]
+    public function testRoutingReachesEntryPoint(string $path, string $expectedEntryPoint): void
+    {
+        $response = self::$http->get($path);
+        $status = $response->getStatusCode();
+        $body = (string) $response->getBody();
+
+        self::assertSame(
+            418,
+            $status,
+            "Path $path should return 418, got $status. Body: $body",
+        );
+
+        $decoded = json_decode($body, true);
+        self::assertSame(
+            ['routed' => $expectedEntryPoint],
+            $decoded,
+        );
+    }
 }
