@@ -32,13 +32,35 @@ $fileToInclude = $router->performLegacyRouting($_SERVER['REQUEST_URI']);
 if ($fileToInclude === null) {
     http_response_code(404);
     $logger->info('Front controller cannot find or blocked URI {uri}', [
-        'uri' => $_SERVER['REQUEST_URI'],
+        'uri' => $request->getUri(),
     ]);
     exit(1);
 }
 
 $logger->debug('Routed to {file}', ['file' => $fileToInclude]);
 
+/*
+ * At some point in the future, the front-controller will be require. Adding
+ * code like the following into a central-but-legacy point (e.g.
+ * interface/globals.php) can aid in verifying correct routing.
+ *
+register_shutdown_function(function ()  use ($logger) {
+    if (!defined('FRONT_CONTROLLER_USED')) {
+        $logger->warning(
+            'The request to {req_url} did not go through the front controller. This ' .
+            'means your web server may not be configured correctly. See ' .
+            '{doc_url} for more details.',
+            [
+                'req_url' => $_SERVER['REQUEST_URI'] ?? '(unknown)',
+                'doc_url' => 'https://need-some-page',
+            ],
+        );
+    }
+});
+ */
+
+// Finally, delegate the request to the original legacy path.
+//
 // For global variables to get the correct scoping, this needs to be done at
 // the file root level instead of inside a function. GLOBALS and OEGlobalsBag
 // are fine, but the raw variables don't get defined when called from a function

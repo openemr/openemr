@@ -818,22 +818,4 @@ if ($globalsBag->getBoolean('translation_preload_cache')) {
  */
 const OPENEMR_GLOBALS_LOADED = true;
 
-/*
- * At some point in the future, the front-controller will be required or at
- * least highly encouraged. This will log requests that didn't use it.
-register_shutdown_function(function ()  use ($logger) {
-    if (!defined('FRONT_CONTROLLER_USED')) {
-        $logger->warning(
-            'The request to {req_url} did not go through the front controller. This ' .
-            'means your web server may not be configured correctly. See ' .
-            '{doc_url} for more details.',
-            [
-                'req_url' => $_SERVER['REQUEST_URI'] ?? '(unknown)',
-                'doc_url' => 'https://need-some-page',
-            ],
-        );
-    }
-});
- */
-
 return $globalsBag; // if anyone wants to use the global bag they can just use the return value
