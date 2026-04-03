@@ -1024,7 +1024,7 @@ function osp_create_HTML_statement($stmt)
                 $desc = $description;
             }
 
-            $out .= sprintf("%-10s  %-45s%8s\n", oeFormatShortDate($dos), (string) $desc, (string) $amount);
+            $out .= sprintf("%-10s  %-45s%8s\n", oeFormatShortDate($dos), (string) $desc, $amount);
             $dos = '';
             ++$count;
         }
@@ -1038,7 +1038,7 @@ function osp_create_HTML_statement($stmt)
     # Current xxx.xx / 31-60 x.xx / 61-90 x.xx / Over-90 xxx.xx
     # ....+....1....+....2....+....3....+....4....+....5....+....6....+
     #
-    $ageline = xl('Current') . ': ' . sprintf("%.2f", (float) $aging[0]);
+    $ageline = xl('Current') . ': ' . sprintf("%.2f", $aging[0]);
     for ($age_index = 1; $age_index < ($num_ages - 1); ++$age_index) {
         $ageline .= ' | ' . ($age_index * 30 + 1) . '-' . ($age_index * 30 + 30) . ':' .
             sprintf(" %.2f", OEGlobalsBag::getInstance()->getString('gbl_currency_symbol') . '' . (string) $aging[$age_index]);
@@ -1052,7 +1052,7 @@ function osp_create_HTML_statement($stmt)
     $label_call = xl('Please call or message if any of the above information is incorrect.');
     $label_prompt = xl('We appreciate prompt payment of balances due.');
     $label_dept = xl('Billing Department');
-    $label_bill_phone = (!empty(OEGlobalsBag::getInstance()->getString('billing_phone_number')) ? OEGlobalsBag::getInstance()->getString('billing_phone_number') : (string) $billing_phone );
+    $label_bill_phone = (!empty(OEGlobalsBag::getInstance()->getString('billing_phone_number')) ? OEGlobalsBag::getInstance()->getString('billing_phone_number') : $billing_phone );
     $label_appointments = xl('Future Appointments') . ':';
 
     // This is the top portion of the page.
@@ -1063,7 +1063,7 @@ function osp_create_HTML_statement($stmt)
     }
 
     if (OEGlobalsBag::getInstance()->getBoolean('use_dunning_message')) {
-        $out .= sprintf("%-46s\n", (string) $dun_message);
+        $out .= sprintf("%-46s\n", $dun_message);
         $count++;
     }
 
@@ -1082,8 +1082,8 @@ function osp_create_HTML_statement($stmt)
     $out .= sprintf("%-s\n", $label_call);
     $out .= sprintf("%-s\n", $label_prompt);
     $out .= "\n";
-    $out .= sprintf("%-s\n", (string) $billing_contact);
-    $out .= sprintf("  %-s %-25s\n", $label_dept, (string) $label_bill_phone);
+    $out .= sprintf("%-s\n", $billing_contact);
+    $out .= sprintf("  %-s %-25s\n", $label_dept, $label_bill_phone);
     if (OEGlobalsBag::getInstance()->getBoolean('statement_message_to_patient')) {
         $out .= "\n";
         $statement_message = OEGlobalsBag::getInstance()->getString('statement_msg_text');

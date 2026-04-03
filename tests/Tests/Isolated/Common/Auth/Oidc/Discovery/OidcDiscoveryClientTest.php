@@ -13,7 +13,6 @@ namespace OpenEMR\Tests\Isolated\Common\Auth\Oidc\Discovery;
 use OpenEMR\Common\Auth\Oidc\Cache\FilesystemCache;
 use OpenEMR\Common\Auth\Oidc\Discovery\OidcDiscoveryClient;
 use OpenEMR\Common\Auth\Oidc\Discovery\OidcDiscoveryException;
-use OpenEMR\Common\Auth\Oidc\Discovery\OidcProviderMetadata;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
