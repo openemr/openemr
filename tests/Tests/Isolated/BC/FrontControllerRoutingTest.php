@@ -60,6 +60,8 @@ class FrontControllerRoutingTest extends TestCase
 
     public static function tearDownAfterClass(): void
     {
+        echo self::$process->getOutput();
+        echo self::$process->getErrorOutput();
         self::$process->stop();
     }
 
