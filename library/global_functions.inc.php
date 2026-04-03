@@ -257,12 +257,20 @@ function display_desc($desc)
     return $desc;
 }
 
-// Supported input date formats are:
-//   mm/dd/yyyy
-//   mm/dd/yy   (assumes 20yy for yy < 10, else 19yy)
-//   yyyy/mm/dd
-//   also mm-dd-yyyy, etc. and mm.dd.yyyy, etc.
-//
+/**
+ * Supported input date formats are:
+ *   mm/dd/yyyy
+ *   mm/dd/yy   (assumes 20yy for yy < 10, else 19yy)
+ *   yyyy/mm/dd
+ *   also mm-dd-yyyy, etc. and mm.dd.yyyy, etc.
+ *
+ * Prefer native date formatting utilities over this
+ *
+ * @template TDefault
+ * @param ?string $date
+ * @param TDefault $default
+ * @return string|TDefault
+ */
 function fixDate($date, $default = "0000-00-00")
 {
     $fixed_date = $default;
