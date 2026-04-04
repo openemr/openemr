@@ -147,7 +147,7 @@ readonly class FallbackRouter
     private function isPathAllowed(string $path): bool
     {
         // Block anything outside of the install root
-        if (!str_starts_with(needle: $this->installRoot, haystack: $path)) {
+        if (!str_starts_with(haystack: $path, needle: $this->installRoot)) {
             $this->logger->notice("Request outside of docroot, deny");
             return false;
         }
