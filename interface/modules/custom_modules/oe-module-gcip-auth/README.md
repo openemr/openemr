@@ -193,6 +193,8 @@ If you need to serve multiple organizations from a single GCIP project:
 
 ## Further Reading
 
+- [Firebase Account Setup](docs/firebase_account_setup.md) — creating and
+  configuring a Firebase/GCIP project from scratch
 - [Migration Guide](docs/migration.md) — transitioning from local-only to
   OIDC-enabled authentication
 - [Troubleshooting](docs/troubleshooting.md) — common errors and debugging
