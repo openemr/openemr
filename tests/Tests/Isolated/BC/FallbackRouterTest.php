@@ -13,10 +13,12 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\BC;
 
 use OpenEMR\BC\FallbackRouter;
+use OpenEMR\Common\Http\Psr17Factory;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Small;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\NullLogger;
 
 #[CoversClass(FallbackRouter::class)]
@@ -26,6 +28,11 @@ class FallbackRouterTest extends TestCase
     private static function getInstallRoot(): string
     {
         return dirname(__DIR__, 4);
+    }
+
+    private static function createRequest(string $uri): ServerRequestInterface
+    {
+        return (new Psr17Factory())->createServerRequest('GET', $uri);
     }
 
     /**
@@ -100,7 +107,7 @@ class FallbackRouterTest extends TestCase
         }
 
         $router = new FallbackRouter($installRoot, new NullLogger());
-        $result = $router->performLegacyRouting($requestUri);
+        $result = $router->performLegacyRouting(self::createRequest($requestUri));
 
         self::assertNull($result, "Path $requestUri should be blocked");
     }
@@ -115,7 +122,7 @@ class FallbackRouterTest extends TestCase
         }
 
         $router = new FallbackRouter($installRoot, new NullLogger());
-        $result = $router->performLegacyRouting($requestUri);
+        $result = $router->performLegacyRouting(self::createRequest($requestUri));
 
         self::assertSame($fullPath, $result, "Path $requestUri should be allowed");
     }
@@ -125,7 +132,7 @@ class FallbackRouterTest extends TestCase
         $installRoot = self::getInstallRoot();
         $router = new FallbackRouter($installRoot, new NullLogger());
 
-        $result = $router->performLegacyRouting('/interface/../../../etc/passwd');
+        $result = $router->performLegacyRouting(self::createRequest('/interface/../../../etc/passwd'));
 
         self::assertNull($result);
     }
@@ -135,7 +142,7 @@ class FallbackRouterTest extends TestCase
         $installRoot = self::getInstallRoot();
         $router = new FallbackRouter($installRoot, new NullLogger());
 
-        $result = $router->performLegacyRouting('/does/not/exist.php');
+        $result = $router->performLegacyRouting(self::createRequest('/does/not/exist.php'));
 
         self::assertNull($result);
     }
@@ -164,7 +171,7 @@ class FallbackRouterTest extends TestCase
         $installRoot = self::getInstallRoot();
         $router = new FallbackRouter($installRoot, new NullLogger());
 
-        $result = $router->performLegacyRouting($requestUri);
+        $result = $router->performLegacyRouting(self::createRequest($requestUri));
 
         self::assertSame($installRoot . $expectedTarget, $result);
     }

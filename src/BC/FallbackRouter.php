@@ -66,7 +66,7 @@ readonly class FallbackRouter
      */
     public function performLegacyRouting(ServerRequestInterface $request): ?string
     {
-        $requestUri = (string) $request->getUri();
+        $requestUri = $request->getUri()->getPath();
         if (str_ends_with($requestUri, '/')) {
             // Special-case the "index" requests
             $requestUri .= 'index.php';
