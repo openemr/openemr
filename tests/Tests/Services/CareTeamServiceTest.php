@@ -865,4 +865,57 @@ class CareTeamServiceTest extends TestCase
         $this->assertEmpty($result['facilities']);
         $this->assertEmpty($result['contacts']);
     }
+
+    // =========================================================================
+    // Contact-type members
+    // =========================================================================
+
+    #[Test]
+    public function testSaveCareTeamWithContactMember(): void
+    {
+        // Create a test contact
+        $contactRow = QueryUtils::sqlInsert(
+            "INSERT INTO contact (contact_id, patient_id, type, first_name, last_name, created) VALUES (?, ?, ?, ?, ?, NOW())",
+            [null, $this->testPid, 'emergency', 'Emergency', 'Contact']
+        );
+        $contactId = intval($contactRow);
+        $this->assertGreaterThan(0, $contactId);
+
+        // Save a team with a contact member
+        $team = [
+            [
+                'contact_id' => $contactId,
+                'role' => 'emergency_contact',
+                'facility_id' => $this->testFacilityId,
+                'status' => 'active',
+                'note' => 'Emergency contact member',
+            ]
+        ];
+
+        $teamId = $this->service->saveCareTeam(
+            $this->testPid,
+            null,
+            self::TEST_TEAM_NAME,
+            $team
+        );
+
+        $this->assertIsInt($teamId);
+        $this->assertGreaterThan(0, $teamId);
+
+        // Verify contact member was saved
+        /** @var array<string, mixed>|false $contactMember */
+        $contactMember = QueryUtils::querySingleRow(
+            "SELECT * FROM care_team_member WHERE care_team_id = ? AND contact_id = ? AND status = 'active'",
+            [$teamId, $contactId]
+        );
+        $this->assertIsArray($contactMember);
+        $this->assertEquals('emergency_contact', $contactMember['role']);
+        $this->assertEquals('Emergency contact member', $contactMember['note']);
+
+        // Clean up test contact
+        QueryUtils::sqlStatementThrowException(
+            "DELETE FROM contact WHERE id = ?",
+            [$contactId]
+        );
+    }
 }
