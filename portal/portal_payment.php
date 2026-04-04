@@ -102,15 +102,22 @@ $patdata = sqlQuery("SELECT " . "p.fname, p.mname, p.lname, p.postal_code, p.pub
 
 $alertmsg = ''; // anything here pops up in an alert box
 
+// Parse POST/GET inputs at the source.
+$form_save = filter_input(INPUT_POST, 'form_save');
+$radio_type_of_payment = filter_input(INPUT_POST, 'radio_type_of_payment') ?? '';
+$form_prepayment = filter_input(INPUT_POST, 'form_prepayment') ?? '0';
+$form_upay = filter_input(INPUT_POST, 'form_upay', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?? [];
+$receipt = filter_input(INPUT_GET, 'receipt');
+
 // If the Save button was clicked...
-if ($_POST['form_save'] ?? '') {
-    $form_pid = $isPortal ? $pid : $_POST['form_pid'];
-    $form_method = trim((string) $_POST['form_method']);
-    $form_source = trim((string) $_POST['form_source']);
+if ($form_save) {
+    $form_pid = $isPortal ? $pid : ((int) (filter_input(INPUT_POST, 'form_pid', FILTER_VALIDATE_INT) ?? 0));
+    $form_method = trim((string) (filter_input(INPUT_POST, 'form_method') ?? ''));
+    $form_source = trim((string) (filter_input(INPUT_POST, 'form_source') ?? ''));
     $patdata = getPatientData($form_pid, 'fname,mname,lname,pubpid');
     $NameNew = $patdata['fname'] . " " . $patdata['lname'] . " " . $patdata['mname'];
 
-    if ($_REQUEST['radio_type_of_payment'] == 'pre_payment') {
+    if ($radio_type_of_payment === 'pre_payment') {
         $payment_id = sqlInsert(
             "insert into ar_session set " .
             "payer_id = ?" .
@@ -125,14 +132,14 @@ if ($_POST['form_save'] ?? '') {
             ", adjustment_code = 'pre_payment'" .
             ", post_to_date = now() " .
             ", payment_method = ?",
-            [0, $form_pid, $session->get('authUserID'), 0, $form_source, $_REQUEST['form_prepayment'], $NameNew, $form_method]
+            [0, $form_pid, $session->get('authUserID'), 0, $form_source, $form_prepayment, $NameNew, $form_method]
         );
 
-        frontPayment($form_pid, 0, $form_method, $form_source, $_REQUEST['form_prepayment'], 0, $timestamp);//insertion to 'payments' table.
+        frontPayment($form_pid, 0, $form_method, $form_source, $form_prepayment, 0, $timestamp);//insertion to 'payments' table.
     }
 
-    if ($_POST['form_upay'] && $_REQUEST['radio_type_of_payment'] != 'pre_payment') {
-        foreach ($_POST['form_upay'] as $enc => $payment) {
+    if ($form_upay && $radio_type_of_payment !== 'pre_payment') {
+        foreach ($form_upay as $enc => $payment) {
             if ($amount = (float)$payment) {
                 $zero_enc = $enc;
 
@@ -154,7 +161,7 @@ if ($_POST['form_save'] ?? '') {
                 }
 
                 //----------------------------------------------------------------------------------------------------
-                if ($_REQUEST['radio_type_of_payment'] == 'copay') {//copay saving to ar_session and ar_activity tables
+                if ($radio_type_of_payment === 'copay') {//copay saving to ar_session and ar_activity tables
                     $session_id = sqlInsert(
                         "INSERT INTO ar_session (payer_id,user_id,reference,check_date,deposit_date,pay_total," .
                         " global_amount,payment_type,description,patient_id,payment_method,adjustment_code,post_to_date) " .
@@ -180,8 +187,8 @@ if ($_POST['form_save'] ?? '') {
                     frontPayment($form_pid, $enc, $form_method, $form_source, $amount, 0, $timestamp);//insertion to 'payments' table.
                 }
 
-                if ($_REQUEST['radio_type_of_payment'] == 'invoice_balance' || $_REQUEST['radio_type_of_payment'] == 'cash') {                //Payment by patient after insurance paid, cash patients similar to do not bill insurance in feesheet.
-                    if ($_REQUEST['radio_type_of_payment'] == 'cash') {
+                if ($radio_type_of_payment === 'invoice_balance' || $radio_type_of_payment === 'cash') {                //Payment by patient after insurance paid, cash patients similar to do not bill insurance in feesheet.
+                    if ($radio_type_of_payment === 'cash') {
                         sqlStatement(
                             "update form_encounter set last_level_closed=? where encounter=? and pid=? ",
                             [4, $enc, $form_pid]
@@ -303,13 +310,13 @@ if ($_POST['form_save'] ?? '') {
                 }//invoice_balance
             }//if ($amount = 0 + $payment)
         }//foreach
-    }//if ($_POST['form_upay'])
-}//if ($_POST['form_save'])
+    }//if ($form_upay)
+}//if ($form_save)
 
-if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
-    if (($_REQUEST['receipt'] ?? null)) {
-        $form_pid = $isPortal ? $pid : $_GET['patient'];
-        $timestamp = decorateString('....-..-.. ..:..:..', $_GET['time']);
+if ($form_save || $receipt) {
+    if ($receipt) {
+        $form_pid = $isPortal ? $pid : ((int) (filter_input(INPUT_GET, 'patient', FILTER_VALIDATE_INT) ?? 0));
+        $timestamp = decorateString('....-..-.. ..:..:..', (string) (filter_input(INPUT_GET, 'time') ?? ''));
     }
 
 // Get details for what we guess is the primary facility.
@@ -325,7 +332,7 @@ if (($_POST['form_save'] ?? null) || ($_REQUEST['receipt'] ?? null)) {
     ]);
 
 // Create key for deleting, just in case.
-    $ref_id = ($_REQUEST['radio_type_of_payment'] == 'copay') ? $session_id : $payment_id;
+    $ref_id = ($radio_type_of_payment === 'copay') ? $session_id : $payment_id;
     $payment_key = $form_pid . '.' . preg_replace('/[^0-9]/', '', (string) $timestamp) . '.' . $ref_id;
 
 // get facility from encounter
