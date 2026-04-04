@@ -159,12 +159,19 @@ readonly class FallbackRouter
             str_starts_with($rootRelative, '/.') => false,
             // Obvious stuff that users shouldn't directly request (some
             // shouldn't even be on the server)
+            str_starts_with($rootRelative, '/ci') => false,
             str_starts_with($rootRelative, '/config') => false,
             str_starts_with($rootRelative, '/db') => false,
+            str_starts_with($rootRelative, '/docker') => false,
             str_starts_with($rootRelative, '/sql') => false,
             str_starts_with($rootRelative, '/src') => false,
             str_starts_with($rootRelative, '/tests') => false,
             str_starts_with($rootRelative, '/vendor') => false,
+            // Package manager files (block anywhere)
+            str_ends_with($rootRelative, '/composer.json') => false,
+            str_ends_with($rootRelative, '/composer.lock') => false,
+            str_ends_with($rootRelative, '/package.json') => false,
+            str_ends_with($rootRelative, '/package-lock.json') => false,
             // Other non-executable content
             str_ends_with($rootRelative, '.inc') => false,
             str_ends_with($rootRelative, '.inc.php') => false,

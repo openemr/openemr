@@ -58,11 +58,24 @@ class FallbackRouterTest extends TestCase
             'vendor autoload' => ['/vendor/autoload.php'],
             'vendor file' => ['/vendor/composer/autoload_psr4.php'],
 
+            // ci directory
+            'ci' => ['/ci/nginx/nginx.conf'],
+
             // config directory
             'config services' => ['/config/services.php'],
 
+            // docker directory
+            'docker' => ['/docker/README.md'],
+
             // bin directory (bin/.htaccess: Deny From All)
             'bin' => ['/bin/console'],
+
+            // Package manager files (blocked anywhere)
+            'composer.json' => ['/composer.json'],
+            'composer.lock' => ['/composer.lock'],
+            'package.json' => ['/package.json'],
+            'package-lock.json' => ['/package-lock.json'],
+            'nested package.json' => ['/ccdaservice/package.json'],
 
             // sites documents (sites/*/documents/.htaccess: Deny From All)
             'sites documents htaccess' => ['/sites/default/documents/.htaccess'],
