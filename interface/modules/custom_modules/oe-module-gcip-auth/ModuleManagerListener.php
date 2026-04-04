@@ -70,6 +70,28 @@ class ModuleManagerListener extends AbstractModuleActionListener
         return $currentActionStatus;
     }
 
+    /**
+     * Pre-check for help — returning a non-Failure status lets the
+     * controller proceed to the actual help_requested action.
+     */
+    private function prehelp_requested(string $modId, string $currentActionStatus): string
+    {
+        return 'Success';
+    }
+
+    private function help_requested(string $modId, string $currentActionStatus): string
+    {
+        if (file_exists(__DIR__ . '/show_help.php')) {
+            ob_start();
+            include __DIR__ . '/show_help.php';
+            $help = ob_get_clean();
+            echo json_encode(['status' => 'Success', 'output' => $help]);
+            exit(0);
+        }
+
+        return $currentActionStatus;
+    }
+
     private function unregister(string $modId, string $currentActionStatus): string
     {
         return $currentActionStatus;
