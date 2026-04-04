@@ -32,5 +32,6 @@ RewriteRule ^apis/ public/index.php [QSA,L]
 RewriteRule ^meta/ public/index.php [QSA,L]
 RewriteRule ^oauth2/ public/index.php [QSA,L]
 
-# Everything else: pass through to subdirectory .htaccess or 404
+# Everything else: route through front controller
+RewriteRule ^ public/index.php [QSA,L]
 # vim: ft=apache
