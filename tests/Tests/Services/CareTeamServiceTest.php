@@ -26,15 +26,9 @@ use PHPUnit\Framework\Attributes\Test;
 
 class CareTeamServiceTest extends TestCase
 {
-    /**
-     * @var CareTeamService
-     */
-    private $service;
-
-    /**
-     * @var CareTeamFixtureManager
-     */
-    private $fixtureManager;
+    private CareTeamService $service;
+    private CareTeamFixtureManager $fixtureManager;
+    private array $backupSession = [];
 
     /**
      * @var int
@@ -51,11 +45,17 @@ class CareTeamServiceTest extends TestCase
      */
     private int $testProviderId;
 
+    /**
+     * @var int Second test practitioner for multi-member tests
+     */
+    private int $testSecondProviderId;
+
     private const TEST_TEAM_NAME = "test-fixture-Primary Care Team";
     private const TEST_TEAM_NAME_ALT = "test-fixture-Secondary Care Team";
 
     protected function setUp(): void
     {
+        $this->backupSession = $_SESSION ?? [];
         $this->service = new CareTeamService();
         $this->fixtureManager = new CareTeamFixtureManager();
         $deps = $this->fixtureManager->installDependencies();
@@ -63,15 +63,26 @@ class CareTeamServiceTest extends TestCase
         $this->testFacilityId = $deps['facility_id'];
         $this->testProviderId = $deps['provider_id'];
 
-        // saveCareTeam reads $_SESSION['authUserID']
-        if (!isset($_SESSION['authUserID'])) {
-            $_SESSION['authUserID'] = 1;
+        // Get a second test practitioner for multi-member tests
+        /** @var array<string, mixed>|false $secondProvider */
+        $secondProvider = QueryUtils::querySingleRow(
+            "SELECT id FROM users WHERE fname LIKE ? AND id != ? LIMIT 1",
+            [CareTeamFixtureManager::FIXTURE_PREFIX . "%", $this->testProviderId]
+        );
+        if ($secondProvider === false || !isset($secondProvider['id'])) {
+            throw new \RuntimeException('Failed to find second test practitioner fixture');
         }
+        // @phpstan-ignore cast.int
+        $this->testSecondProviderId = (int) $secondProvider['id'];
+
+        // saveCareTeam reads $_SESSION['authUserID'] via SessionWrapperFactory
+        $_SESSION['authUserID'] = 1;
     }
 
     protected function tearDown(): void
     {
         $this->fixtureManager->removeFixtures();
+        $_SESSION = $this->backupSession;
     }
 
     // =========================================================================
@@ -326,16 +337,7 @@ class CareTeamServiceTest extends TestCase
         // @phpstan-ignore cast.int
         $this->assertEquals(1, (int) $initialCount['cnt']);
 
-        // Get a second provider id — the admin user (id=1) should always exist
-        /** @var array<string, mixed>|false $secondProvider */
-        $secondProvider = QueryUtils::querySingleRow(
-            "SELECT id FROM users WHERE id != ? AND id > 0 AND username IS NOT NULL AND username != '' LIMIT 1",
-            [$this->testProviderId]
-        );
-        $this->assertIsArray($secondProvider);
-        // @phpstan-ignore cast.int
-        $secondProviderId = (int) ($secondProvider['id'] ?? 0);
-        $this->assertGreaterThan(0, $secondProviderId, "A second user with positive id must exist for this test");
+        // Use the second test provider from setUp
 
         // Update team with both members
         $teamUpdated = [
@@ -347,7 +349,7 @@ class CareTeamServiceTest extends TestCase
                 'note' => '',
             ],
             [
-                'user_id' => $secondProviderId,
+                'user_id' => $this->testSecondProviderId,
                 'role' => 'nurse',
                 'facility_id' => $this->testFacilityId,
                 'status' => 'active',

@@ -24,10 +24,8 @@ class CareTeamFixtureManager
 {
     const FIXTURE_PREFIX = "test-fixture";
 
-    /**
-     * @var bool
-     */
-    private $hasInstalledDependencies = false;
+    private bool $hasInstalledDependencies = false;
+    private array $cachedDependencies = [];
 
     public function __construct(
         private readonly FixtureManager $patientFixtureManager = new FixtureManager(),
@@ -43,12 +41,14 @@ class CareTeamFixtureManager
      */
     public function installDependencies(): array
     {
-        if (!$this->hasInstalledDependencies) {
-            $this->patientFixtureManager->installPatientFixtures();
-            $this->facilityFixtureManager->installFacilityFixtures();
-            $this->practitionerFixtureManager->installPractitionerFixtures();
-            $this->hasInstalledDependencies = true;
+        if ($this->hasInstalledDependencies) {
+            return $this->cachedDependencies;
         }
+
+        $this->patientFixtureManager->installPatientFixtures();
+        $this->facilityFixtureManager->installFacilityFixtures();
+        $this->practitionerFixtureManager->installPractitionerFixtures();
+        $this->hasInstalledDependencies = true;
 
         // Get the first test patient's pid
         $patientRow = QueryUtils::querySingleRow(
@@ -83,7 +83,8 @@ class CareTeamFixtureManager
         /** @var array{id: string|int} $providerRow */
         $providerId = (int) $providerRow['id'];
 
-        return ['pid' => $pid, 'facility_id' => $facilityId, 'provider_id' => $providerId];
+        $this->cachedDependencies = ['pid' => $pid, 'facility_id' => $facilityId, 'provider_id' => $providerId];
+        return $this->cachedDependencies;
     }
 
     /**
