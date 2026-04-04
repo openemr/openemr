@@ -29,14 +29,14 @@ use OpenEMR\Common\Logging\EventAuditLogger;
 use OpenEMR\Modules\GcipAuth\Config\GcipConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-final class GcipAuthHandler
+final readonly class GcipAuthHandler
 {
     public function __construct(
-        private readonly OidcTokenValidator $tokenValidator,
-        private readonly OidcDiscoveryClient $discoveryClient,
-        private readonly ExternalIdentityRepository $identityRepository,
-        private readonly GcipConfigService $configService,
-        private readonly EventDispatcherInterface $eventDispatcher,
+        private OidcTokenValidator $tokenValidator,
+        private OidcDiscoveryClient $discoveryClient,
+        private ExternalIdentityRepository $identityRepository,
+        private GcipConfigService $configService,
+        private EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
@@ -83,7 +83,7 @@ final class GcipAuthHandler
 
         try {
             $validatedToken = $this->tokenValidator->validate($idToken, $metadata->jwksUri, $parameters);
-        } catch (OidcTokenValidationException $e) {
+        } catch (OidcTokenValidationException) {
             EventAuditLogger::getInstance()->newEvent(
                 'login',
                 '',

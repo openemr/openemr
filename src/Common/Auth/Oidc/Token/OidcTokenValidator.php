@@ -39,10 +39,10 @@ use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
 use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
+use Lcobucci\Clock\Clock;
 use OpenEMR\Common\Auth\Oidc\Identity\ClaimMapperInterface;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Math\BigInteger;
-use Lcobucci\Clock\Clock;
 
 final readonly class OidcTokenValidator
 {
@@ -213,11 +213,7 @@ final readonly class OidcTokenValidator
     {
         $claims = [];
         foreach ($token->claims()->all() as $name => $value) {
-            if ($value instanceof \DateTimeInterface) {
-                $claims[$name] = $value->getTimestamp();
-            } else {
-                $claims[$name] = $value;
-            }
+            $claims[$name] = $value instanceof \DateTimeInterface ? $value->getTimestamp() : $value;
         }
 
         return $claims;

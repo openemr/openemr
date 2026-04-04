@@ -17,9 +17,9 @@ use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Modules\GcipAuth\Config\GcipConfigService;
 
-final class AdminController
+final readonly class AdminController
 {
-    private readonly GcipConfigService $configService;
+    private GcipConfigService $configService;
 
     public function __construct()
     {

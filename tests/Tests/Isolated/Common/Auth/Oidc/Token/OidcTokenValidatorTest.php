@@ -21,9 +21,9 @@ use OpenEMR\Common\Auth\Oidc\Token\OidcTokenValidator;
 use OpenEMR\Common\Auth\Oidc\Token\OidcValidationParameters;
 use OpenEMR\Common\Auth\Oidc\Token\ValidatedToken;
 use OpenEMR\Tests\Isolated\Common\Auth\Oidc\Discovery\FakeHttpClient;
+use phpseclib3\Crypt\RSA;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use phpseclib3\Crypt\RSA;
 
 #[CoversClass(OidcTokenValidator::class)]
 #[CoversClass(ValidatedToken::class)]
@@ -61,8 +61,8 @@ final class OidcTokenValidatorTest extends TestCase
         $publicKeyDetails = openssl_pkey_get_details(openssl_pkey_get_public($publicKeyPem));
         assert(is_array($publicKeyDetails) && isset($publicKeyDetails['rsa']));
         $this->jwkComponents = [
-            'n' => rtrim(strtr(base64_encode($publicKeyDetails['rsa']['n']), '+/', '-_'), '='),
-            'e' => rtrim(strtr(base64_encode($publicKeyDetails['rsa']['e']), '+/', '-_'), '='),
+            'n' => rtrim(strtr(base64_encode((string) $publicKeyDetails['rsa']['n']), '+/', '-_'), '='),
+            'e' => rtrim(strtr(base64_encode((string) $publicKeyDetails['rsa']['e']), '+/', '-_'), '='),
         ];
 
         $this->httpClient = new FakeHttpClient();

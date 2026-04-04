@@ -26,7 +26,6 @@ use OpenEMR\Common\Auth\Oidc\Token\JwksClient;
 use OpenEMR\Common\Auth\Oidc\Token\OidcTokenValidator;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
-use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Modules\GcipAuth\Auth\GcipAuthHandler;
@@ -34,14 +33,14 @@ use OpenEMR\Modules\GcipAuth\Auth\GcipClaimMapper;
 use OpenEMR\Modules\GcipAuth\Config\GcipConfigService;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
-final class Bootstrap
+final readonly class Bootstrap
 {
     private const MODULE_PATH = '/interface/modules/custom_modules/oe-module-gcip-auth';
 
-    private readonly string $templatePath;
+    private string $templatePath;
 
     public function __construct(
-        private readonly EventDispatcherInterface $eventDispatcher,
+        private EventDispatcherInterface $eventDispatcher,
     ) {
         $this->templatePath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR;
     }

@@ -62,7 +62,7 @@ class AuthUtils
 
     private $authHashAuth; // Store the private AuthHash instance.
 
-    private IpLoginRateLimiter $ipRateLimiter;
+    private readonly IpLoginRateLimiter $ipRateLimiter;
 
     private $errorMessage; // Error messages (in updatePassword() function)
 
