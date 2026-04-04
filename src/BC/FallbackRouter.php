@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\BC;
 
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 
 use function str_starts_with;
@@ -60,13 +61,12 @@ readonly class FallbackRouter
      * modifies superglobals in such a way that requests relying on that path
      * won't know the difference.
      *
-     * @param string $requestUri The value of $_SERVER['REQUEST_URI']
-     *
      * @return ?string The absolute path to the legacy file to include, or null
      * if not routable.
      */
-    public function performLegacyRouting(string $requestUri): ?string
+    public function performLegacyRouting(ServerRequestInterface $request): ?string
     {
+        $requestUri = (string) $request->getUri();
         if (str_ends_with($requestUri, '/')) {
             // Special-case the "index" requests
             $requestUri .= 'index.php';

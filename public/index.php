@@ -3,11 +3,14 @@
 declare(strict_types=1);
 
 use Firehed\Container\TypedContainerInterface;
+use GuzzleHttp\Psr7\ServerRequest;
 use OpenEMR\BC\FallbackRouter;
 use Psr\Log\LoggerInterface;
 
 $container = require_once __DIR__ . '/../bootstrap.php';
 assert($container instanceof TypedContainerInterface);
+
+$request = ServerRequest::fromGlobals();
 
 // Guard against non-web requests, e.g. PHP_SAPI === 'cli'?
 
@@ -28,7 +31,7 @@ $logger->debug('Request routed through front-controller');
 restore_error_handler();
 
 $router = $container->get(FallbackRouter::class);
-$fileToInclude = $router->performLegacyRouting($_SERVER['REQUEST_URI']);
+$fileToInclude = $router->performLegacyRouting($request);
 if ($fileToInclude === null) {
     http_response_code(404);
     $logger->info('Front controller cannot find or blocked URI {uri}', [
@@ -64,4 +67,7 @@ register_shutdown_function(function ()  use ($logger) {
 // For global variables to get the correct scoping, this needs to be done at
 // the file root level instead of inside a function. GLOBALS and OEGlobalsBag
 // are fine, but the raw variables don't get defined when called from a function
+//
+// But at minimum, clean up the vars from _this_ file.
+unset($container, $request, $logger, $router);
 require $fileToInclude;
