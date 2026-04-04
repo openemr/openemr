@@ -76,7 +76,13 @@ final class AuthUtilsIpDelegationTest extends TestCase
             [self::TEST_IP],
         );
 
-        return $rows[0] ?? null;
+        if ($rows === []) {
+            return null;
+        }
+
+        /** @var array<string, int|string|null> $row */
+        $row = $rows[0];
+        return $row;
     }
 
     public function testFailedLoginIncrementsIpCounter(): void

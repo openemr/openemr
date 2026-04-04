@@ -132,11 +132,11 @@ if (
             $ipRateLimiter->recordFailedAttempt($ip['ip_string']);
         }
         $session->set('loginfailure', 1);
-        if (isset($_POST["clearPass"])) {
+        if (filter_input(INPUT_POST, 'clearPass') !== null) {
             if (function_exists('sodium_memzero')) {
-                sodium_memzero($_POST["clearPass"]);
+                sodium_memzero($_POST["clearPass"]); // @phpstan-ignore openemr.forbiddenRequestGlobals
             } else {
-                $_POST["clearPass"] = '';
+                $_POST["clearPass"] = ''; // @phpstan-ignore openemr.forbiddenRequestGlobals
             }
         }
         authLoginScreen();

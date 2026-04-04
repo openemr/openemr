@@ -52,8 +52,12 @@ final class OidcTokenValidatorTest extends TestCase
     {
         // Generate RSA key pair for test signing
         $rsaKey = RSA::createKey(2048);
+        /** @var string $privateKeyPem */
         $privateKeyPem = $rsaKey->toString('PKCS8');
-        $publicKeyPem = $rsaKey->getPublicKey()->toString('PKCS8');
+        /** @var \phpseclib3\Crypt\RSA\PublicKey $publicKey */
+        $publicKey = $rsaKey->getPublicKey();
+        /** @var string $publicKeyPem */
+        $publicKeyPem = $publicKey->toString('PKCS8');
 
         self::assertNotEmpty($privateKeyPem, 'RSA private key PEM must not be empty');
         $this->privateKey = InMemory::plainText($privateKeyPem);

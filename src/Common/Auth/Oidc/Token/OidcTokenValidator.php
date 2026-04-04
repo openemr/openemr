@@ -190,9 +190,7 @@ final readonly class OidcTokenValidator
         $rsaKey = PublicKeyLoader::load(['n' => $n, 'e' => $e]);
 
         $pem = $rsaKey->toString('PKCS8');
-        if ($pem === '') {
-            throw new OidcTokenValidationException('RSA key produced empty PEM output');
-        }
+        assert(is_string($pem) && $pem !== '');
 
         return InMemory::plainText($pem);
     }

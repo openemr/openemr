@@ -15582,6 +15582,21 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between mixed and \'/images/\' results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../sites/default/statement.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between mixed and \'/images/practice…\' results in an error\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../sites/default/statement.inc.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Binary operation "\\." between mixed and \'/images/visa_mc…\' results in an error\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../sites/default/statement.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
     'count' => 49,
     'path' => __DIR__ . '/../../sites/default/statement.inc.php',

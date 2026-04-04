@@ -74,7 +74,7 @@ final class OidcTokenReceivedEventTest extends TestCase
 
     public function testHasEventNameConstant(): void
     {
-        $eventName = OidcTokenReceivedEvent::EVENT_NAME;
-        self::assertSame('oidc.token.received', $eventName);
+        /** @phpstan-ignore staticMethod.alreadyNarrowedType (intentional — guards against accidental constant changes) */
+        self::assertSame('oidc.token.received', OidcTokenReceivedEvent::EVENT_NAME);
     }
 }

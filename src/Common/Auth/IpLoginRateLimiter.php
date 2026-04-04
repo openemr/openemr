@@ -20,8 +20,8 @@ declare(strict_types=1);
 namespace OpenEMR\Common\Auth;
 
 use MyMailer;
+use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Database\QueryUtils;
-use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 
 final class IpLoginRateLimiter
@@ -203,7 +203,7 @@ final class IpLoginRateLimiter
         $returnPath = $globals->getString('practice_return_email_path');
 
         if ($senderEmail === '' || $returnPath === '') {
-            (new SystemLogger())->warning(
+            ServiceContainer::getLogger()->warning(
                 'Unable to send OpenEMR admin email notification since either'
                 . ' patient_reminder_sender_email or practice_return_email_path global was not set',
             );

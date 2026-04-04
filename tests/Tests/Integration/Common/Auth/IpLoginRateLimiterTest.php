@@ -202,7 +202,7 @@ final class IpLoginRateLimiterTest extends TestCase
 
         $testIps = array_filter(
             $rows,
-            static fn(array $row): bool => str_starts_with((string) ($row['ip_string'] ?? ''), '10.99.99.'),
+            static fn(array $row): bool => is_string($row['ip_string'] ?? null) && str_starts_with($row['ip_string'], '10.99.99.'),
         );
 
         self::assertCount(2, $testIps);
@@ -230,7 +230,7 @@ final class IpLoginRateLimiterTest extends TestCase
 
         $testIps = array_filter(
             $rows,
-            static fn(array $row): bool => str_starts_with((string) ($row['ip_string'] ?? ''), '10.99.99.'),
+            static fn(array $row): bool => is_string($row['ip_string'] ?? null) && str_starts_with($row['ip_string'], '10.99.99.'),
         );
 
         self::assertCount(1, $testIps);
