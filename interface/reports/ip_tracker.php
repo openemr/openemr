@@ -14,7 +14,7 @@ require_once("../globals.php");
 
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
-use OpenEMR\Common\Auth\AuthUtils;
+use OpenEMR\Common\Auth\IpLoginRateLimiter;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -213,9 +213,9 @@ $showOnlyAutoBlocked = !empty($_POST['showOnlyAutoBlocked']) ? true : false;
                 <tbody>
                 <!-- added for better print-ability -->
                 <?php
-                $ipLoginFailsSql = AuthUtils::collectIpLoginFailsSql($showOnlyWithCount, $showOnlyManuallyBlocked, $showOnlyAutoBlocked);
+                $ipLoginFails = IpLoginRateLimiter::collectFailedLogins($showOnlyWithCount, $showOnlyManuallyBlocked, $showOnlyAutoBlocked);
 
-                while ($row = sqlFetchArray($ipLoginFailsSql)) {
+                foreach ($ipLoginFails as $row) {
                     ?>
 
                     <tr valign='top' bgcolor='<?php echo attr($bgcolor ?? ''); ?>'>

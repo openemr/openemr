@@ -12,6 +12,7 @@
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Auth\AuthUtils;
+use OpenEMR\Common\Auth\IpLoginRateLimiter;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 
@@ -50,7 +51,7 @@ if ($_POST['function'] == 'disableIp') {
     if (empty((int)$_POST['ipId'])) {
         exit;
     }
-    AuthUtils::disableIp((int)$_POST['ipId']);
+    IpLoginRateLimiter::forceBlock((int)$_POST['ipId']);
     exit;
 }
 
@@ -58,7 +59,7 @@ if ($_POST['function'] == 'enableIp') {
     if (empty((int)$_POST['ipId'])) {
         exit;
     }
-    AuthUtils::enableIp((int)$_POST['ipId']);
+    IpLoginRateLimiter::unblock((int)$_POST['ipId']);
     exit;
 }
 
@@ -66,7 +67,7 @@ if ($_POST['function'] == 'skipTiming') {
     if (empty((int)$_POST['ipId'])) {
         exit;
     }
-    AuthUtils::skipTimingIp((int)$_POST['ipId']);
+    IpLoginRateLimiter::disableTimingAttackPrevention((int)$_POST['ipId']);
     exit;
 }
 
@@ -74,7 +75,7 @@ if ($_POST['function'] == 'noSkipTiming') {
     if (empty((int)$_POST['ipId'])) {
         exit;
     }
-    AuthUtils::noSkipTimingIp((int)$_POST['ipId']);
+    IpLoginRateLimiter::enableTimingAttackPrevention((int)$_POST['ipId']);
     exit;
 }
 
@@ -82,6 +83,6 @@ if ($_POST['function'] == 'resetIpCounter') {
     if (empty((int)$_POST['ipId'])) {
         exit;
     }
-    AuthUtils::resetIpCounter((int)$_POST['ipId']);
+    IpLoginRateLimiter::resetCounterById((int)$_POST['ipId']);
     exit;
 }

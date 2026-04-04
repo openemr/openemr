@@ -17,6 +17,7 @@
  */
 
 use OpenEMR\Common\Auth\AuthUtils;
+use OpenEMR\Common\Auth\IpLoginRateLimiter;
 use OpenEMR\Common\Auth\Oidc\Event\OidcLoginRequestEvent;
 use OpenEMR\Common\Auth\Oidc\Event\OidcLogoutEvent;
 use OpenEMR\Common\Auth\Oidc\Session\OidcSessionHelper;
@@ -54,7 +55,33 @@ if (
 
     // Dispatch OIDC login event — if a module handles it, skip password/Google auth
     $login_success = false;
+
+    // IP-based rate limiting for the OIDC path (password path handles its own via AuthUtils)
+    $ipRateLimiter = new IpLoginRateLimiter();
+    $ip = collectIpAddresses();
+    $ipRateLimiter->ensureTracked($ip['ip_string']);
+
     $oidcLoginEvent = new OidcLoginRequestEvent($_POST, $_GET);
+    $isOidcAttempt = !empty($_POST['oidc_id_token']);
+
+    // Check IP block status before OIDC dispatch
+    if ($isOidcAttempt) {
+        $ipBlockStatus = $ipRateLimiter->checkBlocked($ip['ip_string']);
+        if (!$ipBlockStatus->allowed) {
+            $ipRateLimiter->recordFailedAttempt($ip['ip_string']);
+            if ($ipBlockStatus->forceBlocked) {
+                EventAuditLogger::getInstance()->newEvent('login', '', '', 0, 'OIDC failure: ' . $ip['ip_string'] . '. IP address has been manually blocked');
+            } else {
+                EventAuditLogger::getInstance()->newEvent('login', '', '', 0, 'OIDC failure: ' . $ip['ip_string'] . '. IP address exceeded maximum number of failed logins');
+            }
+            if ($ipBlockStatus->requiresEmailNotification) {
+                $ipRateLimiter->notifyBlock($ip['ip_string']);
+            }
+            $session->set('loginfailure', 1);
+            authLoginScreen();
+        }
+    }
+
     $dispatcher = OEGlobalsBag::getInstance()->getKernel()->getEventDispatcher();
     /** @var OidcLoginRequestEvent $oidcLoginEvent */
     $oidcLoginEvent = $dispatcher->dispatch($oidcLoginEvent, OidcLoginRequestEvent::EVENT_NAME);
@@ -67,6 +94,7 @@ if (
             $oidcLoginEvent->getUserInfo(),
             $oidcLoginEvent->getAuthGroup(),
         );
+        $ipRateLimiter->recordSuccessfulLogin($ip['ip_string']);
         $login_success = true;
     } elseif (
         OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') &&
@@ -83,6 +111,9 @@ if (
 
     if ($login_success !== true) {
         // login attempt failed
+        if ($isOidcAttempt) {
+            $ipRateLimiter->recordFailedAttempt($ip['ip_string']);
+        }
         $session->set('loginfailure', 1);
         if (isset($_POST["clearPass"])) {
             if (function_exists('sodium_memzero')) {
