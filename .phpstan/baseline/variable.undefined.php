@@ -16653,21 +16653,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$form_pid might not be defined\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../portal/portal_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$payment_id might not be defined\\.$#',
-    'count' => 1,
+    'count' => 2,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$payrow might not be defined\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/portal_payment.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$session_id might not be defined\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/portal_payment.php',
 ];
