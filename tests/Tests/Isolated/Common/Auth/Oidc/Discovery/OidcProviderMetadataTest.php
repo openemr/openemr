@@ -73,13 +73,14 @@ final class OidcProviderMetadataTest extends TestCase
     {
         $doc = [
             'issuer' => 'https://issuer.example.com',
-            'authorization_endpoint' => 'https://issuer.example.com/auth',
             'jwks_uri' => 'https://issuer.example.com/jwks',
         ];
 
         $metadata = OidcProviderMetadata::fromDiscoveryDocument($doc);
 
         self::assertSame('https://issuer.example.com', $metadata->issuer);
+        self::assertSame('https://issuer.example.com/jwks', $metadata->jwksUri);
+        self::assertSame('', $metadata->authorizationEndpoint);
         self::assertSame('', $metadata->tokenEndpoint);
         self::assertNull($metadata->userinfoEndpoint);
         self::assertNull($metadata->endSessionEndpoint);
@@ -89,13 +90,36 @@ final class OidcProviderMetadataTest extends TestCase
     }
 
     /**
+     * Firebase/GCIP discovery documents only provide issuer, jwks_uri, and
+     * a subset of fields — no authorization_endpoint. This must parse
+     * successfully since the Firebase JS SDK handles authorization client-side.
+     */
+    public function testFromDiscoveryDocumentWithFirebaseStyleDocument(): void
+    {
+        $doc = [
+            'issuer' => 'https://securetoken.google.com/my-project',
+            'jwks_uri' => 'https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com',
+            'response_types_supported' => ['id_token'],
+            'subject_types_supported' => ['public'],
+            'id_token_signing_alg_values_supported' => ['RS256'],
+        ];
+
+        $metadata = OidcProviderMetadata::fromDiscoveryDocument($doc);
+
+        self::assertSame('https://securetoken.google.com/my-project', $metadata->issuer);
+        self::assertSame('https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com', $metadata->jwksUri);
+        self::assertSame('', $metadata->authorizationEndpoint);
+        self::assertSame(['id_token'], $metadata->responseTypesSupported);
+        self::assertSame(['RS256'], $metadata->idTokenSigningAlgValuesSupported);
+    }
+
+    /**
      * @return array<string, array{string}>
      */
     public static function missingRequiredFieldProvider(): array
     {
         return [
             'missing issuer' => ['issuer'],
-            'missing authorization_endpoint' => ['authorization_endpoint'],
             'missing jwks_uri' => ['jwks_uri'],
         ];
     }
@@ -137,7 +161,7 @@ final class OidcProviderMetadataTest extends TestCase
     public function testFromDiscoveryDocumentReportsAllMissingFields(): void
     {
         $this->expectException(OidcDiscoveryException::class);
-        $this->expectExceptionMessage('issuer, authorization_endpoint, jwks_uri');
+        $this->expectExceptionMessage('issuer, jwks_uri');
 
         OidcProviderMetadata::fromDiscoveryDocument([]);
     }

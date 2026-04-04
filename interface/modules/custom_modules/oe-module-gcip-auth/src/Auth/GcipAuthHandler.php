@@ -139,8 +139,8 @@ final readonly class GcipAuthHandler
 
         $username = is_string($userRow['username'] ?? null) ? $userRow['username'] : '';
 
-        // Resolve auth group
-        $authGroup = $this->resolveAuthGroup($mapping->userId);
+        // Resolve auth group (gACL stores username, not user ID)
+        $authGroup = $this->resolveAuthGroup($username);
         if ($authGroup === '') {
             EventAuditLogger::getInstance()->newEvent(
                 'login',
@@ -209,14 +209,14 @@ final readonly class GcipAuthHandler
         return $row;
     }
 
-    private function resolveAuthGroup(int $userId): string
+    private function resolveAuthGroup(string $username): string
     {
         $rows = QueryUtils::fetchRecords(
-            'SELECT `gacl_aro`.`value` FROM `gacl_aro` '
+            'SELECT `gacl_aro_groups`.`value` FROM `gacl_aro` '
             . 'INNER JOIN `gacl_groups_aro_map` ON `gacl_groups_aro_map`.`aro_id` = `gacl_aro`.`id` '
             . 'INNER JOIN `gacl_aro_groups` ON `gacl_aro_groups`.`id` = `gacl_groups_aro_map`.`group_id` '
             . 'WHERE `gacl_aro`.`section_value` = ? AND `gacl_aro`.`value` = ?',
-            ['users', (string) $userId],
+            ['users', $username],
         );
 
         if ($rows === []) {

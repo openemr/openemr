@@ -129,6 +129,7 @@ final class OidcTokenValidatorTest extends TestCase
         ?string $email = 'user@example.com',
         ?string $name = 'Test User',
         ?string $jti = null,
+        bool $includeNbf = true,
     ): string {
         $now = $this->clock->now();
         $iat = $issuedAt ?? $now;
@@ -143,8 +144,11 @@ final class OidcTokenValidatorTest extends TestCase
         $builder = $config->builder()
             ->issuedAt($iat)
             ->expiresAt($exp)
-            ->canOnlyBeUsedAfter($iat)
             ->withHeader('kid', $kid);
+
+        if ($includeNbf) {
+            $builder = $builder->canOnlyBeUsedAfter($iat);
+        }
 
         if ($issuer !== null) {
             $builder = $builder->issuedBy($issuer);
@@ -502,6 +506,20 @@ final class OidcTokenValidatorTest extends TestCase
         } catch (OidcTokenValidationException $e) {
             self::assertStringNotContainsString('SECRET_PAYLOAD', $e->getMessage());
         }
+    }
+
+    /**
+     * Firebase/GCIP tokens do not include the "nbf" (Not Before) claim.
+     * The validator must accept tokens with only "iat" and "exp".
+     */
+    public function testAcceptsTokenWithoutNbfClaim(): void
+    {
+        $jwt = $this->buildToken(includeNbf: false);
+
+        $result = $this->validator->validate($jwt, self::JWKS_URI, $this->params);
+
+        self::assertSame('user-123', $result->identity->externalId);
+        self::assertSame(self::ISSUER, $result->identity->issuer);
     }
 
     public function testRejectsTokenWithFutureNbf(): void

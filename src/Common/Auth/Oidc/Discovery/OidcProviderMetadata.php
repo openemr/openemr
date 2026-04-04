@@ -23,8 +23,8 @@ final readonly class OidcProviderMetadata
 {
     /**
      * @param string               $issuer                          REQUIRED. Issuer identifier URL.
-     * @param string               $authorizationEndpoint           REQUIRED. Authorization endpoint URL.
      * @param string               $jwksUri                         REQUIRED. JWKS endpoint URL.
+     * @param string               $authorizationEndpoint           Authorization endpoint URL (optional for token-verification-only providers like Firebase/GCIP).
      * @param string               $tokenEndpoint                   Token endpoint URL (required for most flows).
      * @param string|null          $userinfoEndpoint                UserInfo endpoint URL.
      * @param string|null          $endSessionEndpoint              RP-Initiated Logout endpoint URL.
@@ -38,8 +38,8 @@ final readonly class OidcProviderMetadata
      */
     public function __construct(
         public string $issuer,
-        public string $authorizationEndpoint,
         public string $jwksUri,
+        public string $authorizationEndpoint = '',
         public string $tokenEndpoint = '',
         public ?string $userinfoEndpoint = null,
         public ?string $endSessionEndpoint = null,
@@ -62,7 +62,7 @@ final readonly class OidcProviderMetadata
     public static function fromDiscoveryDocument(array $document): self
     {
         $missing = [];
-        foreach (['issuer', 'authorization_endpoint', 'jwks_uri'] as $field) {
+        foreach (['issuer', 'jwks_uri'] as $field) {
             if (!isset($document[$field]) || !is_string($document[$field]) || $document[$field] === '') {
                 $missing[] = $field;
             }
@@ -76,13 +76,12 @@ final readonly class OidcProviderMetadata
 
         // Validated as non-empty strings above; assert for PHPStan narrowing.
         assert(is_string($document['issuer']));
-        assert(is_string($document['authorization_endpoint']));
         assert(is_string($document['jwks_uri']));
 
         return new self(
             issuer: $document['issuer'],
-            authorizationEndpoint: $document['authorization_endpoint'],
             jwksUri: $document['jwks_uri'],
+            authorizationEndpoint: self::optionalString($document, 'authorization_endpoint'),
             tokenEndpoint: self::optionalString($document, 'token_endpoint'),
             userinfoEndpoint: self::optionalNullableString($document, 'userinfo_endpoint'),
             endSessionEndpoint: self::optionalNullableString($document, 'end_session_endpoint'),

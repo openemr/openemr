@@ -198,13 +198,34 @@ final class OidcDiscoveryClientTest extends TestCase
     {
         $this->httpClient->setNextResponse(200, json_encode([
             'issuer' => self::ISSUER,
-            // missing authorization_endpoint and jwks_uri
+            // missing jwks_uri
         ], JSON_THROW_ON_ERROR));
 
         $this->expectException(OidcDiscoveryException::class);
-        $this->expectExceptionMessage('authorization_endpoint');
+        $this->expectExceptionMessage('jwks_uri');
 
         $this->client->getMetadata(self::ISSUER);
+    }
+
+    /**
+     * Firebase/GCIP discovery documents lack authorization_endpoint.
+     * The client should accept these since only issuer and jwks_uri are required.
+     */
+    public function testAcceptsFirebaseStyleDocumentWithoutAuthorizationEndpoint(): void
+    {
+        $this->httpClient->setNextResponse(200, json_encode([
+            'issuer' => self::ISSUER,
+            'jwks_uri' => self::ISSUER . '/jwks',
+            'response_types_supported' => ['id_token'],
+            'subject_types_supported' => ['public'],
+            'id_token_signing_alg_values_supported' => ['RS256'],
+        ], JSON_THROW_ON_ERROR));
+
+        $metadata = $this->client->getMetadata(self::ISSUER);
+
+        self::assertSame(self::ISSUER, $metadata->issuer);
+        self::assertSame(self::ISSUER . '/jwks', $metadata->jwksUri);
+        self::assertSame('', $metadata->authorizationEndpoint);
     }
 
     public function testDoesNotCacheFailedFetches(): void

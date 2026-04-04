@@ -38,7 +38,7 @@ use Lcobucci\JWT\Token\Plain;
 use Lcobucci\JWT\Validation\Constraint\IssuedBy;
 use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
-use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
+use Lcobucci\JWT\Validation\Constraint\LooseValidAt;
 use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 use OpenEMR\Common\Auth\Oidc\Identity\ClaimMapperInterface;
 use phpseclib3\Crypt\PublicKeyLoader;
@@ -110,7 +110,9 @@ final readonly class OidcTokenValidator
             new SignedWith($signer, $publicKey),
             new IssuedBy($parameters->expectedIssuer),
             new PermittedFor($parameters->expectedAudience),
-            new StrictValidAt(
+            // LooseValidAt tolerates missing "nbf" claim, which Firebase/GCIP
+            // tokens do not include. It still validates "exp" and "iat".
+            new LooseValidAt(
                 $this->clock,
                 new \DateInterval('PT' . $parameters->clockSkewSeconds . 'S'),
             ),
