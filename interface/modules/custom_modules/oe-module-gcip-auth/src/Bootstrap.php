@@ -26,6 +26,7 @@ use OpenEMR\Common\Auth\Oidc\Token\JwksClient;
 use OpenEMR\Common\Auth\Oidc\Token\OidcTokenValidator;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
+use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\TemplatePageEvent;
 use OpenEMR\Modules\GcipAuth\Auth\GcipAuthHandler;
@@ -82,9 +83,6 @@ final readonly class Bootstrap
             return $event; // Module not configured — show standard login
         }
 
-        // Replace the template with our GCIP login form
-        $event->setTwigTemplate($this->templatePath . 'gcip-login.html.twig');
-
         $globals = OEGlobalsBag::getInstance();
         $webRoot = $globals->getString('webroot');
 
@@ -97,18 +95,20 @@ final readonly class Bootstrap
         }
         $oidcCsrfToken = CsrfUtils::collectCsrfToken($session, 'oidc_login');
 
-        $existingVars = $event->getTwigVariables();
-        $existingVars['gcipFirebaseApiKey'] = $firebaseApiKey;
-        $existingVars['gcipFirebaseAuthDomain'] = $firebaseAuthDomain;
-        $existingVars['gcipFirebaseProjectId'] = $firebaseProjectId;
-        $existingVars['gcipAllowedTenantIds'] = $configService->getAllowedTenantIds();
-        $existingVars['gcipModulePath'] = $webRoot . self::MODULE_PATH;
-        $existingVars['gcipLocalLoginDisabled'] = $globals->getBoolean('oidc_local_login_disabled');
-        $existingVars['gcipCsrfToken'] = $oidcCsrfToken;
+        $variables = $event->getTwigVariables();
+        $variables['gcipFirebaseApiKey'] = $firebaseApiKey;
+        $variables['gcipFirebaseAuthDomain'] = $firebaseAuthDomain;
+        $variables['gcipFirebaseProjectId'] = $firebaseProjectId;
+        $variables['gcipAllowedTenantIds'] = $configService->getAllowedTenantIds();
+        $variables['gcipModulePath'] = $webRoot . self::MODULE_PATH;
+        $variables['gcipLocalLoginDisabled'] = $globals->getBoolean('oidc_local_login_disabled');
+        $variables['gcipCsrfToken'] = $oidcCsrfToken;
 
-        $event->setTwigVariables($existingVars);
-
-        return $event;
+        // Render with our own Twig environment since the module's template
+        // directory is not registered with the global TwigContainer loader.
+        $twig = new TwigContainer($this->templatePath, $globals->getKernel());
+        echo $twig->getTwig()->render('gcip-login.html.twig', $variables);
+        exit;
     }
 
     public function onLoginRequest(OidcLoginRequestEvent $event): void
