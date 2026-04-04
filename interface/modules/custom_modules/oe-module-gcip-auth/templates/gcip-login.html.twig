@@ -81,6 +81,7 @@
               action="{{ webroot|attr }}/interface/main/main_screen.php?auth=login&site={{ siteID|default('default')|attr_url }}">
             <input type="hidden" name="new_login_session_management" value="1">
             <input type="hidden" name="oidc_id_token" id="oidc-id-token" value="">
+            <input type="hidden" name="oidc_csrf_token" value="{{ gcipCsrfToken|default('')|attr }}">
             {% if languageChoice is defined %}
                 <input type="hidden" name="languageChoice" value="{{ languageChoice|attr }}">
             {% endif %}

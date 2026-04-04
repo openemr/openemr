@@ -24,6 +24,8 @@ use OpenEMR\Common\Auth\Oidc\Event\OidcLoginRequestEvent;
 use OpenEMR\Common\Auth\Oidc\Identity\ExternalIdentityRepository;
 use OpenEMR\Common\Auth\Oidc\Token\JwksClient;
 use OpenEMR\Common\Auth\Oidc\Token\OidcTokenValidator;
+use OpenEMR\Common\Csrf\CsrfUtils;
+use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\TemplatePageEvent;
@@ -87,6 +89,15 @@ final class Bootstrap
         $globals = OEGlobalsBag::getInstance();
         $webRoot = $globals->getString('webroot');
 
+        // Ensure CSRF key exists in the pre-auth session so we can protect
+        // the OIDC token POST. Only creates the key if one doesn't already
+        // exist — does not regenerate an existing key.
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        if ($session->get('csrf_private_key', null) === null) {
+            CsrfUtils::setupCsrfKey($session);
+        }
+        $oidcCsrfToken = CsrfUtils::collectCsrfToken($session, 'oidc_login');
+
         $existingVars = $event->getTwigVariables();
         $existingVars['gcipFirebaseApiKey'] = $firebaseApiKey;
         $existingVars['gcipFirebaseAuthDomain'] = $firebaseAuthDomain;
@@ -94,6 +105,7 @@ final class Bootstrap
         $existingVars['gcipAllowedTenantIds'] = $configService->getAllowedTenantIds();
         $existingVars['gcipModulePath'] = $webRoot . self::MODULE_PATH;
         $existingVars['gcipLocalLoginDisabled'] = $globals->getBoolean('oidc_local_login_disabled');
+        $existingVars['gcipCsrfToken'] = $oidcCsrfToken;
 
         $event->setTwigVariables($existingVars);
 
