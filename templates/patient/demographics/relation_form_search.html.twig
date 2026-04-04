@@ -166,8 +166,8 @@
         display: block;
     }
 
-    .person-form-section .form-group {
-        margin-bottom: 0.1rem;
+    .person-form-section .mb-3 {
+        margin-bottom: 0.1rem !important;
     }
 
     .person-form-section label {
@@ -200,7 +200,7 @@
         <div class="card-header text-white bg-primary">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="mb-0">
-                    <i class="fas fa-user-plus mr-2"></i>{{ 'Add Related Person'|xlt }}
+                    <i class="fas fa-user-plus me-2"></i>{{ 'Add Related Person'|xlt }}
                 </div>
                 <button type="button" class="btn btn-sm btn-light" onclick="closeAddPersonSection()" aria-label="{{ 'Close'|xla }}">
                     <i class="fas fa-times"></i> {{ 'Close'|xlt }}
@@ -212,20 +212,20 @@
                 <form id="personForm">
                     <div class="row">
                         <div class="col-sm-4">
-                            <div class="form-group">
-                                <label class="required-field pr-1">{{ 'First Name:'|xlt }}</label>
+                            <div class="mb-3">
+                                <label class="required-field pe-1">{{ 'First Name:'|xlt }}</label>
                                 <input type="text" id="person_first_name" class="form-control form-control-sm mb-1" size=11 required autocomplete="given-name" placeholder="{{ 'Enter first name'|xla }}">
                             </div>
                         </div>
                         <div class="col-sm-4">
-                            <div class="form-group">
-                                <label class="pr-1">{{ 'Middle Name:'|xlt }}</label>
+                            <div class="mb-3">
+                                <label class="pe-1">{{ 'Middle Name:'|xlt }}</label>
                                 <input type="text" id="person_middle_name" class="form-control form-control-sm mb-1" size=11 autocomplete="additional-name">
                             </div>
                         </div>
                         <div class="col-sm-4">
-                            <div class="form-group">
-                                <label class="required-field pr-1">{{ 'Last Name:'|xlt }}</label>
+                            <div class="mb-3">
+                                <label class="required-field pe-1">{{ 'Last Name:'|xlt }}</label>
                                 <input type="text" id="person_last_name" class="form-control form-control-sm mb-1" size=12 required autocomplete="family-name" placeholder="{{ 'Enter last name'|xla }}">
                             </div>
                         </div>
@@ -233,35 +233,34 @@
 
                     <div class="row">
                         <div class="col-sm-4">
-                            <div class="form-group">
-                                <label class="pr-1">{{ 'Phone:'|xlt }}</label>
+                            <div class="mb-3">
+                                <label class="pe-1">{{ 'Phone:'|xlt }}</label>
                                 <input type="tel" id="person_phone" class="form-control form-control-sm mb-1" size=12 placeholder="(xxx) xxx-xxxx" autocomplete="tel">
                         	</div>
                         </div>
                          <div class="col-sm-4">
-                            <div class="form-group">
-                                <label class="pr-1">{{ 'Date of Birth:'|xlt }}</label>
+                            <div class="mb-3">
+                                <label class="pe-1">{{ 'Date of Birth:'|xlt }}</label>
                                 <input type="text" id="person_dob" class="form-control form-control-sm mb-1 datepicker" size=10 autocomplete="bday">
                             </div>
                         </div>
                         <div class="col-sm-4">
-                            <div class="form-group">
-                                <label class="pr-1">{{ 'Gender:'|xlt }}</label>
-                                {{ generateFormField({
-                                    'data_type': widget_constants.list,
-                                    'field_id': 'person_gender',
-                                    'smallform': 'form-control form-control-sm mb-1',
-                                    'list_id': 'administrative_sex',
-                                    'edit_options': edit_options,
-                                    'description': 'Select Gender'|xl
-                                }, '') }}
+                            <div class="mb-3">
+                                <label class="pe-1">{{ 'Gender:'|xlt }}</label>
+                                <select id="person_gender" class="form-control form-control-sm mb-1">
+                                    <option value="">{{ 'Select'|xlt }}</option>
+                                    <option value="Male">{{ 'Male'|xlt }}</option>
+                                    <option value="Female">{{ 'Female'|xlt }}</option>
+                                    <option value="Other">{{ 'Other'|xlt }}</option>
+                                    <option value="Unknown">{{ 'Unknown'|xlt }}</option>
+                                </select>
                             </div>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-sm-12">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>{{ 'Notes:'|xlt }}</label>
                                 <textarea id="person_notes" class="form-control form-control-sm mb-1 mw-100" rows="1" placeholder="{{ 'Optional notes about this person'|xla }}"></textarea>
                             </div>
@@ -269,14 +268,14 @@
                     </div>
 
                     <div class="live-search-indicator" id="liveSearchIndicator">
-                        <i class="fas fa-spinner fa-spin mr-1"></i>{{ 'Searching...'|xlt }}
+                        <i class="fas fa-spinner fa-spin me-1"></i>{{ 'Searching...'|xlt }}
                     </div>
 
                     <div id="personSearchResults"></div>
 
                     <div class="action-buttons">
                         <button type="button" class="btn btn-success btn-sm" onclick="createNewPerson()">
-                            <i class="fas fa-plus-circle mr-2"></i>{{ 'Create New Person and Add Relationship'|xlt }}
+                            <i class="fas fa-plus-circle me-2"></i>{{ 'Create New Person and Add Relationship'|xlt }}
                         </button>
                     </div>
                 </form>
@@ -344,7 +343,7 @@
         document.getElementById('person_last_name').value = '';
         document.getElementById('person_middle_name').value = '';
         document.getElementById('person_dob').value = '';
-        document.getElementById('form_person_gender').value = '';
+        document.getElementById('person_gender').value = '';
         document.getElementById('person_phone').value = '';
          document.getElementById('person_notes').value = '';
     }
@@ -456,7 +455,7 @@
                 console.error('JSON parse error:', e);
                 console.error('Response text:', text);
                 resultsContainer.innerHTML = '<div class="alert alert-danger">' +
-                    '<i class="fas fa-times-circle mr-2"></i>' +
+                    '<i class="fas fa-times-circle me-2"></i>' +
                     '<strong>Server Error:</strong><br>' +
                     '<pre style="max-height: 300px; overflow: auto; font-size: 11px;">' +
                     escapeHtml(text) +
@@ -469,7 +468,7 @@
                 displaySearchResults(data.persons);
             } else {
                 resultsContainer.innerHTML = '<div class="alert alert-warning">' +
-                    '<i class="fas fa-exclamation-triangle mr-2"></i>' +
+                    '<i class="fas fa-exclamation-triangle me-2"></i>' +
                     escapeHtml(data.message || window.xl('Search failed')) +
                     '</div>';
             }
@@ -478,7 +477,7 @@
             console.error('Search error:', error);
             hideLiveSearchIndicator();
             resultsContainer.innerHTML = '<div class="alert alert-danger">' +
-                '<i class="fas fa-times-circle mr-2"></i>' +
+                '<i class="fas fa-times-circle me-2"></i>' +
                 window.xl('Error performing search. Please try again.') +
                 '<br><small>' + escapeHtml(error.message) + '</small>' +
                 '</div>';
@@ -503,7 +502,7 @@
 
         const header = document.createElement('div');
         header.className = 'search-results-header';
-        header.innerHTML = '<i class="fas fa-users mr-2"></i>' +
+        header.innerHTML = '<i class="fas fa-users me-2"></i>' +
             window.xl('Found') + ' ' + persons.length + ' ' +
             (persons.length === 1 ? window.xl('existing person') : window.xl('existing persons')) + ':';
         container.appendChild(header);
@@ -516,18 +515,18 @@
             let badges = '';
 
             if (person.is_patient && !person.is_linked) {
-                badges += '<span class="badge badge-info ml-2">' +
+                badges += '<span class="badge bg-info text-dark ms-2">' +
                          (person.patient_label || window.xl('Patient')) + '</span>';
             }
 
             if (person.is_also_patient) {
-                badges += '<span class="badge badge-success ml-2">' +
+                badges += '<span class="badge bg-success ms-2">' +
                          '<i class="fas fa-link"></i> ' + window.xl('Also Patient') +
                          ' ' + escapeHtml(person.linked_patient_pid) + '</span>';
             }
 
             if (person.is_linked && person.target_table === 'patient_data') {
-                badges += '<span class="badge badge-secondary text-white ml-2">' +
+                badges += '<span class="badge bg-secondary text-white ms-2">' +
                          '<i class="fas fa-check"></i> ' + window.xl('Already Linked') + '</span>';
             }
 
@@ -543,8 +542,8 @@
                             ${person.phone ? ' | ' + escapeHtml(person.phone) : ''}
                         </small>
                     </div>
-                    <button class="btn btn-primary btn-sm ml-2">
-                        <i class="fas fa-check mr-1"></i>${window.xl('Select')}
+                    <button class="btn btn-primary btn-sm ms-2">
+                        <i class="fas fa-check me-1"></i>${window.xl('Select')}
                     </button>
                 </div>
             `;
@@ -573,7 +572,7 @@
         const last_name = document.getElementById('person_last_name').value.trim();
         const middle_name = document.getElementById('person_middle_name').value.trim();
         const dob = document.getElementById('person_dob').value;
-        const gender = document.getElementById('form_person_gender').value;
+        const gender = document.getElementById('person_gender').value;
         const phone = document.getElementById('person_phone').value.trim();
         const notes = document.getElementById('person_notes').value.trim();
 
@@ -595,7 +594,7 @@
         const createBtn = event.target;
         const originalBtnText = createBtn.innerHTML;
         createBtn.disabled = true;
-        createBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>' + window.xl('Creating...');
+        createBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>' + window.xl('Creating...');
 
         // Create person via AJAX
         fetch(webroot + '/library/ajax/person_search_ajax.php', {
@@ -682,10 +681,8 @@
         alertDiv.style.zIndex = '9999';
         alertDiv.style.minWidth = '300px';
         alertDiv.innerHTML = `
-            <i class="fas fa-check-circle mr-2"></i>${escapeHtml(message)}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
+            <i class="fas fa-check-circle me-2"></i>${escapeHtml(message)}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         `;
         document.body.appendChild(alertDiv);
 

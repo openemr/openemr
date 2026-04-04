@@ -123,8 +123,8 @@ $self = basename((string) $_SERVER['PHP_SELF']);
         padding: .75rem;
       }
 
-      .form-group {
-        margin-bottom: .75rem;
+      .mb-3 {
+        margin-bottom: .75rem !important;
       }
 
       label {
@@ -155,7 +155,7 @@ $self = basename((string) $_SERVER['PHP_SELF']);
                 <h4 class="m-0"><?php echo xlt("Social Determinants of Health Assessment"); ?></h4>
                 <div>
                     <?php if (!$is_new && !empty($info)) : ?>
-                        <span class="text-muted mr-3">
+                        <span class="text-muted me-3">
                             <?php echo xlt("Last Updated") . ": " . text(oeFormatShortDate($info['updated_at'] ?? '')); ?>
                         </span>
                     <?php endif; ?>
@@ -167,19 +167,19 @@ $self = basename((string) $_SERVER['PHP_SELF']);
 
             <!-- Assessment Information -->
             <div class="card mb-3">
-                <div class="card-header font-weight-bold"><?php echo xlt("Assessment Information"); ?></div>
+                <div class="card-header fw-bold"><?php echo xlt("Assessment Information"); ?></div>
                 <div class="card-body">
-                    <div class="form-row">
-                        <div class="form-group col-md-3">
+                    <div class="row gx-2">
+                        <div class="mb-3 col-md-3">
                             <label><?php echo xlt("Assessment Date"); ?> <span class="text-danger">*</span></label>
                             <input type="text" class="form-control datepicker" name="assessment_date" required
                                 value="<?php echo attr(v($info, 'assessment_date', date('Y-m-d'))); ?>">
                         </div>
-                        <div class="form-group col-md-4">
+                        <div class="mb-3 col-md-4">
                             <label><?php echo xlt("Screening Tool"); ?></label>
                             <?php render_list_select('screening_tool', 'sdoh_instruments', v($info, 'screening_tool')); ?>
                         </div>
-                        <div class="form-group col-md-3">
+                        <div class="mb-3 col-md-3">
                             <label><?php echo xlt("Assessor"); ?></label>
                             <select class="form-control" name="assessor">
                                 <option value=""><?php echo xlt("Select Assessor"); ?></option>
@@ -198,7 +198,7 @@ $self = basename((string) $_SERVER['PHP_SELF']);
                                 ?>
                             </select>
                         </div>
-                        <div class="form-group col-md-2">
+                        <div class="mb-3 col-md-2">
                             <label><?php echo xlt("Score"); ?></label>
                             <input type="number" class="form-control" name="instrument_score" id="total_score" readonly
                                 value="<?php echo attr(v($info, 'instrument_score', 0)); ?>">
@@ -212,13 +212,13 @@ $self = basename((string) $_SERVER['PHP_SELF']);
                 <!-- Hunger Vital Signs (Required for ONC) -->
                 <div class="col-12 col-md-6 mb-3">
                     <div class="card mb-3">
-                        <div class="card-header font-weight-bold">
+                        <div class="card-header fw-bold">
                             <?php echo xlt("Hunger Vital Signs"); ?>
-                            <small class="text-muted ml-2"><?php echo xlt("LOINC 88121-9 (Required)"); ?></small>
+                            <small class="text-muted ms-2"><?php echo xlt("LOINC 88121-9 (Required)"); ?></small>
                         </div>
                         <div class="card-body">
-                            <div class="form-group">
-                                <div class="form-group">
+                            <div class="mb-3">
+                                <div class="mb-3">
                                     <label><?php echo xlt("Food Insecurity Status"); ?></label>
                                     <?php render_list_select(
                                         'food_insecurity',
@@ -227,7 +227,7 @@ $self = basename((string) $_SERVER['PHP_SELF']);
                                         'Auto-determined',
                                     ); ?>
                                 </div>
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label><?php echo xlt("Additional Notes"); ?></label>
                                     <textarea class="form-control" rows="1" name="food_insecurity_notes"><?php echo text(v($info, 'food_insecurity_notes')); ?></textarea>
                                 </div>
@@ -235,13 +235,13 @@ $self = basename((string) $_SERVER['PHP_SELF']);
                                 <small class="text-muted d-block mb-1"><?php echo xlt("LOINC 88122-7"); ?></small>
                                 <?php render_list_select('hunger_q1', 'vital_signs_answers', v($info, 'hunger_q1')); ?>
                             </div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label><?php echo xlt("Within the past 12 months, the food we bought just didn't last and we didn't have money to get more"); ?></label>
                                 <small class="text-muted d-block mb-1"><?php echo xlt("LOINC 88123-5"); ?></small>
                                 <?php render_list_select('hunger_q2', 'vital_signs_answers', v($info, 'hunger_q2')); ?>
                             </div>
-                            <div class="form-row">
-                                <div class="form-group col-md-4">
+                            <div class="row gx-2">
+                                <div class="mb-3 col-md-4">
                                     <label><?php echo xlt("Hunger Score"); ?></label>
                                     <input type="number" class="form-control" name="hunger_score" id="hunger_score" readonly
                                         value="<?php echo attr(v($info, 'hunger_score', 0)); ?>">
@@ -254,16 +254,16 @@ $self = basename((string) $_SERVER['PHP_SELF']);
                 <!-- Disability Status -->
                 <div class="col-12 col-md-6 mb-3">
                     <div class="card mb-3">
-                        <div class="card-header font-weight-bold">
+                        <div class="card-header fw-bold">
                             <?php echo xlt("Disability Status"); ?>
-                            <small class="text-muted ml-2"><?php echo xlt("ACS 6-item set"); ?></small>
+                            <small class="text-muted ms-2"><?php echo xlt("ACS 6-item set"); ?></small>
                         </div>
                         <div class="card-body">
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label><?php echo xlt("Overall Disability Status"); ?></label>
                                 <?php render_list_select('disability_status', 'disability_status', v($info, 'disability_status')); ?>
                             </div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label><?php echo xlt("Additional Notes"); ?></label>
                                 <textarea class="form-control" rows="1" name="disability_status_notes"><?php echo text(v($info, 'disability_status_notes')); ?></textarea>
                             </div>
@@ -273,8 +273,8 @@ $self = basename((string) $_SERVER['PHP_SELF']);
                             $get = (fn($key): mixed => $scale[$key]['code'] ?? '');
                             function fn_row($fieldKey, $label, $yesNoList, $get): void
                             {
-                                echo "<div class='form-row align-items-end mb-2'>";
-                                echo "  <div class='form-group col-md'>";
+                                echo "<div class='row gx-2 align-items-end mb-2'>";
+                                echo "  <div class='mb-3 col-md'>";
                                 echo "    <label>" . text($label) . "</label>";
                                 render_list_select("dscale[$fieldKey][code]", $yesNoList, $get($fieldKey), 'Select...');
                                 echo "  </div>";
@@ -307,13 +307,13 @@ $self = basename((string) $_SERVER['PHP_SELF']);
                 foreach ($domains as $d) : ?>
                     <div class="col-12 col-md-6 mb-3">
                         <div class="card domain-card">
-                            <div class="card-header font-weight-bold"><?php echo xlt($d['label']); ?></div>
+                            <div class="card-header fw-bold"><?php echo xlt($d['label']); ?></div>
                             <div class="card-body">
-                                <div class="form-group">
+                                <div class="mb-3">
                                     <label><?php echo xlt("Status"); ?></label>
                                     <?php render_list_select($d['key'], $d['list'], v($info, $d['key'])); ?>
                                 </div>
-                                <div class="form-group mb-0">
+                                <div class="mb-0">
                                     <label><?php echo xlt("Notes"); ?></label>
                                     <textarea class="form-control" rows="2" name="<?php echo attr($d['key'] . '_notes'); ?>"><?php echo text(v($info, $d['key'] . '_notes')); ?></textarea>
                                 </div>
@@ -325,18 +325,18 @@ $self = basename((string) $_SERVER['PHP_SELF']);
 
             <!-- Context -->
             <div class="card mb-3">
-                <div class="card-header font-weight-bold"><?php echo xlt("Social Context"); ?></div>
+                <div class="card-header fw-bold"><?php echo xlt("Social Context"); ?></div>
                 <div class="card-body">
-                    <div class="form-row">
-                        <div class="form-group col-md-3">
+                    <div class="row gx-2">
+                        <div class="mb-3 col-md-3">
                             <label><?php echo xlt("Employment Status"); ?></label>
                             <?php render_list_select('employment_status', 'sdoh_employment_status', v($info, 'employment_status')); ?>
                         </div>
-                        <div class="form-group col-md-3">
+                        <div class="mb-3 col-md-3">
                             <label><?php echo xlt("Education Level"); ?></label>
                             <?php render_list_select('education_level', 'sdoh_education_level', v($info, 'education_level')); ?>
                         </div>
-                        <div class="form-group col-md-3">
+                        <div class="mb-3 col-md-3">
                             <label><?php echo xlt("Caregiver Status"); ?></label>
                             <select class="form-control" name="caregiver_status">
                                 <option value=""><?php echo xlt("Select"); ?></option>
@@ -344,7 +344,7 @@ $self = basename((string) $_SERVER['PHP_SELF']);
                                 <option value="no" <?php echo v($info, 'caregiver_status') == 'no' ? 'selected' : ''; ?>><?php echo xlt("No"); ?></option>
                             </select>
                         </div>
-                        <div class="form-group col-md-3">
+                        <div class="mb-3 col-md-3">
                             <label><?php echo xlt("Veteran Status"); ?></label>
                             <select class="form-control" name="veteran_status">
                                 <option value=""><?php echo xlt("Select"); ?></option>
@@ -358,30 +358,30 @@ $self = basename((string) $_SERVER['PHP_SELF']);
 
             <!-- Pregnancy/Postpartum -->
             <div class="card mb-3">
-                <div class="card-header font-weight-bold"><?php echo xlt("Pregnancy / Postpartum Status"); ?></div>
+                <div class="card-header fw-bold"><?php echo xlt("Pregnancy / Postpartum Status"); ?></div>
                 <div class="card-body">
-                    <div class="form-row">
-                        <div class="form-group col-md-3">
+                    <div class="row gx-2">
+                        <div class="mb-3 col-md-3">
                             <label><?php echo xlt("Pregnancy Status"); ?></label>
                             <?php render_list_select('pregnancy_status', 'pregnancy_status', v($info, 'pregnancy_status')); ?>
                         </div>
-                        <div class="form-group col-md-3">
+                        <div class="mb-3 col-md-3">
                             <label><?php echo xlt("Estimated Due Date"); ?></label>
                             <input type="text" class="form-control datepicker" name="pregnancy_edd"
                                 value="<?php echo attr(v($info, 'pregnancy_edd')); ?>">
                         </div>
-                        <div class="form-group col-md-3">
+                        <div class="mb-3 col-md-3">
                             <label><?php echo xlt("Postpartum Status"); ?></label>
                             <?php render_list_select('postpartum_status', 'postpartum_status', v($info, 'postpartum_status')); ?>
                         </div>
-                        <div class="form-group col-md-3">
+                        <div class="mb-3 col-md-3">
                             <label><?php echo xlt("Postpartum End Date"); ?></label>
                             <input type="text" class="form-control datepicker" name="postpartum_end"
                                 value="<?php echo attr(v($info, 'postpartum_end')); ?>">
                         </div>
                     </div>
-                    <div class="form-row">
-                        <div class="form-group col-md-3">
+                    <div class="row gx-2">
+                        <div class="mb-3 col-md-3">
                             <label><?php echo xlt("Pregnancy intention in the next year"); ?></label>
                             <?php render_list_select('pregnancy_intent', 'pregnancy_intent', v($info, 'pregnancy_intent')); ?>
                         </div>
@@ -391,19 +391,19 @@ $self = basename((string) $_SERVER['PHP_SELF']);
 
             <!-- Goals and Interventions -->
             <div class="card mb-1">
-                <div class="card-header font-weight-bold"><?php echo xlt("Care Planning"); ?></div>
+                <div class="card-header fw-bold"><?php echo xlt("Care Planning"); ?></div>
                 <div class="card-body">
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label><?php echo xlt("Generated Goals"); ?></label>
                         <textarea class="form-control" rows="3" readonly><?php echo text($goals_text); ?></textarea>
                         <small class="text-muted"><?php echo xlt("Goals are automatically generated based on positive SDOH findings"); ?></small>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label><?php echo xlt("Generated Interventions"); ?></label>
                         <textarea class="form-control" rows="3" readonly><?php echo text($interventions_text); ?></textarea>
                         <small class="text-muted"><?php echo xlt("Interventions are automatically generated based on positive SDOH findings"); ?></small>
                     </div>
-                    <div class="form-group">
+                    <div class="mb-3">
                         <label><?php echo xlt("Additional Interventions (Manual)"); ?></label>
                         <textarea class="form-control" rows="3" name="interventions"
                             placeholder="<?php echo xla("Enter any additional interventions, one per line"); ?>" readonly><?php echo text(v($info, 'interventions')); ?></textarea>
@@ -411,7 +411,7 @@ $self = basename((string) $_SERVER['PHP_SELF']);
                 </div>
             </div>
             <!-- Form Actions -->
-            <div class="mb-4 mt-2 float-right">
+            <div class="mb-4 mt-2 float-end">
                 <button type="submit" class="btn btn-primary"><?php echo xlt("Save Assessment"); ?></button>
                 <a class="btn btn-secondary" href="history_sdoh_widget.php?pid=<?php echo attr_url($pid); ?>">
                     <?php echo xlt("Cancel"); ?>

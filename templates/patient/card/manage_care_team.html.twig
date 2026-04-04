@@ -73,7 +73,7 @@
                                 <input name="team[${idx}][note]" value="${member.note || ''}" class="form-control form-control-sm editShow d-none">
                             </td>
                             <td>
-                                <button type="button" class="btn btn-danger btn-sm float-right editShow d-none" onclick="this.closest('tr').remove()">×</button>
+                                <button type="button" class="btn btn-danger btn-sm float-end editShow d-none" onclick="this.closest('tr').remove()">×</button>
                             </td>
                             `;
                         document.querySelector('#care_team_table tbody').appendChild(row);
@@ -138,7 +138,7 @@
                     <td><input type="text" name="team[${idx}][provider_since]" class="datepicker-new form-control form-control-sm" required></td>
                     <td><select name="team[${idx}][status]" class="form-control form-control-sm">${statusOptions}</select></td>
                     <td><input name="team[${idx}][note]" class="form-control form-control-sm"></td>
-                    <td><button type="button" class="btn btn-danger btn-sm float-right" onclick="this.closest('tr').remove()">×</button></td>
+                    <td><button type="button" class="btn btn-danger btn-sm float-end" onclick="this.closest('tr').remove()">×</button></td>
                 `;
                     // AI-generated row creation by member type - End
 
@@ -169,7 +169,7 @@
                     <input type="hidden" name="pid" value="{{ pid|attr }}">
                     <input type="hidden" name="team_id" value="{{ team_id|default("")|attr }}">
                     <input type="hidden" name="csrf_token_form" value="{{ csrf_token|attr }}">
-                    <div class="form-group p-0 col-md-3">
+                    <div class="mb-3 p-0 col-md-3">
                         <label for="team_name" class="editShow">{{ translations.care_team_name|text }}</label>
                         <input type="text" name="team_name" id="team_name" value="{{ team_name|attr }}" class="form-control form-control-sm editShow" required>
                         <h5 class="viewOnly">{{ team_name|text }}
@@ -179,7 +179,7 @@
                         </h5>
                     </div>
                     <!-- AI-generated addition - Start -->
-                    <div class="form-group p-0 col-md-3 editShow">
+                    <div class="mb-3 p-0 col-md-3 editShow">
                         <label for="team_status">{{ translations.care_team_status|text }}</label>
                         <select name="team_status" id="team_status" class="form-control form-control-sm">
                             {{ team_status_options|raw }}
@@ -188,7 +188,7 @@
                     <!-- AI-generated addition - End -->
                     <div class="table-responsive">
                         <table class="table table-sm table-striped" id="care_team_table">
-                            <thead class="thead-light bg-light text-dark">
+                            <thead class="table-light bg-light text-dark">
                             <tr>
                                 <th>{{ translations.member_type|text }}</th>
                                 <th>{{ translations.member|text }}</th>

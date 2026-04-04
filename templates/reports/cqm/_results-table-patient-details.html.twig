@@ -1,5 +1,5 @@
 <tr>
-    <td colspan="8" class="text-left p-3">
+    <td colspan="8" class="text-start p-3">
                 {% if details|length %}
 
                     <table class="table table-striped">
@@ -13,12 +13,12 @@
                         <tr>
                             <th class="amc-demographic-label border-top-0">{{ "Name"|xlt }}</th>
                             <th class="amc-demographic-label border-top-0">{{ "Sex"|xlt }}</th>
-                            <th class="amc-demographic-label border-top-0 border-right">{{ "DOB"|xlt }}</th>
+                            <th class="amc-demographic-label border-top-0 border-end">{{ "DOB"|xlt }}</th>
                             {% for label in details.denominatorHeaders %}
-                                <th class="amc-action-label  border-right">{{ label|text }}</th>
+                                <th class="amc-action-label  border-end">{{ label|text }}</th>
                             {% endfor %}
                             {% for label in details.numeratorHeaders%}
-                                <th class="amc-action-label {% if not loop.last %}border-right{% endif %}">{{ label|text }}</th>
+                                <th class="amc-action-label {% if not loop.last %}border-end{% endif %}">{{ label|text }}</th>
                             {% endfor %}
                             <th>&nbsp;</th>
                         </tr>
@@ -34,13 +34,13 @@
                                         <td rowspan="{{ row.records|length }}" class="amc-demographic-label">
                                             {{ row.patient.sex|text }}
                                         </td>
-                                        <td rowspan="{{ row.records|length }}" class="amc-demographic-label border-right">
+                                        <td rowspan="{{ row.records|length }}" class="amc-demographic-label border-end">
                                             {{ row.patient.DOB|text }}
                                         </td>
                                     {% endif %}
                                     {% if record.denominator|length %}
                                         {%  for action in record.denominator %}
-                                            <td class="amc-action-label border-right">
+                                            <td class="amc-action-label border-end">
                                                 <strong>{% if action.value %}{{ "Yes"|xlt }}{% else %}{{ "No"|xlt }}{% endif %}</strong>
                                                 {% if action.details != "" %} - <span>{{ action.details|text }}</span>{% endif %}
                                             </td>
@@ -48,7 +48,7 @@
                                     {% endif %}
                                     {% if record.numerator|length %}
                                         {%  for action in record.numerator %}
-                                            <td class="amc-action-label {% if not loop.last %}border-right{% endif %}">
+                                            <td class="amc-action-label {% if not loop.last %}border-end{% endif %}">
                                                 <strong>{% if action.value %}{{ "Yes"|xlt }}{% else %}{{ "No"|xlt }}{% endif %}</strong>
                                                 {% if action.details != "" %} - <span>{{ action.details|text }}</span>{% endif %}
                                             </td>

@@ -280,9 +280,9 @@ $msgApp = new ChatController();
 
             $scope.replaceShortcodes = function (message) {
                 var msg = '';
-                msg = message.toString().replace(/(\[img])(.*)(\[\/img])/, "<img class='img-responsive' src='$2' />");
+                msg = message.toString().replace(/(\[img])(.*)(\[\/img])/, "<img class='img-fluid' src='$2' />");
                 msg = msg.toString().replace(/(\[url])(.*)(\[\/url])/, "<a href='$2'>$2</a>");
-                msg = message.toString().replace("<img ", "<img class='img-responsive' ");
+                msg = message.toString().replace("<img ", "<img class='img-fluid' ");
                 return msg;
             };
 
@@ -406,7 +406,8 @@ $msgApp = new ChatController();
             };
 
             $scope.openModal = function (e) {
-                var mi = $('#popeditor').modal({backdrop: "static"});
+                var mi = bootstrap.Modal.getOrCreateInstance(document.getElementById('popeditor'), {backdrop: "static"});
+                mi.show();
                 $scope.editmsg();
             };
 
@@ -582,11 +583,11 @@ $msgApp = new ChatController();
         <!-- <h2 class="d-none">Secure Chat</h2> -->
         <div class="row">
             <div class="col-md-2 sidebar">
-                <h5><span class="badge badge-primary"><?php echo xlt('Current Recipients'); ?></span></h5>
+                <h5><span class="badge bg-primary"><?php echo xlt('Current Recipients'); ?></span></h5>
                 <label ng-repeat="user in chatusers | unique : 'username'" ng-if="pusers.indexOf(user.recip_id) !== -1 && user.recip_id != me.sender_id">
                     <input type="checkbox" data-checklist-model="pusers" data-checklist-value="user.recip_id"> {{user.username}}
                 </label>
-                <h5><span class="badge badge-primary"><?php echo xlt('Available Recipients'); ?></span></h5>
+                <h5><span class="badge bg-primary"><?php echo xlt('Available Recipients'); ?></span></h5>
                 <span>
                     <button id="chkall" class="btn btn-sm btn-success" ng-show="!isPortal" ng-click="checkAll()" type="button"><?php echo xlt('All{{Recipients}}'); ?></button>
                     <button id="chknone" class="btn btn-sm btn-success" ng-show="!isPortal" ng-click="uncheckAll()" type="button"><?php echo xlt('None{{Recipients}}'); ?></button>
@@ -597,18 +598,18 @@ $msgApp = new ChatController();
             </div>
             <div class="col-md-8 fixed-panel">
                 <div class="card direct-chat direct-chat-warning">
-                    <div class="card-heading bg-dark text-light py-2">
-                        <div class="clearfix btn-group ml-2">
+                    <div class="card-header bg-dark text-light py-2">
+                        <div class="clearfix btn-group ms-2">
                             <a class='btn btn-primary' href='./../patient/provider' ng-show='!isPortal'><?php echo xlt('Home'); ?></a>
-                            <a class="btn btn-secondary" href="" data-toggle="modal" data-target="#clear-history"><?php echo xlt('Clear history'); ?></a>
+                            <a class="btn btn-secondary" href="" data-bs-toggle="modal" data-bs-target="#clear-history"><?php echo xlt('Clear history'); ?></a>
                         </div>
                     </div>
                     <div class="card-body">
                         <div class="direct-chat-messages">
                             <div class="direct-chat-msg" ng-repeat="message in messages" ng-if="historyFromId < message.id" ng-class="{'right':!message.me}">
                                 <div class="direct-chat-info clearfix">
-                                    <span class="direct-chat-name" ng-class="{'float-left':message.me,'float-right':!message.me}">{{message.username }}</span>
-                                    <span class="direct-chat-timestamp " ng-class="{'float-left':!message.me,'float-right':message.me}">{{message.date }}</span>
+                                    <span class="direct-chat-name" ng-class="{'float-start':message.me,'float-end':!message.me}">{{message.username }}</span>
+                                    <span class="direct-chat-timestamp " ng-class="{'float-start':!message.me,'float-end':message.me}">{{message.date }}</span>
                                 </div>
                                 <i class="direct-chat-img fa fa-hand-o-left" style="cursor: pointer; font-size: 24px" ng-show="!message.me" ng-click="makeCurrent(message)" title="<?php echo xla('Click to activate and send to this recipient.'); ?>"></i>
                                 <i class="direct-chat-img fa fa-hand-o-right" style="cursor: pointer; font-size:24px" ng-show="message.me" ng-click="makeCurrent(message)" title="<?php echo xla('Click to activate and send to this recipient.'); ?>"></i>
@@ -622,10 +623,8 @@ $msgApp = new ChatController();
                             <form id='msgfrm' ng-submit="saveMessage()">
                                 <div class="input-group">
                                     <input type="text" placeholder="<?php echo xla('Type Message...'); ?>" id="msgedit" autofocus="autofocus" class="form-control" ng-model="me.message" ng-enter="saveMessage()">
-                                    <span class="input-group-append">
-                                        <button type="submit" class="btn btn-danger btn-flat"><?php echo xlt('Send'); ?></button>
-                                        <button type="button" class="btn btn-success btn-flat" ng-click="openModal(event)"><?php echo xlt('Edit'); ?></button>
-                                    </span>
+                                    <button type="submit" class="btn btn-danger btn-flat"><?php echo xlt('Send'); ?></button>
+                                    <button type="button" class="btn btn-success btn-flat" ng-click="openModal(event)"><?php echo xlt('Edit'); ?></button>
                                 </div>
                             </form>
                         </div>
@@ -633,7 +632,7 @@ $msgApp = new ChatController();
                 </div>
             </div>
             <div class="col-md-2 rtsidebar">
-                <h5><span class="badge badge-primary"><?php echo xlt("Online Users"); ?> : {{ online.total || '0' }}</span>
+                <h5><span class="badge bg-primary"><?php echo xlt("Online Users"); ?> : {{ online.total || '0' }}</span>
                 </h5>
                 <label ng-repeat="ol in onlines | unique : 'username'">
                     <input type="checkbox" data-checklist-model="onlines" data-checklist-value="ol"> {{ol.username}}
@@ -648,17 +647,17 @@ $msgApp = new ChatController();
                 <form>
                     <div class="modal-header">
                         <h5 class='modal-title'><?php echo xlt('You may send Message with Image or Video'); ?></h5>
-                        <button type="button" class="close" data-dismiss="modal">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal">
                             <span aria-hidden="true">&times;</span>
-                            <span class="sr-only"><?php echo xlt('Close'); ?></span>
+                            <span class="visually-hidden"><?php echo xlt('Close'); ?></span>
                         </button>
                     </div>
                     <div class="modal-body">
                         <textarea cols='80' rows='10' id='messageContent' name='content'></textarea>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-sm" data-dismiss="modal"><?php echo xlt('Dismiss'); ?></button>
-                        <button type="button" class="btn btn-success" data-dismiss="modal" ng-click="saveedit()"><?php echo xlt('Send It'); ?></button>
+                        <button type="button" class="btn btn-sm" data-bs-dismiss="modal"><?php echo xlt('Dismiss'); ?></button>
+                        <button type="button" class="btn btn-success" data-bs-dismiss="modal" ng-click="saveedit()"><?php echo xlt('Send It'); ?></button>
                     </div>
                 </form>
             </div>
@@ -669,9 +668,9 @@ $msgApp = new ChatController();
             <div class="modal-content">
                 <form>
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal">
                             <span aria-hidden="true">&times;</span>
-                            <span class="sr-only"><?php echo xlt('Close'); ?></span>
+                            <span class="visually-hidden"><?php echo xlt('Close'); ?></span>
                         </button>
                         <h4 class="modal-title"><?php echo xlt('Chat history'); ?></h4>
                     </div>
@@ -679,8 +678,8 @@ $msgApp = new ChatController();
                         <label class="radio"><?php echo xlt('Are you sure you want to clear chats session history?'); ?></label>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-sm btn-secondary" data-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
-                        <button type="button" class="btn btn-sm btn-primary" data-dismiss="modal" ng-click="clearHistory()"><?php echo xlt('Accept'); ?></button>
+                        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal"><?php echo xlt('Cancel'); ?></button>
+                        <button type="button" class="btn btn-sm btn-primary" data-bs-dismiss="modal" ng-click="clearHistory()"><?php echo xlt('Accept'); ?></button>
                     </div>
                 </form>
             </div>

@@ -1,8 +1,8 @@
 {# Group Therapy #}
 <div class="col-sm {{ enableGroupTherapy ? '' : 'd-none' }}">
     {% if enableGroupTherapy %}
-    <div class="form-group {{ therapyGroupCategories|length > 0 ? '' : 'd-none' }}" id="therapy_group_name" >
-        <label for="form_group" class="text-right">{{ "Group name"|xlt }}:</label>
+    <div class="mb-3 {{ therapyGroupCategories|length > 0 ? '' : 'd-none' }}" id="therapy_group_name" >
+        <label for="form_group" class="text-end">{{ "Group name"|xlt }}:</label>
         {# note in JS we will launch a selector for this see newpatient.js #}
         <input type='text'
                name='form_group'

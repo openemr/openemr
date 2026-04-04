@@ -76,11 +76,11 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
                             // Format the status with a nice looking badge
                             if (type === 'display') {
                                 if (data == 'success') {
-                                    data = '<span class="badge badge-success">' + jsText(data) + '</span>';
+                                    data = '<span class="badge bg-success">' + jsText(data) + '</span>';
                                 } else if (data == 'waiting') {
-                                    data = '<span class="badge badge-info">' + jsText(data) + '</span>';
+                                    data = '<span class="badge bg-info text-dark">' + jsText(data) + '</span>';
                                 } else {
-                                    data = '<span class="badge badge-warning">' + jsText(data) + '</span>';
+                                    data = '<span class="badge bg-warning text-dark">' + jsText(data) + '</span>';
                                 }
                             }
 

@@ -18,7 +18,6 @@ require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('srcdir') . '/csv_li
 require_once(\OpenEMR\Core\OEGlobalsBag::getInstance()->get('fileroot') . '/custom/code_types.inc.php');
 
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 $session = SessionWrapperFactory::getInstance()->getActiveSession();
@@ -99,10 +98,10 @@ $focus = "document.theform.search_term.select();";
         $string_target_element = !empty($target_element) ? "?target_element=" . attr_url($target_element) . "&" : "?";
         ?>
         <?php if (!empty($allowed_codes)) { ?>
-        <form class="form-inline" method='post' name='theform'
+        <form class="d-flex flex-wrap align-items-center gap-2" method='post' name='theform'
             action='find_code_popup.php<?php echo $string_target_element ?>codetype=<?php echo attr_url($codetype) ?>'>
         <?php } else { ?>
-        <form class="form-inline" method='post' name='theform'
+        <form class="d-flex flex-wrap align-items-center gap-2" method='post' name='theform'
             action='find_code_popup.php<?php echo $string_target_element ?>'>
         <?php } ?>
             <input type="hidden" name="csrf_token_form" value="<?php echo CsrfUtils::collectCsrfToken(session: $session); ?>" />
@@ -151,18 +150,16 @@ $focus = "document.theform.search_term.select();";
                         value='<?php echo attr($_REQUEST['search_term'] ?? ''); ?>'
                         title='<?php echo xla('Any part of the desired code or its description'); ?>'
                         placeholder="<?php echo xla('Search for'); ?>" />
-                    <div class="input-group-append">
-                        <button type='submit' class='btn btn-primary btn-search'
-                            name='bn_search' value='Search'></button>
-                        <?php if (!empty($target_element)) { ?>
-                        <button type='button' class='btn btn-primary btn-delete' value=''
-                            onclick="selcode_target('', '', '', '',
-                                <?php echo attr_js($target_element); ?>)"></button>
-                        <?php } else { ?>
-                        <button type='button' class='btn btn-danger btn-delete' value=''
-                            onclick="selcode('', '', '', '')"></button>
-                        <?php } ?>
-                    </div>
+                    <button type='submit' class='btn btn-primary btn-search'
+                        name='bn_search' value='Search'></button>
+                    <?php if (!empty($target_element)) { ?>
+                    <button type='button' class='btn btn-primary btn-delete' value=''
+                        onclick="selcode_target('', '', '', '',
+                            <?php echo attr_js($target_element); ?>)"></button>
+                    <?php } else { ?>
+                    <button type='button' class='btn btn-danger btn-delete' value=''
+                        onclick="selcode('', '', '', '')"></button>
+                    <?php } ?>
                 </div>
             </div>
             <?php
@@ -174,8 +171,8 @@ $focus = "document.theform.search_term.select();";
                 <div class="table-responsive">
                 <table class='table table-striped table-responsive-sm'>
                     <thead>
-                        <th class='font-weight-bold'><?php echo xlt('Code'); ?></th>
-                        <th class='font-weight-bold'><?php echo xlt('Description'); ?></th>
+                        <th class='fw-bold'><?php echo xlt('Code'); ?></th>
+                        <th class='fw-bold'><?php echo xlt('Description'); ?></th>
                     </thead>
                     <tbody>
                     <?php

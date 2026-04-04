@@ -14,11 +14,11 @@
 
 <script type="text/html" id="user-data-template">
     <!-- ko with: user -->
-    <div id="username-container" class="appMenu ml-3">
+    <div id="username-container" class="appMenu ms-3">
         <div class='menuLabel dropdown-toggle' id="username"
              title="{{ 'Current user'|xla }}"
              role="button"
-             data-toggle="dropdown"
+             data-bs-toggle="dropdown"
              aria-haspopup="true"
              aria-expanded="false">
             <span class="fa-stack">
@@ -26,29 +26,29 @@
                 <i class="fa text-muted fa-user fa-lg fa-stack-1x" aria-hidden="true" id="user_icon"></i>
             </span>
         </div>
-        <ul id="userdropdown" class="userfunctions menuEntries dropdown-menu dropdown-menu-right menu-shadow-ovr rounded-0 border-0">
+        <ul id="userdropdown" class="userfunctions menuEntries dropdown-menu dropdown-menu-end menu-shadow-ovr rounded-0 border-0">
             <li class="menuLabel">
-                <span class="font-weight-bold">
+                <span class="fw-bold">
                     <span data-bind="text:fname"></span> <span data-bind="text:lname"></span>
                 </span>
             </li>
             <li><a class="dropdown-item" data-bind="click: editSettings">
-                <i class="fa fa-fw pr-2 text-muted fa-cog"></i>&nbsp;{{ "Settings"|xlt }}
+                <i class="fa fa-fw pe-2 text-muted fa-cog"></i>&nbsp;{{ "Settings"|xlt }}
             </a></li>
             <li><a class="dropdown-item" data-bind="click: changePassword">
-                <i class="fa fa-fw pr-2 text-muted fa-lock"></i>&nbsp;{{ "Change Password"|xlt }}
+                <i class="fa fa-fw pe-2 text-muted fa-lock"></i>&nbsp;{{ "Change Password"|xlt }}
             </a></li>
             <li><a class="dropdown-item" data-bind="click: changeMFA">
-                <i class="fa fa-fw pr-2 text-muted fa-key"></i>&nbsp;{{ "MFA Management"|xlt }}
+                <i class="fa fa-fw pe-2 text-muted fa-key"></i>&nbsp;{{ "MFA Management"|xlt }}
             </a></li>
             <li class="dropdown-divider"></li>
             <li><a class="dropdown-item"
                    data-bind="click: function() {navigateTab('./../about_page.php', 'About', function() {activateTabByName('About',true);});}">
-                <i class="fa fa-fw pr-2 text-muted fa-info"></i>&nbsp;{{ "About"|xlt }} {{ openemr_name|text }}
+                <i class="fa fa-fw pe-2 text-muted fa-info"></i>&nbsp;{{ "About"|xlt }} {{ openemr_name|text }}
             </a></li>
             <li class="dropdown-divider"></li>
             <li><a class="dropdown-item" data-bind="click: logout">
-                <i class="fa fa-fw pr-2 text-muted fa-sign-out-alt"></i>&nbsp;{{ "Logout"|xlt }}
+                <i class="fa fa-fw pe-2 text-muted fa-sign-out-alt"></i>&nbsp;{{ "Logout"|xlt }}
             </a></li>
         </ul>
     </div>

@@ -15,7 +15,7 @@
 use OpenEMR\ClinicalDecisionRules\Interface\RuleTemplateExtension;
 
 ?>
-<p class="form-row">
+<p class="row gx-2">
     <span class="left_col colhead req" data-fld="fld_sex"><?php echo xlt('Sex');?></span>
     <span class="end_col">
     <?php echo RuleTemplateExtension::render_select(array( "target"   =>  "fld_sex",

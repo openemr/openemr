@@ -471,8 +471,8 @@ function install(done) {
                 gulp.src("node_modules/" + key + "/locales/**/*").pipe(
                     gulp.dest(config.dist.assets + key + "/locales")
                 );
-            } else if (key == "bootstrap" || key == "bootstrap-rtl") {
-                // bootstrap and bootstrap-v4-rtl are special and need to copy dist and scss
+            } else if (key == "bootstrap") {
+                // bootstrap is special and need to copy dist and scss
                 gulp.src("node_modules/" + key + "/dist/**/*").pipe(
                     gulp.dest(config.dist.assets + key + "/dist")
                 );

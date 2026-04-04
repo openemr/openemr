@@ -34,7 +34,7 @@
 <body>
 
  <div class="container mt-3">
-    <div class="row no-gutters">
+    <div class="row g-0">
         <div class="col-4">
             <h2 class="h2-responsive">
                 {{ "Vitals"|xlt }}&nbsp;&nbsp;&nbsp;
@@ -45,7 +45,7 @@
             </h2>
         </div>
         {% if hasMoreVitals %}
-        <div class="col-8 text-right">
+        <div class="col-8 text-end">
                 <h6 class="h6-responsive"><a href="#patient-vitals-history" class="text-decoration-none">{{ "See More Vital Records History"|xlt }}</a></h6>
         </div>
         {% endif %}
@@ -54,7 +54,7 @@
                 <input type="hidden" name="csrf_token_form" value="{{ CSRF_TOKEN_FORM|attr }}" />
                 {% if has_id %}
                 <div class="row">
-                    <div class="col-md-auto p-3 font-weight-bold text-right">
+                    <div class="col-md-auto p-3 fw-bold text-end">
                         <label for="date">{{ "Date"|xlt }}</label>
                     </div>
                     <div class="col-md-auto p-2">
@@ -69,8 +69,8 @@
 
                             <thead class="table-head">
                                 <tr>
-                                    <th class="text-left"><span class="vitals-title">{{ "Name"|xlt }}</span></th>
-                                    <th class="text-left">{{ "Unit"|xlt }}</th>
+                                    <th class="text-start"><span class="vitals-title">{{ "Name"|xlt }}</span></th>
+                                    <th class="text-start">{{ "Unit"|xlt }}</th>
                                     <th class="editonly">{{ "Value"|xlt }}</th>
                                     <th class="editonly">{{ "Abn"|xlt }}</th>
                                     <th class="editonly">{{ "Actions"|xlt }}</th>
@@ -101,8 +101,8 @@
                         </table>
 
                     </div>
-                <div class="form-group">
-                    <div class="text-left position-override">
+                <div class="mb-3">
+                    <div class="text-start position-override">
                         <div class="btn-group" role="group">
                             <button type="submit" class="btn btn-primary btn-save editonly" name="Submit" value=''>{{ "Save"|xlt }}</button>
                             <button type="button" class="btn btn-secondary btn-cancel editonly" id="cancel" value=''>{{ "Cancel"|xlt }}</button>

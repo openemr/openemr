@@ -360,7 +360,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
     }
 </script>
 <body id="dragandrophandler" style="min-height: 600px">
-    <form class="form-inline" method="post" enctype="multipart/form-data" id="form_ccda_import">
+    <form class="d-flex flex-wrap align-items-center" method="post" enctype="multipart/form-data" id="form_ccda_import">
         <input type="hidden" name="action" id="action">
         <input type="hidden" name="am_id" id="am_id">
         <input type="hidden" name="document_id" id="document_id">
@@ -533,7 +533,7 @@ echo $this->headScript()->prependFile($this->basePath() . '/js/autosuggest/autos
                 <?php } ?>
                 <div class="clear"></div>
                 <!--Display upload status-->
-                <div class="container float-right" style="display: none" id="status1"></div>
+                <div class="container float-end" style="display: none" id="status1"></div>
                 <div style="text-align: center;">
                     <button type="button" class="btn btn-primary" style="margin-top: .250rem;" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"><?php echo xlt('Scroll to Top'); ?></button>
                 </div>

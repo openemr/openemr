@@ -132,7 +132,7 @@ if (isset($_GET['typeid'])) {
 <body>
 <div class="container">
     <div class="row">
-        <form class="form-inline" method='post' name='theform' action='find_order_popup.php<?php echo "?order=" . attr_url($order) . "&labid=" . attr_url($labid);
+        <form class="d-flex flex-wrap align-items-center gap-2" method='post' name='theform' action='find_order_popup.php<?php echo "?order=" . attr_url($order) . "&labid=" . attr_url($labid);
         if (isset($_GET['formid'])) {
             echo '&formid=' . attr_url($_GET['formid']);
         }
@@ -148,13 +148,11 @@ if (isset($_GET['typeid'])) {
                 <div class="input-group">
                 <input type="hidden" name='isfav' value='<?php echo attr($_REQUEST['ordLookup'] ?? ''); ?>' />
                 <input class="form-control" id='search_term' name='search_term' value='<?php echo attr($_REQUEST['search_term'] ?? ''); ?>' title='<?php echo xla('Any part of the desired code or its description'); ?>' placeholder="<?php echo xla('Search for') ?>&hellip;"/>
-                <span class="input-group-append">
-                    <button type="submit" class="btn btn-primary btn-search" name='bn_search' value="true"><?php echo xlt('Search'); ?></button>
-                        <?php if (!isset($_REQUEST['addfav'])) { ?>
-                        <button type="submit" class="btn btn-primary btn-search" name='bn_grpsearch' value="true"><?php echo xlt('Favorites'); ?></button>
-                        <?php } ?>
-                    <button type="button" class="btn btn-danger btn-delete" onclick="selcode(0)"><?php echo xlt('Erase'); ?></button>
-                    </span>
+                <button type="submit" class="btn btn-primary btn-search" name='bn_search' value="true"><?php echo xlt('Search'); ?></button>
+                <?php if (!isset($_REQUEST['addfav'])) { ?>
+                <button type="submit" class="btn btn-primary btn-search" name='bn_grpsearch' value="true"><?php echo xlt('Favorites'); ?></button>
+                <?php } ?>
+                <button type="button" class="btn btn-danger btn-delete" onclick="selcode(0)"><?php echo xlt('Erase'); ?></button>
             </div>
         </div>
         <?php if (!empty($_REQUEST['bn_search']) || !empty($_REQUEST['bn_grpsearch'])) { ?>
