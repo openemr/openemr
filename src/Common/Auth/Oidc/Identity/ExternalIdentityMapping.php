@@ -67,10 +67,27 @@ final readonly class ExternalIdentityMapping
      */
     public static function fromDatabaseRow(array $row): self
     {
+        $rawUserId = $row['user_id'] ?? null;
+        $rawIssuer = $row['issuer'] ?? null;
+        $rawExternalId = $row['external_id'] ?? null;
+        $rawId = $row['id'] ?? null;
+
+        if (!is_numeric($rawUserId)) {
+            throw new \DomainException('Database row missing numeric user_id');
+        }
+
+        if (!is_string($rawIssuer)) {
+            throw new \DomainException('Database row missing string issuer');
+        }
+
+        if (!is_string($rawExternalId)) {
+            throw new \DomainException('Database row missing string external_id');
+        }
+
         return new self(
-            userId: (int) $row['user_id'],
-            issuer: (string) $row['issuer'],
-            externalId: (string) $row['external_id'],
+            userId: (int) $rawUserId,
+            issuer: $rawIssuer,
+            externalId: $rawExternalId,
             email: isset($row['email']) && is_string($row['email']) ? $row['email'] : null,
             createdAt: isset($row['created_at']) && is_string($row['created_at'])
                 ? new \DateTimeImmutable($row['created_at'])
@@ -78,7 +95,7 @@ final readonly class ExternalIdentityMapping
             updatedAt: isset($row['updated_at']) && is_string($row['updated_at'])
                 ? new \DateTimeImmutable($row['updated_at'])
                 : null,
-            id: isset($row['id']) ? (int) $row['id'] : null,
+            id: is_numeric($rawId) ? (int) $rawId : null,
         );
     }
 }

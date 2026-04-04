@@ -55,14 +55,20 @@ final class OidcTokenValidatorTest extends TestCase
         $privateKeyPem = $rsaKey->toString('PKCS8');
         $publicKeyPem = $rsaKey->getPublicKey()->toString('PKCS8');
 
+        self::assertNotEmpty($privateKeyPem, 'RSA private key PEM must not be empty');
         $this->privateKey = InMemory::plainText($privateKeyPem);
 
         // Extract n and e for JWKS response
-        $publicKeyDetails = openssl_pkey_get_details(openssl_pkey_get_public($publicKeyPem));
-        assert(is_array($publicKeyDetails) && isset($publicKeyDetails['rsa']));
+        $publicKeyResource = openssl_pkey_get_public($publicKeyPem);
+        self::assertNotFalse($publicKeyResource, 'Failed to load public key');
+        $publicKeyDetails = openssl_pkey_get_details($publicKeyResource);
+        self::assertIsArray($publicKeyDetails, 'Failed to get public key details');
+        self::assertArrayHasKey('rsa', $publicKeyDetails);
+        /** @var array{n: string, e: string} $rsaDetails */
+        $rsaDetails = $publicKeyDetails['rsa'];
         $this->jwkComponents = [
-            'n' => rtrim(strtr(base64_encode((string) $publicKeyDetails['rsa']['n']), '+/', '-_'), '='),
-            'e' => rtrim(strtr(base64_encode((string) $publicKeyDetails['rsa']['e']), '+/', '-_'), '='),
+            'n' => rtrim(strtr(base64_encode($rsaDetails['n']), '+/', '-_'), '='),
+            'e' => rtrim(strtr(base64_encode($rsaDetails['e']), '+/', '-_'), '='),
         ];
 
         $this->httpClient = new FakeHttpClient();
@@ -175,7 +181,6 @@ final class OidcTokenValidatorTest extends TestCase
 
         $result = $this->validator->validate($jwt, self::JWKS_URI, $this->params);
 
-        self::assertInstanceOf(ValidatedToken::class, $result);
         self::assertSame('user-123', $result->identity->externalId);
         self::assertSame(self::ISSUER, $result->identity->issuer);
         self::assertSame('user@example.com', $result->identity->email);
@@ -330,7 +335,9 @@ final class OidcTokenValidatorTest extends TestCase
     {
         // Build a token signed with a different key
         $otherKey = RSA::createKey(2048);
-        $otherPrivateKey = InMemory::plainText($otherKey->toString('PKCS8'));
+        $otherPem = $otherKey->toString('PKCS8');
+        self::assertNotEmpty($otherPem, 'RSA private key PEM must not be empty');
+        $otherPrivateKey = InMemory::plainText($otherPem);
 
         $config = Configuration::forAsymmetricSigner(
             new Sha256(),
@@ -399,8 +406,8 @@ final class OidcTokenValidatorTest extends TestCase
     public function testRejectsAlgorithmNone(): void
     {
         // Craft a token with alg: none by manually building a JWT
-        $header = base64_encode(json_encode(['alg' => 'none', 'typ' => 'JWT']));
-        $payload = base64_encode(json_encode([
+        $header = base64_encode((string) json_encode(['alg' => 'none', 'typ' => 'JWT']));
+        $payload = base64_encode((string) json_encode([
             'iss' => self::ISSUER,
             'aud' => self::AUDIENCE,
             'sub' => 'user-123',
@@ -459,12 +466,12 @@ final class OidcTokenValidatorTest extends TestCase
 
         // Build a token that claims to be HS256 — should be rejected
         // because signerForAlgorithm has no HS256 signer
-        $header = rtrim(strtr(base64_encode(json_encode([
+        $header = rtrim(strtr(base64_encode((string) json_encode([
             'alg' => 'HS256',
             'typ' => 'JWT',
             'kid' => self::KID,
         ])), '+/', '-_'), '=');
-        $payload = rtrim(strtr(base64_encode(json_encode([
+        $payload = rtrim(strtr(base64_encode((string) json_encode([
             'iss' => self::ISSUER,
             'aud' => self::AUDIENCE,
             'sub' => 'user-123',

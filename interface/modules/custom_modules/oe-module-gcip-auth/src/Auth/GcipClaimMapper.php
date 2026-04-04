@@ -52,7 +52,7 @@ final class GcipClaimMapper implements ClaimMapperInterface
             externalId: $claims['sub'],
             issuer: $claims['iss'],
             email: $claims['email'],
-            emailVerified: !empty($claims['email_verified']),
+            emailVerified: isset($claims['email_verified']) && $claims['email_verified'] === true,
             displayName: $name,
             tenantId: $tenantId,
         );

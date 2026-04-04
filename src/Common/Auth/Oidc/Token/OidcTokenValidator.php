@@ -27,6 +27,7 @@ declare(strict_types=1);
 
 namespace OpenEMR\Common\Auth\Oidc\Token;
 
+use Lcobucci\Clock\Clock;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Signer;
 use Lcobucci\JWT\Signer\Key\InMemory;
@@ -39,7 +40,6 @@ use Lcobucci\JWT\Validation\Constraint\PermittedFor;
 use Lcobucci\JWT\Validation\Constraint\SignedWith;
 use Lcobucci\JWT\Validation\Constraint\StrictValidAt;
 use Lcobucci\JWT\Validation\RequiredConstraintsViolated;
-use Lcobucci\Clock\Clock;
 use OpenEMR\Common\Auth\Oidc\Identity\ClaimMapperInterface;
 use phpseclib3\Crypt\PublicKeyLoader;
 use phpseclib3\Math\BigInteger;
@@ -67,6 +67,7 @@ final readonly class OidcTokenValidator
         string $jwksUri,
         OidcValidationParameters $parameters,
     ): ValidatedToken {
+        /** @phpstan-ignore staticMethod.deprecated (used only for parsing, not signing — no non-deprecated alternative in lcobucci/jwt v4.x) */
         $configuration = Configuration::forUnsecuredSigner();
 
         // Step 1: Parse the JWT
@@ -188,7 +189,12 @@ final readonly class OidcTokenValidator
         /** @var \phpseclib3\Crypt\RSA\PublicKey $rsaKey */
         $rsaKey = PublicKeyLoader::load(['n' => $n, 'e' => $e]);
 
-        return InMemory::plainText($rsaKey->toString('PKCS8'));
+        $pem = $rsaKey->toString('PKCS8');
+        if ($pem === '') {
+            throw new OidcTokenValidationException('RSA key produced empty PEM output');
+        }
+
+        return InMemory::plainText($pem);
     }
 
     private function base64UrlDecode(string $data): string

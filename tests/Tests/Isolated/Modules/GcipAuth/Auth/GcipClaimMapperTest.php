@@ -81,7 +81,10 @@ final class GcipClaimMapperTest extends TestCase
     public function testMapWithFirebaseButNoTenant(): void
     {
         $claims = self::gcipClaims();
-        unset($claims['firebase']['tenant']);
+        /** @var array<string, mixed> $firebase */
+        $firebase = $claims['firebase'];
+        unset($firebase['tenant']);
+        $claims['firebase'] = $firebase;
 
         $identity = $this->mapper->map($claims);
 

@@ -21,6 +21,7 @@ namespace OpenEMR\Common\Auth;
 
 use MyMailer;
 use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Common\Logging\SystemLogger;
 use OpenEMR\Core\OEGlobalsBag;
 
 final class IpLoginRateLimiter
@@ -79,6 +80,7 @@ final class IpLoginRateLimiter
             return IpBlockStatus::allowed();
         }
 
+        /** @var array<string, int|string|null> $row */
         $row = $rows[0];
 
         // Manually force-blocked
@@ -139,7 +141,9 @@ final class IpLoginRateLimiter
             );
 
             if ($rows !== []) {
-                $secondsSinceLastFail = (int) ($rows[0]['seconds_since_last_fail'] ?? 0);
+                /** @var array<string, int|string|null> $firstRow */
+                $firstRow = $rows[0];
+                $secondsSinceLastFail = (int) ($firstRow['seconds_since_last_fail'] ?? 0);
                 if ($secondsSinceLastFail > $timeoutSeconds) {
                     QueryUtils::sqlStatementThrowException(
                         'UPDATE `' . self::TABLE . '` SET'
@@ -199,7 +203,7 @@ final class IpLoginRateLimiter
         $returnPath = $globals->getString('practice_return_email_path');
 
         if ($senderEmail === '' || $returnPath === '') {
-            error_log(
+            (new SystemLogger())->warning(
                 'Unable to send OpenEMR admin email notification since either'
                 . ' patient_reminder_sender_email or practice_return_email_path global was not set',
             );
@@ -262,7 +266,8 @@ final class IpLoginRateLimiter
 
         $whereClause = $where !== [] ? 'WHERE ' . implode(' AND ', $where) : '';
 
-        return QueryUtils::fetchRecords(
+        /** @var list<array<string, mixed>> $results */
+        $results = QueryUtils::fetchRecords(
             'SELECT `id`, `ip_string`, `ip_force_block`, `ip_no_prevent_timing_attack`,'
             . ' `total_ip_login_fail_counter`, `ip_login_fail_counter`, `ip_last_login_fail`,'
             . ' TIMESTAMPDIFF(SECOND, `ip_last_login_fail`, NOW()) AS `seconds_last_ip_login_fail`'
@@ -270,6 +275,8 @@ final class IpLoginRateLimiter
             . ' ORDER BY `ip_last_login_fail` DESC, `total_ip_login_fail_counter` DESC',
             $binds,
         );
+
+        return $results;
     }
 
     /**

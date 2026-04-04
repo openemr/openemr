@@ -24,7 +24,6 @@ use PHPUnit\Framework\TestCase;
 final class GcipConfigServiceTest extends TestCase
 {
     private GcipConfigService $service;
-    private bool $tableCreated = false;
 
     protected function setUp(): void
     {
@@ -60,7 +59,6 @@ final class GcipConfigServiceTest extends TestCase
                 . ' PRIMARY KEY (`config_key`)'
                 . ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4',
             );
-            $this->tableCreated = true;
         }
     }
 

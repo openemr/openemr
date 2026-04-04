@@ -152,6 +152,7 @@ final readonly class JwksClient
             }
 
             try {
+                /** @var array<string, mixed> $rawKey */
                 $keys[] = JsonWebKey::fromArray($rawKey);
             } catch (JwksException) {
                 // Skip malformed keys — a JWKS may contain keys we don't understand

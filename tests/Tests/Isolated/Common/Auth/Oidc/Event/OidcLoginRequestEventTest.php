@@ -62,6 +62,7 @@ final class OidcLoginRequestEventTest extends TestCase
 
     public function testHasEventNameConstant(): void
     {
-        self::assertSame('oidc.login.request', OidcLoginRequestEvent::EVENT_NAME);
+        $eventName = OidcLoginRequestEvent::EVENT_NAME;
+        self::assertSame('oidc.login.request', $eventName);
     }
 }

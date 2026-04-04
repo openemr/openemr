@@ -64,7 +64,7 @@ final readonly class GcipAuthHandler
         // Resolve JWKS URI from discovery
         try {
             $metadata = $this->discoveryClient->getMetadata($issuer);
-        } catch (\Throwable $e) {
+        } catch (\Throwable) {
             EventAuditLogger::getInstance()->newEvent(
                 'login',
                 '',
@@ -125,10 +125,11 @@ final readonly class GcipAuthHandler
             return;
         }
 
-        if (empty($userRow['active'])) {
+        if (!isset($userRow['active']) || $userRow['active'] === 0 || $userRow['active'] === '0' || $userRow['active'] === '') {
+            $disabledUsername = is_string($userRow['username'] ?? null) ? $userRow['username'] : '';
             EventAuditLogger::getInstance()->newEvent(
                 'login',
-                (string) ($userRow['username'] ?? ''),
+                $disabledUsername,
                 '',
                 0,
                 'GCIP OIDC user account is disabled',
@@ -136,12 +137,14 @@ final readonly class GcipAuthHandler
             return;
         }
 
+        $username = is_string($userRow['username'] ?? null) ? $userRow['username'] : '';
+
         // Resolve auth group
         $authGroup = $this->resolveAuthGroup($mapping->userId);
         if ($authGroup === '') {
             EventAuditLogger::getInstance()->newEvent(
                 'login',
-                (string) ($userRow['username'] ?? ''),
+                $username,
                 '',
                 0,
                 'GCIP OIDC user has no ACL group',
@@ -150,11 +153,11 @@ final readonly class GcipAuthHandler
         }
 
         // Get password hash for session verification
-        $passwordHash = $this->fetchPasswordHash((string) ($userRow['username'] ?? ''));
+        $passwordHash = $this->fetchPasswordHash($username);
 
         // Set authenticated user on the event
         $event->setAuthenticatedUser(
-            (string) $userRow['username'],
+            $username,
             $passwordHash,
             $userRow,
             $authGroup,
@@ -171,7 +174,7 @@ final readonly class GcipAuthHandler
         $authEvent = new OidcAuthenticationEvent(
             identity: $validatedToken->identity,
             userId: $mapping->userId,
-            username: (string) $userRow['username'],
+            username: $username,
             expiresAt: $validatedToken->expiresAt,
             jti: $validatedToken->jti,
             claims: $validatedToken->claims,
@@ -180,7 +183,7 @@ final readonly class GcipAuthHandler
 
         EventAuditLogger::getInstance()->newEvent(
             'login',
-            (string) $userRow['username'],
+            $username,
             $authGroup,
             1,
             'success via GCIP OIDC',
@@ -197,7 +200,13 @@ final readonly class GcipAuthHandler
             [$userId],
         );
 
-        return $rows[0] ?? null;
+        if ($rows === []) {
+            return null;
+        }
+
+        /** @var array<string, mixed> $row */
+        $row = $rows[0];
+        return $row;
     }
 
     private function resolveAuthGroup(int $userId): string
@@ -214,7 +223,8 @@ final readonly class GcipAuthHandler
             return '';
         }
 
-        return (string) ($rows[0]['value'] ?? '');
+        $value = $rows[0]['value'] ?? '';
+        return is_string($value) ? $value : '';
     }
 
     private function fetchPasswordHash(string $username): string
@@ -228,6 +238,7 @@ final readonly class GcipAuthHandler
             return '';
         }
 
-        return (string) ($rows[0]['password'] ?? '');
+        $password = $rows[0]['password'] ?? '';
+        return is_string($password) ? $password : '';
     }
 }

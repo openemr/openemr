@@ -14,6 +14,7 @@
  * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  */
 
+use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Core\AbstractModuleActionListener;
 
 class ModuleManagerListener extends AbstractModuleActionListener
@@ -31,7 +32,9 @@ class ModuleManagerListener extends AbstractModuleActionListener
     public function moduleManagerAction($methodName, $modId, string $currentActionStatus = 'Success'): string
     {
         if (method_exists(self::class, $methodName)) {
-            return self::$methodName($modId, $currentActionStatus);
+            /** @var string $result */
+            $result = self::$methodName($modId, $currentActionStatus);
+            return $result;
         }
 
         return $currentActionStatus;
@@ -79,7 +82,7 @@ class ModuleManagerListener extends AbstractModuleActionListener
      */
     private static function setModuleState(string $modId, string $flagActive, string $flagUiActive): void
     {
-        sqlQuery(
+        QueryUtils::sqlStatementThrowException(
             'UPDATE `modules` SET `mod_active` = ?, `mod_ui_active` = ? WHERE `mod_id` = ?',
             [$flagActive, $flagUiActive, $modId],
         );

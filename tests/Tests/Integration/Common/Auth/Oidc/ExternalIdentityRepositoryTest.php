@@ -128,6 +128,6 @@ final class ExternalIdentityRepositoryTest extends TestCase
         $this->repository->remove(99999);
 
         // No exception — just a no-op
-        self::assertTrue(true);
+        self::addToAssertionCount(1);
     }
 }

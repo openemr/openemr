@@ -42,13 +42,14 @@ final readonly class AdminController
         }
 
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
-        if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '', session: $session)) {
+        $csrfToken = filter_input(INPUT_POST, 'csrf_token') ?? '';
+        if (!CsrfUtils::verifyCsrfToken($csrfToken, session: $session)) {
             http_response_code(403);
             echo json_encode(['error' => 'CSRF verification failed']);
             return;
         }
 
-        $action = $_POST['action'] ?? '';
+        $action = filter_input(INPUT_POST, 'action') ?? '';
 
         try {
             match ($action) {
@@ -74,8 +75,9 @@ final readonly class AdminController
         ];
 
         foreach ($fields as $field) {
-            if (isset($_POST[$field])) {
-                $this->configService->set($field, trim((string) $_POST[$field]));
+            $value = filter_input(INPUT_POST, $field);
+            if (is_string($value)) {
+                $this->configService->set($field, trim($value));
             }
         }
 

@@ -32,7 +32,9 @@ final class ExternalIdentityRepository
             return null;
         }
 
-        return ExternalIdentityMapping::fromDatabaseRow($rows[0]);
+        /** @var array<string, mixed> $row */
+        $row = $rows[0];
+        return ExternalIdentityMapping::fromDatabaseRow($row);
     }
 
     /**
@@ -49,7 +51,9 @@ final class ExternalIdentityRepository
             return null;
         }
 
-        return ExternalIdentityMapping::fromDatabaseRow($rows[0]);
+        /** @var array<string, mixed> $row */
+        $row = $rows[0];
+        return ExternalIdentityMapping::fromDatabaseRow($row);
     }
 
     /**

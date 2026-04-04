@@ -38,7 +38,7 @@ final class AuthUtilsIpDelegationTest extends TestCase
         }
 
         // Inject a deterministic IP so AuthUtils -> collectIpAddresses() returns it
-        $this->originalRemoteAddr = $_SERVER['REMOTE_ADDR'] ?? null;
+        $this->originalRemoteAddr = is_string($_SERVER['REMOTE_ADDR'] ?? null) ? $_SERVER['REMOTE_ADDR'] : null;
         $_SERVER['REMOTE_ADDR'] = self::TEST_IP;
 
         // Ensure clean slate for our test IP
@@ -67,6 +67,7 @@ final class AuthUtilsIpDelegationTest extends TestCase
         );
     }
 
+    /** @return array<string, int|string|null>|null */
     private function getIpTrackingRow(): ?array
     {
         $rows = QueryUtils::fetchRecords(

@@ -60,6 +60,7 @@ final class OidcLogoutEventTest extends TestCase
 
     public function testHasEventNameConstant(): void
     {
-        self::assertSame('oidc.logout', OidcLogoutEvent::EVENT_NAME);
+        $eventName = OidcLogoutEvent::EVENT_NAME;
+        self::assertSame('oidc.logout', $eventName);
     }
 }

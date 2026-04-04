@@ -159,8 +159,10 @@ final class IpLoginRateLimiterTest extends TestCase
             [self::TEST_IP],
         );
 
-        self::assertSame('2', (string) $rows[0]['ip_login_fail_counter']);
-        self::assertSame('2', (string) $rows[0]['total_ip_login_fail_counter']);
+        /** @var array<string, int|string|null> $row */
+        $row = $rows[0];
+        self::assertSame('2', (string) $row['ip_login_fail_counter']);
+        self::assertSame('2', (string) $row['total_ip_login_fail_counter']);
     }
 
     public function testRecordSuccessfulLoginResetsCounter(): void
@@ -176,10 +178,12 @@ final class IpLoginRateLimiterTest extends TestCase
             [self::TEST_IP],
         );
 
-        self::assertSame('0', (string) $rows[0]['ip_login_fail_counter']);
+        /** @var array<string, int|string|null> $row */
+        $row = $rows[0];
+        self::assertSame('0', (string) $row['ip_login_fail_counter']);
         // Total counter is NOT reset (lifetime counter)
-        self::assertSame('2', (string) $rows[0]['total_ip_login_fail_counter']);
-        self::assertNull($rows[0]['ip_last_login_fail']);
+        self::assertSame('2', (string) $row['total_ip_login_fail_counter']);
+        self::assertNull($row['ip_last_login_fail']);
     }
 
     public function testCollectFailedLoginsReturnsAllRecords(): void
@@ -243,7 +247,9 @@ final class IpLoginRateLimiterTest extends TestCase
             'SELECT `id` FROM `ip_tracking` WHERE `ip_string` = ?',
             [self::TEST_IP],
         );
-        $ipId = (int) $rows[0]['id'];
+        /** @var array<string, int|string|null> $idRow */
+        $idRow = $rows[0];
+        $ipId = (int) $idRow['id'];
 
         IpLoginRateLimiter::resetCounterById($ipId);
 
@@ -252,7 +258,9 @@ final class IpLoginRateLimiterTest extends TestCase
             [self::TEST_IP],
         );
 
-        self::assertSame('0', (string) $rows[0]['ip_login_fail_counter']);
+        /** @var array<string, int|string|null> $counterRow */
+        $counterRow = $rows[0];
+        self::assertSame('0', (string) $counterRow['ip_login_fail_counter']);
     }
 
     public function testForceBlockAndUnblock(): void
@@ -263,7 +271,9 @@ final class IpLoginRateLimiterTest extends TestCase
             'SELECT `id` FROM `ip_tracking` WHERE `ip_string` = ?',
             [self::TEST_IP],
         );
-        $ipId = (int) $rows[0]['id'];
+        /** @var array<string, int|string|null> $idRow */
+        $idRow = $rows[0];
+        $ipId = (int) $idRow['id'];
 
         IpLoginRateLimiter::forceBlock($ipId);
 
@@ -285,7 +295,9 @@ final class IpLoginRateLimiterTest extends TestCase
             'SELECT `id` FROM `ip_tracking` WHERE `ip_string` = ?',
             [self::TEST_IP],
         );
-        $ipId = (int) $rows[0]['id'];
+        /** @var array<string, int|string|null> $idRow */
+        $idRow = $rows[0];
+        $ipId = (int) $idRow['id'];
 
         IpLoginRateLimiter::disableTimingAttackPrevention($ipId);
 
@@ -293,7 +305,9 @@ final class IpLoginRateLimiterTest extends TestCase
             'SELECT `ip_no_prevent_timing_attack` FROM `ip_tracking` WHERE `ip_string` = ?',
             [self::TEST_IP],
         );
-        self::assertSame('1', (string) $rows[0]['ip_no_prevent_timing_attack']);
+        /** @var array<string, int|string|null> $timingRow */
+        $timingRow = $rows[0];
+        self::assertSame('1', (string) $timingRow['ip_no_prevent_timing_attack']);
 
         IpLoginRateLimiter::enableTimingAttackPrevention($ipId);
 
@@ -301,6 +315,8 @@ final class IpLoginRateLimiterTest extends TestCase
             'SELECT `ip_no_prevent_timing_attack` FROM `ip_tracking` WHERE `ip_string` = ?',
             [self::TEST_IP],
         );
-        self::assertSame('0', (string) $rows[0]['ip_no_prevent_timing_attack']);
+        /** @var array<string, int|string|null> $timingRow2 */
+        $timingRow2 = $rows[0];
+        self::assertSame('0', (string) $timingRow2['ip_no_prevent_timing_attack']);
     }
 }
