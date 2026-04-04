@@ -89,16 +89,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Result of && is always false\\.$#',
     'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/PatientRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Result of && is always false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/UserRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Result of && is always false\\.$#',
-    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceRequestService.php',
 ];
 $ignoreErrors[] = [

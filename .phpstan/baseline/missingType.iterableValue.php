@@ -1967,11 +1967,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/POSRef.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method Prescription\\:\\:set_diagnosis\\(\\) has parameter \\$diagnosis with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method HTML_TreeMenu\\:\\:createFromStructure\\(\\) has parameter \\$params with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/TreeMenu.php',
@@ -4257,11 +4252,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Command/GenerateAccessTokenCommand.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Crypto\\\\CryptoGen\\:\\:formatExceptionMessage\\(\\) has parameter \\$stackTrace with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Crypto/CryptoGen.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Crypto\\\\CryptoGen\\:\\:sqlQueryNoLog\\(\\) has parameter \\$binds with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Crypto/CryptoGen.php',
@@ -4457,11 +4447,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Http/HttpSessionFactory.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\HttpSessionFactory\\:\\:getSessionSettings\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Http/HttpSessionFactory.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Http\\\\Psr17Factory\\:\\:createServerRequest\\(\\) has parameter \\$serverParams with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Http/Psr17Factory.php',
@@ -4532,52 +4517,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/Logging/EventAuditLogger.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:alert\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:critical\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:debug\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:emergency\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:errorLogCaller\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:error\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:info\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:log\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:notice\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\:\\:warning\\(\\) has parameter \\$context with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Logging/SystemLogger.php',
 ];
@@ -4627,84 +4567,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/ORDataObject/Person.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\PHPSessionWrapper\\:\\:all\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/PHPSessionWrapper.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Session\\\\Predis\\\\SentinelUtil\\:\\:\\$predisSentinels type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Session/Predis/SentinelUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionConfigurationBuilder\\:\\:build\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionConfigurationBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionConfigurationBuilder\\:\\:forApi\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionConfigurationBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionConfigurationBuilder\\:\\:forCore\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionConfigurationBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionConfigurationBuilder\\:\\:forOAuth\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionConfigurationBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionConfigurationBuilder\\:\\:forPortal\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionConfigurationBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionConfigurationBuilder\\:\\:forSetup\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionConfigurationBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Session\\\\SessionConfigurationBuilder\\:\\:\\$config type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionConfigurationBuilder.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionUtil\\:\\:getSessionStorage\\(\\) has parameter \\$sessionSettings with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionUtil\\:\\:sessionStartWrapper\\(\\) has parameter \\$settings with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Common\\\\Session\\\\SessionUtil\\:\\:\\$SESSION_INSTANCES type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionWrapperFactory\\:\\:findSessionWrapper\\(\\) has parameter \\$initData with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionWrapperFactory.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionWrapperFactory\\:\\:getWrapper\\(\\) has parameter \\$initData with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionWrapperFactory.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionWrapperInterface\\:\\:all\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionWrapperInterface.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SymfonySessionWrapper\\:\\:all\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SymfonySessionWrapper.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Common\\\\Twig\\\\TwigContainer\\:\\:\\$paths type has no value type specified in iterable type array\\.$#',
@@ -8827,32 +8692,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/SMART/ActionUrlBuilder.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\ClientAdminController\\:\\:getAccessTokensForClientUser\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\ClientAdminController\\:\\:getActionUrl\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\ClientAdminController\\:\\:getDatabaseRecordForToken\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\ClientAdminController\\:\\:getDefaultNavData\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\ClientAdminController\\:\\:getRefreshTokensForClientUser\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\ClientAdminController\\:\\:parseTokenIntoParts\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
 ];
@@ -8900,11 +8740,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\SmartLaunchController\\:\\:redirectAndLaunchSmartApp\\(\\) has parameter \\$intentData with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/SMART/SmartLaunchController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:__construct\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/Gacl.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Gacl\\\\Gacl\\:\\:acl_query\\(\\) return type has no value type specified in iterable type array\\.$#',
@@ -15357,11 +15192,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Api/AllergyIntoleranceFhirApiTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:setHeaders\\(\\) has parameter \\$headers with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\AuthorizationGrantFlowTest\\:\\:requestTestRegistrationEndpoint\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Api/AuthorizationGrantFlowTest.php',
@@ -15602,67 +15432,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Common/Auth/OpenIDConnect/SMARTSessionTokenContextIntegrationTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\EmailSendTest\\:\\:getLatestEmailForRecipient\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/EmailSendTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\EmailSendTest\\:\\:getMailpitMessage\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/EmailSendTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\EmailSendTest\\:\\:getMailpitMessages\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/EmailSendTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\EmailSendTest\\:\\:searchMailpitMessages\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/EmailSendTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\EmailSendTest\\:\\:waitForEmail\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/EmailSendTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\FaxSmsEmailTest\\:\\:getLatestEmailForRecipient\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FaxSmsEmailTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\FaxSmsEmailTest\\:\\:getMailpitMessage\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FaxSmsEmailTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\FaxSmsEmailTest\\:\\:getMailpitMessages\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FaxSmsEmailTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\FaxSmsEmailTest\\:\\:searchMailpitMessages\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FaxSmsEmailTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\FaxSmsEmailTest\\:\\:waitForEmail\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FaxSmsEmailTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:getQueryForForeignReference\\(\\) has parameter \\$reference with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:isForeignReference\\(\\) has parameter \\$reference with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:loadJsonFile\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
 ];
@@ -15762,16 +15537,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\FixtureManager\\:\\:loadJsonFile\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\GaclFixtureManager\\:\\:getSingleFixture\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/GaclFixtureManager.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\MedicationDispenseFixtureManager\\:\\:createDrugInventory\\(\\) has parameter \\$data with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/MedicationDispenseFixtureManager.php',
@@ -15828,11 +15593,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\PractitionerFixtureManager\\:\\:getPractitionerFixtures\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/PractitionerFixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\PractitionerFixtureManager\\:\\:loadJsonFile\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/PractitionerFixtureManager.php',
 ];
@@ -16050,16 +15810,6 @@ $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\RestControllers\\\\FHIR\\\\FhirPractitionerRestControllerTest\\:\\:\\$fhirFixture type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/RestControllers/FHIR/FhirPractitionerRestControllerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\RestControllers\\\\FHIR\\\\FhirQuestionnaireResponseRestControllerIntegrationTest\\:\\:\\$originalSession type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/RestControllers/FHIR/FhirQuestionnaireResponseRestControllerIntegrationTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\RestControllers\\\\FHIR\\\\FhirQuestionnaireRestControllerIntegrationTest\\:\\:\\$originalSession type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/RestControllers/FHIR/FhirQuestionnaireRestControllerIntegrationTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Unit\\\\Services\\\\FHIR\\\\Condition\\\\FhirConditionEncounterDiagnosisServiceTest\\:\\:getDefaultOpenEMRRecord\\(\\) return type has no value type specified in iterable type array\\.$#',
@@ -16282,11 +16032,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationEmployerServiceTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationEmployerServiceTest\\:\\:\\$backupSession type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationEmployerServiceTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\Observation\\\\FhirObservationEmployerServiceTest\\:\\:\\$testEmployerData type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationEmployerServiceTest.php',
@@ -16342,21 +16087,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Observation/FhirObservationPatientServiceTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\Questionnaire\\\\FhirQuestionnaireFormServiceIntegrationTest\\:\\:\\$originalSession type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Questionnaire/FhirQuestionnaireFormServiceIntegrationTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\QuestionnaireResponse\\\\FhirQuestionnaireResponseFormServiceIntegrationTest\\:\\:getQuestionnaireTemplate\\(\\) return type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/QuestionnaireResponse/FhirQuestionnaireResponseFormServiceIntegrationTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\QuestionnaireResponse\\\\FhirQuestionnaireResponseFormServiceIntegrationTest\\:\\:\\$originalSession type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/QuestionnaireResponse/FhirQuestionnaireResponseFormServiceIntegrationTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\QuestionnaireResponse\\\\FhirQuestionnaireResponseFormServiceIntegrationTest\\:\\:\\$testPatientData type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/QuestionnaireResponse/FhirQuestionnaireResponseFormServiceIntegrationTest.php',
@@ -16373,11 +16103,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Services\\\\ObservationServiceTest\\:\\:assertObservationEquals\\(\\) has parameter \\$expected with no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/ObservationServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Services\\\\ObservationServiceTest\\:\\:\\$sessionBackup type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/ObservationServiceTest.php',
 ];
@@ -16415,11 +16140,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Unit\\\\Common\\\\Logging\\\\MockAdodbResultSet\\:\\:FetchRow\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Logging/EventAuditLoggerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Unit\\\\Controllers\\\\Interface\\\\Forms\\\\Observation\\\\ObservationControllerTest\\:\\:\\$sessionBackup type has no value type specified in iterable type array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Controllers/Interface/Forms/Observation/ObservationControllerTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Unit\\\\FHIR\\\\SMART\\\\ClientAdminControllerTest\\:\\:actionDataProvider\\(\\) return type has no value type specified in iterable type array\\.$#',

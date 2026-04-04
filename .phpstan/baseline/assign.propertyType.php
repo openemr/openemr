@@ -32,11 +32,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../controllers/C_Prescription.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:\\$From \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../controllers/C_Prescription.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Cache_Lite\\:\\:\\$_memoryCachingArray \\(array\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../gacl/Cache_Lite/Lite.php',
@@ -47,22 +42,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/drugs/dispense_drug.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:\\$From \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/dispense_drug.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:\\$Subject \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/dispense_drug.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:\\$Body \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:\\$From \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/drugs/drugs.inc.php',
 ];
@@ -317,11 +302,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Carecoordination/src/Carecoordination/Model/CcdaUserPreferencesTransformer.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:\\$From \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/usergroup/usergroup_admin.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property Document\\:\\:\\$id \\(int\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/Document.class.php',
@@ -467,21 +447,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/Note.class.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property Prescription\\:\\:\\$erx_source \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Prescription\\:\\:\\$request_intent_title \\(string\\|null\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property Prescription\\:\\:\\$usage_category_title \\(string\\|null\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Prescription.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property HTML_TreeMenu_Listbox\\:\\:\\$promoText \\(string\\) does not accept null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/TreeMenu.php',
@@ -502,27 +467,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/classes/postmaster.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property MyMailer\\:\\:\\$Host \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/postmaster.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property MyMailer\\:\\:\\$Password \\(string\\) does not accept string\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/postmaster.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property MyMailer\\:\\:\\$Port \\(int\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/postmaster.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property MyMailer\\:\\:\\$SMTPAuth \\(bool\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/postmaster.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property MyMailer\\:\\:\\$Username \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/postmaster.php',
 ];
@@ -552,29 +502,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:\\$From \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:\\$Subject \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/direct_message_check.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:\\$From \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/reminders.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:\\$FromName \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/reminders.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:\\$Sender \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/reminders.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Property Smarty_Legacy\\:\\:\\$_cache_including \\(string\\) does not accept false\\.$#',
@@ -1857,16 +1787,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/Export/ExportStreamWriter.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\SMART\\\\ClientAdminController\\:\\:\\$kernel \\(OpenEMR\\\\Core\\\\Kernel\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\FHIR\\\\SMART\\\\ClientAdminController\\:\\:\\$webroot \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\FHIR\\\\SMART\\\\ExternalClinicalDecisionSupport\\\\DecisionSupportInterventionEntity\\:\\:\\$id \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/SMART/ExternalClinicalDecisionSupport/DecisionSupportInterventionEntity.php',
@@ -1957,11 +1877,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/AppointmentService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Services\\\\BaseService\\:\\:\\$logger \\(OpenEMR\\\\Common\\\\Logging\\\\SystemLogger\\) does not accept Psr\\\\Log\\\\LoggerInterface\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/BaseService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Services\\\\CarePlanService\\:\\:\\$carePlanType \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/CarePlanService.php',
@@ -1978,11 +1893,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Property PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:\\$Body \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/DrugSalesService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property PHPMailer\\\\PHPMailer\\\\PHPMailer\\:\\:\\$From \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/DrugSalesService.php',
 ];
@@ -2137,11 +2047,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/USPS/USPSAddressVerifyV3.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Api\\\\BulkAPITestClient\\:\\:\\$baseUrl \\(string\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/BulkAPITestClient.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Static property OpenEMR\\\\Tests\\\\Certification\\\\HIT1\\\\G10_Certification\\\\BulkPatientExport311APITest\\:\\:\\$previousProfileValue \\(string\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Certification/HIT1/G10_Certification/BulkPatientExport311APITest.php',
@@ -2232,16 +2137,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/RestControllers/FHIR/FhirQuestionnaireRestControllerIntegrationTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Services\\\\CarePlanServiceTest\\:\\:\\$fixture \\(OpenEMR\\\\Tests\\\\Services\\\\CarePlanFixture\\) does not accept array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/CarePlanServiceTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Services\\\\EncounterServiceTest\\:\\:\\$fixture \\(OpenEMR\\\\Tests\\\\Services\\\\EncounterFixture\\) does not accept array\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Services/EncounterServiceTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Services\\\\FHIR\\\\FhirConditionService3_1_1Test\\:\\:\\$fhirConditionService \\(OpenEMR\\\\Services\\\\FHIR\\\\FhirConditionService\\) does not accept OpenEMR\\\\Services\\\\FHIR\\\\Condition\\\\FhirConditionProblemListItemService\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Services/FHIR/Condition/FhirConditionService3_1_1Test.php',
@@ -2273,11 +2168,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Property OpenEMR\\\\Tests\\\\Unit\\\\Controllers\\\\Interface\\\\Forms\\\\Observation\\\\ObservationControllerTest\\:\\:\\$globalDateFormat \\(int\\|null\\) does not accept mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Controllers/Interface/Forms/Observation/ObservationControllerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Property OpenEMR\\\\Tests\\\\Unit\\\\Controllers\\\\Interface\\\\Forms\\\\Observation\\\\ObservationControllerTest\\:\\:\\$globalKernelBackup \\(OpenEMR\\\\Core\\\\Kernel\\|null\\) does not accept mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Unit/Controllers/Interface/Forms/Observation/ObservationControllerTest.php',
 ];

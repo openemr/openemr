@@ -12,11 +12,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/clickmap/C_AbstractClickmap.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Variable \\$tmp in isset\\(\\) always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/new.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Variable \\$code_found in isset\\(\\) always exists and is not nullable\\.$#',
     'count' => 3,
     'path' => __DIR__ . '/../../interface/forms/eye_mag/php/eye_mag_functions.php',
@@ -200,16 +195,6 @@ $ignoreErrors[] = [
     'message' => '#^Variable \\$test in isset\\(\\) always exists and is not nullable\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Layouts/LayoutsUtils.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$acl_ids in isset\\(\\) always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Variable \\$groups_ids in isset\\(\\) always exists and is not nullable\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Variable \\$puuid in isset\\(\\) is never defined\\.$#',

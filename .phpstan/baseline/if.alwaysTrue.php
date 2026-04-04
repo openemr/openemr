@@ -43,11 +43,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../interface/forms/CAMOS/new.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/forms/care_plan/report.php',
 ];
@@ -438,71 +433,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionEncounterDiagnosisService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionHealthConcernService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../src/Services/FHIR/Condition/FhirConditionProblemListItemService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirConditionService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDiagnosticReportService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirDocumentReferenceService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirGroupService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirMedicationDispenseService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirObservationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirOrganizationService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirProcedureService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirQuestionnaireResponseService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 6,
-    'path' => __DIR__ . '/../../src/Services/FHIR/FhirQuestionnaireService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/FHIR/FhirServiceBase.php',
 ];
@@ -535,11 +465,6 @@ $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^If condition is always true\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^If condition is always true\\.$#',

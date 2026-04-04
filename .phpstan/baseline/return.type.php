@@ -412,6 +412,16 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function pnVarPrepForStore\\(\\) should return list\\<string\\>\\|string but returns list\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function pnVarPrepForStore\\(\\) should return list\\<string\\>\\|string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/includes/pnAPI.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method pnHTML\\:\\:EndPage\\(\\) should return string but returns string\\|false\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/includes/pnHTML.php',
@@ -1030,6 +1040,11 @@ $ignoreErrors[] = [
     'message' => '#^Method Acl\\\\Model\\\\AclTable\\:\\:getModuleSections\\(\\) should return list\\<array\\<string, mixed\\>\\> but returns list\\<array\\<mixed\\>\\>\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Acl/src/Acl/Model/AclTable.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method Application\\\\Controller\\\\IndexController\\:\\:listAutoSuggest\\(\\) should return array\\<string, mixed\\> but returns array\\<int\\|string, array\\<mixed\\>\\|int\\>\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/modules/zend_modules/module/Application/src/Application/Controller/IndexController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method Application\\\\Controller\\\\IndexController\\:\\:searchAction\\(\\) should return string but returns mixed\\.$#',
@@ -1872,6 +1887,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/formdata.inc.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function formDataCore\\(\\) should return string but returns mixed\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../library/formdata.inc.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function process_cols_escape\\(\\) should return array but returns string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/formdata.inc.php',
@@ -1888,11 +1908,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function Digits\\(\\) should return string but returns string\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/global_functions.inc.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Function cron_getFacilitiesMap\\(\\) should return array\\{msg_map\\: array\\<int, string\\>, phone_map\\: array\\<int, string\\>\\} but returns array\\{msg_map\\: array\\<mixed\\>, phone_map\\: array\\}\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/global_functions.inc.php',
 ];
@@ -2817,11 +2832,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method PortalController\\:\\:GetGUID\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method PortalController\\:\\:GetRouter\\(\\) should return IRouter but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../portal/patient/fwk/libs/verysimple/Phreeze/PortalController.php',
@@ -3265,11 +3275,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\AccessTokenRepository\\:\\:getTokenExpiration\\(\\) should return string\\|null but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/AccessTokenRepository.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\ClientRepository\\:\\:getCryptoGen\\(\\) should return OpenEMR\\\\Common\\\\Crypto\\\\CryptoGen but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Repositories/ClientRepository.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Repositories\\\\ScopeRepository\\:\\:lookupDescriptionForScope\\(\\) should return string but returns mixed\\.$#',
@@ -3732,17 +3737,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Common/ORDataObject/Person.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\PHPSessionWrapper\\:\\:getId\\(\\) should return string but returns string\\|false\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/PHPSessionWrapper.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionUtil\\:\\:getAppCookie\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Common\\\\Session\\\\SessionUtil\\:\\:portalSessionStart\\(\\) should return Symfony\\\\Component\\\\HttpFoundation\\\\Session\\\\Session but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Session/SessionUtil.php',
 ];
@@ -3845,11 +3840,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Cqm\\\\QrdaControllers\\\\QrdaReportController\\:\\:getConsolidatedCategoryIIIReport\\(\\) should return string but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Cqm/QrdaControllers/QrdaReportController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Events\\\\AbstractBoundFilterEvent\\:\\:getBoundFilter\\(\\) should return string but returns OpenEMR\\\\Events\\\\BoundFilter\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Events/AbstractBoundFilterEvent.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Events\\\\Appointments\\\\AppointmentRenderEvent\\:\\:getAppt\\(\\) should return array but returns mixed\\.$#',
@@ -8512,31 +8502,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/FHIR/R4/PHPFHIRResponseParser.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\ClientAdminController\\:\\:dispatch\\(\\) should return Symfony\\\\Component\\\\HttpFoundation\\\\Response but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\ClientAdminController\\:\\:getCSRFToken\\(\\) should return string\\|false but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\ClientAdminController\\:\\:getDatabaseRecordForToken\\(\\) should return array\\|null but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\ClientAdminController\\:\\:getRefreshTokensForClientUser\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\ClientAdminController\\:\\:parseTokenIntoParts\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/FHIR/SMART/ClientAdminController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\FHIR\\\\SMART\\\\ExternalClinicalDecisionSupport\\\\DecisionSupportInterventionEntity\\:\\:getClient\\(\\) should return OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ClientEntity but returns OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ClientEntity\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/FHIR/SMART/ExternalClinicalDecisionSupport/DecisionSupportInterventionEntity.php',
@@ -8663,7 +8628,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Gacl\\\\GaclApi\\:\\:get_object_data\\(\\) should return array but returns false\\.$#',
-    'count' => 5,
+    'count' => 4,
     'path' => __DIR__ . '/../../src/Gacl/GaclApi.php',
 ];
 $ignoreErrors[] = [
@@ -8910,26 +8875,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\Config\\\\RestConfig\\:\\:getRequestEndPoint\\(\\) should return string but returns array\\<string\\>\\|string\\|false\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/RestControllers/Config/RestConfig.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\EncounterRestController\\:\\:getAll\\(\\) should return OpenEMR\\\\RestControllers\\\\a but returns array\\<array\\>\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\EncounterRestController\\:\\:getOne\\(\\) should return OpenEMR\\\\RestControllers\\\\a but returns array\\<array\\>\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\EncounterRestController\\:\\:post\\(\\) should return OpenEMR\\\\RestControllers\\\\a but returns array\\<array\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\RestControllers\\\\EncounterRestController\\:\\:put\\(\\) should return OpenEMR\\\\RestControllers\\\\a but returns array\\<array\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/EncounterRestController.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirAllergyIntoleranceRestController\\:\\:getAll\\(\\) should return OpenEMR\\\\RestControllers\\\\FHIR\\\\FHIR but returns Symfony\\\\Component\\\\HttpFoundation\\\\Response\\.$#',
@@ -10482,7 +10427,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/FacilityService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Globals\\\\UserSettingsService\\:\\:collectAndOrganizeExpandSetting\\(\\) should return string but returns mixed\\.$#',
+    'message' => '#^Method OpenEMR\\\\Services\\\\Globals\\\\UserSettingsService\\:\\:collectAndOrganizeExpandSetting\\(\\) should return string but returns OpenEMR\\\\Services\\\\Globals\\\\Effective\\|string\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Globals/UserSettingsService.php',
 ];
@@ -10662,11 +10607,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/PractitionerService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\PrescriptionService\\:\\:getAll\\(\\) should return OpenEMR\\\\Validators\\\\ProcessingResult but returns array\\|float\\|int\\|string\\|false\\|null\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../src/Services/PrescriptionService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\ProcedureOrderRelationshipService\\:\\:cleanupOrphanedRecords\\(\\) should return int but returns ADORecordSet\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/ProcedureOrderRelationshipService.php',
@@ -10685,11 +10625,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qdm\\\\CqmCalculator\\:\\:calculateMeasure\\(\\) should return array\\|Psr\\\\Http\\\\Message\\\\StreamInterface but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qdm/CqmCalculator.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qdm\\\\MeasureService\\:\\:getCurrentReportingYear\\(\\) should return string but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qdm/MeasureService.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qdm\\\\QdmRecord\\:\\:getData\\(\\) should return array but returns mixed\\.$#',
@@ -10732,16 +10667,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Qrda/Cat3.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\PopulationGroup\\:\\:population_count\\(\\) should return int but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/PopulationGroup.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\PopulationGroup\\:\\:population_id\\(\\) should return string\\|false but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Services/Qrda/PopulationGroup.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\Qrda\\\\QrdaReportService\\:\\:generateCategoryIIIXml\\(\\) should return string but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Qrda/QrdaReportService.php',
@@ -10759,6 +10684,11 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Services\\\\QuestionnaireResponseService\\:\\:extractAnswerValue\\(\\) should return string but returns mixed\\.$#',
     'count' => 5,
+    'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\Services\\\\QuestionnaireResponseService\\:\\:groupByItemsRecursively\\(\\) should return array but returns mixed\\.$#',
+    'count' => 1,
     'path' => __DIR__ . '/../../src/Services/QuestionnaireResponseService.php',
 ];
 $ignoreErrors[] = [
@@ -10832,12 +10762,12 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/UserService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\UserService\\:\\:getUserByUUID\\(\\) should return array\\{id\\: int, uuid\\: string\\|null, username\\: string\\|null, password\\: string\\|null, authorized\\: int\\|null, info\\: string\\|null, source\\: int\\|null, fname\\: string\\|null, \\.\\.\\.\\}\\|false but returns mixed\\.$#',
+    'message' => '#^Method OpenEMR\\\\Services\\\\UserService\\:\\:getUserByUUID\\(\\) should return array\\{id\\: numeric\\-string, uuid\\: string\\|null, username\\: string\\|null, password\\: string\\|null, authorized\\: numeric\\-string\\|null, info\\: string\\|null, source\\: numeric\\-string\\|null, fname\\: string\\|null, \\.\\.\\.\\}\\|false but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/UserService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\UserService\\:\\:getUserByUsername\\(\\) should return array\\{id\\: int, uuid\\: string\\|null, username\\: string\\|null, password\\: string\\|null, authorized\\: int\\|null, info\\: string\\|null, source\\: int\\|null, fname\\: string\\|null, \\.\\.\\.\\}\\|false but returns mixed\\.$#',
+    'message' => '#^Method OpenEMR\\\\Services\\\\UserService\\:\\:getUserByUsername\\(\\) should return array\\{id\\: numeric\\-string, uuid\\: string\\|null, username\\: string\\|null, password\\: string\\|null, authorized\\: numeric\\-string\\|null, info\\: string\\|null, source\\: numeric\\-string\\|null, fname\\: string\\|null, \\.\\.\\.\\}\\|false but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/UserService.php',
 ];
@@ -10847,7 +10777,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/UserService.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Services\\\\UserService\\:\\:getUser\\(\\) should return array\\{id\\: int, uuid\\: string\\|null, username\\: string\\|null, password\\: string\\|null, authorized\\: int\\|null, info\\: string\\|null, source\\: int\\|null, fname\\: string\\|null, \\.\\.\\.\\}\\|false but returns mixed\\.$#',
+    'message' => '#^Method OpenEMR\\\\Services\\\\UserService\\:\\:getUser\\(\\) should return array\\{id\\: numeric\\-string, uuid\\: string\\|null, username\\: string\\|null, password\\: string\\|null, authorized\\: numeric\\-string\\|null, info\\: string\\|null, source\\: numeric\\-string\\|null, fname\\: string\\|null, \\.\\.\\.\\}\\|false but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/UserService.php',
 ];
@@ -10952,34 +10882,9 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Validators/BaseValidator.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Validators\\\\BaseValidator\\:\\:validateId\\(\\) should return true but returns OpenEMR\\\\Validators\\\\ProcessingResult\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../src/Validators/BaseValidator.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Validators\\\\ProcessingResult\\:\\:extractDataArray\\(\\) should return array\\|null but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Validators/ProcessingResult.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Validators\\\\ProcessingResult\\:\\:hasErrors\\(\\) should return true but returns bool\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Validators/ProcessingResult.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:post\\(\\) should return Psr\\\\Http\\\\Message\\\\ResponseInterface but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\ApiTestClient\\:\\:setAuthToken\\(\\) should return OpenEMR\\\\Tests\\\\Api\\\\the but returns Psr\\\\Http\\\\Message\\\\ResponseInterface\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/ApiTestClient.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Api\\\\BulkAPITestClient\\:\\:setAuthToken\\(\\) should return OpenEMR\\\\Tests\\\\Api\\\\the but returns Psr\\\\Http\\\\Message\\\\ResponseInterface\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Api/BulkAPITestClient.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Certification\\\\HIT1\\\\G10_Certification\\\\BulkPatientExport311APITest\\:\\:getInfernoJWKS\\(\\) should return stdClass but returns mixed\\.$#',
@@ -11022,77 +10927,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/E2e/BbCreateStaffTest.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\EmailSendTest\\:\\:getLatestEmailForRecipient\\(\\) should return array\\|null but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/EmailSendTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\EmailSendTest\\:\\:getMailpitMessageCount\\(\\) should return int but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/EmailSendTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\EmailSendTest\\:\\:getMailpitMessage\\(\\) should return array\\|null but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/EmailSendTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\EmailSendTest\\:\\:getMailpitMessages\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/EmailSendTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\EmailSendTest\\:\\:searchMailpitMessages\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/EmailSendTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\EmailSendTest\\:\\:waitForEmail\\(\\) should return array\\|null but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/EmailSendTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\FaxSmsEmailTest\\:\\:getLatestEmailForRecipient\\(\\) should return array\\|null but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FaxSmsEmailTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\FaxSmsEmailTest\\:\\:getMailpitMessageCount\\(\\) should return int but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FaxSmsEmailTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\FaxSmsEmailTest\\:\\:getMailpitMessage\\(\\) should return array\\|null but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FaxSmsEmailTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\FaxSmsEmailTest\\:\\:getMailpitMessages\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FaxSmsEmailTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\FaxSmsEmailTest\\:\\:searchMailpitMessages\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FaxSmsEmailTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\E2e\\\\FaxSmsEmailTest\\:\\:waitForEmail\\(\\) should return array\\|null but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/E2e/FaxSmsEmailTest.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:getNextId\\(\\) should return OpenEMR\\\\Tests\\\\Fixtures\\\\the but returns int\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:getSingleEntry\\(\\) should return OpenEMR\\\\Tests\\\\Fixtures\\\\random but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:getSingleFixture\\(\\) should return OpenEMR\\\\Tests\\\\Fixtures\\\\a but returns OpenEMR\\\\Tests\\\\Fixtures\\\\random\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
 ];
@@ -11103,11 +10938,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:installFixturesForTable\\(\\) should return OpenEMR\\\\Tests\\\\Fixtures\\\\the but returns int\\<0, max\\>\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\BaseFixtureManager\\:\\:loadJsonFile\\(\\) should return array but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/BaseFixtureManager.php',
 ];
@@ -11127,21 +10957,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/ConditionFixtureManager.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\FacilityFixtureManager\\:\\:getFacilityFixtures\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/FacilityFixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\FacilityFixtureManager\\:\\:getFhirFacilityFixtures\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/FacilityFixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\FacilityFixtureManager\\:\\:getSingleFacilityFixture\\(\\) should return OpenEMR\\\\Tests\\\\Fixtures\\\\a but returns OpenEMR\\\\Tests\\\\Fixtures\\\\random\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/FacilityFixtureManager.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\FacilityFixtureManager\\:\\:installSingleFacilityFixture\\(\\) should return OpenEMR\\\\Tests\\\\Fixtures\\\\count but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/FacilityFixtureManager.php',
@@ -11153,21 +10968,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\FixtureManager\\:\\:getNextPid\\(\\) should return OpenEMR\\\\Tests\\\\Fixtures\\\\the but returns int\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\FixtureManager\\:\\:getPatientFixtures\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\FixtureManager\\:\\:getSingleEntry\\(\\) should return OpenEMR\\\\Tests\\\\Fixtures\\\\random but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\FixtureManager\\:\\:getSinglePatientFixture\\(\\) should return OpenEMR\\\\Tests\\\\Fixtures\\\\a but returns OpenEMR\\\\Tests\\\\Fixtures\\\\random\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
 ];
@@ -11185,16 +10985,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\FixtureManager\\:\\:installSinglePatientFixture\\(\\) should return OpenEMR\\\\Tests\\\\Fixtures\\\\count but returns OpenEMR\\\\Tests\\\\Fixtures\\\\the\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\FixtureManager\\:\\:loadJsonFile\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/FixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\GaclFixtureManager\\:\\:getSingleFixture\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/GaclFixtureManager.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\GaclFixtureManager\\:\\:installFixtures\\(\\) should return int but returns mixed\\.$#',
@@ -11217,27 +11007,7 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/MedicationDispenseFixtureManager.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\PractitionerFixtureManager\\:\\:getFhirPractitionerFixtures\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/PractitionerFixtureManager.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\PractitionerFixtureManager\\:\\:getNextId\\(\\) should return OpenEMR\\\\Tests\\\\Fixtures\\\\the but returns int\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/PractitionerFixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\PractitionerFixtureManager\\:\\:getPractitionerFixtures\\(\\) should return array but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/PractitionerFixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\PractitionerFixtureManager\\:\\:getSingleEntry\\(\\) should return OpenEMR\\\\Tests\\\\Fixtures\\\\random but returns mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/PractitionerFixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\PractitionerFixtureManager\\:\\:getSinglePractitionerFixture\\(\\) should return OpenEMR\\\\Tests\\\\Fixtures\\\\a but returns OpenEMR\\\\Tests\\\\Fixtures\\\\random\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/PractitionerFixtureManager.php',
 ];
@@ -11253,11 +11023,6 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\PractitionerFixtureManager\\:\\:installSinglePractitionerFixture\\(\\) should return OpenEMR\\\\Tests\\\\Fixtures\\\\count but returns OpenEMR\\\\Tests\\\\Fixtures\\\\the\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../tests/Tests/Fixtures/PractitionerFixtureManager.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Fixtures\\\\PractitionerFixtureManager\\:\\:loadJsonFile\\(\\) should return array but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Fixtures/PractitionerFixtureManager.php',
 ];
@@ -11285,16 +11050,6 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Isolated\\\\Validators\\\\BaseValidatorTestStub\\:\\:getInnerValidator\\(\\) should return Particle\\\\Validator\\\\Validator but returns mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/Validators/BaseValidatorTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Isolated\\\\Validators\\\\BaseValidatorTestStub\\:\\:validateId\\(\\) should return true but returns OpenEMR\\\\Validators\\\\ProcessingResult\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Validators/BaseValidatorTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Method OpenEMR\\\\Tests\\\\Isolated\\\\Validators\\\\CoverageValidatorStub\\:\\:validateId\\(\\) should return true but returns OpenEMR\\\\Validators\\\\ProcessingResult\\.$#',
-    'count' => 2,
-    'path' => __DIR__ . '/../../tests/Tests/Isolated/Validators/CoverageValidatorTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Anonymous function should return string but returns mixed\\.$#',

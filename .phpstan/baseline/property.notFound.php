@@ -247,16 +247,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/MedEx/API.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Access to an undefined property object\\:\\:\\$_current_action\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Controller.class.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property object\\:\\:\\$_state\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/classes/Controller.class.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Access to an undefined property CouchDB\\:\\:\\$body\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/classes/CouchDB.class.php',
@@ -582,11 +572,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Menu/PatientMenuRole.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Access to an undefined property OpenEMR\\\\RestControllers\\\\FHIR\\\\FhirCareTeamRestController\\:\\:\\$systemLogger\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/RestControllers/FHIR/FhirCareTeamRestController.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Access to an undefined property DOMNode\\:\\:\\$tagName\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Services/Cda/CdaTextParser.php',
@@ -705,11 +690,6 @@ $ignoreErrors[] = [
     'message' => '#^Access to an undefined property PHPUnit\\\\Framework\\\\MockObject\\\\MockObject\\:\\:\\$new_theme\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Isolated/library/classes/InstallerTest.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Access to an undefined property OpenEMR\\\\Tests\\\\Unit\\\\Common\\\\Logging\\\\MockAdodbResultSet&PHPUnit\\\\Framework\\\\MockObject\\\\MockObject\\:\\:\\$EOF\\.$#',
-    'count' => 3,
-    'path' => __DIR__ . '/../../tests/Tests/Unit/Common/Logging/EventAuditLoggerTest.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];
