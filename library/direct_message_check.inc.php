@@ -129,7 +129,7 @@ function phimail_connect(&$phimail_error)
     }
 
     if ($fp !== false) {
-        $ret = phimail_write_expect_OK($fp, "INFO VER OEMR " . (new VersionService())->asString() . " 1.3.2 "
+        $ret = phimail_write_expect_OK($fp, "INFO VER OEMR " . (new VersionService())->getSoftwareVersion() . " 1.3.2 "
             . \PHP_VERSION . "\n");
         if ($ret !== true) {
             $fp = false;

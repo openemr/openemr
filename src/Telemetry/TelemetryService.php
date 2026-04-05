@@ -190,7 +190,7 @@ class TelemetryService
             'location' => json_encode($serverGeoData),
             'time_zone' => $time_zone,
             'locale' => locale_get_default(),
-            'version' => $this->versionService->asString(),
+            'version' => (string) $this->versionService->getSoftwareVersion(),
             'environment' => php_uname('s') . ', ' . php_uname('r') . ', ' . phpversion(),
             'distribution' => getenv('OPENEMR_DOCKER_ENV_TAG') ?: '',
             'settings' => json_encode($settings),

@@ -6,7 +6,9 @@
  * @package   OpenEMR
  * @link      https://www.open-emr.org
  * @author    Matthew Vita <matthewvita48@gmail.com>
+ * @author    Michael A. Smith <michael@opencoreemr.com>
  * @copyright Copyright (c) 2017 Matthew Vita <matthewvita48@gmail.com>
+ * @copyright Copyright (c) 2026 OpenCoreEMR Inc <https://opencoreemr.com/>
  * @license   https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
  */
 
@@ -23,29 +25,30 @@ class VersionService extends BaseService implements VersionServiceInterface
     }
 
     /**
-     * @return array the sole version entry in the database.
+     * @return array<string, scalar> the sole version entry in the database.
      */
     public function fetch(): array
     {
         return sqlQuery("SELECT * FROM `version`");
     }
 
-    /**
-     * Return the compounded major, minor, patch and tag versions as a string
-     *
-     * @var $includeTag bool Include the tag
-     * @var $includeRealpatch bool Include the realpatch
-     * @returns string Dot separated major, minor, patch version string (tag at end, if included)
-     */
-    public function asString(bool $includeTag = true, bool $includeRealpatch = true): string
+    public function getSoftwareVersion(): SoftwareVersion
     {
         $v = $this->fetch();
-        $string = "{$v['v_major']}.{$v['v_minor']}.{$v['v_patch']}";
-        $string = ($includeTag == true) ? $string . "{$v['v_tag']}" : $string;
-        if ($includeRealpatch && (!empty($v['v_realpatch']))) {
-            $string .= " (" . $v['v_realpatch'] . ")";
-        }
-        return $string;
+        return new SoftwareVersion(
+            major: (int) ($v['v_major'] ?? 0),
+            minor: (int) ($v['v_minor'] ?? 0),
+            patch: (int) ($v['v_patch'] ?? 0),
+            tag: (string) ($v['v_tag'] ?? ''),
+            realpatch: (int) ($v['v_realpatch'] ?? 0),
+            database: (int) ($v['v_database'] ?? 0),
+            acl: (int) ($v['v_acl'] ?? 0),
+        );
+    }
+
+    public function getSchemaVersion(): SchemaVersion
+    {
+        return SchemaVersion::fromDatabaseRow($this->fetch());
     }
 
     /**

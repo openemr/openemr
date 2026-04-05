@@ -57,7 +57,7 @@ class eRxGlobals
      */
     public function getOpenEMRVersion()
     {
-        return (new VersionService())->asString();
+        return (new VersionService())->getSoftwareVersion()->full;
     }
 
     /**
