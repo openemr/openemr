@@ -180,24 +180,6 @@ SET @catid = (SELECT MAX(pc_catid) FROM openemr_postcalendar_categories);
 INSERT INTO `openemr_postcalendar_categories` (`pc_catid`, `pc_catname`, `pc_catcolor`, `pc_catdesc`, `pc_recurrtype`, `pc_enddate`, `pc_recurrspec`, `pc_recurrfreq`, `pc_duration`, `pc_end_date_flag`, `pc_end_date_type`, `pc_end_date_freq`, `pc_end_all_day`, `pc_dailylimit`, `pc_cattype`, `pc_active`, `pc_seq`) VALUES (@catid+1, 'Inpatient', '#FF6600', 'Inpatient / Hospitalization encounters', 0, NULL, 'a:5:{s:17:"event_repeat_freq";s:1:"0";s:22:"event_repeat_freq_type";s:1:"0";s:19:"event_repeat_on_num";s:1:"1";s:19:"event_repeat_on_day";s:1:"0";s:20:"event_repeat_on_freq";s:1:"0";}', 0, 0, 0, 0, 0, 0, 0, 0, 1, @catid+1);
 #EndIf
 
-#IfNotTable form_nursing_admission
-CREATE TABLE `form_nursing_admission` (
-  `id`           bigint(20)   NOT NULL AUTO_INCREMENT,
-  `pid`          bigint(20)   NOT NULL,
-  `encounter`    bigint(20)   NOT NULL COMMENT 'References form_encounter.encounter',
-  `nro_registro` varchar(50)  DEFAULT NULL  COMMENT 'Internal admission registration number',
-  `departamento` varchar(100) DEFAULT NULL  COMMENT 'Unit/Department (e.g. terapia_adulto)',
-  `servicio`     varchar(50)  DEFAULT NULL  COMMENT 'Service level: intensivo, intermedia, minima',
-  `cuarto`       varchar(20)  DEFAULT NULL  COMMENT 'Room/Ward identifier',
-  `cama`         varchar(20)  DEFAULT NULL  COMMENT 'Bed number',
-  `death_date`   date         DEFAULT NULL  COMMENT 'Date of death if applicable',
-  `created_at`   timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at`   timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `encounter` (`encounter`),
-  KEY `pid` (`pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-#EndIf
 
 -- Nursing Module: Spanish translations (Latin American + Spain)
 #IfNotRow lang_constants constant_name Inpatient List
@@ -647,4 +629,42 @@ VALUES ('Nursing Evaluations', 1, 'evaluaciones', 1, 1, NOW(), 0, 'Nursing', 1, 
 #IfNotRow registry directory registro_vm
 INSERT INTO registry (name, state, directory, sql_run, unpackaged, date, priority, category, patient_encounter, aco_spec)
 VALUES ('Mechanical Ventilation Record', 1, 'registro_vm', 1, 1, NOW(), 0, 'Nursing', 1, 'encounters|notes');
+#EndIf
+
+-- Add carga_ws and death_date columns (WS patient load / inpatient tracking)
+#IfNotColumn patient_data carga_ws
+ALTER TABLE `patient_data` ADD COLUMN `carga_ws` VARCHAR(3) DEFAULT NULL;
+#EndIf
+
+#IfNotColumn form_encounter carga_ws
+ALTER TABLE `form_encounter` ADD COLUMN `carga_ws` VARCHAR(3) DEFAULT NULL;
+#EndIf
+
+#IfNotColumn form_encounter death_date
+ALTER TABLE `form_encounter` ADD COLUMN `death_date` date DEFAULT NULL;
+#EndIf
+
+-- Add inpatient bed/location columns to form_encounter
+#IfNotColumn form_encounter departamento
+ALTER TABLE `form_encounter` ADD COLUMN `departamento` VARCHAR(55) DEFAULT NULL;
+#EndIf
+
+#IfNotColumn form_encounter servicio
+ALTER TABLE `form_encounter` ADD COLUMN `servicio` VARCHAR(55) DEFAULT NULL;
+#EndIf
+
+#IfNotColumn form_encounter cama
+ALTER TABLE `form_encounter` ADD COLUMN `cama` VARCHAR(55) DEFAULT NULL;
+#EndIf
+
+#IfNotColumn form_encounter out_date
+ALTER TABLE `form_encounter` ADD COLUMN `out_date` date DEFAULT NULL;
+#EndIf
+
+#IfNotColumn form_encounter cuarto
+ALTER TABLE `form_encounter` ADD COLUMN `cuarto` VARCHAR(55) DEFAULT NULL;
+#EndIf
+
+#IfNotColumn form_encounter nro_registro
+ALTER TABLE `form_encounter` ADD COLUMN `nro_registro` VARCHAR(40) DEFAULT NULL;
 #EndIf

@@ -27,24 +27,16 @@ $death_date      = isset($_GET['death_date'])   ? $_GET['death_date']        : n
 $update          = isset($_GET['update'])       ? (int)$_GET['update']       : null;
 
 if ($death_date) {
-    // Validate date format before using it
     $death_date_safe = date('Y-m-d', strtotime($death_date));
     sqlStatement(
-        "UPDATE form_encounter SET date_end = ? WHERE id = ?",
-        array($death_date_safe, $id_encounter)
-    );
-    sqlStatement(
-        "INSERT INTO form_nursing_admission (pid, encounter, death_date)
-         SELECT pid, encounter, ?
-         FROM form_encounter WHERE id = ?
-         ON DUPLICATE KEY UPDATE death_date = VALUES(death_date)",
-        array($death_date_safe, $id_encounter)
+        "UPDATE form_encounter SET date_end = ?, death_date = ? WHERE id = ?",
+        [$death_date_safe, $death_date_safe, $id_encounter]
     );
     $id_encounter = null;
 } elseif ($id_encounter) {
     sqlStatement(
         "UPDATE form_encounter SET date_end = DATE(NOW()) WHERE id = ?",
-        array($id_encounter)
+        [$id_encounter]
     );
 }
 
@@ -57,17 +49,9 @@ $catRow = sqlQuery(
 $inpatient_catid = $catRow ? (int)$catRow['pc_catid'] : 0;
 
 $res = sqlStatement(
-    "SELECT f.*, CONCAT(p.fname, ' ', p.lname) AS paciente,
-            p.pubpid AS pubpid,
-            na.nro_registro AS nro_registro,
-            na.departamento AS departamento,
-            na.servicio     AS servicio,
-            na.cuarto       AS cuarto,
-            na.cama         AS cama,
-            f.encounter AS encounter
+    "SELECT f.*, CONCAT(p.fname, ' ', p.lname) AS paciente, p.pubpid AS pubpid
      FROM form_encounter AS f
      JOIN patient_data AS p ON p.pid = f.pid
-     LEFT JOIN form_nursing_admission AS na ON na.encounter = f.encounter
      WHERE f.pc_catid = ? AND f.date_end IS NULL",
     [$inpatient_catid]
 );
@@ -112,7 +96,14 @@ $nursing_forms = [
         thead input { width: 100%; }
 
         .inner { display: inline-block; }
-        .outer { width: 100%; text-align: center; }
+        .outer {
+            width: 100%;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            justify-content: center;
+            align-items: center;
+        }
 
         /* Nursing modal — patient bar */
         .enf-paciente-bar {
@@ -183,6 +174,20 @@ $nursing_forms = [
         .btn-enf-disabled {
             opacity: 0.4;
             cursor: not-allowed;
+        }
+
+        /* Row separation */
+        #inp_table tbody tr {
+            border-bottom: 3px solid rgba(128, 128, 128, 0.25) !important;
+        }
+
+        #inp_table tbody tr td {
+            padding-top: 10px !important;
+            padding-bottom: 10px !important;
+        }
+
+        .dark-mode #inp_table tbody tr {
+            border-bottom: 3px solid rgba(255, 255, 255, 0.15) !important;
         }
 
         @media (max-width: 576px) {

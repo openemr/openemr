@@ -2054,6 +2054,14 @@ CREATE TABLE `form_encounter` (
   `in_collection` tinyint(1) default NULL,
   `last_update` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `ordering_provider_id` INT(11) DEFAULT '0' COMMENT 'referring provider, if any, for this visit',
+  `carga_ws` VARCHAR(3) DEFAULT NULL,
+  `death_date` date DEFAULT NULL,
+  `departamento` VARCHAR(55) DEFAULT NULL,
+  `servicio` VARCHAR(55) DEFAULT NULL,
+  `cama` VARCHAR(55) DEFAULT NULL,
+  `out_date` date DEFAULT NULL,
+  `cuarto` VARCHAR(55) DEFAULT NULL,
+  `nro_registro` VARCHAR(40) DEFAULT NULL,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `pid_encounter` (`pid`, `encounter`),
@@ -8463,6 +8471,7 @@ CREATE TABLE `patient_data` (
   `tribal_affiliations` TEXT,
   `sex_identified` TEXT COMMENT 'Patient reported current sex',
   `pronoun` TEXT,
+  `carga_ws` VARCHAR(3) DEFAULT NULL,
   UNIQUE KEY `pid` (`pid`),
   UNIQUE KEY `uuid` (`uuid`),
   KEY `idx_patient_name` (`lname`, `fname`),
@@ -15539,20 +15548,3 @@ CREATE TABLE IF NOT EXISTS `form_registro_vm` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- form_nursing_admission: Inpatient admission data (ward, bed, service)
-CREATE TABLE IF NOT EXISTS `form_nursing_admission` (
-  `id`           bigint(20)   NOT NULL AUTO_INCREMENT,
-  `pid`          bigint(20)   NOT NULL,
-  `encounter`    bigint(20)   NOT NULL COMMENT 'References form_encounter.encounter',
-  `nro_registro` varchar(50)  DEFAULT NULL  COMMENT 'Internal admission registration number',
-  `departamento` varchar(100) DEFAULT NULL  COMMENT 'Unit/Department (e.g. terapia_adulto)',
-  `servicio`     varchar(50)  DEFAULT NULL  COMMENT 'Service level: intensivo, intermedia, minima',
-  `cuarto`       varchar(20)  DEFAULT NULL  COMMENT 'Room/Ward identifier',
-  `cama`         varchar(20)  DEFAULT NULL  COMMENT 'Bed number',
-  `death_date`   date         DEFAULT NULL  COMMENT 'Date of death if applicable',
-  `created_at`   timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at`   timestamp    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `encounter` (`encounter`),
-  KEY `pid` (`pid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
