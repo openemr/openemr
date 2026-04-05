@@ -21,7 +21,7 @@ require_once(__DIR__ . "/../../interface/globals.php");
 use Lcobucci\Clock\SystemClock;
 use OpenEMR\Common\Auth\Oidc\Cache\FilesystemCache;
 use OpenEMR\Common\Auth\Oidc\Discovery\OidcDiscoveryClient;
-use OpenEMR\Common\Auth\Oidc\Identity\StandardClaimMapper;
+use OpenEMR\Common\Auth\Oidc\Identity\MinimalClaimMapper;
 use OpenEMR\Common\Auth\Oidc\Session\OidcSessionHelper;
 use OpenEMR\Common\Auth\Oidc\Token\JwksClient;
 use OpenEMR\Common\Auth\Oidc\Token\OidcTokenValidationException;
@@ -51,7 +51,14 @@ if (!OidcSessionHelper::isOidcSession()) {
     exit;
 }
 
-// 3. CSRF validation (standard post-auth token)
+// 3. Per-session rate limiting — reject if last refresh was too recent
+if (OidcSessionHelper::isRefreshOnCooldown(time())) {
+    http_response_code(429);
+    echo json_encode(['error' => 'too_many_requests']);
+    exit;
+}
+
+// 4. CSRF validation (standard post-auth token)
 if (!CsrfUtils::verifyCsrfToken(filter_input(INPUT_POST, 'csrf_token_form') ?? '', $session)) {
     $username = is_string($session->get('authUser')) ? $session->get('authUser') : '';
     EventAuditLogger::getInstance()->newEvent(
@@ -104,7 +111,7 @@ $cache = new FilesystemCache($cacheDir);
 $discoveryClient = new OidcDiscoveryClient($httpClient, $cache);
 $jwksClient = new JwksClient($httpClient, $cache);
 $clock = new SystemClock(new \DateTimeZone('UTC'));
-$tokenValidator = new OidcTokenValidator($jwksClient, new StandardClaimMapper(), $clock);
+$tokenValidator = new OidcTokenValidator($jwksClient, new MinimalClaimMapper(), $clock);
 
 $username = is_string($session->get('authUser')) ? $session->get('authUser') : '';
 
@@ -177,6 +184,7 @@ if ($sessionSubject !== null && $validatedToken->identity->externalId !== $sessi
 
 // 11. Update session metadata
 OidcSessionHelper::updateTokenExpiry($validatedToken->expiresAt, $validatedToken->jti);
+OidcSessionHelper::recordRefresh(time());
 
 // 12. Audit log
 EventAuditLogger::getInstance()->newEvent(

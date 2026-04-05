@@ -145,6 +145,62 @@ final class OidcSessionHelperTest extends TestCase
         self::assertFalse(OidcSessionHelper::isTokenExpired(time()));
     }
 
+    public function testIsRefreshOnCooldownReturnsFalseWhenNeverRefreshed(): void
+    {
+        self::assertFalse(OidcSessionHelper::isRefreshOnCooldown(time()));
+    }
+
+    public function testIsRefreshOnCooldownReturnsTrueWithinCooldown(): void
+    {
+        $now = 1000000;
+        OidcSessionHelper::recordRefresh($now);
+
+        // 10 seconds later — within 30s cooldown
+        self::assertTrue(OidcSessionHelper::isRefreshOnCooldown($now + 10));
+    }
+
+    public function testIsRefreshOnCooldownReturnsFalseAfterCooldown(): void
+    {
+        $now = 1000000;
+        OidcSessionHelper::recordRefresh($now);
+
+        // 31 seconds later — past 30s cooldown
+        self::assertFalse(OidcSessionHelper::isRefreshOnCooldown($now + 31));
+    }
+
+    public function testIsRefreshOnCooldownReturnsFalseAtExactBoundary(): void
+    {
+        $now = 1000000;
+        OidcSessionHelper::recordRefresh($now);
+
+        // Exactly 30 seconds later — boundary (not less than, so allowed)
+        self::assertFalse(OidcSessionHelper::isRefreshOnCooldown($now + 30));
+    }
+
+    public function testRecordRefreshUpdatesTimestamp(): void
+    {
+        $first = 1000000;
+        OidcSessionHelper::recordRefresh($first);
+
+        // 31s after first — past cooldown
+        self::assertFalse(OidcSessionHelper::isRefreshOnCooldown($first + 31));
+
+        // Record again at first + 31
+        $second = $first + 31;
+        OidcSessionHelper::recordRefresh($second);
+
+        // 10s after second — within cooldown again
+        self::assertTrue(OidcSessionHelper::isRefreshOnCooldown($second + 10));
+    }
+
+    public function testClearTokenMetadataClearsCooldown(): void
+    {
+        OidcSessionHelper::recordRefresh(time());
+        OidcSessionHelper::clearTokenMetadata();
+
+        self::assertFalse(OidcSessionHelper::isRefreshOnCooldown(time()));
+    }
+
     public function testClearTokenMetadata(): void
     {
         $expiry = new \DateTimeImmutable('2026-04-05 12:00:00');

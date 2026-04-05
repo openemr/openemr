@@ -36,8 +36,16 @@
     let bannerShown = false;
     let failureCount = 0;
 
+    // SRI hashes for Firebase SDK scripts (defense-in-depth against CDN compromise)
+    const SRI_HASHES = {
+        'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js':
+            'sha384-sEVIly94UBRLKWdkYoPpSG7GD/e79YHMrxVyZaOk712Ga7+EAw6w1EFi+xBzBdd+',
+        'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js':
+            'sha384-EkqK+ezBWJuvO3hfrSx2iVqr3YQbhmnzn8kPhOpBZ+0GMVU5oGSgptwIu8D84HjE'
+    };
+
     /**
-     * Load a script by URL, returns a Promise.
+     * Load a script by URL with optional SRI verification, returns a Promise.
      */
     function loadScript(url) {
         return new Promise(function (resolve, reject) {
@@ -48,6 +56,10 @@
             }
             const script = document.createElement('script');
             script.src = url;
+            if (SRI_HASHES[url]) {
+                script.integrity = SRI_HASHES[url];
+                script.crossOrigin = 'anonymous';
+            }
             script.onload = resolve;
             script.onerror = function () {
                 reject(new Error(`Failed to load: ${url}`));

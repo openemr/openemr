@@ -20,7 +20,8 @@ final readonly class NormalizedIdentity
     /**
      * @param string      $externalId    The 'sub' claim — unique per user per provider (must not be empty).
      * @param string      $issuer        The 'iss' claim — identifies which provider (must not be empty).
-     * @param string      $email         Email address from the token (must not be empty).
+     * @param string      $email         Email address from the token (empty when not available,
+     *                                   e.g. in token refresh where only sub/iss are needed).
      * @param bool        $emailVerified Whether the provider has verified the email.
      * @param string      $displayName   Human-readable name (may be empty if not provided).
      * @param string|null $tenantId      Provider-specific tenant identifier (e.g. GCIP firebase.tenant).
@@ -28,7 +29,7 @@ final readonly class NormalizedIdentity
     public function __construct(
         public string $externalId,
         public string $issuer,
-        public string $email,
+        public string $email = '',
         public bool $emailVerified = false,
         public string $displayName = '',
         public ?string $tenantId = null,
@@ -38,9 +39,6 @@ final readonly class NormalizedIdentity
         }
         if ($issuer === '') {
             throw new \DomainException('Issuer (iss) must not be empty');
-        }
-        if ($email === '') {
-            throw new \DomainException('Email must not be empty');
         }
     }
 

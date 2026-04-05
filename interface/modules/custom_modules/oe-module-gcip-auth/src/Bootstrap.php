@@ -155,6 +155,10 @@ final readonly class Bootstrap
         $siteId = $session->get('site_id', 'default');
         $siteId = is_string($siteId) ? $siteId : 'default';
 
+        // Security note: Firebase API keys are designed to be public — they
+        // identify the project but do not grant access (access is controlled
+        // by Firebase Security Rules). The CSRF token is session-scoped and
+        // HMAC-derived, safe to embed in page source.
         $configJson = json_encode([
             'firebaseApiKey' => $firebaseApiKey,
             'firebaseAuthDomain' => $firebaseAuthDomain,

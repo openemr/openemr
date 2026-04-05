@@ -26,7 +26,9 @@ final class OidcSessionHelper
     private const KEY_JTI = 'oidc_jti';
     private const KEY_SUBJECT = 'oidc_subject';
     private const KEY_AUDIENCE = 'oidc_audience';
+    private const KEY_LAST_REFRESH = 'oidc_last_refresh';
     private const KEY_AUTH_METHOD = 'oidc_auth_method';
+    private const REFRESH_COOLDOWN_SECONDS = 30;
 
     /**
      * Store OIDC token metadata in the session after successful authentication.
@@ -135,6 +137,34 @@ final class OidcSessionHelper
     }
 
     /**
+     * Check if a refresh attempt is within the cooldown period.
+     *
+     * @param int $now Current Unix timestamp.
+     * @return bool True if refresh should be rejected (too soon).
+     */
+    public static function isRefreshOnCooldown(int $now): bool
+    {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $lastRefresh = $session->get(self::KEY_LAST_REFRESH);
+        if (!is_int($lastRefresh)) {
+            return false;
+        }
+
+        return ($now - $lastRefresh) < self::REFRESH_COOLDOWN_SECONDS;
+    }
+
+    /**
+     * Record that a refresh just succeeded.
+     *
+     * @param int $now Current Unix timestamp.
+     */
+    public static function recordRefresh(int $now): void
+    {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $session->set(self::KEY_LAST_REFRESH, $now);
+    }
+
+    /**
      * Clear OIDC session metadata (on logout or session destruction).
      */
     public static function clearTokenMetadata(): void
@@ -145,6 +175,7 @@ final class OidcSessionHelper
         $session->remove(self::KEY_JTI);
         $session->remove(self::KEY_SUBJECT);
         $session->remove(self::KEY_AUDIENCE);
+        $session->remove(self::KEY_LAST_REFRESH);
         $session->remove(self::KEY_AUTH_METHOD);
     }
 }

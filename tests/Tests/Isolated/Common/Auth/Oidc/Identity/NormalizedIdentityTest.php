@@ -99,8 +99,18 @@ final class NormalizedIdentityTest extends TestCase
         return [
             'empty externalId' => ['', 'https://issuer.example.com', 'user@example.com', 'External ID (sub) must not be empty'],
             'empty issuer' => ['user-123', '', 'user@example.com', 'Issuer (iss) must not be empty'],
-            'empty email' => ['user-123', 'https://issuer.example.com', '', 'Email must not be empty'],
         ];
+    }
+
+    public function testAcceptsEmptyEmail(): void
+    {
+        $identity = new NormalizedIdentity(
+            externalId: 'user-123',
+            issuer: 'https://issuer.example.com',
+        );
+
+        self::assertSame('', $identity->email);
+        self::assertFalse($identity->emailVerified);
     }
 
     public function testIsImmutable(): void
