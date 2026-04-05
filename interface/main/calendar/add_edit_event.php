@@ -55,6 +55,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\BC\Utilities;
 use OpenEMR\Common\Acl\AccessDeniedHelper;
 use OpenEMR\Common\Acl\AclMain;
+use OpenEMR\Common\Calendar\DayOfWeek;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
@@ -1071,15 +1072,10 @@ $addEditEventConfig = [
             xl('3rd{{nth}}'),
             xl('4th{{nth}}'),
         ],
-        'weekDays' => [
-            xl('Sunday'),
-            xl('Monday'),
-            xl('Tuesday'),
-            xl('Wednesday'),
-            xl('Thursday'),
-            xl('Friday'),
-            xl('Saturday'),
-        ],
+        'weekDays' => array_map(
+            static fn(DayOfWeek $d): string => $d->label(),
+            DayOfWeek::cases(),
+        ),
     ],
 ];
 ?>

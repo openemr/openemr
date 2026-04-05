@@ -33062,16 +33062,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../library/custom_template/personalize.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot access offset 0\\|1\\|2\\|3\\|4\\|5\\|6 on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/date_functions.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Cannot access offset 1\\|2\\|3\\|4\\|5\\|6\\|7\\|8\\|9\\|10\\|11\\|12 on mixed\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../library/date_functions.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot access offset \'PatientID\' on mixed\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/dated_reminder_functions.php',
