@@ -8572,11 +8572,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Services/Search/SearchConfigClauseBuilder.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Cannot call method getSoftwareVersion\\(\\) on OpenEMR\\\\Services\\\\VersionServiceInterface\\|null\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Cannot call method clearTelemetryData\\(\\) on OpenEMR\\\\Telemetry\\\\TelemetryRepository\\|null\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Telemetry/TelemetryService.php',
