@@ -30,13 +30,20 @@ if ($death_date) {
     // Validate date format before using it
     $death_date_safe = date('Y-m-d', strtotime($death_date));
     sqlStatement(
-        "UPDATE form_encounter SET out_date = ?, death_date = ? WHERE id = ?",
-        array($death_date_safe, $death_date_safe, $id_encounter)
+        "UPDATE form_encounter SET date_end = ? WHERE id = ?",
+        array($death_date_safe, $id_encounter)
+    );
+    sqlStatement(
+        "INSERT INTO form_nursing_admission (pid, encounter, death_date)
+         SELECT pid, encounter, ?
+         FROM form_encounter WHERE id = ?
+         ON DUPLICATE KEY UPDATE death_date = VALUES(death_date)",
+        array($death_date_safe, $id_encounter)
     );
     $id_encounter = null;
 } elseif ($id_encounter) {
     sqlStatement(
-        "UPDATE form_encounter SET out_date = DATE(NOW()) WHERE id = ?",
+        "UPDATE form_encounter SET date_end = DATE(NOW()) WHERE id = ?",
         array($id_encounter)
     );
 }
@@ -51,10 +58,17 @@ $inpatient_catid = $catRow ? (int)$catRow['pc_catid'] : 0;
 
 $res = sqlStatement(
     "SELECT f.*, CONCAT(p.fname, ' ', p.lname) AS paciente,
-            p.pubpid AS pubpid, f.nro_registro AS nro_registro, f.encounter AS encounter
+            p.pubpid AS pubpid,
+            na.nro_registro AS nro_registro,
+            na.departamento AS departamento,
+            na.servicio     AS servicio,
+            na.cuarto       AS cuarto,
+            na.cama         AS cama,
+            f.encounter AS encounter
      FROM form_encounter AS f
      JOIN patient_data AS p ON p.pid = f.pid
-     WHERE f.pc_catid = ? AND f.out_date IS NULL",
+     LEFT JOIN form_nursing_admission AS na ON na.encounter = f.encounter
+     WHERE f.pc_catid = ? AND f.date_end IS NULL",
     [$inpatient_catid]
 );
 $inpatient = [];
@@ -75,21 +89,8 @@ $nursing_forms = [
 <!DOCTYPE html>
 <html>
 <head>
-    <?php Header::setupHeader(['no_bootstrap']); ?>
+    <?php Header::setupHeader(['datatables', 'datatables-bs', 'fontawesome']); ?>
     <title><?php echo xlt('Inpatient List'); ?></title>
-    <link rel="stylesheet" href="../../public/themes/style_light.css">
-    <link rel="stylesheet" href="../../public/assets/bootstrap/dist/css/bootstrap.min.css" type="text/css">
-    <link rel="stylesheet" href="../../public/assets/jquery-ui/jquery-ui.css" type="text/css">
-    <script type="text/javascript" src="../../public/assets/jquery/dist/jquery.min.js"></script>
-    <script type="text/javascript" src="../../public/assets/bootstrap/dist/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" href="../../public/assets/font-awesome/css/font-awesome.min.css" type="text/css">
-    <link rel="shortcut icon" href="../../public/images/favicon.ico" />
-    <script type="text/javascript" src="../../public/assets/jquery-ui/jquery-ui.js"></script>
-    <link rel="stylesheet" href="../../public/assets/datatable-last/jquery.dataTables.min.css" type="text/css">
-    <script type="text/javascript" src="../../public/assets/datatable-last/jquery.dataTables.min.js"></script>
-    <script type="text/javascript" src="../../public/assets/datatable-last/dataTables.select.min.js"></script>
-    <script type="text/javascript" src="../../public/assets/select2/dist/js/select2.min.js"></script>
-    <link rel="stylesheet" href="../../public/assets/select2/dist/css/select2.min.css" type="text/css">
 
     <style type="text/css">
         div.dataTables_wrapper div.dataTables_processing {
@@ -115,13 +116,12 @@ $nursing_forms = [
 
         /* Nursing modal — patient bar */
         .enf-paciente-bar {
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
+            background: rgba(128,128,128,0.08);
+            border: 1px solid rgba(128,128,128,0.2);
             border-radius: 4px;
             padding: 8px 12px;
             margin-bottom: 15px;
             font-size: 14px;
-            color: #555;
         }
 
         /* Nursing form card buttons */
@@ -130,8 +130,9 @@ $nursing_forms = [
         .btn-enf-card {
             width: 100%;
             min-height: 120px;
-            background: #fff;
-            border: 1px solid #dee2e6;
+            background: transparent;
+            color: inherit;
+            border: 1px solid rgba(128,128,128,0.2);
             border-radius: 6px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.08);
             transition: box-shadow 0.2s ease, transform 0.2s ease;
@@ -172,7 +173,7 @@ $nursing_forms = [
         .btn-enf-card .enf-label {
             font-size: 12px;
             font-weight: 700;
-            color: #333;
+            color: inherit;
             text-transform: uppercase;
             letter-spacing: 0.4px;
             text-align: center;
@@ -213,12 +214,15 @@ $nursing_forms = [
             <div class="col-sm-12">
                 <div class="page-header clearfix">
                     <h2><?php echo xlt('Inpatient List'); ?></h2>
+                    <button id="btn-nuevo-ingreso" class="btn btn-success btn-sm mb-2">
+                        <i class="fa fa-plus"></i>&nbsp;<?php echo xlt('New Admission'); ?>
+                    </button>
                     <br />
                     <?php if ($id_encounter !== null) : ?>
                     <div class="alert alert-success alert-dismissible show" role="alert">
                         <?php echo xlt('Patient discharged successfully'); ?>:
                         <strong><?php echo text($nombre_paciente); ?></strong>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="<?php echo xla('Close'); ?>" style="color:black !important;">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="<?php echo xla('Close'); ?>">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -226,7 +230,7 @@ $nursing_forms = [
                     <?php if ($update !== null) : ?>
                     <div class="alert alert-success alert-dismissible show" role="alert">
                         <?php echo xlt('Patient updated successfully'); ?>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="<?php echo xla('Close'); ?>" style="color:black !important;">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="<?php echo xla('Close'); ?>">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -270,34 +274,34 @@ $nursing_forms = [
                                 <td>
                                     <div class="outer">
                                         <div class="inner">
-                                            <button class="btn btn-info btn-editar btn-xs" type="button"
+                                            <button class="btn btn-info btn-sm btn-editar" type="button"
                                                 data-id="<?php echo attr($result['id']); ?>">
-                                                <?php echo xlt('Edit'); ?>
+                                                <i class="fa fa-pencil-alt mr-1"></i><?php echo xlt('Edit'); ?>
                                             </button>
                                         </div>
                                         <div class="inner">
-                                            <button class="btn btn-default btn-alta btn-xs" type="button"
+                                            <button class="btn btn-outline-secondary btn-sm btn-alta" type="button"
                                                 id="<?php echo attr($result['id']); ?>"
                                                 data-title="<?php echo attr(xlt('Discharge patient') . ': ' . $result['paciente']); ?>"
                                                 data-paciente="<?php echo attr($result['paciente']); ?>">
-                                                <?php echo xlt('Discharge'); ?>
+                                                <i class="fa fa-sign-out-alt mr-1"></i><?php echo xlt('Discharge'); ?>
                                             </button>
                                         </div>
                                         <div class="inner">
-                                            <button class="btn btn-danger btn-death btn-xs" type="button"
+                                            <button class="btn btn-danger btn-sm btn-death" type="button"
                                                 data-id="<?php echo attr($result['id']); ?>"
                                                 data-title="<?php echo attr(xlt('Register patient death') . ': ' . $result['paciente']); ?>"
                                                 data-paciente="<?php echo attr($result['paciente']); ?>">
-                                                <?php echo xlt('Deceased'); ?>
+                                                <i class="fa fa-times-circle mr-1"></i><?php echo xlt('Deceased'); ?>
                                             </button>
                                         </div>
                                         <div class="inner">
-                                            <button class="btn btn-primary btn-Enferm btn-xs" type="button"
+                                            <button class="btn btn-primary btn-sm btn-Enferm" type="button"
                                                 data-id="<?php echo attr($result['id']); ?>"
                                                 data-paciente="<?php echo attr($result['paciente']); ?>"
                                                 data-pid="<?php echo attr($result['pid']); ?>"
                                                 data-encounter="<?php echo attr($result['encounter']); ?>">
-                                                <?php echo xlt('Nursing'); ?>
+                                                <i class="fa fa-user-nurse mr-1"></i><?php echo xlt('Nursing'); ?>
                                             </button>
                                         </div>
                                     </div>
@@ -330,7 +334,7 @@ $nursing_forms = [
                     <div class="modal-header">
                         <h5 class="modal-title" id="modal_title"></h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="<?php echo xla('Close'); ?>">
-                            <span aria-hidden="true" style="color:black !important;"><i class="fa fa-times"></i></span>
+                            <span aria-hidden="true"><i class="fa fa-times"></i></span>
                         </button>
                     </div>
                     <form method="get" name="form" action="lista_internados.php">
@@ -368,7 +372,7 @@ $nursing_forms = [
                             <i class="fa fa-user-md"></i> <?php echo xlt('Nursing Options'); ?>
                         </h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="<?php echo xla('Close'); ?>">
-                            <span aria-hidden="true" style="color:black !important;"><i class="fa fa-times"></i></span>
+                            <span aria-hidden="true"><i class="fa fa-times"></i></span>
                         </button>
                     </div>
                     <div class="modal-body">
@@ -461,6 +465,22 @@ $nursing_forms = [
         var csrf_token_js = <?php echo js_escape(CsrfUtils::collectCsrfToken(session: $session)); ?>;
 
         $(function() {
+
+            // NEW ADMISSION — patient selector popup callback
+            window.setpatient = function(pid, lname, fname, dob) {
+                top.restoreSession();
+                top.RTop.location = webroot_url + '/interface/tableros/editar_internado.php?pid=' + encodeURIComponent(pid);
+            };
+
+            // NEW ADMISSION button — open patient picker as in-app dialog
+            $('#btn-nuevo-ingreso').on('click', function() {
+                top.restoreSession();
+                dlgopen(
+                    webroot_url + '/interface/main/calendar/find_patient_popup.php',
+                    'findPatientAdmission',
+                    700, 500, false, <?php echo js_escape(xlt('Select Patient')); ?>
+                );
+            });
 
             // DISCHARGE button
             $(document).on('click', '.btn-alta', function() {

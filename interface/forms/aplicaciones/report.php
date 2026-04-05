@@ -47,7 +47,6 @@ function aplicaciones_report($pid, $encounter, $cols, $id)
         .rep-apl {
             font-family: Arial, sans-serif;
             font-size: 12px;
-            color: #222;
             padding: 10px 0;
         }
 
@@ -84,21 +83,20 @@ function aplicaciones_report($pid, $encounter, $cols, $id)
             display: flex;
             flex-wrap: wrap;
             gap: 18px;
-            background: #f0f4f8;
-            border: 1px solid #d0d8e4;
+            background: rgba(128,128,128,0.08);
+            border: 1px solid rgba(128,128,128,0.2);
             border-top: none;
             padding: 8px 14px;
             margin-bottom: 12px;
             font-size: 11px;
-            color: #555;
             border-radius: 0 0 4px 4px;
         }
-        .rep-apl .meta-bar span strong { color: #2c3e50; }
+        .rep-apl .meta-bar span strong { color: inherit; }
 
         .rep-apl table {
             width: 100%;
             border-collapse: collapse;
-            border: 1px solid #dde3ea;
+            border: 1px solid rgba(128,128,128,0.2);
             border-radius: 4px;
             overflow: hidden;
         }
@@ -115,14 +113,14 @@ function aplicaciones_report($pid, $encounter, $cols, $id)
         }
         .rep-apl table thead th:last-child { border-right: none; }
 
-        .rep-apl table tbody tr.row-si td { background: #f0faf4; }
-        .rep-apl table tbody tr.row-no  td { background: #fff; }
-        .rep-apl table tbody tr:hover td  { background: #eaf2ff !important; }
+        .rep-apl table tbody tr.row-si td { background: rgba(40,167,69,0.1); }
+        .rep-apl table tbody tr.row-no  td { background: transparent; }
+        .rep-apl table tbody tr:hover td  { background: rgba(0,123,255,0.1) !important; }
 
         .rep-apl table tbody td {
             padding: 9px 12px;
-            border-bottom: 1px solid #e4e9ef;
-            border-right: 1px solid #e4e9ef;
+            border-bottom: 1px solid rgba(128,128,128,0.15);
+            border-right: 1px solid rgba(128,128,128,0.15);
             font-size: 11px;
             vertical-align: top;
         }
@@ -130,12 +128,12 @@ function aplicaciones_report($pid, $encounter, $cols, $id)
 
         .rep-apl .td-nombre {
             font-weight: 600;
-            color: #2c3e50;
+            color: inherit;
             width: 30%;
         }
         .rep-apl .td-nombre.activo { color: #1a7a41; }
         .rep-apl .td-estado { width: 12%; text-align: center; }
-        .rep-apl .td-obs    { color: #555; }
+        .rep-apl .td-obs    { color: inherit; opacity: 0.8; }
 
         .rep-apl .badge-si {
             display: inline-block;
@@ -158,7 +156,8 @@ function aplicaciones_report($pid, $encounter, $cols, $id)
         }
 
         .rep-apl .obs-vacia {
-            color: #bbb;
+            color: inherit;
+            opacity: 0.45;
             font-style: italic;
             font-size: 10px;
         }
@@ -169,11 +168,10 @@ function aplicaciones_report($pid, $encounter, $cols, $id)
             gap: 14px;
             margin-top: 10px;
             padding: 9px 14px;
-            background: #f8f9fa;
-            border: 1px solid #dde3ea;
+            background: rgba(128,128,128,0.05);
+            border: 1px solid rgba(128,128,128,0.2);
             border-radius: 4px;
             font-size: 11px;
-            color: #555;
         }
         .rep-apl .summary-bar .pill {
             display: inline-flex;
@@ -190,9 +188,9 @@ function aplicaciones_report($pid, $encounter, $cols, $id)
             border: 1px solid #a9dfbf;
         }
         .rep-apl .summary-bar .pill-inactivos {
-            background: #f2f3f4;
-            color: #7f8c8d;
-            border: 1px solid #d5d8dc;
+            background: rgba(128,128,128,0.1);
+            color: inherit;
+            border: 1px solid rgba(128,128,128,0.2);
         }
         .rep-apl .summary-bar .num { font-size: 15px; }
 

@@ -270,15 +270,13 @@ $page_title = $is_edit ? xlt('Edit Nursing Evaluation') : xlt('New Nursing Evalu
                    class="form-control w-auto" value="<?php echo attr($hora_evaluacion); ?>">
         </div>
 
-        <!-- BUTTONS -->
-        <div class="form-group mt-4">
-            <button type="submit" class="btn btn-primary">
-                <?php echo $is_edit ? xlt('Save Changes') : xlt('Save'); ?>
+        <div class="form-group mt-3">
+            <button type="submit" onclick="top.restoreSession()" class="btn btn-primary">
+                <i class="fas fa-check mr-1"></i><?php echo $is_edit ? xlt('Save Changes') : xlt('Save'); ?>
             </button>
-            <a href="<?php echo attr($GLOBALS['webroot'] . '/interface/patient_file/encounter/encounter_top.php'); ?>"
-               class="btn btn-secondary ml-2">
-                <?php echo xlt('Cancel'); ?>
-            </a>
+            <button type="button" onclick="history.back()" class="btn btn-outline-secondary ml-2">
+                <i class="fas fa-times mr-1"></i><?php echo xlt('Cancel'); ?>
+            </button>
         </div>
     </form>
 </div>

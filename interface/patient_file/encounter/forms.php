@@ -956,6 +956,9 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
             <div class='form_header_controls btn-group' role='group'>
     HTML;
 
+                // Check if form has a view.php (e.g. nursing forms)
+                $has_view_php = file_exists(__DIR__ . '/../../forms/' . $formdir . '/view.php');
+
                 // If the form is locked, it is no longer editable
                 if ($esign->isLocked()) {
                     echo "<a href='#' class='btn btn-text btn-sm form-edit-button-locked' id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "'><i class='fa fa-lock fa-fw'></i>&nbsp;" . xlt('Locked') . "</a>";
@@ -964,14 +967,29 @@ if (OEGlobalsBag::getInstance()->getBoolean('google_signin_enabled') && !empty(O
                         (!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write') and $is_group == 0 and $authPostCalendarCategoryWrite)
                         or (((!$aco_spec || AclMain::aclCheckCore($aco_spec[0], $aco_spec[1], '', 'write')) and $is_group and AclMain::aclCheckCore("groups", "glog", false, 'write')) and $authPostCalendarCategoryWrite)
                     ) {
-                        echo "<a class='btn btn-text btn-sm form-edit-button btn-edit' " .
-                            "id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "' " .
-                            "href='#' " .
-                            "title='" . xla('Edit this form') . "' " .
-                            "onclick=\"return openEncounterForm(" . attr_js($formdir) . ", " .
-                            attr_js($form_name) . ", " . attr_js($iter['form_id']) . ")\">";
-                        echo "" . xlt('Edit') . "</a>";
+                        if ($has_view_php) {
+                            // Nursing forms: Edit opens new.php directly (skip preview)
+                            echo "<a class='btn btn-text btn-sm form-edit-button btn-edit' " .
+                                "id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "' " .
+                                "href='" . attr($GLOBALS['webroot'] . '/interface/forms/' . $formdir . '/new.php?pid=' . $pid . '&encounter=' . $encounter . '&id=' . $iter['form_id']) . "' " .
+                                "title='" . xla('Edit this form') . "' " .
+                                "onclick='top.restoreSession()'>" . xlt('Edit') . "</a>";
+                        } else {
+                            echo "<a class='btn btn-text btn-sm form-edit-button btn-edit' " .
+                                "id='form-edit-button-" . attr($formdir) . "-" . attr($iter['id']) . "' " .
+                                "href='#' " .
+                                "title='" . xla('Edit this form') . "' " .
+                                "onclick=\"return openEncounterForm(" . attr_js($formdir) . ", " .
+                                attr_js($form_name) . ", " . attr_js($iter['form_id']) . ")\">";
+                            echo "" . xlt('Edit') . "</a>";
+                        }
                     }
+                }
+
+                // View button — only for forms with a view.php
+                if ($has_view_php) {
+                    echo "<a href='" . attr($GLOBALS['webroot'] . '/interface/forms/' . $formdir . '/view.php?pid=' . $pid . '&encounter=' . $encounter . '&id=' . $iter['form_id']) .
+                        "' class='btn btn-text btn-sm' title='" . xla('View this form') . "' onclick='top.restoreSession()'><i class='fa fa-eye fa-fw'></i>&nbsp;" . xlt('View') . "</a>";
                 }
 
                 if (($esign->isButtonViewable() and $is_group == 0 and $authPostCalendarCategoryWrite) or ($esign->isButtonViewable() and $is_group and AclMain::aclCheckCore("groups", "glog", false, 'write') and $authPostCalendarCategoryWrite)) {

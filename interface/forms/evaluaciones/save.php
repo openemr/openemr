@@ -126,5 +126,5 @@ if ($is_edit) {
 }
 
 formHeader(xlt("Redirecting..."));
-formJump();
+formJump($GLOBALS['webroot'] . "/interface/tableros/lista_internados.php");
 formFooter();

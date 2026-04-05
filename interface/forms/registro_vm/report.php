@@ -64,7 +64,6 @@ function registro_vm_report($pid, $encounter, $cols, $id)
         .rep-vm {
             font-family: Arial, sans-serif;
             font-size: 12px;
-            color: #222;
             padding: 10px 0;
         }
 
@@ -101,20 +100,19 @@ function registro_vm_report($pid, $encounter, $cols, $id)
             display: flex;
             flex-wrap: wrap;
             gap: 18px;
-            background: #f0f4f8;
-            border: 1px solid #d0d8e4;
+            background: rgba(128,128,128,0.08);
+            border: 1px solid rgba(128,128,128,0.2);
             border-top: none;
             padding: 8px 14px;
             margin-bottom: 12px;
             font-size: 11px;
-            color: #555;
             border-radius: 0 0 4px 4px;
         }
-        .rep-vm .meta-bar span strong { color: #2c3e50; }
+        .rep-vm .meta-bar span strong { color: inherit; }
 
         .rep-vm .modo-bar {
-            background: #eef2ff;
-            border: 1px solid #c7d2fe;
+            background: rgba(25,118,210,0.08);
+            border: 1px solid rgba(25,118,210,0.3);
             border-left: 4px solid #1976d2;
             padding: 8px 14px;
             margin-bottom: 12px;
@@ -126,7 +124,7 @@ function registro_vm_report($pid, $encounter, $cols, $id)
         .rep-vm table {
             width: 100%;
             border-collapse: collapse;
-            border: 1px solid #dde3ea;
+            border: 1px solid rgba(128,128,128,0.2);
             overflow: hidden;
         }
         .rep-vm table thead th {
@@ -142,23 +140,23 @@ function registro_vm_report($pid, $encounter, $cols, $id)
         }
         .rep-vm table thead th:last-child { border-right: none; }
 
-        .rep-vm table tbody tr.row-si td { background: #f0faf4; }
-        .rep-vm table tbody tr.row-no  td { background: #fff; }
-        .rep-vm table tbody tr:hover td  { background: #eaf2ff !important; }
+        .rep-vm table tbody tr.row-si td { background: rgba(40,167,69,0.1); }
+        .rep-vm table tbody tr.row-no  td { background: transparent; }
+        .rep-vm table tbody tr:hover td  { background: rgba(0,123,255,0.1) !important; }
 
         .rep-vm table tbody td {
             padding: 9px 12px;
-            border-bottom: 1px solid #e4e9ef;
-            border-right: 1px solid #e4e9ef;
+            border-bottom: 1px solid rgba(128,128,128,0.15);
+            border-right: 1px solid rgba(128,128,128,0.15);
             font-size: 11px;
             vertical-align: top;
         }
         .rep-vm table tbody td:last-child { border-right: none; }
 
-        .rep-vm .td-nombre { font-weight: 600; color: #2c3e50; width: 30%; }
+        .rep-vm .td-nombre { font-weight: 600; color: inherit; width: 30%; }
         .rep-vm .td-nombre.activo { color: #1a7a41; }
         .rep-vm .td-estado { width: 12%; text-align: center; }
-        .rep-vm .td-obs    { color: #555; }
+        .rep-vm .td-obs    { color: inherit; opacity: 0.8; }
 
         .rep-vm .badge-si {
             display: inline-block; background: #27ae60; color: #fff;
@@ -169,19 +167,19 @@ function registro_vm_report($pid, $encounter, $cols, $id)
             font-size: 10px; font-weight: bold; padding: 4px 12px; border-radius: 3px;
         }
 
-        .rep-vm .obs-vacia { color: #bbb; font-style: italic; font-size: 10px; }
+        .rep-vm .obs-vacia { color: inherit; opacity: 0.45; font-style: italic; font-size: 10px; }
 
         .rep-vm .summary-bar {
             display: flex; align-items: center; gap: 14px; margin-top: 10px;
-            padding: 9px 14px; background: #f8f9fa; border: 1px solid #dde3ea;
-            border-radius: 4px; font-size: 11px; color: #555;
+            padding: 9px 14px; background: rgba(128,128,128,0.05); border: 1px solid rgba(128,128,128,0.2);
+            border-radius: 4px; font-size: 11px;
         }
         .rep-vm .summary-bar .pill {
             display: inline-flex; align-items: center; gap: 5px; font-weight: bold;
             font-size: 11px; padding: 4px 12px; border-radius: 20px;
         }
         .rep-vm .summary-bar .pill-activos  { background: #d5f5e3; color: #1a7a41; border: 1px solid #a9dfbf; }
-        .rep-vm .summary-bar .pill-inactivos { background: #f2f3f4; color: #7f8c8d; border: 1px solid #d5d8dc; }
+        .rep-vm .summary-bar .pill-inactivos { background: rgba(128,128,128,0.1); color: inherit; border: 1px solid rgba(128,128,128,0.2); }
         .rep-vm .summary-bar .num { font-size: 15px; }
 
         @media print {

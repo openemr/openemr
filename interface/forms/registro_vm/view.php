@@ -71,134 +71,51 @@ $bool_fields = [
     <title><?php echo xlt('Mechanical Ventilation Record'); ?></title>
     <?php Header::setupHeader(); ?>
     <style>
-        .registro-vm-view * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            padding: 20px;
-        }
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        }
-        h2 {
-            color: #333;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #333;
-            font-size: 24px;
-        }
-        .info-paciente {
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            border: 1px solid #dee2e6;
-        }
-        .info-paciente h3 { color: #495057; font-size: 16px; margin-bottom: 15px; font-weight: 600; }
+        .registro-vm-view *, .registro-vm-view *::before, .registro-vm-view *::after { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; padding: 40px; }
+        h2 { margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid; font-size: 24px; }
+        .info-paciente { padding: 20px; border-radius: 5px; margin-bottom: 20px; border: 1px solid rgba(128,128,128,0.25); }
+        .info-paciente h3 { font-size: 16px; margin-bottom: 15px; font-weight: 600; }
         .info-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-top: 15px; }
-        .info-item { background-color: white; padding: 10px 15px; border-radius: 3px; border: 1px solid #e0e0e0; }
-        .info-item strong { color: #495057; font-size: 12px; display: block; margin-bottom: 5px; }
-        .info-item span   { color: #333; font-size: 15px; font-weight: 500; }
-
-        .registro-card {
-            background-color: white;
-            border: 2px solid #dee2e6;
-            border-radius: 5px;
-            padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .registro-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #dee2e6;
-            margin-bottom: 20px;
-        }
+        .info-item { padding: 10px 15px; border-radius: 3px; border: 1px solid rgba(128,128,128,0.2); }
+        .info-item strong { font-size: 12px; display: block; margin-bottom: 5px; }
+        .info-item span   { font-size: 15px; font-weight: 500; }
+        .registro-card { border: 2px solid rgba(128,128,128,0.25); border-radius: 5px; padding: 25px; margin-bottom: 25px; }
+        .registro-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; border-bottom: 2px solid rgba(128,128,128,0.2); margin-bottom: 20px; }
         .registro-fecha { display: flex; align-items: center; gap: 15px; }
-        .fecha-principal { font-size: 18px; font-weight: 600; color: #333; }
-        .hora-principal  { font-size: 14px; color: #6c757d; }
-        .registro-acciones { display: flex; gap: 12px; }
-
-        .btn-accion {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 700;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .btn-editar   { background-color: #007bff; color: white; }
-        .btn-editar:hover   { background-color: #0056b3; }
-        .btn-imprimir { background-color: #28a745; color: white; }
-        .btn-imprimir:hover { background-color: #218838; }
-
-        .registro-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 18px;
-            margin-bottom: 25px;
-        }
-        .info-box-small { background-color: #f8f9fa; padding: 12px 15px; border-radius: 3px; border: 1px solid #dee2e6; }
-        .info-box-small strong { color: #495057; font-size: 12px; display: block; margin-bottom: 5px; font-weight: 600; }
-        .info-box-small span   { color: #333; font-size: 16px; font-weight: 500; }
-
-        .seccion-titulo {
-            font-size: 15px;
-            font-weight: 700;
-            color: #495057;
-            margin: 20px 0 15px 0;
-            padding: 10px 15px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-left: 5px solid #667eea;
-            border-radius: 5px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
+        .fecha-principal { font-size: 18px; font-weight: 600; }
+        .hora-principal  { font-size: 14px; opacity: 0.6; }
+        .registro-acciones { display: flex; gap: 8px; }
+        .registro-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; margin-bottom: 25px; }
+        .info-box-small { padding: 12px 15px; border-radius: 3px; border: 1px solid rgba(128,128,128,0.2); }
+        .info-box-small strong { font-size: 12px; display: block; margin-bottom: 5px; font-weight: 600; }
+        .info-box-small span   { font-size: 16px; font-weight: 500; }
+        .seccion-titulo { font-size: 15px; font-weight: 700; margin: 20px 0 15px 0; padding: 10px 15px; border-left: 5px solid #667eea; border-radius: 5px; text-transform: uppercase; letter-spacing: 1px; }
         /* Ventilation mode block */
-        .modo-block {
-            background-color: #eef2ff;
-            border: 1px solid #c7d2fe;
-            border-left: 4px solid #1976d2;
-            border-radius: 3px;
-            padding: 12px 15px;
-            margin-bottom: 12px;
-        }
-        .modo-label { font-size: 12px; color: #6c757d; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 6px; }
+        .modo-block { background-color: rgba(25,118,210,0.08); border: 1px solid rgba(25,118,210,0.3); border-left: 4px solid #1976d2; border-radius: 3px; padding: 12px 15px; margin-bottom: 12px; }
+        .modo-label { font-size: 12px; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 6px; }
         .modo-valor { font-size: 16px; font-weight: 700; color: #1976d2; }
-
-        .vm-detalle { background-color: white; border: 1px solid #dee2e6; border-radius: 3px; margin-bottom: 12px; overflow: hidden; }
-        .vm-header  { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background-color: #f8f9fa; }
-        .vm-header.si { background-color: #d4edda; border-left: 4px solid #28a745; }
-        .vm-header.no { background-color: #f8f9fa; border-left: 4px solid #6c757d; }
-        .vm-nombre  { font-size: 14px; font-weight: 600; color: #333; }
+        .vm-detalle { border: 1px solid rgba(128,128,128,0.2); border-radius: 3px; margin-bottom: 12px; overflow: hidden; }
+        .vm-header  { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; }
+        .vm-header.si { background-color: rgba(40,167,69,0.15); border-left: 4px solid #28a745; }
+        .vm-header.no { border-left: 4px solid #6c757d; }
+        .vm-nombre  { font-size: 14px; font-weight: 600; }
         .estado-badge { padding: 6px 14px; border-radius: 3px; font-size: 12px; font-weight: 600; }
         .estado-badge.si { background-color: #28a745; color: white; }
         .estado-badge.no { background-color: #6c757d; color: white; }
-        .vm-obs { padding: 18px 20px; background-color: #f8f9fa; }
-        .vm-obs.con-contenido { background: linear-gradient(135deg, #e7f3ff 0%, #cfe2ff 100%); border-top: 3px solid #0d6efd; }
-        .vm-obs h5 { font-size: 12px; color: #6c757d; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
-        .vm-obs p  { font-size: 14px; color: #212529; line-height: 1.7; white-space: pre-wrap; }
-
-        .no-registros { text-align: center; padding: 80px 40px; color: #999; background-color: #f8f9fa; border-radius: 15px; margin-top: 20px; }
-
+        .vm-obs { padding: 18px 20px; }
+        .vm-obs.con-contenido { background: rgba(13,110,253,0.08); border-top: 3px solid #0d6efd; }
+        .vm-obs h5 { font-size: 12px; opacity: 0.6; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+        .vm-obs p  { font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+        .no-registros { text-align: center; padding: 80px 40px; border-radius: 15px; margin-top: 20px; opacity: 0.6; }
         @media print {
             body { background: white; padding: 0; }
-            .btn-accion { display: none !important; }
+            .registro-acciones, .form-group { display: none !important; }
         }
     </style>
 </head>
-<body>
+<body class="body_top">
 <div class="registro-vm-view container">
     <h2><?php echo $id > 0 ? xlt('Ventilation Record Detail') : xlt('Ventilation Record List'); ?></h2>
 
@@ -241,12 +158,12 @@ $bool_fields = [
             </div>
             <div class="registro-acciones">
                 <a href="<?php echo attr($GLOBALS['webroot'] . '/interface/forms/registro_vm/new.php?pid=' . $pid . '&encounter=' . $encounter . '&id=' . $row['id']); ?>"
-                   class="btn-accion btn-editar">
-                    <?php echo xlt('Edit'); ?>
+                   class="btn btn-primary mr-1" onclick="top.restoreSession()">
+                    <i class="fas fa-pen mr-1"></i><?php echo xlt('Edit'); ?>
                 </a>
                 <a href="<?php echo attr($GLOBALS['webroot'] . '/interface/forms/registro_vm/print.php?pid=' . $pid . '&encounter=' . $encounter . '&id=' . $row['id']); ?>"
-                   target="_blank" class="btn-accion btn-imprimir">
-                    <?php echo xlt('Print'); ?>
+                   target="_blank" class="btn btn-success" onclick="top.restoreSession()">
+                    <i class="fas fa-print mr-1"></i><?php echo xlt('Print'); ?>
                 </a>
             </div>
         </div>
@@ -299,6 +216,12 @@ $bool_fields = [
 
         <?php
     endwhile; ?>
+
+    <div class="form-group mt-3">
+        <button type="button" onclick="history.back()" class="btn btn-outline-secondary">
+            <i class="fas fa-chevron-left mr-1"></i><?php echo xlt('Back'); ?>
+        </button>
+    </div>
 </div>
 
 </body>

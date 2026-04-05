@@ -94,9 +94,9 @@ if ($id > 0) {
             </div>
             <div>
                 <a href="<?php echo attr($GLOBALS['webroot'] . '/interface/forms/evaluaciones/new.php?pid=' . $pid . '&encounter=' . $encounter . '&id=' . $row['id']); ?>"
-                   class="btn btn-sm btn-primary"><?php echo xlt('Edit'); ?></a>
+                   class="btn btn-primary mr-1" onclick="top.restoreSession()"><i class="fas fa-pen mr-1"></i><?php echo xlt('Edit'); ?></a>
                 <a href="<?php echo attr($GLOBALS['webroot'] . '/interface/forms/evaluaciones/print.php?pid=' . $pid . '&encounter=' . $encounter . '&id=' . $row['id']); ?>"
-                   target="_blank" class="btn btn-sm btn-success ml-1"><?php echo xlt('Print'); ?></a>
+                   target="_blank" class="btn btn-success" onclick="top.restoreSession()"><i class="fas fa-print mr-1"></i><?php echo xlt('Print'); ?></a>
             </div>
         </div>
 
@@ -132,6 +132,12 @@ if ($id > 0) {
         <?php endif; ?>
     </div>
     <?php endwhile; ?>
+
+    <div class="form-group mt-3">
+        <button type="button" onclick="history.back()" class="btn btn-outline-secondary">
+            <i class="fas fa-chevron-left mr-1"></i><?php echo xlt('Back'); ?>
+        </button>
+    </div>
 </div>
 </body>
 </html>

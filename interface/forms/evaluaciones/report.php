@@ -50,7 +50,6 @@ function evaluaciones_report($pid, $encounter, $cols, $id)
         .rpt-eval {
             font-family: Arial, sans-serif;
             font-size: 12px;
-            color: #222;
             padding: 10px 0;
         }
 
@@ -59,15 +58,14 @@ function evaluaciones_report($pid, $encounter, $cols, $id)
             display: flex;
             flex-wrap: wrap;
             gap: 20px;
-            background: #f0f4f8;
-            border: 1px solid #d0d8e4;
+            background: rgba(128,128,128,0.08);
+            border: 1px solid rgba(128,128,128,0.2);
             border-radius: 4px;
             padding: 8px 14px;
             margin-bottom: 14px;
             font-size: 11px;
-            color: #555;
         }
-        .rpt-eval .meta-bar span strong { color: #2c3e50; }
+        .rpt-eval .meta-bar span strong { color: inherit; }
 
         /* Cabecera de sección */
         .rpt-eval .sec-header {
@@ -99,18 +97,18 @@ function evaluaciones_report($pid, $encounter, $cols, $id)
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
-        .rpt-eval table tbody tr:nth-child(even) td { background: #f7f9fb; }
-        .rpt-eval table tbody tr:hover td { background: #eaf2ff; }
+        .rpt-eval table tbody tr:nth-child(even) td { background: rgba(128,128,128,0.05); }
+        .rpt-eval table tbody tr:hover td { background: rgba(0,123,255,0.1); }
         .rpt-eval table tbody td {
             padding: 9px 12px;
-            border-bottom: 1px solid #e4e9ef;
+            border-bottom: 1px solid rgba(128,128,128,0.15);
             font-size: 12px;
             vertical-align: top;
         }
-        .rpt-eval .td-item  { font-weight: 600; color: #2c3e50; width: 30%; }
+        .rpt-eval .td-item  { font-weight: 600; color: inherit; width: 30%; }
         .rpt-eval .td-val   { width: 22%; }
-        .rpt-eval .td-obs   { color: #444; }
-        .rpt-eval .td-sub   { padding-left: 24px; color: #555; font-style: italic; }
+        .rpt-eval .td-obs   { color: inherit; opacity: 0.8; }
+        .rpt-eval .td-sub   { padding-left: 24px; color: inherit; opacity: 0.75; font-style: italic; }
 
         /* Badge valor */
         .rpt-eval .val-badge {
@@ -125,7 +123,8 @@ function evaluaciones_report($pid, $encounter, $cols, $id)
 
         /* Texto vacío */
         .rpt-eval .obs-vacia {
-            color: #bbb;
+            color: inherit;
+            opacity: 0.45;
             font-style: italic;
             font-size: 11px;
         }

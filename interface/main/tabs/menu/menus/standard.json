@@ -2266,5 +2266,13 @@
       }
     ],
     "requirement": 0
+  },
+  {
+    "label": "Nursing",
+    "menu_id": "nur0",
+    "target": "nur",
+    "url": "/interface/tableros/lista_internados.php",
+    "children": [],
+    "requirement": 0
   }
 ]
