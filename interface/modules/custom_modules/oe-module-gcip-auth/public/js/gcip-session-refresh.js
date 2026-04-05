@@ -6,6 +6,12 @@
  * and periodically refreshes the ID token before it expires. On success,
  * POSTs the fresh token to the core OIDC session refresh endpoint.
  *
+ * Failure handling: retries silently up to MAX_RETRIES times. After all
+ * retries are exhausted, shows a non-blocking banner with "Try again"
+ * and "Go to login" buttons. Never auto-redirects — the user always
+ * decides (OpenEMR has a beforeunload handler that would clash with
+ * automatic navigation).
+ *
  * Configuration is read from window.__gcipSessionRefresh (set by the
  * module's RenderEvent listener in Bootstrap.php).
  *
@@ -24,16 +30,17 @@
     const REFRESH_ENDPOINT = `${config.webRoot}/library/ajax/oidc_session_refresh.php`;
     const MARGIN_MS = (config.refreshMarginMinutes || 5) * 60 * 1000;
     const CHECK_INTERVAL_MS = 30 * 1000; // check every 30 seconds
-    const REDIRECT_DELAY_MS = 30 * 1000; // 30 seconds warning before redirect
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY_MS = 10 * 1000; // 10 seconds between retries
     let refreshInProgress = false;
     let bannerShown = false;
+    let failureCount = 0;
 
     /**
      * Load a script by URL, returns a Promise.
      */
     function loadScript(url) {
         return new Promise(function (resolve, reject) {
-            // Check if already loaded
             const existing = document.querySelector(`script[src="${url}"]`);
             if (existing) {
                 resolve();
@@ -75,9 +82,12 @@
     }
 
     /**
-     * Show a warning banner before redirect.
+     * Show a warning banner with action buttons. Never auto-redirects.
+     *
+     * @param {boolean} permanent - If true, the failure is unrecoverable
+     *   (e.g. Firebase user gone) and "Try again" is not shown.
      */
-    function showExpiryBanner() {
+    function showFailureBanner(permanent) {
         if (bannerShown) {
             return;
         }
@@ -90,26 +100,82 @@
             font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
             font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.3);`;
 
-        let remaining = Math.ceil(REDIRECT_DELAY_MS / 1000);
-        banner.textContent = `Your session is expiring. Please save your work. Redirecting to login in ${remaining} seconds...`;
-        document.body.appendChild(banner);
+        const message = document.createElement('span');
+        message.textContent = permanent
+            ? 'Your authentication session has expired. Please save your work and log in again. '
+            : 'Session could not be refreshed. Please save your work. ';
+        banner.appendChild(message);
 
-        const countdown = setInterval(function () {
-            remaining--;
-            if (remaining <= 0) {
-                clearInterval(countdown);
-                redirectToLogin();
-                return;
-            }
-            banner.textContent = `Your session is expiring. Please save your work. Redirecting to login in ${remaining} seconds...`;
-        }, 1000);
+        const btnStyle = 'margin:0 8px;padding:4px 16px;border:1px solid #fff;border-radius:4px;'
+            + 'cursor:pointer;font-size:14px;';
+
+        if (!permanent) {
+            const retryBtn = document.createElement('button');
+            retryBtn.textContent = 'Try again';
+            retryBtn.style.cssText = `${btnStyle}background:transparent;color:#fff;`;
+            retryBtn.addEventListener('click', function () {
+                removeBanner();
+                retryRefresh();
+            });
+            banner.appendChild(retryBtn);
+        }
+
+        const loginBtn = document.createElement('button');
+        loginBtn.textContent = 'Go to login';
+        loginBtn.style.cssText = `${btnStyle}background:#fff;color:#dc3545;`;
+        loginBtn.addEventListener('click', function () {
+            window.top.location.href = `${config.webRoot}/interface/login/login.php?site=${encodeURIComponent(config.siteId || 'default')}`;
+        });
+        banner.appendChild(loginBtn);
+
+        document.body.appendChild(banner);
     }
 
     /**
-     * Redirect to login page.
+     * Remove the banner and reset state so refresh can be retried.
      */
-    function redirectToLogin() {
-        window.top.location.href = `${config.webRoot}/interface/login/login.php?site=${encodeURIComponent(config.siteId || 'default')}`;
+    function removeBanner() {
+        const banner = document.getElementById('oidc-session-expiry-banner');
+        if (banner) {
+            banner.remove();
+        }
+        bannerShown = false;
+        failureCount = 0;
+        refreshInProgress = false;
+    }
+
+    /**
+     * Retry refresh after user clicks "Try again".
+     */
+    function retryRefresh() {
+        refreshToken();
+    }
+
+    /**
+     * Handle a transient refresh failure — retry silently or show banner.
+     */
+    function onTransientFailure() {
+        refreshInProgress = false;
+        failureCount++;
+
+        if (failureCount >= MAX_RETRIES) {
+            showFailureBanner(false);
+            return;
+        }
+
+        // Silent retry after delay
+        setTimeout(function () {
+            refreshToken();
+        }, RETRY_DELAY_MS);
+    }
+
+    /**
+     * Handle a permanent failure — no Firebase user or auth revoked.
+     * "Try again" won't help; only "Go to login" is offered.
+     */
+    function onPermanentFailure() {
+        refreshInProgress = false;
+        showFailureBanner(true);
     }
 
     /**
@@ -123,18 +189,28 @@
 
         initFirebase()
             .then(function () {
-                const user = firebase.auth().currentUser;
-                if (!user) {
-                    // User not signed into Firebase — session can't be refreshed
-                    showExpiryBanner();
-                    return;
-                }
-
-                return user.getIdToken(true);
+                // Wait for Firebase to restore auth state from IndexedDB.
+                // currentUser is null until onAuthStateChanged fires.
+                return new Promise(function (resolve, reject) {
+                    const unsubscribe = firebase.auth().onAuthStateChanged(function (user) {
+                        unsubscribe();
+                        if (!user) {
+                            reject({ permanent: true, reason: 'No Firebase user' });
+                            return;
+                        }
+                        resolve(user);
+                    });
+                });
+            })
+            .then(function (user) {
+                return user.getIdToken(true).catch(function (err) {
+                    // Firebase auth errors (token revoked, user deleted) are permanent
+                    throw { permanent: true, reason: err.message || 'Firebase auth error' };
+                });
             })
             .then(function (idToken) {
                 if (!idToken) {
-                    return;
+                    throw { permanent: false, reason: 'Empty token from Firebase' };
                 }
 
                 const formData = new FormData();
@@ -148,30 +224,27 @@
                 });
             })
             .then(function (response) {
-                if (!response) {
-                    return;
-                }
-
                 if (!response.ok) {
-                    // Server rejected the refresh
-                    showExpiryBanner();
-                    return;
+                    throw { permanent: false, reason: `Server returned ${response.status}` };
                 }
-
                 return response.json();
             })
             .then(function (data) {
                 if (!data || !data.success) {
-                    return;
+                    throw { permanent: false, reason: 'Server returned failure' };
                 }
 
-                // Update local expiry for next check
+                // Success — update local expiry, reset failure counter
                 config.expiresAt = data.expires_at;
                 refreshInProgress = false;
+                failureCount = 0;
             })
-            .catch(function () {
-                // Network error or Firebase refresh failed
-                showExpiryBanner();
+            .catch(function (err) {
+                if (err && err.permanent) {
+                    onPermanentFailure();
+                } else {
+                    onTransientFailure();
+                }
             });
     }
 
@@ -180,7 +253,7 @@
      */
     function checkAndRefresh() {
         if (bannerShown) {
-            return; // Already failing, don't retry
+            return; // Banner is showing, user decides next action
         }
 
         const nowMs = Date.now();
