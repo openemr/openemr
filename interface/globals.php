@@ -789,10 +789,9 @@ $globalsBag->set('groupname', $groupname);
 // Override temporary_files_dir
 $globalsBag->set('temporary_files_dir', rtrim(sys_get_temp_dir(), '/'));
 
-error_reporting(error_reporting() & ~E_USER_DEPRECATED & ~E_USER_WARNING);
-// user debug mode
+// user debug mode — only controls display_errors; the error reporting
+// level is left to php.ini so administrators can decide what to log.
 if ($globalsBag->getInt('user_debug', 0) > 1) {
-    error_reporting(error_reporting() & ~E_WARNING & ~E_NOTICE & ~E_USER_WARNING & ~E_USER_DEPRECATED);
     ini_set('display_errors', 1);
 }
 
