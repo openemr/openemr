@@ -24,11 +24,13 @@ use OpenEMR\Common\Auth\Oidc\Event\OidcLoginRequestEvent;
 use OpenEMR\Common\Auth\Oidc\Identity\ExternalIdentityRepository;
 use OpenEMR\Common\Auth\Oidc\Token\JwksClient;
 use OpenEMR\Common\Auth\Oidc\Token\OidcTokenValidator;
+use OpenEMR\Common\Auth\Oidc\Session\OidcSessionHelper;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Common\Twig\TwigContainer;
 use OpenEMR\Core\OEGlobalsBag;
 use OpenEMR\Events\Core\TemplatePageEvent;
+use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Modules\GcipAuth\Auth\GcipAuthHandler;
 use OpenEMR\Modules\GcipAuth\Auth\GcipClaimMapper;
 use OpenEMR\Modules\GcipAuth\Config\GcipConfigService;
@@ -62,6 +64,12 @@ final readonly class Bootstrap
         $this->eventDispatcher->addListener(
             OidcLoginRequestEvent::EVENT_NAME,
             $this->onLoginRequest(...),
+        );
+
+        // Inject session refresh script into authenticated pages (outer frame)
+        $this->eventDispatcher->addListener(
+            RenderEvent::EVENT_BODY_RENDER_POST,
+            $this->onBodyRenderPost(...),
         );
     }
 
@@ -109,6 +117,60 @@ final readonly class Bootstrap
         $twig = new TwigContainer($this->templatePath, $globals->getKernel());
         echo $twig->getTwig()->render('gcip-login.html.twig', $variables);
         exit;
+    }
+
+    public function onBodyRenderPost(RenderEvent $event): void
+    {
+        if (!OidcSessionHelper::isOidcSession()) {
+            return;
+        }
+
+        $expiresAt = OidcSessionHelper::getTokenExpiry();
+        if ($expiresAt === null) {
+            return;
+        }
+
+        $configService = new GcipConfigService();
+        $firebaseApiKey = $configService->getFirebaseApiKey();
+        $firebaseAuthDomain = $configService->getFirebaseAuthDomain();
+        $firebaseProjectId = $configService->getFirebaseProjectId();
+
+        if ($firebaseApiKey === '' || $firebaseAuthDomain === '' || $firebaseProjectId === '') {
+            return;
+        }
+
+        $globals = OEGlobalsBag::getInstance();
+        $webRoot = $globals->getString('webroot');
+        $refreshMargin = $globals->getInt('oidc_refresh_margin_minutes');
+        if ($refreshMargin <= 0) {
+            $refreshMargin = 5;
+        }
+
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $csrfToken = CsrfUtils::collectCsrfToken($session);
+
+        $tenantIds = $configService->getAllowedTenantIds();
+        $tenantId = $tenantIds !== [] ? $tenantIds[0] : '';
+
+        $siteId = $session->get('site_id', 'default');
+        $siteId = is_string($siteId) ? $siteId : 'default';
+
+        $configJson = json_encode([
+            'firebaseApiKey' => $firebaseApiKey,
+            'firebaseAuthDomain' => $firebaseAuthDomain,
+            'firebaseProjectId' => $firebaseProjectId,
+            'tenantId' => $tenantId,
+            'expiresAt' => $expiresAt,
+            'refreshMarginMinutes' => $refreshMargin,
+            'csrfToken' => $csrfToken,
+            'webRoot' => $webRoot,
+            'siteId' => $siteId,
+        ], JSON_THROW_ON_ERROR);
+
+        $scriptPath = $webRoot . self::MODULE_PATH . '/public/js/gcip-session-refresh.js';
+
+        echo '<script>window.__gcipSessionRefresh = ' . $configJson . ';</script>' . "\n";
+        echo '<script src="' . htmlspecialchars($scriptPath, ENT_QUOTES) . '"></script>' . "\n";
     }
 
     public function onLoginRequest(OidcLoginRequestEvent $event): void

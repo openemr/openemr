@@ -2317,6 +2317,13 @@ $GLOBALS_METADATA = [
             xl('Cache backend for OIDC discovery and JWKS data')
         ],
 
+        'oidc_refresh_margin_minutes' => [
+            xl('OIDC Token Refresh Margin (Minutes)'),
+            'num',
+            '5',
+            xl('Minutes before OIDC token expiry to trigger silent client-side refresh')
+        ],
+
         'gbl_ldap_enabled' => [
             xl('Use LDAP for Authentication'),
             'bool',

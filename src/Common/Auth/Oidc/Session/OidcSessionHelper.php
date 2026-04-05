@@ -24,6 +24,8 @@ final class OidcSessionHelper
     private const KEY_TOKEN_EXPIRY = 'oidc_token_expiry';
     private const KEY_ISSUER = 'oidc_issuer';
     private const KEY_JTI = 'oidc_jti';
+    private const KEY_SUBJECT = 'oidc_subject';
+    private const KEY_AUDIENCE = 'oidc_audience';
     private const KEY_AUTH_METHOD = 'oidc_auth_method';
 
     /**
@@ -33,11 +35,15 @@ final class OidcSessionHelper
         \DateTimeImmutable $tokenExpiry,
         string $issuer,
         ?string $jti = null,
+        ?string $subject = null,
+        ?string $audience = null,
     ): void {
         $session = SessionWrapperFactory::getInstance()->getActiveSession();
         $session->set(self::KEY_TOKEN_EXPIRY, $tokenExpiry->getTimestamp());
         $session->set(self::KEY_ISSUER, $issuer);
         $session->set(self::KEY_JTI, $jti);
+        $session->set(self::KEY_SUBJECT, $subject);
+        $session->set(self::KEY_AUDIENCE, $audience);
         $session->set(self::KEY_AUTH_METHOD, 'oidc');
     }
 
@@ -81,6 +87,26 @@ final class OidcSessionHelper
     }
 
     /**
+     * Get the OIDC subject (sub claim) for this session.
+     */
+    public static function getSubject(): ?string
+    {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $subject = $session->get(self::KEY_SUBJECT);
+        return is_string($subject) ? $subject : null;
+    }
+
+    /**
+     * Get the OIDC audience (client ID) for this session.
+     */
+    public static function getAudience(): ?string
+    {
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        $audience = $session->get(self::KEY_AUDIENCE);
+        return is_string($audience) ? $audience : null;
+    }
+
+    /**
      * Update the token expiry after a silent refresh.
      */
     public static function updateTokenExpiry(\DateTimeImmutable $newExpiry, ?string $newJti = null): void
@@ -117,6 +143,8 @@ final class OidcSessionHelper
         $session->remove(self::KEY_TOKEN_EXPIRY);
         $session->remove(self::KEY_ISSUER);
         $session->remove(self::KEY_JTI);
+        $session->remove(self::KEY_SUBJECT);
+        $session->remove(self::KEY_AUDIENCE);
         $session->remove(self::KEY_AUTH_METHOD);
     }
 }

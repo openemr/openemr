@@ -168,6 +168,8 @@ final readonly class GcipAuthHandler
             $validatedToken->expiresAt,
             $validatedToken->identity->issuer,
             $validatedToken->jti,
+            $validatedToken->identity->externalId,
+            $clientId,
         );
 
         // Dispatch post-authentication event
