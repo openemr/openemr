@@ -440,7 +440,7 @@ function collectItemizedPatientsCdrReport($report_id, $itemized_test_id, $pass =
 
     if ($sqllimit != "all") {
         $sql_query .= " LIMIT ? OFFSET ?";
-        array_push($sqlParameters, (int) $sqllimit, (int) $fstart);
+        array_push($sqlParameters, is_numeric($sqllimit) ? (int) $sqllimit : 0, is_numeric($fstart) ? (int) $fstart : 0);
     }
 
     if ($count) {
