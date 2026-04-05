@@ -67,19 +67,15 @@ if ($mode === 'new') {
 
     $fe_id = sqlInsert(
         "INSERT INTO form_encounter
-            (pid, encounter, uuid, date, facility, facility_id, pc_catid, provider_id, billing_facility)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (pid, encounter, uuid, date, facility, facility_id, pc_catid, provider_id, billing_facility,
+             nro_registro, departamento, servicio, cuarto, cama)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [$pid, $encounter, $uuid, $date . ' 00:00:00', $facility, $facility_id,
-         $inpatient_catid, $provider_id, $facility_id]
+         $inpatient_catid, $provider_id, $facility_id,
+         $nro_registro, $departamento, $servicio, $cuarto, $cama]
     );
 
     addForm($encounter, "New Patient Encounter", $fe_id, "newpatient", $pid, $provider_id, $date, $user, $group);
-
-    sqlStatement(
-        "INSERT INTO form_nursing_admission (pid, encounter, nro_registro, departamento, servicio, cuarto, cama)
-         VALUES (?, ?, ?, ?, ?, ?, ?)",
-        [$pid, $encounter, $nro_registro, $departamento, $servicio, $cuarto, $cama]
-    );
 
     header("Location: lista_internados.php?update=1");
     exit;
@@ -96,15 +92,10 @@ if ($mode === 'edit') {
     }
 
     sqlStatement(
-        "INSERT INTO form_nursing_admission (pid, encounter, nro_registro, departamento, servicio, cuarto, cama)
-         VALUES (?, ?, ?, ?, ?, ?, ?)
-         ON DUPLICATE KEY UPDATE
-            nro_registro = VALUES(nro_registro),
-            departamento = VALUES(departamento),
-            servicio     = VALUES(servicio),
-            cuarto       = VALUES(cuarto),
-            cama         = VALUES(cama)",
-        [$feRow['pid'], $feRow['encounter'], $nro_registro, $departamento, $servicio, $cuarto, $cama]
+        "UPDATE form_encounter
+         SET nro_registro = ?, departamento = ?, servicio = ?, cuarto = ?, cama = ?
+         WHERE id = ?",
+        [$nro_registro, $departamento, $servicio, $cuarto, $cama, $encounter_id]
     );
 
     header("Location: lista_internados.php?update=1");
