@@ -122,7 +122,11 @@ class CareTeamViewCard extends CardModel
 
     private function handleFormSubmission()
     {
-        if ((filter_input(INPUT_POST, 'save_care_team') ?: '') === 'true') {
+        $saveCareTeam = filter_input(INPUT_POST, 'save_care_team');
+        if (!is_string($saveCareTeam)) {
+            $saveCareTeam = $_POST['save_care_team'] ?? '';
+        }
+        if ($saveCareTeam === 'true') {
             CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
             $teamId = ValidationUtils::validateInt(filter_input(INPUT_POST, 'team_id'));

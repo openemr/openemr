@@ -59,7 +59,7 @@ class Common
         if (!is_string($val)) {
             $val = $_GET[$var] ?? null;
         }
-        if (is_string($val)) {
+        if (is_string($val) && $val !== '') {
             return $val;
         }
         return $default;
@@ -85,7 +85,7 @@ class Common
             /** @var string[] $val */
             return $val;
         }
-        if (is_string($val)) {
+        if (is_string($val) && $val !== '') {
             return $val;
         }
         return $default;
