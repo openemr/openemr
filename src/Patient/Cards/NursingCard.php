@@ -63,9 +63,8 @@ class NursingCard extends CardModel
 
         $row = sqlQuery(
             "SELECT fe.id AS encounter_id, fe.encounter, fe.date AS admission_date,
-                    na.nro_registro, na.departamento, na.servicio, na.cuarto, na.cama
+                    fe.nro_registro, fe.departamento, fe.servicio, fe.cuarto, fe.cama
              FROM form_encounter AS fe
-             LEFT JOIN form_nursing_admission AS na ON na.encounter = fe.encounter
              WHERE fe.pid = ? AND fe.pc_catid = ? AND fe.date_end IS NULL
              ORDER BY fe.date DESC
              LIMIT 1",
