@@ -24,8 +24,8 @@ class KeyV7Generator
         $dbHmacKey = KeyMaterial::generate(32);
         // This doesn't locally check for existence since the interface
         // promises it won't ovewrite data.
-        $storage->storeKey('sevena', $dbKey);
-        $storage->storeKey('sevenb', $dbHmacKey);
+        $storage->storeKey(new Storage\KeyMaterialId('sevena'), $dbKey);
+        $storage->storeKey(new Storage\KeyMaterialId('sevenb'), $dbHmacKey);
         return new Aes256CbcHmacSha384(
             key: $dbKey,
             hmacKey: $dbHmacKey,
