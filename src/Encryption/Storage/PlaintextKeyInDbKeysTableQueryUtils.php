@@ -17,7 +17,15 @@ use OpenEMR\Encryption\Keys\KeyMaterial;
 use OutOfBoundsException;
 use UnexpectedValueException;
 
-readonly class PlaintextKeyInDbKeysTableAdodb implements KeyStorageInterface
+/**
+ * Read key material from the `keys` table using the legacy querying APIs.
+ *
+ * Important: this bypasses query audit logging, which is necessary to prevent
+ * recursion in the audit logger itself which can encrypt messages.
+ *
+ * @depreacated
+ */
+readonly class PlaintextKeyInDbKeysTableQueryUtils implements KeyStorageInterface
 {
     public function getKey(string $identifier): KeyMaterial
     {
