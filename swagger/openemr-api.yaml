@@ -106,6 +106,27 @@ paths:
         -
           openemr_auth: {  }
   '/api/admin/users/{uuid}':
+    delete:
+      tags:
+        - standard-admin
+      description: 'Deactivates a user (soft delete, sets active=0). Requires admin/super ACL.'
+      parameters:
+        -
+          name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        404:
+          description: 'User not found'
+      security:
+        -
+          openemr_auth: {  }
     get:
       tags:
         - standard-admin
@@ -120,6 +141,64 @@ paths:
       responses:
         200:
           $ref: '#/components/responses/standard'
+        401:
+          $ref: '#/components/responses/unauthorized'
+        404:
+          description: 'User not found'
+      security:
+        -
+          openemr_auth: {  }
+    put:
+      tags:
+        - standard-admin
+      description: 'Updates an existing user (requires admin/super ACL)'
+      parameters:
+        -
+          name: uuid
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                fname:
+                  type: string
+                lname:
+                  type: string
+                mname:
+                  type: string
+                email:
+                  type: string
+                authorized:
+                  type: integer
+                  enum:
+                    - 0
+                    - 1
+                active:
+                  type: integer
+                  enum:
+                    - 0
+                    - 1
+                facility_id:
+                  type: integer
+                billing_facility_id:
+                  type: integer
+                npi:
+                  type: string
+                access_group:
+                  type: array
+                  items:
+                    type: string
+              type: object
+      responses:
+        200:
+          $ref: '#/components/responses/standard'
+        400:
+          $ref: '#/components/responses/badrequest'
         401:
           $ref: '#/components/responses/unauthorized'
         404:
