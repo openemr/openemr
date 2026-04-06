@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Encryption\Storage;
 
 use OpenEMR\Encryption\Keys\KeyMaterial;
+use OpenEMR\Encryption\Storage\KeyMaterialId;
 use OpenEMR\Encryption\Storage\PlaintextKeyOnDisk;
 use PHPUnit\Framework\TestCase;
 
@@ -46,8 +47,9 @@ final class PlaintextKeyOnDiskTest extends TestCase
         $storage = new PlaintextKeyOnDisk($this->tempDir);
         $keyMaterial = new KeyMaterial('test_secret_key_________________');
 
-        $storage->storeKey('test-key', $keyMaterial);
-        $retrieved = $storage->getKey('test-key');
+        $id = new KeyMaterialId('test-key');
+        $storage->storeKey($id, $keyMaterial);
+        $retrieved = $storage->getKey($id);
 
         self::assertSame($keyMaterial->key, $retrieved->key);
     }
@@ -59,7 +61,7 @@ final class PlaintextKeyOnDiskTest extends TestCase
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Key not found');
 
-        $storage->getKey('nonexistent-key');
+        $storage->getKey(new KeyMaterialId('nonexistent-key'));
     }
 
     public function testStoreKeyThrowsWhenKeyExists(): void
@@ -67,12 +69,13 @@ final class PlaintextKeyOnDiskTest extends TestCase
         $storage = new PlaintextKeyOnDisk($this->tempDir);
         $keyMaterial = new KeyMaterial('test_secret_key_________________');
 
-        $storage->storeKey('duplicate-key', $keyMaterial);
+        $id = new KeyMaterialId('duplicate-key');
+        $storage->storeKey($id, $keyMaterial);
 
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Key exists, will not overwrite');
 
-        $storage->storeKey('duplicate-key', $keyMaterial);
+        $storage->storeKey($id, $keyMaterial);
     }
 
     public function testGetKeyReadsBase64EncodedFile(): void
@@ -81,7 +84,7 @@ final class PlaintextKeyOnDiskTest extends TestCase
         file_put_contents($this->tempDir . '/external-key', base64_encode($rawKey));
 
         $storage = new PlaintextKeyOnDisk($this->tempDir);
-        $retrieved = $storage->getKey('external-key');
+        $retrieved = $storage->getKey(new KeyMaterialId('external-key'));
 
         self::assertSame($rawKey, $retrieved->key);
     }
