@@ -904,7 +904,7 @@ class CareTeamServiceTest extends TestCase
             // Look up the team by name since saveCareTeam() returns void
             /** @var array<string, mixed>|false $teamRow */
             $teamRow = QueryUtils::querySingleRow(
-                "SELECT id FROM care_team WHERE pid = ? AND team_name = ? LIMIT 1",
+                "SELECT id FROM care_teams WHERE pid = ? AND team_name = ? LIMIT 1",
                 [$this->testPid, self::TEST_TEAM_NAME]
             );
             $this->assertIsArray($teamRow);
