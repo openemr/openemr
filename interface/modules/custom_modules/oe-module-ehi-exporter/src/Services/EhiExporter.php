@@ -14,7 +14,6 @@
 namespace OpenEMR\Modules\EhiExporter\Services;
 
 
-use function xl;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\CryptoInterface;
 use OpenEMR\Common\Crypto\KeySource;
@@ -47,6 +46,7 @@ use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Rfc4122\UuidV4;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Twig\Environment;
+use function xl;
 
 class EhiExporter
 {

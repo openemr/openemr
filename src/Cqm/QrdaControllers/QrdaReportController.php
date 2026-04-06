@@ -47,7 +47,7 @@ class QrdaReportController
         $measures_resolved = $this->reportService->resolveMeasuresPath($measures);
         // pass in measures with file path.
         $document = $this->reportService->generateCategoryIXml($pid, $measures_resolved);
-        if (empty($document)) {
+        if ($document === '') {
             return '';
         }
         if ($type === 'html') {

@@ -196,10 +196,10 @@ class EncountermanagerTable
         }
     }
 
-    private function getCcdaAsPdf($ccda)
+    private function getCcdaAsPdf(string $ccda)
     {
         $dompdf = new Dompdf();
-        $dompdf->loadHtml($this->getCcdaAsHTML($ccda));
+        $dompdf->loadHtml($this->getCcdaAsHTML((string) $ccda));
         $dompdf->render();
         return $dompdf->output();
     }
@@ -214,9 +214,9 @@ class EncountermanagerTable
         return $output;
     }
 
-    public function getCcdaAsHTML($ccda)
+    public function getCcdaAsHTML(string $ccda)
     {
-        $xml = XmlUtils::loadString((string) $ccda);
+        $xml = XmlUtils::loadString($ccda);
         $xsl = new DOMDocument();
         // cda.xsl is self contained with bootstrap and jquery.
         // cda-web.xsl is used when referencing styles from internet.
@@ -278,16 +278,17 @@ class EncountermanagerTable
                     $document = $documents[0];
                     $ccda = $document->get_data();
                     // use the filename that exists in the document for what is sent
-                    $fileName = $document->get_name();
-                    if (empty($ccda) || empty($fileName)) {
+                    $fileName = (string) $document->get_name();
+                    $ccdaString = (string) $ccda;
+                    if ($ccdaString === '' || $fileName === '') {
                         throw new \RuntimeException("Cannot send document as document data was empty or filename was empty for document with id "
                             . $document->get_id());
                     }
 
                     $ccda_file = match ($xml_type) {
-                        'html' => $this->getCcdaAsHTML($ccda),
-                        'pdf' => $this->getCcdaAsPdf($ccda),
-                        'xml' => $this->getCcdaAsXml($ccda),
+                        'html' => $this->getCcdaAsHTML($ccdaString),
+                        'pdf' => $this->getCcdaAsPdf($ccdaString),
+                        'xml' => $this->getCcdaAsXml($ccdaString),
                         default => throw new \RuntimeException("Unsupported CCDA export type: " . $xml_type),
                     };
                     $replaceExt = "." . $xml_type;
