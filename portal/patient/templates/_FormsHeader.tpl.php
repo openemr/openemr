@@ -47,7 +47,8 @@ if ($session->get('patient_portal_onsite_two', 0)) {
         .script("<?php echo $assets_static_relative; ?>/backbone/backbone-min.js")
         .script("<?php echo $web_root; ?>/portal/patient/scripts/app.js?v=<?php echo $v_js_includes; ?>")
         .script("<?php echo $web_root; ?>/portal/patient/scripts/model.js?v=<?php echo $v_js_includes; ?>").wait()
-        .script("<?php echo $web_root; ?>/portal/patient/scripts/view.js?v=<?php echo $v_js_includes; ?>").wait();
+        .script("<?php echo $web_root; ?>/portal/patient/scripts/view.js?v=<?php echo $v_js_includes; ?>").wait()
+        .script("<?php echo $web_root; ?>/portal/portal_payment.js?v=<?php echo $v_js_includes; ?>").wait();
 </script>
 
 </head>
