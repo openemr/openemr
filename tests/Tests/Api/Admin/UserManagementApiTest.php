@@ -58,6 +58,37 @@ class UserManagementApiTest extends TestCase
         return $body;
     }
 
+    /**
+     * Helper: create a test user and return its UUID.
+     */
+    private function createTestUserAndReturnUuid(): string
+    {
+        $adminPass = getenv("OE_PASS", true) ?: "pass";
+        $username = "phpunit_upd_" . bin2hex(random_bytes(4));
+        $response = $this->testClient->post(self::API_ENDPOINT, [
+            "username" => $username,
+            "password" => "TestPass123!strong",
+            "admin_password" => $adminPass,
+            "fname" => "Update",
+            "lname" => "Target",
+            "access_group" => ["Physicians"],
+        ]);
+        $this->assertEquals(Response::HTTP_CREATED, $response->getStatusCode());
+        self::$createdUsernames[] = $username;
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $data */
+        $data = $body["data"] ?? [];
+        /** @var string $uuid */
+        $uuid = $data["uuid"];
+        return $uuid;
+    }
+
+    private function getLastCreatedUsername(): string
+    {
+        return self::$createdUsernames[array_key_last(self::$createdUsernames)];
+    }
+
     // ----------------------------------------------------------------
     // Happy path: GET list
     // ----------------------------------------------------------------
@@ -475,6 +506,267 @@ class UserManagementApiTest extends TestCase
     }
 
     // ----------------------------------------------------------------
+    // Happy path: PUT update
+    // ----------------------------------------------------------------
+
+    #[Test]
+    public function testPutUpdateSingleField(): void
+    {
+        $uuid = $this->createTestUserAndReturnUuid();
+
+        $response = $this->testClient->put(self::API_ENDPOINT, $uuid, [
+            "fname" => "UpdatedFirst",
+        ]);
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $data */
+        $data = $body["data"] ?? [];
+        $this->assertEquals("UpdatedFirst", $data["fname"]);
+    }
+
+    #[Test]
+    public function testPutUpdateMultipleFields(): void
+    {
+        $uuid = $this->createTestUserAndReturnUuid();
+
+        $response = $this->testClient->put(self::API_ENDPOINT, $uuid, [
+            "fname" => "Multi",
+            "lname" => "Update",
+            "email" => "multi.update@example.com",
+            "npi" => "9876543210",
+        ]);
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $data */
+        $data = $body["data"] ?? [];
+        $this->assertEquals("Multi", $data["fname"]);
+        $this->assertEquals("Update", $data["lname"]);
+        $this->assertEquals("multi.update@example.com", $data["email"]);
+        $this->assertEquals("9876543210", $data["npi"]);
+    }
+
+    #[Test]
+    public function testPutUpdateAccessGroup(): void
+    {
+        $uuid = $this->createTestUserAndReturnUuid();
+
+        $response = $this->testClient->put(self::API_ENDPOINT, $uuid, [
+            "access_group" => ["Administrators"],
+        ]);
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        // Verify ACL groups changed
+        $getResponse = $this->testClient->getOne(self::API_ENDPOINT, $uuid);
+        $getBody = $this->decodeResponse($getResponse);
+        /** @var array<string, mixed> $getData */
+        $getData = $getBody["data"] ?? [];
+        /** @var list<string> $aclGroups */
+        $aclGroups = $getData["acl_groups"] ?? [];
+        $this->assertContains("Administrators", $aclGroups);
+    }
+
+    #[Test]
+    public function testPutToggleActive(): void
+    {
+        $uuid = $this->createTestUserAndReturnUuid();
+
+        // Deactivate via PUT
+        $response = $this->testClient->put(self::API_ENDPOINT, $uuid, [
+            "active" => 0,
+        ]);
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        // Verify deactivated
+        $getResponse = $this->testClient->get(self::API_ENDPOINT, ["username" => $this->getLastCreatedUsername()]);
+        $getBody = $this->decodeResponse($getResponse);
+        /** @var list<array<string, mixed>> $getData */
+        $getData = $getBody["data"] ?? [];
+        $this->assertCount(1, $getData);
+        $this->assertEquals("0", $getData[0]["active"]);
+
+        // Reactivate via PUT
+        $response2 = $this->testClient->put(self::API_ENDPOINT, $uuid, [
+            "active" => 1,
+        ]);
+        $this->assertEquals(Response::HTTP_OK, $response2->getStatusCode());
+
+        $getResponse2 = $this->testClient->get(self::API_ENDPOINT, ["username" => $this->getLastCreatedUsername()]);
+        $getBody2 = $this->decodeResponse($getResponse2);
+        /** @var list<array<string, mixed>> $getData2 */
+        $getData2 = $getBody2["data"] ?? [];
+        $this->assertCount(1, $getData2);
+        $this->assertEquals("1", $getData2[0]["active"]);
+    }
+
+    #[Test]
+    public function testPutUpdateFacilityId(): void
+    {
+        $uuid = $this->createTestUserAndReturnUuid();
+
+        $response = $this->testClient->put(self::API_ENDPOINT, $uuid, [
+            "facility_id" => "3",
+        ]);
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $data */
+        $data = $body["data"] ?? [];
+        $this->assertEquals("3", $data["facility_id"]);
+    }
+
+    // ----------------------------------------------------------------
+    // Sad path: PUT update
+    // ----------------------------------------------------------------
+
+    #[Test]
+    public function testPutNonExistentUuidReturns404(): void
+    {
+        $fakeUuid = "00000000-0000-0000-0000-000000000000";
+        $response = $this->testClient->put(self::API_ENDPOINT, $fakeUuid, [
+            "fname" => "Ghost",
+        ]);
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function testPutEmptyBodyReturns400(): void
+    {
+        $uuid = $this->createTestUserAndReturnUuid();
+
+        $response = $this->testClient->put(self::API_ENDPOINT, $uuid, []);
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $validationErrors */
+        $validationErrors = $body["validationErrors"] ?? [];
+        $this->assertNotEmpty($validationErrors);
+    }
+
+    #[Test]
+    public function testPutUsernameRejected(): void
+    {
+        $uuid = $this->createTestUserAndReturnUuid();
+
+        $response = $this->testClient->put(self::API_ENDPOINT, $uuid, [
+            "username" => "hacker",
+        ]);
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $validationErrors */
+        $validationErrors = $body["validationErrors"] ?? [];
+        $this->assertArrayHasKey('username', $validationErrors);
+    }
+
+    #[Test]
+    public function testPutPasswordRejected(): void
+    {
+        $uuid = $this->createTestUserAndReturnUuid();
+
+        $response = $this->testClient->put(self::API_ENDPOINT, $uuid, [
+            "password" => "NewPass123!",
+        ]);
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $validationErrors */
+        $validationErrors = $body["validationErrors"] ?? [];
+        $this->assertArrayHasKey('password', $validationErrors);
+    }
+
+    #[Test]
+    public function testPutInvalidFacilityIdReturns400(): void
+    {
+        $uuid = $this->createTestUserAndReturnUuid();
+
+        $response = $this->testClient->put(self::API_ENDPOINT, $uuid, [
+            "facility_id" => "999999",
+        ]);
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $validationErrors */
+        $validationErrors = $body["validationErrors"] ?? [];
+        $this->assertArrayHasKey('facility_id', $validationErrors);
+    }
+
+    #[Test]
+    public function testPutInvalidAuthorizedValueReturns400(): void
+    {
+        $uuid = $this->createTestUserAndReturnUuid();
+
+        $response = $this->testClient->put(self::API_ENDPOINT, $uuid, [
+            "authorized" => 5,
+        ]);
+        $this->assertEquals(Response::HTTP_BAD_REQUEST, $response->getStatusCode());
+    }
+
+    // ----------------------------------------------------------------
+    // Happy path: DELETE deactivate
+    // ----------------------------------------------------------------
+
+    #[Test]
+    public function testDeleteDeactivatesUser(): void
+    {
+        $uuid = $this->createTestUserAndReturnUuid();
+
+        $response = $this->testClient->delete(self::API_ENDPOINT, $uuid);
+        $this->assertEquals(Response::HTTP_OK, $response->getStatusCode());
+
+        $body = $this->decodeResponse($response);
+        /** @var array<string, mixed> $data */
+        $data = $body["data"] ?? [];
+        $this->assertEquals($uuid, $data["uuid"]);
+        $this->assertEquals(0, $data["active"]);
+
+        // Verify user still exists but is inactive
+        $getResponse = $this->testClient->get(self::API_ENDPOINT, ["username" => $this->getLastCreatedUsername()]);
+        $getBody = $this->decodeResponse($getResponse);
+        /** @var list<array<string, mixed>> $getData */
+        $getData = $getBody["data"] ?? [];
+        $this->assertCount(1, $getData);
+        $this->assertEquals("0", $getData[0]["active"]);
+    }
+
+    #[Test]
+    public function testDeleteThenReactivateViaPut(): void
+    {
+        $uuid = $this->createTestUserAndReturnUuid();
+
+        // Deactivate
+        $deleteResponse = $this->testClient->delete(self::API_ENDPOINT, $uuid);
+        $this->assertEquals(Response::HTTP_OK, $deleteResponse->getStatusCode());
+
+        // Reactivate via PUT
+        $putResponse = $this->testClient->put(self::API_ENDPOINT, $uuid, [
+            "active" => 1,
+        ]);
+        $this->assertEquals(Response::HTTP_OK, $putResponse->getStatusCode());
+
+        // Verify reactivated
+        $getResponse = $this->testClient->get(self::API_ENDPOINT, ["username" => $this->getLastCreatedUsername()]);
+        $getBody = $this->decodeResponse($getResponse);
+        /** @var list<array<string, mixed>> $getData */
+        $getData = $getBody["data"] ?? [];
+        $this->assertCount(1, $getData);
+        $this->assertEquals("1", $getData[0]["active"]);
+    }
+
+    // ----------------------------------------------------------------
+    // Sad path: DELETE deactivate
+    // ----------------------------------------------------------------
+
+    #[Test]
+    public function testDeleteNonExistentUuidReturns404(): void
+    {
+        $fakeUuid = "00000000-0000-0000-0000-000000000000";
+        $response = $this->testClient->delete(self::API_ENDPOINT, $fakeUuid);
+        $this->assertEquals(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+    }
+
+    // ----------------------------------------------------------------
     // Sad path: Authentication / Authorization
     // ----------------------------------------------------------------
 
@@ -554,6 +846,84 @@ class UserManagementApiTest extends TestCase
             "lname" => "Fail",
             "access_group" => ["Clinicians"],
         ]);
+        $this->assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function testNonAdminUserPutReturns403(): void
+    {
+        $adminPass = getenv("OE_PASS", true) ?: "pass";
+        $nonAdminPassword = "NonAdmin123!strong";
+        $nonAdminUsername = "phpunit_nonadmin3_" . bin2hex(random_bytes(4));
+
+        // Create a non-admin user
+        $createResponse = $this->testClient->post(self::API_ENDPOINT, [
+            "username" => $nonAdminUsername,
+            "password" => $nonAdminPassword,
+            "admin_password" => $adminPass,
+            "fname" => "NonAdmin",
+            "lname" => "User3",
+            "access_group" => ["Clinicians"],
+        ]);
+        $this->assertEquals(Response::HTTP_CREATED, $createResponse->getStatusCode());
+        self::$createdUsernames[] = $nonAdminUsername;
+
+        $createBody = $this->decodeResponse($createResponse);
+        /** @var array<string, mixed> $createData */
+        $createData = $createBody["data"] ?? [];
+        /** @var string $uuid */
+        $uuid = $createData["uuid"];
+
+        // Authenticate as the non-admin user
+        $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
+        $nonAdminClient = new ApiTestClient($baseUrl, false);
+        $nonAdminClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT, [
+            "username" => $nonAdminUsername,
+            "password" => $nonAdminPassword,
+        ]);
+
+        // PUT /api/admin/users/:uuid should return 403
+        $response = $nonAdminClient->put(self::API_ENDPOINT, $uuid, [
+            "fname" => "Hacked",
+        ]);
+        $this->assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function testNonAdminUserDeleteReturns403(): void
+    {
+        $adminPass = getenv("OE_PASS", true) ?: "pass";
+        $nonAdminPassword = "NonAdmin123!strong";
+        $nonAdminUsername = "phpunit_nonadmin4_" . bin2hex(random_bytes(4));
+
+        // Create a non-admin user
+        $createResponse = $this->testClient->post(self::API_ENDPOINT, [
+            "username" => $nonAdminUsername,
+            "password" => $nonAdminPassword,
+            "admin_password" => $adminPass,
+            "fname" => "NonAdmin",
+            "lname" => "User4",
+            "access_group" => ["Clinicians"],
+        ]);
+        $this->assertEquals(Response::HTTP_CREATED, $createResponse->getStatusCode());
+        self::$createdUsernames[] = $nonAdminUsername;
+
+        $createBody = $this->decodeResponse($createResponse);
+        /** @var array<string, mixed> $createData */
+        $createData = $createBody["data"] ?? [];
+        /** @var string $uuid */
+        $uuid = $createData["uuid"];
+
+        // Authenticate as the non-admin user
+        $baseUrl = getenv("OPENEMR_BASE_URL_API", true) ?: "https://localhost";
+        $nonAdminClient = new ApiTestClient($baseUrl, false);
+        $nonAdminClient->setAuthToken(ApiTestClient::OPENEMR_AUTH_ENDPOINT, [
+            "username" => $nonAdminUsername,
+            "password" => $nonAdminPassword,
+        ]);
+
+        // DELETE /api/admin/users/:uuid should return 403
+        $response = $nonAdminClient->delete(self::API_ENDPOINT, $uuid);
         $this->assertEquals(Response::HTTP_FORBIDDEN, $response->getStatusCode());
     }
 

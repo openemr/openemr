@@ -264,6 +264,219 @@ class UserManagementService extends UserService
     }
 
     /**
+     * Update an existing user.
+     *
+     * @param string $uuid UUID of the user to update
+     * @param array<string, mixed> $data Fields to update
+     * @return ProcessingResult
+     */
+    public function updateUser(string $uuid, array $data): ProcessingResult
+    {
+        /** @var ProcessingResult $processingResult */
+        $processingResult = $this->userValidator->validate($data, BaseValidator::DATABASE_UPDATE_CONTEXT);
+        if (!$processingResult->isValid()) {
+            return $processingResult;
+        }
+
+        // Resolve UUID to user record
+        $uuidBytes = UuidRegistry::uuidToBytes($uuid);
+        /** @var array{id: int, username: string, active: string|int}|false $user */
+        $user = QueryUtils::querySingleRow(
+            "SELECT `id`, `username`, `active` FROM `users` WHERE `uuid` = ?",
+            [$uuidBytes]
+        );
+        if ($user === false) {
+            return $processingResult;
+        }
+
+        $userId = (int) $user['id'];
+        $username = (string) $user['username'];
+
+        // Validate facility IDs if provided
+        $facilityId = $data['facility_id'] ?? null;
+        if ($facilityId !== null) {
+            $facilityIdStr = trim(self::strVal($facilityId));
+            if ($facilityIdStr !== '') {
+                $facility = QueryUtils::querySingleRow("SELECT id FROM facility WHERE id = ?", [$facilityIdStr]);
+                if ($facility === false) {
+                    $processingResult->setValidationMessages(['facility_id' => ['Facility does not exist']]);
+                    return $processingResult;
+                }
+            }
+        }
+        $billingFacilityId = $data['billing_facility_id'] ?? null;
+        if ($billingFacilityId !== null) {
+            $billingFacilityIdStr = trim(self::strVal($billingFacilityId));
+            if ($billingFacilityIdStr !== '') {
+                $billingFacility = QueryUtils::querySingleRow("SELECT id FROM facility WHERE id = ?", [$billingFacilityIdStr]);
+                if ($billingFacility === false) {
+                    $processingResult->setValidationMessages(['billing_facility_id' => ['Billing facility does not exist']]);
+                    return $processingResult;
+                }
+            }
+        }
+
+        // Extract access_group before building SET clause (it's not a column)
+        /** @var list<string>|null $accessGroup */
+        $accessGroup = isset($data['access_group']) && is_array($data['access_group']) ? $data['access_group'] : null;
+        $columnData = $data;
+        unset($columnData['access_group']);
+
+        QueryUtils::startTransaction(); // @phpstan-ignore openemr.deprecatedSqlFunction
+        try {
+            // Build and execute UPDATE if there are column changes
+            if ($columnData !== []) {
+                $setClause = $this->buildSetClause($columnData);
+                if ($setClause['set'] !== '') {
+                    $sql = "UPDATE `users` SET " . $setClause['set'] . " WHERE `id` = ?";
+                    $setClause['bind'][] = $userId;
+                    QueryUtils::sqlStatementThrowException($sql, $setClause['bind']);
+                }
+            }
+
+            // Update facility name fields if facility IDs changed
+            if ($facilityId !== null) {
+                $facilityIdStr = trim(self::strVal($facilityId));
+                if ($facilityIdStr !== '') {
+                    QueryUtils::sqlStatementThrowException(
+                        "UPDATE users, facility SET users.facility = facility.name WHERE facility.id = ? AND users.id = ?",
+                        [$facilityIdStr, $userId]
+                    );
+                }
+            }
+            if ($billingFacilityId !== null) {
+                $billingFacilityIdStr = trim(self::strVal($billingFacilityId));
+                if ($billingFacilityIdStr !== '') {
+                    QueryUtils::sqlStatementThrowException(
+                        "UPDATE users, facility SET users.billing_facility = facility.name WHERE facility.id = ? AND users.id = ?",
+                        [$billingFacilityIdStr, $userId]
+                    );
+                }
+            }
+
+            // Update ACL groups if provided
+            if ($accessGroup !== null) {
+                $fname = trim(self::strVal($data['fname'] ?? ''));
+                $mname = trim(self::strVal($data['mname'] ?? ''));
+                $lname = trim(self::strVal($data['lname'] ?? ''));
+                // If name fields weren't provided in the update, use existing values
+                if (!isset($data['fname'])) {
+                    $currentUser = QueryUtils::querySingleRow("SELECT fname, mname, lname FROM users WHERE id = ?", [$userId]);
+                    if (is_array($currentUser)) {
+                        $rawFname = $currentUser['fname'] ?? '';
+                        $rawMname = $currentUser['mname'] ?? '';
+                        $rawLname = $currentUser['lname'] ?? '';
+                        $fname = is_string($rawFname) ? $rawFname : '';
+                        $mname = is_string($rawMname) ? $rawMname : '';
+                        $lname = is_string($rawLname) ? $rawLname : '';
+                    }
+                }
+                AclExtended::setUserAro($accessGroup, $username, $fname, $mname, $lname);
+            }
+
+            // Audit log
+            $session = SessionWrapperFactory::getInstance()->getActiveSession();
+            EventAuditLogger::getInstance()->newEvent(
+                'user-update',
+                self::strVal($session->get('authUser')),
+                self::strVal($session->get('authProvider')),
+                1,
+                "User updated via API: " . $username
+            );
+
+            QueryUtils::commitTransaction(); // @phpstan-ignore openemr.deprecatedSqlFunction
+        } catch (\Throwable $e) {
+            QueryUtils::rollbackTransaction(); // @phpstan-ignore openemr.deprecatedSqlFunction
+            throw $e;
+        }
+
+        // Return updated user data
+        return $this->getOneByUuid($uuid);
+    }
+
+    /**
+     * Deactivate a user (soft delete: set active=0).
+     *
+     * @param string $uuid UUID of the user to deactivate
+     * @return ProcessingResult
+     */
+    public function deactivateUser(string $uuid): ProcessingResult
+    {
+        $processingResult = new ProcessingResult();
+
+        // Resolve UUID to user record
+        $uuidBytes = UuidRegistry::uuidToBytes($uuid);
+        /** @var array{id: int, username: string, active: string|int}|false $user */
+        $user = QueryUtils::querySingleRow(
+            "SELECT `id`, `username`, `active` FROM `users` WHERE `uuid` = ?",
+            [$uuidBytes]
+        );
+        if ($user === false) {
+            return $processingResult;
+        }
+
+        $userId = (int) $user['id'];
+        $username = (string) $user['username'];
+
+        QueryUtils::sqlStatementThrowException("UPDATE `users` SET `active` = 0 WHERE `id` = ?", [$userId]);
+
+        // Audit log
+        $session = SessionWrapperFactory::getInstance()->getActiveSession();
+        EventAuditLogger::getInstance()->newEvent(
+            'user-deactivate',
+            self::strVal($session->get('authUser')),
+            self::strVal($session->get('authProvider')),
+            1,
+            "User deactivated via API: " . $username
+        );
+
+        $processingResult->addData([
+            'uuid' => $uuid,
+            'username' => $username,
+            'active' => 0,
+        ]);
+
+        return $processingResult;
+    }
+
+    /**
+     * Build a SQL SET clause from validated data using an explicit allowlist.
+     *
+     * @param array<string, mixed> $data Validated input data
+     * @return array{set: string, bind: list<string|int>}
+     */
+    private function buildSetClause(array $data): array
+    {
+        $allowedFields = [
+            'fname', 'lname', 'mname', 'suffix', 'email', 'authorized',
+            'facility_id', 'billing_facility_id', 'npi', 'taxonomy', 'specialty',
+            'federaltaxid', 'state_license_number', 'federaldrugid', 'upin',
+            'calendar', 'portal_user', 'active',
+        ];
+
+        $setParts = [];
+        /** @var list<string|int> $bind */
+        $bind = [];
+        foreach ($allowedFields as $field) {
+            if (!array_key_exists($field, $data)) {
+                continue;
+            }
+            $setParts[] = "`{$field}` = ?";
+            $value = $data[$field];
+            if (is_int($value)) {
+                $bind[] = $value;
+            } else {
+                $bind[] = is_string($value) ? trim($value) : self::strVal($value);
+            }
+        }
+
+        return [
+            'set' => implode(', ', $setParts),
+            'bind' => $bind,
+        ];
+    }
+
+    /**
      * Safely extract a string value from mixed data.
      */
     private static function strVal(mixed $value, string $default = ''): string

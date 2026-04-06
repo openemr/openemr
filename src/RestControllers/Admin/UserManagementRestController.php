@@ -135,4 +135,85 @@ class UserManagementRestController
         $processingResult = $this->service->createUser($data);
         return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 201);
     }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    #[OA\Put(
+        path: '/api/admin/users/{uuid}',
+        description: 'Updates an existing user (requires admin/super ACL)',
+        tags: ['standard-admin'],
+        parameters: [
+            new OA\Parameter(
+                name: 'uuid',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                properties: [
+                    new OA\Property(property: 'fname', type: 'string'),
+                    new OA\Property(property: 'lname', type: 'string'),
+                    new OA\Property(property: 'mname', type: 'string'),
+                    new OA\Property(property: 'email', type: 'string'),
+                    new OA\Property(property: 'authorized', type: 'integer', enum: [0, 1]),
+                    new OA\Property(property: 'active', type: 'integer', enum: [0, 1]),
+                    new OA\Property(property: 'facility_id', type: 'integer'),
+                    new OA\Property(property: 'billing_facility_id', type: 'integer'),
+                    new OA\Property(property: 'npi', type: 'string'),
+                    new OA\Property(property: 'access_group', type: 'array', items: new OA\Items(type: 'string')),
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '400', ref: '#/components/responses/badrequest'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '404', description: 'User not found'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    public function put(string $uuid, array $data, HttpRestRequest $request): ResponseInterface
+    {
+        $processingResult = $this->service->updateUser($uuid, $data);
+        /** @var list<mixed> $resultData */
+        $resultData = $processingResult->getData();
+        if (!$processingResult->hasErrors() && count($resultData) === 0 && $processingResult->isValid()) {
+            return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 404);
+        }
+        return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 200);
+    }
+
+    #[OA\Delete(
+        path: '/api/admin/users/{uuid}',
+        description: 'Deactivates a user (soft delete, sets active=0). Requires admin/super ACL.',
+        tags: ['standard-admin'],
+        parameters: [
+            new OA\Parameter(
+                name: 'uuid',
+                in: 'path',
+                required: true,
+                schema: new OA\Schema(type: 'string')
+            ),
+        ],
+        responses: [
+            new OA\Response(response: '200', ref: '#/components/responses/standard'),
+            new OA\Response(response: '401', ref: '#/components/responses/unauthorized'),
+            new OA\Response(response: '404', description: 'User not found'),
+        ],
+        security: [['openemr_auth' => []]]
+    )]
+    public function delete(string $uuid, HttpRestRequest $request): ResponseInterface
+    {
+        $processingResult = $this->service->deactivateUser($uuid);
+        /** @var list<mixed> $data */
+        $data = $processingResult->getData();
+        if (!$processingResult->hasErrors() && count($data) === 0) {
+            return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 404);
+        }
+        return RestControllerHelper::createProcessingResultResponse($request, $processingResult, 200);
+    }
 }

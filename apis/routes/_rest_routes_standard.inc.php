@@ -721,4 +721,14 @@ return [
         $data = (array) (json_decode((string) file_get_contents("php://input")));
         return (new UserManagementRestController())->post($data, $request);
     },
+    "PUT /api/admin/users/:uuid" => static function ($uuid, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "admin", "super");
+        /** @var array<string, mixed> $data */
+        $data = (array) (json_decode((string) file_get_contents("php://input")));
+        return (new UserManagementRestController())->put(is_string($uuid) ? $uuid : '', $data, $request);
+    },
+    "DELETE /api/admin/users/:uuid" => static function ($uuid, HttpRestRequest $request) {
+        RestConfig::request_authorization_check($request, "admin", "super");
+        return (new UserManagementRestController())->delete(is_string($uuid) ? $uuid : '', $request);
+    },
 ];
