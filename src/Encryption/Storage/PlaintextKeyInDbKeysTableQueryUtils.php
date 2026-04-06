@@ -23,7 +23,7 @@ use UnexpectedValueException;
  * Important: this bypasses query audit logging, which is necessary to prevent
  * recursion in the audit logger itself which can encrypt messages.
  *
- * @depreacated
+ * @deprecated
  */
 readonly class PlaintextKeyInDbKeysTableQueryUtils implements KeyStorageInterface
 {
