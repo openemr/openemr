@@ -3,11 +3,11 @@
 namespace OpenEMR\Cqm;
 
 use Laminas\Code\Generator\ClassGenerator;
-use OpenEMR\Common\Utils\XmlUtils;
 use Laminas\Code\Generator\DocBlock\Tag\PropertyTag;
 use Laminas\Code\Generator\DocBlockGenerator;
 use Laminas\Code\Generator\FileGenerator;
 use Laminas\Code\Generator\PropertyGenerator;
+use OpenEMR\Common\Utils\XmlUtils;
 
 class Generator
 {

@@ -62,7 +62,7 @@ class XmlUtils
         libxml_clear_errors();
 
         if ($result === false) {
-            $firstError = !empty($errors) ? trim($errors[0]->message) : 'unknown error';
+            $firstError = $errors !== [] ? trim($errors[0]->message) : 'unknown error';
             throw new RuntimeException(
                 sprintf('Failed to parse XML: %s', $firstError)
             );

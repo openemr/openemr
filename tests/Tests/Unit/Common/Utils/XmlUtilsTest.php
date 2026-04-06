@@ -20,7 +20,6 @@ use OpenEMR\Common\Utils\XmlUtils;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
-use SimpleXMLElement;
 
 class XmlUtilsTest extends TestCase
 {
@@ -34,7 +33,7 @@ class XmlUtilsTest extends TestCase
         $xml = '<root><child>hello</child></root>';
         $result = XmlUtils::loadString($xml);
 
-        $this->assertInstanceOf(SimpleXMLElement::class, $result);
+        $this->assertSame('root', $result->getName());
     }
 
     #[Test]
@@ -53,7 +52,7 @@ class XmlUtilsTest extends TestCase
         $xml = '<root xmlns:ns="http://example.com"><ns:child>value</ns:child></root>';
         $result = XmlUtils::loadString($xml);
 
-        $this->assertInstanceOf(SimpleXMLElement::class, $result);
+        $this->assertSame('root', $result->getName());
     }
 
     #[Test]
@@ -109,7 +108,6 @@ class XmlUtilsTest extends TestCase
         $result = XmlUtils::tryLoadString($xml);
 
         $this->assertNotNull($result);
-        $this->assertInstanceOf(SimpleXMLElement::class, $result);
         $this->assertSame('1', (string) $result->item);
     }
 
@@ -168,7 +166,7 @@ XML;
             $this->assertStringNotContainsString('root:', $body, 'File contents must not appear in output');
         } catch (RuntimeException) {
             // Expected: parsing was blocked — this is the secure outcome.
-            $this->assertTrue(true);
+            $this->addToAssertionCount(1);
         }
     }
 }

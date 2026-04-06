@@ -3,8 +3,8 @@
 namespace OpenEMR\Modules\WenoModule\Services;
 
 use GuzzleHttp\Client;
-use OpenEMR\Common\Utils\XmlUtils;
 use GuzzleHttp\Exception\GuzzleException;
+use OpenEMR\Common\Utils\XmlUtils;
 use OpenEMR\Core\OEGlobalsBag;
 
 class WenoValidate extends ModuleService
