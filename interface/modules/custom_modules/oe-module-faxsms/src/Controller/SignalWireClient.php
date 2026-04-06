@@ -123,7 +123,7 @@ class SignalWireClient extends AppDispatch
     public function sendFax(): string
     {
         if (!$this->authenticate()) {
-            return $this->authErrorDefault;
+            return json_encode(['success' => false, 'message' => $this->authErrorDefault]);
         }
 
         if (empty($this->client)) {
@@ -629,7 +629,7 @@ class SignalWireClient extends AppDispatch
     public function getPending(): string
     {
         if (!$this->authenticate()) {
-            return $this->authErrorDefault;
+            return json_encode(['success' => false, 'message' => $this->authErrorDefault]);
         }
 
         $dateFrom = $this->getRequest('datefrom');

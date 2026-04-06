@@ -135,7 +135,7 @@ class TwilioSMSClient extends AppDispatch
         $dateTo = $this->getRequest('dateto');
 
         if (!$this->authenticate()) {
-            return $this->authErrorDefault;
+            return json_encode(['success' => false, 'message' => $this->authErrorDefault]);
         }
         try {
             // dateFrom and dateTo
