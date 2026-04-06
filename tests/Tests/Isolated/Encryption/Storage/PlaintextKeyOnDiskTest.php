@@ -15,7 +15,9 @@ namespace OpenEMR\Tests\Isolated\Encryption\Storage;
 use OpenEMR\Encryption\Keys\KeyMaterial;
 use OpenEMR\Encryption\Storage\KeyMaterialId;
 use OpenEMR\Encryption\Storage\PlaintextKeyOnDisk;
+use OutOfBoundsException;
 use PHPUnit\Framework\TestCase;
+use UnexpectedValueException;
 
 /**
  * @deprecated Marked as deprecated to match SUT
@@ -58,7 +60,7 @@ final class PlaintextKeyOnDiskTest extends TestCase
     {
         $storage = new PlaintextKeyOnDisk($this->tempDir);
 
-        $this->expectException(\Exception::class);
+        $this->expectException(OutOfBoundsException::class);
         $this->expectExceptionMessage('Key not found');
 
         $storage->getKey(new KeyMaterialId('nonexistent-key'));
@@ -72,7 +74,7 @@ final class PlaintextKeyOnDiskTest extends TestCase
         $id = new KeyMaterialId('duplicate-key');
         $storage->storeKey($id, $keyMaterial);
 
-        $this->expectException(\Exception::class);
+        $this->expectException(UnexpectedValueException::class);
         $this->expectExceptionMessage('Key exists, will not overwrite');
 
         $storage->storeKey($id, $keyMaterial);
