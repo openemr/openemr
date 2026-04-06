@@ -30,13 +30,11 @@ final readonly class SoftwareVersion implements \Stringable
     ) {
         $this->base = "{$this->major}.{$this->minor}.{$this->patch}";
 
-        if ($this->tag !== '') {
-            $this->full = "{$this->base}{$this->tag}.{$this->realpatch}";
-        } elseif ($this->realpatch > 0) {
-            $this->full = "{$this->base}.{$this->realpatch}";
-        } else {
-            $this->full = $this->base;
-        }
+        $this->full = match (true) {
+            ($this->tag !== '') => "{$this->base}{$this->tag}.{$this->realpatch}",
+            ($this->realpatch > 0) => "{$this->base}.{$this->realpatch}",
+            default => $this->base,
+        };
     }
 
     public function __toString(): string

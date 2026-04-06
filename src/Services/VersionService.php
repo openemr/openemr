@@ -14,6 +14,9 @@
 
 namespace OpenEMR\Services;
 
+use OpenEMR\Common\Database\QueryUtils;
+use OpenEMR\Core\OEGlobalsBag;
+
 class VersionService extends BaseService implements VersionServiceInterface
 {
     /**
@@ -29,21 +32,13 @@ class VersionService extends BaseService implements VersionServiceInterface
      */
     public function fetch(): array
     {
-        return sqlQuery("SELECT * FROM `version`");
+        $rows = QueryUtils::fetchRecords("SELECT * FROM `version`");
+        return $rows[0] ?? [];
     }
 
     public function getSoftwareVersion(): SoftwareVersion
     {
-        $v = $this->fetch();
-        return new SoftwareVersion(
-            major: (int) ($v['v_major'] ?? 0),
-            minor: (int) ($v['v_minor'] ?? 0),
-            patch: (int) ($v['v_patch'] ?? 0),
-            tag: (string) ($v['v_tag'] ?? ''),
-            realpatch: (int) ($v['v_realpatch'] ?? 0),
-            database: (int) ($v['v_database'] ?? 0),
-            acl: (int) ($v['v_acl'] ?? 0),
-        );
+        return SoftwareVersion::fromGlobals(OEGlobalsBag::getInstance());
     }
 
     public function getSchemaVersion(): SchemaVersion
