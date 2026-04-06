@@ -12,16 +12,13 @@ declare(strict_types=1);
 
 namespace OpenEMR\Encryption\Storage;
 
-use OpenEMR\Encryption\Keys\KeyMaterial;
-
-interface KeyStorageInterface
+/**
+ * Wrapper that adds type safety for low-level key material identifiers used by
+ * the storage tooling.
+ */
+readonly final class KeyMaterialId
 {
-    public function getKey(KeyMaterialId $identifier): KeyMaterial;
-
-    /**
-     * This should throw an exception if storing the key failed.
-     *
-     * It MUST NOT overwrite an existing key.
-     */
-    public function storeKey(KeyMaterialId $identifier, KeyMaterial $key): void;
+    public function __construct(public string $id)
+    {
+    }
 }

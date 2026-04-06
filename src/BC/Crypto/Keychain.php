@@ -45,38 +45,38 @@ class Keychain
         );
 
         $pkod = new Storage\PlaintextKeyOnDisk($storageDir);
-        $pkidb = new Storage\PlaintextKeyInDbKeysTableAdodb();
+        $pkidb = new Storage\PlaintextKeyInDbKeysTableQueryUtils();
 
         $keychain = new EagerKeychain();
         // v1: broken crypto (no hmac)
-        $one = self::tryLoadKey('one', $pkod);
+        $one = self::tryLoadKey(new Storage\KeyMaterialId('one'), $pkod);
         if ($one !== null) {
             $keychain->registerCipher(Key::v1->getId(), new Cipher\Aes256CbcNoHmac($one));
         }
 
         // v2-3: legacy crypto (256CBC-HS256) and storage
-        $twoa = self::tryLoadKey('twoa', $pkod);
-        $twob = self::tryLoadKey('twob', $pkod);
+        $twoa = self::tryLoadKey(new Storage\KeyMaterialId('twoa'), $pkod);
+        $twob = self::tryLoadKey(new Storage\KeyMaterialId('twob'), $pkod);
         if ($twoa !== null && $twob !== null) {
             $keychain->registerCipher(Key::v2->getId(), new Cipher\Aes256CbcHmacSha256(key: $twoa, hmacKey: $twob));
         }
         // No "three" key for historic reasons
 
         // v4: 256CBC-HS384 encryption, has drive+db but drive key is plaintext
-        $foura = self::tryLoadKey('foura', $pkod);
-        $fourb = self::tryLoadKey('fourb', $pkod);
+        $foura = self::tryLoadKey(new Storage\KeyMaterialId('foura'), $pkod);
+        $fourb = self::tryLoadKey(new Storage\KeyMaterialId('fourb'), $pkod);
         if ($foura !== null && $fourb !== null) {
             $keychain->registerCipher(Key::v4Drive->getId(), new Cipher\Aes256CbcHmacSha384(key: $foura, hmacKey: $fourb));
         }
-        $fouraDB = self::tryLoadKey('foura', $pkidb);
-        $fourbDB = self::tryLoadKey('fourb', $pkidb);
+        $fouraDB = self::tryLoadKey(new Storage\KeyMaterialId('foura'), $pkidb);
+        $fourbDB = self::tryLoadKey(new Storage\KeyMaterialId('fourb'), $pkidb);
         if ($fouraDB !== null && $fourbDB !== null) {
             $keychain->registerCipher(Key::v4Db->getId(), new Cipher\Aes256CbcHmacSha384(key: $fouraDB, hmacKey: $fourbDB));
         }
 
-        self::tryLoadDbKey('five', $pkidb, $storageDir, $keychain);
-        self::tryLoadDbKey('six', $pkidb, $storageDir, $keychain);
-        self::tryLoadDbKey('seven', $pkidb, $storageDir, $keychain);
+        self::tryLoadDbKey(new Storage\KeyMaterialId('five'), $pkidb, $storageDir, $keychain);
+        self::tryLoadDbKey(new Storage\KeyMaterialId('six'), $pkidb, $storageDir, $keychain);
+        self::tryLoadDbKey(new Storage\KeyMaterialId('seven'), $pkidb, $storageDir, $keychain);
 
         // CryptoGen had a create-keys-on-first-use logic, recreate for now.
         assert($createKeyIfNeeded === KeyVersion::SEVEN);
@@ -104,7 +104,7 @@ class Keychain
     }
 
     private static function tryLoadKey(
-        string $keyId,
+        Storage\KeyMaterialId $keyId,
         Storage\KeyStorageInterface $storage,
     ): ?KeyMaterial {
         try {
@@ -115,15 +115,15 @@ class Keychain
     }
 
     private static function tryLoadDbKey(
-        string $name,
+        Storage\KeyMaterialId $name,
         Storage\KeyStorageInterface $storage,
         string $storageDir,
         EagerKeychain $keychain,
     ): void {
         // Checking KeyVersion early ensures this only runs on legacy keys
-        $version = KeyVersion::fromString($name);
-        $key = self::tryLoadKey("{$name}a", $storage);
-        $hmacKey = self::tryLoadKey("{$name}b", $storage);
+        $version = KeyVersion::fromString($name->id);
+        $key = self::tryLoadKey(new Storage\KeyMaterialId("{$name->id}a"), $storage);
+        $hmacKey = self::tryLoadKey(new Storage\KeyMaterialId("{$name->id}b"), $storage);
         if ($key === null || $hmacKey === null) {
             return;
         }
@@ -133,8 +133,8 @@ class Keychain
             $dbCipher,
         );
 
-        $diskKeyMsg = self::tryLoadEncryptedKey("$storageDir/{$name}a");
-        $diskHmacKeyMsg = self::tryLoadEncryptedKey("$storageDir/{$name}b");
+        $diskKeyMsg = self::tryLoadEncryptedKey("$storageDir/{$name->id}a");
+        $diskHmacKeyMsg = self::tryLoadEncryptedKey("$storageDir/{$name->id}b");
         if ($diskKeyMsg === null || $diskHmacKeyMsg === null) {
             return;
         }

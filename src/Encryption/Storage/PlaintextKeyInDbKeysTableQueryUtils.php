@@ -17,13 +17,21 @@ use OpenEMR\Encryption\Keys\KeyMaterial;
 use OutOfBoundsException;
 use UnexpectedValueException;
 
-readonly class PlaintextKeyInDbKeysTableAdodb implements KeyStorageInterface
+/**
+ * Read key material from the `keys` table using the legacy querying APIs.
+ *
+ * Important: this bypasses query audit logging, which is necessary to prevent
+ * recursion in the audit logger itself which can encrypt messages.
+ *
+ * @deprecated
+ */
+readonly class PlaintextKeyInDbKeysTableQueryUtils implements KeyStorageInterface
 {
-    public function getKey(string $identifier): KeyMaterial
+    public function getKey(KeyMaterialId $identifier): KeyMaterial
     {
         $row = QueryUtils::querySingleRow(
             'SELECT value FROM `keys` WHERE name = ?',
-            [$identifier],
+            [$identifier->id],
             log: false,
         );
         if ($row === false) {
@@ -43,7 +51,7 @@ readonly class PlaintextKeyInDbKeysTableAdodb implements KeyStorageInterface
         return new KeyMaterial($key);
     }
 
-    public function storeKey(string $identifier, KeyMaterial $key): void
+    public function storeKey(KeyMaterialId $identifier, KeyMaterial $key): void
     {
         // keys table is (currently) `unique(name)` so we can skip checking if it
         // already exists
@@ -51,7 +59,7 @@ readonly class PlaintextKeyInDbKeysTableAdodb implements KeyStorageInterface
         // Cannot use sqlInsert, it doesn't have a noLog path
         QueryUtils::sqlStatementThrowException(
             'INSERT INTO `keys` (name, value) VALUES (?, ?)',
-            [$identifier, $encoded],
+            [$identifier->id, $encoded],
             noLog: true,
         );
     }
