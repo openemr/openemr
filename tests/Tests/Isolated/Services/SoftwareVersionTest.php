@@ -32,9 +32,10 @@ class SoftwareVersionTest extends TestCase
         return [
             'no tag, no realpatch' => ['', 0, '8.0.0'],
             'no tag, with realpatch' => ['', 3, '8.0.0.3'],
-            'tag, no realpatch' => ['-oce', 0, '8.0.0-oce.0'],
+            'tag, no realpatch' => ['-oce', 0, '8.0.0-oce'],
             'tag, with realpatch' => ['-oce', 3, '8.0.0-oce.3'],
-            'dev tag' => ['-dev', 0, '8.0.0-dev.0'],
+            'dev tag, no realpatch' => ['-dev', 0, '8.0.0-dev'],
+            'dev tag, with realpatch' => ['-dev', 2, '8.0.0-dev.2'],
         ];
     }
 

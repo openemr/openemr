@@ -31,7 +31,8 @@ final readonly class SoftwareVersion implements \Stringable
         $this->base = "{$this->major}.{$this->minor}.{$this->patch}";
 
         $this->full = match (true) {
-            ($this->tag !== '') => "{$this->base}{$this->tag}.{$this->realpatch}",
+            ($this->tag !== '' && $this->realpatch > 0) => "{$this->base}{$this->tag}.{$this->realpatch}",
+            ($this->tag !== '') => "{$this->base}{$this->tag}",
             ($this->realpatch > 0) => "{$this->base}.{$this->realpatch}",
             default => $this->base,
         };
