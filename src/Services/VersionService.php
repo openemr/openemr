@@ -28,11 +28,24 @@ class VersionService extends BaseService implements VersionServiceInterface
     }
 
     /**
-     * @return array the sole version entry in the database.
+     * @return array{v_major: int, v_minor: int, v_patch: int, v_realpatch: int, v_tag: string, v_database: int, v_acl: int}
      */
     public function fetch(): array
     {
-        return QueryUtils::querySingleRow("SELECT * FROM `version`") ?: [];
+        $row = QueryUtils::querySingleRow("SELECT * FROM `version`");
+        if (!is_array($row)) {
+            throw new \RuntimeException('Missing version entry in database');
+        }
+
+        return [
+            'v_major' => (int) $row['v_major'],
+            'v_minor' => (int) $row['v_minor'],
+            'v_patch' => (int) $row['v_patch'],
+            'v_realpatch' => (int) $row['v_realpatch'],
+            'v_tag' => (string) $row['v_tag'],
+            'v_database' => (int) $row['v_database'],
+            'v_acl' => (int) $row['v_acl'],
+        ];
     }
 
     public function getSoftwareVersion(): SoftwareVersion

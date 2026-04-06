@@ -24,16 +24,16 @@ final readonly class SchemaVersion
     }
 
     /**
-     * @param array<string, scalar> $row
+     * @param array{v_major: int, v_minor: int, v_patch: int, v_database: int, v_acl: int, ...} $row
      */
     public static function fromDatabaseRow(array $row): self
     {
         return new self(
-            major: (int) ($row['v_major'] ?? 0),
-            minor: (int) ($row['v_minor'] ?? 0),
-            patch: (int) ($row['v_patch'] ?? 0),
-            database: (int) ($row['v_database'] ?? 0),
-            acl: (int) ($row['v_acl'] ?? 0),
+            major: $row['v_major'],
+            minor: $row['v_minor'],
+            patch: $row['v_patch'],
+            database: $row['v_database'],
+            acl: $row['v_acl'],
         );
     }
 }
