@@ -1483,7 +1483,7 @@ class SQLUpgradeService implements ISQLUpgradeService
     {
         $versionService = new VersionService();
         $versionRecord = $versionService->fetch();
-        return intval($versionRecord['v_database'] ?? 0);
+        return $versionRecord['v_database'];
     }
 
     protected function migrateCareTeamsV1ToV2()

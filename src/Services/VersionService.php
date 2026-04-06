@@ -37,14 +37,33 @@ class VersionService extends BaseService implements VersionServiceInterface
             throw new \RuntimeException('Missing version entry in database');
         }
 
+        $major = $row['v_major'] ?? null;
+        $minor = $row['v_minor'] ?? null;
+        $patch = $row['v_patch'] ?? null;
+        $realpatch = $row['v_realpatch'] ?? null;
+        $tag = $row['v_tag'] ?? null;
+        $database = $row['v_database'] ?? null;
+        $acl = $row['v_acl'] ?? null;
+
+        if (
+            !is_numeric($major) || !is_numeric($minor) || !is_numeric($patch)
+            || !is_numeric($realpatch) || !is_numeric($database) || !is_numeric($acl)
+        ) {
+            throw new \RuntimeException('Non-numeric version data in database');
+        }
+
+        if (!is_string($tag)) {
+            throw new \RuntimeException("Non-string v_tag in version table");
+        }
+
         return [
-            'v_major' => (int) $row['v_major'],
-            'v_minor' => (int) $row['v_minor'],
-            'v_patch' => (int) $row['v_patch'],
-            'v_realpatch' => (int) $row['v_realpatch'],
-            'v_tag' => (string) $row['v_tag'],
-            'v_database' => (int) $row['v_database'],
-            'v_acl' => (int) $row['v_acl'],
+            'v_major' => (int) $major,
+            'v_minor' => (int) $minor,
+            'v_patch' => (int) $patch,
+            'v_realpatch' => (int) $realpatch,
+            'v_tag' => $tag,
+            'v_database' => (int) $database,
+            'v_acl' => (int) $acl,
         ];
     }
 
