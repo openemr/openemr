@@ -894,14 +894,22 @@ class CareTeamServiceTest extends TestCase
                 ]
             ];
 
-            $teamId = $this->service->saveCareTeam(
+            $this->service->saveCareTeam(
                 $this->testPid,
                 null,
                 self::TEST_TEAM_NAME,
                 $team
             );
 
-            $this->assertIsInt($teamId);
+            // Look up the team by name since saveCareTeam() returns void
+            /** @var array<string, mixed>|false $teamRow */
+            $teamRow = QueryUtils::querySingleRow(
+                "SELECT id FROM care_team WHERE pid = ? AND team_name = ? LIMIT 1",
+                [$this->testPid, self::TEST_TEAM_NAME]
+            );
+            $this->assertIsArray($teamRow);
+            // @phpstan-ignore cast.int
+            $teamId = (int) $teamRow['id'];
             $this->assertGreaterThan(0, $teamId);
 
             // Verify the contact member row was inserted into care_team_member
