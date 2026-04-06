@@ -21,6 +21,7 @@ use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Common\DirectMessaging\ErrorConstants;
+use OpenEMR\Common\Utils\XmlUtils;
 use OpenEMR\Core\OEGlobalsBag;
 use XSLTProcessor;
 
@@ -205,10 +206,7 @@ class EncountermanagerTable
 
     private function getCcdaAsXml(string $ccda): string
     {
-        $xml = simplexml_load_string($ccda, 'SimpleXMLElement', LIBXML_NONET);
-        if ($xml === false) {
-            throw new \RuntimeException("Failed to parse CCDA as XML");
-        }
+        $xml = XmlUtils::loadString($ccda);
         $output = $xml->asXML();
         if ($output === false) {
             throw new \RuntimeException("Failed to serialize CCDA as XML");
@@ -218,7 +216,7 @@ class EncountermanagerTable
 
     public function getCcdaAsHTML($ccda)
     {
-        $xml = simplexml_load_string((string) $ccda, 'SimpleXMLElement', LIBXML_NONET);
+        $xml = XmlUtils::loadString((string) $ccda);
         $xsl = new DOMDocument();
         // cda.xsl is self contained with bootstrap and jquery.
         // cda-web.xsl is used when referencing styles from internet.

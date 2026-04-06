@@ -19,6 +19,7 @@ use DOMDocument;
 use Exception;
 use OpenEMR\BC\ServiceContainer;
 use OpenEMR\Common\Crypto\KeySource;
+use OpenEMR\Common\Utils\XmlUtils;
 use OpenEMR\Common\Uuid\UuidRegistry;
 use OpenEMR\Core\OEGlobalsBag;
 use RuntimeException;
@@ -276,13 +277,7 @@ class CDADocumentService extends BaseService
             throw new RuntimeException(xlt("CDA stylesheet not found"));
         }
 
-        $xml = simplexml_load_string($content, 'SimpleXMLElement', LIBXML_NONET);
-        if ($xml === false) {
-            $errors = libxml_get_errors();
-            libxml_clear_errors();
-            ServiceContainer::getLogger()->error("Failed to parse CCDA XML", ['errors' => $errors]);
-            throw new RuntimeException(xlt("Failed to parse CCDA XML"));
-        }
+        $xml = XmlUtils::loadString($content);
 
         $xsl = new DOMDocument();
         if (!$xsl->load($sheet)) {

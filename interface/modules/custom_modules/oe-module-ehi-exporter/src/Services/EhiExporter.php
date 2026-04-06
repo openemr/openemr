@@ -39,6 +39,7 @@ use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportOnsiteMailTableDefinition
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportOnsiteMessagesTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportPersonTableDefinition;
 use OpenEMR\Modules\EhiExporter\TableDefinitions\ExportTrackAnythingFormTableDefinition;
+use OpenEMR\Common\Utils\XmlUtils;
 use OpenEMR\Services\DocumentService;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Rfc4122\UuidV4;
@@ -348,8 +349,7 @@ class EhiExporter
         if ($contents === false) {
             throw new \RuntimeException("Failed to find file " . $path);
         }
-        $xml = simplexml_load_string($contents, 'SimpleXMLElement', LIBXML_NONET);
-        return $xml;
+        return XmlUtils::loadString($contents);
     }
 
     private function exportBreadthAlgorithm(EhiExportJobTask $jobTask): EhiExportJobTask

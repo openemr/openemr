@@ -2,6 +2,8 @@
 
 namespace OpenEMR\FHIR\R4;
 
+use OpenEMR\Common\Utils\XmlUtils;
+
 /*!
  * This class was generated with the PHPFHIR library (https://github.com/dcarbone/php-fhir) using
  * class definitions from HL7 FHIR (https://www.hl7.org/fhir/)
@@ -30,7 +32,7 @@ class PHPFHIRHelper
 {
     public static function recursiveXMLImport(\SimpleXMLElement $sxe, $data)
     {
-        $new = simplexml_load_string((string)$data, '\SimpleXMLElement', LIBXML_NOEMPTYTAG | LIBXML_NONET);
+        $new = XmlUtils::loadString((string)$data, LIBXML_NOEMPTYTAG);
 
         self::doImport($sxe, $new);
     }
