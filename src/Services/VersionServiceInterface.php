@@ -26,17 +26,13 @@ interface VersionServiceInterface extends BaseServiceInterface
     public function getSchemaVersion(): SchemaVersion;
 
     /**
-     * Updates the sole version entry in the database. If the release contains
-     * a patch file, also updates the real patch indicator.
-     *
-     * @param $version array the new version entry.
-     * @return void.
+     * Update the sole version entry in the database. If the release contains
+     * a patch file, also update the real patch indicator.
      */
     public function update(array $version): void;
 
     /**
-     * @param $version array
-     * @return bool if the release contains a patch file or not.
+     * @return bool whether the release contains a patch file
      */
     public function canRealPatchBeApplied(array $version): bool;
 }

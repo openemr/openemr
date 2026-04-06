@@ -78,11 +78,8 @@ class VersionService extends BaseService implements VersionServiceInterface
     }
 
     /**
-     * Updates the sole version entry in the database. If the release contains
-     * a patch file, also updates the real patch indicator.
-     *
-     * @param $version array the new version entry.
-     * @return void.
+     * Update the sole version entry in the database. If the release contains
+     * a patch file, also update the real patch indicator.
      */
     public function update(array $version): void
     {
