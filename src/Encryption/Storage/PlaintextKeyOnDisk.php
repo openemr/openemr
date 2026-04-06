@@ -23,9 +23,9 @@ readonly class PlaintextKeyOnDisk implements KeyStorageInterface
     {
     }
 
-    public function getKey(string $identifier): KeyMaterial
+    public function getKey(KeyMaterialId $identifier): KeyMaterial
     {
-        $path = sprintf('%s/%s', $this->storageDir, $identifier);
+        $path = sprintf('%s/%s', $this->storageDir, $identifier->id);
         if (!file_exists($path)) {
             throw new \Exception('Key not found');
         }
@@ -40,9 +40,9 @@ readonly class PlaintextKeyOnDisk implements KeyStorageInterface
         return new KeyMaterial(key: $decoded);
     }
 
-    public function storeKey(string $identifier, KeyMaterial $key): void
+    public function storeKey(KeyMaterialId $identifier, KeyMaterial $key): void
     {
-        $path = sprintf('%s/%s', $this->storageDir, $identifier);
+        $path = sprintf('%s/%s', $this->storageDir, $identifier->id);
         if (file_exists($path)) {
             throw new \Exception('Key exists, will not overwrite');
         }

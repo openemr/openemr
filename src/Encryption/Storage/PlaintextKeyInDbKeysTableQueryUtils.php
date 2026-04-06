@@ -27,11 +27,11 @@ use UnexpectedValueException;
  */
 readonly class PlaintextKeyInDbKeysTableQueryUtils implements KeyStorageInterface
 {
-    public function getKey(string $identifier): KeyMaterial
+    public function getKey(KeyMaterialId $identifier): KeyMaterial
     {
         $row = QueryUtils::querySingleRow(
             'SELECT value FROM `keys` WHERE name = ?',
-            [$identifier],
+            [$identifier->id],
             log: false,
         );
         if ($row === false) {
@@ -51,7 +51,7 @@ readonly class PlaintextKeyInDbKeysTableQueryUtils implements KeyStorageInterfac
         return new KeyMaterial($key);
     }
 
-    public function storeKey(string $identifier, KeyMaterial $key): void
+    public function storeKey(KeyMaterialId $identifier, KeyMaterial $key): void
     {
         // keys table is (currently) `unique(name)` so we can skip checking if it
         // already exists
@@ -59,7 +59,7 @@ readonly class PlaintextKeyInDbKeysTableQueryUtils implements KeyStorageInterfac
         // Cannot use sqlInsert, it doesn't have a noLog path
         QueryUtils::sqlStatementThrowException(
             'INSERT INTO `keys` (name, value) VALUES (?, ?)',
-            [$identifier, $encoded],
+            [$identifier->id, $encoded],
             noLog: true,
         );
     }
