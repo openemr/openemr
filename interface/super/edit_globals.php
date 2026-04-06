@@ -158,10 +158,7 @@ function checkBackgroundServices(): void
     // If we are saving user_specific globals.
     //
     if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && $userMode) {
-        //verify csrf
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-            CsrfUtils::csrfNotVerified();
-        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
         $i = 0;
         $authUserID = $session->get('authUserID');
@@ -217,10 +214,7 @@ function checkBackgroundServices(): void
     // If we are saving main globals.
     //
     if (array_key_exists('form_save', $_POST) && $_POST['form_save'] && !$userMode) {
-        //verify csrf
-        if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-            CsrfUtils::csrfNotVerified();
-        }
+        CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
         // Aug 22, 2014: Ensoftek: For Auditable events and tamper-resistance (MU2)
         // Check the current status of Audit Logging

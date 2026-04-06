@@ -35,9 +35,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 //
 if (!empty($_POST['bn_save'])) {
     $fu_timing = $_POST['fu_timing'];
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], session: $session)) {
-        CsrfUtils::csrfNotVerified();
-    }
+    CsrfUtils::checkCsrfInput(INPUT_POST, dieOnFail: true);
 
  // If updating an existing form...
  //

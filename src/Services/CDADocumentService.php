@@ -276,7 +276,7 @@ class CDADocumentService extends BaseService
             throw new RuntimeException(xlt("CDA stylesheet not found"));
         }
 
-        $xml = simplexml_load_string($content);
+        $xml = simplexml_load_string($content, 'SimpleXMLElement', LIBXML_NONET);
         if ($xml === false) {
             $errors = libxml_get_errors();
             libxml_clear_errors();
