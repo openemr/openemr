@@ -10,8 +10,6 @@ final readonly class CipherSuite implements CipherSuiteInterface
 {
     public function __construct(
         private Keys\KeychainInterface $keychain,
-        // Future: current/preferred key moves to KeychainInterface
-        private KeyId $currentKeyId,
     ) {
     }
 
@@ -24,11 +22,12 @@ final readonly class CipherSuite implements CipherSuiteInterface
 
     public function encrypt(#[SensitiveParameter] string $plaintext): string
     {
-        $cipher = $this->keychain->getCipher($this->currentKeyId);
+        $currentKeyId = $this->keychain->getCurrentKeyId();
+        $cipher = $this->keychain->getCipher($currentKeyId);
 
         $wrapped = new Plaintext($plaintext);
         $ciphertext = $cipher->encrypt($wrapped);
-        $message = new Message(keyId: $this->currentKeyId, ciphertext: $ciphertext);
+        $message = new Message(keyId: $currentKeyId, ciphertext: $ciphertext);
         return $message->encode();
     }
 }

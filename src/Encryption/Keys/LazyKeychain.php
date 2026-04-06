@@ -86,6 +86,11 @@ class LazyKeychain implements KeychainInterface
         return $cipher;
     }
 
+    public function getCurrentKeyId(): KeyId
+    {
+    }
+
+
     public function hasKey(KeyId $keyId): bool
     {
         // check the wrapped keychain too?

@@ -43,6 +43,10 @@ class Keychain implements KeychainInterface
         throw new OutOfBoundsException('Key id not registered');
     }
 
+    public function getCurrentKeyId(): KeyId
+    {
+    }
+
     public function hasKey(KeyId $keyId): bool
     {
         return array_key_exists($keyId->id, $this->mappings);

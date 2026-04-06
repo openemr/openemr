@@ -25,8 +25,7 @@ interface KeychainInterface
 {
     public function getCipher(KeyId $keyId): CipherInterface;
 
-    // public function getCurrentCipher(): CipherInterface;
-    // public function getCurrentKeyId(): Id;
+    public function getCurrentKeyId(): KeyId;
 
     public function hasKey(KeyId $keyId): bool;
 }
