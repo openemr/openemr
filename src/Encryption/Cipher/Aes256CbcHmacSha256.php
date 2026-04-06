@@ -17,7 +17,7 @@ use OpenEMR\Encryption\{
  *
  * @deprecated
  */
-readonly class Aes256CbcHmacSha256 implements SeparateHmacKeyCipherInterface
+readonly class Aes256CbcHmacSha256 implements CipherInterface
 {
     private const HMAC_LENGTH = 32; // 256/8
 

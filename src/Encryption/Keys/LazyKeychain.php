@@ -5,26 +5,23 @@ declare(strict_types=1);
 namespace OpenEMR\Encryption\Keys;
 
 use OutOfBoundsException;
-use OpenEMR\Encryption\Cipher\{
-    CipherInterface,
-    SeparateHmacKeyCipherInterface,
-    SingleKeyCipherInterface,
+use OpenEMR\Encryption\{
+    Cipher\CipherInterface,
+    KeyId,
+    Storage,
 };
-use OpenEMR\Encryption\KeyId;
-use OpenEMR\Encryption\Storage;
 
+/**
+ * @phpstan-type Loader callable(): CipherInterface
+ */
 class LazyKeychain implements KeychainInterface
 {
     private Keychain $keychain;
 
     /**
-     * @var array<string, array{
-     *   class: class-string<SingleKeyCipherInterface|SeparateHmacKeyCipherInterface>,
-     *   storage: Storage\KeyStorageInterface,
-     *   ids: string[],
-     * }>
+     * @var array<string, Loader>
      */
-    private array $registrations = [];
+    private array $loaders = [];
 
     public function __construct()
     {
@@ -32,36 +29,11 @@ class LazyKeychain implements KeychainInterface
     }
 
     /**
-     * @param class-string<SingleKeyCipherInterface> $cipherClass
+     * @param Loader $loader
      */
-    public function registerSingleKeyCipher(
-        KeyId $keyId,
-        string $cipherClass,
-        Storage\KeyStorageInterface $storage,
-        string $keyMaterialId,
-    ): void {
-        $this->registrations[$keyId->id] = [
-            'class' => $cipherClass,
-            'storage' => $storage,
-            'ids' => [$keyMaterialId],
-        ];
-    }
-
-    /**
-     * @param class-string<SeparateHmacKeyCipherInterface> $cipherClass
-     */
-    public function registerTwoKeyCipher(
-        KeyId $keyId,
-        string $cipherClass,
-        Storage\KeyStorageInterface $storage,
-        string $keyMaterialId,
-        string $hmacKeyMaterialId,
-    ): void {
-        $this->registrations[$keyId->id] = [
-            'class' => $cipherClass,
-            'storage' => $storage,
-            'ids' => [$keyMaterialId, $hmacKeyMaterialId],
-        ];
+    public function registerLoader(KeyId $keyId, callable $loader): void
+    {
+        $this->loaders[$keyId->id] = $loader;
     }
 
     public function getCipher(KeyId $keyId): CipherInterface
@@ -74,14 +46,8 @@ class LazyKeychain implements KeychainInterface
             throw new OutOfBoundsException('Key id not registered');
         }
 
-        [
-            'class' => $class,
-            'storage' => $storage,
-            'ids' => $ids,
-        ] = $this->registrations[$keyId->id];
-        $keys = array_map(fn ($id) => $storage->getKey($id), $ids);
-        // This is a little sketchy but should work based on registration
-        $cipher = new $class(...$keys);
+        $loader = $this->loaders[$keyId->id];
+        $cipher = $loader();
         $this->keychain->registerCipher($keyId, $cipher);
         return $cipher;
     }
@@ -90,10 +56,9 @@ class LazyKeychain implements KeychainInterface
     {
     }
 
-
     public function hasKey(KeyId $keyId): bool
     {
         // check the wrapped keychain too?
-        return array_key_exists($keyId->id, $this->registrations);
+        return array_key_exists($keyId->id, $this->loaders);
     }
 }
