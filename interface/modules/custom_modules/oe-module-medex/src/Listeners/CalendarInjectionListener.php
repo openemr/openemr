@@ -58,18 +58,46 @@ class CalendarInjectionListener
         $userId = $_SESSION['authUserID'] ?? null;
         if ($userId) {
             try {
-                $userPrefs = sqlQuery(
-                    "SELECT setting_value FROM user_settings WHERE setting_user = ? AND setting_label = 'medex_preferences'",
+                $userPrefRows = sqlStatement(
+                    "SELECT setting_label, setting_value
+                       FROM user_settings
+                      WHERE setting_user = ?
+                        AND (setting_label = 'global:medex_use_full_calendar' OR setting_label = 'medex_preferences')",
                     [$userId]
                 );
-
-                if (!empty($userPrefs['setting_value'])) {
-                    $prefs = json_decode($userPrefs['setting_value'], true);
-                    // If user explicitly disabled Full Calendar, skip injection
-                    if (isset($prefs['use_full_calendar']) && !$prefs['use_full_calendar']) {
-                        error_log('[MedEx Calendar] User ' . $userId . ' has disabled Full Calendar - skipping injection');
-                        return;
+                $nativePref = null;
+                $legacyPref = null;
+                while ($row = sqlFetchArray($userPrefRows)) {
+                    if (($row['setting_label'] ?? '') === 'global:medex_use_full_calendar') {
+                        $nativePref = (string)($row['setting_value'] ?? '');
+                    } elseif (($row['setting_label'] ?? '') === 'medex_preferences') {
+                        $decoded = json_decode((string)($row['setting_value'] ?? ''), true);
+                        if (is_array($decoded) && array_key_exists('use_full_calendar', $decoded)) {
+                            $legacyPref = $decoded['use_full_calendar'];
+                        }
                     }
+                }
+
+                $isDisabled = false;
+                if ($nativePref !== null) {
+                    $normalized = strtolower(trim($nativePref));
+                    $isDisabled = in_array($normalized, ['0', 'false', 'off', 'no', 'n', 'disabled'], true);
+                } elseif ($legacyPref !== null) {
+                    if (is_bool($legacyPref)) {
+                        $isDisabled = ($legacyPref === false);
+                    } elseif (is_int($legacyPref) || is_float($legacyPref)) {
+                        $isDisabled = ((int)$legacyPref === 0);
+                    } elseif (is_string($legacyPref)) {
+                        $normalized = strtolower(trim($legacyPref));
+                        $isDisabled = in_array($normalized, ['0', 'false', 'off', 'no', 'n', 'disabled'], true);
+                    } else {
+                        $isDisabled = empty($legacyPref);
+                    }
+                }
+
+                if ($isDisabled) {
+                    error_log('[MedEx Calendar] User ' . $userId . ' has disabled Full Calendar - skipping injection');
+                    return;
                 }
             } catch (\Exception $e) {
                 error_log('[MedEx Calendar] Error checking user preferences: ' . $e->getMessage());

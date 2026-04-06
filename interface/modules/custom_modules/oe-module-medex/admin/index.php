@@ -20,7 +20,6 @@ require_once(__DIR__ . "/../../../../globals.php");
 
 use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
-use OpenEMR\Common\Session\SessionWrapperFactory;
 use OpenEMR\Core\Header;
 
 // Check admin access
@@ -31,11 +30,17 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
 // Load MedEx API
 require_once(__DIR__ . '/../src/MedExAPI.php');
-$api = new \OpenEMR\Modules\MedEx\MedExAPI();
-
-// Check if user is registered
-$isConfigured = $api->isConfigured();
-$isActive = $isConfigured && $api->isActive();
+$api = null;
+$isConfigured = false;
+$isActive = false;
+try {
+    $api = new \OpenEMR\Modules\MedEx\MedExAPI();
+    // Check if user is registered
+    $isConfigured = $api->isConfigured();
+    $isActive = $isConfigured && $api->isActive();
+} catch (\Throwable $e) {
+    error_log('[MedEx Admin] Failed to initialize MedExAPI in dashboard: ' . $e->getMessage());
+}
 
 // Check whether any services are actually subscribed (required to enable Sync)
 // Use getEnabledServices() which handles its own caching and refreshes from the API when needed.
@@ -56,74 +61,150 @@ if (!in_array($currentTab, $validTabs)) {
     $currentTab = 'overview';
 }
 
-// Get CSRF token
-$session = SessionWrapperFactory::getInstance()->getActiveSession();
-$csrfToken = CsrfUtils::collectCsrfToken(session: $session);
+// Get CSRF token (compatible across OpenEMR versions)
+if (empty($session->get('csrf_private_key', null))) {
+    CsrfUtils::setupCsrfKey($session);
+}
+$csrfToken = '';
+try {
+    if ($session instanceof \Symfony\Component\HttpFoundation\Session\SessionInterface) {
+        $csrfToken = (string) CsrfUtils::collectCsrfToken(session: $session);
+    } else {
+        $csrfToken = (string) CsrfUtils::collectCsrfToken();
+    }
+} catch (\Throwable $e) {
+    $csrfToken = (string) CsrfUtils::collectCsrfToken();
+}
 $siteId = $_SESSION['site_id'] ?? ($_GET['site'] ?? 'default');
 $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
     . '/interface/modules/custom_modules/oe-module-medex/admin/help_center.php?site=' . urlencode((string)$siteId);
+
+// Cloud-hosted dashboard handoff (api.hipaabank.net) via SSO.
+// Use ?local=1 to bypass and view the local OpenEMR-rendered dashboard.
+if ($isConfigured && $isActive && empty($_GET['local'])) {
+    try {
+        $loginData = $api->login(true);
+        $sessionToken = (string)($loginData['token'] ?? '');
+        $practiceId = (string)(
+            $loginData['practice_id']
+            ?? ($loginData['practice']['P_PID'] ?? '')
+        );
+        if ($practiceId === '') {
+            $pref = sqlQuery("SELECT MedEx_id FROM medex_prefs WHERE MedEx_id IS NOT NULL ORDER BY MedEx_lastupdated DESC LIMIT 1");
+            $practiceId = (string)($pref['MedEx_id'] ?? '');
+        }
+        if ($sessionToken !== '' && $practiceId !== '') {
+            $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+            $host = trim((string)($_SERVER['HTTP_HOST'] ?? ''));
+            $webRoot = rtrim((string)($GLOBALS['webroot'] ?? ''), '/');
+            $openEmrBaseUrl = ($host !== '') ? ($scheme . '://' . $host . $webRoot) : '';
+            $ssoPayload = [
+                'practice_id' => $practiceId,
+                'session_token' => $sessionToken,
+                'timestamp' => time(),
+                'nonce' => bin2hex(random_bytes(16)),
+                'source' => 'openemr_dashboard',
+                'openemr_base_url' => $openEmrBaseUrl
+            ];
+            $ssoToken = base64_encode(json_encode($ssoPayload));
+            $tab = (string)($_GET['tab'] ?? 'overview');
+            $cloudUrl = 'https://api.hipaabank.net/cart/upload/dashboard_sso.php'
+                . '?site=' . urlencode((string)$siteId)
+                . '&tab=' . urlencode($tab)
+                . '&sso_token=' . urlencode($ssoToken);
+            header('Location: ' . $cloudUrl);
+            exit;
+        }
+    } catch (\Throwable $e) {
+        error_log('[MedEx Admin] Cloud dashboard handoff failed, falling back to local dashboard: ' . $e->getMessage());
+    }
+}
 
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-    <title><?php echo xlt('MedEx Admin Dashboard'); ?></title>
+    <title><?php echo xlt('MedEx Admin'); ?></title>
     <?php Header::setupHeader(['opener']); ?>
     <style>
+        :root {
+            --medex-primary: #0f4b8f;
+            --medex-primary-dark: #0a3460;
+            --medex-bg: #f4f7f6;
+            --medex-surface: #ffffff;
+            --medex-border: #dbe5ee;
+            --medex-text: #0f172a;
+            --medex-muted: #64748b;
+            --medex-panel-bg: #f8fbff;
+        }
         body {
             font-size: 14px;
-            background: #f5f5f5;
+            background: var(--medex-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
+            color: var(--medex-text);
         }
 
-        /* Compact Header with Tabs */
+        /* Dashboard Header */
         .dashboard-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background: var(--medex-surface);
+            color: var(--medex-text);
+            border-bottom: 1px solid var(--medex-border);
+            box-shadow: 0 8px 20px rgba(15, 75, 143, 0.08);
             position: sticky;
             top: 0;
             z-index: 1000;
         }
         .dashboard-header-content {
-            max-width: 100%;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 30px;
+            padding: 0 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            height: 60px;
+            min-height: 70px;
         }
         .tab-navigation-inner {
             display: flex;
-            gap: 0;
+            gap: 10px;
             align-items: center;
-            height: 100%;
+            min-height: 70px;
+            flex-wrap: wrap;
+            padding: 12px 0;
+        }
+        .dashboard-brand {
+            font-size: 18px;
+            font-weight: 800;
+            letter-spacing: 0.2px;
+            color: var(--medex-primary);
+            margin-right: 6px;
         }
         .dashboard-actions {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             align-items: center;
+            flex-wrap: wrap;
         }
         .sync-status {
             font-size: 13px;
-            color: white;
+            color: var(--medex-text);
             display: flex;
             align-items: center;
             gap: 8px;
             padding: 8px 12px;
-            background: rgba(255,255,255,0.15);
+            background: var(--medex-panel-bg);
+            border: 1px solid var(--medex-border);
             border-radius: 6px;
         }
         .sync-button {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white;
+            background: var(--medex-primary);
+            border: 1px solid var(--medex-primary);
+            color: #fff;
             padding: 10px 20px;
             border-radius: 6px;
             font-size: 14px;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
             display: flex;
@@ -131,14 +212,35 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
             gap: 8px;
         }
         .sync-button:hover {
-            background: rgba(255,255,255,0.3);
+            background: var(--medex-primary-dark);
+            border-color: var(--medex-primary-dark);
         }
         .sync-button:disabled {
             opacity: 0.6;
             cursor: not-allowed;
         }
         .sync-button.syncing {
-            background: rgba(255,255,255,0.3);
+            background: var(--medex-primary-dark);
+            border-color: var(--medex-primary-dark);
+        }
+        .embedded-close {
+            display: none;
+            background: #fff;
+            color: var(--medex-primary);
+            border: 1px solid #c8dbef;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .embedded-close:hover {
+            background: #f3f8fd;
+        }
+        body.in-config-modal .embedded-close {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
         .help-center-link {
             display: inline-flex;
@@ -149,16 +251,16 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
             text-decoration: none;
             font-size: 14px;
             font-weight: 700;
-            color: #102d4c;
-            background: #f4fbff;
-            border: 1px solid #b8def7;
+            color: var(--medex-primary);
+            background: #ecf4fb;
+            border: 1px solid #c7dff3;
             transition: all 0.2s ease;
         }
         .help-center-link:hover {
-            background: #ffffff;
-            border-color: #ffffff;
-            color: #0b4a82;
-            box-shadow: 0 8px 18px rgba(7, 39, 74, 0.22);
+            background: #fff;
+            border-color: #d7e6f4;
+            color: var(--medex-primary-dark);
+            box-shadow: 0 8px 18px rgba(7, 39, 74, 0.14);
         }
         .header-toggle-switch {
             display: flex;
@@ -171,7 +273,8 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
             width: 48px;
             height: 24px;
             appearance: none;
-            background: rgba(255,255,255,0.3);
+            background: #cbd5e1;
+            border: 1px solid #94a3b8;
             border-radius: 12px;
             cursor: pointer;
             transition: background 0.3s;
@@ -194,30 +297,90 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
             left: 26px;
         }
         .tab-link {
-            padding: 0 24px;
-            color: rgba(255,255,255,0.85);
+            padding: 10px 14px;
+            color: var(--medex-muted);
             text-decoration: none;
-            font-weight: 500;
-            font-size: 15px;
-            border-bottom: 3px solid transparent;
+            font-weight: 600;
+            font-size: 14px;
+            border: 1px solid transparent;
+            border-radius: 8px;
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
             gap: 8px;
-            height: 100%;
             position: relative;
         }
         .tab-link:hover {
-            color: white;
-            background: rgba(255,255,255,0.1);
+            color: var(--medex-primary);
+            background: #f0f6fc;
+            border-color: #d6e5f4;
         }
         .tab-link.active {
-            color: white;
-            border-bottom-color: white;
-            background: rgba(255,255,255,0.15);
+            color: var(--medex-primary);
+            background: #e8f1fb;
+            border-color: #bfd8ef;
         }
         .tab-link.disabled {
-            color: rgba(255,255,255,0.3);
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .menu-anchor {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+        .menu-caret {
+            margin-left: 6px;
+            font-size: 11px;
+        }
+        .menu-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            min-width: 260px;
+            max-height: 360px;
+            overflow-y: auto;
+            background: #fff;
+            border: 1px solid #dbe5ee;
+            border-radius: 10px;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
+            z-index: 1200;
+            padding: 8px;
+        }
+        .menu-dropdown.open {
+            display: block;
+        }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            border: 0;
+            background: transparent;
+            color: var(--medex-text);
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 9px 10px;
+            text-align: left;
+            cursor: pointer;
+        }
+        .menu-item:hover {
+            background: #eef6fd;
+            color: var(--medex-primary);
+        }
+        .context-bar {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 8px 24px 10px;
+            color: #425466;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .tab-link.disabled {
+            color: #a8b0bd;
             cursor: not-allowed;
             pointer-events: none;
         }
@@ -232,9 +395,9 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
         .dashboard-container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 30px;
-            background: #f5f5f5;
-            min-height: calc(100vh - 60px);
+            padding: 22px 24px 28px;
+            background: var(--medex-bg);
+            min-height: calc(100vh - 70px);
         }
 
         /* Tab Content */
@@ -252,17 +415,18 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
 
         /* Unified Panel System (based on subscriptions.php) */
         .panel {
-            background: white;
+            background: var(--medex-surface);
+            border: 1px solid var(--medex-border);
             border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 10px 24px rgba(15, 75, 143, 0.07);
             margin-bottom: 20px;
         }
         .panel h3 {
             margin: 0 0 20px 0;
             font-size: 20px;
             font-weight: 600;
-            color: #333;
+            color: var(--medex-text);
         }
         .panel-grid {
             display: grid;
@@ -290,18 +454,19 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
             }
         }
         .card {
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--medex-border);
             border-radius: 10px;
             padding: 20px;
             transition: all 0.2s ease;
             position: relative;
+            background: var(--medex-surface);
         }
         .card:hover {
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         .card.active {
-            border-color: #667eea;
-            background: #f8f9ff;
+            border-color: #9ac0e2;
+            background: var(--medex-panel-bg);
         }
         .card.selected {
             border-color: #28a745;
@@ -320,7 +485,7 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
             margin-bottom: 4px;
         }
         .card-desc {
-            color: #666;
+            color: var(--medex-muted);
             font-size: 13px;
             line-height: 1.5;
             margin-bottom: 12px;
@@ -331,7 +496,7 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
             justify-content: space-between;
             margin-top: 15px;
             padding-top: 15px;
-            border-top: 1px solid #e0e0e0;
+            border-top: 1px solid var(--medex-border);
         }
 
         /* Overview Cards */
@@ -348,28 +513,28 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
             .overview-grid { grid-template-columns: 1fr; }
         }
         .overview-card {
-            background: #f8f9ff;
-            border: 2px solid #667eea;
-            border-radius: 10px;
+            background: var(--medex-surface);
+            border: 1px solid var(--medex-border);
+            border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 10px 24px rgba(15, 75, 143, 0.07);
             transition: all 0.2s ease;
         }
         .overview-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transform: translateY(-2px);
+            box-shadow: 0 12px 26px rgba(15, 75, 143, 0.11);
+            transform: translateY(-1px);
         }
         .overview-card h3 {
             margin: 0 0 20px 0;
             font-size: 18px;
             font-weight: 600;
-            color: #333;
+            color: var(--medex-text);
             display: flex;
             align-items: center;
             gap: 10px;
         }
         .overview-card h3 i {
-            color: #667eea;
+            color: var(--medex-primary);
             font-size: 20px;
         }
 
@@ -414,13 +579,13 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
             border-bottom: none;
         }
         .stat-label {
-            color: #666;
+            color: var(--medex-muted);
             font-size: 14px;
         }
         .stat-value {
             font-size: 18px;
             font-weight: 600;
-            color: #333;
+            color: var(--medex-text);
         }
 
         /* Button System */
@@ -437,11 +602,11 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
             gap: 8px;
         }
         .btn-primary {
-            background: #667eea;
+            background: var(--medex-primary);
             color: white;
         }
         .btn-primary:hover {
-            background: #5568d3;
+            background: var(--medex-primary-dark);
         }
         .btn-success {
             background: #28a745;
@@ -459,11 +624,11 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
         }
         .btn-outline {
             background: white;
-            border: 2px solid #667eea;
-            color: #667eea;
+            border: 2px solid var(--medex-primary);
+            color: var(--medex-primary);
         }
         .btn-outline:hover {
-            background: #667eea;
+            background: var(--medex-primary);
             color: white;
         }
         .btn:disabled {
@@ -535,7 +700,7 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
         }
         .loading i {
             font-size: 32px;
-            color: #667eea;
+            color: var(--medex-primary);
             margin-bottom: 15px;
         }
 
@@ -561,19 +726,19 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
             }
         }
         .service-card {
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--medex-border);
             border-radius: 10px;
             padding: 12px;
             transition: all 0.2s ease;
             position: relative;
-            background: white;
+            background: var(--medex-surface);
             display: flex;
             flex-direction: column;
             min-height: 180px;
         }
         .service-card.active {
-            border-color: #667eea;
-            background: #f8f9ff;
+            border-color: #9ac0e2;
+            background: var(--medex-panel-bg);
         }
         .service-card.selected {
             border-color: #28a745;
@@ -603,7 +768,7 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
             gap: 8px;
         }
         .service-title i {
-            color: #667eea;
+            color: var(--medex-primary);
         }
         .service-status {
             display: inline-block;
@@ -622,7 +787,7 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
             color: #856404;
         }
         .service-desc {
-            color: #666;
+            color: var(--medex-muted);
             font-size: 13px;
             line-height: 1.5;
             margin-bottom: 12px;
@@ -633,7 +798,7 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
             justify-content: space-between;
             margin-top: auto;
             padding-top: 10px;
-            border-top: 1px solid #e0e0e0;
+            border-top: 1px solid var(--medex-border);
         }
         .service-price {
             font-size: 16px;
@@ -657,7 +822,7 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
         .provider-selector {
             margin-top: 15px;
             padding: 0;
-            background: #f9f9f9;
+            background: #f3f8fd;
             border-radius: 8px;
             max-height: 0;
             overflow: hidden;
@@ -711,7 +876,7 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
         }
         .activity-icon i {
             font-size: 14px;
-            color: #667eea;
+            color: var(--medex-primary);
         }
         .activity-content {
             flex: 1;
@@ -786,6 +951,7 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
                 flex-direction: column;
                 gap: 15px;
                 align-items: flex-start;
+                padding: 10px 16px 14px;
             }
             .dashboard-actions {
                 width: 100%;
@@ -810,15 +976,20 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
     <div class="dashboard-header">
         <div class="dashboard-header-content">
             <div class="tab-navigation-inner">
+                <div class="dashboard-brand"><?php echo xlt('MedEx Admin Dashboard'); ?></div>
                 <a href="#" data-tab="overview" onclick="return switchToTab('overview');" class="tab-link <?php echo $currentTab === 'overview' ? 'active' : ''; ?>">
                     <i class="fa fa-home"></i>
                     <?php echo xlt('Overview'); ?>
                 </a>
                 <?php if ($isActive): ?>
-                    <a href="#" data-tab="subscriptions" onclick="return switchToTab('subscriptions');" class="tab-link <?php echo $currentTab === 'subscriptions' ? 'active' : ''; ?>">
-                        <i class="fa fa-shopping-cart"></i>
-                        <?php echo xlt('Services'); ?>
-                    </a>
+                    <div class="menu-anchor">
+                        <a href="#" id="services-tab-link" data-tab="subscriptions" onclick="return switchToTab('subscriptions');" class="tab-link <?php echo $currentTab === 'subscriptions' ? 'active' : ''; ?>">
+                            <i class="fa fa-shopping-cart"></i>
+                            <?php echo xlt('Services'); ?>
+                            <span class="menu-caret"><i class="fa fa-caret-down"></i></span>
+                        </a>
+                        <div id="services-dropdown" class="menu-dropdown" aria-label="Services Menu"></div>
+                    </div>
                     <a href="#" data-tab="settings" onclick="return switchToTab('settings');" class="tab-link <?php echo $currentTab === 'settings' ? 'active' : ''; ?>">
                         <i class="fa fa-cog"></i>
                         <?php echo xlt('Settings'); ?>
@@ -851,7 +1022,10 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
                     <i class="fa fa-life-ring"></i>
                     <?php echo xlt('Help Center'); ?>
                 </a>
-                <label class="header-toggle-switch" style="color: white; font-size: 14px; margin: 0;">
+                <button type="button" class="embedded-close" onclick="closeConfigModal()">
+                    <i class="fa fa-times"></i> <?php echo xlt('Close'); ?>
+                </button>
+                <label class="header-toggle-switch" style="color: var(--medex-text); font-size: 14px; margin: 0;">
                     <input type="checkbox" id="medex_enable_header" value="1" <?php echo ($GLOBALS['medex_enable'] ?? '0') == '1' ? 'checked' : ''; ?> onchange="toggleMedExEnable(this)">
                     <span style="margin-left: 8px;"><?php echo xlt('MedEx Enabled'); ?></span>
                 </label>
@@ -864,12 +1038,13 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
             </div>
         </div>
     </div>
+    <div class="context-bar" id="medex-context-bar"><?php echo xlt('Dashboard > Overview'); ?></div>
 
     <!-- Main Container -->
     <div class="dashboard-container">
         <?php
         // Show lock/force_disable banner if server has remotely disabled this account
-        $lockReason = $api->getLockReason();
+        $lockReason = ($api && method_exists($api, 'getLockReason')) ? $api->getLockReason() : null;
         if ($lockReason):
         ?>
         <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:6px;padding:16px 20px;margin:20px;display:flex;align-items:center;gap:12px;">
@@ -940,6 +1115,97 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
         const isConfigured = <?php echo json_encode($isConfigured); ?>;
         const currentTab = <?php echo json_encode($currentTab); ?>;
         const siteId = <?php echo json_encode($_SESSION['site_id'] ?? 'default'); ?>;
+        const tabContextMap = {
+            overview: 'Dashboard > Overview',
+            subscriptions: 'Dashboard > Services',
+            settings: 'Dashboard > Settings',
+            backups: 'Dashboard > Backups'
+        };
+        let _servicesMenuBuilt = false;
+        if (window.top && window.top !== window.self) {
+            document.body.classList.add('in-config-modal');
+        }
+
+        window.medexSetContext = function medexSetContext(path) {
+            const bar = document.getElementById('medex-context-bar');
+            if (!bar) return;
+            if (Array.isArray(path)) {
+                bar.textContent = path.join(' > ');
+            } else {
+                bar.textContent = String(path || tabContextMap.overview);
+            }
+        };
+
+        function closeServicesDropdown() {
+            const dd = document.getElementById('services-dropdown');
+            if (dd) dd.classList.remove('open');
+        }
+
+        function openServiceFromMenu(serviceId, serviceName) {
+            closeServicesDropdown();
+            switchToTab('subscriptions');
+            window.medexSetContext(['Dashboard', 'Services', serviceName || serviceId, 'Edit']);
+            let attempts = 0;
+            const openWhenReady = function() {
+                if (typeof window.medexOpenServiceView === 'function') {
+                    window.medexOpenServiceView(serviceId, serviceName || serviceId);
+                    return true;
+                }
+                attempts += 1;
+                return attempts > 60;
+            };
+            if (openWhenReady()) return false;
+            const timer = setInterval(function() {
+                if (openWhenReady()) clearInterval(timer);
+            }, 100);
+            return false;
+        }
+
+        function buildServicesDropdown(force) {
+            if (_servicesMenuBuilt && !force) return;
+            const dd = document.getElementById('services-dropdown');
+            if (!dd) return;
+            const defs = window.serviceDefinitions || {};
+            const keys = Object.keys(defs);
+            if (keys.length === 0) {
+                dd.innerHTML = '<button class="menu-item" type="button" disabled><i class="fa fa-spinner fa-spin"></i> Loading services...</button>';
+                return;
+            }
+            const items = keys.map(function(id) {
+                const svc = defs[id] || {};
+                return {
+                    id: id,
+                    name: svc.name || id,
+                    icon: svc.icon || 'fa fa-cube'
+                };
+            }).sort(function(a, b) {
+                return a.name.localeCompare(b.name);
+            });
+            dd.innerHTML = items.map(function(item) {
+                return '<button class="menu-item" type="button" data-service-id="' + item.id + '" data-service-name="' + item.name.replace(/"/g, '&quot;') + '">' +
+                    '<i class="' + item.icon + '"></i>' + item.name + '</button>';
+            }).join('');
+            dd.querySelectorAll('.menu-item[data-service-id]').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    openServiceFromMenu(btn.getAttribute('data-service-id'), btn.getAttribute('data-service-name'));
+                });
+            });
+            _servicesMenuBuilt = true;
+        }
+
+        function closeConfigModal() {
+            try {
+                window.top.postMessage({ type: 'medex-close-config-modal' }, '*');
+            } catch (e) {}
+            try {
+                const modal = window.top && window.top.document
+                    ? window.top.document.getElementById('medex-module-config-modal')
+                    : null;
+                if (modal && modal.parentNode) {
+                    modal.parentNode.removeChild(modal);
+                }
+            } catch (e2) {}
+        }
 
         /**
          * OpenEMR session-safe fetch wrapper.
@@ -1085,6 +1351,7 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
 
         // Switch between tabs without page reload
         function switchToTab(tab) {
+            closeServicesDropdown();
             // Update active state on tab links
             document.querySelectorAll('.tab-link[data-tab]').forEach(function(el) {
                 el.classList.toggle('active', el.dataset.tab === tab);
@@ -1099,6 +1366,7 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
             }
             // Lazy-load content if not yet loaded
             loadTabContent(tab);
+            window.medexSetContext(tabContextMap[tab] || tabContextMap.overview);
             // Update URL for bookmarking without a full page reload
             if (window.history && window.history.replaceState) {
                 var params = new URLSearchParams(window.location.search);
@@ -1192,6 +1460,9 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
                                 }
                             }
                         });
+                        if (tab === 'subscriptions') {
+                            buildServicesDropdown(true);
+                        }
                     })
                     .catch(error => {
                         console.error('Error loading ' + tab + ':', error);
@@ -1462,10 +1733,40 @@ $helpCenterUrl = ($GLOBALS['webroot'] ?? '')
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
+            const servicesTab = document.getElementById('services-tab-link');
+            const servicesDropdown = document.getElementById('services-dropdown');
+            if (servicesTab && servicesDropdown) {
+                servicesTab.addEventListener('click', function(e) {
+                    if (servicesTab.classList.contains('active') && !e.target.closest('.menu-caret')) {
+                        e.preventDefault();
+                        buildServicesDropdown(false);
+                        servicesDropdown.classList.toggle('open');
+                        return;
+                    }
+                    if (e.target && (e.target.closest('.menu-caret') || e.target.classList.contains('menu-caret'))) {
+                        e.preventDefault();
+                        buildServicesDropdown(false);
+                        servicesDropdown.classList.toggle('open');
+                    } else {
+                        closeServicesDropdown();
+                    }
+                });
+                servicesTab.addEventListener('contextmenu', function(e) {
+                    e.preventDefault();
+                    buildServicesDropdown(false);
+                    servicesDropdown.classList.toggle('open');
+                });
+                document.addEventListener('click', function(e) {
+                    if (!e.target.closest('.menu-anchor')) {
+                        closeServicesDropdown();
+                    }
+                });
+            }
             // Load current tab content
             if (isConfigured) {
                 loadTabContent(currentTab);
             }
+            window.medexSetContext(tabContextMap[currentTab] || tabContextMap.overview);
         });
     </script>
     <!-- Braintree Drop-in SDK -->

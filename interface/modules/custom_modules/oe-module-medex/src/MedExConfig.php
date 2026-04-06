@@ -38,8 +38,8 @@ class MedExConfig
     /** Root of the API server (no /cart/upload path) — for customer-facing pages, tutorial, etc. */
     public const DEFAULT_MAIN_URL = 'https://medexbank.com';
     public const DEFAULT_AGREEMENTS_URL = 'https://api.hipaabank.net/cart/upload';
-    public const TERMS_VERSION = '2026-03-26';
-    public const BAA_VERSION = '2026-03-26';
+    public const TERMS_VERSION = '2026-03-29';
+    public const BAA_VERSION = '2026-03-29';
     public const OTP_WHATSAPP_ENABLED = false;
     public const OTP_HOUSE_ACCOUNT_SMS = 'HOUSE_SMS';
     public const OTP_HOUSE_ACCOUNT_WHATSAPP = 'HOUSE_WHATSAPP';
@@ -82,15 +82,29 @@ class MedExConfig
     {
         // Allow an explicit override for non-standard deployments
         if (!empty($GLOBALS['medex_public_url'])) {
-            return rtrim((string)$GLOBALS['medex_public_url'], '/');
+            $override = rtrim((string)$GLOBALS['medex_public_url'], '/');
+            $override = preg_replace(
+                '#^https?://medexbank\.com/cart/upload#i',
+                'https://api.hipaabank.net/cart/upload',
+                $override
+            );
+            return rtrim((string)$override, '/');
         }
 
         $url = self::baseUrl();
 
-        // Rewrite internal Kubernetes service DNS → public branded hostname
+        // Rewrite internal Kubernetes service DNS → public API hostname
         $url = preg_replace(
             '#https?://medex-api\.medex\.svc\.cluster\.local#i',
-            'https://medexbank.com',
+            'https://api.hipaabank.net',
+            $url
+        );
+
+        // medexbank.com main site does not serve all API rewrite routes (e.g., /chat/secure/*).
+        // Normalize browser links to api.hipaabank.net unless a custom medex_public_url is set.
+        $url = preg_replace(
+            '#^https?://medexbank\.com/cart/upload#i',
+            'https://api.hipaabank.net/cart/upload',
             $url
         );
 

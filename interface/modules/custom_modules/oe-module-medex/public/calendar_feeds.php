@@ -54,7 +54,7 @@ if (empty($practiceId) || empty($apiKey)) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
     header('Content-Type: application/json');
     
-    if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', $session)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', 'default')) {
         echo json_encode(['success' => false, 'error' => 'Invalid security token']);
         exit;
     }
@@ -450,7 +450,7 @@ while ($row = sqlFetchArray($feedResult)) {
     $existingFeeds[] = $row;
 }
 
-$csrfToken = CsrfUtils::collectCsrfToken(session: $session);
+$csrfToken = CsrfUtils::collectCsrfToken();
 ?>
 <!DOCTYPE html>
 <html>

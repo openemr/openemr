@@ -155,61 +155,34 @@ if (!$userAuthorized && $GLOBALS['restrict_user_facility']) {
 // Get MedEx subscription status (for UI elements only, not access control)
 $subscriptions = $api->getSubscriptions();
 $calendarSub = $subscriptions['calendar_full'] ?? null;
-$calendarFullServicePrefs = [];
-try {
-    $calendarFullServicePrefs = $api->getServicePreferences('calendar_full');
-} catch (\Throwable $e) {
-    error_log('[MedEx Calendar] Unable to load calendar_full service preferences: ' . $e->getMessage());
-}
 
-$displayScheduleStart = (int)($GLOBALS['schedule_start'] ?? 8);
-$displayScheduleEnd = (int)($GLOBALS['schedule_end'] ?? 17);
-if ($displayScheduleEnd <= $displayScheduleStart) {
-    $displayScheduleEnd = min(23, $displayScheduleStart + 1);
-}
-
-// Load MedEx user preferences (native Edit User Settings keys first, legacy JSON fallback).
+// Load MedEx user preferences for Full Calendar defaults
 $medexPrefs = [];
-$userSettingRows = sqlStatement(
-    "SELECT setting_label, setting_value
-       FROM user_settings
-      WHERE setting_user = ?
-        AND (setting_label = 'medex_preferences' OR setting_label LIKE 'global:medex_%')",
+$medexPrefsRow = sqlQuery(
+    "SELECT setting_value FROM user_settings WHERE setting_user = ? AND setting_label = 'medex_preferences'",
     [$userId]
 );
-$nativePrefs = [];
-while ($prefRow = sqlFetchArray($userSettingRows)) {
-    $label = (string)($prefRow['setting_label'] ?? '');
-    $value = (string)($prefRow['setting_value'] ?? '');
-    if ($label === 'medex_preferences') {
-        $decodedPrefs = json_decode($value, true);
-        if (is_array($decodedPrefs)) {
-            $medexPrefs = $decodedPrefs;
-        }
-        continue;
-    }
-    if (str_starts_with($label, 'global:medex_')) {
-        $nativePrefs[$label] = $value;
+if (!empty($medexPrefsRow['setting_value'])) {
+    $decodedPrefs = json_decode((string)$medexPrefsRow['setting_value'], true);
+    if (is_array($decodedPrefs)) {
+        $medexPrefs = $decodedPrefs;
     }
 }
-$allowedThemes = ['classic', 'compact', 'high_contrast', 'ocean', 'sunrise', 'forest', 'slate', 'openemr', 'inherit'];
-$prefTheme = trim((string)($nativePrefs['global:medex_calendar_theme'] ?? ''));
-if ($prefTheme === '') {
-    if (!empty($medexPrefs['inherit_openemr_theme'])) {
-        $prefTheme = 'openemr';
-    } elseif (!empty($medexPrefs['calendar_theme'])) {
-        $prefTheme = (string)$medexPrefs['calendar_theme'];
-    } else {
-        $prefTheme = 'openemr';
-    }
-}
-if ($prefTheme === 'inherit') {
+$allowedThemes = ['classic', 'compact', 'high_contrast', 'ocean', 'sunrise', 'forest', 'slate', 'openemr'];
+$prefTheme = (string)($medexPrefs['calendar_theme'] ?? 'classic');
+$inheritOpenEmrTheme = !empty($medexPrefs['inherit_openemr_theme']);
+if ($inheritOpenEmrTheme) {
     $prefTheme = 'openemr';
 }
 if (!in_array($prefTheme, $allowedThemes, true)) {
-    $prefTheme = 'openemr';
+    $prefTheme = 'classic';
 }
-$inheritOpenEmrTheme = ($prefTheme === 'openemr');
+$prefShowWeekends = isset($medexPrefs['show_weekends']) ? (bool)$medexPrefs['show_weekends'] : true;
+$prefDefaultViewRaw = strtolower(trim((string)($medexPrefs['calendar_default_view'] ?? '')));
+$allowedPrefViews = ['day', 'week', 'month', 'year', 'list'];
+if (!in_array($prefDefaultViewRaw, $allowedPrefViews, true)) {
+    $prefDefaultViewRaw = '';
+}
 $prefDefaultProviders = isset($medexPrefs['default_provider_usernames']) && is_array($medexPrefs['default_provider_usernames'])
     ? array_values(array_unique(array_map('strval', $medexPrefs['default_provider_usernames'])))
     : [];
@@ -240,8 +213,8 @@ $usePrefFacilities = !empty($prefDefaultFacilities);
         console.log('typeof FullCalendar:', typeof FullCalendar);
         // Pass webroot and schedule times to calendar.js
         window.webroot = '<?php echo $GLOBALS['webroot']; ?>';
-        window.scheduleStart = '<?php echo (int)$displayScheduleStart; ?>';
-        window.scheduleEnd = '<?php echo (int)$displayScheduleEnd; ?>';
+        window.scheduleStart = '<?php echo $GLOBALS['schedule_start'] ?? '8'; ?>';
+        window.scheduleEnd = '<?php echo $GLOBALS['schedule_end'] ?? '17'; ?>';
         window.calendarInterval = '<?php echo $GLOBALS['calendar_interval'] ?? '15'; ?>';
         window.calendarDefaultView = '<?php echo $fullCalendarDefaultView; ?>';
         window.calendarTimeIncrement = '<?php echo $calendarTimeIncrement; ?>';
@@ -266,6 +239,8 @@ $usePrefFacilities = !empty($prefDefaultFacilities);
         window.medexUserPrefs = <?php echo json_encode([
             'theme' => $prefTheme,
             'inheritOpenEmrTheme' => $inheritOpenEmrTheme,
+            'defaultView' => $prefDefaultViewRaw,
+            'showWeekends' => $prefShowWeekends,
             'defaultProviders' => $prefDefaultProviders,
             'defaultFacilities' => $prefDefaultFacilities
         ]); ?>;
@@ -286,7 +261,6 @@ $usePrefFacilities = !empty($prefDefaultFacilities);
             --medex-card-shadow: 0 1px 3px rgba(0,0,0,0.1);
             --medex-event-text: #111111;
             --medex-button-bg: #2c3e50;
-            --medex-button-text: #ffffff;
             --medex-button-hover: #34495e;
             --medex-button-border: #1a252f;
             --medex-quick-bg: rgba(248, 249, 250, 0.95);
@@ -415,7 +389,7 @@ $usePrefFacilities = !empty($prefDefaultFacilities);
             min-width: 220px;
             background: var(--medex-panel-bg);
             border-right: 1px solid var(--medex-panel-border);
-            padding: 58px 10px 10px 10px;
+            padding: 10px;
             overflow-y: auto;
             transition: width 0.3s ease, min-width 0.3s ease, padding 0.3s ease, border-right-width 0.3s ease;
             position: relative;
@@ -438,45 +412,32 @@ $usePrefFacilities = !empty($prefDefaultFacilities);
             display: inline-flex;
             align-items: center;
             flex-wrap: nowrap;
-            gap: 8px;
-            background: transparent;
+            gap: 0;
+            background: var(--medex-quick-bg);
             padding: 4px;
             border-radius: 6px;
         }
         #left-controls {
             position: fixed;
-            top: 16px;
-            left: 16px;
+            top: 10px;
+            left: 10px;
             z-index: 250;
+            display: none;
         }
-        body.sidebar-collapsed #left-controls {
-            top: 16px;
-            left: 16px;
-        }
-        #medex-status-toast {
-            position: fixed;
-            top: 64px;
-            left: 50%;
-            transform: translate(-50%, -6px);
-            z-index: 1200;
-            background: rgba(23, 77, 43, 0.96);
-            color: #fff;
-            border-radius: 8px;
-            padding: 8px 14px;
-            font-size: 13px;
-            font-weight: 600;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease, transform 0.2s ease;
-            white-space: nowrap;
-        }
-        #medex-status-toast.show {
-            opacity: 1;
-            transform: translate(-50%, 0);
-        }
-        #medex-status-toast.error {
-            background: rgba(146, 27, 49, 0.96);
+        .sidebar-collapse-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            min-width: 28px;
+            height: 28px;
+            border: 1px solid var(--medex-quick-btn-border);
+            background: var(--medex-quick-btn-bg);
+            color: var(--medex-quick-btn-text);
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
         }
         .quick-btn {
             min-width: 32px;
@@ -597,7 +558,7 @@ $usePrefFacilities = !empty($prefDefaultFacilities);
             padding: 8px;
             font-size: 11px;
             background: var(--medex-button-bg);
-            color: var(--medex-button-text);
+            color: #ffffff;
             border: none;
             border-radius: 3px;
             cursor: pointer;
@@ -715,11 +676,11 @@ $usePrefFacilities = !empty($prefDefaultFacilities);
             cursor: pointer;
         }
         .fc-event-title {
-            color: inherit;
+            color: var(--medex-event-text) !important;
             font-weight: 500;
         }
         .fc-event-time {
-            color: inherit;
+            color: var(--medex-event-text) !important;
         }
 
         /* Style for availability blocks (In Office / Out of Office) */
@@ -743,7 +704,7 @@ $usePrefFacilities = !empty($prefDefaultFacilities);
 
         /* Override FullCalendar's default event styling for better contrast */
         .fc-event-main {
-            color: inherit;
+            color: var(--medex-event-text) !important;
         }
 
         .fc-daygrid-event {
@@ -844,19 +805,15 @@ $usePrefFacilities = !empty($prefDefaultFacilities);
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
-            padding: 10px 15px;
+            padding: 15px;
             background: var(--medex-panel-bg);
             border: 1px solid var(--medex-panel-border);
             border-radius: 4px;
-            min-height: 52px;
         }
         .fc-toolbar-chunk {
             display: flex;
             align-items: center;
             gap: 10px;
-        }
-        body.sidebar-collapsed .fc-header-toolbar .fc-toolbar-chunk:first-child {
-            margin-left: 220px;
         }
         .fc-button-group {
             display: inline-flex;
@@ -864,7 +821,7 @@ $usePrefFacilities = !empty($prefDefaultFacilities);
         }
         .fc-header-toolbar .fc-button {
             background: var(--medex-button-bg);
-            color: var(--medex-button-text);
+            color: white;
             border: 1px solid var(--medex-button-border);
             padding: 4px 10px;
             cursor: pointer;
@@ -972,31 +929,17 @@ $usePrefFacilities = !empty($prefDefaultFacilities);
 <body class="medex-theme-<?php echo attr($prefTheme); ?>">
     <div id="left-controls">
         <div class="quick-actions">
-            <button type="button" class="quick-btn" title="<?php echo xla('Toggle Sidebar'); ?>" onclick="toggleSidebar()">
-                <span class="hamburger4" aria-hidden="true">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </span>
-            </button>
-            <button type="button" class="quick-btn" title="<?php echo xla('New Appointment'); ?>" onclick="openNewAppointmentFromToolbar()">
-                <i class="fa fa-plus" aria-hidden="true"></i>
-            </button>
-            <button type="button" class="quick-btn" title="<?php echo xla('Search Appointment'); ?>" onclick="openSearchFromToolbar()">
-                <i class="fa fa-search" aria-hidden="true"></i>
-            </button>
-            <button type="button" class="quick-btn" title="<?php echo xla('Print'); ?>" onclick="printCurrentCalendar()">
-                <i class="fa fa-print" aria-hidden="true"></i>
-            </button>
-            <button type="button" class="quick-btn" title="<?php echo xla('Open In Dedicated Window'); ?>" onclick="openDedicatedCalendarWindow()">
-                <i class="fa fa-expand" aria-hidden="true"></i>
+            <button type="button" class="quick-btn" id="sidebar-toggle-btn" title="<?php echo xla('Show Sidebar'); ?>" onclick="toggleSidebar()">
+                <i class="fa fa-chevron-right" aria-hidden="true"></i>
             </button>
         </div>
     </div>
 
     <!-- Sidebar -->
     <div id="sidebar">
+        <button type="button" class="sidebar-collapse-btn" title="<?php echo xla('Hide Sidebar'); ?>" onclick="toggleSidebar()">
+            <i class="fa fa-chevron-left" aria-hidden="true"></i>
+        </button>
         <!-- View switcher at top -->
         <div style="margin-bottom: 15px;">
             <div style="font-size: 10px; color: #666; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px;">
@@ -1069,7 +1012,7 @@ $usePrefFacilities = !empty($prefDefaultFacilities);
                         <span class="fc-icon fc-icon-chevron-right"></span>
                     </button>
                 </div>
-                <button class="fc-button" onclick="navigateAllCalendars('today')" style="margin-left: 10px;">Today</button>
+                <button class="fc-button" onclick="printCurrentCalendar()" style="margin-left: 10px;">Print</button>
             </div>
             <div class="fc-toolbar-chunk">
                 <h2 class="fc-toolbar-title" id="unified-title">Loading...</h2>
@@ -1084,212 +1027,60 @@ $usePrefFacilities = !empty($prefDefaultFacilities);
         </div>
         <div id="calendars-container"></div>
     </div>
-    <div id="medex-status-toast" aria-live="polite"></div>
 
     <script type="text/javascript">
-        function getContrastTextColor(colorValue) {
-            if (!colorValue) {
-                return '#ffffff';
-            }
-            const value = String(colorValue).trim();
-            const rgbMatch = value.match(/^rgba?\(([^)]+)\)$/i);
-            if (rgbMatch) {
-                const parts = rgbMatch[1].split(',').map((part) => parseFloat(part.trim()));
-                if (parts.length >= 3 && parts.every((num) => !Number.isNaN(num))) {
-                    const [r, g, b] = parts;
-                    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-                    return luminance > 0.62 ? '#1f2933' : '#ffffff';
-                }
-            }
-            const hex = value.replace('#', '');
-            if (/^[0-9a-f]{3}$/i.test(hex)) {
-                const r = parseInt(hex[0] + hex[0], 16);
-                const g = parseInt(hex[1] + hex[1], 16);
-                const b = parseInt(hex[2] + hex[2], 16);
-                const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-                return luminance > 0.62 ? '#1f2933' : '#ffffff';
-            }
-            if (/^[0-9a-f]{6}$/i.test(hex)) {
-                const r = parseInt(hex.substring(0, 2), 16);
-                const g = parseInt(hex.substring(2, 4), 16);
-                const b = parseInt(hex.substring(4, 6), 16);
-                const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-                return luminance > 0.62 ? '#1f2933' : '#ffffff';
-            }
-            return '#ffffff';
-        }
-
-        function applyThemeContrastColors() {
-            const body = document.body;
-            const computed = window.getComputedStyle(body);
-            const accent = computed.getPropertyValue('--medex-accent');
-            const buttonBg = computed.getPropertyValue('--medex-button-bg');
-            const quickButtonBg = computed.getPropertyValue('--medex-quick-btn-bg');
-            const accentText = getContrastTextColor(accent);
-            const buttonText = getContrastTextColor(buttonBg);
-            const quickButtonText = getContrastTextColor(quickButtonBg);
-            body.style.setProperty('--medex-accent-contrast', accentText);
-            body.style.setProperty('--medex-button-text', buttonText);
-            body.style.setProperty('--medex-quick-btn-text', quickButtonText);
-        }
-
         function applyInheritedOpenEmrTheme() {
+            const prefs = window.medexUserPrefs || {};
             const body = document.body;
-            if (!body.classList.contains('medex-theme-openemr')) {
-                applyThemeContrastColors();
+            if (!body.classList.contains('medex-theme-openemr') && !prefs.inheritOpenEmrTheme) {
                 return;
             }
 
-            const isOpaque = (value) => !!value && value !== 'transparent' && value !== 'rgba(0, 0, 0, 0)';
-            const docs = [];
-            try {
-                if (window.top && window.top.document && window.top.document !== document) {
-                    docs.push(window.top.document);
-                }
-            } catch (e) {
-                // Cross-origin access is not expected in our setup; ignore safely if blocked.
-            }
-            docs.push(document);
+            const styles = window.getComputedStyle(body);
+            const accentSource = document.querySelector('.btn-primary') || document.querySelector('.btn') || document.querySelector('a.btn');
+            const accentStyles = accentSource ? window.getComputedStyle(accentSource) : null;
 
-            const pickColor = (selectors, prop, fallback) => {
-                for (const docRef of docs) {
-                    for (const selector of selectors) {
-                        const el = docRef.querySelector(selector);
-                        if (!el) {
-                            continue;
-                        }
-                        const styleGetter = (docRef.defaultView && typeof docRef.defaultView.getComputedStyle === 'function')
-                            ? docRef.defaultView.getComputedStyle.bind(docRef.defaultView)
-                            : window.getComputedStyle.bind(window);
-                        const value = styleGetter(el)[prop];
-                        if (isOpaque(value)) {
-                            return value;
-                        }
-                    }
-                }
-                return fallback;
-            };
-            const pickVar = (varNames, fallback) => {
-                for (const docRef of docs) {
-                    const root = docRef.documentElement;
-                    if (!root) {
-                        continue;
-                    }
-                    const styleGetter = (docRef.defaultView && typeof docRef.defaultView.getComputedStyle === 'function')
-                        ? docRef.defaultView.getComputedStyle.bind(docRef.defaultView)
-                        : window.getComputedStyle.bind(window);
-                    const style = styleGetter(root);
-                    for (const varName of varNames) {
-                        const value = (style.getPropertyValue(varName) || '').trim();
-                        if (isOpaque(value) || /^#[0-9a-f]{3,8}$/i.test(value)) {
-                            return value;
-                        }
-                    }
-                }
-                return fallback;
-            };
+            const bg = styles.backgroundColor && styles.backgroundColor !== 'rgba(0, 0, 0, 0)' ? styles.backgroundColor : '#f6f7f9';
+            const text = styles.color || '#1f2933';
+            const accent = (accentStyles && accentStyles.backgroundColor && accentStyles.backgroundColor !== 'rgba(0, 0, 0, 0)') ? accentStyles.backgroundColor : '#2d75b6';
 
-            const bg = pickColor(['body', 'html', '.container-fluid', '.card', '.panel'], 'backgroundColor', '#f6f7f9');
-            const text = pickColor(['body', 'html', '.container-fluid', '.card'], 'color', '#1f2933');
-            const accent = pickVar(['--primary', '--primary-color', '--bs-primary'], pickColor(['.btn-primary', '.navbar .active a', '.nav-tabs .active a', '.nav-link.active'], 'backgroundColor', '#c9dbf2'));
-            const panelBg = pickColor(['.card', '.panel', '.container-fluid', 'body'], 'backgroundColor', '#ffffff');
-            const panelBorder = pickColor(['.card', '.panel', '.form-control', '.table'], 'borderColor', '#d6dbe1');
-
-            body.style.setProperty('--medex-bg', bg);
-            body.style.setProperty('--medex-panel-bg', panelBg);
-            body.style.setProperty('--medex-panel-border', panelBorder);
-            body.style.setProperty('--medex-card-bg', panelBg);
-            body.style.setProperty('--medex-text', text);
-            body.style.setProperty('--medex-accent', accent);
-            body.style.setProperty('--medex-button-bg', accent);
-            body.style.setProperty('--medex-button-hover', '#b8cde8');
-            body.style.setProperty('--medex-button-border', '#9fb8d6');
-            body.style.setProperty('--medex-quick-bg', accent);
-            body.style.setProperty('--medex-quick-btn-bg', accent);
-            body.style.setProperty('--medex-quick-btn-text', getContrastTextColor(accent));
-            body.style.setProperty('--medex-quick-btn-border', '#9fb8d6');
-            applyThemeContrastColors();
+            document.body.style.setProperty('--medex-bg', bg);
+            document.body.style.setProperty('--medex-text', text);
+            document.body.style.setProperty('--medex-accent', accent);
         }
 
         function printCurrentCalendar() {
             window.print();
         }
 
-        let medexToastTimer = null;
-        function showMedexStatusToast(message, level = 'success', durationMs = 1600) {
-            const toast = document.getElementById('medex-status-toast');
-            if (!toast || !message) {
-                return;
-            }
-            toast.textContent = message;
-            toast.classList.remove('error', 'show');
-            if (level === 'error') {
-                toast.classList.add('error');
-            }
-            if (medexToastTimer) {
-                clearTimeout(medexToastTimer);
-            }
-            requestAnimationFrame(() => {
-                toast.classList.add('show');
-            });
-            medexToastTimer = setTimeout(() => {
-                toast.classList.remove('show');
-            }, durationMs);
-        }
-
-        function openDedicatedCalendarWindow() {
-            saveFilterSelections();
-
-            const params = new URLSearchParams(window.location.search);
-            const selectedProviders = Array.from(document.querySelectorAll('#provider-filter input[type="checkbox"]:checked')).map(cb => cb.value);
-            const selectedFacilities = Array.from(document.querySelectorAll('#facility-filter input[type="checkbox"]:checked')).map(cb => cb.value);
-
-            const activeCalendar = (typeof calendarInstances !== 'undefined' && calendarInstances.length > 0) ? calendarInstances[0] : null;
-            const currentView = activeCalendar ? activeCalendar.view.type : (localStorage.getItem('medexCalendarView') || 'timeGridWeek');
-            const currentDateObj = activeCalendar ? activeCalendar.getDate() : null;
-            const currentDate = currentDateObj
-                ? currentDateObj.toISOString().split('T')[0]
-                : ((localStorage.getItem('medexCalendarDate') || '').split('T')[0] || '');
-
-            localStorage.setItem('medexCalendarView', currentView);
-            if (currentDate) {
-                localStorage.setItem('medexCalendarDate', currentDate);
-            }
-
-            params.set('view', currentView);
-            if (currentDate) {
-                params.set('date', currentDate);
-            }
-            if (selectedProviders.length > 0) {
-                params.set('providers', selectedProviders.join(','));
-            } else {
-                params.delete('providers');
-            }
-            if (selectedFacilities.length > 0) {
-                params.set('facilities', selectedFacilities.join(','));
-            } else {
-                params.delete('facilities');
-            }
-
-            const targetUrl = window.location.pathname + '?' + params.toString();
-
-            if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') {
-                top.restoreSession();
-            }
-            window.open(targetUrl, '_blank', 'noopener,noreferrer,width=1600,height=900');
-        }
-
         // Sidebar toggle functionality
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
-            const isHidden = sidebar.classList.toggle('hidden');
-            document.body.classList.toggle('sidebar-collapsed', isHidden);
+            sidebar.classList.toggle('hidden');
+            updateSidebarToggleButton();
 
             // Trigger calendar resize after animation
             setTimeout(() => {
                 calendarInstances.forEach(cal => cal.updateSize());
                 window.dispatchEvent(new Event('resize'));
             }, 300);
+        }
+
+        function updateSidebarToggleButton() {
+            const sidebar = document.getElementById('sidebar');
+            const btn = document.getElementById('sidebar-toggle-btn');
+            const leftControls = document.getElementById('left-controls');
+            if (!sidebar || !btn || !leftControls) {
+                return;
+            }
+
+            const icon = btn.querySelector('i');
+            const isHidden = sidebar.classList.contains('hidden');
+            leftControls.style.display = isHidden ? 'block' : 'none';
+            btn.title = '<?php echo xla('Show Sidebar'); ?>';
+            if (icon) {
+                icon.className = 'fa fa-chevron-right';
+            }
         }
 
         // Save filter selections before switching views
@@ -1428,6 +1219,7 @@ $usePrefFacilities = !empty($prefDefaultFacilities);
         }
 
         // Note: restoreFilterSelections() is now defined in calendar.js and called on DOMContentLoaded
+        updateSidebarToggleButton();
         applyInheritedOpenEmrTheme();
 
         // Provider data for calendar titles (OpenEMR ACL)

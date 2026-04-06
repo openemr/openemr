@@ -22,36 +22,83 @@ require_once(__DIR__ . "/../../../../globals.php");
 // Set JSON response header
 header('Content-Type: application/json');
 
-// Log all incoming requests for debugging
-error_log('[MedEx Callback] Request from: ' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
-error_log('[MedEx Callback] Method: ' . $_SERVER['REQUEST_METHOD']);
-error_log('[MedEx Callback] Data: ' . file_get_contents('php://input'));
+$rawBody = file_get_contents('php://input');
+if ($rawBody === false) {
+    $rawBody = '';
+}
+$requestId = bin2hex(random_bytes(8));
+error_log('[MedEx Callback][' . $requestId . '] Request from: ' . ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
+error_log('[MedEx Callback][' . $requestId . '] Method: ' . ($_SERVER['REQUEST_METHOD'] ?? 'unknown'));
 
 /**
- * Validate callback token
+ * Read MedEx callback security setting from globals.
  */
-function validateCallbackToken(): bool
+function medexGetCallbackSetting(string $name, string $default = ''): string
 {
-    // Get token from request (header or query param)
-    $provided_token = $_SERVER['HTTP_X_MEDEX_TOKEN'] ?? $_GET['token'] ?? $_POST['token'] ?? null;
+    $row = \OpenEMR\Common\Database\QueryUtils::querySingleRow(
+        "SELECT gl_value FROM globals WHERE gl_name = ?",
+        [$name]
+    );
+    $value = (string)($row['gl_value'] ?? '');
+    return $value !== '' ? $value : $default;
+}
 
-    if (empty($provided_token)) {
-        error_log('[MedEx Callback] ERROR: No token provided');
+/**
+ * Require HMAC signature headers and prevent replay when enabled.
+ *
+ * Signature format:
+ *   HMAC_SHA256(token, "{timestamp}\n{nonce}\n{rawBody}")
+ */
+function medexValidateSignature(string $token, string $rawBody, bool $requireSignature, string $requestId): bool
+{
+    $timestamp = trim((string)($_SERVER['HTTP_X_MEDEX_TIMESTAMP'] ?? ''));
+    $nonce = trim((string)($_SERVER['HTTP_X_MEDEX_NONCE'] ?? ''));
+    $signature = strtolower(trim((string)($_SERVER['HTTP_X_MEDEX_SIGNATURE'] ?? '')));
+    $hasSignatureHeaders = ($timestamp !== '' || $nonce !== '' || $signature !== '');
+
+    if (!$requireSignature && !$hasSignatureHeaders) {
+        return true;
+    }
+    if ($timestamp === '' || $nonce === '' || $signature === '') {
+        error_log('[MedEx Callback][' . $requestId . '] ERROR: Missing signature headers');
+        return false;
+    }
+    if (!ctype_digit($timestamp)) {
+        error_log('[MedEx Callback][' . $requestId . '] ERROR: Invalid signature timestamp');
+        return false;
+    }
+    $tsInt = (int)$timestamp;
+    if (abs(time() - $tsInt) > 300) {
+        error_log('[MedEx Callback][' . $requestId . '] ERROR: Signature timestamp out of window');
+        return false;
+    }
+    if (!preg_match('/^[A-Za-z0-9_-]{12,128}$/', $nonce)) {
+        error_log('[MedEx Callback][' . $requestId . '] ERROR: Invalid signature nonce');
         return false;
     }
 
-    // Get stored token
-    $stored_token_row = \OpenEMR\Common\Database\QueryUtils::querySingleRow("SELECT gl_value FROM globals WHERE gl_name = 'medex_callback_token'", []);
-    $stored_token = $stored_token_row['gl_value'] ?? null;
-
-    if (empty($stored_token)) {
-        error_log('[MedEx Callback] ERROR: No callback token configured');
+    sqlStatement("
+        CREATE TABLE IF NOT EXISTS `medex_callback_nonce_log` (
+            `nonce` VARCHAR(128) NOT NULL,
+            `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`nonce`),
+            KEY `idx_created_at` (`created_at`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+    ");
+    sqlStatement("DELETE FROM `medex_callback_nonce_log` WHERE `created_at` < DATE_SUB(NOW(), INTERVAL 1 DAY)");
+    $existingNonce = \OpenEMR\Common\Database\QueryUtils::querySingleRow(
+        "SELECT nonce FROM medex_callback_nonce_log WHERE nonce = ? LIMIT 1",
+        [$nonce]
+    );
+    if (!empty($existingNonce['nonce'])) {
+        error_log('[MedEx Callback][' . $requestId . '] ERROR: Replay nonce detected');
         return false;
     }
+    sqlStatement("INSERT INTO `medex_callback_nonce_log` (`nonce`) VALUES (?)", [$nonce]);
 
-    // Constant-time comparison to prevent timing attacks
-    if (!hash_equals($stored_token, $provided_token)) {
-        error_log('[MedEx Callback] ERROR: Invalid token provided');
+    $expected = hash_hmac('sha256', $timestamp . "\n" . $nonce . "\n" . $rawBody, $token);
+    if (!hash_equals($expected, $signature)) {
+        error_log('[MedEx Callback][' . $requestId . '] ERROR: Invalid request signature');
         return false;
     }
 
@@ -59,15 +106,48 @@ function validateCallbackToken(): bool
 }
 
 /**
- * Get request data (handles both JSON and form data)
+ * Validate callback token and optional signature policy.
  */
-function getRequestData(): array
+function validateCallbackAuth(string $rawBody, string $requestId): bool
+{
+    $allowQueryToken = medexGetCallbackSetting('medex_callback_allow_query_token', '1') === '1';
+    $requireHeaderToken = medexGetCallbackSetting('medex_callback_require_header_token', '0') === '1';
+    $requireSignature = medexGetCallbackSetting('medex_callback_require_signature', '0') === '1';
+
+    $providedToken = trim((string)($_SERVER['HTTP_X_MEDEX_TOKEN'] ?? ''));
+    if ($providedToken === '' && !$requireHeaderToken && $allowQueryToken) {
+        $providedToken = trim((string)($_GET['token'] ?? $_POST['token'] ?? ''));
+    }
+    if ($providedToken === '') {
+        error_log('[MedEx Callback][' . $requestId . '] ERROR: No callback token provided');
+        return false;
+    }
+
+    $storedToken = medexGetCallbackSetting('medex_callback_token', '');
+    if ($storedToken === '') {
+        error_log('[MedEx Callback][' . $requestId . '] ERROR: No callback token configured');
+        return false;
+    }
+    if (!hash_equals($storedToken, $providedToken)) {
+        error_log('[MedEx Callback][' . $requestId . '] ERROR: Invalid callback token');
+        return false;
+    }
+    if (!medexValidateSignature($storedToken, $rawBody, $requireSignature, $requestId)) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * Get request data (handles both JSON and form data).
+ */
+function getRequestData(string $rawBody): array
 {
     $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
 
     if (strpos($contentType, 'application/json') !== false) {
-        $json = file_get_contents('php://input');
-        $data = json_decode($json, true);
+        $data = json_decode($rawBody, true);
         return $data ?? [];
     }
 
@@ -75,7 +155,7 @@ function getRequestData(): array
 }
 
 // Validate token first
-if (!validateCallbackToken()) {
+if (!validateCallbackAuth($rawBody, $requestId)) {
     http_response_code(401);
     echo json_encode([
         'success' => false,
@@ -85,10 +165,10 @@ if (!validateCallbackToken()) {
 }
 
 // Get request data
-$data = getRequestData();
+$data = getRequestData($rawBody);
 $action = $data['action'] ?? 'unknown';
 
-error_log('[MedEx Callback] Action: ' . $action);
+error_log('[MedEx Callback][' . $requestId . '] Action: ' . $action);
 
 // Allow token-auth ping even before module is fully enabled/configured.
 if ($action !== 'ping' && ($GLOBALS['medex_enable'] ?? '0') != '1') {
@@ -186,8 +266,65 @@ switch ($action) {
         ]);
         break;
 
+    case 'get_provider_roster':
+        // MedEx requesting current providers/facilities for admin scope controls
+        require_once($GLOBALS['srcdir'] . '/patient.inc.php');
+        $providers = [];
+        $providerRows = getProviderInfo('%', true);
+        if (is_array($providerRows)) {
+            foreach ($providerRows as $row) {
+                $id = (string)($row['id'] ?? '');
+                if ($id === '') {
+                    continue;
+                }
+                $name = trim(((string)($row['fname'] ?? '')) . ' ' . ((string)($row['lname'] ?? '')));
+                $providers[] = [
+                    'id' => $id,
+                    'name' => $name !== '' ? $name : ((string)($row['username'] ?? ('Provider ' . $id))),
+                    'active' => true
+                ];
+            }
+        }
+
+        $facilities = [];
+        $facilityStmt = sqlStatement("SELECT id, name FROM facility ORDER BY id ASC");
+        while ($frow = sqlFetchArray($facilityStmt)) {
+            $fid = (string)($frow['id'] ?? '');
+            if ($fid === '') {
+                continue;
+            }
+            $facilities[] = [
+                'id' => $fid,
+                'name' => (string)($frow['name'] ?? ('Facility ' . $fid))
+            ];
+        }
+
+        // Keep FullCalendar day-start/day-end aligned with OpenEMR Calendar globals.
+        if (!isset($GLOBALS['schedule_start']) || !isset($GLOBALS['schedule_end'])) {
+            $gStmt = sqlStatement("SELECT gl_name, gl_value FROM globals WHERE gl_name IN ('schedule_start', 'schedule_end')");
+            while ($gRow = sqlFetchArray($gStmt)) {
+                if (!empty($gRow['gl_name'])) {
+                    $GLOBALS[(string)$gRow['gl_name']] = (string)($gRow['gl_value'] ?? '');
+                }
+            }
+        }
+        $scheduleStart = (int)($GLOBALS['schedule_start'] ?? 8);
+        $scheduleEnd = (int)($GLOBALS['schedule_end'] ?? 17);
+        if ($scheduleEnd <= $scheduleStart) {
+            $scheduleEnd = min(23, $scheduleStart + 1);
+        }
+
+        echo json_encode([
+            'success' => true,
+            'providers' => $providers,
+            'facilities' => $facilities,
+            'schedule_start' => $scheduleStart,
+            'schedule_end' => $scheduleEnd
+        ]);
+        break;
+
     default:
-        error_log('[MedEx Callback] ERROR: Unknown action: ' . $action);
+        error_log('[MedEx Callback][' . $requestId . '] ERROR: Unknown action: ' . $action);
         http_response_code(400);
         echo json_encode([
             'success' => false,
@@ -197,4 +334,4 @@ switch ($action) {
 }
 
 // Log successful completion
-error_log('[MedEx Callback] Request completed successfully');
+error_log('[MedEx Callback][' . $requestId . '] Request completed successfully');

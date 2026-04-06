@@ -23,7 +23,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 }
 
 // Handle form submission
-if ($_POST && CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session)) {
+if ($_POST && CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], 'default')) {
     $practice_id = trim($_POST['practice_id'] ?? '');
     $api_key = trim($_POST['api_key'] ?? '');
     $server_url = trim($_POST['server_url'] ?? 'http://localhost/cart/upload');
@@ -140,7 +140,7 @@ if ($_POST && CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"], $session)) {
             </div>
 
             <form method="post">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>" />
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>" />
 
                 <div class="form-group">
                     <label for="practice_id"><?php echo xlt("Practice ID"); ?> *</label>

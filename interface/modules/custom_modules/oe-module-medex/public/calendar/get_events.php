@@ -310,21 +310,19 @@ try {
             $title = $patientName . ' - ' . $title;
         }
 
-        // Determine event color based on status and category
-        $color = $row['category_color'] ?? '#3788d8';
-
-        // Adjust color based on status
-        switch ($row['status']) {
-            case 'x': // No-show
-                $color = '#ff0000';
-                break;
-            case '@': // Cancelled
-                $color = '#999999';
-                break;
-            case '~': // Completed
-                $color = '#00cc00';
-                break;
+        // Use OpenEMR category colors as the authoritative event color source.
+        $rawColor = trim((string)($row['category_color'] ?? ''));
+        if ($rawColor !== '' && $rawColor[0] !== '#') {
+            $rawColor = '#' . $rawColor;
         }
+        $color = preg_match('/^#[0-9a-fA-F]{6}$/', $rawColor) ? $rawColor : '#3788d8';
+
+        // Compute contrasting text color for readability against category color.
+        $r = hexdec(substr($color, 1, 2));
+        $g = hexdec(substr($color, 3, 2));
+        $b = hexdec(substr($color, 5, 2));
+        $luminance = (($r * 299) + ($g * 587) + ($b * 114)) / 1000;
+        $eventTextColor = $luminance >= 145 ? '#111111' : '#ffffff';
 
         $medexRowsForEvent = $medexByEid[$row['id']] ?? [];
         $statusIconHtml = $buildMedexIcons($medexRowsForEvent, $icons);
@@ -352,6 +350,7 @@ try {
             'end' => $endDateTime,
             'backgroundColor' => $color,
             'borderColor' => $color,
+            'textColor' => $eventTextColor,
             'extendedProps' => [
                 'patientId' => $row['patient_id'],
                 'patientName' => $patientName,

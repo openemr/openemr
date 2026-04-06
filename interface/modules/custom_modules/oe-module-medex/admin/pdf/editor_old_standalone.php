@@ -40,7 +40,7 @@ $templateId = $_GET['template_id'] ?? '';
 // API base URL - SaaS model
 $apiBaseUrl = 'https://medexbank.com/pdf/api.php';
 
-$csrfToken = CsrfUtils::collectCsrfToken(session: $session);
+$csrfToken = CsrfUtils::collectCsrfToken();
 ?>
 <!DOCTYPE html>
 <html lang="en">

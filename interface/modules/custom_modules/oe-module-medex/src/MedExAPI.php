@@ -1126,6 +1126,35 @@ class MedExAPI
     }
 
     /**
+     * Get service-level preference settings from MedEx SaaS.
+     *
+     * @param string $serviceKey
+     * @return array<string,mixed>
+     */
+    public function getServicePreferences(string $serviceKey): array
+    {
+        $serviceKey = strtolower(trim($serviceKey));
+        if ($serviceKey === '') {
+            return [];
+        }
+
+        try {
+            $response = $this->makeRequest(
+                '/index.php?route=api/oemr/service_prefs&service_key=' . urlencode($serviceKey),
+                [],
+                'GET'
+            );
+            if (!empty($response['success']) && !empty($response['settings']) && is_array($response['settings'])) {
+                return $response['settings'];
+            }
+        } catch (\Exception $e) {
+            error_log('[MedEx] Failed to fetch service preferences for ' . $serviceKey . ': ' . $e->getMessage());
+        }
+
+        return [];
+    }
+
+    /**
      * Get calendar feeds for this practice
      *
      * @return array{feeds: array}

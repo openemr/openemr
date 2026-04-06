@@ -39,6 +39,10 @@ $baaVersion = MedExConfig::BAA_VERSION;
 $termsUrl = MedExConfig::termsUrl();
 $baaUrl = MedExConfig::baaUrl();
 $privacyUrl = MedExConfig::privacyUrl();
+$siteId = (string)($_GET['site'] ?? 'default');
+$agreementSignUrlBase = 'agreement_sign.php?site=' . urlencode($siteId);
+$sessionCartItems = (isset($_SESSION['medex_cart_items']) && is_array($_SESSION['medex_cart_items'])) ? $_SESSION['medex_cart_items'] : [];
+$sessionCartTotal = isset($_SESSION['medex_cart_total']) ? (float)$_SESSION['medex_cart_total'] : null;
 $defaultOpenEmrUrl = '';
 if (!empty($_SERVER['HTTP_HOST'])) {
     $webroot = trim((string)($GLOBALS['webroot'] ?? ''), '/');
@@ -69,8 +73,7 @@ if ($step > 1 && !$api->isConfigured()) {
 <html>
 <head>
     <title><?php echo xlt("MedEx Onboarding"); ?></title>
-    <?php Header::setupHeader(['jquery-min-3-7-1']); ?>
-    <link rel="stylesheet" href="<?php echo $GLOBALS['webroot']; ?>/library/font-awesome-4.7.0/css/font-awesome.min.css">
+    <?php Header::setupHeader(['jquery-min-3-7-1', 'fontawesome']); ?>
     <?php if ($step == 3): ?>
     <script src="https://js.braintreegateway.com/web/3.97.2/js/client.min.js"></script>
     <script src="https://js.braintreegateway.com/web/3.97.2/js/hosted-fields.min.js"></script>
@@ -115,6 +118,17 @@ if ($step > 1 && !$api->isConfigured()) {
         .service-title { font-size: 17px; font-weight: 600; color: #333; margin-bottom: 6px; }
         .service-desc { font-size: 13px; color: #666; line-height: 1.5; }
         .service-price { font-size: 14px; color: #0f4b8f; font-weight: 600; margin-top: 8px; }
+        .step2-layout { display: grid; grid-template-columns: 280px 1fr; gap: 18px; align-items: start; }
+        .step2-help-panel { border: 1px solid #dbeafe; border-radius: 10px; background: #ffffff; padding: 14px; position: sticky; top: 14px; }
+        .step2-help-title { font-size: 16px; font-weight: 700; color: #0f4b8f; margin-bottom: 8px; }
+        .step2-help-list { list-style: none; margin: 0; padding: 0; }
+        .step2-help-list li { margin: 0 0 6px; }
+        .step2-help-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #0f4b8f; text-decoration: none; }
+        .step2-help-link:hover { text-decoration: underline; color: #0a3460; }
+        @media (max-width: 980px) {
+            .step2-layout { grid-template-columns: 1fr; }
+            .step2-help-panel { position: static; }
+        }
 
         .provider-list { max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; border-radius: 6px; margin-top: 10px; }
         .provider-item { display: flex; align-items: center; gap: 10px; padding: 5px 0; border-bottom: 1px solid #f5f5f5; }
@@ -133,8 +147,64 @@ if ($step > 1 && !$api->isConfigured()) {
         .otp-status.ok { color: #15803d; }
         .otp-status.err { color: #b91c1c; }
         .field-status { font-size: 12px; margin-top: 6px; color: #475569; }
-        .field-status.ok { color: #15803d; }
+        .field-status.ok { color: #15803d; font-weight: 600; }
         .field-status.err { color: #b91c1c; }
+        .agreement-link {
+            color: #0f4b8f;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        .agreement-note {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #64748b;
+        }
+        .agreement-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.58);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .agreement-modal.show {
+            display: flex;
+        }
+        .agreement-modal-panel {
+            width: min(1100px, 98vw);
+            height: min(850px, 96vh);
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 24px 64px rgba(2, 6, 23, 0.45);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .agreement-modal-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            background: #0f4b8f;
+            color: #fff;
+            padding: 10px 14px;
+            font-weight: 700;
+        }
+        .agreement-modal-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .agreement-frame {
+            border: 0;
+            width: 100%;
+            height: 100%;
+            flex: 1 1 auto;
+            background: #fff;
+        }
         @media (max-width: 900px) {
             .onboard-grid { grid-template-columns: 1fr; }
         }
@@ -190,6 +260,10 @@ if ($step > 1 && !$api->isConfigured()) {
                                 <i class="fa fa-eye-slash password-toggle" id="toggle-rpassword" title="<?php echo xla("Show/Hide Password"); ?>"></i>
                             </div>
                             <div id="rpassword-error" class="field-error"><?php echo xlt("Confirm password must match the password."); ?></div>
+                            <div id="rpassword-ok" class="field-status ok" style="display:none;">
+                                <i class="fa fa-check-circle" aria-hidden="true"></i>
+                                <?php echo xlt("Passwords match."); ?>
+                            </div>
                         </div>
                         <input type="hidden" id="callback_url" name="callback_url" value="<?php echo attr($defaultOpenEmrUrl); ?>">
                 </div>
@@ -203,7 +277,7 @@ if ($step > 1 && !$api->isConfigured()) {
                         </select>
                         <small style="color:#64748b;">
                             <span id="otp-consent-copy"><?php echo xlt("You agree to allow us to send you this email to verify your identity before enabling your MedEx setup."); ?></span>
-                            <a href="#" onclick="window.open('<?php echo attr_js($privacyUrl); ?>','PrivacyPolicy',900,700); return false;"><?php echo xlt("Privacy Policy"); ?></a>
+                            <a href="<?php echo attr($privacyUrl); ?>" target="_blank" rel="noopener noreferrer"><?php echo xlt("Privacy Policy"); ?></a>
                         </small>
                         <?php // SMS/WhatsApp OTP intentionally hidden in UI until end-to-end destination + verification flow is implemented. ?>
                         <div id="otp-sms-destination-wrap" class="form-group" style="display:none; margin-top: 10px;">
@@ -229,11 +303,23 @@ if ($step > 1 && !$api->isConfigured()) {
 
                 <div class="panel-card full-width-card">
                     <div class="service-title" style="margin-bottom: 10px;"><?php echo xlt("Required Agreements"); ?></div>
+                    <input type="hidden" id="terms_completed" name="terms_completed" value="0">
+                    <input type="hidden" id="baa_completed" name="baa_completed" value="0">
+                    <input type="hidden" id="terms_signature_name" name="terms_signature_name" value="">
+                    <input type="hidden" id="terms_signer_title" name="terms_signer_title" value="">
+                    <input type="hidden" id="terms_signed_at" name="terms_signed_at" value="">
+                    <input type="hidden" id="terms_practice_name" name="terms_practice_name" value="">
+                    <input type="hidden" id="terms_legal_corporate_name" name="terms_legal_corporate_name" value="">
+                    <input type="hidden" id="baa_signature_name" name="baa_signature_name" value="">
+                    <input type="hidden" id="baa_signer_title" name="baa_signer_title" value="">
+                    <input type="hidden" id="baa_signed_at" name="baa_signed_at" value="">
+                    <input type="hidden" id="baa_practice_name" name="baa_practice_name" value="">
+                    <input type="hidden" id="baa_legal_corporate_name" name="baa_legal_corporate_name" value="">
                     <div class="form-group" style="margin-bottom: 12px;">
                         <label style="font-weight:400; margin-bottom: 0;">
-                            <input type="checkbox" id="TERMS_yes" name="TERMS_yes" value="1" required>
+                            <input type="checkbox" id="TERMS_yes" name="TERMS_yes" value="1" required disabled>
                             <?php echo xlt("I have read and my practice agrees to the"); ?>
-                            <a href="#" onclick="window.open('<?php echo attr_js($termsUrl); ?>','TERMS',800,600); return false;">
+                            <a href="<?php echo attr($termsUrl); ?>" id="open-terms-link" class="agreement-link">
                                 <?php echo xlt("MedEx Terms and Conditions"); ?>
                             </a>
                             (<?php echo xlt("Version"); ?> <?php echo text($termsVersion); ?>)
@@ -241,13 +327,16 @@ if ($step > 1 && !$api->isConfigured()) {
                     </div>
                     <div class="form-group" style="margin-bottom: 0;">
                         <label style="font-weight:400; margin-bottom: 0;">
-                            <input type="checkbox" id="BusAgree_yes" name="BusAgree_yes" value="1" required>
+                            <input type="checkbox" id="BusAgree_yes" name="BusAgree_yes" value="1" required disabled>
                             <?php echo xlt("I have read and accept the"); ?>
-                            <a href="#" onclick="window.open('<?php echo attr_js($baaUrl); ?>','BusAssocAgree',800,600); return false;">
+                            <a href="<?php echo attr($baaUrl); ?>" id="open-baa-link" class="agreement-link">
                                 <?php echo xlt("MedEx Business Associate Agreement (BAA)"); ?>
                             </a>
                             (<?php echo xlt("Version"); ?> <?php echo text($baaVersion); ?>)
                         </label>
+                    </div>
+                    <div class="agreement-note">
+                        <?php echo xlt("Open each agreement link and complete electronic signature to unlock its checkbox."); ?>
                     </div>
                 </div>
                 <div style="margin-top: 30px; text-align: right;">
@@ -255,13 +344,57 @@ if ($step > 1 && !$api->isConfigured()) {
                 </div>
             </form>
 
+            <div id="agreement-modal" class="agreement-modal" aria-hidden="true">
+                <div class="agreement-modal-panel">
+                    <div class="agreement-modal-head">
+                        <div id="agreement-modal-title"><?php echo xlt("Agreement"); ?></div>
+                        <div class="agreement-modal-actions">
+                            <button type="button" id="agreement-close-btn" class="btn" style="background:#e2e8f0;padding:8px 12px;font-size:13px;">
+                                <?php echo xlt("Close"); ?>
+                            </button>
+                        </div>
+                    </div>
+                    <iframe id="agreement-frame" class="agreement-frame" title="<?php echo xla("Agreement"); ?>"></iframe>
+                </div>
+            </div>
+
         <?php elseif ($step == 2): ?>
             <!-- Step 2: Service Configuration -->
             <form id="form-step-2">
                 <input type="hidden" name="csrf_token_form" value="<?php echo attr($csrfToken); ?>" />
+                <?php $helpBaseUrl = 'help_center.php?site=' . urlencode((string)$siteId); ?>
+                <?php
+                $formatUnit = static function ($rawUnit, string $fallback): string {
+                    $unit = ltrim(trim((string)$rawUnit), '/');
+                    if ($unit === '') {
+                        $unit = $fallback;
+                    }
+                    return '/' . $unit;
+                };
+                ?>
+                <?php
+                $serviceHelpLinks = [
+                    'reminders' => $helpBaseUrl . '&topic=reminders',
+                    'calendar_view' => $helpBaseUrl . '&topic=calendar_view',
+                    'calendar_ai' => $helpBaseUrl . '&topic=calendar_ai',
+                    'secure_chat' => $helpBaseUrl . '&topic=secure_chat',
+                    'pdf_management' => $helpBaseUrl . '&topic=pdf_management',
+                ];
+                ?>
 
                 <p><?php echo xlt("Select the services you wish to enable for your practice. You can start with a trial for any provider-based service."); ?></p>
-
+                <div class="step2-layout">
+                    <aside class="step2-help-panel">
+                        <div class="step2-help-title"><?php echo xlt("Step 2 Help"); ?></div>
+                        <ul class="step2-help-list">
+                            <li><a class="step2-help-link" href="<?php echo attr($serviceHelpLinks['reminders']); ?>" target="_blank" rel="noopener noreferrer"><i class="fa fa-life-ring" aria-hidden="true"></i><?php echo xlt("Reminders & Recalls Help"); ?></a></li>
+                            <li><a class="step2-help-link" href="<?php echo attr($serviceHelpLinks['calendar_view']); ?>" target="_blank" rel="noopener noreferrer"><i class="fa fa-life-ring" aria-hidden="true"></i><?php echo xlt("Calendar View & Export Help"); ?></a></li>
+                            <li><a class="step2-help-link" href="<?php echo attr($serviceHelpLinks['calendar_ai']); ?>" target="_blank" rel="noopener noreferrer"><i class="fa fa-life-ring" aria-hidden="true"></i><?php echo xlt("Calendar & AI Rescheduler Help"); ?></a></li>
+                            <li><a class="step2-help-link" href="<?php echo attr($serviceHelpLinks['secure_chat']); ?>" target="_blank" rel="noopener noreferrer"><i class="fa fa-life-ring" aria-hidden="true"></i><?php echo xlt("Secure Chat Help"); ?></a></li>
+                            <li><a class="step2-help-link" href="<?php echo attr($serviceHelpLinks['pdf_management']); ?>" target="_blank" rel="noopener noreferrer"><i class="fa fa-life-ring" aria-hidden="true"></i><?php echo xlt("PDF Form Management Help"); ?></a></li>
+                        </ul>
+                    </aside>
+                    <div>
                 <!-- Reminders & Recalls -->
                 <div class="service-card">
                     <input type="checkbox" name="service_reminders" id="service_reminders" checked>
@@ -279,9 +412,9 @@ if ($step > 1 && !$api->isConfigured()) {
                                     echo "$" . number_format($reminderTrial['price'], 2) . " / " . xlt($reminderTrial['frequency']) . " " . xlt("for") . " " . $reminderTrial['duration'] . " " . xlt($reminderTrial['frequency']) . ($reminderTrial['duration'] > 1 ? "s" : "");
                                 }
                                 echo "</span><br>";
-                                echo "<span style='font-size: 0.9em;'>" . xlt("Then") . " $" . number_format($pricing['services']['appointment_reminders']['price'] ?? 9.95, 2) . " / " . xlt($pricing['services']['appointment_reminders']['unit'] ?? 'mo per provider') . "</span>";
+                                echo "<span style='font-size: 0.9em;'>" . xlt("Then") . " $" . number_format($pricing['services']['appointment_reminders']['price'] ?? 9.95, 2) . " " . text($formatUnit(($pricing['services']['appointment_reminders']['unit'] ?? ''), 'mo/per provider')) . "</span>";
                             } else {
-                                echo "$" . number_format($pricing['services']['appointment_reminders']['price'] ?? 9.95, 2) . " / " . xlt($pricing['services']['appointment_reminders']['unit'] ?? 'mo per provider');
+                                echo "$" . number_format($pricing['services']['appointment_reminders']['price'] ?? 9.95, 2) . " " . text($formatUnit(($pricing['services']['appointment_reminders']['unit'] ?? ''), 'mo/per provider'));
                             }
                             ?>
                         </div>
@@ -317,9 +450,9 @@ if ($step > 1 && !$api->isConfigured()) {
                                     echo "$" . number_format($calViewTrial['price'], 2) . " / " . xlt($calViewTrial['frequency']) . " " . xlt("for") . " " . $calViewTrial['duration'] . " " . xlt($calViewTrial['frequency']) . ($calViewTrial['duration'] > 1 ? "s" : "");
                                 }
                                 echo "</span><br>";
-                                echo "<span style='font-size: 0.9em;'>" . xlt("Then") . " $" . number_format($pricing['services']['calendar_view']['price'] ?? 0.95, 2) . " / " . xlt($pricing['services']['calendar_view']['unit'] ?? '/mo per provider') . "</span>";
+                                echo "<span style='font-size: 0.9em;'>" . xlt("Then") . " $" . number_format($pricing['services']['calendar_view']['price'] ?? 0.95, 2) . " " . text($formatUnit(($pricing['services']['calendar_view']['unit'] ?? ''), 'mo/per calendar')) . "</span>";
                             } else {
-                                echo "$" . number_format($pricing['services']['calendar_view']['price'] ?? 0.95, 2) . " / " . xlt($pricing['services']['calendar_view']['unit'] ?? '/mo per provider');
+                                echo "$" . number_format($pricing['services']['calendar_view']['price'] ?? 0.95, 2) . " " . text($formatUnit(($pricing['services']['calendar_view']['unit'] ?? ''), 'mo/per calendar'));
                             }
                             ?>
                         </div>
@@ -407,6 +540,8 @@ if ($step > 1 && !$api->isConfigured()) {
                 <div style="margin-top: 30px; display: flex; justify-content: space-between;">
                     <button type="button" class="btn" style="background: #eee;" onclick="location.href='onboarding.php?step=1'"><?php echo xlt("Back"); ?></button>
                     <button type="button" class="btn btn-primary" onclick="submitStep2()"><?php echo xlt("Next: Activation & Payment"); ?> <i class="fa fa-arrow-right"></i></button>
+                </div>
+                    </div>
                 </div>
             </form>
 
@@ -599,6 +734,14 @@ if ($step > 1 && !$api->isConfigured()) {
             $(errorSelector).hide();
         }
 
+        function setFieldSuccess(selector) {
+            $(selector).css("display", "block");
+        }
+
+        function clearFieldSuccess(selector) {
+            $(selector).hide();
+        }
+
         function validateEmailField(showMessage = true) {
             const emailInput = document.getElementById("email");
             const emailValue = (emailInput && emailInput.value ? emailInput.value : "").trim();
@@ -639,19 +782,44 @@ if ($step > 1 && !$api->isConfigured()) {
             const matches = confirm.length > 0 && password === confirm;
             if (matches) {
                 clearFieldError("#rpassword", "#rpassword-error");
+                setFieldSuccess("#rpassword-ok");
                 return true;
             }
+            clearFieldSuccess("#rpassword-ok");
             if (showMessage && confirm.length > 0) {
                 setFieldError("#rpassword", "#rpassword-error", "Confirm password must match the password.");
             }
             return false;
         }
 
+        function isTermsCompleted() {
+            return $("#terms_completed").val() === "1";
+        }
+
+        function isBaaCompleted() {
+            return $("#baa_completed").val() === "1";
+        }
+
+        function syncAgreementCheckboxState() {
+            const termsDone = isTermsCompleted();
+            const baaDone = isBaaCompleted();
+            $("#TERMS_yes").prop("disabled", !termsDone);
+            $("#BusAgree_yes").prop("disabled", !baaDone);
+            if (!termsDone) {
+                $("#TERMS_yes").prop("checked", false);
+            }
+            if (!baaDone) {
+                $("#BusAgree_yes").prop("checked", false);
+            }
+        }
+
         function updateStep1SubmitState() {
             const accountReady = validateEmailField(false) &&
                 validatePasswordField(false) &&
                 validateConfirmPasswordField(false);
-            const agreementsReady = $("#TERMS_yes").is(':checked') &&
+            const agreementsReady = isTermsCompleted() &&
+                isBaaCompleted() &&
+                $("#TERMS_yes").is(':checked') &&
                 $("#BusAgree_yes").is(':checked');
             const canSubmit = accountReady && otpVerified && agreementsReady;
             $("#step1-next-btn").prop("disabled", !canSubmit);
@@ -691,6 +859,7 @@ if ($step > 1 && !$api->isConfigured()) {
 
             otpVerified = false;
             $("#otp_proof").val("");
+            $("#otp_code").val("");
             setOtpStatus("Sending one-time password...", "");
             ensureActiveSession();
 
@@ -776,9 +945,21 @@ if ($step > 1 && !$api->isConfigured()) {
             const callbackUrl = $("#callback_url").val();
             const termsAgreed = $("#TERMS_yes").is(':checked');
             const baaAgreed = $("#BusAgree_yes").is(':checked');
+            const termsCompleted = isTermsCompleted();
+            const baaCompleted = isBaaCompleted();
             const otpChannel = $("#otp_channel").val();
             const otpProof = ($("#otp_proof").val() || "").trim();
             const otpSmsDestination = ($("#otp_sms_destination").val() || "").trim();
+            const termsSignatureName = ($("#terms_signature_name").val() || "").trim();
+            const termsSignerTitle = ($("#terms_signer_title").val() || "").trim();
+            const termsSignedAt = ($("#terms_signed_at").val() || "").trim();
+            const termsPracticeName = ($("#terms_practice_name").val() || "").trim();
+            const termsLegalCorporateName = ($("#terms_legal_corporate_name").val() || "").trim();
+            const baaSignatureName = ($("#baa_signature_name").val() || "").trim();
+            const baaSignerTitle = ($("#baa_signer_title").val() || "").trim();
+            const baaSignedAt = ($("#baa_signed_at").val() || "").trim();
+            const baaPracticeName = ($("#baa_practice_name").val() || "").trim();
+            const baaLegalCorporateName = ($("#baa_legal_corporate_name").val() || "").trim();
 
             if (!email || !password || !callbackUrl) {
                 alert("Please fill all required fields");
@@ -794,12 +975,28 @@ if ($step > 1 && !$api->isConfigured()) {
                 validateConfirmPasswordField(true);
                 return;
             }
-            if (!termsAgreed) {
+            if (!termsCompleted || !termsAgreed) {
                 alert("You must agree to the Terms & Conditions before signing up");
                 return;
             }
-            if (!baaAgreed) {
+            if (!termsSignatureName || !termsSignedAt) {
+                alert("You must electronically sign the Terms & Conditions before continuing");
+                return;
+            }
+            if (!termsLegalCorporateName) {
+                alert("Legal corporate name is required for the Terms & Conditions signature");
+                return;
+            }
+            if (!baaCompleted || !baaAgreed) {
                 alert("You must agree to the HIPAA Business Associate Agreement before signing up");
+                return;
+            }
+            if (!baaSignatureName || !baaSignedAt) {
+                alert("You must electronically sign the HIPAA Business Associate Agreement before continuing");
+                return;
+            }
+            if (!baaLegalCorporateName) {
+                alert("Legal corporate name is required for the Business Associate Agreement signature");
                 return;
             }
             if (!otpVerified || !otpProof) {
@@ -824,6 +1021,16 @@ if ($step > 1 && !$api->isConfigured()) {
                     otp_channel: otpChannel,
                     otp_sms_destination: otpSmsDestination,
                     otp_proof: otpProof,
+                    terms_signature_name: termsSignatureName,
+                    terms_signer_title: termsSignerTitle,
+                    terms_signed_at: termsSignedAt,
+                    terms_practice_name: termsPracticeName,
+                    terms_legal_corporate_name: termsLegalCorporateName,
+                    baa_signature_name: baaSignatureName,
+                    baa_signer_title: baaSignerTitle,
+                    baa_signed_at: baaSignedAt,
+                    baa_practice_name: baaPracticeName,
+                    baa_legal_corporate_name: baaLegalCorporateName,
                     terms_version: '<?php echo attr_js($termsVersion); ?>',
                     baa_version: '<?php echo attr_js($baaVersion); ?>'
                 },
@@ -854,15 +1061,23 @@ if ($step > 1 && !$api->isConfigured()) {
                 dataType: 'json',
                 success: function(response) {
                     if (response.success) {
+                        const selectedServices = [];
+                        if ($("#service_reminders").is(':checked')) selectedServices.push('appointment_reminders');
+                        if ($("#service_calendar_view").is(':checked')) selectedServices.push('calendar_view');
+                        if ($("#service_calendar_ai").is(':checked')) selectedServices.push('calendar_ai');
+                        if ($("#service_chat").is(':checked')) selectedServices.push('secure_chat');
+                        if ($("#service_pdf").is(':checked')) selectedServices.push('pdf_management');
                         // Store summary for step 3
                         sessionStorage.setItem('medex_onboarding_summary', JSON.stringify({
                             reminders: $("#service_reminders").is(':checked'),
-                            calendar: $("#service_calendar").is(':checked'),
+                            calendar_view: $("#service_calendar_view").is(':checked'),
+                            calendar_ai: $("#service_calendar_ai").is(':checked'),
                             chat: $("#service_chat").is(':checked'),
                             pdf: $("#service_pdf").is(':checked'),
                             provider_count: $("input[name='reminders_providers[]']:checked").length,
                             cart_id: response.cart_id,
-                            total: response.total
+                            total: response.total,
+                            services: selectedServices
                         }));
                         location.href = 'onboarding.php?step=3';
                     } else {
@@ -876,12 +1091,124 @@ if ($step > 1 && !$api->isConfigured()) {
         }
 
         $(document).ready(function() {
+            const agreementModal = $("#agreement-modal");
+            const agreementFrame = $("#agreement-frame");
+            const agreementTitle = $("#agreement-modal-title");
+            const agreementSignUrlBase = <?php echo json_encode($agreementSignUrlBase); ?>;
+            const termsVersion = <?php echo json_encode($termsVersion); ?>;
+            const baaVersion = <?php echo json_encode($baaVersion); ?>;
+            const termsUrl = <?php echo json_encode($termsUrl); ?>;
+            const baaUrl = <?php echo json_encode($baaUrl); ?>;
+            let activeAgreementType = null;
+
+            function closeAgreementModal() {
+                agreementModal.removeClass("show").attr("aria-hidden", "true");
+                agreementFrame.attr("src", "about:blank");
+                activeAgreementType = null;
+            }
+
+            function markAgreementAccepted(type) {
+                if (type === "terms") {
+                    $("#terms_completed").val("1");
+                    $("#TERMS_yes").prop("checked", true);
+                } else if (type === "baa") {
+                    $("#baa_completed").val("1");
+                    $("#BusAgree_yes").prop("checked", true);
+                }
+                syncAgreementCheckboxState();
+                updateStep1SubmitState();
+            }
+
+            function applyAgreementSignature(type, payload) {
+                const signerName = String(payload.signer_name || "").trim();
+                const signerTitle = String(payload.signer_title || "").trim();
+                const signedAt = String(payload.signed_at || "").trim();
+                if (!signerName || !signedAt) {
+                    return;
+                }
+                if (type === "terms") {
+                    $("#terms_signature_name").val(signerName);
+                    $("#terms_signer_title").val(signerTitle);
+                    $("#terms_signed_at").val(signedAt);
+                    $("#terms_practice_name").val(String(payload.practice_name || "").trim());
+                    $("#terms_legal_corporate_name").val(String(payload.legal_corporate_name || "").trim());
+                } else if (type === "baa") {
+                    $("#baa_signature_name").val(signerName);
+                    $("#baa_signer_title").val(signerTitle);
+                    $("#baa_signed_at").val(signedAt);
+                    $("#baa_practice_name").val(String(payload.practice_name || "").trim());
+                    $("#baa_legal_corporate_name").val(String(payload.legal_corporate_name || "").trim());
+                }
+            }
+
+            function openAgreementModal(type, displayUrl) {
+                activeAgreementType = type;
+                const version = (type === "terms") ? termsVersion : baaVersion;
+                const signUrl = agreementSignUrlBase + "&type=" + encodeURIComponent(type) + "&version=" + encodeURIComponent(version);
+                if (type === "terms") {
+                    agreementTitle.text("MedEx Terms and Conditions");
+                } else {
+                    agreementTitle.text("MedEx Business Associate Agreement (BAA)");
+                }
+                agreementFrame.attr("src", signUrl);
+                agreementModal.addClass("show").attr("aria-hidden", "false");
+            }
+
+            $("#open-terms-link").on("click", function(e) {
+                e.preventDefault();
+                openAgreementModal("terms", termsUrl);
+            });
+            $("#open-baa-link").on("click", function(e) {
+                e.preventDefault();
+                openAgreementModal("baa", baaUrl);
+            });
+            $("#agreement-close-btn").on("click", function() {
+                closeAgreementModal();
+            });
+            agreementModal.on("click", function(e) {
+                if (e.target === this) {
+                    closeAgreementModal();
+                }
+            });
+            window.addEventListener("message", function(event) {
+                if (!event || !event.data || typeof event.data !== "object") {
+                    return;
+                }
+                if (event.data.source !== "medex-agreement-signer") {
+                    return;
+                }
+                const type = String(event.data.type || "");
+                if ((type !== "terms" && type !== "baa") || type !== activeAgreementType) {
+                    return;
+                }
+                if (event.data.action === "signed") {
+                    applyAgreementSignature(type, event.data);
+                    markAgreementAccepted(type);
+                    return;
+                }
+            });
+            $(document).on("keydown", function(e) {
+                if (e.key === "Escape" && agreementModal.hasClass("show")) {
+                    closeAgreementModal();
+                }
+            });
+
             if (wizardStep === 3) {
                 $("#wizard-progress-fill").css("width", "100%");
             } else if (wizardStep === 2) {
                 updateStep2Progress();
                 $("#form-step-2 input[type='checkbox']").on("change", function() {
                     updateStep2Progress();
+                });
+                $("#form-step-2 .service-card").on("click", function(e) {
+                    const $target = $(e.target);
+                    if ($target.closest("input, a, button, select, textarea, label, .provider-list").length) {
+                        return;
+                    }
+                    const $serviceToggle = $(this).children("input[type='checkbox'][name^='service_']").first();
+                    if ($serviceToggle.length) {
+                        $serviceToggle.prop("checked", !$serviceToggle.prop("checked")).trigger("change");
+                    }
                 });
             }
 
@@ -912,12 +1239,14 @@ if ($step > 1 && !$api->isConfigured()) {
             });
             $("#password").on("blur", function() {
                 validatePasswordField(true);
+                validateConfirmPasswordField(true);
                 updateStep1SubmitState();
             });
             $("#password").on("input", function() {
                 if (validatePasswordField(false)) {
                     clearFieldError("#password", "#password-error");
                 }
+                validateConfirmPasswordField(false);
                 updateStep1SubmitState();
             });
             $("#rpassword").on("input blur", function() {
@@ -936,15 +1265,50 @@ if ($step > 1 && !$api->isConfigured()) {
                 updateStep1SubmitState();
             });
             updateOtpDestinationVisibility();
+            syncAgreementCheckboxState();
             updateStep1SubmitState();
 
             if (window.location.search.includes('step=3')) {
-                const summary = JSON.parse(sessionStorage.getItem('medex_onboarding_summary') || '{}');
+                const serverCart = <?php echo json_encode(['items' => $sessionCartItems, 'total' => $sessionCartTotal]); ?>;
+                let summary = {};
+                try {
+                    summary = JSON.parse(sessionStorage.getItem('medex_onboarding_summary') || '{}');
+                } catch (e) {
+                    summary = {};
+                }
+                if ((!Array.isArray(summary.services) || summary.services.length === 0) && Array.isArray(serverCart.items) && serverCart.items.length) {
+                    summary.services = serverCart.items.map(function(item) {
+                        return item && item.service ? item.service : '';
+                    }).filter(Boolean);
+                    if (typeof summary.total === "undefined" || summary.total === null || summary.total === "") {
+                        summary.total = serverCart.total;
+                    }
+                }
                 let html = '';
-                if (summary.reminders) html += '<li>' + <?php echo xlj("Reminders & Recalls"); ?> + ' (' + summary.provider_count + ' ' + <?php echo xlj("providers"); ?> + ')</li>';
-                if (summary.calendar) html += '<li>' + <?php echo xlj("Calendar & AI Rescheduler"); ?> + '</li>';
-                if (summary.chat) html += '<li>' + <?php echo xlj("Secure Chat"); ?> + '</li>';
-                if (summary.pdf) html += '<li>' + <?php echo xlj("PDF Form Management"); ?> + '</li>';
+                const serviceLabels = {
+                    appointment_reminders: <?php echo json_encode(xl("Reminders & Recalls")); ?>,
+                    calendar_view: <?php echo json_encode(xl("Calendar View & Export")); ?>,
+                    calendar_ai: <?php echo json_encode(xl("Calendar & AI Rescheduler")); ?>,
+                    secure_chat: <?php echo json_encode(xl("Secure Chat")); ?>,
+                    pdf_management: <?php echo json_encode(xl("PDF Form Management")); ?>
+                };
+                if (Array.isArray(summary.services) && summary.services.length) {
+                    summary.services.forEach(function(serviceKey) {
+                        const label = serviceLabels[serviceKey] || serviceKey;
+                        if (serviceKey === 'appointment_reminders') {
+                            const count = summary.provider_count || 0;
+                            html += '<li>' + label + (count ? (' (' + count + ' ' + <?php echo json_encode(xl("providers")); ?> + ')') : '') + '</li>';
+                        } else {
+                            html += '<li>' + label + '</li>';
+                        }
+                    });
+                } else {
+                    if (summary.reminders) html += '<li>' + <?php echo xlj("Reminders & Recalls"); ?> + ' (' + (summary.provider_count || 0) + ' ' + <?php echo xlj("providers"); ?> + ')</li>';
+                    if (summary.calendar_view) html += '<li>' + <?php echo xlj("Calendar View & Export"); ?> + '</li>';
+                    if (summary.calendar_ai) html += '<li>' + <?php echo xlj("Calendar & AI Rescheduler"); ?> + '</li>';
+                    if (summary.chat) html += '<li>' + <?php echo xlj("Secure Chat"); ?> + '</li>';
+                    if (summary.pdf) html += '<li>' + <?php echo xlj("PDF Form Management"); ?> + '</li>';
+                }
                 $("#summary-list").html(html || '<li>No services selected</li>');
 
                 // Display total
@@ -964,10 +1328,11 @@ if ($step > 1 && !$api->isConfigured()) {
                 type: 'GET',
                 dataType: 'json',
                 success: function(response) {
-                    if (response.success && response.token) {
-                        setupBraintreeFields(response.token);
+                    const token = response && (response.clientToken || response.token);
+                    if (response.success && token) {
+                        setupBraintreeFields(token);
                     } else {
-                        $("#payment-errors").text('Failed to initialize payment form: ' + (response.error || 'Unknown error')).show();
+                        $("#payment-errors").text('Failed to initialize payment form: ' + (response.error || response.message || 'Unknown error')).show();
                     }
                 },
                 error: function() {

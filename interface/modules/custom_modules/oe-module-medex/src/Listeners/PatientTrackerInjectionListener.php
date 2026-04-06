@@ -122,7 +122,7 @@ class PatientTrackerInjectionListener
     {
         global $webroot;
 
-        $csrfToken = \OpenEMR\Common\Csrf\CsrfUtils::collectCsrfToken(session: $session);
+        $csrfToken = \OpenEMR\Common\Csrf\CsrfUtils::collectCsrfToken();
         $isAjaxRefresh = !empty($_REQUEST['flb_table']);
 
         // Path to Patient Tracker injection JavaScript

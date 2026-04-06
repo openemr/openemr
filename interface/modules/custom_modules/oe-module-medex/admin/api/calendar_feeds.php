@@ -30,7 +30,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 
 // Verify CSRF token for POST requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', $session)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', 'default')) {
         http_response_code(403);
         echo json_encode(['success' => false, 'error' => 'CSRF token validation failed']);
         exit;

@@ -42,8 +42,7 @@ if (!$medex->hasServiceEntitlement('secure_chat')) {
 }
 
 require_once __DIR__ . '/../src/MedExConfig.php';
-$medexApiUrl = \OpenEMR\Modules\MedEx\MedExConfig::baseUrl();
-$medexApiUrl = str_replace('host.docker.internal', 'localhost', $medexApiUrl);
+$medexApiUrl = \OpenEMR\Modules\MedEx\MedExConfig::publicBaseUrl();
 $medexApiUrl = rtrim($medexApiUrl, '/');
 $medexPrefs = sqlQuery("SELECT * FROM medex_prefs LIMIT 1");
 $apiKey = $medexPrefs['MedEx_apikey'] ?? '';
@@ -128,9 +127,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 exit;
             }
             
-            // Build secure chat URLs - points to MedEx SaaS (protects IP)
-            $chatUrl = $medexApiUrl . '/chat/secure/' . $chatToken;
-            $providerChatUrl = $medexApiUrl . '/chat/secure/' . $providerToken;
+            // Build secure chat URLs using the canonical rewrite path.
+            // This works on public deployments where index.php route links may 404.
+            $chatUrl = $medexApiUrl . '/chat/secure/' . rawurlencode($chatToken);
+            $providerChatUrl = $medexApiUrl . '/chat/secure/' . rawurlencode($providerToken);
             
             // First, register the tokens on MedEx SaaS side
             try {

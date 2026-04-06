@@ -33,7 +33,7 @@ $downloadUrl = $_GET['url'] ?? '';
 if ($action === 'install' && !empty($downloadUrl)) {
     // Verify CSRF token for POST requests
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '', $session)) {
+        if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '', 'default')) {
             http_response_code(403);
             die(json_encode(['success' => false, 'error' => 'Invalid CSRF token']));
         }
@@ -380,7 +380,7 @@ $hasWritePermissions = $updateManager->hasWritePermissions();
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'X-Requested-With': 'XMLHttpRequest'
             },
-            body: 'csrf_token=<?php echo urlencode(CsrfUtils::collectCsrfToken(session: $session)); ?>'
+            body: 'csrf_token=<?php echo urlencode(CsrfUtils::collectCsrfToken()); ?>'
         })
         .then(response => response.json())
         .then(data => {

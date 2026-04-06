@@ -32,7 +32,7 @@ $message = '';
 
 // Handle cleanup request
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_cleanup'])) {
-    if (\OpenEMR\Common\Csrf\CsrfUtils::verifyCsrfToken($_POST['csrf_token'], $session)) {
+    if (\OpenEMR\Common\Csrf\CsrfUtils::verifyCsrfToken($_POST['csrf_token'], 'default')) {
         try {
             // Remove the MedEx directory recursively
             if (is_dir($medexDir)) {
@@ -163,7 +163,7 @@ if ($dirExists) {
             </div>
 
             <form method="POST">
-                <input type="hidden" name="csrf_token" value="<?php echo attr(\OpenEMR\Common\Csrf\CsrfUtils::collectCsrfToken(session: $session)); ?>">
+                <input type="hidden" name="csrf_token" value="<?php echo attr(\OpenEMR\Common\Csrf\CsrfUtils::collectCsrfToken()); ?>">
                 <input type="hidden" name="confirm_cleanup" value="1">
                 <p>
                     <strong><?php echo xlt('Warning'); ?>:</strong>

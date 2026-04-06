@@ -33,7 +33,9 @@ $api = new \OpenEMR\Modules\MedEx\MedExAPI();
 $isConfigured = $api->isConfigured();
 $isActive = $api->isActive();
 try {
-    $loginData = $api->login(false); // Get cached login data
+    // Force fresh login so overview uses the same subscription truth
+    // as the Services tab (avoids stale enabled_services in session cache).
+    $loginData = $api->login(true);
 } catch (\Exception $e) {
     $loginData = []; // Not configured or invalid credentials - proceed gracefully
 }
@@ -65,6 +67,7 @@ $minutesAgo = $lastSyncTime ? round((time() - strtotime($lastSyncTime)) / 60) : 
 // Iterate over the nested 'subscriptions' map, not the top-level wrapper.
 $subscriptionsData = $api->getSubscriptions();
 $subscriptions = $subscriptionsData['subscriptions'] ?? [];
+$activeServiceKeys = array_values((array)($subscriptionsData['active_services'] ?? []));
 
 // Pull live prices from DB (same source as Services page) — force=true bypasses cache.
 $livePricing = $api->getPricing(true);
@@ -73,15 +76,37 @@ $livePricingServices = $livePricing['services'] ?? [];
 $activeSubscriptions = [];
 $totalMonthlyCost = 0;
 
-foreach ($subscriptions as $key => $sub) {
-    if ($sub['active'] === true && $sub['status'] === 'active') {
-        // Prefer live price from oc_product_recurring; fall back to subscription's own price field.
-        $livePrice = $livePricingServices[$key]['price'] ?? null;
-        $resolvedPrice = ($livePrice !== null && $livePrice > 0) ? $livePrice : (float)($sub['price'] ?? 0);
-        $sub['resolved_price'] = $resolvedPrice;
-        $activeSubscriptions[$key] = $sub;
-        $totalMonthlyCost += $resolvedPrice;
+// Fallback for older payloads missing active_services.
+if (empty($activeServiceKeys)) {
+    foreach ($subscriptions as $key => $sub) {
+        if (($sub['active'] ?? false) === true && ($sub['status'] ?? '') === 'active') {
+            $activeServiceKeys[] = $key;
+        }
     }
+}
+
+foreach ($activeServiceKeys as $key) {
+    // Keep Overview aligned with Services tab: only display/count services
+    // that exist in the current pricing/service catalog payload.
+    if (!array_key_exists($key, $livePricingServices)) {
+        continue;
+    }
+
+    $sub = is_array($subscriptions[$key] ?? null) ? $subscriptions[$key] : ['service_key' => $key, 'status' => 'active', 'active' => true];
+
+    // Mirror Services tab filtering so counts/labels stay consistent.
+    $isAvailableFromApi = $livePricingServices[$key]['available'] ?? null;
+    $isComingSoon = (bool)($livePricingServices[$key]['coming_soon'] ?? false);
+    if (!$isDemoCustomer && ($isAvailableFromApi === false || ($isComingSoon && $isAvailableFromApi !== true))) {
+        continue;
+    }
+
+    // Prefer live price from oc_product_recurring; fall back to subscription's own price field.
+    $livePrice = $livePricingServices[$key]['price'] ?? null;
+    $resolvedPrice = ($livePrice !== null && $livePrice > 0) ? $livePrice : (float)($sub['price'] ?? 0);
+    $sub['resolved_price'] = $resolvedPrice;
+    $activeSubscriptions[$key] = $sub;
+    $totalMonthlyCost += $resolvedPrice;
 }
 
 // Get stats (last 30 days)
@@ -147,6 +172,75 @@ foreach ($livePricingServices as $svcKey => $svcData) {
 .ov-toggle-switch input[type="checkbox"]:checked::before {
     left: 20px;
 }
+.ov-account-box {
+    margin-top: 10px;
+    padding: 12px;
+    background: #f8fbff;
+    border-radius: 8px;
+    border: 1px solid #c7dff3;
+}
+.ov-actions-row {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+.ov-btn-link {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.ov-btn-link.primary {
+    background: #0f4b8f;
+    color: #fff;
+}
+.ov-btn-link.neutral {
+    background: #475569;
+    color: #fff;
+}
+.ov-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.ov-recharge-box {
+    margin-top: 12px;
+    background: #f8fbff;
+    border: 1px solid #dbe5ee;
+    border-radius: 8px;
+    padding: 10px;
+}
+.ov-field-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.ov-field-row label {
+    font-size: 12px;
+    color: #475569;
+    min-width: 80px;
+    font-weight: 600;
+}
+.ov-field-row input {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 7px 8px;
+}
+.ov-quick-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
 </style>
 
 <div class="overview-grid">
@@ -160,11 +254,11 @@ foreach ($livePricingServices as $svcKey => $svcData) {
                 <?php echo xlt('Not Connected'); ?>
             </div>
             <?php if ($medexUsername): ?>
-                <div style="margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap;">
-                    <a href="reconnect.php" class="btn btn-primary btn-sm" style="text-decoration: none; display: inline-block; padding: 8px 16px; background: #667eea; color: white; border-radius: 6px; font-size: 14px; white-space: nowrap;">
+                <div class="ov-actions-row">
+                    <a href="reconnect.php" class="ov-btn-link primary">
                         <i class="fa fa-refresh"></i> <?php echo xlt('Reconnect Account'); ?>
                     </a>
-                    <a href="manual_config.php" class="btn btn-secondary btn-sm" style="text-decoration: none; display: inline-block; padding: 8px 16px; background: #6c757d; color: white; border-radius: 6px; font-size: 14px; white-space: nowrap;">
+                    <a href="manual_config.php" class="ov-btn-link neutral">
                         <i class="fa fa-wrench"></i> <?php echo xlt('Manual Config'); ?>
                     </a>
                 </div>
@@ -172,8 +266,8 @@ foreach ($livePricingServices as $svcKey => $svcData) {
         <?php endif; ?>
 
         <?php if ($medexUsername): ?>
-            <div style="margin-top: 10px; padding: 10px; background: #f8f9ff; border-radius: 6px; border: 1px solid #667eea;">
-                <i class="fa fa-user" style="color: #667eea;"></i>
+            <div class="ov-account-box">
+                <i class="fa fa-user" style="color: #0f4b8f;"></i>
                 <strong><?php echo xlt('Account:'); ?></strong>
                 <span style="margin-left: 5px;"><?php echo text($medexUsername); ?></span>
             </div>
@@ -222,7 +316,7 @@ foreach ($livePricingServices as $svcKey => $svcData) {
             <p style="color: #999; font-size: 14px; margin-bottom: 20px;">
                 <?php echo xlt('No active subscriptions'); ?>
             </p>
-            <a href="?tab=subscriptions" style="text-decoration: none; color: #667eea; font-weight: 500;">
+            <a href="?tab=subscriptions" style="text-decoration: none; color: #0f4b8f; font-weight: 500;">
                 <i class="fa fa-plus-circle"></i> <?php echo xlt('Add Services'); ?>
             </a>
         <?php else: ?>
@@ -242,11 +336,11 @@ foreach ($livePricingServices as $svcKey => $svcData) {
                     </div>
                 <?php endforeach; ?>
             </div>
-            <div style="padding-top: 15px; border-top: 2px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;">
+            <div style="padding-top: 15px; border-top: 2px solid #dbe5ee; display: flex; justify-content: space-between; align-items: center;">
                 <strong><?php echo xlt('Total'); ?>:</strong>
-                <strong style="font-size: 18px; color: #667eea;">$<?php echo number_format($totalMonthlyCost, 2); ?>/mo</strong>
+                <strong style="font-size: 18px; color: #0f4b8f;">$<?php echo number_format($totalMonthlyCost, 2); ?>/mo</strong>
             </div>
-            <a href="?tab=subscriptions" style="display: inline-block; margin-top: 15px; text-decoration: none; color: #667eea; font-weight: 500;">
+            <a href="?tab=subscriptions" style="display: inline-block; margin-top: 15px; text-decoration: none; color: #0f4b8f; font-weight: 500;">
                 <?php echo xlt('Manage Subscriptions'); ?> <i class="fa fa-arrow-right"></i>
             </a>
         <?php endif; ?>
@@ -270,7 +364,7 @@ foreach ($livePricingServices as $svcKey => $svcData) {
             </div>
             <div class="stat-item">
                 <span class="stat-label"><?php echo xlt('Scheduled'); ?></span>
-                <span class="stat-value" style="color: <?php echo $pendingCount > 0 ? '#667eea' : '#999'; ?>;"><?php echo number_format($pendingCount); ?></span>
+                <span class="stat-value" style="color: <?php echo $pendingCount > 0 ? '#0f4b8f' : '#999'; ?>;"><?php echo number_format($pendingCount); ?></span>
             </div>
             <div class="stat-item">
                 <span class="stat-label"><?php echo xlt('Upcoming Appts'); ?> <span style="font-size:10px;color:#999;">(7d)</span></span>
@@ -282,17 +376,16 @@ foreach ($livePricingServices as $svcKey => $svcData) {
 
     <!-- A La Carte Credits Card -->
     <div class="overview-card">
-        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;">
+        <div class="ov-header-row">
             <h3 style="margin:0;">
                 <i class="fa fa-coins"></i> <?php echo xlt('A La Carte Credits'); ?>
             </h3>
             <div style="display:flex; align-items:center; gap:8px;">
                 <a
                     href="<?php echo attr($GLOBALS['webroot']); ?>/interface/modules/custom_modules/oe-module-medex/admin/splash.php?minimal=1&site=<?php echo urlencode($_SESSION['site_id'] ?? 'default'); ?>"
-                    target="_blank"
                     onclick="return window.confirm('MedEx onboarding is production-only. Continue to readiness checklist?');"
                     title="<?php echo xla('Pay-as-you-go credits for SMS/voice/email usage. Auto-refill tops up credits when balance falls below your threshold.'); ?>"
-                    style="color:#667eea; text-decoration:none; font-size:15px;"
+                    style="color:#0f4b8f; text-decoration:none; font-size:15px;"
                 ><i class="fa fa-question-circle"></i></a>
                 <?php if (!$isDemoCustomer): ?>
                     <label class="ov-toggle-switch" title="<?php echo xla('Toggle auto-refill on or off'); ?>" style="margin:0;">
@@ -320,19 +413,19 @@ foreach ($livePricingServices as $svcKey => $svcData) {
                 <i class="fa fa-info-circle"></i> <?php echo xlt('Demo account: billing and auto-refill are bypassed.'); ?>
             </div>
         <?php else: ?>
-            <div style="margin-top: 12px;">
+            <div class="ov-recharge-box">
                 <div id="ov-recharge-fields" style="display: <?php echo $rechargeOn ? 'block' : 'none'; ?>;">
-                    <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
-                        <label for="ov-recharge-point" style="font-size:12px; color:#666; min-width:80px;"><?php echo xlt('Threshold'); ?></label>
-                        <input type="number" id="ov-recharge-point" min="1" max="9999" step="0.01" value="<?php echo attr($rechargePoint); ?>" style="width:100%; border:1px solid #ccc; border-radius:4px; padding:6px;">
+                    <div class="ov-field-row">
+                        <label for="ov-recharge-point"><?php echo xlt('Threshold'); ?></label>
+                        <input type="number" id="ov-recharge-point" min="1" max="9999" step="0.01" value="<?php echo attr($rechargePoint); ?>">
                     </div>
-                    <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px;">
-                        <label for="ov-recharge-amt" style="font-size:12px; color:#666; min-width:80px;"><?php echo xlt('Amount'); ?></label>
-                        <input type="number" id="ov-recharge-amt" min="10" max="9999" step="1" value="<?php echo attr($rechargeAmount ?: 50); ?>" style="width:100%; border:1px solid #ccc; border-radius:4px; padding:6px;">
+                    <div class="ov-field-row" style="margin-bottom:10px;">
+                        <label for="ov-recharge-amt"><?php echo xlt('Amount'); ?></label>
+                        <input type="number" id="ov-recharge-amt" min="10" max="9999" step="1" value="<?php echo attr($rechargeAmount ?: 50); ?>">
                     </div>
                 </div>
 
-                <button type="button" onclick="ovSaveRechargeSettings()" style="width:100%; padding:8px 10px; background:#667eea; color:#fff; border:none; border-radius:4px; font-weight:600;">
+                <button type="button" onclick="ovSaveRechargeSettings()" style="width:100%; padding:8px 10px; background:#0f4b8f; color:#fff; border:none; border-radius:4px; font-weight:600;">
                     <i class="fa fa-save"></i> <?php echo xlt('Save Auto-Refill'); ?>
                 </button>
                 <div id="ov-recharge-status-msg" style="display:none; margin-top:8px; font-size:12px;"></div>
@@ -404,16 +497,16 @@ function ovSaveRechargeSettings() {
 <!-- Quick Actions -->
 <div class="overview-card" style="margin-top: 20px;">
     <h3><i class="fa fa-bolt"></i> <?php echo xlt('Quick Actions'); ?></h3>
-    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-        <a href="?tab=subscriptions" style="padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 6px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px;">
+    <div class="ov-quick-actions">
+        <a href="?tab=subscriptions" style="padding: 12px 24px; background: #0f4b8f; color: white; text-decoration: none; border-radius: 6px; font-weight: 500; display: inline-flex; align-items: center; gap: 8px;">
             <i class="fa fa-plus-circle"></i>
             <?php echo xlt('Add Services'); ?>
         </a>
-        <a href="?tab=settings" style="padding: 12px 24px; background: white; color: #667eea; text-decoration: none; border-radius: 6px; font-weight: 500; border: 2px solid #667eea; display: inline-flex; align-items: center; gap: 8px;">
+        <a href="?tab=settings" style="padding: 12px 24px; background: white; color: #0f4b8f; text-decoration: none; border-radius: 6px; font-weight: 500; border: 2px solid #0f4b8f; display: inline-flex; align-items: center; gap: 8px;">
             <i class="fa fa-cog"></i>
             <?php echo xlt('Configure Settings'); ?>
         </a>
-        <a href="../public/dashboard.php" target="_blank" style="padding: 12px 24px; background: white; color: #667eea; text-decoration: none; border-radius: 6px; font-weight: 500; border: 2px solid #667eea; display: inline-flex; align-items: center; gap: 8px;">
+        <a href="../public/dashboard.php" target="_blank" style="padding: 12px 24px; background: white; color: #0f4b8f; text-decoration: none; border-radius: 6px; font-weight: 500; border: 2px solid #0f4b8f; display: inline-flex; align-items: center; gap: 8px;">
             <i class="fa fa-external-link-alt"></i>
             <?php echo xlt('Full Dashboard'); ?>
         </a>

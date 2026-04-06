@@ -6,6 +6,203 @@ console.log('calendar.js loaded and executing...');
 
 // Store calendar instances
 let calendarInstances = [];
+let autoRefreshTimer = null;
+const FALLBACK_REFRESH_INTERVAL_MS = 180000;
+const AUTO_REFRESH_CHECK_MS = 5000;
+let lastFallbackRefreshAt = 0;
+let lastActiveState = null;
+const recentMoveSignatures = new Map();
+let calendarEventSource = null;
+let currentEventStreamKey = '';
+let eventStreamReconnectTimer = null;
+let eventStreamConnected = false;
+
+function setUnifiedHeaderTitle(text) {
+    const titleEl = document.getElementById('unified-title');
+    if (titleEl) {
+        titleEl.textContent = text;
+    }
+}
+
+function isCalendarActivelyDisplayed() {
+    if (document.visibilityState !== 'visible') {
+        return false;
+    }
+
+    const frameEl = window.frameElement;
+    if (frameEl) {
+        const frameStyle = window.getComputedStyle(frameEl);
+        if (
+            frameStyle.display === 'none' ||
+            frameStyle.visibility === 'hidden' ||
+            frameStyle.opacity === '0'
+        ) {
+            return false;
+        }
+
+        const frameRect = frameEl.getBoundingClientRect();
+        if (frameRect.width === 0 || frameRect.height === 0) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function refetchAllCalendars(reason = 'manual', force = false) {
+    if (!Array.isArray(calendarInstances) || calendarInstances.length === 0) {
+        return;
+    }
+    if (!force && !isCalendarActivelyDisplayed()) {
+        return;
+    }
+    console.log('Refetching all calendars, reason:', reason);
+    calendarInstances.forEach(cal => cal.refetchEvents());
+}
+
+function notifyCalendarDataChanged() {
+    // Notify sibling tabs/windows via localStorage event.
+    localStorage.setItem('medexCalendarLastMutation', String(Date.now()));
+}
+
+function getCurrentSyncContext() {
+    if (!Array.isArray(calendarInstances) || calendarInstances.length === 0) {
+        return null;
+    }
+
+    const firstCalendar = calendarInstances[0];
+    if (!firstCalendar || !firstCalendar.view) {
+        return null;
+    }
+
+    const providers = Array.from(
+        document.querySelectorAll('#provider-filter input[type="checkbox"]:checked')
+    ).map((cb) => cb.value).filter(Boolean);
+
+    const facilities = Array.from(
+        document.querySelectorAll('#facility-filter input[type="checkbox"]:checked')
+    ).map((cb) => cb.value).filter(Boolean);
+
+    const view = firstCalendar.view;
+    const start = view.activeStart ? view.activeStart.toISOString().slice(0, 10) : '';
+    let end = '';
+    if (view.activeEnd) {
+        const inclusiveEnd = new Date(view.activeEnd.getTime());
+        inclusiveEnd.setDate(inclusiveEnd.getDate() - 1);
+        end = inclusiveEnd.toISOString().slice(0, 10);
+    }
+
+    return { providers, facilities, start, end };
+}
+
+function stopCalendarEventStream() {
+    if (eventStreamReconnectTimer) {
+        clearTimeout(eventStreamReconnectTimer);
+        eventStreamReconnectTimer = null;
+    }
+    if (calendarEventSource) {
+        calendarEventSource.close();
+        calendarEventSource = null;
+    }
+    eventStreamConnected = false;
+    currentEventStreamKey = '';
+}
+
+function buildEventStreamQuery(context) {
+    const params = new URLSearchParams();
+    if (context.start) {
+        params.set('start', context.start);
+    }
+    if (context.end) {
+        params.set('end', context.end);
+    }
+    if (context.providers.length > 0) {
+        params.set('providers', context.providers.join(','));
+    }
+    if (context.facilities.length > 0) {
+        params.set('facilities', context.facilities.join(','));
+    }
+    return params.toString();
+}
+
+function ensureCalendarEventStream() {
+    if (typeof window.EventSource === 'undefined') {
+        return;
+    }
+    if (!isCalendarActivelyDisplayed()) {
+        stopCalendarEventStream();
+        return;
+    }
+
+    const context = getCurrentSyncContext();
+    if (!context) {
+        stopCalendarEventStream();
+        return;
+    }
+
+    const query = buildEventStreamQuery(context);
+    const streamKey = query;
+    if (calendarEventSource && currentEventStreamKey === streamKey) {
+        return;
+    }
+
+    stopCalendarEventStream();
+    currentEventStreamKey = streamKey;
+
+    const streamUrl = webroot + '/interface/modules/custom_modules/oe-module-medex/public/calendar/stream_events.php?' + query;
+    calendarEventSource = new EventSource(streamUrl);
+
+    calendarEventSource.addEventListener('open', function() {
+        eventStreamConnected = true;
+        console.log('Calendar event stream connected');
+    });
+
+    calendarEventSource.addEventListener('calendar-update', function() {
+        refetchAllCalendars('sse-update', true);
+    });
+
+    calendarEventSource.addEventListener('error', function() {
+        eventStreamConnected = false;
+        if (calendarEventSource) {
+            calendarEventSource.close();
+            calendarEventSource = null;
+        }
+        if (eventStreamReconnectTimer) {
+            clearTimeout(eventStreamReconnectTimer);
+        }
+        eventStreamReconnectTimer = setTimeout(() => {
+            ensureCalendarEventStream();
+        }, 4000);
+    });
+}
+
+function startAutoRefresh() {
+    if (autoRefreshTimer) {
+        clearInterval(autoRefreshTimer);
+    }
+    lastActiveState = isCalendarActivelyDisplayed();
+    lastFallbackRefreshAt = Date.now();
+    autoRefreshTimer = setInterval(() => {
+        const activeNow = isCalendarActivelyDisplayed();
+        if (lastActiveState === false && activeNow) {
+            refetchAllCalendars('became-active', true);
+        }
+        lastActiveState = activeNow;
+
+        if (!activeNow) {
+            stopCalendarEventStream();
+            return;
+        }
+
+        ensureCalendarEventStream();
+
+        const now = Date.now();
+        if (!eventStreamConnected && now - lastFallbackRefreshAt >= FALLBACK_REFRESH_INTERVAL_MS) {
+            lastFallbackRefreshAt = now;
+            refetchAllCalendars('fallback-poll');
+        }
+    }, AUTO_REFRESH_CHECK_MS);
+}
 
 // Use immediate execution with fallback
 function initializeCalendars() {
@@ -14,6 +211,7 @@ function initializeCalendars() {
     if (typeof FullCalendar === 'undefined') {
         console.error('FullCalendar library not loaded!');
         document.getElementById('calendars-container').innerHTML = '<div style="padding: 50px; text-align: center; color: red;"><h2>Error: FullCalendar library failed to load</h2><p>Please check browser console for details.</p></div>';
+        setUnifiedHeaderTitle('Calendar Unavailable');
         return;
     }
 
@@ -35,14 +233,33 @@ function initializeCalendars() {
     const scrollTime = slotMinTime;
     const slotDuration = '00:' + String(calendarInterval).padStart(2, '0') + ':00';
 
-    // Get calendar display settings from OpenEMR
-    // Check for saved user preference first, then fall back to OpenEMR default
-    const savedView = localStorage.getItem('medexCalendarView');
-    const defaultView = savedView || window.calendarDefaultView || 'timeGridWeek';
+    // Resolve opening view precedence:
+    // URL view -> last saved view -> My Settings default view -> OpenEMR default view
+    const normalizeView = (view) => {
+        const map = {
+            day: 'timeGridDay',
+            week: 'timeGridWeek',
+            month: 'dayGridMonth',
+            year: 'dayGridMonth',
+            list: 'listWeek',
+            timeGridDay: 'timeGridDay',
+            timeGridWeek: 'timeGridWeek',
+            dayGridMonth: 'dayGridMonth',
+            listWeek: 'listWeek'
+        };
+        return map[view] || null;
+    };
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlView = normalizeView(urlParams.get('view') || '');
+    const savedView = normalizeView(localStorage.getItem('medexCalendarView') || '');
+    const prefsView = normalizeView((window.medexUserPrefs && window.medexUserPrefs.defaultView) ? window.medexUserPrefs.defaultView : '');
+    const openEmrView = normalizeView(window.calendarDefaultView || '');
+    const defaultView = urlView || savedView || prefsView || openEmrView || 'timeGridWeek';
     const savedDate = localStorage.getItem('medexCalendarDate');
     const timeIncrement = parseInt(window.calendarTimeIncrement || '5');
     const use24Hours = window.calendar24Hours !== undefined ? window.calendar24Hours : false;
     const firstDayOfWeek = (window.calendarFirstDayOfWeek !== undefined) ? parseInt(window.calendarFirstDayOfWeek) : 0;
+    const showWeekends = !(window.medexUserPrefs && window.medexUserPrefs.showWeekends === false);
 
     console.log('Saved view preference:', savedView);
     console.log('Saved date preference:', savedDate);
@@ -56,8 +273,20 @@ function initializeCalendars() {
     console.log('Raw window.calendarFirstDayOfWeek value:', window.calendarFirstDayOfWeek, 'type:', typeof window.calendarFirstDayOfWeek);
 
     // Get checked providers
-    const providerCheckboxes = document.querySelectorAll('#provider-filter input[type="checkbox"]:checked');
-    const selectedProviders = Array.from(providerCheckboxes).map(cb => cb.value);
+    let providerCheckboxes = document.querySelectorAll('#provider-filter input[type="checkbox"]:checked');
+    let selectedProviders = Array.from(providerCheckboxes).map(cb => cb.value);
+
+    // Fallback: if stale preferences resulted in no active providers, select the first visible provider.
+    if (selectedProviders.length === 0) {
+        const firstProvider = document.querySelector('#provider-filter input[type="checkbox"]');
+        if (firstProvider) {
+            firstProvider.checked = true;
+            providerCheckboxes = document.querySelectorAll('#provider-filter input[type="checkbox"]:checked');
+            selectedProviders = Array.from(providerCheckboxes).map(cb => cb.value);
+            saveFilterSelections();
+            console.log('No providers selected. Auto-selected first provider:', selectedProviders[0]);
+        }
+    }
 
     console.log('Provider checkboxes found:', providerCheckboxes.length);
     console.log('Selected providers:', selectedProviders);
@@ -65,6 +294,7 @@ function initializeCalendars() {
 
     if (selectedProviders.length === 0) {
         container.innerHTML = '<div style="padding: 50px; text-align: center;"><h3>Please select at least one provider</h3></div>';
+        setUnifiedHeaderTitle('Select a Provider');
         return;
     }
 
@@ -91,7 +321,7 @@ function initializeCalendars() {
         if (selectedFacilities.length === 0) {
             createProviderCalendar(providerId, providerInfo, null, container, defaultView, savedDate,
                 scheduleStart, scheduleEnd, slotMinTime, slotMaxTime, slotDuration, scrollTime,
-                use24Hours, firstDayOfWeek);
+                use24Hours, firstDayOfWeek, showWeekends, calendarInterval);
         } else {
             // Create a calendar for each facility
             selectedFacilities.forEach(facilityId => {
@@ -100,17 +330,26 @@ function initializeCalendars() {
 
                 createProviderCalendar(providerId, providerInfo, facilityId, container, defaultView, savedDate,
                     scheduleStart, scheduleEnd, slotMinTime, slotMaxTime, slotDuration, scrollTime,
-                    use24Hours, firstDayOfWeek, facilityName);
+                    use24Hours, firstDayOfWeek, showWeekends, calendarInterval, facilityName);
             });
         }
     });
 
     console.log('Total calendars created:', calendarInstances.length);
+    if (calendarInstances.length > 0) {
+        updateUnifiedTitle();
+        ensureCalendarEventStream();
+    } else {
+        setUnifiedHeaderTitle('No Calendars Available');
+        stopCalendarEventStream();
+    }
 }
 
 function createProviderCalendar(providerId, providerInfo, facilityId, container, defaultView, savedDate,
     scheduleStart, scheduleEnd, slotMinTime, slotMaxTime, slotDuration, scrollTime,
-    use24Hours, firstDayOfWeek, facilityName = null) {
+    use24Hours, firstDayOfWeek, showWeekends, calendarInterval, facilityName = null) {
+    const targetProviderUserId = (providerInfo && providerInfo.id) ? parseInt(providerInfo.id, 10) : null;
+    const targetFacilityId = facilityId ? parseInt(facilityId, 10) : null;
 
     // Create wrapper div for this provider's calendar
     const calendarWrapper = document.createElement('div');
@@ -163,9 +402,10 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
             eventOverlap: true,
             editable: true,
             selectable: true,
+            droppable: true,
             selectMirror: true,
             dayMaxEvents: true,
-            weekends: true,
+            weekends: showWeekends,
             height: 'auto',
             eventClassNames: function(arg) {
                 const category = arg.event.extendedProps.category || '';
@@ -213,32 +453,6 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                     .then(response => response.json())
                     .then(data => {
                         console.log('Received', data.length, 'events for provider', providerId);
-
-                        // Dynamically adjust time range to show appointments outside schedule hours
-                        if (Array.isArray(data) && data.length > 0) {
-                            let earliestHour = scheduleStart;
-                            let latestHour = scheduleEnd;
-
-                            data.forEach(event => {
-                                const startTime = new Date(event.start.replace(' ', 'T'));
-                                const endTime = new Date(event.end.replace(' ', 'T'));
-                                const startHour = startTime.getHours();
-                                const endHour = endTime.getHours() + (endTime.getMinutes() > 0 ? 1 : 0);
-
-                                if (startHour < earliestHour) earliestHour = startHour;
-                                if (endHour > latestHour) latestHour = endHour;
-                            });
-
-                            const newMinTime = String(earliestHour).padStart(2, '0') + ':00:00';
-                            const newMaxTime = String(latestHour).padStart(2, '0') + ':00:00';
-
-                            if (newMinTime !== calendar.getOption('slotMinTime') || newMaxTime !== calendar.getOption('slotMaxTime')) {
-                                console.log('Expanding calendar view for provider', providerId, ':', newMinTime, 'to', newMaxTime);
-                                calendar.setOption('slotMinTime', newMinTime);
-                                calendar.setOption('slotMaxTime', newMaxTime);
-                            }
-                        }
-
                         successCallback(data);
                     })
                     .catch(error => {
@@ -415,6 +629,7 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                         calendarInstances.forEach(cal => {
                             cal.refetchEvents();
                         });
+                        notifyCalendarDataChanged();
                     };
                 }
 
@@ -448,11 +663,14 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                     if (duration <= 0) duration = calendarInterval;
                 }
 
+                // OpenEMR add_edit_event.php expects numeric userid; use provider record id.
+                const providerUserId = (providerInfo && providerInfo.id) ? providerInfo.id : providerId;
+
                 // Route through wrapper so duration is injected into form_duration
                 const url = webroot + '/interface/modules/custom_modules/oe-module-medex/public/calendar/edit_event_wrapper.php?date=' + encodeURIComponent(dateStr) +
                            '&starttimeh=' + encodeURIComponent(hour) +
                            '&starttimem=' + encodeURIComponent(minute) +
-                           '&userid=' + encodeURIComponent(providerId) +
+                           '&userid=' + encodeURIComponent(providerUserId) +
                            '&duration=' + duration;
 
                 // Use a single shared callback that refreshes all calendars
@@ -463,6 +681,7 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                         calendarInstances.forEach(cal => {
                             cal.refetchEvents();
                         });
+                        notifyCalendarDataChanged();
                     };
                 }
 
@@ -481,10 +700,13 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                 calendar.unselect();
             },
             eventDrop: function(info) {
-                updateEventTime(info, calendar, providerId);
+                updateEventTime(info, calendar, targetProviderUserId, targetFacilityId, { mode: 'drop' });
             },
             eventResize: function(info) {
-                updateEventTime(info, calendar, providerId);
+                updateEventTime(info, calendar, targetProviderUserId, targetFacilityId, { mode: 'resize' });
+            },
+            eventReceive: function(info) {
+                updateEventTime(info, calendar, targetProviderUserId, targetFacilityId, { mode: 'receive' });
             },
             datesSet: function(info) {
                 // Save the current view preference and date
@@ -530,6 +752,7 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
                         }
                     }
                 });
+                ensureCalendarEventStream();
             }
         });
 
@@ -539,23 +762,56 @@ function createProviderCalendar(providerId, providerInfo, facilityId, container,
     console.log('Calendar rendered for provider:', providerId, 'facility:', facilityId || 'all');
 }
 
-function updateEventTime(info, calendar, providerId) {
+function updateEventTime(info, calendar, providerUserId, facilityId, options = {}) {
     const eventId = info.event.id;
     const newStart = info.event.start;
     const newEnd = info.event.end || info.event.start;
+    const originalProviderId = info.event.extendedProps.providerId;
 
-    console.log('Updating event', eventId, 'for provider', providerId, '- new start:', newStart, 'new end:', newEnd);
+    console.log('Updating event', eventId, 'for provider', providerUserId, '- new start:', newStart, 'new end:', newEnd);
 
-    if (!confirm('Move this appointment to ' + newStart.toLocaleString() + '?')) {
-        info.revert();
+    // Prevent duplicate update submissions when FullCalendar emits multiple callbacks
+    // for the same cross-calendar move.
+    const startStr = formatLocalDateTime(newStart);
+    const endStr = formatLocalDateTime(newEnd);
+    const signature = [
+        String(eventId),
+        startStr,
+        endStr,
+        String(providerUserId || ''),
+        String(facilityId || '')
+    ].join('|');
+    const now = Date.now();
+    const lastSeenAt = recentMoveSignatures.get(signature) || 0;
+    if (now - lastSeenAt < 1500) {
+        console.log('Skipping duplicate move update:', signature);
+        if (options.mode === 'receive' && info.event) {
+            info.event.remove();
+            refetchAllCalendars('dedupe-receive');
+        }
         return;
+    }
+    recentMoveSignatures.set(signature, now);
+    // Keep map small over time
+    if (recentMoveSignatures.size > 200) {
+        for (const [sig, ts] of recentMoveSignatures.entries()) {
+            if (now - ts > 30000) {
+                recentMoveSignatures.delete(sig);
+            }
+        }
     }
 
     const params = {
         eid: eventId,
-        start: formatLocalDateTime(newStart),
-        end: formatLocalDateTime(newEnd)
+        start: startStr,
+        end: endStr
     };
+    if (providerUserId) {
+        params.provider = providerUserId;
+    }
+    if (facilityId) {
+        params.facility = facilityId;
+    }
 
     fetch(webroot + '/interface/modules/custom_modules/oe-module-medex/public/calendar/update_event.php', {
         method: 'POST',
@@ -567,17 +823,36 @@ function updateEventTime(info, calendar, providerId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            console.log('Event updated successfully for provider', providerId);
+            console.log('Event updated successfully for provider', providerUserId);
+            if (typeof window.showMedexStatusToast === 'function') {
+                window.showMedexStatusToast('Appointment updated');
+            }
+            if (options.mode === 'receive' && info.event) {
+                // Remove transient dragged copy before refetching canonical data.
+                info.event.remove();
+            }
+            refetchAllCalendars('event-updated');
+            notifyCalendarDataChanged();
         } else {
             console.error('Error updating event:', data.error);
+            if (typeof window.showMedexStatusToast === 'function') {
+                window.showMedexStatusToast('Update failed', 'error', 2000);
+            }
             alert('Error updating appointment: ' + (data.error || 'Unknown error'));
-            info.revert();
+            if (typeof info.revert === 'function') {
+                info.revert();
+            }
         }
     })
     .catch(error => {
-        console.error('Error updating event for provider', providerId, ':', error);
+        console.error('Error updating event for provider', providerUserId, ':', error);
+        if (typeof window.showMedexStatusToast === 'function') {
+            window.showMedexStatusToast('Update failed', 'error', 2000);
+        }
         alert('Error updating appointment: ' + error);
-        info.revert();
+        if (typeof info.revert === 'function') {
+            info.revert();
+        }
     });
 }
 
@@ -654,6 +929,7 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, restoring filters and initializing calendars...');
     restoreFilterSelections();
     initializeCalendars();
+    startAutoRefresh();
 
     // Listen to checkbox changes in provider filter (auto-apply)
     const providerFilter = document.getElementById('provider-filter');
@@ -691,6 +967,32 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Refresh when user returns to this tab/window.
+    window.addEventListener('focus', function() {
+        ensureCalendarEventStream();
+        refetchAllCalendars('window-focus');
+    });
+
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+            ensureCalendarEventStream();
+            refetchAllCalendars('tab-visible');
+        } else {
+            stopCalendarEventStream();
+        }
+    });
+
+    // Refresh when another MedEx calendar tab/window makes a change.
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'medexCalendarLastMutation' && e.newValue) {
+            refetchAllCalendars('external-mutation');
+        }
+    });
+
+    window.addEventListener('beforeunload', function() {
+        stopCalendarEventStream();
+    });
 });
 
 // Save filter selections to localStorage
@@ -752,6 +1054,11 @@ function restoreFilterSelections() {
         document.querySelectorAll('#provider-filter input[type="checkbox"]').forEach(cb => {
             cb.checked = providersToRestore.includes(cb.value);
         });
+    } else if (window.medexUserPrefs && Array.isArray(window.medexUserPrefs.defaultProviders) && window.medexUserPrefs.defaultProviders.length > 0) {
+        const preferredProviders = window.medexUserPrefs.defaultProviders;
+        document.querySelectorAll('#provider-filter input[type="checkbox"]').forEach(cb => {
+            cb.checked = preferredProviders.includes(cb.value);
+        });
     }
 
     // Restore facilities from URL or localStorage
@@ -772,6 +1079,11 @@ function restoreFilterSelections() {
     if (facilitiesToRestore.length > 0) {
         document.querySelectorAll('#facility-filter input[type="checkbox"]').forEach(cb => {
             cb.checked = facilitiesToRestore.includes(cb.value);
+        });
+    } else if (window.medexUserPrefs && Array.isArray(window.medexUserPrefs.defaultFacilities) && window.medexUserPrefs.defaultFacilities.length > 0) {
+        const preferredFacilities = window.medexUserPrefs.defaultFacilities.map(String);
+        document.querySelectorAll('#facility-filter input[type="checkbox"]').forEach(cb => {
+            cb.checked = preferredFacilities.includes(cb.value);
         });
     }
 }

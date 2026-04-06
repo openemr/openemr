@@ -80,7 +80,7 @@ class EventsService extends BaseService
             if ($M_group == 'REMINDER') {
                 $this->processReminders($event, $prefs, $icon, $target_lang, $escapedArr, $appt3, $count_appts, $count_recurrents);
             } elseif ($M_group == 'RECALL') {
-                $this->processRecalls($event, $icon, $appt3, $RECALLS_completed, $count_recalls);
+                $this->processRecalls($event, $events, $icon, $appt3, $RECALLS_completed, $count_recalls);
             } elseif ($M_group == 'ANNOUNCE') {
                 $this->processAnnouncements($event, $icon, $escapedArr, $appt3, $count_announcements, $count_recurrents);
             } elseif ($M_group == 'SURVEY') {
@@ -225,6 +225,7 @@ class EventsService extends BaseService
      */
     private function processRecalls(
         array $event,
+        array $events,
         array $icon,
         array &$appt3,
         array &$RECALLS_completed,
@@ -245,7 +246,7 @@ class EventsService extends BaseService
                 continue;
             }
 
-            $show = $this->medEx->display->show_progress_recall($recall, $event);
+            $show = $this->medEx->display->show_progress_recall($recall, $events);
             if (($show['DONE'] ?? '0') == '1') {
                 $RECALLS_completed[] = $recall;
                 continue;

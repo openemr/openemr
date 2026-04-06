@@ -28,10 +28,21 @@ if (empty($session->get('csrf_private_key', null))) {
     CsrfUtils::setupCsrfKey($session);
 }
 $csrfToken = trim((string)($_POST['csrf_token_form'] ?? ''));
-$csrfOk = $csrfToken !== '' && (
-    CsrfUtils::verifyCsrfToken($csrfToken, $session, 'default') ||
-    CsrfUtils::verifyCsrfToken($csrfToken, $session, 'api')
-);
+$csrfOk = false;
+if ($csrfToken !== '') {
+    try {
+        if ($session instanceof \Symfony\Component\HttpFoundation\Session\SessionInterface) {
+            $csrfOk = CsrfUtils::verifyCsrfToken(token: $csrfToken, session: $session, subject: 'default') ||
+                CsrfUtils::verifyCsrfToken(token: $csrfToken, session: $session, subject: 'api');
+        } else {
+            $csrfOk = CsrfUtils::verifyCsrfToken($csrfToken, 'default') ||
+                CsrfUtils::verifyCsrfToken($csrfToken, 'api');
+        }
+    } catch (\Throwable $e) {
+        $csrfOk = CsrfUtils::verifyCsrfToken($csrfToken, 'default') ||
+            CsrfUtils::verifyCsrfToken($csrfToken, 'api');
+    }
+}
 if (!$csrfOk) {
     echo json_encode(['success' => false, 'error' => 'Invalid security token']);
     exit;
@@ -236,17 +247,23 @@ function medexSmsCountryPolicy(string $sms): array
     $allow = strtoupper(trim((string)($GLOBALS['medex_onboarding_sms_allowlist'] ?? 'US,CA')));
     $allowSet = array_filter(array_map('trim', explode(',', $allow)));
 
-    if (!preg_match('/^\+(\d{1,3})(\d{7,14})$/', $sms, $m)) {
+    if (!preg_match('/^\+(\d{8,15})$/', $sms, $m)) {
         return [false, '', 'invalid_number_format'];
     }
 
-    // Basic code extraction (NANP +1 currently supported for onboarding OTP)
-    $countryCallingCode = $m[1];
-    $national = $m[2];
-
-    if ($countryCallingCode !== '1') {
-        // Explicitly reject non-NANP for now (e.g., +91 India).
+    // NANP +1 parsing: +1 followed by 10-digit national number.
+    // Previous parsing used a greedy 1-3 digit country-code capture and could
+    // misread +1XXXXXXXXXX as country code 155/141/etc.
+    $digits = $m[1];
+    if (!str_starts_with($digits, '1')) {
+        $countryCallingCode = substr($digits, 0, 3);
         return [false, $countryCallingCode, 'country_not_allowed'];
+    }
+
+    $countryCallingCode = '1';
+    $national = substr($digits, 1);
+    if ($national === '') {
+        return [false, '1', 'invalid_nanp_length'];
     }
 
     // NANP checks: 10-digit national number expected

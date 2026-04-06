@@ -16,6 +16,8 @@ use OpenEMR\Common\Acl\AclMain;
 use OpenEMR\Common\Csrf\CsrfUtils;
 use OpenEMR\Common\Database\QueryUtils;
 use OpenEMR\Modules\MedEx\MedExConfig;
+use Mpdf\Mpdf;
+use OpenEMR\Pdf\Config_Mpdf;
 
 function medexIsPrivateHost(string $host): bool
 {
@@ -101,16 +103,94 @@ function medexBuildCallbackUrl(string $openEmrBaseUrl): array
     return [true, $baseUrl, $callbackUrl, 'ok'];
 }
 
+function medexProbeDerivedCallbackUrl(string $callbackUrl): array
+{
+    $parts = parse_url($callbackUrl);
+    if (!$parts || empty($parts['host']) || empty($parts['path'])) {
+        return [false, 'invalid_callback_url'];
+    }
+    $query = [];
+    if (!empty($parts['query'])) {
+        parse_str((string)$parts['query'], $query);
+    }
+    $token = trim((string)($query['token'] ?? ''));
+    unset($query['token']);
+    if ($token === '') {
+        return [false, 'missing_callback_token'];
+    }
+    if (empty($query['site'])) {
+        $query['site'] = 'default';
+    }
+    $scheme = strtolower((string)($parts['scheme'] ?? 'https'));
+    $host = strtolower((string)$parts['host']);
+    $port = isset($parts['port']) ? ':' . (int)$parts['port'] : '';
+    $targetUrl = $scheme . '://' . $host . $port . (string)$parts['path'] . '?' . http_build_query($query);
+
+    $payload = http_build_query(['action' => 'ping']);
+    $timestamp = (string)time();
+    $nonce = bin2hex(random_bytes(16));
+    $signature = hash_hmac('sha256', $timestamp . "\n" . $nonce . "\n" . $payload, $token);
+    $isHttps = ($scheme === 'https');
+    $host = strtolower((string)($parts['host'] ?? ''));
+
+    $ch = curl_init($targetUrl);
+    if (!$ch) {
+        return [false, 'probe_init_failed'];
+    }
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => $payload,
+        CURLOPT_HTTPHEADER => [
+            'Content-Type: application/x-www-form-urlencoded',
+            'X-MEDEX-TOKEN: ' . $token,
+            'X-MEDEX-TIMESTAMP: ' . $timestamp,
+            'X-MEDEX-NONCE: ' . $nonce,
+            'X-MEDEX-SIGNATURE: ' . $signature,
+        ],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 10,
+        CURLOPT_CONNECTTIMEOUT => 5,
+        CURLOPT_SSL_VERIFYPEER => $isHttps ? true : false,
+        CURLOPT_SSL_VERIFYHOST => $isHttps ? 2 : 0,
+    ]);
+    if (defined('CURLOPT_HAPROXYPROTOCOL') && in_array($host, ['emr.hipaabank.net', 'emr-dev.hipaabank.net', 'api.hipaabank.net', 'api-dev.hipaabank.net'], true)) {
+        curl_setopt($ch, CURLOPT_HAPROXYPROTOCOL, true);
+    }
+    $body = curl_exec($ch);
+    $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    $curlErr = trim((string)curl_error($ch));
+    curl_close($ch);
+
+    if ($curlErr !== '') {
+        return [false, 'probe_transport_error: ' . $curlErr];
+    }
+    if ($httpCode < 200 || $httpCode >= 300) {
+        return [false, 'probe_http_' . $httpCode];
+    }
+    $json = json_decode((string)$body, true);
+    if (empty($json['success'])) {
+        return [false, 'probe_invalid_response'];
+    }
+    return [true, 'ok'];
+}
+
 function medexEnsureAgreementColumns(): void
 {
     $alterStatements = [
         "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `terms_version` varchar(32) DEFAULT NULL",
         "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `terms_accepted_at` datetime DEFAULT NULL",
         "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `terms_accepted_ip` varchar(45) DEFAULT NULL",
+        "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `terms_signer_name` varchar(190) DEFAULT NULL",
+        "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `terms_signer_title` varchar(190) DEFAULT NULL",
+        "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `terms_signed_at` datetime DEFAULT NULL",
         "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `baa_version` varchar(32) DEFAULT NULL",
         "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `baa_accepted_at` datetime DEFAULT NULL",
         "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `baa_accepted_ip` varchar(45) DEFAULT NULL",
+        "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `baa_signer_name` varchar(190) DEFAULT NULL",
+        "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `baa_signer_title` varchar(190) DEFAULT NULL",
+        "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `baa_signed_at` datetime DEFAULT NULL",
         "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `agreement_user_agent` varchar(255) DEFAULT NULL",
+        "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `agreement_legal_corporate_name` varchar(255) DEFAULT NULL",
         "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `otp_channel` varchar(20) DEFAULT NULL",
         "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `otp_house_account` varchar(50) DEFAULT NULL",
         "ALTER TABLE `medex_prefs` ADD COLUMN IF NOT EXISTS `otp_house_cost` decimal(10,4) DEFAULT NULL",
@@ -126,6 +206,182 @@ function medexEnsureAgreementColumns(): void
             error_log('[MedEx] agreement schema update skipped: ' . $e->getMessage());
         }
     }
+}
+
+function medexEnsureSignedAgreementsTable(): void
+{
+    QueryUtils::sqlStatementThrowException(
+        "CREATE TABLE IF NOT EXISTS `medex_signed_agreements` (
+            `id` bigint(20) NOT NULL AUTO_INCREMENT,
+            `practice_id` varchar(64) NOT NULL,
+            `customer_id` varchar(64) DEFAULT NULL,
+            `agreement_type` varchar(20) NOT NULL,
+            `agreement_version` varchar(32) NOT NULL,
+            `practice_name` varchar(255) NOT NULL,
+            `signer_name` varchar(190) NOT NULL,
+            `signer_title` varchar(190) DEFAULT NULL,
+            `signer_email` varchar(190) DEFAULT NULL,
+            `signed_at` datetime NOT NULL,
+            `accepted_ip` varchar(45) DEFAULT NULL,
+            `user_agent` varchar(255) DEFAULT NULL,
+            `document_html` longtext NOT NULL,
+            `pdf_blob` longblob DEFAULT NULL,
+            `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id`),
+            KEY `idx_practice_type` (`practice_id`, `agreement_type`),
+            KEY `idx_signed_at` (`signed_at`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+        []
+    );
+}
+
+function medexFetchAgreementDocumentHtml(int $informationId): string
+{
+    $url = rtrim(MedExConfig::mainSiteUrl(), '/') . '/cart/upload/index.php?route=information/information/agree&information_id=' . $informationId;
+    $raw = '';
+    if (function_exists('curl_init')) {
+        $ch = curl_init($url);
+        if ($ch) {
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_MAXREDIRS => 3,
+                CURLOPT_CONNECTTIMEOUT => 8,
+                CURLOPT_TIMEOUT => 20,
+                CURLOPT_USERAGENT => 'MedEx-Onboarding/1.0',
+            ]);
+            $body = curl_exec($ch);
+            $http = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            if (is_string($body) && $http >= 200 && $http < 300) {
+                $raw = $body;
+            }
+        }
+    }
+    if (trim($raw) === '' && ini_get('allow_url_fopen')) {
+        $ctx = stream_context_create([
+            'http' => [
+                'method' => 'GET',
+                'timeout' => 20,
+                'header' => "User-Agent: MedEx-Onboarding/1.0\r\n",
+            ],
+        ]);
+        $body = @file_get_contents($url, false, $ctx);
+        if (is_string($body)) {
+            $raw = $body;
+        }
+    }
+    return trim($raw);
+}
+
+function medexRemoveLegacyPrintInstruction(string $html): string
+{
+    $patterns = [
+        '/Print a copy\s*Sign and return a copy to MedEx\s*support@medexbank\.com\.?/i',
+        '/Print a copy\.?/i',
+        '/Sign and return a copy to MedEx\s*support@medexbank\.com\.?/i',
+    ];
+    foreach ($patterns as $pattern) {
+        $html = preg_replace($pattern, '', $html) ?? $html;
+    }
+    return $html;
+}
+
+function medexBuildSignedAgreementHtml(array $meta, string $agreementBodyHtml): string
+{
+    $title = htmlspecialchars((string)$meta['title'], ENT_QUOTES, 'UTF-8');
+    $practiceName = htmlspecialchars((string)$meta['practice_name'], ENT_QUOTES, 'UTF-8');
+    $version = htmlspecialchars((string)$meta['version'], ENT_QUOTES, 'UTF-8');
+    $signerName = htmlspecialchars((string)$meta['signer_name'], ENT_QUOTES, 'UTF-8');
+    $signerTitle = htmlspecialchars((string)$meta['signer_title'], ENT_QUOTES, 'UTF-8');
+    $signedAt = htmlspecialchars((string)$meta['signed_at_display'], ENT_QUOTES, 'UTF-8');
+
+    return '<!DOCTYPE html><html><head><meta charset="utf-8">'
+        . '<title>' . $title . ' - Signed</title>'
+        . '<style>'
+        . 'body{font-family:Segoe UI,Arial,sans-serif;color:#0f172a;margin:24px;line-height:1.5;}'
+        . 'h1{margin:0 0 8px;color:#0f4b8f;font-size:26px;}'
+        . '.meta{margin:0 0 16px;padding:12px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc;}'
+        . '.meta-row{margin:2px 0;}'
+        . '.meta-label{display:inline-block;min-width:170px;color:#475569;}'
+        . '.agreement{margin-top:14px;}'
+        . '</style></head><body>'
+        . '<h1>' . $title . '</h1>'
+        . '<div class="meta">'
+        . '<div class="meta-row"><span class="meta-label">Company:</span>' . $practiceName . '</div>'
+        . '<div class="meta-row"><span class="meta-label">Agreement Version:</span>' . $version . '</div>'
+        . '<div class="meta-row"><span class="meta-label">Signer Name:</span>' . $signerName . '</div>'
+        . '<div class="meta-row"><span class="meta-label">Signer Title:</span>' . $signerTitle . '</div>'
+        . '<div class="meta-row"><span class="meta-label">Signed At (UTC):</span>' . $signedAt . '</div>'
+        . '</div>'
+        . '<div class="agreement">' . $agreementBodyHtml . '</div>'
+        . '</body></html>';
+}
+
+function medexGeneratePdfBlob(string $html): ?string
+{
+    try {
+        $config = Config_Mpdf::getConfigMpdf();
+        $pdf = new Mpdf($config);
+        $pdf->WriteHTML($html);
+        $bin = $pdf->Output('', 'S');
+        return is_string($bin) && $bin !== '' ? $bin : null;
+    } catch (\Throwable $e) {
+        error_log('[MedEx] Agreement PDF generation failed: ' . $e->getMessage());
+        return null;
+    }
+}
+
+function medexPersistSignedAgreement(
+    string $practiceId,
+    string $customerId,
+    string $agreementType,
+    string $agreementVersion,
+    string $practiceName,
+    string $signerName,
+    string $signerTitle,
+    string $signerEmail,
+    string $signedAtUtc,
+    string $acceptedIp,
+    string $userAgent
+): void {
+    $informationId = ($agreementType === 'baa') ? 8 : 5;
+    $title = ($agreementType === 'baa') ? 'MedEx Business Associate Agreement (BAA)' : 'MedEx Terms and Conditions';
+    $agreementBodyHtml = medexFetchAgreementDocumentHtml($informationId);
+    if ($agreementBodyHtml === '') {
+        $agreementBodyHtml = '<p>Agreement content unavailable at signing time.</p>';
+    }
+    $agreementBodyHtml = medexRemoveLegacyPrintInstruction($agreementBodyHtml);
+    $signedHtml = medexBuildSignedAgreementHtml([
+        'title' => $title,
+        'practice_name' => $practiceName,
+        'version' => $agreementVersion,
+        'signer_name' => $signerName,
+        'signer_title' => $signerTitle,
+        'signed_at_display' => $signedAtUtc,
+    ], $agreementBodyHtml);
+    $pdfBlob = medexGeneratePdfBlob($signedHtml);
+
+    QueryUtils::sqlStatementThrowException(
+        "INSERT INTO medex_signed_agreements
+        (practice_id, customer_id, agreement_type, agreement_version, practice_name, signer_name, signer_title, signer_email, signed_at, accepted_ip, user_agent, document_html, pdf_blob)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [
+            $practiceId,
+            $customerId !== '' ? $customerId : null,
+            $agreementType,
+            $agreementVersion,
+            $practiceName,
+            $signerName,
+            $signerTitle !== '' ? $signerTitle : null,
+            $signerEmail !== '' ? $signerEmail : null,
+            $signedAtUtc,
+            $acceptedIp !== '' ? $acceptedIp : null,
+            $userAgent !== '' ? $userAgent : null,
+            $signedHtml,
+            $pdfBlob,
+        ]
+    );
 }
 
 function medexEnsureOnboardingAttemptsTable(): void
@@ -376,6 +632,18 @@ function medexClearOtpSession(): void
     unset($_SESSION[$key]);
 }
 
+function medexVersionAllowed(string $submitted, string $current, array $graceVersions = []): bool
+{
+    $submitted = trim($submitted);
+    if ($submitted === '') {
+        return false;
+    }
+    if ($submitted === $current) {
+        return true;
+    }
+    return in_array($submitted, $graceVersions, true);
+}
+
 // Set JSON response header
 header('Content-Type: application/json');
 
@@ -385,21 +653,58 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
     exit;
 }
 
-// Verify CSRF token (subject-first signature on this OpenEMR build).
-if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', 'default')) {
+if (empty($session->get('csrf_private_key', null))) {
+    CsrfUtils::setupCsrfKey($session);
+}
+$csrfToken = trim((string)($_POST['csrf_token_form'] ?? ''));
+$csrfOk = false;
+if ($csrfToken !== '') {
+    try {
+        if ($session instanceof \Symfony\Component\HttpFoundation\Session\SessionInterface) {
+            $csrfOk = CsrfUtils::verifyCsrfToken(token: $csrfToken, session: $session, subject: 'default') ||
+                CsrfUtils::verifyCsrfToken(token: $csrfToken, session: $session, subject: 'api');
+        } else {
+            $csrfOk = CsrfUtils::verifyCsrfToken($csrfToken, 'default') ||
+                CsrfUtils::verifyCsrfToken($csrfToken, 'api');
+        }
+    } catch (\Throwable $e) {
+        $csrfOk = CsrfUtils::verifyCsrfToken($csrfToken, 'default') ||
+            CsrfUtils::verifyCsrfToken($csrfToken, 'api');
+    }
+}
+if (!$csrfOk) {
     echo json_encode(['success' => false, 'error' => 'Invalid security token']);
     exit;
 }
 
 try {
     // Load MedEx API and Services
-    require_once(__DIR__ . '/../src/MedExAPI.php');
-    require_once(__DIR__ . '/../src/Services/PracticeService.php');
+    $medexApiPath = __DIR__ . '/../src/MedExAPI.php';
+    $practiceServicePath = __DIR__ . '/../src/Services/PracticeService.php';
+    if (!is_file($medexApiPath) || !is_file($practiceServicePath)) {
+        echo json_encode(['success' => false, 'error' => 'MedEx module files are not fully available yet. Please retry in a few seconds.']);
+        exit;
+    }
+    require_once($medexApiPath);
+    require_once($practiceServicePath);
     medexEnsureOnboardingAttemptsTable();
     medexEnsureEmailBlocklistTable();
 
     // Validate required fields (only email and password - practice details come from facility sync)
-    $required = ['email', 'password', 'callback_url', 'TERMS_yes', 'BusAgree_yes', 'otp_proof'];
+    $required = [
+        'email',
+        'password',
+        'callback_url',
+        'TERMS_yes',
+        'BusAgree_yes',
+        'otp_proof',
+        'terms_signature_name',
+        'terms_legal_corporate_name',
+        'terms_signed_at',
+        'baa_signature_name',
+        'baa_legal_corporate_name',
+        'baa_signed_at'
+    ];
     foreach ($required as $field) {
         if (empty($_POST[$field])) {
             echo json_encode(['success' => false, 'error' => "Missing required field: {$field}"]);
@@ -414,6 +719,36 @@ try {
         echo json_encode(['success' => false, 'error' => 'You must agree to the HIPAA Business Associate Agreement before signing up']);
         exit;
     }
+    $termsSignatureName = trim((string)($_POST['terms_signature_name'] ?? ''));
+    $termsSignerTitle = trim((string)($_POST['terms_signer_title'] ?? ''));
+    $termsSignedAtRaw = trim((string)($_POST['terms_signed_at'] ?? ''));
+    $termsPracticeName = trim((string)($_POST['terms_practice_name'] ?? ''));
+    $termsLegalCorporateName = trim((string)($_POST['terms_legal_corporate_name'] ?? ''));
+    $baaSignatureName = trim((string)($_POST['baa_signature_name'] ?? ''));
+    $baaSignerTitle = trim((string)($_POST['baa_signer_title'] ?? ''));
+    $baaSignedAtRaw = trim((string)($_POST['baa_signed_at'] ?? ''));
+    $baaPracticeName = trim((string)($_POST['baa_practice_name'] ?? ''));
+    $baaLegalCorporateName = trim((string)($_POST['baa_legal_corporate_name'] ?? ''));
+    if ($termsSignatureName === '' || $termsSignedAtRaw === '' || $termsLegalCorporateName === '') {
+        echo json_encode(['success' => false, 'error' => 'Electronic signature for Terms & Conditions is required']);
+        exit;
+    }
+    if ($baaSignatureName === '' || $baaSignedAtRaw === '' || $baaLegalCorporateName === '') {
+        echo json_encode(['success' => false, 'error' => 'Electronic signature for Business Associate Agreement is required']);
+        exit;
+    }
+    if ($termsLegalCorporateName !== '' && $baaLegalCorporateName !== '' && strcasecmp($termsLegalCorporateName, $baaLegalCorporateName) !== 0) {
+        echo json_encode(['success' => false, 'error' => 'Legal corporate name must match on Terms and BAA signatures']);
+        exit;
+    }
+    $termsSignedAtTs = strtotime($termsSignedAtRaw);
+    $baaSignedAtTs = strtotime($baaSignedAtRaw);
+    if ($termsSignedAtTs === false || $baaSignedAtTs === false) {
+        echo json_encode(['success' => false, 'error' => 'Invalid agreement signature timestamp']);
+        exit;
+    }
+    $termsSignedAtUtc = gmdate('Y-m-d H:i:s', $termsSignedAtTs);
+    $baaSignedAtUtc = gmdate('Y-m-d H:i:s', $baaSignedAtTs);
     $hasCommsConsent = ((string)($_POST['comms_consent'] ?? '0') === '1');
     $password = (string)($_POST['password'] ?? '');
     if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/', $password)) {
@@ -475,13 +810,15 @@ try {
     }
     $termsVersion = trim((string)($_POST['terms_version'] ?? MedExConfig::TERMS_VERSION));
     $baaVersion = trim((string)($_POST['baa_version'] ?? MedExConfig::BAA_VERSION));
-    if ($termsVersion === '' || $termsVersion !== MedExConfig::TERMS_VERSION) {
-        echo json_encode(['success' => false, 'error' => 'Terms and Conditions version mismatch. Refresh and review current Terms.']);
-        exit;
+    $termsGraceVersions = ['2026-03-26'];
+    $baaGraceVersions = ['2026-03-26'];
+    if (!medexVersionAllowed($termsVersion, MedExConfig::TERMS_VERSION, $termsGraceVersions)) {
+        error_log('[MedEx] Terms version normalized from submitted "' . $termsVersion . '" to current "' . MedExConfig::TERMS_VERSION . '"');
+        $termsVersion = MedExConfig::TERMS_VERSION;
     }
-    if ($baaVersion === '' || $baaVersion !== MedExConfig::BAA_VERSION) {
-        echo json_encode(['success' => false, 'error' => 'Business Associate Agreement version mismatch. Refresh and review current BAA.']);
-        exit;
+    if (!medexVersionAllowed($baaVersion, MedExConfig::BAA_VERSION, $baaGraceVersions)) {
+        error_log('[MedEx] BAA version normalized from submitted "' . $baaVersion . '" to current "' . MedExConfig::BAA_VERSION . '"');
+        $baaVersion = MedExConfig::BAA_VERSION;
     }
 
     $submittedOpenEmrUrl = trim((string)($_POST['callback_url'] ?? ''));
@@ -502,6 +839,14 @@ try {
     [$derivedOk, $openEmrBaseUrl, $derivedCallbackUrl, $deriveErr] = medexBuildCallbackUrl($submittedOpenEmrUrl);
     if (!$derivedOk) {
         echo json_encode(['success' => false, 'error' => $deriveErr]);
+        exit;
+    }
+    [$probeOk, $probeErr] = medexProbeDerivedCallbackUrl($derivedCallbackUrl);
+    if (!$probeOk) {
+        echo json_encode([
+            'success' => false,
+            'error' => 'Callback verification failed (' . $probeErr . '). Fix callback configuration before proceeding.'
+        ]);
         exit;
     }
     $detectedBaseUrl = medexNormalizeOpenEmrBaseUrl(medexDetectedOpenEmrBaseUrl());
@@ -551,6 +896,7 @@ $siteUrl = $openEmrBaseUrl;
 $requestIp = trim((string)($_SERVER['REMOTE_ADDR'] ?? ''));
 $requestUserAgent = substr(trim((string)($_SERVER['HTTP_USER_AGENT'] ?? '')), 0, 255);
 $acceptedAtUtc = gmdate('Y-m-d H:i:s');
+$legalCorporateName = ($termsLegalCorporateName !== '') ? $termsLegalCorporateName : $baaLegalCorporateName;
 
 // Prepare registration data
     $data = [
@@ -574,10 +920,17 @@ $acceptedAtUtc = gmdate('Y-m-d H:i:s');
     'terms_accepted' => true,
     'terms_version' => $termsVersion,
     'terms_accepted_at_utc' => $acceptedAtUtc,
+    'terms_signer_name' => $termsSignatureName,
+    'terms_signer_title' => $termsSignerTitle,
+    'terms_signed_at_utc' => $termsSignedAtUtc,
     'baa_accepted' => true,
     'baa_version' => $baaVersion,
     'baa_accepted_at_utc' => $acceptedAtUtc,
+    'baa_signer_name' => $baaSignatureName,
+    'baa_signer_title' => $baaSignerTitle,
+    'baa_signed_at_utc' => $baaSignedAtUtc,
     'agreement_ip' => $requestIp
+    ,'legal_corporate_name' => $legalCorporateName
     ,'otp_channel' => $otpChannel
     ,'otp_house_account' => $otpHouseAccount
     ,'otp_house_cost' => $otpHouseCost
@@ -592,6 +945,7 @@ $result = $api->register($data);
 // If registration successful, perform initial practice sync
 if (!empty($result['success'])) {
     medexEnsureAgreementColumns();
+    medexEnsureSignedAgreementsTable();
 
     // Pre-fetch and DB-cache pricing immediately so the Services tab never hits the server on first open.
     // This is a fire-and-forget; failure is non-fatal — getPricing() has built-in defaults.
@@ -634,10 +988,17 @@ if (!empty($result['success'])) {
             terms_version = ?,
             terms_accepted_at = ?,
             terms_accepted_ip = ?,
+            terms_signer_name = ?,
+            terms_signer_title = ?,
+            terms_signed_at = ?,
             baa_version = ?,
             baa_accepted_at = ?,
             baa_accepted_ip = ?,
+            baa_signer_name = ?,
+            baa_signer_title = ?,
+            baa_signed_at = ?,
             agreement_user_agent = ?,
+            agreement_legal_corporate_name = ?,
             otp_channel = ?,
             otp_house_account = ?,
             otp_house_cost = ?,
@@ -652,10 +1013,17 @@ if (!empty($result['success'])) {
             $termsVersion,
             $acceptedAtUtc,
             $requestIp,
+            $termsSignatureName,
+            $termsSignerTitle,
+            $termsSignedAtUtc,
             $baaVersion,
             $acceptedAtUtc,
             $requestIp,
+            $baaSignatureName,
+            $baaSignerTitle,
+            $baaSignedAtUtc,
             $requestUserAgent,
+            $legalCorporateName,
             $otpChannel,
             $otpHouseAccount,
             $otpHouseCost,
@@ -665,6 +1033,52 @@ if (!empty($result['success'])) {
             $data['email']
         ]
     );
+
+    $practiceId = trim((string)($result['practice_id'] ?? $result['customer_id'] ?? ''));
+    $customerId = trim((string)($result['customer_id'] ?? $result['practice_id'] ?? ''));
+    $signedPracticeName = trim($practice_name);
+    if ($termsLegalCorporateName !== '') {
+        $signedPracticeName = $termsLegalCorporateName;
+    } elseif ($baaLegalCorporateName !== '') {
+        $signedPracticeName = $baaLegalCorporateName;
+    } elseif ($termsPracticeName !== '') {
+        $signedPracticeName = $termsPracticeName;
+    } elseif ($baaPracticeName !== '') {
+        $signedPracticeName = $baaPracticeName;
+    }
+
+    if ($practiceId !== '') {
+        try {
+            medexPersistSignedAgreement(
+                $practiceId,
+                $customerId,
+                'terms',
+                $termsVersion,
+                $signedPracticeName,
+                $termsSignatureName,
+                $termsSignerTitle,
+                $email,
+                $termsSignedAtUtc,
+                $requestIp,
+                $requestUserAgent
+            );
+            medexPersistSignedAgreement(
+                $practiceId,
+                $customerId,
+                'baa',
+                $baaVersion,
+                $signedPracticeName,
+                $baaSignatureName,
+                $baaSignerTitle,
+                $email,
+                $baaSignedAtUtc,
+                $requestIp,
+                $requestUserAgent
+            );
+        } catch (\Throwable $e) {
+            error_log('[MedEx] Failed to persist signed agreements: ' . $e->getMessage());
+        }
+    }
 
     // Background services are not used by the module. External sync is managed outside OpenEMR.
 

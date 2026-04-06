@@ -21,6 +21,8 @@ require_once __DIR__ . '/src/API/OEGlobalsBag_polyfill.php';
 
 use OpenEMR\Menu\MenuEvent;
 use OpenEMR\Events\Core\ModuleManagerEvent;
+use OpenEMR\Events\Globals\GlobalsInitializedEvent;
+use OpenEMR\Services\Globals\GlobalSetting;
 
 // Initialize MedEx base URL from the single source of truth in MedExConfig.
 // OpenEMR pre-loads the globals DB table into $GLOBALS, so medex_bank_url/medex_base_url
@@ -60,13 +62,33 @@ function oe_module_medex_add_menu_item(MenuEvent $event): MenuEvent
     // and by getEnabledServices() (always writes, even empty). Do NOT fall back to
     // last_services_result which can be stale and cause ghost menu items.
     $enabledServices = [];
+    $hasCredentials = false;
+    $hasLiveSessionToken = false;
     try {
-        $statusRecord = sqlQuery("SELECT status FROM medex_prefs ORDER BY MedEx_lastupdated DESC LIMIT 1");
+        $statusRecord = sqlQuery(
+            "SELECT status, ME_username, ME_api_key, MedEx_id, session_token, session_token_expiry
+               FROM medex_prefs
+              ORDER BY MedEx_lastupdated DESC LIMIT 1"
+        );
         if (!empty($statusRecord['status'])) {
             $status = json_decode($statusRecord['status'], true);
             if (isset($status['enabled_services']) && is_array($status['enabled_services'])) {
                 $enabledServices = $status['enabled_services'];
             }
+        }
+
+        // Guardrail: never expose paid/service menu items from stale cache when this
+        // OpenEMR is not actively connected to MedEx. Require a usable credential row
+        // and a non-expired session token before honoring enabled_services.
+        $hasCredentials = !empty($statusRecord['ME_username'])
+            && !empty($statusRecord['ME_api_key'])
+            && !empty($statusRecord['MedEx_id']);
+        $tokenExpiryTs = !empty($statusRecord['session_token_expiry'])
+            ? strtotime((string)$statusRecord['session_token_expiry'])
+            : 0;
+        $hasLiveSessionToken = !empty($statusRecord['session_token']) && $tokenExpiryTs > time();
+        if (!$hasCredentials || !$hasLiveSessionToken) {
+            $enabledServices = [];
         }
     } catch (\Throwable $e) {
         error_log('[MedEx] Error fetching enabled services: ' . $e->getMessage());
@@ -115,24 +137,18 @@ function oe_module_medex_add_menu_item(MenuEvent $event): MenuEvent
         $adminDashboardItem->target = 'med';
         $adminDashboardItem->menu_id = 'medex_admin';
         $adminDashboardItem->label = xlt("Admin Dashboard");
-        $adminDashboardItem->url = $buildUrl('/interface/modules/custom_modules/oe-module-medex/admin/index.php');
+        // Navigation gate:
+        // credentials present -> dashboard (token can refresh on demand);
+        // no credentials -> onboarding splash.
+        $adminDashboardPath = $hasCredentials
+            ? '/interface/modules/custom_modules/oe-module-medex/admin/cloud_dashboard.php'
+            : '/interface/modules/custom_modules/oe-module-medex/admin/splash.php';
+        $adminDashboardItem->url = $buildUrl($adminDashboardPath, ['minimal' => 1]);
         $adminDashboardItem->acl_req = ["admin", "super"];
         $medexTopMenu->children[] = $adminDashboardItem;
     }
 
-    // 2. User Preferences (only shown when at least one service is subscribed)
-    if ($hasAnyService) {
-        $userPrefsItem = new \stdClass();
-        $userPrefsItem->requirement = 0;
-        $userPrefsItem->target = 'med';
-        $userPrefsItem->menu_id = 'medex_user_prefs';
-        $userPrefsItem->label = xlt("My Settings");
-        $userPrefsItem->url = $buildUrl('/interface/modules/custom_modules/oe-module-medex/public/user_preferences.php');
-        $userPrefsItem->acl_req = ["patients", "demo"];
-        $medexTopMenu->children[] = $userPrefsItem;
-    }
-
-    // 3. SMS Bot (ONLY when appointment_reminders subscription exists)
+    // 2. SMS Bot (ONLY when appointment_reminders subscription exists)
     if ($hasReminders) {
         $smsBotItem = new \stdClass();
         $smsBotItem->requirement = 0;
@@ -173,7 +189,7 @@ function oe_module_medex_add_menu_item(MenuEvent $event): MenuEvent
         $pdfFillerItem->target = 'med';
         $pdfFillerItem->menu_id = 'medex_pdf_filler';
         $pdfFillerItem->label = xlt("PDF Filler");
-        $pdfFillerItem->url = $buildUrl('/interface/modules/custom_modules/oe-module-medex/public/pdf.php');
+        $pdfFillerItem->url = $buildUrl('/interface/modules/custom_modules/oe-module-medex/admin/pdf/index.php');
         $pdfFillerItem->acl_req = ["patients", "docs"];
         $medexTopMenu->children[] = $pdfFillerItem;
     }
@@ -233,8 +249,8 @@ function oe_module_medex_add_menu_item(MenuEvent $event): MenuEvent
             }
             
             break;
-        }
-    }
+}
+}
 
     $event->setMenu($menu);
     error_log('[MedEx] Menu items added! New menu count: ' . count($menu));
@@ -242,6 +258,82 @@ function oe_module_medex_add_menu_item(MenuEvent $event): MenuEvent
     return $event;
 }
 } // end function_exists check
+
+if (!function_exists('oe_module_medex_add_user_settings')) {
+function oe_module_medex_add_user_settings(GlobalsInitializedEvent $event): void
+{
+    $userId = $_SESSION['authUserID'] ?? null;
+    if (empty($userId)) {
+        return;
+    }
+
+    $service = $event->getGlobalsService();
+    $settingsSection = 'Calendar';
+
+    $legacy = sqlQuery(
+        "SELECT setting_value FROM user_settings WHERE setting_user = ? AND setting_label = 'medex_preferences'",
+        [$userId]
+    );
+    $legacyPrefs = [];
+    if (!empty($legacy['setting_value'])) {
+        $decoded = json_decode((string)$legacy['setting_value'], true);
+        if (is_array($decoded)) {
+            $legacyPrefs = $decoded;
+        }
+    }
+
+    $seed = static function (string $key, $fallback) use ($userId, $legacyPrefs): string {
+        $existing = sqlQuery(
+            "SELECT setting_value FROM user_settings WHERE setting_user = ? AND setting_label = ?",
+            [$userId, 'global:' . $key]
+        );
+        if (!empty($existing) && array_key_exists('setting_value', $existing)) {
+            return (string)($existing['setting_value'] ?? '');
+        }
+
+        $value = $fallback;
+        if ($key === 'medex_use_full_calendar' && array_key_exists('use_full_calendar', $legacyPrefs)) {
+            $value = !empty($legacyPrefs['use_full_calendar']) ? '1' : '0';
+        } elseif ($key === 'medex_calendar_theme') {
+            if (!empty($legacyPrefs['inherit_openemr_theme'])) {
+                $value = 'openemr';
+            } elseif (!empty($legacyPrefs['calendar_theme'])) {
+                $value = (string)$legacyPrefs['calendar_theme'];
+            }
+        }
+
+        sqlStatement(
+            "INSERT INTO user_settings (setting_user, setting_label, setting_value) VALUES (?, ?, ?)",
+            [$userId, 'global:' . $key, (string)$value]
+        );
+        return (string)$value;
+    };
+
+    $service->appendToSection($settingsSection, 'medex_use_full_calendar', new GlobalSetting(
+        xlt('Use MedEx Full Calendar'),
+        GlobalSetting::DATA_TYPE_BOOL,
+        $seed('medex_use_full_calendar', '1'),
+        xlt('Enable MedEx Full Calendar in place of OpenEMR calendar for your user.'),
+        true
+    ));
+    $service->appendToSection($settingsSection, 'medex_calendar_theme', new GlobalSetting(
+        xlt('MedEx Full Calendar Theme'),
+        [
+            'openemr' => xlt('Inherit OpenEMR Theme'),
+            'classic' => xlt('Classic'),
+            'compact' => xlt('Compact'),
+            'high_contrast' => xlt('High Contrast'),
+            'ocean' => xlt('Ocean'),
+            'sunrise' => xlt('Sunrise'),
+            'forest' => xlt('Forest'),
+            'slate' => xlt('Slate')
+        ],
+        $seed('medex_calendar_theme', 'openemr'),
+        xlt('Choose your Full Calendar theme. Select OpenEMR to inherit OpenEMR colors.'),
+        true
+    ));
+}
+}
 } // end namespace
 
 namespace OpenEMR\Modules\MedEx {
@@ -351,6 +443,12 @@ if (isset($eventDispatcher) && $eventDispatcher instanceof \Symfony\Component\Ev
     // so admins can always reach the Admin Dashboard / Subscriptions page.
     if ($isModuleInstalled) {
         $eventDispatcher->addListener(MenuEvent::MENU_UPDATE, 'oe_module_medex_add_menu_item');
+        $eventDispatcher->addListener(
+            \OpenEMR\Events\Globals\GlobalsInitializedEvent::EVENT_HANDLE,
+            static function ($event): void {
+                \oe_module_medex_add_user_settings($event);
+            }
+        );
         error_log('[MedEx] Menu listener registered');
 
         // Patch action.js configure() on the Module Manager page to include ?site= in the
@@ -453,24 +551,18 @@ JS;
             $medexConfigured = false;
         }
 
-        // Calendar redirect check - runs independently of full API configuration
-        // This must happen BEFORE any output
-        //
-        // NOTE: $isServiceEnabled and $enabledServices are closures/vars defined INSIDE
-        // oe_module_medex_add_menu_item() and are NOT available at this file scope.
-        // We do a direct, minimal DB query here to avoid a fatal "call to non-callable".
-        $calFullEnabled = false;
-        try {
-            if ($medexActive && function_exists('sqlQuery')) {
-                $calRec = sqlQuery("SELECT status FROM medex_prefs LIMIT 1");
-                if (!empty($calRec['status'])) {
-                    $calSt = json_decode($calRec['status'], true);
-                    $calSvcs = $calSt['enabled_services'] ?? [];
-                    $calFullEnabled = (isset($calSvcs['calendar_full']) && $calSvcs['calendar_full'])
-                                   || in_array('calendar_full', is_array($calSvcs) ? array_values($calSvcs) : []);
-                }
+        // Compute live calendar entitlement once for this request.
+        // Do not use DB status fallbacks here — stale DB cache can expose paid calendar UX
+        // after disconnect/reset, which is misleading and blocks the native calendar flow.
+        $hasCalendarEntitlementLive = false;
+        if ($medexActive && $api instanceof \OpenEMR\Modules\MedEx\MedExAPI) {
+            try {
+                $hasCalendarEntitlementLive = $api->hasServiceEntitlement('calendar_full');
+            } catch (\Throwable $e) {
+                error_log('[MedEx Calendar] Live entitlement check failed: ' . $e->getMessage());
+                $hasCalendarEntitlementLive = false;
             }
-        } catch (\Throwable $e) { /* silent — calendar redirect simply won't fire */ }
+        }
 
         $currentScript = $_SERVER['SCRIPT_NAME'] ?? '';
         $requestUri = $_SERVER['REQUEST_URI'] ?? '';
@@ -528,35 +620,55 @@ JS;
                 // Use $enabledServices from database ONLY - do NOT call API to avoid stale cache
                 // 'calendar_full' appears as a key in the enabled services array.
                 try {
-                    $hasCalendarSubscription = false;
-                    if ($medexActive && $api instanceof \OpenEMR\Modules\MedEx\MedExAPI) {
-                        try {
-                            $hasCalendarSubscription = $api->hasServiceEntitlement('calendar_full');
-                        } catch (\Throwable $e) {
-                            // Fall back to cached DB view only if entitlement check fails.
-                            $hasCalendarSubscription = $calFullEnabled;
-                        }
-                    }
+                    $hasCalendarSubscription = $hasCalendarEntitlementLive;
                     error_log('[MedEx Calendar] Has calendar_full subscription: ' . ($hasCalendarSubscription ? 'YES' : 'NO'));
 
                         if ($medexActive && $hasCalendarSubscription) {
-                            // Check user preferences - allow individual users to opt out
-                            $userOptedOut = false;
+                            // Require explicit per-user opt-in for MedEx Full Calendar.
+                            // This prevents unexpected paid-calendar injection on login.
+                            $userOptedIn = false;
                             $userId = $_SESSION['authUserID'] ?? null;
                             if ($userId) {
                                 try {
-                                    $userPrefs = sqlQuery(
-                                        "SELECT setting_value FROM user_settings WHERE setting_user = ? AND setting_label = 'medex_preferences'",
+                                    $userPrefRows = sqlStatement(
+                                        "SELECT setting_label, setting_value
+                                           FROM user_settings
+                                          WHERE setting_user = ?
+                                            AND (setting_label = 'global:medex_use_full_calendar' OR setting_label = 'medex_preferences')",
                                         [$userId]
                                     );
-
-                                    if (!empty($userPrefs['setting_value'])) {
-                                        $prefs = json_decode($userPrefs['setting_value'], true);
-                                        // If user explicitly disabled Full Calendar, skip injection
-                                        if (isset($prefs['use_full_calendar']) && !$prefs['use_full_calendar']) {
-                                            $userOptedOut = true;
-                                            error_log('[MedEx Calendar] User ' . $userId . ' has disabled Full Calendar');
+                                    $nativePref = null;
+                                    $legacyPref = null;
+                                    while ($row = sqlFetchArray($userPrefRows)) {
+                                        if (($row['setting_label'] ?? '') === 'global:medex_use_full_calendar') {
+                                            $nativePref = strtolower(trim((string)($row['setting_value'] ?? '')));
+                                        } elseif (($row['setting_label'] ?? '') === 'medex_preferences') {
+                                            $decoded = json_decode((string)($row['setting_value'] ?? ''), true);
+                                            if (is_array($decoded) && array_key_exists('use_full_calendar', $decoded)) {
+                                                $legacyPref = $decoded['use_full_calendar'];
+                                            }
                                         }
+                                    }
+
+                                    if ($nativePref !== null) {
+                                        $userOptedIn = in_array($nativePref, ['1', 'true', 'yes', 'on'], true);
+                                    } elseif ($legacyPref !== null) {
+                                        if (is_bool($legacyPref)) {
+                                            $userOptedIn = $legacyPref;
+                                        } elseif (is_int($legacyPref) || is_float($legacyPref)) {
+                                            $userOptedIn = ((int)$legacyPref === 1);
+                                        } elseif (is_string($legacyPref)) {
+                                            $userOptedIn = in_array(strtolower(trim($legacyPref)), ['1', 'true', 'yes', 'on'], true);
+                                        } else {
+                                            $userOptedIn = !empty($legacyPref);
+                                        }
+                                    } else {
+                                        // Default enabled when no explicit user setting exists.
+                                        $userOptedIn = true;
+                                    }
+
+                                    if (!$userOptedIn) {
+                                        error_log('[MedEx Calendar] User ' . $userId . ' has not opted in to Full Calendar');
                                     }
                                 } catch (\Exception $e) {
                                     error_log('[MedEx Calendar] Error checking user preferences: ' . $e->getMessage());
@@ -564,7 +676,7 @@ JS;
                             }
 
                             // Note: Provider/facility authorization is enforced in calendar/index.php via MedEx API
-                            if (!$userOptedOut) {
+                            if ($userOptedIn) {
                                 // Redirect to MedEx calendar
                                 $siteId = $_SESSION['site_id'] ?? 'default';
                                 $redirectUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/public/calendar/index.php?site=' . urlencode($siteId);
@@ -628,7 +740,7 @@ JS;
 
         // If user chose OpenEMR calendar, inject view selector buttons into #bottomLeft.
         // Only when MedEx is active AND calendar_full is currently entitled.
-        if ($userChoseOpenEMR && $isOpenEMRCalendar && $medexActive && $calFullEnabled) {
+        if ($userChoseOpenEMR && $isOpenEMRCalendar && $medexActive && $hasCalendarEntitlementLive) {
             error_log('[MedEx] User is on OpenEMR calendar with preference set - will inject view selector');
             register_shutdown_function(function () use ($webroot) {
                 $output = ob_get_clean();
@@ -710,7 +822,7 @@ HTML;
                 echo $output;
             });
             ob_start();
-        } elseif ($isOpenEMRCalendar && (!$medexActive || !$calFullEnabled)) {
+        } elseif ($isOpenEMRCalendar && (!$medexActive || !$hasCalendarEntitlementLive)) {
             // Clear stale preference when account is not active / not entitled.
             try {
                 \OpenEMR\Common\Session\SessionUtil::unsetSession('medex_use_openemr_calendar');

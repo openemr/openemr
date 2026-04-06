@@ -32,11 +32,97 @@ if (!empty($prefs['ME_username'])) {
     $existingEmail = $prefs['ME_username'];
 }
 
+// Legacy/live connection guard:
+// if credentials already exist, route to dashboard instead of forcing reconnect.
+$hasConnectedAccount = false;
+try {
+    require_once(__DIR__ . '/../src/MedExAPI.php');
+    $medexApi = new \OpenEMR\Modules\MedEx\MedExAPI();
+    $hasConnectedAccount = $medexApi->isConfigured();
+} catch (\Throwable $e) {
+    $hasConnectedAccount = false;
+}
+
+// Live readiness checks shown before onboarding proceeds.
+$host = (string)($_SERVER['HTTP_HOST'] ?? '');
+$proto = (string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '');
+$httpsRaw = (string)($_SERVER['HTTPS'] ?? '');
+$isHttps = ($proto === 'https') || (!empty($httpsRaw) && strtolower($httpsRaw) !== 'off');
+$isIp = filter_var($host, FILTER_VALIDATE_IP) !== false;
+$isPrivateIp = $isIp && !filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
+$looksPublicHost = !empty($host) && stripos($host, 'localhost') === false && stripos($host, '.local') === false && !$isPrivateIp;
+$urlReady = $isHttps && $looksPublicHost;
+$detectedUrl = ($isHttps ? 'https://' : 'http://') . $host;
+
+$providerCount = (int)(sqlQuery("SELECT COUNT(*) AS c FROM users WHERE authorized = 1 AND active = 1")['c'] ?? 0);
+$facilityCount = (int)(sqlQuery("SELECT COUNT(*) AS c FROM facility WHERE service_location = 1")['c'] ?? 0);
+$practiceDataReady = ($providerCount > 0 && $facilityCount > 0);
+
+// Admin-only visual demo mode for failed readiness rendering.
+$readinessDemoFail = (isset($_GET['readiness_demo']) && $_GET['readiness_demo'] === 'fail');
+if ($readinessDemoFail) {
+    $isHttps = false;
+    $looksPublicHost = false;
+    $urlReady = false;
+    $detectedUrl = 'http://10.2.1.95';
+    $practiceDataReady = false;
+    $providerCount = 0;
+    $facilityCount = 0;
+}
+
+if ($isHttps && $looksPublicHost) {
+    $urlFailureDetail = '';
+} elseif (!$isHttps && !$looksPublicHost) {
+    $urlFailureDetail = xlt('Current URL is not HTTPS and is not publicly reachable');
+} elseif (!$isHttps) {
+    $urlFailureDetail = xlt('Current URL is not HTTPS');
+} else {
+    $urlFailureDetail = xlt('Current URL is not publicly reachable');
+}
+
+$urlFixParts = [];
+if (!$isHttps) {
+    $urlFixParts[] = xlt('Fix HTTPS: use an https:// URL with a valid TLS certificate');
+}
+if (!$looksPublicHost) {
+    $urlFixParts[] = xlt('Fix reachability: use a public FQDN, point DNS to your external IP, and allow inbound 443 through firewall/NAT');
+}
+$urlDetailLines = [];
+if ($urlReady) {
+    $urlDetailLines[] = xlt('Verified URL') . ': ' . $detectedUrl;
+} else {
+    $urlDetailLines[] = $urlFailureDetail . ': ' . $detectedUrl;
+    foreach ($urlFixParts as $fixPart) {
+        $urlDetailLines[] = $fixPart;
+    }
+}
+
+$readinessChecklist = [
+    [
+        'label' => xlt('Production OpenEMR URL: https:// and is publicly reachable'),
+        'ok' => $urlReady,
+        'detail_lines' => $urlDetailLines,
+    ],
+    [
+        'label' => xlt('At least one provider and one facility are configured'),
+        'ok' => $practiceDataReady,
+        'detail_lines' => [xlt('Providers') . ': ' . $providerCount . ' | ' . xlt('Facilities') . ': ' . $facilityCount],
+    ],
+];
+
+$allReadinessPassed = true;
+foreach ($readinessChecklist as $checkItem) {
+    if (empty($checkItem['ok'])) {
+        $allReadinessPassed = false;
+        break;
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-    <title><?php echo xlt("Welcome to MedEx"); ?></title>
+    <title><?php echo xlt("MedEx Onboarding"); ?></title>
     <?php Header::setupHeader(['jquery-min-3-7-1', 'fontawesome']); ?>
     <style>
         :root {
@@ -115,6 +201,64 @@ if (!empty($prefs['ME_username'])) {
             transform: translateY(-2px);
             box-shadow: 0 10px 15px -3px rgba(15, 75, 143, 0.3);
             color: white;
+        }
+
+        .btn-disabled {
+            background: #94a3b8;
+            box-shadow: none;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .readiness-list {
+            margin: 10px 0 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .readiness-list li {
+            margin: 8px 0;
+            padding-left: 0;
+            line-height: 1.4;
+        }
+
+        .readiness-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .readiness-row.ok {
+            color: #1f2937;
+        }
+
+        .readiness-row.ok i {
+            color: #16a34a;
+        }
+
+        .readiness-row.fail {
+            color: #1f2937;
+        }
+
+        .readiness-row.fail i {
+            color: #dc2626;
+        }
+
+        .readiness-detail {
+            margin-left: 24px;
+            color: #4b5563;
+            font-size: 13px;
+        }
+
+        .readiness-detail.ok {
+            color: #16a34a;
+            font-weight: 500;
+        }
+
+        .readiness-detail.fail {
+            color: #b45309;
+            font-weight: 600;
         }
 
         .features-grid {
@@ -214,33 +358,59 @@ if (!empty($prefs['ME_username'])) {
 </head>
 <body>
     <section class="hero-section">
-        <div style="font-size: 3rem; font-weight: 800; color: var(--medex-blue); margin-bottom: 16px;">
-            MedEx
-        </div>
         <h1><?php echo xlt("MedEx Onboarding"); ?></h1>
         <p class="subtitle">
-            <?php echo xlt("A HIPAA-compliant, secure saas platform for real-time information exchange."); ?>
+            <?php echo xlt("A HIPAA-compliant, secure SaaS platform for real-time information exchange."); ?>
         </p>
-        <div style="max-width: 760px; margin: 0 auto 24px; text-align: left; background:#fff7ed; border:1px solid #fed7aa; color:#9a3412; border-radius:10px; padding:14px 16px;">
-            <strong><i class="fa fa-shield"></i> <?php echo xlt("Before you continue"); ?>:</strong>
-            <div style="margin-top:8px;"><?php echo xlt("Use a production email, public HTTPS callback URL, and verify providers/facilities/insurance are configured."); ?></div>
+        <div style="max-width: 760px; margin: 0 auto 24px; text-align: left; background:#f8fafc; border:1px solid #e2e8f0; color:#1f2937; border-radius:10px; padding:14px 16px;">
+            <div style="font-weight:700;"><?php echo xlt("Live Readiness Checklist"); ?></div>
+            <ul class="readiness-list">
+                <?php foreach ($readinessChecklist as $checkItem): ?>
+                    <li>
+                        <div class="readiness-row <?php echo $checkItem['ok'] ? 'ok' : 'fail'; ?>">
+                            <i class="fa <?php echo $checkItem['ok'] ? 'fa-check-circle' : 'fa-exclamation-circle'; ?>"></i>
+                            <span><?php echo text($checkItem['label']); ?></span>
+                        </div>
+                        <div class="readiness-detail <?php echo $checkItem['ok'] ? 'ok' : 'fail'; ?>">
+                            <?php foreach (($checkItem['detail_lines'] ?? []) as $detailLine): ?>
+                                <div><?php echo text($detailLine); ?></div>
+                            <?php endforeach; ?>
+                        </div>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+            <?php if (!$allReadinessPassed): ?>
+                <div style="margin-top:10px; font-weight:700;">
+                    <i class="fa fa-wrench"></i> <?php echo xlt("Fix the failed items above before proceeding."); ?>
+                </div>
+            <?php endif; ?>
         </div>
         <div class="cta-container">
-            <?php if ($existingEmail): ?>
-                <a href="reconnect.php" class="btn-get-started">
+            <?php if ($hasConnectedAccount): ?>
+                <a href="index.php?site=<?php echo urlencode((string)($_GET['site'] ?? 'default')); ?>" class="btn-get-started">
+                    <i class="fa fa-tachometer"></i> <?php echo xlt("Open Dashboard"); ?>
+                </a>
+                <a href="help_center.php?site=<?php echo urlencode((string)($_GET['site'] ?? 'default')); ?>" target="_blank" rel="noopener noreferrer" class="btn-get-started" style="margin-left:10px;background:#ffffff;color:var(--medex-blue);border:1px solid #bfdbfe;">
+                    <i class="fa fa-life-ring"></i> <?php echo xlt("Help"); ?>
+                </a>
+                <p style="margin-top: 12px; font-size: 14px; color: #64748b;">
+                    <?php echo xlt("Connected account:"); ?> <strong><?php echo text((string)$existingEmail); ?></strong>
+                </p>
+            <?php elseif ($existingEmail): ?>
+                <a href="reconnect.php?site=<?php echo urlencode((string)($_GET['site'] ?? 'default')); ?>" class="btn-get-started">
                     <i class="fa fa-refresh"></i> <?php echo xlt("Reconnect Account"); ?>
                 </a>
-                <a href="help_center.php?site=<?php echo urlencode((string)($_GET['site'] ?? 'default')); ?>" class="btn-get-started" style="margin-left:10px;background:#ffffff;color:var(--medex-blue);border:1px solid #bfdbfe;">
+                <a href="help_center.php?site=<?php echo urlencode((string)($_GET['site'] ?? 'default')); ?>" target="_blank" rel="noopener noreferrer" class="btn-get-started" style="margin-left:10px;background:#ffffff;color:var(--medex-blue);border:1px solid #bfdbfe;">
                     <i class="fa fa-life-ring"></i> <?php echo xlt("Help"); ?>
                 </a>
                 <p style="margin-top: 12px; font-size: 14px; color: #64748b;">
                     <?php echo xlt("Found existing account:"); ?> <strong><?php echo text($existingEmail); ?></strong>
                 </p>
             <?php else: ?>
-                <a href="onboarding.php?step=1" class="btn-get-started" onclick="setTimeout(function() { window.parent.document.getElementById('medexStatusModal')?.remove(); }, 500);">
+                <a href="<?php echo $allReadinessPassed ? ('onboarding.php?step=1&amp;site=' . urlencode((string)($_GET['site'] ?? 'default'))) : '#'; ?>" class="btn-get-started <?php echo $allReadinessPassed ? '' : 'btn-disabled'; ?>" onclick="<?php echo $allReadinessPassed ? "setTimeout(function() { window.parent.document.getElementById('medexStatusModal')?.remove(); }, 500);" : "return false;"; ?>">
                     <?php echo xlt("Get Started"); ?> <i class="fa fa-arrow-right" style="margin-left: 8px;"></i>
                 </a>
-                <a href="help_center.php?site=<?php echo urlencode((string)($_GET['site'] ?? 'default')); ?>" class="btn-get-started" style="margin-left:10px;background:#ffffff;color:var(--medex-blue);border:1px solid #bfdbfe;">
+                <a href="help_center.php?site=<?php echo urlencode((string)($_GET['site'] ?? 'default')); ?>" target="_blank" rel="noopener noreferrer" class="btn-get-started" style="margin-left:10px;background:#ffffff;color:var(--medex-blue);border:1px solid #bfdbfe;">
                     <i class="fa fa-life-ring"></i> <?php echo xlt("Help"); ?>
                 </a>
             <?php endif; ?>
@@ -250,7 +420,7 @@ if (!empty($prefs['ME_username'])) {
     <?php if (!$isMinimal): ?>
     <div class="features-grid">
         <div class="feature-card">
-            <h3><i class="fa fa-bullseye"></i> <?php echo xlt("Communication Targets"); ?></h3>
+            <h3><i class="fa fa-bullseye"></i> <?php echo xlt("Services Offered"); ?></h3>
             <div class="feature-list">
                 <div class="feature-item">
                     <i class="fa fa-check-circle"></i>
@@ -263,10 +433,6 @@ if (!empty($prefs['ME_username'])) {
                 <div class="feature-item">
                     <i class="fa fa-check-circle"></i>
                     <span><?php echo xlt("Office Announcements"); ?></span>
-                </div>
-                <div class="feature-item">
-                    <i class="fa fa-check-circle"></i>
-                    <span><?php echo xlt("Patient Satisfaction Surveys"); ?></span>
                 </div>
             </div>
         </div>
@@ -285,10 +451,6 @@ if (!empty($prefs['ME_username'])) {
                 <div class="feature-item">
                     <div class="channel-icon"><i class="fa fa-envelope"></i></div>
                     <span><?php echo xlt("Professional E-mail Campaigns"); ?></span>
-                </div>
-                <div class="feature-item">
-                    <div class="channel-icon"><i class="fa fa-map-marker"></i></div>
-                    <span><?php echo xlt("Physical Postcards & Address Labels"); ?></span>
                 </div>
             </div>
         </div>

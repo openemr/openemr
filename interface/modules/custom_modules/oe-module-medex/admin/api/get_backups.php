@@ -59,7 +59,7 @@ $updateInfo = $updateManager->checkForUpdates();
     border-radius: 16px;
     font-weight: 600;
     font-size: 14px;
-    background: #667eea;
+    background: #0f4b8f;
     color: white;
     font-family: 'Courier New', monospace;
 }
@@ -76,17 +76,17 @@ $updateInfo = $updateManager->checkForUpdates();
     font-weight: 600;
     color: #333;
     font-size: 13px;
-    border-bottom: 2px solid #e0e0e0;
+    border-bottom: 2px solid #dbe5ee;
 }
 
 .backup-table td {
     padding: 12px;
-    border-bottom: 1px solid #e0e0e0;
+    border-bottom: 1px solid #dbe5ee;
     font-size: 13px;
 }
 
 .backup-table tr:hover {
-    background: #f8f9ff;
+    background: #f8fbff;
 }
 
 .backup-actions-cell {
@@ -103,7 +103,7 @@ $updateInfo = $updateManager->checkForUpdates();
 }
 
 .update-card {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #0f4b8f 0%, #0a3460 100%);
     color: white;
     padding: 20px;
     border-radius: 10px;
@@ -216,7 +216,7 @@ function createBackup() {
     }
 
     const formData = new FormData();
-    formData.append('csrf_token', '<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>');
+    formData.append('csrf_token', '<?php echo attr(CsrfUtils::collectCsrfToken()); ?>');
     formData.append('action', 'create');
 
     fetch('../admin/backup_actions.php', {
@@ -253,7 +253,7 @@ function rollbackTo(filename) {
     }
 
     const formData = new FormData();
-    formData.append('csrf_token', '<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>');
+    formData.append('csrf_token', '<?php echo attr(CsrfUtils::collectCsrfToken()); ?>');
     formData.append('action', 'rollback');
     formData.append('backup_file', filename);
 
@@ -288,7 +288,7 @@ function deleteBackup(filename) {
     }
 
     const formData = new FormData();
-    formData.append('csrf_token', '<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>');
+    formData.append('csrf_token', '<?php echo attr(CsrfUtils::collectCsrfToken()); ?>');
     formData.append('action', 'delete');
     formData.append('backup_file', filename);
 
@@ -326,7 +326,7 @@ function installUpdate(downloadUrl) {
     }
 
     const formData = new FormData();
-    formData.append('csrf_token', '<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>');
+    formData.append('csrf_token', '<?php echo attr(CsrfUtils::collectCsrfToken()); ?>');
     formData.append('action', 'install_update');
     formData.append('download_url', downloadUrl);
 

@@ -34,7 +34,7 @@ $rID        = $recall['r_ID']        ?? '';
 
     <form id="addRecallForm" method="post"
           action="<?php echo $GLOBALS['web_root']; ?>/interface/main/messages/save.php">
-        <?php echo CsrfUtils::collectCsrfToken(session: $session); ?>
+        <?php echo CsrfUtils::collectCsrfToken(); ?>
         <input type="hidden" name="action"  value="addRecall" />
         <input type="hidden" name="new_pid" value="<?php echo attr($pid === 'new' ? '' : $pid); ?>" id="recall_pid" />
         <input type="hidden" name="r_ID"    value="<?php echo attr($rID); ?>" />

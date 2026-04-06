@@ -28,7 +28,7 @@ $action = $_REQUEST['action'] ?? 'get_secure_chat_audit';
 
 // For export action, handle specially
 if ($action === 'export') {
-    if (!CsrfUtils::verifyCsrfToken($_GET['csrf_token_form'] ?? '', $session)) {
+    if (!CsrfUtils::verifyCsrfToken($_GET['csrf_token_form'] ?? '', 'default')) {
         http_response_code(403);
         echo "CSRF verification failed";
         exit;
@@ -39,7 +39,7 @@ if ($action === 'export') {
 
 // For POST actions, verify CSRF
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', $session)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token_form'] ?? '', 'default')) {
         http_response_code(403);
         echo json_encode(['success' => false, 'error' => 'CSRF verification failed']);
         exit;

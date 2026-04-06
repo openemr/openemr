@@ -29,7 +29,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 }
 
 // Verify CSRF token
-if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '', $session)) {
+if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '', 'default')) {
     http_response_code(403);
     echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
     exit;

@@ -32,11 +32,23 @@ $success = '';
 $prefs = sqlQuery("SELECT ME_username FROM medex_prefs WHERE ME_username IS NOT NULL LIMIT 1");
 $existingEmail = $prefs['ME_username'] ?? '';
 
+// Build externally reachable OpenEMR base URL for reconnect payload.
+$forwardedProto = trim(explode(',', (string)($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''))[0] ?? '');
+$scheme = $forwardedProto !== ''
+    ? $forwardedProto
+    : ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http');
+$forwardedHost = trim(explode(',', (string)($_SERVER['HTTP_X_FORWARDED_HOST'] ?? ''))[0] ?? '');
+$host = $forwardedHost !== ''
+    ? $forwardedHost
+    : ($_SERVER['HTTP_HOST'] ?? ($_SERVER['SERVER_NAME'] ?? 'localhost'));
+$webroot = rtrim((string)($GLOBALS['webroot'] ?? ''), '/');
+$openemrBaseUrl = $scheme . '://' . $host . $webroot;
+
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reconnect'])) {
     error_log('[MedEx Reconnect] Form submitted');
     
-    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', $session)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST["csrf_token_form"] ?? '', 'default')) {
         $error = 'Invalid security token';
         error_log('[MedEx Reconnect] CSRF token invalid');
     } else {
@@ -70,6 +82,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reconnect'])) {
                     'practice_name' => $practice_name,
                     'phone' => $practice_phone,
                     'address' => $practice_address,
+                    'callback_url' => $openemrBaseUrl,
+                    'website_url' => $openemrBaseUrl,
                     'ehr' => 'OpenEMR',
                     'ehr_version' => ($GLOBALS['v_major'] ?? '0') . '.' . ($GLOBALS['v_minor'] ?? '0') . '.' . ($GLOBALS['v_patch'] ?? '0')
                 ];
@@ -91,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reconnect'])) {
 
                     error_log('[MedEx Reconnect] Setting redirect header...');
                     // Redirect to dashboard after 2 seconds
-                    header("Refresh: 2; url=index.php");
+                    header("Refresh: 2; url=index.php?site=" . urlencode((string)($_GET['site'] ?? 'default')));
                     error_log('[MedEx Reconnect] Header set, continuing to render success page');
                 } else {
                     $errorMsg = $response['error'] ?? 'Reconnection failed. Please check your credentials.';
@@ -251,7 +265,7 @@ error_log('[MedEx Reconnect] Finished processing, rendering page. Success: ' . (
             </div>
         <?php else: ?>
             <form method="POST" action="">
-                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>">
+                <input type="hidden" name="csrf_token_form" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>">
 
                 <div class="form-group">
                     <label><?php echo xlt('Email Address'); ?></label>
@@ -268,7 +282,7 @@ error_log('[MedEx Reconnect] Finished processing, rendering page. Success: ' . (
                 </button>
             </form>
 
-            <a href="index.php" class="back-link">
+            <a href="index.php?site=<?php echo urlencode((string)($_GET['site'] ?? 'default')); ?>" class="back-link">
                 <i class="fa fa-arrow-left"></i> <?php echo xlt('Back to Dashboard'); ?>
             </a>
         <?php endif; ?>

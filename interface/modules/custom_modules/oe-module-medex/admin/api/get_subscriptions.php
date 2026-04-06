@@ -30,6 +30,19 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 require_once(__DIR__ . '/../../src/MedExAPI.php');
 $api = new \OpenEMR\Modules\MedEx\MedExAPI();
 
+// Get CSRF token in a way compatible across OpenEMR variants.
+// Using token-name-only avoids session type mismatches between builds.
+$csrfToken = '';
+try {
+    $csrfToken = (string) CsrfUtils::collectCsrfToken('csrf_token_form');
+} catch (\Throwable $e) {
+    try {
+        $csrfToken = (string) CsrfUtils::collectCsrfToken();
+    } catch (\Throwable $e2) {
+        $csrfToken = '';
+    }
+}
+
 // Check if configured
 if (!$api->isConfigured()) {
     echo '<div class="panel">';
@@ -350,8 +363,8 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
     align-items: center;
     gap: 0;
     padding: 12px 20px;
-    background: linear-gradient(135deg, #f8f9ff 0%, #eef0ff 100%);
-    border-bottom: 2px solid #667eea;
+    background: linear-gradient(135deg, #f8fbff 0%, #eef0ff 100%);
+    border-bottom: 2px solid #0f4b8f;
     border-radius: 8px 8px 0 0;
     font-size: 13px;
     margin: 0 0 16px 0;
@@ -361,7 +374,7 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
     display: flex;
     align-items: center;
     gap: 4px;
-    color: #667eea;
+    color: #0f4b8f;
     cursor: pointer;
     padding: 4px 8px;
     border-radius: 4px;
@@ -395,7 +408,7 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
 }
 .medex-breadcrumb-current i {
     font-size: 11px;
-    color: #667eea;
+    color: #0f4b8f;
 }
 
 /* ============================================
@@ -408,7 +421,7 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
     padding: 20px 0;
 }
 .subtool-card {
-    border: 2px solid #e0e0e0;
+    border: 2px solid #dbe5ee;
     border-radius: 12px;
     padding: 30px 24px;
     text-align: center;
@@ -425,16 +438,16 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
     left: 0;
     right: 0;
     height: 4px;
-    background: #e0e0e0;
+    background: #dbe5ee;
     transition: background 0.25s ease;
 }
 .subtool-card:hover {
-    border-color: #667eea;
+    border-color: #0f4b8f;
     box-shadow: 0 8px 24px rgba(102, 126, 234, 0.18);
     transform: translateY(-3px);
 }
 .subtool-card:hover::before {
-    background: linear-gradient(90deg, #667eea, #9c27b0);
+    background: linear-gradient(90deg, #0f4b8f, #9c27b0);
 }
 .subtool-card-icon {
     width: 64px;
@@ -508,12 +521,12 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
     #service-list { grid-template-columns: 1fr !important; }
 }
 .service-card {
-    border: 2px solid #667eea;
+    border: 2px solid #0f4b8f;
     border-radius: 8px;
     padding: 12px;
     transition: all 0.2s ease;
     position: relative;
-    background: #f8f9ff;
+    background: #f8fbff;
     display: flex;
     flex-direction: column;
     box-shadow: 0 2px 6px rgba(0,0,0,0.08);
@@ -586,7 +599,7 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
     gap: 5px;
 }
 .service-title i {
-    color: #667eea;
+    color: #0f4b8f;
     font-size: 12px;
 }
 .service-status {
@@ -617,7 +630,7 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
     justify-content: space-between;
     margin-top: auto;
     padding-top: 8px;
-    border-top: 1px solid #e0e0e0;
+    border-top: 1px solid #dbe5ee;
 }
 .service-footer-left {
     display: flex;
@@ -742,9 +755,9 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
     transition: all 0.2s;
 }
 .provider-controls button:hover {
-    background: #667eea;
+    background: #0f4b8f;
     color: white;
-    border-color: #667eea;
+    border-color: #0f4b8f;
 }
 .provider-list {
     max-height: 200px;
@@ -822,8 +835,8 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
     }
 }
 .expanded-selector-section {
-    background: #f8f9ff;
-    border: 2px solid #667eea;
+    background: #f8fbff;
+    border: 2px solid #0f4b8f;
     border-radius: 10px;
     padding: 20px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -838,7 +851,7 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
     gap: 8px;
 }
 .expanded-selector-section h4 i {
-    color: #667eea;
+    color: #0f4b8f;
 }
 .expanded-provider-item,
 .expanded-facility-item {
@@ -847,7 +860,7 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
     align-items: center;
     gap: 10px;
     background: white;
-    border: 1px solid #e0e0e0;
+    border: 1px solid #dbe5ee;
     border-radius: 6px;
     margin-bottom: 8px;
     transition: all 0.2s ease;
@@ -858,8 +871,8 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
 }
 .expanded-provider-item:hover,
 .expanded-facility-item:hover {
-    background: #f8f9ff;
-    border-color: #667eea;
+    background: #f8fbff;
+    border-color: #0f4b8f;
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
 }
@@ -876,7 +889,7 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
     align-items: center;
     gap: 10px;
     background: white;
-    border: 1px solid #e0e0e0;
+    border: 1px solid #dbe5ee;
     border-radius: 6px;
     margin-bottom: 8px;
     font-size: 14px;
@@ -959,8 +972,14 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
                             <?php endif; ?>
                         </div>
                         <?php if ($isActive): ?>
+                            <?php
+                                $editLabel = xlt('Edit');
+                                if (in_array($serviceId, ['appointment_reminders', 'recall', 'announcements', 'gogreen', 'clinical_reminders', 'surveys'])) {
+                                    $editLabel = xlt('Edit Messaging');
+                                }
+                            ?>
                             <button type="button" onclick="toggleProviderList('<?php echo attr($serviceId); ?>')" class="btn-edit-providers">
-                                <i class="fas fa-edit"></i> <?php echo xlt('Edit'); ?>
+                                <i class="fas fa-edit"></i> <?php echo text($editLabel); ?>
                             </button>
                         <?php endif; ?>
                     </div>
@@ -1245,7 +1264,7 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
                                 table.querySelectorAll('th i.fa-sort, th i.fa-sort-up, th i.fa-sort-down').forEach(function(icon, idx) {
                                     if (idx === col) {
                                         icon.className = 'fa fa-sort-' + (feedsSortAsc ? 'up' : 'down');
-                                        icon.style.color = '#667eea';
+                                        icon.style.color = '#0f4b8f';
                                     } else {
                                         icon.className = 'fa fa-sort';
                                         icon.style.color = '#999';
@@ -1644,10 +1663,10 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
                                     <button onclick="switchAiMode('analyze')" id="btn-mode-analyze" class="btn btn-sm" style="background: #9c27b0; color: white; margin-right: 5px;">
                                         <i class="fas fa-chart-line"></i> <?php echo xlt('Analyze History'); ?>
                                     </button>
-                                    <button onclick="switchAiMode('new')" id="btn-mode-new" class="btn btn-sm" style="background: #e0e0e0; color: #333; margin-right: 5px;">
+                                    <button onclick="switchAiMode('new')" id="btn-mode-new" class="btn btn-sm" style="background: #dbe5ee; color: #333; margin-right: 5px;">
                                         <i class="fas fa-comments"></i> <?php echo xlt('Schedule Interview'); ?>
                                     </button>
-                                    <button onclick="switchAiMode('batches')" id="btn-mode-batches" class="btn btn-sm" style="background: #e0e0e0; color: #333;">
+                                    <button onclick="switchAiMode('batches')" id="btn-mode-batches" class="btn btn-sm" style="background: #dbe5ee; color: #333;">
                                         <i class="fas fa-history"></i> <?php echo xlt('Batch History'); ?>
                                     </button>
                                 </div>
@@ -1748,7 +1767,7 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
                                                     <div style="width: 28px; height: 28px; background: #9c27b0; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0;">
                                                         <i class="fas fa-robot"></i>
                                                     </div>
-                                                    <div style="background: white; padding: 10px 14px; border-radius: 4px 12px 12px 12px; border: 1px solid #e0e0e0; max-width: 85%; font-size: 13px; line-height: 1.5;">
+                                                    <div style="background: white; padding: 10px 14px; border-radius: 4px 12px 12px 12px; border: 1px solid #dbe5ee; max-width: 85%; font-size: 13px; line-height: 1.5;">
                                                         <?php echo xlt("Hi! I'm the MedEx Schedule Assistant. Select a provider above and I'll interview you about their scheduling preferences. I'll ask about work days, hours, appointment types, lunch breaks, surgery blocks, and any special rules — just answer naturally."); ?>
                                                     </div>
                                                 </div>
@@ -1783,7 +1802,7 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
                                     </div>
                                 </div>
 
-                                <div id="ai-optimization-results" style="display: none; background: white; padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; margin-top: 20px;">
+                                <div id="ai-optimization-results" style="display: none; background: white; padding: 20px; border-radius: 8px; border: 1px solid #dbe5ee; margin-top: 20px;">
                                     <div style="text-align: center; padding: 40px; color: #666;" id="ai-loading">
                                         <i class="fas fa-spinner fa-spin fa-3x" style="color: #9c27b0; margin-bottom: 15px;"></i>
                                         <p><?php echo xlt('Claude AI is analyzing your schedule patterns and generating templates...'); ?></p>
@@ -1858,7 +1877,7 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
                             resultsDiv.style.display = 'none';
 
                             [btnAnalyze, btnNew, btnBatches].forEach(btn => {
-                                btn.style.background = '#e0e0e0';
+                                btn.style.background = '#dbe5ee';
                                 btn.style.color = '#333';
                             });
 
@@ -1893,12 +1912,12 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
                         <?php elseif ($serviceId === 'pdf_management'): ?>
                         <!-- PDF Management - Opens externally, this is just a fallback -->
                         <div class="expanded-selector-section" style="grid-column: 1 / -1; text-align: center; padding: 40px;">
-                            <i class="fas fa-file-pdf" style="font-size: 48px; color: #667eea; margin-bottom: 15px;"></i>
+                            <i class="fas fa-file-pdf" style="font-size: 48px; color: #0f4b8f; margin-bottom: 15px;"></i>
                             <h4><?php echo xlt('PDF Template Manager'); ?></h4>
                             <p style="color: #666; margin-bottom: 20px;">
                                 <?php echo xlt('Create and manage custom PDF forms for your practice.'); ?>
                             </p>
-                            <a href="pdf/index.php" onclick="if(typeof top!=='undefined'&&typeof top.restoreSession==='function')top.restoreSession();" class="btn btn-primary" style="padding: 12px 24px; background: #667eea; color: white; border-radius: 6px; text-decoration: none;">
+                            <a href="pdf/index.php" onclick="if(typeof top!=='undefined'&&typeof top.restoreSession==='function')top.restoreSession();" class="btn btn-primary" style="padding: 12px 24px; background: #0f4b8f; color: white; border-radius: 6px; text-decoration: none;">
                                 <i class="fas fa-file-pdf"></i> <?php echo xlt('Open PDF Manager'); ?>
                             </a>
                         </div>
@@ -2318,7 +2337,7 @@ uksort($serviceDefinitions, function ($a, $b) use ($activeServices, $serviceDefi
             <div style="margin-top: 15px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                     <strong style="font-size: 18px;"><?php echo xlt('Total'); ?></strong>
-                    <strong style="font-size: 24px; color: #667eea;" id="cart-total">$<?php echo number_format($currentTotal, 2); ?></strong>
+                    <strong style="font-size: 24px; color: #0f4b8f;" id="cart-total">$<?php echo number_format($currentTotal, 2); ?></strong>
                 </div>
                 <div style="color: #666; font-size: 13px; margin-bottom: 15px;">
                     <?php echo xlt('per month'); ?>
@@ -2557,15 +2576,36 @@ function toggleProviderList(serviceId) {
 
     if (!card || !expandedView) return;
 
+    // Keep one expanded editor open at a time.
+    document.querySelectorAll('.service-card.expanded').forEach(function(openCard) {
+        if (openCard !== card) {
+            openCard.classList.remove('expanded');
+            const sid = openCard.getAttribute('data-service');
+            const view = sid ? document.getElementById(`expanded-view-${sid}`) : null;
+            if (view) view.style.display = 'none';
+        }
+    });
+
     // Toggle expanded state
     card.classList.toggle('expanded');
 
     if (card.classList.contains('expanded')) {
         expandedView.style.display = 'grid';
         document.body.style.overflow = 'hidden'; // Prevent scrolling behind
+        const serviceName = window.serviceDefinitions?.[serviceId]?.name || serviceId;
+        if (typeof window.medexSetContext === 'function') {
+            if (serviceId === 'appointment_reminders') {
+                window.medexSetContext(['Dashboard', 'Services', serviceName, 'Edit Messaging']);
+            } else {
+                window.medexSetContext(['Dashboard', 'Services', serviceName, 'Edit']);
+            }
+        }
     } else {
         expandedView.style.display = 'none';
         document.body.style.overflow = '';
+        if (typeof window.medexSetContext === 'function') {
+            window.medexSetContext(['Dashboard', 'Services']);
+        }
     }
 }
 
@@ -2577,6 +2617,23 @@ window.closeExpandedView = function closeExpandedView(serviceId) {
     if (card) card.classList.remove('expanded');
     if (expandedView) expandedView.style.display = 'none';
     document.body.style.overflow = '';
+    if (typeof window.medexSetContext === 'function') {
+        window.medexSetContext(['Dashboard', 'Services']);
+    }
+};
+
+window.medexOpenServiceView = function medexOpenServiceView(serviceId, serviceName) {
+    const card = document.querySelector(`.service-card[data-service="${serviceId}"]`);
+    if (!card) return false;
+    const alreadyOpen = card.classList.contains('expanded');
+    if (!alreadyOpen) {
+        toggleProviderList(serviceId);
+    } else if (typeof window.medexSetContext === 'function') {
+        const svcName = serviceName || window.serviceDefinitions?.[serviceId]?.name || serviceId;
+        window.medexSetContext(['Dashboard', 'Services', svcName, (serviceId === 'appointment_reminders' ? 'Edit Messaging' : 'Edit')]);
+    }
+    try { card.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
+    return true;
 };
 
 // Select all providers for a service
@@ -2651,7 +2708,7 @@ function saveProvidersAndFacilities(serviceId) {
 
     // Save via AJAX
     const formData = new FormData();
-    formData.append('csrf_token_form', <?php echo json_encode(CsrfUtils::collectCsrfToken()); ?>);
+    formData.append('csrf_token_form', <?php echo json_encode($csrfToken); ?>);
     formData.append('service_id', serviceId);
     formData.append('providers', selectedProviders.join('|'));
     formData.append('facilities', selectedFacilities.join('|'));
@@ -2700,6 +2757,14 @@ function addService(serviceId) {
 
     const svcDef = window.serviceDefinitions?.[serviceId];
     const isProviderBased = svcDef?.scope === 'provider' || svcDef?.provider_based === true;
+    const hasKnownFreePrice = svcDef && svcDef.price !== null && parseFloat(svcDef.price) <= 0;
+
+    // One-click activation for free, practice-scoped services.
+    // No cart review/payment gate is needed when total charge is $0.00.
+    if (!isProviderBased && hasKnownFreePrice) {
+        activateFreeServiceNow(serviceId);
+        return;
+    }
 
     // For per-provider services, show the provider picker so the user can
     // choose exactly which (and how many) providers to subscribe for.
@@ -2710,6 +2775,61 @@ function addService(serviceId) {
 
     // Practice-scoped (flat) or no provider list: add directly with quantity = 1
     _doAddService(serviceId, 1, []);
+}
+
+function activateFreeServiceNow(serviceId) {
+    const card = document.querySelector(`.service-card[data-service="${serviceId}"]`);
+    if (card) {
+        card.classList.add('pending-add');
+        card.style.pointerEvents = 'none';
+        card.style.opacity = '0.78';
+    }
+    showToast('Activating free service...', 'info');
+
+    const requestData = {
+        csrf_token: <?php echo json_encode($csrfToken); ?>,
+        add: [{ serviceId: serviceId, quantity: 1, providerIds: [] }],
+        remove: [],
+        use_existing_payment: false,
+        dev_bypass: false,
+        providers: {}
+    };
+
+    if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') {
+        top.restoreSession();
+    }
+
+    fetch('<?php echo $GLOBALS['webroot']; ?>/interface/modules/custom_modules/oe-module-medex/admin/process_subscription.php?site=<?php echo urlencode($_SESSION['site_id'] ?? 'default'); ?>', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData)
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            return response.text().then(function(txt) {
+                throw new Error('HTTP ' + response.status + ': ' + (txt || 'activation failed'));
+            });
+        }
+        return response.json();
+    })
+    .then(function(data) {
+        if (!data || !data.success) {
+            throw new Error((data && data.error) ? data.error : 'Failed to activate service');
+        }
+        showToast('Service activated', 'success');
+        window.location.reload();
+    })
+    .catch(function(error) {
+        if (card) {
+            card.style.pointerEvents = '';
+            card.style.opacity = '';
+            card.classList.remove('pending-add');
+        }
+        showToast('Activation failed: ' + error.message, 'error');
+    });
 }
 
 // Show a lightweight inline modal for selecting providers
@@ -2744,8 +2864,8 @@ function showProviderPickerModal(serviceId) {
           Billing is <strong>$${basePrice.toFixed(2)}/mo per provider</strong>.
         </p>
         <div style="margin-bottom:4px;display:flex;gap:12px;">
-          <a href="#" onclick="document.querySelectorAll('.prov-picker-cb').forEach(c=>c.checked=true);_updatePickerTotal(${basePrice});return false;" style="font-size:12px;color:#667eea;">All</a>
-          <a href="#" onclick="document.querySelectorAll('.prov-picker-cb').forEach(c=>c.checked=false);_updatePickerTotal(${basePrice});return false;" style="font-size:12px;color:#667eea;">None</a>
+          <a href="#" onclick="document.querySelectorAll('.prov-picker-cb').forEach(c=>c.checked=true);_updatePickerTotal(${basePrice});return false;" style="font-size:12px;color:#0f4b8f;">All</a>
+          <a href="#" onclick="document.querySelectorAll('.prov-picker-cb').forEach(c=>c.checked=false);_updatePickerTotal(${basePrice});return false;" style="font-size:12px;color:#0f4b8f;">None</a>
         </div>
         <div style="max-height:200px;overflow-y:auto;margin-bottom:14px;padding:0 4px;">
           ${providerRows}
@@ -2869,7 +2989,7 @@ function updateCart() {
         pendingSection.style.display = 'none';
     } else {
         pendingSection.style.display = 'block';
-        html = '<h4 style="margin-top: 0; margin-bottom: 15px; color: #667eea;"><i class="fas fa-exchange"></i> Pending Changes</h4>';
+        html = '<h4 style="margin-top: 0; margin-bottom: 15px; color: #0f4b8f;"><i class="fas fa-exchange"></i> Pending Changes</h4>';
 
         // Show services being added
         if (window.pendingChanges.add.length > 0) {
@@ -3118,7 +3238,7 @@ function showToast(message, type = 'info') {
         top: 20px;
         right: 20px;
         padding: 15px 25px;
-        background: ${type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#667eea'};
+        background: ${type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#0f4b8f'};
         color: white;
         border-radius: 8px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.3);
@@ -3210,7 +3330,7 @@ function processSubscriptionChanges() {
 
     // Build request data - only use existing payment if token exists
     const requestData = {
-        csrf_token: <?php echo json_encode(CsrfUtils::collectCsrfToken()); ?>,
+        csrf_token: <?php echo json_encode($csrfToken); ?>,
         add: window.pendingChanges.add,
         remove: window.pendingChanges.remove,
         use_existing_payment: hasAdditions && hasPaymentOnFile,
@@ -3315,7 +3435,7 @@ window.processPayment = function processPayment() {
             return;
         }
         const requestData = {
-            csrf_token: <?php echo json_encode(CsrfUtils::collectCsrfToken()); ?>,
+            csrf_token: <?php echo json_encode($csrfToken); ?>,
             add: window.pendingChanges.add,
             remove: window.pendingChanges.remove,
             payment_nonce: payload.nonce,
@@ -3689,30 +3809,82 @@ document.addEventListener('DOMContentLoaded', function() {
 $api = new \OpenEMR\Modules\MedEx\MedExAPI();
 $ssoToken = '';
 try {
-    $loginData = $api->login(false); // Get cached session
-    if ($loginData && isset($loginData['token'])) {
+    // Force a fresh login so token + practice_id are present and current.
+    $loginData = $api->login(true);
+
+    $sessionToken = (string)($loginData['token'] ?? '');
+    $practiceId = (string)(
+        $loginData['practice_id']
+        ?? ($loginData['practice']['P_PID'] ?? '')
+    );
+
+    // Fallbacks for legacy payloads
+    if ($practiceId === '') {
+        try {
+            $cfg = $api->getConfig();
+            $practiceId = (string)($cfg['practice_id'] ?? '');
+        } catch (\Throwable $cfgEx) {
+            // ignore; fallback below
+        }
+    }
+    if ($practiceId === '') {
+        $pref = sqlQuery("SELECT MedEx_id FROM medex_prefs WHERE MedEx_id IS NOT NULL ORDER BY MedEx_lastupdated DESC LIMIT 1");
+        $practiceId = (string)($pref['MedEx_id'] ?? '');
+    }
+
+    if ($sessionToken !== '' && $practiceId !== '') {
         // Create SSO token with practice_id and session token
         $ssoPayload = [
-            'practice_id' => $loginData['practice']['P_PID'] ?? '',
-            'session_token' => $loginData['token'],
+            'practice_id' => $practiceId,
+            'session_token' => $sessionToken,
             'timestamp' => time(),
             'nonce' => bin2hex(random_bytes(16))
         ];
         $ssoToken = base64_encode(json_encode($ssoPayload));
+    } else {
+        error_log('[MedEx] Campaign SSO token not generated: missing token or practice_id');
     }
 } catch (\Exception $e) {
     error_log('[MedEx] Failed to generate SSO token: ' . $e->getMessage());
 }
 $_medexSiteParam = urlencode($_SESSION['site_id'] ?? 'default');
 ?>
-const _medexCampaignsBaseUrl = <?php echo json_encode('https://medexbank.com/cart/upload/campaigns_sso.php?site=' . $_medexSiteParam . '&sso_token=' . urlencode($ssoToken) . '&type='); ?>;
+const _medexCampaignsBaseUrl = <?php echo json_encode($ssoToken !== '' ? ('https://api.hipaabank.net/cart/upload/campaigns_sso.php?site=' . $_medexSiteParam . '&sso_token=' . urlencode($ssoToken) . '&type=') : ''); ?>;
+const _medexApiToken = <?php echo json_encode((string)($loginData['token'] ?? '')); ?>;
+const _medexCampaignsRouteBase = <?php echo json_encode('https://api.hipaabank.net/cart/upload/index.php?route=information/campaigns'); ?>;
+const _medexSsoToken = <?php echo json_encode((string)$ssoToken); ?>;
 
 window.openCampaignsModal = function openCampaignsModal(type) {
     const overlay = document.getElementById('campaigns-modal-overlay');
     const iframe  = document.getElementById('campaigns-modal-iframe');
     if (!overlay || !iframe) return;
+    let src = '';
+
+    // Reminders/Recall should open native campaigns manager directly with API token
+    // so user lands on campaign list/edit UI (not generic login).
+    if (_medexSsoToken && (type === 'reminder' || type === 'recall')) {
+        const g = (type === 'recall') ? 'rec' : 'rem';
+        src = _medexCampaignsRouteBase + '&sso_token=' + encodeURIComponent(_medexSsoToken) + '&g=' + encodeURIComponent(g) + '&embed=1';
+    } else if (_medexApiToken && (type === 'reminder' || type === 'recall')) {
+        // Legacy fallback path
+        const g = (type === 'recall') ? 'rec' : 'rem';
+        src = _medexCampaignsRouteBase + '&token=' + encodeURIComponent(_medexApiToken) + '&g=' + encodeURIComponent(g) + '&embed=1';
+    } else if (_medexCampaignsBaseUrl) {
+        src = _medexCampaignsBaseUrl + encodeURIComponent(type);
+    }
+
+    if (!src) {
+        if (window.showToast) {
+            window.showToast('Campaign manager unavailable: missing MedEx SSO session. Please refresh and try again.', 'error');
+        }
+        return;
+    }
+    if (typeof window.medexSetContext === 'function') {
+        const label = (type === 'recall') ? 'Recalls' : (type === 'reminder' ? 'Reminders' : 'Campaigns');
+        window.medexSetContext(['Dashboard', 'Services', 'Messaging', 'Edit Messaging', label]);
+    }
     if (typeof top !== 'undefined' && typeof top.restoreSession === 'function') top.restoreSession();
-    iframe.src = _medexCampaignsBaseUrl + encodeURIComponent(type);
+    iframe.src = src;
     overlay.style.display = 'flex';
     document.body.style.overflow = 'hidden';
 };
@@ -3723,10 +3895,6 @@ window.closeCampaignsModal = function closeCampaignsModal() {
     if (overlay) overlay.style.display = 'none';
     if (iframe)  iframe.src = '';
     document.body.style.overflow = '';
-    // Refresh the subscriptions tab so campaign lists update
-    const tabDiv = document.getElementById('tab-subscriptions');
-    if (tabDiv) tabDiv.dataset.loaded = 'false';
-    if (typeof loadTabContent === 'function') loadTabContent('subscriptions');
 };
 
 window.handleCampaignsOverlayClick = function handleCampaignsOverlayClick(e) {

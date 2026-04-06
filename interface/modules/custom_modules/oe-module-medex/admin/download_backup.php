@@ -27,7 +27,7 @@ if (!AclMain::aclCheckCore('admin', 'super')) {
 }
 
 // Verify CSRF token
-if (!CsrfUtils::verifyCsrfToken($_GET['csrf_token'] ?? '', $session)) {
+if (!CsrfUtils::verifyCsrfToken($_GET['csrf_token'] ?? '', 'default')) {
     die('Invalid CSRF token');
 }
 

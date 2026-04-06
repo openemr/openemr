@@ -103,12 +103,9 @@ class ModuleManagerListener extends AbstractModuleActionListener
         $helpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/help.php?site=default';
         $setupHelpUrl = $webroot . '/interface/modules/custom_modules/oe-module-medex/show_help_setup.php?site=default';
 
-        // Pre-install/setup-needed state: open mini help modal in-tab.
-        // Active state: keep direct navigation to full help page.
-        $isPreInstallState = ($sqlRun === 0 || $modActive === 0 || $modUiActive === 1);
-        if ($isPreInstallState) {
-            $target = json_encode($setupHelpUrl, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
-            $script = <<<HTML
+        // Always open guided setup/help in-tab modal from Module Manager.
+        $target = json_encode($setupHelpUrl, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+        $script = <<<HTML
 <script>
 (function () {
   var doc = window.top && window.top.document ? window.top.document : document;
@@ -185,10 +182,6 @@ class ModuleManagerListener extends AbstractModuleActionListener
 })();
 </script>
 HTML;
-        } else {
-            $safeTarget = htmlspecialchars($helpUrl, ENT_QUOTES, 'UTF-8');
-            $script = '<script>(function(){try{if(window.top&&window.top.location){window.top.location.href="' . $safeTarget . '";}else{window.location.href="' . $safeTarget . '";}}catch(e){window.location.href="' . $safeTarget . '";}})();</script>';
-        }
 
         echo json_encode(["status" => "Success", "output" => $script]);
         exit(0);

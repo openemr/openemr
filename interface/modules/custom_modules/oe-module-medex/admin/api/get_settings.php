@@ -62,25 +62,24 @@ $billingNotifyEmail = trim((string)($globalConfig['medex_bill_notify_email'] ?? 
 ?>
 
 <style>
-.settings-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 15px; }
-@media (max-width: 1200px) { .settings-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 700px) { .settings-grid { grid-template-columns: 1fr; } }
-.settings-card { background: #f8f9ff; border: 2px solid #667eea; border-radius: 8px; padding: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
-.settings-card h4 { margin: 0 0 10px 0; font-size: 13px; font-weight: 600; color: #333; display: flex; align-items: center; gap: 6px; }
-.settings-card h4 i { color: #667eea; font-size: 12px; }
-.form-check { margin-bottom: 8px; }
-.form-check-label { font-size: 12px; margin-left: 4px; cursor: pointer; }
-.form-group { margin-bottom: 10px; }
-.form-group label { display: block; font-size: 11px; color: #666; margin-bottom: 3px; }
-.form-control-sm { font-size: 12px; padding: 4px 8px; }
-.help-text { font-size: 10px; color: #888; margin-top: 2px; }
+.settings-grid { display: grid; grid-template-columns: repeat(2, minmax(320px, 1fr)); gap: 16px; margin-bottom: 18px; }
+@media (max-width: 1080px) { .settings-grid { grid-template-columns: 1fr; } }
+.settings-card { background: #ffffff; border: 1px solid #dbe5ee; border-radius: 12px; padding: 18px; box-shadow: 0 10px 22px rgba(15,75,143,0.08); }
+.settings-card h4 { margin: 0 0 14px 0; font-size: 15px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+.settings-card h4 i { color: #0f4b8f; font-size: 13px; }
+.form-check { margin-bottom: 10px; }
+.form-check-label { font-size: 13px; margin-left: 4px; cursor: pointer; color: #334155; }
+.form-group { margin-bottom: 12px; }
+.form-group label { display: block; font-size: 12px; color: #64748b; margin-bottom: 4px; font-weight: 600; }
+.form-control-sm { font-size: 13px; padding: 8px 10px; border-radius: 8px; border: 1px solid #cbd5e1; }
+.help-text { font-size: 11px; color: #64748b; margin-top: 4px; }
 .sync-slider { width: 100%; }
-.sync-display { font-size: 11px; margin-top: 4px; }
+.sync-display { font-size: 12px; margin-top: 6px; color: #334155; }
 .sync-display strong { color: #0f4b8f; }
-.btn-advanced { width: 100%; background: #f8f9fa; border: 1px solid #ddd; color: #666; font-size: 11px; padding: 6px 10px; border-radius: 4px; cursor: pointer; margin-top: 8px; }
-.btn-advanced:hover { background: #e9ecef; }
-.btn-save-settings { background: #667eea; color: white; border: none; padding: 10px 24px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
-.btn-save-settings:hover { background: #5568d3; }
+.btn-advanced { width: 100%; background: #f8fafc; border: 1px solid #cbd5e1; color: #475569; font-size: 12px; padding: 8px 12px; border-radius: 8px; cursor: pointer; margin-top: 10px; font-weight: 600; }
+.btn-advanced:hover { background: #f1f5f9; }
+.btn-save-settings { background: #0f4b8f; color: white; border: none; padding: 12px 28px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; }
+.btn-save-settings:hover { background: #0a3460; }
 .btn-save-settings:disabled { background: #ccc; cursor: not-allowed; }
 .settings-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 10001; }
 .settings-modal-overlay.show { display: flex; }

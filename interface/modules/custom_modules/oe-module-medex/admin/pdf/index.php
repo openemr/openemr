@@ -69,7 +69,7 @@ if ($page === 'editor' && !empty($_GET['template_id'])) {
     $iframeUrl .= '&template_id=' . urlencode($_GET['template_id']);
 }
 
-$csrfToken = CsrfUtils::collectCsrfToken(session: $session);
+$csrfToken = CsrfUtils::collectCsrfToken();
 ?>
 <!DOCTYPE html>
 <html lang="en">

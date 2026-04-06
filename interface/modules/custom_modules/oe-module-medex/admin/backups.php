@@ -38,7 +38,7 @@ $message = '';
 $messageType = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '', $session)) {
+    if (!CsrfUtils::verifyCsrfToken($_POST['csrf_token'] ?? '', 'default')) {
         die('Invalid CSRF token');
     }
 
@@ -387,7 +387,7 @@ $updateInfo = $updateManager->checkForUpdates();
                         </small>
                     </div>
                     <form id="update-form" method="post" style="display: none;">
-                        <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>">
+                        <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>">
                         <input type="hidden" name="action" value="install_update">
                         <input type="hidden" name="download_url" value="<?php echo attr($updateInfo['download_url']); ?>">
                     </form>
@@ -404,7 +404,7 @@ $updateInfo = $updateManager->checkForUpdates();
             </div>
             <div>
                 <form method="post" style="display: inline;">
-                    <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>">
+                    <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>">
                     <input type="hidden" name="action" value="create">
                     <button type="submit" class="btn btn-success">
                         <i class="fa fa-save"></i> <?php echo xlt('Create Backup Now'); ?>
@@ -460,7 +460,7 @@ $updateInfo = $updateManager->checkForUpdates();
                                             <i class="fa fa-undo"></i> <?php echo xlt('Rollback'); ?>
                                         </button>
                                     <?php endif; ?>
-                                    <a href="download_backup.php?file=<?php echo urlencode(basename($backup['file'])); ?>&csrf_token=<?php echo urlencode(CsrfUtils::collectCsrfToken(session: $session)); ?>"
+                                    <a href="download_backup.php?file=<?php echo urlencode(basename($backup['file'])); ?>&csrf_token=<?php echo urlencode(CsrfUtils::collectCsrfToken()); ?>"
                                        class="btn btn-secondary btn-sm">
                                         <i class="fa fa-download"></i> <?php echo xlt('Download'); ?>
                                     </a>
@@ -508,7 +508,7 @@ $updateInfo = $updateManager->checkForUpdates();
             </div>
             <div class="modal-footer">
                 <form method="post" id="rollbackForm">
-                    <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>">
+                    <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>">
                     <input type="hidden" name="action" value="rollback">
                     <input type="hidden" name="backup_file" id="rollbackFile">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('rollbackModal')">
@@ -537,7 +537,7 @@ $updateInfo = $updateManager->checkForUpdates();
             </div>
             <div class="modal-footer">
                 <form method="post" id="deleteForm">
-                    <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken(session: $session)); ?>">
+                    <input type="hidden" name="csrf_token" value="<?php echo attr(CsrfUtils::collectCsrfToken()); ?>">
                     <input type="hidden" name="action" value="delete">
                     <input type="hidden" name="backup_file" id="deleteFile">
                     <button type="button" class="btn btn-secondary" onclick="closeModal('deleteModal')">
