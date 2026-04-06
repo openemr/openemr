@@ -120,6 +120,7 @@
         "symfony/http-client": "~6.4.26",
         "symfony/http-foundation": "~6.4.26",
         "symfony/http-kernel": "~6.4.27",
+        "symfony/process": "^6.4",
         "symfony/psr-http-message-bridge": "~6.4.24",
         "symfony/yaml": "~6.4.26",
         "twig/twig": "^3.22.2",

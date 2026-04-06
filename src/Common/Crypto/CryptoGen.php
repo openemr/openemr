@@ -79,7 +79,7 @@ class CryptoGen implements CryptoInterface
             $this->logger->error('Invalid encryption version prefix');
             return false;
         }
-        $trimmedValue = mb_substr($value, 3, null, '8bit');
+        $trimmedValue = substr($value, 3);
 
         if (!empty($minimumVersion)) {
             try {
@@ -213,9 +213,9 @@ class CryptoGen implements CryptoInterface
         }
 
         $ivLength = $this->getOpenSSLCipherIvLength('aes-256-cbc');
-        $hmacHash = mb_substr($raw, 0, 48, '8bit');
-        $iv = mb_substr($raw, 48, $ivLength, '8bit');
-        $encrypted_data = mb_substr($raw, ($ivLength + 48), null, '8bit');
+        $hmacHash = substr($raw, 0, 48);
+        $iv = substr($raw, 48, $ivLength);
+        $encrypted_data = substr($raw, $ivLength + 48);
 
         $calculatedHmacHash = $this->hashHmac('sha384', $iv . $encrypted_data, $sSecretKeyHmac, true);
 
@@ -264,9 +264,9 @@ class CryptoGen implements CryptoInterface
         }
 
         $ivLength = $this->getOpenSSLCipherIvLength('aes-256-cbc');
-        $hmacHash = mb_substr($raw, 0, 32, '8bit');
-        $iv = mb_substr($raw, 32, $ivLength, '8bit');
-        $encrypted_data = mb_substr($raw, ($ivLength + 32), null, '8bit');
+        $hmacHash = substr($raw, 0, 32);
+        $iv = substr($raw, 32, $ivLength);
+        $encrypted_data = substr($raw, $ivLength + 32);
 
         $calculatedHmacHash = $this->hashHmac('sha256', $iv . $encrypted_data, $sSecretKeyHmac, true);
 

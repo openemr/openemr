@@ -34,6 +34,7 @@ use OpenEMR\Events\Main\Tabs\RenderEvent;
 use OpenEMR\Menu\MainMenuRole;
 use OpenEMR\Services\LogoService;
 use OpenEMR\Services\ProductRegistrationService;
+use OpenEMR\Services\VersionService;
 use OpenEMR\Telemetry\TelemetryService;
 use Symfony\Component\Filesystem\Path;
 
@@ -43,6 +44,8 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 
 $logoService = new LogoService();
 $menuLogo = $logoService->getLogo('core/menu/primary/');
+$versionService = new VersionService();
+$softwareVersion = text($versionService->asString());
 // Registration status and options.
 $productRegistration = new ProductRegistrationService();
 $product_row = $productRegistration->getProductDialogStatus();
@@ -510,6 +513,9 @@ $twig = (new TwigContainer(null, OEGlobalsBag::getInstance()->getKernel()))->get
             'webroot' => $webroot,
             'allowEmail' => $allowEmail ?? false,
             'allowTelemetry' => $allowTelemetry ?? false]); ?>
+    </div>
+    <div id="versionFooter" class="text-muted" style="position:fixed; bottom:4px; inset-inline-end:8px; font-size:11px; pointer-events:none; z-index:4;">
+        <?php echo $softwareVersion; ?>
     </div>
     <script>
         ko.applyBindings(app_view_model);

@@ -28,13 +28,6 @@ class Keychain implements KeychainInterface
      */
     private array $mappings = [];
 
-    public function registerCipher(
-        KeyId $id,
-        CipherInterface $cipher,
-    ): void {
-        $this->mappings[$id->id] = $cipher;
-    }
-
     public function getCipher(KeyId $keyId): CipherInterface
     {
         if ($this->hasKey($keyId)) {
@@ -50,5 +43,12 @@ class Keychain implements KeychainInterface
     public function hasKey(KeyId $keyId): bool
     {
         return array_key_exists($keyId->id, $this->mappings);
+    }
+
+    public function registerCipher(
+        KeyId $id,
+        CipherInterface $cipher,
+    ): void {
+        $this->mappings[$id->id] = $cipher;
     }
 }

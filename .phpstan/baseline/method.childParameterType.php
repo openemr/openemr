@@ -42,16 +42,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/ClinicalDecisionRules/Interface/RuleLibrary/RuleCriteriaTargetFactory.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$key \\(int\\|string\\|null\\) of method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ResourceScopeEntityList\\:\\:offsetSet\\(\\) should be contravariant with parameter \\$key \\(mixed\\) of method ArrayObject\\<\\(int\\|string\\),mixed\\>\\:\\:offsetSet\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ResourceScopeEntityList.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$key \\(int\\|string\\|null\\) of method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Entities\\\\ResourceScopeEntityList\\:\\:offsetSet\\(\\) should be contravariant with parameter \\$offset \\(mixed\\) of method ArrayAccess\\<mixed,mixed\\>\\:\\:offsetSet\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Entities/ResourceScopeEntityList.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$scopes \\(array\\|string\\) of method OpenEMR\\\\Common\\\\Auth\\\\OpenIDConnect\\\\Grant\\\\CustomRefreshTokenGrant\\:\\:validateScopes\\(\\) should be contravariant with parameter \\$scopes \\(array\\|string\\|null\\) of method League\\\\OAuth2\\\\Server\\\\Grant\\\\AbstractGrant\\:\\:validateScopes\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/Auth/OpenIDConnect/Grant/CustomRefreshTokenGrant.php',
@@ -65,16 +55,6 @@ $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$results \\(array\\) of method OpenEMR\\\\Common\\\\ORDataObject\\\\Person\\:\\:populate_array\\(\\) should be contravariant with parameter \\$results \\(mixed\\) of method OpenEMR\\\\Common\\\\ORDataObject\\\\ORDataObject\\:\\:populate_array\\(\\)$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Common/ORDataObject/Person.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$key \\(int\\|string\\|null\\) of method OpenEMR\\\\Menu\\\\MenuItems\\:\\:offsetSet\\(\\) should be contravariant with parameter \\$key \\(mixed\\) of method ArrayObject\\<\\(int\\|string\\),mixed\\>\\:\\:offsetSet\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/MenuItems.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Parameter \\#1 \\$key \\(int\\|string\\|null\\) of method OpenEMR\\\\Menu\\\\MenuItems\\:\\:offsetSet\\(\\) should be contravariant with parameter \\$offset \\(mixed\\) of method ArrayAccess\\<mixed,mixed\\>\\:\\:offsetSet\\(\\)$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../src/Menu/MenuItems.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Parameter \\#1 \\$search \\(array\\<OpenEMR\\\\Services\\\\Search\\\\ISearchField\\>\\) of method OpenEMR\\\\Services\\\\AllergyIntoleranceService\\:\\:search\\(\\) should be contravariant with parameter \\$search \\(mixed\\) of method OpenEMR\\\\Services\\\\BaseServiceInterface\\:\\:search\\(\\)$#',

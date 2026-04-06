@@ -89,7 +89,7 @@ if ($formid) {
             ,'clinical_notes_type' => $defaultType
             ,'clinical_notes_category' => $defaultCategory
             ,'description' => ''
-            ,'date' => oeFormatShortDate(date('Y-m-d'))
+            ,'date' =>date('Y-m-d')
         ]
     ];
 }

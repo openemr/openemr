@@ -80,7 +80,7 @@ class BackgroundServiceRestController
         $result = $results[0];
         $statusCode = match ($result['status']) {
             'error' => Response::HTTP_INTERNAL_SERVER_ERROR,
-            'locked', 'skipped' => Response::HTTP_CONFLICT,
+            'already_running', 'not_due', 'skipped' => Response::HTTP_CONFLICT,
             default => Response::HTTP_OK,
         };
         return new JsonResponse(['service' => $result['name'], 'status' => $result['status']], $statusCode);
