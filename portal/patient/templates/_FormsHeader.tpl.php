@@ -32,7 +32,7 @@ $session = SessionWrapperFactory::getInstance()->getActiveSession();
 $globalsBag = OEGlobalsBag::getInstance();
 $assets_static_relative = $globalsBag->getString('assets_static_relative');
 $web_root = $globalsBag->getString('web_root');
-$v_js_includes = $globalsBag->get('v_js_includes');
+$v_js_includes = $globalsBag->getString('v_js_includes');
 
 if ($session->get('patient_portal_onsite_two', 0)) {
     Header::setupHeader(['no_main-theme', 'portal-theme', 'datetime-picker', 'moment']);
