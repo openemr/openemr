@@ -107,7 +107,7 @@ class MessageTest extends TestCase
         $encoded = $message->encode();
         $parsed = Message::parse($encoded);
         self::assertSame($keyId->id, $parsed->keyId->id, 'Key mismatch');
-        self::assertSame($ciphertext->wrapped, $parsed->ciphertext->wrapped, 'Ciphertext mismatch');
+        self::assertSame($ciphertext->value, $parsed->ciphertext->value, 'Ciphertext mismatch');
     }
 
     public function testParseThrowsOnTooShortMessage(): void

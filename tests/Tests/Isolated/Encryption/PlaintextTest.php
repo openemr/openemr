@@ -25,7 +25,7 @@ final class PlaintextTest extends TestCase
 
         $plaintext = new Plaintext($data);
 
-        self::assertSame($data, $plaintext->wrapped);
+        self::assertSame($data, $plaintext->bytes);
     }
 
     public function testDebugInfoRedactsContent(): void
