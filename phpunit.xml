@@ -49,6 +49,9 @@ This file configures the kind that requires initialization.
     <testsuite name="common">
       <directory>tests/Tests/Common</directory>
     </testsuite>
+    <testsuite name="integration">
+      <directory>tests/Tests/Integration</directory>
+    </testsuite>
     <testsuite name="certification">
       <directory>tests/Tests/Certification/HIT1</directory>
     </testsuite>
