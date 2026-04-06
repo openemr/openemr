@@ -687,16 +687,16 @@
         },
         {
             "name": "digitickets/lalit",
-            "version": "3.4.0",
+            "version": "3.4.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/digitickets/lalit.git",
-                "reference": "b88856d0434bf3eb465b4ad872ee4eea6ccb582a"
+                "reference": "2e41932ca4ef0aa68230b23de17f2e513fd0d90c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/digitickets/lalit/zipball/b88856d0434bf3eb465b4ad872ee4eea6ccb582a",
-                "reference": "b88856d0434bf3eb465b4ad872ee4eea6ccb582a",
+                "url": "https://api.github.com/repos/digitickets/lalit/zipball/2e41932ca4ef0aa68230b23de17f2e513fd0d90c",
+                "reference": "2e41932ca4ef0aa68230b23de17f2e513fd0d90c",
                 "shasum": ""
             },
             "require": {
@@ -710,7 +710,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "LaLit\\": "src"
+                    "LaLit\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -735,9 +735,9 @@
             ],
             "support": {
                 "issues": "https://github.com/digitickets/lalit/issues",
-                "source": "https://github.com/digitickets/lalit/tree/3.4.0"
+                "source": "https://github.com/digitickets/lalit/tree/3.4.1"
             },
-            "time": "2024-03-08T20:59:04+00:00"
+            "time": "2026-04-02T16:57:46+00:00"
         },
         {
             "name": "doctrine/dbal",
