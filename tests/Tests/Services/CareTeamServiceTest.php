@@ -873,49 +873,52 @@ class CareTeamServiceTest extends TestCase
     #[Test]
     public function testSaveCareTeamWithContactMember(): void
     {
-        // Create a test contact
-        $contactRow = QueryUtils::sqlInsert(
-            "INSERT INTO contact (contact_id, patient_id, type, first_name, last_name, created) VALUES (?, ?, ?, ?, ?, NOW())",
-            [null, $this->testPid, 'emergency', 'Emergency', 'Contact']
+        // The `contact` table records an entity from another table via (foreign_table_name, foreign_id).
+        // We use 'patient_data' as the foreign table and the test patient as the foreign_id
+        // so the row is self-contained and can be deleted after the test.
+        $contactId = (int) QueryUtils::sqlInsert(
+            "INSERT INTO contact (foreign_table_name, foreign_id) VALUES (?, ?)",
+            ['patient_data', $this->testPid]
         );
-        $contactId = intval($contactRow);
         $this->assertGreaterThan(0, $contactId);
 
-        // Save a team with a contact member
-        $team = [
-            [
-                'contact_id' => $contactId,
-                'role' => 'emergency_contact',
-                'facility_id' => $this->testFacilityId,
-                'status' => 'active',
-                'note' => 'Emergency contact member',
-            ]
-        ];
+        try {
+            // Save a team with a contact_id member (instead of user_id)
+            $team = [
+                [
+                    'contact_id' => $contactId,
+                    'role' => 'emergency_contact',
+                    'facility_id' => $this->testFacilityId,
+                    'status' => 'active',
+                    'note' => 'Emergency contact member',
+                ]
+            ];
 
-        $teamId = $this->service->saveCareTeam(
-            $this->testPid,
-            null,
-            self::TEST_TEAM_NAME,
-            $team
-        );
+            $teamId = $this->service->saveCareTeam(
+                $this->testPid,
+                null,
+                self::TEST_TEAM_NAME,
+                $team
+            );
 
-        $this->assertIsInt($teamId);
-        $this->assertGreaterThan(0, $teamId);
+            $this->assertIsInt($teamId);
+            $this->assertGreaterThan(0, $teamId);
 
-        // Verify contact member was saved
-        /** @var array<string, mixed>|false $contactMember */
-        $contactMember = QueryUtils::querySingleRow(
-            "SELECT * FROM care_team_member WHERE care_team_id = ? AND contact_id = ? AND status = 'active'",
-            [$teamId, $contactId]
-        );
-        $this->assertIsArray($contactMember);
-        $this->assertEquals('emergency_contact', $contactMember['role']);
-        $this->assertEquals('Emergency contact member', $contactMember['note']);
-
-        // Clean up test contact
-        QueryUtils::sqlStatementThrowException(
-            "DELETE FROM contact WHERE id = ?",
-            [$contactId]
-        );
+            // Verify the contact member row was inserted into care_team_member
+            /** @var array<string, mixed>|false $contactMember */
+            $contactMember = QueryUtils::querySingleRow(
+                "SELECT * FROM care_team_member WHERE care_team_id = ? AND contact_id = ? AND status = 'active'",
+                [$teamId, $contactId]
+            );
+            $this->assertIsArray($contactMember);
+            $this->assertEquals('emergency_contact', $contactMember['role']);
+            $this->assertEquals('Emergency contact member', $contactMember['note']);
+        } finally {
+            // Always clean up the test contact row
+            QueryUtils::sqlStatementThrowException(
+                "DELETE FROM contact WHERE id = ?",
+                [$contactId]
+            );
+        }
     }
 }
