@@ -31,7 +31,7 @@ readonly class Aes256CbcHmacSha256 implements CipherInterface
 
     public function decrypt(Ciphertext $ciphertext): Plaintext
     {
-        $ciphertext = $ciphertext->wrapped;
+        $ciphertext = $ciphertext->value;
         $hmac = substr($ciphertext, 0, self::HMAC_LENGTH);
         $iv = substr($ciphertext, self::HMAC_LENGTH, self::IV_LENGTH);
         $data = substr($ciphertext, self::HMAC_LENGTH + self::IV_LENGTH);

@@ -28,7 +28,7 @@ readonly class Aes256CbcHmacSha384 implements CipherInterface
 
     public function decrypt(Ciphertext $ciphertext): Plaintext
     {
-        $ciphertext = $ciphertext->wrapped;
+        $ciphertext = $ciphertext->value;
         $hmac = substr($ciphertext, 0, self::HMAC_LENGTH);
         $iv = substr($ciphertext, self::HMAC_LENGTH, self::IV_LENGTH);
         $data = substr($ciphertext, self::HMAC_LENGTH + self::IV_LENGTH);
@@ -57,7 +57,7 @@ readonly class Aes256CbcHmacSha384 implements CipherInterface
     {
         $iv = random_bytes(self::IV_LENGTH);
         $encrypted = openssl_encrypt(
-            $plaintext->wrapped,
+            $plaintext->bytes,
             'aes-256-cbc',
             $this->key->key,
             OPENSSL_RAW_DATA,
