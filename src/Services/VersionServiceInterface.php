@@ -17,7 +17,7 @@ namespace OpenEMR\Services;
 interface VersionServiceInterface extends BaseServiceInterface
 {
     /**
-     * @return array<string, scalar> the sole version entry in the database.
+     * @return array the sole version entry in the database.
      */
     public function fetch(): array;
 

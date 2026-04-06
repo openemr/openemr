@@ -35,12 +35,12 @@ class TelemetryService
     /**
      * TelemetryService constructor.
      *
-     * @param ?TelemetryRepository     $repository
+     * @param TelemetryRepository     $repository
      * @param VersionServiceInterface $versionService
      * @param ?LoggerInterface         $logger
      */
     public function __construct(
-        protected ?TelemetryRepository $repository = new TelemetryRepository(),
+        protected TelemetryRepository $repository = new TelemetryRepository(),
         protected VersionServiceInterface $versionService = new VersionService(),
         ?LoggerInterface $logger = null,
     ) {

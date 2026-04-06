@@ -28,12 +28,11 @@ class VersionService extends BaseService implements VersionServiceInterface
     }
 
     /**
-     * @return array<string, scalar> the sole version entry in the database.
+     * @return array the sole version entry in the database.
      */
     public function fetch(): array
     {
-        $rows = QueryUtils::fetchRecords("SELECT * FROM `version`");
-        return $rows[0] ?? [];
+        return QueryUtils::querySingleRow("SELECT * FROM `version`") ?: [];
     }
 
     public function getSoftwareVersion(): SoftwareVersion
