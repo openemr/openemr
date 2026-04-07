@@ -968,6 +968,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#',
+    'count' => 2,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/PostCalendarTwigExtensionsTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Call to method PHPUnit\\\\Framework\\\\Assert\\:\\:assertIsArray\\(\\) with array will always evaluate to true\\.$#',
     'count' => 4,
     'path' => __DIR__ . '/../../tests/Tests/Unit/Rx/RxListTest.php',
 ];

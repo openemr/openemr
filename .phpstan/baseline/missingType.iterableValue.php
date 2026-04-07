@@ -447,6 +447,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method pcSmarty\\:\\:assign\\(\\) has parameter \\$tpl_var with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pcSmarty.class.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method Date_Calc\\:\\:getCalendarMonth\\(\\) return type has no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnincludes/Date/Calc.php',
@@ -9095,6 +9100,26 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Pdf\\\\PdfCreator\\:\\:getPdf\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Pdf/PdfCreator.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Property OpenEMR\\\\PostCalendar\\\\PostCalendarRenderer\\:\\:\\$templateVars type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarRenderer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:generateDOWCalendar\\(\\) has parameter \\$DOWlist with no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:generateDOWCalendar\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:getProviderInfo\\(\\) return type has no value type specified in iterable type array\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Reports\\\\AMC\\\\Trackers\\\\AMCItemTracker\\:\\:getResults\\(\\) return type has no value type specified in iterable type array\\.$#',

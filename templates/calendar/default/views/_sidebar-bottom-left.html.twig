@@ -1,0 +1,63 @@
+<div id="bottomLeft" class="sidebar-wrapper">
+    <div id="datePicker">
+        {{ monthSelector(Date) }}
+        <div class="table-responsive">
+            <table class='table table-sm table-borderless'>
+                <tbody>
+                <tr>
+                    <td class="tdDOW-small tdDatePicker" id="{{ prevMonth|attr }}" title="{{ prevMonthFormatted|xla }}">&lt;</td>
+                    <td colspan="5" class="tdMonthName-small">
+                        {{ caldateFormatted|xl }}
+                    </td>
+                    <td class="tdDOW-small tdDatePicker" id="{{ nextMonth|attr }}" title="{{ nextMonthFormatted|xla }}">&gt;</td>
+                </tr>
+                <tr>
+                    {% for dow in DOWlist %}
+                        <td class='tdDOW-small'>{{ A_SHORT_DAY_NAMES[dow]|text }}</td>
+                    {% endfor %}
+                </tr>
+                {% for week in DOWCalendar %}
+                    <tr>
+                        {% for day in week %}
+                            <td class="{{ day['class']|attr }}" id="{{ day['id']|attr }}" title="{{ day['title']|attr }}">{{ day['text'] }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div id="bigCalHeader">
+    </div>
+
+    <div id="providerPicker">
+        {{ "Providers"|xlt }}
+        <div>
+            {% if facilitySelectorList|length > 1 %}
+                <select name='pc_facility' id='pc_facility' class='view1 form-control' >
+                    {% for facility in facilitySelectorList %}
+                        <option value="{{ facility.value|attr }}" {% if facility.selected %}selected="selected"{% endif %}>{{ facility.text|text }}</option>
+                    {% endfor %}
+                </select>
+            {% endif %}
+        </div>
+
+            <select multiple size='5' name='pc_username[]' id='pc_username' class='view2 form-control'>
+                {% for provider in providerSelectorList %}
+                    <option value="{{ provider.value|attr }}" {% if provider.selected %}selected="selected"{% endif %}>{{ provider.text|text }}</option>
+                {% endfor %}
+            </select>
+    </div>
+    {% if pc_facility == 0 %}
+        <ul class="list-group list-group-flush" id="facilityColor">
+            {% for facility in facilities %}
+                {% if facility.color %}
+                    <li class='list-group-item' style='border-left: 35px solid {{ facility.color }};'>{{ facility.name|text }}</li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <div id="popup" class="pop-up">
+        <img id="popupImage" alt="" />
+    </div>
+</div><!-- end bottomLeft -->

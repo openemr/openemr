@@ -5282,6 +5282,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/common.api.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method pcSmarty\\:\\:getVar\\(\\) has parameter \\$varName with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pcSmarty.class.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function smarty_function_pc_date_format\\(\\) has parameter \\$args with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/function.pc_date_format.php',
@@ -6152,6 +6157,96 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_day_view_calculate_next_month\\(\\) has parameter \\$cDay with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_day_view_calculate_next_month\\(\\) has parameter \\$cMonth with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_day_view_calculate_next_month\\(\\) has parameter \\$cYear with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_day_view_calculate_previous_month\\(\\) has parameter \\$cDay with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_day_view_calculate_previous_month\\(\\) has parameter \\$cMonth with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_day_view_calculate_previous_month\\(\\) has parameter \\$cYear with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_day_view_setup_vars\\(\\) has parameter \\$eventsByDate with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_day_view_setup_vars\\(\\) has parameter \\$tpl with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_month_view_setup_vars\\(\\) has parameter \\$Date with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_month_view_setup_vars\\(\\) has parameter \\$eventsByDate with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_month_view_setup_vars\\(\\) has parameter \\$provinfo with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_month_view_setup_vars\\(\\) has parameter \\$times with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_month_view_setup_vars\\(\\) has parameter \\$tpl with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_monthly_calendar_selector_vars\\(\\) has parameter \\$Date with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_monthly_calendar_selector_vars\\(\\) has parameter \\$eventsByDate with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_monthly_calendar_selector_vars\\(\\) has parameter \\$provinfo with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_monthly_calendar_selector_vars\\(\\) has parameter \\$times with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_monthly_calendar_selector_vars\\(\\) has parameter \\$tpl with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Function postcalendar_userapi_pcGetEvents\\(\\) has parameter \\$args with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
@@ -6163,6 +6258,16 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Function postcalendar_userapi_pcQueryEvents\\(\\) has parameter \\$args with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_selector_provider_vars\\(\\) has parameter \\$providers with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function postcalendar_userapi_selector_provider_vars\\(\\) has parameter \\$tpl with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
 ];
@@ -38157,6 +38262,156 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../src/Pharmacy/Services/ImportPharmacies.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:PrintDatePicker\\(\\) has parameter \\$DOWlist with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:PrintDatePicker\\(\\) has parameter \\$dateString with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:PrintDatePicker\\(\\) has parameter \\$daynames with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:generatePrintURL\\(\\) has parameter \\$Date with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:generatePrintURL\\(\\) has parameter \\$category with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:generatePrintURL\\(\\) has parameter \\$pc_username with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:generatePrintURL\\(\\) has parameter \\$template_view with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:generatePrintURL\\(\\) has parameter \\$topic with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:generatePrintURL\\(\\) has parameter \\$viewtype with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:monthSelector\\(\\) has parameter \\$Date with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:overlapDetection\\(\\) has parameter \\$calEndMin with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:overlapDetection\\(\\) has parameter \\$calStartMin with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:overlapDetection\\(\\) has parameter \\$events with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:overlapDetection\\(\\) has parameter \\$interval with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:overlapDetection\\(\\) has parameter \\$providerid with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:overlapDetection\\(\\) has parameter \\$times with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:renderProviderTimeSlots\\(\\) has parameter \\$calEndMin with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:renderProviderTimeSlots\\(\\) has parameter \\$calStartMin with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:renderProviderTimeSlots\\(\\) has parameter \\$closehour with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:renderProviderTimeSlots\\(\\) has parameter \\$date with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:renderProviderTimeSlots\\(\\) has parameter \\$events with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:renderProviderTimeSlots\\(\\) has parameter \\$interval with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:renderProviderTimeSlots\\(\\) has parameter \\$openhour with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:renderProviderTimeSlots\\(\\) has parameter \\$provider with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:renderProviderTimeSlots\\(\\) has parameter \\$providerid with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:renderProviderTimeSlots\\(\\) has parameter \\$timeformat with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:renderProviderTimeSlots\\(\\) has parameter \\$times with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:renderProviderTimeSlots\\(\\) has parameter \\$timeslotHeightUnit with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:renderProviderTimeSlots\\(\\) has parameter \\$timeslotHeightVal with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Method OpenEMR\\\\PostCalendar\\\\PostCalendarTwigExtensions\\:\\:renderProviderTimeSlots\\(\\) has parameter \\$viewtype with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarTwigExtensions.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Reminder\\\\BirthdayReminder\\:\\:__construct\\(\\) has parameter \\$pid with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../src/Reminder/BirthdayReminder.php',
@@ -48230,6 +48485,51 @@ $ignoreErrors[] = [
     'message' => '#^Method OpenEMR\\\\Tests\\\\Unit\\\\NumberToTextTest\\:\\:testConvert\\(\\) has parameter \\$text with no type specified\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../tests/Tests/Unit/NumberToTextTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function attr\\(\\) has parameter \\$text with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function attr_js\\(\\) has parameter \\$text with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function is_holiday\\(\\) has parameter \\$date with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function is_weekend_day\\(\\) has parameter \\$day with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function js_escape\\(\\) has parameter \\$text with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function text\\(\\) has parameter \\$text with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function xl\\(\\) has parameter \\$text with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function xla\\(\\) has parameter \\$text with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Function xlt\\(\\) has parameter \\$text with no type specified\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/run_tests.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Method RestApiEventHookExample\\\\Module\\:\\:addRestAPIRouteToMap\\(\\) has parameter \\$m with no type specified\\.$#',

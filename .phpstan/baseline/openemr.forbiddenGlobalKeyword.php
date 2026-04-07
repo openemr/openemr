@@ -1936,5 +1936,10 @@ $ignoreErrors[] = [
     'count' => 6,
     'path' => __DIR__ . '/../../tests/Tests/Services/CodeTypesServiceTest.php',
 ];
+$ignoreErrors[] = [
+    'message' => '#^Use of the "global" keyword is forbidden \\(\\$webroot\\)\\. Use dependency injection instead\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/PostCalendarTwigExtensionsTest.php',
+];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

@@ -552,41 +552,6 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuser.php',
 ];
 $ignoreErrors[] = [
-    'message' => '#^Constant _CALFRIDAYSHORT not found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Constant _CALMONDAYSHORT not found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Constant _CALSATURDAYSHORT not found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Constant _CALSUNDAYSHORT not found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Constant _CALTHURSDAYSHORT not found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Constant _CALTUESDAYSHORT not found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
-    'message' => '#^Constant _CALWEDNESDAYSHORT not found\\.$#',
-    'count' => 1,
-    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
-];
-$ignoreErrors[] = [
     'message' => '#^Constant _SETTING_FIRST_DAY_WEEK not found\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
@@ -625,6 +590,46 @@ $ignoreErrors[] = [
     'message' => '#^Constant NET_SFTP_TYPE_REGULAR not found\\.$#',
     'count' => 1,
     'path' => __DIR__ . '/../../library/edihistory/test_edih_sftp_files.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Constant _SETTING_DATE_FORMAT not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarRenderer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Constant _SETTING_DAY_HICOLOR not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarRenderer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Constant _SETTING_DISPLAY_TOPICS not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarRenderer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Constant _SETTING_OPEN_NEW_WINDOW not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarRenderer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Constant _SETTING_TEMPLATE not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarRenderer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Constant _SETTING_TIME_24HOUR not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarRenderer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Constant _SETTING_USE_INT_DATES not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarRenderer.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Constant _SETTING_USE_POPUPS not found\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../src/PostCalendar/PostCalendarRenderer.php',
 ];
 
 return ['parameters' => ['ignoreErrors' => $ignoreErrors]];

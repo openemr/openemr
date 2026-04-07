@@ -1547,6 +1547,11 @@ $ignoreErrors[] = [
     'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/plugins/modifier.pc_date_format.php',
 ];
 $ignoreErrors[] = [
+    'message' => '#^Cannot call method assign\\(\\) on mixed\\.$#',
+    'count' => 35,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
     'message' => '#^Cannot call method getData\\(\\) on bool\\|OpenEMR\\\\Validators\\\\ProcessingResult\\|null\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/main/finder/document_select.php',
@@ -10575,6 +10580,11 @@ $ignoreErrors[] = [
     'message' => '#^Cannot call method getStatusCode\\(\\) on mixed\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../tests/Tests/Unit/FHIR/SMART/ExternalClinicalDecisionSupport/RouteControllerTest.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Cannot call method format\\(\\) on DateTime\\|false\\.$#',
+    'count' => 4,
+    'path' => __DIR__ . '/../../tests/Tests/Unit/PostCalendar/PostCalendarTwigExtensionsTest.php',
 ];
 $ignoreErrors[] = [
     'message' => '#^Cannot call method getSinglePatientFixture\\(\\) on mixed\\.$#',

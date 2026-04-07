@@ -13,6 +13,11 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Left side of && is always true\\.$#',
+    'count' => 1,
+    'path' => __DIR__ . '/../../interface/main/calendar/modules/PostCalendar/pnuserapi.php',
+];
+$ignoreErrors[] = [
+    'message' => '#^Left side of && is always true\\.$#',
     'count' => 2,
     'path' => __DIR__ . '/../../interface/patient_file/merge_patients.php',
 ];
