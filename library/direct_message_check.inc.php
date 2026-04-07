@@ -177,7 +177,7 @@ function phimail_check(): void
 
     while (1) {
         phimail_write($fp, "CHECK\n");
-        $ret = fgets($fp, 512);
+        $ret = fgets($fp);
 
         if ($ret == "NONE\n") { //nothing to process
             phimail_close($fp);
@@ -280,16 +280,25 @@ function phimail_check(): void
 
             //get message headers
             $hdrs = "";
-            while (($next_hdr = fgets($fp, 1024)) != "\n") {
+            while (true) {
+                $next_hdr = fgets($fp);
+                if ($next_hdr === false) {
+                    phimail_logit(0, "M4 read headers failed");
+                    phimail_close($fp);
+                    return;
+                }
+                if ($next_hdr == "\n") {
+                    break;
+                }
                 $hdrs .= $next_hdr;
             }
 
-            $mime_type = fgets($fp, 512);
+            $mime_type = fgets($fp);
             $mime_info = explode(";", $mime_type);
             $mime_type_main = trim(strtolower($mime_info[0]));
 
             //get main message body
-            $body_len = fgets($fp, 256);
+            $body_len = fgets($fp);
             $body = phimail_read_blob($fp, $body_len);
             if ($body === false) {
                 phimail_logit(0, "M4 read body failed");
@@ -297,7 +306,7 @@ function phimail_check(): void
                 return;
             }
 
-            $att2 = fgets($fp, 256);
+            $att2 = fgets($fp);
             if ($att2 != $att) { //safety for mismatch on attachments
                 phimail_logit(0, "M5 attachment mismatch");
                 phimail_close($fp);
@@ -308,9 +317,9 @@ function phimail_check(): void
             if ($att > 0) {
                 for ($attnum = 0; $attnum < $att; $attnum++) {
                     if (
-                        ($attinfo[$attnum]['name'] = fgets($fp, 1024)) === false
-                        || ($attinfo[$attnum]['mime'] = fgets($fp, 1024)) === false
-                        || ($attinfo[$attnum]['desc'] = fgets($fp, 1024)) === false
+                        ($attinfo[$attnum]['name'] = fgets($fp)) === false
+                        || ($attinfo[$attnum]['mime'] = fgets($fp)) === false
+                        || ($attinfo[$attnum]['desc'] = fgets($fp)) === false
                     ) {
                         phimail_logit(0, "M6 read attachment " . ($attnum + 1) . " metadata failed");
                         phimail_close($fp);
@@ -357,13 +366,13 @@ function phimail_check(): void
                 }
 
                 //we can ignore next two lines (repeat of name and mime-type)
-                if (($a1 = fgets($fp, 512)) === false || ($a2 = fgets($fp, 512)) === false) {
+                if (($a1 = fgets($fp)) === false || ($a2 = fgets($fp)) === false) {
                     phimail_logit(0, "M9 skip attachment " . ($attnum + 1) . " duplicate header lines failed");
                     phimail_close($fp);
                     return;
                 }
 
-                $att_len = fgets($fp, 256); //length of file
+                $att_len = fgets($fp); //length of file
                 $attdata = phimail_read_blob($fp, $att_len);
                 if ($attdata === false) {
                     phimail_logit(0, "M10 read attachment " . ($attnum + 1) . " failed");
@@ -491,7 +500,7 @@ function phimail_write($fp, $text): void
 function phimail_write_expect_OK($fp, $text)
 {
     phimail_write($fp, $text);
-    $ret = fgets($fp, 256);
+    $ret = fgets($fp);
     if ($ret != "OK\n") { //unexpected error
         phimail_close($fp);
         return $ret;

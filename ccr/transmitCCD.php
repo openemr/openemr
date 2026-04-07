@@ -72,13 +72,13 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
         return( xl(ErrorConstants::RECIPIENT_NOT_ALLOWED) . " " . $ret );
     }
 
-    $ret = fgets($fp, 1024); //ignore extra server data
+    $ret = fgets($fp); //ignore extra server data
 
     $text_out = $message;
 
     $text_len = strlen((string) $text_out);
     phimail_write($fp, "TEXT $text_len\n");
-    $ret = @fgets($fp, 256);
+    $ret = @fgets($fp);
     if ($ret != "BEGIN\n") {
         phimail_close($fp);
         return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGE_BEGIN_FAILED);
@@ -204,7 +204,7 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
         return( xl(ErrorConstants::RECIPIENT_NOT_ALLOWED) . " " . $ret );
     }
 
-    $ret = fgets($fp, 1024); //ignore extra server data
+    $ret = fgets($fp); //ignore extra server data
 
     // add whatever the clinican added as a message to be sent.
     $text_out = "";
@@ -223,7 +223,7 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
 
     $text_len = strlen($text_out);
     phimail_write($fp, "TEXT $text_len\n");
-    $ret = @fgets($fp, 256);
+    $ret = @fgets($fp);
     if ($ret != "BEGIN\n") {
         phimail_close($fp);
         return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGE_BEGIN_FAILED);
@@ -249,7 +249,7 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
     $ccd_len = strlen((string) $ccd_out);
 
     phimail_write($fp, "ADD " . $add_type . " " . $ccd_len . " " . $att_filename . $extension . "\n");
-    $ret = fgets($fp, 256);
+    $ret = fgets($fp);
     if ($ret != "BEGIN\n") {
         phimail_close($fp);
         return("$config_err " . ErrorConstants::ERROR_CODE_ADD_FILE_FAILED);
