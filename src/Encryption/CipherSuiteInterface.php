@@ -34,9 +34,11 @@ interface CipherSuiteInterface
 
 
     /**
-     * Takes a sensitive value as a string and encrypts it, wrapping the
-     * encrypted data in a format that includes enough metadata to later
-     * decrypt it using the `decrypt()` method.
+     * Takes a secret value (as a raw string or a pre-wrapped `Plaintext`
+     * object), encrypts it, and returns an opaque string holding the encrypted
+     * data and a key identifier that can be used to decrypt it later. The
+     * return value of this method is guaranteed compatible with `decrypt()` so
+     * long as the key used to encrypt it is in the keychain.
      */
     public function encrypt(#[SensitiveParameter] Plaintext|string $plaintext): string;
 }
