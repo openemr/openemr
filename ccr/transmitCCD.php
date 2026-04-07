@@ -54,57 +54,54 @@ function transmitMessage($message, $recipient, $verifyFinalDelivery = false)
         return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGING_DISABLED);
     }
 
+    $phimail_username = OEGlobalsBag::getInstance()->getString('phimail_username');
+    $cryptoGen = ServiceContainer::getCrypto();
+    $phimail_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('phimail_password'));
+
     $fp = phimail_connect($err);
     if ($fp === false) {
         return("$config_err $err");
     }
 
-    $phimail_username = OEGlobalsBag::getInstance()->getString('phimail_username');
-    $cryptoGen = ServiceContainer::getCrypto();
-    $phimail_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('phimail_password'));
-    $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
-    if ($ret !== true) {
-        return("$config_err " . ErrorConstants::ERROR_CODE_AUTH_FAILED);
-    }
+    try {
+        $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
+        if ($ret !== true) {
+            return("$config_err " . ErrorConstants::ERROR_CODE_AUTH_FAILED);
+        }
 
-    $ret = phimail_write_expect_OK($fp, "TO $recipient\n");
-    if ($ret !== true) {
-        return( xl(ErrorConstants::RECIPIENT_NOT_ALLOWED) . " " . $ret );
-    }
+        $ret = phimail_write_expect_OK($fp, "TO $recipient\n");
+        if ($ret !== true) {
+            return( xl(ErrorConstants::RECIPIENT_NOT_ALLOWED) . " " . $ret );
+        }
 
-    $ret = fgets($fp); //ignore extra server data
+        $ret = fgets($fp); //ignore extra server data
 
-    $text_out = $message;
+        $text_out = $message;
 
-    $text_len = strlen((string) $text_out);
-    phimail_write($fp, "TEXT $text_len\n");
-    $ret = @fgets($fp);
-    if ($ret != "BEGIN\n") {
+        $text_len = strlen((string) $text_out);
+        phimail_write($fp, "TEXT $text_len\n");
+        $ret = @fgets($fp);
+        if ($ret != "BEGIN\n") {
+            return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGE_BEGIN_FAILED);
+        }
+
+        $ret = phimail_write_expect_OK($fp, $text_out);
+        if ($ret !== true) {
+            return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGE_BEGIN_OK_FAILED);
+        }
+
+        $finalFlag = $verifyFinalDelivery ? '1' : '0';
+        $ret = phimail_write_expect_OK($fp, "SET FINAL $finalFlag\n");
+        if ($ret !== true) {
+            return( xl(ErrorConstants::ERROR_MESSAGE_SET_DISPOSITION_NOTIFICATION_FAILED) . " " . $ret );
+        }
+
+        phimail_write($fp, "SEND\n");
+        $ret = fgets($fp);
+        phimail_write($fp, "OK\n");
+    } finally {
         phimail_close($fp);
-        return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGE_BEGIN_FAILED);
     }
-
-    $ret = phimail_write_expect_OK($fp, $text_out);
-    if ($ret !== true) {
-        return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGE_BEGIN_OK_FAILED);
-    }
-
-    if ($verifyFinalDelivery) {
-        $ret = phimail_write_expect_OK($fp, "SET FINAL 1\n");
-        if ($ret !== true) {
-            return( xl(ErrorConstants::ERROR_MESSAGE_SET_DISPOSITION_NOTIFICATION_FAILED) . " " . $ret );
-        }
-    } else {
-        $ret = phimail_write_expect_OK($fp, "SET FINAL 0\n");
-        if ($ret !== true) {
-            return( xl(ErrorConstants::ERROR_MESSAGE_SET_DISPOSITION_NOTIFICATION_FAILED) . " " . $ret );
-        }
-    }
-
-    phimail_write($fp, "SEND\n");
-    $ret = fgets($fp);
-    phimail_write($fp, "OK\n");
-    phimail_close($fp);
 
 
     if (substr($ret, 5) == "ERROR") {
@@ -186,96 +183,92 @@ function transmitCCD($pid, $ccd_out, $recipient, $requested_by, $xml_type = "CCD
         return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGING_DISABLED);
     }
 
+    $phimail_username = OEGlobalsBag::getInstance()->getString('phimail_username');
+    $cryptoGen = ServiceContainer::getCrypto();
+    $phimail_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('phimail_password'));
+
     $fp = phimail_connect($err);
     if ($fp === false) {
         return("$config_err $err");
     }
 
-    $phimail_username = OEGlobalsBag::getInstance()->getString('phimail_username');
-    $cryptoGen = ServiceContainer::getCrypto();
-    $phimail_password = $cryptoGen->decryptStandard(OEGlobalsBag::getInstance()->getString('phimail_password'));
-    $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
-    if ($ret !== true) {
-        return("$config_err " . ErrorConstants::ERROR_CODE_AUTH_FAILED);
-    }
+    try {
+        $ret = phimail_write_expect_OK($fp, "AUTH $phimail_username $phimail_password\n");
+        if ($ret !== true) {
+            return("$config_err " . ErrorConstants::ERROR_CODE_AUTH_FAILED);
+        }
 
-    $ret = phimail_write_expect_OK($fp, "TO $recipient\n");
-    if ($ret !== true) {
-        return( xl(ErrorConstants::RECIPIENT_NOT_ALLOWED) . " " . $ret );
-    }
+        $ret = phimail_write_expect_OK($fp, "TO $recipient\n");
+        if ($ret !== true) {
+            return( xl(ErrorConstants::RECIPIENT_NOT_ALLOWED) . " " . $ret );
+        }
 
-    $ret = fgets($fp); //ignore extra server data
+        $ret = fgets($fp); //ignore extra server data
 
-    // add whatever the clinican added as a message to be sent.
-    $text_out = "";
-    if (is_string($message) && trim($message) != "") {
-        $text_out = $message . "\n";
-    }
+        // add whatever the clinican added as a message to be sent.
+        $text_out = "";
+        if (is_string($message) && trim($message) != "") {
+            $text_out = $message . "\n";
+        }
 
-    if ($requested_by == "patient") {
-        $text_out .= xl("Delivery of the attached clinical document was requested by the patient") .
-            ($patientName2 == "" ? "." : ", " . $patientName2 . ".");
-    } else {
-        $text_out .= xl("A clinical document is attached") .
-            ($patientName2 == "" ? "." : " " . xl("for patient") . " " . $patientName2 . ".");
-    }
+        if ($requested_by == "patient") {
+            $text_out .= xl("Delivery of the attached clinical document was requested by the patient") .
+                ($patientName2 == "" ? "." : ", " . $patientName2 . ".");
+        } else {
+            $text_out .= xl("A clinical document is attached") .
+                ($patientName2 == "" ? "." : " " . xl("for patient") . " " . $patientName2 . ".");
+        }
 
 
-    $text_len = strlen($text_out);
-    phimail_write($fp, "TEXT $text_len\n");
-    $ret = @fgets($fp);
-    if ($ret != "BEGIN\n") {
-        phimail_close($fp);
-        return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGE_BEGIN_FAILED);
-    }
+        $text_len = strlen($text_out);
+        phimail_write($fp, "TEXT $text_len\n");
+        $ret = @fgets($fp);
+        if ($ret != "BEGIN\n") {
+            return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGE_BEGIN_FAILED);
+        }
 
-    $ret = phimail_write_expect_OK($fp, $text_out);
-    if ($ret !== true) {
-        return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGE_BEGIN_OK_FAILED);
-    }
+        $ret = phimail_write_expect_OK($fp, $text_out);
+        if ($ret !== true) {
+            return("$config_err " . ErrorConstants::ERROR_CODE_MESSAGE_BEGIN_OK_FAILED);
+        }
 
-    // MU2 CareCoordination added the need to send CCDAs formatted as html,pdf, or xml
-    if ($format_type == 'html') {
-        $add_type = "TEXT";
-    } elseif ($format_type == 'pdf') {
-        $add_type = "RAW";
-    } elseif ($format_type == 'xml') {
-        $add_type = $xml_type == "CCR" ? "CCR" : "CDA";
-    } else {
-        // unsupported format
-        return ("$config_err " . ErrorConstants::ERROR_CODE_INVALID_FORMAT_TYPE);
-    }
+        // MU2 CareCoordination added the need to send CCDAs formatted as html,pdf, or xml
+        $add_type = match ($format_type) {
+            'html' => "TEXT",
+            'pdf' => "RAW",
+            'xml' => $xml_type == "CCR" ? "CCR" : "CDA",
+            default => null,
+        };
+        if ($add_type === null) {
+            // unsupported format
+            return ("$config_err " . ErrorConstants::ERROR_CODE_INVALID_FORMAT_TYPE);
+        }
 
-    $ccd_len = strlen((string) $ccd_out);
+        $ccd_len = strlen((string) $ccd_out);
 
-    phimail_write($fp, "ADD " . $add_type . " " . $ccd_len . " " . $att_filename . $extension . "\n");
-    $ret = fgets($fp);
-    if ($ret != "BEGIN\n") {
-        phimail_close($fp);
-        return("$config_err " . ErrorConstants::ERROR_CODE_ADD_FILE_FAILED);
-    }
+        phimail_write($fp, "ADD " . $add_type . " " . $ccd_len . " " . $att_filename . $extension . "\n");
+        $ret = fgets($fp);
+        if ($ret != "BEGIN\n") {
+            return("$config_err " . ErrorConstants::ERROR_CODE_ADD_FILE_FAILED);
+        }
 
-    $ret = phimail_write_expect_OK($fp, $ccd_out);
-    if ($ret !== true) {
-        return("$config_err " . ErrorConstants::ERROR_CODE_ADD_FILE_CONFIRM_FAILED);
-    }
+        $ret = phimail_write_expect_OK($fp, $ccd_out);
+        if ($ret !== true) {
+            return("$config_err " . ErrorConstants::ERROR_CODE_ADD_FILE_CONFIRM_FAILED);
+        }
 
-    if ($verifyFinalDelivery) {
-        $ret = phimail_write_expect_OK($fp, "SET FINAL 1\n");
+        $finalFlag = $verifyFinalDelivery ? '1' : '0';
+        $ret = phimail_write_expect_OK($fp, "SET FINAL $finalFlag\n");
         if ($ret !== true) {
             return( xl(ErrorConstants::ERROR_MESSAGE_SET_DISPOSITION_NOTIFICATION_FAILED) . " " . $ret );
         }
-    } else {
-        $ret = phimail_write_expect_OK($fp, "SET FINAL 0\n");
-        if ($ret !== true) {
-            return( xl(ErrorConstants::ERROR_MESSAGE_SET_DISPOSITION_NOTIFICATION_FAILED) . " " . $ret );
-        }
-    }
 
-    phimail_write($fp, "SEND\n");
-    $ret = fgets($fp);
-    phimail_write($fp, "OK\n");
-    phimail_close($fp);
+        phimail_write($fp, "SEND\n");
+        $ret = fgets($fp);
+        phimail_write($fp, "OK\n");
+    } finally {
+        phimail_close($fp);
+    }
 
     if ($requested_by == "patient") {
         $reqBy = "portal-user";

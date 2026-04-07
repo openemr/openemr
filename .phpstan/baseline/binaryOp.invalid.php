@@ -68,7 +68,7 @@ $ignoreErrors[] = [
 ];
 $ignoreErrors[] = [
     'message' => '#^Binary operation "\\." between non\\-falsy\\-string and mixed results in an error\\.$#',
-    'count' => 9,
+    'count' => 7,
     'path' => __DIR__ . '/../../ccr/transmitCCD.php',
 ];
 $ignoreErrors[] = [
