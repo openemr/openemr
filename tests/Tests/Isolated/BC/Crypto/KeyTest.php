@@ -17,7 +17,6 @@ namespace OpenEMR\Tests\Isolated\BC\Crypto;
 use OpenEMR\BC\Crypto\Key;
 use OpenEMR\Common\Crypto\KeySource;
 use OpenEMR\Common\Crypto\KeyVersion;
-use OpenEMR\Encryption\KeyId;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 

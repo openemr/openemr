@@ -18,7 +18,6 @@ namespace OpenEMR\Tests\Isolated\BC\Crypto;
 
 use OpenEMR\BC\Crypto\KeyV7Generator;
 use OpenEMR\Encryption\Cipher\Aes256CbcHmacSha384;
-use OpenEMR\Encryption\Cipher\CipherInterface;
 use OpenEMR\Encryption\Plaintext;
 use OpenEMR\Encryption\Storage\KeyMaterialId;
 use OpenEMR\Tests\Fixtures\InMemoryKeyStorage;
