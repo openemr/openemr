@@ -86,7 +86,9 @@ class UserManagementApiTest extends TestCase
 
     private function getLastCreatedUsername(): string
     {
-        return self::$createdUsernames[array_key_last(self::$createdUsernames)];
+        $lastKey = array_key_last(self::$createdUsernames);
+        self::assertNotNull($lastKey, 'No usernames have been created yet');
+        return self::$createdUsernames[$lastKey];
     }
 
     // ----------------------------------------------------------------
