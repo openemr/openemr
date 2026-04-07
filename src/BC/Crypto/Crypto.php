@@ -59,7 +59,7 @@ final readonly class Crypto implements CryptoInterface
     public function encryptStandard(?string $value, KeySource $keySource = KeySource::Drive): string
     {
         if ($value === null || $value === '') {
-            // Should this warn?
+            $this->logger->warning('Encrypting a null or empty value');
             return '';
         }
 
@@ -86,7 +86,7 @@ final readonly class Crypto implements CryptoInterface
     public function decryptStandard(?string $value, KeySource $keySource = KeySource::Drive, ?int $minimumVersion = null): false|string
     {
         if ($value === null || $value === '') {
-            // Should this warn?
+            $this->logger->info('Decrypting a null or empty value');
             return '';
         }
 
