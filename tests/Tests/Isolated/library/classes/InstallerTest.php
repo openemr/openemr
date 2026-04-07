@@ -807,7 +807,7 @@ class InstallerTest extends TestCase
 
         $mockInstaller->expects($this->exactly(2))
             ->method('getLine')
-            ->with($mockResource, 1024)
+            ->with($mockResource)
             ->willReturnOnConsecutiveCalls(
                 "CREATE TABLE users;",
                 "INSERT INTO users VALUES (1, 'admin');"
@@ -882,7 +882,7 @@ class InstallerTest extends TestCase
 
         $mockInstaller->expects($this->once())
             ->method('getLine')
-            ->with($mockResource, 1024)
+            ->with($mockResource)
             ->willReturn("CREATE TABLE users;");
 
         $mockInstaller->expects($this->exactly(3))
@@ -3409,8 +3409,8 @@ class InstallerTest extends TestCase
      *
      *   UPDATE layout_options SET uor = 0WHERE form_id = 'DEM'
      *
-     * The fix inserts a single space between concatenated lines at real
-     * line boundaries, restoring valid token separation.
+     * The fix inserts a single space between concatenated lines, restoring
+     * valid token separation.
      */
     public function testLoadFileInsertsSpaceSeparatorBetweenSqlLines(): void
     {
@@ -3430,12 +3430,9 @@ class InstallerTest extends TestCase
                 return $eofCallCount > 3;
             });
 
-        // Each fgets() result includes the trailing newline that signals a
-        // complete line; load_file() relies on this to know it can safely
-        // insert a separator.
         $mockInstaller->expects($this->exactly(3))
             ->method('getLine')
-            ->with($mockResource, 1024)
+            ->with($mockResource)
             ->willReturnOnConsecutiveCalls(
                 "UPDATE layout_options SET uor = 0\n",
                 "WHERE form_id = 'DEM' AND seq > 10\n",
@@ -3474,59 +3471,6 @@ class InstallerTest extends TestCase
         // Must contain "10 AND" (with space), not "10AND" (fused)
         $this->assertStringContainsString('10 AND', $completeUpdateStatement);
         $this->assertStringNotContainsString('10AND', $completeUpdateStatement);
-    }
-
-    /**
-     * Regression test: a single SQL line longer than the 1024-byte fgets()
-     * buffer is read as multiple chunks. load_file() must NOT insert a
-     * separator between those chunks — doing so would corrupt tokens that
-     * span chunk boundaries (e.g. hex literals like 0x3c68746d6c...).
-     */
-    public function testLoadFileDoesNotInsertSeparatorBetweenChunksOfSameLine(): void
-    {
-        $mockInstaller = $this->buildLoadFileMock();
-        $mockResource = fopen('php://memory', 'w+');
-
-        $mockInstaller->expects($this->once())
-            ->method('openFile')
-            ->willReturn($mockResource);
-
-        $eofCallCount = 0;
-        $mockInstaller->expects($this->exactly(4))
-            ->method('atEndOfFile')
-            ->willReturnCallback(function ($resource) use (&$eofCallCount) {
-                $eofCallCount++;
-                return $eofCallCount > 3;
-            });
-
-        // Three chunks of one logical line — only the final chunk ends in
-        // "\n". The first two simulate fgets() returning a partial chunk
-        // because the buffer filled up before the newline.
-        $mockInstaller->expects($this->exactly(3))
-            ->method('getLine')
-            ->willReturnOnConsecutiveCalls(
-                "INSERT INTO t VALUES (0x3c68746d6c",
-                "3e0d0a3c2f68746d6c3e",
-                ");\n"
-            );
-
-        $executedSql = [];
-        $mockInstaller->expects($this->exactly(5))
-            ->method('execute_sql')
-            ->willReturnCallback(function ($sql) use (&$executedSql) {
-                $executedSql[] = $sql;
-                return true;
-            });
-
-        $mockInstaller->expects($this->once())->method('closeFile')->willReturn(true);
-
-        $mockInstaller->load_file('/path/to/test.sql', 'Test SQL');
-
-        // The assembled INSERT must contain the unbroken hex literal.
-        $this->assertSame(
-            'INSERT INTO t VALUES (0x3c68746d6c3e0d0a3c2f68746d6c3e)',
-            $executedSql[2]
-        );
     }
 
     /**

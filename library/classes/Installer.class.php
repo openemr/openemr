@@ -471,38 +471,26 @@ class Installer
             return false;
         }
 
-        // Track whether the previous fgets() chunk reached an actual line
-        // boundary (ended in "\n") or was a partial chunk of a long line that
-        // exceeded the 1024-byte buffer. We can only insert a separator at
-        // real line boundaries — inserting one mid-line would break tokens
-        // like hex literals (0x...) that are split across chunks.
-        $prevReachedEol = true;
         while (!$this->atEndOfFile($fd)) {
-            $rawLine = $this->getLine($fd, 1024);
+            $rawLine = $this->getLine($fd);
             if ($rawLine === false) {
                 continue;
             }
-            $reachedEol = str_ends_with($rawLine, "\n");
             $line = rtrim($rawLine);
             if ($line === "" || str_starts_with($line, "--") || str_starts_with($line, "#")) {
-                // A skipped line still counts as a line boundary if it
-                // actually ended in a newline.
-                if ($reachedEol) {
-                    $prevReachedEol = true;
-                }
                 continue;
             }
 
-            // Insert a single space separator only when we are starting a
-            // new logical line (previous chunk ended in newline) and there
-            // is already buffered query text. This fixes #10935 — without
-            // a separator, a continuation line at column 0 would fuse with
-            // the previous token (e.g. "= 0" + "WHERE" → "0WHERE").
-            if ($prevReachedEol && $query !== "") {
+            // Insert a single space separator between concatenated lines.
+            // Without it, a continuation line starting at column 0 would
+            // fuse with the previous token (e.g. "= 0" + "WHERE" → "0WHERE",
+            // see #10935). getLine() is unbounded, so every call returns a
+            // complete logical line and the separator is always safe to
+            // insert.
+            if ($query !== "") {
                 $query .= " ";
             }
             $query .= $line;
-            $prevReachedEol = $reachedEol;
             $chr = substr($query, strlen($query) - 1, 1);
             if ($chr == ";") { // valid query, execute
                 $query = rtrim($query, ";");
@@ -2140,12 +2128,11 @@ SETHLP;
      * @codeCoverageIgnore
      *
      * @param resource $stream
-     * @param int $length
      * @return string|false
      */
-    protected function getLine($stream, int $length): string|false
+    protected function getLine($stream): string|false
     {
-        return fgets($stream, $length);
+        return fgets($stream);
     }
 
     /**
