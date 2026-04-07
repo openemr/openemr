@@ -933,12 +933,10 @@ function show_PRIOR_CANVAS_section(section, newValue) {
     var zone   = section;
     const params = new URLSearchParams({
         as_file: 'false',
-        document: '',
         document_id: newValue,
         patient_id: pid,
-        retrieve: ''
     });
-    const result = base + '/controller.php?' + params.toString();
+    const result = base + '/controller.php?document&retrieve&' + params.toString();
     const cp_forward = '<button onclick="replace_CANVAS(\''+zone+'\',\''+result+'\'); return false;" id="Replace_Canvas_ANTSEG" class="ui-button ui-corner-all ui-widget"><?php echo xlt('Use this image'); ?></button>';
     const filler = "<div class='tools text-info'><?php echo xlt('Previous Encounter Drawings'); ?>: "+cp_forward+"</div><div class='borderShadow'><img src='"+result+"' alt='<?php echo xla("Loading prior image");?>...'></div>";
 
@@ -1043,22 +1041,13 @@ function editScripts(url) {
     var pid = $('#pid').val();
         var AddScript = function () {
             var iam = top.frames.editScripts;
-            const params = new URLSearchParams({
-                edit: '',
-                id: '',
-                pid: pid,
-                prescription: ''
-            });
-            iam.location.href = base + "/controller.php?" + params;
+            const params = new URLSearchParams({ id: '', pid: pid });
+            iam.location.href = base + "/controller.php?prescription&edit&" + params;
         };
         var ListScripts = function () {
             var iam = top.frames.editScripts;
-            const params = new URLSearchParams({
-                id: pid,
-                list: '',
-                prescription: ''
-            });
-            iam.location.href = base + "/controller.php?" + params;
+            const params = new URLSearchParams({ id: pid });
+            iam.location.href = base + "/controller.php?prescription&list&" + params;
         };
 
         let title = 'Prescriptions';
@@ -1893,17 +1882,6 @@ function goto_url(url) {
     R =  url;
     top.restoreSession();
     location.href = R;
-}
-//is this used anywhere?  Looks like it should be deleted...
-function openImage() {
-    const params = new URLSearchParams({
-        as_file: 'false',
-        document: '',
-        document_id: '10',
-        patient_id: '3',
-        retrieve: ''
-    });
-    dlgopen(base + '/controller.php?' + params.toString(), '_blank', 600, 475);
 }
 
 // Called to open a document in another tab for this encounter.
