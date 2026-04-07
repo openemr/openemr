@@ -13,14 +13,14 @@ declare(strict_types=1);
 namespace OpenEMR\Tests\Isolated\Encryption;
 
 use OpenEMR\Encryption\Cipher\CipherInterface;
-use OpenEMR\Encryption\Ciphertext;
 use OpenEMR\Encryption\CipherSuite;
+use OpenEMR\Encryption\Ciphertext;
 use OpenEMR\Encryption\KeyId;
 use OpenEMR\Encryption\Keys\KeychainInterface;
 use OpenEMR\Encryption\Plaintext;
 use PHPUnit\Framework\Attributes\Small;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 #[Small]
 class CipherSuiteTest extends TestCase
