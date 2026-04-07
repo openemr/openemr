@@ -26,13 +26,13 @@ use PHPUnit\Framework\TestCase;
 
 final class KeyV7GeneratorTest extends TestCase
 {
-    public function testGenerateDbKeyReturnsCipher(): void
+    public function testGenerateDbKeyReturnsCorrectCipher(): void
     {
         $storage = new InMemoryKeyStorage();
 
         $cipher = KeyV7Generator::generateDbKey($storage);
 
-        self::assertInstanceOf(CipherInterface::class, $cipher);
+        self::assertInstanceOf(Aes256CbcHmacSha384::class, $cipher);
     }
 
     public function testGenerateDbKeyStoresEncryptionKey(): void
@@ -46,13 +46,6 @@ final class KeyV7GeneratorTest extends TestCase
             Aes256CbcHmacSha384::KEY_LENGTH,
             strlen($storage->getKey(new KeyMaterialId('sevena'))->key),
         );
-    }
-
-    public function testGenerateDbKeyStoresHmacKey(): void
-    {
-        $storage = new InMemoryKeyStorage();
-
-        KeyV7Generator::generateDbKey($storage);
 
         self::assertTrue($storage->has('sevenb'));
         self::assertSame(32, strlen($storage->getKey(new KeyMaterialId('sevenb'))->key));
