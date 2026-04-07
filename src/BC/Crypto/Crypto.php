@@ -25,7 +25,9 @@ use OpenEMR\Encryption\{
     MessageFormat,
     Plaintext,
 };
+use OutOfBoundsException;
 use Psr\Log\LoggerInterface;
+use Throwable;
 
 /**
  * @deprecated
@@ -90,7 +92,7 @@ final readonly class Crypto implements CryptoInterface
             $keyVersion = KeyVersion::fromPrefix($value);
 
             if ($minimumVersion !== null && $keyVersion->value < $minimumVersion) {
-                throw new \Exception('Data is below minimum allowed version');
+                throw new OutOfBoundsException('Data is below minimum allowed version');
             }
 
             $bcKey = Key::fromCryptoGen($keyVersion, $keySource);
@@ -101,7 +103,7 @@ final readonly class Crypto implements CryptoInterface
             $cipher = $this->keychain->getCipher($keyId);
 
             return $cipher->decrypt($message->ciphertext)->bytes;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->logger->warning('Decrypting data failed', ['exception' => $e]);
             return false;
         }
@@ -115,7 +117,7 @@ final readonly class Crypto implements CryptoInterface
         try {
             Message::parse($value);
             return true;
-        } catch (\Throwable) {
+        } catch (Throwable) {
             return false;
         }
     }
