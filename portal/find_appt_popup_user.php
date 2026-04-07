@@ -180,7 +180,7 @@ if ($_REQUEST['providerid']) {
         "FROM openemr_postcalendar_events " .
         "WHERE pc_aid = ? AND " .
         "((pc_endDate >= ? AND pc_eventDate < ?) OR " .
-        "(pc_endDate = '0000-00-00' AND pc_eventDate >= ? AND pc_eventDate < ?))";
+        "(pc_endDate IS NULL AND pc_eventDate >= ? AND pc_eventDate < ?))";
 
     $sqlBindArray = [];
     array_push($sqlBindArray, $providerid, $sdate, $edate, $sdate, $edate);
